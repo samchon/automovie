@@ -110,7 +110,7 @@ export namespace AutoMovieMotionHumanRise {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is solved on the posture written so far, so a raised or leaned root is followed.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `foot` and `AutoMovieMotionHumanLeg.goal`.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per written second.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over their props.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over their props and retain no current placement, posture, time or FK workspace. Their declared input demand keeps the current root and own leg, including unchanged own-leg joints, while unrelated primitive writers may be omitted.
    */
   export function legs(props: {
     body: IHumanBody;
@@ -122,6 +122,7 @@ export namespace AutoMovieMotionHumanRise {
     return (["left", "right"] as const).map(
       (side: "left" | "right"): IAutoMovieMotionHumanPrimitive => ({
         channels: [`${side}Leg`],
+        reads: ["root", `${side}Leg`],
         from: props.from,
         to: props.to,
         write: (posture: IHumanPosture, seconds: number): IHumanPosture => {

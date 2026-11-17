@@ -15,6 +15,7 @@ import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { floorEntry } from "./floorEntry";
+import { prepareCrawlPalms } from "./prepareCrawlPalms";
 
 /**
  * The pieces the crawls on the hands share: where a wrist stands over its
@@ -130,7 +131,27 @@ export namespace crawlFrame {
     palm: (side: "left" | "right") => IAutoMovieVector3,
     forward: IAutoMovieVector3,
   ): IHumanPosture {
-    return prepareLaid(body, forward)(posture, palm);
+    let out: IHumanPosture = posture;
+    for (const side of ["left", "right"] as const)
+      out = {
+        ...out,
+        joints: { ...out.joints, ...HumanHand.shape(side, "flat") },
+        limbs: {
+          ...out.limbs,
+          [`${side}Arm`]: AutoMovieMotionHumanArm.goal(
+            body,
+            side,
+            AutoMovieMotionHumanTarget.hand(
+              body,
+              out,
+              side,
+              { point: palm(side), normal: { x: 0, y: 1, z: 0 } },
+              { surface: "palm", shape: "flat", forward },
+            ),
+          ),
+        },
+      };
+    return out;
   }
 
   /**
@@ -138,58 +159,19 @@ export namespace crawlFrame {
    * floor points and the current trunk change; each arm's original default
    * elbow solve still runs on that posture and point.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States fixed palm geometry, changing inputs and the unchanged elbow search.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates palm geometry to Target.prepareHand and the actual wrist/contact goal to Arm.goal, with the same flat shape, upward floor normal and explicit heading vector as laid.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two prepared target readers and two fixed flat shapes precede the original ordered left/right goal writes.
+   * @evidence contracts/development/common.md#meaningful-documentation States explicit fixed palm geometry and unchanged elbow searches. Callers must keep current root/trunk/forward unchanged across their same-call palm callbacks; the generic laid facade retains its original callback/read sequence instead of opting into this contract.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the same flat-palm/upward-floor-normal/explicit-forward geometry to prepareCrawlPalms, which shares each actual wrist between its native default bend and final contact-goal owner.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepared two-palm owner preserves ordered left/right writes while keeping surface geometry, actual bend solving and goal assembly with their original owners.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not substitute a bend preset or cache a pose, elbow solution or time query; each actual target still executes its default bend policy.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed orientation/offset geometry and flat shape construction are shared across a plan; changing point placement and the two actual bend solves remain per query.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body's hand surfaces, flat shape, floor normal and explicit forward stay fixed; the target owner validates this preparation by construction, while postures and palm points remain independent.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed orientation/offset/contact geometry and flat shapes share across a plan; each current wrist is placed once for its actual bend and contact goal, with both original numerical bend searches retained.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit caller holds body/hand surfaces, flat shape, floor normal and forward fixed for the reader and preserves current trunk scalars across its two palm callbacks. Actual native crawl callers satisfy this source contract; generic callbacks use laid's unprepared original sequence.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns two fixed hand readers until release and borrows the module's two immutable flat shape maps; neither the readers nor those constants retain an evaluated posture, FK workspace or query history.
    */
   export function prepareLaid(
     body: IHumanBody,
     forward: IAutoMovieVector3,
-  ): (
-    posture: IHumanPosture,
-    palm: (side: "left" | "right") => IAutoMovieVector3,
-  ) => IHumanPosture {
-    const targets: Record<
-      "left" | "right",
-      ReturnType<typeof AutoMovieMotionHumanTarget.prepareHand>
-    > = {
-      left: AutoMovieMotionHumanTarget.prepareHand(
-        body,
-        "left",
-        { x: 0, y: 1, z: 0 },
-        { surface: "palm", shape: "flat", forward },
-      ),
-      right: AutoMovieMotionHumanTarget.prepareHand(
-        body,
-        "right",
-        { x: 0, y: 1, z: 0 },
-        { surface: "palm", shape: "flat", forward },
-      ),
-    };
-    return (
-      posture: IHumanPosture,
-      palm: (side: "left" | "right") => IAutoMovieVector3,
-    ): IHumanPosture => {
-      let out: IHumanPosture = posture;
-      for (const side of ["left", "right"] as const)
-        out = {
-          ...out,
-          joints: { ...out.joints, ...FLAT[side] },
-          limbs: {
-            ...out.limbs,
-            [`${side}Arm`]: AutoMovieMotionHumanArm.goal(
-              body,
-              side,
-              targets[side](out, palm(side)),
-            ),
-          },
-        };
-      return out;
-    };
+  ): ReturnType<typeof prepareCrawlPalms> {
+    return prepareCrawlPalms(body, forward, FLAT);
   }
 
   /**

@@ -13,6 +13,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
@@ -46,7 +47,14 @@ import { GymnasticsFlight } from "../sport/GymnasticsFlight";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts With neither parameter given the plan is returned as it is, so a carry without the phases is what it was.
  */
 export namespace HumanCarriedLift {
-  /** The two phases' lengths. */
+  /**
+   * The two carried-body phase lengths.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Both optional fields define action-relative seconds, zero defaults and nonnegative authored phase lengths.
+   * @evidence contracts/development/design.md#principled-representation Existing plain seconds and specification minimum/unit tags describe lift and set-down; proportional fitting to the action duration remains the wrapper's rule.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the two phase lengths are authored; the carried plan continues to own its posture, contacts and timing.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Adds no target, carry kind, fit answer or acceptance flag; zero phases preserve the original plan identity.
+   */
   export interface IParams {
     /** Seconds the lift into the carry takes, at the start; none when absent. */
     lift?: number & tags.Minimum<0> & HumanUnit<"s">;
@@ -67,9 +75,9 @@ export namespace HumanCarriedLift {
    * @evidence contracts/development/implementation.md#principled-implementation The posture at a second is the carry's own, blended from the entry posture while the lift lasts and toward a stand under the carried root while the set-down lasts; phases longer than the carry are scaled to fill it. Both ends' displayed roots include their whole-body rotations (`turnHumanPosture`); their positions are blended linearly and their rotations by quaternion slerp, represented as a correction after the blended Euler heading, so a rotation carried outside those angles cannot disappear when a phase starts.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two weights, one blend, the contact windows cut to the hold and the feet's floor windows around it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The heading is blended the short way round; a limb goal is blended as the joint angles its solve gives, so no limb jumps when the blend starts or ends.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolution of the carry and one blend over the joints per evaluated second of a phase; the entry is resolved once.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Postures are evaluated independently; nothing is cached.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the carry's plan and the entry posture.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The entry still resolves once; each actual phase query retains its original complete frozen carry fit and joint blend. The underlying carry and phase fit borrow one native exact workspace, optional genuine ROM metadata stays current-query only, and scalar minimum-jerk demand omits unused derivatives/profile records. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Canonical current-query FK3/ROM4 reaches the same-body carried plan and GymnasticsFlight.frozen; native scalar dependency checks still observe every changed held posture. No pose, fit or time answer is shared, and foreign bearer reads retain independent sources.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its original carried plan, fixed phase scalars and entry/frozen-entry posture. Each invocation owns one lazy exact getter and borrows its optional parent/projector only through synchronous return or failure; no query reader, mapper, current frozen pose or map enters retained output history.
    */
   export function over(
     context: IHumanActionContext<IParams>,
@@ -91,7 +99,7 @@ export namespace HumanCarriedLift {
     // blended from where that goal put it, never dropped at the start or
     // taken whole half way, and the blend meets each end's displayed pose.
     const stood: IHumanPosture = GymnasticsFlight.frozen(body, entry);
-    const ease = (x: number): number => minimumJerk(x).s;
+    const ease: (x: number) => number = (x: number): number => minimumJerk.share(x);
     const mix = (
       from: IHumanPosture,
       to: IHumanPosture,
@@ -191,20 +199,26 @@ export namespace HumanCarriedLift {
           ],
         ),
       ],
-      posture: (at: number): IHumanPosture => {
-        const held: IHumanPosture = plan.posture(at);
+      posture: (
+        at: number,
+        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        source?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => {
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+        const held: IHumanPosture = plan.posture(at, undefined, resolution, projection);
         if (lift > 0 && at < lift) {
           const w: number = ease(at / lift);
           return w <= 0
             ? entry
-            : mix(stood, GymnasticsFlight.frozen(body, held), w);
+            : mix(stood, GymnasticsFlight.frozen(body, held, resolution, projection), w);
         }
         if (setDown > 0 && at > plan.duration - setDown) {
           const w: number = ease((at - (plan.duration - setDown)) / setDown);
           return w <= 0
             ? held
             : mix(
-                GymnasticsFlight.frozen(body, held),
+                GymnasticsFlight.frozen(body, held, resolution, projection),
                 {
                   ...stood,
                   root: { x: held.root.x, y: stood.root.y, z: held.root.z },

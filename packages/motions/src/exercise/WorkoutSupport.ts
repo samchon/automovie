@@ -61,8 +61,8 @@ export namespace WorkoutSupport {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States entry time, world point, borrowed frame/primary affordance, ordered two-point midpoint and refusal order.
    * @evidence contracts/development/implementation.md#principled-implementation Reads the actual prop frame once at context.start, transforms each first-matching named affordance translation by that frame and preserves the original ordered midpoint when other is present.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered lookup owner preserves missing-affordance refusal; one rigid transform owner constructs points, and the final record exposes the already observed primary/frame to real vault consumers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing names retain the original refusal and listed alternatives, duplicate ids keep the first match, and no target, affordance extent or prop frame is guessed or cached across times.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure After the original frame preparation, the other-property branch is read before primary lookup/point. One lookup and rigid-transform owner then exposes the already observed primary/frame to real vault consumers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the original other-property observation before the primary lookup, then its second read only in the two-point branch after the first point. Missing names keep original refusal/alternatives, duplicate ids keep the first match, and no target, extent or frame is guessed or cached across times.
    * @evidence contracts/development/implementation.md#efficient-algorithms One frame read and one or two ordered O(A) searches for A affordances produce the point and metadata together; callers need no repeated prop/frame read or primary search.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Point, frame and primary affordance belong to this exact synchronous entry observation. At delegates here, and consumers borrow those actual values rather than starting a second observation of the same prop/time.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned point/frame/affordance record survives under the caller's ownership; this owner stores no plan, prop reader, observation, current pose or time history.
@@ -104,15 +104,13 @@ export namespace WorkoutSupport {
         frame.position,
         Quaternion.rotateVector(frame.rotation, affordance.frame.translation),
       );
+    const single: boolean = on.other === undefined;
     const affordance: IAutoMovieAffordance = find(on.affordance);
     const first: IAutoMovieVector3 = point(affordance);
 
     // Two affordances, as a dip station's two bars, bear at their middle.
     return {
-      point:
-        on.other === undefined
-          ? first
-          : Vector3.lerp(first, point(find(on.other)), 0.5),
+      point: single ? first : Vector3.lerp(first, point(find(on.other!)), 0.5),
       frame,
       affordance,
     };

@@ -16,7 +16,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { jumpPath } from "./jumpPath";
 import { jumpPushEnd } from "./jumpPushEnd";
@@ -50,7 +50,7 @@ export namespace jumpPush {
     /** The body. */
     body: IHumanBody;
 
-    /** The state the jump is entered from. */
+    /** The fixed entry snapshot supplying this push's initial values and rates. */
     entry: IHumanEntryState;
 
     /** The foot that pushes off. */
@@ -122,7 +122,7 @@ export namespace jumpPush {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states what it gives.
    * @evidence contracts/development/design.md#principled-representation The paths the jump's posture reads through the push and after.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One phase sample, the entered arm rates and one complete leg writer are all consumed by jumpPushPosture.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One phase sample, the fixed-entry arm course and one complete leg writer serve jumpPushPosture; the original entered-rate view remains available without changing its meaning.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The legs are written whole, so no caller recombines their parts.
    */
   export interface IPush {
@@ -133,8 +133,8 @@ export namespace jumpPush {
      * @evidence contracts/development/implementation.md#principled-implementation jumpPush.of evaluates the same root Hermite, minimum-jerk progress and engine carriedRate, then the original heading/pelvis formulas with their exact terminal values.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One explicit value record feeds arm assembly, the heel's actual hip and the final raw posture.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No lowered root, sampled replacement curve, changed entry rate or timing epsilon enters the sample.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Fixed-size arithmetic evaluates each shared root/progress/carry/yaw/pelvis quantity once per requested phase sample, with speedup unmeasured.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Consumers share only this exact local time's explicit values; different times construct independent samples and no callback result cache is retained.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Fixed entry/target differences prepare once. Each requested phase still evaluates its shared root/progress/carry/yaw/pelvis arithmetic once, with speedup unmeasured.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed planned entry/targets permit coefficient reuse; consumers share only this exact local time's explicit phase values. Different times construct independent samples without a callback result cache.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh phase record/root and interior pelvis tuple; the terminal pelvis retains its existing readonly endpoint tuple. No query history or resource is retained.
      */
     sample: (t: number) => IPhase;
@@ -143,14 +143,27 @@ export namespace jumpPush {
      * An upper arm's entry flexion rate, degrees per second.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Names the side and clinical flexion-rate unit.
-     * @evidence contracts/development/implementation.md#principled-implementation jumpPush.of reads that bone's entered joint-rate map, with the declared absent rate of zero.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One existing map lookup.
+     * @evidence contracts/development/implementation.md#principled-implementation jumpPush.of reads that bone's entered joint-rate map once, with the declared absent rate of zero, and keeps it with the same arm course.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepared scalar read.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not resample, scale or clamp an available entry rate.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant-time map access.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant-time scalar access.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual push arm writer uses this same entered rate.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no new resource.
      */
     swinging: (side: "left" | "right") => number;
+
+    /**
+     * The upper-arm flexion at one current push sample, clinical degrees.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Names the phase sample, side and clinical-degree result from the original entered angle/rate.
+     * @evidence contracts/development/implementation.md#principled-implementation The actual producer retains entered+(60-entered)*progress+entryRate*carry in its original addition order, including its endpoint arithmetic.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure Two fixed entry tracks supply the same current sample's progress/carry without another clock evaluation.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rate normalization, new clamp, nominal terminal substitution or altered shoulder target is used.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic reads prepared start/difference/rate instead of repeating entry-map lookups and subtraction; speedup is unmeasured.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The immutable planned entry fixes each track, while every current progress/carry remains evaluated from the supplying phase sample without a time/result cache.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The supplying push owns two three-scalar tracks; this method returns only a number and retains no phase, root, result or reader.
+     */
+    arm: (phase: IPhase, side: "left" | "right") => number;
 
     /**
      * Write the pelvis, both legs and toes at a local push second.
@@ -211,9 +224,9 @@ export namespace jumpPush {
    * @evidence contracts/development/implementation.md#principled-implementation Each moved part follows a path at rest plus the entry rate times the engine's carried-rate term, carried no longer than its room affords; the heel rises by the walking stance's rule.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The carries, the pelvis and heading, the foot's rocker, then one writer.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foot rolling on its heel is laid flat before its heel rises, so the pivot never passes at a rate.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three build-time heel-rule reads and every pitch trial remain. Fixed contact pivots, heel-rule geometry, reaching-frame coefficients, quaternion endpoints and spin axis prepare once; each phase computes original root/progress/carry/yaw/pelvis once and shares them with actual heel/arm/posture reads. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing heelRise, hipJoints, HumanFoot and quaternion owners prepare only body/side/contact/heading or arc/axis prerequisites fixed by this push. Every varying hip, pitch, rotation weight, spin angle and local-time phase is still evaluated normally, with no time/result cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns a fixed number of pivot, frame, arc and axis readers plus its original jump inputs. The unused heel pivot is absent without a heel rocker; no query history, FK reader or external handle enters these closures.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Three build-time heel-rule reads and every pitch trial remain. Two entry-arm tracks join fixed contact-pivot/socket, heel-rule, reaching-frame, quaternion-endpoint and spin-axis preparation; every phase computes original root/progress/carry/yaw/pelvis once for actual heel/arm/posture reads. Contact offsets keep their original fresh-MTP/borrowed-foot-socket ownership without repeated fixed rest/socket lookup. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing heelRise, hipJoints, HumanFoot and quaternion owners prepare only body/side/contact/socket/heading or arc/axis prerequisites fixed by this push. The same current rocker selects its actual offset reader; changing geometry requires another plan. The three initial heel-rule observations borrow one synchronous FK source; current hips, pitches, rotation weights, spin angles and phase clocks still evaluate without a time/result cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns two three-scalar arm tracks, five yaw/pelvis coefficients and fixed pivot/socket/frame/arc/axis readers plus original inputs. The initial three-observation FK source ends locally, leaving two numeric coefficients; unused heel pivot/socket readers are absent without that rocker. No query history, FK reader or external handle enters retained closures.
    */
   export function of(props: IProps): IPush {
     const {
@@ -293,22 +306,38 @@ export namespace jumpPush {
       entry.posture.joints.hips ?? level;
     const listing: readonly [number, number, number] =
       entry.velocity.joints.get("hips") ?? [0, 0, 0];
+    const pelvisDelta: readonly [number, number, number] = [
+      level[0] - listed[0], level[1] - listed[1], level[2] - listed[2],
+    ];
+    const fromYaw: number = entry.posture.yaw;
+    const yawDelta: number = heading - fromYaw;
     const turning: number = (entry.velocity.angular.y * 180) / Math.PI;
     const sample: (t: number) => IPhase = (t: number): IPhase => {
       const s: number = minimumJerk.share(t / P);
       const k: number = carry(t);
       return {
         seconds: t, root: rootAt(t), progress: s, carry: k,
-        yaw: t >= P ? heading : entry.posture.yaw + (heading - entry.posture.yaw) * s + turning * k,
+        yaw: t >= P ? heading : fromYaw + yawDelta * s + turning * k,
         pelvis: t >= P ? level : [
-          listed[0] + (level[0] - listed[0]) * s + listing[0] * k,
-          listed[1] + (level[1] - listed[1]) * s + listing[1] * k,
-          listed[2] + (level[2] - listed[2]) * s + listing[2] * k,
+          listed[0] + pelvisDelta[0] * s + listing[0] * k,
+          listed[1] + pelvisDelta[1] * s + listing[1] * k,
+          listed[2] + pelvisDelta[2] * s + listing[2] * k,
         ],
       };
     };
-    const swinging: (side: "left" | "right") => number = (side: "left" | "right"): number =>
-      entry.velocity.joints.get(`${side}UpperArm`)?.[0] ?? 0;
+    const prepareArm: (side: "left" | "right") => IArmTrack = (side: "left" | "right"): IArmTrack => {
+      const from: number = entry.posture.joints[`${side}UpperArm`]?.[0] ?? 0;
+      return { from, delta: 60 - from, rate: entry.velocity.joints.get(`${side}UpperArm`)?.[0] ?? 0 };
+    };
+    const arms: Record<"left" | "right", IArmTrack> = {
+      left: prepareArm("left"), right: prepareArm("right"),
+    };
+    const swinging: (side: "left" | "right") => number = (side: "left" | "right"): number => arms[side].rate;
+    const armAt: IPush["arm"] = (phase: IPhase, side: "left" | "right"): number => {
+      const track: IArmTrack = arms[side];
+      return track.from + track.delta * phase.progress + track.rate * phase.carry;
+    };
+
     // A foot entered on its heel rocker is laid flat before its heel rises,
     // as a walking foot is (Perry and Burnfield), so the pivot passes from
     // the heel to the toes' joint with the foot at rest: passed at a rate,
@@ -330,6 +359,9 @@ export namespace jumpPush {
       ? HumanFoot.preparePivot(body, takeoff, "heel", heel, supportHeading) : undefined;
     const ballAt: ReturnType<typeof HumanFoot.preparePivot> =
       HumanFoot.preparePivot(body, takeoff, "mtp", ball, supportHeading);
+    const heelContact: ReturnType<typeof HumanFoot.prepareOffset> | undefined = lowered > 0
+      ? HumanFoot.prepareOffset(body, takeoff, "heel") : undefined;
+    const ballContact: ReturnType<typeof HumanFoot.prepareOffset> = HumanFoot.prepareOffset(body, takeoff, "mtp");
     const heelRise: ReturnType<typeof walkLeg.prepareHeelRise> =
       walkLeg.prepareHeelRise(body, takeoff, ball, supportHeading, walkLeg.ROCKER);
     // The flat foot's heel then rises by the rule a walking stance rises by:
@@ -345,11 +377,16 @@ export namespace jumpPush {
     // eased out over the rise. A heel coming down about the ball is carried
     // no longer than lays the foot flat, where the pivot would pass to the
     // heel.
-    const met: number = ruled(sample(lowered));
-    const gap: number = start - met;
-    const excess: number =
-      (supportPitch > 0 ? 0 : rolling) -
-      (-3 * met + 4 * ruled(sample(lowered + 1e-3)) - ruled(sample(lowered + 2e-3))) / 2e-3;
+    const edge: { met: number; excess: number } = ((): { met: number; excess: number } => {
+      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const met: number = ruled(sample(lowered), read);
+      const excess: number =
+        (supportPitch > 0 ? 0 : rolling) -
+        (-3 * met + 4 * ruled(sample(lowered + 1e-3), read) - ruled(sample(lowered + 2e-3), read)) / 2e-3;
+      return { met, excess };
+    })();
+    const gap: number = start - edge.met;
+    const excess: number = edge.excess;
     const carried: number =
       excess > 0 ? Math.min(span, -start / (carriedRate.PEAK * excess)) : span;
     const pitchAt: (phase: IPhase, resolution?: ReturnType<typeof prepareHumanPoseResolution>) => number = (phase: IPhase, resolution?: ReturnType<typeof prepareHumanPoseResolution>): number => {
@@ -367,6 +404,7 @@ export namespace jumpPush {
     return {
       sample,
       swinging,
+      arm: armAt,
       write: (
         phase: IPhase,
         joints: IHumanPosture["joints"],
@@ -394,7 +432,7 @@ export namespace jumpPush {
           bend: knee(root, takeoff, supportHeading),
           planted: true,
           // The point the foot turns about is the one that stays on the floor.
-          contact: HumanFoot.offset(body, takeoff, about),
+          contact: (about === "heel" ? heelContact! : ballContact)(0),
         };
         joints[`${takeoff}Toes`] = [-pitch, 0, 0];
         // The reaching foot leaves at once on a minimum-jerk path, carrying
@@ -427,4 +465,16 @@ export namespace jumpPush {
       },
     };
   }
+}
+
+/** The original entered shoulder angle, its authored target difference and carried flexion rate. */
+interface IArmTrack {
+  /** Entered shoulder flexion, clinical degrees. */
+  from: number;
+
+  /** Sixty degrees minus the entered flexion, preserving the original subtraction. */
+  delta: number;
+
+  /** Entered flexion rate, degrees per second; zero when absent. */
+  rate: number;
 }

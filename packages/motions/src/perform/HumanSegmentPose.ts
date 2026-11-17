@@ -171,7 +171,7 @@ export namespace HumanSegmentPose {
       if (borne.length !== 0) {
         const joints: IHumanPosture["joints"] = { ...written.joints };
         for (const h of borne) Object.assign(joints, h.fingers);
-        written = resolveHumanPosture.rebased(written, { ...written, joints });
+        written = { ...written, joints };
       }
       const overlaid: HumanSegmentOverlay.IOverlaid =
         HumanSegmentOverlay.overlaid(person, written, t, borne, fits, prepared.resolution,

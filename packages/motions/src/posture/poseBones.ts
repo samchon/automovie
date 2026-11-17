@@ -1,6 +1,7 @@
 import {
   type IAutoMovieResolvedBone,
   type preparePoseResolution,
+  type prepareSkeletonPoseResolution,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -28,11 +29,11 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @param requested Optional output bone set; omitted, all reachable bones are returned in parent-first order.
  * @returns Resolved bones by rig bone.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States displayed canonical frames, unchanged body inputs, ordinary live versus prepared fixed name demand, complete pose admission and fresh map/transform ownership; the prepare companion's plain docs give bound-reader scope and release.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines displayed canonical frames, unchanged body, live/fixed name demand and fresh ownership. prepareTuples defines entries/all-coordinate staging before root/supplier work and actual later ordered admission without intermediate records.
  * @evidence contracts/development/implementation.md#principled-implementation The engine's prepared parent-first FK uses the canonical humanoid axes/rest-frame snapshot createHumanBody owns, retaining the ordinary quaternion grouping and every authored angle's admission while computing demanded ancestry.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The body's genuine prepareSkeletonPoseResolution result owns static prerequisites/dependency updates. Ordinary reads and the prepare companion both index fresh engine outputs through byName; prepare delegates actual fixed-name preparation to that same producer.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The genuine body rig owns prerequisites/dependencies and directly constructs fresh maps through the same FK recurrence/copy owner as array outputs. Ordinary and bound readers avoid a temporary FK array; prepareTuples delegates directly to the genuine rig's two-phase authored map reader, retaining one numerical admission owner.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Canonical axes/frames are unchanged, every query admits current authored records and no external numeric demand list, body override, resolved flag, pose or target answer bypasses the engine. No cast, tolerance or query-result cache is introduced.
- * @evidence contracts/development/implementation.md#efficient-algorithms Ordinary calls admit J joints, sort actual final changes and revise affected descendant intervals once, then sort K requested names, check only invalidated demanded ancestry and insert K fresh map entries. prepare pays name lookup/sorting once, preserving current admission/dependency work; omitted demand returns B bones. Actual fixed prerequisites and neutral rest computations prepare lazily once per rig. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Calls admit J joints; actual changes sort only after FK observation and revise affected observed descendants, with the engine tracking bounded first-demand insertion/sparse interval lookup. K names sort unless bound, then invalidated ancestry precedes K fresh map entries without a temporary frame array. prepare binds names once; omitted demand walks B indices directly. Fixed prerequisites/neutral rest compute lazily once per rig. Runtime improvement is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The immutable body rig fixes rest/axes/frames/topology. prepare additionally snapshots actual name membership and binds the same body without retaining the source set. Optional operation identity scopes exact shared dynamic rows; current/removed joints and roots still invalidate actual dependencies independently of pose identity or demand order.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Maps/nested transforms are fresh caller-owned values. A prepared closure retains only its bounded name demand and body-rig reference until caller release; dynamic rows remain under weak operation keys and end with those readers. Neither path retains a pose, query-result history, handle or task.
  */
@@ -42,7 +43,7 @@ export function poseBones(
   prepared?: ReturnType<typeof preparePoseResolution>,
   requested?: ReadonlySet<AutoMovieHumanoidBone>,
 ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-  return byName(body.poseResolution.resolve(pose, prepared, requested));
+  return body.poseResolution.resolveMap(pose, prepared, requested);
 }
 
 /**
@@ -50,17 +51,39 @@ export function poseBones(
  *
  * @evidence contracts/development/common.md#meaningful-documentation States canonical-body binding and explicit fixed-demand preparation.
  * @evidence contracts/development/design.md#principled-representation The body owns one immutable rig; a prepared reader captures a name-set snapshot while querying complete changing poses.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The prepare companion serves mass-model repeated reads without exposing engine indices or a mutable demand token.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface prepare serves repeated mass/bone reads; prepareTuples serves HumanTrunk's actual directly authored tuple reads with original staging/root/admission order. Neither exposes indices, packed arrays or a mutable demand token.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Body binding calls its genuine producer directly; no caller-provided resolved flag or foreign numerical demand is admitted.
  */
 export namespace poseBones {
+  /**
+   * Bind one body's fixed names for two-phase directly authored tuple FK.
+   * The first call snapshots all entries, then all tuple F/A/T scalars before
+   * the caller constructs its root or requests a lazy operation workspace.
+   * The second call receives that original root carrier and admits every
+   * staged scalar through genuine private FK, with fresh map/frames.
+   *
+   * Undefined tuples/components retain original read/finite failures. No
+   * proxy, reused public joint, foreign callback or admission flag supplies
+   * values. One packed 4J name/F/A/T array replaces J joint records, while the fixed
+   * body/name factory retains no current tuple map, query, root or workspace.
+   * Release each staged scan with its synchronous query; no source tuple,
+   * output or history enters the factory and no task or handle is created.
+   */
+  export function prepareTuples(
+    body: IHumanBody,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+  ): prepareSkeletonPoseResolution.ITupleReader {
+    return body.poseResolution.prepareTuples(requested);
+  }
+
   /**
    * Prepare one body's requested bone set once for repeated complete poses.
    * Later edits to that set do not change the captured demand. Every query
    * still admits all current authored records and returns a fresh map/frames.
    *
    * The body's actual producer snapshots reachable names/order in O(K log K);
-   * byName indexes each query's ordinary sparse FK into fresh map/frames.
+   * each query's ordinary sparse FK writes fresh map/frames directly, without
+   * an intermediate FK array.
    * Every current joint remains admitted and no external index list, resolved
    * flag, alternate body or target answer is accepted. Optional same-operation
    * readers share only exact current dependencies. Release the bounded demand
@@ -73,13 +96,6 @@ export namespace poseBones {
     const demand: ReturnType<IHumanBody["poseResolution"]["prepareBones"]> =
       body.poseResolution.prepareBones(requested);
     return (pose: IAutoMoviePose, prepared?: ReturnType<typeof preparePoseResolution>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-      byName(demand.resolve(pose, prepared));
+      demand.map(pose, prepared);
   }
-}
-
-/** Index only actual fresh FK outputs; neither this map nor its frames are retained. */
-function byName(resolved: readonly IAutoMovieResolvedBone[]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-  const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
-  for (const bone of resolved) map.set(bone.bone, bone);
-  return map;
 }

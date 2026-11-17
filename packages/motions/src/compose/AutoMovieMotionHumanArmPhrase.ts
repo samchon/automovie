@@ -131,7 +131,7 @@ export namespace AutoMovieMotionHumanArmPhrase {
    * @evidence contracts/development/implementation.md#principled-implementation A point-to-point reach and its return are minimum-jerk movements (Flash and Hogan 1985), so the hand's weight toward the place is the clock's envelope rising to `stroke` and falling from `relax`, at rest on the place between. A place in the air is scaled about the origin by the manner's extent; a solid one is not.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One `move` over the whole clock with the envelope as its weight, and the window from `bearing`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the place, the origin and the timing are the caller's, and no constant is stated here.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the blend, the fit and the curved path to `move`, and the timing to the clock.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates blend/curve/timing to their owners and forwards Move's same-body FK/genuine ROM loan through the actual target invocation; current target data is never cached here.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second beyond `move`'s fit.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
@@ -148,11 +148,13 @@ export namespace AutoMovieMotionHumanArmPhrase {
         target: (
           posture: IHumanPosture,
           seconds: number,
+          resolution?: Parameters<AutoMovieMotionHumanArmTarget.Frame>[2],
+          projection?: Parameters<AutoMovieMotionHumanArmTarget.Frame>[3],
         ): AutoMovieMotionHumanArmTarget.ITarget =>
           extended(
             props,
             AutoMovieMotionHumanArmTarget.point(posture, props.origin),
-            props.target(posture, seconds),
+            props.target(posture, seconds, resolution, projection),
           ),
         weight: (seconds: number): number =>
           props.clock.envelope(["start", "stroke"], ["relax", "end"], seconds),
@@ -167,14 +169,14 @@ export namespace AutoMovieMotionHumanArmPhrase {
    * `strokeStart`, follows a path until `strokeEnd`, stays at the path's end
    * until `relax` and is back at `end` (a gesture, a guard, a drawn line).
    *
-   * @param props The phrase and the path: the target at the stroke's progress, 0 at the ready pose and 1 at the stroke's end.
+   * @param props The phrase and the path: current target at progress 0 through 1, optionally borrowing same-body FK and genuine ROM metadata as its fourth/fifth arguments only during that invocation.
    * @returns The primitive, with a contact window from `strokeStart` to `relax` when the phrase states a contact.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the phases with their instants, what the path's progress means and when it carries a contact window.
+   * @evidence contracts/development/common.md#meaningful-documentation States phases, path progress and contact window; both the current-progress and original zero-progress path calls receive the same optional synchronous FK/ROM metadata.
    * @evidence contracts/development/implementation.md#principled-implementation The phases of a gesture (Kendon 1980: preparation, hold, stroke, hold, retraction): the weight rises to the ready pose by `ready` and falls from `relax`, and the path is read at the clock's minimum-jerk progress from `strokeStart` to `strokeEnd`. A path in the air is scaled about its ready point by the manner's extent.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One `move` over the whole clock; the path decides the shape and this function only the progress it is read at.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the path and the timing are the caller's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `move`, the clock and `bearing`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Move supplies the current same-body FK/genuine ROM loan to both original path invocations. Their actual posture/seconds/progress remain distinct inputs, and each original path/extent/contact calculation still runs without a sampled target cache.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second beyond `move`'s fit and the caller's path, which is read twice when the extent scales it.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
@@ -184,6 +186,8 @@ export namespace AutoMovieMotionHumanArmPhrase {
         posture: IHumanPosture,
         seconds: number,
         progress: number,
+        resolution?: Parameters<AutoMovieMotionHumanArmTarget.Frame>[2],
+        projection?: Parameters<AutoMovieMotionHumanArmTarget.Frame>[3],
       ) => AutoMovieMotionHumanArmTarget.ITarget;
     },
   ): IAutoMovieMotionHumanPrimitive {
@@ -197,6 +201,8 @@ export namespace AutoMovieMotionHumanArmPhrase {
         target: (
           posture: IHumanPosture,
           seconds: number,
+          resolution?: Parameters<AutoMovieMotionHumanArmTarget.Frame>[2],
+          projection?: Parameters<AutoMovieMotionHumanArmTarget.Frame>[3],
         ): AutoMovieMotionHumanArmTarget.ITarget => {
           const progress: number = props.clock.progress(
             "strokeStart",
@@ -207,10 +213,12 @@ export namespace AutoMovieMotionHumanArmPhrase {
             posture,
             seconds,
             progress,
+            resolution,
+            projection,
           );
           return progress <= 0
             ? at
-            : extended(props, props.path(posture, seconds, 0).point, at);
+            : extended(props, props.path(posture, seconds, 0, resolution, projection).point, at);
         },
         weight: (seconds: number): number =>
           props.clock.envelope(["start", "ready"], ["relax", "end"], seconds),
@@ -234,7 +242,7 @@ export namespace AutoMovieMotionHumanArmPhrase {
    * @evidence contracts/development/implementation.md#principled-implementation The hand's point runs from the chamber along the line to the target by `AutoMovieMotionClock.through`, which is 1 at `stroke` with speed, so a free strike travels past the target by the overshoot and an arrested one stops on it; the rotation and the bend stop at the target's. A target in the air is scaled about the chamber by the manner's extent.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One `move` over the whole clock whose target is the chamber before `strokeStart` and the line after it; the weapons pass through to the primitive.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the overshoot follows from the follow phase's length, not from a stated distance. Stopping on the first surface met is the performance's arrest, not decided here.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `move`, `through` and `bearing`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Move's optional same-body FK/genuine ROM metadata reaches the actual chamber and target callbacks. through/bearing retain timing/contact ownership and no callback answer is memoized.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second beyond `move`'s fit.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
@@ -255,10 +263,14 @@ export namespace AutoMovieMotionHumanArmPhrase {
         target: (
           posture: IHumanPosture,
           seconds: number,
+          resolution?: Parameters<AutoMovieMotionHumanArmTarget.Frame>[2],
+          projection?: Parameters<AutoMovieMotionHumanArmTarget.Frame>[3],
         ): AutoMovieMotionHumanArmTarget.ITarget => {
           const chamber: AutoMovieMotionHumanArmTarget.ITarget = props.chamber(
             posture,
             seconds,
+            resolution,
+            projection,
           );
           const p: number = AutoMovieMotionClock.through(
             props.clock,
@@ -269,7 +281,7 @@ export namespace AutoMovieMotionHumanArmPhrase {
           const target: AutoMovieMotionHumanArmTarget.ITarget = extended(
             props,
             chamber.point,
-            props.target(posture, seconds),
+            props.target(posture, seconds, resolution, projection),
           );
           return {
             ...target,

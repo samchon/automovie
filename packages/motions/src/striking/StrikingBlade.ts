@@ -195,9 +195,9 @@ export namespace StrikingBlade {
    * @evidence contracts/development/implementation.md#principled-implementation The tool's pose is the path read at `AutoMovieMotionClock.through`, which passes the decisive pose at speed (a strike delivers its speed at its end, Putnam 1993), blended from and to the entry hold on the clock's minimum-jerk envelope (Flash and Hogan 1985); the body is decided first, from the advance alone, and both arms are fitted on it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The base, then the tool's frame at a second, then the two arm goals written on the base's posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The elbow hint is the arm's least-strain place with the hanging arm as its named fallback; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One lazy decisive-pose fit establishes the existing arm reference. Each time read computes its actual base/path/goals and at most one demanded shoulder/chest trunk map shared by frame carrying and elbow carrying; final physical limb fits remain with the displayed evaluator. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing reference/hint, fixed hand-angle and hand-local tool contact/limit geometry stays per plan; every actual frame still creates fresh wrist goals and task records. One lazy genuine raw-trunk demand binds only fixed chest/shoulder names for the plan. Every current authored posture is still admitted and resolved; one explicit posture invocation shares only its exact current body's trunk between its two readers, and decisive-pose fit/read-back may share equal scalar FK prerequisites synchronously.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its existing stroke/base/entry, fixed hand/reference data and at most one lazy scalar-only tool-goal producer and one lazy fixed-name raw-trunk producer; each current trunk map and decisive FK reader ends on return or throw, with no time-history cache or retained evaluation scope.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One original lazy decisive fit establishes its arm reference. Every requested shoulder/chest observation still admits the current raw posture and returns its own demanded map. Base lowering and those observations borrow one native exact workspace, sharing only checked scalar prerequisites; all original fits remain and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing reference/hint, fixed hand-angle and hand-local tool contact/limit geometry stays per plan; every actual frame still creates fresh wrist goals and task records. One lazy genuine raw-trunk demand binds only fixed chest/shoulder names for the plan. Every current authored posture is still admitted and resolved; one explicit posture invocation lends the parent's genuine FK workspace through current base lowering and each demanded shoulder/chest observation, sharing only equal checked scalar prerequisites. Each raw trunk source is read independently because posture identity does not certify its getters or fields. Its decisive-pose fit/read-back remains independent, and no query loan is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its original stroke/base/entry, fixed hand/reference data and lazy tool-goal/fixed-name trunk producers. A query-local exact getter borrows its optional parent through base lowering/current trunk and ends on return or throw; the decisive fit stays independently scoped, and no reader/map/projector enters output postures.
    */
   export function plan(
     context: IHumanActionContext,
@@ -396,15 +396,20 @@ export namespace StrikingBlade {
       holds: StrikingHeld.holds(context, tool),
       ...(tool.wields === undefined ? {} : { wields: tool.wields }),
       hands: stroke.support === null ? [tool.side] : [tool.side, other],
-      posture: (seconds: number): IHumanPosture => {
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        source?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
         const posture: IHumanPosture = turned(
-          base.posture(t),
+          base.posture(t, undefined, resolution, projection),
           (stroke.turn ?? 0) * present(t),
         );
-        let trunk: ReturnType<typeof HumanTrunk.resolve> | undefined;
         const read: () => ReturnType<typeof HumanTrunk.resolve> = (): ReturnType<typeof HumanTrunk.resolve> =>
-          (trunk ??= trunkAt(posture));
+          trunkAt(posture, resolution);
         const at: StrikingHeld.IHandFrame = frame(posture, t, read);
         const first: IHumanPosture.IGoal = goalFor(at);
         const limbs: IHumanPosture["limbs"] = {

@@ -27,7 +27,8 @@ export function preparePoseBoneDemand(
       const index: number | undefined = indices.get(name);
       if (index !== undefined) demanded.push(index);
     }
-    demanded.sort((left: number, right: number): number => left - right);
+    if (demanded.length > 1)
+      demanded.sort((left: number, right: number): number => left - right);
   }
   return demanded;
 }

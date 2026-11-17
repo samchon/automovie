@@ -65,14 +65,16 @@ export function hipJoints(
     },
     prepared,
   );
-  const of: (side: "left" | "right") => IAutoMovieVector3 =
-    (side: "left" | "right"): IAutoMovieVector3 => {
-    const hip: IAutoMovieResolvedBone | undefined = bones.get(
-      `${side}UpperLeg`,
-    );
-    if (hip === undefined)
-      throw new Error(`The rig lacks ${side}UpperLeg, so it has no hip joint`);
-    return hip.worldPosition;
-  };
-  return { left: of("left"), right: of("right") };
+  return { left: hipOf(bones, "left"), right: hipOf(bones, "right") };
+}
+
+/** Read one fresh hip origin without allocating a per-query side closure. */
+function hipOf(
+  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  side: "left" | "right",
+): IAutoMovieVector3 {
+  const hip: IAutoMovieResolvedBone | undefined = bones.get(`${side}UpperLeg`);
+  if (hip === undefined)
+    throw new Error(`The rig lacks ${side}UpperLeg, so it has no hip joint`);
+  return hip.worldPosition;
 }

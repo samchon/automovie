@@ -46,9 +46,9 @@ interface IInterval {
  * @evidence contracts/development/implementation.md#principled-implementation Uses supportKey.prepareBlended's original ROM/root interpolation, the same first common contact identity, exact achieved source-key contact point and current achieved contact point, followed by the original floor nonpenetration/rest rule.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the fixed blend and common pin, lazily measure its source point once, then evaluate the original current-point translation and floor correction per share.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No current fit, joint range, contact residual, source-key point, floor reading, interpolation or endpoint rule is replaced with a sampled pose or declared target.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fixed endpoint union and the C-by-D ordered common-contact search run once for C/D endpoint contacts. A pinned interval measures its fixed source point once, while each read retains current joint interpolation, one actual current contact solve and one floor reading.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Keys/contact order stay unchanged. Entry-target/source-point/floor observations are shared only within one schedule generation; settle clears them before the completed performance is queried. Each write borrows or owns one synchronous FK/ROM source across its actual source/current points and floor readings; every changing pose remains resolved normally.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One interval owns one blend reader/common contact until release and at most one target/source-point record until settle or release. Query FK/ROM loans end with write; no queried share, interpolated pose, current contact point or workspace is retained.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Fixed endpoint union and the C-by-D ordered common-contact search run once for C/D contacts. A pinned interval prepares its actual contact datum/name demand and measures its fixed source once per schedule generation; first actual floor demand prepares native fixed collider selection once. Every read retains current interpolation, achieved contact solve, placement and exact floor bound.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Keys/body/profile/contact order stay unchanged. Schedule-dependent target/source observations clear on settle, while fixed collider metadata retain native geometry ownership. Each write borrows or owns one synchronous FK/ROM source across actual source/current points and floor reads; every changing pose resolves normally.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The interval owns one blend/common contact and at most one fixed collider reader until release, plus at most one schedule-dependent target/source-point record until settle or release. Query FK/ROM loans end with write; no share, interpolated pose, current point, floor result or workspace is retained.
  */
 export function prepareSupportInterval(
   body: IHumanBody,
@@ -66,11 +66,12 @@ export function prepareSupportInterval(
   );
   let fixed:
     | {
-        aimed: IAutoMovieVector3 | null;
         held: IAutoMovieVector3;
         floor: boolean;
+        point: ReturnType<typeof supportContact.preparePoints>;
       }
     | undefined;
+  let floor: ReturnType<typeof knockdown.prepareRest> | undefined;
   const write: IInterval["write"] = (
     w: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -81,35 +82,33 @@ export function prepareSupportInterval(
       prepareHumanPoseResolution(resolution);
     const project: ReturnType<typeof prepareHumanPostureProjection> =
       projection ?? prepareHumanPostureProjection(body);
+    const rest: (posture: IHumanPosture) => number = (
+      posture: IHumanPosture,
+    ): number => {
+      floor ??= knockdown.prepareRest(body);
+      return floor(posture, read, project);
+    };
     if (pin === undefined)
       return {
         ...shaped,
         root: {
           ...shaped.root,
-          y: Math.max(
-            shaped.root.y,
-            knockdown.rest(body, shaped, read, project),
-          ),
+          y: Math.max(shaped.root.y, rest(shaped)),
         },
       };
     if (fixed === undefined) {
       const target: IAutoMovieVector3 | null = place(pin);
       const aimed: IAutoMovieVector3 | null =
         target === null ? null : { ...target };
+      const point: ReturnType<typeof supportContact.preparePoints> =
+        supportContact.preparePoints(body, [{ contact: pin, at: aimed }]);
       fixed = {
-        aimed,
-        held: supportContact.point(body, a.posture, pin, aimed, read, project),
+        held: point(a.posture, read, project)[0]!,
         floor: supportContact.onFloorTarget(aimed),
+        point,
       };
     }
-    const now: IAutoMovieVector3 = supportContact.point(
-      body,
-      shaped,
-      pin,
-      fixed.aimed,
-      read,
-      project,
-    );
+    const now: IAutoMovieVector3 = fixed.point(shaped, read, project)[0]!;
     const moved: IHumanPosture = {
       ...shaped,
       root: {
@@ -122,9 +121,7 @@ export function prepareSupportInterval(
       ...moved,
       root: {
         ...moved.root,
-        y: fixed.floor
-          ? knockdown.rest(body, moved, read, project)
-          : Math.max(moved.root.y, knockdown.rest(body, moved, read, project)),
+        y: fixed.floor ? rest(moved) : Math.max(moved.root.y, rest(moved)),
       },
     };
   };

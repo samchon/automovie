@@ -38,7 +38,7 @@ import type { solveAirborneTakeoff } from "./solveAirborneTakeoff";
  * @evidence contracts/development/implementation.md#principled-implementation Preserves fixed-grid Simpson and uses the shared adaptive Simpson/Richardson estimator for an adaptive request. Matrix error times a projected seed-norm bound over request shares zero through one plus lag error has angular units and is compared with the public shooting budget. The affine seed's endpoint norms bound its interior by convexity, retained by radial projection for nonnegative ceilings; the quadrature estimate still assumes smoothness and is not a continuous certificate or Newton-convergence guarantee.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One physical integrand serves fixed weighting or adaptive quadrature; one unpacker and the existing three-variable solve measure the current seed's estimated angle error.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every node uses actual history, sharing only an exactly equal preceding fixed endpoint or an adaptive parent's actual samples. No guessed mean inertia, time quantization, per-component relative floor, fixed-rate adaptive seed or weakened physical integration budget is introduced; unsampled structure can still fool the estimator, and final nonlinear shooting remains authoritative.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fixed mode retains all 3K original weighted contributions over K intervals; Object.is-equal adjacent endpoints avoid duplicate history/tensor reads, giving 2K+1 reads on a resolved exactly shared grid and retaining actual reads at floating-point mismatches. Adaptive mode starts with five reads and adds four per bisection, independent of the physical integrator's initial h; largest-error aggregation is quadratic in leaf count but history reads are linear. The two endpoint seed norms are computed once per refinement, not per panel score.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Fixed mode retains 3K weighted contributions and shares exact adjacent endpoints, normally 2K+1 reads. Adaptive mode starts with five reads and adds four per split. Its native error has two nonnegative components, permitting ancestor-only aggregate updates and valid current-weight bound search instead of rescoring every leaf; worst-case search can still be linear. Both endpoint seed norms are computed once per changed whole integral. End-to-end gain remains unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Unobserved factory tensors share their SPD factor: three takeoff-basis solves form the inverse columns directly and one relative-momentum solve forms the lag, without eigensolves or inverse-matrix materialization. The into-frame basis is prepared once on first use. Public principals retain the original rotated-tensor path. Fixed mode reuses only an exactly equal preceding endpoint; adaptive children reuse actual parent samples and half rules.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The adaptive call owns numeric samples and estimates plus one current-integral/seed-norm pair; fixed mode holds at most one endpoint time and its inverse tensor/relative rate. All are released on return or throw. Only the two numeric result arrays escape, with no cross-call cache or handle.
  */
@@ -118,6 +118,23 @@ export function AirborneTakeoffLinear(
   if (props.integration !== undefined && angularTolerance !== undefined) {
     let current: readonly number[] | undefined;
     let momentum: number = 0;
+    const bound: (integral: readonly number[]) => number = (integral: readonly number[]): number => {
+      if (integral === current) return momentum;
+      current = integral;
+      const { turning, lagging }: Relation = unpack(integral);
+      const maximum: number = props.maximum ?? Infinity;
+      momentum = Math.max(...[0, 1].map((share: number): number => {
+        const local: number[] | null = AirborneTakeoffLinear.solve(turning, [
+          2 * Math.PI * props.somersault * share + lagging[0]!,
+          2 * Math.PI * props.twist * share + lagging[1]!, lagging[2]!,
+        ]);
+        if (local === null) return Math.abs(maximum);
+        const magnitude: number = Math.hypot(...local);
+        const scale: number = magnitude > maximum ? maximum / magnitude : 1;
+        return Math.hypot(...local.map((v: number): number => scale * v));
+      }));
+      return momentum;
+    };
     const value: number[] = AirborneTakeoffQuadrature({
       t0: props.t0,
       t1: props.t1,
@@ -130,31 +147,15 @@ export function AirborneTakeoffLinear(
         integral: readonly number[],
         error: readonly number[],
       ): number => {
-        if (integral !== current) {
-          current = integral;
-          const { turning, lagging }: Relation = unpack(integral);
-          const maximum: number = props.maximum ?? Infinity;
-          momentum = Math.max(
-            ...[0, 1].map((share: number): number => {
-              const local: number[] | null = AirborneTakeoffLinear.solve(
-                turning,
-                [
-                  2 * Math.PI * props.somersault * share + lagging[0]!,
-                  2 * Math.PI * props.twist * share + lagging[1]!,
-                  lagging[2]!,
-                ],
-              );
-              if (local === null) return Math.abs(maximum);
-              const magnitude: number = Math.hypot(...local);
-              const scale: number =
-                magnitude > maximum ? maximum / magnitude : 1;
-              return Math.hypot(...local.map((v: number): number => scale * v));
-            }),
-          );
-        }
         const matrix: number = Math.hypot(...error.slice(0, 9));
         const lag: number = Math.hypot(...error.slice(9, 12));
-        return (matrix === 0 ? 0 : matrix * momentum) + lag;
+        return (matrix === 0 ? 0 : matrix * bound(integral)) + lag;
+      },
+      separable: {
+        components: (error: readonly number[]): readonly number[] => [
+          Math.hypot(...error.slice(0, 9)), Math.hypot(...error.slice(9, 12)),
+        ],
+        weights: (integral: readonly number[]): readonly number[] => [bound(integral), 1],
       },
     });
     return unpack(value);

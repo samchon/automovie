@@ -7,11 +7,13 @@ import {
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanActionContext } from "../law/IHumanActionContext";
+import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanFoot } from "../posture/HumanFoot";
+import { HumanFrame } from "../posture/HumanFrame";
+import { StrikingTarget } from "../striking/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
 import type { staggerRecover } from "./staggerRecover";
 import { staggerPendulumCourses } from "./staggerPendulumCourses";
-import { prepareStaggerPendulumEntry } from "./prepareStaggerPendulumEntry";
 import { staggerNearest } from "./staggerNearest";
 
 /**
@@ -25,8 +27,8 @@ import { staggerNearest } from "./staggerNearest";
  * as the bearing feet reach, and is integrated in closed form; the spans
  * are kept as phases the courses read.
  *
- * Entry preparation owns the unchanged centre, heading and sole facts. This
- * instance owns the actual state and phases; private source-footprint and
+ * Each construction observes the current centre, root, heading and feet in
+ * their original order. This instance owns the actual state and phases; private source-footprint and
  * integration helpers serve the public support and advance operations.
  * Exact footprint snapshots retain at most one outline per side, alongside
  * the actual phases and steps, until reset or release. Prefix snapshots
@@ -99,40 +101,38 @@ export class StaggerPendulum {
   }>> = {};
 
   /**
-   * Start one push's actual pendulum from the fixed entry geometry.
-   * An explicit operation-owned geometry record may share the same complete
-   * unchanged body/entry facts across speeds; dynamic state remains local.
+   * Start one push's actual pendulum by reading its current entry. Centre,
+   * root, heading, feet and sole extents retain their original ordering;
+   * no completed observation is borrowed from another recovery or speed.
    *
    * @param body The body.
    * @param entry The posture the push meets.
    * @param push The push's horizontal unit direction, world.
    * @param speed The centre of mass's speed after the blow, m/s.
-   * @param geometry Optional same-operation geometry prepared from this exact unchanged body and entry.
    */
   public constructor(
     body: IHumanActionContext["body"],
     entry: IHumanActionContext["entry"],
     push: IAutoMovieVector3,
     speed: number,
-    geometry?: ReturnType<typeof prepareStaggerPendulumEntry>,
   ) {
-    const prepared: ReturnType<typeof prepareStaggerPendulumEntry> = geometry ?? prepareStaggerPendulumEntry(body, entry);
     this.body = body;
     this.entry = entry;
     this.push = push;
     this.speed = speed;
     this.w = staggerBounds.omega(body);
-    this.centre = prepared.centre;
+    this.centre = HumanBalance.centre(body, entry.posture);
     this.root = entry.posture.root;
-    this.forward = prepared.forward;
-    this.across = prepared.across;
-    this.entered = prepared.entered;
+    this.forward = HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw: entry.posture.yaw },
+      { x: 0, y: 0, z: 1 },
+    );
+    this.across = { x: this.forward.z, y: 0, z: -this.forward.x };
+    this.entered = StrikingTarget.feet(entry);
     this.feet = { ...this.entered };
     this.v = Vector3.scale(StaggerPendulum.flat(push), speed);
-    this.width = prepared.width;
-    this.length = prepared.length;
-    this.footprints.left = prepared.footprints.left;
-    this.footprints.right = prepared.footprints.right;
+    this.width = this.extent(this.across);
+    this.length = this.extent(this.forward);
   }
 
   /** A point on the floor.
@@ -179,7 +179,7 @@ export class StaggerPendulum {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct state assignments replace the original step and phase arrays.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the exact original initial values and does not retain a previous order's dynamics.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant reset work independent of the previous phase count.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed entry centre/heading/sole facts prepared at construction remain shared. Explicit borrowed preparation must belong to the same unchanged body and complete entry; exact outline checks independently validate subsequent foot placements.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work This actual recovery's own constructor observations remain with its original prefix search. Exact outline checks independently validate every subsequent foot placement; no completed entry measurement crosses recovery calls.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Replaces this search-owned instance's phase/step arrays; already issued snapshots retain their original arrays only until the prefix search ends, and footprint storage stays bounded at two records with no global result history or external handle.
    */
   public reset(): void {
@@ -419,7 +419,7 @@ export class StaggerPendulum {
    * Read the actual centre-relative sole, reusing only exact Object.is
    * agreement on every ankle/quaternion scalar under the fixed body/centre.
    * Each side retains one copied placement snapshot and latest outline;
-   * replacing a slot never mutates a borrowed entry-preparation record.
+   * replacing a slot never mutates an earlier outline record.
    */
   private footprint(side: "left" | "right", placement: HumanFoot.IPlacement): {
     placement: HumanFoot.IPlacement;
@@ -445,5 +445,18 @@ export class StaggerPendulum {
     };
     this.footprints[side] = made;
     return made;
+  }
+
+  /** Observe each entry sole's ankle-relative extent along the current axis. */
+  private extent(axis: IAutoMovieVector3): number {
+    return Math.max(
+      ...(["left", "right"] as const).map((side: "left" | "right"): number => {
+        const along: number[] = HumanFoot.sole(this.body, side, this.entered[side]).map(
+          (q: IAutoMovieVector3): number =>
+            Vector3.dot(Vector3.subtract(q, this.entered[side].ankle), axis),
+        );
+        return Math.max(...along) - Math.min(...along);
+      }),
+    );
   }
 }

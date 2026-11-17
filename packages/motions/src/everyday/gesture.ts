@@ -170,7 +170,7 @@ export namespace gesture {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan owns phase timing, transport and the channels and hands it declares; the body under it is the stand law's or, over a carrier, the carrier's (`under`); gestureStroke owns each gesture's goals and angles, `bow` the pitched posture, handGoals the arm solve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The free-space transport time is the timing owner's; the 0.3 s joint-gesture preparation and the second per 30 degrees of a bow are named provisional values; Effort modifiers come from HumanEffort; no gesture or body is special-cased beyond the kind's own table rows.
    * @evidence contracts/development/implementation.md#efficient-algorithms Only moving hands resolve entry/rest arms and plan trajectories; a bow keeps its balance solve. Planned playback reads one base, actual direct joint/finger laws and cubic arms without discarded target/FK/rotation/bend geometry. Kinds declaring no direct joint keys skip their empty map/entry array; planning/endpoints retain complete goals and fixed hand/padding metadata prepares once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed phase/hand metadata and exact closed-kind joint membership belong to one plan; only identically empty joint writers are skipped. Each current evaluation lends its FK/ROM workspace through the complete base, actual raw hand goals and endpoint carry, retaining every fit/admission. Curl/finger owners and exact planner-before geometry remain shared without result/time reuse.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed phase/hand metadata and exact closed-kind joint membership belong to one plan; only identically empty joint writers are skipped. Each current evaluation lends its FK/ROM workspace through the complete base, actual raw hand goals and endpoint carry, retaining every fit/admission. Curl/finger owners and exact planner-before geometry remain shared without result/time reuse. Borrowed entry observations remain separate in probe/final stand construction and every actual bow-balance candidate.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains fixed instance inputs until performance release. Current FK getters and genuine ROM loans belong only to the synchronous posture/prior call; no returned posture, hand request, planning frame or retained callback stores them.
    */
   export function plan(
@@ -230,7 +230,7 @@ export namespace gesture {
         side,
         region: p.region ?? "forehead",
         extent: mods.extent,
-        ...(padding[side] === undefined ? {} : { fingerPadding: padding[side] }),
+        ...(geometry[side] === undefined ? {} : { prepared: geometry[side] }),
         ...(resolution === undefined ? {} : { resolution }),
         ...(point === undefined ? {} : { target: point }),
         ...(source === undefined || travel === undefined
@@ -262,14 +262,10 @@ export namespace gesture {
     // left it and rests where that body's arm hangs.
     // A one-handed gesture's stand sways in that hand's frame, so a left
     // gesture mirrors a right one (`stand.plan`).
-    const standing: ReturnType<typeof stand.prepare> | undefined =
-      context.carrier === undefined
-        ? stand.prepare({ ...context, params: {} }, sides.length === 1 ? sides[0]! : "right")
-        : undefined;
     const under: (seconds: number) => IHumanActionPlan = (seconds: number): IHumanActionPlan =>
-      standing === undefined
-        ? AutoMovieMotionHumanBase.under(context, seconds)
-        : standing(seconds);
+      context.carrier === undefined
+        ? stand.plan({ ...context, params: { seconds } }, sides.length === 1 ? sides[0]! : "right")
+        : AutoMovieMotionHumanBase.under(context, seconds);
     const probe: IHumanActionPlan = under(1);
     const at0: IHumanPosture = probe.posture(0);
     const restPose: IAutoMoviePose | undefined =
@@ -282,7 +278,7 @@ export namespace gesture {
     > = {};
     // The aimed digit's own direction in each moving hand's frame, read once.
     const digits: Partial<Record<HumanHand.Side, IAutoMovieVector3>> = {};
-    const padding: Partial<Record<HumanHand.Side, number>> = {};
+    const geometry: Partial<Record<HumanHand.Side, ReturnType<typeof gestureTouch.prepare>>> = {};
     const hands: Partial<Record<HumanHand.Side, ReturnType<typeof gestureHands.prepare>>> = {};
     const shapes: Partial<Record<HumanHand.Side, HumanHand.Shape>> = {};
     for (const side of sides) {
@@ -296,8 +292,7 @@ export namespace gesture {
           p.aim.digit === "thumb" ? "Thumb" : "Index",
         );
       hands[side] = gestureHands.prepare(body, side, p, digits[side], mods.elbow);
-      if (p.kind === "touchFace" || p.kind === "pushGlasses" || p.kind === "scratchHead")
-        padding[side] = gestureTouch.padding(body, side);
+      geometry[side] = gestureTouch.prepare(body, side, p.kind);
     }
     // The farthest a hand travels from the entry to its stroke's start.
     const measure: ReturnType<typeof prepareGestureTransport> =
@@ -371,8 +366,7 @@ export namespace gesture {
       p.kind === "bow"
         ? HumanBalance.shift(
             body,
-            (back: number): IHumanPosture =>
-              gestureBow.bowed(body, at0, peak, back),
+            (back: number): IHumanPosture => gestureBow.bowed(body, at0, peak, back),
           ) / Math.sin((peak * Math.PI) / 180)
         : 0;
 
@@ -402,23 +396,16 @@ export namespace gesture {
       // Head, shoulder and trunk angles, added to what the stand holds.
       const joints: IHumanPosture["joints"] = { ...posture.joints };
       if (direct.length !== 0)
-        for (const [bone, add] of Object.entries(
-          gestureJoints.at(p.kind, u, cycles, envelope, mods.extent),
-        ) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
-          const was: readonly [number, number, number] = joints[bone] ?? [
-            0, 0, 0,
-          ];
-          joints[bone] = [was[0] + add[0], was[1] + add[1], was[2] + add[2]];
-        }
+        gestureJoints.add(joints, p.kind, u, cycles, envelope, mods.extent);
 
       // Hands: on the stroke's goals, and planned to its start and back
       // to rest.
       const requests: AutoMovieMotionHumanArm.ISided[] = [];
       for (const side of sides) {
         if (!geometry) {
-          Object.assign(joints, hands[side]!.fingers({
+          hands[side]!.fingers({
             shape: shapes[side]!, curl: gestureStroke.curl(p.kind, u, cycles, mods.extent),
-          }, envelope));
+          }, envelope, joints);
           continue;
         }
         const hand: {
@@ -428,9 +415,9 @@ export namespace gesture {
           posture,
           gestureStroke.hand(p.kind, side, u, cycles, input(posture, t, side, read)),
           envelope,
+          joints,
         );
         requests.push(hand.request);
-        Object.assign(joints, hand.fingers);
       }
       return { posture: { ...posture, joints }, requests, envelope };
     };

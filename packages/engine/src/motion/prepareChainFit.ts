@@ -13,7 +13,7 @@ import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBon
 import type { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { preparePoseResolution } from "../kinematics/preparePoseResolution";
-import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
+import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
 import { Quaternion } from "../math/Quaternion";
@@ -42,13 +42,19 @@ import type { solveDistalTwist } from "./solveDistalTwist";
  * same immutable six source fields and no goal fields. It shares source
  * geometry, axes, authored readings, articulation and non-bend pose prefix;
  * each new workspace still owns its reference, continuity and goal policy.
+ * Explicit curve continuation can request complete source admission without
+ * demanding authored effector FK. The supplied immutable rig resolves an
+ * empty output demand but still admits every current joint/root in order.
+ * The rig factory proves its original own data-method; foreign, copied,
+ * proxied or replaced readers retain the full authored path. Completion belongs
+ * only to this unchanged source, and failure publishes no completion state.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the borrowed inputs, caller-owned lifetime and laziness that preserves degenerate-target admission order.
  * @evidence contracts/development/implementation.md#principled-implementation Separates target-independent FK/domains and last-record joint maps from target-specific analytic solving, using the same skeleton axis precedence and resolveBoneMap as the one-shot fit.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure prepareChainFitRig owns lazy rig/source preparation, while this workspace owns FK and continuity readers; fitChainBend remains the sole owner of target search and ranking.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure prepareChainFitRig owns rig/source preparation. This workspace separates actual source admission from authored-frame demand and owns continuity. Ordinary fitChainBend keeps search ordering; its shared hinge owner also serves explicit continuation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No search, tolerance, seed, callback result or constraint is approximated; lazy authored/reference reads retain the original order in which a degenerate analytic solve returns without reading them.
- * @evidence contracts/development/implementation.md#efficient-algorithms One geometry/domain preparation and lazy source/reference FK serve a target workspace. A genuine fixed source additionally shares merged axes, zeroed geometry, source FK/joint maps, source articulation and non-bend prefix across goal bindings; only each binding's reference/continuity remains fresh. Explicit immutable rig reads demanded ancestry, raw omission keeps full scans, and every target search/projection remains. Speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The internal fixed workspace must come from prepareSource's identical immutable skeleton/pose/chain/topology/mappings, without any goal fields. It shares only exact source data, including source last-record maps; every binding still owns its first-record hinged reference, last-record free-bend reference, weight and continuity. Explicit poseResolution must match the same rig; raw calls without fixed data retain original full-FK admission. Lazy getters keep their original first-use sites.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One geometry/domain preparation and lazy source/reference FK serve a workspace. A fixed source shares axes, geometry, source maps, articulation and prefix across goals. Explicit continuation's empty rig demand performs actual O(J) admission without unused authored ancestry/output, once per fixed source; raw callers keep full authored FK. Reference/continuity remain goal-local and all target solving remains. Speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The internal fixed workspace comes from identical immutable six source fields without goals. Successful actual admission is shared only in that lifetime; each binding owns references/weight/continuity. The rig producer certifies the original own data-method before real ordered admission; unknown/replaced/copied/proxied readers and raw/no-rig retain the authored path. Completion is set only after success, never from identity alone or caller flags. Ordinary lazy getters keep first-use order.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One workspace owns O(J+B) local maps/FK dependency snapshots and constant-size data for three chain bones, projector and fixed hinge/reference reads. It borrows fixed inputs and an optional same-operation reader until caller release and retains no target history, global cache, handle or task.
  */
 export function prepareChainFit(
@@ -76,11 +82,19 @@ export function prepareChainFit(
     | undefined;
   let authoredContinuity: number | undefined;
   let retainedJoints: readonly IAutoMovieJointPose[] | undefined;
+  let sourceAdmitted: boolean = false;
   const prior: Map<AutoMovieHumanoidBone, IAutoMovieQuaternion> = new Map();
   const workspace: prepareChainFit.IWorkspace = {
     props,
     prepared,
     rig,
+    admitSource: fixed?.admitSource ?? ((): void => {
+      if (sourceAdmitted || reading !== undefined) return;
+      if (poseResolution === undefined ||
+        !prepareSkeletonPoseResolution.admitSource(poseResolution, props.pose, resolution))
+        workspace.read();
+      sourceAdmitted = true;
+    }),
     articulation: fixed?.articulation ?? ((): ReturnType<typeof twoBoneChainArticulation.prepare> => {
       if (articulation === undefined)
         articulation =
@@ -212,10 +226,7 @@ export function prepareChainFit(
     if (poseResolution === undefined)
       return resolveBoneMap(props.skeleton, pose, props.topology,
         props.jointAxes, props.restFrames, resolution);
-    const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
-    for (const bone of poseResolution.resolve(pose, resolution, requested))
-      map.set(bone.bone, bone);
-    return map;
+    return poseResolution.resolveMap(pose, resolution, requested);
   }
 }
 
@@ -316,6 +327,15 @@ export namespace prepareChainFit {
 
     /** One lazy preparation shared by all bend/orientation targets of this source. */
     rig: IRig;
+
+    /**
+     * Actually admit the unchanged complete source/root without demanding an
+     * unused authored effector frame. A genuine immutable rig with its original
+     * own data-method retains all joint/clinical admission with empty FK demand.
+     * Unknown/replaced readers and raw callers keep the full authored read. Only this source
+     * operation shares successful completion, never a caller-supplied flag.
+     */
+    admitSource(): void;
 
     /** Fixed source triangle geometry, read only at the first original analytic solve; each target owns its own reach geometry. */
     articulation(): ReturnType<typeof twoBoneChainArticulation.prepare>;

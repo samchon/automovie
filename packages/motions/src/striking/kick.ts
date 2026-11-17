@@ -132,7 +132,7 @@ export namespace kick {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target beyond the leg's reach is the declared miss at the fitted leg's own reach, not a stretched leg; provisional constants are named.
    * @evidence contracts/development/implementation.md#efficient-algorithms One limb fit per lean tried for the contact; per posture, closed-form units plus the display's own fit.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once per committed stop and dropped on settle, when the stop or the target may have changed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry and its source's, released with the plan.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds original geometry and its source until plan release. Each current full posture/weapon observation may borrow exact FK and genuine unchanged-table ROM metadata; no query workspace or projector is retained by the plan.
    */
   export function plan(context: IHumanActionContext<IParams>): IPlan {
     const p: IParams = context.params;
@@ -178,8 +178,8 @@ export namespace kick {
     // figure shows.
     const limb: "leftLeg" | "rightLeg" =
       timing.side === "left" ? "leftLeg" : "rightLeg";
-    const course: StrikingWeapon.Course = (at: number, channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2]): IHumanPosture =>
-      geometry().posture(Math.min(timing.duration, Math.max(0, at - t0)), channels, resolution);
+    const course: StrikingWeapon.Course = (at: number, channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2], projection?: Parameters<StrikingWeapon.Course>[3]): IHumanPosture =>
+      geometry().posture(Math.min(timing.duration, Math.max(0, at - t0)), channels, resolution, projection?.());
     const chain: StrikingWeapon.IChain = {
       ids: ["thigh", "shin", "foot"],
       limb,
@@ -262,12 +262,12 @@ export namespace kick {
               offset,
           }
         : { contact: timing.impact - offset }),
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1], source?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
         const t: number = Math.min(
           timing.duration,
           Math.max(0, seconds + offset),
         );
-        return carried(geometry().posture(t), t);
+        return carried(geometry().posture(t, undefined, source, projection), t);
       },
       settle: (): void => {
         built = undefined;

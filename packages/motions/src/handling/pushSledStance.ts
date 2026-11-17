@@ -75,9 +75,9 @@ export namespace pushSledStance {
    * @evidence contracts/development/implementation.md#principled-implementation The incline is the study's, read at the handles' mean height above the floor as a piecewise-linear function of the body's own hip and shoulder heights; each wrist is placed by its grasp (`HumanHand.reach`) and the shoulders are read off the resolved leaned body, the sink the drop that brings the risen shoulder within the arm's reach for the floor distance it keeps, by Pythagoras.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The incline, then one sink pass.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The incline stops at `RANGE` and the sink only lowers the shoulders; a handle still beyond reach is the law's refusal.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One walk posture per displayed frame of the push for its rise, and one posture resolution.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Retains every original display-rate rise sample, requesting only its consumed root channel; the initial standing posture remains complete and the actual sink solve demands both shoulder frames. No sample or fit is omitted, and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan's existing channel-demand contract guarantees the requested root equals its full observation. Each actual sample still runs in original time/order and no posture/root answer is stored or substituted.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no sampler or result history; local standing/shoulder data release on return or throw and the returned incline/sink are independent scalars.
    */
   export function solved(
     body: IHumanBody,
@@ -95,7 +95,7 @@ export namespace pushSledStance {
     const floor: number = pushSledStance.floor(body, feet);
     let rise: number = 0;
     for (let t: number = settle; t <= walk.duration; t += 1 / RATE)
-      rise = Math.max(rise, walk.posture(t).root.y - standing.root.y);
+      rise = Math.max(rise, walk.posture(t, ROOT_CHANNELS).root.y - standing.root.y);
     const asked: Record<HumanHand.Side, IAutoMovieVector3> = {
       left: HumanHand.reach(body, "left", "grip", handles.left, "fist").point,
       right: HumanHand.reach(body, "right", "grip", handles.right, "fist")
@@ -108,7 +108,8 @@ export namespace pushSledStance {
     const hip: number = body.measure.hipHeight;
     const shoulder: number = body.measure.shoulderHeight;
     const midway: number = (hip + shoulder) / 2;
-    const between = (a: number, b: number, at: number, to: number): number =>
+    const between: (a: number, b: number, at: number, to: number) => number =
+      (a: number, b: number, at: number, to: number): number =>
       at + ((to - at) * (height - a)) / (b - a);
     const measured: number =
       height >= shoulder
@@ -181,3 +182,6 @@ export namespace pushSledStance {
     );
   }
 }
+
+/** The display-rate rise observes only the current world's authored root position. */
+const ROOT_CHANNELS: readonly ["root"] = ["root"];

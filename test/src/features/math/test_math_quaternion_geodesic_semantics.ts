@@ -20,7 +20,7 @@ import { nclose } from "../internal/nclose";
  *    and noncommuting rotations: X90 gives-5, Y90 gives3, X90Y90 gives2
  *    and Y90X90 gives-5. Opposite quaternion signs retain each ordinate.
  * 5. The explicit normalize-then-angle scalar entry retains the same20-degree
- *    cardinal arc under nonunit signed scales and1e300 finite components.
+ *    cardinal arc under nonunit signed scales,2^±500/2^±600 and1e300 finite components.
  *    A zero first quaternion uses the documented identity before reading
  *    the60-degree target; a nonfinite component remains nonfinite.
  *
@@ -61,7 +61,7 @@ export function test_math_quaternion_geodesic_semantics(): void {
       TestValidator.predicate("scalar world-Y observes the independently composed physical turn",
         nclose(Quaternion.rotateVectorY(turn, { x: 2, y: 3, z: 5 }), ordinate, 1e-12),
       );
-  for (const factor of [0.25, -8, 1e300]) {
+  for (const factor of [0.25, -8, 2 ** -600, -(2 ** -500), 2 ** 500, -(2 ** 600), 1e300]) {
     const scaled: IAutoMovieQuaternion = { x: a.x * factor, y: a.y * factor, z: a.z * factor, w: a.w * factor };
     const actual: number = Quaternion.angleAfterNormalize(scaled, b);
     TestValidator.predicate("explicit normalization preserves the known cardinal arc at each finite scale",

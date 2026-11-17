@@ -136,8 +136,8 @@ export namespace stretch {
    * @evidence contracts/development/implementation.md#principled-implementation One phrase; each pose's parts rise to their places on its envelope.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per pose.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Range levels, named places and body measures only; provisional values are named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per arm per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the placed arm, the head share, the joint pulse, the leg placement and the foot rocker.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each actual arm retains its owned placement/solve; fixed foot pairs prepare native vector/slerp prerequisites once. Native fixed phase envelopes prepare intervals once while retaining custom callbacks. One-leg balance rows request only preceding root, since offsets/envelope depend on fixed entry geometry/time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed foot endpoints consume LegPhrase.prepareBetween with the original unclipped ankle/clipped rotation policy. Overhead callbacks reread borrowed entry grid/facing and all three original source/current chest transforms in order; each current chest may borrow native FK only during that one raw carried call.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the stance.
    */
   export function plan(
@@ -170,8 +170,12 @@ export namespace stretch {
         { name: "release", seconds: timed.at("relax") },
       ],
     );
-    const weight = (seconds: number): number =>
-      clock.envelope(["start", "ready"], ["relax", "end"], seconds);
+    const weight: (seconds: number) => number =
+      AutoMovieMotionClock.prepareEnvelope(
+        clock,
+        ["start", "ready"],
+        ["relax", "end"],
+      );
     const entry: IHumanPosture = context.entry.posture;
     const side: "left" | "right" = p.side ?? "right";
     const other: "left" | "right" = side === "right" ? "left" : "right";
@@ -226,42 +230,42 @@ export namespace stretch {
       standing: "left" | "right",
     ): IAutoMovieMotionHumanPrimitive => {
       const offset: IAutoMovieVector3 = over(standing);
+      const envelope: (seconds: number) => number =
+        AutoMovieMotionClock.prepareEnvelope(
+          clock,
+          ["start", "reachEnd"],
+          ["release", "end"],
+        );
       return {
         channels: ["root"],
+        reads: ["root"],
         from: 0,
         to: clock.duration,
         write: (posture: IHumanPosture, seconds: number): IHumanPosture => ({
           ...posture,
           root: Vector3.add(
             posture.root,
-            Vector3.scale(
-              offset,
-              clock.envelope(
-                ["start", "reachEnd"],
-                ["release", "end"],
-                seconds,
-              ),
-            ),
+            Vector3.scale(offset, envelope(seconds)),
           ),
         }),
       };
     };
     const lifted = (
       placement: HumanFoot.IPlacement,
-    ): IAutoMovieMotionHumanPrimitive =>
-      AutoMovieMotionHumanLeg.place({
+    ): IAutoMovieMotionHumanPrimitive => {
+      const lift: ReturnType<
+        typeof AutoMovieMotionHumanLegPhrase.prepareBetween
+      > = AutoMovieMotionHumanLegPhrase.prepareBetween(stance[side], placement);
+      return AutoMovieMotionHumanLeg.place({
         body,
         side,
         from: 0,
         to: clock.duration,
         placement: (_: IHumanPosture, seconds: number): HumanFoot.IPlacement =>
-          AutoMovieMotionHumanLegPhrase.between(
-            stance[side],
-            placement,
-            weight(seconds),
-          ),
+          lift(weight(seconds)),
         planted: (seconds: number): boolean => weight(seconds) <= 0,
       });
+    };
     const standingOn = (standing: "left" | "right"): IHumanContactWindow[] => [
       {
         part: `${standing}Foot`,
@@ -319,20 +323,7 @@ export namespace stretch {
             { spine: bend("spine"), chest: bend("chest") },
           ),
         );
-        const carryFrom: ReturnType<
-          typeof AutoMovieMotionHumanPlaced.carryFrom
-        > = AutoMovieMotionHumanPlaced.carryFrom(body, entry);
-        for (const s of ["left", "right"] as const) {
-          const point: IAutoMovieVector3 = AutoMovieMotionHumanPlaced.grid(
-            body,
-            entry,
-            s,
-            { height: "overhead", lateral: "inside", distance: "close" },
-          );
-          const tip: IAutoMovieVector3 = Vector3.add(
-            point,
-            facing(entry, { x: s === "left" ? -1 : 1, y: 0, z: 0 }),
-          );
+        for (const s of ["left", "right"] as const)
           primitives.push(
             ...AutoMovieMotionHumanPlaced.arm({
               body,
@@ -341,18 +332,43 @@ export namespace stretch {
               to: clock.duration,
               rest: rest(s),
               weight,
-              place: (posture: IHumanPosture) => {
-                const carry: ReturnType<typeof carryFrom> = carryFrom(posture);
-                const origin: IAutoMovieVector3 = carry(point);
+              place: (
+                posture: IHumanPosture,
+                _seconds: number,
+                resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+              ): ReturnType<AutoMovieMotionHumanPlaced.IArm["place"]> => {
+                const ride: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+                  point: IAutoMovieVector3,
+                ): IAutoMovieVector3 =>
+                  AutoMovieMotionHumanPlaced.carried(
+                    body,
+                    entry,
+                    posture,
+                    point,
+                    resolution,
+                  );
+                const point: IAutoMovieVector3 =
+                  AutoMovieMotionHumanPlaced.grid(body, entry, s, {
+                    height: "overhead",
+                    lateral: "inside",
+                    distance: "close",
+                  });
                 return {
-                  point: origin,
-                  facing: Vector3.subtract(carry(tip), origin),
+                  point: ride(point),
+                  facing: Vector3.subtract(
+                    ride(
+                      Vector3.add(
+                        point,
+                        facing(entry, { x: s === "left" ? -1 : 1, y: 0, z: 0 }),
+                      ),
+                    ),
+                    ride(point),
+                  ),
                 };
               },
               bend: "raised",
             }),
           );
-        }
         break;
       }
       case "quadriceps": {

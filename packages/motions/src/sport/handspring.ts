@@ -197,8 +197,8 @@ export namespace handspring {
    * @evidence contracts/development/implementation.md#principled-implementation The wheel to the release, the release's centre and its rate of change with the angle read from the table, the rate solved so the flight's turn over its fall time reaches `LAND`, and the support's constant angular acceleration ending at that rate.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shape, the table, the release, the rate, the timing, then the posture by phase.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rate past the bound or a landing no rate reaches is refused, never clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Demanded spoke FK per table row, two-hand-only surface observation and forty unchanged bisection steps of closed-form fall times remain. The fixed arched flight prepares one canonical local COM/projected articulation; each flight query rotates that offset and copies original joints without another FK/mass scan or eligible projection. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing wheel/flight/landing owners remain. Three fixed key pairs prepare once; fixed arched flight shares local COM/projected joints while every supported row still evaluates. Both original release-angle COM observations borrow one scoped FK/projector source, and landing lowering may borrow its synchronous parent's exact FK workspace.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Demanded spoke FK, two-hand surface observation, two-foot entry/touchdown FK and all forty fall-time bisections retain their complete canonical admission. Fixed arched flight prepares actual local COM/projected articulation; each query rotates that offset and copies original joints without another FK/mass scan or eligible projection. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Wheel/flight/landing owners remain. Three fixed key pairs and the arched articulation/COM prepare once; entry/touchdown share only actual two-foot demand membership. Both original release-angle COM observations borrow one scoped FK/projector source, and landing lowering may borrow its synchronous parent's exact FK workspace, without a time/result cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its table/model, three key-pair readers and fixed arched articulation/local COM. Release-query FK/projector sources end with their IIFE and only centre/slope numbers escape. Output joints are fresh; optional parent loans stay synchronous and never enter a plan or output evidence.
    */
   export function over(
@@ -234,8 +234,9 @@ export namespace handspring {
     });
 
     // The spokes: both feet, the leading foot, the other, both hands.
+    const footBones: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftFoot", "rightFoot"]);
     const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, context.entry.pose, undefined, new Set<AutoMovieHumanoidBone>(["leftFoot", "rightFoot"]));
+      poseBones(body, context.entry.pose, undefined, footBones);
     const ankle: number =
       (entered.get("leftFoot")!.worldPosition.y +
         entered.get("rightFoot")!.worldPosition.y) /
@@ -394,7 +395,7 @@ export namespace handspring {
     // touchdown's velocity out to the standing place over them.
     const touched: IHumanPosture = flying(flight);
     const shown: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      StrikingBody.trunk(body, touched);
+      StrikingBody.trunk(body, touched, undefined, footBones);
     const landed: Record<"left" | "right", IAutoMovieVector3> = {
       left: shown.get("leftFoot")!.worldPosition,
       right: shown.get("rightFoot")!.worldPosition,

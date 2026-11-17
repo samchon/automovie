@@ -240,27 +240,32 @@ export namespace HumanCarriedCouplingLoad {
    * @evidence contracts/development/implementation.md#principled-implementation The vertical reactions of a body at rest on point supports satisfy the force sum and the two horizontal moment balances; the least-norm solution spreads the weight evenly among redundant supports.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Three rows, one three-by-three solve by Cramer's rule, then the non-negative cut.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative share, a pull a resting contact cannot give, is cut to none and the rest renormalized; singular rows share equally. Both are stated.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the points.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Six ordered scalar dot products build the symmetric three-by-three Gram matrix instead of nine; original Cramer solve, singular bound and nonnegative renormalization remain. A scalar scale scan omits flattened/absolute arrays, with O(n) work/storage and no measured speedup.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each symmetric entry uses the same scalar products and original point accumulation order, so the matching off-diagonal value is shared only inside this current matrix. Every changed support point and centre is evaluated anew, without cross-query geometry or weight reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Current rows/weights use O(n) temporary space plus the fixed three-by-three matrix; they end on return or throw. Only the fresh original weight array escapes, with no input-point history, query workspace or external handle retained.
    */
   export function shares(
     points: readonly IAutoMovieVector3[],
     centre: IAutoMovieVector3,
   ): number[] {
     const n: number = points.length;
-    const equal: number[] = points.map((): number => 1 / n);
     if (n === 1) return [1];
+    const equal: number[] = points.map((): number => 1 / n);
     const rows: number[][] = [
       points.map((): number => 1),
       points.map((p: IAutoMovieVector3): number => p.x),
       points.map((p: IAutoMovieVector3): number => p.z),
     ];
-    const g: number[][] = rows.map((a: number[]): number[] =>
-      rows.map((b: number[]): number =>
-        a.reduce((s: number, v: number, i: number): number => s + v * b[i]!, 0),
-      ),
-    );
+    const g: number[][] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+    for (let row: number = 0; row < 3; row++)
+      for (let column: number = row; column < 3; column++) {
+        const a: number[] = rows[row]!;
+        const b: number[] = rows[column]!;
+        let sum: number = 0;
+        for (let i: number = 0; i < n; i++) sum = sum + a[i]! * b[i]!;
+        g[row]![column] = sum;
+        g[column]![row] = sum;
+      }
     const det = (m: number[][]): number =>
       m[0]![0]! * (m[1]![1]! * m[2]![2]! - m[1]![2]! * m[2]![1]!) -
       m[0]![1]! * (m[1]![0]! * m[2]![2]! - m[1]![2]! * m[2]![0]!) +
@@ -268,7 +273,9 @@ export namespace HumanCarriedCouplingLoad {
     const d: number = det(g);
 
     // Collinear points in plan: the three equations are singular.
-    const scale: number = Math.max(...g.flat().map(Math.abs));
+    let scale: number = 0;
+    for (const row of g)
+      for (const value of row) scale = Math.max(scale, Math.abs(value));
     if (!(Math.abs(d) > Number.EPSILON * scale * scale * scale)) return equal;
     const b: number[] = [1, centre.x, centre.z];
     const lambda: number[] = [0, 1, 2].map(

@@ -8,9 +8,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
   IAutoMoviePose,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -20,7 +18,7 @@ import { HumanArmMirror } from "./HumanArmMirror";
 import { HumanArmOvershoot } from "./HumanArmOvershoot";
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 import type { HumanColliders } from "./HumanColliders";
-import { HumanFoot } from "./HumanFoot";
+import { fitHumanLimbContact } from "./fitHumanLimbContact";
 import { HumanLimbFitMemory } from "./HumanLimbFitMemory";
 import { HumanLimbMirror } from "./HumanLimbMirror";
 import type { IHumanPosture } from "./IHumanPosture";
@@ -230,10 +228,32 @@ export namespace HumanLimbFit {
     near?: IAutoMovieSwivelNear,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieSeededChainFit {
+    return fitted(body, pose, limb, attached, placed, rival, near, resolution, ordinary);
+  }
+
+  /**
+   * Fit a constructor-owned continuous curve through current hinged correction.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names explicit continuous-curve point fitting and unchanged source, goal, near and result units.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the engine's prepared current-target hinged correction before generic cold work; the owned curve separately checks actual current constraints and deterministic branch continuity. Public fit keeps original ordering.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shares one attachment/clearance/contact kernel and changes only its point-fitting entry; no duplicate limb solver or contact algorithm is introduced.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No public prepared bit, changed goal, skipped source admission or altered tolerance; unsupported correction falls back through the engine's same-source cold owner.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Avoids generic pole/source ranking before a valid current hinged correction, while retaining actual FK/ROM/orientation and curve checks. Runtime gains are unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the same goal-specific workspace and actual source reader; every current/re-aimed point is fitted, with no prior pose answer reused.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Point-policy closures and workspaces remain synchronous, and independent output/cache ownership stays with the existing fitting owner.
+   */
+  export function continued(...args: Parameters<typeof fit>): IAutoMovieSeededChainFit {
+    return fitted(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], correcting);
+  }
+
+  /** One source, attachment and contact implementation for the two explicit solve policies. */
+  function fitted(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb, attached: IHumanPosture.IGoal,
+    placed: readonly ("left" | "right")[], rival: IAutoMovieVector3 | undefined, near: IAutoMovieSwivelNear | undefined,
+    resolution: Parameters<typeof prepareHumanPoseResolution>[0], read: typeof ordinary): IAutoMovieSeededChainFit {
     // A left limb is fitted as the right limb in the mirror image of its
     // world, so the two sides are mirror images to the bit.
     if (limb.startsWith("left")) {
-      const image: IAutoMovieSeededChainFit = fit(
+      const image: IAutoMovieSeededChainFit = fitted(
         body,
         HumanLimbMirror.pose(pose),
         HumanLimbMirror.limb(limb),
@@ -242,6 +262,7 @@ export namespace HumanLimbFit {
         rival === undefined ? undefined : HumanArmMirror.flip(rival),
         near,
         resolution,
+        read,
       );
       return { ...image, pose: HumanLimbMirror.pose(image.pose) };
     }
@@ -308,83 +329,8 @@ export namespace HumanLimbFit {
       readAuthored,
       readResolution(),
     );
-    let fitted: IAutoMovieSeededChainFit = fitter.fit(goal.point);
-    if (goal.contact === undefined || goal.rotation === undefined)
-      return fitted;
-    const leg: boolean = limb.endsWith("Leg");
-    const anchor: IAutoMovieVector3 = Vector3.add(
-      goal.point,
-      Quaternion.rotateVector(goal.rotation, goal.contact),
-    );
-    // The end joint's point is the fixed point of `x -> anchor - R(x) contact`,
-    // `R(x)` being the rotation the limb reaches when fitted to `x`. Plain
-    // iteration closes slowly while a joint stands on its limit, so each pass
-    // after the first takes Anderson's one-step mixing of the last two.
-    let point: IAutoMovieVector3 = goal.point;
-    let last: { image: IAutoMovieVector3; miss: IAutoMovieVector3 } | undefined;
-    let toes: number = 0;
-    // The fit whose contact lay nearest its place: the iteration need not
-    // close (a contact far from its joint, a blade's point a metre from the
-    // wrist, turns a small change of the hand into a large one of the joint's
-    // place, and a mixed step may then land far off), and its last pass is
-    // then no better than any other, so the nearest one is the one kept.
-    let nearest: {
-      fitted: IAutoMovieSeededChainFit;
-      miss: number;
-      toes: number;
-    } = {
-      fitted,
-      miss: Infinity,
-      toes: 0,
-    };
-    for (let i: number = 0; i < REAIM_PASSES; i++) {
-      const reached: IAutoMovieQuaternion = fitter.rotation(fitted.pose);
-      const off: ReturnType<typeof HumanFoot.heelOff> = HumanFoot.heelOff(
-        goal.rotation,
-        reached,
-        anchor,
-        goal.contact,
-      );
-      // The toes belong to the fit they were read from, which is the one kept.
-      toes = off.toes;
-      const miss: IAutoMovieVector3 = Vector3.subtract(off.ankle, point);
-      const missSize: number = Vector3.length(miss);
-      if (missSize < nearest.miss) nearest = { fitted, miss: missSize, toes };
-      if (missSize < REAIM_TOLERANCE || i === REAIM_PASSES - 1) break;
-      let next: IAutoMovieVector3 = off.ankle;
-      if (last !== undefined) {
-        const change: IAutoMovieVector3 = Vector3.subtract(miss, last.miss);
-        const size: number = Vector3.dot(change, change);
-        if (size > 1e-18) {
-          const mixing: number = Math.max(
-            -20,
-            Math.min(20, Vector3.dot(change, miss) / size),
-          );
-          next = Vector3.subtract(
-            off.ankle,
-            Vector3.scale(Vector3.subtract(off.ankle, last.image), mixing),
-          );
-        }
-      }
-      last = { image: off.ankle, miss };
-      point = next;
-      fitted = fitter.fit(point);
-    }
-    fitted = nearest.fitted;
-    toes = nearest.toes;
-    if (!leg || toes === 0) return fitted;
-    const bone: AutoMovieHumanoidBone = `${side}Toes`;
-    return {
-      pose: {
-        ...fitted.pose,
-        joints: fitted.pose.joints.map(
-          (j: IAutoMovieJointPose): IAutoMovieJointPose =>
-            j.bone === bone ? { ...j, flexion: (j.flexion ?? 0) + toes } : j,
-        ),
-      },
-      seed: fitted.seed,
-      ...(fitted.value === undefined ? {} : { value: fitted.value }),
-    };
+    return fitHumanLimbContact(fitter, goal, side, limb.endsWith("Leg"),
+      (point: IAutoMovieVector3): IAutoMovieSeededChainFit => read(fitter, point, near));
   }
 
   /**
@@ -449,18 +395,17 @@ export namespace HumanLimbFit {
     return HumanLimbMirror.goal(goal);
   }
 
-  /** How far a re-aimed end joint may still move between two fits of a limb with a contact, metres (provisional: a fiftieth of a millimetre, far inside every contact verdict). */
-  const REAIM_TOLERANCE: number = 2e-5;
+  /** Public near/cold fitting retains its original workspace entry and order. */
+  function ordinary(workspace: ReturnType<typeof prepareHumanLimbFit>, point: IAutoMovieVector3,
+    _near: IAutoMovieSwivelNear | undefined): IAutoMovieSeededChainFit {
+    return workspace.fit(point);
+  }
 
-  /**
-   * The most fits a limb with a contact takes (provisional). The mixed
-   * iteration closes in three to five on a joint well past its limit. A foot
-   * whose flat pose misses the ankle's range by under a degree has its only
-   * solution far away, at a heel raised by centimetres, and the first passes
-   * move away from the flat pose slowly: up to eleven fits measured on a
-   * stagger's landed rear foot.
-   */
-  const REAIM_PASSES: number = 16;
+  /** Only the actual continuous-curve constructor selects current hinged correction. */
+  function correcting(workspace: ReturnType<typeof prepareHumanLimbFit>, point: IAutoMovieVector3,
+    near: IAutoMovieSwivelNear | undefined): IAutoMovieSeededChainFit {
+    return near === undefined ? workspace.fit(point) : workspace.continued(point, near);
+  }
 
   /** What a limb's fit must keep clear of: the degrees a mid joint and an end joint, world metres, count as out of range. */
   type IObstruction = (

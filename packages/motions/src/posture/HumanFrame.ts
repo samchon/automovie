@@ -4,6 +4,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+/** Private unchanged +Y axis; its original magnitude is prepared on the first turn. */
+const TURN: (yaw: number) => IAutoMovieQuaternion = Quaternion.prepareAxisAngle({
+  x: 0, y: 1, z: 0,
+});
+
 /**
  * A performer's own horizontal frame: an origin on the floor and a heading.
  *
@@ -272,16 +277,16 @@ export namespace HumanFrame {
    * @param yaw Degrees.
    * @returns The rotation.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States degree yaw about +Y and quaternion output.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates degree-valued axis-angle conversion to the engine quaternion owner.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One canonical +Y axis-angle call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses no alternate axis or fitted coefficient.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant scalar work with no algorithm selection.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the engine's axis-angle conversion without a duplicate implementation.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh quaternion and retains nothing.
+   * @evidence contracts/development/common.md#meaningful-documentation States degree yaw about +Y and fresh quaternion output, with the module's private fixed-axis preparation.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the engine's same axis-angle owner, sharing only the unchanged +Y direction and original magnitude while every yaw keeps its original half-angle/sine-division/component/cosine arithmetic.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One private canonical-axis reader serves actual frame turns without duplicating quaternion or heading mathematics.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Construction reads no numerical axis component; first use keeps the original magnitude work. Every yaw retains signed-zero/nonfinite propagation, fresh output and original arithmetic with no angle clamp, alternate axis or fitted coefficient.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One direction/magnitude preparation replaces a literal axis allocation and repeated magnitude scan/square root per turn; each yaw retains its actual trigonometry/division/products and output allocation. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only private immutable axis prerequisites cross calls through Quaternion.prepareAxisAngle; no yaw, rotation result, performer or pose is cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One module-owned reader retains one private axis/magnitude state until module release. Each quaternion is fresh, with no queried angle/output, performer, handle or task retained.
    */
   export function turn(yaw: number): IAutoMovieQuaternion {
-    return Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw);
+    return TURN(yaw);
   }
 
   /**

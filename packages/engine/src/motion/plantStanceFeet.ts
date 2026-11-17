@@ -11,7 +11,6 @@ import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopo
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { preparePoseResolution } from "../kinematics/preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
-import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { groundFunction } from "../space/groundFunction";
 import { IAutoMovieFootLeg } from "./IAutoMovieFootLeg";
@@ -50,9 +49,9 @@ const DEFAULT_LEGS: readonly IAutoMovieFootLeg[] = HUMANOID_LEG_CHAINS.map(
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The coordinator separates dense sampling, run pinning, chain correction and result assembly through existing single-purpose helpers, all using identical topology and clinical axes/rest frames.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid sample rate, scalar ground or tolerance and nonfinite sampled/carried targets throw; absent/degenerate/unimprovable chains keep articulation rather than inventing contact success. Default legs and zero ground are explicit API defaults.
  * @evidence contracts/development/common.md#meaningful-documentation States model frame, dense clock, shared clinical semantics, opening pin precedence, input failure and residual limitations instead of promising exact contact for arbitrary rig constraints.
- * @evidence contracts/development/implementation.md#efficient-algorithms F samples require interpolation and ordered joint admission. Raw omission retains full B-bone FK with exact scalar reuse; an explicit immutable rig computes L feet's ancestry and stores O(FL) FK outputs. Stance work stays O(FL) and actual pins keep bounded IK. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms F samples require interpolation and ordered joint admission. Raw omission retains full B-bone FK with pure exact-angle factor reuse; an explicit immutable rig computes L feet's ancestry and writes fresh maps directly without F intermediate frame arrays, storing O(FL) FK outputs. Stance work stays O(FL) and actual pins keep bounded IK. Runtime improvement is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Completed poses/maps feed detection. One exact operation reader and topology serve detection/correction; a genuine immutable rig must match this skeleton/clinical tables and supplies target-chain preparation. Raw omission preserves full live admission. Each changed parent pose and target still receives its actual solve.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned frames/plants belong to the caller. Sample/FK/target arrays are call-local; one reader retains only current per-name/per-bone dependency rows and releases on return or throw. A supplied immutable rig remains caller-owned, without continuing tasks or handles.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned frames/plants belong to the caller. Sample/FK/target arrays are call-local; raw factor workspaces and optional immutable-rig current dependency rows release with the synchronous reader on return or throw. A supplied immutable rig remains caller-owned, without continuing tasks or handles.
  */
 export const plantStanceFeet: (props: {
   /** Rig for forward kinematics. */ skeleton: IAutoMovieSkeleton;
@@ -149,10 +148,7 @@ export const plantStanceFeet: (props: {
         props.restFrames,
         resolution,
       );
-      const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
-      for (const bone of demand.resolve(sampled.pose, resolution))
-        map.set(bone.bone, bone);
-      return map;
+      return demand.map(sampled.pose, resolution);
     },
   );
 

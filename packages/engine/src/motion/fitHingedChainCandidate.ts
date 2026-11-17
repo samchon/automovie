@@ -69,7 +69,7 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through hingedArmArticulation, scored through actual clinical decomposition and ROM overshoot. Without strain, obstruction, reference or a hint side, every raw cost term is non-negative: ROM excess, quaternion angle and squared clinical effort. A zero global lower bound then certifies only an exact-zero original first candidate, retaining its original tie and seed.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoring closure over hingedArmArticulation's sweep; the effector error is a separate member.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overshoot ranks first, so no illegal candidate wins on the hint or the hand; a degenerate chain returns null for the caller's fallback.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. A certified exact-zero original first candidate can end a cold search only under the non-negative no-side/no-reference/no-obstruction continuous objective; every other search remains. Task priority omits unused effort and unobstructed midpoint FK; a reference-only second key also needs no unused upper/lower world prefix. Actual upper-reference geodesic and strain lower-world composition remain lazy. Exact rotation owns at most five distal queries plus guarded final fallback. No speedup is measured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. An exact-zero first candidate can end cold search only under its certified nonnegative objective; other searches remain. An absent hint side and obstruction need no midpoint FK or cross-axis vectors. Task priority omits unused effort; a reference-only second key needs no unused world prefix. Reference geodesic/strain composition remain lazy. Rotation keeps its existing distal/fallback work. No speedup is measured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied lazy workspace shares admitted bases, fixed references/weight, hinge range and posed source swing at the same first-use sites. A candidate reads its upper joint and shared lower record once without a discarded joint-pair array; an absent reference needs no unused quaternion normalization. Its already computed lower-preceding world frame also serves its rotation scorer in the original grouping. Source dependencies stay unchanged; target readings, scores, seed selection and caller callbacks still run per target. Standalone callers retain original setup and recomputation fallback.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns any borrowed workspace rig; this target's scoring closures and bounded sweep data are released when the search returns. Only the selected candidate escapes, and no target history, handle or background task is retained.
  */
@@ -215,7 +215,8 @@ export function fitHingedChainCandidate(
 
     // Task priority reads no hint midpoint. A reference also replaces its
     // strain callback, leaving world frames only to rotation or obstruction.
-    const needsMid: boolean = props.obstruction !== undefined || strain === undefined;
+    const needsMid: boolean = props.obstruction !== undefined ||
+      (strain === undefined && side !== null);
     const needsAbove: boolean = props.obstruction !== undefined || turn !== null ||
       (strain !== undefined && props.referencePose === undefined);
     const turnedUpper: IAutoMovieQuaternion | undefined = needsMid || needsAbove
@@ -334,13 +335,14 @@ export function fitHingedChainCandidate(
         // The hint's side weighs as the mid joint leaves the line to the
         // target: a straight limb has no side, and a rounding-sized offset's
         // direction must not rank swivels.
-        const offset: IAutoMovieVector3 = across(mid!);
-        const off: number = Vector3.length(offset);
-        const away: number =
-          side === null || off < 1e-12
-            ? 0
-            : (1 - Vector3.dot(Vector3.scale(offset, 1 / off), side)) *
+        let away: number = 0;
+        if (side !== null) {
+          const offset: IAutoMovieVector3 = across(mid!);
+          const off: number = Vector3.length(offset);
+          if (!(off < 1e-12))
+            away = (1 - Vector3.dot(Vector3.scale(offset, 1 / off), side)) *
               Math.min(1, off / SIDED);
+        }
         // The effector's error is the costly term and is never negative, so
         // the sum without it, added in the same order, is a lower bound of
         // the tie-break (rounding is monotone), and the error is computed

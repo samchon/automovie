@@ -142,9 +142,9 @@ export namespace pushSled {
    * @evidence contracts/development/implementation.md#principled-implementation The handles are read on the prop's frame at the start; each hand's place on its handle is taken into the leaning chest's frame where the hands arrive and carried with it after, so the load follows the trunk through the grip.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The handles, the lean, the chest-held places, the contacts, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bounds refuse; a missing handle refuses with the prop's handles.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One current chest read carries both hands; settled frames skip the unused carrier baseline solve. Each fixed sample prepares its chest/base once, each hand binds its FK names, fixed fist alignment and point-only grip reader once. Actual contact judgements omit unused normal/forward rotations; all original elbow/coupled fits and cost pruning remain. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact turn/position pairs share their completed grasp only within one unchanged taking posture; the winning grasp is reused. Fixed sample bases share only clamp/root preparation, each candidate still fitting its own full goals, and one operation FK reader serves a hand's actual candidate evaluations.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its base and chosen holds/arrival transform; candidate maps, fixed-sample bases and operation FK readers belong only to the synchronous grasp search and no returned posture captures them.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One current runtime chest read carries both hands; settled frames skip the unused carrier baseline solve. Planning keeps every current sample chest/Bend/complete posture read, sharing only canonical hand-name/fist alignment/point and exact FK metadata. All original fits and cost pruning remain; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Original exact turn/position grasp memoization remains local, but borrowed taking/sample postures never acquire fixed direct bases, arm chains or replayed chest frames. Every actual sample fits current full goals. Runtime FK/ROM loans still reach the original carrier/baseline/carry with raw chest using FK alone.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its original base, chosen holds and numerically produced arrival transform. Original candidate maps and exact FK metadata release with planning; no fixed-source base/frame map, arm context or dynamic loan escapes into returned posture/goal/plan.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -204,7 +204,7 @@ export namespace pushSled {
       lean,
       p.incline,
     );
-    const leaned = (posture: IHumanPosture, share: number): IHumanPosture =>
+    const leaned: (posture: IHumanPosture, share: number) => IHumanPosture = (posture: IHumanPosture, share: number): IHumanPosture =>
       AutoMovieMotionHumanTrunk.sunk(
         body,
         posture,
@@ -212,8 +212,9 @@ export namespace pushSled {
         stance.incline * share,
         0,
       );
-    const chest = (posture: IHumanPosture): IAutoMovieResolvedBone =>
-      HumanTrunk.resolve(body, posture, undefined, undefined, CHEST).get("chest")!;
+    const chest: (posture: IHumanPosture, resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => IAutoMovieResolvedBone =
+      (posture: IHumanPosture, resolution?: Parameters<IHumanActionPlan["posture"]>[2]): IAutoMovieResolvedBone =>
+      HumanTrunk.resolve(body, posture, undefined, resolution, CHEST).get("chest")!;
 
     const taking: IHumanPosture = leaned(base.posture(SETTLE), 1);
     const arrived: IAutoMovieResolvedBone = chest(taking);
@@ -221,18 +222,18 @@ export namespace pushSled {
     const carry: ReturnType<typeof pushSledCarry.prepare> = pushSledCarry.prepare(arrived);
     // An arm's goal on a hold: where the arm cannot meet its turn, the grip
     // socket stays on the handle and the turn gives.
-    const goal = (side: HumanHand.Side, hold: Hold): IHumanPosture.IGoal => ({
+    const goal: (side: HumanHand.Side, hold: Hold) => IHumanPosture.IGoal = (side: HumanHand.Side, hold: Hold): IHumanPosture.IGoal => ({
       point: hold.wrist.point,
       rotation: hold.wrist.rotation,
       contact: sockets[side],
       bend: hold.bend,
     });
-    const bases: Map<IHumanPosture, ReturnType<typeof resolveHumanPosture.prepareBase>> = new Map();
     const readHand: Record<HumanHand.Side, ReturnType<typeof poseBones.prepare>> = {
       left: poseBones.prepare(body, new Set<AutoMovieHumanoidBone>(["leftHand"])),
       right: poseBones.prepare(body, new Set<AutoMovieHumanoidBone>(["rightHand"])),
     };
-    const fit = (
+    const fit: (posture: IHumanPosture, side: HumanHand.Side, hold: Hold,
+      resolution: ReturnType<typeof prepareHumanPoseResolution>) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
       posture: IHumanPosture,
       side: HumanHand.Side,
       hold: Hold,
@@ -240,12 +241,8 @@ export namespace pushSled {
     ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
       const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
       limbs[`${side}Arm`] = goal(side, hold);
-      let prepared: ReturnType<typeof resolveHumanPosture.prepareBase> | undefined = bases.get(posture);
-      if (prepared === undefined) {
-        prepared = resolveHumanPosture.prepareBase(body, posture);
-        bases.set(posture, prepared);
-      }
-      return readHand[side](prepared.seeded(limbs, {}, resolution).pose, resolution());
+      return readHand[side](resolveHumanPosture.seeded(body,
+        { ...posture, limbs }, undefined, undefined, resolution).pose, resolution());
     };
 
     // Where the arms take the handles when the grips close: each hand's turn
@@ -261,15 +258,10 @@ export namespace pushSled {
       (share: number): IHumanPosture =>
         leaned(base.posture(SETTLE + share * (duration - SETTLE)), 1),
     );
-    const frames: pushSledCarry.IFrame[] = pushing.map(
-      (posture: IHumanPosture): pushSledCarry.IFrame => carry(chest(posture)),
-    );
     type Grasp = { point: IAutoMovieVector3; hold: Hold; off: number };
     type Held = { hold: Hold; off: number };
     const take: (side: HumanHand.Side) => Held = (side: HumanHand.Side): Held => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-      const bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare> =
-        AutoMovieMotionHumanBend.prepare({ body, posture: taking, side });
       const align: ReturnType<typeof HumanHand.prepareAlignment> = HumanHand.prepareAlignment(hands[side]);
       const gripAt: ReturnType<typeof HumanHand.preparePoint> = HumanHand.preparePoint(body, side, "grip", "fist");
       const { frame: at, symmetry, length } = grips[side];
@@ -295,7 +287,8 @@ export namespace pushSled {
             forward: at.forward,
           }),
         );
-        const bend: IAutoMovieVector3 = bends.solve({
+        const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.solve({
+          body, posture: taking, side,
           point: wrist.point,
           rotation: wrist.rotation,
           fallback: "hang",
@@ -355,7 +348,7 @@ export namespace pushSled {
           // Through the push the hands and the load are carried as one.
           for (let index: number = 0; index < pushing.length; ++index) {
             const posture: IHumanPosture = pushing[index]!;
-            const frame: pushSledCarry.IFrame = frames[index]!;
+            const frame: pushSledCarry.IFrame = carry(chest(posture));
             const carried: Hold = frame.hold(taken.hold);
             yield Vector3.length(
               Vector3.subtract(
@@ -378,9 +371,7 @@ export namespace pushSled {
       left: take("left"),
       right: take("right"),
     };
-    bases.clear();
     pushing.length = 0;
-    frames.length = 0;
 
     // A handle the fist does not keep, as the grip closes or through the
     // push, would be held in the air: the push is refused, the body to stand
@@ -405,7 +396,7 @@ export namespace pushSled {
       left: taken.left.hold,
       right: taken.right.hold,
     };
-    const fist = {
+    const fist: IHumanPosture["joints"] = {
       ...HumanHand.shape("left", "fist"),
       ...HumanHand.shape("right", "fist"),
     };
@@ -434,12 +425,14 @@ export namespace pushSled {
         ),
       ],
       hands: sides,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const share: number = minimumJerk.share(Math.min(1, t / SETTLE));
-        const posture: IHumanPosture = leaned(base.posture(t), share);
+        const posture: IHumanPosture = leaned(base.posture(t, undefined, resolution, projection), share);
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-        const current: pushSledCarry.IFrame | undefined = t < SETTLE ? undefined : carry(chest(posture));
+        const current: pushSledCarry.IFrame | undefined = t < SETTLE ? undefined : carry(chest(posture, resolution));
         for (const side of sides)
           limbs[`${side}Arm`] = goal(
             side,
@@ -449,7 +442,8 @@ export namespace pushSled {
           ...posture, joints: { ...posture.joints, ...(t >= SETTLE ? fist : {}) }, limbs,
         };
         if (share >= 1) return carrying;
-        const walked: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture(body, posture);
+        const walked: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture.seeded(
+          body, posture, undefined, undefined, resolution, undefined, projection).pose;
         return AutoMovieMotionHumanArm.carry(
           body,
           carrying,
@@ -458,6 +452,9 @@ export namespace pushSled {
             right: AutoMovieMotionHumanArm.angles(walked, "right"),
           },
           share,
+          undefined,
+          resolution,
+          projection,
         );
       },
     };

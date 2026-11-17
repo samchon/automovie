@@ -1,5 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
@@ -78,9 +81,9 @@ export namespace crawlFeet {
    * @evidence contracts/development/implementation.md#principled-implementation Uses rolled's same rigid metatarsophalangeal pivot and then its fixed toe-tip pivot, retaining all rotation and socket calculations and the original range comparison.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed geometry precedes the same two-pivot evaluator, with one lazy toe-tip point.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not change the toe-extension range, heading interpolation, contact offset or endpoint progress.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed heading/range/socket reads run once, and the range-boundary tip is measured once instead of at every later share; changing rigid placements remain constant work per query.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged body and standing placement, heading and lift establish the invariant geometry; progress queries retain no prior progress or current placement.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One owning plan retains its standing foot, first pivot, scalar limits and at most one second pivot until release; no pose, solver reader or history is cached.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed heading/range reads and the MTP output socket prepare once; each actually used pivot lazily prepares its native rest/socket offset reader once, retaining every current toe articulation and rigid transform. The range-boundary tip is measured once instead of at every later share.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged body and standing placement, heading and lift establish the invariant geometry. Native HumanFoot readers share only fixed socket/rest prerequisites; current progress, rotation, articulation and placement are independently evaluated.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One owning plan retains its standing foot, first pivot, scalar limits, one MTP point reader, at most two offset readers and at most one second pivot until release; no pose, solver reader or history is cached.
    */
   export function prepareRoll(
     body: IHumanBody,
@@ -98,29 +101,38 @@ export namespace crawlFeet {
       lift,
       AutoMovieMotionHumanRange.limit(`${side}Toes`, "flexion") ?? lift,
     );
-    const mtp: IAutoMovieVector3 = HumanFoot.point(body, side, "mtp", standing);
+    const mtpAt: ReturnType<typeof HumanFoot.preparePoint> =
+      HumanFoot.preparePoint(body, side, "mtp");
+    const mtp: IAutoMovieVector3 = mtpAt(standing);
+    const offsets: Partial<
+      Record<"mtp" | "toe", ReturnType<typeof HumanFoot.prepareOffset>>
+    > = {};
     const turned = (q: number): number => from + ((heading - from) * q) / lift;
     const about = (
       contact: "mtp" | "toe",
       at: IAutoMovieVector3,
       q: number,
       toes: number,
-    ) => {
-      const rotation = HumanFoot.rotation(turned(q), -q);
+    ): {
+      placement: HumanFoot.IPlacement;
+      toes: number;
+      mtp: IAutoMovieVector3;
+    } => {
+      const rotation: IAutoMovieQuaternion = HumanFoot.rotation(turned(q), -q);
+      const offset: ReturnType<typeof HumanFoot.prepareOffset> = (offsets[
+        contact
+      ] ??= HumanFoot.prepareOffset(body, side, contact));
       const placement: HumanFoot.IPlacement = {
         ankle: Vector3.subtract(
           at,
-          Quaternion.rotateVector(
-            rotation,
-            HumanFoot.offset(body, side, contact, toes),
-          ),
+          Quaternion.rotateVector(rotation, offset(toes)),
         ),
         rotation,
       };
       return {
         placement,
         toes,
-        mtp: HumanFoot.point(body, side, "mtp", placement),
+        mtp: mtpAt(placement),
       };
     };
     let tip: IAutoMovieVector3 | undefined;

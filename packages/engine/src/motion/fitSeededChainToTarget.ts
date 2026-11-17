@@ -5,10 +5,12 @@ import type {
 } from "@automovie/interface";
 
 import { preparePoseResolution } from "../kinematics/preparePoseResolution";
+import type { IAutoMovieSwivelNear } from "../kinematics/IAutoMovieSwivelNear";
 import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import type { IAutoMovieSeededChainFit } from "./IAutoMovieSeededChainFit";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { fitChainBend } from "./fitChainBend";
+import { fitHingedChainBend } from "./fitHingedChainBend";
 import { orientChainEffector } from "./orientChainEffector";
 import { prepareChainFit } from "./prepareChainFit";
 import { resolveBoneMap } from "./resolveBoneMap";
@@ -25,11 +27,18 @@ import { resolvePreparedChainFrames } from "./resolvePreparedChainFrames";
  *
  * Failed bend preparation or analytic admission keeps the source pose at that stage. A requested rotation still runs the orientation pass and may change the lower twist and effector articulation.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Prepares actual chain frames, solves analytic two-bone candidates, clamps to rig ROM and measures actual FK under the original ranking. prepareSource additionally separates immutable rig/pose/chain geometry from changing goal fields: only that geometry and source preparation are shared, while each binding gets its actual reference, weight, callback and cold/near policy.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure preparedWorkspace is the single search/orientation/rotation composition for ordinary prepare and prepareSource bindings. prepareChainFit owns source geometry and query-local continuity; prepareChainFitRig separates fixed rig data from each binding's reference and weight.
+ * The prepared workspace's explicit continued entry serves a deterministic
+ * constrained-curve owner. After original source admission it tests that
+ * current near hinge before generic pole and ranking-continuity work. An
+ * unsupported or failed candidate runs the complete cold fit. Its owner
+ * must independently validate final orientation, pole side, ROM, contact and
+ * branch continuity; a local basin is not the cold global-score certificate.
+ *
+ * @evidence contracts/development/implementation.md#principled-implementation Prepares actual chain frames, solves two-bone candidates, clamps ROM and measures actual FK. prepareSource separates fixed geometry from live goal fields. Explicit continued uses the existing near basin only as a deterministic curve candidate under the same physical bend gate; failure invokes cold. Final orientation and the curve's full goal/continuity admission remain mandatory, without claiming global cold-score identity.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure preparedWorkspace owns fit, explicit continued and rotation. Both result paths share one final orientation/materialization. fitHingedChainBend owns hinge scoring and post-clamp shell admission; ordinary fitChainBend retains its pole/search order. prepareChainFit owns source geometry and query-local continuity, and its rig separates fixed clinical data from goal reference/weight.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Failed bend admission preserves only the bend-stage source pose; requested orientation still applies afterward. No ideal target measurement replaces post-clamp FK. A 32-angle sweep and ten local halvings bound the heuristic, with 1e-12 continuity and 1e-6 normal-degeneracy thresholds.
  * @evidence contracts/development/common.md#meaningful-documentation States model-metre target, unchanged joints, actual ranking and bounded-search limits. Companion documentation defines prepare's fixed complete request and prepareSource's immutable source/live goal split, lazy first admission, exact authored-reader/static-rig premises, frames, omission behavior and caller-owned lifetimes.
- * @evidence contracts/development/implementation.md#efficient-algorithms Ordinary preparation and source/reference FK scale with rig/joints. prepareSource prepares zeroed geometry/merged axes once, shares source FK/maps/prefix and static rig coefficients lazily across goal bindings, and gives each binding fresh reference/continuity work; every actual target retains its bend search, projection and orientation. Candidate FK is constant-size and final pose copies O(J). Speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Ordinary preparation/source FK scale with rig/joints. prepareSource shares fixed geometry/maps/prefix/rig across independent goal bindings. Explicit continuation retains source admission and evaluates its near hinge before unused generic pole/ranking-continuity work; failed or unsupported candidates pay cold fallback too. Actual current projection/orientation/FK remain, candidate FK is constant-size and final pose copies O(J). Speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit immutable skeleton, pose, chain, topology and mappings prove source equivalence; source creation performs no FK and first binding retains ordinary preparation admission. Goal options are copied as only the seven supported changing fields, so they cannot replace source geometry. Each binding owns reference/weight/callback/near scope; omitted fields restore their original absent meanings. No solved pose, point, candidate score or seed is reused across targets or bindings.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A source producer owns one lazy O(J+B) base workspace until release; it retains no goal binding. Each bound workspace owns its own reference/continuity maps and borrows source data until caller release. Bounded search records end per target, and only caller-owned results escape. There are no global caches, handles or tasks.
  */
@@ -44,9 +53,9 @@ export function fitSeededChainToTarget(
  * Scoped preparation for repeated targets of one unchanged source request.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines ISource's six fixed source fields, IOptions' seven live goal/search fields and IWorkspace's model-metre fit/actual-rotation operations with unchanged-input lifetimes.
- * @evidence contracts/development/design.md#principled-representation ISource and IOptions partition IFitChainToTargetProps by actual preparation dependencies. The bound workspace retains the same fit/rotation interface for ordinary target-only reuse and source-only reuse across different goals.
- * @evidence contracts/development/design.md#minimal-and-owned-surface HumanLimbFit contact re-aim consumes a bound workspace; its fixed source goal search consumes prepareSource without exposing internal rig maps, projected answers or a second solver.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No global identity cache, quantization, alternate search or remembered solution is exposed; every changing reference, callback, rotation, bend and near seed remains an actual binding input.
+ * @evidence contracts/development/design.md#principled-representation ISource and IOptions partition actual preparation dependencies. fit retains the original fixed search policy; continued accepts an explicit curve candidate whose current post-clamp bend is checked before orientation, with a cold fallback. rotation reads actual fitted FK.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Contact re-aim uses fit/rotation, fixed-source goal search uses prepareSource, and the constructed immutable motion-curve owner uses continued with its own complete current goal gate. Internal rig maps and projected answers remain private; no second hinge solver is added.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No global identity cache, quantization or remembered solution is exposed. Explicit continuation is a documented local curve policy rather than hidden cold-global equivalence; every current goal, callback and required physical validation still runs.
  */
 export namespace fitSeededChainToTarget {
   /**
@@ -59,7 +68,9 @@ export namespace fitSeededChainToTarget {
    * States input stability, borrowed result members, caller-owned lifetime and the two operations' frames.
    * Fixed source dependencies admit several independent model-metre targets without making the previous answer a new source or continuation seed.
    * The contact re-aim consumer needs only another fit and its actual reached rotation; internal preparation and lazy caches stay private.
-   * Cold or near is fixed by the source request; target order does not change it and no prior result replaces a global sweep.
+   * fit keeps its source's fixed cold/near policy. Explicit continued accepts a
+   * deterministic curve owner's candidate seed; it does not certify the cold
+   * global winner, curve continuity or current final orientation/contact.
    */
   export interface IWorkspace {
     /**
@@ -75,6 +86,21 @@ export namespace fitSeededChainToTarget {
      * The signature acquires nothing.
      */
     fit(target: IAutoMovieVector3): IAutoMovieSeededChainFit;
+
+    /**
+     * Evaluate an explicit continuous-curve candidate at the current target.
+     * The curve owner supplies a deterministic branch/swivel with positive
+     * degree-valued bracket tolerance and verifies current final effector
+     * orientation, pole side, ROM, contacts/clearance and branch events.
+     * The near hinge's actual post-clamp shell must pass the ordinary bend
+     * residual gate; otherwise the complete cold fit runs on this same source.
+     * The original source/root still receives actual ordered admission. An
+     * explicit rig uses an empty FK demand; a raw source keeps full authored
+     * FK. Only the unchanged fixed source may share successful admission.
+     * Invalid seed numbers also decline the candidate and run cold. No last
+     * query is retained and no global cold-score equivalence is promised.
+     */
+    continued(target: IAutoMovieVector3, near: IAutoMovieSwivelNear): IAutoMovieSeededChainFit;
 
     /**
      * Read a fit result's actual effector rotation in the same resolved model frame.
@@ -111,7 +137,7 @@ export namespace fitSeededChainToTarget {
    * No obstruction/strain result, target-dependent candidate score, seed, target or final pose is memoized across targets; only fixed preparation, exact authored-FK readings, prior conversion and source continuity are shared. Invalid preparation retains the one-shot fallback and full FK rotation read.
    * Rig preparation and at most two lazy source/reference FK reads occur once per workspace; an authored reader can reuse its exact FK. An explicit immutable rig computes only requested source/zeroed/reference ancestry and null-preparation effector rotation, with O(J) ordered joint admission and exact dependency reuse. Without it, raw full-FK admission remains. Each target retains its search; valid chain rotation uses a joint scan and constant chain FK.
    * The fixed input scope proves equivalence; rig preparation getters and an optional exact authored-FK reader retain their original lazy admission sites, returned poses preserve fixed non-chain dependencies, and every target invokes all required candidate callbacks and projection queries.
-   * The two returned closures own one preparation workspace with O(J+B) borrowed input reachability and O(J) derived maps; no global cache or handle survives caller release.
+   * The three returned methods own one preparation workspace with O(J+B) borrowed input reachability and O(J) derived maps; no global cache or handle survives caller release.
    */
   export function prepare(
     source: Omit<IFitChainToTargetProps, "target">,
@@ -183,20 +209,40 @@ function preparedWorkspace(
   resolution: ReturnType<typeof preparePoseResolution>,
   poseResolution?: prepareSkeletonPoseResolution.IRig,
 ): fitSeededChainToTarget.IWorkspace {
+  const finish: (props: IFitChainToTargetProps,
+    bend: IAutoMovieSeededChainFit) => IAutoMovieSeededChainFit = (
+    props: IFitChainToTargetProps, bend: IAutoMovieSeededChainFit,
+  ): IAutoMovieSeededChainFit => ({
+    pose: orientChainEffector(
+      props, bend.pose, workspace.prepared ?? undefined, workspace.rig,
+    ),
+    seed: bend.seed,
+    ...(bend.value === undefined ? {} : { value: bend.value }),
+  });
   return {
       fit: (target: IAutoMovieVector3): IAutoMovieSeededChainFit => {
         const props: IFitChainToTargetProps = { ...workspace.props, target };
-        const bend: IAutoMovieSeededChainFit = fitChainBend(props, workspace);
-        return {
-          pose: orientChainEffector(
-            props,
-            bend.pose,
-            workspace.prepared ?? undefined,
-            workspace.rig,
-          ),
-          seed: bend.seed,
-          ...(bend.value === undefined ? {} : { value: bend.value }),
-        };
+        return finish(props, fitChainBend(props, workspace));
+      },
+      continued: (target: IAutoMovieVector3,
+        near: IAutoMovieSwivelNear): IAutoMovieSeededChainFit => {
+        const props: IFitChainToTargetProps = { ...workspace.props, target, near };
+        const admitted: boolean = Number.isFinite(near.swivel) &&
+          Number.isInteger(near.branch) && near.branch >= 0 &&
+          near.branch <= 1 && Number.isFinite(near.tolerance) && near.tolerance > 0;
+        let candidate: ReturnType<typeof fitHingedChainBend> = null;
+        if (admitted) {
+
+          // A new curve policy may omit an unused pole candidate, but it
+          // cannot bypass the original source's joint/root admission. An
+          // explicit fixed rig need not materialize unused authored frames.
+          workspace.admitSource();
+          candidate = fitHingedChainBend(props, workspace);
+        }
+        if (candidate !== null && candidate.fitted !== null)
+          return finish(props, candidate.fitted);
+        const cold: IFitChainToTargetProps = { ...props, near: undefined };
+        return finish(cold, fitChainBend(cold, workspace));
       },
       rotation: (pose: IAutoMoviePose): IAutoMovieQuaternion =>
         workspace.prepared === null

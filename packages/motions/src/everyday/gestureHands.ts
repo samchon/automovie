@@ -8,6 +8,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
+import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
@@ -62,7 +63,7 @@ export namespace gestureHands {
     request: AutoMovieMotionHumanArm.ISided;
     fingers: IHumanPosture["joints"];
   } {
-    return prepare(body, side, p, digit, elbow).hand(posture, goal, envelope);
+    return prepared(body, side, p, digit, elbow, false).hand(posture, goal, envelope);
   }
 
   /**
@@ -75,15 +76,15 @@ export namespace gestureHands {
    * @param p The gesture's fixed turn, emblem and digit aim.
    * @param digit The fixed emblem digit direction in the hand's frame.
    * @param elbow The fixed effort elbow modifier.
-   * @returns Separate live-goal and finger readers producing fresh requests and finger tuples.
+   * @returns Separate live-goal and finger readers producing fresh requests/triples; an optional caller-owned joint output avoids an intermediate finger map and is returned unchanged as the output identity.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Separates plan-invariant body/hand/shape configuration from current posture, hand goal, curl and envelope inputs and states fresh output ownership.
    * @evidence contracts/development/implementation.md#principled-implementation Uses the same palm-plane turn, digit alignment, elbow-preset geometry and relaxed-to-working finger interpolation as hand; only the fixed axis turn and named finger-angle records are prepared.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed turn and relaxed shape belong to the preparation; each first working shape compiles its finger entries. The complete reader creates a live request and calls the same finger writer that planned-arm playback can call alone.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed turn/relaxed shape and one exact current surface/shape issued-row producer belong to the preparation; each first working shape compiles its finger entries. The complete reader creates a live request and calls the same finger writer that planned-arm playback can call alone.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves surface/shape choices, world goal, actual digit aiming, bend geometry, thumb curl exclusion and interpolation arithmetic without a frame sample or solved-pose cache.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation builds fifteen relaxed/emblem joints and one optional quaternion. Each distinct working shape compiles fifteen entries once; finger reads allocate only fifteen fresh output triples, and live-goal reads add their actual request without two fresh named-shape maps per frame.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed side, turn, emblem and body belong to one gesture plan; its closed four-shape map shares only the exact named angle records, while changed posture, target, curl and envelope are recomputed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The gesture owns this reader, its body/configuration references, one relaxed/emblem record and at most four fifteen-entry shape tables until its plan is released; playback and seeking add no frame history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation builds fifteen relaxed/emblem joints and one optional quaternion. Each distinct working shape compiles fifteen entries once; finger reads write fifteen fresh triples directly when supplied a caller-owned joint record, and live-goal reads add their actual request without an intermediate finger map/copy or two fresh named-shape maps per frame.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed side, turn, emblem and body belong to one gesture plan. A genuine prepareSidedTarget row supplies fixed local-surface provenance to native planned goals only for this explicit prepared hand; its closed four-shape map shares exact named angle records, while changed posture, target, curl and envelope are recomputed.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The gesture owns this reader, its body/configuration references, one relaxed/emblem record, one bounded issued-row/local-surface producer and at most four fifteen-entry shape tables until its plan is released; No current output map or goal is retained, and playback/seeking add no frame history.
    */
   export function prepare(
     body: IHumanBody,
@@ -92,6 +93,13 @@ export namespace gestureHands {
     digit: IAutoMovieVector3 | undefined,
     elbow: number,
   ): IPrepared {
+    return prepared(body, side, p, digit, elbow, true);
+  }
+
+  /** Cold hand reads retain raw rows; only explicit preparation issues fixed geometry. */
+  function prepared(body: IHumanBody, side: HumanHand.Side,
+    p: Pick<gesture.IParams, "turn" | "shape" | "aim">,
+    digit: IAutoMovieVector3 | undefined, elbow: number, issue: boolean): IPrepared {
     const turn: IAutoMovieQuaternion | undefined = p.turn === undefined
       ? undefined
       : Quaternion.fromAxisAngle(
@@ -105,9 +113,12 @@ export namespace gestureHands {
     const emblem: ReturnType<typeof HumanHand.shape> | undefined =
       p.shape === undefined ? undefined : HumanHandShape.emblem(side, p.shape);
     const shapes: Map<HumanHand.Shape, readonly IFinger[]> = new Map();
+    let target: { surface: HumanHand.Surface; shape: HumanHand.Shape;
+      emit: ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareSidedTarget> } | undefined;
     const fingers: IPrepared["fingers"] = (
       goal: Pick<gestureStroke.IHand, "shape" | "curl">,
       envelope: number,
+      output?: IHumanPosture["joints"],
     ): IHumanPosture["joints"] => {
       let entries: readonly IFinger[] | undefined = shapes.get(goal.shape);
       if (entries === undefined) {
@@ -123,7 +134,7 @@ export namespace gestureHands {
         );
         shapes.set(goal.shape, entries);
       }
-      const joints: IHumanPosture["joints"] = {};
+      const joints: IHumanPosture["joints"] = output ?? {};
       const askedCurl: number = emblem === undefined ? (goal.curl ?? 0) : 0;
       for (const entry of entries) {
         const curl: number = entry.curls ? askedCurl : 0;
@@ -141,23 +152,27 @@ export namespace gestureHands {
         posture: IHumanPosture,
         goal: gestureStroke.IHand,
         envelope: number,
+        output?: IHumanPosture["joints"],
       ): ReturnType<typeof hand> => {
         const turned: IAutoMovieQuaternion = turn === undefined
           ? goal.rotation
           : Quaternion.multiply(goal.rotation, turn);
-        const request: AutoMovieMotionHumanArm.ISided = {
-          side,
-          surface: goal.surface,
-          shape: goal.shape,
-          point: goal.point,
-          rotation: digit === undefined || p.aim === undefined
-            ? turned
-            : HumanHandShape.aim(turned, digit, p.aim.toward),
-          bend: goal.elbow === undefined
-            ? AutoMovieMotionHumanBend.hang(body, posture, side, goal.out + elbow)
-            : AutoMovieMotionHumanBend.arm(body, posture, side, goal.elbow, goal.out + elbow),
-        };
-        return { request, fingers: fingers(goal, envelope) };
+        const surface: HumanHand.Surface = goal.surface;
+        const shape: HumanHand.Shape = goal.shape;
+        const point: IAutoMovieVector3 = goal.point;
+        const rotation: IAutoMovieQuaternion = digit === undefined || p.aim === undefined
+          ? turned : HumanHandShape.aim(turned, digit, p.aim.toward);
+        const bend: IAutoMovieVector3 = goal.elbow === undefined
+          ? AutoMovieMotionHumanBend.hang(body, posture, side, goal.out + elbow)
+          : AutoMovieMotionHumanBend.arm(body, posture, side, goal.elbow, goal.out + elbow);
+        let request: AutoMovieMotionHumanArm.ISided;
+        if (issue) {
+          if (target === undefined || target.surface !== surface || target.shape !== shape)
+            target = { surface, shape,
+              emit: AutoMovieMotionHumanArmTarget.prepareSidedTarget(body, side, surface, shape) };
+          request = target.emit({ point, rotation, bend });
+        } else request = { side, surface, shape, point, rotation, bend };
+        return { request, fingers: fingers(goal, envelope, output) };
       },
     };
   }
@@ -165,7 +180,7 @@ export namespace gestureHands {
   /**
    * One gesture hand's prepared geometry and independently writable fingers.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes a complete live hand goal from finger shaping when a planned arm supplies the displayed geometry, with fresh output ownership.
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes a complete live hand goal from finger shaping when a planned arm supplies the displayed geometry, with fresh triples and explicit optional caller-owned output maps.
    * @evidence contracts/development/design.md#principled-representation Separates current effector geometry from the hand's own clinical finger shape; both share one fixed plan preparation and the same finger interpolation owner.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Planning and endpoint gestures use hand, while playback of preplanned arms uses fingers without creating discarded world targets or bend hints.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the existing stroke goal's exact shape/curl fields and existing hand result; it contains no solved arm, target proxy, time sample or contact tolerance.
@@ -173,9 +188,10 @@ export namespace gestureHands {
   export interface IPrepared {
     /**
      * A live world-space hand request and fresh clinical finger triples for
-     * the actual posture/goal at transport envelope [0,1].
+     * the actual posture/goal at transport envelope [0,1]. An optional owned
+     * output receives/returns the same fresh triples instead of a new map.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines current posture/goal, envelope range and fresh world-request/clinical-joint outputs for planning or endpoint carry.
+     * @evidence contracts/development/common.md#meaningful-documentation Defines current posture/goal, envelope range, fresh request/triples and optional caller-owned joint output, whose identity is returned without retention.
      * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepare owns actual palm turn, digit aim, bend and finger interpolation.
      * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The declaration specifies one complete hand read; prepare supplies its implementation.
      * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No body here can replace a hand goal, change a surface or skip an actual query.
@@ -187,13 +203,15 @@ export namespace gestureHands {
       posture: IHumanPosture,
       goal: gestureStroke.IHand,
       envelope: number,
+      output?: IHumanPosture["joints"],
     ): ReturnType<typeof hand>;
 
     /**
      * Fresh clinical finger joints from this actual shape/curl and envelope
-     * [0,1], without requesting independent world hand geometry.
+     * [0,1], without requesting independent world hand geometry. Optional owned
+     * output receives these fresh triples and is returned instead of a new map.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines shape/clinical-curl input, envelope range, fresh finger triples and independence from the world goal.
+     * @evidence contracts/development/common.md#meaningful-documentation Defines actual shape/curl, envelope range, fresh triples, independence from the world goal and optional caller-owned output returned without retention.
      * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only; prepare supplies the same actual relaxed-to-working interpolation as the complete hand reader.
      * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Declares the finger-only read used when planned arms already supply displayed geometry.
      * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The declaration contains no replacement surface, target, curl formula or solved arm.
@@ -204,6 +222,7 @@ export namespace gestureHands {
     fingers(
       goal: Pick<gestureStroke.IHand, "shape" | "curl">,
       envelope: number,
+      output?: IHumanPosture["joints"],
     ): IHumanPosture["joints"];
   }
 
@@ -226,7 +245,7 @@ export namespace gestureHands {
    * @evidence contracts/development/implementation.md#principled-implementation Uses the existing coupled arm trajectory solver and exact hand-surface goals; each goal reads the complete gesture frame attached to the planner's unchanged before-posture identity.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One frame producer supplies the base posture and both hands, while each arm selects its own request and the envelope remains a scalar time law.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every goal, trajectory constraint, authored timing and solver call; the separate envelope must be the same time law prior uses, and an unfamiliar posture falls back to the original pure producer.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each planner base read computes one complete gesture frame instead of repeating that geometry per goal and weight; each selected goal builds only its own arm goal. Trajectory optimization retains its existing cost and precision.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each planner base read computes one complete gesture frame instead of repeating that geometry per goal and weight; each selected goal builds only its own arm goal, consuming genuine fixed local-surface metadata when its explicit prepared hand issued that row. Arbitrary unissued prior rows retain ordinary cold goal work, and trajectory optimization keeps its existing cost and precision.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Before forwards the planner's actual FK/ROM loans to the complete prior query; a local WeakMap shares its completed numeric frame only with goals receiving that exact posture object. No time key, changed posture or separate plan reuses a frame.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The planning call owns its local WeakMap and borrows current FK/ROM loans only while prior executes. Frames store numeric posture/requests/envelope, never those loans; the map ends with return/throw and trajectories retain solved waypoints only.
    */

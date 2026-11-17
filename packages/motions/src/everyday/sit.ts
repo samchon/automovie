@@ -27,6 +27,8 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanMountOn } from "../lexicon/HumanMountOn";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { HumanBalance } from "./HumanBalance";
 import { prepareSitLowering } from "./prepareSitLowering";
 import { seated } from "./seated";
@@ -79,12 +81,6 @@ import { sitPlace } from "./sitPlace";
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
- * @evidence contracts/development/implementation.md#principled-implementation Effector goals (sockets, footprints, the gaze line) solved by the shared inverse kinematics, with balance and timing from the cited laws.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans once, then evaluates each posture in closed form.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond a few forward-kinematics passes and limb fits.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan prepares fixed descent intervals/socket deltas/final joint entries once; current base lowering and carried thigh-goal callbacks borrow composition FK/ROM sources only within each synchronous evaluation, keeping every actual root, joint and hand fit current.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
  */
 export namespace sit {
   /** The action's name. */
@@ -142,6 +138,14 @@ export namespace sit {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the seat is too low for the body, the performer does not face away from it, the feet are out of reach of a seat inside the band, the body stands more than a leg's length from a high seat, or `lean` has no backrest.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States context/plan ownership and seat, facing, leg-reach and backrest refusals; the namespace gives world-metre socket goals, timing and contact conventions.
+   * @evidence contracts/development/implementation.md#principled-implementation The seat socket follows its original descent/balanced travel while planted-leg and achieved hand goals retain canonical fitting; high seats delegate to the existing mount law.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed descent geometry and the original balance table feed one body base and two carried hand rows.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original seat/facing/reach refusals, all balance samples/bracket trials, contact times and authored interpolation remain; no fit or tolerance is relaxed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning retains the original SHARES balance brackets and actual complete mass-centre fits, with no unused support geometry. Each query retains actual root lowering and hand trajectory/fits; fixed intervals, joint entries and frame coefficients prepare once.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed descent/socket/joint metadata share across queries; balance construction lends one synchronous FK/ROM source and returns only scalar travel. Current base lowering and carried thigh goals borrow composition loans without sharing a posed answer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns finite clock/geometry/travel and arm plans until release. Construction/current-query FK/ROM sources end on synchronous return or throw and never enter those records.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -391,40 +395,50 @@ export namespace sit {
         ),
     );
     const held: number = contact - fall;
-    const heading: IAutoMovieVector3 = {
-      x: Math.sin((yaw0 * Math.PI) / 180),
-      y: 0,
-      z: Math.cos((yaw0 * Math.PI) / 180),
-    };
-    const ahead = (t: number, back: number): number =>
-      Vector3.dot(HumanBalance.support(body, lowered(t, back)).centre, heading);
-    const stood: number = ahead(0, 0);
-    // The share at which the centre comes back to where it stood is found on
-    // the bracket from no travel to the natural one by the engine's bracketed
-    // root (`bracketedRoot`), until the socket's travel is within the balance
-    // search's resolution (`HumanBalance.TOLERANCE`): the share times the way
-    // back to the seat.
-    const way: number = Math.hypot(goal.x - start.x, goal.z - start.z);
-    const balanced = (t: number): number => {
-      const across: number = minimumJerk.share(t / (0.7 * descent));
-      const behind = (back: number): number => ahead(t, back) - stood;
-      const far: number = behind(across);
-      if (far >= 0) return across;
-      const near: number = behind(0);
-      if (near <= 0 || way <= 0) return 0;
-      return bracketedRoot(
-        (back: number): number =>
-          back === 0 ? near : back === across ? far : behind(back),
-        0,
-        across,
-        HumanBalance.TOLERANCE / way,
+    const reaches: number[] = ((): number[] => {
+      const heading: IAutoMovieVector3 = {
+        x: Math.sin((yaw0 * Math.PI) / 180),
+        y: 0,
+        z: Math.cos((yaw0 * Math.PI) / 180),
+      };
+      const read: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution();
+      const project: ReturnType<typeof prepareHumanPostureProjection> =
+        prepareHumanPostureProjection(body);
+      const centre: ReturnType<typeof HumanBalance.prepareCentre> =
+        HumanBalance.prepareCentre(body);
+      const ahead: (t: number, back: number) => number = (
+        t: number,
+        back: number,
+      ): number =>
+        Vector3.dot(centre(lowered(t, back, read), read, project), heading);
+      const stood: number = ahead(0, 0);
+
+      // Keep every bracket trial and the original physical travel tolerance;
+      // only this synchronous table construction borrows the shared readers.
+      const way: number = Math.hypot(goal.x - start.x, goal.z - start.z);
+      const balanced: (t: number) => number = (t: number): number => {
+        const across: number = minimumJerk.share(t / (0.7 * descent));
+        const behind: (back: number) => number = (back: number): number =>
+          ahead(t, back) - stood;
+        const far: number = behind(across);
+        if (far >= 0) return across;
+        const near: number = behind(0);
+        if (near <= 0 || way <= 0) return 0;
+        return bracketedRoot(
+          (back: number): number =>
+            back === 0 ? near : back === across ? far : behind(back),
+          0,
+          across,
+          HumanBalance.TOLERANCE / way,
+        );
+      };
+      return Array.from(
+        { length: SHARES + 1 },
+        (_: unknown, k: number): number =>
+          k === 0 ? 0 : balanced((held * k) / SHARES),
       );
-    };
-    const reaches: number[] = Array.from(
-      { length: SHARES + 1 },
-      (_: unknown, k: number): number =>
-        k === 0 ? 0 : balanced((held * k) / SHARES),
-    );
+    })();
     function travel(t: number): number {
       const across: number = minimumJerk.share(t / (0.7 * descent));
       if (t >= contact || held <= 0) return across;

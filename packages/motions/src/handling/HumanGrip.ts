@@ -329,10 +329,10 @@ export namespace HumanGrip {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States fixed geometry, per-reading clinical shape, metre distance and synchronous ownership.
    * @evidence contracts/development/implementation.md#principled-implementation Each reading admits every supplied joint through canonical FK, then uses the original rigid distal-tip placement and Euclidean distance; invariant capsule chains are acquired lazily at their original first tip use and reused for later shapes.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two capsule chains and demanded distal bones precede the shape-to-pose conversion and shared tip reading.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One genuine tuple/name producer stages the current shape before its original null-root FK; a shared tip reader admits the two capsule chains at their original first actual use.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every supplied angle is admitted in source order and every actual shape is evaluated; no interpolated aperture, reduced search or guessed tip is used.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Capsule searches and actual thumb/index FK demand binding occur once for T shape readings; each reading admits J joints and computes only the two distal ancestor closures, with unchanged dependency math shared by one operation reader.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body, side, profile and skeleton remain unchanged throughout the synchronous caller's search; differing joint values invalidate FK through its exact dependency reader and still compute their own distances.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Capsule searches, thumb/index name binding and tip callback prepare once for T shapes. Each shape retains O(J) entry/tuple staging and complete admission, with one packed 3J array replacing J joint records before the two actual distal ancestor closures. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed body/side/profile/skeleton establish geometry equivalence. Every shape preserves skeleton-id access before Object.entries/F/A/T staging and all staging before the actual lazy operation demand; exact changed dependencies still recompute their own FK/distance without a shape result cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller releases two chains and one lazy FK reader with its synchronous aperture search; the builder must not be stored in a returned plan or frame history and no global cache is added.
    */
   export function prepareAperture(
@@ -346,27 +346,23 @@ export namespace HumanGrip {
     ]);
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
-    const readTips: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
+    const readTips: ReturnType<typeof poseBones.prepareTuples> = poseBones.prepareTuples(body, requested);
+    const tip: (resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+      digit: "Thumb" | "Index") => IAutoMovieVector3 = (
+      resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+      digit: "Thumb" | "Index",
+    ): IAutoMovieVector3 => {
+      const prepared: curlChainUntilContact.IChain = digit === "Thumb"
+        ? (thumb ??= chain(body, side, digit)) : (index ??= chain(body, side, digit));
+      const distal: IAutoMovieResolvedBone = resolved.get(prepared.bones[2]!)!;
+      return Vector3.add(distal.worldPosition, Quaternion.rotateVector(distal.worldRotation, prepared.tip));
+    };
     return (joints: IHumanPosture["joints"]): number => {
-      const pose: IAutoMoviePose = {
-        skeleton: body.skeleton.id,
-        root: null,
-        joints: (Object.entries(joints) as [
-          AutoMovieHumanoidBone, readonly [number, number, number],
-        ][]).map(([bone, angles]): IAutoMovieJointPose => ({
-          bone, flexion: angles[0], abduction: angles[1], twist: angles[2],
-        })),
-      };
+      const skeleton: string = body.skeleton.id;
+      const staged: ReturnType<typeof readTips> = readTips(joints);
       const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        readTips(pose, resolution());
-      const tip: (digit: "Thumb" | "Index") => IAutoMovieVector3 = (digit: "Thumb" | "Index"): IAutoMovieVector3 => {
-        const prepared: curlChainUntilContact.IChain = digit === "Thumb"
-          ? (thumb ??= chain(body, side, digit)) : (index ??= chain(body, side, digit));
-        const distal: IAutoMovieResolvedBone = resolved.get(prepared.bones[2]!)!;
-        return Vector3.add(distal.worldPosition,
-          Quaternion.rotateVector(distal.worldRotation, prepared.tip));
-      };
-      return Vector3.distance(tip("Thumb"), tip("Index"));
+        staged({ skeleton, root: null }, resolution());
+      return Vector3.distance(tip(resolved, "Thumb"), tip(resolved, "Index"));
     };
   }
 }

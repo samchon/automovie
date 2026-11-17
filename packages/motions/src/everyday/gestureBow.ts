@@ -13,7 +13,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the transform is and who reads it.
  * @evidence contracts/development/design.md#principled-representation One pure posture transform over the posture type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function, read by the gesture law, the arm wrestle and the throws.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The authored bow serves gesture, arm wrestle and throws, reading its current borrowed posture at each actual candidate. The unchanged body alone supplies fixed rest geometry.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No body or case is special-cased.
  */
 export namespace gestureBow {
@@ -56,4 +56,5 @@ export namespace gestureBow {
     );
     return { ...tipped, root: Vector3.subtract(target, offset) };
   }
+
 }

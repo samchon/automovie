@@ -6,13 +6,14 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
+import type { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
+import { AutoMovieMotionHumanBendTurn } from "./AutoMovieMotionHumanBendTurn";
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendPreparation } from "./AutoMovieMotionHumanBendPreparation";
+import { AutoMovieMotionHumanKneeBend } from "./AutoMovieMotionHumanKneeBend";
 
 /**
  * Bend hints: the world point an elbow or a knee bends toward, from a named
@@ -218,16 +219,23 @@ export namespace AutoMovieMotionHumanBend {
     heading: number = posture.yaw,
     splay: number = 0,
   ): IAutoMovieVector3 {
-    return HumanFrame.point(
-      {
-        origin: HumanFrame.point(
-          { origin: posture.root, yaw: posture.yaw },
-          body.rest.get(`${side}LowerLeg`)!,
-        ),
-        yaw: heading + (side === "left" ? splay : -splay),
-      },
-      { x: 0, y: 0, z: 1 },
-    );
+    return AutoMovieMotionHumanKneeBend.at(body, posture, side, heading, splay);
+  }
+
+  /**
+   * Prepare the original knee hint for a fixed foot heading and moving body frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Fixes unchanged body/side and degree heading/splay, returning fresh world hints for actual current root/yaw.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the cold knee owner's same two nested frame groups, with lazy fixed unit-step products and one guarded last-yaw rest-knee transform.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One facade connects Leg.prepareGoal to AutoMovieMotionHumanKneeBend.prepare without another formula.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Current root/yaw, side sign, one-metre direction and original arithmetic remain unchanged; no leg/target result is reused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed foot-heading products prepare once and inner products change only with exact current yaw; every point remains actual and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit fixed body/rest/foot geometry proves only scalar-product reuse; changed fixed inputs require a new producer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns constant private products/rest data and one last yaw until release, without current roots, FK readers, results or pose/time history.
+   */
+  export function prepareKnee(body: IHumanBody, side: Side, heading: number,
+    splay: number = 0): ReturnType<typeof AutoMovieMotionHumanKneeBend.prepare> {
+    return AutoMovieMotionHumanKneeBend.prepare(body, side, heading, splay);
   }
 
   /**
@@ -274,6 +282,22 @@ export namespace AutoMovieMotionHumanBend {
     fixed: Pick<ISolve, "body" | "posture" | "side">,
   ): AutoMovieMotionHumanBendPreparation.IPrepared {
     return AutoMovieMotionHumanBendPreparation.of(fixed, hung);
+  }
+
+  /**
+   * Share genuine trunk geometry across actual sides within one person evaluation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Fixed body/root/yaw/pitch/roll and optional current-person FK yield lazy side solve/strain contexts; release the returned reader before this evaluation ends.
+   * @evidence contracts/development/implementation.md#principled-implementation Preparation.both supplies genuine checked trunk geometry while each requested side retains original chain preparation and every actual goal/rank/sweep/refusal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One facade routes actual crawl/load paired-arm consumers to the same existing search/chain numerical owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No side, candidate, actual solve, contact bound or source-validation branch is skipped; no fit answer or caller result flag is accepted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed trunk FK/placement prepares once across sides; actual chains/sweeps remain and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit same-body fixed-trunk scope and genuine source checks prove geometry only; every varying goal remains independently solved.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous caller releases token, at-most-two side contexts and optional FK loan before returning; no plan, output goal or posture may retain this reader.
+   */
+  export function prepareBoth(fixed: Pick<ISolve, "body" | "posture">,
+    resolution?: Parameters<typeof AutoMovieMotionHumanBendPreparation.both>[2]): ReturnType<typeof AutoMovieMotionHumanBendPreparation.both> {
+    return AutoMovieMotionHumanBendPreparation.both(fixed, hung, resolution);
   }
   /**
    * The elbow place of least joint strain for a hand goal.
@@ -397,7 +421,7 @@ export namespace AutoMovieMotionHumanBend {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the axis, the turn's sense, the result's frame and the two cases with nothing to turn.
    * @evidence contracts/development/implementation.md#principled-implementation The swivel angle of Tolani, Goswami and Badler 2000: the elbow's one freedom once the wrist is placed is its turn about the shoulder-to-wrist line.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The foot of the elbow on the line and one rotation of the radial vector.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates original chain admission, line projection and radial rotation to AutoMovieMotionHumanBendTurn's single numerical owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Legality is not judged here: a caller reads `strain` on the result.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the shoulder from the chain `solve` and `strain` prepare.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One chain preparation and constant work.
@@ -408,32 +432,7 @@ export namespace AutoMovieMotionHumanBend {
     elbow: IAutoMovieVector3,
     degrees: number,
   ): IAutoMovieVector3 {
-    const chain: AutoMovieMotionHumanBendChain.IChain | null =
-      AutoMovieMotionHumanBendChain.of(props.body, props.posture, props.side);
-    if (chain === null) return elbow;
-    const axis: IAutoMovieVector3 = Vector3.subtract(
-      props.point,
-      chain.shoulder,
-    );
-    if (!(Vector3.length(axis) > 1e-9)) return elbow;
-    const line: IAutoMovieVector3 = Vector3.normalize(axis);
-    const foot: IAutoMovieVector3 = Vector3.add(
-      chain.shoulder,
-      Vector3.scale(
-        line,
-        Vector3.dot(Vector3.subtract(elbow, chain.shoulder), line),
-      ),
-    );
-    const radial: IAutoMovieVector3 = Vector3.subtract(elbow, foot);
-    if (!(Vector3.length(radial) > 1e-9)) return elbow;
-    const angle: number = (degrees * Math.PI) / 180;
-    return Vector3.add(
-      foot,
-      Vector3.add(
-        Vector3.scale(radial, Math.cos(angle)),
-        Vector3.scale(Vector3.cross(line, radial), Math.sin(angle)),
-      ),
-    );
+    return AutoMovieMotionHumanBendTurn(props, elbow, degrees);
   }
 
   /**

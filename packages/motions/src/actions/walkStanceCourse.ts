@@ -338,7 +338,7 @@ export namespace walkStanceCourse {
     /** The largest excess. */
     worst: number;
 
-    /** Every nonlinear constraint's zero-step interval at this exact course, in convexify row order, before clipping violations to nonnegative penalties. */
+    /** Every nonlinear constraint's zero-step interval at this exact course, in convexify row order, before clipping violations to nonnegative penalties. A producer may materialize records on first read from this evaluation's own scalar snapshot, without another physical evaluation. */
     bounds: readonly Pick<Q.IRow, "l" | "u">[];
   }
 

@@ -154,7 +154,7 @@ export namespace punch {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target beyond the step-in and the arm's band is the declared miss at maximum reach, not a stretched arm; provisional constants are named.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the display's limb fits.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once per committed stop and dropped on settle, when the stop or the target may have changed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry and one stop second, released with the plan.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry and one stop second until plan release. Optional FK/ROM loans are borrowed only by the current full posture/weapon observation and never retained in the plan or goal.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -243,8 +243,8 @@ export namespace punch {
     // girth to the elbow's.
     const limb: "leftArm" | "rightArm" =
       side === "left" ? "leftArm" : "rightArm";
-    const course: StrikingWeapon.Course = (at: number, _channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2]): IHumanPosture =>
-      geometry().posture(Math.min(duration, Math.max(0, at - context.start)), resolution);
+    const course: StrikingWeapon.Course = (at: number, _channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2], projection?: Parameters<StrikingWeapon.Course>[3]): IHumanPosture =>
+      geometry().posture(Math.min(duration, Math.max(0, at - context.start)), resolution, projection?.());
     const chain: StrikingWeapon.IChain = {
       ids: ["upperArm", "forearm", "fist"],
       limb,
@@ -331,9 +331,9 @@ export namespace punch {
       ...(p.feint === undefined
         ? { contact: delivery }
         : { feigned: delivery }),
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1], source?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        return carried(geometry().posture(t), t);
+        return carried(geometry().posture(t, source, projection), t);
       },
       settle: (): void => {
         built = undefined;

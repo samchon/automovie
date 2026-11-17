@@ -3,6 +3,7 @@ import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interf
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPostureRigCheck } from "../posture/prepareHumanPostureRigCheck";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { GymnasticsFlight } from "./GymnasticsFlight";
 
@@ -22,11 +23,11 @@ type Heading = Pick<IHumanPosture, "yaw" | "pitch" | "roll">;
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the fixed-articulation premise, allowed query changes, units, body lifetime and refusal.
  * @evidence contracts/development/implementation.md#principled-implementation A mass-weighted mean commutes with rigid placement: Cworld = root + R Clocal. One actual canonical preparation at the origin supplies both Clocal and the fixed projected articulation. Each query uses the ordinary heading owner and subtracts the rotated offset from its demanded centre; resolver admission alone proves whether its carried joint-only solution still applies.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the goal-free shape, copy its clinical table, prepare its actual canonical source and observe private requested FK for local COM once, then return fresh rigid demands with the producer's checked capability. Varying articulations retain their ordinary query preparation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves original clinical demands and ordinary ROM projection; positional goals are refused rather than dropped. The resolver independently checks current joint/body/ROM/context and constructs the actual current root orientation, without a caller-set resolved flag, achieved target substitute or unchecked clamping bypass.
- * @evidence contracts/development/implementation.md#efficient-algorithms One canonical preparation observes fresh mass-bearing FK plus O(S) reduction without eagerly copying its unused public pose. Queries rotate one offset and copy J raw triples without FK/mass scans; an eligible displayed consumer reuses actual projected joints. Exact dependency checks/fresh outputs remain and speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan shares its actual fixed canonical articulation and COM. Every root/heading is still evaluated, original demands stay present, and live raw/body/ROM/context checks govern consumption; changed overlays or unsupported goals use ordinary solving. Fresh joint tuples isolate caller mutation from this preparation.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns one copied clinical table, canonical preparation and COM vector. Per-query raw postures and weakly owned checked capabilities retain no history or FK reader; every root/table/tuple/limb record is fresh and no external handle is acquired.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit/copy the goal-free clinical table, then prepare its actual canonical source, requested mass FK, local COM and rig/ROM checker together. Each query reuses this prefix only in its checked epoch; changed metadata prepares it again, and the resolver's authoritative rigid constructor copies original private demands at the requested placement.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves original clinical demands and ordinary ROM projection; positional goals are refused rather than dropped. The resolver alone issues an owned raw graph from its actual private source and checks current joint/body/ROM/context at consumption. No arbitrary caller JSON, resolved flag, achieved target substitute or unchecked clamping bypass certifies the pose.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One canonical preparation observes fresh mass-bearing FK and O(S) reduction without eagerly copying its unused public pose. Each query compares current rig/ROM metadata, rotates one offset and copies J raw triples; changed/unsupported metadata repeats actual preparation/FK/mass work. An eligible displayed consumer reuses actual projected joints; speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan's explicitly unchanged body/profile/model fixes mass and collider data. Identical genuine FK/topology owners plus current skeleton/topology/ROM/axes/rest-frame scalar checks prove the local COM epoch; failed proof re-prepares actual canonical joints and COM together. Raw/overlay/context admission remains the resolver's, and fresh tuples isolate output mutation; rig proof is never presented as live profile/model validation.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns one copied clinical table, bounded mass-name set and one current canonical/COM/checker prefix. Invalidation replaces that prefix without a linked history; unsupported proof retains ordinary per-query preparation. Per-query postures/capabilities retain no FK reader, and every root/table/tuple/limb record is fresh without external handles.
  */
 export function prepareGymnasticsPlacement(
   body: IHumanBody,
@@ -41,33 +42,59 @@ export function prepareGymnasticsPlacement(
     throw new Error("Fixed gymnastic placement requires joint-only articulation");
 
   const joints: IHumanPosture["joints"] = copyJoints(posture.joints);
-  const prepared: resolveHumanPosture.IPrepared = resolveHumanPosture.prepare(body, {
-    root: { x: 0, y: 0, z: 0 },
-    yaw: 0,
-    pitch: 0,
-    roll: 0,
-    joints,
-    limbs: {},
-  });
-  const requested: Set<AutoMovieHumanoidBone> = new Set();
-  for (const segment of model.segments) requested.add(segment.bone);
-  const local: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
-    model, resolveHumanPosture.preparedBones(prepared, requested),
-  );
-  return (heading: Heading, centre: IAutoMovieVector3): IHumanPosture => {
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
-      resolveHumanPosture.heading(heading),
-      local,
-    );
-    return resolveHumanPosture.carried(prepared, {
-      root: { x: centre.x - offset.x, y: centre.y - offset.y, z: centre.z - offset.z },
-      yaw: heading.yaw,
-      pitch: heading.pitch,
-      roll: heading.roll,
-      joints: copyJoints(joints),
+  let requested: Set<AutoMovieHumanoidBone> | undefined;
+  const prepare: () => IPlacement = (): IPlacement => {
+    const prepared: resolveHumanPosture.IPrepared = resolveHumanPosture.prepare(body, {
+      root: { x: 0, y: 0, z: 0 },
+      yaw: 0,
+      pitch: 0,
+      roll: 0,
+      joints,
       limbs: {},
     });
+    if (requested === undefined) {
+      requested = new Set();
+      for (const segment of model.segments) requested.add(segment.bone);
+    }
+    return {
+      prepared,
+      local: resolveAutoMovieCenterOfMass.place(
+        model, resolveHumanPosture.preparedBones(prepared, requested),
+      ),
+      rig: body.poseResolution,
+      topology: body.topology,
+      unchanged: prepareHumanPostureRigCheck(body),
+    };
   };
+  let fixed: IPlacement = prepare();
+  return (heading: Heading, centre: IAutoMovieVector3): IHumanPosture => {
+    const rotation: ReturnType<typeof resolveHumanPosture.heading> = resolveHumanPosture.heading(heading);
+    if (fixed.rig !== body.poseResolution || fixed.topology !== body.topology ||
+      fixed.unchanged?.() !== true) fixed = prepare();
+    const offset: IAutoMovieVector3 = Quaternion.rotateVector(rotation, fixed.local);
+    return resolveHumanPosture.rigid(fixed.prepared,
+      { x: centre.x - offset.x, y: centre.y - offset.y, z: centre.z - offset.z },
+      heading.yaw, heading.pitch, heading.roll,
+    );
+  };
+}
+
+/** One actual fixed-articulation preparation and the rig/ROM epoch its mass offset belongs to. */
+interface IPlacement {
+  /** Genuine source capability, kept separate from mutable public pose views. */
+  prepared: resolveHumanPosture.IPrepared;
+
+  /** Actual neutral canonical COM, metres in the body's root frame. */
+  local: IAutoMovieVector3;
+
+  /** The genuine immutable FK owner used for that actual canonical mass observation. */
+  rig: IHumanBody["poseResolution"];
+
+  /** The actual topology context of the same canonical preparation. */
+  topology: IHumanBody["topology"];
+
+  /** Genuine current rig/ROM proof; absence requires ordinary preparation at every query. */
+  unchanged: (() => boolean) | undefined;
 }
 
 /** Copy the authored tuples so neither the input nor a returned posture owns retained shape data. */

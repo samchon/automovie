@@ -19,22 +19,22 @@ import { crawlFrame } from "./crawlFrame";
  * @param body The unchanged body of this plan.
  * @param hips The fixed hip midpoint, world metres.
  * @param shoulderY Required shoulder height, world metres.
- * @param posed The law's directly authored posture at a pitch in degrees.
+ * @param template The law's actual fixed joint-only clinical shape, with no limb/digit/rotation goals; only its rigid pitch/root vary in this search.
  * @returns The original bisection's pitch and its measured shoulder/hip bones.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the pitch goal, fixed world-metre geometry, authored input and returned measured bones.
  * @evidence contracts/development/implementation.md#principled-implementation Uses crawlFrame's unchanged pitch bracket and halving count; each predicate compares the same two shoulder heights after placing the root under the fixed hip midpoint.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One synchronous exact-FK workspace owns the predicate and the final bone reading, apart from the retained time evaluator.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The first trial runs the complete cold canonical solve. Later trials borrow its direct-joint projection only through the canonical owner's private exact raw/rig proof; changed joints or unsupported context retain full resolution, and bracket/predicate/height stay unchanged.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four shoulder/hip names prepare once. An eligible trial pays O(B+J) exact rig/raw proof checks and owned pose copying for B bones/J joints instead of repeated numerical ROM projection, then its actual demanded FK ancestry; every original halving remains and speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The crawl varies rigid pitch/root over unchanged direct joint angles with no limb/digit goals. A genuine cold preparation privately verifies every raw/rig prerequisite on each consumer before sharing that placement-independent projection; all changed/unsupported contexts retain canonical fallback.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The crawl supplies its actual fixed native template, one cold source owns its clinical shape and each later native rigid constructor supplies only current placement. One synchronous exact-FK scope serves all predicates and the final bone map.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The first trial runs the complete cold solve. Later candidates are constructed from that actual private source, never certified from arbitrary callback output or JSON equality; live rig/ROM changes retain native full fallback, and every bracket/predicate/height remains unchanged.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Four shoulder/hip names prepare once. Fixed native clinical shape construction removes repeated joint-map setup and nonlinear ROM projection; each later trial retains owned shape copying, native live rig checks and actual demanded FK. Every original halving remains and speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual crawlFrame.posed producer supplies one goal-free clinical template with fixed share/hike/neck/body/yaw. Only explicit root/pitch placement varies; the native rigid constructor owns raw copying/provenance and seeded still verifies live body/rig/ROM before sharing the source projection.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One issued source preparation, FK/name readers and bounded ROM metadata end with this synchronous search. Current candidates own only weak provenance and do not accumulate; only the final fresh map and scalar pitch escape.
  */
 export function crawlPitch(
   body: IHumanBody,
   hips: IAutoMovieVector3,
   shoulderY: number,
-  posed: (degrees: number) => IHumanPosture,
+  template: IHumanPosture,
 ): { pitch: number; bones: ReturnType<typeof poseBones> } {
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
@@ -48,7 +48,7 @@ export function crawlPitch(
   const at: (degrees: number) => ReturnType<typeof poseBones> = (
     degrees: number,
   ): ReturnType<typeof poseBones> => {
-    const tilted: IHumanPosture = posed(degrees);
+    const tilted: IHumanPosture = { ...template, pitch: degrees };
     const posture: IHumanPosture = {
       ...tilted,
       root: crawlFrame.rootFor(body, tilted, hips),
@@ -65,7 +65,13 @@ export function crawlPitch(
     } else {
       pose = resolveHumanPosture.seeded(
         body,
-        resolveHumanPosture.carried(source, posture),
+        resolveHumanPosture.rigid(
+          source,
+          posture.root,
+          posture.yaw,
+          posture.pitch,
+          posture.roll,
+        ),
         undefined,
         undefined,
         resolution,

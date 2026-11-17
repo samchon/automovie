@@ -80,8 +80,8 @@ import { prepareJointRotationProjection } from "./prepareJointRotationProjection
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Both ordinary and withProjection entries use one private bounded search; only paired mode retains the actual winning projection. prepare delegates fixed axis/clinical-zero readers to prepareDistalTwistEffector, leaving one equation/root/ranking owner here.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every lower twist is clamped to actual ROM, and every miss is read from actual projected articulation. The existing angular TIE policy chooses nearer starts among small differences; it is not a roundoff proof or a claim that the residual is zero. The chosen twist always owns its stored score.
  * @evidence contracts/development/implementation.md#efficient-algorithms Setup is O(B) without shared clamps/projector. At most five distinct clamped twists query the projector; eligible queries score at most nineteen unique articulations and generic queries keep their bounded refinement. Paired mode additionally copies one fixed-size actual reading per query, retaining only current/selected readings, so matching immediate consumers avoid another complete query. Original TIE stopping and all candidate counts remain, with unmeasured speedup.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Matching source bases/clamps/inverses/projector and fixed effector readings share only unchanged dependencies. Raw/untwisted/held readers keep first-use order; component-identical articulated/untwisted rotations share needed as K after both reads. Object.is-identical twists reuse actual pure lower clamps, preserving signed zero. Angle factors and harmonic terms share arithmetic; paired projection preserves the actual winning demand/raw articulation. angleAfterNormalize retains the original first normalization, inverse normalization and Hamilton/atan2 boundaries without an unused normalized record. No target answer crosses solves.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One solve retains at most eight requested-twist/clamped-joint rows (raw/clamped start, two extreme probes, two range ends and two roots), five candidate twists and constant harmonic/preparation data. Current/selected paired projections are bounded. All release at return/throw except the selected caller-owned result; borrowed source preparation remains its caller's, with no growing history, handles or tasks.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Matching source bases/clamps/inverses/projector and fixed effector readings share unchanged dependencies. Raw/untwisted/held readers keep first-use order; component-identical rotations share needed as K after both reads. Only clampJointToSkeleton's genuine nonretaining factory callables may memoize Object.is-identical twists, preserving signed zero. Unknown/wrapped lower callbacks retain a fresh input and actual callback on every original at invocation, so a reused mutable callback output cannot stand for an older reading. Paired projection preserves actual demand/raw articulation and angleAfterNormalize keeps both normalization/Hamilton/atan2 boundaries. No answer crosses solves.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources With a genuine lower factory, one solve retains at most eight requested-twist/clamped-joint rows; foreign callbacks allocate no memo rows. Five candidate twists, harmonic data and current/selected paired readings remain bounded. Everything releases on return/throw except the selected caller-owned result; source preparation remains its caller's, without growing history or handles.
  */
 export function solveDistalTwist(props: {
   joint: IAutoMovieJointPose;
@@ -151,14 +151,16 @@ function solve(
     project = suppliedProject;
     projectWithQuaternion = props.projectEffectorWithQuaternion;
   }
-  const readings: { twist: number; joint: IAutoMovieJointPose }[] = [];
+  const readings: { twist: number; joint: IAutoMovieJointPose }[] | undefined =
+    clampJointToSkeleton.borrow(clampLower) === undefined ? undefined : [];
   const at: (twist: number) => IAutoMovieJointPose = (
     twist: number,
   ): IAutoMovieJointPose => {
-    for (const reading of readings)
-      if (Object.is(reading.twist, twist)) return reading.joint;
+    if (readings !== undefined)
+      for (const reading of readings)
+        if (Object.is(reading.twist, twist)) return reading.joint;
     const joint: IAutoMovieJointPose = clampLower({ ...props.joint, twist });
-    readings.push({ twist, joint });
+    readings?.push({ twist, joint });
     return joint;
   };
   const effectorRestInverse: IAutoMovieQuaternion =

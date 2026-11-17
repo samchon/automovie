@@ -218,7 +218,7 @@ export namespace GymnasticsWheel {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Scan every geometric row into ordered contiguous contact runs, then convert only emitted endpoints through the one time reader.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms The full R-row/P-spoke incidence scan remains; W emitted windows demand K distinct endpoint conversions, K at most 2W, instead of converting every overwritten interior endpoint. This avoids unused inverse-clock bisections without dropping a geometry station or contact, with speedup unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Equal demanded endpoint angles share one exact conversion within this call because the supplied law clock is fixed, pure and total; no physical callback, shape evaluation or effectful work is skipped or memoized.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Object.is-equivalent endpoint angles share one exact conversion within this call because the supplied law clock is fixed, pure and total. A distinct negative-zero key retains the original clock's signed-zero result; no physical callback, shape evaluation or effectful work is skipped or memoized.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources O(W) run records, O(P) running-bone entries and O(K) converted angles release at return or throw; only fresh final windows escape, with their existing borrowed support records.
    */
   export function contacts(
@@ -250,12 +250,13 @@ export namespace GymnasticsWheel {
         }
       }
     });
-    const times: Map<number, number> = new Map();
+    const times: Map<number | "-0", number> = new Map();
     const at: (angle: number) => number = (angle: number): number => {
-      const kept: number | undefined = times.get(angle);
+      const key: number | "-0" = Object.is(angle, -0) ? "-0" : angle;
+      const kept: number | undefined = times.get(key);
       if (kept !== undefined) return kept;
       const value: number = share(angle);
-      times.set(angle, value);
+      times.set(key, value);
       return value;
     };
     return runs.map((run: IContactRun): IHumanContactWindow => ({

@@ -1,11 +1,12 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
 
@@ -188,7 +189,7 @@ export namespace AutoMovieMotionHumanReach {
     point: IAutoMovieVector3,
   ): void {
     if (check.shortfall <= 0) return;
-    const mm = (metres: number): string => (1000 * metres).toFixed(0);
+    const mm: (metres: number) => string = (metres: number): string => (1000 * metres).toFixed(0);
     throw new HumanRefusal({
       kind: "reach",
       axis: "target",
@@ -206,42 +207,48 @@ export namespace AutoMovieMotionHumanReach {
    * @param posture The posture; its limb goals are not read.
    * @param limb The limb.
    * @param point The point the limb's end (the wrist or the ankle) is asked to take, world metres.
+   * @param resolution Optional exact FK source borrowed only by this current same-body observation.
    * @returns The check.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what of the posture is read, which joint the end is and the frame of the point.
    * @evidence contracts/development/implementation.md#principled-implementation The shoulder is read from the trunk's forward kinematics and the hip from the root and the pelvis joint, the places the limb fits start from; the length is the body's own two segments.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One root lookup by limb kind, then `measure`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rig without the shoulder bone throws instead of measuring from the origin.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass and no limb fit.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanTrunk.resolve` and `hipJoints`, the owners of those joints, and `measure`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Admits all original raw authored joints but emits only the actual arm shoulder and its ancestry, or the original two-hip observation for a leg; no limb fit runs. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares checkOn with prepareCheck, HumanTrunk/hipJoints retain raw FK ownership, and an optional current-person reader shares only exact prerequisites rather than a root or reach answer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or reader; the optional borrowed workspace is used only through the actual current root observation and fresh check output.
    */
   export function check(
     body: IHumanBody,
     posture: IHumanPosture,
     limb: Limb,
     point: IAutoMovieVector3,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): ICheck {
-    const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
-    if (limb.endsWith("Leg"))
-      return measure(
-        hipJoints(
-          body,
-          posture.root,
-          resolveHumanPosture.heading(posture),
-          posture.joints.hips,
-        )[side],
-        body.measure.thigh + body.measure.shank,
-        point,
-      );
-    const shoulder = HumanTrunk.resolve(body, posture).get(`${side}UpperArm`);
-    if (shoulder === undefined)
-      throw new Error(`The rig lacks ${side}UpperArm, so it has no shoulder`);
-    return measure(
-      shoulder.worldPosition,
-      body.measure.upperArm + body.measure.forearm,
-      point,
-    );
+    return checkOn(body, posture, limb, point, resolution);
+  }
+
+  /**
+   * Bind only unchanged body/limb demand for varying raw root observations.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Fixes body/limb metadata; each query takes actual authored posture, world-metre end point and optional synchronous same-person FK source, returning the original reach check.
+   * @evidence contracts/development/implementation.md#principled-implementation The genuine HumanTrunk.prepareResolve binds the actual arm shoulder name once; every query still constructs and admits the current raw posture and uses checkOn's original root/length/distance equations. Legs retain hipJoints and its authored pelvis-only policy.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy fixed arm-demand reader feeds the same root observation and measure owner as cold check, without a separate solver or limb representation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No posture, root point, reach result or limb fit is stored; all original authored admission, missing-root error, body lengths and exact reach boundary remain, without adding ROM projection.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Q arm probes bind shoulder name/indices once and emit only its ancestor closure; current authored-joint admission and actual FK remain per query. No measured speedup is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged body and fixed limb prove static name-demand equivalence. A query's explicit FK source is borrowed only at that query, so plan-owned static demand never retains an operation workspace or dynamic answer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation or plan owns one body/name metadata reader until release; current posture, point and optional reader do not enter it, and every output check is fresh without time/pose history or handles.
+   */
+  export function prepareCheck(body: IHumanBody, limb: Limb):
+    (posture: IHumanPosture, point: IAutoMovieVector3,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => ICheck {
+    let read: ReturnType<typeof HumanTrunk.prepareResolve> | undefined;
+    return (posture: IHumanPosture, point: IAutoMovieVector3,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): ICheck => {
+      if (limb.endsWith("Arm"))
+        read ??= HumanTrunk.prepareResolve(body, SHOULDERS[limb === "leftArm" ? "left" : "right"]);
+      return checkOn(body, posture, limb, point, resolution, read);
+    };
   }
 
   /**
@@ -260,9 +267,9 @@ export namespace AutoMovieMotionHumanReach {
    * @evidence contracts/development/implementation.md#principled-implementation The shortfall is zero at the limit and positive at none, so bisection on the pitch finds the boundary; it keeps the reachable end, so the returned pitch always reaches.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two end checks and one bisection loop.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A lean that does not reach at the limit refuses with the shortfall there; the hips are not moved back here, since balance belongs to the lean primitive a law writes the pitch with.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Thirteen forward-kinematics passes for a hundredth of a degree over 45 degrees; a law calls it once at plan time.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanLean.tip`, the owner of a tipped posture, and `check`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Retains the original endpoint checks and bounded bisection to a hundredth of a degree; one fixed shoulder demand and exact FK getter serve every actual tipped-pose probe instead of full bone output and repeated name preparation. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses original Lean.tip and prepareCheck's native raw shoulder/measure owner; one synchronous reader shares only exactly unchanged prerequisites across the actual current roots/joints.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This call releases its fixed name reader and lazy operation workspace on return or throw; only a numeric pitch escapes, without poses, target results or history.
    */
   export function lean(
     body: IHumanBody,
@@ -271,12 +278,13 @@ export namespace AutoMovieMotionHumanReach {
     point: IAutoMovieVector3,
     limit: number = LEAN_LIMIT,
   ): number {
-    const at = (pitch: number): ICheck =>
-      check(
-        body,
+    const read: ReturnType<typeof prepareCheck> = prepareCheck(body, limb);
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const at: (pitch: number) => ICheck = (pitch: number): ICheck =>
+      read(
         AutoMovieMotionHumanLean.tip(body, posture, pitch, 0),
-        limb,
         point,
+        resolution,
       );
     if (at(0).shortfall <= 0) return 0;
     refuse(limb, at(limit), point);
@@ -332,4 +340,30 @@ export namespace AutoMovieMotionHumanReach {
     refuse(limb, reach, point);
     return { posture, point };
   }
+}
+
+/** Actual goal-independent arm roots, with canonical FK owning their ancestry. */
+const SHOULDERS: Readonly<Record<"left" | "right", ReadonlySet<AutoMovieHumanoidBone>>> = {
+  left: new Set<AutoMovieHumanoidBone>(["leftUpperArm"]),
+  right: new Set<AutoMovieHumanoidBone>(["rightUpperArm"]),
+};
+
+/** Preserve cold and prepared root/length policy before the common sphere measure. */
+function checkOn(body: IHumanBody, posture: IHumanPosture,
+  limb: AutoMovieMotionHumanReach.Limb, point: IAutoMovieVector3,
+  resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  read?: ReturnType<typeof HumanTrunk.prepareResolve>): AutoMovieMotionHumanReach.ICheck {
+  const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
+  if (limb.endsWith("Leg"))
+    return AutoMovieMotionHumanReach.measure(hipJoints(body, posture.root,
+      resolveHumanPosture.heading(posture), posture.joints.hips,
+      typeof resolution === "function" ? resolution() : resolution)[side],
+    body.measure.thigh + body.measure.shank, point);
+  const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = read === undefined
+    ? HumanTrunk.resolve(body, posture, undefined, resolution, SHOULDERS[side]) : read(posture, resolution);
+  const shoulder: IAutoMovieResolvedBone | undefined = bones.get(`${side}UpperArm`);
+  if (shoulder === undefined)
+    throw new Error(`The rig lacks ${side}UpperArm, so it has no shoulder`);
+  return AutoMovieMotionHumanReach.measure(shoulder.worldPosition,
+    body.measure.upperArm + body.measure.forearm, point);
 }

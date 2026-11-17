@@ -16,9 +16,9 @@ import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
  * readRest lends an actually computed immutable rig-rest row into independent
  * operation storage after its owner proves the current operands are that rest.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines immutable private operands, internal row mutation, genuine static-rest borrowing, independent operation storage, the public cloning boundary and IReading's operand/offset roles below.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines immutable private operands, internal row mutation, genuine static-rest borrowing, independent operation storage, copy's fresh nested output boundary and IReading's operand/offset roles below.
  * @evidence contracts/development/implementation.md#principled-implementation Preserves ordinary FK's parent-times-local quaternion product and parent position plus the parent-rotated rest offset. A local rotation cannot move its own origin; a parent translation changes only the sum. readRest reuses the actual completed same-operand rest computation only after the owning rig proves current rest/ancestor operands, copying its immutable numerical references into separate mutable operation storage.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner composes root-relative/placed frames and borrows genuinely computed static-rest values. The prepared rig alone owns rest eligibility, dependency revisions and demanded hierarchy.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner composes root-relative/placed frames, borrows genuinely computed static-rest values and copies public output. Array/map/rest readers all use that copier; the prepared rig alone owns rest eligibility, dependency revisions and demanded hierarchy.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Identity equivalence is limited to actual private immutable values supplied by the prepared producer, never raw caller objects or a user-set admission flag. No rotation normalization, tolerance, scale convention or arithmetic reassociation is added.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per changed frame. Equal parent rotation shares its rotated offset; equal local/parent rotations share the world quaternion; equal parent placement shares world position. Actual static-rest borrowing performs only constant field copies across operations. First demand allocates independent row/frame storage, later updates reuse it. Runtime speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed rest data/private operands belong to the producer. Exact private identity proves equal values only under that immutable premise. A genuine rig-rest row contains the actual completed neutral computation, never a claimed resolved flag, and readRest shares only its fixed numerical operands/results without lending its mutable container.
@@ -62,6 +62,19 @@ export function resolvePreparedPoseFrame(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Operand references are actual private immutable producer values, never shape-based trust, raw caller identity or a special rig. No time, target, chosen solution, admission flag or unbounded result history is represented.
  */
 export namespace resolvePreparedPoseFrame {
+  /**
+   * Copy an actual private frame into independent mutable public ownership.
+   * The frame plus local/world quaternions and world position are each fresh;
+   * no output aliases another bone, earlier output or private operand. This
+   * constant-size own-data copy performs no validation or arithmetic and is
+   * shared by array/map/rest output writers. Only the caller retains its
+   * result; no source, operation row or output history is retained here.
+   */
+  export function copy(frame: IAutoMovieResolvedBone): IAutoMovieResolvedBone {
+    return { bone: frame.bone, localRotation: { ...frame.localRotation },
+      worldRotation: { ...frame.worldRotation }, worldPosition: { ...frame.worldPosition } };
+  }
+
   /**
    * Borrow actual immutable rig-rest values after the producer proves current
    * identity articulation and the exact static parent rotation/position.

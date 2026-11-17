@@ -36,8 +36,8 @@ export namespace walkStanceGeometry {
   /**
    * The geometry of a course's problem over its knots.
    *
-   * @param body The body.
-   * @param knots The knots.
+   * @param body The unchanged canonical body for this problem.
+   * @param knots Fixed placements, side order, schedules and frame readers; current held swivels remain per-reading inputs.
    * @returns The knot count, the step, the reach, the units and ranges, the variables' readers, each stance's reading at a course, each foot's share of the weight and the base the feet bear.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States prepared world-frame geometry, course variables, units and the separate goal-only and full constraint readers.

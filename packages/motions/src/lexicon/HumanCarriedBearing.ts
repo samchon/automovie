@@ -57,7 +57,7 @@ export namespace HumanCarriedBearing {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The role, the coupling, one arm primitive per holding hand, then the inherited base tipped.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hands do not read the carried body's displayed bones; the rows' places are provisional.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each holding arm retains its actual goal/target calculations and any required whole posture fits. Final FK requests only its anchor or held-region owner, and both arm callbacks borrow one exact workspace within a single composed posture evaluation; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed role, coupling, hold rows and demanded bone metadata belong to this plan. One explicit synchronous posture call shares exact scalar FK prerequisites only; each arm still reads its actual current posture, so earlier arm writes, limb-anchor full fitting and rival clearance remain authoritative.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed role, coupling, hold rows and demanded bone metadata belong to this plan. Canonical query loans reach the same-body base and composed arm callbacks. One explicit synchronous posture call shares exact scalar FK prerequisites only; each arm still reads its actual current posture, so earlier arm writes, limb-anchor full fitting and rival clearance remain authoritative.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its fixed coupling/role/hold metadata and entry state. A posture call owns at most one lazy FK reader, restoring any nested parent scope in finally; returned postures capture no reader or map and plan release drops fixed metadata.
    */
   export function plan(
@@ -304,14 +304,19 @@ export namespace HumanCarriedBearing {
                   }),
                 )),
         ],
-        posture: (at: number): IHumanPosture => {
+        posture: (
+          at: number,
+          _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+          source?: Parameters<IHumanActionPlan["posture"]>[2],
+          projection?: Parameters<IHumanActionPlan["posture"]>[3],
+        ): IHumanPosture => {
           const w: number = clock.progress(
             AutoMovieMotionClock.START,
             "held",
             at,
           );
           return HumanCarriedLean.tipped(
-            bent(base.posture(at), w),
+            bent(base.posture(at, undefined, source, projection), w),
             tip.pitch * w,
             tip.roll * w,
           );
@@ -322,11 +327,16 @@ export namespace HumanCarriedBearing {
     });
     return {
       ...composed,
-      posture: (at: number, channels?: readonly AutoMovieMotionHumanChannel[]): IHumanPosture => {
+      posture: (
+        at: number,
+        channels?: readonly AutoMovieMotionHumanChannel[],
+        source?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => {
         const previous: typeof resolution = resolution;
-        resolution = prepareHumanPoseResolution();
+        resolution = prepareHumanPoseResolution(source);
         try {
-          return composed.posture(at, channels);
+          return composed.posture(at, channels, resolution, projection);
         } finally {
           resolution = previous;
         }

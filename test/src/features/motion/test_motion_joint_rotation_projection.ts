@@ -1,7 +1,10 @@
 import {
   type IAutoMovieRestFrame,
   Quaternion,
+  clampJointRom,
+  jointToQuaternion,
   normalizeJointAxes,
+  prepareJointRotationProjection,
 } from "@automovie/engine";
 import type {
   IAutoMovieJointAxes,
@@ -12,6 +15,7 @@ import type {
 
 import { jointRotationOracle as O } from "../internal/jointRotationOracle";
 import { nclose } from "../internal/nclose";
+import { qclose } from "../internal/qclose";
 
 /**
  * Plain-box projection follows independent one- and two-factor geometry.
@@ -26,14 +30,18 @@ import { nclose } from "../internal/nclose";
  *    qdot=cos((F-F0)/2)cos((A-A0)/2). With each difference below 180 degrees,
  *    interval clipping gives the interior, four edges and four corners.
  *    Both orders, reflected/rotated bases and affine rest maps apply.
+ * 4. An owned real-clamp wrapper reenters the same projector during an
+ *    already active candidate query. Inner and outer clipped rotations
+ *    remain independent; an owned later callback failure propagates and
+ *    the following ordinary query still returns the geometric answer.
  *
  * Both quaternion signs use the same physical expectation. Clinical angles
  * use degrees; the shared nclose/qclose precision remains unchanged.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the three box scenarios, axis conventions, sign equivalence and numerical precision.
+ * @evidence contracts/development/common.md#meaningful-documentation States four box/ownership scenarios, axis conventions, sign equivalence, callback provenance and numerical precision.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public prepared projector with its matching clamp and checks actual recomposed rotations and admitted unique aliases.
  * @evidence contracts/development/testing.md#independent-expectations Hinge distance and the stated orthogonal-factor cosine product give interval-clipped physical answers; no producer candidate list supplies them.
- * @evidence contracts/development/testing.md#distinguishing-cases Zero, one and two mobile axes; every edge and corner; full-turn aliases; both orders; handedness, rotated bases and neutral/sign maps. Degeneracy and actual Human FK are separate entries.
+ * @evidence contracts/development/testing.md#distinguishing-cases Zero, one and two mobile axes; every edge and corner; full-turn aliases; both orders; handedness, rotated bases and neutral/sign maps. Nested versus ordinary callbacks, a later owned exception and same-projector recovery distinguish candidate-query lifetime. Degeneracy and actual Human FK are separate entries.
  * @evidence contracts/development/testing.md#execution-ownership One portable CPU entry declares finite mathematical fixtures and uses the shared independent observer without a host, patch, viewer or wall-clock assertion.
  */
 export function test_motion_joint_rotation_projection(): void {
@@ -238,5 +246,66 @@ export function test_motion_joint_rotation_projection(): void {
               );
             }
         });
+  checks.scenario("nested projector query and exception recovery", (): void => queryOwnership(checks));
   checks.assert();
+}
+
+/** Exercise real foreign-clamp callbacks while analytic candidates belong to an active outer query. */
+function queryOwnership(checks: O.IChecks): void {
+  const rig: O.IRig = O.rig({
+    flexion: { min: -25, max: 35 }, abduction: { min: -20, max: 30 }, twist: null,
+  });
+  const outer: IAutoMovieQuaternion = O.compose([70, -55, 0], rig);
+  const clipped: IAutoMovieQuaternion = O.compose([35, -20, 0], rig);
+  const inner: IAutoMovieQuaternion = O.compose([-17, 9, 0], rig);
+  const failure: Error = new Error("owned candidate clamp failure");
+  let mode: "plain" | "nested" | "throw" = "plain";
+  let calls: number = 0;
+  let depth: number = 0;
+  let entered: boolean = false;
+  const clamp: (joint: IAutoMovieJointPose) => IAutoMovieJointPose = (
+    joint: IAutoMovieJointPose,
+  ): IAutoMovieJointPose => {
+    calls++;
+
+    // The ordinary reference and first candidate have already been admitted
+    // before this callback acts. Their actual rotations, rather than any
+    // internal container or candidate count, remain the tested observations.
+    if (depth === 0 && !entered && calls >= 3 && mode !== "plain") {
+      entered = true;
+      if (mode === "throw") throw failure;
+      depth++;
+      try {
+        const nested: IAutoMovieJointPose = project(inner);
+        checks.check("the nested query retains its independent feasible articulation",
+          qclose(jointToQuaternion(nested, rig.basis, rig.frame), inner),
+        );
+      } finally {
+        depth--;
+      }
+    }
+    return clampJointRom(joint, rig.constraint, { axes: rig.basis, frame: rig.frame });
+  };
+  const project: ReturnType<typeof prepareJointRotationProjection> = prepareJointRotationProjection({
+    domain: { bone: rig.bone, constraint: rig.constraint }, basis: rig.basis, frame: rig.frame, clamp,
+  });
+  for (const setting of ["plain", "nested", "throw", "plain"] as const) {
+    mode = setting;
+    calls = 0;
+    entered = false;
+    let result: IAutoMovieJointPose | undefined;
+    let thrown: unknown;
+    try {
+      result = project(outer);
+    } catch (error) {
+      thrown = error;
+    }
+    if (setting === "throw")
+      checks.check("an owned active-candidate failure propagates unchanged", entered && thrown === failure);
+    else checks.check(`${setting}: outer clipping and subsequent recovery remain physical`,
+      thrown === undefined && result !== undefined &&
+      qclose(jointToQuaternion(result, rig.basis, rig.frame), clipped) &&
+      (setting !== "nested" || entered),
+    );
+  }
 }

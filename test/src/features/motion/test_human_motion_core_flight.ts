@@ -68,9 +68,13 @@ import { qunit } from "../internal/qunit";
  * 2. The momentum read back from the displayed bones (#3422) holds within
  *    1 % of its take-off value at every twentieth of the flight
  *    (#3416's acceptance), for a layout and a tuck.
- * 3. Seek: the pose at 30 flight instants read cold, in a shuffled order on
+ * 3. Seek: the pose at the original 30 flight instants plus six instants
+ *    immediately around phase1/4,1/2,3/4, read in a shuffled order on
  *    a fresh performance, equals the pose read after evaluating the whole
- *    film in order, bit for bit.
+ *    film in order, bit for bit. The extra phase offsets are +/-1e-6,
+ *    interleaved across dyadic bins so equal-level predecessor candidates
+ *    recur after another bin. Actual internal anchor visits/evictions are
+ *    not exposed and are not inferred from a passing pose comparison.
  * 4. A flight asked for more turns than its take-off can give (twenty
  *    somersaults) is refused with a `HumanRefusal` on the axis `turns`.
  * 5. No bone retains a snap above 5 degrees after the spin audit's adaptive
@@ -81,7 +85,7 @@ import { qunit } from "../internal/qunit";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs jumps with turns through the public performance and reads displayed bones; a landing off its request, a momentum over the take-off's ceiling, a rotation not about the centre, a momentum that drifts, a pass that reads the frame grid, an impossible request accepted or a landing snap fails.
  * @evidence contracts/development/testing.md#independent-expectations The solver's tolerance and the take-off's ceiling as contracts read from the displayed bones, conservation of angular momentum in flight, the composed tensor of #3422, the spin audit's 5-degree residual snap bound, and the campaign's 1 % and 5 mm bounds. Sampled take-off-frame long-axis winding distinguishes a one-turn request from an unchanged root without claiming a continuous winding certificate.
- * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, a tuck and a layout, ordered and cold reads, a feasible and an infeasible request, with and without turns; the shapes' own rows belong to the airborne rows' tests.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, a tuck and a layout, ordered and cold reads at all original thirty instants plus both sides of three dyadic boundaries, a feasible and an infeasible request, with and without turns. Additional seeks reuse the existing ordered/fresh performances and unchanged exact root/joint comparison; actual internal anchor eviction is not independently observed. The shapes' own rows belong to the airborne rows' tests.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two canonical polygon bodies and short performances in memory, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and their bounds.
  */
@@ -299,6 +303,10 @@ export function test_human_motion_core_flight(): void {
       { length: 30 },
       (_: unknown, k: number): number => t0 + ((t1 - t0) * ((k * 7) % 30)) / 29,
     );
+    instants.push(...[
+      0.5 + 1e-6, 0.25 - 1e-6, 0.75 + 1e-6,
+      0.5 - 1e-6, 0.75 - 1e-6, 0.25 + 1e-6,
+    ].map((share: number): number => t0 + (t1 - t0) * share));
     const rootValues: (pose: IAutoMoviePose) => readonly number[] = (
       pose: IAutoMoviePose,
     ): readonly number[] =>

@@ -129,10 +129,14 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
         margin: 0,
       }),
     );
-    return (
-      point: IAutoMovieVector3,
-      hint: IAutoMovieVector3,
-    ): IAutoMovieVector3 =>
-      AutoMovieMotionHumanSwivelBound.bounded(of, point, hint, bounds);
+    return hints(of, bounds);
   }
+}
+
+/** Keep the numerical bound reader outside the canonical/FK preparation scope. */
+function hints(arm: AutoMovieMotionHumanSwivelBound.IArm,
+  bounds: readonly AutoMovieMotionHumanSwivelBound.IHalfPlane[]):
+  (point: IAutoMovieVector3, hint: IAutoMovieVector3) => IAutoMovieVector3 {
+  return (point: IAutoMovieVector3, hint: IAutoMovieVector3): IAutoMovieVector3 =>
+    AutoMovieMotionHumanSwivelBound.bounded(arm, point, hint, bounds);
 }

@@ -1,4 +1,4 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
+import type { IAutoMovieResolvedBone, preparePoseResolution } from "@automovie/engine";
 import type {
   IAutoMovieJointPose,
   IAutoMoviePose,
@@ -65,6 +65,7 @@ interface IShape {
  * @param start The action's placed start in film seconds.
  * @param takeoff The flight's actual takeoff in film seconds.
  * @param unturned The same composed displayed-pose reader used by its history.
+ * @param resolution Optional original FK supplier borrowed for these synchronous full-bone diagnostic reads only.
  * @returns The same error, with copied boundary numbers in its fields and message; a secondary read failure is recorded without masking the original.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes raw action goals, displayed articulation and root-frame FK, states units and exact adjacent-time observation, and limits the continuity inference.
@@ -72,8 +73,8 @@ interface IShape {
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Capture three bounded observations, independently record a secondary read problem, then enrich and rethrow the same failure through the caller.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No second film, runtime override, alternate pose resolver, tolerance change or blend enters the model. Neighbouring times are observations after failure, never new integrator nodes or an admission rule.
  * @evidence contracts/development/implementation.md#efficient-algorithms Only the failure path reads three displayed poses and three raw postures, followed by their linear FK and numeric copies. Successful planning never constructs this context.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the caller's existing unchanged body, plan and displayed-pose reader; each displayed pose serves both its clinical snapshot and FK instead of being resolved twice.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The error retains three copied numeric/string/boolean snapshots, linear in this rig's bones and goals. Temporary poses, raw postures, bone maps and one eight-byte neighbour view are released; no body, plan, history or callback escapes in the error.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the caller's unchanged body, plan and displayed-pose reader; each displayed pose serves both its clinical snapshot and FK. An optional original operation supplier shares exact body-owned dependency rows between the full displayed fit and its root-null full-bone FK; every authored joint is still admitted and raw-law observations retain their original calls.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The error retains three copied numeric/string/boolean snapshots, linear in rig bones/goals. Temporary poses, raw postures, bone maps and one eight-byte neighbour view end here; the optional supplier remains with the caller's operation. No body, plan, history, reader or callback escapes in the error.
  */
 export function HumanPerformanceFlightFailure(
   error: Error,
@@ -82,6 +83,7 @@ export function HumanPerformanceFlightFailure(
   start: number,
   takeoff: number,
   unturned: (seconds: number) => IAutoMoviePose,
+  resolution?: () => ReturnType<typeof preparePoseResolution>,
 ): Error {
   const boundary: {
     time: number;
@@ -124,7 +126,7 @@ export function HumanPerformanceFlightFailure(
       shape.joints = pose.joints.map((joint: IAutoMovieJointPose): IShape["joints"][number] => [
         joint.bone, joint.flexion, joint.abduction, joint.twist,
       ]);
-      for (const bone of poseBones(body, { ...pose, root: null }).values())
+      for (const bone of poseBones(body, { ...pose, root: null }, resolution?.()).values())
         shape.bones.push(boneNumbers(bone));
       boundary.push({ time, local, shape, error: null });
     } catch (problem) {

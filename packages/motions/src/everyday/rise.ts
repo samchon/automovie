@@ -8,7 +8,6 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { HumanBase } from "../law/HumanBase";
-import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -16,11 +15,10 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanMountOff } from "../lexicon/HumanMountOff";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
 import { prepareRiseFeet } from "./prepareRiseFeet";
 import { riseRested } from "./riseRested";
+import { riseSeatOff } from "./riseSeatOff";
 import { seated } from "./seated";
 
 /**
@@ -83,12 +81,6 @@ import { seated } from "./seated";
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
- * @evidence contracts/development/implementation.md#principled-implementation Effector goals (sockets, footprints, the gaze line) solved by the shared inverse kinematics, with balance and timing from the cited laws.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans once, then evaluates each posture in closed form.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond a few forward-kinematics passes and limb fits.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan prepares its unchanged foot course once. Both current rise branches delegate raw hip lowering and hand resting to riseRested, sharing only synchronous parent FK/ROM prerequisites while every changing posture/fit remains evaluated.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
  */
 export namespace rise {
   /** The action's name. */
@@ -136,6 +128,14 @@ export namespace rise {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the feet stand too far ahead to rise over them.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the context/plan and reach refusal; the namespace gives world-metre socket/plant goals, phase timing, degree bounds and seat-off conventions.
+   * @evidence contracts/development/implementation.md#principled-implementation The original socket course, planted legs, trunk flexion and extrapolated mass-centre seat-off rule retain their canonical owners; high seats delegate to the existing dismount law.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Original foot/pitch/seat-off selection precedes one prepared foot course and two current rise branches sharing the native lowering/hand-rest owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All foot/angle candidates, seat-off scan samples, extrapolation, joint ranges and contact thresholds remain; infeasible feet are refused rather than moved outside the original search.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning retains all original seat-off candidates/full solves with native observation/FK/ROM preparation. Fixed foot courses, actual edging vector endpoints and constant entry-heading seat offset prepare once; each current posture retains actual hip lowering and active hand observations.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Seat-off construction releases its native metadata before the returned plan is built; only selected feet/peak/off data escape. Both current branches delegate raw hip lowering and hand resting to riseRested, sharing only synchronous parent FK/ROM prerequisites while every changed posture/fit remains evaluated.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its fixed course/scalars and original entry geometry until release; current-query FK/ROM loans end on return or throw without entering the retained plan or goals.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -170,6 +170,14 @@ export namespace rise {
         ? context.entry.base.seat?.armrests
         : undefined;
     const pitch0: number = context.entry.posture.pitch;
+    const entryRoot: ReturnType<typeof seated.prepareRoot> = seated.prepareRoot(
+      body,
+      {
+        yaw,
+        pitch: pitch0,
+        roll: 0,
+      },
+    );
     const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
       body,
       context.entry,
@@ -191,8 +199,7 @@ export namespace rise {
     const along = (p: IAutoMovieVector3): number =>
       p.x * forwardDir.x + p.z * forwardDir.z;
     const hipJointAt = (socket: IAutoMovieVector3): number =>
-      along(seated.root(body, socket, { yaw, pitch: pitch0, roll: 0 })) +
-      body.rest.get("leftUpperLeg")!.z;
+      along(entryRoot(socket)) + body.rest.get("leftUpperLeg")!.z;
     const ankles: number = (along(feet.left) + along(feet.right)) / 2;
     let scoot: number = Math.max(
       0,
@@ -213,6 +220,8 @@ export namespace rise {
       start,
       Vector3.scale(forwardDir, scoot),
     );
+    const edged: ReturnType<typeof Vector3.prepareLerp> | undefined =
+      edging > 0 ? Vector3.prepareLerp(start, begin) : undefined;
 
     // Then the feet are drawn back, one at a time, until each ankle stands
     // behind its knee with the shank at an angle forward of vertical, and
@@ -261,74 +270,19 @@ export namespace rise {
       pitch: 0,
       roll: 0,
     });
-    const seatedAt: (
-      peak: number,
-      feetAt: Record<"left" | "right", IAutoMovieVector3>,
-      limit: number,
-    ) => (t: number) => IHumanPosture =
-      (
-        peak: number,
-        feetAt: Record<"left" | "right", IAutoMovieVector3>,
-        limit: number,
-      ): ((t: number) => IHumanPosture) =>
-      (t: number): IHumanPosture => {
-        const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
-          relaxed,
-          pitchAt(t, peak),
-          limit,
-        );
-        const root: IAutoMovieVector3 = seated.root(body, begin, {
-          yaw,
-          pitch: tilt.pitch,
-          roll: 0,
-        });
-        return resolveHumanPosture.lower(body, {
-          root,
-          yaw,
-          pitch: tilt.pitch,
-          roll: 0,
-          joints: tilt.joints,
-          limbs: legged(root, feetAt),
-        });
-      };
-    let drawn: Record<"left" | "right", IAutoMovieVector3> = drawAt(SHANK[0]!);
-    let peak: number = 0;
-    let off: number | undefined;
-    for (const angle of SHANK) {
-      drawn = drawAt(angle);
-      // The support geometry stays fixed while time and peak flexion are searched.
-      const limit: number = HumanTrunk.pelvisLimit(body, level, yaw, drawn);
-      for (
-        peak = 35 + 50 * (1 - r);
-        peak <= 70 + 1e-9 && off === undefined;
-        peak += 5
-      ) {
-        const candidate: (t: number) => IHumanPosture = seatedAt(
-          peak,
-          drawn,
-          limit,
-        );
-        for (
-          let t: number = 0.4 * rising;
-          t <= 0.45 * rising + 1e-9;
-          t += 1 / 24
-        )
-          if (HumanBalance.extrapolated(body, candidate, t) >= 0) {
-            off = t;
-            break;
-          }
-      }
-      if (off !== undefined) break;
-    }
-    if (off === undefined)
-      throw new HumanRefusal({
-        kind: "base",
-        axis: "base",
-        value: null,
-        reason: `the feet stand too far ahead to rise over them; place the ankles nearer the seat`,
-        fix: "place the ankles nearer the seat before rising",
-      });
-    peak -= 5;
+    const { drawn, peak, off }: ReturnType<typeof riseSeatOff> = riseSeatOff({
+      body,
+      begin,
+      level,
+      yaw,
+      relaxed,
+      angles: SHANK,
+      rising,
+      ratio: r,
+      legged,
+      drawAt,
+      pitchAt,
+    });
 
     const swings: Partial<Record<"left" | "right", [number, number]>> = {};
     let clock: number = edging;
@@ -414,14 +368,8 @@ export namespace rise {
         const joints: IHumanPosture["joints"] = { ...relaxed };
         if (t < prepared) {
           const socket: IAutoMovieVector3 =
-            edging > 0
-              ? Vector3.lerp(start, begin, minimumJerk.share(t / edging))
-              : begin;
-          const root: IAutoMovieVector3 = seated.root(body, socket, {
-            yaw,
-            pitch: pitch0,
-            roll: 0,
-          });
+            edged !== undefined ? edged(minimumJerk.share(t / edging)) : begin;
+          const root: IAutoMovieVector3 = entryRoot(socket);
           return riseRested(
             body,
             {

@@ -202,10 +202,10 @@ export namespace AutoMovieMotionHumanTouchLaid {
   ): NonNullable<IHumanPosture.IGoal["reference"]> {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
     const solved: IHumanPosture.IReference = resolveHumanPosture.reference(
-      resolveHumanPosture.seeded(body, resolveHumanPosture.rebased(posture, {
+      resolveHumanPosture.seeded(body, {
         ...posture,
         limbs: { ...posture.limbs, [limb]: goal },
-      }), undefined, undefined, source, undefined, projection).pose,
+      }, undefined, undefined, source, undefined, projection).pose,
       limb,
     );
 

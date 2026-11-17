@@ -12,6 +12,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
@@ -87,9 +88,9 @@ export namespace guard {
    * @evidence contracts/development/implementation.md#principled-implementation Each foot steps on a minimum-jerk unit to its measured stance place in turn, the root sinks and turns, the gloves rise to the guard, then a bounce through the knees; the limbs are solved by the shared fit.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the geometry on first use and evaluates each posture from it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A too-short duration is raised to the setting time, as documented; the bounce is a named provisional value.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the leg and arm fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once per plan and every posture reads it; settle drops it when the faced target may have moved.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry, cleared by settle and released with the plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Every actual leg/guard/native fit remains. Fixed guard rig demand and each moving foot's exact Slerp arc prepare once; current raw entry heading is still read by the original per-query expression, and one current native workspace serves lower and guard ancestry, retaining all progress-dependent quaternion weights and normalization. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The built native geometry fixes body, entry/stance feet, heading and lead. Only those arc/name/scalar invariants are shared; every current root/joint/foot/goal and query-scoped genuine FK/ROM input reaches its original numerical owner. Settle drops geometry when the faced target can change, without sharing any posed result across times.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one settled geometry and at most two lazy fixed-foot arc readers until settle or plan release. Each posture owns its exact getter and fresh authored goals; optional parent FK/ROM loans end on return/failure and enter no retained output or pose/time history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -106,8 +107,14 @@ export namespace guard {
       get contacts(): IHumanContactWindow[] {
         return geometry().contacts;
       },
-      posture: (seconds: number): IHumanPosture =>
-        geometry().posture(Math.min(duration, Math.max(0, seconds))),
+      posture: (
+        seconds: number,
+        channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => geometry().posture(
+        Math.min(duration, Math.max(0, seconds)), channels, resolution, projection,
+      ),
       settle: (): void => {
         built = undefined;
       },
@@ -116,8 +123,8 @@ export namespace guard {
 
   /** A built guard. */
   interface IGeometry {
-    /** The posture at seconds since the start. */
-    posture(seconds: number): IHumanPosture;
+    /** The complete posture at action-relative seconds, with same-call FK/ROM borrowing and no retained query source. */
+    posture: IHumanActionPlan["posture"];
     /** The feet's contact windows. */
     contacts: IHumanContactWindow[];
   }
@@ -193,6 +200,7 @@ export namespace guard {
         ? { left: second, right: first }
         : { left: first, right: second };
     const lift: number = 0.02 * body.measure.stature;
+    const rotations: Partial<Record<"left" | "right", ReturnType<typeof Quaternion.prepareSlerp>>> = {};
     const foot = (side: "left" | "right", t: number): HumanFoot.IPlacement => {
       if (!moving[side]) return from[side];
       const [a, b] = window[side];
@@ -202,9 +210,11 @@ export namespace guard {
         to[side].ankle,
         s,
       );
+      const rotation: ReturnType<typeof Quaternion.prepareSlerp> = rotations[side] ??=
+        Quaternion.prepareSlerp(from[side].rotation, to[side].rotation);
       return {
         ankle: { ...ankle, y: ankle.y + lift * 4 * s * (1 - s) },
-        rotation: Quaternion.slerp(from[side].rotation, to[side].rotation, s),
+        rotation: rotation(s),
       };
     };
     const contacts: IHumanContactWindow[] = (
@@ -239,9 +249,16 @@ export namespace guard {
       ];
     });
     const bounce: number = Math.abs(sunk) / 3;
+    const guardAt: ReturnType<typeof StrikingStance.prepareGuard> = StrikingStance.prepareGuard(body, { lead });
     return {
       contacts,
-      posture: (t: number): IHumanPosture => {
+      posture: (
+        t: number,
+        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        source?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => {
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
         const s: number = minimumJerk.share(t / SET);
         const fade: number =
           s * (1 - minimumJerk.share((t - (duration - 0.2)) / 0.2));
@@ -279,8 +296,9 @@ export namespace guard {
           body,
           { ...posture, limbs: legs },
           5,
+          resolution,
         );
-        const hands = StrikingStance.guard(body, lowered, { lead });
+        const hands: ReturnType<typeof StrikingStance.guard> = guardAt(lowered, resolution, projection);
         return {
           ...lowered,
           limbs: { ...lowered.limbs, ...blendArms(context, hands, s) },

@@ -2,9 +2,9 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { jumpJoints } from "./jumpJoints";
 import { jumpPushEnd } from "./jumpPushEnd";
 import { jumpState } from "./jumpState";
@@ -46,9 +46,9 @@ export namespace jumpEndpoints {
    * @evidence contracts/development/implementation.md#principled-implementation The shared jumpPushEnd produces takeoff values; the landing uses the original feet and each footprint's knee heading. Both apply the existing planted-leg lowering and same actual canonical endpoint reader before COM is solved.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the terminal push, prepare both landing goals, then return their normalized states.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Never feeds the lowered root back into the raw push rule; this keeps lowering single and avoids the launch/root planning cycle. Original floor/prop footprints and support checks stay unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One shared heel-rule read and two existing endpoint canonical resolutions/FK preparations per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Ballistic COM and free goals consume the same actual endpoints. One synchronous FK workspace and genuine same-body projector supply terminal geometry, both canonical solves/final clamps, planted refits and local observations; only unchanged prerequisites/static ROM metadata share work while every current joint/dependency still evaluates.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns two plan-owned states; temporary goals, exact reader/getter and genuine projector release on preparation return/throw. Neither workspace nor global query history enters retained endpoint evidence or records.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One shared heel-rule read and two existing endpoint canonical resolutions/FK preparations remain. One fixed-body minimum-knee reach prepares lazily for both original lowering observations; all actual plants, hip reads and drop arithmetic still evaluate.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Ballistic COM and free goals consume the same actual endpoints. One synchronous FK workspace, genuine projector and fixed-body reach producer supply terminal geometry, actual endpoint lowerings/solves/final clamps, planted refits and local observations; only unchanged reach/prerequisites/static ROM metadata share work while every current joint/dependency still evaluates.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns two plan-owned states; temporary goals, fixed reach reader, exact getter/workspace and genuine projector release on preparation return/throw. Neither workspace, lowering callback nor global query history enters retained endpoint evidence or records.
    */
   export function of(
     props: Parameters<typeof jumpPushEnd>[0],
@@ -58,12 +58,13 @@ export namespace jumpEndpoints {
   ): IEnds {
     const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(props.body);
+    const lower: ReturnType<typeof lowerHumanPosture.prepare> = lowerHumanPosture.prepare(props.body);
     const terminal: ReturnType<typeof jumpPushEnd> = jumpPushEnd(props, rootT, read);
-    const start: jumpState.IState = jumpState.of(props.body, resolveHumanPosture.lower(props.body, {
+    const start: jumpState.IState = jumpState.of(props.body, lower({
       root: rootT, yaw: props.heading, pitch: 0, roll: 0,
       joints: { ...jumpJoints(props.body, props.upright.joints, 60, 60), ...terminal.joints },
       limbs: terminal.limbs,
-    }, undefined, read), read, projection);
+    }, read), read, projection);
     const limbs: IHumanPosture["limbs"] = {};
     for (const side of ["left", "right"] as const)
       limbs[`${side}Leg`] = {
@@ -73,10 +74,10 @@ export namespace jumpEndpoints {
         planted: true,
         contact: HumanFoot.offset(props.body, side, "mtp"),
       };
-    const end: jumpState.IState = jumpState.of(props.body, resolveHumanPosture.lower(props.body, {
+    const end: jumpState.IState = jumpState.of(props.body, lower({
       root: rootL, yaw: props.heading, pitch: 0, roll: 0,
       joints: jumpJoints(props.body, props.upright.joints, 30, 30), limbs,
-    }, undefined, read), read, projection);
+    }, read), read, projection);
     return { start, end };
   }
 }

@@ -1,6 +1,8 @@
 import {
   type IAutoMovieResolvedBone,
   type IAutoMovieRestFrame,
+  jointToQuaternionOnBasis,
+  normalizeJointAxes,
   preparePoseResolution,
   prepareSkeletonPoseResolution,
   resolvePose,
@@ -54,11 +56,19 @@ import { vclose } from "../internal/vclose";
  * 9. Typed inherited axis and non-enumerable affine mappings retain direct
  *    lookup semantics and snapshot isolation. An own undefined shadow and
  *    an unrelated bone override preserve the original default/spread rules.
+ * 10. A raw operation joint reader preserves direct clinical/frame admission:
+ *     null bypasses owned throwing sign/neutral getters, each nonfinite
+ *     coordinate fails before its frame, and a used frame still fails before
+ *     the next coordinate. Same-record affine edits, replacement frames and
+ *     null recovery stay live. A reentrant getter's inner X90 cannot replace
+ *     the outer call's clinical60-neutral30=X30 mapping.
+ *     Individual rotation reads do not need a clinical record's bone name;
+ *     only the full pose traversal performs that identity lookup.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States static-rig/fixed-pose snapshots, metre coordinates, ordered admission, effective inherited/hidden mapping lookup and shadow/override rules, demanded ancestors, bound/live membership, individual/full-pose admission and fresh ownership in nine scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Calls public prepared and raw requested FK with changing pose/root/static inputs and demand sets. Actual returned coordinates detect stale transforms; an owned rest getter observes snapshot isolation, and an owned raw-operation reader observes ordered admission and demanded compositions without replacing a library function.
- * @evidence contracts/development/testing.md#independent-expectations Right-hand Y90 maps plus X to minus Z; Z90 maps it to plus Y, raising the hand0.75m above its1.4m chest to2.15m. Literal rest offsets sum to left-hand(0.75,1.4,0) and right-lower-arm(-0.5,1.4,0). Requested ancestry follows the authored graph. Direct property lookup keeps inherited/non-enumerable values and own undefined shadows; the existing skeleton-axis spread discards inherited entries when a bone overrides. These are geometric/dependency expectations, not output snapshots.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers rest/rotated ancestors, root/arm edits, rig/pose snapshots, fixed-edit restoration, bound/live demand mutation, empty/single/two-branch demand, duplicate/stray admission, output mutation, individual-row admission and inherited/hidden/undefined-shadow/override mapping lifetimes. Unreachable topology/general IK remain separately owned.
+ * @evidence contracts/development/common.md#meaningful-documentation States static-rig/fixed-pose snapshots, metre coordinates, ordered clinical/frame admission including null bypass, effective inherited/hidden lookup and shadow/override rules, demanded ancestors, bound/live membership, individual/full-pose admission and fresh ownership in ten scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public prepared and raw requested FK with changing pose/root/static inputs and demand sets. Actual returned coordinates detect stale transforms; an owned rest getter observes snapshot isolation, and an owned raw-operation reader observes ordered admission and demanded compositions without replacing a library function. Public operation.joint and direct OnBasis separately observe owned throwing affine getters, current invalid clinical coordinates, same-record scalar edits, frame replacement and recovery against literal identity/X90 rotations; a reentrant getter independently requires simultaneous innerX90/outerX30 results.
+ * @evidence contracts/development/testing.md#independent-expectations Right-hand Y90 maps plus X to minus Z; Z90 maps it to plus Y, raising the hand0.75m above its1.4m chest to2.15m. Literal rest offsets sum to left-hand(0.75,1.4,0) and right-lower-arm(-0.5,1.4,0). Requested ancestry follows the authored graph. Direct lookup keeps inherited/non-enumerable values and own undefined shadows; the original skeleton-axis spread discards inherited entries when a bone overrides. Null rest uses rig zero without sign/neutral conversion; finite clinical admission and each used frame precede the next axis. Sign1/neutral20 maps clinical20 to identity and110 to X90; editing that same neutral to110 gives identity. A nested clinical90/neutral0 call cannot replace outerclinical60/neutral30=X30. These are geometric/dependency/admission expectations, not output snapshots.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers rest/rotated ancestors, root/arm edits, rig/pose snapshots, fixed-edit restoration, bound/live demand mutation, empty/single/two-branch demand, duplicate/stray admission, output mutation, individual-row admission, inherited/hidden/undefined-shadow/override mapping lifetimes and raw-operation null/finite/used-getter failure order, same-identity scalar edits, replacement recovery and reentrant frame isolation. Unreachable topology/general IK remain separately owned.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable unit owns all skeletons, poses, demand sets and the observational reader. It invokes no host, viewer, capture, compiler or foreign function replacement; the structural count measures requested bone composition calls rather than hidden floating-point operations.
  */
 export function test_kinematics_prepared_pose_contracts(): void {
@@ -356,6 +366,86 @@ export function test_kinematics_prepared_pose_contracts(): void {
     prepareSkeletonPoseResolution(overriding, discarded, {}).resolve(
       makePose([joint("chest", { twist: 90 })]), undefined, new Set(["leftHand"])),
     "leftHand", { x: 0, y: 1.4, z: -0.75 });
+  rawFrameAdmission();
+}
+
+/** A raw operation cannot sample an unused affine value ahead of the original joint owner. */
+function rawFrameAdmission(): void {
+  const basis: IAutoMovieJointAxes = normalizeJointAxes({ flexion: { x: 1, y: 0, z: 0 },
+    abduction: { x: 0, y: 1, z: 0 }, twist: { x: 0, y: 0, z: 1 } }, "raw frame admission basis");
+  const sentinel: Error = new Error("owned unused affine getter");
+  const neutral: Error = new Error("owned used neutral getter");
+  const unused: NonNullable<IAutoMovieRestFrame["flexion"]> = {
+    get sign(): 1 { throw sentinel; }, get neutral(): number { throw sentinel; },
+  };
+  const frame: IAutoMovieRestFrame = { flexion: unused, abduction: unused, twist: unused };
+  const current: IAutoMovieJointPose = { bone: "head", flexion: null, abduction: null, twist: null };
+  const operation: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
+  const direct: () => IAutoMovieQuaternion = (): IAutoMovieQuaternion => jointToQuaternionOnBasis(current, basis, frame);
+  const read: () => IAutoMovieQuaternion = (): IAutoMovieQuaternion => operation.joint(current, basis, frame);
+  const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+  TestValidator.predicate("raw operation null coordinates do not sample unused affine getters",
+    qclose(direct(), identity, 1e-12) && qclose(read(), identity, 1e-12));
+  current.flexion = NaN;
+  current.abduction = NaN;
+  TestValidator.predicate("current flexion finite admission precedes its unused frame values",
+    throwsError(direct, ["flexion", "finite"]) && throwsError(read, ["flexion", "finite"]));
+  current.flexion = null;
+  TestValidator.predicate("null flexion still bypasses its frame before current abduction admission",
+    throwsError(direct, ["abduction", "finite"]) && throwsError(read, ["abduction", "finite"]));
+  current.flexion = 0;
+  TestValidator.predicate("a used flexion frame is read before the later invalid coordinate",
+    caught(direct) === sentinel && caught(read) === sentinel);
+  frame.flexion = { sign: 1, get neutral(): number { throw neutral; } };
+  TestValidator.predicate("used neutral admission cannot be skipped after a failed sign getter",
+    caught(direct) === neutral && caught(read) === neutral);
+  frame.flexion = { sign: 1, neutral: 20 };
+  current.flexion = 20;
+  current.abduction = null;
+  TestValidator.predicate("valid affine replacement recovers the actual identity articulation",
+    qclose(direct(), identity, 1e-12) && qclose(read(), identity, 1e-12));
+  current.flexion = 110;
+  const quarter: IAutoMovieQuaternion = { x: Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 };
+  TestValidator.predicate("raw operation still reads the current nonzero clinical rotation",
+    qclose(direct(), quarter, 1e-12) && qclose(read(), quarter, 1e-12));
+  frame.flexion!.neutral = 110;
+  TestValidator.predicate("same frame identity cannot hide its current edited affine scalar",
+    qclose(direct(), identity, 1e-12) && qclose(read(), identity, 1e-12));
+  frame.flexion!.neutral = 20;
+  Object.defineProperty(frame.flexion!, "sign", { value: 0, writable: true, enumerable: true, configurable: true });
+  TestValidator.predicate("a cached factor cannot bypass current invalid sign admission on the same frame",
+    throwsError(direct, ["sign"]) && throwsError(read, ["sign"]));
+  Object.defineProperty(frame.flexion!, "sign", { value: 1 });
+  TestValidator.predicate("repairing the same affine frame recovers its actual prior rotation",
+    qclose(direct(), quarter, 1e-12) && qclose(read(), quarter, 1e-12));
+  current.flexion = null;
+  frame.flexion = unused;
+  TestValidator.predicate("return to null after replacement bypasses all affine getters again",
+    qclose(direct(), identity, 1e-12) && qclose(read(), identity, 1e-12));
+  let inner: IAutoMovieQuaternion | undefined;
+  const innerJoint: IAutoMovieJointPose = { bone: "head", flexion: 90, abduction: null, twist: null };
+  const outerJoint: IAutoMovieJointPose = { bone: "head", flexion: 60, abduction: null, twist: null };
+  const reentrant: IAutoMovieRestFrame = { flexion: { sign: 1,
+    get neutral(): number {
+      inner = operation.joint(innerJoint, basis, { flexion: { sign: 1, neutral: 0 } });
+      return 30;
+    },
+  } };
+  const outer: IAutoMovieQuaternion = operation.joint(outerJoint, basis, reentrant);
+  TestValidator.predicate("reentrant affine access cannot replace an enclosing operation's current frame",
+    inner !== undefined && qclose(inner, quarter, 1e-12) &&
+    qclose(outer, { x: Math.sin(Math.PI / 12), y: 0, z: 0, w: Math.cos(Math.PI / 12) }, 1e-12));
+  const anonymous: IAutoMovieJointPose = { get bone(): AutoMovieHumanoidBone { throw sentinel; },
+    flexion: 90, abduction: null, twist: null };
+  TestValidator.predicate("individual rotation reads do not sample an unused clinical bone getter",
+    qclose(jointToQuaternionOnBasis(anonymous, basis, {}), quarter, 1e-12) &&
+    qclose(operation.joint(anonymous, basis, {}), quarter, 1e-12));
+}
+
+/** Return only the actual owned thrown value, without manufacturing a failed read. */
+function caught(task: () => unknown): unknown {
+  try { task(); } catch (error) { return error; }
+  return undefined;
 }
 
 /** Check hand-derived world positions and finite unit world rotations. */

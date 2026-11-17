@@ -21,6 +21,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareDanceFootCourse } from "./prepareDanceFootCourse";
 
 /**
  * A solo dance step locked to a declared beat (#3253, M23): the bounce, the
@@ -140,9 +141,9 @@ export namespace dance {
    * @evidence contracts/development/implementation.md#principled-implementation A beat clock with one instant per beat; each step's root and foot curves are written against the beats.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per step.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The beat is never moved by the manner: the manner scales sizes only.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Preparing beat lists and world foot placements is linear in beats; each moving-foot time query uses a logarithmic search and the same constant-cost arc.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each exact authored foot offset is transformed once in the unchanged entry frame and shared by placement queries; time queries retain no previous-query state.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns O(beats) footfalls and world placements until it is released, alongside its existing beat clock.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Beat lists, world placements and fixed course pairs prepare in O(beats); each foot query uses logarithmic selection and its original observation. Fixed arcs prepare on first actual pair read; sway shifts read each foot offset once for both coordinates. Bounce uses a prepared native phase envelope with custom-callback guards; root rows request only preceding root.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each exact authored foot offset is transformed once in the unchanged entry frame. Native fixed-pair arc metadata share across actual placement reads; current progress, lateral interpolation, rigid placement and leg goals remain independently evaluated without time-result reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns O(beats) footfalls, world placements and bounded held/travelling arc preparations until release, alongside its existing beat clock; no time, solved pose, FK source or query history is retained.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -217,13 +218,11 @@ export namespace dance {
         rotation: context.entry.feet.right.rotation,
       },
     };
-    // Rises from 0 at the start to 1 by the first beat and falls after the last.
-    const settle = (seconds: number): number =>
-      clock.envelope(["start", "beat1"], ["relax", "end"], seconds);
     const root = (
       offset: (seconds: number) => IAutoMovieVector3,
     ): IAutoMovieMotionHumanPrimitive => ({
       channels: ["root"],
+      reads: ["root"],
       from: 0,
       to: duration,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => ({
@@ -237,6 +236,13 @@ export namespace dance {
     switch (p.kind) {
       case "bounce": {
         const depth: number = BOUNCE * m.stature * modifiers.extent;
+        // Rises by the first beat and falls after the last, as before.
+        const settle: (seconds: number) => number =
+          AutoMovieMotionClock.prepareEnvelope(
+            clock,
+            ["start", "beat1"],
+            ["relax", "end"],
+          );
         primitives.push(
           root(
             (s: number): IAutoMovieVector3 => ({
@@ -353,49 +359,31 @@ export namespace dance {
               ),
               rotation: stance[foot].rotation,
             });
-        const lateral = (
-          foot: "left" | "right",
-          s: number,
-        ): { at: IOffset; swing: number; from: IOffset } => {
-          const path: typeof falls = paths[foot];
-          let lo: number = 0;
-          let hi: number = path.length;
-          while (lo < hi) {
-            const mid: number = Math.floor((lo + hi) / 2);
-            if (s >= path[mid]!.beat) lo = mid + 1;
-            else hi = mid;
-          }
-          const at: IOffset = lo === 0 ? origin : path[lo - 1]!.at;
-          const next: (typeof falls)[number] | undefined = path[lo];
-          if (next !== undefined && s > next.beat - period / 2)
-            return {
-              at: next.at,
-              swing: (s - (next.beat - period / 2)) / (period / 2),
-              from: at,
-            };
-          return { at, swing: 1, from: at };
+        const courses: Record<
+          "left" | "right",
+          ReturnType<typeof prepareDanceFootCourse>
+        > = {
+          left: prepareDanceFootCourse(
+            paths.left,
+            placements.left,
+            origin,
+            period,
+            0.04 * m.stature,
+          ),
+          right: prepareDanceFootCourse(
+            paths.right,
+            placements.right,
+            origin,
+            period,
+            0.04 * m.stature,
+          ),
         };
         const placed = (
           foot: "left" | "right",
           s: number,
-        ): HumanFoot.IPlacement => {
-          const l = lateral(foot, s);
-          return AutoMovieMotionHumanLeg.arc(
-            placements[foot].get(l.from)!,
-            placements[foot].get(l.at)!,
-            0.04 * m.stature,
-            l.swing,
-          );
-        };
+        ): HumanFoot.IPlacement => courses[foot].placed(s);
         const planted = (foot: "left" | "right", s: number): boolean =>
-          lateral(foot, s).swing >= 1;
-        const along = (foot: "left" | "right", s: number): IOffset => {
-          const l = lateral(foot, s);
-          return {
-            x: l.from.x + (l.at.x - l.from.x) * l.swing,
-            z: l.from.z + (l.at.z - l.from.z) * l.swing,
-          };
-        };
+          courses[foot].planted(s);
         // The hips follow the feet's mean and sink until each leg reaches
         // its foot, the travelling one too: feet a shoulder width further
         // apart lie beyond the legs' standing length, and hips that waited
@@ -410,11 +398,15 @@ export namespace dance {
               pitch: 0,
               roll: 0,
             }),
-            shift: (s: number): IAutoMovieVector3 => ({
-              x: (along("left", s).x + along("right", s).x) / 2,
-              y: 0,
-              z: (along("left", s).z + along("right", s).z) / 2,
-            }),
+            shift: (s: number): IAutoMovieVector3 => {
+              const left: IOffset = courses.left.along(s);
+              const right: IOffset = courses.right.along(s);
+              return {
+                x: (left.x + right.x) / 2,
+                y: 0,
+                z: (left.z + right.z) / 2,
+              };
+            },
             legs: (s: number) => ({
               leftLeg: AutoMovieMotionHumanLeg.goal(
                 body,

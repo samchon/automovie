@@ -2,7 +2,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
@@ -296,10 +295,10 @@ export function composeAutoMovieMotionHumanAction(
       : demand;
     let posture: IHumanPosture = so(previous, t, current, needed);
     if (contributes)
-      posture = resolveHumanPosture.rebased(posture, mergers[previous]!(
+      posture = mergers[previous]!(
         posture,
         p.write(posture, Math.min(p.to, Math.max(p.from, t)), readers[previous]!, resolution, projection),
-      ));
+      );
     postures.set(key, posture);
     return posture;
   }

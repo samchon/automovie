@@ -85,7 +85,7 @@ export namespace restClasped {
     const shoulders: Record<HumanHand.Side, IAutoMovieVector3> = joints(
       trunk,
     );
-    const ray: IAutoMovieVector3 = Vector3.add(groin, Vector3.scale(ahead, body.measure.stature));
+    const ray: IAutoMovieVector3 = Vector3.addScaled(groin, ahead, body.measure.stature);
     const inward: IAutoMovieVector3 = Vector3.scale(ahead, -1);
     const layLeft: Lay = prepareLaid(body, "left", "palm", shoulders.left, elbows.left, "relaxed");
     const layRight: Lay = prepareLaid(body, "right", "palm", shoulders.right, elbows.right, "relaxed");
@@ -131,10 +131,10 @@ export namespace restClasped {
       let far: number = -Infinity;
       for (const side of ["left", "right"] as const) {
         const goal: rest.IGoal = both[side];
-        far = Math.max(far, Vector3.length(Vector3.subtract(
+        far = Math.max(far, Vector3.distance(
           HumanHand.place(body, side, goal.surface, goal.point, goal.rotation, goal.shape).point,
           shoulders[side],
-        )) - reaches[side]);
+        ) - reaches[side]);
       }
       return far;
     };
@@ -235,11 +235,8 @@ function segment(
   from: "UpperArm" | "LowerArm",
   to: "LowerArm" | "Hand",
 ): number {
-  return Vector3.length(
-    Vector3.subtract(
-      body.rest.get(`${side}${to}`)!,
-      body.rest.get(`${side}${from}`)!,
-    ),
+  return Vector3.distance(
+    body.rest.get(`${side}${to}`)!, body.rest.get(`${side}${from}`)!,
   );
 }
 
@@ -277,12 +274,12 @@ function forearm(
   const along: number =
     (upper * upper - lower * lower + reach * reach) / (2 * reach);
   const off: number = Math.sqrt(Math.max(0, upper * upper - along * along));
-  const elbow: IAutoMovieVector3 = Vector3.add(
-    Vector3.add(shoulder, Vector3.scale(axis, along)),
-    Vector3.scale(across(axis, Vector3.subtract(hint, shoulder)), off),
+  const elbow: IAutoMovieVector3 = Vector3.addScaled(
+    Vector3.addScaled(shoulder, axis, along),
+    across(axis, Vector3.subtract(hint, shoulder)), off,
   );
   return Vector3.normalize(
-    Vector3.subtract(Vector3.add(shoulder, Vector3.scale(axis, reach)), elbow),
+    Vector3.subtract(Vector3.addScaled(shoulder, axis, reach), elbow),
   );
 }
 
@@ -316,15 +313,14 @@ function prepareLaid(
     }
     const hand: NonNullable<typeof fixed> = fixed;
     const into: IAutoMovieVector3 = Vector3.scale(normal, -1);
-    const turned: (fingers: IAutoMovieVector3) => IAutoMovieQuaternion =
-      (fingers: IAutoMovieVector3): IAutoMovieQuaternion =>
-        hand.align({ normal: into, forward: fingers });
-    let rotation: IAutoMovieQuaternion = turned(
-      across(into, Vector3.subtract(point, shoulder)),
-    );
+    let rotation: IAutoMovieQuaternion = hand.align({
+      normal: into,
+      forward: across(into, Vector3.subtract(point, shoulder)),
+    });
     for (let i: number = 0; i < 3; i++)
-      rotation = turned(
-        across(
+      rotation = hand.align({
+        normal: into,
+        forward: across(
           into,
           forearm(
             hand.upper,
@@ -334,7 +330,7 @@ function prepareLaid(
             elbow,
           ),
         ),
-      );
+      });
     return { surface, shape, point, rotation, elbow };
   };
 }

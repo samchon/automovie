@@ -22,9 +22,9 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { jumpAirborne } from "./jumpAirborne";
 import { jumpFlight } from "./jumpFlight";
 import { jumpEndpoints } from "./jumpEndpoints";
@@ -80,7 +80,7 @@ import { standUpright } from "./standUpright";
  * heights low with the flight's velocity, absorbs to 0.12 hip heights low on
  * a quintic path that brings that velocity to rest over `ABSORB` seconds,
  * then rises to the upright stand ({@link standUpright}) over `RISE` seconds.
- * Planted legs are kept reachable by `resolveHumanPosture.lower`. The
+ * Planted legs are kept reachable by the shared `lowerHumanPosture` rule. The
  * push-off is drawn by `jumpPush`, the landing's places by `jumpLanding`
  * and the paths by `jumpPath`.
  *
@@ -156,9 +156,9 @@ export namespace jump {
    * @evidence contracts/development/implementation.md#principled-implementation The same terminal heel/knee/toe producer supplies endpoint preparation and timed push. Its achieved canonical states supply both ballistic COM endpoints and root-frame free goals, replacing independently reconstructed takeoff geometry while retaining the existing minimum-jerk and sine flight paths.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read entry/support, prepare achieved endpoint values, solve COM flight, prepare the original timed push, then evaluate the three phases through their owners.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves original floor/prop targets, entry velocity/acceleration, ROM, contact windows and momentum acceptance. No nominal root is replaced by its lowered value inside the heel rule; no flight plant, radius projection or epsilon hides the phase seam. World COM and whole-body angular C1 at takeoff remain unproved.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two endpoint preparations add bounded canonical solves/FK per plan. Each free query prepares its raw shape once, reads mass-bearing FK and lends that canonical result through exact resolver admission. Explicitly rebased overlays may independently reuse unchanged free legs; changed goals/parents/context and whole-body turns retain ordinary fitting. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw endpoints and achieved COM boundaries share across phase consumers; timed entry-rate curves remain independent. A free query's COM and displayed demands share one checked canonical preparation without a time key. Explicit parent FK/projector loans share only exact FK prerequisites and static ROM metadata through actual raw solve/COM, with every current joint projected.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains body/phase geometry, two endpoints, prepared push/flight closures and bounded fixed mass demand. Each free posture carries only its own checked preparation; optional FK/projector loans stay with the synchronous parent and never enter the plan, token/output evidence or previous-frame history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two endpoint preparations add bounded canonical solves/FK per plan. Push/landing share one fixed joint prefix and lazily prepared cosine-law reach; samples still copy all prefix members, write four arm tuples and evaluate every actual plant/hip/lowering. Each free query prepares its raw shape once, reads mass-bearing FK and lends that canonical result through exact resolver admission. Proven unchanged free legs may independently survive explicit rebasing; changed dependencies/turns fit normally. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw endpoints and achieved COM boundaries share; their two actual COM readings borrow one local exact FK source, while timed entry-rate curves remain independent. The unchanged body's joint prefix, arm separation and minimum-knee reach prepare once; new dimensions/knee require new preparation and every current root/plant/hip remains observed. Free-query COM/display share one checked canonical source without a time key. Parent FK/projector loans share only exact prerequisites/static ROM metadata through current solves.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains body/phase geometry, two endpoints, one bounded joint prefix/reach producer, prepared push/flight closures and fixed mass demand. The local paired-endpoint FK source ends with its preparation, leaving two COM vectors. Each free posture carries only its own checked preparation; optional FK/projector loans stay synchronous and never enter the plan, token/output evidence or previous-frame history. The lowering producer retains only fixed body/knee/scalar prerequisites.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -254,7 +254,9 @@ export namespace jump {
       y: 0.3 * l,
       z: 0.1 * l,
     };
-    const knee: jumpPush.IProps["knee"] = jumpAirborne.knee(body, heading);
+    const knee: jumpPush.IProps["knee"] = jumpAirborne.knee(body, heading, [
+      heading, supportHeading, landingYaw.left, landingYaw.right,
+    ]);
 
     const endProps: Parameters<typeof jumpPushEnd>[0] = {
       body,
@@ -276,8 +278,13 @@ export namespace jump {
     const massBones: Set<AutoMovieHumanoidBone> = new Set();
     for (const segment of model.segments) massBones.add(segment.bone);
     const readMassBones: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, massBones);
-    const comT: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(model, readMassBones(startState.pose));
-    const comL: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(model, readMassBones(endState.pose));
+    const { takeoff: comT, landing: comL }: { takeoff: IAutoMovieVector3; landing: IAutoMovieVector3 } = ((): { takeoff: IAutoMovieVector3; landing: IAutoMovieVector3 } => {
+      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      return {
+        takeoff: resolveAutoMovieCenterOfMass.place(model, readMassBones(startState.pose, read())),
+        landing: resolveAutoMovieCenterOfMass.place(model, readMassBones(endState.pose, read())),
+      };
+    })();
     const flight: jumpFlight.IFlight = jumpFlight.solve(
       comT,
       comL,
@@ -359,11 +366,15 @@ export namespace jump {
       knee,
     };
     const push: jumpPush.IPush = jumpPush.of(pushProps);
+    const writers: NonNullable<Parameters<typeof jumpPushPosture>[4]> = {
+      joints: jumpJoints.prepare(body, upright.joints),
+      lower: lowerHumanPosture.prepare(body),
+    };
     const pushedAt: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IHumanPosture = (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture =>
-      jumpPushPosture(pushProps, push, seconds, resolution);
+      jumpPushPosture(pushProps, push, seconds, resolution, writers);
     const shape: jumpAirborne.IShape = { body, takeoff, heading, start: startState, end: endState };
     const flightPosture: ReturnType<typeof prepareJumpFlight> =
-      prepareJumpFlight(body, model, shape);
+      prepareJumpFlight(body, model, shape, T);
 
     const turning: jumpAirborne.ITurning = jumpAirborne.turning(
       context.params.rotation,
@@ -391,7 +402,7 @@ export namespace jump {
         }
         const root: IAutoMovieVector3 = rootAt(t);
         const arms: number = 30 * (1 - minimumJerk.share((t - touchdown) / (ABSORB + RISE)));
-        const joints: IHumanPosture["joints"] = jumpJoints(body, upright.joints, arms, arms);
+        const joints: IHumanPosture["joints"] = writers.joints(arms, arms);
         const limbs: IHumanPosture["limbs"] = {};
         for (const side of ["left", "right"] as const)
             limbs[`${side}Leg`] = {
@@ -401,14 +412,14 @@ export namespace jump {
               planted: true,
               contact: { ...landingContact[side] },
             };
-        return resolveHumanPosture.lower(body, {
+        return writers.lower({
           root,
           yaw: heading,
           pitch: 0,
           roll: 0,
           joints,
           limbs,
-        }, undefined, resolution);
+        }, resolution);
       },
     };
   }

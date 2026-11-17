@@ -19,9 +19,10 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import { HumanArmClearance } from "../posture/HumanArmClearance";
+import { HumanArmOvershoot } from "../posture/HumanArmOvershoot";
 import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
+import { AutoMovieMotionHumanBendSide } from "./AutoMovieMotionHumanBendSide";
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
 
 /**
@@ -101,44 +102,9 @@ export namespace AutoMovieMotionHumanBendSearch {
   }
 
   /**
-   * How far an elbow lies from a point's side of the shoulder-to-wrist line:
-   * 1 less the cosine of the angle between the two, each taken across the
-   * line, so 0 is the same side and 2 the opposite one. A point on the line has
-   * no side and reads 0.
-   *
-   * @param shoulder The shoulder, world metres.
-   * @param wrist The wrist, world metres.
-   * @param elbow The elbow, world metres.
-   * @param toward The point, world metres.
-   * @returns A number from 0 to 2.
-   */
-  function away(
-    shoulder: IAutoMovieVector3,
-    wrist: IAutoMovieVector3,
-    elbow: IAutoMovieVector3,
-    toward: IAutoMovieVector3,
-  ): number {
-    const axis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(wrist, shoulder),
-    );
-    const across = (p: IAutoMovieVector3): IAutoMovieVector3 => {
-      const v: IAutoMovieVector3 = Vector3.subtract(p, shoulder);
-      return Vector3.subtract(v, Vector3.scale(axis, Vector3.dot(v, axis)));
-    };
-    const a: IAutoMovieVector3 = across(elbow);
-    const b: IAutoMovieVector3 = across(toward);
-    return Vector3.length(a) < 1e-9 || Vector3.length(b) < 1e-9
-      ? 0
-      : 1 - Vector3.dot(Vector3.normalize(a), Vector3.normalize(b));
-  }
-
-  /** `away` at one degree, the step of the engine's swivel sweep, so a side always holds a swept candidate. */
-  const SIDE: number = 1 - Math.cos(Math.PI / 180);
-
-  /**
    * The ranking that takes the elbow place on a point's side of the
    * shoulder-to-wrist line. Candidates within one degree of that side come
-   * first, ordered by their overshoot and then by their strain plus `away`,
+   * first, ordered by overshoot then strain plus the radial discrepancy,
    * which is under 0.0002 there. An elbow place has two arm poses, one per
    * bend branch, and this order takes the allowed one. Every other candidate
    * follows, nearer sides first.
@@ -150,23 +116,18 @@ export namespace AutoMovieMotionHumanBendSearch {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the order it gives and why the allowed pose of a place comes first.
    * @evidence contracts/development/implementation.md#principled-implementation Within one degree of the side, the sweep's own step, a candidate keeps its overshoot and strain; every other ranks behind by its side.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closure over one side reading.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates the original cold radial projection and band ranking to AutoMovieMotionHumanBendSide's numerical owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A candidate off the side never ranks as allowed.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per candidate.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The ranking closes over three points.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Cold rankings read current supplied points every candidate; fixed internal sweeps explicitly use the same owner's prepared geometry without changing this live-input facade.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a closure over three points until its ranking is released; fresh scores retain no reader, point history or external handle.
    */
   export function toward(
     shoulder: IAutoMovieVector3,
     wrist: IAutoMovieVector3,
     bend: IAutoMovieVector3,
   ): (candidate: ICandidate) => IScore {
-    return (candidate: ICandidate): IScore => {
-      const side: number = away(shoulder, wrist, candidate.elbow, bend);
-      return side <= SIDE
-        ? { overshoot: candidate.overshoot, deviation: candidate.strain + side }
-        : { overshoot: 1e9 * (1 + side), deviation: 0 };
-    };
+    return AutoMovieMotionHumanBendSide(shoulder, wrist, bend);
   }
 
   /**
@@ -264,7 +225,7 @@ export namespace AutoMovieMotionHumanBendSearch {
     neutral: IAngles | null,
     score: (candidate: ICandidate) => IScore,
   ): ICandidate | null {
-    const { prepared } = chain;
+    const prepared: AutoMovieMotionHumanBendChain.IChain["prepared"] = chain.prepared;
     const upperBone: AutoMovieHumanoidBone = prepared.chain.upper;
     const lowerBone: AutoMovieHumanoidBone = prepared.chain.lower;
     const lowerAxes: IAutoMovieJointAxes | undefined = chain.axes[lowerBone];
@@ -286,11 +247,14 @@ export namespace AutoMovieMotionHumanBendSearch {
       neutral,
       lowerAxes,
     );
+    const clear: ReturnType<typeof HumanArmOvershoot.prepare> =
+      HumanArmOvershoot.prepare(body, chain.shapes, side);
+
     // A branch's candidates share one lower rotation, the same record, and
     // differ only in the swivel of the upper arm, so the lower joint's
     // overshoot is read once per record: the same value, read once.
     let mid: { rotation: IAutoMovieQuaternion; overshoot: number } | undefined;
-    const midOf = (lower: IAutoMovieQuaternion): number => {
+    const midOf: (lower: IAutoMovieQuaternion) => number = (lower: IAutoMovieQuaternion): number => {
       if (mid !== undefined && mid.rotation === lower) return mid.overshoot;
       const l: IAngles = decomposeJointRotation(
         lower,
@@ -307,7 +271,7 @@ export namespace AutoMovieMotionHumanBendSearch {
       };
       return mid.overshoot;
     };
-    const read = (
+    const read: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => ICandidate = (
       upper: IAutoMovieQuaternion,
       lower: IAutoMovieQuaternion,
     ): ICandidate => {
@@ -339,7 +303,7 @@ export namespace AutoMovieMotionHumanBendSearch {
         overshoot:
           jointRomOvershoot({ bone: upperBone, ...u }, upperRange) +
           midOf(lower) +
-          HumanArmClearance.overshoot(body, chain.shapes, elbow, point, side),
+          clear(elbow, point),
         strain,
       };
     };
@@ -393,7 +357,9 @@ export namespace AutoMovieMotionHumanBendSearch {
   ): IAngles | null {
     const known: IAngles | undefined = NEUTRAL.get(body)?.[side];
     if (known !== undefined) return known;
-    const posture = { root: { x: 0, y: 0, z: 0 }, yaw: 0 };
+    const posture: AutoMovieMotionHumanBend.ISolve["posture"] = {
+      root: { x: 0, y: 0, z: 0 }, yaw: 0,
+    };
     const chain: AutoMovieMotionHumanBendChain.IChain | null =
       AutoMovieMotionHumanBendChain.of(body, posture, side);
     if (chain === null) return null;
@@ -410,7 +376,7 @@ export namespace AutoMovieMotionHumanBendSearch {
       point,
       undefined,
       null,
-      toward(chain.shoulder, point, hint),
+      AutoMovieMotionHumanBendSide.prepare(chain.shoulder, point, hint),
     );
     if (hanging === null) return null;
     NEUTRAL.set(body, { ...NEUTRAL.get(body), [side]: hanging.angles });
@@ -450,20 +416,21 @@ export namespace AutoMovieMotionHumanBendSearch {
   /**
    * Prepare one unchanged body's trunk/side for actual differently ranked sweeps.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Fixes body, root/heading and side while each query supplies its world-metre wrist, optional rest-relative rotation and original candidate ranking.
+   * @evidence contracts/development/common.md#meaningful-documentation Fixes body/root/heading/side while each query supplies its world wrist, optional rest-relative rotation and original ranking. An optional genuine same-trunk source shares only actual FK/placement preparation across sides.
    * @evidence contracts/development/implementation.md#principled-implementation The same prepared arm chain, original colliders and neutral angles are independent of target/ranking; every call retains the original reach refusal and best sweep.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed chain/neutral preparation precedes the original actual target admission and ranked numerical owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sweep, candidate, overshoot, score, legality bound or refinement is omitted or reused as a result.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One chain FK/preparation serves Q original target/rank sweeps; all of each actual sweep's numerical work remains.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Caller-owned unchanged body/profile/rig/ROM, rootXYZ/yaw/pitch/roll/side and scoring context establish equivalent geometry; differing wrists/rotations/ranks execute independently. An authored support-state plan may retain only a finite context set whose private immutable source coordinates are proved by those states, without inferring equivalence from time or a mutable posture identity.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A synchronous search or bounded authored support-state plan owns one chain/collider record and neutral angles per exact fixed state until release. Actual query closures/candidates stay local; no FK reader, target result, sampled pose or global history is retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One chain FK/preparation serves Q original target/rank sweeps. Each actual sweep lazily prepares unchanged obstruction geometry once across its candidates; neutral side ranking also shares its fixed axis/hint projection. Every original candidate, screen, sample and distance evaluation remains, with no measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged body/profile/rig/ROM, rootXYZ/yaw/pitch/roll/side and scoring context establish chain equivalence; Chain.of verifies an optional issued trunk source or uses its cold path. Each best call shares HumanArmOvershoot.prepare only across that synchronous sweep's unchanged placed shapes, never between goals. Finite authored support-state plans require private immutable coordinates rather than time/pose identity.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A synchronous search or bounded authored support-state plan owns one chain/collider record and neutral angles per exact fixed state until release. Obstruction readers and actual candidate closures remain inside one best call and release on return or throw; no FK reader, target result, sampled pose or global history is retained.
    */
   export function prepare(
     props: Pick<AutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,
     hang: Parameters<typeof search>[2],
+    source?: AutoMovieMotionHumanBendChain.IPrepared,
   ): (goal: Pick<AutoMovieMotionHumanBend.ISolve, "point" | "rotation">, rank: Parameters<typeof search>[1]) => ICandidate | string {
     const chain: AutoMovieMotionHumanBendChain.IChain | null =
-      AutoMovieMotionHumanBendChain.of(props.body, props.posture, props.side);
+      AutoMovieMotionHumanBendChain.of(props.body, props.posture, props.side, source);
     const neutral: IAngles | null = neutralOf(props.body, props.side, hang);
     return (goal: Pick<AutoMovieMotionHumanBend.ISolve, "point" | "rotation">, rank: Parameters<typeof search>[1]): ICandidate | string => {
       if (chain === null || neutral === null) return "the rig has no arm chain";

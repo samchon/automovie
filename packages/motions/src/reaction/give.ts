@@ -127,9 +127,9 @@ export namespace give {
    * @evidence contracts/development/implementation.md#principled-implementation The part rises to its peak and falls back on the clock's minimum-jerk envelope (Flash and Hogan 1985). The side is the contact's side in the performer's floor frame. The sign of the neck's twist that turns the head to that side is found by forward kinematics of the entry posture, so it does not rest on a rig convention.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, the inherited base and one primitive chosen by the part.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact dead ahead or behind turns the head to the left, a stated tie rule; sizes are named provisional constants.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Reads only head ancestry after full authored-joint admission: one original entry read and the two original neck-axis trials for a head reaction, with constant work per written posture.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous observation lends its exact FK workspace to the entry and both actual joint-override trials; the unchanged head request omits only unrelated bone transforms and the direction is still read once.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The observation IIFE releases its lazy FK workspace before constructing the returned primitive; only its direction and computed head angles escape, never an FK reader, callback or posed-result cache.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reads only head ancestry after full authored-joint admission: one original entry read and the two original neck-axis trials for a head reaction. Fixed head demand prepares once rather than indexing names at each read; written postures retain constant work and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous observation lends its exact FK workspace and body-bound head-demand producer to the entry and both actual joint-override trials; every authored joint is still admitted and each changed neck pose is read afresh, while direction is still read once.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The observation IIFE releases its lazy FK workspace, fixed head-demand reader and fresh bone maps before constructing the returned primitive; only its direction and computed head angles escape, never an FK reader, callback or posed-result cache.
    */
   export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
     const p: IParams = context.params;
@@ -163,8 +163,10 @@ export namespace give {
     const reaction: IReaction = ((): IReaction => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution();
+      const headAt: ReturnType<typeof HumanTrunk.prepareResolve> =
+        HumanTrunk.prepareResolve(body, HEAD);
       const trunk: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        HumanTrunk.resolve(body, entry, entry.joints, resolution, HEAD);
+        headAt(entry, resolution);
       const head: IAutoMovieVector3 = trunk.get("head")!.worldPosition;
       const away: IAutoMovieVector3 = Vector3.scale(
         HumanFrame.local(
@@ -187,7 +189,7 @@ export namespace give {
         ? {
             part: "head",
             away,
-            angles: turned(context, trunk, away.x >= 0 ? 1 : -1, intensity, resolution),
+            angles: turned(context, trunk, away.x >= 0 ? 1 : -1, intensity, resolution, headAt),
           }
         : { part: "trunk", away };
     })();
@@ -233,6 +235,7 @@ export namespace give {
     side: 1 | -1,
     intensity: number,
     resolution: ReturnType<typeof prepareHumanPoseResolution>,
+    headAt: ReturnType<typeof HumanTrunk.prepareResolve>,
   ): AutoMovieMotionHumanJoints.Angles {
     const entry: IHumanPosture = context.entry.posture;
     const left: IAutoMovieVector3 = HumanFrame.point(
@@ -251,12 +254,10 @@ export namespace give {
       const tried: [number, number, number] = [held[0], held[1], held[2]];
       tried[axis] += 10;
       const moved: IAutoMovieVector3 = Quaternion.rotateVector(
-        HumanTrunk.resolve(
-          context.body,
+        headAt(
           entry,
-          { ...entry.joints, neck: tried },
           resolution,
-          HEAD,
+          { ...entry.joints, neck: tried },
         ).get("head")!.worldRotation,
         probe,
       );

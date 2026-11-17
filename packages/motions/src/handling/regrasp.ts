@@ -63,12 +63,6 @@ import { HumanGrasp } from "./HumanGrasp";
  * @evidence contracts/development/design.md#principled-representation A law record over a held prop and a kind with its own inputs, with a pure plan.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the parameters and the plan; rows fix the kind.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the hold's stored offset, the grip window's in-hand motion and the grasp's own hand placement.
- * @evidence contracts/development/implementation.md#principled-implementation A rigid turn of the wrist about the object's axis line, or the object's displacement in the hand interpolated between two grips' offsets, each on a minimum-jerk profile.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The start frames once, one branch per kind, then one profile per posture or share.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A hand that does not hold the object, a missing input or an unknown affordance is refused; the provisional timing is named.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture after one forward kinematics at plan time.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold the instance's inputs only.
  */
 export namespace regrasp {
   /** The law's name, as productions register it. */
@@ -77,7 +71,14 @@ export namespace regrasp {
   /** Cancel table: none declared. */
   export const interrupts: IHumanActionLaw["interrupts"] = {};
 
-  /** Parameters. */
+  /**
+   * Parameters of the existing held-object manipulation branches.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation kind chooses twist/regrip/roll; members name the held prop/hand, existing axis or destination affordance and degree turn, with branch-required values checked by the planner.
+   * @evidence contracts/development/design.md#principled-representation Closed branch and hand unions select the original operation, while prop/affordance identities remain strings and angle remains clinical degrees counter-clockwise along the named world axis.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Every field is consumed by plan or inHand for its stated branch; the actual prop owns collider, axis, radius and grip geometry rather than duplicating them in these parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No inferred tool kind, body dimension, solved contact, fallback radius or cached motion result is represented; missing branch data still uses the original refusal path.
+   */
   export interface IParams {
     /** What is done with the held object. */
     kind: "twist" | "regrip" | "roll";
@@ -109,7 +110,7 @@ export namespace regrasp {
    * @evidence contracts/development/implementation.md#principled-implementation A twist retains the original world-axis rigid orbit and wrist-local pivot contact; regrip/roll retain their original in-hand displacement law.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed prop/hand/axis preparation precedes the original time-profiled posture and grip-window outputs.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No twist angle, quarter-turn time, held relation, input refusal or grip contact changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Only the entry hand ancestry is read; fixed pivot contact and orbital offset are prepared once, leaving one actual time-dependent turn per posture.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Only the entry hand ancestry is read; fixed pivot contact/orbital offset prepare once and the twist's axis length prepares lazily at first actual angle, leaving the original actual time-dependent rotation/point work per posture.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The prop/start frame, entry hand and axis fix those offsets for the entire action; each requested time still computes its own rotation and placement.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains constant-size frames, offsets and the in-hand displacement closure, without sampled-time poses or solver readers.
    */
@@ -176,6 +177,8 @@ export namespace regrasp {
         Vector3.subtract(axis.pivot, hand.position));
     const orbit: IAutoMovieVector3 | undefined = axis === null ? undefined :
       Vector3.subtract(hand.position, axis.pivot);
+    const turning: ReturnType<typeof Quaternion.prepareAxisAngle> | undefined = axis === null
+      ? undefined : Quaternion.prepareAxisAngle(axis.direction);
     return {
       duration,
       events: [{ name: "done", share: 1 }],
@@ -184,10 +187,7 @@ export namespace regrasp {
       posture: (seconds: number): IHumanPosture => {
         if (axis === null)
           return { ...hold, limbs: { ...hold.limbs, [limb]: still } };
-        const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-          axis.direction,
-          angle * profile(seconds),
-        );
+        const turn: IAutoMovieQuaternion = turning!(angle * profile(seconds));
         return {
           ...hold,
           limbs: {
@@ -225,6 +225,14 @@ export namespace regrasp {
    * @param frame Its world frame at the act's start.
    * @param hand The hand's world frame at the act's start.
    * @returns The displacement by share.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines actual held-prop/start-hand frames, original twist/regrip/roll affordance inputs, dimensionless share and fresh hand-local rigid displacement; missing affordances retain their existing refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation Computes the original start/end in-hand frames, normalized end-times-inverse-start arc and minimum-jerk share. The canonical quaternion owner retains the same shorter-arc identity-to-arc interpolation before the original position-minus-rotated-start displacement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Original regrip and roll endpoint branches feed one fixed arc preparation and one actual-share displacement reader; shape, grasp and quaternion mathematics stay with their existing owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every actual share keeps the original clipping, profile, slerp/normalization and position expression, with unchanged named axis/radius/grip admission and roll distance. No target, contact bound or endpoint is substituted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed start/end construction precedes Q constant-size reads. The first actual slerp prepares its fixed dot, sign and angle/sine once; all actual weight sines, quaternion normalization and displacement calculations remain. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Private start/end/arc records are immutable for this plan, so only their identity-to-arc invariants are shared. Every actual input share computes a fresh displacement without a sampled time, target or pose answer cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned contact-window reader retains constant-size private start/end frames and one lazy arc reader until its plan is released. It returns fresh position/rotation data without body/context, FK loan, queried-share history or external handle.
    */
   export function inHand(
     context: IHumanActionContext<IParams>,
@@ -295,13 +303,12 @@ export namespace regrasp {
     const arc: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(end.rotation, Quaternion.inverse(start.rotation)),
     );
+    const turning: ReturnType<typeof Quaternion.prepareSlerp> = Quaternion.prepareSlerp(
+      Quaternion.identity(), arc,
+    );
     return (share: number): IHumanProp.IFrame => {
       const s: number = minimumJerk.share(Math.min(1, Math.max(0, share)));
-      const rotation: IAutoMovieQuaternion = Quaternion.slerp(
-        Quaternion.identity(),
-        arc,
-        s,
-      );
+      const rotation: IAutoMovieQuaternion = turning(s);
       const position: IAutoMovieVector3 = Vector3.lerp(
         start.position,
         end.position,

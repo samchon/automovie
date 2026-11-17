@@ -131,7 +131,7 @@ export namespace kneel {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Key states, a phase list, one body row and two hand rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The constants are named and provisional; the root is lowered only where a planted leg cannot reach.
    * @evidence contracts/development/implementation.md#efficient-algorithms One key solve and a balance course down and up per plan, about a hundred posture solves each; each posture costs one lowering and two arm solves.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Key states are computed once.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Probe and actual-duration stand plans independently observe the borrowed entry in their original construction order. Fixed own key/foot/root phases prepare once. Course construction and body writes lend current FK only to actual raw hip lowering; original full course fits and required root/trunk/leg prefix channels remain.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its key states and the base.
    */
   export function plan(
@@ -237,10 +237,9 @@ export namespace kneel {
       posture: IHumanPosture,
       seconds: number,
       along?: number,
+      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
     ): IHumanPosture => {
       const { phase, index, u } = at(seconds);
-      const a: kneelKeys.IKey = keys[phase.from]!;
-      const b: kneelKeys.IKey = keys[phase.to]!;
       const feet = {
         left: geometry[index]!.feet.left(u),
         right: geometry[index]!.feet.right(u),
@@ -301,9 +300,7 @@ export namespace kneel {
           },
           solved.forward,
         );
-      } else if (geometry[index]!.root !== undefined) {
-        root = geometry[index]!.root!(u);
-      } else root = Vector3.lerp(a.root, b.root, u);
+      } else root = geometry[index]!.root!(u);
       const placed: IHumanPosture = AutoMovieMotionHumanLean.tip(
         body,
         { ...posture, root, yaw },
@@ -322,7 +319,12 @@ export namespace kneel {
         );
         joints[`${side}Toes`] = [feet[side].toes, 0, 0];
       }
-      return resolveHumanPosture.lower(body, { ...placed, joints, limbs });
+      return resolveHumanPosture.lower(
+        body,
+        { ...placed, joints, limbs },
+        undefined,
+        resolution,
+      );
     };
 
     // The courses: going down, the extrapolated centre of mass goes from
@@ -331,7 +333,7 @@ export namespace kneel {
     // floor, before the foot behind lifts. The landing height is read from
     // the step's own course first.
     const centre = (posture: IHumanPosture): number =>
-      Vector3.dot(HumanBalance.support(body, posture).centre, solved.forward);
+      Vector3.dot(HumanBalance.centre(body, posture), solved.forward);
     const stood: number = centre(standing);
     const middle: number =
       (["left", "right"] as const)
@@ -360,8 +362,11 @@ export namespace kneel {
       AutoMovieMotionHumanCourse.solve({
         body,
         yaw,
-        posture: (seconds: number, along: number): IHumanPosture =>
-          write(standing, seconds, along),
+        posture: (
+          seconds: number,
+          along: number,
+          resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        ): IHumanPosture => write(standing, seconds, along, resolution),
         target: (seconds: number): number => {
           const { phase, u } = at(seconds);
           const share: number =
@@ -393,21 +398,30 @@ export namespace kneel {
 
     const kneelBody: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
+      reads: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture =>
-        write(posture, seconds),
+      write: (
+        posture: IHumanPosture,
+        seconds: number,
+        _before?: IAutoMovieMotionHumanPrimitive.Reader,
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+      ): IHumanPosture => write(posture, seconds, undefined, resolution),
     };
 
     // The hands come onto the thighs while the hips lower and leave them as
     // the body starts to rise.
     const firstUp: IPhase | undefined =
       phases[phases.findIndex((p: IPhase) => p.name === "settled") + 1];
+    const handDown: ReturnType<typeof AutoMovieMotionClock.prepare> =
+      AutoMovieMotionClock.prepare(clock, "lowering", phases[2]!.name);
+    const handUp: ReturnType<typeof AutoMovieMotionClock.prepare> | undefined =
+      firstUp === undefined
+        ? undefined
+        : AutoMovieMotionClock.prepare(clock, firstUp.name, "end");
     const lowered = (seconds: number): number =>
-      clock.progress("lowering", phases[2]!.name, seconds) *
-      (firstUp === undefined
-        ? 1
-        : 1 - clock.progress(firstUp.name, "end", seconds));
+      handDown.progress(seconds) *
+      (handUp === undefined ? 1 : 1 - handUp.progress(seconds));
     const hand = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive =>
       braceOnThigh(
         body,

@@ -11,6 +11,8 @@ import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
 import type { preparePoseResolution } from "./preparePoseResolution";
 import { preparePoseResolutionState } from "./preparePoseResolutionState";
+import { preparePoseBoneDemand } from "./preparePoseBoneDemand";
+import { preparePoseTupleScan } from "./preparePoseTupleScan";
 import { PoseResolutionSnapshot } from "./PoseResolutionSnapshot";
 import { skeletonJointAxes } from "./skeletonJointAxes";
 
@@ -19,6 +21,32 @@ type INode = preparePoseResolutionState.INode;
 
 /** Raw immutable clinical inputs with one shared successful basis admission. */
 type IConvention = preparePoseResolutionState.IConvention;
+
+/** Owned static values cross into runtime binding without their source scope. */
+interface ISnapshot {
+  /** Copied rooted rest graph; no source bone records remain. */
+  nodes: readonly INode[];
+
+  /** Actual copied name-to-node lookup. */
+  indices: ReadonlyMap<AutoMovieHumanoidBone, number>;
+
+  /** Copied clinical prerequisites, admitted lazily at actual use. */
+  conventions: ReadonlyMap<string, IConvention>;
+
+  /** Copied ordinary default clinical convention. */
+  fallback: IConvention;
+
+  /** Public frozen raw-axis snapshot used by same-rig IK. */
+  axes: Readonly<Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>>;
+}
+
+/** Genuine rig provenance lends only private-node rest production, never public methods. */
+const REST_READERS: WeakMap<prepareSkeletonPoseResolution.IRig, () => IAutoMovieResolvedBone[]> =
+  new WeakMap();
+
+/** Genuine original map callables prove this factory's complete-before-demand admission. */
+const SOURCE_READERS: WeakMap<prepareSkeletonPoseResolution.IRig,
+  prepareSkeletonPoseResolution.IRig["resolveMap"]> = new WeakMap();
 
 /**
  * Snapshot a rig's static FK prerequisites once, then resolve changing poses
@@ -38,13 +66,13 @@ type IConvention = preparePoseResolutionState.IConvention;
  * edit lists; absent edits restore that source. Neither companion stores a
  * pose identity, target answer or query-result history.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines static snapshot invalidation, complete-pose, individual-joint and fixed-source admission, fixed-demand membership, ignored scale, parent-first arithmetic and fresh output ownership. IRig and IBoneDemand member prose below states exact scopes, units, defaults, costs and release boundaries.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines snapshot invalidation, pose/joint/source admission, demands, no-scale grouping and fresh outputs. Companions state genuine rest refusal/ownership and two-phase authored tuple snapshot/root/admission order with fresh maps.
  * @evidence contracts/development/implementation.md#principled-implementation Existing skeletonJointAxes merging remains authoritative; its effective own/custom-prototype mappings and rest frames snapshot direct lookup, including non-enumerable fields and undefined shadowing. Immutable rest data defines actual DFS subtree intervals. Final articulation changes revise affected descendants, and exact root tuples retain ordinary Hamilton grouping. Basis/frame admission remains lazy at actual use.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns static snapshots, the merged raw-axis table and sparse dependency state. Complete-pose, individual-joint and fixed-source reads share the same actual convention/admission owner. PoseResolutionSnapshot owns copies and resolvePreparedPoseFrame owns composition reuse; no target or fit policy is owned here.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pose identity, timestamp, tolerance or result flag certifies equivalence. All authored records retain finite-angle admission and last-record precedence, missing articulation is identity, and unreachable requested bones remain absent. Raw resolvePose retains its live-input behavior.
- * @evidence contracts/development/implementation.md#efficient-algorithms Static preparation is linear in bones and supplied axis/frame populations. Ordinary reads admit J records, compare active membership, sort C actual final changes and revise A affected descendants once; K names sort unless bound, and only invalidated demanded ancestry is checked before K fresh copies. preparePose admits/snapshots baseline once, then only E current edits precede those same dependency updates. Runtime improvement is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Static values are owned snapshots. Actual used basis/axis/affine prerequisites and actual neutral root-relative FK stay with the immutable rig; dynamic composers remain independent. Normal/bound demands share operation rows. Fixed-source production actually admits all baseline records/root once, optionally sharing completed joint conversion, then keeps independent overlay state. Missing edits restore baseline and changed dependencies remain visible.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The rig owns O(B+A+F) static data and weak operation-reader entries of O(U+B) current rows each. Bound demands own K indices and retain no operation or pose. Fixed-source workspaces own O(B+U) baseline/overlay rows until caller release. No authored pose, result/time history, task or handle is retained.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure snapshotRig copies static inputs in a scope with no returned reader; bindSnapshot closes only over that owned result. Array/map outputs share one admission and sparse-FK owner with private static output writers. preparePoseTupleScan stages entries/scalars before root work and delegates to that same owner. Ordinary pose/source/rest paths retain their existing owners and no target/fit policy enters this producer.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pose/time identity, tolerance or result flag certifies equivalence. All authored records keep finite admission/last precedence, missing articulation is identity and unreachable demands remain absent. Rest accepts only actual factory provenance, no external map/skeleton pair or public-method assertion. Raw resolvePose remains live.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Static setup is linear in bones/mappings. Fixed tuple names bind their D ancestors once. All J tuples retain admission, one 4J name/F/A/T array replaces J records and releases entry pairs before root work, and only changed ancestor articulations compose. Out-of-scope old selections invalidate conservatively before a future demand repopulates actual values. Changes revise observed frames; K fresh copies/inserts remain, with map reads avoiding a temporary FK array. Fixed sources admit baseline once then E edits. Speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Owned static data and actual neutral FK serve both ordinary reads and genuine mass-model rest production. Private rest provenance cannot invoke a replaced public method or borrow foreign frames. Dynamic composers stay independent; demands share operation rows and actual fixed-source admission produces separate overlays whose missing edits restore baseline.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Rig data and weak operation rows cost O(B+A+F) and O(U+B); rest provenance remains weak. Runtime closures are created outside the input-reading scope, receiving only owned snapshots, so original skeleton/topology/tables are not retained by a shared constructor scope. Fixed demands hold K indices and tuple demands additionally D ancestor names. Fixed sources own O(B+U) rows. Tuple queries hold 4J copied name/coordinate slots until release, with no current entries/root/operation/result history entering their bound factory. No handle is created.
  */
 export function prepareSkeletonPoseResolution(
   skeleton: IAutoMovieSkeleton,
@@ -52,6 +80,16 @@ export function prepareSkeletonPoseResolution(
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
   topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(skeleton),
 ): prepareSkeletonPoseResolution.IRig {
+  return bindSnapshot(snapshotRig(skeleton, jointAxes, restFrames, topology));
+}
+
+/** Copy source prerequisites before any long-lived runtime closure is created. */
+function snapshotRig(
+  skeleton: IAutoMovieSkeleton,
+  jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined,
+  restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined,
+  topology: IAutoMovieSkeletonTopology,
+): ISnapshot {
   const conventions: Map<string, IConvention> = new Map();
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
     skeletonJointAxes(skeleton, jointAxes);
@@ -93,27 +131,50 @@ export function prepareSkeletonPoseResolution(
   const roots: readonly IAutoMovieBone[] | undefined =
     topology.childrenByParent.get(SKELETON_ROOT_PARENT);
   if (roots !== undefined) for (const root of roots) append(root, -1);
-  const operations: WeakMap<ReturnType<typeof preparePoseResolution>, preparePoseResolutionState.IReader> =
-    new WeakMap();
   const preparedAxes: Readonly<Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>> =
     Object.freeze(Object.fromEntries(Array.from(conventions,
       ([name, convention]: [string, IConvention]): [string, IAutoMovieJointAxes] =>
         [name, convention.axes],
     )));
-  return {
-    jointAxes: preparedAxes,
+  return { nodes, indices, conventions, fallback, axes: preparedAxes };
+}
+
+/** Runtime readers can reach only copied metadata, never the input-reading scope. */
+function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
+  const { nodes, indices, conventions, fallback } = snapshot;
+  const operations: WeakMap<ReturnType<typeof preparePoseResolution>, preparePoseResolutionState.IReader> =
+    new WeakMap();
+  const rig: prepareSkeletonPoseResolution.IRig = {
+    jointAxes: snapshot.axes,
     joint: (joint: IAutoMovieJointPose, operation?: ReturnType<typeof preparePoseResolution>): IAutoMovieQuaternion =>
       readerOf(operation).joint(joint),
+    prepareTuples: (requested?: ReadonlySet<AutoMovieHumanoidBone>): prepareSkeletonPoseResolution.ITupleReader => {
+      const demand: readonly number[] | undefined = requested === undefined ? undefined
+        : preparePoseBoneDemand(indices, nodes.length, requested);
+      const ancestors: ReadonlySet<AutoMovieHumanoidBone> | undefined = demand === undefined
+        ? undefined : tupleAncestors(nodes, demand);
+      return (joints: preparePoseTupleScan.IJoints): prepareSkeletonPoseResolution.ITupleRead => {
+        const scan: preparePoseTupleScan.IScan = preparePoseTupleScan(joints, ancestors);
+        return (pose: Omit<IAutoMoviePose, "joints">, operation?: ReturnType<typeof preparePoseResolution>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+          readerOf(operation).resolveTuples(scan, pose, demand);
+      };
+    },
     preparePose: (pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, operation?: ReturnType<typeof preparePoseResolution>): preparePoseResolutionState.IOverlayReader =>
       operation === undefined
         ? preparePoseResolutionState.preparePose(nodes, indices, conventions, fallback, pose, requested)
         : readerOf(operation).preparePose(pose, requested),
     prepareBones: (requested: ReadonlySet<AutoMovieHumanoidBone>): prepareSkeletonPoseResolution.IBoneDemand => {
-      const read: ReturnType<typeof preparePoseResolutionState.prepareDemand> =
-        preparePoseResolutionState.prepareDemand(indices, nodes.length, requested);
-      return { resolve: (pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>): IAutoMovieResolvedBone[] =>
-        read(readerOf(operation), pose) };
+      const demand: readonly number[] = preparePoseBoneDemand(indices, nodes.length, requested);
+      return {
+        resolve: (pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>): IAutoMovieResolvedBone[] =>
+          readerOf(operation).resolve(pose, undefined, demand),
+        map: (pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+          readerOf(operation).resolveMap(pose, undefined, demand),
+      };
     },
+    resolveMap: (pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>,
+      requested?: ReadonlySet<AutoMovieHumanoidBone>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+      readerOf(operation).resolveMap(pose, requested),
     resolve: (
       pose: IAutoMoviePose,
       operation?: ReturnType<typeof preparePoseResolution>,
@@ -122,6 +183,10 @@ export function prepareSkeletonPoseResolution(
       return readerOf(operation).resolve(pose, requested);
     },
   };
+  REST_READERS.set(rig, (): IAutoMovieResolvedBone[] =>
+    preparePoseResolutionState.rest(nodes));
+  SOURCE_READERS.set(rig, rig.resolveMap);
+  return rig;
 
   /** All output demands of the same operation borrow one actual dependency state. */
   function readerOf(operation?: ReturnType<typeof preparePoseResolution>): preparePoseResolutionState.IReader {
@@ -135,15 +200,86 @@ export function prepareSkeletonPoseResolution(
   }
 }
 
+/** Actual fixed outputs determine exactly which authored articulations can affect them. */
+function tupleAncestors(nodes: readonly INode[], demand: readonly number[]): ReadonlySet<AutoMovieHumanoidBone> {
+  const names: Set<AutoMovieHumanoidBone> = new Set();
+  for (const output of demand) {
+    let index: number = output;
+    while (index >= 0) {
+      const node: INode = nodes[index]!;
+      if (names.has(node.name)) break;
+      names.add(node.name);
+      index = node.parent;
+    }
+  }
+  return names;
+}
+
 /**
  * Explicit immutable rig snapshot and its fresh-output demand resolver.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States static snapshot lifetime, operation ownership, current complete-pose resolution and fixed-demand/source companion semantics.
+ * @evidence contracts/development/common.md#meaningful-documentation States snapshot/operation ownership, pose/demand/source semantics, genuine private rest and original-data-method source admission. Foreign/replaced readers decline without invoking getters, and ordinary output ownership remains fresh.
  * @evidence contracts/development/design.md#principled-representation IRig couples an immutable rooted rest graph and raw clinical snapshot to actual individual-joint admission, complete poses, fixed sources and fixed demands. IBoneDemand fixes reachable output membership/order; poses retain clinical degrees and model-metre placement. Producer/runtime owners retain axis, angle and graph admission, without type-only finiteness claims.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Body/chain consumers use resolve and jointAxes; fixed chain-frame recovery uses joint to share actual effector admission. Flight mass reads use prepareBones/IBoneDemand.resolve and digit probes preparePose/IOverlayReader.resolve. Existing interface/ROM types own quantities; indices, rows, revisions and target answers remain private.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Body/chain consumers use ordinary joint/pose reads, flight fixed demands and digits fixed sources. HumanTrunk uses staged tuples, mass uses genuine private rest, and prepared continuation uses actual source admission with no unused FK output. Existing quantities and private numeric rows remain authoritative.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No scene, fixed body subset, editable whitelist, trusted boolean or user-constructible admitted-rest record replaces actual admission. The genuine producer snapshots its inputs; every ordinary pose or overlay query retains its stated validation and every public transform is fresh.
  */
 export namespace prepareSkeletonPoseResolution {
+  /**
+   * Admit a complete source/root without computing unused output frames,
+   * only through this factory's original own-data map callable. Unknown,
+   * copied, proxied, inherited or replaced readers decline without invoking
+   * a method/getter. A supported call performs the real ordered admission;
+   * its failures propagate and no source-validity flag/result is retained.
+   *
+   * @param rig Genuine fixed rig whose original resolveMap data method is still installed.
+   * @param pose Current complete source, with ordinary clinical degrees and root placement.
+   * @param operation Same-operation dependency rows, when supplied.
+   * @returns Whether actual factory admission ran; false requires the consumer's ordinary reader fallback.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines actual source admission, native original-method eligibility, descriptor-only refusal, unchanged units/failure behavior and fallback result meaning.
+   * @evidence contracts/development/implementation.md#principled-implementation Private factory registration and an equal own data-property value prove the exact map implementation whose admitPose phase precedes sparse output demand. Calling that original implementation with an empty name set retains every joint/root admission while no FK frame is demanded.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This producer alone owns method provenance and actual admission capability. The ordinary map owns validation/sparse FK; prepareChainFit owns source lifetime and raw fallback.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No caller boolean, structural method match, frozen wrapper or identity alone proves admission. Unknown objects are refused before descriptor observation; genuine replaced/accessor/inherited methods decline without invoking getters. Actual numeric admission is never skipped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Weak lookup and one own descriptor check precede the unchanged O(J) complete admission; empty demand omits unused ancestor/output work. Unknown readers perform constant refusal work before their existing fallback. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the actual registered factory callable and its immutable rig prerequisites are shared. Every supported call admits current source data; successful completion reuse belongs to the matching fixed-source consumer, not a stored pose/key verdict here.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak rig key retains only its original factory callable alongside existing private model data. One descriptor and empty name set are call-local; no source, pose, result history, strong registry, handle or task is retained.
+   */
+  export function admitSource(rig: IRig, pose: IAutoMoviePose,
+    operation?: ReturnType<typeof preparePoseResolution>): boolean {
+    const read: IRig["resolveMap"] | undefined = SOURCE_READERS.get(rig);
+    if (read === undefined) return false;
+    const descriptor: PropertyDescriptor | undefined =
+      Object.getOwnPropertyDescriptor(rig, "resolveMap");
+    if (descriptor === undefined || !("value" in descriptor) ||
+      descriptor.value !== read) return false;
+    read(pose, operation, new Set<AutoMovieHumanoidBone>());
+    return true;
+  }
+
+  /** Root construction occurs after tuple staging, before actual ordered numerical admission. */
+  export type ITupleRead = (pose: Omit<IAutoMoviePose, "joints">,
+    operation?: ReturnType<typeof preparePoseResolution>) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
+  /** Snapshot all current authored entries/scalars, without constructing intermediate joint records. */
+  export type ITupleReader = (joints: preparePoseTupleScan.IJoints) => ITupleRead;
+
+  /**
+   * Return fresh geometric rest frames only from this owner's genuine rig.
+   * Private weak provenance resolves the actual immutable rooted nodes,
+   * independently of public method replacement. Unknown structural rigs throw
+   * before any method is invoked. No external rest map or skeleton pairing is
+   * accepted. The original root-null, no-joint/no-scale FK produces lazy rest
+   * once and shares it with ordinary neutral reads, preserving all arithmetic
+   * grouping. Each O(B) output copy is fresh; private rows live with the rig,
+   * without an operation key, pose, authored callback, output history or strong registry.
+   */
+  export function rest(rig: IRig): IAutoMovieResolvedBone[] {
+    const read: (() => IAutoMovieResolvedBone[]) | undefined = REST_READERS.get(rig);
+    if (read === undefined)
+      throw new Error("Rest FK requires a rig produced by prepareSkeletonPoseResolution");
+    return read();
+  }
+
   /**
    * Immutable prepared FK, independent of later source rig or table edits.
    *
@@ -152,6 +288,20 @@ export namespace prepareSkeletonPoseResolution {
    * selects reachable outputs without exposing numeric indices or state rows.
    */
   export interface IRig {
+    /**
+     * Bind fixed output names, then stage each current tuple map before root
+     * construction. The returned root reader admits all staged scalars through
+     * the same actual F/A/T basis/frame/finite owner and sparse FK. All entries
+     * snapshot before tuple components; all components read before root work,
+     * preserving explicit undefined/getter failure order and fresh outputs.
+     * Fixed ancestry omits only pure composition outside that graph closure;
+     * every scalar still receives original basis/finite/used-frame checks.
+     * One 4J name/scalar array replaces J joint records. Fixed names live with the
+     * factory; each staged scan ends with its synchronous query and retains no
+     * source tuples/map, root, operation reader or result history.
+     */
+    prepareTuples(requested?: ReadonlySet<AutoMovieHumanoidBone>): ITupleReader;
+
     /**
      * Admit one current clinical joint against this rig's actual fixed axes
      * and frame, then return a fresh quaternion. Same-operation reads may
@@ -187,6 +337,20 @@ export namespace prepareSkeletonPoseResolution {
     readonly jointAxes: Readonly<Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>>;
 
     /**
+     * Complete current ordered admission and the same sparse parent-first FK
+     * as resolve, directly into a fresh name map. Each bone/nested transform
+     * is copied once; later duplicate names retain Map's original insertion
+     * order and last value. Optional live names select only actual rooted
+     * outputs without relaxing any clinical check. Private output writers
+     * accept no foreign callback or caller-supplied container. Work remains
+     * current admission/changes/invalidated ancestry plus K copies/inserts,
+     * without an intermediate FK array. Only the same weak operation rows
+     * persist; the map and every nested value belong solely to the caller.
+     */
+    resolveMap(pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>,
+      requested?: ReadonlySet<AutoMovieHumanoidBone>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
+    /**
      * Admit all current pose records in order, then return fresh requested
      * reachable model-metre frames, all when names are absent. Shared sparse
      * FK keeps ordinary quaternion grouping and exact scalar invalidation;
@@ -209,6 +373,16 @@ export namespace prepareSkeletonPoseResolution {
    * supply complete current poses; numeric indices and state stay private.
    */
   export interface IBoneDemand {
+    /**
+     * The same full admission, fixed rooted demand, exact invalidation and
+     * fresh nested ownership as resolve, written directly into a fresh map
+     * without an intermediate result array. Private writers share the FK
+     * recurrence and admit no external callback or validity flag. Queries
+     * retain no container/result history; bounded dynamic rows end with the
+     * same lent operation, while the caller owns all returned map values.
+     */
+    map(pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
     /**
      * Admit the current complete pose and return fresh captured model-metre
      * frames through the same sparse FK, without re-sorting names. Exact

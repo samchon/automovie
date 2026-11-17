@@ -31,7 +31,7 @@ const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
  * from isolation of the expanded floating-point coefficients.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the paired construction, exact endpoint differential, normalized physical quantity, probe selection, estimator limitations and optional failed-probe snapshot.
- * @evidence contracts/development/implementation.md#principled-implementation Keeps the DP5 endpoint and embedded RMS budget, but matches endpoint body rates through exact Jr^-1. Optional quintic Hermite-Birkhoff u/v use the cited two derivative nodes and their recomputation; actual body velocity is Jr(r)r'. The caller's normalized physical defect measures its own units/conditioning independently of generic RMS. Smoothness underlies the estimator; finite probes do not certify unsampled structure.
+ * @evidence contracts/development/implementation.md#principled-implementation Keeps DP5 endpoint/RMS and matches endpoint body rates through Jr^-1. Continuous-extension weights sum to zero, so differences from the first stage exactly annihilate a constant stage array without coefficient-sum noise. Paired Hermite-Birkhoff u/v use the cited derivative nodes and recomputation; actual body velocity is Jr(r)r'. Physical units and smoothness remain caller/estimator premises, without a continuous certificate or invented absolute floor.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the original numeric quartic with C1 slopes, form the paired quintics only when requested, then test physical defects before accepting v.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance division, fixed step cap, midpoint-only admission or scene-specific grid is introduced. Polynomial extrema supplement method nodes without sampling a guessed time table; unresolved numeric/chart data rejects the trial.
  * @evidence contracts/development/implementation.md#efficient-algorithms For n states builds O(n) coefficients. Physical mode adds four RHS evaluations, and model probes at a finite union of method nodes and quadratic/cubic component roots. Factoring the known endpoint zeros avoids quartic isolation and cancellation of an expanded endpoint root. A failed physical probe rejects immediately; accepted trials check every probe on both curves. Actual shape cost belongs to the callback.
@@ -74,7 +74,7 @@ export function MotionTrajectoryDense(props: {
     const diff: number = end[c]! - value;
     const spline: number = h * stages[0]!.dx[c]! - diff;
     return [diff, spline, diff - h * stages[6]!.dx[c]! - spline,
-      h * D.reduce((sum: number, d: number, j: number): number => sum + d * stages[j]!.dx[c]!, 0)];
+      h * D.reduce((sum: number, d: number, j: number): number => sum + d * (stages[j]!.dx[c]! - stages[0]!.dx[c]!), 0)];
   });
   const turns: IAutoMovieVector3[] = [];
   if (q !== null) {
@@ -85,11 +85,12 @@ export function MotionTrajectoryDense(props: {
       x: h * stages[0]!.w!.x - r.x, y: h * stages[0]!.w!.y - r.y, z: h * stages[0]!.w!.z - r.z,
     };
     const last: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    const firstAlgebra: IAutoMovieVector3 = props.algebra![0]!;
     D.forEach((weight: number, j: number): void => {
       if (weight === 0) return;
-      last.x += weight * props.algebra![j]!.x;
-      last.y += weight * props.algebra![j]!.y;
-      last.z += weight * props.algebra![j]!.z;
+      last.x += weight * (props.algebra![j]!.x - firstAlgebra.x);
+      last.y += weight * (props.algebra![j]!.y - firstAlgebra.y);
+      last.z += weight * (props.algebra![j]!.z - firstAlgebra.z);
     });
     turns.push(r, spline, {
       x: r.x - h * slope.x - spline.x,

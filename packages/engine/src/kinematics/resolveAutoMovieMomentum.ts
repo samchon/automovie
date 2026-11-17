@@ -52,7 +52,7 @@ import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pose both ends once, then delegate their ordered parts and centres to the shared interval reduction.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone or a non-positive interval throws; no momentum is clamped.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear segment passes pose both ends and reduce momentum with one centre transform per segment. Spins consume physical tensor scalars without temporary part arrays/rows, and orbital coordinates accumulate directly. Prepared intervals reuse copied-key and current-rate storage even on changes, omitting replacement cache records and per-read rate vectors; every actual reciprocal and product retains its original association.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each endpoint's centres serve the mean and orbital terms; raw and between entries share reduceBetween. PrepareIntervals compares eight copied endpoint quaternion coordinates per index, reusing only raw shortest-arc turn and midpoint frame; its physical tensor reader separately compares actual midpoint moments/rotation. Current points, masses, seconds and spin products are always evaluated, and no momentum answer or mutable bone object is cached.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Endpoint centres serve mean/orbital terms; raw and between share reduceBetween. PrepareIntervals captures eight endpoint coordinates once per index and uses that same private tuple for Object.is, shortest-arc turn and midpoint frame; reuse becomes ready only after both results complete. Its tensor reader separately snapshots actual midpoint moments/rotation. Current points, masses, seconds and spin products always run; no momentum answer or mutable bone object is cached.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct and between calls borrow endpoints and return fresh numeric records without retained state. PrepareIntervals owns one copied quaternion-pair/turn/midpoint, overwritten rate scratch and intrinsic slot per current part; it truncates on shrink and releases with its mass token. Rate scratch never escapes or supplies a cached answer, and no endpoint pose/model/target population is held.
  */
 export function resolveAutoMovieMomentum(
@@ -182,11 +182,11 @@ export namespace resolveAutoMovieMomentum {
    *
    * States which endpoint prerequisites are retained and which current physical values remain evaluated.
    * The shortest-arc rotation vector of Q1 Q0 inverse and the half-way slerp depend only on the two endpoint rotations; their reuse leaves the original angular-rate division and orbital-plus-spin formula unchanged.
-   * A bounded numeric quaternion reader is lent to the single shared interval reduction, while the raw entry continues to compute its own fresh differences.
+   * A bounded numeric quaternion reader is lent to the single shared interval reduction, while the raw entry computes fresh differences. Reentrant reads use that same uncached reduction so foreign getters cannot overwrite the active outer rate scratch.
    * Exact copied quaternion coordinates are the only reuse key; current velocities, inertia and momentum answers are never replayed or clamped.
    * O(S) current orbital/spin work for S segments. Unchanged endpoint frames omit quaternion inverse/product, logarithm and slerp; unchanged midpoint moments/rotation also omit intrinsic axis rotations. Changed dependencies do their original computations. Retained storage is O(S).
-   * Each ordered part index compares all eight copied endpoint quaternion coordinates with Object.is, detecting mutation and signed zero. These rotation prerequisites are independent of model mass, points and interval seconds, so those current inputs remain outside the key.
-   * The caller owns one closure and at most one numeric interval per current part index; shrinking the part array truncates old entries. No pose, model or momentum result is retained, and the mass-model token drops this reader on release.
+   * Each ordered index captures all eight endpoint coordinates once, then uses that same private tuple for Object.is, inverse/log and slerp. A row becomes reusable only after both results complete. Mutation/signed zero remain visible; current mass, points and interval seconds remain outside this rotation-only key.
+   * The caller owns one closure, one active-call guard and at most one numeric interval per current part index; shrinking truncates old entries. Finally releases the guard after success or throw, with no depth pool or retained pose/model/result; the mass token drops this reader on release.
    */
   export function prepareIntervals(): (
     model: resolveAutoMovieCenterOfMass.IModel,
@@ -196,40 +196,64 @@ export namespace resolveAutoMovieMomentum {
   ) => IMomentum {
     const intervals: (IRotationInterval | undefined)[] = [];
     const tensor: physicalInertiaTensor.IPrepared = physicalInertiaTensor.prepare();
+    let active: boolean = false;
     const read: (i: number, from: IAutoMovieQuaternion, to: IAutoMovieQuaternion) => IRotationInterval = (
       i: number, from: IAutoMovieQuaternion, to: IAutoMovieQuaternion,
     ): IRotationInterval => {
+      const fx: number = from.x;
+      const fy: number = from.y;
+      const fz: number = from.z;
+      const fw: number = from.w;
+      const tx: number = to.x;
+      const ty: number = to.y;
+      const tz: number = to.z;
+      const tw: number = to.w;
       const known: IRotationInterval | undefined = intervals[i];
-      if (known !== undefined && sameQuaternion(known.from, from) && sameQuaternion(known.to, to))
+      if (known !== undefined && known.ready &&
+          Object.is(known.from.x, fx) && Object.is(known.from.y, fy) &&
+          Object.is(known.from.z, fz) && Object.is(known.from.w, fw) &&
+          Object.is(known.to.x, tx) && Object.is(known.to.y, ty) &&
+          Object.is(known.to.z, tz) && Object.is(known.to.w, tw))
         return known;
-      const turn: IAutoMovieVector3 = samplePoseVelocity.rotationVector(Quaternion.multiply(to, Quaternion.inverse(from)));
-      const middle: IAutoMovieQuaternion = Quaternion.slerp(from, to, 0.5);
+      if (known !== undefined) known.ready = false;
+      const before: IAutoMovieQuaternion = known?.from ?? { x: fx, y: fy, z: fz, w: fw };
+      const after: IAutoMovieQuaternion = known?.to ?? { x: tx, y: ty, z: tz, w: tw };
+      before.x = fx;
+      before.y = fy;
+      before.z = fz;
+      before.w = fw;
+      after.x = tx;
+      after.y = ty;
+      after.z = tz;
+      after.w = tw;
+      const turn: IAutoMovieVector3 = samplePoseVelocity.rotationVector(Quaternion.multiply(after, Quaternion.inverse(before)));
+      const middle: IAutoMovieQuaternion = Quaternion.slerp(before, after, 0.5);
 
-      // Finish both pure quaternion computations before replacing copied
-      // keys. Private slots can then be reused without retaining endpoints.
+      // Both computations consume this exact captured key. An existing row
+      // stays ineligible for reuse until both numeric results are complete.
       const interval: IRotationInterval = known ?? {
-        from: { x: 0, y: 0, z: 0, w: 1 },
-        to: { x: 0, y: 0, z: 0, w: 1 },
+        ready: false,
+        from: before,
+        to: after,
         turn,
         middle,
         rate: { x: 0, y: 0, z: 0 },
       };
-      interval.from.x = from.x;
-      interval.from.y = from.y;
-      interval.from.z = from.z;
-      interval.from.w = from.w;
-      interval.to.x = to.x;
-      interval.to.y = to.y;
-      interval.to.z = to.z;
-      interval.to.w = to.w;
       interval.turn = turn;
       interval.middle = middle;
+      interval.ready = true;
       intervals[i] = interval;
       return interval;
     };
     return (model: resolveAutoMovieCenterOfMass.IModel, before: IPosed, after: IPosed, seconds: number): IMomentum => {
-      intervals.length = before.parts.length;
-      return reduceBetween(model, before, after, seconds, read, tensor);
+      if (active) return reduceBetween(model, before, after, seconds);
+      active = true;
+      try {
+        intervals.length = before.parts.length;
+        return reduceBetween(model, before, after, seconds, read, tensor);
+      } finally {
+        active = false;
+      }
     };
   }
 
@@ -402,6 +426,9 @@ function reduceBetween(
 
 /** Numeric prerequisites of one exact endpoint principal-frame pair. */
 interface IRotationInterval {
+  /** False until both numeric prerequisites finish from this captured key. */
+  ready: boolean;
+
   /** Copied start principal-to-common quaternion. */
   from: IAutoMovieQuaternion;
 
@@ -416,11 +443,6 @@ interface IRotationInterval {
 
   /** Current interval-rate scratch, overwritten before use and never returned or used as a cache key. */
   rate: IAutoMovieVector3;
-}
-
-/** Copied component keys detect mutation without retaining either endpoint. */
-function sameQuaternion(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): boolean {
-  return Object.is(a.x, b.x) && Object.is(a.y, b.y) && Object.is(a.z, b.z) && Object.is(a.w, b.w);
 }
 
 

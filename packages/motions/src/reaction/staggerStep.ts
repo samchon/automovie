@@ -36,23 +36,14 @@ import { staggerSequential } from "./staggerSequential";
 export namespace staggerStep {
   /** What a step reads besides its pendulum.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines lazy same-entry bending, whether the landing is kinematically judged and the exact preceding course.
-   * @evidence contracts/development/design.md#principled-representation A fixed-entry geometric supplier is separate from the kinematic-mode switch and optional prior course; the pendulum-only path never demands bending.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines this recovery's eagerly measured bending, whether the landing is kinematically judged and the exact preceding course.
+   * @evidence contracts/development/design.md#principled-representation Two actual entry bending vectors are separate from the kinematic-mode switch and optional prior course; recovery measures them before either mode searches foot orders.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Recovery supplies these three original planning inputs and take reads them at their existing phase of work.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains no substitute bending result or success override; the actual supplier and original stance solver remain authoritative.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains the original recovery observation, no substitute bending supplier or success override; the actual stance solver remains authoritative.
    */
   export interface IProps {
-    /** The same entry's trunk shift per sine of its tilt, demanded only by a stance course.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Returns the exact body's unchanged-entry pitch/roll centre shifts in metres per sine, only when kinematic landing work requests them.
-     * @evidence contracts/development/implementation.md#principled-implementation The producer runs the original standing and two lowered reference-tilt mass readings and returns their original sine-normalized shifts.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Recovery owns one explicit lazy invariant supplier; this step asks for it only when constructing the actual stance knots.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the actual same-body/complete-entry measurement, without a dummy zero shift, approximate key or skipped required bending read.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Costs the original three centre readings once per owning unchanged-entry operation, and no work for pendulum-only landings.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Only an explicit supplier within the same body/entry operation shares its actual completed reference measurement; changed operations prepare afresh.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation retains at most two shift vectors and releases its supplier with the search/plan, with no global result or time history.
-     */
-    bend: () => Record<"pitch" | "roll", IAutoMovieVector3>;
+    /** This recovery's entry trunk shift per sine of its pitch and roll, metres. */
+    bend: Record<"pitch" | "roll", IAutoMovieVector3>;
 
     /** Whether the landing is placed by the stance course under the legs' ranges; the pendulum alone when false. */
     kinematic: boolean;
@@ -264,7 +255,7 @@ export namespace staggerStep {
       const knots: staggerKnots.IKnot[] = staggerKnots.of(
         body,
         pendulum.entry,
-        props.bend(),
+        props.bend,
         {
           ...swung,
           steps: [...steps, { side, from, to: origin, start, land: t }],

@@ -156,9 +156,9 @@ export namespace kiss {
    * @evidence contracts/development/implementation.md#principled-implementation The mouth's distance to the point is minimised one freedom at a time: the forward lean and the neck on a grid, coarse at 5 degrees and refined at 1 degree, then the lean to the side at 1 degree steps, then, only when a miss over `NEAR` remains and a stance bears the body, the least heel raise that closes it; the lean and the neck are fitted again after each.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One miss function, a sagittal grid and two line searches.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The miss is returned, never hidden; the ranges are the lean's, the neck's and the ankle's working ranges (provisional).
-   * @evidence contracts/development/implementation.md#efficient-algorithms Retains every original sagittal-grid and line-search candidate at plan time. Fixed mouth demand and heading/twist metadata are prepared once, same-raise groups share their actual foot lift, and each candidate computes raw authored mouth FK and point only; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the lean, rise, head-share and trunk-region owners. The fixed entry heading/backward offset and head twist are prepared once; each generated least group has one unchanged raise and explicitly shares its actual lift. A genuine prepared mouth reader shares only fixed region/rig demand, while every candidate and mouth distance still runs with an exact synchronous FK reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The grid owns one lazy FK reader, fixed pose/mouth producers and current group's lift vector until solve returns or throws; only selected angles and miss escape, with no posture, FK reader or candidate history retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Every original sagittal-grid and line-search candidate retains its actual raw heading/rise/pivot and authored mouth FK. Only canonical mouth demand and primitive fixed head-twist constants prepare once; point-only observation omits unused directions, with speedup unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The original lean/rise/head/trunk owners remain. Borrowed entry/stance fields or getters are never frozen by identity or raise equality; every candidate reads them independently. A genuine mouth reader shares only fixed canonical region/rig demand, and the exact FK workspace checks current scalar dependencies.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The search owns one lazy exact reader, fixed mouth-name producer and primitive head constants until return or throw. Each current posture/map/displacement ends with its observation; only selected angles and miss escape, with no raw offset, rise-group answer or candidate history retained.
    */
   export function solve(
     context: Pick<IHumanActionContext, "body">,
@@ -174,18 +174,15 @@ export namespace kiss {
       prepareHumanPoseResolution();
     const postureAt: ReturnType<typeof kissPose> = kissPose(body, entry, stance, twist, behind);
     const mouth: ReturnType<typeof HumanTrunk.preparePoint> = HumanTrunk.preparePoint(body, "mouth");
-    const miss = (s: Omit<ISolved, "miss">, raised?: IAutoMovieVector3): number =>
+    const miss = (s: Omit<ISolved, "miss">): number =>
       Vector3.distance(
-          mouth(postureAt(s, raised), resolution),
+          mouth(postureAt(s), resolution),
           at,
         );
     const least = (candidates: Omit<ISolved, "miss">[]): ISolved => {
       let best: ISolved | null = null;
-      // Coarse, refined and roll groups each preserve their source raise.
-      const first: Omit<ISolved, "miss"> | undefined = candidates[0];
-      const raised: IAutoMovieVector3 | undefined = first === undefined ? undefined : AutoMovieMotionHumanRise.lift(body, stance, first.raise);
       for (const c of candidates) {
-        const m: number = miss(c, raised);
+        const m: number = miss(c);
         if (best === null || m < best.miss) best = { ...c, miss: m };
       }
       return best!;

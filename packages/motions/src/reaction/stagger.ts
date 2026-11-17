@@ -30,7 +30,6 @@ import { staggerBounds } from "./staggerBounds";
 import { staggerKnots } from "./staggerKnots";
 import { staggerLimit } from "./staggerLimit";
 import { staggerRecover } from "./staggerRecover";
-import { prepareStaggerPendulumEntry } from "./prepareStaggerPendulumEntry";
 
 /**
  * A stagger: a blow pushes the centre of mass past the base of support and
@@ -175,9 +174,9 @@ export namespace stagger {
    * @evidence contracts/development/implementation.md#principled-implementation The push read causally at the plan's start; the recovery's steps and the centre of mass's course on the pendulum (`staggerRecover`); the feet, the pelvis and the trunk on one stance course under the legs' ranges (`StaggerFeet`); the arms abducted from their measured onset.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, one held base and two rows: the body over its feet, and the arms.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A push no `STEPS` steps catch is refused with the body's limit instead of shortening a step past the legs' reach; the righting is a named provisional constant.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One original recovery search serves a successful plan; a refusal retains the original full speed-limit search. Entry mass/sole preparation and the three-centre bending observation run once per plan, with each step's declared stance ends shared and actual per-time settlement/reach preserved.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses recovery/feet/arm/causal-target owners. The same complete entry shares bending/geometry with a refusal's search; arm envelopes request only original quintic values. Current composition FK reaches settled hips, and FK/ROM loans reach actual arm-swing fitting/clearance, without reusing another time's fit.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds recovery, feet and two bending vectors; refusal search data end on throw. Each writer borrows dynamic composition FK/ROM only through its synchronous call, never in returned posture data, endpoint/bow caches or a global solved-pose history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Keeps the original recovery and full refusal-speed searches, each probe's actual entry centre then eager three-centre bending, and the successful feet owner's separate bending observation. Declared stance endpoints and fixed body-only reach prerequisites remain shared; runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the recovery, feet, arm and causal-target owners without replaying completed entry observations or recovery verdicts. Each bending observation shares only its own exact FK/ROM prerequisites; current composition loans reach settled hips and actual arm-swing fitting/clearance within their synchronous call.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its actual recovery, feet and authored geometric data; refusal observations end on return or throw. Runtime loans last only through each writer call and never enter posture data, endpoint/bow caches or a solved-pose history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -210,18 +209,13 @@ export namespace stagger {
       ),
       y: 0,
     });
-    const bend: Record<"pitch" | "roll", IAutoMovieVector3> = staggerKnots.bending(body, context.entry);
-    const geometry: ReturnType<typeof prepareStaggerPendulumEntry> =
-      prepareStaggerPendulumEntry(body, context.entry);
+
     const recovery: staggerRecover.IRecovery | null = staggerRecover.recover(
       body,
       context.entry,
       push,
       p.speed,
       righting,
-      true,
-      (): Record<"pitch" | "roll", IAutoMovieVector3> => bend,
-      geometry,
     );
     if (recovery === null) {
       const caught: number = staggerLimit.of(
@@ -229,8 +223,6 @@ export namespace stagger {
         context.entry,
         push,
         p.speed,
-        bend,
-        geometry,
       );
       throw new HumanRefusal({
         kind: "parameter",
@@ -258,7 +250,7 @@ export namespace stagger {
       body,
       context.entry,
       recovery,
-      bend,
+      staggerKnots.bending(body, context.entry),
     );
     const legs: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],

@@ -1,30 +1,27 @@
 import { Quaternion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieQuaternion } from "@automovie/interface";
+import type { IAutoMovieQuaternion } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanHandover } from "./HumanHandover";
 
 /**
- * The original upright-carry yaw choice, with explicit fixed-time preparation.
+ * The original upright-carry yaw choice and current raw request assembly.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Separates ordinary full-posture callbacks from handover frames whose direct body/digits and goal geometry are fixed at one sampled second while only hand yaw varies.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents the original full-posture callback chooser, current handover frame assembly, actual degree tilt metric and scalar time-course lookup, without certifying borrowed posture graphs immutable.
  * @evidence contracts/development/design.md#principled-representation World-metre posture/goals and world quaternion attitudes retain canonical types; the existing degree yaw grid and second-based sample/interpolation policy remain HumanHandover's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface ordinary serves the existing public callback facade; prepared and posed serve the actual giver/receiver fixed-time frame producers; rank serves their actual complete-goal fits and receive's fixed carry-place search; angle owns the shared original tip metric.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No callback is assumed yaw-invariant: the prepared path requires explicit separate fixed geometry and yaw attitude. No pose result, altered sample, tolerance or solver is represented.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ordinary serves the public callback and both actual giver/receiver yaw courses; posed assembles each current raw request, and angle owns their shared original tip metric.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No callback or borrowed posture is inferred yaw-invariant or plain. Each original yaw still invokes its full callback/fit, with no fixed base, skipped source observation, changed sample/tolerance or stored pose.
  */
 export namespace HumanHandoverUpright {
   /**
-   * One actual second's fixed direct body, complete other goals and hand task.
+   * One current raw body, complete other goals and actual hand task.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation posture contains the unchanged root/direct joints/digits/other limbs; goal has fixed world-metre task fields and rotation evaluates only the actual degree yaw freedom.
-   * @evidence contracts/development/design.md#principled-representation Removing rotation from the goal prevents duplicate attitude owners; one fixed-time frame supplies canonical posture/task values while its rotation remains a typed quaternion query.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface handOver and receive produce all three members; prepared fits each actual yaw and posed emits the same request for display.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Frames cannot contain a solved pose or successful-contact assertion; fixed body/rig/source geometry must remain unchanged through the synchronous sample search.
+   * @evidence contracts/development/common.md#meaningful-documentation posture carries the current raw root/joints/digits/other limbs; goal retains actual world-metre fields and rotation evaluates the requested degree yaw for this one request.
+   * @evidence contracts/development/design.md#principled-representation Removing rotation from the goal prevents duplicate attitude owners; each actual raw frame supplies canonical posture/task values while rotation remains a typed quaternion query.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface handOver and receive produce all three members anew for each original yaw callback; posed emits the same complete request for actual fitting and display.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Frames contain no solved pose, source-immutability certificate or successful-contact assertion; ordinary selection constructs and fits one actual frame for every original yaw callback.
    */
   export interface IFrame {
     /** The fixed current body/digits and complete other limb goals. */
@@ -38,8 +35,8 @@ export namespace HumanHandoverUpright {
      * @evidence contracts/development/implementation.md#principled-implementation The actual producer retains its original world-up quaternion product during the upright carry and its unchanged attitude outside that window.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One attitude-only callback exposes the actual varying goal while body/path/digits stay with the frame.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle, quaternion normalization, active window or multiplication grouping changes.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Constant quaternion work per actual yaw without repeating transport, digit schedule or body leaning.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed second geometry is shared explicitly; each requested yaw evaluates its original attitude without storing a result.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Constant quaternion work per actual yaw; ordinary selection separately retains each original transport/digit/body callback and full fit.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Each actual callback owns one current frame request; its attitude is evaluated without retaining or reusing a result across yaw candidates.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous frame retains its fixed attitude/window data until its sample is released; returned quaternions retain the original ownership, with no time history or handle.
      */
     rotation: (yaw: number) => IAutoMovieQuaternion;
@@ -53,7 +50,7 @@ export namespace HumanHandoverUpright {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One score adapter retains one chooser and the existing complete posture owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No invariant is inferred about arbitrary callbacks and no callback, sample, fit or candidate is skipped.
    * @evidence contracts/development/implementation.md#efficient-algorithms Preserves nine full solves per selected sample; only scalar course lookup uses the original equivalent binary interval search.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Ordinary and prepared paths share exact candidate order, cost/tie policy and scalar interpolation, without sharing fitted answers.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work All actual giver/receiver and public callback courses share the same candidate order, cost/tie policy and scalar interpolation, without sharing fitted answers or source frames.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Callback/body/fit work is local to planning; the detached returned interpolator retains only K scalar times and turns until its action is released.
    */
   export function ordinary(body: IHumanBody, side: HumanHand.Side,
@@ -62,51 +59,6 @@ export namespace HumanHandoverUpright {
   ): (seconds: number) => number {
     return chosen((seconds: number): ((yaw: number) => number) =>
       (yaw: number): number => HumanHandover.tipped(body, side, at(seconds, yaw)), from, to, ends);
-  }
-
-  /**
-   * Fit every original yaw from one explicitly fixed actual frame per sample.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The frame producer fixes complete direct body/digit/task geometry at each requested second; actual yaw attitudes and original endpoint/sample policy determine the scalar output course.
-   * @evidence contracts/development/implementation.md#principled-implementation One prepareBase snapshots that actual frame's direct root/joints/digits; every original yaw replaces complete actual limbs and runs the unchanged coupled/clearance/ROM/digit solves before the same tip metric.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One demanded frame/base/FK reader per sample feeds the common request assembler and chooser, with no second fit or yaw policy.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every nine-yaw candidate, original STEP schedule, carried previous turn cost, strict 1e-9 tie and original fully supplied endpoint behavior; no result is reused as a fit.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each K-sample fixed body/path/digit preparation replaces nine repeated preparations; all nine actual complete candidate fits remain and readback requests only the holding hand ancestry. Runtime improvement is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual handOver/receive producers separate fixed-second geometry from the hand's sole yaw freedom; unchanged body/rig and explicit fixed frame justify base/FK work sharing, while every goal/fit remains actual.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each sample owns one O(B) fixed base and exact FK reader only while ranking its nine yaws; the detached output retains K scalar times/turns without frames, body, readers, fits, history or handles.
-   */
-  export function prepared(body: IHumanBody, side: HumanHand.Side,
-    at: (seconds: number) => IFrame,
-    from: number, to: number, ends: readonly [number, number | undefined],
-  ): (seconds: number) => number {
-    return chosen((seconds: number): ((yaw: number) => number) => {
-      const frame: IFrame = at(seconds);
-      const fit: ReturnType<typeof rank> = rank(body, side, frame.posture);
-      return (yaw: number): number => fit(goalOf(frame, yaw));
-    }, from, to, ends);
-  }
-
-  /**
-   * Rank actual complete hand goals on one unchanged direct body posture.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Fixes body/rig/ROM, raw root/orientation/direct joints/digits and all other limb goals for one synchronous search; each complete acting goal is actually fitted and returns the original degree upright-tip metric.
-   * @evidence contracts/development/implementation.md#principled-implementation prepareBase admits fixed direct assembly once; every candidate replaces only the acting arm and runs the original complete coupled, clearance, ROM and digit solve before actual hand FK and angle.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed base, other-goal snapshot, exact FK workspace and demanded hand reader serve both sampled yaw selection and receive's pitch/yaw search.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No candidate, goal field, near/base context, original solve, missing-attitude Infinity or tip/tie tolerance is changed; changed fixed inputs require another producer.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One O(B+J) fixed assembly and demanded-name binding serve C actual full goal fits; all C solver calls remain and FK emits only the holding hand ancestry. Runtime improvement is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit unchanged fixed-posture/body lifetime proves assembly reuse; complete varying goals and their actual fits/FK/tip are never cached or shared as answers.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous caller owns one fixed base, borrowed immutable other goals and exact reader until release. Each scalar query releases its fresh fit/FK outputs; no pose result, query/time history or external handle escapes.
-   */
-  export function rank(body: IHumanBody, side: HumanHand.Side,
-    posture: IHumanPosture): (goal: IHumanPosture.IGoal) => number {
-    const base: ReturnType<typeof resolveHumanPosture.prepareBase> = resolveHumanPosture.prepareBase(body, posture);
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const readHand: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body,
-      new Set<AutoMovieHumanoidBone>([`${side}Hand`]));
-    return (goal: IHumanPosture.IGoal): number => angle(goal.rotation,
-      readHand(base.seeded({ ...limbs, [`${side}Arm`]: goal }, undefined, resolution).pose,
-        resolution()).get(`${side}Hand`)?.worldRotation);
   }
 
   /**

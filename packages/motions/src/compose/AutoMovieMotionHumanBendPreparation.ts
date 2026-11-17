@@ -2,14 +2,16 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
+import { AutoMovieMotionHumanBendSide } from "./AutoMovieMotionHumanBendSide";
 
 /**
- * Actual solve/strain sweeps sharing one unchanged arm's prepared geometry.
+ * Actual solve/strain sweeps sharing fixed arm geometry and optional paired trunk preparation.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Fixes the body/posture/side while world wrist points, rotations, fallback and requested elbow side remain per query.
  * @evidence contracts/development/design.md#principled-representation Uses the existing bend request's goal fields and original candidate/score types, with world metres and rest-relative quaternions unchanged.
- * @evidence contracts/development/design.md#minimal-and-owned-surface solve and strain are both used by saw slope/catch roll selection; grasp selection uses solve alone, with no unused level operation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface solve/strain serve saw/catch/grasp selection; both supplies actual crawl/load paired-arm consumers with lazy side preparations sharing their genuine fixed trunk source.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Only chain/collider/neutral preparation is shared; no target, ranking, chosen elbow or strain answer is cached.
  */
 export namespace AutoMovieMotionHumanBendPreparation {
@@ -50,10 +52,10 @@ export namespace AutoMovieMotionHumanBendPreparation {
      *
      * @evidence contracts/development/common.md#meaningful-documentation The hint is a world-metre elbow side; the result is unitless or Infinity when the original sweep finds no allowed candidate, and fallback is not read.
      * @evidence contracts/development/implementation.md#principled-implementation of passes the existing toward ranking at the exact current shoulder/wrist/hint to the original sweep and reads its unchanged overshoot/strain.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One original side-rank factory and actual sweep precede the same Infinity-or-strain result.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed-point side-rank factory and original actual sweep precede the same Infinity-or-strain result.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts This remains a distinct sweep from solve; its candidate, side band and refinement are never replaced by solve's chosen score.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Fixed geometry is reused, while every actual differently ranked sweep retains its original bounded cost.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the unchanged body/trunk/side geometry is shared; every requested wrist/rotation/hint still determines its own rank and result.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Fixed chain geometry is reused; each sweep additionally shares its unchanged shoulder-to-wrist axis and radial hint preparation across candidates. Every candidate and original bounded refinement remains, with no measured speedup claim.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged body/trunk/side fixes the chain; shoulder/wrist/hint scalars remain fixed only during this actual synchronous rank sweep. Each requested wrist/rotation/hint still determines its own rank and result, without storing an elbow score or fit answer.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fixed selector or bounded authored support-state plan owns one geometry context until release; this method retains no wrist, hint, score, result history or handle.
      */
     strain: (goal: IGoal, bend: IAutoMovieVector3) => number;
@@ -73,9 +75,10 @@ export namespace AutoMovieMotionHumanBendPreparation {
   export function of(
     fixed: Pick<AutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,
     hang: Parameters<typeof AutoMovieMotionHumanBendSearch.prepare>[1],
+    source?: AutoMovieMotionHumanBendChain.IPrepared,
   ): IPrepared {
     const search: ReturnType<typeof AutoMovieMotionHumanBendSearch.prepare> =
-      AutoMovieMotionHumanBendSearch.prepare(fixed, hang);
+      AutoMovieMotionHumanBendSearch.prepare(fixed, hang, source);
     return {
       solve: (goal: IGoal): IAutoMovieVector3 => {
         const found: AutoMovieMotionHumanBendSearch.ICandidate | string = search(goal,
@@ -94,9 +97,37 @@ export namespace AutoMovieMotionHumanBendPreparation {
       strain: (goal: IGoal, bend: IAutoMovieVector3): number => {
         const found: AutoMovieMotionHumanBendSearch.ICandidate | string = search(goal,
           (chain: Parameters<Parameters<typeof AutoMovieMotionHumanBendSearch.search>[1]>[0]): (candidate: AutoMovieMotionHumanBendSearch.ICandidate) => AutoMovieMotionHumanBendSearch.IScore =>
-            AutoMovieMotionHumanBendSearch.toward(chain.shoulder, goal.point, bend));
+            AutoMovieMotionHumanBendSide.prepare(chain.shoulder, goal.point, bend));
         return typeof found === "string" || found.overshoot !== 0 ? Infinity : found.strain;
       },
+    };
+  }
+
+  /**
+   * Prepare actual sides of one fixed trunk within one synchronous person operation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Fixes body/profile/rig/ROM and rootXYZ/yaw/pitch/roll; each requested side receives the original prepared solve/strain methods. Optional FK belongs to this same synchronous person call and may not be retained by a plan.
+   * @evidence contracts/development/implementation.md#principled-implementation First actual side creates one genuine lazy trunk source; each side still prepares its original chain/neutral geometry in requested order, and every actual goal/rank/sweep keeps its original solve/refusal policy.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One private trunk token and at-most-two side contexts delegate to of/Search/Chain numerical owners without another solver or result representation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unused side is forced, no wrist/elbow/contact answer is reused, and no caller flag or token bypasses Chain.of's actual source membership/fixed-coordinate checks and cold fallback.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Paired arm solves share one lazy actual empty-joint trunk FK/profile placement and original static metadata instead of preparing it twice; each side chain and all actual target sweeps remain. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual crawl/load call sites fix this exact body/trunk frame while requesting left/right in original order. The genuine source owner validates those scalar dependencies, while changed goals/ranks remain actual and unsupported sources fall back normally.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous caller releases this reader, its token/optional FK loan and at-most-two contexts before returning the person evaluation. No plan, output goal or returned posture retains them, and no current target/result/time history or external handle is stored.
+   */
+  export function both(fixed: Pick<AutoMovieMotionHumanBend.ISolve, "body" | "posture">,
+    hang: Parameters<typeof AutoMovieMotionHumanBendSearch.prepare>[1],
+    resolution?: Parameters<typeof AutoMovieMotionHumanBendChain.prepare>[2]):
+      (side: AutoMovieMotionHumanBend.Side) => IPrepared {
+    let source: AutoMovieMotionHumanBendChain.IPrepared | undefined;
+    const sides: Partial<Record<AutoMovieMotionHumanBend.Side, IPrepared>> = {};
+    return (side: AutoMovieMotionHumanBend.Side): IPrepared => {
+      let current: IPrepared | undefined = sides[side];
+      if (current === undefined) {
+        source ??= AutoMovieMotionHumanBendChain.prepare(fixed.body, fixed.posture, resolution);
+        current = of({ ...fixed, side }, hang, source);
+        sides[side] = current;
+      }
+      return current;
     };
   }
 }

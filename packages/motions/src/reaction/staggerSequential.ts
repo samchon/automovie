@@ -3,7 +3,7 @@ import {
   type IAutoMovieSwivelSeed,
   hingedArmSwivel,
 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { walkStanceCourse } from "../actions/walkStanceCourse";
 import { walkStanceSolve } from "../actions/walkStanceSolve";
@@ -51,7 +51,7 @@ export namespace staggerSequential {
    * bounding the region there (`walkStanceSolve.optimise` runs the loop).
    * Knots a parent course settles keep the parent's swivels.
    *
-   * @param body The body.
+   * @param body The unchanged body, rig and rest geometry throughout this synchronous solve.
    * @param knots The knots, each with its frame.
    * @param parent The course whose first `from` knots this one keeps.
    * @param from How many first knots the parent settles.
@@ -61,9 +61,9 @@ export namespace staggerSequential {
    * @evidence contracts/development/implementation.md#principled-implementation Runs the original TrajOpt stance course with each leg's actual seeded hinged fit and the same branch-preserving two-sided fallback; every changed course keeps the original fit, derivative spacing and edge constraints.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One private stance problem owns invariant frames, placements and support data; fitted swivels or their first-order pieces are installed immediately before each synchronous reading.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No body sample, phase, support, target, tolerance or solver round is removed; probes still fit each requested leg and fall back to the other side on a branch change.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each changed course retains the original cold remembered fit per active leg; every piece keeps its original seven probes and possible opposite-side fit. Goal-only reads, one private probe vector and one fixed-geometry problem avoid unrelated posing and rebuilds.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the latest fitted/piece records reuse their same immutable course-vector identity; a changed course always executes its original live remembered queries, even when one leg's coordinates match a prior course. Each side's four foot-coordinate probes share only fixed hips-only source/FK preparation, while changed drop/trunk probes prepare their own source and every probe still passes its actual goals/near through remembered.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous solve owns one problem, one latest actual fit record, one latest piece record and one probe vector, each linear in active course size and released on return or failure. One side's prepared source/FK workspace ends with its slope map; returned knots retain only final swivels.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each changed course retains the original cold remembered fit per active leg; every piece keeps its original seven probes and possible opposite-side fit. Goal-only reads, one probe vector and one fixed-geometry problem avoid unrelated posing/rebuilds. Four exact source preparations per knot/side cover the base and usual drop/trunk probes, sharing source geometry with repeated foot probes without reducing actual fits; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only latest fitted/piece records reuse their same immutable course-vector identity; a changed course always executes every original live remembered query. Fixed body/side and Object.is comparison of all seven copied pelvis-quaternion/hip scalars establish source-preparation equivalence only. Every actual target, bend, foot rotation and near reaches remembered in original order, preserving mirror/grid/LRU/disabled policy; no fitted answer crosses courses.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous solve owns one problem, latest actual fit/piece records, one probe vector and at most four private source factories per knot/side, all linear in course size and released on return or failure. Source eviction rebuilds preparation only; returned knots retain final swivels without readers, target history or dynamic workspace loans.
    */
   export function solve(
     body: IHumanActionContext["body"],
@@ -134,14 +134,47 @@ export namespace staggerSequential {
       }),
     );
 
+    /** Exact fixed hips geometry, without a target, near seed or fitted answer. */
+    type IPreparedSource = {
+      pelvis: IAutoMovieQuaternion;
+      hip: IAutoMovieVector3;
+      read: ReturnType<typeof HumanLegChain.prepareSeeded>;
+    };
+
+    // Base, drop and the two trunk probes have four distinct source frames;
+    // foot-coordinate probes share them, while every goal still queries memory.
+    const sources: Record<"left" | "right", IPreparedSource[]>[] = knots.map(
+      (): Record<"left" | "right", IPreparedSource[]> => ({ left: [], right: [] }),
+    );
+    const sourceOf: (k: number, p: walkStanceCourse.IPlanted) => IPreparedSource["read"] = (
+      k: number,
+      p: walkStanceCourse.IPlanted,
+    ): IPreparedSource["read"] => {
+      const entries: IPreparedSource[] = sources[k]![p.side];
+      for (const entry of entries)
+        if (
+          Object.is(entry.pelvis.x, p.pelvis.x) && Object.is(entry.pelvis.y, p.pelvis.y) &&
+          Object.is(entry.pelvis.z, p.pelvis.z) && Object.is(entry.pelvis.w, p.pelvis.w) &&
+          Object.is(entry.hip.x, p.hip.x) && Object.is(entry.hip.y, p.hip.y) &&
+          Object.is(entry.hip.z, p.hip.z)
+        )
+          return entry.read;
+
+      const pelvis: IAutoMovieQuaternion = { ...p.pelvis };
+      const hip: IAutoMovieVector3 = { ...p.hip };
+      const read: IPreparedSource["read"] = HumanLegChain.prepareSeeded(body, p.side, pelvis, hip);
+      if (entries.length === 4) entries.shift();
+      entries.push({ pelvis, hip, read });
+      return read;
+    };
+
     // The posture's fit of a planted leg at a course, continuing a nearby fit
     // of the same leg when one is given (`HumanLegChain.seeded`).
-    const fitOf: (k: number, p: walkStanceCourse.IPlanted, x: Float64Array, near?: IAutoMovieSwivelNear, prepared?: ReturnType<typeof HumanLegChain.prepareSeeded>) => ISeeded = (
+    const fitOf: (k: number, p: walkStanceCourse.IPlanted, x: Float64Array, near?: IAutoMovieSwivelNear) => ISeeded = (
       k: number,
       p: walkStanceCourse.IPlanted,
       x: Float64Array,
       near?: IAutoMovieSwivelNear,
-      prepared?: ReturnType<typeof HumanLegChain.prepareSeeded>,
     ): ISeeded => {
       const root: IAutoMovieVector3 = knots[k]!.frame.root({
         pitch: x[variables[k]![p.side][1]!]!,
@@ -155,9 +188,9 @@ export namespace staggerSequential {
         p.heading,
         knees[k]![p.side],
       );
-      const fitted: ReturnType<typeof HumanLegChain.seeded> = prepared === undefined
-        ? HumanLegChain.seeded(body, p.side, p.pelvis, p.hip, p.ankle, bend, p.rotation, near)
-        : prepared(p.ankle, bend, p.rotation, near);
+      const fitted: ReturnType<typeof HumanLegChain.seeded> = sourceOf(k, p)(
+        p.ankle, bend, p.rotation, near,
+      );
       return { ...fitted.swivel, seed: fitted.seed };
     };
     /** A leg fit plus the engine's seed used by its nearby coordinate probes. */
@@ -233,7 +266,6 @@ export namespace staggerSequential {
                 ? undefined
                 : { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
             const indices: number[] = variables[k]![side];
-            let prepared: ReturnType<typeof HumanLegChain.prepareSeeded> | undefined;
             const slope: number[] = indices.map((i: number, v: number): number => {
               const h: number =
                 Math.sqrt(hingedArmSwivel.RESOLUTION / hingedArmSwivel.STEP) *
@@ -244,11 +276,7 @@ export namespace staggerSequential {
                   const p: walkStanceCourse.IPlanted | undefined =
                     shape.planted(moved, k, side)[0];
                   if (p === undefined) return undefined;
-                  // Foot pitch/turn/slide never change this knot's pelvis
-                  // or hip. Drop and trunk probes retain their own source.
-                  if (v >= 3 && prepared === undefined)
-                    prepared = HumanLegChain.prepareSeeded(body, side, p.pelvis, p.hip);
-                  return fitOf(k, p, moved, near, v >= 3 ? prepared : undefined);
+                  return fitOf(k, p, moved, near);
                 } finally {
                   moved[i] = x[i]!;
                 }

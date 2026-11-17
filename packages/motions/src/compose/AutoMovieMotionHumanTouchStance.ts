@@ -4,6 +4,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanLeanInto } from "./AutoMovieMotionHumanLeanInto";
@@ -133,12 +134,12 @@ export namespace AutoMovieMotionHumanTouchStance {
      * The primitives that rise and lean by `ready`, follow the stroke and come back from `relax`: none when the arm reaches as it stands.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the clock it is built on and the primitives returned, none when the arm reaches as it stands.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidence contracts/development/implementation.md#principled-implementation solve's implementation composes the original girdle/rise movement and balanced lean, then lowers to the original actual raised-foot goals so plants remain on their feet.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The no-rise branch returns the existing lean primitive; otherwise one current-body writer precedes the original optional rise-leg primitives.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original clock envelope, heel/girdle angles, lean progress, foot geometry, plant order and raw lowering remain; no contact point or solved pose is substituted.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Emits at most three original primitives; each active write retains original current motion/foot/lowering cost while lending current FK metadata to actual lean and pelvis observations. Speedup is unmeasured.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed solved angles and foot frames belong to the plan; an optional current-person FK source is borrowed only by that synchronous write, never stored as a cached pose or root result.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns props, original fixed foot/angle/lean metadata and at most three callbacks until release. Per-write FK loans release on return or throw and no returned posture retains them.
      */
     primitives: (
       clock: AutoMovieMotionClock.IClock,
@@ -156,16 +157,18 @@ export namespace AutoMovieMotionHumanTouchStance {
    * @evidence contracts/development/implementation.md#principled-implementation The wrist's distance beyond the kept share falls monotonically while the shoulder rises toward the wrist's height, so the least girdle angle, then the least heel angle, is its bisected root; each is taken only for a wrist above the shoulder that it brings nearer, and the lean is solved on the risen posture.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The reach at a girdle and a heel angle, one rule for the least of either (`least`), the lean, the primitives.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A region the rise does not bring nearer keeps the heels down; nothing is clamped, the lean refuses what remains.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Twelve halvings of three reach checks each per freedom, once per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanRise`, `AutoMovieMotionHumanLeanInto`, `AutoMovieMotionHumanReach.check` and `resolveHumanPosture.lower`; a stance that does not rise returns the lean's own primitive.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closes over the props, the heel angle and the lean.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Retains every original girdle/heel endpoint, bisection and three-progress reach probe. One fixed shoulder demand serves them, and each three-progress operation shares exact FK prerequisites without full bone output. Runtime lean/lowering borrow current-person metadata; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Rise, LeanInto and raw lowering retain their original owners; Reach.prepareCheck binds only static body/limb names. Every original wrist callback/check still executes in order with its current posture, while dynamic workspaces stay local to that reach/write.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned stance owns props, fixed solved angles/feet and lean metadata until release. Every three-progress FK getter and runtime loan releases on synchronous return or throw; no sampled root, pose, wrist or query history enters plan state.
    */
   export function solve(props: IProps): IStance {
     const { body, standing, feet } = props;
     const shoulder: "leftShoulder" | "rightShoulder" = `${props.side}Shoulder`;
+    const checkReach: ReturnType<typeof AutoMovieMotionHumanReach.prepareCheck> =
+      AutoMovieMotionHumanReach.prepareCheck(body, `${props.side}Arm`);
 
     // A posture with the working girdle lifted and the heels raised.
-    const moved = (
+    const moved: (posture: IHumanPosture, girdle: number, degrees: number) => IHumanPosture = (
       posture: IHumanPosture,
       girdle: number,
       degrees: number,
@@ -194,16 +197,16 @@ export namespace AutoMovieMotionHumanTouchStance {
 
     // The worst of the stroke's start, middle and end on a posture: how far
     // the wrist lies beyond the kept share, and how far above the shoulder.
-    const reach = (posture: IHumanPosture): IReach => {
+    const reach: (posture: IHumanPosture) => IReach = (posture: IHumanPosture): IReach => {
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
       let worst: IReach = { beyond: -Infinity, above: 0 };
       for (const progress of [0, 0.5, 1]) {
         const wrist: IAutoMovieVector3 = props.wrist(posture, progress);
         const check: AutoMovieMotionHumanReach.ICheck =
-          AutoMovieMotionHumanReach.check(
-            body,
+          checkReach(
             posture,
-            `${props.side}Arm`,
             wrist,
+            resolution,
           );
         const beyond: number = check.distance - props.share * check.length;
         if (beyond > worst.beyond)
@@ -255,14 +258,16 @@ export namespace AutoMovieMotionHumanTouchStance {
       ): IAutoMovieMotionHumanPrimitive[] => {
         if (girdle === 0 && raise === 0)
           return leaning ? [lean.primitive(clock)] : [];
-        const share = (seconds: number): number =>
+        const share: (seconds: number) => number = (seconds: number): number =>
           clock.envelope(["start", "ready"], ["relax", "end"], seconds);
         return [
           {
             channels: raise > 0 || leaning ? ["root", "trunk"] : ["trunk"],
             from: 0,
             to: clock.duration,
-            write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+            write: (posture: IHumanPosture, seconds: number,
+              _before?: IAutoMovieMotionHumanPrimitive.Reader,
+              resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture => {
               const k: number = share(seconds);
               const up: IHumanPosture = moved(posture, girdle * k, raise * k);
 
@@ -275,6 +280,7 @@ export namespace AutoMovieMotionHumanTouchStance {
                       lean.pitch(
                         moved(posture, girdle, raise),
                         clock.progress("strokeStart", "strokeEnd", seconds),
+                        resolution,
                       ),
                   )
                 : up;
@@ -282,13 +288,13 @@ export namespace AutoMovieMotionHumanTouchStance {
                 return leaning
                   ? {
                       ...leaned,
-                      root: resolveHumanPosture.lower(body, leaned).root,
+                      root: resolveHumanPosture.lower(body, leaned, undefined, resolution).root,
                     }
                   : leaned;
 
               // The planted legs reach their raised feet from the root the
               // rise and the lean leave.
-              const goal = (side: "left" | "right"): IHumanPosture.IGoal =>
+              const goal: (side: "left" | "right") => IHumanPosture.IGoal = (side: "left" | "right"): IHumanPosture.IGoal =>
                 AutoMovieMotionHumanLeg.goal(
                   body,
                   leaned,
@@ -310,7 +316,7 @@ export namespace AutoMovieMotionHumanTouchStance {
                     leftLeg: goal("left"),
                     rightLeg: goal("right"),
                   },
-                }).root,
+                }, undefined, resolution).root,
               };
             },
           },
@@ -352,7 +358,7 @@ function least(limit: number, at: (degrees: number) => IReach): number {
   if (!(none.beyond > 0 && none.above > 0)) return 0;
   const top: IReach = at(limit);
   if (!(top.beyond < none.beyond)) return 0;
-  const enough = (reach: IReach): boolean =>
+  const enough: (reach: IReach) => boolean = (reach: IReach): boolean =>
     top.beyond <= 0 ? reach.beyond <= 0 : reach.above <= 0;
   if (!enough(top)) return limit;
   let low: number = 0;

@@ -160,6 +160,14 @@ export namespace pickUp {
    * @returns The plan.
    * @throws {HumanRefusal} When no lowering brings the grip within reach, no grasp serves the use, the hand cannot rise as far as the lift asks, or a second hand asks to lift independently of the hand already carrying the prop.
    * @throws {Error} When the lift is negative, or the prop has no such affordance or no colliders.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The law and parameters define original grasp/use/lift/steadied-hand goals, contact events, variation and refusals; this plan preserves complete position/attitude requests through the actual lift.
+   * @evidence contracts/development/implementation.md#principled-implementation Existing stance/grasp/prehension owners choose and transport the grip, close its actual contacts, carry the original complete arm/digit/reference goals and apply the original lift-height judgement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Grasp/stance admission precedes finger/transport preparation, original phase body construction and complete arm goals; optional same-person observations follow those existing owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original grasp/lift targets, contact timing, candidate fits, ROM, reference, planting and acceptance bounds remain; no shown endpoint replaces an asked goal and no attitude-only post-fit twist discards position.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed target/hand/digit/transport data prepare once. Active body lowering, shoulder reading and initial carry borrow exact current-person FK/ROM where supplied; every original phase goal and actual solve remains. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit current-call loans flow through original adjusted stance/lift/body/carry paths; absent loans retain native policy and varying current goals are independently fitted without pose/time result reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns original chosen grasp/stance/transport/finger geometry; current FK/ROM arguments are used synchronously and never stored in the plan, returned goals or query history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -235,8 +243,10 @@ export namespace pickUp {
     const rising: boolean = raise.trunk !== null || raise.share < 1;
     // The stance's body a share of the way down; the entry's when it was
     // not lowered.
-    const way = (share: number): IHumanPosture =>
-      lowered === null ? held : lowered.at(share);
+    const way: pickUpPosture.IStance["at"] = (share: number,
+      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture =>
+      lowered === null ? held : lowered.at(share, resolution, projection);
 
     // The digits close on the prop where the arm actually puts the hand.
     const closed: IHumanPosture["joints"] = HumanGrip.close(
@@ -293,8 +303,9 @@ export namespace pickUp {
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
     const hand: IHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
-    const shoulder = (posture: IHumanPosture): IAutoMovieVector3 =>
-      HumanTrunk.resolve(body, posture, undefined, undefined, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(`${side}UpperArm`)!.worldPosition;
+    const shoulder: (posture: IHumanPosture, resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => IAutoMovieVector3 =
+      (posture: IHumanPosture, resolution?: Parameters<IHumanActionPlan["posture"]>[2]): IAutoMovieVector3 =>
+        HumanTrunk.resolve(body, posture, undefined, resolution, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(`${side}UpperArm`)!.worldPosition;
     // Where the straightening after the lift starts from.
     const bottom: IAutoMovieVector3 | null =
       up === 0
@@ -343,7 +354,9 @@ export namespace pickUp {
         },
       ],
       contact: reach,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
 
         // The body at the second: the entry, lowered over the reach; over the
@@ -351,7 +364,7 @@ export namespace pickUp {
         // straightened after it, back to the entry.
         let base: IHumanPosture = held;
         if (t < reach) {
-          if (lowered !== null) base = lowered.at(minimumJerk.share(t / reach));
+          if (lowered !== null) base = lowered.at(minimumJerk.share(t / reach), resolution, projection);
         } else if (t <= end) {
           const k: number =
             rising && rise > 0
@@ -364,22 +377,24 @@ export namespace pickUp {
               way,
               1 - (1 - raise.share) * k,
               k,
+              resolution,
+              projection,
             );
         } else {
           const m: number = 1 - minimumJerk.share((t - end) / up);
           base = rising
-            ? pickUpLift.posed(body, raise, way, raise.share * m, m)
-            : lowered!.at(m);
+            ? pickUpLift.posed(body, raise, way, raise.share * m, m, resolution, projection)
+            : lowered!.at(m, resolution, projection);
         }
         // As the body straightens the hand rides with the shoulder.
         const raised: IAutoMovieVector3 =
           t > end
-            ? Vector3.subtract(shoulder(base), bottom!)
+            ? Vector3.subtract(shoulder(base, resolution), bottom!)
             : { x: 0, y: 0, z: 0 };
 
         // The posture whose arm goal is the transport's at a second of the
         // action, with the fingers shaped as they are at `shaped`.
-        const goaled = (at: number, shaped: number): IHumanPosture => ({
+        const goaled: (at: number, shaped: number) => IHumanPosture = (at: number, shaped: number): IHumanPosture => ({
           ...base,
           joints: {
             ...base.joints,
@@ -434,6 +449,9 @@ export namespace pickUp {
               goaled(leave, t),
               { [side]: rest },
               (t / leave) ** 2,
+              undefined,
+              resolution,
+              projection,
             );
       },
     };

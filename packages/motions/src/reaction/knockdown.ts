@@ -10,6 +10,7 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
+import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
@@ -53,7 +54,7 @@ import { ReactionSource } from "./ReactionSource";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the buckle, its timing, the floor rule and which proportions are provisional.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, an empty cancel table, parameters and a pure plan of postures in world metres and seconds with seat and lie contacts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the timing constants, the plan and the floor rest the knockdown count's tests read.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the law's name/cancel table, parameters, timing, plan and exact floor rest; support/floor intervals also bind that same native measurement through prepareRest for their unchanged body.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, contact-window, target and collider types; the floor height comes from each body's own shapes.
  */
 export namespace knockdown {
@@ -118,6 +119,24 @@ export namespace knockdown {
   }
 
   /**
+   * Prepare this body's exact floor rest for a support or floor interval.
+   *
+   * @param body The canonical body with unchanged rig, rest geometry and profile throughout the owning plan.
+   * @returns The native floor reader accepting each current posture and optional synchronous FK/ROM loans; root Y is ignored and height is in metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed-body premise, changing posture/metadata inputs, root-Y-zero convention, metre output and plan-owned reader lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to KnockdownFloor.prepareRest, preserving complete current trunk admission and the exact lowest-collider floor law used by rest.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One direct function wrapper exposes the existing floor owner's prepared reader; collider selection, placement and numeric bounds keep one owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changes no posture, collider, contact, bound or tolerance, and provides no caller-authored posed map, cached floor or success flag.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant facade work; the native owner binds fixed demand/profile entries once while every query retains full current admission/fits, required FK, placement and exact shape bounds. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit unchanged body/rig/profile establish only static selection equivalence. Each actual posture and current-call FK/ROM source reaches the native owner normally, with original dependency/provenance checks and no fitted result reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the native reader and its bounded body/profile metadata until its plan or interval releases it. Invocation FK/ROM loans, posed maps and scalar heights are never retained in that reader or returned data.
+   */
+  export function prepareRest(body: IHumanBody): ReturnType<typeof KnockdownFloor.prepareRest> {
+    return KnockdownFloor.prepareRest(body);
+  }
+
+  /**
    * Plan a knockdown.
    *
    * @param context The action's context.
@@ -128,9 +147,9 @@ export namespace knockdown {
    * @evidence contracts/development/implementation.md#principled-implementation Overlapping minimum-jerk sit and roll-back profiles over one pose function, the root height solved each posture by the floor rest and the root's travel by the pose's own ankles and hips, so the feet and then the seat stay in place on any body.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fits the body and reads the blow's heading once, then evaluates each posture in closed form.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative lying time throws; the knee and the lying arm are solved on the body's shapes instead of stated, and the recline and the hip's fold are named provisional values.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One phase/fold evaluation, one demanded trunk resolution and one collider pass per posture; the original three 16-step fit bisections remain. Fixed named phase intervals and entry-frame transforms prepare once, and the two planning-only measures share exact FK preparation without a runtime speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The writer shares one actual fold across floor/trunk/joints and lends incoming composition FK/ROM metadata to its actual floor measure. A planning IIFE shares one FK/projector across standing then seated reads, with every joint still projected. Fixed entry yaw/ankle establish frame equivalence; clock guards preserve live callbacks and settle still resets heading.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds fitted angles, two numeric measures, fixed frame/phase coefficients and one heading cleared on settle. Fit/IIFE loans end before plan return. Runtime loans belong only to the current composition call and never enter its raw posture, measures or callbacks; no sampled-pose history is retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Keeps the original independent root, trunk and joint primitives, their phase/fold reads and three 16-step fit bisections. Fixed named phase interval preparation and demanded floor geometry avoid repeated prerequisites without removing actual measures or claiming measured speedup.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The root writer lends only current composition FK/ROM metadata to its actual floor measure. A planning IIFE shares exact FK/projector prerequisites across standing then seated reads, with every joint still projected. Entry yaw is read at the original offset expression sites and every original phase call remains observable through the clock's guarded live callback.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds fitted angles, two numeric measures, fixed phase preparation and one heading cleared on settle. Fit/IIFE loans end before plan return. Runtime loans belong only to the current root-writer call and never enter its raw posture, measures or callbacks; no sampled-pose history is retained.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -161,18 +180,25 @@ export namespace knockdown {
     // and hips are along its heading standing and seated: the feet stay where
     // they stood until the seat lands, and the seat stays where it landed.
     const fitted: KnockdownFloor.IFit = KnockdownFloor.fit(body, back(SEATED));
+    const at: (
+      seconds: number,
+      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IHumanActionPlan["posture"]>[3],
+    ) => KnockdownFloor.IMeasure = (
+      seconds: number,
+      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IHumanActionPlan["posture"]>[3],
+    ): KnockdownFloor.IMeasure => KnockdownFloor.measure(
+      body,
+      KnockdownFloor.fold(fitted, sit(seconds), back(seconds)),
+      resolution,
+      projection,
+    );
     const [standing, seated]: readonly [KnockdownFloor.IMeasure, KnockdownFloor.IMeasure] =
       ((): readonly [KnockdownFloor.IMeasure, KnockdownFloor.IMeasure] => {
         const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
         const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
-        const at: (seconds: number) => KnockdownFloor.IMeasure = (seconds: number): KnockdownFloor.IMeasure =>
-          KnockdownFloor.measure(
-            body,
-            KnockdownFloor.fold(fitted, sit(seconds), back(seconds)),
-            resolution,
-            projection,
-          );
-        return [at(0), at(SEATED)];
+        return [at(0, resolution, projection), at(SEATED, resolution, projection)];
       })();
 
     // The heading that faces the blow, so the back falls away from it.
@@ -199,10 +225,6 @@ export namespace knockdown {
         { origin: { x: 0, y: 0, z: 0 }, yaw },
         { x: 0, y: 0, z: forward },
       );
-    const start: IAutoMovieVector3 = flat(entry.yaw, standing.ankle);
-    const frame: HumanFrame.IPrepared = HumanFrame.prepare({
-      origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw,
-    });
     return composeAutoMovieMotionHumanAction({
       base: {
         ...AutoMovieMotionHumanBase.still(
@@ -243,9 +265,8 @@ export namespace knockdown {
         // the heels slide out as the back rolls down. The height rests the
         // pose of each second on the floor.
         {
-          channels: [
-            "root", "trunk", "head", "leftLeg", "rightLeg", "leftArm", "rightArm",
-          ],
+          channels: ["root"],
+          reads: ["root"],
           from: 0,
           to: duration,
           write: (
@@ -256,50 +277,45 @@ export namespace knockdown {
             projection?: Parameters<IHumanActionPlan["posture"]>[3],
           ): IHumanPosture => {
             const turn: number = angle(heading() - entry.yaw);
-            const share: number = sit(seconds);
-            const folded: KnockdownFloor.IFold = KnockdownFloor.fold(
-              fitted,
-              share,
-              back(seconds),
-            );
-            const now: KnockdownFloor.IMeasure = KnockdownFloor.measure(
-              body,
-              folded,
-              resolution,
-              projection,
-            );
+            const now: KnockdownFloor.IMeasure = at(seconds, resolution, projection);
             const landed: boolean = seconds >= SEATED;
             const world: IAutoMovieVector3 = Vector3.add(
               Vector3.subtract(
-                start,
+                flat(entry.yaw, standing.ankle),
                 flat(
-                  entry.yaw + turn * share,
+                  entry.yaw + turn * sit(seconds),
                   (landed ? seated : now).ankle,
                 ),
               ),
               flat(entry.yaw + turn, landed ? seated.hips - now.hips : 0),
             );
-            const placed: IHumanPosture = AutoMovieMotionHumanRoot.place(posture, {
+            return AutoMovieMotionHumanRoot.place(posture, {
               point: {
-                ...frame.local(world),
+                ...HumanFrame.local(
+                  { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
+                  world,
+                ),
                 y: now.floor - entry.root.y,
               },
-              yaw: turn * share,
+              yaw: turn * sit(seconds),
             });
-
-            // Keep root placement, trunk sums and checked joint addition in
-            // their original order, sharing only this evaluation's fold.
-            return AutoMovieMotionHumanJoints.applied(
-              {
-                ...placed,
-                pitch: placed.pitch + folded.pitch,
-                roll: placed.roll + 0,
-              },
-              folded.joints,
-              ["head", "leftLeg", "rightLeg", "leftArm", "rightArm"],
-            );
           },
         },
+        AutoMovieMotionHumanLean.tilt({
+          from: 0,
+          to: duration,
+          angles: (seconds: number): AutoMovieMotionHumanLean.IAngles => ({
+            pitch: KnockdownFloor.fold(fitted, sit(seconds), back(seconds)).pitch,
+            roll: 0,
+          }),
+        }),
+        AutoMovieMotionHumanJoints.add({
+          channels: ["head", "leftLeg", "rightLeg", "leftArm", "rightArm"],
+          from: 0,
+          to: duration,
+          delta: (seconds: number): AutoMovieMotionHumanJoints.Angles =>
+            KnockdownFloor.fold(fitted, sit(seconds), back(seconds)).joints,
+        }),
       ],
     });
   }

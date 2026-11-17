@@ -202,9 +202,9 @@ export namespace SwimStroke {
    * @evidence contracts/development/implementation.md#principled-implementation The second gives the cycle and the place in it; the two keys around that place are blended in joint space on minimum-jerk progress and pinned by the hip joints on the point the plane carries along.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The cycle's times, the travelling point, the posture, the events.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The speed is constant, stated on the namespace; a stroke of one key is held.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A stationary one-key stroke is pinned once; other reads retain canonical admission with only the two pin hips' ancestry requested from FK. Prepared key-pair readers retain the original interpolation and pin mean.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed key pairs share their ordered joint unions; a zero-speed single-key stroke shares its exactly constant pinned posture without sampling a replacement trajectory.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its selected stroke row, prepared key-pair readers and optional constant pinned posture until released, with no queried-time cache.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Every stroke read, including a stationary single key, performs actual canonical admission and pin FK with only the pin hips' ancestry requested. Fixed key-pair union preparation retains the original interpolation and pin mean.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed key pairs and ordered joint unions are shared; every actual query constructs and pins its current key instead of replaying a completed posture.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its selected stroke row and fixed key-pair readers until released, without storing a completed pinned posture or queried-time cache.
    */
   export function plan(props: {
     body: IHumanBody;
@@ -243,17 +243,11 @@ export namespace SwimStroke {
       ),
       { name: "relax", share: 1 },
     ];
-    const held: IHumanPosture | undefined = stroke.keys.length === 1 && stroke.speed === 0
-      ? ExerciseKey.pinned(props.body, blends[0]!(0), props.entry.yaw, HIPS, {
-          x: props.entry.root.x, y: props.water - depth, z: props.entry.root.z,
-        }, HIP_BONES)
-      : undefined;
     return {
       duration,
       events,
       contacts: [],
       posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
-        if (held !== undefined) return structuredClone(held);
         const t: number = Math.min(duration, Math.max(0, seconds));
         let within: number = t - Math.floor(t / period) * period;
         if (t >= duration) within = 0;

@@ -10,6 +10,8 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import type { crawl } from "./crawl";
 import { crawlChain } from "./crawlChain";
 import { crawlFrame } from "./crawlFrame";
@@ -89,9 +91,9 @@ export namespace crawlInchworm {
    * @evidence contracts/development/implementation.md#principled-implementation Each placement of the four limbs is a stance of the support planner, whose keys are the balanced postures on those contacts nearest the chain's shape there, each solve started from that shape, and each step one limb released, swung and set down (Escande, Kheddar and Miossec 2013).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A placement schedule, its stances, one support plan and the walk's events named on it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One limb moves at a time, so three always bear; the feet come in by exactly what the hands went out, so each cycle ends in the fold it began in.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The chain is built once for the reaches; the support plan solves each key once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the postures to `support`, the reaches to `crawlChain` and the entry to `floorEntry`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan is the support plan's, which holds its keys only.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The chain, fixed floor conversions, two sole prerequisites and palm geometry prepare once across the N actual stance preferences. Each preference retains its actual chain search and complete pose solve, and the support plan retains every original key fit.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged body/chain/floor frame share native geometry and one synchronous exact FK/genuine ROM scope across actual preference construction. Every current foot/wrist placement still builds independent raw preferences, actual full fits and contact points; actual support, chain and entry behavior retain their owners.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A dedicated stance-construction scope releases all FK/ROM/preference callbacks before support planning; only original numeric preferences, contact targets and step records leave it. Returned support keys/intervals retain no construction loan, callback or query history and forward original settlement.
    */
   export function plan(
     context: IHumanActionContext<crawl.IParams>,
@@ -124,6 +126,10 @@ export namespace crawlInchworm {
     );
     const laid: ReturnType<typeof crawlFrame.prepareLaid> =
       crawlFrame.prepareLaid(body, HumanFrame.forward(standing.yaw));
+    const posed: ReturnType<typeof crawlInchwormPose.prepare> =
+      crawlInchwormPose.prepare(body, chain, frame, laid);
+    const floor: ReturnType<typeof HumanFrame.prepare> =
+      HumanFrame.prepare(frame);
     const travel: number = Math.max(0, chain.plank - chain.folding);
     const hands: number = Math.max(
       1,
@@ -135,103 +141,124 @@ export namespace crawlInchworm {
     );
     const step: number = STEP * Math.sqrt(m.hipHeight / 0.93) * modifiers.tempo;
 
-    // Each limb's place along the heading, in the floor frame: the wrists at
-    // the fold's reach before the feet's balls, the balls where they stand.
-    const mu0: number = (chain.balls.left.z + chain.balls.right.z) / 2;
-    const now: Record<Limb, number> = {
-      leftHand: mu0 + chain.folding,
-      rightHand: mu0 + chain.folding,
-      leftFoot: chain.balls.left.z,
-      rightFoot: chain.balls.right.z,
-    };
-    // A bearing hand is placed by its wrist across the floor (`support`), so
-    // its place is the wrist over its flat palm, under the shoulder.
-    const point = (limb: Limb): AutoMovieMotionTarget => {
-      const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
-      return {
-        kind: "point",
-        frame: "world",
-        at: HumanFrame.point(frame, {
-          x: limb.endsWith("Hand")
-            ? chain.palms[side] + chain.wrists[side].x
-            : chain.balls[side].x,
-          y: 0,
-          z: now[limb],
-        }),
+    const {
+      stances,
+      steps,
+    }: {
+      stances: HumanSupport.IStance[];
+      steps: { limb: Limb; n: number; at: number }[];
+    } = ((): {
+      stances: HumanSupport.IStance[];
+      steps: { limb: Limb; n: number; at: number }[];
+    } => {
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution();
+      const projection: ReturnType<typeof prepareHumanPostureProjection> =
+        prepareHumanPostureProjection(body);
+      // Each limb's place along the heading, in the floor frame: the wrists at
+      // the fold's reach before the feet's balls, the balls where they stand.
+      const mu0: number = (chain.balls.left.z + chain.balls.right.z) / 2;
+      const now: Record<Limb, number> = {
+        leftHand: mu0 + chain.folding,
+        rightHand: mu0 + chain.folding,
+        leftFoot: chain.balls.left.z,
+        rightFoot: chain.balls.right.z,
       };
-    };
-    const targets: Record<Limb, AutoMovieMotionTarget> = {
-      leftHand: point("leftHand"),
-      rightHand: point("rightHand"),
-      leftFoot: point("leftFoot"),
-      rightFoot: point("rightFoot"),
-    };
-    const contacts = (only?: readonly Limb[]): HumanSupport.IContact[] =>
-      (only ?? LIMBS).map(
-        (limb: Limb): HumanSupport.IContact => ({
-          part: limb,
-          target: targets[limb],
-          kind: "bear",
-        }),
-      );
+      // A bearing hand is placed by its wrist across the floor (`support`), so
+      // its place is the wrist over its flat palm, under the shoulder.
+      const point = (limb: Limb): AutoMovieMotionTarget => {
+        const side: "left" | "right" = limb.startsWith("left")
+          ? "left"
+          : "right";
+        return {
+          kind: "point",
+          frame: "world",
+          at: floor.point({
+            x: limb.endsWith("Hand")
+              ? chain.palms[side] + chain.wrists[side].x
+              : chain.balls[side].x,
+            y: 0,
+            z: now[limb],
+          }),
+        };
+      };
+      const targets: Record<Limb, AutoMovieMotionTarget> = {
+        leftHand: point("leftHand"),
+        rightHand: point("rightHand"),
+        leftFoot: point("leftFoot"),
+        rightFoot: point("rightFoot"),
+      };
+      const contacts = (only?: readonly Limb[]): HumanSupport.IContact[] =>
+        (only ?? LIMBS).map(
+          (limb: Limb): HumanSupport.IContact => ({
+            part: limb,
+            target: targets[limb],
+            kind: "bear",
+          }),
+        );
 
-    // Each walking stance is solved from, and kept nearest, the chain's shape
-    // at its placement (`crawlInchwormPose`).
-    const prefer = (): lieDown.IPose =>
-      crawlInchwormPose.of(
-        body,
-        chain,
-        frame,
-        { left: now.leftFoot, right: now.rightFoot },
-        { left: now.leftHand, right: now.rightHand },
-        laid,
-      );
+      // Each walking stance is solved from, and kept nearest, the chain's shape
+      // at its placement (`crawlInchwormPose`).
+      const prefer = (): lieDown.IPose =>
+        posed(
+          { left: now.leftFoot, right: now.rightFoot },
+          { left: now.leftHand, right: now.rightHand },
+          resolution,
+          projection,
+        );
 
-    // The stances: the fold, one per step, and standing on the feet.
-    const stances: HumanSupport.IStance[] = [
-      { contacts: contacts(), seconds: DOWN, event: "down", prefer: prefer() },
-    ];
-    const steps: { limb: Limb; n: number; at: number }[] = [];
-    const counts: Record<Limb, number> = {
-      leftHand: 0,
-      rightHand: 0,
-      leftFoot: 0,
-      rightFoot: 0,
-    };
-    const go = (limb: Limb, length: number, event?: string): void => {
-      now[limb] += length;
-      targets[limb] = point(limb);
-      counts[limb] += 1;
-      steps.push({ limb, n: counts[limb], at: stances.length });
+      // The stances: the fold, one per step, and standing on the feet.
+      const stances: HumanSupport.IStance[] = [
+        {
+          contacts: contacts(),
+          seconds: DOWN,
+          event: "down",
+          prefer: prefer(),
+        },
+      ];
+      const steps: { limb: Limb; n: number; at: number }[] = [];
+      const counts: Record<Limb, number> = {
+        leftHand: 0,
+        rightHand: 0,
+        leftFoot: 0,
+        rightFoot: 0,
+      };
+      const go = (limb: Limb, length: number, event?: string): void => {
+        now[limb] += length;
+        targets[limb] = point(limb);
+        counts[limb] += 1;
+        steps.push({ limb, n: counts[limb], at: stances.length });
+        stances.push({
+          contacts: contacts(),
+          seconds: step,
+          prefer: prefer(),
+          ...(event === undefined ? {} : { event }),
+        });
+      };
+      for (let c: number = 1; c <= cycles; c++) {
+        for (let i: number = 0; i < hands; i++)
+          for (const side of ["left", "right"] as const)
+            go(
+              `${side}Hand`,
+              travel / hands,
+              i === hands - 1 && side === "right" ? `plank${c}` : undefined,
+            );
+        for (let i: number = 0; i < feet; i++)
+          for (const side of ["left", "right"] as const)
+            go(
+              `${side}Foot`,
+              travel / feet,
+              i === feet - 1 && side === "right" ? `folded${c}` : undefined,
+            );
+      }
       stances.push({
-        contacts: contacts(),
-        seconds: step,
-        prefer: prefer(),
-        ...(event === undefined ? {} : { event }),
+        contacts: contacts(["leftFoot", "rightFoot"]),
+        seconds: RISE,
+        event: "standing",
+        prefer: getUp.quiet(body),
       });
-    };
-    for (let c: number = 1; c <= cycles; c++) {
-      for (let i: number = 0; i < hands; i++)
-        for (const side of ["left", "right"] as const)
-          go(
-            `${side}Hand`,
-            travel / hands,
-            i === hands - 1 && side === "right" ? `plank${c}` : undefined,
-          );
-      for (let i: number = 0; i < feet; i++)
-        for (const side of ["left", "right"] as const)
-          go(
-            `${side}Foot`,
-            travel / feet,
-            i === feet - 1 && side === "right" ? `folded${c}` : undefined,
-          );
-    }
-    stances.push({
-      contacts: contacts(["leftFoot", "rightFoot"]),
-      seconds: RISE,
-      event: "standing",
-      prefer: getUp.quiet(body),
-    });
+      return { stances, steps };
+    })();
 
     // The walk's events on the support plan's keys: a limb lifts as the
     // stance before its step is left and touches down as its step bears.

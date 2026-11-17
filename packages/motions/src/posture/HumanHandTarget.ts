@@ -15,13 +15,13 @@ import type { IHumanPosture } from "./IHumanPosture";
  * Build the original surface-on-place hand target with one orientation and
  * one actual bend decision; the prepared companion shares fixed geometry.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines surface alignment, current-posture bend solving and fixed geometry preparation. prepareFrame returns orientation/lazy wrist placement without a bend; prepare adds its original bend. prepareGoal fixes surface/options but reads changing normal/forward/point, returning the original complete arm goal.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines surface alignment, current-posture bend solving and fixed geometry preparation. prepareFrame returns orientation/lazy wrist placement without a bend; prepare adds its original bend. prepareMoving serves changing-frame, full-target and wrist-only consumers from one fixed surface; prepareGoal returns the original complete arm goal.
  * @evidence contracts/development/implementation.md#principled-implementation Aligns the surface normal opposite the normalized place normal, chooses the original explicit/heading/up forward, then keeps the original default strain search or stated bend preset.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure oriented and target serve cold, fixed-frame and dynamic-goal consumers. placeHumanHandSurface owns wrist arithmetic and ArmTarget.fromWrist owns final contact/goal assembly; the goal producer shares one actual lazy wrist with its default bend and final goal.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves ALONG, surface/shape/curl defaults, offset calls and actual fallback semantics; every current default bend still runs its numerical search.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cold calls retain one alignment and optional bounded Bend search; explicit-forward reads omit unused heading geometry. Fixed explicit-forward calls align/rotate offsets once; changing frames evaluate their actual world basis against one lazily prepared fixed rest basis. Catch ranks and wipe reach reads avoid a discarded bend; Placed goals share one actual wrist between default bend and goal. Every actual bend search remains; speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Preparation privately snapshots fixed options, surface geometry and normal; unchanged explicit forward proves fixed alignment while absent forward still reads current yaw. Current points, trunk posture, bends and candidate answers are never cached, and changed fixed body/geometry requires another producer.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cold calls retain nothing; a plan-owned prepared reader keeps one body reference and constant-size fixed option/offset/rotation/placement data until release. Returned prepared rotations are fresh and world points stay borrowed as before, with no query, time or result history or external handle.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure oriented and target serve cold, fixed-frame and dynamic-goal consumers. Fixed full-target readers lazily use ArmTarget.prepareTarget's genuine surface metadata; placeHumanHandSurface owns wrist arithmetic and fromWrist owns final goal assembly.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves ALONG, surface/shape/curl defaults, actual body-owned offsets and fallback semantics; every current default bend runs its original numerical search. Issuance carries only fixed local geometry, never an achieved pose or solver answer.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Fixed readers share actual rest/surface geometry while each world alignment and full-target Bend remains actual; wrist-only consumers omit discarded bends. Fixed full targets bind one genuine local-offset reader for native arm goal assembly rather than two hand lookups per frame, paying fresh placement/row wrappers. Placed goals share one wrist between Bend and goal. Speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body/options/surface geometry establish preparation equivalence; full targets receive only ArmTarget's existing private fixed-domain issuance, whose native goal consumer checks body/side/surface/shape. Cold targets stay live, every current point/heading/bend remains actual and changed fixed geometry requires another producer.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cold calls retain nothing; the plan owns fixed body/options/offset/alignment and lazy emitter metadata until release. Issued raw rows weakly retain only ArmTarget's fixed surface metadata while those rows live; current rotations are fresh and points remain borrowed, without an operation FK reader, query/time/pose history or external handle.
  */
 export function HumanHandTarget(
   body: IHumanBody,
@@ -69,10 +69,11 @@ export namespace HumanHandTarget {
   ): (posture: IPosture, point: IAutoMovieVector3) => AutoMovieMotionHumanArm.ITarget {
     const fixed: AutoMovieMotionHumanTarget.IHand = structuredClone(options);
     const frame: ReturnType<typeof prepareFrame> = prepareFrame(body, side, placeNormal, fixed);
+    const emit: ITargetEmitter = targetEmitter(body, side, fixed.surface ?? "palm", fixed.shape ?? "relaxed");
     return (posture: IPosture, point: IAutoMovieVector3): AutoMovieMotionHumanArm.ITarget => {
       const current: ReturnType<ReturnType<typeof prepareFrame>> = frame(posture);
       return target(body, posture, side, point, fixed, current.surface, current.shape, current.rotation,
-        (): IAutoMovieVector3 => current.place(point).point);
+        (): IAutoMovieVector3 => current.place(point).point, emit);
     };
   }
 
@@ -122,6 +123,59 @@ export namespace HumanHandTarget {
             ? placeHumanHandSurface(offset().point, point, { ...aligned })
             : (placement ??= placeHumanHandSurface.prepare(offset().point, aligned))(point));
         } };
+    };
+  }
+
+  /**
+   * Prepare one fixed surface for changing world places and headings.
+   * The target reader retains the original actual preset/default Bend and
+   * lazy wrist admission; the wrist reader computes only actual alignment
+   * and rigid placement for a reach observation that never consumes Bend.
+   * Both share one lazily copied body-local surface and rest alignment;
+   * the frame reader exposes their actual rotation and lazy placement for
+   * catch ranks that correct a glove pocket before placing the wrist.
+   * Every query evaluates its current normal, explicit/default forward,
+   * world point and posture, without retaining a target or solved result.
+   * Returned wrist points/rotations are fresh, while target points remain
+   * borrowed as before; the owner releases fixed geometry with its plan.
+   */
+  export function prepareMoving(body: IHumanBody, side: HumanHand.Side,
+    options: AutoMovieMotionHumanTarget.IHand = {}): {
+    frame: (posture: IPosture, normal: IAutoMovieVector3, forward?: IAutoMovieVector3) => {
+      rotation: IAutoMovieQuaternion; place: (point: IAutoMovieVector3) => HumanHand.IWrist;
+    };
+    target: (posture: IPosture, place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+      forward?: IAutoMovieVector3) => AutoMovieMotionHumanArm.ITarget;
+    wrist: (posture: IPosture, place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+      forward?: IAutoMovieVector3) => HumanHand.IWrist;
+  } {
+    const fixed: AutoMovieMotionHumanTarget.IHand = structuredClone(options);
+    const surface: HumanHand.Surface = fixed.surface ?? "palm";
+    const shape: HumanHand.Shape = fixed.shape ?? "relaxed";
+    let local: HumanHand.IFrame | undefined;
+    const offset: () => HumanHand.IFrame = (): HumanHand.IFrame =>
+      (local ??= structuredClone(HumanHand.offset(body, side, surface, shape)));
+    const align: ReturnType<typeof HumanHand.prepareAlignment> = fixedAlignment(offset);
+    const emit: ITargetEmitter = targetEmitter(body, side, surface, shape);
+    const frame: ReturnType<typeof prepareMoving>["frame"] = (posture: IPosture,
+      normal: IAutoMovieVector3, forward?: IAutoMovieVector3): ReturnType<ReturnType<typeof prepareMoving>["frame"]> => {
+      const rotation: IAutoMovieQuaternion = oriented(posture, Vector3.scale(Vector3.normalize(normal), -1),
+        forward ?? fixed.forward, offset, align);
+      return { rotation, place: (point: IAutoMovieVector3): HumanHand.IWrist =>
+        placeHumanHandSurface(offset().point, point, rotation) };
+    };
+    return {
+      frame,
+      target: (posture: IPosture, place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+        forward?: IAutoMovieVector3): AutoMovieMotionHumanArm.ITarget => {
+        const current: ReturnType<typeof frame> = frame(posture, place.normal, forward);
+        return target(body, posture, side, place.point, fixed, surface, shape, current.rotation,
+          (): IAutoMovieVector3 => current.place(place.point).point, emit);
+      },
+      wrist: (posture: IPosture, place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+        forward?: IAutoMovieVector3): HumanHand.IWrist => {
+        return frame(posture, place.normal, forward).place(place.point);
+      },
     };
   }
 
@@ -207,16 +261,33 @@ function target(
   shape: HumanHand.Shape,
   rotation: IAutoMovieQuaternion,
   wrist: () => IAutoMovieVector3,
+  emit?: ITargetEmitter,
 ): AutoMovieMotionHumanArm.ITarget {
+  const bend: IAutoMovieVector3 = options.bend === undefined && options.out === undefined
+    ? AutoMovieMotionHumanBend.solve({ body, posture, side, point: wrist(), rotation, fallback: "hang" })
+    : AutoMovieMotionHumanBend.arm(body, posture, side, options.bend, options.out ?? 0);
+  if (emit !== undefined)
+    return emit({ point, rotation, bend, ...(options.curl === undefined ? {} : { curl: options.curl }) });
   return {
     surface,
     shape,
     point,
     rotation,
-    bend: options.bend === undefined && options.out === undefined
-      ? AutoMovieMotionHumanBend.solve({ body, posture, side, point: wrist(), rotation, fallback: "hang" })
-      : AutoMovieMotionHumanBend.arm(body, posture, side, options.bend, options.out ?? 0),
+    bend,
     ...(options.curl === undefined ? {} : { curl: options.curl }),
+  };
+}
+
+/** Existing raw-row producer, retaining only genuine fixed local-surface geometry. */
+type ITargetEmitter = ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareTarget>;
+
+/** Acquire fixed surface issuance only after an actual complete target is built. */
+function targetEmitter(body: IHumanBody, side: HumanHand.Side,
+  surface: HumanHand.Surface, shape: HumanHand.Shape): ITargetEmitter {
+  let emit: ITargetEmitter | undefined;
+  return (placement: Parameters<ITargetEmitter>[0]): AutoMovieMotionHumanArm.ITarget => {
+    emit ??= AutoMovieMotionHumanArmTarget.prepareTarget(body, side, surface, shape);
+    return emit(placement);
   };
 }
 

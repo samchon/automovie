@@ -5,6 +5,7 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
+import { prepareHumanShapeBlend } from "./prepareHumanShapeBlend";
 
 /**
  * The open hand a reach carries toward a grasp: the pre-shape whose
@@ -19,12 +20,9 @@ import { HumanPrehension } from "./HumanPrehension";
  * stops there and reports the aperture it reached.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the pre-shape is, how it is found and what an unreachable span returns.
- * @evidence contracts/development/implementation.md#principled-implementation Bisection of a monotone opening parameter on the aperture measured between the body's own digit colliders, toward the peak aperture of the reach-to-grasp law.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One blend, one bisection and the thumb abduction branch.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable span is capped at the joint's limit and the reached aperture reported, not faked.
- * @evidence contracts/development/implementation.md#efficient-algorithms The original thirty aperture readings per bisection remain, with digit geometry, bone membership and one exact FK reader prepared once; identical returned endpoint shape/readings are reused within their own branch.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanGrip.prepareAperture shares only the unchanged body's thumb/index capsule geometry and exact unchanged FK dependencies across the actual varied shapes of this synchronous pre-shape search.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/design.md#principled-representation A clinical-degree shape and metre width produce clinical digit angles plus the body's actual metre aperture; the scalar search parameter represents opening rather than a cached body pose.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The single open operation composes the shared clinical interpolation owner, canonical hand shape and HumanGrip's actual capsule-distance reader; prehension alone owns the width-to-aperture law.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No fitted sample table, substituted collider span or target aperture is represented as an achieved result; the original thumb limit bounds unreachable openings.
  */
 export namespace HumanPreshape {
   /**
@@ -39,11 +37,11 @@ export namespace HumanPreshape {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States width/aperture in metres and clinical joint angles; the namespace explains the unreachable span and thumb-abduction limit.
    * @evidence contracts/development/implementation.md#principled-implementation Retains the same actual tip-distance bisection over closed-to-flat blending and, when needed, signed thumb abduction.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed bone membership and an aperture reader precede the original blend/bisection/abduction branches.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared live clinical blend and actual aperture reader feed the original bisection and thumb-abduction branches.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All thirty iterations, the sixty-degree abduction limit and actual reached aperture remain unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed geometry and exact FK dependencies are prepared once; only the identical endpoint shape/measurement within a branch is reused, while every original bisection shape is measured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged body/side determine shared capsule geometry; every changed clinical shape still reaches the actual canonical FK owner.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns joint/scalar data and releases its local aperture reader and bone set on return or throw.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Only canonical digit geometry and exact FK metadata prepare once. Every original endpoint shape/aperture invocation, thirty bisection samples and final achieved read remains; each blend re-reads its current ordered key union and tuple expressions in O(D) work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body-owned capsule/rig metadata can be shared, but the borrowed closed tuple graph is never assumed plain or immutable. The cold interpolation owner retains every original source read and candidate shape independently.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the original fresh chosen joint/scalar data and releases the synchronous aperture workspace on return/throw. No borrowed endpoint coefficient snapshot, body pose, sampled history or external handle escapes.
    */
   export function open(
     body: IHumanBody,
@@ -55,42 +53,27 @@ export namespace HumanPreshape {
     const flat: IHumanPosture["joints"] = HumanHand.shape(side, "flat");
     const aperture: ReturnType<typeof HumanGrip.prepareAperture> =
       HumanGrip.prepareAperture(body, side);
-    const bones: Set<AutoMovieHumanoidBone> = new Set([
-      ...Object.keys(closed), ...Object.keys(flat),
-    ] as AutoMovieHumanoidBone[]);
-    const blend = (w: number): IHumanPosture["joints"] => {
-      const out: IHumanPosture["joints"] = {};
-      for (const bone of bones) {
-        const a: readonly [number, number, number] = closed[bone] ?? [0, 0, 0];
-        const b: readonly [number, number, number] = flat[bone] ?? [0, 0, 0];
-        out[bone] = [
-          a[0] + (b[0] - a[0]) * w,
-          a[1] + (b[1] - a[1]) * w,
-          a[2] + (b[2] - a[2]) * w,
-        ];
-      }
-      return out;
-    };
-    const solve = (
+    const blend: (weight: number) => IHumanPosture["joints"] = (weight: number): IHumanPosture["joints"] =>
+      prepareHumanShapeBlend.cold(closed, flat, weight);
+    const solve: (shape: (x: number) => IHumanPosture["joints"], hi: number) => {
+      joints: IHumanPosture["joints"]; aperture: number;
+    } = (
       shape: (x: number) => IHumanPosture["joints"],
       hi: number,
     ): { joints: IHumanPosture["joints"]; aperture: number } => {
       let lo: number = 0;
       let top: number = hi;
-      const upper: IHumanPosture["joints"] = shape(top);
-      const upperAperture: number = aperture(upper);
-      if (upperAperture <= want)
+      if (aperture(shape(top)) <= want)
         return {
-          joints: upper,
-          aperture: upperAperture,
+          joints: shape(top),
+          aperture: aperture(shape(top)),
         };
       for (let i: number = 0; i < 30; i++) {
         const mid: number = (lo + top) / 2;
         if (aperture(shape(mid)) < want) lo = mid;
         else top = mid;
       }
-      const chosen: IHumanPosture["joints"] = shape(top);
-      return { joints: chosen, aperture: aperture(chosen) };
+      return { joints: shape(top), aperture: aperture(shape(top)) };
     };
     if (aperture(flat) >= want) return solve(blend, 1);
 
@@ -98,7 +81,7 @@ export namespace HumanPreshape {
     // whichever sense widens the span.
     const thumb: AutoMovieHumanoidBone =
       `${side}ThumbMetacarpal` as AutoMovieHumanoidBone;
-    const abducted =
+    const abducted: (sense: number) => (x: number) => IHumanPosture["joints"] =
       (sense: number) =>
       (x: number): IHumanPosture["joints"] => ({
         ...flat,

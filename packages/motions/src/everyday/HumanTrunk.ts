@@ -6,8 +6,6 @@ import {
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
-  IAutoMovieJointPose,
-  IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -17,6 +15,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
+import { authoredHumanTrunkPose } from "./authoredHumanTrunkPose";
 
 /**
  * The trunk and head of a posture placed in the world without solving its
@@ -65,7 +64,7 @@ export namespace HumanTrunk {
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     return poseBones(
       body,
-      authored(body, posture, joints),
+      authoredHumanTrunkPose(body, posture, joints),
       typeof resolution === "function" ? resolution() : resolution,
       requested,
     );
@@ -76,21 +75,26 @@ export namespace HumanTrunk {
    *
    * @param body The unchanged canonical body.
    * @param requested Actual names to snapshot; inspect goal-independent frames or origins such as shoulder joint positions, rather than fitted limb articulation.
-   * @returns Fresh demanded frames per actual posture, optionally borrowing that synchronous query's exact FK workspace.
+   * @returns Fresh demanded frames per actual posture, optionally borrowing that synchronous query's exact FK workspace and admitting an explicit current joint override as resolve does.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines fixed body/name demand, changing raw authored posture, valid-frame boundary, ignored limb goals and fresh map/frame ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation Each query uses resolve's same authored joint list and whole-body root turn, then the genuine body-bound poseBones.prepare producer; no limb goal or ROM clamp is introduced.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed-name producer feeds the existing authored pose owner; region and point preparations share this same raw-bone reader.
+   * @evidence contracts/development/implementation.md#principled-implementation Each query snapshots Object.entries and every tuple F/A/T scalar before the unchanged whole-body root turn, skeleton/root carrier and optional workspace supplier. Genuine poseBones.prepareTuples admits the same values through the private FK owner; no limb goal or ROM clamp is introduced.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed-name tuple producer separates complete current scalar staging from the original root-carrier construction; region, point and gaze preparations share this raw-bone reader.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every current authored joint receives original ordered admission, including unrequested/stray records. No canonical-name guess, external indices, resolved flag, pose answer or changed raw policy bypasses FK.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Name lookup/sorting prepares once across Q probes; every probe retains O(J) current joint admission, demanded ancestor FK and fresh returned records. Unrequested transforms remain omitted and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Name lookup/sorting prepares once across Q probes; every probe retains O(J) tuple staging/admission, demanded ancestor FK and fresh returned records while one packed scalar array replaces J temporary joint records. Unrequested transforms remain omitted and speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged body and captured actual name membership establish fixed demand; each current posture/root/joint value is assembled and resolved normally. An optional synchronous workspace shares only exact checked dynamic dependencies.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning operation/plan retains body and bounded name metadata until release. No posture, world frame, query result, borrowed dynamic workspace or time history enters the closure; every map/frame is caller-owned.
    */
   export function prepareResolve(body: IHumanBody, requested: ReadonlySet<AutoMovieHumanoidBone>):
-    (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const read: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
-    return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-      read(authored(body, posture, posture.joints), typeof resolution === "function" ? resolution() : resolution);
+    (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], joints?: IHumanPosture["joints"]) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    const read: ReturnType<typeof poseBones.prepareTuples> = poseBones.prepareTuples(body, requested);
+    return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      joints: IHumanPosture["joints"] = posture.joints): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+      const staged: ReturnType<typeof read> = read(joints);
+      const turned: turnHumanPosture.ITurned = turnHumanPosture({ ...posture, limbs: {} });
+      return staged({ skeleton: body.skeleton.id, root: Transform.of(turned.position, turned.rotation) },
+        typeof resolution === "function" ? resolution() : resolution);
+    };
   }
 
   /**
@@ -119,7 +123,7 @@ export namespace HumanTrunk {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States forward/backward handling, degrees, the optional pelvis cap and the returned pitch and modified joint angles.
    * @evidence contracts/development/implementation.md#principled-implementation Positive inclination takes the capped RHYTHM pelvis share, then splits the remainder between spine and chest by the published lumbar/thorax ratio; nonpositive inclination stays in the pelvis. RHYTHM documents the lumbopelvic study behind these shares.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pelvis cap followed by one shallow joint copy and the two spinal additions exposes where the requested angle is distributed.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pelvis cap followed by one shallow joint copy and two ordered scalar writes exposes where the requested angle is distributed, without an intermediate pair table.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds flexion to the authored starting angles without replacing abduction or twist; the study-based shares and optional pelvis cap do not establish final joint-ROM admission, which the posture resolver owns.
    * @evidence contracts/development/implementation.md#efficient-algorithms Nonpositive inclination costs constant work; positive inclination copies J supplied joint entries and changes two triples, requiring O(J) time and output space.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the published RHYTHM shares and borrows untouched joint triples; each different inclination, cap or starting pose is calculated afresh without a result cache.
@@ -138,13 +142,8 @@ export namespace HumanTrunk {
     const spine: number = inclination - pelvis;
     const out: IHumanPosture["joints"] = { ...joints };
     const share: number = RHYTHM.lumbar / (RHYTHM.lumbar + RHYTHM.thorax);
-    for (const [bone, part] of [
-      ["spine", share],
-      ["chest", 1 - share],
-    ] as const) {
-      const was: readonly [number, number, number] = out[bone] ?? [0, 0, 0];
-      out[bone] = [was[0] + part * spine, was[1], was[2]];
-    }
+    addInclination(out, "spine", share, spine);
+    addInclination(out, "chest", 1 - share, spine);
     return { pitch: pelvis, joints: out };
   }
 
@@ -169,9 +168,9 @@ export namespace HumanTrunk {
    * @evidence contracts/development/implementation.md#principled-implementation Yaw rotates each rest hip into the world; the law of cosines supplies thigh opening from positive thigh/shank lengths and a nonzero hip-to-ankle distance capped at full extension, and its forward direction supplies the thigh angle subtracted from HIP_FLEXION.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One two-leg loop retains the larger thigh flexion before one nonnegative pelvis-limit subtraction.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses this body's measured lengths and rest hips with the published provisional HIP_FLEXION margin; it is a planar knee-forward estimate, not a full ROM solve, and does not admit coincident hip/ankle or invalid body measurements.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two rest-map lookups and fixed scalar/vector arithmetic cost constant time and space, without FK or a limb search.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two rest-map lookups and fixed scalar arithmetic cost constant time and space, without FK or a limb search; heading and each hip feed the original distance/angle expressions directly without three discarded vector records.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the body's prepared measures and rest joints, while each requested root, heading and ankle arrangement is evaluated afresh.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state and returns one scalar; temporary world hip and heading vectors die with the call.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state and returns one scalar; temporary world hip and heading scalars die with the call.
    */
   export function pelvisLimit(
     body: IHumanBody,
@@ -181,23 +180,18 @@ export namespace HumanTrunk {
   ): number {
     const m: IHumanBody["measure"] = body.measure;
     const turn: number = (yaw * Math.PI) / 180;
-    const forward: IAutoMovieVector3 = {
-      x: Math.sin(turn),
-      y: 0,
-      z: Math.cos(turn),
-    };
+    const forwardX: number = Math.sin(turn);
+    const forwardZ: number = Math.cos(turn);
     let thighs: number = 0;
     for (const side of ["left", "right"] as const) {
       const rest: IAutoMovieVector3 = body.rest.get(`${side}UpperLeg`)!;
-      const hip: IAutoMovieVector3 = {
-        x: root.x + rest.x * forward.z + rest.z * forward.x,
-        y: root.y + rest.y,
-        z: root.z - rest.x * forward.x + rest.z * forward.z,
-      };
+      const hipX: number = root.x + rest.x * forwardZ + rest.z * forwardX;
+      const hipY: number = root.y + rest.y;
+      const hipZ: number = root.z - rest.x * forwardX + rest.z * forwardZ;
       const ankle: IAutoMovieVector3 = ankles[side];
       const d: number = Math.min(
         m.thigh + m.shank,
-        Math.hypot(ankle.x - hip.x, ankle.y - hip.y, ankle.z - hip.z),
+        Math.hypot(ankle.x - hipX, ankle.y - hipY, ankle.z - hipZ),
       );
       const opening: number = Math.acos(
         Math.max(
@@ -209,8 +203,8 @@ export namespace HumanTrunk {
         ),
       );
       const along: number =
-        (ankle.x - hip.x) * forward.x + (ankle.z - hip.z) * forward.z;
-      const toward: number = Math.atan2(along, hip.y - ankle.y);
+        (ankle.x - hipX) * forwardX + (ankle.z - hipZ) * forwardZ;
+      const toward: number = Math.atan2(along, hipY - ankle.y);
       thighs = Math.max(thighs, ((toward + opening) * 180) / Math.PI);
     }
     return Math.max(0, HIP_FLEXION - thighs);
@@ -345,6 +339,7 @@ export namespace HumanTrunk {
    * @param body The unchanged body.
    * @param posture The unchanged authored posture; limb goals remain ignored.
    * @param requested Bones used by the operation; all when absent. Include every region bone and, for rays, all midline collider bones the reading will use.
+   * @param resolution Optional exact FK source borrowed only during the immediate constructor resolve; the returned reader never captures it.
    * @returns The resolved bones and region/ray readers borrowing them.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States immutable operation scope, demanded-bone premise, ignored limbs and ownership of the returned readers.
@@ -353,15 +348,21 @@ export namespace HumanTrunk {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All authored joints still receive engine admission; no limb goal, region result, ray result, contact threshold or time sample is replaced or cached.
    * @evidence contracts/development/implementation.md#efficient-algorithms Pays one ordered joint admission and demanded FK; ray-free readers allocate no subset or collider preparation. Repeated rays pay one subset scan and one lazy collider placement/frame preparation while retaining every actual ray-distance and normal query.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller establishes one unchanged body/posture/profile, so completed FK and collider frames are shared; each different region, ray, march point and normal probe is still evaluated by the original numerical owners without result reuse.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reading holds one FK map and, only after first ray demand, a subset plus one bound collider reader until synchronous return or throw. Its population is bounded by that rig/profile; no global or sampled-frame history retains it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reading holds one FK map and, only after first ray demand, a subset plus one bound collider reader until synchronous return or throw. A separate reading factory captures no posture or optional FK loan. Population is bounded by that rig/profile; no global or sampled-frame history retains it.
    */
   export function prepare(
     body: IHumanBody,
     posture: IHumanPosture,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IReading {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      resolve(body, posture, undefined, undefined, requested);
+      resolve(body, posture, undefined, resolution, requested);
+    return reading(body, bones);
+  }
+
+  /** Bind actual resolved frames in a scope that cannot retain the parent FK loan. */
+  function reading(body: IHumanBody, bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): IReading {
     let colliders: ReturnType<typeof HumanColliders.reading> | undefined;
     return {
       bones,
@@ -459,26 +460,17 @@ export namespace HumanTrunk {
   }
 }
 
-/** Build the exact raw authored pose; no limb or digit goal participates. */
-function authored(
-  body: IHumanBody,
-  posture: IHumanPosture,
-  joints: IHumanPosture["joints"],
-): IAutoMoviePose {
-  const list: IAutoMovieJointPose[] = [];
-  for (const bone of Object.keys(joints) as AutoMovieHumanoidBone[]) {
-    const angles: readonly [number, number, number] = joints[bone]!;
-    list.push({ bone, flexion: angles[0], abduction: angles[1], twist: angles[2] });
-  }
-  const turned: turnHumanPosture.ITurned = turnHumanPosture({ ...posture, limbs: {} });
-  return {
-    skeleton: body.skeleton.id,
-    root: Transform.of(turned.position, turned.rotation),
-    joints: list,
-  };
-}
-
 /** The existing trunk-ray subset: every canonical name without a side prefix. */
 const MIDLINE: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
   "hips", "spine", "chest", "upperChest", "neck", "head", "jaw",
 ]);
+
+/** Add one ordered spinal flexion while preserving its other authored components. */
+function addInclination(joints: IHumanPosture["joints"], bone: "spine" | "chest",
+  part: number, spine: number): void {
+  const was: readonly [number, number, number] = joints[bone] ?? ZERO;
+  joints[bone] = [was[0] + part * spine, was[1], was[2]];
+}
+
+/** Borrowed additive identity; written inclination triples always remain fresh. */
+const ZERO: readonly [number, number, number] = [0, 0, 0];

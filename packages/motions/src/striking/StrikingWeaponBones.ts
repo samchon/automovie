@@ -5,13 +5,14 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { StrikingWeapon } from "./StrikingWeapon";
 
 /**
  * Fit one actual striking course and read its fixed limb endpoint bones.
  * Only the canonical body's fixed requested-name preparation is retained;
- * each pose, course evaluation and exact FK workspace belongs to this call.
+ * each pose, course evaluation, genuine unchanged-table ROM loan and exact FK workspace belongs to this call.
  *
  * @param body The unchanged canonical body, reusable across actors only as rig metadata.
  * @param course The actual current action's free course.
@@ -26,7 +27,7 @@ import type { StrikingWeapon } from "./StrikingWeapon";
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pose, time, target, seed, stop state, fit or sampled endpoint is retained. Every current authored joint/digit/needed fit and unsupported-context fallback still executes; arms keep the complete course and coupled clearance.
  * @evidence contracts/development/implementation.md#efficient-algorithms Each of the four current fixed limb name sets pays canonical sorting/demand preparation once per unchanged body. Every call retains its actual course/physical fit/admission and requested FK ancestry with fresh maps; speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Only canonical body metadata and a private module-owned immutable requested set determine the retained demand producer. These sets are never mutated or exposed by StrikingWeapon; course, channels, actor, seconds and stops determine the separately evaluated pose and cannot share answers or workspaces across calls.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak body key owns at most four current fixed-demand producers and their bounded bone-name/index metadata; no pose/source set snapshot mutation, numerical history or handles grow. Each call releases its local workspace/pose on return or throw, outputs own fresh frames, and body release permits collection of the producers.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak body key owns at most four current fixed-demand producers and their bounded bone-name/index metadata; no pose/source set snapshot mutation, numerical history or handles grow. Each call lazily owns one genuine ROM mapper only within its unchanged-table course/final-fit operation; it releases that mapper and its local workspace/pose on return or throw, outputs own fresh frames, and body release permits collection of the producers.
  */
 export function StrikingWeaponBones(
   body: IHumanBody,
@@ -46,8 +47,11 @@ export function StrikingWeaponBones(
     demands.set(requested, frames);
   }
   const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+  let projector: ReturnType<typeof prepareHumanPostureProjection> | undefined;
+  const projection: () => ReturnType<typeof prepareHumanPostureProjection> = (): ReturnType<typeof prepareHumanPostureProjection> =>
+    (projector ??= prepareHumanPostureProjection(body));
   const pose: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture.seeded(
-    body, course(seconds, channels, resolution), undefined, {}, resolution, requested,
+    body, course(seconds, channels, resolution, projection), undefined, {}, resolution, requested, projection(),
   ).pose;
   return frames(pose, resolution());
 }

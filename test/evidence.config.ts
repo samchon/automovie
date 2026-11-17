@@ -6,6 +6,7 @@ const helpers: string[] = [
   "src/features/internal/motionHumanFlightDiagnostic.ts",
   "src/features/internal/motionHumanTakeoffDiagnostic.ts",
   "src/features/internal/motionHumanLaw.ts",
+  "src/features/internal/motionHumanLawCovering.ts",
   "src/features/internal/motionHumanLawSweep.ts",
   "src/features/internal/motionHumanLawSweepCell.ts",
   "src/features/internal/motionHumanRefusal.ts",

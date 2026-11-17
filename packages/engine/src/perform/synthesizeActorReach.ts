@@ -1,6 +1,6 @@
 import type {
   IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieMotion,
-  IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieVector3,
+  IAutoMoviePose, IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { reachPose } from "../kinematics/reachPose";
@@ -42,36 +42,21 @@ type IProps = IContext & (
   | { kind: "reach"; action: Extract<IAutoMovieActionCall, { verb: "reach" }> }
 );
 
-/** A plain callable retains reachPose's arguments without its prepare companion. */
-type IReach = (...args: Parameters<typeof reachPose>) => ReturnType<typeof reachPose>;
-
-/** The single actual fixed-source binding currently serving one synchronous bake. */
-interface IBinding {
-  /** Actual current source identities; replacements require a new producer. */
-  skeleton: IAutoMovieSkeleton;
-  side: "left" | "right";
-  restFrames: Parameters<typeof reachPose>[3];
-
-  /** Genuine lazy source admission and independent per-target solving. */
-  read: ReturnType<typeof reachPose.prepare>;
-}
-
 /**
  * Synthesize native point, strike and reach arm targets for one actor action.
  * The selected gesture branch already admitted its rig; a reach retains its
- * original missing-rig refusal. Rig geometry/clinical mappings stay unchanged
- * within a synchronous bake; different actions always prepare independently.
+ * original missing-rig refusal. Borrowed geometry and clinical mappings remain
+ * live because target/frame callbacks can change them between samples.
  * Live target/actor-frame reads, absolute sample times and every target's
- * original candidate/ROM decisions remain live. Only actual fixed source
- * metadata is shared, and no callback or reader enters the returned clip.
+ * original candidate/ROM decisions remain live. No callback enters the clip.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States branch/rig admission, model/world metre conversion, original duration timing, unchanged source scope, live callbacks, null/throw propagation and numeric-result ownership.
- * @evidence contracts/development/implementation.md#principled-implementation Retains each verb's initial target read, dynamic-path test, static solve or original 24 Hz envelope bake. Every moving sample resolves its current target before its current frame and invokes the same reachPose solve in model space. The genuine prepare source performs original full-rest-FK admission once, while each target retains all candidate/clinical/ROM decisions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns the three native arm-target branches and their static/dynamic envelope choice. makeActorSynthesizer keeps verb dispatch/gesture fallback. One private source-binding reader delegates fixed source preparation to reachPose and sampling/weighting to existing clip owners.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No target, callback, time, chosen articulation or previous pose is cached. Missing targets still refuse the whole clip, thrown callbacks propagate, source replacements prepare anew, and no sample count, envelope, candidate, ROM bound or frame arithmetic is changed. Direct reachPose remains the raw static path.
- * @evidence contracts/development/implementation.md#efficient-algorithms For F original samples, fixed source diagnosis/axes/full-rest-FK prepare once per actual source binding instead of F times; all F target callbacks, frame conversions and original bounded hinge solves remain. Binding checks are constant-size and runtime improvement is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous bake owns an actual lazy reachPose.prepare result for its fixed rig/side/frame inputs. Argument identities select only source metadata, with replacement creating a new producer; they never certify a target solution. Cross-action mutable contexts are reread by the caller and no binding crosses actions.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The bake holds at most one actual source binding, replacing and releasing the previous one. Existing clip builders consume callbacks synchronously and retain only fresh numeric poses/keyframes. Source metadata and callback closures end on return/null/throw; no FK reader, target history, handle or task escapes.
+ * @evidence contracts/development/common.md#meaningful-documentation States branch/rig admission, model/world metre conversion, original duration timing, live source/callback reads, null/throw propagation and numeric-result ownership.
+ * @evidence contracts/development/implementation.md#principled-implementation Retains each verb's initial target read, dynamic-path test, static solve or original 24 Hz envelope bake. Every moving sample resolves its current target before its current frame and invokes the same full live reachPose solve in model space.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns the three native arm-target branches and their static/dynamic envelope choice. makeActorSynthesizer keeps verb dispatch/gesture fallback, reachPose owns source admission and solving, and existing clip owners retain sampling/weighting.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No target, callback, time, source identity, chosen articulation or previous pose certifies reuse. Missing targets still refuse the whole clip, thrown callbacks propagate, and no sample count, envelope, candidate, ROM bound or frame arithmetic is changed.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For F original samples, all F target/frame callbacks, source diagnoses/full-rest-FK reads and bounded hinge solves remain. Static targets retain their one solve and the helper adds constant dispatch work.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The initial world target serves only the original static branch; moving targets and borrowed mutable geometry are reread after each actual callback. Identity cannot prove source scalar stability, so no fixed-source reader crosses samples.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Existing clip builders consume callbacks synchronously and retain only fresh numeric poses/keyframes. Callback closures and each sample's source data end on return/null/throw; no FK reader, target history, handle or task escapes.
  */
 export function synthesizeActorReach(props: IProps): IAutoMovieMotion | null {
   const ctx: IAutoMovieActorContext = props.ctx;
@@ -90,7 +75,6 @@ export function synthesizeActorReach(props: IProps): IAutoMovieMotion | null {
   const liveBone: boolean = props.kind === "reach"
     ? props.action.to.kind === "bone" : props.action.at?.kind === "bone";
   if (liveBone || (props.actorFrameAt?.(props.actor, props.action.start) ?? null) !== null) {
-    const read: IReach = prepareRead();
     const bake: typeof createDynamicActorExtendClip = props.kind === "strike"
       ? createDynamicActorJabClip : createDynamicActorExtendClip;
     return bake({
@@ -101,7 +85,7 @@ export function synthesizeActorReach(props: IProps): IAutoMovieMotion | null {
         const point: IAutoMovieVector3 | null = props.kind === "reach"
           ? props.resolveTarget(props.action.to, props.nodes, props.action.start + time)
           : props.resolveTarget(props.action.at!, props.nodes, props.action.start + time);
-        return point === null ? null : read(
+        return point === null ? null : reachPose(
           ctx.rig!,
           props.kind === "reach" ? props.action.hand : "right",
           actorPointInModelSpace(point, props.frameAt(props.action.start + time)),
@@ -124,19 +108,3 @@ export function synthesizeActorReach(props: IProps): IAutoMovieMotion | null {
     : createActorExtendClip(`${props.actor}:${props.kind}`, ctx.skeleton, pose, duration);
 }
 
-/** Bind only actual fixed source arguments; every varying target is solved anew. */
-function prepareRead(): IReach {
-  let binding: IBinding | undefined;
-  return (
-    skeleton: IAutoMovieSkeleton,
-    side: "left" | "right",
-    target: IAutoMovieVector3,
-    restFrames?: Parameters<typeof reachPose>[3],
-  ): IAutoMoviePose | null => {
-    if (binding === undefined || binding.skeleton !== skeleton ||
-      binding.side !== side || binding.restFrames !== restFrames)
-      binding = { skeleton, side, restFrames, read: reachPose.prepare(skeleton, side, restFrames) };
-
-    return binding.read(target);
-  };
-}

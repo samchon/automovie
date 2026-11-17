@@ -44,20 +44,6 @@ export function prepareHumanLimbFit(
   readAuthored?: Parameters<typeof fitSeededChainToTarget.prepare>[1],
   resolution?: Parameters<typeof fitSeededChainToTarget.prepare>[2],
 ): fitSeededChainToTarget.IWorkspace {
-  /** Read a law's clinical reference triple without changing its bone or units. */
-  const angles: (
-    bone: AutoMovieHumanoidBone,
-    of: readonly [number, number, number],
-  ) => IAutoMovieJointPose = (
-    bone: AutoMovieHumanoidBone,
-    of: readonly [number, number, number],
-  ): IAutoMovieJointPose => ({
-    bone,
-    flexion: of[0],
-    abduction: of[1],
-    twist: of[2],
-  });
-
   // A continued fit keeps its seed's basin. An uncontinued arm may instead
   // rank its own legal swivels by the same joint strain as Bend.solve.
   const strain: ReturnType<typeof AutoMovieMotionHumanBend.strainOf> =
@@ -104,4 +90,12 @@ export function prepareHumanLimbFit(
   };
   return prepareHumanLimbSource.workspace(body, source, readAuthored, resolution) ??
     fitSeededChainToTarget.prepare(source, readAuthored, resolution, body.poseResolution);
+}
+
+/** Read the current clinical reference in degrees without a per-goal closure. */
+function angles(
+  bone: AutoMovieHumanoidBone,
+  of: readonly [number, number, number],
+): IAutoMovieJointPose {
+  return { bone, flexion: of[0], abduction: of[1], twist: of[2] };
 }

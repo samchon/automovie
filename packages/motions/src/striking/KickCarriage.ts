@@ -9,6 +9,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { IKickGeometry } from "./IKickGeometry";
 import { KickForm } from "./KickForm";
@@ -29,9 +30,21 @@ import { StrikingTarget } from "./StrikingTarget";
  * contact to the replant. A step of the support foot (up toward a target out
  * of reach, back from one too close) slides on its own clock between the
  * launch and the chamber key, and the root rides it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States support pivots, root/hip geometry, distinct local clocks, planted contacts and synchronous FK/ROM metadata lifetime.
+ * @evidence contracts/development/design.md#principled-representation Canonical body/feet/posture and existing carriage inputs describe physical kinematics without a parallel rig or solved-state flag.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The actual kick planner needs carriage posture and measured hip; native trunk/foot/lowering owners retain the numerical responsibilities.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No target, pose, clamp result, success label or sampled time is retained; optional loans share only existing same-body operations.
  */
 export namespace KickCarriage {
-  /** What a kick's carriage is built from. */
+  /**
+   * What a kick's carriage is built from.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members define canonical body, entry/feet, side/line, timing and metre/angle parameters for the actual carriage.
+   * @evidence contracts/development/design.md#principled-representation Existing authored posture, foot placements, local clocks and measured scalar geometry define the carriage without numerical solver state.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Every field is read by posture's root/support-foot/turn/tilt/lowering geometry; candidate goals and fit results stay with the contact planner.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Inputs contain actual physical parameters rather than pre-resolved pose flags, baked endpoints or scene-specific identifiers.
+   */
   export interface IProps {
     /** The kicking body. */
     body: IHumanBody;
@@ -74,7 +87,16 @@ export namespace KickCarriage {
    * @param seconds Seconds since the kick's start: the clock of the support foot's step.
    * @param turning The second the turn, tilt and travel are read at; `seconds` when absent.
    * @param resolution Optional exact FK workspace borrowed from this synchronous person's evaluation.
+   * @param projection Optional genuine same-body ROM metadata borrowed only within this synchronous unchanged-table operation.
    * @returns The posture, lowered until the planted support leg reaches its foot; the kicking leg holds its entry foot, unplanted.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States local support/turn clocks, actual carriage, planted support and current-body metadata lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation Preserves the original minimum-jerk pelvis/support step, support-foot pivot, support-hip-preserving lean and two-leg lowering geometry.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Root/support-foot geometry feeds flat pose, optional tilt and unchanged lower owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All original coefficients, authored joints, body motion, foot plants/MTP offsets and raw lowering operations remain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Original kinematic and native hip work remains; a caller's genuine current ROM mapper avoids repeated index setup across the two actual tilt hip reads.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only exact FK prerequisites and genuine same-body unchanged-table metadata are borrowed; each flat/tilted pose still runs every original native joint projection.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The current reader/projector and temporary frames end on return or throw; the fresh posture stores no supplier, map, projector or history.
    */
   export function posture(
     props: IProps,
@@ -82,6 +104,7 @@ export namespace KickCarriage {
     seconds: number,
     turning: number = seconds,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IHumanPosture {
     const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
     const { body, entry, feet, side, line, timing } = props;
@@ -134,7 +157,7 @@ export namespace KickCarriage {
     const tilted: IHumanPosture =
       carriage.lean * w === 0
         ? flat
-        : tilt(body, flat, support, Vector3.cross(line, up), carriage.lean * w, read);
+        : tilt(body, flat, support, Vector3.cross(line, up), carriage.lean * w, read, projection);
     return resolveHumanPosture.lower(
       body,
       {
@@ -159,15 +182,25 @@ export namespace KickCarriage {
    * @param posture The posture; its limbs are not read.
    * @param side The hip's side.
    * @param resolution Optional exact FK workspace borrowed from this synchronous evaluation.
+   * @param projection Optional genuine same-body ROM metadata borrowed only within this synchronous unchanged-table operation.
    * @returns The hip joint, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines actual body/posture/side, ignored limb goals, world-metre output and synchronous metadata scope.
+   * @evidence contracts/development/implementation.md#principled-implementation The canonical trunk owner assembles/clamps all authored joints and digits before actual requested hip FK.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One demanded trunk read returns the actual upper-leg origin.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No native projection, authored joint or actual hip computation is skipped; a projector remains a checked metadata loan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The fixed hip-name demand limits only output ancestry; a same-operation projector shares index setup while all original admission/projection remains.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Search/course callers explicitly fix body and ROM tables within their synchronous operation, while every changed posture/hip is evaluated normally.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No pose/map/reader/projector is retained here; only the actual fresh hip vector escapes its temporary trunk map.
    */
   export function hip(
     body: IHumanBody,
     posture: IHumanPosture,
     side: "left" | "right",
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieVector3 {
-    return StrikingBody.trunk(body, posture, resolution, HIPS[side]).get(
+    return StrikingBody.trunk(body, posture, resolution, HIPS[side], projection).get(
       `${side}UpperLeg` as AutoMovieHumanoidBone,
     )!.worldPosition;
   }
@@ -184,6 +217,7 @@ export namespace KickCarriage {
     axis: IAutoMovieVector3,
     degrees: number,
     resolution: ReturnType<typeof prepareHumanPoseResolution>,
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IHumanPosture {
     const rotation: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(
@@ -200,8 +234,8 @@ export namespace KickCarriage {
       root: Vector3.add(
         turned.root,
         Vector3.subtract(
-          hip(body, flat, support, resolution),
-          hip(body, turned, support, resolution),
+          hip(body, flat, support, resolution, projection),
+          hip(body, turned, support, resolution, projection),
         ),
       ),
     };

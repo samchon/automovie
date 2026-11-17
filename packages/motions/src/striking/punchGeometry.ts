@@ -16,6 +16,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { StrikingAim } from "./StrikingAim";
 import { StrikingReach } from "./StrikingReach";
@@ -100,8 +101,18 @@ export namespace punchGeometry {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, contact window and record types.
    */
   export interface IGeometry {
-    /** The complete posture at seconds since the start; an optional exact FK supplier is borrowed only for this synchronous observation and never retained. */
-    posture(seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture;
+    /**
+     * The complete posture at local seconds, borrowing only current same-body FK/ROM metadata.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the local clock, complete posture and synchronous unchanged-table metadata lifetime.
+     * @evidence contracts/development/implementation.md#principled-implementation build composes the original footwork, wrist stroke, reference and guard; guard/final native clamps may borrow the same genuine mapper.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One actual clock reaches the existing compose owner through approach or unchanged dwell/withdrawal clocks.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All original goals, cold physical fits, arm/rival clearance, limits, stops and contacts remain; no pose or time observation is cached.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Existing physical work remains; only fixed same-body FK/ROM setup is shared within an observation, with speedup unmeasured.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual law/weapon callers lend metadata for this exact body and unchanged ROM table; another sample gets its own current scope.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned postures contain only original authored data; no borrowed workspace, mapper, getter or query history enters the plan or result.
+     */
+    posture(seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IHumanPosture;
 
     /** The feet's contact windows. */
     contacts: IHumanContactWindow[];
@@ -362,13 +373,14 @@ export namespace punchGeometry {
         hint: (clock: number) => IAutoMovieVector3;
       },
       source?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
     ): IHumanPosture => {
       const reference: IHumanPosture.IReference | undefined =
         bare === undefined ? anchored(clock) : undefined;
       const held: number = Math.max(0, Math.min(1, out(clock) - back(clock)));
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
       const posture: IHumanPosture = (bare?.base ?? footwork.base)(t, clock, resolution);
-      const guard: ReturnType<typeof StrikingStance.guard> = guardAt(posture, resolution);
+      const guard: ReturnType<typeof StrikingStance.guard> = guardAt(posture, resolution, projection);
       const elbow: IAutoMovieVector3 = Vector3.lerp(
         Vector3.lerp(
           startElbow,
@@ -440,10 +452,10 @@ export namespace punchGeometry {
         },
         stop: stroke.stop,
       },
-      posture: (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture => {
+      posture: (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IHumanPosture => {
         const at: number | undefined = stroke.stop(t0 + t);
         if (at === undefined || t <= at - t0)
-          return compose(t, stroke.end(t0 + t), t, undefined, resolution);
+          return compose(t, stroke.end(t0 + t), t, undefined, resolution, projection);
 
         // Held for the dwell, then the approach is retraced on a minimum-jerk
         // clock, the wrist carried onto the guard it returns to.
@@ -459,7 +471,7 @@ export namespace punchGeometry {
             stroke.free(t0 + clock),
             Vector3.scale(Vector3.subtract(guardEnd().point, origin), w),
           ),
-          clock, undefined, resolution,
+          clock, undefined, resolution, projection,
         );
       },
     };

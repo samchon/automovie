@@ -239,12 +239,12 @@ export namespace AutoMovieMotionHumanArmCarry {
   /**
    * The carry's task, owned with its dependency-free authoring record.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the existing carry record and its declaration owner.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the inherited carry record owner and preserves the original exported interface's declaration-merging surface.
    * @evidence contracts/development/design.md#principled-representation Reuses the authoring record without changing its local seconds, clinical angles or world-frame goals.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the existing Arm facade type while the record's members have one owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts This is the original carry shape, with no cast or duplicate list of members.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The original public carry interface extends the sole record owner, preserving module/namespace augmentation without a duplicate member list.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts This remains the original interface shape, with no type-alias replacement, cast or widened member.
    */
-  export type ICarry = IAutoMovieMotionHumanArmCarry;
+  export interface ICarry extends IAutoMovieMotionHumanArmCarry {}
   /**
    * An arm carried toward a goal by a weight: the arm's whole action planned
    * once as one trajectory with the other arms of its group
@@ -268,7 +268,7 @@ export namespace AutoMovieMotionHumanArmCarry {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The group is solved once, when its first member is prepared on the posture before it, and a member asked while it is being solved throws instead of solving twice; the hand's fingers are not claimed, so a row that shapes them composes with this one.
    * @evidence contracts/development/implementation.md#efficient-algorithms One trajectory solve per group/action; each write reads its cubic or carry, with no carry solve at weights 0/1. An interior attitude still evaluates all three actual hand-end postures, but canonical observations can omit only proven independent goals/digits and FK outputs only the hand; the final held solve retains its physical work.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates planning/carry/attitude to their owners. A synchronous write borrows its host FK/ROM loans for actual fallback carry and hand observations/held solve; standalone writes own lazy metadata. Only exact prerequisites share, while distinct posture/goal requests remain actual solves.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains props, its group's trajectory and existing follower. A write's hand-demand set and lazy exact reader end on return/throw; no returned posture or stored plan captures them, and no time/result history is added.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains props, its group's trajectory and existing follower. A standalone fixed-posture reader is built outside the write environment, so a retained follower cannot capture that write's metadata through its fallback callback. Hand demand and FK/ROM loans end on return/throw; no output or plan stores them or new time/result history.
    */
   export function carried(props: ICarry): IAutoMovieMotionHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
@@ -336,7 +336,7 @@ export namespace AutoMovieMotionHumanArmCarry {
         // returns it. An arm that follows a person is the plan with a bounded
         // correction toward the goal read at each second of the hold.
         const so: (seconds: number) => IHumanPosture =
-          before ?? ((): IHumanPosture => posture);
+          before ?? fixedPosture(posture);
         const arm = (at: number): HumanArmClearance.IArm =>
           props.tracked === true
             ? (follow ??= AutoMovieMotionHumanArmFollow.follower(
@@ -364,10 +364,10 @@ export namespace AutoMovieMotionHumanArmCarry {
         else
           out = carry(
             props.body,
-            resolveHumanPosture.rebased(posture, {
+            {
               ...posture,
               limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds, source, projection) },
-            }),
+            },
             { [props.side]: props.rest },
             weight,
             undefined,
@@ -398,10 +398,10 @@ export namespace AutoMovieMotionHumanArmCarry {
           )!.worldRotation;
         const ended: IHumanPosture = onPlan
           ? placed(arm(seconds <= span!.ready ? span!.ready : span!.relax))
-          : resolveHumanPosture.rebased(posture, {
+          : {
               ...posture,
               limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds, resolution, projection) },
-            });
+            };
         return HumanHandAttitude.held(
           props.body,
           out,
@@ -421,5 +421,10 @@ export namespace AutoMovieMotionHumanArmCarry {
       },
     };
   }
+}
+
+/** A retained standalone follower needs only the original fixed posture. */
+function fixedPosture(posture: IHumanPosture): (seconds: number) => IHumanPosture {
+  return (): IHumanPosture => posture;
 }
 

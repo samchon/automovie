@@ -38,11 +38,15 @@ import { vclose } from "../internal/vclose";
  *    joint sequence. Disabled memory instead retains the current source.
  *    Undefined or missing required clinical axes are refused before FK,
  *    even when the requested hand does not depend on the malformed head.
+ * 5. A warm plain right-arm refit is reread through a transparent Proxy of
+ *    an unrelated joint. The real key remains identical and the cache hit
+ *    adds no prototype inspection or descriptors beyond the original JSON
+ *    walk. Full FK, contact, seed/value and issued-output ownership remain.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines input/cache/issued ownership, actual strain metadata, structural joint extension, exact retained GRID-equivalent scalar/property representation, malformed-axis refusal, public memory switch lifetime and original metre/angle bounds in four scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Calls public resolveHumanPosture.refit with enabled and disabled memory, edits every returned mutable category, observes real per-body hit/miss counts, original source scalars/annotation, retained earlier poison, independent new wrappers/arrays, actual wrist contact and full canonical FK/joint/seed/value replay. A separate scalar-only pair proves a real hit retains exact cached values/property presence rather than materializing current GRID-equivalent untouched input.
- * @evidence contracts/development/testing.md#independent-expectations The authored world point rises4cm and moves5cm forward from the canonical hand and must remain within0.001m. Public limbSeeded directly calls the underlying fit without the refit/patch path and supplies supplementary original clinical order, geometry, seed and value at1e-9. Independently authored duplicate-head labels/sequences must survive in order with separate ownership. The established1e-12 key merges a1e-14 head perturbation, while the original first-result contract retains its exact7 degrees, null fields and authored field order. Object.is adds no numeric tolerance. Required F/A/T axes admit finite numbers or null, so undefined and absence must both refuse rather than creating a cache fixture outside the input domain.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers first miss/repeated hits, enabled/disabled refits versus independent direct limb fitting, root translation/rotation/scale, full joint-array order with duplicate unrelated rows, nested foreign metadata, scalar-only GRID-equivalent source variation, valid null versus undefined/missing refusal, seed/value and old-output edits. Fresh body identities isolate each mode; no global geometry, table or shared fixture is mutated.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public resolveHumanPosture.refit with enabled and disabled memory, edits every returned mutable category, observes real per-body hit/miss counts, original source scalars/annotation, retained earlier poison, independent new wrappers/arrays, actual wrist contact and full canonical FK/joint/seed/value replay. A transparent current Proxy on a genuine warm right-arm hit must add no prototype/descriptor probes beyond its original JSON key walk. A separate scalar-only pair proves a real hit retains exact cached values/property presence rather than materializing current GRID-equivalent untouched input.
+ * @evidence contracts/development/testing.md#independent-expectations The authored world point rises4cm and moves5cm forward from the canonical hand and must remain within0.001m. Public limbSeeded directly calls the underlying fit without the refit/patch path and supplies supplementary original clinical order, geometry, seed and value at1e-9. Independently authored duplicate-head labels/sequences must survive in order with separate ownership. The established1e-12 key merges a1e-14 head perturbation, while the original first-result contract retains its exact7 degrees, null fields and authored field order. Object.is adds no numeric tolerance. The transparent-hit descriptor baseline is the language-defined JSON.stringify walk of that same record with the public grid replacer, not a count sampled from the refit implementation; standard JSON has no getPrototypeOf observation. Required F/A/T axes admit finite numbers or null, so undefined and absence must both refuse rather than creating a cache fixture outside the input domain.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers first miss/repeated hits, enabled/disabled refits versus independent direct limb fitting, root translation/rotation/scale, full joint-array order with duplicate unrelated rows, nested foreign metadata, scalar-only GRID-equivalent source variation, transparent Proxy input on an actual warm hit with standard-JSON metadata observations, valid null versus undefined/missing refusal, seed/value and old-output edits. Fresh body identities isolate each mode; no global geometry, table or shared fixture is mutated.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable numerical unit borrows immutable canonical geometry through fresh body wrappers and owns source poses/goals/annotations. It uses public resolver/statistics/switch/FK APIs, restores enabled memory in finally, and adds no internal import, test-only export, foreign replacement, host or compiler.
  */
 export function test_motion_limb_memory_ownership(): void {
@@ -126,6 +130,7 @@ export function test_motion_limb_memory_ownership(): void {
       unchanged(source, original);
     }
     scalarGrid(shared);
+    transparentHit(shared);
   } finally {
     resolveHumanPosture.memory(true);
   }
@@ -285,4 +290,56 @@ function sameJoints(actual: IAutoMoviePose, expected: IAutoMoviePose, tolerance:
             ? joint[axis] === before[axis] : nclose(joint[axis], before[axis], tolerance));
       }),
   );
+}
+
+/** A selected full cache hit observes the original JSON key, not new current-input schema reflection. */
+function transparentHit(shared: IHumanBody): void {
+  const body: IHumanBody = { ...shared };
+  const source: IAutoMoviePose = resolveHumanPosture(body, {
+    root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0, joints: {}, limbs: {},
+  });
+  const head: IAutoMovieJointPose = { bone: "head", flexion: 7, abduction: 0, twist: 0 };
+  source.joints = source.joints.map((value: IAutoMovieJointPose): IAutoMovieJointPose => value.bone === "head" ? head : value);
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, source);
+  const wrist: IAutoMovieVector3 = bones.get("rightHand")!.worldPosition;
+  const goal: IHumanPosture.IGoal = { point: { x: wrist.x, y: wrist.y + 0.04, z: wrist.z + 0.05 },
+    bend: { ...bones.get("rightLowerArm")!.worldPosition }, rotation: { ...bones.get("rightHand")!.worldRotation }, elbow: "strain" };
+  resolveHumanPosture.memory(true);
+  const warm: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(body, source, { rightArm: goal });
+  let prototypes: number = 0;
+  const descriptors: (string | symbol)[] = [];
+  const proxy: IAutoMovieJointPose = new Proxy(head, {
+    getPrototypeOf(target: IAutoMovieJointPose): object | null { prototypes++; return Reflect.getPrototypeOf(target); },
+    getOwnPropertyDescriptor(target: IAutoMovieJointPose, key: string | symbol): PropertyDescriptor | undefined {
+      descriptors.push(key);
+      return Reflect.getOwnPropertyDescriptor(target, key);
+    },
+  });
+  TestValidator.equals("transparent Proxy preserves the standard JSON representation",
+    JSON.stringify(proxy, HumanLimbFitFrame.grid), JSON.stringify(head, HumanLimbFitFrame.grid));
+  const jsonWalk: (string | symbol)[] = [...descriptors];
+  const next: IAutoMoviePose = { ...source, joints: source.joints.map(
+    (value: IAutoMovieJointPose): IAutoMovieJointPose => value === head ? proxy : value) };
+  let previous: resolveHumanPosture.ISeeded | undefined;
+  for (const replay of [0, 1]) {
+    prototypes = 0;
+    descriptors.length = 0;
+    const before: HumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
+    const result: resolveHumanPosture.ISeeded = resolveHumanPosture.refit(body, next, { rightArm: goal });
+    const after: HumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
+    TestValidator.predicate(`transparent current input keeps the same actual hit at replay${replay}`,
+      after.hits > before.hits && after.misses === before.misses && prototypes === 0);
+    TestValidator.equals("cache issuing adds no input descriptor observation beyond its standard JSON walk", descriptors, jsonWalk);
+    verify(body, result, warm, goal);
+    TestValidator.predicate("issued cached records are detached from the caller's current transparent input",
+      result.pose.joints.every((value: IAutoMovieJointPose): boolean => value !== proxy && value !== head));
+    if (previous !== undefined)
+      TestValidator.predicate("a hit neither borrows nor repairs earlier root/seed/value poison",
+        result.pose !== previous.pose && previous.pose.root!.translation.x === 123 &&
+        previous.seeds.rightArm?.swivel === 12345 && previous.values.rightArm?.strain === 333);
+    poison(result);
+    previous = result;
+  }
+  TestValidator.predicate("transparent source record remains the literal original clinical input",
+    nclose(head.flexion!, 7, 0) && nclose(head.abduction!, 0, 0) && nclose(head.twist!, 0, 0));
 }

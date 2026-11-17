@@ -163,6 +163,14 @@ export namespace walkSteps {
    *
    * @param input The body, its entry state, the destination, the speed, the longest step and the period law.
    * @returns The plan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The namespace defines measured footprint geometry, timing and turning; input members name their body/path/time units and the returned plan exposes actual root/foot/phase readers.
+   * @evidence contracts/development/implementation.md#principled-implementation Retains WalkPace timing and flight stance, every original footprint/turn/ankle-lean rule, the same closing pair and shared gait root/stance owners.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed path/body geometry precedes timing, requested/bounded footprint headings, exact step records, per-side schedules and the prepared unconstrained root.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No step, corner, timing draw, bound, opening turn or endpoint is removed; original context period calls and trajectory expressions remain actual.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation scales with authored footfalls and the existing path/timing searches. Fixed path segments and rest-foot widths prepare once; each side's hip width is read only on its first actual nonclosing footprint, then reused across later footprints.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One take fixes its measured rest body, private floor path and final step timing; fixed scalar geometry is shared without sharing a later queried posture or resampling a numerical result.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Constructor-local width/heading work releases on return or throw; the resulting plan owns only its original step/path/schedule/root geometry, linear in footfalls and corners, without an arbitrary-time pose history or external handle.
    */
   export function plan(input: IInput): IPlan {
     const body: IHumanBody = input.body;
@@ -250,6 +258,7 @@ export namespace walkSteps {
     const restWidth: Record<"left" | "right", number> = {
       left: Math.abs(body.rest.get("leftFoot")!.x), right: Math.abs(body.rest.get("rightFoot")!.x),
     };
+    const hipWidth: Partial<Record<"left" | "right", number>> = {};
     const rest: (side: "left" | "right") => number = (side: "left" | "right"): number => restWidth[side];
     const T: number = pace.period;
     const swing: number = pace.swing;
@@ -361,7 +370,7 @@ export namespace walkSteps {
                 {
                   x:
                     (side === "left" ? 1 : -1) *
-                    Math.abs(body.rest.get(`${side}UpperLeg`)!.x),
+                    (hipWidth[side] ??= Math.abs(body.rest.get(`${side}UpperLeg`)!.x)),
                   y: 0,
                   z: 0,
                 },

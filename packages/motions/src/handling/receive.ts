@@ -100,11 +100,11 @@ export namespace receive {
    *
    * @evidence contracts/development/common.md#meaningful-documentation The law defines giver/receiver hands, prop and shared timing, actual reached grip attitude, decline/transfer behavior, fingers and contacts; this method returns the complete receiver course.
    * @evidence contracts/development/implementation.md#principled-implementation Uses the shared meeting and constrained grasp/transfer plan, original reaching/take-away transports and actual upright-turn fitting, with the grasp's own reference held through contact.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared plan and actual grip closure precede fixed shape schedules and explicit per-second body/task geometry, leaving only the original carried hand yaw variable.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared plan and actual grip closure precede digit schedules and the original current raw body/task assembler; every pitch/yaw query runs its own actual complete fit.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original decline/withdraw/transfer branches, grip/release events, source grip attitude, reference weights, all nine actual yaw fits and bounds remain unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms With shared meet already supplied, entry reads request giver hand and receiver hips/feet/hand only. The fixed carry-place pitch/yaw search shares one direct base and shoulder reading; each taken-away sample prepares direct body/path/digits once for nine full fits. Constant shape schedules omit repeated key-set construction. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit fixed body/posture or fixed-time geometry justifies preparation while every pitch/yaw goal still receives its actual complete coupled solve; rank/display use the same request and tip owners and all scalar interpolation keeps its original owner.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned action retains base/transport/shape geometry, original selected grip/reference and scalar course; entry maps and per-sample base/FK/rank contexts are released with planning, without a pose/time history or handle.
+   * @evidence contracts/development/implementation.md#efficient-algorithms With shared meet, entry reads request giver hand and receiver hips/feet/hand. Every original carry-place pitch reads its actual shoulder and every yaw re-runs its raw body/path/digit callback and complete fit. Only canonical metadata and explicitly owned digit arithmetic are prepared; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrowed body/posture graphs never establish a fixed direct base, shoulder or per-time request. Every pitch/yaw uses current source and original full solves; scalar course interpolation and current request/tip formulas retain their owners.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action retains original base/transports/digits, selected grip/reference and scalar course. Planning maps and actual fit scratch release synchronously, without fixed-source base/frame readers, queried-time pose history or external handles.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -213,9 +213,11 @@ export namespace receive {
     );
     let carry: IAutoMovieVector3 = shared.receiverFrom.point;
     if (takes) {
-      const carryAt: ReturnType<typeof HumanHandover.prepareCarried> = HumanHandover.prepareCarried(body, held, side);
+      const carryAt: (pitch?: number) => IAutoMovieVector3 = (pitch: number = 0): IAutoMovieVector3 =>
+        HumanHandover.carried(body, held, side, pitch);
       carry = carryAt();
-      const tipped: ReturnType<typeof HumanHandoverUpright.rank> = HumanHandoverUpright.rank(body, side, held);
+      const tipped: (goal: IHumanPosture.IGoal) => number = (goal: IHumanPosture.IGoal): number =>
+        HumanHandover.tipped(body, side, { ...held, limbs: { ...held.limbs, [`${side}Arm`]: goal } });
       let least: number = Infinity;
       for (const pitch of PITCHES) {
         const place: IAutoMovieVector3 = carryAt(pitch);
@@ -293,8 +295,8 @@ export namespace receive {
     // showed at the grip, not the one it was asked there, since the prop sits
     // in the hand as the hand was shown, and its upright carry leaves only
     // the turn about the vertical, which the take-away chooses
-    // (`HumanHandoverUpright`). At a fixed second only that rotation varies;
-    // transport, digits, direct body and all other goals are prepared once.
+    // (`HumanHandoverUpright`). Each original yaw callback re-reads its raw
+    // transport, digits, direct body and complete other goals.
     const frameAt: (seconds: number) => HumanHandoverUpright.IFrame = (seconds: number): HumanHandoverUpright.IFrame => {
       const t: number = Math.min(duration, Math.max(0, seconds));
       let wrist: IAutoMovieVector3;
@@ -365,7 +367,9 @@ export namespace receive {
       };
     };
     const turn: (seconds: number) => number = takes
-      ? HumanHandoverUpright.prepared(body, side, frameAt, leave, duration, [0, undefined])
+      ? HumanHandover.upright(body, side,
+          (seconds: number, yaw: number): IHumanPosture => HumanHandoverUpright.posed(frameAt(seconds), side, yaw),
+          leave, duration, [0, undefined])
       : (): number => 0;
 
     const part: IHumanContactWindow["part"] =

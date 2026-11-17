@@ -58,10 +58,10 @@ export class StaggerFeet {
   /** Each step's bow around the standing leg. */
   private readonly bows: Map<staggerRecover.IStep, number> = new Map();
 
-  /** One fixed swing reader and lateral direction per immutable recovery step. */
+  /** One fixed swing reader and nonzero-travel direction per recovery step. */
   private readonly swings: Map<staggerRecover.IStep, {
     from: walkFoot.IEnd;
-    normal: IAutoMovieVector3;
+    normal: IAutoMovieVector3 | undefined;
     at: (share: number) => walkFoot.IFoot;
   }> = new Map();
 
@@ -81,7 +81,8 @@ export class StaggerFeet {
   private readonly swingReaches: Record<"left" | "right", ReturnType<typeof walkReach.prepareSwing>>;
 
   /**
-   * Keep one plan's immutable body, entry, judged course and recovery steps.
+   * Keep one plan's canonical body, original entry reference, judged course
+   * and recovery steps. Raw entry yaw remains live for swing fallbacks.
    * Body-only reach readers are prepared now; endpoint, swing and bow work
    * remains lazy and bounded by the plan's declared steps.
    *
@@ -136,8 +137,8 @@ export class StaggerFeet {
    * @evidence contracts/development/implementation.md#principled-implementation The recovery's centre course and judged trunk determine the root frame, then walkReachHeld holds the feet under it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read or borrow the course sample, construct the frame, hold the feet.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No new fit, tolerance, time memo or posed-result cache is introduced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A supplied sample avoids duplicate interpolation, and the shared root formula avoids building an unused preliminary pelvis; held-foot work is unchanged and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work solve lends its same synchronous course reading and optional parent FK source to actual held-pelvis placement; other callers retain original local preparation and default interpolation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A supplied sample avoids duplicate interpolation; the original upright frame pelvis and held-foot placement both remain actual, with speedup unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work solve lends its same synchronous course reading and optional parent FK source to the original frame and held-pelvis placements. The frame still observes entry yaw/hips and performs its actual upright FK before its root reader is used.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains neither the supplied reading/FK source nor its result after return; no loan enters this instance's endpoint, bow or swing preparation.
    */
   public settle(
@@ -152,7 +153,9 @@ export class StaggerFeet {
     const entry: IHumanPosture = this.posture;
     return walkReachHeld.held(
       this.body,
-      staggerKnots.root(entry.root, this.bend, this.recovery.course(seconds), reading.trunk),
+      staggerKnots.frame(
+        this.body, entry, this.bend, this.recovery.course(seconds), feet, resolution,
+      ).root(reading.trunk),
       entry.yaw,
       entry.joints.hips ?? [0, 0, 0],
       feet,
@@ -191,7 +194,7 @@ export class StaggerFeet {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One standing schedule and one step scan delegate active swing geometry to swungAt; end owns declared settled endpoints and staggerSwingBow owns the clearance search.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original interval predicate, endpoint/contact, lift, course-knot sample, reach pass and clearance-selected bow; only declared step endpoints enter the endpoint map.
    * @evidence contracts/development/implementation.md#efficient-algorithms O(s) schedule scans for s recovery steps, plus the original k-instant two-sided fit search when an unprepared step is first queried; fixed endpoint geometry and completed bows remove only repeated equivalent search.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body, complete entry, judged course and immutable step identity establish endpoint/swing/bow equivalence; every queried share and bow still receives the actual swing evaluation without a sampled-time result cache.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Preserves the original endpoint and bow maps under the judged course/step schedule. Fixed body and those settled endpoints prepare walking-swing prerequisites; every queried share/bow remains actual, and zero-travel fallback yaw is read afresh at its original per-swing site.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most two settled endpoints and one swing/bow record per declared step remain with this finite recovery's plan; temporary bow observations release on search return or failure, and current schedule outputs belong to callers.
    */
   public scheduled(
@@ -280,7 +283,8 @@ export class StaggerFeet {
    * seconds and signed lateral bow metres. The foot rises by CLEARANCE over
    * the original rising share, then follows the prepared swing and
    * 16*share^2*(1-share)^2 lateral bump, resting at both endpoints.
-   * Fixed endpoint/normal preparation is shared; each sample is fresh.
+   * Fixed endpoint preparation is shared. A zero-travel swing reads the
+   * current entry yaw after its actual swing, as the original fallback did.
    */
   private swungAt(
     step: staggerRecover.IStep,
@@ -290,7 +294,7 @@ export class StaggerFeet {
     const { CLEARANCE }: typeof staggerBounds = staggerBounds;
     const rising: number = this.rising;
     const u: number = (seconds - step.start) / (step.land - step.start);
-    const { from, normal, at }: ReturnType<StaggerFeet["swingOf"]> = this.swingOf(step);
+    const { from, normal: direction, at }: ReturnType<StaggerFeet["swingOf"]> = this.swingOf(step);
     const share: number = Math.max(0, (u - rising) / (1 - rising));
     const swung: walkFoot.IFoot =
       u < rising
@@ -305,6 +309,10 @@ export class StaggerFeet {
             toes: from.toes,
           }
         : at(share);
+    const normal: IAutoMovieVector3 = direction ?? HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw: this.posture.yaw },
+      { x: 0, y: 0, z: 1 },
+    );
     const bump: number = 16 * share * share * (1 - share) * (1 - share);
     return {
       ...swung,
@@ -323,13 +331,13 @@ export class StaggerFeet {
 
   /**
    * Prepare one immutable step's settled endpoints, raised-start walking
-   * swing and lateral normal under this instance's fixed body/course.
-   * The original 1e-9 travel-size test retains its heading fallback, and
-   * the prepared reader computes each queried share without sample history.
+   * swing and nonzero-travel normal under this instance's fixed body/course.
+   * The original 1e-9 test leaves the current-yaw fallback to swungAt rather
+   * than retaining a raw entry observation in this preparation.
    */
   private swingOf(step: staggerRecover.IStep): {
     from: walkFoot.IEnd;
-    normal: IAutoMovieVector3;
+    normal: IAutoMovieVector3 | undefined;
     at: (share: number) => walkFoot.IFoot;
   } {
     const known: ReturnType<StaggerFeet["swingOf"]> | undefined = this.swings.get(step);
@@ -350,10 +358,7 @@ export class StaggerFeet {
       from,
       normal: size > 1e-9
         ? { x: -travel.z / size, y: 0, z: travel.x / size }
-        : HumanFrame.point(
-            { origin: { x: 0, y: 0, z: 0 }, yaw: this.posture.yaw },
-            { x: 0, y: 0, z: 1 },
-          ),
+        : undefined,
       at: walkFoot.prepareSwing(this.body, step.side, {
         from: raised,
         velocity: { x: 0, y: 0, z: 0 },

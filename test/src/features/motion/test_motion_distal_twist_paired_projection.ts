@@ -1,5 +1,6 @@
 import {
   Quaternion,
+  clampJointToSkeleton,
   fitHingedRotationError,
   type IFitChainToTargetProps,
   indexSkeletonTopology,
@@ -37,11 +38,15 @@ import { qclose } from "../internal/qclose";
  *    0/30/0 degrees of error against identity when the same borrowed lower
  *    quaternion changes between calls. A nonfinite edit must fail twice,
  *    then a repaired finite30-degree record must score30 again.
+ * 5. An unknown lower-clamp wrapper copies the real clamp's current result
+ *    into one reused record. Actual60/-30/60 lower demands must still select
+ *    their correct rotation; retaining that callback's mutable result across
+ *    distinct probes would silently replace an earlier probe by a later one.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States degree/local/world frames, fixed preceding/rest rotations, lower and effector constraints, selected-pair ownership, mutable borrowed candidate scalars, repeated failure recovery and exact versus bounded-residual cases.
- * @evidence contracts/development/testing.md#behavioral-verification Runs public withProjection with real skeleton clamps/projector, reads selected lower twist and its retained local/raw quaternions, and recomposes the actual shown world rotation. Public prepareChainPlant/fitHingedRotationError separately score edits of one proximal candidate record, repeated invalid edits and finite recovery. Wrong candidate pairing, identity-only memoization, failed admission treated as successful or forced-zero residual fails.
+ * @evidence contracts/development/common.md#meaningful-documentation States degree/local/world frames, fixed preceding/rest rotations, lower and effector constraints, selected-pair ownership, mutable borrowed candidate scalars, repeated failure recovery, unknown clamp scratch-output lifetime and exact versus bounded-residual cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs public withProjection with real skeleton clamps/projector, reads selected lower twist and its retained local/raw quaternions, and recomposes the actual shown world rotation. A wrapped real lower clamp returning one scratch record must retain the actual60/-30/60 selected articulations. Public prepareChainPlant/fitHingedRotationError separately score edits of one proximal candidate record, repeated invalid edits and finite recovery. Wrong pairing, identity-only memoization, retained foreign-return aliases, failed admission treated as successful or forced-zero residual fails.
  * @evidence contracts/development/testing.md#independent-expectations Collinear Z rotations add their degree angles. The fixed 20+15 leaves the desired lower turn; the closed [-90,90] interval clips 120/-120 to 90/-90, leaving signed30-degree local requests and identity for the immobile effector. Half-angle sine/cosine constructs expectations directly. A separate proximal X hinge's fixed preceding/rest frames and effector are identity, so its shown world rotation is the lower candidate itself and its identity-demand geodesic error is exactly its0/30-degree turn, within1e-8-degree arithmetic roundoff.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers positive/negative reachable turns, both active lower endpoints, nonidentity preceding/rest frames, nonzero unreachable residual, changed requests, mutated prior result ownership, same-record scalar changes and repeated-invalid-to-valid recovery. Other entries own arbitrary coupled-joint projection and the bounded fallback's feasibility.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers positive/negative reachable turns, both active lower endpoints, nonidentity preceding/rest frames, nonzero unreachable residual, changed requests, mutated prior result ownership, same-record scalar changes, repeated-invalid-to-valid recovery and a wrapped real clamp returning one mutable scratch record. No callback cardinality or independent ownership of that foreign callback's returned record is assumed. Other entries own arbitrary coupled-joint projection and the bounded fallback's feasibility.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable numerical unit owns isolated two/three-bone cardinal kernel rigs and source records. It starts no Human producer, native artifact, renderer, process or compiler and replaces no projector, clamp, foreign function or global.
  */
 export function test_motion_distal_twist_paired_projection(): void {
@@ -126,7 +131,33 @@ export function test_motion_distal_twist_paired_projection(): void {
     qclose(saved[4]!.projection.local, turn(0), 1e-8) &&
     qclose(saved[4]!.projection.quaternion, turn(0), 1e-12),
   );
+  foreignLower(skeleton, lowerBasis, effectorBasis, fixed);
   proximalScalars();
+}
+
+/** Foreign clamp return values are current borrowed records, without genuine immutable provenance. */
+function foreignLower(skeleton: IAutoMovieSkeleton, lowerBasis: IAutoMovieJointAxes,
+  effectorBasis: IAutoMovieJointAxes, prepared: solveDistalTwist.IPrepared): void {
+  const actual: ReturnType<typeof clampJointToSkeleton.of> = clampJointToSkeleton.of("leftLowerArm", skeleton);
+  const shared: ReturnType<typeof joint> = joint("leftLowerArm", { flexion: 0, abduction: 0, twist: 0 });
+  const lower: typeof actual = (input: Parameters<typeof actual>[0]): ReturnType<typeof actual> =>
+    Object.assign(shared, actual(input));
+  for (const desired of [60, -30, 60]) {
+    const result: solveDistalTwist.IResult = solveDistalTwist.withProjection({
+      joint: joint("leftLowerArm", { flexion: 0, abduction: 0, twist: 0 }),
+      effector: joint("leftHand", { flexion: 0, abduction: 0, twist: 0 }),
+      above: turn(20), lowerBasis, lowerFrame: undefined,
+      effectorRest: turn(15), effectorBasis, effectorFrame: undefined,
+      rotation: turn(35 + desired), skeleton, preparedEffector: prepared,
+      clamps: { lower, effector: clampJointToSkeleton.of("leftHand", skeleton) },
+    });
+    const shown: IAutoMovieQuaternion = Quaternion.multiply(
+      Quaternion.multiply(Quaternion.multiply(turn(20), jointToQuaternionOnBasis(result.joint, lowerBasis)), turn(15)),
+      result.projection.quaternion);
+    TestValidator.predicate("unknown clamp scratch output cannot replace a different probe's selected articulation",
+      nclose(result.joint.twist!, desired, 1e-8) && qclose(shown, turn(35 + desired), 1e-8) &&
+      qclose(result.projection.local, turn(0), 1e-8) && qclose(result.projection.quaternion, turn(0), 1e-12));
+  }
 }
 
 /** Read each actual candidate quaternion and commit only successful lower admission. */

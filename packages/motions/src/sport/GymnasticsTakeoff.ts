@@ -9,6 +9,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { GymnasticsFlight } from "./GymnasticsFlight";
+import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
 
 /**
  * A take-off at a chosen launch velocity (#3377): the jump's own push-off
@@ -67,15 +68,16 @@ export namespace GymnasticsTakeoff {
    * @evidence contracts/development/implementation.md#principled-implementation The apex is v_y² / 2g, the jump's own law; the landing place is corrected by the missing horizontal velocity times the jump's flight time, which is linear in the place.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A guess, then the corrections.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The velocity returned is the one the last plan shows, not the one asked.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four jump plans and four launch readings.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the last jump plan only, in the result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four original jump plans and all eight actual millisecond COM samples remain. One genuine fixed-name mass FK preparation serves all four launch readings; each still fully resolves its own current demands, with speedup unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged body/model shares only its prepared bone-name membership. Each launch owns separate synchronous FK/projector loans for its two actual samples, never sharing a posture, time result, requested velocity or source between correction passes.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local launch reader's bounded demand releases with this synchronous correction operation; no FK/projector loan or query history enters the result. Only the last original jump plan and its numeric launch vectors escape.
    */
   export function of(
     context: IHumanActionContext<object>,
     aim: (centre: IAutoMovieVector3) => IAutoMovieVector3,
   ): ITakeoff {
     const model: GymnasticsFlight.Model = GymnasticsFlight.model(context.body);
+    const launch: ReturnType<typeof prepareGymnasticsLaunch> = prepareGymnasticsLaunch(context.body, model);
     const root: IAutoMovieVector3 = context.entry.posture.root;
 
     // The first aim reads a centre over the root at the share of the stature
@@ -116,7 +118,7 @@ export namespace GymnasticsTakeoff {
       });
       const seconds: number = at(plan, "takeoff");
       const read: { centre: IAutoMovieVector3; velocity: IAutoMovieVector3 } =
-        GymnasticsFlight.launch(context.body, model, plan, seconds);
+        launch(plan, seconds);
       taken = { plan, seconds, ...read };
       if (pass === PASSES) break;
 

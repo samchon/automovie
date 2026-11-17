@@ -25,6 +25,7 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanHandDirection } from "../posture/HumanHandDirection";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { armPhraseFacing } from "./armPhraseFacing";
@@ -78,9 +79,9 @@ import { armPhraseFacing } from "./armPhraseFacing";
  * @evidence contracts/development/implementation.md#principled-implementation Kendon's phases on the phrase clock, each phase a minimum-jerk movement through the arm phrases, timed by the vocabulary's transport rule.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Each arm's geometry, one clock shared by the arms, one primitive per arm, one composition.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offset's shares are the caller's and scale with the body; the phases are the timing owner's transport and pauses. Two defaults are set here and named provisional: an oscillation's swing (`SWING`, a tenth of the arm's length) and its two cycles.
- * @evidence contracts/development/implementation.md#efficient-algorithms Planning resolves entry bones and prepares fixed offsets/bend hints once; each posture pays its actual base and arm primitive work. Declared root/own-arm/own-hand dependencies let requested prefix reads omit unrelated channels without omitting any later actual limb fit.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The target, offset, swing and bend are fixed plan geometry. Target closures ignore the current posture, while the move still reads current root/yaw and preserves own arm joints and own-hand digit goals; those are exactly its declared input channels.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold the instance's inputs only.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Planning resolves entry bones and prepares fixed target offsets and genuine issued local hand-surface geometry once, while each actual target keeps its original entry-posture bend reading; each posture pays its actual base and arm primitive work. Declared root/own-arm/own-hand dependencies let requested prefix reads omit unrelated channels without omitting any later actual limb fit.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The resolved target and target offset are fixed plan geometry; each target still reads the borrowed entry posture through Bend.hang at its original bend-field position. Stroke-from and oscillation-swing fields remain live and are read only by their actual branch callbacks; their original per-axis entry-yaw reads feed a genuine last-exact-yaw direction preparation, sharing only private unit axes and frame coefficients. ArmTarget.prepareTarget issues each actual row with that same local-surface provenance, while current world points/rotations/bends and every callback remain actual. Target closures ignore the current posture, while the move still reads current root/yaw and preserves own arm joints and own-hand digit goals; those are exactly its declared input channels.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its fixed instance/hand geometry and per-arm issued-row producer until release. Weak row provenance retains no row or query answer as a value; no posture, dynamic FK/ROM workspace or sampled-time history enters retained target geometry.
  */
 export namespace armPhrase {
   /** The law's name, as productions register it. */
@@ -257,6 +258,7 @@ export namespace armPhrase {
           side,
           surface,
         );
+      const direction: ReturnType<typeof HumanHandDirection.prepare> = HumanHandDirection.prepare(side);
       const shift: (o: IOffset | undefined) => IAutoMovieVector3 = (
         o: IOffset | undefined,
       ): IAutoMovieVector3 =>
@@ -265,11 +267,11 @@ export namespace armPhrase {
           : Vector3.scale(
               Vector3.add(
                 Vector3.add(
-                  Vector3.scale(HumanHand.direction(side, hold.yaw, "out"), o.out),
-                  Vector3.scale(HumanHand.direction(side, hold.yaw, "up"), o.up),
+                  Vector3.scale(direction(hold.yaw, "out"), o.out),
+                  Vector3.scale(direction(hold.yaw, "up"), o.up),
                 ),
                 Vector3.scale(
-                  HumanHand.direction(side, hold.yaw, "forward"),
+                  direction(hold.yaw, "forward"),
                   o.forward,
                 ),
               ),
@@ -325,18 +327,16 @@ export namespace armPhrase {
                 HumanHand.offset(body, side, surface, shape).point,
               ),
             );
-      const bend: IAutoMovieVector3 =
-        AutoMovieMotionHumanBend.hang(body, hold, side, 0.1);
+      const emit: ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareTarget> =
+        AutoMovieMotionHumanArmTarget.prepareTarget(body, side, surface, shape);
       const target: (
         point: IAutoMovieVector3,
       ) => AutoMovieMotionHumanArmTarget.ITarget = (
         point: IAutoMovieVector3,
-      ): AutoMovieMotionHumanArmTarget.ITarget => ({
-        surface,
-        shape,
+      ): AutoMovieMotionHumanArmTarget.ITarget => emit({
         point: Vector3.subtract(point, lever),
         rotation,
-        bend: { ...bend },
+        bend: AutoMovieMotionHumanBend.hang(body, hold, side, 0.1),
       });
       const start: IAutoMovieVector3 = AutoMovieMotionHumanArmTarget.point(
         hold,
@@ -348,9 +348,7 @@ export namespace armPhrase {
         place,
         shift,
         target,
-        distance: Vector3.length(
-          Vector3.subtract(Vector3.subtract(place, lever), start),
-        ),
+        distance: Vector3.distance(Vector3.subtract(place, lever), start),
       };
     });
 
@@ -382,9 +380,6 @@ export namespace armPhrase {
     });
     const primitives: IAutoMovieMotionHumanPrimitive[] = arms.map(
       (a: IArm): IAutoMovieMotionHumanPrimitive => {
-        const from: IAutoMovieVector3 = Vector3.add(a.place, a.shift(p.from));
-        const sweep: IAutoMovieVector3 =
-          a.shift(p.swing ?? { out: SWING, up: 0, forward: 0 });
         const phrase: AutoMovieMotionHumanArmPhrase.IPhrase = {
           body,
           clock,
@@ -407,7 +402,7 @@ export namespace armPhrase {
                 ) =>
                   a.target(
                     Vector3.lerp(
-                      from,
+                      Vector3.add(a.place, a.shift(p.from)),
                       a.place,
                       progress,
                     ),
@@ -418,12 +413,8 @@ export namespace armPhrase {
                 cycles,
                 pose: (_posture: IHumanPosture, _seconds: number, swing: number) =>
                   a.target(
-                    Vector3.add(
-                      a.place,
-                      Vector3.scale(
-                        sweep,
-                        swing,
-                      ),
+                    Vector3.addScaled(
+                      a.place, a.shift(p.swing ?? { out: SWING, up: 0, forward: 0 }), swing,
                     ),
                   ),
               });

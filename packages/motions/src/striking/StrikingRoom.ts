@@ -74,6 +74,9 @@ export namespace StrikingRoom {
     limit: number;
   }
 
+  /** The original proximal/midpoint/distal sample order, shared as immutable geometry. */
+  const SHARES: readonly number[] = [0, 0.5, 1];
+
   /** The bisection's halvings: a 0.4 m stance step over 2^14 is under 0.03 mm. */
   const HALVINGS: number = 14;
 
@@ -86,32 +89,45 @@ export namespace StrikingRoom {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the range and the meaning of zero; the namespace states the method.
    * @evidence contracts/development/implementation.md#principled-implementation The least first-touch travel over the swept capsule points, each found by bisection of a monotone signed distance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the swept points and one bisection each.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A point clear over the room found so far costs one distance query; a touching one, one per halving.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Original arm/segment/share order streams each swept point into its unchanged bisection; both actual arm axes are still read before distance queries.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps both original arm-axis reads before distance queries, all eighteen ordered capsule sample locations, all fourteen halvings, radii, bounds and zero-return semantics. Only unused point/radius records and later pure interpolation work after the existing zero return are omitted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A point clear over current room costs one distance query; a touching one keeps the original halving count. Streaming omits the eighteen point/radius records and temporary list, per-segment share arrays and repeated gap closures; both arm axes retain original admission, with no measured speedup.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work All actual point/halving queries borrow the same unchanged other-body bone map, so one operation-local collider reader shares only placed geometry, spheres and fixed shape frames; every distance is still evaluated.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The collider reader lives only through this synchronous room search and ends on return or throw; only the scalar room escapes.
    */
   export function along(props: IProps): number {
     const geometry: ReturnType<typeof HumanColliders.reading> = HumanColliders.reading(props.other, props.others);
+    const radii: ReturnType<typeof StrikingWeapon.armRadii> = StrikingWeapon.armRadii(props.body);
+    // Read both arm axes before distance queries so missing frames still fail first.
+    const axes: readonly [IAutoMovieVector3[], IAutoMovieVector3[]] = [
+      StrikingWeapon.posed(props.body, props.bones, "left"),
+      StrikingWeapon.posed(props.body, props.bones, "right"),
+    ];
+    const gap: (point: IAutoMovieVector3, radius: number, distance: number) => number = (
+      point: IAutoMovieVector3,
+      radius: number,
+      distance: number,
+    ): number => geometry.segment(
+      point,
+      Vector3.add(point, Vector3.scale(props.line, distance)),
+    ).distance - radius;
     let room: number = props.limit;
-    for (const { point, radius } of swept(props.body, props.bones)) {
-      const gap = (d: number): number =>
-        geometry.segment(
-          point,
-          Vector3.add(point, Vector3.scale(props.line, d)),
-        ).distance - radius;
-      if (gap(room) > 0) continue;
-      if (gap(0) <= 0) return 0;
-      let lo: number = 0;
-      let hi: number = room;
-      for (let i: number = 0; i < HALVINGS; i++) {
-        const mid: number = (lo + hi) / 2;
-        if (gap(mid) <= 0) hi = mid;
-        else lo = mid;
-      }
-      room = lo;
-    }
+    for (const ends of axes)
+      for (let segment: number = 0; segment < radii.length; segment++)
+        for (const share of SHARES) {
+          const point: IAutoMovieVector3 = Vector3.lerp(ends[segment]!, ends[segment + 1]!, share);
+          const radius: number = StrikingWeapon.girth(radii[segment]!, share);
+          if (gap(point, radius, room) > 0) continue;
+          if (gap(point, radius, 0) <= 0) return 0;
+          let lo: number = 0;
+          let hi: number = room;
+          for (let i: number = 0; i < HALVINGS; i++) {
+            const mid: number = (lo + hi) / 2;
+            if (gap(point, radius, mid) <= 0) hi = mid;
+            else lo = mid;
+          }
+          room = lo;
+        }
     return room;
   }
 
@@ -291,29 +307,6 @@ export namespace StrikingRoom {
       context.body.measure.forearmRadius -
       other.body.measure.forearmRadius;
     return Math.min(feint.declared, Math.max(0, clear / whole));
-  }
-
-  /** The arms' capsule points with their radii: each capsule's ends and middle. */
-  function swept(
-    body: IHumanBody,
-    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ): { point: IAutoMovieVector3; radius: number }[] {
-    const radii: readonly (number | readonly [number, number])[] =
-      StrikingWeapon.armRadii(body);
-    const out: { point: IAutoMovieVector3; radius: number }[] = [];
-    for (const side of ["left", "right"] as const) {
-      const ends: IAutoMovieVector3[] = StrikingWeapon.posed(body, bones, side);
-      radii.forEach(
-        (radius: number | readonly [number, number], i: number): void => {
-          for (const share of [0, 0.5, 1])
-            out.push({
-              point: Vector3.lerp(ends[i]!, ends[i + 1]!, share),
-              radius: StrikingWeapon.girth(radius, share),
-            });
-        },
-      );
-    }
-    return out;
   }
 }
 

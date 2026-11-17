@@ -117,7 +117,7 @@ export namespace kneelKeys {
    * @evidence contracts/development/implementation.md#principled-implementation The toes' joint is found on the floor behind the knee where the ankle is a shank from the knee, and the foot's pitch is the one that leaves the ankle at its dorsiflexion range against the shank's slope.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A foot from a distance and a pitch, a bisection for the distance and a fixed-point loop for the pitch.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ranges are read from the range table; past the toes' range the toes' joint rises instead of the toes overextending.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Six fixed-point pitch updates and the final placement retain all seven 40-step distance bisections; each bisection prepares its fixed rotation, socket offset and toe height once instead of at every distance trial.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Six fixed-point pitch updates and the final placement retain all seven 40-step distance bisections. Fixed rotation/socket/toe height prepare once per pitch; each distance trial emits only its observed point instead of a discarded full foot record.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanFoot.prepareAt for each fixed-pitch ankle transform; callers solve a foot once and translate it with its knee.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -140,27 +140,31 @@ export namespace kneelKeys {
         HumanFoot.offset(body, side, "mtp"),
       ),
     );
-    const atPitch = (pitch: number): ((d: number) => IFoot) => {
+    const atPitch: (pitch: number) => (d: number) => IAutoMovieVector3 = (
+      pitch: number,
+    ): ((d: number) => IAutoMovieVector3) => {
       const height: number =
         floor +
         toe * Math.sin((Math.max(0, pitch - extension) * Math.PI) / 180);
-      const toes: number = Math.min(extension, pitch);
-      return (d: number): IFoot => ({
-        at: {
-          ...Vector3.subtract(kneeAt, Vector3.scale(forward, d)),
-          y: height,
-        },
-        heading: yaw,
-        pitch: -pitch,
-        toes,
-        planted: true,
+      return (d: number): IAutoMovieVector3 => ({
+        ...Vector3.subtract(kneeAt, Vector3.scale(forward, d)),
+        y: height,
       });
     };
-    const foot = (d: number, pitch: number): IFoot => atPitch(pitch)(d);
+    const foot: (d: number, pitch: number) => IFoot = (
+      d: number,
+      pitch: number,
+    ): IFoot => ({
+      at: atPitch(pitch)(d),
+      heading: yaw,
+      pitch: -pitch,
+      toes: Math.min(extension, pitch),
+      planted: true,
+    });
     const ankle = (at: IFoot): IAutoMovieVector3 =>
       HumanFoot.pivot(body, side, "mtp", at.at, at.heading, at.pitch).ankle;
     const back = (pitch: number): number => {
-      const at: (d: number) => IFoot = atPitch(pitch);
+      const at: (d: number) => IAutoMovieVector3 = atPitch(pitch);
       const pivot: ReturnType<typeof HumanFoot.prepareAt> = HumanFoot.prepareAt(
         body,
         side,
@@ -173,7 +177,7 @@ export namespace kneelKeys {
       for (let i: number = 0; i < 40; i++) {
         const mid: number = (lo + hi) / 2;
         if (
-          Vector3.length(Vector3.subtract(pivot(at(mid).at).ankle, kneeAt)) <
+          Vector3.length(Vector3.subtract(pivot(at(mid)).ankle, kneeAt)) <
           m.shank
         )
           lo = mid;

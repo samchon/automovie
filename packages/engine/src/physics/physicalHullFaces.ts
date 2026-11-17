@@ -26,7 +26,7 @@ import { Vector3 } from "../math/Vector3";
  * @evidence contracts/development/implementation.md#principled-implementation Ordinary geometry uses supporting planes through non-collinear triples with every point behind them (de Berg et al., Computational Geometry, chapter 11), then Andrew's monotone-chain loops. An issued X reflection first reconfirms every actual coordinate before applying the exact support-plane isometry and the same planar loop/summary owners.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The single owner of hull topology: the nearest-point query, bounds, mass, erosion, validation and the native mapping all read these faces instead of deriving their own.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 1e-9 extent-relative tolerance and all plane/member tests remain. Extent keeps diagonal nonfinite propagation and omits only symmetric reverse distances. A candidate stops only once monotone front/back evidence proves it cannot support any hull; reflected geometry must pass exact coordinate checks before planes are derived, without a caller-supplied cached-hull flag.
- * @evidence contracts/development/implementation.md#efficient-algorithms Supporting triples remain cubic to quartic in V points. Extent omits reverse distances; one cross/normal workspace omits up to four candidate vector records. Coverage checks visit only prior faces actually containing first index i; accepted memberships are linked to future first indices in O(V), and finished lists release immediately. Interior planes stop after both sides are proved. Validated reflection uses O(V) checks and O(F V log V) ordering; later reads are weak lookups.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Supporting triples remain cubic to quartic in V points. Extent omits reverse distances; one cross/normal workspace omits up to four candidate vector records. Coverage checks visit only prior faces actually containing first index i; accepted memberships are linked to future first indices in O(V), and finished lists release immediately. Interior planes stop after both sides are proved. Planar sort/turn/chain kernels omit three closures per face; summary keeps one centre and uses equivalent scalar distance without per-vertex scaled/add/displacement vectors. Validated reflection uses O(V) checks and O(F V log V) ordering; later reads are weak lookups.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each points array shares one completed hull through the existing weak map. Only mirrorX-issued provenance plus exact actual-coordinate checks can derive an isometric source hull; edited fresh points revert to ordinary search without trusting a caller-supplied hull.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The weak completed cache owns one hull per live points array. Raw search owns O(F V) boolean membership/incidence data for F accepted faces and V points, releasing each completed first-index list and all remaining scratch on return/throw. Reflection provenance borrows source points only until its first attempted read, then releases in finally on success, edited-output fallback or failure. No query/body history is retained.
  */
@@ -168,41 +168,50 @@ const planarLoop = (
         : { x: 0, y: 0, z: 1 };
   const u: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(normal, seed));
   const v: IAutoMovieVector3 = Vector3.cross(normal, u);
-  const flat: { index: number; x: number; y: number }[] = [];
+  const flat: IPlanarPoint[] = [];
   points.forEach((p: IAutoMovieVector3, index: number): void => {
     if (member[index]!)
       flat.push({ index, x: Vector3.dot(p, u), y: Vector3.dot(p, v) });
   });
-  flat.sort(
-    (
-      a: { index: number; x: number; y: number },
-      b: { index: number; x: number; y: number },
-    ): number => a.x - b.x || a.y - b.y,
-  );
-  const turn = (
-    o: { x: number; y: number },
-    a: { x: number; y: number },
-    b: { x: number; y: number },
-  ): number => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
-  const chain = (
-    ordered: { index: number; x: number; y: number }[],
-  ): { index: number; x: number; y: number }[] => {
-    const out: { index: number; x: number; y: number }[] = [];
-    for (const p of ordered) {
-      while (
-        out.length >= 2 &&
-        turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
-      )
-        out.pop();
-      out.push(p);
-    }
-    out.pop();
-    return out;
-  };
-  return [...chain(flat), ...chain([...flat].reverse())].map(
-    (p: { index: number; x: number; y: number }): number => p.index,
+  flat.sort(comparePlanarPoints);
+  return [...planarChain(flat), ...planarChain([...flat].reverse())].map(
+    (p: IPlanarPoint): number => p.index,
   );
 };
+
+/** One projected vertex retains its original index and face-plane coordinates. */
+interface IPlanarPoint {
+  /** Index into the actual source points, unchanged by projection or sorting. */
+  index: number;
+
+  /** Dot product on the first in-plane unit axis. */
+  x: number;
+
+  /** Dot product on the second in-plane unit axis. */
+  y: number;
+}
+
+/** The original X-then-Y ordering is independent of the face and point population. */
+function comparePlanarPoints(a: IPlanarPoint, b: IPlanarPoint): number {
+  return a.x - b.x || a.y - b.y;
+}
+
+/** Keep the same determinant expression and collinearity comparison in both chains. */
+function planarTurn(o: IPlanarPoint, a: IPlanarPoint, b: IPlanarPoint): number {
+  return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+}
+
+/** One original monotone-chain walk; only its output stack belongs to this call. */
+function planarChain(ordered: IPlanarPoint[]): IPlanarPoint[] {
+  const out: IPlanarPoint[] = [];
+  for (const p of ordered) {
+    while (out.length >= 2 && planarTurn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0)
+      out.pop();
+    out.push(p);
+  }
+  out.pop();
+  return out;
+}
 
 /**
  * The hull record and its face.
@@ -292,12 +301,20 @@ function summarize(
   const vertices: IAutoMovieVector3[] = points.filter(
     (_: IAutoMovieVector3, index: number): boolean => used[index]!,
   );
-  let centre: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  for (const vertex of vertices)
-    centre = Vector3.add(centre, Vector3.scale(vertex, 1 / vertices.length));
+  const centre: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  for (const vertex of vertices) {
+    // Preserve scale's three reads/products before the original ordered sums.
+    const share: number = 1 / vertices.length;
+    const x: number = vertex.x * share;
+    const y: number = vertex.y * share;
+    const z: number = vertex.z * share;
+    centre.x += x;
+    centre.y += y;
+    centre.z += z;
+  }
   let radius: number = 0;
   for (const vertex of vertices)
-    radius = Math.max(radius, Vector3.length(Vector3.subtract(vertex, centre)));
+    radius = Math.max(radius, Vector3.distance(vertex, centre));
   let depth: number = faces.length ? Infinity : 0;
   for (const face of faces)
     depth = Math.min(depth, face.offset - Vector3.dot(face.normal, centre));

@@ -59,18 +59,39 @@ export namespace walkLeg {
    * @returns Radians.
    */
   export function behind(body: IHumanBody, reach: number): number {
+    return prepareBehind(body)(reach);
+  }
+
+  /**
+   * Prepare the fixed lengths of a knee's thigh-to-reach angle.
+   *
+   * @param body The unchanged measured thigh/shank geometry, metres.
+   * @returns The same cosine-law angle in radians for every actual hip-to-ankle reach in metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed measured lengths, varying metre reach and radian result used by trailing and swing extension.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses behind's original capped reach and cosine law, retaining its one-nanometre denominator floor and signed cosine clamp before acos.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One measured-length preparation supplies the actual scalar reader shared by raw behind, fixed-yaw trailing and prepared swinging-foot constraints.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the same exponentiation, addition/subtraction and denominator grouping, reach cap and angle clamp; no queried angle or distance is replaced.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation hoists the two length squares, leg span and fixed denominator factor; every actual reach retains its square, division, clamp and acos.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged measured body fixes those scalar prerequisites for the stance/swing reader; geometry edits require new preparation and every changing reach is evaluated.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a closure over four scalar terms until its stance/swing releases it, without a body pose, distance, angle, time history or handle.
+   */
+  export function prepareBehind(body: IHumanBody): (reach: number) => number {
     const a: number = body.measure.thigh;
-    const d: number = Math.min(reach, a + body.measure.shank);
-    return Math.acos(
-      Math.min(
-        1,
-        Math.max(
-          -1,
-          (a ** 2 + d ** 2 - body.measure.shank ** 2) /
-            (2 * a * Math.max(d, 1e-9)),
+    const b: number = body.measure.shank;
+    const aa: number = a ** 2;
+    const bb: number = b ** 2;
+    const span: number = a + b;
+    const twice: number = 2 * a;
+    return (reach: number): number => {
+      const d: number = Math.min(reach, span);
+      return Math.acos(
+        Math.min(
+          1,
+          Math.max(-1, (aa + d ** 2 - bb) / (twice * Math.max(d, 1e-9))),
         ),
-      ),
-    );
+      );
+    };
   }
 
   /**
@@ -115,11 +136,12 @@ export namespace walkLeg {
       { origin: { x: 0, y: 0, z: 0 }, yaw },
       { x: 0, y: 0, z: 1 },
     );
+    const bend: ReturnType<typeof prepareBehind> = prepareBehind(body);
     return (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number => {
       const v: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
       return (
         ((Math.atan2(-(v.x * forward.x + v.z * forward.z), -v.y) -
-          behind(body, Vector3.length(v))) * 180) / Math.PI
+          bend(Vector3.length(v))) * 180) / Math.PI
       );
     };
   }
@@ -142,14 +164,51 @@ export namespace walkLeg {
     rotation: IAutoMovieQuaternion,
   ): IAutoMovieQuaternion {
     const direction: ReturnType<typeof HumanFoot.headingPitch> = HumanFoot.headingPitch(rotation);
-    const heading: number = direction.heading;
-    const shank: number = lean(body, hip, ankle, heading);
+    return ankleRangeAt(hip, ankle, rotation, direction, prepareWalkLegLean(body, direction.heading));
+  }
+
+  /**
+   * Prepare one exact heading through a foot's repeated ankle-clearance trials.
+   *
+   * @param body The unchanged measured leg geometry.
+   * @param heading The foot heading in degrees at this trial loop's start.
+   * @returns The same actual rotation clamp; a changed exact heading prepares its own ordinary lean instead of reusing the fixed-heading geometry.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed body/exact heading, actual hip/ankle/rotation and the unchanged-heading proof checked on every rotation.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses HumanFoot.headingPitch and the same shank-lean/ankle clamp owner as raw ankleRange, retaining unloaded dorsal and plantar bounds, margin and original rotation reconstruction.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One measured-body/heading lean reader precedes the actual rotation reader; raw and prepared paths share ankleRangeAt without duplicating the constraint formula.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every actual heading is decomposed and compared exactly; changed quaternion-derived headings use their own cold lean. No rounded angle, omitted pass, reused shank/result or altered bound is accepted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A same-heading eight-pass foot correction computes fixed heading axes and length squares once; every hip/ankle still runs the original bounded knee geometry and actual clamp. A changed exact heading retains the ordinary preparation cost.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body and exact heading alone fix the shared shank prerequisites; current hip, ankle and pitch remain query inputs, and exact mismatch selects ordinary current-heading work rather than an approximate cache hit.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One correction-owned reader retains fixed scalar/axis geometry only until that synchronous foot correction returns or throws; it stores no rotation, limb result, queried angle history or external resource.
+   */
+  export function prepareAnkleRange(
+    body: IHumanBody,
+    heading: number,
+  ): (hip: IAutoMovieVector3, ankle: IAutoMovieVector3, rotation: IAutoMovieQuaternion) => IAutoMovieQuaternion {
+    const prepared: ReturnType<typeof prepareWalkLegLean> = prepareWalkLegLean(body, heading);
+    return (hip: IAutoMovieVector3, ankle: IAutoMovieVector3, rotation: IAutoMovieQuaternion): IAutoMovieQuaternion => {
+      const direction: ReturnType<typeof HumanFoot.headingPitch> = HumanFoot.headingPitch(rotation);
+      return ankleRangeAt(hip, ankle, rotation, direction,
+        Object.is(direction.heading, heading) ? prepared : prepareWalkLegLean(body, direction.heading));
+    };
+  }
+
+  /** The original actual-joint ankle clamp after exact fixed-heading preparation. */
+  function ankleRangeAt(
+    hip: IAutoMovieVector3,
+    ankle: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion,
+    direction: ReturnType<typeof HumanFoot.headingPitch>,
+    lean: ReturnType<typeof prepareWalkLegLean>,
+  ): IAutoMovieQuaternion {
+    const shank: number = lean(hip, ankle);
     const pitch: number = direction.pitch;
     const clamped: number = Math.min(
       -shank + ANKLE_DORSIFLEXION.unloaded - ANKLE,
       Math.max(-shank - 50 + ANKLE, pitch),
     );
-    return clamped === pitch ? rotation : HumanFoot.rotation(heading, clamped);
+    return clamped === pitch ? rotation : HumanFoot.rotation(direction.heading, clamped);
   }
 
   /**
@@ -205,7 +264,7 @@ export namespace walkLeg {
    * @evidence contracts/development/implementation.md#principled-implementation Retains rise's exact folded-room search and roomAt's reach/dorsal bounds while sharing only its fixed sole pivot and forward direction.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepared pivot and heading precede the unchanged scalar search for each hip and pitch.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every room trial and search bound remains; no hip, pitch or chosen result is cached.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation followed by the original bounded pitch search; callers varying the hip avoid repeating socket and fixed-heading setup.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation followed by the original bounded pitch search; callers varying the hip avoid repeating socket and fixed-heading setup, and each room trial shares one actual hip-to-ankle length between its reach screen and shank geometry.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The body, side, world pivot, heading and onset width fix the shared geometry; changing any requires another reader.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A reader retains its fixed pivot transform and axis until its owning stance solve releases it, with no query history.
    */
@@ -218,11 +277,12 @@ export namespace walkLeg {
   ): (hip: IAutoMovieVector3, pitch: number) => number {
     const at: (degrees: number) => HumanFoot.IPlacement =
       HumanFoot.preparePivot(body, side, "mtp", pivot, heading);
-    const lean: ReturnType<typeof prepareWalkLegLean> = prepareWalkLegLean(body, heading);
+    const lean: ReturnType<typeof prepareWalkLegLean.bounded> = prepareWalkLegLean.bounded(body, heading);
     return (hip: IAutoMovieVector3, pitch: number): number => rise(
       (degrees: number): number => {
         const ankle: IAutoMovieVector3 = at(degrees).ankle;
-        return roomAt(body, hip, ankle, lean, degrees);
+        const shank: number | undefined = lean(hip, ankle);
+        return shank === undefined ? -Infinity : roomValue(shank, degrees);
       },
       pitch,
       width,
@@ -273,7 +333,12 @@ export namespace walkLeg {
       body.measure.thigh + body.measure.shank
     )
       return -Infinity;
-    return -lean(hip, ankle) + 20 - ANKLE - pitch;
+    return roomValue(lean(hip, ankle), pitch);
+  }
+
+  /** The unchanged dorsal room after the original reach screen and shank lean. */
+  function roomValue(lean: number, pitch: number): number {
+    return -lean + 20 - ANKLE - pitch;
   }
 
   /**

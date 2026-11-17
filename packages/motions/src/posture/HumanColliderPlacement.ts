@@ -3,6 +3,7 @@ import {
   Quaternion,
   Vector3,
   physicalHullFaces,
+  physicalShapeBounds,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -17,7 +18,7 @@ import type { IHumanBody } from "../body/IHumanBody";
  * Posed frames are always current values, distinct from that neutral data.
  *
  * @evidence contracts/development/design.md#principled-representation Applies each bone's world transform to the profile segment's neutral offset from the canonical rest joint, preserving the existing median-plane left/right reflection.
- * @evidence contracts/development/design.md#minimal-and-owned-surface HumanColliders delegates full placement, explicit geometry preparation, canonical bone names and fixed-demand preparePlaced to this owner; distance/floor consumers retain their facade and actual ordered posed records.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface HumanColliders delegates full placement, explicit geometry preparation, canonical names, fixed-demand preparePlaced and scalar floor minima to this owner. Distance consumers retain posed records; floor consumers request only actual Y/rotation and ordered scalar bounds.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Moves the existing neutral SIDED weak cache without adding a posed-body or distance-result cache; current bones are read on every placement and the body definition must remain unchanged for its identity.
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes fixed names/offsets, first-observed reflected shapes and current posed frames, with their transform convention and unchanged-body cache ownership.
  */
@@ -51,8 +52,8 @@ export namespace HumanColliderPlacement {
    * @evidence contracts/development/implementation.md#principled-implementation Uses the original bone world position plus rotated neutral offset and the same quaternion product for segment orientation, with the established mirrored neutral definitions.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One neutral-metadata owner and one ordered placement pass separate fixed profile work from current geometry.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves profile order, first matching right twin, absent-bone skip and every transform expression; supplied posed bones are never cached across calls.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Placement visits S segments; cold neutral names/offsets cost O(B+S) using a first-name index for B rig bones. Only entries with actual posed bones materialize their mirrored shape definitions once, costing their V hull vertices; bone-name-only observations create no reflected vertices.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The weak body owner shares unchanged neutral offsets and lazily materialized mirrored definitions. Pure shape reflection has no validation side effect to run for an unobserved segment; nearest/cast operations may borrow completed placement only while body/bones stay unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Placement visits S segments and translates each owned rotated offset in place, omitting a second position vector per placed entry. Cold names/offsets cost O(B+S) for B rig bones; only entries with actual posed bones materialize mirrored shapes once, costing their V hull vertices. Name-only observations create no reflected vertices.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The weak body owner shares unchanged offsets and lazy mirrored definitions; module-owned point/turn helpers avoid two stateless closures per mirrored row. Pure reflection has no validation side effect for an unobserved segment. Nearest/cast operations may borrow completed placement only while body/bones stay unchanged.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh posed arrays/frames belong to the caller and borrow shape definitions; the existing weak body cache retains one neutral list per live body, and no current pose is stored globally.
    * @evidence contracts/development/common.md#meaningful-documentation Defines current-input stability, canonical placement, mirror/skip order, cold and warm costs and ownership.
    */
@@ -92,6 +93,62 @@ export namespace HumanColliderPlacement {
   }
 
   /**
+   * Exact floor minimum from every current placed shape, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines current canonical bones, unchanged neutral geometry, world Y and the empty Infinity result.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the original origin-Y plus rotated neutral offset, bone-times-neutral orientation and the physical owner's same local-shape minimum-Y formulas.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The scalar entry shares minima with fixed-group readers, leaving full pose placement with place.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every profile duplicate, missing-bone skip, shape/vertex order and Math.min/NaN behavior; no goal, contact, bound or physical check is omitted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Stages S scalar Y values, rotations, names and borrowed shape lists in four arrays instead of three unused placed/pose/position records per segment; all actual shape/vertex bounds still run.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed neutral metadata is shared under the unchanged-body contract. Every query reads current bones, and placement inputs are staged before any shape bound as in the original two phases.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Four temporary O(S) arrays end on return/throw, and only a scalar escapes. No bone map, posed frame or floor result is cached.
+   */
+  export function lowest(
+    body: IHumanBody,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  ): number {
+    return minima(sided(body).segments, bones)[0]!;
+  }
+
+  /**
+   * Bind ordered floor minima for fixed bone-name groups. Omission requests
+   * one whole-profile minimum. Each group result starts at Infinity; an
+   * actual shape can update several groups in their original group order.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States whole-profile default, copied group membership/order, actual canonical bone inputs, world metres and unchanged-body/reader lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation Group membership is built from actual names and applied to each placed bone. One shape bound supplies the same ordered Math.min updates for every matching group, including overlapping groups and duplicate profile entries.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Preparation snapshots name membership and selects the actual neutral union; a separate binder retains only selected entries and private group metadata for the common scalar reduction.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Accepts no external group indices, placed frames or derived floor answers. All current placement inputs are staged before bounds, preserving missing-bone skips and the original profile/shape/vertex traversal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One O(S+G+K) preparation indexes K memberships across G groups and selects R of S entries. Queries use four O(R) staging arrays plus G output numbers, without placed/pose/XYZ records; each actual selected shape is bounded once before its matching group updates.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The genuine neutral producer and copied name memberships fix the query domain. Every call still consumes current bone transforms and computes all requested minima, with no time, posture or target-result memo.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader owns selected neutral references and O(K) private name/index metadata until its operation ends. Each call releases staging and returns G fresh numbers; no body, input set, bone map, posed frame or result history is retained by the binder.
+   */
+  export function prepareMinima(
+    body: IHumanBody,
+    groups?: readonly ReadonlySet<AutoMovieHumanoidBone>[],
+  ): (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) => number[] {
+    if (groups === undefined) return bindMinima(sided(body).segments);
+    const membership: Map<string, number[]> = new Map();
+    let count: number = 0;
+    for (const group of groups) {
+      const index: number = count++;
+      const names: Set<AutoMovieHumanoidBone> = new Set(group);
+      for (const name of names) {
+        let entries: number[] | undefined = membership.get(name);
+        if (entries === undefined) {
+          entries = [];
+          membership.set(name, entries);
+        }
+        entries.push(index);
+      }
+    }
+    const selected: ISided[] = sided(body).segments.filter(
+      (segment: ISided): boolean => membership.has(segment.bone),
+    );
+    return bindMinima(selected, { count, membership });
+  }
+
+  /**
    * Prepare the existing neutral definitions and hull-face geometry.
    *
    * @param body The unchanged body definition to prepare.
@@ -127,6 +184,61 @@ export namespace HumanColliderPlacement {
   }
 }
 
+/** Actual copied name membership; callers cannot supply the numerical group lists. */
+interface IMinimaSelection {
+  /** Number of groups, including empty groups. */
+  count: number;
+
+  /** Original ascending group indices for each actual selected bone name. */
+  membership: ReadonlyMap<string, readonly number[]>;
+}
+
+/** Keep the returned reader outside any source-body or caller-set lexical scope. */
+function bindMinima(
+  segments: readonly ISided[],
+  selection?: IMinimaSelection,
+): (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) => number[] {
+  return (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): number[] =>
+    minima(segments, bones, selection);
+}
+
+/** Stage the original placement phase, then reduce only the demanded scalar bounds. */
+function minima(
+  segments: readonly ISided[],
+  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  selection?: IMinimaSelection,
+): number[] {
+  const byName: ReadonlyMap<string, IAutoMovieResolvedBone> = bones;
+  const names: AutoMovieHumanoidBone[] = [];
+  const positions: number[] = [];
+  const rotations: P.ITransform["rotation"][] = [];
+  const shapes: (readonly P.IShape[])[] = [];
+  for (const segment of segments) {
+    const posed: IAutoMovieResolvedBone | undefined = byName.get(segment.bone);
+    if (posed === undefined) continue;
+    const name: AutoMovieHumanoidBone = posed.bone;
+    const origin: IAutoMovieVector3 = posed.worldPosition;
+    const offset: number = Quaternion.rotateVectorY(posed.worldRotation, segment.offset);
+    const position: number = origin.y + offset;
+    const rotation: P.ITransform["rotation"] = Quaternion.multiply(posed.worldRotation, segment.rotation);
+    names.push(name);
+    positions.push(position);
+    rotations.push(rotation);
+    shapes.push(segment.shapes);
+  }
+  const result: number[] = new Array<number>(selection?.count ?? 1).fill(Infinity);
+  for (let i: number = 0; i < positions.length; i++) {
+    const groups: readonly number[] | undefined = selection?.membership.get(names[i]!);
+    if (selection !== undefined && groups === undefined) continue;
+    for (const shape of shapes[i]!) {
+      const low: number = physicalShapeBounds.lowestFromParent(positions[i]!, rotations[i]!, shape);
+      if (groups === undefined) result[0] = Math.min(result[0]!, low);
+      else for (const group of groups) result[group] = Math.min(result[group]!, low);
+    }
+  }
+  return result;
+}
+
 /** One ordered numerical placement serves both full and fixed-demand readers. */
 function place(
   segments: readonly ISided[],
@@ -137,10 +249,19 @@ function place(
   for (const segment of segments) {
     const posed: IAutoMovieResolvedBone | undefined = byName.get(segment.bone);
     if (posed === undefined) continue;
+
+    // The rotated offset is fresh; keep the original origin-plus-offset order.
+    const bone: AutoMovieHumanoidBone = posed.bone;
+    const origin: IAutoMovieVector3 = posed.worldPosition;
+    const position: IAutoMovieVector3 = Quaternion.rotateVector(posed.worldRotation, segment.offset);
+    position.x = origin.x + position.x;
+    position.y = origin.y + position.y;
+    position.z = origin.z + position.z;
+
     out.push({
-      bone: posed.bone,
+      bone,
       pose: {
-        position: Vector3.add(posed.worldPosition, Quaternion.rotateVector(posed.worldRotation, segment.offset)),
+        position,
         rotation: Quaternion.multiply(posed.worldRotation, segment.rotation),
       },
       shapes: segment.shapes,
@@ -227,30 +348,19 @@ function sided(body: IHumanBody): INeutral {
 
 /** Fixed offsets turn immediately; pure shape reflection waits for actual geometry demand. */
 function mirrored(segment: ISided, bone: string): ISided {
-  const point: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
-    x: -p.x,
-    y: p.y,
-    z: p.z,
-  });
-  const turn: (q: P.ITransform["rotation"]) => P.ITransform["rotation"] = (q: P.ITransform["rotation"]): P.ITransform["rotation"] => ({
-    x: q.x,
-    y: -q.y,
-    z: -q.z,
-    w: q.w,
-  });
   let shapes: P.IShape[] | undefined;
   return {
     bone,
-    offset: point(segment.offset),
-    rotation: turn(segment.rotation),
+    offset: mirrorPoint(segment.offset),
+    rotation: mirrorTurn(segment.rotation),
 
     /** Materialize this actual left collider list once; failed preparation stays uncached. */
     get shapes(): P.IShape[] {
       if (shapes !== undefined) return shapes;
       shapes = segment.shapes.map((shape: P.IShape): P.IShape => {
         const transform: P.ITransform = {
-          position: point(shape.transform.position),
-          rotation: turn(shape.transform.rotation),
+          position: mirrorPoint(shape.transform.position),
+          rotation: mirrorTurn(shape.transform.rotation),
         };
         return shape.kind === "hull"
           ? { ...shape, transform, points: physicalHullFaces.mirrorX(shape.points) }
@@ -259,4 +369,14 @@ function mirrored(segment: ISided, bone: string): ISided {
       return shapes;
     },
   };
+}
+
+/** The same fresh median-plane point reflection serves every neutral row. */
+function mirrorPoint(point: IAutoMovieVector3): IAutoMovieVector3 {
+  return { x: -point.x, y: point.y, z: point.z };
+}
+
+/** M R M keeps quaternion X/W and negates Y/Z, without changing normalization. */
+function mirrorTurn(rotation: P.ITransform["rotation"]): P.ITransform["rotation"] {
+  return { x: rotation.x, y: -rotation.y, z: -rotation.z, w: rotation.w };
 }

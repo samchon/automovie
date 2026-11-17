@@ -23,10 +23,11 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
 import { braceOnThigh } from "./braceOnThigh";
+import { prepareCrouchInclination } from "./prepareCrouchInclination";
 
 /**
  * A crouch or a squat held in place: the hips sink over the planted feet to
@@ -173,9 +174,9 @@ export namespace crouch {
    * @evidence contracts/development/implementation.md#principled-implementation The hip's place follows from the knee flexion and the shank's tilt by the leg's two lengths, the pitch from a bisection on the centre of mass over the soles.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, a standing base, one body row and two arm rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An infeasible depth throws with the feasible knee flexion instead of being clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The inclination is solved once per plan in 12 bisection steps at each of 8 shares; each posture then costs at most six lowerings of the secant search and one arm solve per side.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The hip shift and the inclinations are computed once and every posture reads them.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its solved numbers and the base.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The inclination retains 12 bisection steps at each of 8 shares; each posture retains at most six secant lowerings and one arm solve per side. A prepared native descent/rise envelope shares fixed interval names while custom clock callbacks retain actual invocation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Mass-name demand and the original table prepare once. Every fixed-share search prepares only its unchanged raw foot placements, pre-tip root and pelvis cap, then each inclination still writes current joints/knees and solves normally. Planning and current-query FK/ROM scopes remain separate and only unused support geometry is omitted.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains solved scalar angles/course and the fixed body/base builder; planning and current-query workspaces end with their own return or throw and never enter the table or plan.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -229,8 +230,12 @@ export namespace crouch {
     });
     const standing: IHumanPosture = base.posture(0);
     const yaw: number = standing.yaw;
-    const share = (seconds: number): number =>
-      clock.envelope(["descend", "lowest"], ["ascend", "end"], seconds);
+    const share: (seconds: number) => number =
+      AutoMovieMotionClock.prepareEnvelope(
+        clock,
+        ["descend", "lowest"],
+        ["ascend", "end"],
+      );
 
     // The leg's angles move together over the descent, the shank's tilt and
     // the thigh's each by its share, so the ankle never passes the crouching
@@ -241,36 +246,50 @@ export namespace crouch {
 
     // The feet at a share of the descent: each pivots about its toes' joint
     // by the heel's lift there.
-    const feet = (
+    const placements: (
       posture: IHumanPosture,
       s: number,
-    ): IHumanPosture["limbs"] => {
-      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-      for (const side of ["left", "right"] as const) {
+    ) => Record<"left" | "right", HumanFoot.IPlacement> = (
+      posture: IHumanPosture,
+      s: number,
+    ): Record<"left" | "right", HumanFoot.IPlacement> => {
+      const foot: (side: "left" | "right") => HumanFoot.IPlacement = (
+        side: "left" | "right",
+      ): HumanFoot.IPlacement => {
         const goal: IHumanPosture.IGoal = posture.limbs[`${side}Leg`]!;
         const flat: HumanFoot.IPlacement = {
           ankle: goal.point,
           rotation: goal.rotation ?? HumanFrame.turn(yaw),
         };
-        const placed: HumanFoot.IPlacement =
-          heel === 0
-            ? flat
-            : HumanFoot.pivot(
-                body,
-                side,
-                "mtp",
-                HumanFoot.point(body, side, "mtp", flat),
-                HumanFoot.heading(flat.rotation),
-                -lift(s),
-              );
+        return heel === 0
+          ? flat
+          : HumanFoot.pivot(
+              body,
+              side,
+              "mtp",
+              HumanFoot.point(body, side, "mtp", flat),
+              HumanFoot.heading(flat.rotation),
+              -lift(s),
+            );
+      };
+      return { left: foot("left"), right: foot("right") };
+    };
+    const feet: (
+      posture: IHumanPosture,
+      placed: Record<"left" | "right", HumanFoot.IPlacement>,
+    ) => IHumanPosture["limbs"] = (
+      posture: IHumanPosture,
+      placed: Record<"left" | "right", HumanFoot.IPlacement>,
+    ): IHumanPosture["limbs"] => {
+      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+      for (const side of ["left", "right"] as const)
         limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
           body,
           posture,
           side,
-          placed,
+          placed[side],
           true,
         );
-      }
       return limbs;
     };
 
@@ -285,12 +304,17 @@ export namespace crouch {
     );
     const rad = (deg: number): number => (deg * Math.PI) / 180;
     const joints = hipJoints(body, standing.root, HumanFrame.turn(yaw));
-    const over = (s: number): IAutoMovieVector3 => {
-      const limbs: IHumanPosture["limbs"] = feet(standing, s);
+    const over = (
+      s: number,
+      placed: Record<"left" | "right", HumanFoot.IPlacement> = placements(
+        standing,
+        s,
+      ),
+    ): IAutoMovieVector3 => {
       let out: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
       for (const side of ["left", "right"] as const) {
         const hip: IAutoMovieVector3 = Vector3.add(
-          Vector3.add(limbs[`${side}Leg`]!.point, {
+          Vector3.add(placed[side].ankle, {
             x: 0,
             y:
               m.shank * Math.cos(rad(shankTilt * s)) +
@@ -311,50 +335,72 @@ export namespace crouch {
       return out;
     };
     const start: IAutoMovieVector3 = over(0);
-    const move = (s: number): IAutoMovieVector3 =>
-      Vector3.add(Vector3.subtract(over(s), start), Vector3.scale(start, s));
+    const move = (
+      s: number,
+      placed?: Record<"left" | "right", HumanFoot.IPlacement>,
+    ): IAutoMovieVector3 =>
+      Vector3.add(
+        Vector3.subtract(over(s, placed), start),
+        Vector3.scale(start, s),
+      );
 
-    // The body at a share: root moved, trunk inclined by the lumbopelvic
-    // rhythm (the pelvis about the hips as far as the folded thighs leave
-    // the hip room, the spine the rest), feet lifted.
-    const lowered = (
+    /** Bind fixed raw geometry for one share; every inclination still tips the trunk and writes actual current-root knee goals. */
+    function atShare(
       posture: IHumanPosture,
       s: number,
+    ): (
       inclination: number,
-    ): IHumanPosture => {
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    ) => IHumanPosture {
+      // Moving and tipping the root leave these raw leg goals unchanged.
+      // Share only their current placements, rebuilding the actual knees below.
+      const placed: Record<"left" | "right", HumanFoot.IPlacement> = placements(
+        posture,
+        s,
+      );
       const moved: IHumanPosture = {
         ...posture,
-        root: Vector3.add(posture.root, move(s)),
+        root: Vector3.add(
+          posture.root,
+          move(s, posture === standing ? placed : undefined),
+        ),
       };
-      const stood: IHumanPosture["limbs"] = feet(moved, s);
-      const inclined = HumanTrunk.incline(
-        moved.joints,
-        inclination,
-        HumanTrunk.pelvisLimit(body, moved.root, yaw, {
-          left: stood.leftLeg!.point,
-          right: stood.rightLeg!.point,
-        }),
-      );
-      const tipped: IHumanPosture = AutoMovieMotionHumanLean.tip(
-        body,
-        { ...moved, joints: inclined.joints },
-        inclined.pitch,
-        0,
-      );
-      return resolveHumanPosture.lower(body, {
-        ...tipped,
-        joints: {
-          ...tipped.joints,
-          ...(heel === 0
-            ? {}
-            : {
-                leftToes: [lift(s), 0, 0] as const,
-                rightToes: [lift(s), 0, 0] as const,
-              }),
-        },
-        limbs: feet(tipped, s),
+      const limit: number = HumanTrunk.pelvisLimit(body, moved.root, yaw, {
+        left: placed.left.ankle,
+        right: placed.right.ankle,
       });
-    };
+      return (
+        inclination: number,
+        resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      ): IHumanPosture => {
+        const inclined: ReturnType<typeof HumanTrunk.incline> =
+          HumanTrunk.incline(moved.joints, inclination, limit);
+        const tipped: IHumanPosture = AutoMovieMotionHumanLean.tip(
+          body,
+          { ...moved, joints: inclined.joints },
+          inclined.pitch,
+          0,
+        );
+        return resolveHumanPosture.lower(
+          body,
+          {
+            ...tipped,
+            joints: {
+              ...tipped.joints,
+              ...(heel === 0
+                ? {}
+                : {
+                    leftToes: [lift(s), 0, 0] as const,
+                    rightToes: [lift(s), 0, 0] as const,
+                  }),
+            },
+            limbs: feet(tipped, placed),
+          },
+          undefined,
+          resolution,
+        );
+      };
+    }
 
     // The inclination that keeps the centre of mass over the soles, solved
     // at each of `SHARES` shares of the descent and read linearly between
@@ -372,65 +418,35 @@ export namespace crouch {
     // lowest pose; with the heels rising it reaches the middle of the
     // forefoot (`HumanBalance.offset`) by the share the heels leave the
     // floor at, and stays over it.
-    const ahead = (s: number, q: number): number =>
-      Vector3.dot(
-        HumanBalance.support(body, lowered(standing, s, q)).centre,
+    const inclination: ReturnType<typeof prepareCrouchInclination> =
+      prepareCrouchInclination({
+        body,
         forward,
-      );
-    const upright: number = ahead(0, 0);
-    const low: number =
-      heel === 0
-        ? Math.min(upright, ahead(1, most))
-        : ahead(1, 0) - HumanBalance.offset(body, lowered(standing, 1, 0));
-    const rises: number = heel === 0 ? 1 : dorsiflexion / shankTilt;
-    const course = (s: number): number =>
-      upright + (low - upright) * Math.min(1, s / rises);
-    const inclinations: number[] = [0];
-    for (let k: number = 1; k <= SHARES; k++) {
-      const error = (q: number): number =>
-        ahead(k / SHARES, q) - course(k / SHARES);
-      let lo: number = 0;
-      let hi: number = most;
-      if (error(lo) >= 0) hi = lo;
-      else if (error(hi) <= 0) lo = hi;
-      else
-        for (let i: number = 0; i < 12; i++) {
-          const mid: number = (lo + hi) / 2;
-          if (error(mid) < 0) lo = mid;
-          else hi = mid;
-        }
-      inclinations.push((lo + hi) / 2);
-    }
-    // Between the shares the linear reading only starts a secant search for
-    // the same course, because the pelvis's hip room turns a corner there
-    // that a reading between two shares would cut with a jump in speed.
-    const inclination = (s: number): number => {
-      const at: number = Math.max(0, Math.min(1, s)) * SHARES;
-      const k: number = Math.min(SHARES - 1, Math.floor(at));
-      const within = (q: number): number => Math.max(0, Math.min(most, q));
-      const error = (q: number): number =>
-        ahead(at / SHARES, q) - course(at / SHARES);
-      let a: number =
-        inclinations[k]! + (inclinations[k + 1]! - inclinations[k]!) * (at - k);
-      if (at === k || at === SHARES) return a;
-      let ea: number = error(a);
-      let b: number = within(a + (ea < 0 ? 0.5 : -0.5));
-      for (let i: number = 0; i < 5 && b !== a; i++) {
-        const eb: number = error(b);
-        if (Math.abs(eb) < 1e-5 || eb === ea) break;
-        const next: number = within(b - (eb * (b - a)) / (eb - ea));
-        [a, ea, b] = [b, eb, next];
-      }
-      return b;
-    };
+        most,
+        flat: heel === 0,
+        rises: heel === 0 ? 1 : dorsiflexion / shankTilt,
+        shares: SHARES,
+        posture: (s: number): ReturnType<typeof atShare> =>
+          atShare(standing, s),
+      });
 
     const sink: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
+      reads: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+      write: (
+        posture: IHumanPosture,
+        seconds: number,
+        _before?: IAutoMovieMotionHumanPrimitive.Reader,
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => {
+        const read: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution(resolution);
         const s: number = share(seconds);
-        return lowered(posture, s, inclination(s));
+        const q: number = inclination(s, read, projection);
+        return atShare(posture, s)(q, read);
       },
     };
     const rest = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive =>

@@ -28,11 +28,18 @@ import { vclose } from "../internal/vclose";
  * 3. The actual shown right wrist stays within the original1mm task bound.
  *    The report's maximum elbow departure is independently read as the
  *    angle between projected actual/hinted elbow radials for grasp and key.
+ * 4. Arbitrary goal callbacks retain original scheduling: absent admits,
+ *    each goal precedes its actual fit; with admits, goal/admit pairs precede
+ *    each selected goal's second call/fit. An owned current-head getter and
+ *    returned clinical head distinguish real fits from precomputed goals.
+ * 5. A two-key generator changes the same raw posture's head20→30 between
+ *    yields. Each unknown judge observes the current0.1m head-mounted marker
+ *    and reports actual metre distance before the required measure runs.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines complete arbitrary-callback observations, acting versus opposite hand, metre-valued metric/bound, one-candidate/key invocation scope and independent geometric report in three scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines complete arbitrary-callback observations, acting versus opposite hand, metre-valued metric/bound, one-candidate/key invocation scope and independent geometric report in five scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Calls public HumanGrasp.reachable on a canonical body with a genuine custom stroke judge and wrapper. It observes full map content/order, unaffected actual frames, original judgement/bound correspondence, required metric, actual wrist task and elbow report; incorrectly treating an unknown callback as hand-only or omitting required judgement work fails.
- * @evidence contracts/development/testing.md#independent-expectations Ordinary full resolvePose with canonical clinical mappings supplies the unchanged hips/left-arm frames and complete parent-first names independently of requested FK adapters. The authored site is20mm above the unchanged opposite wrist, so Euclidean miss is0.02m within1e-9m. One declared candidate and reached key require one judge call. Independent unit-axis projection and atan2(cross length,dot) give the report angle; its cosine is compared within1e-12 to avoid acos endpoint conditioning without changing task/ROM/contact bounds.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers acting-arm versus unrelated pelvis/opposite-hand observations, get/size/iteration dependencies, direct versus wrapped unknown functions, judged versus unjudged entries, metric/bound ordering, actual full coupled fitting and report-only departure. Native issued hand-only factories remain exercised by their existing tool/surface action cases; this unit exposes no private registration or metadata.
+ * @evidence contracts/development/testing.md#independent-expectations Ordinary full resolvePose with canonical clinical mappings supplies the unchanged hips/left-arm frames and complete parent-first names independently of requested FK adapters. The authored site is20mm above the unchanged opposite wrist, so Euclidean miss is0.02m within1e-9m. One declared candidate and reached key require one judge call. Independent unit-axis projection and atan2(cross length,dot) give the report angle; its cosine is compared within1e-12 to avoid acos endpoint conditioning without changing task/ROM/contact bounds. Goal/admit/getter traces follow the original public callback schedule, not a measured internal search count. A head-only source change cannot alter the acting wrist geometry; its current displayed head frame independently fixes a0.1m marker site for each stroke, whose actual Euclidean judge result is checked within1e-9m.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers acting-arm versus unrelated pelvis/opposite-hand observations, get/size/iteration dependencies, direct versus wrapped unknown functions, judged versus unjudged entries, metric/bound ordering, actual full coupled fitting, report-only departure, raw goal/admit/fit order and same-object posture mutation between two actual stroke fits. Native issued hand-only factories remain exercised by their existing tool/surface action cases; this unit exposes no private registration or metadata.
  * @evidence contracts/development/testing.md#execution-ownership One portable discoverable unit borrows canonical immutable geometry through a fresh body owner and owns its posture, goal, judge, wrapper and counters. It calls public grasp/resolver/FK APIs, replaces no foreign function/global and starts no renderer, process or compiler.
  */
 export function test_motion_grasp_judge_full_observation(): void {
@@ -92,6 +99,7 @@ export function test_motion_grasp_judge_full_observation(): void {
       keyDeparture !== undefined && reached.departure >= 0 && reached.departure <= 180 &&
       nclose(Math.cos(reached.departure * Math.PI / 180), Math.cos(expected), 1e-12));
   }
+  liveCallbacks(body, posture, wrist, bend);
 }
 
 /** Read complete ordinary canonical FK independently of a demanded-output adapter. */
@@ -121,4 +129,79 @@ function departure(bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedB
   return Math.atan2(Math.hypot(actual.y * asked.z - actual.z * asked.y,
     actual.z * asked.x - actual.x * asked.z, actual.x * asked.y - actual.y * asked.x),
     actual.x * asked.x + actual.y * asked.y + actual.z * asked.z);
+}
+
+/** Original raw callbacks can change one posture object's current clinical inputs between fits. */
+function liveCallbacks(body: IHumanBody, base: IHumanPosture, wrist: HumanHand.IWrist, bend: IAutoMovieVector3): void {
+  for (const admitted of [false, true]) {
+    const live: IHumanPosture = structuredClone(base);
+    const trace: string[] = [];
+    let currentHead: number = 7;
+    Object.defineProperty(live.joints, "head", { enumerable: true, configurable: true,
+      get: (): readonly [number, number, number] => { trace.push(`head:${currentHead}`); return [currentHead, 0, 0]; } });
+    const labels: WeakMap<HumanHand.IWrist, number> = new WeakMap();
+    const goal: (turn: number, tilt: number) => HumanHand.IWrist = (turn: number, _tilt: number): HumanHand.IWrist => {
+      trace.push(`goal:${turn}`);
+      currentHead = 10 + turn;
+      const candidate: HumanHand.IWrist = { point: { ...wrist.point }, rotation: { ...wrist.rotation } };
+      labels.set(candidate, turn);
+      return candidate;
+    };
+    const admits: (candidate: HumanHand.IWrist) => boolean = (candidate: HumanHand.IWrist): boolean => {
+      trace.push(`admit:${labels.get(candidate)}`);
+      return true;
+    };
+    const reached: HumanGrasp.IReach = HumanGrasp.reachable(body, live, "right", bend, goal, [0], undefined,
+      [0, 10], undefined, admitted ? admits : undefined);
+    TestValidator.equals(`arbitrary callback schedule retains actual goal/admit/fit order, admits=${admitted}`, trace,
+      admitted ? ["goal:0", "admit:0", "goal:10", "admit:10", "goal:0", "head:10", "goal:10", "head:20"] :
+        ["goal:0", "head:10", "goal:10", "head:20"]);
+    const head: number = reached.pose.joints.find((joint: IAutoMoviePose["joints"][number]): boolean => joint.bone === "head")!.flexion!;
+    const shown: IAutoMovieVector3 = full(body, reached.pose).get("rightHand")!.worldPosition;
+    TestValidator.predicate("the chosen actual fit retains its own current head and original wrist task",
+      nclose(head, 10 + reached.turn, 1e-12) &&
+      Math.hypot(shown.x - wrist.point.x, shown.y - wrist.point.y, shown.z - wrist.point.z) <= 0.001);
+  }
+
+  const live: IHumanPosture = structuredClone(base);
+  const trace: string[] = [];
+  const reached: HumanGrasp.IReach = HumanGrasp.reachable(body, live, "right", bend,
+    (_turn: number, _tilt: number): HumanHand.IWrist => { trace.push("goal"); return wrist; }, [0],
+    function* (_wanted: HumanHand.IWrist, _shown: HumanHand.IWrist): IterableIterator<HumanGrasp.IKey> {
+      trace.push("stroke");
+      for (const angle of [20, 30]) {
+        live.joints.head = [angle, 0, 0];
+        const expected: IAutoMovieVector3 = headSite(full(body, resolveHumanPosture(body, live)).get("head")!);
+        trace.push(`key:${angle}`);
+        yield { posture: live, wrist, bend, bound: 0.001,
+          judge: (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): number => {
+            trace.push(`judge:${angle}`);
+            const actual: IAutoMovieVector3 = headSite(bones.get("head")!);
+            const miss: number = Math.hypot(actual.x - expected.x, actual.y - expected.y, actual.z - expected.z);
+            TestValidator.predicate("an arbitrary stroke judge observes the same raw object's actually current head", miss <= 1e-9);
+            return miss;
+          } };
+      }
+    }, [0], {
+      bound: 0.001,
+      measure: (keys: readonly number[], judged: readonly number[], bounds: readonly number[]): number => {
+        trace.push("required");
+        TestValidator.predicate("required measurement follows both actual ordered key judgements",
+          keys.length === 3 && judged.length === 3 && bounds.length === 3 && Number.isNaN(judged[0]) &&
+          nclose(judged[1]!, 0, 1e-9) && nclose(judged[2]!, 0, 1e-9) && nclose(bounds[1]!, 0.001, 0) && nclose(bounds[2]!, 0.001, 0));
+        return Math.max(judged[1]!, judged[2]!);
+      },
+    });
+  TestValidator.equals("stroke generation, current full fits, judges and required measurement retain their callback order", trace,
+    ["goal", "stroke", "key:20", "judge:20", "key:30", "judge:30", "required"]);
+  const shown: IAutoMovieVector3 = full(body, reached.pose).get("rightHand")!.worldPosition;
+  TestValidator.predicate("the complete original grasp still retains its wrist bound after live stroke callbacks",
+    Math.hypot(shown.x - wrist.point.x, shown.y - wrist.point.y, shown.z - wrist.point.z) <= 0.001);
+}
+
+/** A0.1m forward marker fixed to the actual head, using the independent quaternion-vector formula. */
+function headSite(head: IAutoMovieResolvedBone): IAutoMovieVector3 {
+  const { x, y, z, w }: IAutoMovieResolvedBone["worldRotation"] = head.worldRotation;
+  return { x: head.worldPosition.x + 0.2 * (x * z + w * y), y: head.worldPosition.y + 0.2 * (y * z - w * x),
+    z: head.worldPosition.z + 0.1 * (1 - 2 * (x * x + y * y)) };
 }

@@ -3,6 +3,7 @@ import {
   type IAutoMovieResolvedBone,
   type IAutoMovieSchedule,
   checkAutoMovieLegality,
+  type integrateAirborneRotation,
   resolveAutoMovieSchedule,
 } from "@automovie/engine";
 import type {
@@ -78,9 +79,13 @@ export class HumanPerformance {
    * Resolve a performance.
    *
    * @param input The chain seed, the performers, the props and the composition.
+   * @param observation Optional native airborne-work observer. This explicit diagnostic request resolves a fresh performance instead of reading or populating the whole-performance memo; the authored input and physical admission are unchanged.
    */
-  public constructor(input: HumanPerformance.IInput) {
-    this.resolved = HumanPerformanceState.of(input);
+  public constructor(
+    input: HumanPerformance.IInput,
+    observation?: ReturnType<typeof integrateAirborneRotation.observe>,
+  ) {
+    this.resolved = HumanPerformanceState.of(input, observation);
     this.schedule = this.resolved.schedule;
     this.duration = this.resolved.duration;
     this.performers = this.resolved.performers;

@@ -18,7 +18,8 @@ import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { getConstraint } from "../rom/getConstraint";
 import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import type { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
-import { fitDigitDescent } from "./fitDigitDescent";
+import { descendDigitTasks } from "./descendDigitTasks";
+import type { fitDigitDescent } from "./fitDigitDescent";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
 import { preparePoseResolution } from "./preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
@@ -91,8 +92,8 @@ import { resolvePose } from "./resolvePose";
  * @evidence contracts/development/implementation.md#principled-implementation Damped task-priority least squares (Nakamura et al. 1987, Chiaverini 1997) through `fitDigitDescent` on the engine's forward kinematics, every trial measured after the range clamp, stopping at the engine's joint-angle resolution; continuation from the caller's seed. Optional exponential soft IK eases only the target's radial distance in a band derived from the full-extension curvature.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Two residual functions over the digit's variables, one continued descent and a restart only when it cannot reach.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No iteration count and no weight between the tasks: the fit ends at the joint-angle resolution and reports distance from the original target, including any reach soft IK trades away. The width is derived from the chain lengths and `rate`; it does not penalise departure from an arbitrary seed.
- * @evidence contracts/development/implementation.md#efficient-algorithms An explicit rig prepares the unchanged non-digit pose/root once at the first candidate FK, then each probe admits only its ordered digit edits and computes the effector ancestry, returning one bone. Soft IK reads only digit joint frames. Raw callers retain full live FK/unrelated-rest admission. A Jacobian costs two probes per variable (at most 9), active-set probes clamp one vector, and fitDigitDescent shares linearization/factors; an unreached continuation alone adds a restart. Runtime speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Adjacent tasks share one actual candidate reading under Object.is-exact raw coordinates. Different raw trials still run the actual clamps; only when every ordered projected joint/bone/null/signed-zero coordinate matches the last completed pose does its exact effector FK serve again. The original target remains each residual's demand. Continued reach is one fixed scalar and the final result borrows only its selected private reading. Optional immutable rig and operation FK share source prerequisites; raw callers keep live full admission whenever actual FK runs, and no fit answer crosses calls.
+ * @evidence contracts/development/implementation.md#efficient-algorithms With an explicit rig and rate, first soft-target FK admits/snapshots the full source once and shares that workspace with every complete digit overlay, removing a second O(J) non-digit admission/setup and unused prefix filter/copy. Without rate, first candidate prepares only non-digit records; raw callers retain full live FK/unrelated-rest admission. Each descent returns its actual final primary residual/Jacobian, removing a duplicate final residual and two FK probes per variable from the unchanged restart test. Only unreached continuation restarts; speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A rate's actual source FK supplies unchanged soft-target frames and admitted baseline. Complete edits overwrite every original digit bone with identical last-record precedence; no digit is newly admitted without rate. FK grouping/admission keep their owner. Adjacent tasks share exact coordinates/clamped joints. Final residual/Jacobian belong to the same accepted variables and feasible-probe owner, so restart does not recompute a different boundary derivative. Targets, restart ranking, primary tolerance formula and joint resolution stay unchanged; no answer crosses fits.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One candidate snapshot, an optional fixed-pose workspace with O(J+D) source/ancestor state and any local ordinary reader end with the fit. A borrowed static rig/ordinary reader remain their caller's. No workspace or input history enters the fresh caller-owned result.
  */
 export function fitDigitToTarget(
@@ -112,6 +113,9 @@ export function fitDigitToTarget(
   const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set([
     input.effector.bone,
   ]);
+
+  // A rate's first source FK also owns the later probe baseline. Complete
+  // candidate edits override every claimed bone by the same last-record law.
   const readBones: (
     pose: IAutoMoviePose,
     demand: ReadonlySet<AutoMovieHumanoidBone>,
@@ -158,9 +162,12 @@ export function fitDigitToTarget(
       ] => [bone, clampJointToSkeleton.of(bone, input.skeleton)],
     ),
   );
-  const others: IAutoMovieJointPose[] = input.pose.joints.filter(
-    (j: IAutoMovieJointPose): boolean => !input.bones.includes(j.bone),
-  );
+
+  // A full-source baseline needs no second non-digit prefix.
+  const others: IAutoMovieJointPose[] = fixedPose === undefined
+    ? input.pose.joints.filter(
+        (j: IAutoMovieJointPose): boolean => !input.bones.includes(j.bone),
+      ) : [];
 
   // The digit's joints for a vector of variables, projected into the range.
   const joints: (x: readonly number[]) => IAutoMovieJointPose[] = (x: readonly number[]): IAutoMovieJointPose[] =>
@@ -267,22 +274,9 @@ export function fitDigitToTarget(
         sum + Math.hypot(J1[0]![i]!, J1[1]![i]!, J1[2]![i]!) * ROM_TOLERANCE,
       0,
     );
-  const jacobian: (x: readonly number[]) => number[][] = (x: readonly number[]): number[][] => {
-    const columns: number[][] = x.map((_v: number, i: number): number[] => {
-        const up: number[] = [...x];
-        const down: number[] = [...x];
-        up[i] = up[i]! + ROM_TOLERANCE;
-        down[i] = down[i]! - ROM_TOLERANCE;
-        const a: number[] = primary(up);
-        const b: number[] = primary(down);
-        return a.map((value: number, k: number): number => (value - b[k]!) / (2 * ROM_TOLERANCE));
-      });
-    return [0, 1, 2].map((k: number): number[] => columns.map((column: number[]): number => column[k]!));
-  };
-
   const seed: number[] = read(input.pose.joints);
-  const descend: (start: readonly number[]) => number[] = (start: readonly number[]): number[] =>
-    fitDigitDescent({
+  const descend: (start: readonly number[]) => descendDigitTasks.IResult = (start: readonly number[]): descendDigitTasks.IResult =>
+    descendDigitTasks({
       start,
       primary,
       secondary,
@@ -297,17 +291,16 @@ export function fitDigitToTarget(
   // point farther than `tolerance`) restarts from the middle of every range,
   // where a digit folded the wrong way round its target is not trapped, and
   // keeps that fit only when it comes nearer.
-  const reach: (x: readonly number[]) => number = (x: readonly number[]): number => Math.hypot(...primary(x));
-  const continued: number[] = descend(seed);
-  const continuedReach: number = reach(continued);
-  let x: number[] = continued;
-  if (continuedReach > tolerance(continued, jacobian(continued))) {
-    const restarted: number[] = descend(
+  const continued: descendDigitTasks.IResult = descend(seed);
+  const continuedReach: number = Math.hypot(...continued.primary);
+  let x: number[] = continued.values;
+  if (continuedReach > tolerance(continued.values, continued.primaryJacobian)) {
+    const restarted: descendDigitTasks.IResult = descend(
       variables.map((v: IVariable): number =>
         v.range === null ? 0 : (v.range.min + v.range.max) / 2,
       ),
     );
-    if (reach(restarted) < continuedReach) x = restarted;
+    if (Math.hypot(...restarted.primary) < continuedReach) x = restarted.values;
   }
 
   const selected: IReading = reading(x);

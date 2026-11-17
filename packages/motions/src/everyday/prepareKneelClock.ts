@@ -1,6 +1,6 @@
 import { minimumJerk } from "@automovie/engine";
 
-import type { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 
 /**
  * Prepare the kneel's phase-start lookup while retaining the same eased
@@ -11,12 +11,12 @@ import type { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
  * @returns The active original phase, its index and minimum-jerk progress.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States phase order, named-clock premise, original record ownership, progress and the existing phase-selection allowance.
- * @evidence contracts/development/implementation.md#principled-implementation Upper-bound search selects the same latest phase whose start minus 1e-9 seconds has passed; progress still calls the same clock.linear and minimumJerk with the same named endpoints.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare exact start boundaries once, then return the selected original phase and its unchanged clock progress.
+ * @evidence contracts/development/implementation.md#principled-implementation Upper-bound search selects the same latest phase whose start minus 1e-9 seconds has passed; the native guarded interval reader retains the same requested clock.linear method and minimumJerk with the same named endpoints.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare exact start boundaries and one lazy native interval per phase, then return the selected original phase and its unchanged eased linear progress.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the 1e-9 selection allowance, duplicate-start last-phase behavior, index-zero fallback and original interpolation rather than relaxing or replacing them.
- * @evidence contracts/development/implementation.md#efficient-algorithms N phase boundaries cost O(N) once; each query uses O(log N) comparisons instead of N named clock lookups.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact clock boundaries and original phase records stay fixed for the plan; every progress query still reads its own seconds and named linear interpolation.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One plan owns N scalar boundaries and its existing phase records until release; no posture, solver workspace or previous query is retained.
+ * @evidence contracts/development/implementation.md#efficient-algorithms N boundaries/readers cost O(N) once; each query uses O(log N) selection. First actual native linear demand resolves its two private interval names once; custom/replaced linear callbacks still run with the original receiver and current second.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact clock boundaries and phase names remain fixed for the plan. Only proven native interval metadata share; each query reads only its requested linear method once and independently evaluates current seconds and minimum-jerk progress.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One plan owns N scalar boundaries, bounded native interval readers and original phase records until release; no posture, solver workspace or previous query is retained.
  */
 export function prepareKneelClock<T extends { name: string }>(
   clock: AutoMovieMotionClock.IClock,
@@ -25,6 +25,18 @@ export function prepareKneelClock<T extends { name: string }>(
   const starts: number[] = phases.map(
     (phase: T): number => clock.at(phase.name) - 1e-9,
   );
+  const intervals: ReturnType<typeof AutoMovieMotionClock.prepare>[] =
+    phases.map(
+      (
+        phase: T,
+        index: number,
+      ): ReturnType<typeof AutoMovieMotionClock.prepare> =>
+        AutoMovieMotionClock.prepare(
+          clock,
+          phase.name,
+          index + 1 < phases.length ? phases[index + 1]!.name : "end",
+        ),
+    );
   return (seconds: number): { phase: T; index: number; u: number } => {
     let lo: number = 0;
     let hi: number = starts.length;
@@ -35,12 +47,10 @@ export function prepareKneelClock<T extends { name: string }>(
     }
     const index: number = Math.max(0, lo - 1);
     const phase: T = phases[index]!;
-    const next: string =
-      index + 1 < phases.length ? phases[index + 1]!.name : "end";
     return {
       phase,
       index,
-      u: minimumJerk.share(clock.linear(phase.name, next, seconds)),
+      u: minimumJerk.share(intervals[index]!.linear(seconds)),
     };
   };
 }

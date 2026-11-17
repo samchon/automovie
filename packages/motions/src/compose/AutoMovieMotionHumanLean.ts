@@ -131,6 +131,7 @@ export namespace AutoMovieMotionHumanLean {
   export function tilt(props: ITilt): IAutoMovieMotionHumanPrimitive {
     return {
       channels: ["trunk"],
+      reads: ["trunk"],
       from: props.from,
       to: props.to,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
@@ -273,15 +274,18 @@ export namespace AutoMovieMotionHumanLean {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One `pivot`, one floor-frame translation and one `resolveHumanPosture.lower`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The travel's height is discarded and the written posture keeps its own limbs: the legs given are read for the height only.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `pivot`, `HumanFrame.point` and `resolveHumanPosture.lower`, the owner of a planted leg's reach.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses pivot/floor transforms and lower's original planted-leg rule. The actual write borrows its host FK source only through the current two-hip observation; declared inputs retain root/trunk and both leg goals while independent head/arm writers can be omitted from a demanded prefix.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
   export function sway(props: ISway): IAutoMovieMotionHumanPrimitive {
     return {
       channels: ["root", "trunk"],
+      reads: ["root", "trunk", "leftLeg", "rightLeg"],
       from: props.from,
       to: props.to,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+      write: (posture: IHumanPosture, seconds: number,
+        _before?: IAutoMovieMotionHumanPrimitive.Reader,
+        resolution?: Parameters<typeof resolveHumanPosture.lower>[3]): IHumanPosture => {
         const tilted: IHumanPosture = pivot(
           props.body,
           posture,
@@ -298,7 +302,7 @@ export namespace AutoMovieMotionHumanLean {
         const lowered: IHumanPosture = resolveHumanPosture.lower(props.body, {
           ...moved,
           limbs: { ...moved.limbs, ...props.legs?.(seconds) },
-        });
+        }, undefined, resolution);
         return { ...moved, root: lowered.root };
       },
     };
@@ -372,6 +376,7 @@ export namespace AutoMovieMotionHumanLean {
       ) / sine(props.peak);
     return {
       channels: ["root", "trunk"],
+      reads: ["root", "trunk"],
       from: props.from,
       to: props.to,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {

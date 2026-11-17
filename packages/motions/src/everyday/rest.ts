@@ -143,6 +143,14 @@ export namespace rest {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When a paired place names one hand only, or the time is not positive.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the plan, context, paired-place/duration refusals, original place units and entry-to-rest transport; the namespace and parameter fields own each place's meaning.
+   * @evidence contracts/development/implementation.md#principled-implementation Builds the original self-surface rest goals, carries them with the actual base root/heading, and fits each arm on its own minimum-jerk arrival before original joint-space transport; finger shares and base contacts remain unchanged.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed rest geometry and finger entries prepare once. Each query reads the actual base, shares exact-heading scalar frame metadata across hand/elbow transforms, writes current goals/fingers, then performs the original ordered carries.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves paired-place rules, raw duration validation, goal surfaces, current base posture, every arm fit and each independent arrival share. Changed headings replace scalar preparation; no target, sampled posture, limit or contact is substituted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Prepared entries avoid rebuilding named finger maps. At one exact heading, all Q current hand/elbow reads share floor sine/cosine and turn construction; actual changing translations, quaternion products and full ordered carries remain, without a measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the current exact yaw guards one bounded frame/turn preparation; every world point uses the actual current root, and changed yaw rebuilds. Current full carries borrow one synchronous exact FK/genuine ROM operation context without reusing goals or fits.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns fixed local rest/finger/entry metadata and at most one yaw/scalar-frame/quaternion record until release. Query-local FK/ROM loans and temporary postures never enter retained frame state or returned goal fields; seeking grows no history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -219,7 +227,7 @@ export namespace rest {
         travel: Math.min(
           duration,
           AutoMovieMotionHumanTiming.transport(
-            Vector3.length(Vector3.subtract(from, goal.point)),
+            Vector3.distance(from, goal.point),
           ),
         ),
       };
@@ -249,6 +257,7 @@ export namespace rest {
     for (const side of sides)
       shapes[side] = Object.entries(HumanHand.shape(side, local[side]!.shape)) as
         [AutoMovieHumanoidBone, readonly [number, number, number]][];
+    let floor: { yaw: number; frame: HumanFrame.IPrepared; turn: IAutoMovieQuaternion } | undefined;
 
     return {
       duration,
@@ -275,11 +284,13 @@ export namespace rest {
         const posture: IHumanPosture = base.posture(t, undefined, read, projection);
         if (sides.length === 0)
           return { ...posture, joints: { ...posture.joints } };
-        const frame: HumanFrame.IFrame = {
-          origin: posture.root,
-          yaw: posture.yaw,
-        };
-        const turn: IAutoMovieQuaternion = HumanFrame.turn(frame.yaw);
+        const yaw: number = posture.yaw;
+        if (floor === undefined || !Object.is(floor.yaw, yaw)) {
+          const turn: IAutoMovieQuaternion = HumanFrame.turn(yaw);
+          floor = { yaw, turn, frame: HumanFrame.prepare({ origin: { x: 0, y: 0, z: 0 }, yaw }) };
+        }
+        const frame: HumanFrame.IPrepared = floor.frame;
+        const turn: IAutoMovieQuaternion = floor.turn;
         const joints: IHumanPosture["joints"] = { ...posture.joints };
         const requests: AutoMovieMotionHumanArm.ISided[] = [];
         const shares: [HumanHand.Side, number][] = [];
@@ -292,9 +303,9 @@ export namespace rest {
             side,
             surface: goal.surface,
             shape: goal.shape,
-            point: HumanFrame.point(frame, goal.point),
+            point: frame.point(goal.point, posture.root),
             rotation: Quaternion.multiply(turn, goal.rotation),
-            bend: HumanFrame.point(frame, goal.elbow),
+            bend: frame.point(goal.elbow, posture.root),
           });
           // The fingers take the place's shape on the hand's own course, from
           // what the body under the rest holds them in.

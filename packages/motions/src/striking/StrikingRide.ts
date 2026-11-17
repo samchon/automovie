@@ -136,7 +136,7 @@ export namespace StrikingRide {
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Early unchanged cases precede lazy contact construction, ascending frame reads and one fresh limb-goal replacement.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves on-bound goals, zero-gradient identity, grid step, lag, outward-only correction and cycle refusal; no contact outcome or goal constraint is relaxed.
      * @evidence contracts/development/implementation.md#efficient-algorithms A call appends only missing ascending grid nodes, each requesting the selected met bone's actual pose ancestry; interpolation and shift cost are constant once nodes exist. Unsupported pose coupling keeps its complete fallback.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses only this ride's fixed contact/held goal and original ascending frame grid; each new node is evaluated at its actual film second under the lag rule and a changed stop gets a new ride.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses only this ride's fixed contact/held goal and original ascending frame grid; each new node is evaluated at its actual lagged film second and a changed stop gets a new ride. The current low/high rigid transforms share only their identical first-frame inverse and contact-relative vector within this carry call, with no derived-point history.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride owns at most floor((last requested second-stop)/STEP)+2 frames plus one contact and held goal; finite action clocks bound callers and settle/stop replacement or plan release drops the owner.
      */
     carry(
@@ -186,7 +186,7 @@ export namespace StrikingRide {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy stop-contact query selects the met bone and one original frame grid serves all carry calls.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all original probes, samples, grid seconds, lag, normal threshold and one-sided withdrawal law; contact construction and first met-bone selection share the same fixed stop geometry instead of evaluating that axis twice.
    * @evidence contracts/development/implementation.md#efficient-algorithms Stop contact pays the original actual shape queries but prepares its fixed collider frames once. Later grid nodes demand only the actual met bone and required ancestry; their underlying supported pose dependencies still execute, with full fallback for unsupported coupling. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same-call signed-distance probes share the immutable stop-bones placement/shape frames, never query results. The existing ascending grid retains the actual met-bone frames only under its original fixed-stop/two-step-lag contract, and settle/stop replacement creates a new ride.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same-call distance probes share fixed stop-bones placement/shape frames, never query results. One carry's low/high transforms share the exact first-frame inverse and contact-relative vector; every current transform/interpolation/push still executes. The original ascending met-bone grid and fixed-stop/two-step-lag contract remain, and settle/stop replacement creates a new ride.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most floor((last requested film second minus stop)/STEP)+2 frames, one contact, one own goal and one bone set live with the ride; finite action clocks bound callers. Fixed collider readers end when contact returns, and the enclosing law releases the ride on settle/changed stop or plan release.
    */
   export function create(props: IProps): IRide {
@@ -273,20 +273,13 @@ export namespace StrikingRide {
       return touch;
     };
 
-    // A world point moved by the met segment's rigid motion from the stop to
-    // a node.
-    const moved = (
-      point: IAutoMovieVector3,
-      from: IFrame,
+    // The fixed contact-relative vector carried by one node's actual turn.
+    const moved: (relative: IAutoMovieVector3, turn: IAutoMovieQuaternion, to: IFrame) => IAutoMovieVector3 = (
+      relative: IAutoMovieVector3,
+      turn: IAutoMovieQuaternion,
       to: IFrame,
     ): IAutoMovieVector3 =>
-      Vector3.add(
-        to.position,
-        Quaternion.rotateVector(
-          Quaternion.multiply(to.rotation, Quaternion.inverse(from.rotation)),
-          Vector3.subtract(point, from.position),
-        ),
-      );
+      Vector3.add(to.position, Quaternion.rotateVector(turn, relative));
 
     return {
       carry: (
@@ -308,11 +301,16 @@ export namespace StrikingRide {
         const first: IFrame = frame(0);
         const low: IFrame = frame(index);
         const high: IFrame = frame(index + 1);
+        const inverse: IAutoMovieQuaternion = Quaternion.inverse(first.rotation);
+        const lowTurn: IAutoMovieQuaternion = Quaternion.multiply(low.rotation, inverse);
+        const relative: IAutoMovieVector3 = Vector3.subtract(met.point, first.position);
+        const lowPoint: IAutoMovieVector3 = moved(relative, lowTurn, low);
+        const highPoint: IAutoMovieVector3 = moved(relative, Quaternion.multiply(high.rotation, inverse), high);
         const advanced: number = Vector3.dot(
           Vector3.subtract(
             Vector3.lerp(
-              moved(met.point, first, low),
-              moved(met.point, first, high),
+              lowPoint,
+              highPoint,
               share,
             ),
             met.point,

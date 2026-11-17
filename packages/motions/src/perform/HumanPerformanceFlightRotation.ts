@@ -9,6 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { createHumanPostureRotation } from "../posture/createHumanPostureRotation";
 
 /**
  * Playback of a flight's solved turn about its composed centre, constructed
@@ -53,15 +54,15 @@ export function HumanPerformanceFlightRotation(props: {
       root = { from: before, to: after, read: Quaternion.prepareSlerp(before, after) };
       roots[i] = root;
     }
-    return {
-      about: Vector3.lerp(props.table[i]!.about, props.table[i + 1]!.about, u),
-      turn: Quaternion.normalize(
+    return createHumanPostureRotation(
+      Vector3.lerp(props.table[i]!.about, props.table[i + 1]!.about, u),
+      Quaternion.normalize(
         Quaternion.multiply(
           props.flight.orientation(t),
           Quaternion.inverse(root.read(u)),
         ),
       ),
-    };
+    );
   };
 }
 

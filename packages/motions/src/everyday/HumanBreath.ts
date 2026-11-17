@@ -55,8 +55,8 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One small function per quantity.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Out-of-range inputs throw; provisional constants are named and marked.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call, or linear in the requests a call builds.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Pure functions of their inputs.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed readonly TIDAL table supplies one module-owned ordered entry list. Each layer shares only its last pure stream seed and scalar rate/phase draws; actual context stream requests, current exertion/time, sighs and joint writes remain independently evaluated.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The module owns the fixed five-entry tidal metadata. Each live layer owns its options and two bounded last-seed/scalar records until release, with no retained body, context, random stream, posture, time sample or performer history; standalone scalar/add functions retain nothing.
  */
 export namespace HumanBreath {
   /** Layer options. */

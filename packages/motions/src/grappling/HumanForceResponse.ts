@@ -28,6 +28,7 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 import { HumanForceExchange } from "./HumanForceExchange";
+import { HumanForceDrawn } from "./HumanForceDrawn";
 import { HumanForceThrow } from "./HumanForceThrow";
 
 /**
@@ -113,9 +114,9 @@ export namespace HumanForceResponse {
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and every refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The pull is read from the force input at the start; the centre, the base and its extent along the pull give the instant the base breaks by the pendulum law; a throw reads the thrower's placed posture at that instant for the fulcrum, swings, and flies under conserved momentum.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the pull, then one of three motions built from one tip function.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every outcome the forces cannot produce is refused with what would produce it; nothing is clamped.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every infeasible original force/outcome is refused with its feasible input. Both sensitivity trials, the existing asin domain guard, current-posture pivot/heading mathematics and documented rigid-throw limitation remain; no force, target, mass or success bound is changed.
    * @evidence contracts/development/implementation.md#efficient-algorithms One mass model, one base and, for a throw, one swing and one flight integration at plan time; constant work per evaluated second besides the flight's read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The base, centre, integrators, mass model and inertia are their owners'. Both sensitivity trials borrow one exact FK workspace and genuine unchanged-body ROM metadata without skipping either full posture solve, joint admission or clamp.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The base, centre, integrators, mass model and inertia are their owners'. Both sensitivity trials borrow one exact FK workspace and genuine unchanged-body ROM metadata without skipping either full posture solve, joint admission or clamp. The fixed mass/frequency/force coefficient is prepared once; yielding requests offset only, and the throw consumes one paired break-state offset/speed without repeating the analytic clock. Entry-facing basis products are prepared once for the actual resist/yield branch; each changing posture still computes its actual inverse heading, pivot offset and fresh tip.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sensitivity's FK reader and ROM projector are released with that synchronous calculation; no returned time evaluator captures it. The plan holds the swing's and flight's trajectories for its lifetime.
    */
   export function plan(
@@ -188,9 +189,10 @@ export namespace HumanForceResponse {
     // split into the posture's forward pitch and rightward roll. The pivot
     // is read in the posture's own root frame, so no tip is the posture
     // itself and the root never jumps when the response begins.
-    const tipped = (
+    const forwardTip: number = Vector3.dot(forward, forward);
+    const rightTip: number = Vector3.dot(forward, right);
+    const tipped: (posture: IHumanPosture, degrees: number) => IHumanPosture = (
       posture: IHumanPosture,
-      along: IAutoMovieVector3,
       degrees: number,
     ): IHumanPosture => {
       const own: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -199,8 +201,8 @@ export namespace HumanForceResponse {
       );
       const turned: IHumanPosture = {
         ...posture,
-        pitch: posture.pitch + degrees * Vector3.dot(along, forward),
-        roll: posture.roll + degrees * Vector3.dot(along, right),
+        pitch: posture.pitch + degrees * forwardTip,
+        roll: posture.roll + degrees * rightTip,
       };
       return {
         ...turned,
@@ -252,22 +254,17 @@ export namespace HumanForceResponse {
         ) / h
       );
     })();
-    const drawn = (
-      posture: IHumanPosture,
+    const drawn: (along: IAutoMovieVector3) => (posture: IHumanPosture, offset: number) => IHumanPosture = (
       along: IAutoMovieVector3,
-      offset: number,
-    ): IHumanPosture => {
-      const tip: IHumanPosture = tipped(
-        posture,
-        forward,
-        lean(offset * Vector3.dot(along, forward)),
-      );
-      return {
-        ...tip,
-        root: Vector3.add(
-          tip.root,
-          Vector3.scale(right, (offset * Vector3.dot(along, right)) / across),
-        ),
+    ): ((posture: IHumanPosture, offset: number) => IHumanPosture) => {
+      const alongForward: number = Vector3.dot(along, forward);
+      const alongRight: number = Vector3.dot(along, right);
+      return (posture: IHumanPosture, offset: number): IHumanPosture => {
+        const tip: IHumanPosture = tipped(posture, lean(offset * alongForward));
+        return {
+          ...tip,
+          root: Vector3.add(tip.root, Vector3.scale(right, (offset * alongRight) / across)),
+        };
       };
     };
 
@@ -324,13 +321,13 @@ export namespace HumanForceResponse {
         context,
         duration,
       );
+      const drawBack: ReturnType<typeof drawn> = drawn(back);
       return {
         ...plan,
         events: [{ name: "braced", share: Math.min(1, 1 / w / duration) }],
         posture: (seconds: number): IHumanPosture =>
-          drawn(
+          drawBack(
             plan.posture(seconds),
-            back,
             shift * minimumJerk.share(Math.min(1, Math.max(0, seconds * w))),
           ),
       };
@@ -370,16 +367,12 @@ export namespace HumanForceResponse {
       context,
       broken,
     );
-    const yieldAt = (seconds: number): IHumanPosture =>
-      drawn(
+    const motion: HumanForceDrawn.IMotion = HumanForceDrawn.prepare({ mass: model.mass, frequency: w, force });
+    const drawYield: ReturnType<typeof drawn> = drawn(direction);
+    const yieldAt: (seconds: number) => IHumanPosture = (seconds: number): IHumanPosture =>
+      drawYield(
         yielded.posture(Math.min(broken, seconds)),
-        direction,
-        HumanForceExchange.drawn({
-          mass: model.mass,
-          frequency: w,
-          force,
-          seconds: Math.min(broken, seconds),
-        }).offset,
+        motion.offset(Math.min(broken, seconds)),
       );
     const plant = (
       part: "leftFoot" | "rightFoot",
@@ -398,17 +391,15 @@ export namespace HumanForceResponse {
         contacts: [plant("leftFoot", 1), plant("rightFoot", 1)],
         posture: yieldAt,
       };
+    const postureAtBreak: IHumanPosture = yielded.posture(broken);
+    const motionAtBreak: HumanForceDrawn.IState = motion.sample(broken);
+    const frozenAtBreak: IHumanPosture = GymnasticsFlight.frozen(body, drawYield(postureAtBreak, motionAtBreak.offset));
     return HumanForceThrow.plan(context, {
       model,
       direction,
       broken,
-      frozen: GymnasticsFlight.frozen(body, yieldAt(broken)),
-      speed: HumanForceExchange.drawn({
-        mass: model.mass,
-        frequency: w,
-        force,
-        seconds: broken,
-      }).speed,
+      frozen: frozenAtBreak,
+      speed: motionAtBreak.speed,
       force,
       grip,
       remaining: span - broken,

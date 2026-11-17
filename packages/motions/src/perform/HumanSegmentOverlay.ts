@@ -93,10 +93,10 @@ export namespace HumanSegmentOverlay {
    * @evidence contracts/development/common.md#meaningful-documentation States the fade, carry, contact and seed behavior and which raw posture and weight evaluations are shared.
    * @evidence contracts/development/implementation.md#principled-implementation Each branch merges the same overlay's pure posture at the same local second onto its own under-posture; fade and final contact fits retain their original order. Plan contacts, hands and channel claims stay unchanged within the call, so metadata decisions are shared. Exact contact FK needs the body's unchanged skeleton topology; prepared blending additionally requires its constraints and clinical axes unchanged throughout this synchronous evaluation.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Lazy posture/weight slots and prepared fixed-claim mergers feed the recursive branch builder, then ordinary contact refitting. Exact-name continuation and attachment admission retain their existing owners.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All active overlay branches, fade weights, seed names and contact windows remain. rebased transfers only existing issued-source provenance; the resolver still admits/clamps current joints and accepts an unchanged free-leg solution only after its exact raw/root/ancestor/body checks. Every changed or unsupported fit remains native.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All active overlay branches, fade weights, seed names and contact windows remain. Every merged raw posture receives native joint admission and goal fitting; a shared under-posture reference cannot assert that its arbitrary overlay goals permit partial-leg reuse.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each demanded overlay samples raw posture, weight and ordinal once per query. Fixed claims classify encountered bone names once per merger; no-digit merges omit digit-goal traversal. Contact windows are scanned once and missing explicit goals demand only their effector/lower FK ancestry. Up to 2^N fade leaves remain for N simultaneous partial overlays; checked source-leg reuse or bare observational selection may avoid only their proven independent fits. Runtime speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw posture, scalar fade weight, original ordinal, fixed claims, hand-drive metadata and unchanged-rig blend preparation share within this query. The same synchronous FK source reaches each actual overlay plan's raw producer and canonical leaf/contact consumers. Source provenance survives a raw merge only so the resolver can revalidate actual current free-leg dependencies; distinct goals, near contexts and all other fits remain separate.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Query-owned slots, mergers and their bone booleans, branch indexes, optional blender and local lazy FK supplier release on return or throw. A borrowed parent reader stays with its synchronous parent. Raw merge provenance follows only the raw candidate's weak lifetime at the resolver; returned canonical poses, seed maps and contact goals retain no query context or reader.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw postures, weights, ordinals, drive metadata and blend preparation share only within this query. An overlay's static claim merger shares across reads only after its complete ordered claim strings match the saved copy; changed claims replace it. The parent FK/ROM source reaches actual raw/canonical consumers while every branch keeps its original independent native goal fit.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Query slots, branch indexes, blender and local FK supplier release on return/throw; no returned pose/seed/goal retains them. A weak overlay entry retains only its latest copied claims, merger and encountered closed bone-name booleans until replacement or overlay release, never a body, posture, time, FK reader or query history. Raw provenance stays weak at its existing owner.
    */
   export function overlaid(
     person: HumanSegment.IPerson,
@@ -201,8 +201,8 @@ export namespace HumanSegmentOverlay {
         }
         return { pose: leaf, contacts: {} };
       }
-      const written: IHumanPosture = resolveHumanPosture.rebased(under, (mergers[k] ??=
-        AutoMovieMotionHumanChannel.prepareMerge(overlay.channels))(
+      const written: IHumanPosture = (mergers[k] ??=
+        merger(overlay))(
         under,
         ((postures ??= [])[k] ??= overlay.plan.posture(
           Math.min(overlay.plan.duration, Math.max(0, seconds - overlay.start)),
@@ -210,7 +210,7 @@ export namespace HumanSegmentOverlay {
           resolution,
           projection,
         )),
-      ));
+      );
       const weight: number = ((weights ??= [])[k] ??= Math.min(
         minimumJerk.share(
           Math.min(
@@ -464,3 +464,25 @@ export namespace HumanSegmentOverlay {
     );
   }
 }
+
+/** Static selection metadata; every ordered claim is rechecked before cross-query reuse. */
+function merger(overlay: HumanSegment.IOverlay): ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge> {
+  const claims: readonly AutoMovieMotionHumanChannel.Claim[] = overlay.channels;
+  const kept: IMerger | undefined = MERGERS.get(overlay);
+  if (kept !== undefined && kept.claims.length === claims.length &&
+    kept.claims.every((claim: AutoMovieMotionHumanChannel.Claim, i: number): boolean => claim === claims[i]))
+    return kept.read;
+  const fixed: readonly AutoMovieMotionHumanChannel.Claim[] = [...claims];
+  const read: IMerger["read"] = AutoMovieMotionHumanChannel.prepareMerge(fixed);
+  MERGERS.set(overlay, { claims: fixed, read });
+  return read;
+}
+
+/** One overlay's latest exact claim-domain reader, containing no evaluated posture. */
+interface IMerger {
+  claims: readonly AutoMovieMotionHumanChannel.Claim[];
+  read: ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge>;
+}
+
+/** Claim metadata follows the existing overlay lifetime without retaining the overlay key. */
+const MERGERS: WeakMap<HumanSegment.IOverlay, IMerger> = new WeakMap();

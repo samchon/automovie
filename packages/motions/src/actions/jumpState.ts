@@ -37,11 +37,11 @@ export namespace jumpState {
  *
  * @evidence contracts/development/common.md#meaningful-documentation Separates raw endpoint demand, achieved canonical shape and root-local geometry; limits the scope to the action's own posture.
  * @evidence contracts/development/implementation.md#principled-implementation Uses the ordinary resolver, the declared rig's clamp and the existing final planted-refit owner, then reads actual FK with its rigid root removed. A free phase starts from achieved geometry rather than a separately reconstructed ankle/pitch request.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve and finalize once, admit its root, then copy clinical joints and the two legs' achieved root-frame geometry.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve and finalize once, admit its root, copy clinical joints, then transfer the private FK map's independently owned leg vectors and quaternions into endpoint records.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not move or certify the original planted goal, change a range, drop a contact solve or fake a plant in flight. Original push/landing targets remain authored and audited independently.
- * @evidence contracts/development/implementation.md#efficient-algorithms One existing canonical resolution, clamp and planted refit remain per endpoint, followed by full joint admission/copy and FK only for the four ankle/knee bones' ancestor closure. Endpoints prepare once per plan and speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Original HumanSegmentPlant policy remains shared, and one map supplies feet/knees together. Explicitly scoped FK/projector sources share equal FK prerequisites and fixed ROM metadata through actual initial solve, final full clamp, planted refit and local observations. Every joint is projected; unknown projectors retain ordinary admission.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned pose, joints and leg records belong to the plan. Temporary bones/getter/projector release on return/throw or stay with their synchronous lender; neither loan, callback, history nor external handle enters the state.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Canonical resolution, full clamp and planted refit remain per endpoint, followed by complete joint admission/copy and four-name knee/ankle FK. Its genuine name lookup/sorting prepares once per body's actual FK owner; endpoints still evaluate independently and speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanSegmentPlant policy remains shared and one map supplies both feet/knees. Its fresh nested outputs transfer directly from the discarded private map, avoiding six redundant copies without aliasing the input pose or another bone/query. The fixed four-name reader binds only the actual immutable FK owner and rebinds if that owner changes. Explicit synchronous FK/projector loans share equal prerequisites/ROM metadata through actual solves, full clamp, refit and observations; every current joint remains admitted.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned pose/joints/leg records belong to the plan. One bounded static name reader is weakly owned per body and replaces itself on FK-owner change without history. Query maps/getter/projector end on return/throw or with their synchronous lender; no loan or external handle enters the state.
  */
 export function of(body: IHumanBody, posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): jumpState.IState {
   if (posture.rotation !== undefined)
@@ -55,15 +55,15 @@ export function of(body: IHumanBody, posture: IHumanPosture, resolution?: Parame
   const joints: IHumanPosture["joints"] = {};
   for (const joint of pose.joints)
     joints[joint.bone] = [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0];
-  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, { ...pose, root: null }, read(), LEG_BONES);
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = legReader(body)({ ...pose, root: null }, read());
   const leg: (side: "left" | "right") => jumpState.ILeg = (
     side: "left" | "right",
   ): jumpState.ILeg => {
     const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
     return {
-      point: { ...foot.worldPosition },
-      rotation: { ...foot.worldRotation },
-      bend: { ...bones.get(`${side}LowerLeg`)!.worldPosition },
+      point: foot.worldPosition,
+      rotation: foot.worldRotation,
+      bend: bones.get(`${side}LowerLeg`)!.worldPosition,
     };
   };
   return {
@@ -78,6 +78,22 @@ export function of(body: IHumanBody, posture: IHumanPosture, resolution?: Parame
 const LEG_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
   "leftFoot", "rightFoot", "leftLowerLeg", "rightLowerLeg",
 ]);
+
+/** Static four-name demand only; dynamic endpoint poses and operation workspaces never enter this weak owner. */
+const LEG_READERS: WeakMap<IHumanBody, {
+  rig: IHumanBody["poseResolution"];
+  read: ReturnType<typeof poseBones.prepare>;
+}> = new WeakMap();
+
+/** Bind the actual FK owner and fixed knee/ankle demand, replacing only metadata after an owner change. */
+function legReader(body: IHumanBody): ReturnType<typeof poseBones.prepare> {
+  let known: ReturnType<typeof LEG_READERS.get> = LEG_READERS.get(body);
+  if (known === undefined || known.rig !== body.poseResolution) {
+    known = { rig: body.poseResolution, read: poseBones.prepare(body, LEG_BONES) };
+    LEG_READERS.set(body, known);
+  }
+  return known.read;
+}
 
   /**
    * One achieved leg in the canonical root frame.

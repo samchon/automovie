@@ -1,5 +1,5 @@
-import { Quaternion, integrateAirborneRotation } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, type IAutoMovieResolvedBone, integrateAirborneRotation, type resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -32,18 +32,26 @@ import { qunit } from "../internal/qunit";
  * 3. A hand-derived public rate query on the same tensor/spin exposes the
  *    conditioning: momentum (0.01,0.002,0) needs rate (0.01,1.001,0).
  *    Completed playback does not query the history again.
+ * 4. One spherical gyrostat has I=diag(2,2,2), declared relative spin2X
+ *    and zero world momentum. Its exact rate is -X and q(t)=Rx(-t).
+ *    An actual factory-issued tensor observes that numeric spin through its
+ *    public mutable relative field. The public rate must reconstruct zero
+ *    exactly, and actual integration must accept relative momentum budget
+ *    0.01 with absolute0. Independent dense orientation/rate observations
+ *    retain 1e-6 precision; their finite-difference roundoff is not asserted
+ *    to be exactly zero physical error.
  *
- * This is a single deferred physical model, not another Human fixture.
+ * These are two small numeric gyrostat models, not another Human fixture.
  * Its tight Q budget checks dense physics and the physical control's actual
  * public wiring; it does not prove that every incorrect normalization would
  * fail, nor that finite observations certify every intermediate instant.
- * The unchanged Human sample remains the existing failing read-back control.
+ * The unchanged Human sample owns complete displayed-body read-back.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Derives the realizable rotor tensor, relative-spin cancellation, exact body/world solution, principal frame, finite-difference observer, original precision bounds, physical budget and explicit coverage limits.
- * @evidence contracts/development/testing.md#behavioral-verification Integrates one declared physical history through public momentumTolerance, reads actual dense orientations and rates, reconstructs world momentum independently and exercises the public rate's small-momentum conditioning without private imports.
- * @evidence contracts/development/testing.md#independent-expectations Differentiating Rx(0.01t) Ry(t) and rotating its explicitly declared diag(1,2,1) tensor gives constant 0.01X. Scalar balance independently gives the perturbed Y rate; no integrator stage, private defect ratio, alternate solver or output snapshot supplies the expected physics.
- * @evidence contracts/development/testing.md#distinguishing-cases A realizable anisotropic tensor, nonzero opposing relative spin, small nonzero total momentum, a nontrivial principal frame, noncommuting exact motion, positive fixed observation coverage, actual dense derivatives and no playback history reads distinguish rate-only assumptions and frame or dense-curve errors.
- * @evidence contracts/development/testing.md#execution-ownership One deferred CPU unit owns one pure gyrostat history and its observations, starts no runner or host, replaces no foreign method and changes neither representative Human input nor its bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation Derives realizable rotor tensors, relative-spin cancellation, nonzero/zero world-momentum solutions, principal frames, finite-difference precision, exact zero physical acceptance and their distinct coverage limits in four scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification Integrates two declared physical histories through public momentumTolerance, reads actual dense orientations/rates and reconstructs world momentum independently. The zero case uses an actual unobserved factory tensor with explicitly authored numeric spin and checks exact diagonal division, actual zero-budget acceptance and playback history release without private imports.
+ * @evidence contracts/development/testing.md#independent-expectations Differentiating Rx(0.01t) Ry(t) and rotating its declared diag(1,2,1) tensor gives constant0.01X. For I=2 identity and h=2X, I omega+h=0 requires exact omega=-X and q=Rx(-t); all scalars in -2/2 and 2*(-1)+2 are exactly representable. A shell diag(1,1.5,1.5) plus a rotor diag(1,0.5,0.5) spinning2rad/s realizes that spherical gyrostat. Numeric spin is an explicit model input, never inferred from an implementation output. Finite-difference rate observation retains1e-6 rather than manufacturing a nonzero absolute physical floor.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps the realizable anisotropic, small-nonzero, noncommuting control and adds one zero-world-momentum, spherical, canonical-axis counterspin. Actual factory factor ownership, explicit current relative spin, zero absolute budget, closed-form dense playback, positive derivative coverage and no history rereads distinguish exact cancellation from a normalized epsilon or an observer-roundoff false failure.
+ * @evidence contracts/development/testing.md#execution-ownership One CPU unit owns the original numeric gyrostat and one added single-part factory tensor with declared numeric spin. It starts no runner/host, replaces no method, adds no Human or repeated law matrix and releases the added history in finally; representative Human input and bounds stay unchanged.
  */
 export function test_engine_airborne_momentum_conditioning(): void {
   const findings: string[] = [];
@@ -158,5 +166,87 @@ export function test_engine_airborne_momentum_conditioning(): void {
     findings.push(`only ${observed} of nineteen physical instants were observed`);
   if (!(completedReads > 0 && reads === completedReads))
     findings.push("completed gyrostat playback reread its shape history");
+  counterspin(findings, epsilon, limit, logarithm);
   TestValidator.equals("dense gyrostat motion conserves its small world momentum", findings, []);
+}
+
+/** Separate exact zero-momentum admission from a finite-precision observer of the known counterspin. */
+function counterspin(
+  findings: string[],
+  epsilon: number,
+  limit: number,
+  logarithm: (origin: IAutoMovieQuaternion, sample: IAutoMovieQuaternion) => IAutoMovieVector3,
+): void {
+  const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+  const model: resolveAutoMovieCenterOfMass.IModel = {
+    mass: 1,
+    segments: [{ bone: "hips", mass: 1, point: zero,
+      inertia: { x: 2, y: 2, z: 2 }, axes: identity }],
+  };
+  const numeric: integrateAirborneRotation.ICachedHistory = integrateAirborneRotation.history(model,
+    (): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => new Map([
+      ["hips", { bone: "hips", localRotation: identity, worldPosition: zero, worldRotation: identity }],
+    ]),
+  );
+  let reads: number = 0;
+
+  // The geometry supplies the spherical tensor. Rotor spin is a declared
+  // independent numeric gyrostat input through the existing mutable field.
+  const history: integrateAirborneRotation.IHistory = (seconds: number): integrateAirborneRotation.IInstant => {
+    reads++;
+    const instant: integrateAirborneRotation.IInstant = numeric(seconds);
+    instant.relative = { x: 2, y: 0, z: 0 };
+    return instant;
+  };
+  try {
+    const rate: IAutoMovieVector3 = integrateAirborneRotation.rate(history(0), zero);
+    if (!(nclose(rate.x, -1, 0) && nclose(rate.y, 0, 0) && nclose(rate.z, 0, 0) &&
+      nclose(2 * rate.x + 2, 0, 0)))
+      findings.push(`zero-momentum diagonal counterspin has wrong exact rate ${JSON.stringify(rate)}`);
+    let flight: integrateAirborneRotation.IFlight;
+    try {
+      flight = integrateAirborneRotation({
+        history, t0: 0, t1: 1, q0: identity, momentum: zero, h: 0.25,
+        tolerance: { relative: 1e-10, absolute: 1e-10 },
+        momentumTolerance: { relative: 0.01, absolute: 0 },
+      });
+    } catch (error) {
+      findings.push(`exactly feasible zero-momentum counterspin failed physical acceptance: ${String(error)}`);
+      return;
+    }
+    const completed: number = reads;
+    let observed: number = 0;
+    for (let index: number = 0; index <= 20; index++) {
+      const seconds: number = index / 20;
+      const q: IAutoMovieQuaternion = flight.orientation(seconds);
+      const expected: IAutoMovieQuaternion = { x: -Math.sin(seconds / 2), y: 0, z: 0, w: Math.cos(seconds / 2) };
+      const angle: number = Quaternion.angle(q, expected);
+      if (!(qunit(q, 1e-12) && Number.isFinite(angle) && angle <= limit))
+        findings.push(`zero-momentum counterspin orientation error ${angle} at ${seconds}`);
+      if (index === 0 || index === 20) continue;
+      const before: IAutoMovieQuaternion = flight.orientation(seconds - epsilon);
+      const after: IAutoMovieQuaternion = flight.orientation(seconds + epsilon);
+      if (!(qunit(before, 1e-12) && qunit(after, 1e-12))) {
+        findings.push(`zero-momentum counterspin derivative has a nonunit endpoint at ${seconds}`);
+        continue;
+      }
+      const low: IAutoMovieVector3 = logarithm(q, before);
+      const high: IAutoMovieVector3 = logarithm(q, after);
+      const error: number = Math.hypot(
+        (high.x - low.x) / (2 * epsilon) + 1,
+        (high.y - low.y) / (2 * epsilon),
+        (high.z - low.z) / (2 * epsilon),
+      );
+      if (!(Number.isFinite(error) && error <= limit))
+        findings.push(`zero-momentum counterspin observed rate error ${error} at ${seconds}`);
+      observed++;
+    }
+    if (observed !== 19 || !(completed > 1 && reads === completed))
+      findings.push(`zero-momentum counterspin lacks nineteen observations or rereads history: ${observed}, ${completed}, ${reads}`);
+  } catch (error) {
+    findings.push(`zero-momentum counterspin public rate or observation failed: ${String(error)}`);
+  } finally {
+    numeric.clear();
+  }
 }

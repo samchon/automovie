@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanActionContext } from "../law/IHumanActionContext";
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -83,8 +84,19 @@ export namespace defendGeometry {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture and contact window types.
    */
   export interface IGeometry {
-    /** The posture at seconds since the start. */
-    posture(seconds: number): IHumanPosture;
+    /**
+     * The complete posture at action-relative seconds, borrowing only this
+     * synchronous body's optional FK/ROM sources.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines action-relative time, unchanged-body query loans, full output and preserved complete posture despite optional channel demand.
+     * @evidence contracts/development/implementation.md#principled-implementation The actual build producer evaluates its original movement envelope, root/trunk evasion, fixed stance feet, guard and selected limb defence on the current posed trunk.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One share drives the base and original limb blends; one current trunk map serves guard and defence goals.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains every actual posture projection, original limb/rival fit, contact window, guard and selected defence; channel demand does not omit physical goals.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Fixed foot hints/contacts and demanded rig names prepare once, while each actual query evaluates its full current posture, FK and original blend loop; no speedup is measured.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows genuine query-scoped exact FK/ROM sources without storing them; fixed body/feet/support geometry belongs to the built defence, and every changing root/joint value still reaches native resolution.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The geometry retains fixed stance/sight metadata until plan settle/release; each call returns fresh authored goals and releases its borrowed source/projector and current bone map.
+     */
+    posture: IHumanActionPlan["posture"];
 
     /** The feet's contact windows. */
     contacts: IHumanContactWindow[];
@@ -101,9 +113,9 @@ export namespace defendGeometry {
    * @evidence contracts/development/implementation.md#principled-implementation The weapon is the attacker's limb moving most toward the struck region at the read second; the evasion and the goals follow from the line it comes in on.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The sight, the evasion's displacement, the base posture, then the limbs blended from the guard to the goals.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing about contact is decided here; the displacement shares are documented provisional values.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two reads of the attacker's bones at the build and constant work per posture beyond the limb fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The sight and the displacement are computed once and shared by every posture.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure holds the sight and the entry's feet for the plan's lifetime only.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The original two attacker observations remain. Fixed requested-bone metadata and authored foot hints/MTP contacts prepare once; each posture evaluates its envelope once, one actual native trunk and the original guard/limb blends. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed sight, displacement, entry feet and checking support selection belong to this built defence. Only their authored geometry is shared; query-scoped exact FK/ROM loans reach the native current trunk, and no changing pose, fit, actor observation or time answer is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains its original sight/feet and fixed demanded-rig/foot-geometry readers until plan settle/release. Every query returns independent authored goals and releases its current map and optional borrowed FK/ROM sources on return or failure.
    */
   export function build(
     context: IHumanActionContext<defend.IParams>,
@@ -230,8 +242,10 @@ export namespace defendGeometry {
     if (p.kind === "highBlock") shownBones.add(body.surfaces.regions[attackedSide === "left" ? "templeLeft" : "templeRight"].bone);
     if (p.kind === "check") shownBones.add(`${attackedSide}UpperLeg`);
     const trunk: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, shownBones);
-    const base = (t: number): IHumanPosture => {
-      const k: number = w(t);
+    const legs: ReturnType<typeof StrikingStance.prepareLegs> = StrikingStance.prepareLegs(body, feet, {
+      left: checking !== "left", right: checking !== "right",
+    });
+    const base: (k: number) => IHumanPosture = (k: number): IHumanPosture => {
       return {
         root: Vector3.add(
           entry.root,
@@ -241,18 +255,20 @@ export namespace defendGeometry {
         pitch: entry.pitch + pitch * k,
         roll: entry.roll + roll * k,
         joints: { ...joints },
-        limbs: StrikingStance.legs(body, feet, {
-          left: checking !== "left",
-          right: checking !== "right",
-        }),
+        limbs: legs(),
       };
     };
     return {
       contacts: windows(checking, timing),
-      posture: (t: number): IHumanPosture => {
+      posture: (
+        t: number,
+        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => {
         const k: number = w(t);
-        const posture: IHumanPosture = base(t);
-        const bones: ReturnType<typeof StrikingBody.trunk> = trunk(posture);
+        const posture: IHumanPosture = base(k);
+        const bones: ReturnType<typeof StrikingBody.trunk> = trunk(posture, resolution, projection);
         const guard: ReturnType<typeof StrikingStance.guard> =
           StrikingStance.guard(body, posture, { lead }, {}, bones);
 

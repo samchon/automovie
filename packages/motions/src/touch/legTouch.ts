@@ -28,7 +28,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * there, the other leg bearing the body.
  *
  * The body first moves over its standing foot: the root is shifted level
- * until the centre of mass lies over that ankle (`HumanBalance.support`),
+ * until the centre of mass lies over that ankle (`HumanBalance.prepareCentre`),
  * the standing leg keeping its planted goal. The moving leg is then a goal
  * of the posture resolver, as an arm is: for the toes and the heel the
  * ankle is placed so that part of the foot, read in the foot's rest frame
@@ -107,9 +107,9 @@ export namespace legTouch {
    * @evidence contracts/development/implementation.md#principled-implementation The root's shift over the standing ankle is the fixed point of the centre of mass under that shift; the knee's shift is the nearer root of the thigh's length along the level line to the place, taken again from the hip each shift displays, and the knee's goal asks no foot rotation, which would state the knee's plane against its bend point; the leg leaves and returns on one minimum-jerk envelope with a small lift.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The place, the balance, the leg's goal, the clock, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A knee out of the thigh's reach throws with the distance; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The four original balance solves and four knee root-update rounds remain. Each new shift still runs the complete physical posture fit, then requests only the measured hip FK output. Its completed hip feeds that candidate's residual, next update and final direction instead of repeating the same candidate solve; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates physical goals/balance/timing to their owners. One synchronous search borrows exact FK prerequisites, genuine same-body ROM metadata and fixed hip-name preparation; an explicit current shift reuses its actually measured hip across its dependent arithmetic; a changed shift always solves anew, with no pose/time cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The planning-only FK reader and initial/current hip vectors end with synchronous search or refusal. The plan retains its original base, solved goal and physical shift only; no reader, pose map or search history enters its evaluator.
+   * @evidence contracts/development/implementation.md#efficient-algorithms All four balance full fits/COM observations and four knee update rounds remain. Balance requests only actual profile mass bones and omits unused support-base geometry; its fixed names, genuine ROM metadata and exact FK prerequisites share this synchronous search. Each changed knee shift still fits the complete pose and reads its needed hip once for residual/update/final direction; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates physical goals/balance/timing to their owners. One unchanged-body/table synchronous search shares exact FK prerequisites and genuine ROM metadata across its four complete balance fits and knee fits, with fixed mass/hip-name preparation; an explicit current shift reuses its actually measured hip across its dependent arithmetic; a changed shift always solves anew, with no pose/time cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The planning-only FK reader and initial/current hip vectors end with synchronous search or refusal. The plan retains its original base, solved goal and physical shift only, forwarding any runtime self query loan to the complete base evaluation; no reader, pose map or search history enters its evaluator.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -150,6 +150,9 @@ export namespace legTouch {
         : { limbs: { ...posture.limbs, [`${side}Leg`]: goal } }),
     });
     const ankle: IAutoMovieVector3 = context.entry.feet[standing].ankle;
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    let projection: ReturnType<typeof prepareHumanPostureProjection> | undefined;
+    const centre: ReturnType<typeof HumanBalance.prepareCentre> = HumanBalance.prepareCentre(body);
     let over: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (let i: number = 0; i < 4; i++)
       over = Vector3.add(
@@ -157,7 +160,7 @@ export namespace legTouch {
         level(
           Vector3.subtract(
             ankle,
-            HumanBalance.support(body, moved(entry, over)).centre,
+            centre(moved(entry, over), resolution, projection ??= prepareHumanPostureProjection(body)),
           ),
         ),
       );
@@ -175,9 +178,7 @@ export namespace legTouch {
       Quaternion.rotateVector(foot.rotation, local);
     // The hip as the body displays it under a shift: the pelvis is fitted
     // over the planted leg, so the hip is read, not carried with the root.
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}UpperLeg`]);
-    let projection: ReturnType<typeof prepareHumanPostureProjection> | undefined;
     const frames: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
     const hip = (by: IAutoMovieVector3): IAutoMovieVector3 =>
       frames(
@@ -199,17 +200,19 @@ export namespace legTouch {
       let residual: number = Infinity;
       for (let i: number = 0; i < 4; i++) {
         const from: IAutoMovieVector3 = Vector3.subtract(knee, current);
+        const flat: IAutoMovieVector3 = level(from);
         const line: IAutoMovieVector3 =
-          Vector3.length(level(from)) > 1e-6
-            ? Vector3.normalize(level(from))
+          Vector3.length(flat) > 1e-6
+            ? Vector3.normalize(flat)
             : { x: 0, y: 0, z: 1 };
         const along: number = Vector3.dot(from, line);
         const inside: number =
           along ** 2 - (Vector3.dot(from, from) - thigh ** 2);
+        const root: number = inside < 0 ? NaN : Math.sqrt(inside);
         const far: number =
           inside < 0
             ? NaN
-            : [along - Math.sqrt(inside), along + Math.sqrt(inside)].sort(
+            : [along - root, along + root].sort(
                 (a: number, b: number): number => Math.abs(a) - Math.abs(b),
               )[0]!;
         shift = Vector3.add(shift, Vector3.scale(line, far));
@@ -280,7 +283,12 @@ export namespace legTouch {
       contacts: base.contacts.filter(
         (c: IHumanContactWindow): boolean => c.part !== `${side}Foot`,
       ),
-      posture: (seconds: number): IHumanPosture => {
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        source?: Parameters<IHumanActionPlan["posture"]>[2],
+        nativeProjection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const s: number =
           t < reach
@@ -288,7 +296,7 @@ export namespace legTouch {
             : t <= relax
               ? 1
               : 1 - minimumJerk.share((t - relax) / reach);
-        return moved(base.posture(t), Vector3.scale(shift, s), {
+        return moved(base.posture(t, undefined, source, nativeProjection), Vector3.scale(shift, s), {
           point: Vector3.add(
             Vector3.add(
               foot.ankle,

@@ -11,7 +11,7 @@ import { AirborneTakeoffAngles } from "./AirborneTakeoffAngles";
 /**
  * Evaluate shooting points with optional momentum sensitivities. Rejected
  * line-search trials need only the actual physical residual; an improving
- * point is promoted to the full tangent solve before another Newton step.
+ * point is promoted to the full tangent solve before acceptance or return.
  * The caller judges the promoted residual again, so a different adaptive
  * mesh cannot turn an unverified improvement into an accepted Newton point.
  *
@@ -24,7 +24,7 @@ import { AirborneTakeoffAngles } from "./AirborneTakeoffAngles";
  * @evidence contracts/development/implementation.md#principled-implementation Each residual comes from its actual torque-free physical flight under unchanged budgets. Tangent promotion recomputes that flight with the original sensitivity partition; it is never a guessed Jacobian or a derivative of another mesh. Angle unwrapping retains the original default-step branch convention.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One evaluator selects an exact existing point or integrates the requested physical/tangent system, then retargets the unchanged endpoint.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither residual acceptance nor physical error is reused at a nearby momentum. Generic histories retain their original independent meshes and callback errors.
- * @evidence contracts/development/implementation.md#efficient-algorithms Non-improving backtracking trials carry zero tangent states rather than nine. Improving nonterminal trials additionally need one full tangent solve; actual break-even and mesh-retention costs remain unmeasured. Owned-history integrations share exact error-checked time partitions.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Non-improving backtracking trials carry zero tangent states rather than nine. Every improving trial additionally needs one full tangent solve, preserving the returned flight's three sensitivity columns; actual break-even and mesh-retention costs remain unmeasured. Owned-history integrations share exact error-checked time partitions.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Only Object.is-equal momentum components reuse endpoint/flight data from the caller's current and last rejected points; a required Jacobian must actually be present. Factory history provenance permits a call-local time mesh, not shared states or verdicts.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns at most its current and last rejected evaluations and releases the operation mesh in finally. No point map or cross-call cache exists; completed flight playback retains only numeric trajectory data.
  */
@@ -86,19 +86,19 @@ export function AirborneTakeoffTrial(
 /**
  * Physical shooting points and their call-local evaluator.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Point members state momentum coordinates, radian residuals and optional actual integrated Jacobians.
- * @evidence contracts/development/design.md#principled-representation A point owns its physical flight, endpoint angles and numeric momentum; an absent Jacobian explicitly means no sensitivities were integrated.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The takeoff solver alone constructs this operation and consumes its point, retarget and release surface.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional Jacobian distinguishes a real derivative from a residual-only trial without a trusted success flag or duplicate body model.
+ * @evidence contracts/development/common.md#meaningful-documentation Point members state momentum coordinates, radian residuals and optional actual integrated Jacobians. Companion IPoint: Each member states physical momentum, actual radian endpoint/residual, derivative availability and completed-flight ownership. Companion IOperation: Defines actual optional-sensitivity evaluation, pure retargeting and operation release.
+ * @evidence contracts/development/design.md#principled-representation A point owns its physical flight, endpoint angles and numeric momentum; an absent Jacobian explicitly means no sensitivities were integrated. Companion IPoint: An actual solved trajectory accompanies every endpoint and residual; a missing Jacobian explicitly represents a residual-only evaluation. Companion IOperation: One evaluator owns one fixed physical history epoch; it cannot accept a trajectory on the solver's behalf.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The takeoff solver alone constructs this operation and consumes its point, retarget and release surface. Companion IPoint: The Newton and continuation owners consume exactly these numeric results and the original completed flight. Companion IOperation: Newton uses evaluate, continuation reuses retarget, and the takeoff operation calls clear in finally.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional Jacobian distinguishes a real derivative from a residual-only trial without a trusted success flag or duplicate body model. Companion IPoint: Reuses the existing angle and flight contracts without a second physical state, synthetic derivative or success flag. Companion IOperation: Candidate reuse requires current exact numeric momentum and actual derivative availability, without a public trusted-cache flag.
  */
 export namespace AirborneTakeoffTrial {
   /**
    * A physical trial at takeoff-frame momentum components, kg m squared per second.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states physical momentum, actual radian endpoint/residual, derivative availability and completed-flight ownership.
-   * @evidence contracts/development/design.md#principled-representation An actual solved trajectory accompanies every endpoint and residual; a missing Jacobian explicitly represents a residual-only evaluation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The Newton and continuation owners consume exactly these numeric results and the original completed flight.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the existing angle and flight contracts without a second physical state, synthetic derivative or success flag.
+   * Each member states physical momentum, actual radian endpoint/residual, derivative availability and completed-flight ownership.
+   * An actual solved trajectory accompanies every endpoint and residual; a missing Jacobian explicitly represents a residual-only evaluation.
+   * The Newton and continuation owners consume exactly these numeric results and the original completed flight.
+   * Reuses the existing angle and flight contracts without a second physical state, synthetic derivative or success flag.
    */
   export interface IPoint {
     /** Fresh local momentum coordinates. */
@@ -116,10 +116,10 @@ export namespace AirborneTakeoffTrial {
   /**
    * Trial evaluation and exact-point reuse within one unchanged solve.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines actual optional-sensitivity evaluation, pure retargeting and operation release.
-   * @evidence contracts/development/design.md#principled-representation One evaluator owns one fixed physical history epoch; it cannot accept a trajectory on the solver's behalf.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Newton uses evaluate, continuation reuses retarget, and the takeoff operation calls clear in finally.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Candidate reuse requires current exact numeric momentum and actual derivative availability, without a public trusted-cache flag.
+   * Defines actual optional-sensitivity evaluation, pure retargeting and operation release.
+   * One evaluator owns one fixed physical history epoch; it cannot accept a trajectory on the solver's behalf.
+   * Newton uses evaluate, continuation reuses retarget, and the takeoff operation calls clear in finally.
+   * Candidate reuse requires current exact numeric momentum and actual derivative availability, without a public trusted-cache flag.
    */
   export interface IOperation {
     /** Integrate only the requested physical/tangent system, or reuse an exactly equal point having the required data. */

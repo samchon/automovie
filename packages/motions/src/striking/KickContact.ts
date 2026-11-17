@@ -64,7 +64,7 @@ export namespace KickContact {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every original lean, step bound, fit round, plant, ROM clamp, arm/rival fallback and miss remains. The positive-zero initial trial reuses only its actually computed identical base/hip/solve.
    * @evidence contracts/development/implementation.md#efficient-algorithms The original bounded lean/step/refit search remains; one lazy prepared chain shares genuine ROM, endpoint demand, bend, extension bound and push rotation metadata across all actual trials, with no measured speedup.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The synchronous search keeps one canonical body and rig unchanged. Only its issued ROM metadata and exact FK prerequisites are borrowed; changed carriage/goal candidates always run their full physical fits.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources FK workspaces, the lazy fixed-chain producer and its ROM projector end on this call's return or throw. The returned contact contains only its original carriage, posture and fitted numerical observations; no helper, projector or new history escapes.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources FK workspaces, the lazy fixed-chain producer and its ROM projector end on this call's return or throw; that same scoped mapper serves each existing carriage-tilt/hip clamp, without changing raw lowering. The returned contact contains only its original carriage, posture and fitted numerical observations; no helper, projector or new history escapes.
    */
   export function choose(
     props: KickCarriage.IProps,
@@ -75,6 +75,8 @@ export namespace KickContact {
   ): IContact {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     let projection: ReturnType<typeof prepareHumanPostureProjection> | undefined;
+    const rom: () => ReturnType<typeof prepareHumanPostureProjection> = (): ReturnType<typeof prepareHumanPostureProjection> =>
+      (projection ??= prepareHumanPostureProjection(props.body));
     let fitLeg: ReturnType<typeof KickChain.prepareFit> | undefined;
     const leans: number[] = prefer === undefined ? [] : [prefer];
     if (chain.technique === "round")
@@ -95,20 +97,20 @@ export namespace KickContact {
         props,
         carriage,
         props.timing.impact,
-        undefined, resolution,
+        undefined, resolution, rom(),
       );
       const hip: IAutoMovieVector3 = source?.hip ?? KickCarriage.hip(
         props.body,
         base,
         props.side,
-        resolution,
+        resolution, rom(),
       );
       return {
         hip,
         contact: {
           carriage,
           base,
-          fit: (fitLeg ??= KickChain.prepareFit(chain, projection ??= prepareHumanPostureProjection(props.body)))(base, source?.solved ?? KickChain.solve(chain, base, hip), hip, resolution),
+          fit: (fitLeg ??= KickChain.prepareFit(chain, rom()))(base, source?.solved ?? KickChain.solve(chain, base, hip), hip, resolution),
         },
       };
     };
@@ -123,13 +125,13 @@ export namespace KickContact {
           props,
           carriage,
           props.timing.impact,
-          undefined, resolution,
+          undefined, resolution, rom(),
         );
         const hip: IAutoMovieVector3 = KickCarriage.hip(
           props.body,
           base,
           props.side,
-          resolution,
+          resolution, rom(),
         );
         const solved: StrikingReach.ISolution = KickChain.solve(chain, base, hip);
         source = { base, hip, solved };

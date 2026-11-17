@@ -26,8 +26,8 @@ export namespace walkStanceModel {
    * The course's problem over its knots, its first `hold` knots held as
    * `start` holds them.
    *
-   * @param body The body.
-   * @param knots The knots.
+   * @param body The unchanged canonical body for this problem.
+   * @param knots Fixed placement, side order, schedule and bearing demands; only each stance's held swivel may be replaced between synchronous sweeps.
    * @param start A course to start from.
    * @param hold How many first knots are held.
    * @returns The problem.
@@ -36,9 +36,9 @@ export namespace walkStanceModel {
    * @evidence contracts/development/implementation.md#principled-implementation Retains each published stance residual and range/contact/clearance constraint, their original finite-difference steps and second differences across the held overlap.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure walkStanceGeometry owns prepared physical readings and walkStanceRows owns linear row topology; this builder alone assembles the course's residuals and nonlinear constraints.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original residual, constraint order, landing-region sample, held-knot acceleration and physical bound without changing sample rate or tolerances.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each knot reads at most two legs and seven probes per leg when linearizing; clearance reuses those identical base/probe legs instead of posing them again, and merit reads request no gradient probes.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only exact single-coordinate readings within the same sweep feed both each leg's own constraints and two-leg clearance; prepared goals and bounded pelvis/pivot/support readings share fixed problem geometry. A landing's complete x/z region-probe arrays are each read once and feed every bound component at those exact inputs.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned problem retains its initial vector and geometry/row closures, linear in knots for fixed foot geometry; per-knot gradient records release after each sweep and no history is retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each knot reads at most two legs and seven probes per leg when linearizing; clearance shares those base/probe legs and merit reads request no gradient probes. A scheduled support's sort/chain construction runs only when its exact foot coordinates change, with O(s) matching for s stances rather than repeated O(v log v) hull construction for v foot vertices; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact single-coordinate readings feed leg constraints and clearance; fixed geometry and landing x/z probes also share. Each knot's latest private scheduled hull requires identical ordered coordinate indices and Object.is-equal pitch/turn/slide values under unchanged placements/body. Matching current pitches also let that same sweep reuse the scheduled hull as current support; no actual fit or constraint-point reading is cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The problem retains its initial vector, geometry/row closures and at most one private scheduled hull/scalar snapshot per knot, linear in knots for fixed foot geometry. Hulls never enter output/callback data; replacement releases the old record, gradient records end per sweep, and no pose, fit or query history is retained.
    */
   export function of(
     body: IHumanBody,
@@ -149,6 +149,29 @@ export namespace walkStanceModel {
         }
       }
     }
+
+    /** A knot's latest scheduled bearing geometry, never exposed by the problem. */
+    type IScheduledSupport = {
+      indices: number[];
+      values: number[];
+      hull: IAutoMovieVector3[];
+    };
+    const supports: (IScheduledSupport | undefined)[] = new Array<IScheduledSupport | undefined>(n);
+    const scheduledSupport: (x: Float64Array, k: number, indices: number[]) => IAutoMovieVector3[] = (
+      x: Float64Array,
+      k: number,
+      indices: number[],
+    ): IAutoMovieVector3[] => {
+      const previous: IScheduledSupport | undefined = supports[k];
+      let same: boolean = previous !== undefined && previous.indices.length === indices.length;
+      for (let i: number = 0; same && i < indices.length; ++i)
+        same = previous!.indices[i] === indices[i] && Object.is(previous!.values[i], x[indices[i]!]);
+      if (same) return previous!.hull;
+
+      const hull: IAutoMovieVector3[] = support(x, k);
+      supports[k] = { indices: indices.slice(), values: indices.map((i: number): number => x[i]!), hull };
+      return hull;
+    };
 
     // The cost and the constraints at a course: each cost residual with its
     // gradient (the model reads both, the merit the residual alone), and each
@@ -297,14 +320,18 @@ export namespace walkStanceModel {
             o + slideOf(s.side) + 1,
           ]);
           const kept: number[] = idx.map((i: number): number => x[i]!);
+          const scheduledBase: boolean = knot.stances.every(
+            (s: walkStanceCourse.IStance, j: number): boolean =>
+              Object.is(x[o + pitchOf(s.side)], scheduled[k]![j]),
+          );
           knot.stances.forEach((s: walkStanceCourse.IStance, j: number): void => {
             x[o + pitchOf(s.side)] = scheduled[k]![j]!;
           });
-          const flatBase: IAutoMovieVector3[] = support(x, k);
+          const flatBase: IAutoMovieVector3[] = scheduledSupport(x, k, idx);
           idx.forEach((i: number, r: number): void => {
             x[i] = kept[r]!;
           });
-          const base: IAutoMovieVector3[] = support(x, k);
+          const base: IAutoMovieVector3[] = scheduledBase ? flatBase : support(x, k);
           // The bases at each variable moved, built only for a constraint
           // that asks for its gradient.
           let moved: IAutoMovieVector3[][] | undefined;

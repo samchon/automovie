@@ -82,10 +82,10 @@ export namespace flinch {
   /**
    * Parameters.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the threat's target and the intensity's range and default.
-   * @evidence contracts/development/design.md#principled-representation The threat is the interface's motion-target union and the intensity a share in (0, 1], checked when planning.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
+   * @evidence contracts/development/common.md#meaningful-documentation Members state the threat target/default, intensity range/default and shared manner's explicit intensity precedence.
+   * @evidence contracts/development/design.md#principled-representation The threat is the existing target union; optional intensity and shared manner feed the original modifier admission rather than another reaction-specific parameter record.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Plan reads all three inputs: threat, optional top-level intensity and optional shared manner.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target union and shared manner contract without a performer-specific threat or replacement intensity rule.
    */
   export interface IParams {
     /** Where the threat comes from; a place ahead of the performer when absent. */
@@ -127,9 +127,9 @@ export namespace flinch {
    * @evidence contracts/development/implementation.md#principled-implementation Every part rises to the measured startle peak and falls to the end on the clock's envelope; the gloves' goals come from the face region and the fist sockets, and each arm is carried in joint space between the angles the entry held and the angles its goal solves to.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, one held base and four rows; the threat is read once.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An intensity outside its range throws; the sizes are named provisional constants.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond one trunk resolution and one posture solve per arm.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The threat's direction is computed once per plan and dropped on settle, when the threat may have moved.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one cached direction, cleared by settle and released with the plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each arm keeps its original complete trunk admission/digit solves, elbow sweep and carried-arm fit, while final observation FK computes only the actual face ancestry. One fixed body/name demand serves both callbacks, fixed fist width is read once, and the lazy threat read requests head ancestry only; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each cover callback forwards its current same-body FK/genuine ROM loans to the existing complete trunk producer; every changed posture still runs native admission. Fixed face demand and fist geometry belong to the unchanged body, while the original one-direction memo still clears on settle.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns fixed body/face-demand metadata and its original single cached direction until settle/release. Each cover invocation borrows dynamic FK/ROM only until return or throw; fresh face maps and goals contain no loan, callback result or queried-pose history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -141,8 +141,8 @@ export namespace flinch {
         ...p.manner,
       });
     const intensity: number = modifiers.extent;
-    const body = context.body;
-    const m = body.measure;
+    const body: IHumanActionContext["body"] = context.body;
+    const m: IHumanActionContext["body"]["measure"] = body.measure;
     const entry: IHumanPosture = context.entry.posture;
 
     // The startle's rise is a reflex and keeps its time; the return follows
@@ -164,7 +164,7 @@ export namespace flinch {
       "stroke",
     ];
     const fall: readonly [string, string] = ["relax", AutoMovieMotionClock.END];
-    const share = (seconds: number): number =>
+    const share: (seconds: number) => number = (seconds: number): number =>
       intensity * clock.envelope(rise, fall, seconds);
     const lean: number = AutoMovieMotionHumanRange.lean(LEAN);
     const shift: number = AutoMovieMotionHumanRange.shift(body, SHIFT);
@@ -176,7 +176,7 @@ export namespace flinch {
 
     // Away from the threat in the performer's floor frame: `x` left, `z` forward.
     let cached: IAutoMovieVector3 | undefined;
-    const away = (): IAutoMovieVector3 => {
+    const away: () => IAutoMovieVector3 = (): IAutoMovieVector3 => {
       if (cached !== undefined) return cached;
       cached = HumanFrame.local(
         { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
@@ -188,7 +188,7 @@ export namespace flinch {
             entry,
             AutoMovieMotionHumanTarget.DEFAULTS.ahead,
           ),
-          StrikingBody.trunk(body, entry).get("head")!.worldPosition,
+          StrikingBody.trunk(body, entry, undefined, HEAD).get("head")!.worldPosition,
           entry.yaw,
         ),
       );
@@ -196,17 +196,26 @@ export namespace flinch {
     };
 
     // A glove before the face on the trunk the action has placed so far.
-    const cover =
-      (side: "left" | "right") =>
-      (posture: IHumanPosture): IHumanPosture.IGoal => {
-        const bones = StrikingBody.trunk(body, posture);
-        const face = StrikingBody.region(body, bones, "face");
-        const fist: number = StrikingQuality.fist(m.hand);
+    const faceBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+      body.surfaces.regions.face.bone,
+    ]);
+    const faceAt: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, faceBones);
+    const fist: number = StrikingQuality.fist(m.hand);
+    const cover: (side: "left" | "right") => Parameters<typeof AutoMovieMotionHumanArm.carried>[0]["goal"] =
+      (side: "left" | "right"): Parameters<typeof AutoMovieMotionHumanArm.carried>[0]["goal"] =>
+      (
+        posture: IHumanPosture,
+        _seconds: number,
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture.IGoal => {
+        const bones: ReturnType<typeof faceAt> = faceAt(posture, resolution, projection);
+        const face: ReturnType<typeof StrikingBody.region> = StrikingBody.region(body, bones, "face");
         const out: IAutoMovieVector3 = HumanFrame.point(
           { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
           { x: side === "left" ? fist : -fist, y: 0, z: 0 },
         );
-        const rotation = StrikingBody.fist(
+        const rotation: ReturnType<typeof StrikingBody.fist> = StrikingBody.fist(
           body,
           side,
           { x: 0, y: 1, z: 0 },
@@ -228,6 +237,7 @@ export namespace flinch {
         );
         return {
           point,
+
           // The elbow of least strain; where the solver refuses the goal, an
           // elbow straight below the shoulder, the cover's place before it.
           bend: AutoMovieMotionHumanBend.solve({
@@ -241,8 +251,9 @@ export namespace flinch {
           rotation,
         };
       };
+
     // Each arm leaves the angles the entry held and comes back to them.
-    const arm = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive =>
+    const arm: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive =>
       AutoMovieMotionHumanArm.carried({
         body,
         side,
@@ -306,4 +317,7 @@ export namespace flinch {
       ],
     });
   }
+
+  /** The lazy entry-direction observation reads only the head's actual ancestry. */
+  const HEAD: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(["head"]);
 }

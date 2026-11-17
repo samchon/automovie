@@ -247,7 +247,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     const without = (p: IHumanPosture): IHumanPosture => {
       const limbs: IHumanPosture["limbs"] = { ...p.limbs };
       for (const c of carries) delete limbs[`${c.side}Arm`];
-      return resolveHumanPosture.rebased(p, { ...p, limbs });
+      return { ...p, limbs };
     };
 
     // Each instant's posture so far and its pose with the planned arms left
@@ -289,8 +289,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
         const p: IHumanPosture = at(t).posture;
         const c: IPlanned = carries[a]!;
         found = AutoMovieMotionHumanArmAngles.angles(resolveHumanPosture.seeded(body,
-          resolveHumanPosture.rebased(p, { ...p,
-            limbs: { ...p.limbs, [`${c.side}Arm`]: aimed(a, t) } }),
+          { ...p, limbs: { ...p.limbs, [`${c.side}Arm`]: aimed(a, t) } },
           undefined, undefined, resolution, undefined, projection).pose, c.side);
         fits[a]!.set(t, found);
       }

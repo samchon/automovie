@@ -9,15 +9,16 @@ import { PoseResolutionSnapshot } from "./PoseResolutionSnapshot";
  * subtree end fixed by that traversal. Only successfully admitted private
  * quaternions enter write; every input record is still admitted by its owner.
  * A completed query selects its final authored rotation or the actual fixed
- * baseline, then revises exactly the affected descendant intervals.
+ * baseline, then revises affected previously observed frames. A first frame
+ * has no prior answer to invalidate and computes current selected ancestry.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines genuine static DFS intervals, admitted private quaternion inputs, final-record precedence, absent-record restoration, exact component comparison, revision meaning and workspace lifetime. Companion methods below state their precise roles.
- * @evidence contracts/development/implementation.md#principled-implementation begin separates query membership, write records actual successful authored conversions in order and complete compares final selected quaternions with the last completed selection. A changed node affects precisely its contiguous DFS subtree; sorted overlapping intervals are applied once. read supplies that completed selection and revision supplies the latest actual affecting change.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines genuine static DFS intervals, admitted quaternion inputs, final precedence/restoration, exact equality, first-demand observation, affected-frame revision meaning and operation lifetime.
+ * @evidence contracts/development/implementation.md#principled-implementation begin/write/complete select actual final admitted quaternions. A changed node affects its contiguous DFS subtree. observe registers a frame only after its actual first FK completes; absent frames have no previous result and compute current selected ancestry. Sorted merged changes therefore need revise only previously observed descendants, preserving later demand correctness without manufacturing admission.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns articulation membership and descendant invalidation only. preparePoseResolutionState owns numerical admission and FK, while prepareSkeletonPoseResolution owns actual rooted traversal. No parallel quaternion or hierarchy solver is introduced.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No caller boolean, pose identity, tolerance, target or sampled answer establishes validity. Every record reaches admission before write, including duplicates and stray names; final equality includes signed zero and absent edits restore the genuine baseline.
- * @evidence contracts/development/implementation.md#efficient-algorithms Admitted records write in constant time. Completion compares current/former membership, allocates changed indices only on an actual change and sorts only when C exceeds one, O(C log C), then revises A affected descendants once. Unchanged queries allocate no changed list and revise none; requested FK can bypass unchanged ancestors. Runtime improvement is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Static subtree intervals belong to the actual immutable rig. Actual private immutable quaternion identity or exact component equality and complete current membership determine equivalence; duplicate intermediate records never create false final changes. A previous incomplete or failed authored scan cannot become a completed selection, and baseline replacement requires a new workspace.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure owns O(B) current/previous membership, final quaternions and revisions, plus a temporary O(C) changed-index array. It retains only genuine static nodes, immutable baseline/identity operands and current private values, never raw poses, edits, outputs or history; all release with the operation reader.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Writes and final membership comparison remain linear in admitted names. With W observed frames, C actual changes reuse one lazy bounded scratch array and sort only when W is nonzero and C exceeds one; each merged interval finds its first observation in O(log W) and revises A affected observations once. Full observation uses direct subtree traversal. First registration appends in order or inserts with O(W) shifts, bounded by B registrations. Admission-only/no-observation reads allocate no change list and perform no revision sorting/writes. Speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual private quaternion identity/exact components and completed membership establish changes. Observation records only prior FK demand, never admission: existing rows keep revisions across changing demands, while newly demanded rows compute actual current inputs. Duplicate intermediate records create no false final changes and failed authored scans never complete selection.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure owns O(B) membership/final rotations and at most B observed indices/revisions. A change scratch array is allocated only after an observed frame actually changes; it is cleared before every completion and retains at most B indices, without preserving prior selections. Only genuine static nodes and private current/baseline values remain; no raw pose, edit, public output, query history or handle is retained. All state ends with the operation.
  */
 export function preparePoseResolutionChanges(
   nodes: readonly { subtreeEnd: number }[],
@@ -31,6 +32,8 @@ export function preparePoseResolutionChanges(
   const authored: (IAutoMovieQuaternion | undefined)[] = [];
   const selected: (IAutoMovieQuaternion | undefined)[] = [];
   const revisions: number[] = [];
+  const observed: number[] = [];
+  let changed: number[] | undefined;
   return {
     begin: (): void => {
       ++generation;
@@ -43,29 +46,48 @@ export function preparePoseResolutionChanges(
       authored[index] = rotation;
     },
     complete: (): void => {
-      let changed: number[] | undefined;
+      if (changed !== undefined) changed.length = 0;
       for (const index of current)
-        if (select(index, authored[index]!)) (changed ??= []).push(index);
+        if (select(index, authored[index]!) && observed.length !== 0)
+          (changed ??= []).push(index);
       for (const index of active)
-        if (epochs[index] !== generation && select(index, baseline?.[index] ?? identity))
+        if (epochs[index] !== generation && select(index, baseline?.[index] ?? identity) &&
+          observed.length !== 0)
           (changed ??= []).push(index);
       const previous: number[] = active;
       active = current;
       current = previous;
-      if (changed === undefined) return;
+      if (changed === undefined || changed.length === 0) return;
       if (changed.length > 1)
         changed.sort((left: number, right: number): number => left - right);
       let covered: number = 0;
       for (const index of changed) {
         if (index < covered) continue;
         covered = nodes[index]!.subtreeEnd;
-        for (let descendant: number = index; descendant < covered; ++descendant)
-          revisions[descendant] = generation;
+        if (observed.length === nodes.length) {
+          for (let descendant: number = index; descendant < covered; ++descendant)
+            revisions[descendant] = generation;
+        } else {
+          for (let ordinal: number = lowerBound(observed, index);
+            ordinal < observed.length && observed[ordinal]! < covered; ++ordinal)
+            revisions[observed[ordinal]!] = generation;
+        }
       }
     },
     read: (index: number): IAutoMovieQuaternion =>
       selected[index] ?? baseline?.[index] ?? identity,
     revision: (index: number): number => revisions[index] ?? 0,
+    observe: (index: number): void => {
+      const known: number | undefined = revisions[index];
+      if (known !== undefined) return;
+
+      // Parent-first completion appends a newly demanded ancestry in order.
+      // The actual frame used current selections; future changes watch it.
+      if (observed.length === 0 || observed[observed.length - 1]! < index)
+        observed.push(index);
+      else observed.splice(lowerBound(observed, index), 0, index);
+      revisions[index] = 0;
+    },
   };
 
   /** Compare only completed final selections, after every authored record admitted. */
@@ -81,8 +103,8 @@ export function preparePoseResolutionChanges(
  * Internal actual-admission tracker borrowed only by prepared FK state.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines query boundaries, successful authored writes, completion, selected private rotations and exact affected-subtree revisions.
- * @evidence contracts/development/design.md#principled-representation ITracker separates an unfinished authored scan from a completed articulation selection and exposes the actual descendant-change revision used by FK. Existing quaternion types own numeric components; actual producer calls, rather than types or flags, establish admission.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one prepared FK owner needs begin/write/complete for ordered admission and read/revision for local and world dependencies. Raw poses, topology indices, baseline mutation and target results have no public seam here.
+ * @evidence contracts/development/design.md#principled-representation ITracker separates authored admission/selection from actual completed-frame observation and affected-descendant revision. Existing quaternion types own components; producer admission establishes valid rotations and the FK owner observes only an actually computed row, without a caller-provided validity flag.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The one prepared FK owner needs begin/write/complete for ordered admission, read/revision for dependencies and observe after actual first FK. That completion seam preserves parent-first registration without repeated sorted insertion on a cold deep ancestry; no raw pose, target or external admission option enters it.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape, body subset, editable whitelist, approximate equality, pose/time identity or external admission certificate is represented. An incomplete scan cannot replace the completed selection.
  */
 export namespace preparePoseResolutionChanges {
@@ -94,13 +116,28 @@ export namespace preparePoseResolutionChanges {
     /** Record one actual admitted quaternion; later records of its index win. */
     write(index: number | undefined, rotation: IAutoMovieQuaternion): void;
 
-    /** Select final current/baseline values and revise affected descendant intervals. */
+    /** Select final current/baseline values and revise affected observed descendants. */
     complete(): void;
 
     /** Read the private completed local articulation, restoring baseline when absent. */
     read(index: number): IAutoMovieQuaternion;
 
-    /** Read the latest completed actual articulation change on this node's ancestry. */
+    /** Read the last change affecting an observed frame, zero before its first computation. */
     revision(index: number): number;
+
+    /** Register an actually completed first FK row in its parent-first completion order. */
+    observe(index: number): void;
   }
+}
+
+/** Locate the first observed index in an actual changed DFS subtree. */
+function lowerBound(values: readonly number[], target: number): number {
+  let begin: number = 0;
+  let end: number = values.length;
+  while (begin < end) {
+    const middle: number = begin + Math.floor((end - begin) / 2);
+    if (values[middle]! < target) begin = middle + 1;
+    else end = middle;
+  }
+  return begin;
 }

@@ -19,10 +19,8 @@ import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { HumanGrasp } from "./HumanGrasp";
-import { HumanGraspJudgement } from "./HumanGraspJudgement";
 
 /**
  * The key pose a grasp taken to wear a thing must also hold
@@ -50,9 +48,9 @@ export namespace HumanGraspWorn {
    * @evidence contracts/development/implementation.md#principled-implementation The thing is rigid in the hand from the grasp on, so the hand's pose at the key is the worn frame times the inverse of the thing's frame in the hand. A round thing's turn about the region is the shared chooser's (`HumanFreedomChoice`, a wrapped freedom), the turn the arm, fitted within its ranges, brings the wear socket nearest the region at, the closed hand's depth inside the body added as a cost; the key is judged by the same miss. Each fit's elbow is left to the body (`IHumanPosture.IGoal.elbow`): the least hand error, then the least strain, read from the fit's own sweep; never placed by a share of the arm.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The hand's offset, the key of a turn, its fitted miss, one choice.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The judge is the quantity `dress` judges, never a mix of degrees and millimetres.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The fixed start working point, worn-frame alignment and canonical root/direct-joint clamp are prepared once; each original turn still performs its complete coupled fit, retained only for duplicate turn queries, and readback demands only the actual hand.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A caller's explicit preparation fixes the same body, entry posture and prop at start across candidate wrists; each wrist retains its own rigid offsets and fitted turns, with one exact FK reader per candidate search.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Turn scores, the exact reader, base-workspace reference and clearance callback are cleared before the returned key escapes; its judge retains only the actual hand socket/site geometry needed for later judgement.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each turn is fitted once, kept in a map, however often the search returns to it; a thing not round is fitted at its one turn.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per candidate grasp.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The map lives for the call.
    */
   export function key(props: {
     context: Pick<IHumanActionContext, "body" | "entry" | "start">;
@@ -65,22 +63,9 @@ export namespace HumanGraspWorn {
     wrist: HumanHand.IWrist;
     round?: boolean;
     clear?: (wrist: HumanHand.IWrist) => number;
-    prepared?: {
-      world: IHumanProp.IFrame;
-      tipWorld?: IAutoMovieVector3;
-      readHand?: ReturnType<typeof poseBones.prepare>;
-      worn: ReturnType<typeof HumanWorn.prepare>;
-      base: ReturnType<typeof resolveHumanPosture.prepareBase>;
-    };
   }): HumanGrasp.IKey {
-    const { context, held, tip, at, site } = props;
-    const world: IHumanProp.IFrame = props.prepared?.world ?? held.frame(context.start);
-    const wornAt: ReturnType<typeof HumanWorn.prepare> = props.prepared?.worn ??
-      HumanWorn.prepare(context.body, context.entry.posture, held.prop, at);
-    let base: ReturnType<typeof resolveHumanPosture.prepareBase> | undefined = props.prepared?.base ??
-      resolveHumanPosture.prepareBase(context.body, context.entry.posture);
-    const side: HumanHand.Side = props.side;
-    let clear: ((wrist: HumanHand.IWrist) => number) | undefined = props.clear;
+    const { context, held, tip, at, site }: typeof props = props;
+    const world: IHumanProp.IFrame = held.frame(context.start);
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       props.wrist.rotation,
     );
@@ -91,17 +76,25 @@ export namespace HumanGraspWorn {
     const turn: IAutoMovieQuaternion = Quaternion.inverse(
       Quaternion.multiply(inverse, world.rotation),
     );
-
     // The wear socket in the hand's frame, from the wrist joint.
-    const tipWorld: IAutoMovieVector3 = props.prepared?.tipWorld ?? Vector3.add(
-      world.position, Quaternion.rotateVector(world.rotation, tip.frame.translation),
-    );
     const socket: IAutoMovieVector3 = Quaternion.rotateVector(
       inverse,
-      Vector3.subtract(tipWorld, props.wrist.point),
+      Vector3.subtract(
+        Vector3.add(
+          world.position,
+          Quaternion.rotateVector(world.rotation, tip.frame.translation),
+        ),
+        props.wrist.point,
+      ),
     );
     const keyed: (degrees: number) => HumanHand.IWrist = (degrees: number): HumanHand.IWrist => {
-      const worn: IHumanProp.IFrame = wornAt(degrees);
+      const worn: IHumanProp.IFrame = HumanWorn.frame(
+        context.body,
+        context.entry.posture,
+        held.prop,
+        at,
+        degrees,
+      );
       const rotation: IAutoMovieQuaternion = Quaternion.normalize(
         Quaternion.multiply(worn.rotation, turn),
       );
@@ -119,7 +112,7 @@ export namespace HumanGraspWorn {
     const hang: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
       context.body,
       context.entry.posture,
-      side,
+      props.side,
     );
 
     // How far the arm, fitted to the key within its ranges, leaves the
@@ -127,28 +120,24 @@ export namespace HumanGraspWorn {
     // would lie inside the body there, added as a cost. Each turn is
     // fitted once, however often the search comes back to it.
     const fitted: Map<number, number> = new Map();
-    let resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined =
-      prepareHumanPoseResolution();
-    const readHand: ReturnType<typeof poseBones.prepare> = props.prepared?.readHand ?? poseBones.prepare(context.body,
-      new Set<AutoMovieHumanoidBone>([`${side}Hand`]));
     const missed: (degrees: number) => number = (degrees: number): number => {
       const known: number | undefined = fitted.get(degrees);
       if (known !== undefined) return known;
       const wrist: HumanHand.IWrist = keyed(degrees);
       const posture: IHumanPosture = context.entry.posture;
       const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-      limbs[`${side}Arm`] = {
+      limbs[`${props.side}Arm`] = {
         point: wrist.point,
         rotation: wrist.rotation,
         bend: hang,
         elbow: "strain",
       };
-      const hand: IAutoMovieResolvedBone = readHand(
-        base!.seeded(limbs, {}, resolution).pose,
-        resolution!(),
-      ).get(`${side}Hand`)!;
+      const hand: IAutoMovieResolvedBone = poseBones(
+        context.body,
+        resolveHumanPosture(context.body, { ...posture, limbs }),
+      ).get(`${props.side}Hand`)!;
       const kept: number =
-        clear === undefined ? 0 : Math.min(0, clear(wrist));
+        props.clear === undefined ? 0 : Math.min(0, props.clear(wrist));
       const miss: number =
         Vector3.length(
           Vector3.subtract(
@@ -182,16 +171,26 @@ export namespace HumanGraspWorn {
     }).values[0]!;
     const chosen: HumanHand.IWrist = keyed(turned);
     fitted.clear();
-    resolution = undefined;
-    base = undefined;
-    clear = undefined;
     return {
       posture: context.entry.posture,
       wrist: chosen,
       bend: hang,
       // Judged as dress judges it: the fitted hand's wear socket off the
       // region it is worn on.
-      judge: HumanGraspJudgement.point(side, socket, site),
+      judge: (
+        bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+      ): number => {
+        const hand: IAutoMovieResolvedBone = bones.get(`${props.side}Hand`)!;
+        return Vector3.length(
+          Vector3.subtract(
+            Vector3.add(
+              hand.worldPosition,
+              Quaternion.rotateVector(hand.worldRotation, socket),
+            ),
+            site,
+          ),
+        );
+      },
     };
   }
 }

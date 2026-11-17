@@ -70,8 +70,8 @@ import type { HumanSegment } from "./HumanSegment";
  * One pass over the people's flights: tabulate the shape, find the momentum, integrate, tabulate the rotation, hand it back.
  * A turn the take-off cannot give is refused, never clamped.
  * Takeoff attitude requests only the original displayed root, without unrelated bone observations; unsupported composition retains ordinary complete fitting. Each new history query reduces at most four posed instants. FK admits every authored joint but computes only mass-bearing bones and ancestors. Root-space FK omits rigid world placement and reversal. Adaptive shooting controls the query population and runtime improvement remains unmeasured.
- * Exact query times share numeric inertia and relative momentum, fixed stencils share numeric moments, and playback uses the flight whose residual was judged. One planning-owned mass snapshot shares exact local offsets, principal frames, intrinsic tensors and endpoint quaternion differences. A per-flight displayed-evaluation workspace lends the same clamp metadata and lazy exact FK reader to observational composition/IK and its mass FK consumers, so unchanged rig work is shared across history, ceiling and table requests. Every actual goal, current shape, orbital shift, interval rate and momentum check remains evaluated with normal context fallbacks.
- * The numeric table and completed trajectory escape only through HumanPerformanceFlightRotation, whose factory receives no performance, model, history or workspace. Each flight owns O(B+D) clamp metadata and O(J+B) last FK rows; the person's pass owns O(S) mass prerequisites. N exact I/h queries retain at most 3N+6 numeric mass nodes, O(N*S), plus O(N) I/h until finally clears every node on success/refusal. The outer finally releases the mass token. No full pose, raw bone map or live reader enters retained playback.
+ * Exact query times share numeric inertia/momentum and mass nodes; fixed stencils share moments, and playback uses the judged flight. One planning-owned mass snapshot shares local offsets, principal frames, intrinsic tensors and endpoint quaternion differences. The displayed workspace lends clamp metadata and one lazy operation reader/key to composition/IK and mass FK. The body's prepared rig owns exact dynamic rows under that weak key; the raw adapter itself retains no tuples. Every actual goal, shape, orbital shift, interval rate and momentum check remains evaluated with normal context fallbacks.
+ * Numeric table/trajectory escape only through HumanPerformanceFlightRotation, outside performance/model/history/workspace scope. Each flight owns O(B+D) clamp metadata and one live key for the body's O(J+B) weak FK rows; the person's pass owns O(S) mass prerequisites. N exact I/h queries retain at most 3N+6 numeric mass nodes, O(N*S), plus O(N) I/h until finally clears every node. Releasing the flight key ends its rig-row lifetime, and outer finally releases the mass token. No full pose, raw bone map or live reader enters playback.
  */
 export namespace HumanPerformanceFlight {
   /**
@@ -104,6 +104,7 @@ export namespace HumanPerformanceFlight {
    *
    * @param self The performance, placed and its contacts resolved.
    * @param people The people.
+   * @param observation Optional native cumulative history-work observer, borrowed only during planning; no diagnostic callback is invoked by this pass.
    * @throws {HumanRefusal} When a flight's turns cannot be met by its take-off.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Turns each placed carrier with both flight and airborne declarations, and locates a refusal at its performer, action and stable-id occurrence.
@@ -117,6 +118,7 @@ export namespace HumanPerformanceFlight {
   export function flights(
     self: HumanPerformanceState,
     people: Iterable<HumanSegment.IPerson>,
+    observation?: ReturnType<typeof integrateAirborneRotation.observe>,
   ): void {
     for (const person of people) {
       let prepared: prepareAutoMovieMassModel.IPrepared | undefined;
@@ -133,7 +135,7 @@ export namespace HumanPerformanceFlight {
           requested ??= prepareAutoMovieMassModel.bones(prepared);
           readBones ??= poseBones.prepare(person.performer.body, requested);
           try {
-            flight(self, person, segment, prepared, requested, readBones);
+            flight(self, person, segment, prepared, requested, readBones, observation);
           } catch (error) {
             if (!(error instanceof HumanRefusal)) throw error;
             throw error.locate({
@@ -159,6 +161,7 @@ export namespace HumanPerformanceFlight {
    * @param self The performance.
    * @param person The person.
    * @param segment The action that flies.
+   * @param observation Optional native history counters shared by this performance's flights, with no retained callback or per-query event records.
    * @throws {HumanRefusal} When the flight's turns cannot be met.
    */
   function flight(
@@ -168,6 +171,7 @@ export namespace HumanPerformanceFlight {
     prepared: prepareAutoMovieMassModel.IPrepared,
     requested: ReadonlySet<AutoMovieHumanoidBone>,
     readBones: ReturnType<typeof poseBones.prepare>,
+    observation?: ReturnType<typeof integrateAirborneRotation.observe>,
   ): void {
     const plan: IHumanActionPlan = segment.plan;
     const declared: IHumanActionPlan.IFlight = plan.flight!;
@@ -198,7 +202,7 @@ export namespace HumanPerformanceFlight {
     ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
       readBones({ ...unturned(seconds), root: null }, readResolution());
     const history: ReturnType<typeof integrateAirborneRotation.history> =
-      integrateAirborneRotation.history(prepared, shape, { from: t0, to: t1 });
+      integrateAirborneRotation.history(prepared, shape, { from: t0, to: t1 }, observation);
     const errorScope: symbol = Symbol("human flight");
     try {
       const q0: IAutoMovieQuaternion = root(
@@ -327,12 +331,13 @@ export namespace HumanPerformanceFlight {
         throw HumanPerformanceFlightFailure(
           error, body, plan, segment.start, t0,
           (seconds: number): IAutoMoviePose => HumanPerformanceRead.pose(self, subject, seconds, undefined, evaluation),
+          readResolution,
         );
       throw error;
     } finally {
       // Playback was constructed in a numeric-only factory. Clearing the
-      // history ends its shape ownership; this flight's evaluation workspace
-      // and borrowed FK getter have no escaping consumer and end here.
+      // numeric memo is cleared before this flight's history/shape closure,
+      // evaluation workspace and borrowed FK key leave their local scope.
       history.clear();
     }
   }

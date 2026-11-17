@@ -164,8 +164,8 @@ export namespace gestureStroke {
     /** Effort extent multiplier. */
     extent: number;
 
-    /** Axis-to-skin padding, metres, prepared from this same body's profile and hand for a self-touch; computed on demand when absent. */
-    fingerPadding?: number;
+    /** Genuine fixed body/hand/kind geometry owner; every current posture/target still runs ordinary native admission. Cold strokes need no preparation. */
+    prepared?: gestureTouch.IPrepared;
 
     /** Exact FK source borrowed only during this synchronous actual goal query; never retained in the returned goal. */
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0];
@@ -261,8 +261,8 @@ export namespace gestureStroke {
    * @evidence contracts/development/implementation.md#principled-implementation Builds each goal in the performer's frame from the body's own measure (arm length, shoulder and waist heights), on the eye-to-target line for pointing (Henriques and Crawford 2002, the reach solved as a ray-sphere intersection from the shoulder), or on the body's face regions offset by the finger's collider radius for self-touch, so every gesture fits any stature; periodic strokes ride {@link gestureSignal.oscillation}.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One exhaustive switch over the kind; pointing and self-touch, which need the posed trunk, live in {@link gestureTouch}; joint gestures live in {@link gestureJoints}.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arm-length shares, swing sizes and outward elbow shares are documented provisional values; no body or scene is special-cased.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for the frame gestures; pointing and self-touch add one trunk forward-kinematics pass.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function of the instant's input; the gesture law calls it once per hand per evaluated posture, since the base posture changes each instant.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for frame gestures; one lazy coefficient pair serves this query's captured yaw across actual point/direction transforms, while each point reads its borrowed current origin. Pointing/self-touch use their actual demanded trunk FK and fixed geometry owners.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The query's private frame already owns one copied numeric yaw, so point/direction transforms share its lazy zero-origin HumanFrame preparation. Current local coordinates, borrowed origin and variation callbacks remain actual, with no prepared frame or result retained between queries.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new goal and retains nothing.
    */
   export function hand(
@@ -283,13 +283,15 @@ export namespace gestureStroke {
       origin: input.base.root,
       yaw: input.base.yaw,
     };
-    const at = (x: number, y: number, z: number): IAutoMovieVector3 =>
-      HumanFrame.point(frame, { x, y, z });
-    const dir = (x: number, y: number, z: number): IAutoMovieVector3 =>
-      HumanFrame.point(
-        { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
-        { x, y, z },
-      );
+    let transform: HumanFrame.IPrepared | undefined;
+    const at: (x: number, y: number, z: number) => IAutoMovieVector3 =
+      (x: number, y: number, z: number): IAutoMovieVector3 =>
+        (transform ??= HumanFrame.prepare({ origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw }))
+          .point({ x, y, z }, frame.origin);
+    const dir: (x: number, y: number, z: number) => IAutoMovieVector3 =
+      (x: number, y: number, z: number): IAutoMovieVector3 =>
+        (transform ??= HumanFrame.prepare({ origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw }))
+          .direction({ x, y, z });
     // A place of the air by its names, in the performer's own frame: the
     // shares times the stature, the half shoulder width and the arm, ahead
     // of the root, which a lowered posture carries down with it. `reach`

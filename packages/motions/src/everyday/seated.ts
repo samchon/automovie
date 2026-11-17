@@ -10,6 +10,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { prepareSeatedRoot } from "./prepareSeatedRoot";
 import { seatedHands } from "./seatedHands";
 
 /**
@@ -43,7 +44,9 @@ import { seatedHands } from "./seatedHands";
  * the thigh's underside meets a level seat.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the seat frame, the socket placement rule and the suitability band with sources.
- * @evidence contracts/development/implementation.md#principled-implementation The seat socket is an effector placed by solving the root for a pitch; the legs and arms are inverse-kinematics goals.
+ * @evidence contracts/development/design.md#principled-representation World-metre seat geometry and degree headings name the original socket/foot/hand targets; body-derived popliteal ratios keep low/ordinary/high-seat decisions in one geometric representation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Seat/base laws share only suitability, socket/root geometry and hand-placement facades here; native support-frame and seatedHands owners retain their existing responsibilities.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Original provisional seat clearances and suitability band remain named/documented, while body, posture, seat and hand types retain their owners without a scene/body-specific shape.
  */
 export namespace seated {
   /** A seat in the world. */
@@ -227,6 +230,14 @@ export namespace seated {
    * @param at Where the socket goes, world metres.
    * @param heading Yaw, pitch and roll, degrees.
    * @returns The root.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the desired world-metre socket point, degree heading units and returned world rig origin under the existing rigid socket representation.
+   * @evidence contracts/development/implementation.md#principled-implementation Solves at=root+headingRotation(offset(body)) for root by the original rigid-point subtraction, exactly inverting socket's representation without introducing a second FK or target model.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One canonical heading, owned body socket offset, quaternion-vector rotation and subtraction expose the effector-to-root relation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the original rest socket offset and heading policy; it neither alters a leg/arm goal nor claims to solve additional joint articulation or admit an unreachable seat.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant geometry and one fresh vector, without a rig traversal, numerical search or temporary posed map.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses offset and the canonical heading owner shared with socket; every actual point/heading is evaluated independently, without retaining another root answer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh vector and retains no body, input point, pose, callback, workspace, history or external handle.
    */
   export function root(
     body: IHumanBody,
@@ -241,6 +252,9 @@ export namespace seated {
       ),
     );
   }
+
+  /** Fixed body/heading socket geometry for changing actual world points, owned by prepareSeatedRoot. */
+  export const prepareRoot: typeof prepareSeatedRoot = prepareSeatedRoot;
 
   /**
    * The world seat socket of a posture.

@@ -81,8 +81,8 @@ export namespace resolveChainEffectorBaseRotation {
    * when available. Completed FK must have admitted the same end articulation
    * and unchanged non-chain records. The caller owns remaining upper/mid
    * admission and must have admitted strict upper-to-mid-to-end ancestry.
-   * An optional same-operation resolution reader reuses the exact end
-   * articulation the preceding FK completed; missing end records still use
+   * An optional raw operation reader shares pure exact-angle factors while
+   * preserving current clinical/frame reads; missing end records still use
    * identity without admitting any clinical basis.
    * An optional genuine poseResolution must own this exact unchanged rig and
    * mappings; it actually admits the last joint through the same convention
@@ -92,8 +92,8 @@ export namespace resolveChainEffectorBaseRotation {
    * Full FK gives endWorld = lowerWorld * fixedFrame * endArticulation, so left multiplication by lowerWorld inverse and right multiplication by the last end articulation inverse recover the fixed frame.
    * The same recovery serves preparation and the checked standalone entry, with no repeated FK or ancestry scan after preparation's admission.
    * Skeleton-declared axes override the host table and the last actual end articulation is removed; unchanged intermediate transforms remain in the recovered frame.
-   * One O(J) last-record scan, at most one O(B) bone lookup and one clinical conversion or same-valued reader lookup plus constant quaternion work; preparation reuses its lower inverse and completed end articulation without another FK. Runtime speedup is unmeasured.
-   * Borrows the caller's completed frames and lower inverse; a matching synchronous resolution reader reuses the exact end quaternion its ordered FK already admitted, while an absent end still admits no basis.
+   * One O(J) last-record scan, at most one O(B) bone lookup and one actual clinical conversion plus constant quaternion recovery; raw readers share pure factors and a genuine prepared rig may share its actual completed same-valued joint. Preparation reuses its lower inverse without another FK. Runtime speedup is unmeasured.
+   * Borrows completed frames/lower inverse. Raw readers retain original current-input admission, while the genuine immutable producer shares exact convention-owned completed conversion after rechecking the actual joint. An absent end still admits no basis.
    * Returns one derived quaternion and retains no inputs, map, rig, handle or task after return.
    */
   export function fromPrepared(

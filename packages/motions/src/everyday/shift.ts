@@ -41,12 +41,6 @@ import { seated } from "./seated";
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
- * @evidence contracts/development/implementation.md#principled-implementation Effector goals (sockets, footprints, the gaze line) solved by the shared inverse kinematics, with balance and timing from the cited laws.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans once, then evaluates each posture in closed form.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond a few forward-kinematics passes and limb fits.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance and every posture reads it.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
  */
 export namespace shift {
   /** The action's name. */
@@ -75,6 +69,14 @@ export namespace shift {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the shift exceeds the planted legs' side reach.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States context/plan and lateral-reach refusal; the namespace gives world-metre socket travel, action seconds and seat/plant conventions.
+   * @evidence contracts/development/implementation.md#principled-implementation The original minimum-jerk seat-socket slide derives the root under unchanged heading, while native planted-leg goals and thigh hand-rest targets keep their original geometry.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate side reach/base, prepare fixed feet, then evaluate the original socket course and hand-rest owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original body-scaled side bound and high-seat refusal remain, with no moved plant, added base transition, changed contact time or relaxed range.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed heading/contact/knee coefficients prepare once; each query keeps constant socket/root geometry and actual current hand observation/fits, omitting unused minimum-jerk derivatives.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed body/entry heading/ankles share leg metadata. Current knee/root targets stay fresh and hand observations borrow parent FK/ROM sources only during that synchronous call.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its fixed entry/feet and scalar timing until release; current hand maps and borrowed FK/ROM sources end on return or throw and never enter its retained geometry.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -123,6 +125,10 @@ export namespace shift {
       context.entry,
       entry.yaw,
     );
+    const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
+      body,
+      entry.yaw,
+    );
     const lift: number = 0.15 * slide;
     const set: number = 0.85 * slide;
     return {
@@ -160,9 +166,14 @@ export namespace shift {
           support: HumanSupportFrame.contact(context, "seat"),
         },
       ],
-      posture: (seconds: number): IHumanPosture => {
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const s: number = minimumJerk(t / slide).s;
+        const s: number = minimumJerk.share(t / slide);
         const socket: IAutoMovieVector3 = {
           x: start.x + (goal.x - start.x) * s,
           y: start.y,
@@ -172,9 +183,9 @@ export namespace shift {
         const posture: IHumanPosture = {
           ...entry,
           root,
-          limbs: stand.legs(body, root, entry.yaw, feet),
+          limbs: legged(root, feet),
         };
-        return seated.arms(body, posture, 1);
+        return seated.arms(body, posture, 1, resolution, projection);
       },
     };
   }

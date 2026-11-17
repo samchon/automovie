@@ -29,7 +29,7 @@ import { GymnasticsFlight } from "../sport/GymnasticsFlight";
  * about its lateral axis, leaning back), and placed with its root on a path:
  *
  * - `dive`: a crouch with the feet planted and the knees bending under the
- *   lowered root (`AutoMovieMotionHumanTrunk.planted`), then a flight whose
+ *   lowered root (`AutoMovieMotionHumanTrunk.preparePlanted`), then a flight whose
  *   hips move `REACH` statures to the side on a parabola `APEX` statures
  *   above the line from take-off to landing, the body turning a quarter
  *   about its forward axis on the way while its joints extend from the
@@ -147,9 +147,9 @@ export namespace dive {
    * @evidence contracts/development/implementation.md#principled-implementation The crouch keeps the ankles where they stood by planted leg goals, so the lowered root bends the knees; the flight starts from the crouch's solved joints (`GymnasticsFlight.frozen`), so the pose is continuous at take-off; the flight's root is a parabola over the chord from take-off to the landed root, which is read off the landed body's lowest joint; the turn is about the one axis the kind names.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shape, the landed root, the three phases, the contacts.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A body not on both feet is refused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Prepare target start/difference triples and actual ankle/hip name demand once. Crouch observations retain complete direct admission but resolve only supported goals that can affect requested ankle ancestry; start-hip observation omits independent leg fits. The landing still scans every joint centre and displayed goals still receive full resolution; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Entered crouch and actual solved launch joints prepare separate fixed target differences. Genuine bone demands and optional synchronous FK/projector loans share only equal FK prerequisites/static ROM metadata; every current joint is projected and original digit/unsupported constraints keep conservative full fallback.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains original entry, two bounded track readers, fixed ankle/hip demands and landed geometry. Query getters/maps release on return/throw; optional FK/projector loans stay with their synchronous parent and never enter raw output or retained callbacks. No previous-query result, handle or task is retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Target start/difference triples, fixed foot-heading/contact readers and ankle/hip name demands prepare once. Crouch observations keep full direct admission but resolve only goals affecting ankle ancestry; start-hip observation omits independent leg fits. Every actual knee hint, planted goal, landing joint centre and displayed solve remains, with speedup unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Crouch/solved launch joints prepare separate target differences. The same unchanged entry feet feed Trunk.preparePlanted's original leg-goal owner, while every current root/yaw still writes its knee/contact/goal. Genuine name readers and synchronous FK/projector loans share only prerequisites; current joint projection and digit/unsupported full fallback remain.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains original entry, two fixed foot placements/goal readers, two bounded track readers, ankle/hip demands and landed geometry. Query maps/getters release on return/throw; optional FK/projector loans stay synchronous and never enter raw output or retained callbacks. No previous-query result, handle or task is retained.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -254,25 +254,22 @@ export namespace dive {
     // Take-off: crouched on the feet, a third of the way into the shape. The
     // root goes down with the legs planted on the entry's feet, so the knees
     // bend under it instead of the straight legs sinking into the floor.
+    const plant: ReturnType<typeof AutoMovieMotionHumanTrunk.preparePlanted> =
+      AutoMovieMotionHumanTrunk.preparePlanted(body, {
+        left: { ankle: feet.left.ankle, rotation: feet.left.rotation },
+        right: { ankle: feet.right.ankle, rotation: feet.right.rotation },
+      }, ["left", "right"]);
     const crouched: (share: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]) => IHumanPosture = (share: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]): IHumanPosture => {
       const posture: IHumanPosture = shape(share / 3, 0);
       const local: IAutoMovieVector3 = ankleMid(posture, resolution, projection);
-      return AutoMovieMotionHumanTrunk.planted(
-        body,
-        {
-          ...posture,
-          root: {
-            x: ankles.x - local.x,
-            y: ankles.y - local.y - 0.05 * stature * share,
-            z: ankles.z - local.z,
-          },
+      return plant({
+        ...posture,
+        root: {
+          x: ankles.x - local.x,
+          y: ankles.y - local.y - 0.05 * stature * share,
+          z: ankles.z - local.z,
         },
-        {
-          left: { ankle: feet.left.ankle, rotation: feet.left.rotation },
-          right: { ankle: feet.right.ankle, rotation: feet.right.rotation },
-        },
-        ["left", "right"],
-      );
+      });
     };
     const takeoff: IHumanPosture = crouched(1);
     const off: IAutoMovieVector3 = takeoff.root;

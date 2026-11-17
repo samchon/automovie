@@ -1,7 +1,6 @@
 import {
   type IAutoMovieResolvedBone,
   Quaternion,
-  Vector3,
   clampJointToSkeleton,
   type curlChainUntilContact,
 } from "@automovie/engine";
@@ -25,6 +24,7 @@ import type { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGrip } from "./HumanGrip";
 import { HumanClaspClearance } from "./HumanClaspClearance";
+import { HumanClaspCandidateFrames } from "./HumanClaspCandidateFrames";
 
 /**
  * Two people's hands clasping each other, palm on palm: the open hand each
@@ -188,8 +188,8 @@ export namespace HumanClasp {
    * @evidence contracts/development/implementation.md#principled-implementation Retains every original grasp/stroke fit and the same admitted-band, reciprocal phalanx/forearm clearance and tie-cost ranking of candidate pairs.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fit and admit each person's turns, prepare only admitted candidate geometry, then evaluate the original pair loop.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No turn, pump endpoint, band, contact query, subject order or acceptance bound changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each body shares one fixed direct base/FK preparation across thirteen independent turn searches, one palm offset and five lazily admitted digit chains; candidate FK outputs only the eighteen observed side/arm/digit frames. For A and B admitted candidates, geometry placement is O(A+B) while all original O(AB) pair distance work remains. No runtime speedup is claimed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged body/posture/side/hint fixes direct assembly, palm and capsule geometry during this synchronous search; every turn still runs its original complete grasp/stroke fits. Each admitted pose determines one segment list and forearm reader for opposite candidates; no distance or fit result is shared across differing goals.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each body shares exact operation FK metadata across thirteen independent current-input turn searches, one palm offset and five lazy digit chains. Every grasp/stroke fit retains its full eager observations; reached candidates then output two band frames and admitted candidates seventeen contact frames. Geometry placement is O(A+B), all original O(AB) pair work remains and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Pure internal callbacks do not establish immutable provenance for borrowed posture graphs, so every actual grasp/stroke fit re-admits current source rather than sharing a fixed direct base. Canonical body geometry and each actual admitted pose's segment/forearm readers are shared only for their original synchronous comparisons, never as another goal's fit or distance result.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Candidate geometry/readers and arrays end with the synchronous search; the returned plain chosen reach records retain no reader or search maps.
    */
   export function choose(
@@ -253,67 +253,27 @@ export namespace HumanClasp {
       : [mine, theirs];
     const a: HumanGrasp.IReach[] = fits(one);
     const b: HumanGrasp.IReach[] = fits(two);
-    type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-    const requested: ReadonlySet<AutoMovieHumanoidBone> = HumanClaspClearance.bones(side);
-    const readOne: ReturnType<typeof poseBones.prepare> = poseBones.prepare(one.body, requested);
-    const readTwo: ReturnType<typeof poseBones.prepare> = poseBones.prepare(two.body, requested);
-    const aBones: Bones[] = a.map(
-      (r: HumanGrasp.IReach): Bones => readOne(r.pose),
-    );
-    const bBones: Bones[] = b.map(
-      (r: HumanGrasp.IReach): Bones => readTwo(r.pose),
-    );
-    // Each arm's admissible turns: those it reaches through the pump, and of
-    // those the ones in the lowest upper-arm band any of them attains.
-    const admitted: (reaches: HumanGrasp.IReach[], bones: Bones[]) => number[] = (
-      reaches: HumanGrasp.IReach[],
-      bones: Bones[],
-    ): number[] => {
-      const band: (index: number) => number = (index: number): number => {
-        const upper: IAutoMovieVector3 = Vector3.subtract(
-          bones[index]!.get(`${side}LowerArm`)!.worldPosition,
-          bones[index]!.get(`${side}UpperArm`)!.worldPosition,
-        );
-        const raised: number =
-          (Math.acos(
-            Math.max(-1, Math.min(1, -upper.y / Vector3.length(upper))),
-          ) *
-            180) /
-          Math.PI;
-        const found: number = BANDS.findIndex(
-          (limit: number): boolean => raised <= limit,
-        );
-        return found === -1 ? BANDS.length : found;
-      };
-      const all: number[] = reaches.map(
-        (_: HumanGrasp.IReach, index: number): number => index,
-      );
-      const reached: number[] = all.filter(
-        (index: number): boolean => reaches[index]!.miss <= REACHED,
-      );
-      if (reached.length === 0) return all;
-      const lowest: number = Math.min(...reached.map(band));
-      return reached.filter((index: number): boolean => band(index) === lowest);
-    };
-    const aAdmitted: number[] = admitted(a, aBones);
-    const bAdmitted: number[] = admitted(b, bBones);
+    const aFrames: ReturnType<typeof HumanClaspCandidateFrames> = HumanClaspCandidateFrames(one.body, side, a);
+    const bFrames: ReturnType<typeof HumanClaspCandidateFrames> = HumanClaspCandidateFrames(two.body, side, b);
+    const aAdmitted: number[] = aFrames.indices;
+    const bAdmitted: number[] = bFrames.indices;
     const digitsOne: ReturnType<typeof HumanClaspClearance.prepareDigits> = HumanClaspClearance.prepareDigits(one.body, side);
     const digitsTwo: ReturnType<typeof HumanClaspClearance.prepareDigits> = HumanClaspClearance.prepareDigits(two.body, side);
     const aDigits: Map<number, readonly HumanClaspClearance.IPhalanx[]> = new Map(aAdmitted.map(
       (index: number): [number, readonly HumanClaspClearance.IPhalanx[]] =>
-        [index, digitsOne(aBones[index]!)],
+        [index, digitsOne(aFrames.bones.get(index)!)],
     ));
     const bDigits: Map<number, readonly HumanClaspClearance.IPhalanx[]> = new Map(bAdmitted.map(
       (index: number): [number, readonly HumanClaspClearance.IPhalanx[]] =>
-        [index, digitsTwo(bBones[index]!)],
+        [index, digitsTwo(bFrames.bones.get(index)!)],
     ));
     const aForearms: Map<number, ReturnType<typeof HumanClaspClearance.forearm>> = new Map(aAdmitted.map(
       (index: number): [number, ReturnType<typeof HumanClaspClearance.forearm>] =>
-        [index, HumanClaspClearance.forearm(one.body, aBones[index]!, side)],
+        [index, HumanClaspClearance.forearm(one.body, aFrames.bones.get(index)!, side)],
     ));
     const bForearms: Map<number, ReturnType<typeof HumanClaspClearance.forearm>> = new Map(bAdmitted.map(
       (index: number): [number, ReturnType<typeof HumanClaspClearance.forearm>] =>
-        [index, HumanClaspClearance.forearm(two.body, bBones[index]!, side)],
+        [index, HumanClaspClearance.forearm(two.body, bFrames.bones.get(index)!, side)],
     ));
     let best: { i: number; j: number; clear: number; cost: number } | undefined;
     for (const i of aAdmitted)

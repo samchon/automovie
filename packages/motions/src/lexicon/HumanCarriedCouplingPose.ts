@@ -198,13 +198,14 @@ export namespace HumanCarriedCouplingPose {
     const limbs: IHumanPosture["limbs"] = {};
     for (const contact of coupling.contacts)
       if (contact.kind === "grip") {
+        const bearer: IBearer = of(contact.on.role);
         const side: "left" | "right" =
           contact.part === "leftHand" ? "left" : "right";
         limbs[`${side}Arm`] = {
           point: unturn(
             region(
-              of(contact.on.role).body,
-              of(contact.on.role).bones,
+              bearer.body,
+              bearer.bones,
               contact.on.region,
             ),
           ),
@@ -229,8 +230,8 @@ export namespace HumanCarriedCouplingPose {
    * @evidence contracts/development/implementation.md#principled-implementation The hold is read off the same key relation the borne body rides by, in the same anchor frame, so the bearer reaches where the borne body lies without reading it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One key resolution and one frame change per holding hand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bearer never reads the borne body's displayed bones, which read the bearer's, so the two cannot chase each other.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution per call; a law calls it once at plan time.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The coupling's key frame and the engine's region places.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One original raw trunk resolution and ordered left/right contact observations remain per planning call. Each held region requests the consumed point/normal only, omitting unneeded forward rotation; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The original coupling key/anchor transforms remain; the engine's shared pointNormal owner preserves actual point then normal reads/math without a world-frame or query-result memo.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function holds(
@@ -265,7 +266,7 @@ export namespace HumanCarriedCouplingPose {
       const surface: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
         borne.surfaces.regions[contact.region];
       const placed: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
-        resolveAutoMovieHumanoidSurfaces.place(
+        resolveAutoMovieHumanoidSurfaces.pointNormal(
           surface,
           mine.get(surface.bone)!,
         );

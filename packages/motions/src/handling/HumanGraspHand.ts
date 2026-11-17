@@ -11,7 +11,7 @@ import { HumanGraspReach } from "./HumanGraspReach";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Separates fixed body/hand geometry from changing targets, and a fixed authored target's wrapped turn from the actual oblique tilt query.
  * @evidence contracts/development/design.md#principled-representation Uses existing world-metre grasp frames, degree angles and canonical hand wrist/quaternion types; prepared data contains only rigid geometry.
- * @evidence contracts/development/design.md#minimal-and-owned-surface prepare serves HumanGrasp.prepareHand and its existing support consumers; turns serves pickUpSearch's actual repeated turn/tilt grid without another target or solver representation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface prepare serves HumanGrasp.prepareHand and its existing support consumers; turns serves HumanHandover's private fresh offered-target grid without another target or solver representation. Public mutable-callback pick-up keeps the ordinary hand facade.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop, body size, fixture, solved wrist/pose, sampled time or contact verdict is embedded; every target point, width and direction retains its original meaning.
  */
 export namespace HumanGraspHand {
@@ -30,7 +30,7 @@ export namespace HumanGraspHand {
     const fixed: IHand = geometry(body, side);
     return (target: HumanGrasp.IFrame, tilt: number = 0): HumanHand.IWrist => {
       const turn: IAutoMovieQuaternion = fixed.align({ normal: target.approach, forward: target.axis });
-      const rotation: IAutoMovieQuaternion = tilted(target.approach, turn, tilt);
+      const rotation: IAutoMovieQuaternion = tilted(Quaternion.fromAxisAngle(target.approach, tilt), turn);
       return placed(fixed.palm, near(target), rotation);
     };
   }
@@ -42,20 +42,20 @@ export namespace HumanGraspHand {
    * @evidence contracts/development/implementation.md#principled-implementation HumanGraspReach.around owns the original wrapped approach. Alignment and half-width near point depend on that turn but not tilt, so one consecutive turn shares them while each tilt retains the original quaternion/palm computation.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The same hand geometry, tilt and point assemblers are fed by one bounded last-turn geometry record; the existing wrapped-axis owner is delegated rather than copied.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No turn, tilt, preference, candidate, joint range or fit is removed; Object.is distinguishes signed-zero turns and no normalized intermediate replaces the original raw alignment before tilt multiplication.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For T consecutive turns and L tilts per turn, T wrapped-frame/alignment/near-point preparations replace T*L repeats; all T*L actual tilt/wrist goals and every later numerical candidate fit remain. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual pick-up grid fixes body/hand/authored point/approach/axis/width; exact consecutive turn equality is therefore sufficient for only this rigid preparation, while changed source geometry requires a new producer.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search retains one hand geometry and one last-turn quaternion/approach/near point, replaced on a turn change and released with the builder; no wrist answer, candidate fit, query history or external handle is retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For T consecutive turns and L tilts per turn, T wrapped-frame/alignment/near-point and lazy tilt-axis length preparations replace T*L repeats. All T*L actual tilt trigonometry, rotation products, wrist goals and every later numerical candidate fit remain. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanHandover constructs the private offered target and its pure candidate callbacks preserve body/hand/point/approach/axis/width throughout the synchronous grid. Exact consecutive turn equality therefore shares only this rigid preparation; mutable-callback paths use the ordinary hand facade and changed fixed geometry requires another producer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search retains one hand geometry and one last-turn alignment/near point/fixed-axis reader, replaced on a turn change and released with the builder. The axis reader owns only its original direction/length prerequisites; no wrist answer, candidate fit, query history or external handle is retained.
    */
   export function turns(body: IHumanBody, side: HumanHand.Side, authored: HumanGrasp.IFrame): (turn: number, tilt: number) => HumanHand.IWrist {
     const fixed: IHand = geometry(body, side);
-    let previous: { turn: number; alignment: IAutoMovieQuaternion; approach: IAutoMovieVector3; point: IAutoMovieVector3 } | undefined;
+    let previous: { turn: number; alignment: IAutoMovieQuaternion; tilt: ReturnType<typeof Quaternion.prepareAxisAngle>; point: IAutoMovieVector3 } | undefined;
     return (turn: number, tilt: number): HumanHand.IWrist => {
       if (previous === undefined || !Object.is(previous.turn, turn)) {
         const target: HumanGrasp.IFrame = HumanGraspReach.around(authored, turn);
         const alignment: IAutoMovieQuaternion = fixed.align({ normal: target.approach, forward: target.axis });
-        previous = { turn, alignment, approach: target.approach, point: near(target) };
+        previous = { turn, alignment, tilt: Quaternion.prepareAxisAngle(target.approach), point: near(target) };
       }
-      return placed(fixed.palm, previous.point, tilted(previous.approach, previous.alignment, tilt));
+      return placed(fixed.palm, previous.point, tilted(previous.tilt(tilt), previous.alignment));
     };
   }
 }
@@ -81,8 +81,8 @@ function near(target: HumanGrasp.IFrame): IAutoMovieVector3 {
 }
 
 /** Keep the original unnormalized alignment inside the normalized tilt product. */
-function tilted(approach: IAutoMovieVector3, turn: IAutoMovieQuaternion, tilt: number): IAutoMovieQuaternion {
-  return Quaternion.normalize(Quaternion.multiply(Quaternion.fromAxisAngle(approach, tilt), turn));
+function tilted(around: IAutoMovieQuaternion, turn: IAutoMovieQuaternion): IAutoMovieQuaternion {
+  return Quaternion.normalize(Quaternion.multiply(around, turn));
 }
 
 /** Fresh original wrist/palm-offset assembly for either preparation scope. */

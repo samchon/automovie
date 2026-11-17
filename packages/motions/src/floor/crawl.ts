@@ -209,7 +209,7 @@ export namespace crawl {
       body,
       HumanFrame.point(measured, { x: 0, y: hipY, z: 0 }),
       shoulderY,
-      (degrees: number): IHumanPosture => posed(1, degrees),
+      posed(1, 0),
     );
     const pitch: number = solved.pitch;
     const bones: ReturnType<typeof crawlPitch>["bones"] = solved.bones;

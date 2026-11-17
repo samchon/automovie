@@ -7,7 +7,6 @@ import {
 } from "@automovie/interface";
 
 import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
-import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import type { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
 import { Vector3 } from "../math/Vector3";
@@ -16,7 +15,7 @@ import type { IAutoMovieSeededChainFit } from "./IAutoMovieSeededChainFit";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import type { ISolvePreparedChainPlantProps } from "./ISolvePreparedChainPlantProps";
 import { PLANT_RESIDUAL_EPSILON } from "./constants/PLANT_RESIDUAL_EPSILON";
-import { fitHingedChainCandidate } from "./fitHingedChainCandidate";
+import { fitHingedChainBend } from "./fitHingedChainBend";
 import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
 import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
@@ -182,54 +181,14 @@ export const fitChainBend: (
   // wrist turns only with the forearm's distal twist, an ankle only with the
   // whole leg's swivel, the hip's rotation): Tolani's analysis chooses the
   // swivel inside the end joint's limits too, so that candidate leads.
-  const hingeAxes: IAutoMovieJointAxes | undefined =
-    props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES;
-  const hingedMid: boolean =
-    prepared.lowerDomain.constraint !== null &&
-    prepared.lowerDomain.constraint.abduction === null &&
-    hingeAxes !== undefined;
   // A hinged chain takes the swivel candidate whenever it reaches, so the
   // choice never alternates between two methods from frame to frame; the
   // hint plane and the sweep remain for a chain the swivel cannot solve.
-  if (hingedMid) {
-    const hinged: NonNullable<ReturnType<typeof solve>> | null =
-      fitHingedChainCandidate(
-        props,
-        prepared,
-        hingeAxes!,
-        props.effectorRotation,
-        workspace.rig,
-      );
-    if (hinged !== null) {
-      const upper: IAutoMovieJointPose = workspace.clamp(hinged.upper);
-      const lower: IAutoMovieJointPose = workspace.clamp(hinged.lower);
-      const residual: number = Vector3.distance(
-        resolvePreparedChainEffector({
-          prepared,
-          upper,
-          lower,
-          jointAxes: props.jointAxes,
-          restFrames: props.restFrames,
-          rig: workspace.rig,
-        }),
-        props.target,
-      );
-      // A limb at its full length, or a knee or an elbow stopped at the end
-      // of its range, rests the effector on the reachable shell along the
-      // line to the target, the nearest point the chain allows, so that
-      // candidate is the answer as well: handing
-      // it to the search below would trade it between frames for whichever
-      // free-swing candidate the clamp happened to leave a micrometre nearer.
-      if (
-        plantResidualBucket(Math.abs(residual - (hinged.shortfall ?? 0))) === 0
-      )
-        return {
-          pose: workspace.pose(upper, lower),
-          seed: hinged.seed ?? null,
-          ...(hinged.value === undefined ? {} : { value: hinged.value }),
-        };
-      consider(hinged);
-    }
+  const hinged: ReturnType<typeof fitHingedChainBend> =
+    fitHingedChainBend(props, workspace);
+  if (hinged !== null) {
+    if (hinged.fitted !== null) return hinged.fitted;
+    consider(hinged.candidate);
   }
 
   consider(pole);

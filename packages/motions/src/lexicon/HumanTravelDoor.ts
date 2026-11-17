@@ -103,7 +103,7 @@ export namespace HumanTravelDoor {
         y: 0,
         z: opening.across.x * side,
       };
-      const along = (metres: number): IAutoMovieVector3 => ({
+      const along: (metres: number) => IAutoMovieVector3 = (metres: number): IAutoMovieVector3 => ({
         x: opening.at.x + out.x * metres,
         y: 0,
         z: opening.at.z + out.z * metres,

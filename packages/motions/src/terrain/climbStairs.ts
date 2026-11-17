@@ -22,6 +22,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { climbStairsFlight } from "./climbStairsFlight";
 import { climbStairsFeet } from "./climbStairsFeet";
@@ -141,9 +142,9 @@ export namespace climbStairs {
    * @evidence contracts/development/implementation.md#principled-implementation The same tread footprints and shortest clearance paths drive each foot, with unchanged stance lowering and lumbopelvic trunk inclination.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed sole geometry, footprint/edge preparation, step clock, stance heights and prepared foot/pelvis readers precede the body primitive.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No riser, tread, clearance, contact time, gait period or reach constraint changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation scales with authored steps and clearance-path construction; pose reads select foot and pelvis intervals logarithmically and retain the same leg lowering/goal computations.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed body and flight share sole offsets, each side/level footprint, edge-clearance heights and toe contacts; the final clock fixes every prepared interval.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Plan-owned footprints, edges, stance heights and readers grow with step count and are released with the returned climb; query history is not retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation scales with authored steps and clearance-path construction; pose reads select foot and pelvis intervals logarithmically and retain the same leg lowering/goal computations. Two fixed-rotation goal readers share actual footprint heading, knee/rest and toe-contact prerequisites, with ordinary goal fallback whenever the actual rotation changes.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed body and flight share sole offsets, each side/level footprint, edge-clearance heights and toe contacts; the final clock fixes every prepared interval. Synchronous stance-height construction borrows one exact FK workspace across all actual steps, and playback borrows only its current composite observation's source.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Plan-owned footprints, edges, stance heights and readers grow with step count and release with the climb. The stance-construction FK workspace ends with that block, and neither it nor playback's current loan enters retained numeric heights or a query history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -175,6 +176,10 @@ export namespace climbStairs {
       left: flatOf("left"), right: flatOf("right"),
     };
     const flat: (side: "left" | "right") => HumanFoot.IPlacement = (side: "left" | "right"): HumanFoot.IPlacement => flats[side];
+    const goals: Record<"left" | "right", ReturnType<typeof AutoMovieMotionHumanLeg.preparePlacement>> = {
+      left: AutoMovieMotionHumanLeg.preparePlacement(body, "left", flats.left.rotation),
+      right: AutoMovieMotionHumanLeg.preparePlacement(body, "right", flats.right.rotation),
+    };
     // The sole's heel, ball and toe about the ankle of a flat foot, along
     // the flight and in height.
     function soleOf(
@@ -302,25 +307,14 @@ export namespace climbStairs {
         ...posture,
         limbs: {
           ...posture.limbs,
-          leftLeg: AutoMovieMotionHumanLeg.goal(
-            body,
-            posture,
-            "left",
-            feet.left,
-            true,
-          ),
-          rightLeg: AutoMovieMotionHumanLeg.goal(
-            body,
-            posture,
-            "right",
-            feet.right,
-            true,
-          ),
+          leftLeg: goals.left(posture, feet.left, true),
+          rightLeg: goals.right(posture, feet.right, true),
         },
       }, undefined, resolution).root;
     }
     const stance: IAutoMovieVector3[] = [standing.root];
     {
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
       const now: Record<"left" | "right", IPrint> = {
         left: print("left", 0),
         right: print("right", 0),
@@ -347,6 +341,7 @@ export namespace climbStairs {
               },
             },
             { left: now.left.placement, right: now.right.placement },
+            resolution,
           ),
         );
       }
@@ -433,10 +428,8 @@ export namespace climbStairs {
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
         for (const side of ["left", "right"] as const)
           limbs[`${side}Leg`] = {
-            ...AutoMovieMotionHumanLeg.goal(
-              body,
+            ...goals[side](
               { root, yaw },
-              side,
               feet[side].placement,
               feet[side].planted,
             ),

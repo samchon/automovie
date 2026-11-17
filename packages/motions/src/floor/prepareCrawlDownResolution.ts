@@ -36,13 +36,13 @@ interface IReading {
  * @param body The unchanged body of the descent.
  * @returns Actual shoulder, knee, full-pose and mass-centre readers for current candidates.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States unchanged-body scope, synchronous lifetime, full current canonical solving and the three actual search observations.
+ * @evidence contracts/development/common.md#meaningful-documentation States unchanged-body scope, synchronous lifetime, full current canonical solving and actual shoulder, knee, canonical-pose and mass-centre observations.
  * @evidence contracts/development/implementation.md#principled-implementation The original seeded resolver projects/fits every current joint/goal using a genuine same-body ROM metadata loan; canonical poseBones supplies the same measured shoulder/knee frames with their original ancestors.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One current-pose owner feeds two fixed demanded-name readers and final full-pose observation; HumanBalance retains mass-centre ownership while borrowing the same synchronous metadata.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No limb/digit goal, range bound, root, search candidate or contact is omitted; requested sets narrow only final FK outputs after complete resolution, and no pose result is stored.
- * @evidence contracts/development/implementation.md#efficient-algorithms One bounded ROM index, one exact dependency reader and two fixed name demands serve all original state-search trials; each trial retains O(J) current projection/fitting and only its measured FK output ancestry.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The body/rig/tables and two output-name sets stay unchanged for this synchronous search. Every new posture is resolved normally and the exact reader reuses only matching scalar prerequisites, without a candidate cache.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The solve owns one bounded projector/exact reader and two name readers until return or throw. Only final angles/scalar state leave the caller; this reader, its closures and current maps never enter the returned time evaluator.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One bounded ROM index, one exact dependency reader and two fixed name demands serve all original state-search trials; the first actual centre query prepares its native fixed mass-name reader once for later centre trials. Each trial retains O(J) current projection/fitting and only its measured FK output ancestry.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The body/rig/tables, shoulder/knee names and actual mass-profile demand stay unchanged for this synchronous search. Every new posture is resolved normally and the exact reader reuses only matching scalar prerequisites, without a candidate cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The solve owns one bounded projector/exact reader, two frame-name readers and at most one mass-name reader until return or throw. Only final angles/scalar state leave the caller; these readers, their closures and current maps never enter the returned time evaluator.
  */
 export function prepareCrawlDownResolution(body: IHumanBody): IReading {
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
@@ -57,6 +57,7 @@ export function prepareCrawlDownResolution(body: IHumanBody): IReading {
     body,
     KNEES,
   );
+  let centre: ReturnType<typeof HumanBalance.prepareCentre> | undefined;
 
   /** Project and fit each actual candidate before reading its requested frames. */
   const pose: (posture: IHumanPosture) => IAutoMoviePose = (
@@ -86,8 +87,10 @@ export function prepareCrawlDownResolution(body: IHumanBody): IReading {
     knees: (posture: IHumanPosture): ReturnType<typeof poseBones> =>
       knees(pose(posture), resolution()),
     pose,
-    centre: (posture: IHumanPosture): IAutoMovieVector3 =>
-      HumanBalance.centre(body, posture, resolution, projection),
+    centre: (posture: IHumanPosture): IAutoMovieVector3 => {
+      centre ??= HumanBalance.prepareCentre(body);
+      return centre(posture, resolution, projection);
+    },
   };
 }
 

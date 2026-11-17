@@ -166,11 +166,11 @@ export namespace clinch {
     across: number,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
     const frame: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
-    const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> = resolveAutoMovieHumanoidSurfaces.place(
+    const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.pointNormal> = resolveAutoMovieHumanoidSurfaces.pointNormal(
       frame,
       bones.get(frame.bone)!,
     );
-    if (across === 0) return { point: placed.point, normal: placed.normal };
+    if (across === 0) return placed;
     const left: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(
         bones.get("leftUpperArm")!.worldPosition,
@@ -197,8 +197,8 @@ export namespace clinch {
    * @evidence contracts/development/implementation.md#principled-implementation Both arm visits follow the partner's actual regions over the standing base; an optional under entry lowers the fulcrum by the initial region-height difference.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the clock/base and arm visits, wraps each displayed evaluation with a local partner reader, then adds optional root lowering.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every contact target and arm write still executes with the original timing and posture order; only equal partner/time reads within one synchronous posture call share their actual bones.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each posture retains the base/arm work but reads the partner at most once for its two matching target callbacks; zero sideways offsets skip unused shoulder-direction work. The two entry-height measurements use actual region world points without computing unused normal/forward rotations. No measured speedup is claimed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit posture invocation fixes this plan, partner, seconds and unchanged composition/stop state. Target callbacks share only that invocation's lazily read partner map, while another time or nested invocation gets its own scope.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each posture retains the base/arm work but reads the partner at most once for its two matching target callbacks; zero sideways offsets skip unused shoulder-direction work and return the engine's fresh point/normal wrapper directly. All region placements request their actual point/normal fields without computing unconsumed forward. The two entry-height measurements use actual region world points without computing unused normal/forward rotations. No measured speedup is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit posture invocation fixes this plan, partner, seconds and unchanged composition/stop state. Target callbacks share only that invocation's lazily read partner map, while another time or nested invocation gets its own scope. Both wrappers forward current self FK/ROM loans to their same-body composed plan only; foreign partner queries keep their independent actual reader.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A fresh scope holds at most one partner map during each synchronous posture call and restores an enclosing scope in finally on success or failure; returned postures retain only goal vectors and no scope/map.
    */
   export function plan(
@@ -296,11 +296,16 @@ export namespace clinch {
     });
     const sampled: IHumanActionPlan = {
       ...composed,
-      posture: (seconds: number, channels?: readonly AutoMovieMotionHumanChannel[]): IHumanPosture => {
+      posture: (
+        seconds: number,
+        channels?: readonly AutoMovieMotionHumanChannel[],
+        source?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => {
         const previous: typeof scope = scope;
         scope = { seconds };
         try {
-          return composed.posture(seconds, channels);
+          return composed.posture(seconds, channels, source, projection);
         } finally {
           scope = previous;
         }
@@ -334,8 +339,13 @@ export namespace clinch {
           );
     return {
       ...sampled,
-      posture: (seconds: number, channels?: readonly AutoMovieMotionHumanChannel[]): IHumanPosture => {
-        const posture: IHumanPosture = sampled.posture(seconds, channels);
+      posture: (
+        seconds: number,
+        channels?: readonly AutoMovieMotionHumanChannel[],
+        source?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => {
+        const posture: IHumanPosture = sampled.posture(seconds, channels, source, projection);
         const lowered: number =
           drop * clock.progress(AutoMovieMotionClock.START, "ready", seconds);
         return {

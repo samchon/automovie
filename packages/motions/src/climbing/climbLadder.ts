@@ -8,6 +8,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -132,10 +133,10 @@ export namespace climbLadder {
    * @evidence contracts/development/common.md#meaningful-documentation The namespace gives the four-beat pattern, rung geometry, timing and refusals; this entry prepares the fixed supports and limb clocks.
    * @evidence contracts/development/implementation.md#principled-implementation Preserves each original minimum-jerk limb move and rung contact, the pelvis height and lowering, and initial hand reach from the entry arms.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Body/ladder admission precedes fixed footprint/handhold preparation and per-limb beat arrays; separate support and arm primitives let root/leg demand omit arm work.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored rung count, beat order, clearance, approach bounds and contact windows retain their original formulas.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation/storage in climbed rungs; fixed foot rotations/socket offsets, adjacent-footprint quaternion arcs and directional heading prepare once. Each pose uses four logarithmic limb lookups and the original fixed-size lowering and hand/leg goal computations.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body, still base and ladder share rung geometry, foot-placement/arc preparation, root line and entry arms. A completed two-foot contact state shares its exact root/leg goals, and a stationary hand at that state shares its exact rung goal; a moving foot or hand always recomputes its dependent result.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Plan-owned rung/beat arrays and completed support/hand contact states grow with the authored beat sequence and release with the plan; arbitrary queried seconds are not retained.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored rung count, beat order, clearance, approach bounds and contact windows retain their original formulas. Every requested support lowers again and every requested hand performs its actual Bend sweep; no completed root, limb goal or fitted hand is replayed by rung state.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation/storage in rungs includes foot rotations/socket offsets, foot quaternion arcs, exact held/moving hand-point deltas and directional heading. Each pose retains logarithmic limb lookup and original lowering/goal work. Exact matching rung rotations share knee/contact metadata; changed rotations retain ordinary goal work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body, still base and ladder share only rung/arc/socket geometry, root-line scalars and entry arms. Actual support lowering and hand solving run on every request. Fixed support chain/trunk prerequisites or one write-local bilateral preparation serve those actual sweeps, and initial hand transport borrows current FK/ROM metadata through original carry.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Plan-owned rung/beat and fixed-geometry arrays release with the plan; no completed support or hand result is stored. Current FK/ROM loans and write-local bilateral contexts end with the synchronous write and never enter fixed hand prerequisites or output goals.
    */
   export function plan(context: IHumanActionContext<IParams>): IPlan {
     const body: IHumanBody = context.body;
@@ -223,9 +224,21 @@ export namespace climbLadder {
       left: footprints.left.slice(1).map((to: HumanFoot.IPlacement, i: number): ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> => AutoMovieMotionHumanLeg.prepareArc(footprints.left[i]!, to, CLEARANCE)),
       right: footprints.right.slice(1).map((to: HumanFoot.IPlacement, i: number): ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> => AutoMovieMotionHumanLeg.prepareArc(footprints.right[i]!, to, CLEARANCE)),
     };
+    const goals: Record<"left" | "right", ReturnType<typeof AutoMovieMotionHumanLeg.preparePlacement>> = {
+      left: AutoMovieMotionHumanLeg.preparePlacement(body, "left", footprints.left[1]!.rotation),
+      right: AutoMovieMotionHumanLeg.preparePlacement(body, "right", footprints.right[1]!.rotation),
+    };
     const handholds: Record<"left" | "right", IAutoMovieVector3[]> = {
       left: Array.from({ length: count + 1 }, (_: unknown, i: number): IAutoMovieVector3 => atRung(reach + i, lateral("left"))),
       right: Array.from({ length: count + 1 }, (_: unknown, i: number): IAutoMovieVector3 => atRung(reach + i, lateral("right"))),
+    };
+    const heldHands: Record<"left" | "right", ReturnType<typeof Vector3.prepareLerp>[]> = {
+      left: handholds.left.map((at: IAutoMovieVector3): ReturnType<typeof Vector3.prepareLerp> => Vector3.prepareLerp(at, at)),
+      right: handholds.right.map((at: IAutoMovieVector3): ReturnType<typeof Vector3.prepareLerp> => Vector3.prepareLerp(at, at)),
+    };
+    const handArcs: Record<"left" | "right", ReturnType<typeof Vector3.prepareLerp>[]> = {
+      left: handholds.left.slice(1).map((to: IAutoMovieVector3, i: number): ReturnType<typeof Vector3.prepareLerp> => Vector3.prepareLerp(handholds.left[i]!, to)),
+      right: handholds.right.slice(1).map((to: IAutoMovieVector3, i: number): ReturnType<typeof Vector3.prepareLerp> => Vector3.prepareLerp(handholds.right[i]!, to)),
     };
     const direction: HumanFrame.IFrame = { origin: { x: 0, y: 0, z: 0 }, yaw };
     const directional: HumanFrame.IPrepared = HumanFrame.prepare(direction);
@@ -263,11 +276,11 @@ export namespace climbLadder {
     );
     const reaching: (seconds: number) => number = AutoMovieMotionClock.prepare(clock, "start", "handsOn").progress;
 
-    // Where a limb is at a second: its rung index (fractional while moving).
+    // The active rung interval and its original minimum-jerk share.
     function level(
       limb: Limb,
       seconds: number,
-    ): { index: number; from: number; u: number; moving: boolean } {
+    ): { index: number; u: number; moving: boolean } {
       const base: number = limb.endsWith("Hand") ? reach : 0;
       const own: (typeof moves)[Limb] = moves[limb];
       let low: number = 0;
@@ -281,38 +294,27 @@ export namespace climbLadder {
       if (move !== undefined && seconds > move.from)
         return {
           index: base + move.n,
-          from: base + move.n - 1,
           u: minimumJerk.share((seconds - move.from) / (move.to - move.from)),
           moving: true,
         };
       const index: number = base + (own[low - 1]?.n ?? 0);
-      return { index, from: index, u: 1, moving: false };
+      return { index, u: 1, moving: false };
     }
 
-    // The support primitive writes first over a still base, so two planted rung
-    // indices fix every input of the root lowering and leg-goal geometry.
-    const supports: Map<string, Pick<IHumanPosture, "root" | "limbs">> = new Map();
-    const heldArms: Record<"left" | "right", Map<string, IHumanPosture.IGoal>> = {
-      left: new Map(), right: new Map(),
-    };
+    // Fixed rung geometry supplies each actual support lowering.
     function stance(
       posture: IHumanPosture,
       feet: Record<"left" | "right", HumanFoot.IPlacement>,
       levels: Record<"left" | "right", ReturnType<typeof level>>,
       resolution?: Parameters<IHumanActionPlan["posture"]>[2],
     ): IHumanPosture {
-      const key: string | undefined = levels.left.moving || levels.right.moving
-        ? undefined : `${levels.left.index}:${levels.right.index}`;
-      const held: Pick<IHumanPosture, "root" | "limbs"> | undefined = key === undefined ? undefined : supports.get(key);
-      if (held !== undefined) return { ...posture, root: { ...held.root }, yaw, limbs: structuredClone(held.limbs) };
       const rise: number = (feet.left.ankle.y + feet.right.ankle.y) / 2 - m.ankleHeight;
       const root: IAutoMovieVector3 = { ...rootAlong, y: rise - stand.DROP };
       const placed: IHumanPosture = { ...posture, root, yaw };
       const limbs: IHumanPosture["limbs"] = {};
       for (const side of ["left", "right"] as const)
-        limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(body, placed, side, feet[side], !levels[side].moving);
+        limbs[`${side}Leg`] = goals[side](placed, feet[side], !levels[side].moving);
       const lowered: IHumanPosture = resolveHumanPosture.lower(body, { ...placed, limbs }, undefined, resolution);
-      if (key !== undefined) supports.set(key, { root: { ...lowered.root }, limbs: structuredClone(lowered.limbs) });
       return { ...lowered, root: { ...lowered.root }, limbs: structuredClone(lowered.limbs) };
     }
 
@@ -364,7 +366,7 @@ export namespace climbLadder {
           : AutoMovieMotionHumanChannel.ORDER,
       from: 0,
       to: duration,
-      write: (lowered: IHumanPosture, seconds: number): IHumanPosture => {
+      write: (lowered: IHumanPosture, seconds: number, _before?: IAutoMovieMotionHumanPrimitive.Reader, resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
         const footLevels: Record<"left" | "right", ReturnType<typeof level>> = {
           left: level("leftFoot", seconds), right: level("rightFoot", seconds),
         };
@@ -372,17 +374,12 @@ export namespace climbLadder {
 
         // Each hand grips its rung, reaching it from where it hung at first.
         const reachShare: number = reaching(seconds);
+        let paired: ReturnType<typeof AutoMovieMotionHumanBend.prepareBoth> | undefined;
         for (const side of ["left", "right"] as const) {
           const at: ReturnType<typeof level> = level(`${side}Hand`, seconds);
-          const key: string | undefined = at.moving || footLevels.left.moving || footLevels.right.moving
-            ? undefined : `${footLevels.left.index}:${footLevels.right.index}:${at.index}`;
-          const held: IHumanPosture.IGoal | undefined = key === undefined ? undefined : heldArms[side].get(key);
-          if (held !== undefined) { limbs[`${side}Arm`] = structuredClone(held); continue; }
-          const grip: IAutoMovieVector3 = Vector3.lerp(
-            handholds[side][at.from - reach]!,
-            handholds[side][at.index - reach]!,
-            at.u,
-          );
+          const grip: IAutoMovieVector3 = (at.moving
+            ? handArcs[side][at.index - reach - 1]!
+            : heldHands[side][at.index - reach]!)(at.u);
           const lifted: IAutoMovieVector3 = at.moving
             ? Vector3.add(
                 grip,
@@ -393,8 +390,9 @@ export namespace climbLadder {
             : grip;
           const support: readonly [number, number] | undefined = at.moving && !footLevels.left.moving && !footLevels.right.moving
             ? [footLevels.left.index, footLevels.right.index] : undefined;
-          limbs[`${side}Arm`] = handGoal(side, lowered, lifted, support);
-          if (key !== undefined) heldArms[side].set(key, structuredClone(limbs[`${side}Arm`]!));
+          if (support === undefined && paired === undefined)
+            paired = AutoMovieMotionHumanBend.prepareBoth({ body, posture: lowered }, resolution);
+          limbs[`${side}Arm`] = handGoal(side, lowered, lifted, support, support === undefined ? paired : undefined);
         }
         const gripped: IHumanPosture = {
           ...lowered,
@@ -410,6 +408,9 @@ export namespace climbLadder {
           gripped,
           entryArms,
           reachShare,
+          undefined,
+          resolution,
+          projection,
         );
       },
     };

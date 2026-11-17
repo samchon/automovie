@@ -21,9 +21,9 @@ import type { HumanHand } from "../posture/HumanHand";
  * @evidence contracts/development/common.md#meaningful-documentation States local/world frames, ordered-time premise, nominal interval and overlap ordering, with world-metre output at arbitrary seconds.
  * @evidence contracts/development/implementation.md#principled-implementation Compiles the original chronological press state into per-hand records, then finds the first whose lift has not ended; the same 40 percent reach, 60 percent lift, minimum-jerk profiles and keyboard transform evaluate that record.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One text-order preparation records each hand's previous key and lift end; the returned reader owns only binary selection and the existing transport/press/lift formulas.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changes no timing, key layout, path, hover height, travel or minimum-jerk denominator guard. Strictly increasing times and a positive interval are supplied by typeText's existing skill-timing plan.
- * @evidence contracts/development/implementation.md#efficient-algorithms Preparing N keys costs O(N) time and space; each hand read searches its H ordered presses in O(log H) time and performs one fixed-size path evaluation instead of scanning the full text.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed text, hand assignment, press times, previous-key states and keyboard frame coefficients are prepared once per typing plan; time-dependent transport, lift and world position are evaluated afresh without a sampled-frame cache.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changes no timing, key layout, path, hover height, travel or minimum-jerk denominator guard. NaN seconds keep the chronological loop's all-comparisons-false final-key/home hover result rather than entering a press. Strictly increasing times and a positive interval are supplied by typeText's existing skill-timing plan.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Preparing N keys costs O(N) time and space; each hand read searches its H ordered presses in O(log H) time and performs one fixed-size path evaluation instead of scanning the full text. Scalar transport coordinates feed the prepared frame directly, omitting an interpolated local vector that was immediately copied with its actual press height.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed text, hand assignment, press times, previous-key states, original approach/overlap boundaries, guarded easing denominators and keyboard frame coefficients are prepared once per typing plan; time-dependent transport, lift and world position are evaluated afresh without a sampled-frame cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns two arrays containing N press records and a copied prepared keyboard frame, borrowing the plan's key/home vectors until that plan is released; no population grows during playback or seeking.
  */
 export function typeTextPresses(
@@ -44,22 +44,28 @@ export function typeTextPresses(
   for (let i: number = 0; i < keys.length; i++) {
     const key: { at: IAutoMovieVector3; side: HumanHand.Side } = keys[i]!;
     const press: number = times[i]!;
+    const approach: number = press - reach;
+    const start: number = Math.max(until[key.side], approach);
     presses[key.side].push({
       at: key.at,
       press,
       from: previous[key.side],
-      fromTime: until[key.side],
+      approach,
+      start,
+      span: Math.max(1e-3, press - start),
       end: press + lift,
     });
     previous[key.side] = key.at;
     until[key.side] = press + lift;
   }
-  const world: (at: IAutoMovieVector3, height: number) => IAutoMovieVector3 = (
-    at: IAutoMovieVector3,
+  const world: (x: number, z: number, height: number) => IAutoMovieVector3 = (
+    x: number,
+    z: number,
     height: number,
-  ): IAutoMovieVector3 => transform.point({ ...at, y: height });
+  ): IAutoMovieVector3 => transform.point({ x, y: height, z });
   return (side: HumanHand.Side, seconds: number): IAutoMovieVector3 => {
     const ordered: readonly IPress[] = presses[side];
+    if (Number.isNaN(seconds)) return world(previous[side].x, previous[side].z, hover);
     let low: number = 0;
     let high: number = ordered.length;
     while (low < high) {
@@ -68,24 +74,20 @@ export function typeTextPresses(
       else high = middle;
     }
     const active: IPress | undefined = ordered[low];
-    if (active === undefined) return world(previous[side], hover);
-    if (seconds < active.press - reach) return world(active.from, hover);
+    if (active === undefined) return world(previous[side].x, previous[side].z, hover);
+    if (seconds < active.approach) return world(active.from.x, active.from.z, hover);
     if (seconds < active.press) {
-      const start: number = Math.max(active.fromTime, active.press - reach);
       const share: number = minimumJerk.share(
-        (seconds - start) / Math.max(1e-3, active.press - start),
+        (seconds - active.start) / active.span,
       );
       return world(
-        {
-          x: active.from.x + (active.at.x - active.from.x) * share,
-          y: 0,
-          z: active.from.z + (active.at.z - active.from.z) * share,
-        },
+        active.from.x + (active.at.x - active.from.x) * share,
+        active.from.z + (active.at.z - active.from.z) * share,
         hover - (hover + travel) * share * share,
       );
     }
     const share: number = minimumJerk.share((seconds - active.press) / lift);
-    return world(active.at, -travel + (hover + travel) * share);
+    return world(active.at.x, active.at.z, -travel + (hover + travel) * share);
   };
 }
 
@@ -100,8 +102,14 @@ interface IPress {
   /** The previous key or this hand's home key. */
   from: IAutoMovieVector3;
 
-  /** The previous key's completed lift, or zero for the first key. */
-  fromTime: number;
+  /** The original nominal start of this key's approach, seconds. */
+  approach: number;
+
+  /** Approach start after the previous lift's original overlap priority. */
+  start: number;
+
+  /** Original 1 ms guarded easing denominator from start to press, seconds. */
+  span: number;
 
   /** This key's completed lift, seconds since typing starts. */
   end: number;

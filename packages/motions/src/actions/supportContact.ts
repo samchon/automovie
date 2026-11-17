@@ -305,7 +305,35 @@ export namespace supportContact {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieVector3[] {
-    if (contacts.length === 0) return [];
+    return preparePoints(body, contacts)(posture, resolution, projection);
+  }
+
+  /**
+   * Prepare the exact local contact datums and demanded frames for fixed
+   * contacts/targets on one unchanged body. Each returned read observes its
+   * actual current posture; no achieved point or pose is prepared here.
+   *
+   * @param body The unchanged body/surfaces/rig.
+   * @param contacts Fixed ordered contact/target pairs, including null floor places.
+   * @returns A fresh-point reader borrowing optional exact FK and genuine ROM metadata only for its current synchronous call.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines immutable body/contact/target geometry, ordered world-metre outputs, fresh current observations and nonescaping optional FK/ROM sources.
+   * @evidence contracts/development/implementation.md#principled-implementation The existing point-only form owner supplies each exact local datum. A canonical actual posture solve and demanded FK transform those datums by their current bones under the original guarded observational policy.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed forms, ordered targets and a genuine named-frame reader prepare once; each current query performs the same canonical solve/FK and ordered rigid transforms as points.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No declared target replaces its achieved point; relevant limb/digit fits, every authored joint and unsupported-context full fallback remain native. Point-only preparation retains the existing omission of unused quiet-foot normals.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(N) contact/name preparation serves Q observations without rebuilding their forms/name set or FK demand. Each observation still resolves its complete current authored inputs and transforms N actual contact datums; an empty list needs no solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only unchanged body/surface/contact/target geometry proves fixed forms and demands. Every current posture/achieved point remains evaluated; schedule-dependent consumers discard this producer at settle before using final target geometry.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fixed-contact operation owns N target datums and a bounded genuine name reader until release or settlement. Each call's borrowed/owned workspace, current pose and map end on return or throw; no posed result, current point or query history is stored.
+   */
+  export function preparePoints(
+    body: IHumanBody,
+    contacts: readonly IPoint[],
+  ): (
+    posture: IHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  ) => IAutoMovieVector3[] {
+    if (contacts.length === 0) return (): IAutoMovieVector3[] => [];
     const form: ReturnType<typeof prepareSupportContactForm> =
       prepareSupportContactForm(body, false);
     const targets: HumanBodyFit.ITarget[] = contacts.map(
@@ -317,32 +345,40 @@ export namespace supportContact {
         (target: HumanBodyFit.ITarget): AutoMovieHumanoidBone => target.bone,
       ),
     );
-    const read: ReturnType<typeof prepareHumanPoseResolution> =
-      prepareHumanPoseResolution(resolution);
-    const bones: ReturnType<typeof poseBones> = poseBones(
+    const frames: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
       body,
-      resolveHumanPosture.seeded(
-        body,
-        posture,
-        undefined,
-        undefined,
-        read,
-        requested,
-        projection,
-      ).pose,
-      read(),
       requested,
     );
-    return targets.map((target: HumanBodyFit.ITarget): IAutoMovieVector3 => {
-      const bone: IAutoMovieResolvedBone = bones.get(target.bone)!;
-      return Vector3.add(
-        bone.worldPosition,
-        Quaternion.rotateVector(
-          bone.worldRotation,
-          target.point ?? { x: 0, y: 0, z: 0 },
-        ),
+    return (
+      posture: IHumanPosture,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieVector3[] => {
+      const read: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution(resolution);
+      const bones: ReturnType<typeof poseBones> = frames(
+        resolveHumanPosture.seeded(
+          body,
+          posture,
+          undefined,
+          undefined,
+          read,
+          requested,
+          projection,
+        ).pose,
+        read(),
       );
-    });
+      return targets.map((target: HumanBodyFit.ITarget): IAutoMovieVector3 => {
+        const bone: IAutoMovieResolvedBone = bones.get(target.bone)!;
+        return Vector3.add(
+          bone.worldPosition,
+          Quaternion.rotateVector(
+            bone.worldRotation,
+            target.point ?? { x: 0, y: 0, z: 0 },
+          ),
+        );
+      });
+    };
   }
 
   /** One current contact observation, including an unnamed floor target. */

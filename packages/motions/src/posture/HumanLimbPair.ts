@@ -73,7 +73,7 @@ export namespace HumanLimbPair {
    * @evidence contracts/development/implementation.md#principled-implementation Independent fits where the arms keep clear; a coupled still solve where they meet, on the pair's canonical representative under the mirror.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two fits, one clearance reading per arm, then one coupled solve when they meet.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither arm is fitted against the other's fit; the representative is chosen from the inputs alone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two actual remembered fits issue only owned chain edits for scalar poses, followed by the existing coupled optimizer only on overlap. Rich metadata retains full owned output. Source attachment FK is lazy, exact math is shared, and the caller transfers fresh assembly or isolates its explicit source once; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two actual public remembered fits retain complete independent issuing and original raw observation, followed by the existing coupled optimizer only on actual overlap. Source attachment FK stays lazy; owned is the separate private-constructor route, and speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the existing fit, clearance and trajectory owners. A supplied person/refit reader crosses only these synchronous calls; actual mirror/root-frame poses and changed arm descendants still invalidate scalar dependencies, and near/target/result choices remain unchanged.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Pair-local source FK and temporary callbacks end with this call. A borrowed reader remains with its synchronous parent, or a lazily created standalone reader ends here; no returned pose, seed, value or retained optimizer context captures the reader or supplier.
    */
@@ -86,6 +86,50 @@ export namespace HumanLimbPair {
     > = {},
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IFitted {
+    return paired(body, pose, goals, near, resolution, HumanLimbFit.remembered);
+  }
+
+  /**
+   * Fit the same pair inside a private freshly assembled COW posture operation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the private owned-source entrypoint and unchanged paired fitting contract.
+   * @evidence contracts/development/implementation.md#principled-implementation The actual assembler/refit caller owns current records, so ordinary same-source misses may transfer fresh writes; cached/private-source data is independently issued. The common paired kernel preserves representative choice, rival geometry and coupled fitting.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This internal entrypoint selects applyHumanLimbFit; fitted selects the independent public issuer, and both use one paired/solved implementation without a caller-set mode or result flag.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No solve, goal, near, clearance, comparison, ROM or tolerance changes. Explicit public-pose refits call fitted, preserving original full issuing and raw-input observation behavior.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two actual limb fits retain their searches; native misses use one output inspection/cache packet and hits issue complete scalar records. Coupled optimization remains conditional on actual overlap; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual private constructor/refit call flow supplies current ownership. Only geometry/FK prerequisites share across fits; every current goal/near is evaluated and no cached pose or caller-selected numerical fitter is accepted.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary paired state/readers end with the synchronous call; current-owned or newly issued records transfer to its owner, with no private cache/source-factory record retained in output.
+   */
+  export function owned(body: IHumanBody, pose: IAutoMoviePose,
+    goals: Readonly<Record<"left" | "right", IHumanPosture.IGoal>>,
+    near: Readonly<Partial<Record<"left" | "right", IAutoMovieSwivelNear>>> = {},
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IFitted {
+    return paired(body, pose, goals, near, resolution, applyHumanLimbFit);
+  }
+
+  /**
+   * Fit paired arms on the actual base-free assembler's clinical records.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the constructor-only record schema and unchanged paired goal/seed/result contract.
+   * @evidence contracts/development/implementation.md#principled-implementation Actual base-free construction and native arm mirroring preserve the closed clinical record schema, allowing direct scalar capture in each ordinary remembered fit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Chooses the constructor-known limb issuer in the same paired kernel; independent and general-owned sources keep their respective entries.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not change mirror representatives, clearance, coupled optimizer, goal, near, ROM or acceptance; source provenance is the actual constructor path rather than a caller flag.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Both original fits and conditional coupled solve remain; only redundant record-schema inspection is removed, with unmeasured gains.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the one paired algorithm and same exact cache/solver while using the producer's already established clinical schema.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Pair-local state ends with the synchronous call, and cache packets/public outputs retain the existing independent ownership and bounded body lifetime.
+   */
+  export function constructed(body: IHumanBody, pose: IAutoMoviePose,
+    goals: Readonly<Record<"left" | "right", IHumanPosture.IGoal>>,
+    near: Readonly<Partial<Record<"left" | "right", IAutoMovieSwivelNear>>> = {},
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IFitted {
+    return paired(body, pose, goals, near, resolution, applyHumanLimbFit.constructed);
+  }
+
+  /** One representative/coupling algorithm; only module-owned ownership issuers vary. */
+  function paired(body: IHumanBody, pose: IAutoMoviePose,
+    goals: Readonly<Record<"left" | "right", IHumanPosture.IGoal>>,
+    near: Readonly<Partial<Record<"left" | "right", IAutoMovieSwivelNear>>>,
+    resolution: Parameters<typeof prepareHumanPoseResolution>[0], fit: (...args: Parameters<typeof applyHumanLimbFit>) => ReturnType<typeof applyHumanLimbFit>): IFitted {
     const readResolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(resolution);
     const mirrored: IAutoMoviePose = HumanArmMirror.mirrored({
@@ -96,10 +140,9 @@ export namespace HumanLimbPair {
       left: HumanLimbFit.reflected(goals.right),
       right: HumanLimbFit.reflected(goals.left),
     };
-    // Compare the same ordered JSON components, stopping at the first
-    // unequal root/joint/goal rather than serializing the remaining suffix.
+    // Whole keys preserve every original getter/toJSON observation and key.
     if (compareHumanLimbPair(pose, goals, mirrored, image) <= 0)
-      return solved(body, pose, goals, near, readResolution);
+      return solved(body, pose, goals, near, readResolution, fit);
     // The image's left arm is this pose's right arm, solved alike.
     const out: IFitted = solved(
       body,
@@ -110,6 +153,7 @@ export namespace HumanLimbPair {
         ...(near.left === undefined ? {} : { right: near.left }),
       },
       readResolution,
+      fit,
     );
     return {
       pose: HumanArmMirror.mirrored({ pose: out.pose, others: [] }).pose,
@@ -145,6 +189,7 @@ function solved(
   goals: Readonly<Record<"left" | "right", IHumanPosture.IGoal>>,
   near: Readonly<Partial<Record<"left" | "right", IAutoMovieSwivelNear>>>,
   resolution: ReturnType<typeof prepareHumanPoseResolution>,
+  fit: (...args: Parameters<typeof applyHumanLimbFit>) => ReturnType<typeof applyHumanLimbFit>,
 ): HumanLimbPair.IFitted {
   let authoredBones:
     | Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
@@ -172,7 +217,7 @@ function solved(
       readAuthored,
     );
   const own: Record<"left" | "right", IAutoMovieSeededChainFit> = {
-    left: applyHumanLimbFit(
+    left: fit(
       body,
       pose,
       "leftArm",
@@ -182,7 +227,7 @@ function solved(
       near.left,
       resolution,
     ),
-    right: applyHumanLimbFit(
+    right: fit(
       body,
       pose,
       "rightArm",

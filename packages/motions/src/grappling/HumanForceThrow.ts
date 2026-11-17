@@ -125,7 +125,7 @@ export namespace HumanForceThrow {
    * @evidence contracts/development/implementation.md#principled-implementation The fulcrum is the thrower's region on its placed posture at the broken base; the frozen body turns about it by `HumanForceExchange.swing`, whose start rate is the pull's speed across the fulcrum line, whose drive is the pull's moment about the fulcrum while it lasts, and whose inertia is the body's composite tensor on the swing's axis plus the parallel-axis term; after release the centre follows the parabola and the orientation the conserved angular momentum `R I ω` (`integrateAirborneRotation`); the landing is the first integrator step at which the lowest joint reaches the floor.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fulcrum, swing, release state, flight, landing, plan.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A swing that stops is refused; the landing is searched, never set.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One swing and one flight integration retain their original steps. The fixed rigid-shape mass instant is computed by the original history once instead of repeating equal tensors and stencils at every ODE stage; the unchanged landing grid still rotates every actual joint offset.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One swing and one flight integration retain their original steps. The fixed rigid-shape mass instant is computed by the original history once instead of repeating equal tensors and stencils at every ODE stage; the unchanged landing grid still evaluates every actual joint offset, requesting only its exact rotated Y component and omitting unused X/Z outputs and vector records.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The original history measures actual inertia and relative momentum from the one fixed local frozen-shape map once. That producer never changes with time, so its physical mass instant serves the rigid flight ODE; changing-shape histories remain untouched. Release angle/rate, inverse heading and fixed joint offsets are also shared under their exact fixed-input contracts.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary original mass history is cleared in finally after its one actual rigid-shape measurement, including failure. The rigid instant and landing offsets end with synchronous integration/planning; the plan retains only its original physical scalars, inverse heading and completed swing/flight trajectories, without mass-node or posed-frame history.
    */
@@ -300,7 +300,7 @@ export namespace HumanForceThrow {
         low = Math.min(
           low,
           c.y +
-            Quaternion.rotateVector(q, offset).y,
+            Quaternion.rotateVectorY(q, offset),
         );
       return low;
     };

@@ -27,9 +27,9 @@ import { staggerKnots } from "./staggerKnots";
  * @evidence contracts/development/implementation.md#principled-implementation Keeps the actual leg-fit knee, original tangle bound, two sole-length maximum bow and millimetre bisection on both sides, retaining original feasible/tie decisions.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed observed frames prepare per-instant leg posing; one worst-clearance reader serves the original two-sided bisection.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every sampled instant, original fit, reach adjustment, bound, bisection width and signed winner; no candidate or leg fit is replaced by a cached answer.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each candidate still fits one swinging leg per instant. The standing leg fits once per instant, fixed pelvis/hip posing is prepared once per instant, and each widest-side result is read once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each prepared swinging-leg fit/poser fixes its own actual sample body, side, pelvis and hip. Every changing ankle, bend and rotation still reaches the original cold remembered fit, and each actual target/branch/swivel reaches the original target-specific posing math; no fitted answer or continuation seed is reused by this search.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search retains O(k) sample poses/readers for k supplied instants and scalar bisection state, released on return or failure; only the returned scalar survives.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each candidate still fits one swinging leg per instant, including the original second full widest sweep on a refused side. Standing legs, fixed pelvis/hip posing, rest-knee origins and swing shares prepare once. Existing clearance preparation lazily shares each fixed standing leg's capsule axes and only originally demanded collider placements, retaining all moving geometry and ordered pair/probe tests. Speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed sample body/side/pelvis/hip establish leg preparation; unchanged root/yaw establish only authored rest-knee origins. Each originally once-fitted standing leg also fixes that sample's collision geometry. Current heading still makes the actual hint, and every ankle/bend/rotation reaches its original cold remembered fit, with no moving answer or continuation seed reused.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search owns O(k) sample geometry/readers and scalar bisection state for k instants; per-sample standing collider preparation grows only to its fixed four bones and ends on return/failure. Private rest-knee points feed fresh hints, while no dynamic FK/ROM loan, moving target history or fitted answer survives the returned scalar.
  */
 export function staggerSwingBow(
   body: IHumanBody,
@@ -42,23 +42,34 @@ export function staggerSwingBow(
 
   /** One fixed observed pelvis and its reusable swinging-leg source frame. */
   type IObserved = (typeof instants)[number] & {
+    share: number;
     pelvis: IAutoMovieQuaternion;
     fit: ReturnType<typeof HumanLegChain.prepareSeeded>;
     pose: ReturnType<typeof HumanLegChain.prepare>;
-    knees: Record<"left" | "right", ReturnType<typeof HumanFrame.preparePoint>>;
+    knees: Record<"left" | "right", IAutoMovieVector3>;
   };
   const observed: IObserved[] = instants.map(
     (instant: (typeof instants)[number]): IObserved => {
       const pelvis: IAutoMovieQuaternion = instant.settled.pelvis ??
         resolveHumanPosture.heading({ yaw: instant.settled.yaw, pitch: 0, roll: 0 });
+
+      // Bow changes the moving ankle, never this observation's root or yaw.
+      const kneeAt: (side: "left" | "right") => IAutoMovieVector3 = (
+        side: "left" | "right",
+      ): IAutoMovieVector3 =>
+        HumanFrame.point(
+          { origin: instant.settled.root, yaw: instant.settled.yaw },
+          body.rest.get(`${side}LowerLeg`)!,
+        );
       return {
         ...instant,
+        share: (instant.seconds - step.start) / (step.land - step.start),
         pelvis,
         fit: HumanLegChain.prepareSeeded(body, step.side, pelvis, instant.settled.hips[step.side]),
         pose: HumanLegChain.prepare(body, step.side, pelvis, instant.settled.hips[step.side]),
         knees: {
-          left: HumanFrame.preparePoint(instant.settled.yaw, body.rest.get("leftLowerLeg")!),
-          right: HumanFrame.preparePoint(instant.settled.yaw, body.rest.get("rightLowerLeg")!),
+          left: kneeAt("left"),
+          right: kneeAt("right"),
         },
       };
     },
@@ -99,26 +110,27 @@ export function staggerSwingBow(
       rotation: foot.rotation,
     };
   };
+
   // The standing leg's fit is read once a knot.
   const standingLegs: walkLegClearance.ILeg[] = observed.map((instant: IObserved): walkLegClearance.ILeg =>
     legOf(stance, instant, instant.settled.feet[stance]),
   );
+  const clearances: ReturnType<typeof walkLegClearance.prepareAgainst>[] = standingLegs.map(
+    (standing: walkLegClearance.ILeg): ReturnType<typeof walkLegClearance.prepareAgainst> =>
+      walkLegClearance.prepareAgainst(body, standing),
+  );
   const worst: (bow: number) => number = (bow: number): number => {
     let out: number = 0;
     for (const [i, instant] of observed.entries()) {
-      const { seconds, settled }: IObserved = instant;
+      const { seconds, settled, share }: IObserved = instant;
       const reached: walkFoot.IEnd = reach(
         settled,
         swing(seconds, bow),
-        (seconds - step.start) / (step.land - step.start),
+        share,
       );
       out = Math.max(
         out,
-        walkLegClearance.excess(
-          body,
-          legOf(step.side, instant, reached),
-          standingLegs[i]!,
-        ),
+        clearances[i]!(legOf(step.side, instant, reached)),
       );
     }
     return out;
@@ -134,9 +146,8 @@ export function staggerSwingBow(
     /** One side's original feasible width or its maximum-width excess. */
     type IBow = { way: number; bow: number; at: number };
     const sides: IBow[] = [1, -1].map((way: number): IBow => {
-      const edge: number = worst(way * widest);
-      if (edge > walkLegClearance.BOUND)
-        return { way, bow: Infinity, at: edge };
+      if (worst(way * widest) > walkLegClearance.BOUND)
+        return { way, bow: Infinity, at: worst(way * widest) };
       let lo: number = 0;
       let hi: number = widest;
       while (hi - lo > 0.001) {

@@ -6,6 +6,7 @@ import type { walkFacing } from "../actions/walkFacing";
 import { walkPaced } from "../actions/walkPaced";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
 /**
  * The walk a person takes with a door they pull open, the hand on its
@@ -61,7 +62,7 @@ export namespace HumanTravelLeafWalk {
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The contract supplies no fallback path, normalized time or cached sample in place of the actual action-second point and normal.
      * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The declaration has no body or algorithm; each supplied handle reader owns its evaluation cost.
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declared member coordinates no work and owns no cache.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no resource or retained state; the planner retains the supplied reader only through its own input lifetime.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no resource or retained state; plan calls the supplied reader only during synchronous construction and returns a numeric walk/clock plan that retains no handle callback or borrowed operation metadata.
      */
     handle: (seconds: number) => {
       point: IAutoMovieVector3;
@@ -90,9 +91,9 @@ export namespace HumanTravelLeafWalk {
    * @evidence contracts/development/implementation.md#principled-implementation The stances are the take relation carried with the handle; the hinge is the centre the leaf turns the stance about, solved from the first and last stances; the walk goes the feet's midpoint through them and is played at the share of its way the stance has gone, its cadence hurried at most to the walking gait's at the walk-to-run transition.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The stances, the end of the swing, the way, the hinge, the walk, the timing.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A leaf that does not turn plans no walk; the walk's own refusals pass on.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One walk plan and unchanged handle/posture sampling. Each stance distance locates its interval in the nondecreasing walked distances by binary search, preserving the first equal boundary and final-interval extrapolation; speedup is unmeasured.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per opening.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns the plan and retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One walk plan and unchanged handle/posture sampling. Actual root-only distance samples share one synchronous FK workspace rather than rebuilding its metadata for each sample. Each stance distance locates its interval in the nondecreasing walked distances by binary search, preserving the first equal boundary and final-interval extrapolation; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The walk's body/rig stay unchanged throughout synchronous distance construction; one borrowed exact dependency reader serves every actual root sample while all changing poses, stance solves and path distances still evaluate normally. The completed stance-distance total is fixed throughout numeric clock construction.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Synchronous handle callbacks, distance-sampling FK workspace and temporary stance/distance arrays release on return or throw; the returned walkPaced plan owns only the original walk and its numeric clock, without retaining props.handle, callback FK/ROM loans or a queried posture history.
    */
   export function plan(props: IProps): IHumanActionPlan | null {
     const { context, seconds, take }: IProps = props;
@@ -201,8 +202,9 @@ export namespace HumanTravelLeafWalk {
       (t: number): IAutoMovieVector3 => asked(Math.max(take, t)).mid,
       rests,
     );
+    const walking: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const went: number[] = travelled(
-      (t: number): IAutoMovieVector3 => walked.posture(t, ["root"]).root,
+      (t: number): IAutoMovieVector3 => walked.posture(t, ["root"], walking).root,
       walked.duration,
     );
     const total: number = went.at(-1)!;
@@ -223,11 +225,12 @@ export namespace HumanTravelLeafWalk {
     };
     // No faster than the walk's fastest cadence: a leaf swung faster leaves
     // the walk behind, and the hand loses the handle.
+    const span: number = Math.max(1e-9, stance.at(-1)!);
     const clock: number[] = [];
     for (const length of stance)
       clock.push(
         Math.min(
-          reached((length / Math.max(1e-9, stance.at(-1)!)) * total),
+          reached((length / span) * total),
           (clock.at(-1) ?? -HURRY * TICK) + HURRY * TICK,
         ),
       );

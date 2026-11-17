@@ -17,6 +17,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import type { IKickGeometry } from "./IKickGeometry";
 import { KickCarriage } from "./KickCarriage";
 import type { KickChain } from "./KickChain";
@@ -47,6 +48,11 @@ import type { kick } from "./kick";
  * {@link KickSwing} carries with the pelvis. Each online correction of the
  * target's point ({@link StrikingAim}) is a whole plan of its own, and the
  * figure moves from plan to plan ({@link KickPlans}).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines actual fitted kick contact, folded chamber, causal corrections, complete-versus-observed posture and local/film clock meanings.
+ * @evidence contracts/development/design.md#principled-representation Existing body/posture/reach/contact/record types expose physical geometry and authored goals; metadata loans carry no pose or success answer.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface build supplies the actual kick/redirect planner and compose joins its existing parts under the original clocks.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No clip, target proxy, alternate skeleton, unproved resolved flag or cached pose observation replaces the original physical plan.
  */
 export namespace KickGeometry {
   /**
@@ -58,6 +64,14 @@ export namespace KickGeometry {
    * @param fixed The contact second the performance committed: null when the leg met nothing, undefined when the kick offers no weapon.
    * @param kept What a redirect keeps of its source; a fresh kick reads its own line and steps up when short.
    * @returns The geometry.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States current actor entry, local/film timing, committed stop and exact redirect inputs.
+   * @evidence contracts/development/implementation.md#principled-implementation The actual target/carriage planner fits the leg and support plant, then folds the same leg for its chamber and constructs the original causal correction plans.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Target/entry geometry, actual contact plan and correction owner feed one composed posture/record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All original contact trials, technique bands, support contacts, correction units, feint rules and stop semantics remain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Original physical trials remain payable; fixed guard demand and search-level exact FK/ROM preparation remove repeated metadata setup, with speedup unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit same-body unchanged-table operations share only canonical metadata; every changed target/candidate and final physical measurement is actually evaluated.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Geometry retains original plans/record and fixed scalar/bone-name metadata until settle/release; each current FK/projector query ends synchronously without pose/time history.
    */
   export function build(
     context: IHumanActionContext<kick.IParams>,
@@ -260,7 +274,8 @@ export namespace KickGeometry {
         shown: IKickGeometry.ICarriage,
         turning?: number,
         resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      ): IHumanPosture => KickCarriage.posture(props, shown, seconds, turning, resolution),
+        projection?: ReturnType<typeof prepareHumanPostureProjection>,
+      ): IHumanPosture => KickCarriage.posture(props, shown, seconds, turning, resolution, projection),
       shown: plans.shown,
       leg: plans.leg,
       origin,
@@ -303,6 +318,14 @@ export namespace KickGeometry {
    * @param t0 Film second of the kick's time zero.
    * @param parts The geometry's parts.
    * @returns The geometry with its posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States canonical body, original local/film clocks and the actual geometry parts combined.
+   * @evidence contracts/development/implementation.md#principled-implementation Preserves the original approach, stop dwell and retraced withdrawal clocks, actual carriage hip, kicking-leg goal and coached guard.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One chain evaluation yields current body/leg; the returned posture adds only the observed original guard and exact planted-foot fields.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original clock, step, support plant, MTP/ball contact, goal and conservative unsupported-coupling fallback.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each actual pose retains its existing kinematics, native clamps and needed FK; genuine current ROM metadata may serve tilt/hip/guard/final reads once, with no measured speedup.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit current observation fixes body/table; only metadata is borrowed while every changing pose/target/hip/goal executes normally.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains original parts and fixed goal metadata; current FK/projector suppliers and maps end on return or throw and never enter returned authored postures.
    */
   export function compose(
     body: IHumanBody,
@@ -312,12 +335,12 @@ export namespace KickGeometry {
   ): IKickGeometry {
     const ball: IAutoMovieVector3 = HumanFoot.offset(body, timing.side, "ball");
     const guardAt: ReturnType<typeof StrikingStance.prepareGuard> = StrikingStance.prepareGuard(body, { lead: timing.lead });
-    const chain = (t: number, resolution: ReturnType<typeof prepareHumanPoseResolution>): IHeld => {
+    const chain = (t: number, resolution: ReturnType<typeof prepareHumanPoseResolution>, projection?: ReturnType<typeof prepareHumanPostureProjection>): IHeld => {
       const at: number | undefined = parts.record.stop(t0 + t);
       const s: number | undefined = at === undefined ? undefined : at - t0;
       if (s === undefined || t <= s) {
-        const base: IHumanPosture = parts.base(t, parts.shown(t), undefined, resolution);
-        const hip: IAutoMovieVector3 = KickCarriage.hip(body, base, timing.side, resolution);
+        const base: IHumanPosture = parts.base(t, parts.shown(t), undefined, resolution, projection);
+        const hip: IAutoMovieVector3 = KickCarriage.hip(body, base, timing.side, resolution, projection);
         return { body: base, leg: parts.leg(t, base, { x: 0, y: 0, z: 0 }, hip) };
       }
 
@@ -333,8 +356,8 @@ export namespace KickGeometry {
       const stepped: number = minimumJerk.share(
         (s - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
       );
-      const base: IHumanPosture = parts.base(s, parts.shown(back), back, resolution);
-      const hip: IAutoMovieVector3 = KickCarriage.hip(body, base, timing.side, resolution);
+      const base: IHumanPosture = parts.base(s, parts.shown(back), back, resolution, projection);
+      const hip: IAutoMovieVector3 = KickCarriage.hip(body, base, timing.side, resolution, projection);
       return {
         body: base,
         leg: parts.leg(
@@ -350,16 +373,16 @@ export namespace KickGeometry {
     };
     return {
       ...parts,
-      posture: (t: number, channels?: readonly AutoMovieMotionHumanChannel[], source?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture => {
+      posture: (t: number, channels?: readonly AutoMovieMotionHumanChannel[], source?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IHumanPosture => {
         const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
-        const held: IHeld = chain(t, resolution);
+        const held: IHeld = chain(t, resolution, projection);
         const arms: boolean = channels === undefined || channels.some((channel: AutoMovieMotionHumanChannel): boolean => channel.endsWith("Arm") || channel.endsWith("Hand"));
         const down: boolean = t <= timing.prep || t >= timing.duration - 1e-9;
         return {
           ...held.body,
           limbs: {
             ...held.body.limbs,
-            ...(arms ? guardAt(held.body, resolution) : {}),
+            ...(arms ? guardAt(held.body, resolution, projection) : {}),
             [timing.side === "left" ? "leftLeg" : "rightLeg"]: {
               point: held.leg.ankle,
               bend: held.leg.hint,

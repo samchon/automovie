@@ -1,4 +1,4 @@
-import { type IAutoMovieResolvedBone, physicalShapeBounds } from "@automovie/engine";
+import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
@@ -17,7 +17,7 @@ import { StrikingBody } from "../striking/StrikingBody";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the owned geometry and the law's separate clock and heading responsibility.
  * @evidence contracts/development/design.md#principled-representation A fitted angle record and one folded posture, measured against the body's own colliders in the original root frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law consumes fold, fit, measure and rest; joint-only gymnastics consumes the same lowest reduction with its actual posed map, without a new public barrel or motion parameter.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The law consumes fold, fit, measure and rest; fixed-body floor/support intervals consume prepareRest, and joint-only gymnastics consumes the same lowest reduction on its actual posed map. No new motion parameter or public barrel is introduced.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The original provisional angles, clinical ranges, collider predicates and 16-step bisections remain unchanged.
  */
 export namespace KnockdownFloor {
@@ -119,18 +119,16 @@ export namespace KnockdownFloor {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frame, units and already evaluated input.
    * @evidence contracts/development/implementation.md#principled-implementation Resolve the folded trunk at root zero facing +Z, negate its lowest collider bound and read the original ankle mean and hip Z.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk/collider reading and three measures.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk reading supplies the shared fused collider minimum and the original ankle/hip offsets.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same trunk admission and exact collider minimum determine the floor; every authored joint and actual bound remains evaluated under its original owner.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Final FK observes collider ancestry plus the hips/two feet actually read here; all authored joint admission and original linear segment/shape bounds remain. Nested reduction avoids flattened wrappers, without dropping a bound or sample; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Consumes the same fold the law writes. Canonical collider names plus three explicit observations cover actual geometry; optional synchronous FK/projector sources share only equal FK prerequisites and static ROM metadata while every current joint is still projected.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary names, fold geometry and local reader release on return/throw. Optional FK/projector loans stay with their synchronous caller; only three numeric measures escape without either loan or history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A genuine fixed collider/hip/foot name demand prepares once per unchanged body. Final FK admits all authored joints/required ancestors; the scalar owner stages current segment Y/rotation/names/shapes in four arrays instead of unused XYZ/pose/placed records, then evaluates every original shape/vertex bound. No sample drops and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Consumes the same fold the law writes. The body owns only static collider/hip/foot demand membership, while every current fold projects normally. Optional synchronous FK/projector sources share only equal FK prerequisites and static ROM metadata; no posed measure is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One bounded static demand is weakly owned per body and releases with it, retaining no pose or workspace. Query fold/maps/scalar staging end on return/throw, optional FK/projector loans stay with their synchronous caller, and only three numeric measures escape.
    */
   export function measure(body: IHumanBody, folded: IFold, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IMeasure {
-    const requested: Set<AutoMovieHumanoidBone> = new Set(HumanColliders.bones(body));
-    requested.add("hips").add("leftFoot").add("rightFoot");
-    const { bones, placements }: ReturnType<typeof shapes> = shapes(body, folded, resolution, requested, undefined, projection);
+    const bones: ReturnType<typeof StrikingBody.trunk> = measureReader(body)(foldPosture(folded), resolution, projection);
     return {
-      floor: -selectedLowest(placements, ALL),
+      floor: -lowest(body, bones),
       ankle:
         (bones.get("leftFoot")!.worldPosition.z +
           bones.get("rightFoot")!.worldPosition.z) /
@@ -148,35 +146,35 @@ export namespace KnockdownFloor {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names each fitted floor contact, its phase and angle units.
    * @evidence contracts/development/implementation.md#principled-implementation Preserves the original range brackets, endpoint tests, collider predicates, knee/arm/elbow order and sixteen bisections; a range end reached first stays at that end.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One gap reader and one unchanged bracket solver serve the three angles.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepared gap producer binds each angle's actual FK/profile demand and pure part/support membership; the unchanged bracket solver consumes its changing folds.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every trial still resolves its actual posture and collider bounds; no goal, trial or fit result is memoized.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most eighteen gap evaluations per angle remain. Three genuine fixed-demand trunk producers prepare actual profile unions/name lookup/sorting once; each real trial admits every authored joint but computes only observed collider ancestry. The two original minima share one ordered placement pass, and exact FK shares unchanged dependencies; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous exact FK reader and genuine same-body projector reach every actual trunk trial. Fixed demand producers preserve full current joint projection and cover every segment either gap predicate observes. Both ordered minima share actual placement/bounds through pure local predicates; no floor verdict, trial or changed dependency is reused.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The lazy reader, genuine projector, three fixed demands and trial geometry release on synchronous return/throw; the result retains only three angles and neither workspace enters a plan or result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most eighteen gap evaluations per angle remain. Three genuine FK/group-minimum producers prepare actual profile unions/name sorting once. Trials admit every authored joint, stage only current selected Y/rotation/name/shape inputs and evaluate every original bound without unused placed/pose/XYZ records. Each shape supplies both ordered minima once, and exact FK shares unchanged dependencies; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous exact FK reader/projector reaches every actual trunk trial. Each name union binds its genuine trunk reader; prepareMinima copies part/support memberships and selects their neutral union. Actual posed bone names determine the original group updates after all placement inputs stage. No floor verdict, trial, bound or changed dependency is reused.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local reader/projector, three bounded FK/group-minimum producers, current bone maps and four-array scalar staging release on synchronous return/throw. Each temporary two-number minimum ends with its gap reading; only three fitted angles escape without a workspace, callback or history.
    */
   export function fit(body: IHumanBody, landed: number): IFit {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
-    const demand: (part: (bone: string) => boolean, support: (bone: string) => boolean) => ReadonlySet<AutoMovieHumanoidBone> = (part: (bone: string) => boolean, support: (bone: string) => boolean): ReadonlySet<AutoMovieHumanoidBone> => {
+    const prepare: (part: (bone: string) => boolean, support: (bone: string) => boolean) => (folded: IFold) => number = (part: (bone: string) => boolean, support: (bone: string) => boolean): (folded: IFold) => number => {
       const requested: Set<AutoMovieHumanoidBone> = new Set();
-      for (const bone of HumanColliders.bones(body))
-        if (part(bone) || support(bone)) requested.add(bone);
-      return requested;
+      const parts: Set<AutoMovieHumanoidBone> = new Set();
+      const supports: Set<AutoMovieHumanoidBone> = new Set();
+      for (const bone of HumanColliders.bones(body)) {
+        if (part(bone)) parts.add(bone);
+        if (support(bone)) supports.add(bone);
+        if (parts.has(bone) || supports.has(bone)) requested.add(bone);
+      }
+      const trunk: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, requested);
+      const minimum: ReturnType<typeof HumanColliders.prepareMinima> = HumanColliders.prepareMinima(body, [parts, supports]);
+      return (folded: IFold): number => {
+        const bounds: number[] = minimum(trunk(foldPosture(folded), resolution, projection));
+        return bounds[0]! - bounds[1]!;
+      };
     };
-    const knees: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, demand(SHANK, SEAT));
-    const arms: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, demand(UPPER_ARM, BODY));
-    const elbows: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, demand(FOREARM, BODY));
-    const gap: (fitted: IFit, back: number, part: (bone: string) => boolean, support: (bone: string) => boolean, trunk: ReturnType<typeof StrikingBody.prepareTrunk>) => number = (
-      fitted: IFit,
-      back: number,
-      part: (bone: string) => boolean,
-      support: (bone: string) => boolean,
-      trunk: ReturnType<typeof StrikingBody.prepareTrunk>,
-    ): number => {
-      const { placements }: ReturnType<typeof shapes> = shapes(body, fold(fitted, 1, back), resolution, undefined, trunk, projection);
-      return selectedGap(placements, part, support);
-    };
+    const knees: ReturnType<typeof prepare> = prepare(SHANK, SEAT);
+    const arms: ReturnType<typeof prepare> = prepare(UPPER_ARM, BODY);
+    const elbows: ReturnType<typeof prepare> = prepare(FOREARM, BODY);
 
     // Positive at above, falling toward below, as in the original fit.
     const solve: (above: number, below: number, of: (value: number) => number) => number = (
@@ -199,17 +197,17 @@ export namespace KnockdownFloor {
     fitted.knee = solve(
       0,
       AutoMovieMotionHumanRange.degrees("leftLowerLeg", "flexion", "full"),
-      (knee: number): number => gap({ ...fitted, knee }, landed, SHANK, SEAT, knees),
+      (knee: number): number => knees(fold({ ...fitted, knee }, 1, landed)),
     );
     fitted.arm = solve(
       ANGLES.lift,
       AutoMovieMotionHumanRange.limit("leftUpperArm", "extension") ?? 0,
-      (arm: number): number => gap({ ...fitted, arm }, 1, UPPER_ARM, BODY, arms),
+      (arm: number): number => arms(fold({ ...fitted, arm }, 1, 1)),
     );
 
     // Flexion raises the forearm, so the elbow's bracket runs from 90 to zero.
     fitted.elbow = solve(90, 0, (elbow: number): number =>
-      gap({ ...fitted, elbow }, 1, FOREARM, BODY, elbows),
+      elbows(fold({ ...fitted, elbow }, 1, 1)),
     );
     return fitted;
   }
@@ -227,16 +225,50 @@ export namespace KnockdownFloor {
    * @evidence contracts/development/implementation.md#principled-implementation The original full trunk resolution at root Y zero followed by the negated minimum physicalShapeBounds height.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the trunk and reduce its collider bounds.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No collider, posture solve or floor condition is removed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Full canonical trunk admission/digit work remains, with final FK restricted to observed collider bone ancestry and the same linear collider reduction. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual canonical collider demand and lowest's exact reduction retain geometry policy. Optional parent FK/projector sources share only unchanged FK prerequisites and static ROM metadata across actual floor postures; every current joint is projected and no floor verdict is reused.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Optional exact FK/projector sources are borrowed only through synchronous return/throw; neither loan, resolved geometry nor previous result is retained here.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A genuine fixed collider-name demand prepares once per unchanged body. Every query keeps complete canonical trunk admission/digit work, requested collider ancestry and the same linear collider reduction; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual canonical collider demand and lowest's exact reduction retain geometry policy. Weak body ownership shares only fixed name membership, while optional parent FK/projector sources share equal prerequisites/static ROM metadata and every current joint is projected without a retained floor verdict.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One bounded genuine demand is weakly owned per body and releases with it; it retains neither raw pose nor FK/projector workspace. Optional loans, actual maps/placements and numeric floor readings end with the synchronous query and never enter history here.
    */
   export function rest(body: IHumanBody, posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): number {
-    const bones: ReturnType<typeof StrikingBody.trunk> = StrikingBody.trunk(body, {
+    const bones: ReturnType<typeof StrikingBody.trunk> = restReader(body)({
       ...posture,
       root: { ...posture.root, y: 0 },
-    }, resolution, HumanColliders.bones(body), projection);
+    }, resolution, projection);
     return -lowest(body, bones);
+  }
+
+  /**
+   * Bind one unchanged body's floor readers for repeated current postures.
+   *
+   * @param body The canonical body whose rig, rest and profile stay unchanged for the owning plan or interval.
+   * @returns A reader of the actual posture and optional current-call FK/ROM metadata; its root Y is ignored and the result is the original floor height in metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed-body scope, changing posture/metadata inputs, root-Y-zero convention, metre output and caller-owned reader lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation Runs rest's same complete trunk admission/digit path at root Y zero and negates the physical owner's exact minimum Y over every actually available collider in original profile/shape/vertex order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Bind the existing genuine collider-demand trunk reader and HumanColliders.prepareMinima once; each call constructs its current root-zero request, fresh bones and the same whole-profile scalar reduction as raw rest.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every current joint projection, digit solve, required FK ancestor, collider duplicate/skip, shape bound and empty minimum; no pose, floor verdict, threshold or sampled posture is reused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed demand/neutral metadata bind once for K collider names and S profile entries. Queries retain complete native admission/fits, demanded FK and every shape/vertex bound. Four scalar/rotation/name/shape arrays replace unused placed/pose/XYZ records while preserving the original two phases; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanColliders.bones supplies exactly the canonical frames rest requests; the genuine minimum producer retains unchanged neutral entries/order and still skips every absent current frame. All current posture/FK/ROM inputs and actual bounds remain evaluated; no cached floor or pose supplies the result.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan/interval owns one fixed trunk reader and O(S) neutral minimum binding until release. Query posture, borrowed FK/ROM, bone map, four staging arrays and one-number minimum end on return/throw; no dynamic workspace, result or time history enters the retained closure.
+   */
+  export function prepareRest(body: IHumanBody): (
+    posture: IHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  ) => number {
+    const read: ReturnType<typeof StrikingBody.prepareTrunk> = restReader(body);
+    const minimum: ReturnType<typeof HumanColliders.prepareMinima> = HumanColliders.prepareMinima(body);
+    return (
+      posture: IHumanPosture,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): number => {
+      const bones: ReturnType<typeof StrikingBody.trunk> = read({
+        ...posture,
+        root: { ...posture.root, y: 0 },
+      }, resolution, projection);
+      return -(minimum(bones)[0]!);
+    };
   }
 
   /**
@@ -247,33 +279,51 @@ export namespace KnockdownFloor {
    * @returns The lowest collider bound, world metres; Infinity for no colliders.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States canonical bone provenance, required collider coverage, world units and the empty reduction.
-   * @evidence contracts/development/implementation.md#principled-implementation Reduces physicalShapeBounds.lowest over the same ordered HumanColliders placements/shapes used by the full bounds path; its engine owner preserves original minimum-Y formulas and frame composition for every actual transform and shape.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One placement reader and the shared selectedLowest reduction keep floor-bound policy here while the real COM consumer shares its same bones.
+   * @evidence contracts/development/implementation.md#principled-implementation The genuine whole-profile minimum producer applies the same neutral offset/orientation and physicalShapeBounds minimum-Y formulas to current canonical bones in original profile/shape/vertex order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One genuine default prepareMinima reading supplies the existing scalar floor API, retaining Infinity for empty geometry independently of HumanColliders.lowest's separate refusal policy.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No collider, bound, contact tolerance or posture goal changes; the supplied map is geometry, not a cached floor verdict.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(S+C) placement/shape traversal plus each hull's original vertex count avoids flattened wrappers/map arrays and unused bounds axes/maxima, without another canonical solve/FK or removed vertex; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Floor rest and joint-only gymnastic COM/floor preparation consume the same exact reduction. The caller establishes the current body's canonical bone map rather than relying on an identity cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains neither the body, map nor temporary collider list after return or throw.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(S+C) staging/shape traversal plus every hull vertex omits unused placed/pose/XYZ records, bound axes/maxima and a second solve/FK. Four arrays preserve all placement-input reads before bounds; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw and fixed-body floor readers share the same physical minimum owner. Every supplied current bone/shape still participates normally, including duplicates, absent-frame skips and NaN; no body identity certifies a posed answer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary default binding, four staging arrays and one-number output end on return/throw; this entry retains no body, map, posed frame, bound or history.
    */
   export function lowest(
     body: IHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): number {
-    return selectedLowest(HumanColliders.placed(body, bones), ALL);
+    return HumanColliders.prepareMinima(body)(bones)[0]!;
   }
 
-  /** The body's shapes in a fold, root zero facing +Z, borrowing only this fit's reader. */
-  function shapes(
-    body: IHumanBody,
-    folded: IFold,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    requested?: ReadonlySet<AutoMovieHumanoidBone>,
-    trunk?: ReturnType<typeof StrikingBody.prepareTrunk>,
-    projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): {
-    bones: ReturnType<typeof StrikingBody.trunk>;
-    placements: HumanColliders.IPlaced[];
-  } {
-    const posture: IHumanPosture = {
+  /** Genuine collider-only name demands, weakly bound to unchanged bodies without any posed state. */
+  const REST_READERS: WeakMap<IHumanBody, ReturnType<typeof StrikingBody.prepareTrunk>> = new WeakMap();
+
+  /** Genuine collider/hip/foot name demands, independent of all fold values and operation workspaces. */
+  const MEASURE_READERS: WeakMap<IHumanBody, ReturnType<typeof StrikingBody.prepareTrunk>> = new WeakMap();
+
+  /** Bind floor rest's fixed names once; current raw admission and optional operation loans stay with each call. */
+  function restReader(body: IHumanBody): ReturnType<typeof StrikingBody.prepareTrunk> {
+    let read: ReturnType<typeof StrikingBody.prepareTrunk> | undefined = REST_READERS.get(body);
+    if (read === undefined) {
+      read = StrikingBody.prepareTrunk(body, HumanColliders.bones(body));
+      REST_READERS.set(body, read);
+    }
+    return read;
+  }
+
+  /** Bind the fold's fixed observation union once; neither a sampled fold nor its measured answer is retained. */
+  function measureReader(body: IHumanBody): ReturnType<typeof StrikingBody.prepareTrunk> {
+    let read: ReturnType<typeof StrikingBody.prepareTrunk> | undefined = MEASURE_READERS.get(body);
+    if (read === undefined) {
+      const requested: Set<AutoMovieHumanoidBone> = new Set(HumanColliders.bones(body));
+      requested.add("hips").add("leftFoot").add("rightFoot");
+      read = StrikingBody.prepareTrunk(body, requested);
+      MEASURE_READERS.set(body, read);
+    }
+    return read;
+  }
+
+  /** The original folded clinical request, with its root at zero facing +Z. */
+  function foldPosture(folded: IFold): IHumanPosture {
+    return {
       root: { x: 0, y: 0, z: 0 },
       yaw: 0,
       pitch: folded.pitch,
@@ -281,48 +331,7 @@ export namespace KnockdownFloor {
       joints: folded.joints,
       limbs: {},
     };
-    const bones: ReturnType<typeof StrikingBody.trunk> = trunk === undefined
-      ? StrikingBody.trunk(body, posture, resolution, requested, projection)
-      : trunk(posture, resolution, projection);
-    return { bones, placements: HumanColliders.placed(body, bones) };
   }
-
-  /** The lowest exact collider bound whose bone matches. */
-  function selectedLowest(
-    placements: readonly HumanColliders.IPlaced[],
-    of: (bone: string) => boolean,
-  ): number {
-    let low: number = Infinity;
-    for (const segment of placements)
-      if (of(segment.bone))
-        for (const shape of segment.shapes)
-          low = Math.min(low, physicalShapeBounds.lowest(segment.pose, shape));
-    return low;
-  }
-
-  /** The two original ordered minima, sharing one traversal and each actual shape's pure bound. */
-  function selectedGap(
-    placements: readonly HumanColliders.IPlaced[],
-    part: (bone: string) => boolean,
-    support: (bone: string) => boolean,
-  ): number {
-    let partLow: number = Infinity;
-    let supportLow: number = Infinity;
-    for (const segment of placements) {
-      const inPart: boolean = part(segment.bone);
-      const inSupport: boolean = support(segment.bone);
-      if (!inPart && !inSupport) continue;
-      for (const shape of segment.shapes) {
-        const low: number = physicalShapeBounds.lowest(segment.pose, shape);
-        if (inPart) partLow = Math.min(partLow, low);
-        if (inSupport) supportLow = Math.min(supportLow, low);
-      }
-    }
-    return partLow - supportLow;
-  }
-
-  /** Every profile segment contributes to ordinary floor rest. */
-  const ALL: (bone: string) => boolean = (): boolean => true;
 
   /** The seat's pelvis and thigh shapes. */
   const SEAT: (bone: string) => boolean = (bone: string): boolean =>

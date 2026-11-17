@@ -40,7 +40,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
     /** Actual origin/direction intersection through the collider. */
     exit: Exit;
 
-    /** Acquired only when this collider first wins a surface ray. */
+    /** Acquired only when this collider first wins a ray whose normal is demanded. */
     normal?: ReturnType<typeof physicalShapeNormal.prepare>;
   }
 
@@ -51,6 +51,18 @@ export namespace AutoMovieHumanoidSurfaceRays {
 
     /** Private inverse for those exact coordinates; no caller receives it. */
     inverse: IAutoMovieQuaternion;
+  }
+
+  /** One copied origin and its fixed-shape prerequisites, never a ray answer. */
+  interface ILocalOrigin {
+    /** Copied world coordinates; actual XYZ must all match before reuse. */
+    point: IAutoMovieVector3;
+
+    /** Private shape-local origin for those exact coordinates. */
+    local: IAutoMovieVector3;
+
+    /** Lazily observed hull-plane heights; absent for box slabs. */
+    heights?: number[];
   }
 
   /** The six actual rest observations consumed by anatomical surface owners. */
@@ -79,10 +91,11 @@ export namespace AutoMovieHumanoidSurfaceRays {
     frame: P.ITransform,
     shape: P.IShape,
   ): Exit {
+    const parentPosition: IAutoMovieVector3 = frame.position;
     const centre: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, shape.transform.position);
-    centre.x = frame.position.x + centre.x;
-    centre.y = frame.position.y + centre.y;
-    centre.z = frame.position.z + centre.z;
+    centre.x = parentPosition.x + centre.x;
+    centre.y = parentPosition.y + centre.y;
+    centre.z = parentPosition.z + centre.z;
     if (shape.kind === "sphere")
       return (origin: IAutoMovieVector3, d: IAutoMovieVector3): number => sphereExit(origin, d, centre, shape.radius);
     const rotation: IAutoMovieQuaternion = Quaternion.multiply(frame.rotation, shape.transform.rotation);
@@ -132,20 +145,27 @@ export namespace AutoMovieHumanoidSurfaceRays {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
     const faces: readonly physicalHullFaces.IFace[] | undefined = shape.kind === "hull"
       ? physicalHullFaces(shape.points).faces : undefined;
+    let previousOrigin: ILocalOrigin | undefined;
     return (origin: IAutoMovieVector3, d: IAutoMovieVector3): number => {
-      const o: IAutoMovieVector3 = Quaternion.rotateVector(
-        inverse,
-        Vector3.subtract(origin, centre),
-      );
+      const current: ILocalOrigin = localOrigin(previousOrigin, origin, centre, inverse);
+      previousOrigin = current;
+      const o: IAutoMovieVector3 = current.local;
       const dir: IAutoMovieVector3 = Quaternion.rotateVector(inverse, d);
       let near: number = -Infinity;
       let far: number = Infinity;
       if (shape.kind === "hull") {
         // Clip the ray against every face plane: it enters through the planes
         // it runs against and leaves through the ones it runs with.
+        const heights: number[] = current.heights ??= [];
+        let index: number = 0;
         for (const face of faces!) {
           const speed: number = Vector3.dot(face.normal, dir);
-          const height: number = Vector3.dot(face.normal, o) - face.offset;
+          let height: number | undefined = heights[index];
+          if (height === undefined) {
+            height = Vector3.dot(face.normal, o) - face.offset;
+            heights[index] = height;
+          }
+          index++;
           if (Math.abs(speed) < 1e-12) {
             if (height > BOUNDARY) return -Infinity;
             continue;
@@ -172,6 +192,30 @@ export namespace AutoMovieHumanoidSurfaceRays {
       }
       return near <= far ? far : -Infinity;
     };
+  }
+
+  /** Reuse only the exact numeric origin under this prepared, unchanged shape frame. */
+  function localOrigin(
+    known: ILocalOrigin | undefined,
+    point: IAutoMovieVector3,
+    centre: IAutoMovieVector3,
+    inverse: IAutoMovieQuaternion,
+  ): ILocalOrigin {
+    const x: number = point.x;
+    const y: number = point.y;
+    const z: number = point.z;
+    if (known !== undefined && Object.is(known.point.x, x) &&
+        Object.is(known.point.y, y) && Object.is(known.point.z, z)) return known;
+    const local: IAutoMovieVector3 = Quaternion.rotateVector(inverse, {
+      x: x - centre.x, y: y - centre.y, z: z - centre.z,
+    });
+    if (known === undefined) return { point: { x, y, z }, local };
+    known.point.x = x;
+    known.point.y = y;
+    known.point.z = z;
+    known.local = local;
+    if (known.heights !== undefined) known.heights.length = 0;
+    return known;
   }
 
   /** Preserve the ray-sphere discriminant and boundary branch without a per-ray closure. */
@@ -212,11 +256,11 @@ export namespace AutoMovieHumanoidSurfaceRays {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the readers, unchanged-body epoch, bundle release point and independent returned bounds.
    * @evidence contracts/development/implementation.md#principled-implementation The rest pose resolved once; bounds are the union of the colliders' exact bounds; a ray's exit is the farthest exit over the segment's convex colliders, its normal that collider's.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rest pose and first-name index serve the bundle; lazy bounds and fixed rest-shape exit/physical-normal reader pairs keep invariant geometry separate from every current station, ray and normal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rest pose and first-name index serve the bundle; lazy bounds and fixed rest-shape exit/physical-normal reader pairs keep invariant geometry separate from every current station, ray and normal. One private trace owns farthest-hit selection for both point-only exit and complete surface observations.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing bone, segment or hit still throws. Every current ray tests all original colliders with the same discriminants, plane/slab order, BOUNDARY and 1e-12 branches; only fixed frames, capsule axes/endpoints and hull planes are prepared.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One pose and O(S) index precede lazy bounds/exits. Each fixed exit composes centre in its owned rotated offset without another vector, and a sphere omits unused orientation. Fixed rest geometry serves rays; only winning normals prepare axes/inverses/planes. Local conversion compares four copied quaternion coordinates before inverse reuse. Hull bounds rotate V points once; actual rays retain collider/face work and bounds copy six coordinates.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged rig/profile epoch proves equal bounds and shape frames; a genuine profile-bound handle can share exact extrema from preceding measurement. Local inverses additionally compare all four actual rest quaternion coordinates with Object.is, recomputing after an edited at result. Duplicate precedence, every ray/point/direction and outward normal remain current.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The bundle owns O(B) rest data/copied inverse keys, O(S) names/bounds and one fixed exit per queried collider. A normal reader is acquired only after that collider wins. The caller releases all on completion or throw; no query point/result enters these maps and no body-global pose or ray history is retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One pose indexed directly without a mapped B-tuple array and an O(S) profile index precede lazy bounds/exits. Fixed exits, centre stations and ray points reuse fresh offset/sum storage; spheres omit unused orientation. Repeated actual head/neck/chest stations share local origins and lazily observed hull heights after three exact scalar matches; changing directions retain every plane speed/clip. Point-only exits omit unused normals; full surfaces prepare their winner's normal. Local conversion compares four quaternion coordinates before inverse reuse; hull bounds rotate V points once.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged rig/profile epoch fixes bounds and shape frames; a genuine profile handle can share preceding exact extrema. Each box/hull exit copies/checks actual origin XYZ with Object.is before lending local point/plane heights, clearing heights on change; no origin identity or ray result certifies a hit. Local inverses capture actual rest quaternion XYZW once and use that tuple for key and inverse, including edits to an at result. Duplicate precedence, current directions, clip checks and outward normals remain unchanged.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The bundle owns O(B) rest/inverse keys, O(S) names/bounds and one fixed exit per queried collider. Each box/hull exit holds only its last copied origin/local coordinates and at most F lazy plane heights, without retaining an input point or ray history. A normal reader is acquired only for a normal-demanding winner; point-only exit has no surface wrapper. All readers/scratch end on completion or throw, with no body-global posed/query result cache.
    */
   export function tools(
     skeleton: IAutoMovieSkeleton,
@@ -229,16 +273,11 @@ export namespace AutoMovieHumanoidSurfaceRays {
     const extents: Map<P.ISegment, ReturnType<typeof physicalShapeBounds>> = new Map();
     const exits: Map<P.ISegment, IShapeReading[]> = new Map();
     const unturned: Map<AutoMovieHumanoidBone, IRestTurn> = new Map();
-    const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      resolvePose(
-        { skeleton: skeleton.id, root: null, joints: [] },
-        skeleton,
-      ).map(
-        (
-          r: IAutoMovieResolvedBone,
-        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-      ),
-    );
+    const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
+    for (const resolved of resolvePose(
+      { skeleton: skeleton.id, root: null, joints: [] },
+      skeleton,
+    )) rest.set(resolved.bone, resolved);
     const at = (bone: AutoMovieHumanoidBone): IAutoMovieResolvedBone => {
       const r: IAutoMovieResolvedBone | undefined = rest.get(bone);
       if (r === undefined)
@@ -270,12 +309,16 @@ export namespace AutoMovieHumanoidSurfaceRays {
     ): resolveAutoMovieHumanoidSurfaces.IFrame => {
       const r: IAutoMovieResolvedBone = at(bone);
       const rotation: IAutoMovieQuaternion = r.worldRotation;
+      const qx: number = rotation.x;
+      const qy: number = rotation.y;
+      const qz: number = rotation.z;
+      const qw: number = rotation.w;
       let turn: IRestTurn | undefined = unturned.get(bone);
       if (turn === undefined ||
-          !Object.is(turn.key.x, rotation.x) || !Object.is(turn.key.y, rotation.y) ||
-          !Object.is(turn.key.z, rotation.z) || !Object.is(turn.key.w, rotation.w)) {
-        const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
-        turn = { key: { ...rotation }, inverse };
+          !Object.is(turn.key.x, qx) || !Object.is(turn.key.y, qy) ||
+          !Object.is(turn.key.z, qz) || !Object.is(turn.key.w, qw)) {
+        const key: IAutoMovieQuaternion = { x: qx, y: qy, z: qz, w: qw };
+        turn = { key, inverse: Quaternion.inverse(key) };
         unturned.set(bone, turn);
       }
       const inverse: IAutoMovieQuaternion = turn.inverse;
@@ -300,8 +343,12 @@ export namespace AutoMovieHumanoidSurfaceRays {
       s: AutoMovieHumanoidSurfaceRegions.IStation,
     ): IAutoMovieVector3 => {
       if (s.toward === "centre") {
-        const b = bounds(s.bone);
-        return Vector3.scale(Vector3.add(b.min, b.max), 0.5);
+        const b: ReturnType<typeof bounds> = bounds(s.bone);
+        const middle: IAutoMovieVector3 = Vector3.add(b.min, b.max);
+        middle.x *= 0.5;
+        middle.y *= 0.5;
+        middle.z *= 0.5;
+        return middle;
       }
       return Vector3.lerp(
         at(s.bone).worldPosition,
@@ -309,11 +356,25 @@ export namespace AutoMovieHumanoidSurfaceRays {
         s.share,
       );
     };
-    const surface = (
+    /** The demand is private; every entry still tests all original colliders and the same miss gate. */
+    function trace(
       bone: AutoMovieHumanoidBone,
       origin: IAutoMovieVector3,
       direction: IAutoMovieVector3,
-    ): ISurfacePoint => {
+      readNormal: false,
+    ): IAutoMovieVector3;
+    function trace(
+      bone: AutoMovieHumanoidBone,
+      origin: IAutoMovieVector3,
+      direction: IAutoMovieVector3,
+      readNormal: true,
+    ): ISurfacePoint;
+    function trace(
+      bone: AutoMovieHumanoidBone,
+      origin: IAutoMovieVector3,
+      direction: IAutoMovieVector3,
+      readNormal: boolean,
+    ): IAutoMovieVector3 | ISurfacePoint {
       const d: IAutoMovieVector3 = Vector3.normalize(direction);
       const s: P.ISegment = segment(bone);
       let readings: IShapeReading[] | undefined = exits.get(s);
@@ -335,19 +396,25 @@ export namespace AutoMovieHumanoidSurfaceRays {
       }
       if (!(far > -Infinity) || left === undefined)
         throw new Error(`A surface ray from ${bone} misses its colliders`);
-      const point: IAutoMovieVector3 = Vector3.add(
-        origin,
-        Vector3.scale(d, far),
-      );
+      const point: IAutoMovieVector3 = Vector3.scale(d, far);
+      point.x = origin.x + point.x;
+      point.y = origin.y + point.y;
+      point.z = origin.z + point.z;
+      if (!readNormal) return point;
       const normal: ReturnType<typeof physicalShapeNormal.prepare> = left.normal ??=
         physicalShapeNormal.prepare(s.neutral, left.shape);
       return { point, normal: normal(point, d) };
-    };
+    }
+    const surface = (
+      bone: AutoMovieHumanoidBone,
+      origin: IAutoMovieVector3,
+      direction: IAutoMovieVector3,
+    ): ISurfacePoint => trace(bone, origin, direction, true);
     const exit = (
       bone: AutoMovieHumanoidBone,
       origin: IAutoMovieVector3,
       direction: IAutoMovieVector3,
-    ): IAutoMovieVector3 => surface(bone, origin, direction).point;
+    ): IAutoMovieVector3 => trace(bone, origin, direction, false);
     return { at, bounds, local, station, exit, surface };
   }
 }

@@ -9,6 +9,7 @@ import { Quaternion } from "../math/Quaternion";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
+import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 import type { integrateAirborneRotation } from "./integrateAirborneRotation";
 
 /** The numeric sufficient statistics that survive a shape query. */
@@ -58,21 +59,25 @@ interface IPrincipalInverse {
  * correction at either boundary. The model and pure shape stay unchanged
  * throughout the reuse epoch. An optional prepared model is borrowed; its
  * caller releases it after clearing this history, including on refusal.
+ * An optional native observer records cumulative owner-event populations;
+ * omitted, no counter record or per-query instrumentation value is allocated.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States root-frame shape, difference seconds, boundary correction and separate history/model ownership. Namespace inverse preserves the public principal path; factor lends the owned unobserved tensor operator and owned recognizes this factory's native pure history for operation-local stage reuse.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the existing physical tensor and principal-axis owners and the same two-pose rigid-body momentum formula; boundary correction retains the derivative of the quadratic interpolant with the unchanged difference interval.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Select the model's pose and interval reducers together, then share one exact numeric-node reader and momentum reducer across this history's entire operation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every first demanded exact shape node evaluates the actual pure shape; no interpolation, time quantization, reduced stencil or changed physical check replaces it. Only numeric mass parts and their centre survive that read. Private issued-instant provenance plus actual quaternion checks, never a public prepared flag, establish inverse reuse.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each query uses at most four distinct numeric nodes and O(S) mass work. Across N distinct I/h queries, at most 3N+6 exact nodes each perform shape/IK/FK once, including repeated endpoints separated by other queries/trials. A tensor-factor consumer omits Jacobi entirely; public principal materialization computes the existing eigensolve once per instant. Actual sums/stencils remain and runtime improvement is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact time under this unchanged pure shape/model/span fixes numeric mass parts and I/h, sharing any previous endpoint without an eviction distance. Private nodes share owned moment vectors after three Object.is matches and owned principal rotations after four; changes retain another vector without changing old nodes. Every pose producer returns a fresh principal quaternion before this private adoption. No node part escapes through public pose/instant outputs. Tensor/principal keys and physical reductions remain unchanged; no shooting target, raw pose or IK answer is cached.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources For N queries and S fixed model parts, history owns at most 3N+6 numeric mass nodes, O(N*S), plus O(N) instants with nine tensor scalars, optional fixed-size factors/principal data/inverses and two boundary moments. Shared private moments cost 3S numeric fields; each node retains at most 8S+3 remaining fields, with exact unchanged principal frames sharing four of them. The two O(S) last-value lists add references only; map/object/array overhead depends on runtime. clear empties every numeric map/list and unregisters instants; no raw bone map/full pose survives posing. Its caller separately releases the O(S) model.
+ * @evidence contracts/development/common.md#meaningful-documentation States root-frame shape, difference seconds, quadratic boundary stencil and separate history/model ownership. Namespace factor lends an unobserved issued tensor operator with undefined fallback; inverse lends a root-to-principal quaternion only after actual copied-coordinate checks; owned recognizes the native pure reader without claiming smoothness. Optional native observation counts owner events without callbacks.
+ * @evidence contracts/development/implementation.md#principled-implementation Uses the existing physical tensor and two-pose rigid-body momentum formula with its unchanged quadratic boundary correction. Unobserved issued tensors use the physical SPD owner, public principal values retain Jacobi/inverse arithmetic, and the takeoff stage-sharing predicate proves only native pure-history construction, never a constant or smooth shape.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One exact-node reader and momentum reducer serve this history. AirborneShapeInertia owns lazy tensor/principal authority, factor lookup and release; the namespace delegates that capability, preserves the principal inverse owner, and recognizes native readers through one private weak set.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every new exact node evaluates the actual pure shape without rounded time, interpolation, a reduced stencil or changed physical bound. Factor reuse additionally requires an intact unobserved accessor, inverse reuse compares all four copied quaternion coordinates, and foreign callbacks/wrappers acquire no trusted native-reader flag.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For N queried instants and S parts, at most 3N+6 numeric nodes each perform actual shape/IK/FK once and each new reduction is O(S). Factor consumers omit Jacobi; public principal demand computes it once per instant. Namespace queries add constant weak lookups and accessor/scalar comparisons, while omitted observation allocates no counter or query record. Runtime gains remain unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact times under the same unchanged model, pure shape and span share numeric nodes and I/h. Private moment/principal vectors share only after actual Object.is matches. Each unobserved tensor shares its own factor independently of current attitude/momentum; inverse sharing requires current copied quaternion equality. Native-reader provenance permits checked stage reuse, not a smoothness certificate or cached IK answer.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources History owns O(N*S) numeric mass nodes, O(N) instants with nine tensor scalars and optional factor/principal/inverse data, two boundary moments and O(S) last-vector references. Clear empties every map/list, unregisters instants and explicitly releases factor/accessor/statistics references. Old externally held instants retain numeric public materialization data only. Weak history membership retains no reader; callers separately release the O(S) mass model.
  */
 export function AirborneShapeHistory(
   model: resolveAutoMovieCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
   shape: (seconds: number) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   difference: number,
   span?: { from: number; to: number },
+  observation?: AirborneShapeStatistics.IObserver,
 ): ICachedHistory {
+  const statistics: AirborneShapeStatistics.IStatistics | undefined = AirborneShapeStatistics.borrow(observation);
   const instants: Map<number, IInstant> = new Map();
   const poses: Map<number, resolveAutoMovieMomentum.IPosed> = new Map();
   const intrinsicMoments: (IAutoMovieVector3 | undefined)[] = [];
@@ -160,6 +165,7 @@ export function AirborneShapeHistory(
       else principalRotations[i] = part.inertiaRotation;
     }
     poses.set(at, posed);
+    if (statistics !== undefined) statistics.uniqueNumericNodes++;
     return posed;
   };
   const momentum: (from: number, to: number) => IAutoMovieVector3 = (
@@ -183,14 +189,14 @@ export function AirborneShapeHistory(
       for (const value of row) scale = Math.max(scale, Math.abs(value));
     if (!(scale > 0)) throw new Error("Invalid aggregate inertia tensor");
     if (stencil === undefined)
-      return AirborneShapeInertia(matrix, momentum(seconds - difference, seconds + difference));
+      return AirborneShapeInertia(matrix, momentum(seconds - difference, seconds + difference), statistics);
     const centre: number = Math.max(
       stencil.lower,
       Math.min(stencil.upper, seconds),
     );
     const a: number = Math.max(stencil.from, centre - delta);
     const b: number = Math.min(stencil.to, centre + delta);
-    if (centre === seconds) return AirborneShapeInertia(matrix, momentum(a, b));
+    if (centre === seconds) return AirborneShapeInertia(matrix, momentum(a, b), statistics);
     let boundary:
       | { central: IAutoMovieVector3; change: IAutoMovieVector3 }
       | undefined = boundaries.get(centre);
@@ -206,11 +212,16 @@ export function AirborneShapeHistory(
         boundary.central,
         Vector3.scale(boundary.change, (2 * (seconds - centre)) / (b - a)),
       ),
+      statistics,
     );
   };
   const query: IHistory = (seconds: number): IInstant => {
+    if (statistics !== undefined) statistics.queries++;
     const known: IInstant | undefined = instants.get(seconds);
-    if (known !== undefined) return known;
+    if (known !== undefined) {
+      if (statistics !== undefined) statistics.memoHits++;
+      return known;
+    }
     const instant: IInstant = evaluate(seconds);
     PRINCIPAL.set(instant, principal);
     instants.set(seconds, instant);
@@ -247,13 +258,6 @@ export namespace AirborneShapeHistory {
    * Undefined preserves the principal path for foreign, observed, replaced or
    * non-SPD instants. Returned operators expose no mutable numerical storage.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States unobserved issued-tensor eligibility, undefined fallback and borrowed independent-output operator ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates private tensor authority and positive Cholesky admission to AirborneShapeInertia; the factor solves and reconstructs the same physical root-frame tensor without eigenvectors.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure This history owner exposes its numerical capability through one delegated lookup for ODE, dense defect and takeoff consumers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Identity alone cannot certify reuse: the actual private unobserved accessor must remain intact. Public reads and assignments permanently restore mutable principal authority for the instant.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant lookup and descriptor comparisons with at most one fixed-size Cholesky factor per eligible instant; no Jacobi or matrix allocation on repeated RHS/tangent reads.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One exact instant owns one unchanged tensor and factor across all momentum trials; current world attitude, relative momentum and right-hand sides remain evaluated.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The history clears the private registration with each instant and owns no extra factor population outside its O(N) numeric memo.
    */
   export function factor(instant: IInstant): physicalInertiaFactor.IPrepared | undefined {
     return AirborneShapeInertia.factor(instant);
@@ -263,13 +267,6 @@ export namespace AirborneShapeHistory {
    * Recognize this factory's native pure-history reader for operation-local
    * stage sharing. It proves construction, not smoothness or constant shape.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States native-reader provenance and explicitly excludes smoothness or invariant-shape claims.
-   * @evidence contracts/development/implementation.md#principled-implementation Factory histories already reduce pure shape values into an exact numeric epoch; the takeoff solver may share its own stage partition while retaining each trial's complete error checks.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One weak-set membership query distinguishes the actual native reader from raw callbacks or copied wrappers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No public prepared flag, sampled equality or foreign callback identity certifies factory construction; the private set has no external writer.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant-time weak membership without inspecting a body, pose, time population or source graph.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Clear forgets numeric nodes but leaves this same pure reader's contract intact; an unrelated callback or wrapper does not inherit provenance.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak membership retains neither history callbacks nor their shape/model owners after callers release them; solver-owned partitions remain separately scoped and released.
    */
   export function owned(history: IHistory): boolean {
     return HISTORIES.has(history);

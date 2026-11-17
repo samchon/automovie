@@ -1,5 +1,5 @@
 import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanHand } from "../posture/HumanHand";
@@ -8,37 +8,29 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGrasp } from "./HumanGrasp";
-import { HumanGraspJudgement } from "./HumanGraspJudgement";
 
 /**
- * Prepare fixed source assembly and FK dependencies for actual grasp searches.
+ * Share canonical operation FK metadata across original current-input grasp searches.
  *
  * @param body Unchanged body, rig, surfaces, collision profile and ROM throughout one synchronous operation.
- * @param posture Unchanged raw root/orientation/direct joints/digits and other complete limb goals of every query's grasp.
+ * @param posture The live raw source of root/orientation/joints/digits and complete other goals; each actual fit re-admits current values after any callback mutation.
  * @param side The acting hand.
  * @param bend The fixed grasp elbow hint, world metres.
  * @returns Independent original turn/tilt/stroke searches over their actual wrist producer, candidate grids, per-key required measure and admission callback. Omitted arguments retain HumanGrasp's original defaults.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines fixed body/posture/hand/hint lifetime, varying complete search arguments, original defaults, candidate/stroke/reference semantics and plain chosen reach outputs. HumanGraspReach documents the original mixed-unit cost and tie/required/admission policy.
- * @evidence contracts/development/implementation.md#principled-implementation Every query performs the original sorted lower-bound candidate/stroke search with every actual complete coupled posture fit. Only exact input-posture keys use one lazily prepared fixed direct base; arbitrary key postures use ordinary seeded resolution.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed base/name/FK preparation and common fit adapter precede independent query-local admission, sorted search and required-first ranking; departureOf and rotationError own their original numeric reports.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No candidate, full solve, LRU memory lookup, judge callback, bound, preference, reference, pruning comparison or least-miss fallback is omitted or replaced by a stored answer. Every judged key retains eager three-arm departure before callback; arbitrary/wrapped/replaced or other-hand judges retain full bone output.
- * @evidence contracts/development/implementation.md#efficient-algorithms Q searches share one O(B+J) fixed assembly and name/FK preparation; all original full solves remain. Losing unjudged keys read only hand output, while retained reports demand the original three-arm frames. Exact factory-issued acting-hand judges read those same three-arm departure frames without unrelated rig output; solver error omits unused quaternion fallback. Speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanClasp's actual thirteen turn queries explicitly share unchanged body/posture/side/hint; the cold facade creates one operation for its single query. Exact FK prerequisites and fixed direct geometry are shared, while all varying goals, candidate results and judgements are actually evaluated per query.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous owner releases one fixed base, body/posture/hint references and exact FK/name readers after its queries. Candidate arrays, fits and report closures are query-local; only chosen pose/wrist/reference and scalar reports escape, with no producer, callback map, fit/time history or handle retained by outputs.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines canonical body/hand/hint and live posture lifetime, complete query arguments, original defaults and chosen reach outputs. HumanGraspReach owns the original mixed-unit cost, callback schedule and required/admission policy.
+ * @evidence contracts/development/implementation.md#principled-implementation Every query performs the original sorted lower-bound search and complete coupled fits. Each fit spreads current source posture before constructing its goals, then full FK, eager departure and term-by-term eager attitude dot precede the final judge callback.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One canonical FK operation reader serves the same current fit adapter and ordered candidate/stroke search; coordinate enumeration, admission and selected goal/fit calls retain their original interleaving.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No original callback invocation, candidate, solve, LRU lookup, bound, preference, reference, pruning comparison or fallback is removed. Borrowed posture graphs are never treated as immutable; original spread, nested property lookup and full eager report/dot/last-judge observations remain.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Q actual queries share one exact FK reader; all C candidate and reached-key complete solves/full observations remain. Original eager numeric departure is aggregated directly without allocating deferred report closures or a second report list. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The genuine canonical body rig and exact current FK reader share only dependency metadata. Each fit still admits current source values after arbitrary callbacks; no fixed direct base, posture identity, private-callback purity inference or fitted-answer cache establishes equivalence.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous owner releases body/posture/hint references and its exact FK reader after all queries. Candidate arrays/fits are query-local; only chosen pose/wrist/reference and scalar reports escape, without a producer, callback map, fit/time history or handle.
  */
 export function HumanGraspSearch(body: IHumanBody, posture: IHumanPosture,
   side: HumanHand.Side, bend: IAutoMovieVector3): IQuery {
   const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
-  let prepared: ReturnType<typeof resolveHumanPosture.prepareBase> | undefined;
-  const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-    `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`,
-  ]);
-  const readArm: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
-  const readHand: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body,
-    new Set<AutoMovieHumanoidBone>([`${side}Hand`]));
 
   // One key pose fitted, its elbow left to the body (`elbow`): the pose and
   // the error the arm leaves there, the rotation in degrees plus the
@@ -56,45 +48,42 @@ export function HumanGraspSearch(body: IHumanBody, posture: IHumanPosture,
     // its own goal, on its own arm solution, not the grasp's.
     const anchored: IHumanPosture.IReference | undefined =
       key.reference === false ? undefined : reference;
-    const limbs: IHumanPosture["limbs"] = {
-      ...key.posture.limbs,
-      [limb]: {
-        ...(key.goal ?? {
-          point: key.wrist.point,
-          rotation: key.wrist.rotation,
-          bend: key.bend,
-          elbow: "strain",
-        }),
-        ...(anchored === undefined ? {} : { reference: anchored }),
-      },
-    };
-    const resolved: resolveHumanPosture.ISeeded = key.posture === posture
-      ? (prepared ??= resolveHumanPosture.prepareBase(body, posture)).seeded(limbs, {}, resolution)
-      : resolveHumanPosture.seeded(body, { ...key.posture, limbs }, undefined, {}, resolution);
+    const resolved: resolveHumanPosture.ISeeded =
+      resolveHumanPosture.seeded(body, {
+        ...key.posture,
+        limbs: {
+          ...key.posture.limbs,
+          [limb]: {
+            ...(key.goal ?? {
+              point: key.wrist.point,
+              rotation: key.wrist.rotation,
+              bend: key.bend,
+              elbow: "strain",
+            }),
+            ...(anchored === undefined ? {} : { reference: anchored }),
+          },
+        },
+      }, undefined, undefined, resolution);
     const pose: IAutoMoviePose = resolved.pose;
-    const observed: AutoMovieHumanoidBone | undefined = HumanGraspJudgement.hand(key.judge);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      key.judge === undefined ? readHand(pose, resolution())
-        : observed === `${side}Hand` ? readArm(pose, resolution())
-          : poseBones(body, pose, resolution());
+      poseBones(body, pose, resolution());
     const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
 
-    // Every supplied judge follows eager departure. Only exact issued
-    // hand-only functions omit unrelated output; arbitrary judges keep it all.
-    let departure: () => number;
-    if (key.judge === undefined) {
-      const hint: IAutoMovieVector3 = { ...key.bend };
-      departure = (): number => departureOf(readArm(pose, resolution()), side, hint);
-    } else {
-      const measured: number = departureOf(bones, side, key.bend);
-      departure = (): number => measured;
-    }
+    // Keep every original report before the optional judge, including each
+    // nested rotation lookup in the eager dot expression.
+    const departure: number = departureOf(bones, side, key);
+    const dot: number = Math.min(1, Math.abs(
+      hand.worldRotation.x * key.wrist.rotation.x +
+      hand.worldRotation.y * key.wrist.rotation.y +
+      hand.worldRotation.z * key.wrist.rotation.z +
+      hand.worldRotation.w * key.wrist.rotation.w,
+    ));
     return {
       pose,
       shown: { point: hand.worldPosition, rotation: hand.worldRotation },
       miss:
         (resolved.values[limb]?.error ??
-          rotationError(hand.worldRotation, key.wrist.rotation)) +
+          angle(dot)) +
         1000 *
           Vector3.length(
             Vector3.subtract(hand.worldPosition, key.wrist.point),
@@ -133,18 +122,18 @@ export function HumanGraspSearch(body: IHumanBody, posture: IHumanPosture,
     }[] = [];
 
     // The candidates the caller can take, or every one when it can take none.
-    const pairs: { turn: number; tilt: number; wrist: HumanHand.IWrist }[] = turns.flatMap(
-      (turn: number): { turn: number; tilt: number; wrist: HumanHand.IWrist }[] =>
-        tilts.map((tilt: number): { turn: number; tilt: number; wrist: HumanHand.IWrist } =>
-          ({ turn, tilt, wrist: goal(turn, tilt) })),
+    const pairs: [number, number][] = turns.flatMap(
+      (turn: number): [number, number][] =>
+        tilts.map((tilt: number): [number, number] => [turn, tilt]),
     );
-    const taken: typeof pairs =
+    const taken: [number, number][] =
       admits === undefined
         ? pairs
-        : pairs.filter((candidate: (typeof pairs)[number]): boolean =>
-            admits(candidate.wrist),
+        : pairs.filter(([turn, tilt]: [number, number]): boolean =>
+            admits(goal(turn, tilt)),
           );
-    for (const { turn, tilt, wrist } of taken.length === 0 ? pairs : taken) {
+    for (const [turn, tilt] of taken.length === 0 ? pairs : taken) {
+      const wrist: HumanHand.IWrist = goal(turn, tilt);
       const grasp: IFitted = fit({ posture, wrist, bend }, undefined);
       const preference: number = 0.01 * (Math.abs(turn) + Math.abs(tilt));
       candidates.push({
@@ -166,7 +155,7 @@ export function HumanGraspSearch(body: IHumanBody, posture: IHumanPosture,
         limb,
       );
       let miss: number = grasp.miss;
-      const reports: IFitted[] = [grasp];
+      let departure: number = grasp.departure;
       let beaten: boolean = false;
       const keys: number[] = [grasp.miss];
       const judged: number[] = [Number.NaN];
@@ -180,7 +169,7 @@ export function HumanGraspSearch(body: IHumanBody, posture: IHumanPosture,
         judged.push(fitted.judged);
         bounds.push(key.bound ?? Number.NaN);
         miss = Math.max(miss, fitted.miss);
-        reports.push(fitted);
+        departure = Math.max(departure, fitted.departure);
         if (held && miss + preference >= least) {
           beaten = true;
           break;
@@ -200,9 +189,6 @@ export function HumanGraspSearch(body: IHumanBody, posture: IHumanPosture,
         held = holds;
         nearest = measured;
         least = cost;
-        let departure: number = grasp.departure();
-        for (let index: number = 1; index < reports.length; ++index)
-          departure = Math.max(departure, reports[index]!.departure());
         best = {
           turn,
           tilt,
@@ -233,7 +219,7 @@ interface IRequired {
   measure: (keys: readonly number[], judged: readonly number[], bounds: readonly number[]) => number;
 }
 
-/** Independent search arguments; only producer-fixed source geometry is shared between calls. */
+/** Independent original search arguments; every call admits current source values. */
 type IQuery = (goal: (turn: number, tilt: number) => HumanHand.IWrist,
   tilts?: readonly number[], stroke?: IStroke, turns?: readonly number[],
   required?: IRequired, admits?: (wrist: HumanHand.IWrist) => boolean) => HumanGrasp.IReach;
@@ -248,8 +234,8 @@ interface IFitted {
   /** The original hand-degree plus wrist-millimetre error cost. */
   miss: number;
 
-  /** Original degree departure; unjudged keys evaluate it only when retained for the reported best. */
-  departure: () => number;
+  /** Original eager degree departure, completed before the optional judgement. */
+  departure: number;
 
   /** The key's own judgement, or NaN when it declares none. */
   judged: number;
@@ -257,7 +243,7 @@ interface IFitted {
 
 /** Original elbow-side report, independent of every selection cost and bound. */
 function departureOf(bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  side: HumanHand.Side, hint: IAutoMovieVector3): number {
+  side: HumanHand.Side, key: Pick<HumanGrasp.IKey, "bend">): number {
   const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
   const shoulder: IAutoMovieVector3 = bones.get(`${side}UpperArm`)!.worldPosition;
   const line: IAutoMovieVector3 = Vector3.subtract(hand.worldPosition, shoulder);
@@ -267,14 +253,13 @@ function departureOf(bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolve
     return span > 0 ? Vector3.subtract(from, Vector3.scale(line, Vector3.dot(from, line) / span)) : from;
   };
   const shownSide: IAutoMovieVector3 = radial(bones.get(`${side}LowerArm`)!.worldPosition);
-  const hintSide: IAutoMovieVector3 = radial(hint);
+  const hintSide: IAutoMovieVector3 = radial(key.bend);
   const sides: number = Vector3.length(shownSide) * Vector3.length(hintSide);
   return sides > 1e-12 ? (Math.acos(Math.max(-1,
     Math.min(1, Vector3.dot(shownSide, hintSide) / sides))) * 180) / Math.PI : 0;
 }
 
-/** Preserve the original fallback attitude cost only when the fit supplies none. */
-function rotationError(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number {
-  const dot: number = Math.min(1, Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w));
+/** Original degree conversion after the already completed clipped dot. */
+function angle(dot: number): number {
   return (2 * Math.acos(dot) * 180) / Math.PI;
 }

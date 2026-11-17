@@ -14,6 +14,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { pickUpPosture } from "./pickUpPosture";
 
 /**
@@ -60,9 +61,9 @@ export namespace pickUpAdjust {
    * @evidence contracts/development/implementation.md#principled-implementation The trunk's twist split between the chest and the spine as the trunk's turn splits it, bounded by both joints' axial ranges with the twist they already hold; the turn is searched a degree at a time for the least that reaches.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The bounds, one search, one closure.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A table without the trunk's twist is refused, never read as no limit.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A shoulder read per degree of the range, once per plan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure holds the stance and the turn.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Retains every original shoulder read per degree; one genuine fixed-name reader and exact FK workspace share unchanged prerequisites across the actual angle probes. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body/side fix only raw shoulder demand. Each twist/posture and distance still evaluates in original order; runtime at/lower preserve actual stance callbacks and their current metadata arguments.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned stance owns its original source/turn and static name metadata only. The planning FK getter is explicitly cleared before return, so no dynamic workspace, probe pose or distance history enters runtime state.
    */
   export function turned(
     context: IHumanActionContext<object>,
@@ -70,7 +71,7 @@ export namespace pickUpAdjust {
     grip: IAutoMovieVector3,
     stance: pickUpPosture.IStance,
   ): pickUpPosture.IStance {
-    const range = (bone: "chest" | "spine"): IAutoMovieAngleRange => {
+    const range: (bone: "chest" | "spine") => IAutoMovieAngleRange = (bone: "chest" | "spine"): IAutoMovieAngleRange => {
       const twist: IAutoMovieAngleRange | null | undefined =
         DEFAULT_HUMANOID_ROM[bone]?.twist;
       if (twist === null || twist === undefined)
@@ -81,7 +82,7 @@ export namespace pickUpAdjust {
       chest: AutoMovieMotionHumanTrunk.CHEST,
       spine: 1 - AutoMovieMotionHumanTrunk.CHEST,
     };
-    const held = (bone: "chest" | "spine"): number =>
+    const held: (bone: "chest" | "spine") => number = (bone: "chest" | "spine"): number =>
       stance.posture.joints[bone]?.[2] ?? 0;
     // The turn either way the two joints allow with what they hold.
     const most: number = Math.min(
@@ -96,9 +97,9 @@ export namespace pickUpAdjust {
           (range(bone).min - held(bone)) / share[bone],
       ),
     );
-    const twist = (posture: IHumanPosture, degrees: number): IHumanPosture => {
+    const twist: (posture: IHumanPosture, degrees: number) => IHumanPosture = (posture: IHumanPosture, degrees: number): IHumanPosture => {
       if (degrees === 0) return posture;
-      const add = (bone: "chest" | "spine"): [number, number, number] => {
+      const add: (bone: "chest" | "spine") => [number, number, number] = (bone: "chest" | "spine"): [number, number, number] => {
         const at: readonly [number, number, number] = posture.joints[bone] ?? [
           0, 0, 0,
         ];
@@ -109,11 +110,14 @@ export namespace pickUpAdjust {
         joints: { ...posture.joints, chest: add("chest"), spine: add("spine") },
       };
     };
-    const far = (degrees: number): number =>
+    const readShoulder: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(
+      context.body, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]));
+    let prepared: ReturnType<typeof prepareHumanPoseResolution> | undefined = prepareHumanPoseResolution();
+    const far: (degrees: number) => number = (degrees: number): number =>
       Vector3.length(
         Vector3.subtract(
           grip,
-          shoulder(context, side, twist(stance.posture, degrees)),
+          shoulder(side, twist(stance.posture, degrees), readShoulder, prepared),
         ),
       );
     const limit: number =
@@ -130,11 +134,13 @@ export namespace pickUpAdjust {
         }
       }
     const turn: number = best;
+    prepared = undefined;
     return {
       posture: twist(stance.posture, turn),
-      at: (s: number): IHumanPosture => twist(stance.at(s), turn * s),
-      lower: (posture: IHumanPosture, s: number): IHumanPosture =>
-        twist(stance.lower(posture, s), turn * s),
+      at: (s: number, resolution?: IFK, projection?: IROM): IHumanPosture =>
+        twist(stance.at(s, resolution, projection), turn * s),
+      lower: (posture: IHumanPosture, s: number, resolution?: IFK, projection?: IROM): IHumanPosture =>
+        twist(stance.lower(posture, s, resolution, projection), turn * s),
     };
   }
 
@@ -163,9 +169,9 @@ export namespace pickUpAdjust {
    * @evidence contracts/development/implementation.md#principled-implementation One foot's planted goal moved along the floor toward the wrist, the root half as far, the shoulder read on the moved body; the step is solved for the least length that reaches, and the foot chosen from the target's side where the data settle it and from the shorter step where they do not.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The direction, the feet to try, one solve per foot, one closure.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A step beyond `STEP` is never taken; the caller refuses instead. No angle decides a midline target's foot.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One bisection of the step's length per foot tried, two at most, once per plan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure holds the stance and the step.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Retains each original foot trial and bounded step-length bisection. Genuine shoulder/two-hip name readers bind once, and one planning-only exact FK getter serves every actual hip/shoulder probe. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body/side and actual hip names establish static demand equivalence; every shifted root, drop, target distance and foot trial remains actual. Runtime step calls borrow only their supplied current reader and retain the original raw hip policy without ROM projection.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Static body/name metadata and original stance/step geometry may live with returned callbacks. The planning getter is cleared before return; dynamic FK, candidate root/maps and distance results do not enter the returned stance or a history.
    */
   export function stepped(
     context: IHumanActionContext<object>,
@@ -174,7 +180,12 @@ export namespace pickUpAdjust {
     stance: pickUpPosture.IStance,
     lifted?: IAutoMovieVector3,
   ): pickUpPosture.IStance | null {
-    const from: IAutoMovieVector3 = shoulder(context, side, stance.posture);
+    const readShoulder: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(
+      context.body, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]));
+    const readHips: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(
+      context.body, new Set<AutoMovieHumanoidBone>(["leftUpperLeg", "rightUpperLeg"]));
+    let prepared: ReturnType<typeof prepareHumanPoseResolution> | undefined = prepareHumanPoseResolution();
+    const from: IAutoMovieVector3 = shoulder(side, stance.posture, readShoulder, prepared);
     const flat: IAutoMovieVector3 = {
       x: wrist.x - from.x,
       y: 0,
@@ -224,6 +235,7 @@ export namespace pickUpAdjust {
       if (taken !== null && (best === null || taken.length < best.length))
         best = taken;
     }
+    prepared = undefined;
     return best === null ? null : best.stance;
 
     /** The least step of a foot that reaches, and its stance; null when one step does not. */
@@ -235,10 +247,11 @@ export namespace pickUpAdjust {
       if (stance.posture.limbs[leg] === undefined) return null;
 
       // The body with its foot moved `length` along the floor, a share of it.
-      const step = (
+      const step: (posture: IHumanPosture, length: number, share: number, resolution?: IFK) => IHumanPosture = (
         posture: IHumanPosture,
         length: number,
         share: number,
+        resolution?: IFK,
       ): IHumanPosture => {
         if (length <= 0 || share <= 0) return posture;
         const goal: IHumanPosture.IGoal | undefined = posture.limbs[leg];
@@ -261,12 +274,9 @@ export namespace pickUpAdjust {
 
         // The pelvis comes down as far as either planted leg asks to reach
         // its foot, as a walk's does (`walkReach.short`).
-        const hips: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
-          context.body,
+        const hips: ReturnType<typeof HumanTrunk.resolve> = readHips(
           { ...posture, root: shifted },
-          undefined,
-          undefined,
-          new Set<AutoMovieHumanoidBone>(["leftUpperLeg", "rightUpperLeg"]),
+          resolution,
         );
         const drop: number = Math.max(
           0,
@@ -300,14 +310,15 @@ export namespace pickUpAdjust {
       };
 
       // How far past its reach the furthest place lies, metres.
-      const gap = (
+      const gap: (places: readonly [IAutoMovieVector3, number][], length: number) => number = (
         places: readonly [IAutoMovieVector3, number][],
         length: number,
       ): number => {
         const at: IAutoMovieVector3 = shoulder(
-          context,
           side,
-          step(stance.posture, length, 1),
+          step(stance.posture, length, 1, prepared),
+          readShoulder,
+          prepared,
         );
         return Math.max(
           ...places.map(
@@ -333,10 +344,11 @@ export namespace pickUpAdjust {
       return {
         length,
         stance: {
-          posture: step(stance.posture, length, 1),
-          at: (s: number): IHumanPosture => step(stance.at(s), length, s),
-          lower: (posture: IHumanPosture, s: number): IHumanPosture =>
-            step(stance.lower(posture, s), length, s),
+          posture: step(stance.posture, length, 1, prepared),
+          at: (s: number, resolution?: IFK, projection?: IROM): IHumanPosture =>
+            step(stance.at(s, resolution, projection), length, s, resolution),
+          lower: (posture: IHumanPosture, s: number, resolution?: IFK, projection?: IROM): IHumanPosture =>
+            step(stance.lower(posture, s, resolution, projection), length, s, resolution),
           step: { side: foot, off: STEPPING[0], on: STEPPING[1] },
         },
       };
@@ -376,8 +388,8 @@ export namespace pickUpAdjust {
     // A time share of the reach, and the second of the return at which the
     // way back, from `share` down to none, passes the share of the way it
     // had then.
-    const down = (time: number): number => (reach * time) / duration;
-    const back = (time: number): number =>
+    const down: (time: number) => number = (time: number): number => (reach * time) / duration;
+    const back: (time: number) => number = (time: number): number =>
       (end + up * timed(1 - minimumJerk.share(time) / share)) / duration;
     return (["left", "right"] as const).flatMap(
       (foot: "left" | "right"): IHumanContactWindow[] => {
@@ -426,7 +438,7 @@ export namespace pickUpAdjust {
   export const LATERAL: number = 30;
 
   /** The time share at which a minimum-jerk progress has gone a share of its way, by bisection. */
-  const timed = (share: number): number => {
+  const timed: (share: number) => number = (share: number): number => {
     let low: number = 0;
     let high: number = 1;
     for (let i: number = 0; i < 40; i++) {
@@ -437,12 +449,19 @@ export namespace pickUpAdjust {
     return (low + high) / 2;
   };
 
-  /** The holding arm's shoulder joint on a posture, world metres. */
-  const shoulder = (
-    context: IHumanActionContext<object>,
+  /** Actual holding shoulder through its same-body fixed-name reader, world metres. */
+  const shoulder: (side: HumanHand.Side, posture: IHumanPosture,
+    read: ReturnType<typeof HumanTrunk.prepareResolve>, resolution?: IFK) => IAutoMovieVector3 = (
     side: HumanHand.Side,
     posture: IHumanPosture,
+    read: ReturnType<typeof HumanTrunk.prepareResolve>,
+    resolution?: IFK,
   ): IAutoMovieVector3 =>
-    HumanTrunk.resolve(context.body, posture, undefined, undefined, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(`${side}UpperArm`)!
-      .worldPosition;
+    read(posture, resolution).get(`${side}UpperArm`)!.worldPosition;
 }
+
+/** Same-person exact FK loan borrowed by an actual adjusted stance invocation. */
+type IFK = Parameters<pickUpPosture.IStance["at"]>[1];
+
+/** Same-person ROM projection forwarded only to the original solved stance observations. */
+type IROM = Parameters<pickUpPosture.IStance["at"]>[2];

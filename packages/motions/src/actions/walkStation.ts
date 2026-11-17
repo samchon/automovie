@@ -11,6 +11,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { IWalkGait } from "./IWalkGait";
 import type { WalkPace } from "./WalkPace";
 import { WalkPath } from "./WalkPath";
@@ -55,9 +56,9 @@ import { walkPaced } from "./walkPaced";
  * @evidence contracts/development/implementation.md#principled-implementation The cited first-order law is integrated exactly over each `TICK` for a speed held constant in it; the travelled length is turned into the plan's second through the plan's own way, and `walkPaced` plays the plan on that clock. Speed is continuous where the plan's own clock takes over because that clock starts at the rate the speed has there.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the point's speeds, read the plan's way, integrate the two phases into one clock, hand it to `walkPaced`.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `GAIN` is the cited fit; `FASTEST`, `STEP`, `TICK`, `SAMPLES` and `CRUISE` are named and provisional. The speed bound is the gait's, not a clamp of what was asked: the walker then arrives late, as stated.
- * @evidence contracts/development/implementation.md#efficient-algorithms One reading of the point every `STEP` seconds and `SAMPLES` postures of the plan, once per plan; each tick of the clock costs one search of the way.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache beyond the readings and the clock built once.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the clock for as long as the returned plan is held.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One reading of the point every STEP seconds and every original SAMPLES root posture, once per plan; those actual same-plan samples share one lazy FK workspace, while each clock tick retains its logarithmic way search.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged stepping plan's synchronous root-distance construction shares only genuine FK dependency metadata across its changing actual postures; the sampled root/path work and every timing step remain actual, without a pose-result cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous constructor releases its FK getter and temporary speed/distance samples on return or throw; walkPaced retains only its original plan and numeric clock until released, without the borrowed getter or a queried-pose history.
  */
 export function walkStation(
   plan: IHumanActionPlan,
@@ -84,10 +85,11 @@ export function walkStation(
   // The plan's way: the length its root has travelled at each sampled second.
   const seconds: number[] = [0];
   const lengths: number[] = [0];
-  let root: IHumanPosture["root"] = plan.posture(0, ["root"]).root;
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+  let root: IHumanPosture["root"] = plan.posture(0, ["root"], resolution).root;
   for (let i: number = 1; i <= walkStation.SAMPLES; ++i) {
     const t: number = (i / walkStation.SAMPLES) * plan.duration;
-    const now: IHumanPosture["root"] = plan.posture(t, ["root"]).root;
+    const now: IHumanPosture["root"] = plan.posture(t, ["root"], resolution).root;
     seconds.push(t);
     lengths.push(lengths[i - 1]! + Math.hypot(now.x - root.x, now.z - root.z));
     root = now;

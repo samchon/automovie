@@ -1,7 +1,7 @@
 import {
   fitSeededChainToTarget,
   type IFitChainToTargetProps,
-  type preparePoseResolution,
+  preparePoseResolution,
 } from "@automovie/engine";
 import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
@@ -10,24 +10,24 @@ import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
- * Lend an explicit candidate-search FK reader and prepare only its first
- * unchanged source geometry for each human chain. Goals, callbacks, references,
- * continuations, targets and answers never enter the source pool.
+ * Own an unexposed candidate-search FK reader and prepare only its first
+ * unchanged source geometry for each human chain. An incoming reader keeps
+ * its original callback behavior and receives no source-pool authority.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines explicit parent-reader opt-in, unchanged body/rig/table operation, first-source snapshots, exact supported-pose matching, fallback and weak release.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines actual private-reader construction, unchanged body/rig/table operation, first-source snapshots, exact supported-pose matching, incoming-reader fallback and weak private-root ownership used by internal COW issuing.
  * @evidence contracts/development/implementation.md#principled-implementation A chain's source frames, axes, zeroed geometry and projector coefficients depend only on its fixed rig/source pose. workspace delegates these to the engine's prepareSource, then binds every current goal/reference/near/callback separately and retains every actual search.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The getter opts in only an actual supplied reader at first demand; workspace owns bounded source matching and the engine owns all source preparation and changing-goal solves. Ordinary calls and changed sources keep the original prepare path.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Stores no fit or target result and never replaces the baseline on a miss. Full ordered pose scalars and supported field presence must match; unknown metadata, changed body/chain or a nonloaned reader declines reuse. Every bind preserves raw demands, callbacks, ranges and effort/tie policy.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each explicit reader owns at most four O(B) source snapshots for B joints. Matching takes O(B); unchanged candidate sources avoid repeated engine geometry preparation while each target retains its full solve. Unsupported/changed sources pay only bounded comparison before ordinary preparation; speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Source snapshots are independent of caller edits, and only same body/chain/complete ordered scalar poses match during the unchanged-rig operation. Independent effector-only FK captures source data instead of any query's attached-goal or obstruction closure; dynamic options are bound fresh.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak reader ownership bounds retention to one body and four source snapshots/factories, with no replacement history. Each source factory owns only fixed pose/rig and that operation's exact reader; issued workspaces hold their current options only until actual completion, and no reader enters a result or plan.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Without an incoming source, the getter creates and privately retains its actual native reader at first demand; workspace rechecks that reader's native methods. Incoming sources use the original adapter without pool registration or method pinning. Bounded matching belongs here and geometry/search belongs to the engine.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A caller-exposed native reader is not an ownership certificate and never becomes a pool key here. Stores no fit/target result and never replaces a baseline on a miss. Full ordered scalar source inputs must match; unknown metadata or changed body/chain declines reuse. Current incoming callback lookups, demands, ranges and effort/tie policy remain original.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each actual private reader owns at most four O(B) source snapshots for B joints. Matching takes O(B); unchanged candidate sources avoid repeated geometry preparation while every target retains its full solve. Incoming readers add no source schema comparison; speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Source snapshots are independent of caller edits, and only same body/chain/complete ordered scalar poses match during the unchanged-rig operation. Independent effector-only FK captures source data; dynamic options bind fresh. Actual private snapshot roots and every actual factory-result root enter retainedRoot, including reentry, forcing owned issuing rather than trusting mutable source identity.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak private-reader ownership bounds retention to one body and four source snapshots/factories, with no replacement history. The owning search retains its private getter until release; incoming readers never enter the pool. A weak set identifies actual private roots without retaining them. Workspaces hold current options only until completion and no reader enters a result.
  */
 export function prepareHumanLimbSource(
   body: IHumanBody,
   source?: Parameters<typeof prepareHumanPoseResolution>[0],
 ): ReturnType<typeof prepareHumanPoseResolution> {
-  const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
-  if (source === undefined) return read;
+  if (source !== undefined) return prepareHumanPoseResolution(source);
+  const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
   return (): ReturnType<typeof preparePoseResolution> => {
     const reader: ReturnType<typeof preparePoseResolution> = read();
     if (POOLS.get(reader)?.body !== body) POOLS.set(reader, { body, entries: new Map() });
@@ -39,11 +39,16 @@ export function prepareHumanLimbSource(
  * Fixed-source consumption inside the ordinary Human-to-engine limb assembly.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines optional source workspace, complete current options, exact first-baseline match and ordinary fallback.
- * @evidence contracts/development/design.md#principled-representation An explicit reader identifies one unchanged-body operation; source snapshots contain rigid/joint inputs while each returned engine workspace separately owns changing goal/search fields.
- * @evidence contracts/development/design.md#minimal-and-owned-surface workspace serves prepareHumanLimbFit only; the factory getter serves fixed-base candidate searches and exposes no fitted result, cache key or caller-set resolved flag.
+ * @evidence contracts/development/design.md#principled-representation An actual unexposed private reader identifies one unchanged-body operation; incoming reader identity grants nothing. Source snapshots contain rigid/joint inputs while each returned engine workspace separately owns changing goal/search fields.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface workspace serves prepareHumanLimbFit; the factory getter serves fixed-base candidate searches, and retainedRoot lets internal memory issuing reject private factory output even after a root reenters as caller input. No cache key, fitted answer or caller-set ownership flag is exposed.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Unknown metadata or a different numerical source cannot claim equivalence; only fixed geometry is shared and existing ordinary preparation remains the fallback.
  */
 export namespace prepareHumanLimbSource {
+  /** True only for an actual private snapshot/factory-result root, marked by its producer; callers cannot register roots. */
+  export function retainedRoot(root: IAutoMoviePose["root"]): boolean {
+    return root !== null && ROOTS.has(root);
+  }
+
   /** Bind current goal options to matching first-source geometry, or decline to ordinary preparation. */
   export function workspace(
     body: IHumanBody,
@@ -52,11 +57,13 @@ export namespace prepareHumanLimbSource {
     resolution?: ReturnType<typeof preparePoseResolution>,
   ): fitSeededChainToTarget.IWorkspace | undefined {
     const pool: IPool | undefined = resolution === undefined ? undefined : POOLS.get(resolution);
-    if (pool?.body !== body || !CHAINS.has(source.chain.effector) || !supported(source.pose)) return undefined;
+    if (pool?.body !== body || resolution === undefined || !preparePoseResolution.isNative(resolution) ||
+      !CHAINS.has(source.chain.effector) || !supported(source.pose)) return undefined;
     const name: string = source.chain.effector;
     let entry: ISource | undefined = pool.entries.get(name);
     if (entry === undefined) {
       const pose: IAutoMoviePose = structuredClone(source.pose);
+      if (pose.root !== null) ROOTS.add(pose.root);
       const chain: IFitChainToTargetProps["chain"] = { ...source.chain };
       const fixed: fitSeededChainToTarget.ISource = {
         skeleton: source.skeleton, pose, chain, topology: source.topology,
@@ -73,11 +80,24 @@ export namespace prepareHumanLimbSource {
       fixed.jointAxes !== source.jointAxes || fixed.restFrames !== source.restFrames || entry.rig !== body.poseResolution ||
       fixed.chain.upper !== source.chain.upper || fixed.chain.lower !== source.chain.lower ||
       fixed.chain.effector !== source.chain.effector || !same(fixed.pose, source.pose)) return undefined;
-    return entry.bind(source);
+    const workspace: fitSeededChainToTarget.IWorkspace = entry.bind(source);
+    return {
+      fit: (point: IAutoMovieVector3): ReturnType<fitSeededChainToTarget.IWorkspace["fit"]> => {
+        const fitted: ReturnType<fitSeededChainToTarget.IWorkspace["fit"]> = workspace.fit(point);
+        if (fitted.pose.root !== null) ROOTS.add(fitted.pose.root);
+        return fitted;
+      },
+      continued: (point: IAutoMovieVector3, near: Parameters<fitSeededChainToTarget.IWorkspace["continued"]>[1]): ReturnType<fitSeededChainToTarget.IWorkspace["continued"]> => {
+        const fitted: ReturnType<fitSeededChainToTarget.IWorkspace["continued"]> = workspace.continued(point, near);
+        if (fitted.pose.root !== null) ROOTS.add(fitted.pose.root);
+        return fitted;
+      },
+      rotation: workspace.rotation,
+    };
   }
 }
 
-/** One explicit unchanged-body reader's bounded first-source baselines. */
+/** One actual private unchanged-body reader's bounded first-source baselines. */
 interface IPool { body: IHumanBody; entries: Map<string, ISource>; }
 /** No goal, obstruction, target or answer belongs to these source-only fields. */
 interface ISource {
@@ -135,3 +155,6 @@ function sameKeys(a: object, b: object): boolean {
 const CHAINS: ReadonlySet<string> = new Set(["leftHand", "rightHand", "leftFoot", "rightFoot"]);
 /** Source-only state releases with its exact operation reader, including reference cycles. */
 const POOLS: WeakMap<ReturnType<typeof preparePoseResolution>, IPool> = new WeakMap();
+
+/** Negative ownership evidence only; weak membership cannot retain source snapshots or be forged by a caller. */
+const ROOTS: WeakSet<object> = new WeakSet();

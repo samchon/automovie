@@ -8,6 +8,7 @@ import {
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanForce } from "../perform/HumanForce";
+import { HumanForceDrawn } from "./HumanForceDrawn";
 
 /**
  * The mechanics of a force exchanged through grips (#3439): a pull that
@@ -180,11 +181,11 @@ export namespace HumanForceExchange {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the three outputs and their units.
    * @evidence contracts/development/implementation.md#principled-implementation `x = (F / M ω²)(cosh ωt - 1)`, `x' = (F / M ω) sinh ωt`, `ξ = x + x' / ω`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three closed forms.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Seconds before the pull read the rest state.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One full-sample facade shares HumanForceDrawn's coefficient, position and complete-state owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original Math.max(0,seconds), arithmetic order and nonfinite propagation, with no added input repair or changed physical bound.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One cosh, one sinh and constant scalar work produce one fresh three-field record without constructing a prepared factory; runtime speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The complete one-shot and actual fixed-pull response readers share one analytic owner. Response requests offset only per yield frame and consumes a paired complete break-state once; this facade reads every supplied input anew.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh complete state and retains no props, clock, body, prepared factory, pose or numerical history.
    */
   export function drawn(props: {
     /** Kilograms. */
@@ -199,12 +200,7 @@ export namespace HumanForceExchange {
     /** Seconds since the pull started. */
     seconds: number;
   }): { offset: number; speed: number; extrapolated: number } {
-    const t: number = Math.max(0, props.seconds);
-    const w: number = props.frequency;
-    const a: number = props.force / (props.mass * w * w);
-    const offset: number = a * (Math.cosh(w * t) - 1);
-    const speed: number = a * w * Math.sinh(w * t);
-    return { offset, speed, extrapolated: offset + speed / w };
+    return HumanForceDrawn.sample(props);
   }
 
   /**

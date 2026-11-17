@@ -1,7 +1,6 @@
 import {
   type IAutoMovieResolvedBone,
   Vector3,
-  physicalShapeBounds,
   physicalShapeNearest,
 } from "@automovie/engine";
 import type {
@@ -64,7 +63,7 @@ export namespace HumanColliders {
    * @param a One end, world metres.
    * @param b The other end, world metres.
    * @returns The distance, the bone, the surface point and its outward normal.
-   * @throws {Error} When the profile has no shape.
+   * @throws {Error} When the reduction remains positive Infinity, including an empty observed profile.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Retains the scalar union-distance pass, then measures full nearest witnesses on every shape of its winning bone through the engine's existing owner.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One current placement feeds the unchanged distanceOn policy and the original ordered full-witness pass.
@@ -110,7 +109,7 @@ export namespace HumanColliders {
    * @param bones Its posed bones, world frame.
    * @param point The point, world metres.
    * @returns The distance to the nearest collider and its bone.
-   * @throws {Error} When the profile has no shape.
+   * @throws {Error} When the reduction remains positive Infinity, including an empty observed profile.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Treats the point as a zero-length segment and delegates to the same signed union-distance owner.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call preserves the point/segment correspondence without duplicating geometry.
@@ -142,7 +141,7 @@ export namespace HumanColliders {
    * @param b The other end, world metres.
    * @param taper The radii at `a` and at `b`, metres; absent for the bare segment.
    * @returns The distance to the nearest collider and its bone.
-   * @throws {Error} When the profile has no shape.
+   * @throws {Error} When the reduction remains positive Infinity, including an empty observed profile.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Reads the minimum signed segment-to-shape distance, less the declared taper, using the existing conservative sphere screen and engine shape query.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Computes the original widest taper before placement, then delegates ordered shape traversal to distanceOn, which also serves nearest and ray probes.
@@ -236,8 +235,8 @@ export namespace HumanColliders {
    * @evidence contracts/development/implementation.md#principled-implementation Uses the original sphere-tracing distance steps and six central-difference probes to estimate the accepted point's outward normal.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Constructs a bound geometry reader and delegates to its cast method; castOn keeps one original ray march, hit test and gradient owner shared with repeated rays on a prepared reader.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves CAST_STEPS=64, CAST_TOLERANCE=1e-5, CAST_PROBE=1e-4, inside-start behavior and every queried point; no pose-identity cache, query-result reuse or new success condition is added.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most 64 march queries and six hit probes retain all point-to-sphere and physical shape-query costs. O(S) placement is paid once; each of F shapes prepares its sphere and engine frame at most once at their original first screen/query phases, with O(S+F) local metadata.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Bones/profile stay unchanged and queries do not mutate them, so probes share current placements, world spheres and engine-owned fixed-shape frames in original order. Opaque readers are acquired only at the first unscreened query; every changed point still runs the same actual distance owner and sphere predicate.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most 64 march queries and six hit probes retain all point-to-sphere and physical shape-query costs. Vector3.addScaled preserves scale-before-add arithmetic without a discarded scaled vector per step; fixed probe-axis vectors allocate no per-hit axis records. O(S) placement is paid once; each of F shapes prepares its sphere and engine frame at most once at their original first screen/query phases, with O(S+F) local metadata.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Bones/profile stay unchanged and queries do not mutate them, so probes share current placements, world spheres and engine-owned fixed-shape frames in original order. Opaque readers are acquired only at the first unscreened query; every changed point still runs the same actual distance owner and sphere predicate. The engine owns the same component read/multiply/add order, and private immutable probe axes retain the original positive half-step on each component.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Placements start at the first distance read, spheres at their first screen and opaque readers at their first unscreened shape query; all end on hit, miss or throw. At most F readers retain fixed geometry, never query points/results, and the hit retains no body, frames, spheres or readers.
    * @evidence contracts/development/common.md#meaningful-documentation States ray units, signed-distance stepping, inherited numerical policies, lazy metadata scope and hit/miss ownership.
    */
@@ -264,10 +263,7 @@ export namespace HumanColliders {
     };
     let travelled: number = 0;
     for (let i: number = 0; i < CAST_STEPS; i++) {
-      const point: IAutoMovieVector3 = Vector3.add(
-        from,
-        Vector3.scale(along, travelled),
-      );
+      const point: IAutoMovieVector3 = Vector3.addScaled(from, along, travelled);
       const near: IDistance = atPoint(point);
       if (near.distance <= CAST_TOLERANCE) {
         const slope: (axis: IAutoMovieVector3) => number = (axis: IAutoMovieVector3): number =>
@@ -276,9 +272,9 @@ export namespace HumanColliders {
         return {
           point,
           normal: Vector3.normalize({
-            x: slope({ x: CAST_PROBE, y: 0, z: 0 }),
-            y: slope({ x: 0, y: CAST_PROBE, z: 0 }),
-            z: slope({ x: 0, y: 0, z: CAST_PROBE }),
+            x: slope(CAST_X),
+            y: slope(CAST_Y),
+            z: slope(CAST_Z),
           }),
           bone: near.bone,
         };
@@ -299,12 +295,12 @@ export namespace HumanColliders {
    * @param body The body.
    * @param bones Its posed bones, world frame.
    * @returns The least world Y of every collider, metres.
-   * @throws {Error} When the profile has no shape.
+   * @throws {Error} When the reduction remains positive Infinity, including an empty observed profile.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Reduces each currently placed profile shape's actual minimum world Y using the engine bounds owner's same shape formula, frame composition and hull vertex order.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One placement and ordered shape-minimum sweep use the scalar lowest observation of the same physicalShapeBounds owner.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure HumanColliderPlacement stages the original current placement inputs before one ordered scalar shape-minimum sweep; this facade preserves its original positive-Infinity refusal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every shape, the original Math.min sequence and empty-profile refusal without substituting candidate approximations or a contact tolerance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Adds O(S) placement to fixed work for each primitive shape or O(V) for a V-vertex hull. The scalar owner omits unused X/Z/max extrema and records while retaining every Y expression/comparison; no previous posture's minimum is reused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Stages O(S) actual segment Y/rotation/name/shape inputs, then fixed primitive work or O(V) for each V-vertex hull. The shared scalar owner omits unused X/Z, posed wrappers and max extrema while retaining every Y expression/comparison; no previous posture's minimum is reused.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same placement/bounds owners as floor readers while freshly computing the supplied current pose's minimum.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no current pose, shape or bounds array.
    * @evidence contracts/development/common.md#meaningful-documentation Defines exact bounds reduction, world Y units, shape coverage and empty-profile behavior.
@@ -313,13 +309,30 @@ export namespace HumanColliders {
     body: IHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): number {
-    let low: number = Infinity;
-    for (const { pose, shapes } of placed(body, bones))
-      for (const shape of shapes)
-        low = Math.min(low, physicalShapeBounds.lowest(pose, shape));
+    const low: number = HumanColliderPlacement.lowest(body, bones);
     if (low === Infinity)
       throw new Error("A body without colliders has no lowest point");
     return low;
+  }
+
+  /**
+   * Prepare exact collider floor minima for fixed bone-name groups.
+   *
+   * @param body The unchanged canonical body supplying neutral profile geometry.
+   * @param groups Copied ordered name sets; omission requests one whole-profile minimum.
+   * @returns A current-bone reader returning fresh world-metre minima in group order. An unobserved group remains Infinity; NaN and negative Infinity follow the original Math.min reduction, without lowest's positive-Infinity refusal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed body/group membership, whole-profile default, current bones, world-metre output order, fresh arrays and original Infinity/NaN policies.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates genuine neutral-entry selection and scalar placement to HumanColliderPlacement; each selected shape's original engine minimum-Y formula updates every matched group in profile/shape/group order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One facade exposes the shared fixed-group producer to floor and gymnastics consumers, with placement, staging and numerical bounds kept in their existing owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains selected profile duplicates, missing-bone skips, overlapping groups, shape/vertex order and Math.min nonfinite behavior. No supplied indices, floor answer, contact allowance or substituted collider enters the API.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The owning producer indexes K memberships across G groups and selects R of S entries once. Each query stages four O(R) scalar/reference arrays and computes each selected shape bound once before group updates, omitting unused placed/pose/XYZ records without a measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed unchanged neutral geometry and copied group names establish membership equivalence. Every selected current bone transform and shape minimum still evaluates; no pose, query result or time sample is reused.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the producer's selected neutral references and bounded name/group metadata until release. The facade retains nothing; query staging ends on return/throw and only a fresh numeric array escapes, without input maps, sets, dynamic frames or growing history.
+   */
+  export function prepareMinima(body: IHumanBody,
+    groups?: readonly ReadonlySet<AutoMovieHumanoidBone>[]): ReturnType<typeof HumanColliderPlacement.prepareMinima> {
+    return HumanColliderPlacement.prepareMinima(body, groups);
   }
 
   /**
@@ -460,3 +473,8 @@ const CAST_PROBE: number = 1e-4;
 
 /** The most steps a ray is traced for; a ray that needs more only grazes the body. */
 const CAST_STEPS: number = 64;
+
+/** The original positive central-difference axes, never mutated or returned. */
+const CAST_X: IAutoMovieVector3 = { x: CAST_PROBE, y: 0, z: 0 };
+const CAST_Y: IAutoMovieVector3 = { x: 0, y: CAST_PROBE, z: 0 };
+const CAST_Z: IAutoMovieVector3 = { x: 0, y: 0, z: CAST_PROBE };

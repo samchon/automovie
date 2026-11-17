@@ -54,7 +54,7 @@ export namespace AutoMovieMotionHumanArmObservation {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One base pose, the arcs sampled along the blend, one division.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arc is measured on the blend the arm takes, not on the straight line between the ends.
    * @evidence contracts/development/implementation.md#efficient-algorithms One original base solve and ARC+1 actual blended poses retain their original arc integration. Each FK read admits every authored joint but resolves only the three probes and their ancestors; one operation reader shares unchanged scalar FK prerequisites. Runtime improvement is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses blendHumanJoint, HumanArmClearance.posed and poseBones. Issued source provenance survives removal of the measured arm's raw goal only for the resolver's exact free-leg revalidation; one local FK reader shares fixed joint/rest/ancestor scalar work across actual blend samples.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses blendHumanJoint, HumanArmClearance.posed and poseBones. The actual removed-arm raw posture receives ordinary native admission/fitting; one local FK reader shares only fixed joint/rest/ancestor prerequisites across actual blend samples.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The base pose, three probe names and local exact FK reader live only through this synchronous measurement. Only the prior probe points and three accumulated arc lengths survive between samples; no blend-pose history, reader or callback enters the returned scalar.
    */
   export function reaching(
@@ -69,10 +69,10 @@ export namespace AutoMovieMotionHumanArmObservation {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     delete limbs[`${side}Arm`];
-    const base: IAutoMoviePose = resolveHumanPosture.seeded(body, resolveHumanPosture.rebased(posture, {
+    const base: IAutoMoviePose = resolveHumanPosture.seeded(body, {
       ...posture,
       limbs,
-    }), undefined, undefined, resolution, undefined, projection).pose;
+    }, undefined, undefined, resolution, undefined, projection).pose;
     return reachingPose(body, base, side, from, to, resolution);
   }
 
@@ -176,10 +176,10 @@ export namespace AutoMovieMotionHumanArmObservation {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     delete limbs[`${carry.side}Arm`];
-    const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, resolveHumanPosture.rebased(posture, {
+    const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, {
       ...posture,
       limbs,
-    }), undefined, undefined, resolution, undefined, projection).pose;
+    }, undefined, undefined, resolution, undefined, projection).pose;
     const goal: IHumanPosture.IGoal = carry.goal(posture, seconds, resolution, projection);
     const now: HumanArmTrajectory.ISite = site(body, pose, carry, goal, resolution);
     const then: HumanArmTrajectory.ISite = site(
@@ -241,7 +241,7 @@ export namespace AutoMovieMotionHumanArmObservation {
       goal,
       source === undefined || goal.on === undefined ? undefined :
         (): ReturnType<typeof poseBones> => poseBones(body, pose,
-          prepareHumanPoseResolution(source)(), new Set<AutoMovieHumanoidBone>([goal.on!])),
+          prepareHumanPoseResolution.read(source), new Set<AutoMovieHumanoidBone>([goal.on!])),
     );
     return {
       point:

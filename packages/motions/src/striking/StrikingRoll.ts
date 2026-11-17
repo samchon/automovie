@@ -10,10 +10,8 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "./StrikingHeld";
-import { StrikingRollHand } from "./StrikingRollHand";
 import { StrikingStrain } from "./StrikingStrain";
 
 /**
@@ -35,7 +33,7 @@ import { StrikingStrain } from "./StrikingStrain";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what limits a held tool's pose, how a pose is judged and what is refused.
  * @evidence contracts/development/design.md#principled-representation A pose is judged by fitting it and reading the result, the motion skill's rule that a search measures each trial after the joint limits are applied.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The miss of a pose, the chosen frame and the refusal, read by the blade and firearm lexicons.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Actual pose misses, geometric ranks, chosen frames and physical refusals serve the existing blade/firearm consumers; fixed-axis rigid sampling stays with StrikingRollHand.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No tool kind is named and no wrist range is restated: the fit owns the ranges.
  */
 export namespace StrikingRoll {
@@ -55,18 +53,15 @@ export namespace StrikingRoll {
    * @param back The point of the tool the pose keeps, metres behind its working point.
    * @param posture The body as it stands at the decisive instant.
    * @param resolution Optional exact FK workspace borrowed from this synchronous tool-pose search.
-   * @param prepared Optional lazy direct-pose preparation owned by a search whose body, root, joints and digits stay fixed; every complete candidate goal still resolves.
-   * @param goalFor Optional producer prepared from this exact unchanged body/tool/back, returning fresh original task geometry for each actual frame/bend.
-   * @param projection Optional genuine same-body ROM projector borrowed only from this synchronous candidate operation; unknown provenance keeps ordinary cold projection.
    * @returns The greater of the kept point's and the working point's displacement, metres; a pose that keeps the working point itself reads the line at the tool's own length in place of the kept point.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is fitted, on which body and what is measured.
    * @evidence contracts/development/implementation.md#principled-implementation The plan's own goal for the pose is resolved by the posture resolver, the fitted hand's grip frame is read by forward kinematics, and the tool's two points are carried by it: the displacement a viewer would see.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal, one resolution, one read-back.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both the kept point and the working point are read, so a tool that keeps its point and points elsewhere is counted; when the kept point is the working point, the line is read at the tool's length, so the count holds there too.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One original elbow search and whole-posture fit followed by demanded hand FK. Fixed-posture search preparation admits/clamps direct joints once across K actual candidates, retaining fresh pose copies, all limb/digit fits and scalar FK dependencies; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit parent FK supplier shares exact prerequisites only within this synchronous search. One fixed body/tool/back goal producer prepares local contact/limit offsets and returns fresh task geometry for every actual frame. A prepared base is admitted only for one unchanged body/root/direct-joint/digit source; each complete varying limb-goal set, rival clearance and physical fit still executes, while callback-varying postures still use ordinary seeded resolution with a genuine same-body ROM metadata loan. Every actual joint projection remains and the posture owner checks provenance, falling back cold for unknown/changed domains.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows optional reader/direct-pose preparation only until return or throw; the enclosing synchronous search releases fixed snapshots and each independent pose/map, while only the scalar miss escapes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One original elbow search and complete posture fit precede demanded hand FK. Every candidate keeps current direct admission, ROM projection and limb/digit/rival solving; a genuine local exact reader can share only equal FK prerequisites, with speedup unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit parent FK supplier checks exact scalar dependencies only within this synchronous search. Current tool goal, raw posture fields and native direct/ROM admission are read afresh, including mutable fields or getters; no posture identity certifies fixed authoring and no fitted answer is cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The optional exact reader is borrowed through synchronous return or throw; each candidate releases its independent pose/map and temporary goal, while only the scalar miss escapes. No direct-pose snapshot or ROM mapper enters retained state.
    */
   export function miss(
     context: Pick<IHumanActionContext, "body">,
@@ -75,16 +70,11 @@ export namespace StrikingRoll {
     back: number,
     posture: IHumanPosture,
     resolution?: ReturnType<typeof prepareHumanPoseResolution>,
-    prepared?: () => ReturnType<typeof resolveHumanPosture.prepareBase>,
-    goalFor?: ReturnType<typeof StrikingHeld.prepareGoal>,
-    projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): number {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       resolution ?? prepareHumanPoseResolution();
     const bend: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    const goal: IHumanPosture.IGoal = goalFor === undefined
-      ? StrikingHeld.goal(context, tool, frame, back, bend)
-      : goalFor(frame, bend);
+    const goal: IHumanPosture.IGoal = StrikingHeld.goal(context, tool, frame, back, bend);
     const limbs: IHumanPosture["limbs"] = {
       ...posture.limbs,
       [`${tool.side}Arm`]: {
@@ -93,9 +83,8 @@ export namespace StrikingRoll {
         bend: AutoMovieMotionHumanBend.hang(context.body, posture, tool.side),
       },
     };
-    const fittedPose: ReturnType<typeof resolveHumanPosture.seeded> = prepared === undefined
-      ? resolveHumanPosture.seeded(context.body, { ...posture, limbs }, undefined, {}, read, undefined, projection)
-      : prepared().seeded(limbs, {}, read);
+    const fittedPose: ReturnType<typeof resolveHumanPosture.seeded> =
+      resolveHumanPosture.seeded(context.body, { ...posture, limbs }, undefined, {}, read);
     const bones: ReturnType<typeof poseBones> = poseBones(
       context.body, fittedPose.pose, read(), HANDS[tool.side],
     );
@@ -122,11 +111,11 @@ export namespace StrikingRoll {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is fixed, what is chosen, by which rule, and each input.
    * @evidence contracts/development/implementation.md#principled-implementation Candidates are the turns about the tool's line and the lines of the cone. A straight wrist puts the elbow one forearm back from the wrist along the hand, and the arm can only hold the frame when that elbow lies one upper arm from the shoulder, so the residual of that distance ranks the candidates cheaply; the `TRIED` best are then fitted and the one the fitted hand misses least is taken, a line nearer the asked axis winning a tie.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure StrikingRollHand owns the fixed angle grid and rigid geometry; each placement ranks the actual posture and delegates the original preferred candidates to chosen.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The one-shot path normalizes its axis, reads the fixed shoulder when present, constructs each actual frame and ranks the original grid before chosen; the separate StrikingRollHand factory requires explicitly unchanged tool geometry.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The steps (10 degrees of cone, 45 of azimuth, 30 of turn) are a search resolution; the placed point is on its place for every candidate; the choice is made by the fit, never by the residual alone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each invocation ranks up to 12 turns times the cone's line count and fits/refines the original TRIED candidates. The fixed body/side grip and arm geometry is prepared once per search; insertion may invoke this search for multiple postures.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one-shot facade borrows fixed angle-grid alignment/offset and canonical strain geometry for this invocation; every candidate point, dependent shoulder, rank and actual physical fit is still evaluated normally.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Angle records, fixed rigid readers, candidate ranks and the actual chooser workspaces end with this synchronous search; only the independent chosen hand frame escapes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each invocation retains the original 12 turns times cone lines and TRIED fits/refinements. Canonical body/side anatomical metadata is weakly shared by StrikingStrain, while every frame, callback, raw direct/ROM admission and actual fit remains current; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A plain posture is not proof of immutable direct fields or getters. All hand candidates retain original current tool/frame and raw direct admission, with the original axis-to-shoulder-to-frame-to-callback/shoulder-to-strain observation order. Only canonical immutable body anatomy is shared; no posture, tool geometry or ROM answer is inferred from object identity.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate ranks and actual chooser workspaces end with this synchronous search; only the independent chosen hand frame escapes. No future callback's tool geometry or pose is retained as an answer.
    */
   export function hand(
     context: Pick<IHumanActionContext, "body">,
@@ -139,7 +128,45 @@ export namespace StrikingRoll {
       | IHumanPosture
       | ((frame: StrikingHeld.IHandFrame) => IHumanPosture),
   ): StrikingHeld.IHandFrame {
-    return StrikingRollHand(context, tool, back, axis, cone)(at, posture);
+    const along: IAutoMovieVector3 = Vector3.normalize(axis);
+    const from: IAutoMovieVector3 | undefined = typeof posture === "function" ? undefined : shoulder(context, tool.side, posture);
+    const aside: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(along, Math.abs(along.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 }));
+    const frame: IChoice["frame"] = (values: readonly number[]): StrikingHeld.IHandFrame => {
+      const [tilt, around, turn] = values as readonly [number, number, number];
+      const run: IAutoMovieVector3 = Quaternion.rotateVector(Quaternion.fromAxisAngle(along, around), Quaternion.rotateVector(Quaternion.fromAxisAngle(aside, tilt), along));
+      return StrikingHeld.hand(tool, back, at, run, Quaternion.rotateVector(Quaternion.fromAxisAngle(run, turn), Vector3.cross(run, aside)));
+    };
+    const rank: (values: readonly number[]) => number = (values: readonly number[]): number => {
+      const posed: StrikingHeld.IHandFrame = frame(values);
+      try {
+        const actual: IAutoMovieVector3 = from ?? shoulder(context, tool.side, typeof posture === "function" ? posture(posed) : posture);
+        const measure: ReturnType<typeof StrikingStrain> = StrikingStrain(context.body, tool.side);
+        return measure(posed, actual);
+      } catch (error) {
+        if (error instanceof HumanRefusal) return Infinity;
+        throw error;
+      }
+    };
+    const candidates: { values: number[]; rank: number }[] = [];
+    for (let tilt: number = 0; tilt <= cone + 1e-9; tilt += 10)
+      for (let around: number = 0; around < 360; around += 45) {
+        for (let turn: number = 0; turn < 360; turn += 30) {
+          const values: number[] = [tilt, around, turn];
+          candidates.push({ values, rank: rank(values) + (0.1 * tilt * Math.PI) / 180 });
+        }
+        if (tilt === 0) break;
+      }
+    candidates.sort((a: { rank: number }, b: { rank: number }): number => a.rank - b.rank);
+    return chosen(context, tool, {
+      frame,
+      tried: candidates.slice(0, TRIED).map((candidate: { values: number[] }): number[] => candidate.values),
+      freedoms: [
+        { kind: "bounded", step: cone > 0 ? 5 : 0, least: 0, greatest: cone },
+        { kind: "wrapped", step: 22.5, period: 360 },
+        { kind: "wrapped", step: 15, period: 360 },
+      ],
+      back, posture,
+    });
   }
 
   /**
@@ -159,9 +186,9 @@ export namespace StrikingRoll {
    * @evidence contracts/development/implementation.md#principled-implementation The wrist follows rigidly from the grip frame and the elbow from a straight wrist; the arm holds the pose only with the elbow one upper arm from the shoulder.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One shoulder read and one closed form, the one `hand` ranks its candidates by.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A ranking only: no pose is accepted by it, `best` and `reachable` fit.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One trunk resolution and constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One raw trunk query admits all current authored joints and evaluates only shoulder ancestry, then fixed anatomical vector work returns the residual; no limb fit is performed and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares only the canonical StrikingStrain body/side anatomical metadata with hand. Each call first reads its current raw shoulder, then obtains the current side's anatomical rank reader; no shoulder, raw posture or rank answer is reused.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The anatomical closure and fresh raw-trunk map end on return or throw. Only the scalar rank escapes, with no pose, FK workspace, hand frame or numerical history retained.
    */
   export function strain(
     context: Pick<IHumanActionContext, "body">,
@@ -169,10 +196,8 @@ export namespace StrikingRoll {
     frame: StrikingHeld.IHandFrame,
     posture: IHumanPosture,
   ): number {
-    return StrikingStrain(context.body, tool.side)(
-      frame,
-      shoulder(context, tool.side, posture),
-    );
+    const from: IAutoMovieVector3 = shoulder(context, tool.side, posture);
+    return StrikingStrain(context.body, tool.side)(frame, from);
   }
 
   /**
@@ -196,23 +221,17 @@ export namespace StrikingRoll {
    * @evidence contracts/development/implementation.md#principled-implementation Each pose is judged by `miss`, the fit that counts the shoulder's, the forearm's and the wrist's ranges, so the angle chosen is one the wrist can make.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation with a one-instant judge, then the frame of the chosen values.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The freedoms are the law's; the result is still judged by `reachable`.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The chooser's original lazy fits/refinement budget remain; fixed-posture trials share one direct assembly/clamp, while callback-varying trials keep their own admission and all candidates retain actual fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One exact FK reader belongs to this synchronous search. Only an explicitly fixed posture object lends its direct-pose preparation across complete candidate goals; a candidate posture callback stays ordinary seeded, and every actual fit remains.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The lazy reader, fixed-tool goal producer, optional genuine ROM projector and fixed direct-pose snapshots end on search return or failure; the chosen hand frame retains no reader, prepared workspace or candidate history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The original lazy fit/refinement budget remains. Every callback candidate rebuilds its actual tool goal and re-admits direct posture/ROM inputs before the complete original limb/digit/rival fits; exact FK prerequisites alone may share a native workspace, with no measured speedup.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One exact FK reader checks actual scalar dependencies within this synchronous search. Frame callbacks and raw field getters may change current authoring, so every candidate retains cold seeded admission; neither object identity nor a pure frame producer certifies borrowed posture immutability.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local exact reader and each independent current goal/fit/map end on search return or failure. No direct snapshot, tool geometry, ROM mapper or candidate answer is retained by the chosen fresh hand frame.
    */
   export function chosen(
     context: Pick<IHumanActionContext, "body">,
     tool: StrikingHeld.ITool,
     props: IChoice,
   ): StrikingHeld.IHandFrame {
-    const { frame, tried, freedoms, back, posture } = props;
-    let projection: ReturnType<typeof prepareHumanPostureProjection> | undefined;
+    const { frame, tried, freedoms, back, posture }: IChoice = props;
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const goalFor: ReturnType<typeof StrikingHeld.prepareGoal> = goals(context, tool, back);
-    let fixed: ReturnType<typeof resolveHumanPosture.prepareBase> | undefined;
-    const prepared: (() => ReturnType<typeof resolveHumanPosture.prepareBase>) | undefined =
-      typeof posture === "function" ? undefined : (): ReturnType<typeof resolveHumanPosture.prepareBase> =>
-        (fixed ??= resolveHumanPosture.prepareBase(context.body, posture));
     return frame(
       HumanFreedomChoice.chosen({
         tried,
@@ -221,8 +240,6 @@ export namespace StrikingRoll {
           const posed: StrikingHeld.IHandFrame = frame(values);
           try {
             const current: IHumanPosture = typeof posture === "function" ? posture(posed) : posture;
-            if (typeof posture === "function" && projection === undefined)
-              projection = prepareHumanPostureProjection(context.body);
             return [
               miss(
                 context,
@@ -231,9 +248,6 @@ export namespace StrikingRoll {
                 back,
                 current,
                 resolution,
-                prepared,
-                goalFor,
-                projection,
               ),
             ];
           } catch (error) {
@@ -245,7 +259,14 @@ export namespace StrikingRoll {
     );
   }
 
-  /** A tool pose's freedoms as a law states them for `chosen`. */
+  /**
+   * A tool pose's freedoms as a law states them for chosen.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members state actual candidate frame construction, ordered preferred values, bounded/wrapped freedoms, kept-point metres and actual posture inputs, whose object fields may change inside a frame callback.
+   * @evidence contracts/development/design.md#principled-representation Existing hand/posture types and HumanFreedomChoice freedoms encode actual geometric candidates and complete body demands without storing a solved pose or success flag.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The chooser consumes exactly the frame producer, original trial ordering/refinement freedoms, kept tool point and actual candidate posture source.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A posture object is read after each actual frame callback and is never assumed immutable by identity; every current raw field is re-admitted cold, and all candidates retain original limb/digit/rival fits and limits.
+   */
   export interface IChoice {
     /** The hand frame the freedoms' values give. */
     frame: (values: readonly number[]) => StrikingHeld.IHandFrame;
@@ -259,7 +280,7 @@ export namespace StrikingRoll {
     /** The point of the tool the pose keeps, metres behind its working point. */
     back: number;
 
-    /** The unchanged body/root/direct-joint/digit posture for this synchronous search, or an actual posture callback for each candidate frame when another hand supports that frame's tool. */
+    /** The current body posture, read after each actual frame callback, or a posture callback for each candidate frame when another hand supports that frame's tool. */
     posture:
       | IHumanPosture
       | ((frame: StrikingHeld.IHandFrame) => IHumanPosture);
@@ -283,8 +304,8 @@ export namespace StrikingRoll {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop with one early end.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The choice is the fit's; the caller's refusal (`reachable`) still judges the chosen pose.
    * @evidence contracts/development/implementation.md#efficient-algorithms Candidates are built and fitted lazily, so a law whose first pose holds pays one fit.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One fixed-posture direct assembly/clamp and one local exact FK reader serve this synchronous candidate loop; every candidate still supplies complete goals and runs actual arm/rival/digit fits on independent pose copies.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader, fixed-tool goal producer and fixed direct-pose preparation are local to the synchronous candidate loop and end on return or throw; only the chosen frame escapes.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One local exact FK reader checks actual scalar dependencies; each arbitrary candidate callback is followed by a fresh current tool goal, direct-joint admission and ROM projection, retaining in-place posture/tool/table changes and all arm/rival/digit fitting.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The exact reader and each independent fitted pose/map end with the synchronous loop on return or throw. No posture snapshot, fixed tool geometry, ROM projector or candidate history is retained, and only the chosen frame escapes.
    */
   export function best(
     context: Pick<IHumanActionContext, "body">,
@@ -294,16 +315,12 @@ export namespace StrikingRoll {
     posture: IHumanPosture,
   ): StrikingHeld.IHandFrame {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const goalFor: ReturnType<typeof StrikingHeld.prepareGoal> = goals(context, tool, back);
-    let fixed: ReturnType<typeof resolveHumanPosture.prepareBase> | undefined;
-    const prepared = (): ReturnType<typeof resolveHumanPosture.prepareBase> =>
-      (fixed ??= resolveHumanPosture.prepareBase(context.body, posture));
     let chosen: StrikingHeld.IHandFrame | undefined;
     let least: number = Infinity;
     for (const candidate of candidates) {
       if (least <= HumanFreedomChoice.EXACT) break;
       const frame: StrikingHeld.IHandFrame = candidate();
-      const missed: number = miss(context, tool, frame, back, posture, resolution, prepared, goalFor);
+      const missed: number = miss(context, tool, frame, back, posture, resolution);
       if (missed < least - HumanFreedomChoice.EXACT) {
         least = missed;
         chosen = frame;
@@ -330,8 +347,8 @@ export namespace StrikingRoll {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One distance, then one fit.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No clamp: a pose that is out of reach or that the hand cannot turn to is refused with the measured miss and what to change.
    * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution and one fit per plan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A check made once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses canonical grip/shoulder geometry and the original miss owner. The actual shoulder reach test and subsequent full fit borrow one exact same-body FK workspace within this synchronous check; distinct postures and calls remain independent.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One lazy exact workspace and temporary raw/fitted maps end on normal return or either refusal; no query result, reader, goal or new history is retained by a returned plan.
    */
   export function reachable(
     context: Pick<IHumanActionContext, "body">,
@@ -348,7 +365,8 @@ export namespace StrikingRoll {
         HumanHand.offset(context.body, tool.side, "grip").point,
       ),
     );
-    const distance: number = Vector3.distance(wrist, shoulder(context, tool.side, posture));
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const distance: number = Vector3.distance(wrist, shoulder(context, tool.side, posture, resolution));
     const limit: number =
       context.body.measure.upperArm + context.body.measure.forearm;
     if (distance > limit)
@@ -360,7 +378,7 @@ export namespace StrikingRoll {
         reason: `the ${tool.side} wrist would be ${distance.toFixed(3)} m from its shoulder, beyond the arm's ${limit.toFixed(3)} m`,
         fix,
       });
-    const missed: number = miss(context, tool, frame, back, posture);
+    const missed: number = miss(context, tool, frame, back, posture, resolution);
     if (missed > MISS)
       throw new HumanRefusal({
         kind: "reach",
@@ -372,21 +390,19 @@ export namespace StrikingRoll {
       });
   }
 
-  /** One lazy fixed-tool goal producer shared only by this synchronous candidate search. */
-  function goals(context: Pick<IHumanActionContext, "body">, tool: StrikingHeld.ITool, back: number): ReturnType<typeof StrikingHeld.prepareGoal> {
-    let prepared: ReturnType<typeof StrikingHeld.prepareGoal> | undefined;
-    return (frame: StrikingHeld.IHandFrame, bend: IAutoMovieVector3): IHumanPosture.IGoal => {
-      if (prepared === undefined) prepared = StrikingHeld.prepareGoal(context, tool, back);
-      return prepared(frame, bend);
-    };
-  }
   /** The holding arm's shoulder joint on a posture, world metres. */
-  const shoulder = (
+  const shoulder: (
     context: Pick<IHumanActionContext, "body">,
     side: HumanHand.Side,
     posture: IHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  ) => IAutoMovieVector3 = (
+    context: Pick<IHumanActionContext, "body">,
+    side: HumanHand.Side,
+    posture: IHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieVector3 =>
-    HumanTrunk.resolve(context.body, posture, undefined, undefined, SHOULDERS[side]).get(`${side}UpperArm`)!
+    HumanTrunk.resolve(context.body, posture, undefined, resolution, SHOULDERS[side]).get(`${side}UpperArm`)!
       .worldPosition;
 }
 

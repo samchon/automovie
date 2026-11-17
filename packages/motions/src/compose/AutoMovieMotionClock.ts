@@ -1,8 +1,8 @@
 import { minimumJerk } from "@automovie/engine";
-import type { IAutoMovieMotionEvent } from "@automovie/interface";
 
 import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
-import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
+import type { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
+import { AutoMovieMotionClockNative } from "./AutoMovieMotionClockNative";
 import { AutoMovieMotionWave } from "./AutoMovieMotionWave";
 
 /**
@@ -24,10 +24,10 @@ import { AutoMovieMotionWave } from "./AutoMovieMotionWave";
  */
 export namespace AutoMovieMotionClock {
   /** The instant every clock has at 0 seconds. */
-  export const START: string = "start";
+  export const START: string = AutoMovieMotionClockNative.START;
 
   /** The instant every clock has at its duration. */
-  export const END: string = "end";
+  export const END: string = AutoMovieMotionClockNative.END;
 
   /**
    * A named instant.
@@ -64,36 +64,42 @@ export namespace AutoMovieMotionClock {
   /**
    * The clock record, with its named-instant queries owned in one declaration.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the clock's duration, instants and existing query declaration.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies duration, named instants and inherited query members while preserving the original exported interface's declaration-merging surface.
    * @evidence contracts/development/design.md#principled-representation Reuses the same action-local seconds and named-window interface.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Preserves the existing Clock namespace type while the record has one owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is copied, widened or made optional by this alias.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The original public interface extends the sole clock record owner without duplicating members or blocking existing module/namespace augmentation.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The declaration remains an interface; no inherited member is copied, widened or made optional.
    */
-  export type IClock = IAutoMovieMotionClock;
+  export interface IClock extends IAutoMovieMotionClock {}
 
   /**
    * Prepare native fixed intervals while preserving arbitrary custom clock callbacks.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Native Clock.of instances resolve names once; custom or replaced methods remain actual receiver-bound linear/progress callbacks at every second.
-   * @evidence contracts/development/implementation.md#principled-implementation Only the private constructor record proves the original pure fixed-time method set. Exact current method identities retain that proof; any changed/custom method uses its ordinary callback instead.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One native-method lookup and optional numeric interval feed two guarded readers; the interval owner retains all numeric step/easing rules.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No custom callback/effect, changed method, queried second or original numeric rule is dropped. Native name admission remains at preparation and changed/custom callbacks retain their own admission.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Native readers replace repeated name-map queries with fixed method comparisons and original scalar arithmetic; custom readers keep every original callback. Setup and retained metadata are constant per interval; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only privately issued native methods and their fixed named instants share numeric preparation; identity checks on each read detect later replacement. Custom callback results are never shared.
+   * @evidence contracts/development/common.md#meaningful-documentation Each sample reads only its requested public method once. An original native method resolves names through its saved private at on the first native sample; foreign/replaced methods keep current getters, clock receiver and callback admission.
+   * @evidence contracts/development/implementation.md#principled-implementation The constructor's original linear/progress closures depend on its private at, independently of later public property replacements. Only exact requested-callee identity justifies the same fixed numeric interval; all other callees are invoked normally.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to the constructor/provenance owner ClockNative; its one lookup and lazy private-at interval serve both captured-callee readers while Interval retains numeric step/easing rules.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unrelated public getter is probed and no current callee is read twice. Reflect.apply preserves the captured foreign callee's original clock receiver without reading a replaceable function.call property; each actual second retains its original numerical rule.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Native samples use one requested-method lookup and identity check plus scalar arithmetic; their two private name lookups occur once. Foreign samples retain one method lookup/callback and a three-value argument array; setup/retention are constant, with unmeasured speedup.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only constructor-owned private named times share interval preparation when the requested method is still original. Public at or the other query method is irrelevant to that closure; custom results and different seconds are never cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns the clock, names, original method references and optional fixed numeric interval until release; native construction records are weakly keyed by their live clock and retain no sample history or handles.
    */
   export function prepare(clock: IClock, from: string, to: string): AutoMovieMotionInterval.IPrepared {
-    const native: NativeClock | undefined = NATIVE.get(clock);
-    const ready: { methods: NativeClock; interval: AutoMovieMotionInterval.IPrepared } | undefined =
-      native !== undefined && clock.at === native.at && clock.linear === native.linear && clock.progress === native.progress
-        ? { methods: native, interval: AutoMovieMotionInterval.prepare(clock, from, to) } : undefined;
-    return {
-      linear: (seconds: number): number => ready !== undefined && clock.at === ready.methods.at &&
-        clock.linear === ready.methods.linear ? ready.interval.linear(seconds) : clock.linear(from, to, seconds),
-      progress: (seconds: number): number => ready !== undefined && clock.at === ready.methods.at &&
-        clock.linear === ready.methods.linear && clock.progress === ready.methods.progress
-        ? ready.interval.progress(seconds) : clock.progress(from, to, seconds),
-    };
+    return AutoMovieMotionClockNative.prepare(clock, from, to);
+  }
+
+  /**
+   * Prepare fixed rise/fall windows with the clock's actual envelope semantics.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Copies four fixed names, defers native endpoint admission until first actual use, and keeps current envelope lookup, original receiver and fresh foreign argument tuples.
+   * @evidence contracts/development/implementation.md#principled-implementation Only the constructor's original envelope closes its private progress; that exact requested-callee identity justifies fixed numeric intervals without observing public at/linear/progress.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure ClockNative owns construction and the private identity registry; this facade delegates envelope preparation to that same owner and Interval retains interpolation/easing.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains rise-before-fall admission/evaluation, original Math.max(0,rise minus fall), current callback behavior and query seconds; no unrelated getter, eager name admission or result memo is introduced.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four native name lookups occur once and native samples allocate no window tuples. Foreign/replaced callbacks receive fresh tuples plus their actual invocation; all numeric progress remains and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed window names and constructor-private interval metadata alone share; each sample captures the current requested envelope once, and nonoriginal callees retain their independent callback behavior.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning action retains clock, copied names and at most two numeric intervals until release; no caller array, pose, query result, time history or handle is retained.
+   */
+  export function prepareEnvelope(clock: IClock, rise: readonly [string, string],
+    fall: readonly [string, string]): (seconds: number) => number {
+    return AutoMovieMotionClockNative.prepareEnvelope(clock, rise, fall);
   }
   /**
    * A clock from a duration and its named instants.
@@ -105,74 +111,14 @@ export namespace AutoMovieMotionClock {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, their order, the result and each refused input.
    * @evidence contracts/development/implementation.md#principled-implementation Uniform progress is the clamped linear map of the window, minimum-jerk progress is `minimumJerk` of it (Flash and Hogan 1985), and the envelope is the rise's progress less the fall's, clamped at zero.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One name-to-seconds map checked once, and four closures over it; `progress` and `envelope` are built on `linear`, so the window rule exists once.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates construction to ClockNative, which owns the original validated map and private at/linear/progress/envelope closures used by all guarded prepared readers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A repeated or reserved name, an instant outside the duration and an unknown name throw; the only tolerance is 1e-9 s on the duration's end, for an instant computed as a sum of phase lengths.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each query is two map lookups and a polynomial, constant time, which matters because every primitive asks at every evaluated second.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `minimumJerk`, the engine's one owner of the minimum-jerk profile.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains one map, one sorted array and three original method references for the clock's lifetime; the method proof is weakly keyed by the returned clock, retains no query history and needs no external resource cleanup.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The constructed clock retains one map/sorted array and its original closures; ClockNative weakly owns the method proof without retaining the clock key, query history or external resources.
    */
   export function of(duration: number, instants: readonly IInstant[]): IClock {
-    if (!(duration > 0)) throw new Error("A clock lasts a positive time");
-    const times: Map<string, number> = new Map([
-      [START, 0],
-      [END, duration],
-    ]);
-    for (const instant of instants) {
-      if (times.has(instant.name))
-        throw new Error(`A clock names "${instant.name}" once`);
-      if (!(instant.seconds >= 0 && instant.seconds <= duration + 1e-9))
-        throw new Error(
-          `The instant "${instant.name}" lies outside the clock's duration`,
-        );
-      times.set(instant.name, Math.min(duration, instant.seconds));
-    }
-    const sorted: IInstant[] = instants
-      .map(
-        (i: IInstant): IInstant => ({
-          name: i.name,
-          seconds: times.get(i.name)!,
-        }),
-      )
-      .sort((a: IInstant, b: IInstant): number => a.seconds - b.seconds);
-    const at = (name: string): number => {
-      const seconds: number | undefined = times.get(name);
-      if (seconds === undefined)
-        throw new Error(`The clock has no instant "${name}"`);
-      return seconds;
-    };
-    const linear = (from: string, to: string, seconds: number): number => {
-      const a: number = at(from);
-      const b: number = at(to);
-      return AutoMovieMotionInterval.linear(a, b, seconds);
-    };
-    const progress = (from: string, to: string, seconds: number): number =>
-      minimumJerk.share(linear(from, to, seconds));
-    const clock: IClock = {
-      duration,
-      instants: sorted,
-      at,
-      linear,
-      progress,
-      envelope: (
-        rise: readonly [string, string],
-        fall: readonly [string, string],
-        seconds: number,
-      ): number =>
-        Math.max(
-          0,
-          progress(rise[0], rise[1], seconds) -
-            progress(fall[0], fall[1], seconds),
-        ),
-      events: (): IAutoMovieMotionEvent[] =>
-        sorted.map(
-          (i: IInstant): IAutoMovieMotionEvent => ({
-            name: i.name,
-            share: i.seconds / duration,
-          }),
-        ),
-    };
-    NATIVE.set(clock, { at, linear, progress });
-    return clock;
+    return AutoMovieMotionClockNative.of(duration, instants);
   }
 
   /**
@@ -468,11 +414,5 @@ export namespace AutoMovieMotionClock {
     });
   }
 }
-
-/** Only Clock.of's original methods prove fixed native interval semantics. */
-type NativeClock = Pick<AutoMovieMotionClock.IClock, "at" | "linear" | "progress">;
-
-/** A native clock owns its method proof weakly; no numeric query history is stored. */
-const NATIVE: WeakMap<AutoMovieMotionClock.IClock, NativeClock> = new WeakMap();
 
 

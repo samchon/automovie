@@ -213,7 +213,7 @@ export namespace HumanGrasp {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure This public facade passes every input to the single numerical owner without a second candidate selector or fit path.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All supplied turns, tilts, keys, admission callbacks, bounds, degree/millimetre cost and authored-turn preference retain their original policy.
    * @evidence contracts/development/implementation.md#efficient-algorithms The owner fits C admitted turn/tilt goals and reached stroke keys, preserving original lower-bound pruning and complete numerical searches; this facade adds constant dispatch only.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The numerical owner shares one exact FK reader and fixed-posture canonical base only where dependencies match, with every distinct complete goal still actually fitted.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The ordinary numerical owner may share exact FK dependencies while admitting all current raw values, but never a fixed direct base across arbitrary callbacks. Goal/admission invocation order, eager full observations and every distinct complete fit remain original.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate/key/FK workspaces are local to the delegated synchronous search; only the chosen wrist, pose, reference and scalar reports escape without a reader or history.
    */
   export function reachable(

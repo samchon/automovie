@@ -80,7 +80,7 @@ export namespace StrikingAim {
      * @evidence contracts/development/common.md#meaningful-documentation States the order, the causality and the timebase.
      * @evidence contracts/development/implementation.md#principled-implementation Each observation's change of prediction becomes one minimum-jerk unit from its start one latency later to the contact (Flash and Henis 1991).
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the observations, stopping at the first unit not yet started.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains every original observation in order through the exact start>seconds gate, original prediction differences, latency and impact-start duration; no correction unit, target read, time or displacement is approximated.
      * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the observations started by the second; predictions are memoised.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Each observation's prediction is computed once per tracker.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memo holds at most one prediction per observation and is released with the tracker.
@@ -95,11 +95,11 @@ export namespace StrikingAim {
      *
      * @evidence contracts/development/common.md#meaningful-documentation States what is included and the frame.
      * @evidence contracts/development/implementation.md#principled-implementation The planned goal plus every started unit's full displacement.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure A fold over the started units.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the started units.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the tracker's memoised predictions.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the tracker's memo.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared started-observation iterator first collects the actual ordered displacements, then the original left fold adds them to planned.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses every original started correction, snapshots all prediction differences before folding and keeps the exact ordered Vector3.add accumulation; zero corrections still return the exposed planned reference and no goal or fit answer is substituted.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Retains O(K) observation/difference/fold work and temporary displacement vectors for K started observations, omitting K unused timed-unit records while retaining original duration field reads/arithmetic for raw observation order. No measured speedup is claimed.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same actual started-observation owner and memoised predictions as units. All target/timing callbacks, original duration reads and displacement snapshots still precede the original fold, preserving raw observation order and later changes to the exposed planned vector; no accumulated goal is cached.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary displacement vectors/array end on return or failure. The original bounded prediction memo stays tracker-owned; with no started corrections the original planned reference is returned unchanged.
      */
     goal(seconds: number): IAutoMovieVector3;
   }
@@ -147,7 +147,7 @@ export namespace StrikingAim {
    * @evidence contracts/development/common.md#meaningful-documentation States the prediction, the difference and every unit.
    * @evidence contracts/development/implementation.md#principled-implementation First-order extrapolation with a backward difference (Brenner and Smeets 1996); a contact already past predicts the current point.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two reads and one extrapolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the opaque target's exact now then seconds-step reads, original backward-difference scale and nonnegative remaining-time extrapolation; no future observation, alternative velocity or target snapshot replaces either call.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two target reads.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; the tracker memoises its calls.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -180,11 +180,11 @@ export namespace StrikingAim {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the causality of the target reads, the offset and the memo.
    * @evidence contracts/development/implementation.md#principled-implementation The planned goal is the launch observation's prediction; each later observation adds its change as a correction unit.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The schedule, a memoised prediction per observation, and the units and goal over them.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the observations; each prediction is read once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Predictions are memoised by observation index for the tracker's life.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memo is bounded by the observation count and released with the tracker.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The original schedule/prediction owner feeds one started-observation iterator; units emits its original timed records, while goal collects only displacement vectors before the original ordered fold.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the original schedule, initial launch prediction, fixed offset, started-time comparison, actual prediction callback order and every correction difference. All observations/displacements still precede goal accumulation, and no sample, active unit, timing bound or fitted answer is skipped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each actual prediction is produced once under the original index memo; K active corrections still cost O(K). Goal-only reads omit K unused timed-unit records while retaining original displacement snapshots and fold order; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The original observation-index prediction memo remains. Units and goal share started-time tests and exact prediction/difference order; no query goal, unit output or accumulation is retained or reused across seconds.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The existing memo is bounded by the fixed observation count and released with the tracker. Each read owns its temporary fresh unit/displacement outputs, and goal-only vectors/array end on return or failure without extending history.
    */
   export function track(
     aim: (seconds: number) => IAutoMovieVector3,
@@ -205,30 +205,42 @@ export namespace StrikingAim {
       return p;
     };
     const planned: IAutoMovieVector3 = prediction(0);
-    const units = (seconds: number): superposeMinimumJerk.IUnit[] => {
-      const out: superposeMinimumJerk.IUnit[] = [];
+    const started: (
+      seconds: number,
+      emit: (displacement: IAutoMovieVector3, start: number, duration: number) => void,
+    ) => void = (
+      seconds: number,
+      emit: (displacement: IAutoMovieVector3, start: number, duration: number) => void,
+    ): void => {
       for (let k: number = 1; k < times.length; k++) {
         const start: number = times[k]! + timing.latency;
         if (start > seconds) break;
-        out.push({
-          displacement: Vector3.subtract(prediction(k), prediction(k - 1)),
-          start,
-          duration: timing.impact - start,
-        });
+        emit(Vector3.subtract(prediction(k), prediction(k - 1)), start, timing.impact - start);
       }
+    };
+    const units: ITracker["units"] = (seconds: number): superposeMinimumJerk.IUnit[] => {
+      const out: superposeMinimumJerk.IUnit[] = [];
+      started(seconds, (displacement: IAutoMovieVector3, start: number, duration: number): void => {
+        out.push({ displacement, start, duration });
+      });
       return out;
     };
     return {
       planned,
       units,
-      goal: (seconds: number): IAutoMovieVector3 =>
-        units(seconds).reduce(
-          (
-            g: IAutoMovieVector3,
-            u: superposeMinimumJerk.IUnit,
-          ): IAutoMovieVector3 => Vector3.add(g, u.displacement),
+      goal: (seconds: number): IAutoMovieVector3 => {
+        const displacements: IAutoMovieVector3[] = [];
+        started(seconds, (displacement: IAutoMovieVector3): void => {
+          displacements.push(displacement);
+        });
+
+        // Keep every opaque target observation before the original ordered fold.
+        return displacements.reduce(
+          (g: IAutoMovieVector3, displacement: IAutoMovieVector3): IAutoMovieVector3 =>
+            Vector3.add(g, displacement),
           planned,
-        ),
+        );
+      },
     };
   }
 }

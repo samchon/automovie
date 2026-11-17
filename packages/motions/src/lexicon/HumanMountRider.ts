@@ -64,9 +64,9 @@ export namespace HumanMountRider {
    * @evidence contracts/development/implementation.md#principled-implementation The ball stays where the goal puts it and the ankle moves on its circle about the ball's lateral axis; the least turn that reaches is found by bisection, the distance being monotonic in the turn up to `ANKLING`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The ball, the turn as a function of an angle, the distance, the search.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pedal beyond even `ANKLING` leaves the foot short of it, which the contact audit reports; a refusal with the saddle height that fits is owed.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Twenty-four closed-form evaluations at most.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The original endpoint/sign trials and twenty-four bisections remain. A genuine fixed-axis quaternion reader prepares unchanged axis length/scaling once; distance-only probes construct current placement fields without repeatedly spreading unobserved goal metadata.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only this invocation's immutable foot-local contact, world ball/lateral axis and original rotation are shared. Every candidate angle still computes its actual quaternion and ankle point, and the final goal uses that same placement owner without a sampled result cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The axis reader and trial placements end on return or throw. Only the original goal or a fresh final goal/rotation/point returns, retaining no reader, query history or prepared angle answer.
    */
   export function ankled(
     body: IHumanBody,
@@ -92,14 +92,19 @@ export namespace HumanMountRider {
       y: 0,
       z: 0,
     });
-    const turnedBy = (degrees: number): IHumanPosture.IGoal => {
+    const turn: ReturnType<typeof Quaternion.prepareAxisAngle> =
+      Quaternion.prepareAxisAngle(across);
+    const placement: (degrees: number) => {
+      point: IAutoMovieVector3;
+      rotation: IAutoMovieQuaternion;
+    } = (
+      degrees: number,
+    ): { point: IAutoMovieVector3; rotation: IAutoMovieQuaternion } => {
       const pitched: IAutoMovieQuaternion = Quaternion.multiply(
-        Quaternion.fromAxisAngle(across, degrees),
+        turn(degrees),
         rotation,
       );
       return {
-        ...goal,
-        contact,
         rotation: pitched,
         point: Vector3.subtract(
           ball,
@@ -107,8 +112,11 @@ export namespace HumanMountRider {
         ),
       };
     };
-    const far = (degrees: number): number =>
-      Vector3.length(Vector3.subtract(turnedBy(degrees).point, hip));
+    const turnedBy: (degrees: number) => IHumanPosture.IGoal = (
+      degrees: number,
+    ): IHumanPosture.IGoal => ({ ...goal, contact, ...placement(degrees) });
+    const far: (degrees: number) => number = (degrees: number): number =>
+      Vector3.length(Vector3.subtract(placement(degrees).point, hip));
     if (far(0) <= reach) return goal;
     const sign: number = far(1) < far(-1) ? 1 : -1;
     if (far(sign * ANKLING) > reach) return turnedBy(sign * ANKLING);
@@ -156,7 +164,7 @@ export namespace HumanMountRider {
    * @evidence contracts/development/implementation.md#principled-implementation The hand's frame is built from the grip's own normal and axis, so it turns with the part at every instant; the way there is a straight line and the shortest turn from the hand the posture's joints give.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The target, the turn, the blend from the joints' hand, the fingers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grip out of the arm's reach is not checked here: the limb fit leaves the hand short of it, which the contact audit reports. The closure is the caller's, curled on the real colliders.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass while the hand is on its way and none once it holds.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A partial hold retains the complete canonical current joint/goal solve before final FK requests only its hand ancestry; fully holding needs no pose/FK observation. Closed-finger interpolation remains linear in the supplied joints.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied synchronous FK reader serves the complete canonical resolve and final hand frame; a genuine same-body projector shares only ROM metadata while every current joint/goal still resolves. Fixed relaxed shape tables serve only scalar finger interpolation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrowed FK/ROM loans end on return or throw and are never stored in goals or plans. Two immutable side-only relaxed shapes are bounded module data; current maps and targets do not persist.
    */

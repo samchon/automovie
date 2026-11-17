@@ -21,6 +21,7 @@ import type { IHumanProp } from "../perform/IHumanProp";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanTravelLeafWalk } from "./HumanTravelLeafWalk";
@@ -48,7 +49,7 @@ import { HumanTravelLeafWalk } from "./HumanTravelLeafWalk";
  * a `reach` refusal on `handle` naming the largest swing followed. First
  * pass: the closure is the one at the instant the hand arrives.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States who moves the leaf, how the hand follows it, when the person leans and walks, timing, refusal and closure limitation; the law comment states each hold check's exact-FK scope and reuse of a completed standing support decision.
+ * @evidence contracts/development/common.md#meaningful-documentation States who moves the leaf, how the hand follows it, when the person leans and walks, timing, refusal and closure limitation; the law comment states construction-only FK/ROM scope and separate actual support-selection and hold-verification passes.
  * @evidence contracts/development/design.md#principled-representation A law record over the stand, with one arm's goal on a prop's moving point.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law, its parameters and its named constants.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No door is special-cased: the handle, its frame, its width and the leaf's colliders are the prop's own.
@@ -86,12 +87,17 @@ export namespace HumanTravelLeaf {
   export const REACH: number = 0.97;
 
   /**
-   * Open a door by its handle, standing or following its leaf. Each holds
-   * check lends one lazy exact-FK reader through its actual posture fit and
-   * displayed wrist read, then releases it synchronously. Every distinct
-   * hold check performs its actual fit. A successful complete standing pass
-   * settles that plan's support decision without repeating the same pass;
-   * no handle sample or fitted wrist is shared across differing inputs.
+   * Open a door by its handle, standing or following its leaf. Synchronous
+   * construction shares one lazy exact-FK reader through base, hold fitting
+   * and displayed wrist reads, plus genuine ROM metadata after the original
+   * first standing shoulder observation. Every distinct hold check performs its
+   * actual fit; fixed hand-name demand prepares after the first successful
+   * wrist observation. None of these readers enters the returned plan.
+   * Support selection and subsequent hold verification each retain their
+   * original actual sample fits; no completed pass verdict replaces later
+   * checks, and no handle sample or fitted wrist is replayed.
+   * Each playback observation lazily owns or borrows one FK getter through
+   * its displayed base and hold, releasing it on return or throw.
    */
   export const openDoor: IHumanActionLaw<IParams> = {
     name: "openDoor",
@@ -175,11 +181,12 @@ export namespace HumanTravelLeaf {
       };
       // The body stands while it opens, its sway signed in the opening
       // hand's frame, so a left-handed opening mirrors a right one.
+      const validation: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
       const standing: IHumanActionPlan = stand.plan(
         { ...context, params: { seconds } },
         side,
       );
-      const start: IHumanPosture = standing.posture(0);
+      const start: IHumanPosture = standing.posture(0, undefined, validation);
 
       // The hand keeps the side of the handle's axis it took it from, the
       // side the body faced as the hand arrived, however the body turns with
@@ -206,8 +213,8 @@ export namespace HumanTravelLeaf {
       // The wrist must stay within the arm's reach of the shoulder.
       const bones: ReturnType<typeof poseBones> = poseBones(
         body,
-        resolveHumanPosture(body, { ...start, limbs: {} }),
-        undefined,
+        resolveHumanPosture.seeded(body, { ...start, limbs: {} }, undefined, undefined, validation).pose,
+        validation(),
         new Set<AutoMovieHumanoidBone>([`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`]),
       );
       const shoulder: IAutoMovieVector3 = bones.get(
@@ -226,6 +233,7 @@ export namespace HumanTravelLeaf {
             bones.get(`${side}LowerArm`)!.worldPosition,
           ),
         );
+      const projector: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
       // Where the hold puts the wrist on the handle at a second.
       const wristAt: (t: number, posture: IHumanPosture, target?: Parameters<typeof HumanMountRider.hold>[3]) => IAutoMovieVector3 = (
         t: number,
@@ -266,7 +274,8 @@ export namespace HumanTravelLeaf {
       // Whether the arm keeps the hand on the handle from a posture: its own
       // fit shows the wrist within `HOLD` of where the hold asks it.
       const handBone: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
-      const holds: (posture: IHumanPosture, t: number) => boolean = (posture: IHumanPosture, t: number): boolean => {
+      let handRead: ReturnType<typeof poseBones.prepare> | undefined;
+      const holds: (posture: IHumanPosture, t: number, resolution: ReturnType<typeof prepareHumanPoseResolution>, projection: ReturnType<typeof prepareHumanPostureProjection>) => boolean = (posture: IHumanPosture, t: number, resolution: ReturnType<typeof prepareHumanPoseResolution>, projection: ReturnType<typeof prepareHumanPostureProjection>): boolean => {
         const goal: IHumanPosture.IGoal = HumanMountRider.hold(
           body,
           side,
@@ -275,20 +284,14 @@ export namespace HumanTravelLeaf {
           1,
           {},
         ).arm;
-        const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-          prepareHumanPoseResolution();
-        const wrist: IAutoMovieVector3 = poseBones(
-          body,
-          resolveHumanPosture.seeded(
-            body,
-            { ...posture, limbs: { [`${side}Arm`]: goal } },
-            undefined,
-            {},
-            resolution,
-          ).pose,
-          resolution(),
-          handBone,
-        ).get(`${side}Hand`)!.worldPosition;
+        const pose: ReturnType<typeof resolveHumanPosture.seeded>["pose"] = resolveHumanPosture.seeded(
+          body, { ...posture, limbs: { [`${side}Arm`]: goal } },
+          undefined, {}, resolution, handBone, projection,
+        ).pose;
+        const wrist: IAutoMovieVector3 = (handRead === undefined
+          ? poseBones(body, pose, resolution(), handBone)
+          : handRead(pose, resolution())).get(`${side}Hand`)!.worldPosition;
+        if (handRead === undefined) handRead = poseBones.prepare(body, handBone);
         return Vector3.length(Vector3.subtract(wrist, goal.point)) <= HOLD;
       };
       const readings: number[] = [];
@@ -298,7 +301,7 @@ export namespace HumanTravelLeaf {
       // Standing while the arm holds the handle from there throughout;
       // otherwise walking with the leaf (`HumanTravelLeafWalk`).
       const holdsStanding: boolean = readings.every(
-        (t: number): boolean => holds(base(t), t),
+        (t: number): boolean => holds(base(t, undefined, validation, projector), t, validation, projector),
       );
       const walked: IHumanActionPlan | null = holdsStanding
         ? null
@@ -310,7 +313,7 @@ export namespace HumanTravelLeaf {
               t: number,
             ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } => {
               const target: Parameters<typeof HumanMountRider.hold>[3] = grip(context.start + t);
-              return { point: wristAt(t, base(t), target), normal: target.normal };
+              return { point: wristAt(t, base(t, undefined, validation, projector), target), normal: target.normal };
             },
           });
       const shown: IHumanActionPlan["posture"] = (t: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
@@ -339,8 +342,8 @@ export namespace HumanTravelLeaf {
             360) -
             180,
         );
-      const lost: number | undefined = holdsStanding ? undefined : readings.find(
-        (t: number): boolean => !holds(shown(t), t),
+      const lost: number | undefined = readings.find(
+        (t: number): boolean => !holds(shown(t, undefined, validation, projector), t, validation, projector),
       );
       if (lost !== undefined) {
         const followed: number = swing(Math.max(TAKE, lost - 1 / 24));
@@ -364,7 +367,7 @@ export namespace HumanTravelLeaf {
           : HumanMountRider.closed(
               body,
               side,
-              shown(TAKE),
+              shown(TAKE, undefined, validation, projector),
               grip(context.start + TAKE),
               door.prop.shapes!,
               door.frame(context.start + TAKE),
@@ -404,7 +407,8 @@ export namespace HumanTravelLeaf {
         posture: (t: number, channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
           const at: number = Math.min(seconds, Math.max(0, t));
           const heldDemand: boolean = channels === undefined || channels.includes(`${side}Arm`) || channels.includes(`${side}Hand`);
-          const posture: IHumanPosture = shown(at, heldDemand ? undefined : channels, resolution, projection);
+          const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+          const posture: IHumanPosture = shown(at, heldDemand ? undefined : channels, read, projection);
           if (!heldDemand) return posture;
           const held: ReturnType<typeof HumanMountRider.hold> =
             HumanMountRider.hold(
@@ -414,7 +418,7 @@ export namespace HumanTravelLeaf {
               grip(context.start + at),
               minimumJerk.share(Math.min(1, at / TAKE)),
               closed,
-              resolution,
+              read,
               projection,
             );
           return {

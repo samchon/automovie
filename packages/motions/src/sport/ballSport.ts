@@ -148,9 +148,9 @@ export namespace ballSport {
    * @evidence contracts/development/implementation.md#principled-implementation One phrase; each skill's crouch, lean and arm places on its envelope and its stroke.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per skill.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body measures and named places; provisional values named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per arm per second and one balance solve per crouch.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the crouch, the placed arm and the hand's pad.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Original crouch/balance/arm/launch work remains; dig alone prepares its fixed pad and each actual dig callback borrows current-person FK for demanded shoulders. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing crouch/placed-arm/pad owners retain formulas; dig passes only explicit current-person FK to its original raw shoulder observation, with every current point and fit actual.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns original clock/skill geometry; optional current-person FK inputs stay synchronous and never enter output goals, the plan or query history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -179,7 +179,7 @@ export namespace ballSport {
       modifiers,
     );
     const entry: IHumanPosture = context.entry.posture;
-    const into = (s: number): number =>
+    const into: (s: number) => number = (s: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], s);
     // The span the arms are planned over: the reach to the place, the hold and the return.
     const span: AutoMovieMotionHumanArm.ISpan = {
@@ -188,17 +188,17 @@ export namespace ballSport {
       relax: clock.at("relax"),
       end: clock.at("end"),
     };
-    const stroke = (s: number): number =>
+    const stroke: (s: number) => number = (s: number): number =>
       clock.progress("strokeStart", "stroke", s);
     const arm: number = m.upperArm + m.forearm;
-    const local = (
+    const local: (posture: IHumanPosture, v: IAutoMovieVector3) => IAutoMovieVector3 = (
       posture: IHumanPosture,
       v: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
       HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, v);
-    const rest = (side: "left" | "right"): AutoMovieMotionHumanArm.IAngles =>
+    const rest: (side: "left" | "right") => AutoMovieMotionHumanArm.IAngles = (side: "left" | "right"): AutoMovieMotionHumanArm.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
-    const crouch = (
+    const crouch: (depth: number, pitch: number) => IAutoMovieMotionHumanPrimitive = (
       depth: number,
       pitch: number,
     ): IAutoMovieMotionHumanPrimitive =>
@@ -277,7 +277,8 @@ export namespace ballSport {
               rest: rest(side),
               weight: into,
               span,
-              place: (posture: IHumanPosture, s: number) => {
+              place: (posture: IHumanPosture, s: number,
+                resolution?: Parameters<IHumanActionPlan["posture"]>[2]): ReturnType<AutoMovieMotionHumanPlaced.IArm["place"]> => {
                 // The platform: nearly straight arms from the displayed shoulders, lifted at the contact.
                 const below: number =
                   ((PLATFORM - LIFT * stroke(s)) * Math.PI) / 180;
@@ -289,7 +290,7 @@ export namespace ballSport {
                 return {
                   point: Vector3.add(
                     Vector3.add(
-                      AutoMovieMotionHumanPlaced.shoulders(body, posture),
+                      AutoMovieMotionHumanPlaced.shoulders(body, posture, resolution),
                       Vector3.scale(along, REACH * arm),
                     ),
                     local(posture, {
@@ -357,7 +358,7 @@ export namespace ballSport {
           }),
         );
         const heading: IAutoMovieVector3 = local(entry, { x: 0, y: 0, z: 1 });
-        const tilted = (pitch: number): IHumanPosture =>
+        const tilted: (pitch: number) => IHumanPosture = (pitch: number): IHumanPosture =>
           AutoMovieMotionHumanLean.pivot(body, entry, { pitch, roll: 0 });
         // Behind the head as the arched trunk carries it, at the head's middle.
         const drawn: IAutoMovieVector3 = Vector3.add(

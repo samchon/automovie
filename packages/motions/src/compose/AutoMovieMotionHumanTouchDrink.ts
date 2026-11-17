@@ -120,8 +120,8 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse-to-fine walk of the leans (`least`), each lean one `trial`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The monotone admission the refinement relies on is stated here and read by the drinking signature spec, which checks that the lean a step below the returned one does not admit; with none admitted the law is refused, never given a raised arm.
    * @evidence contracts/development/implementation.md#efficient-algorithms At most five coarse leans and two fine ones; each lean thirteen entry fits, then for its best one referred fit (its reference's entry fit is in the resolver's memory) and, with `after`, a referred fit in the drinking phase (two solves: its reference and the fit). Every 5-degree lean from 0 took up to thirteen leans. Each facing's hint is bounded once per lean (one trunk solve, then constant work).
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `trial`, `least` and `AutoMovieMotionHumanDrinkingArm`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One genuine fixed body/side FK/ROM reader serves every original candidate/reference/after fit. The unchanged entry posture's numerical shoulder/swivel bounds prepare lazily once across coarse/fine leans; each varying hint still runs the original closed-form bound, and every candidate fit remains actual.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search owns one reader until return or throw; the numeric answer/refusal captures no reader, candidate pose or new query history.
    */
   export function drinking(
     body: IHumanBody,
@@ -136,6 +136,11 @@ export namespace AutoMovieMotionHumanTouchDrink {
     if (!(level > 1e-6))
       return { facing: place.normal, lean: 0, tilt: 0, bend: hint };
     const read: ReturnType<typeof AutoMovieMotionHumanDrinkingArm.prepareRead> = AutoMovieMotionHumanDrinkingArm.prepareRead(body, side);
+    let bound: ReturnType<typeof AutoMovieMotionHumanDrinkingSwivel.bounded> | undefined;
+    const bounds = (): ReturnType<typeof AutoMovieMotionHumanDrinkingSwivel.bounded> => {
+      if (bound === undefined) bound = AutoMovieMotionHumanDrinkingSwivel.bounded(body, posture, side);
+      return bound;
+    };
     let nearest: AutoMovieMotionHumanDrinkingArm.INearest | undefined;
     const found: IDrink | undefined = least(
       (lean: number): IDrink | undefined =>
@@ -152,6 +157,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
           },
           after,
           read,
+          bounds,
         ),
     );
     if (found !== undefined) return found;
@@ -187,8 +193,8 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation to `trial`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every facing is solved; a tie keeps the one nearest head on.
    * @evidence contracts/development/implementation.md#efficient-algorithms Thirteen entry fits and one referred fit, whose reference's entry fit the resolver's memory already holds; with `after`, two more solves for the drinking phase's reference and referred fit. Each facing's hint is bounded in constant work after one trunk solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by `drinking` and by the spec that checks its least lean.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The single-lean trial uses the same native fixed-body observation producer as drinking, preserving all current facing and reference fits without re-preparing rig metadata for each candidate.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Its invocation owns one reader until return or throw and returns only original numeric drink data, with no pose/result history or metadata loan retained.
    */
   export function admitted(
     body: IHumanBody,
@@ -239,8 +245,8 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse-to-fine walk (`least`) of a goal, a screen and an admission per lean.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The admitted arm is the referred one the stroke shows; with none admitted the law is refused.
    * @evidence contracts/development/implementation.md#efficient-algorithms Per lean tried (at most five coarse and two fine): one entry fit, and for a lean that passes it one referred fit (its reference's entry fit in the resolver's memory) and, with `after`, the drinking phase's reference and referred fit, two solves.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanTouchLaid.rest` for the vessel's point and contact, `tip` and `AutoMovieMotionHumanDrinkingArm`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Rest/tip retain vessel geometry and one genuine fixed-body observation reader serves every current lean, reference and later-phase native fit; only rig/FK metadata is shared, never a candidate answer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous held search owns one reader until return or throw; returned lean/goal payloads remain numeric and retain no reader or new candidate history.
    */
   export function held(
     body: IHumanBody,
@@ -386,6 +392,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
     seen: (arm: AutoMovieMotionHumanDrinkingArm.IArm, at: string) => void,
     after?: IAfter,
     read: ReturnType<typeof AutoMovieMotionHumanDrinkingArm.prepareRead> = AutoMovieMotionHumanDrinkingArm.prepareRead(body, side),
+    bounds?: () => ReturnType<typeof AutoMovieMotionHumanDrinkingSwivel.bounded>,
   ): IDrink | undefined {
     const level: number = Math.hypot(place.normal.x, place.normal.z);
     // The vessel's axis in the hand: the effector's along axis, which an
@@ -398,14 +405,8 @@ export namespace AutoMovieMotionHumanTouchDrink {
     // Each facing's arm is hinted inside the drinking range: the hint moved
     // to the nearest swivel whose shoulder lies in it, kept where it does
     // (`AutoMovieMotionHumanDrinkingSwivel`); the drinking phase keeps it.
-    const bound: (
-      point: IAutoMovieVector3,
-      hint: IAutoMovieVector3,
-    ) => IAutoMovieVector3 = AutoMovieMotionHumanDrinkingSwivel.bounded(
-      body,
-      posture,
-      side,
-    );
+    const bound: ReturnType<typeof AutoMovieMotionHumanDrinkingSwivel.bounded> =
+      bounds === undefined ? AutoMovieMotionHumanDrinkingSwivel.bounded(body, posture, side) : bounds();
     const laid = (
       facing: IAutoMovieVector3,
       on: IHumanPosture,

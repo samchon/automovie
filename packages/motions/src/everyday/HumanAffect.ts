@@ -135,23 +135,16 @@ export namespace HumanAffect {
     const u: number = t / seconds;
     const k: number = intensity;
     const joints: IHumanPosture["joints"] = into ?? {};
-    const write: (bone: AutoMovieHumanoidBone, x: number, y: number, z: number) => void =
-      (bone: AutoMovieHumanoidBone, x: number, y: number, z: number): void => {
-        if (into === undefined) joints[bone] = [x, y, z];
-        else {
-          const was: readonly [number, number, number] = joints[bone] ?? ZERO;
-          joints[bone] = [was[0] + x, was[1] + y, was[2] + z];
-        }
-      };
+    const additive: boolean = into !== undefined;
     switch (kind) {
       case "laugh": {
         const e: number = k * ramp(u, 0.1, 0.33);
         const note: number = pulse(t % NOTE, 0.35 * NOTE, 0.65 * NOTE);
-        write("chest", 3 * e * note, 0, 0);
-        write("spine", 1.5 * e * note, 0, 0);
-        write("leftShoulder", 0, 3 * e * note, 0);
-        write("rightShoulder", 0, 3 * e * note, 0);
-        write("head", -5 * e, 0, 0);
+        write(joints, additive, "chest", 3 * e * note, 0, 0);
+        write(joints, additive, "spine", 1.5 * e * note, 0, 0);
+        write(joints, additive, "leftShoulder", 0, 3 * e * note, 0);
+        write(joints, additive, "rightShoulder", 0, 3 * e * note, 0);
+        write(joints, additive, "head", -5 * e, 0, 0);
         break;
       }
       case "sigh": {
@@ -159,18 +152,18 @@ export namespace HumanAffect {
         const exhale: number = minimumJerk.share((u - 0.4) / 0.6);
         const close: number = 1 - minimumJerk.share((u - 0.85) / 0.15);
         const shoulders: number = k * (6 * inhale - 8 * exhale) * close;
-        write("leftShoulder", 0, shoulders, 0);
-        write("rightShoulder", 0, shoulders, 0);
-        write("chest", -4 * k * inhale * (1 - exhale), 0, 0);
-        write("head", 4 * k * exhale * close, 0, 0);
+        write(joints, additive, "leftShoulder", 0, shoulders, 0);
+        write(joints, additive, "rightShoulder", 0, shoulders, 0);
+        write(joints, additive, "chest", -4 * k * inhale * (1 - exhale), 0, 0);
+        write(joints, additive, "head", 4 * k * exhale * close, 0, 0);
         break;
       }
       case "yawn": {
         const e: number =
           u < 0.4 ? minimumJerk.share(u / 0.4) : 1 - minimumJerk.share((u - 0.4) / 0.6);
-        write("jaw", 25 * k * e, 0, 0);
-        write("head", -15 * k * e, 0, 0);
-        write("chest", -5 * k * e, 0, 0);
+        write(joints, additive, "jaw", 25 * k * e, 0, 0);
+        write(joints, additive, "head", -15 * k * e, 0, 0);
+        write(joints, additive, "chest", -5 * k * e, 0, 0);
         break;
       }
       case "cough": {
@@ -178,9 +171,9 @@ export namespace HumanAffect {
         for (let i: number = 0; i < 3; i++)
           p = Math.max(p, pulse(t - 0.1 - 0.5 * i, 0.12, 0.38));
         const e: number = k * p * ramp(u, 0.02, 0.05);
-        write("chest", 10 * e, 0, 0);
-        write("spine", 4 * e, 0, 0);
-        write("head", 8 * e, 0, 0);
+        write(joints, additive, "chest", 10 * e, 0, 0);
+        write(joints, additive, "spine", 4 * e, 0, 0);
+        write(joints, additive, "head", 8 * e, 0, 0);
         break;
       }
       case "sneeze": {
@@ -191,16 +184,16 @@ export namespace HumanAffect {
           0.3 * seconds - 0.1,
         );
         const end: number = 1 - minimumJerk.share((u - 0.7) / 0.05);
-        write("head", -10 * k * build * end + 25 * k * burst, 0, 0);
-        write("chest", -3 * k * build * end + 10 * k * burst, 0, 0);
+        write(joints, additive, "head", -10 * k * build * end + 25 * k * burst, 0, 0);
+        write(joints, additive, "chest", -3 * k * build * end + 10 * k * burst, 0, 0);
         break;
       }
       case "shiver": {
         const e: number = k * ramp(u, 0.15, 0.15);
         const tremor: number = 1.5 * Math.sin(2 * Math.PI * 4 * t);
-        write("leftShoulder", 4 * e, (8 + tremor) * e, 0);
-        write("rightShoulder", 4 * e, (8 - tremor) * e, 0);
-        write("chest", 3 * e, 0, 0);
+        write(joints, additive, "leftShoulder", 4 * e, (8 + tremor) * e, 0);
+        write(joints, additive, "rightShoulder", 4 * e, (8 - tremor) * e, 0);
+        write(joints, additive, "chest", 3 * e, 0, 0);
         break;
       }
     }
@@ -215,9 +208,9 @@ export namespace HumanAffect {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States that displays add in any order and overlap, and the layer's name; the layer adds clinical degrees to the posture's joints at film seconds.
    * @evidence contracts/development/implementation.md#principled-implementation An additive animation layer: each display's angles are summed onto the posture's joints, leaving limb goals untouched so the arms are solved after the trunk and contacts stay.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The layer admits each display length, skips inactive windows and writes active pattern triples directly into its joint copy; public angles uses the same scalar pattern owner and defaults remain in LENGTH.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case: every display is summed the same way.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in D display windows plus active bone work; inactive displays create no pattern data, and active displays write fresh final triples without intermediate angle maps, Object.entries arrays or temporary angle triples. Ramp/pulse helpers allocate no per-display closures.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The layer captures kind, elapsed and intensity in the original angle-call argument order before length admission, then skips inactive windows and writes active pattern triples directly into its joint copy; public angles uses the same scalar pattern owner and defaults remain in LENGTH.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every display keeps its original field observations before length admission, including inactive displays and throwing getters. Every active display is summed with the original scalar formulas and bone order.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in D display windows plus active bone work; inactive displays create no pattern data, and active displays write fresh final triples without intermediate angle maps, Object.entries arrays or temporary angle triples. Ramp/pulse and scalar-write helpers allocate no per-display closures.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Public angles and the additive layer share the same scalar formulas and original bone order through pattern; every display/time is evaluated independently, with no cached posture or angle result.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer retains only the caller's display list for its lifetime and allocates one joint record per posture.
    */
@@ -232,10 +225,12 @@ export namespace HumanAffect {
         const joints: IHumanPosture["joints"] = { ...posture.joints };
         for (const d of displays) {
           const length: number = d.seconds ?? LENGTH[d.kind];
-          HumanBound.above("seconds", length, 0, "s");
+          const kind: Kind = d.kind;
           const elapsed: number = seconds - d.at;
+          const intensity: number = d.intensity ?? 1;
+          HumanBound.above("seconds", length, 0, "s");
           if (!(elapsed > 0 && elapsed < length)) continue;
-          pattern(d.kind, elapsed, length, d.intensity ?? 1, joints);
+          pattern(kind, elapsed, length, intensity, joints);
         }
         return { ...posture, joints };
       },
@@ -251,6 +246,16 @@ function ramp(u: number, rise: number, fall: number): number {
 /** Original one-shot pulse, including the zero-before-start branch. */
 function pulse(x: number, up: number, down: number): number {
   return x <= 0 ? 0 : x < up ? minimumJerk.share(x / up) : 1 - minimumJerk.share((x - up) / down);
+}
+
+/** Keep the original bone/component order without one closure per active display. */
+function write(joints: IHumanPosture["joints"], additive: boolean,
+  bone: AutoMovieHumanoidBone, x: number, y: number, z: number): void {
+  if (!additive) joints[bone] = [x, y, z];
+  else {
+    const was: readonly [number, number, number] = joints[bone] ?? ZERO;
+    joints[bone] = [was[0] + x, was[1] + y, was[2] + z];
+  }
 }
 
 /** Borrowed additive identity; output triples always remain fresh. */

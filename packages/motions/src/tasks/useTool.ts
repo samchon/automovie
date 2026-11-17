@@ -30,6 +30,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { HumanToolWork } from "./HumanToolWork";
+import { HumanToolTurn } from "./HumanToolTurn";
 
 /**
  * Working with a one-handed tool held in the hand, in cycles over a work
@@ -175,9 +176,9 @@ export namespace useTool {
    * @evidence contracts/development/implementation.md#principled-implementation The held face follows the original per-kind cyclic goal and tool-line attitude. Its actual wrist-local offset is the existing limb contact, so a rotation residual re-aims the working face rather than only the grip; each changing posture still receives the same least-strain elbow solve.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Tool/work preparation precedes pose selection, clock construction and composition through the existing arm primitive.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original cycle count, periods, amplitudes, saw slopes, work targets, grip contacts and refusals remain unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed held geometry, clock period and edge-cycle frame are prepared once; each active cyclic goal still computes its actual pose and elbow solution, with only entry hand ancestry read for the origin.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same fixed tool/work and half-cycle edge frame serve reach and recovery; no changing body fit or cycle result is reused across distinct inputs.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The composed plan retains its fixed tool geometry, clock, grip and finger records, without sampled poses, numerical readers or a time-result history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed held geometry, period and edge-cycle frame prepare once. Hammer/screwdriver share only the length of their private arithmetic rotation axis; every original pivot/grip subtraction remains live, and other kinds never construct that producer. Every cyclic goal and elbow solve remains, with only entry hand ancestry read for origin. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan's left/forward axes are private fresh arithmetic vectors, but borrowed aim-point coordinates remain live. Every angle, pivot read, cyclic goal and changing body fit remains actual; original half-cycle edge reuse and synchronous current-person FK/ROM forwarding remain.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains fixed tool/clock/grip/finger geometry. Current-call FK/ROM inputs are forwarded and never stored, without sampled poses, retained numerical readers or result/time history.
    */
   export function plan(context: IHumanActionContext<IParams>): IPlan {
     const body: IHumanBody = context.body;
@@ -336,29 +337,25 @@ export namespace useTool {
     const recover: number = clock.at("recover");
     const strokePeriod: number = (recover - ready) / cycles;
 
+    let turning: ReturnType<typeof HumanToolTurn> | undefined;
+    const turn: (axis: IAutoMovieVector3, degrees: number, about: IAutoMovieVector3) => Pick<IWork, "grip" | "rotation"> = (
+      axis: IAutoMovieVector3,
+      degrees: number,
+      about: IAutoMovieVector3,
+    ): Pick<IWork, "grip" | "rotation"> => {
+      return (turning ??= HumanToolTurn(pose, axis, about))(degrees);
+    };
+
     // The hand at a phase of the work, 0 at a contact and periodic in 1.
     const cycle: (phase: number) => Pick<IWork, "grip" | "rotation"> = (
       phase: number,
     ): { grip: IAutoMovieVector3; rotation: IAutoMovieQuaternion } => {
-      const turn: (axis: IAutoMovieVector3, degrees: number, about: IAutoMovieVector3) => Pick<IWork, "grip" | "rotation"> = (
-        axis: IAutoMovieVector3,
-        degrees: number,
-        about: IAutoMovieVector3,
-      ): Pick<IWork, "grip" | "rotation"> => {
-        const q: IAutoMovieQuaternion = Quaternion.fromAxisAngle(axis, degrees);
-        return {
-          grip: Vector3.add(
-            about,
-            Quaternion.rotateVector(q, Vector3.subtract(pose.grip, about)),
-          ),
-          rotation: Quaternion.multiply(q, pose.rotation),
-        };
-      };
-      const c: number = 0.5 - 0.5 * Math.cos(2 * Math.PI * phase);
       switch (kind) {
-        case "hammer":
+        case "hammer": {
           // The head rises about the wrist and comes down on the work.
+          const c: number = 0.5 - 0.5 * Math.cos(2 * Math.PI * phase);
           return turn(left, -RAISE * c, pose.grip);
+        }
         case "saw":
           return {
             grip: Vector3.add(
@@ -449,8 +446,10 @@ export namespace useTool {
       contacts: [...composed.contacts, AutoMovieMotionHumanHeld.grip(held)],
       holds: [AutoMovieMotionHumanHeld.hold(context, held)],
       wields: { prop: subject, side, tip: "face" },
-      posture: (seconds: number): IHumanPosture => {
-        const posture: IHumanPosture = composed.posture(seconds);
+      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
+        const posture: IHumanPosture = composed.posture(seconds, undefined, resolution, projection);
         const limb: IHumanPosture.Limb = `${side}Arm`;
 
         // The task acts at the held face. Re-aim that existing rigid contact

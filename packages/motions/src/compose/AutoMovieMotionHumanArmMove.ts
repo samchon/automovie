@@ -32,32 +32,37 @@ export namespace AutoMovieMotionHumanArmMove {
    * @evidence contracts/development/implementation.md#principled-implementation A path of the surface that is straight, or bows out to the arm's own side by the movement's `curvature` (a manner's share of the path's length, EMOTE's indirect Space; none when absent), and a spherical interpolation of the hand, both by one weight, with the fingers shaped by the same weight (Jeannerod 1984).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One target evaluation, one blend and one posture update.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The weight is clamped to [0, 1] so an overshooting time course cannot extrapolate the hand past its target; at weight 1 the target is used as it is, with no blend error.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Every target, weight, path, rotation and wrist goal remains actual; the fifteen output finger triples use fixed scalar shape metadata instead of rebuilding two named-shape maps on each written second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses point/goal and the hand owner's prepareFingers interpolation. One last exact side/shape pair shares only named shape scalars; current curl and weight always produce fresh output.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive holds props and at most one fifteen-entry side/shape preparation until release, retaining no posture, target, time, curl, weight or completed finger result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Every target, weight, path, rotation and wrist placement remains actual. Only an issued fixed-geometry target can share its prepared local offset; arbitrary targets retain cold surface reads. Fifteen fresh finger triples write directly into one copied joint map, without an intermediate map/spread.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The hand owner shares named finger scalars under a last exact side/shape guard. ArmTarget consumes only issued matching fixed geometry, while generic targets keep live reads. The actual target invocation borrows host FK/ROM metadata synchronously; every current callback, bowed point, rotation, curl and weight remains actual.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains props and at most one fifteen-entry finger writer. Its current source target is an invocation local; no posture, world target/rotation, time, curl, weight or completed goal/finger result is retained.
    */
   export function move(
     props: AutoMovieMotionHumanArmTarget.IMove,
   ): IAutoMovieMotionHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
     let shaped: { side: HumanHand.Side; shape: HumanHand.Shape;
-      read: ReturnType<typeof AutoMovieMotionHumanHand.prepareFingers> } | undefined;
-    const fingers: (side: HumanHand.Side, shape: HumanHand.Shape, curl: number,
-      weight: number) => IHumanPosture["joints"] =
-      (side: HumanHand.Side, shape: HumanHand.Shape, curl: number,
-        weight: number): IHumanPosture["joints"] => {
+      write: ReturnType<typeof AutoMovieMotionHumanHand.prepareFingerWriter> } | undefined;
+    const fingers: (joints: IHumanPosture["joints"], side: HumanHand.Side, shape: HumanHand.Shape, curl: number,
+      weight: number) => void =
+      (joints: IHumanPosture["joints"], side: HumanHand.Side, shape: HumanHand.Shape, curl: number,
+        weight: number): void => {
         if (shaped === undefined || shaped.side !== side || shaped.shape !== shape)
-          shaped = { side, shape, read: AutoMovieMotionHumanHand.prepareFingers(side, shape) };
-        return shaped.read(curl, weight);
+          shaped = { side, shape, write: AutoMovieMotionHumanHand.prepareFingerWriter(side, shape) };
+        shaped.write(joints, curl, weight);
       };
     return {
       channels: [limb, `${props.side}Hand`],
       from: props.from,
       to: props.to,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+      write: (posture: IHumanPosture, seconds: number,
+        _before?: IAutoMovieMotionHumanPrimitive.Reader,
+        resolution?: Parameters<AutoMovieMotionHumanArmTarget.Frame>[2],
+        projection?: Parameters<AutoMovieMotionHumanArmTarget.Frame>[3]): IHumanPosture => {
         const target: AutoMovieMotionHumanArmTarget.ITarget = props.target(
           posture,
           seconds,
+          resolution,
+          projection,
         );
         const s: number = Math.min(1, Math.max(0, props.weight(seconds)));
         const placed: AutoMovieMotionHumanArmTarget.ITarget =
@@ -82,24 +87,14 @@ export namespace AutoMovieMotionHumanArmMove {
                   s,
                 ),
               };
+        const joints: IHumanPosture["joints"] = { ...posture.joints };
+        fingers(joints, props.side, target.shape, target.curl ?? 0, s);
         return {
           ...posture,
-          joints: {
-            ...posture.joints,
-            ...fingers(
-              props.side,
-              target.shape,
-              target.curl ?? 0,
-              s,
-            ),
-          },
+          joints,
           limbs: {
             ...posture.limbs,
-            [limb]: AutoMovieMotionHumanArmTarget.goal(
-              props.body,
-              props.side,
-              placed,
-            ),
+            [limb]: AutoMovieMotionHumanArmTarget.goal(props.body, props.side, placed, target),
           },
         };
       },

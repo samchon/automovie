@@ -6,6 +6,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { KickCarriage } from "./KickCarriage";
 import { KneeForm } from "./KneeForm";
 import { KneeReach } from "./KneeReach";
@@ -85,9 +86,9 @@ export namespace KneeGeometry {
    * @evidence contracts/development/implementation.md#principled-implementation Preserves original target aiming, patella radius, travel bound, heading wrap, initial stance hip and every KneeForm.ROUNDS carriage/hip update, then derives entry/contact directions, stance slack and foot axes from the same geometry.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One synchronous numeric key owner serves the knee law's existing lazy geometry callback; the law alone retains/reset the completed original key.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Target time, lookup order, complete carriage lowering, original solve rounds/limits, vector expression grouping and short/jammed status remain unchanged. No supported candidate or physical goal is omitted or predeclared solved.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Retains the original fixed number of actual knee/carriage evaluations. One local exact workspace shares only unchanged scalar FK prerequisites across those real reads; separation adds no numerical algorithm or measured speedup claim.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Retains the original fixed number of actual knee/carriage evaluations. One local exact workspace and lazy genuine unchanged-table ROM mapper share only fixed prerequisites across those real reads; separation adds no numerical algorithm or measured speedup claim.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Within this one unchanged body/context calculation the explicit carriage and hip reads borrow the same exact workspace; changed postures still execute normally. The caller's original lazy settled-plan key is the only retained numeric result.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local workspace and temporary posture/maps end on return or throw. Only the original key's numeric points/directions/status escape to the law, which clears it on settle and retains no reader or new time history.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local workspace, genuine ROM mapper and temporary posture/maps end on return or throw. Only the original key's numeric points/directions/status escape to the law, which clears it on settle and retains no reader or new time history.
    */
   export function solve(
     context: IHumanActionContext<knee.IParams>,
@@ -101,6 +102,9 @@ export namespace KneeGeometry {
     const p: knee.IParams = context.params;
     const t0: number = context.start;
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    let projector: ReturnType<typeof prepareHumanPostureProjection> | undefined;
+    const projection: () => ReturnType<typeof prepareHumanPostureProjection> = (): ReturnType<typeof prepareHumanPostureProjection> =>
+      (projector ??= prepareHumanPostureProjection(body));
     const target: IAutoMovieVector3 = StrikingTarget.aim(
       context,
       p.at,
@@ -122,7 +126,7 @@ export namespace KneeGeometry {
     const start: IAutoMovieVector3 = KickCarriage.hip(
       body,
       carriage({ x: 0, y: 0, z: 0 }, 0, 0, 0, resolution),
-      side, resolution,
+      side, resolution, projection(),
     );
     let hip: IAutoMovieVector3 = start;
     let solved: KneeReach.ISolution = reach(hip);
@@ -131,7 +135,7 @@ export namespace KneeGeometry {
     );
     for (let round: number = 0; round < KneeForm.ROUNDS; round++) {
       hip = Vector3.subtract(
-        KickCarriage.hip(body, carriage(solved.thrust, turn, 1, 1, resolution), side, resolution),
+        KickCarriage.hip(body, carriage(solved.thrust, turn, 1, 1, resolution), side, resolution, projection()),
         solved.thrust,
       );
       solved = reach(hip);

@@ -70,12 +70,12 @@ export namespace HumanPerformanceRead {
    * @param seconds Film seconds.
    * @returns The posture.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Reads the active authored posture before layers, or the initial posture, optionally demanding only named channels whose values the caller inspects.
+   * @evidence contracts/development/common.md#meaningful-documentation Reads the active raw posture or initial fallback, optionally demanding channels. Supplying an axis applies the context performer's original unresolved-future refusal first; a lazy axis formats its parameter name only if that refusal occurs.
    * @evidence contracts/development/implementation.md#principled-implementation Selects the last matching placement through HumanSegmentSelection and reads its plan at the same duration-clamped local second.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the person once and share the private placed-posture reader with root queries.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the initial fallback, exact film second, 1e-12 entry allowance and original local-time clamp; adds no layer or displayed-pose substitution.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One participant lookup plus at most S reverse placement comparisons and the selected plan's posture cost, with no reversed array.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares selection and raw-posture implementation with root without memoizing authored postures across placement or query lifetimes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One participant lookup, optional constant availability bookkeeping, at most S reverse entry comparisons and one selected plan read. A supplied lazy error-label callback runs only on the original availability refusal.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares availability and placed-posture owners with root; context posture reads check metadata directly instead of evaluating and discarding an additional root posture. Actual authored posture is evaluated once with no cross-query result memo.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the initial posture stays borrowed and an action result keeps that plan's existing ownership.
    */
   export function posture(
@@ -83,8 +83,11 @@ export namespace HumanPerformanceRead {
     subject: string,
     seconds: number,
     channels?: readonly AutoMovieMotionHumanChannel[],
+    axis?: string | (() => string),
   ): IHumanPosture {
-    return placedPosture(HumanPerformanceRead.person(self, subject), seconds, channels);
+    const person: HumanSegment.IPerson = axis === undefined
+      ? HumanPerformanceRead.person(self, subject) : available(self, subject, seconds, axis);
+    return placedPosture(person, seconds, channels);
   }
 
   /**
@@ -120,9 +123,9 @@ export namespace HumanPerformanceRead {
    * @evidence contracts/development/implementation.md#principled-implementation A scan's actor and profile bone names stay fixed while its exact film seconds and stop-dependent displayed poses vary. Only genuine body-bound FK demand preparation is shared; every actual display and authored-joint admission still executes.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the person and snapshot optional names once, then delegate each second to the same placedBones owner used by ordinary bones/hand reads.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pose, time, stop signature, target fit or FK result is stored; contacts, transitions, requested-frame fallback and full-pose cache isolation retain their existing owners. Omitted demand remains full FK.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One actor lookup and O(K log K) fixed-name preparation replace repetition across Q scan queries; every query retains complete authored admission, current display solving and demanded FK with fresh maps/frames. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed person/body and copied name membership establish only actor/static-demand equivalence. Each exact second creates an independent operation FK/projector and reads current placement/stop state normally; edits to the source name set cannot change this reader's demand.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The scan owns one person reference, at most K copied names and genuine bound demand metadata until return/throw. Each call releases its FK/projector preparation before the next query; no returned map or prepared reader retains query poses, frames or time history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One actor lookup, O(K log K) fixed-name preparation and one lazy O(B+D) genuine ROM index replace repetition across Q scan queries. Each query keeps complete authored admission, current display fitting and independent demanded FK with fresh maps/frames; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed person/body and copied names share only static FK-demand and genuine ROM metadata. Each exact second issues a separate empty FK workspace and reads current placement/stop state; edited source names cannot change the copied demand, and poses/results never share between query contexts here.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The scan owns one person, at most K names, fixed demand metadata and one lazy genuine ROM mapper until return/throw. Each call releases its independent FK workspace; no returned map or factory retains prior workspaces, query poses, frames or times.
    */
   export function prepareBones(self: HumanPerformanceState, subject: string,
     requested?: ReadonlySet<AutoMovieHumanoidBone>):
@@ -132,8 +135,10 @@ export namespace HumanPerformanceRead {
       requested === undefined ? undefined : new Set(requested);
     const read: ReturnType<typeof poseBones.prepare> | undefined =
       names === undefined ? undefined : poseBones.prepare(person.performer.body, names);
+    const prepare: ReturnType<typeof prepareHumanSegmentPose.queries> =
+      prepareHumanSegmentPose.queries(person.performer.body);
     return (seconds: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-      placedBones(person, seconds, names, read);
+      placedBones(person, seconds, names, read, prepare());
   }
 
   /**
@@ -308,7 +313,7 @@ export namespace HumanPerformanceRead {
    * would change once they are placed; with none left, the person stays
    * where the last action put them.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States film-second root/yaw reading, the unresolved-future refusal and the held terminal posture when no actions remain.
+   * @evidence contracts/development/common.md#meaningful-documentation States film-second root/yaw reading, unresolved-future refusal and held terminal posture. The axis may be a fixed parameter name or an error-only lazy formatter, used synchronously only for that refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Checks the same placed endpoint and remaining-intent count before reading the selected raw posture's root and heading.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the person, apply the existing availability refusal, then use the private placed-posture reader once.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the 1e-9 availability allowance, refusal fields and feasible-range rounding; no future action or displayed offset is substituted for the raw path.
@@ -320,19 +325,24 @@ export namespace HumanPerformanceRead {
     self: HumanPerformanceState,
     subject: string,
     seconds: number,
-    axis: string,
+    axis: string | (() => string),
   ): IHumanActionContext.IRoot {
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      subject,
-    );
+    const person: HumanSegment.IPerson = available(self, subject, seconds, axis);
+    const posture: IHumanPosture = placedPosture(person, seconds, ["root"]);
+    return { position: posture.root, yaw: posture.yaw };
+  }
+
+  /** Apply the original unresolved-future refusal without evaluating a raw posture. */
+  function available(self: HumanPerformanceState, subject: string, seconds: number,
+    axis: string | (() => string)): HumanSegment.IPerson {
+    const person: HumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
     const last: HumanSegment.ISegment | undefined = person.segments.at(-1);
     const left: number =
       (self.intended.get(subject)?.length ?? 0) - person.segments.length;
     if (self.resolving && left > 0 && seconds > (last?.end ?? 0) + 1e-9)
       throw new HumanRefusal({
         kind: "participant",
-        axis,
+        axis: typeof axis === "function" ? axis() : axis,
         value: subject,
         feasible: {
           kind: "range",
@@ -347,8 +357,7 @@ export namespace HumanPerformanceRead {
         }, and ${left} more of theirs come later in the composition`,
         fix: `compose ${subject}'s actions before self one: put their chain first in the parallel group, or join both chains with a mutual action`,
       });
-    const posture: IHumanPosture = placedPosture(person, seconds, ["root"]);
-    return { position: posture.root, yaw: posture.yaw };
+    return person;
   }
 
   /**
@@ -456,9 +465,8 @@ export namespace HumanPerformanceRead {
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     read?: ReturnType<typeof poseBones.prepare>,
+    prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(person.performer.body),
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const prepared: prepareHumanSegmentPose.IPrepared =
-      prepareHumanSegmentPose(person.performer.body);
     const pose: IAutoMoviePose = HumanSegment.displayed(person, seconds, requested, prepared);
     return read === undefined ? poseBones(
       person.performer.body,

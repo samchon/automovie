@@ -30,7 +30,7 @@ export namespace staggerClose {
    * Close and settle a caught order, and judge its course through both.
    *
    * @param pendulum The pendulum the catching steps left, advanced through the close.
-   * @param bend The same entry's trunk-shift reader, demanded only by a judged stance course.
+   * @param bend This recovery's eagerly measured entry trunk-shift vectors per sine of tilt.
    * @param kinematic Whether the course is judged; the pendulum alone when false.
    * @param stepped The foot that stepped last.
    * @param judging The course of the catching steps.
@@ -47,7 +47,7 @@ export namespace staggerClose {
    */
   export function of(
     pendulum: StaggerPendulum,
-    bend: () => Record<"pitch" | "roll", IAutoMovieVector3>,
+    bend: Record<"pitch" | "roll", IAutoMovieVector3>,
     kinematic: boolean,
     stepped: "left" | "right",
     judging: walkStanceCourse.ICourse | undefined,
@@ -247,7 +247,7 @@ export namespace staggerClose {
     const landed: number = steps.at(-2)!.land;
     const course: walkStanceCourse.ICourse = staggerSequential.solve(
       body,
-      staggerKnots.of(body, entry, bend(), { ...recovery, caught: landed }, settled),
+      staggerKnots.of(body, entry, bend, { ...recovery, caught: landed }, settled),
       judging,
       judging === undefined
         ? 0

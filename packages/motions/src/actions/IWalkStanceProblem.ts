@@ -21,9 +21,9 @@ export interface IWalkStanceProblem {
    * @evidence contracts/development/implementation.md#principled-implementation Implementations run the original physical residual/constraint sweep without gradient probes, retaining signed excess before nonnegative l1 aggregation.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One sweep supplies both generic merit and the correction's actual ordered constraint reading.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every nonlinear constraint is read, including negative excess; no penalty, predicted row or stale trial substitutes for its physical value.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Costs one value-only knot/stance sweep and O(m) raw-bound output for m constraints, without unused Jacobian or P/q construction.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A caller may share this exact evaluation with its same trial correction; current course/held-swivel inputs are otherwise evaluated afresh.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one returned aggregate/bounds record until acceptance/correction completes; the evaluator retains no query history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Costs one value-only knot/stance sweep and O(m) raw interval scalars for m constraints, without unused Jacobian/P/q construction. A lazy bounds producer materializes O(m) row records only on actual read, with no additional physical sweep.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A caller shares this exact evaluation with its same trial correction; each result's own ordered unclamped scalar snapshot also serves repeated bounds reads. Changed course/held-swivel inputs are evaluated afresh rather than reread through the getter.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns each aggregate and private scalar snapshot until evaluation release or first bounds read, which replaces that snapshot with independently owned row records. No prior evaluation, live course, selected-model state, FK loan or query history is retained by lazy materialization.
    */
   evaluate: (x: Float64Array) => walkStanceCourse.IEvaluation;
 

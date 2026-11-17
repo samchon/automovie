@@ -11,6 +11,7 @@ import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { pickUpPosture } from "./pickUpPosture";
 
@@ -70,13 +71,12 @@ export namespace pickUpLift {
    * @returns The raise, `ARM` where the arm alone reaches; null where nothing does, for the stance to step for the lift (`pickUpStance`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the order of the freedoms and what is returned when none reaches.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing reaching is null, not the arm-alone raise, so the caller can tell the two apart.
    * @evidence contracts/development/implementation.md#principled-implementation The arm's straight reach first, then the bend law's inclination solve on the bottom posture, then the least straightening of the stance's own way down, each closed first on `bendLower.REACH` of the arm and then on the arm.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reach test and two solves per reach, in order.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a refusal of the bend's solve is passed over; nothing is clamped, and what none reaches is judged on the plan's hand.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most two inclination solves and two scans with bisections; none where the arm alone reaches.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the bend law's solve and the stance's own postures.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most two original inclination solves and scans/bisections remain, none when the arm alone reaches. One canonical shoulder-name/tuple-FK producer and exact operation reader replace repeated name binding and intermediate joint records; every actual current posture and shoulder query remains.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only genuine canonical body/name/FK metadata is shared. Every raw root/joint value is re-admitted, each far query computes its actual shoulder/distance, and arbitrary stance.at retains its original single share argument and call schedule without a fixed direct base.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous raise owns bounded shoulder-name and exact FK metadata until return/throw. Returned scalar raise data contain no reader, posture answer, callback map, sample history or external handle.
    */
   export function raise(
     context: IHumanActionContext<object>,
@@ -87,8 +87,13 @@ export namespace pickUpLift {
   ): IRaise | null {
     const body: IHumanBody = context.body;
     const arm: number = body.measure.upperArm + body.measure.forearm;
-    const far = (posture: IHumanPosture): number =>
-      Vector3.length(Vector3.subtract(lifted, shoulder(body, side, posture)));
+    const readShoulder: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(
+      body, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]),
+    );
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const far: (posture: IHumanPosture) => number = (posture: IHumanPosture): number =>
+      Vector3.length(Vector3.subtract(lifted,
+        readShoulder(posture, resolution).get(`${side}UpperArm`)!.worldPosition));
     if (far(held) <= arm + 1e-6) return ARM;
 
     // A foot that stepped stays where it landed: the stance straightens no
@@ -148,17 +153,19 @@ export namespace pickUpLift {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One stance read and at most one lowering.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Without a trunk, or at none of it, the stance's body is returned unchanged.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per sample.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function called once per sample.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new posture and retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual stance and bendLower receive optional same-person FK/ROM inputs; raw hip lowering borrows only FK and retains its original native policy.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Optional observation loans belong only to this synchronous call and are never stored in the returned posture, stance or history.
    */
   export function posed(
     body: IHumanBody,
     raise: IRaise,
-    at: (share: number) => IHumanPosture,
+    at: pickUpPosture.IStance["at"],
     share: number,
     inclined: number,
+    resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+    projection?: Parameters<IHumanActionPlan["posture"]>[3],
   ): IHumanPosture {
-    const posture: IHumanPosture = at(share);
+    const posture: IHumanPosture = at(share, resolution, projection);
     if (raise.trunk === null || inclined <= 0) return posture;
     const pitch: number = raise.trunk.pitch * inclined;
     return bendLower.lower(
@@ -168,6 +175,7 @@ export namespace pickUpLift {
       pitch,
       inclined,
       raise.trunk.lean * Math.sin((pitch * Math.PI) / 180),
+      resolution,
     );
   }
 
@@ -195,9 +203,9 @@ export namespace pickUpLift {
    * @evidence contracts/development/implementation.md#principled-implementation The plan's own posture solved as the performance solves it (`resolveHumanPosture`), the hand's height read from its bones.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two readings and one comparison.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tolerance is the arm solver's own, in millimetres of place; no mixed bound is borrowed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two posture solves per plan, none without a lift.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two original complete posture solves remain, none without a lift. One fixed hand demand and exact operation reader serve both actual plan/lowering/solver/FK observations; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both readings share only same-body exact FK prerequisites, explicitly passed through current plan.posture and native seeded resolution; actual different times/roots/goals still run their original complete solves and admission.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous judgement releases its hand reader, exact workspace and actual fit/maps on return/throw; no loan, pose, score/time history or handle enters the plan.
    */
   export function judged(
     context: IHumanActionContext<{ prop: string; handle: string }>,
@@ -210,8 +218,11 @@ export namespace pickUpLift {
     if (lift <= 0) return;
     const body: IHumanBody = context.body;
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
-    const wrist = (seconds: number): number =>
-      poseBones(body, resolveHumanPosture(body, plan.posture(seconds)), undefined, requested).get(
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const readHand: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
+    const wrist: (seconds: number) => number = (seconds: number): number =>
+      readHand(resolveHumanPosture.seeded(body,
+        plan.posture(seconds, undefined, resolution), undefined, undefined, resolution).pose, resolution()).get(
         `${side}Hand`,
       )!.worldPosition.y;
     const short: number = 1000 * (lift - (wrist(lifted) - wrist(closed)));
@@ -231,11 +242,4 @@ export namespace pickUpLift {
       });
   }
 
-  /** The arm's shoulder joint on a posture, world metres. */
-  const shoulder = (
-    body: IHumanBody,
-    side: HumanHand.Side,
-    posture: IHumanPosture,
-  ): IAutoMovieVector3 =>
-    HumanTrunk.resolve(body, posture, undefined, undefined, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(`${side}UpperArm`)!.worldPosition;
 }

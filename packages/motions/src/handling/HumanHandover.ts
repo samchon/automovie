@@ -20,6 +20,7 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspTarget } from "./HumanGraspTarget";
+import { HumanGraspHand } from "./HumanGraspHand";
 import { HumanHandoverMeeting } from "./HumanHandoverMeeting";
 import { HumanHandoverUpright } from "./HumanHandoverUpright";
 import { HumanPrehension } from "./HumanPrehension";
@@ -229,8 +230,8 @@ export namespace HumanHandover {
       input.receiver.body,
       receiver,
     );
-    const place: ReturnType<typeof HumanGrasp.prepareHand> =
-      HumanGrasp.prepareHand(input.receiver.body, input.receiver.side);
+    const place: ReturnType<typeof HumanGraspHand.turns> =
+      HumanGraspHand.turns(input.receiver.body, input.receiver.side, authored);
     const carriedPoint: IAutoMovieVector3 = carried(input.receiver.body, standing, input.receiver.side);
     const hang: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
       input.receiver.body, standing, input.receiver.side,
@@ -241,7 +242,7 @@ export namespace HumanHandover {
       input.receiver.side,
       hang,
       (turn: number): HumanHand.IWrist =>
-        place(HumanGrasp.around(authored, turn)),
+        place(turn, 0),
       [0],
       (wrist: HumanHand.IWrist): HumanGrasp.IKey[] => [
         {
@@ -321,27 +322,6 @@ export namespace HumanHandover {
       `${side}UpperArm`,
     )!.worldPosition;
     return carriedAt(shoulder, posture.yaw, body.measure.upperArm, body.measure.forearm, pitch);
-  }
-
-  /**
-   * Prepare one unchanged posture's carrying places for actual forearm pitches.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Fixes unchanged body/rig/ROM and full source posture for one synchronous carry-place search; each degree pitch returns a fresh original world-metre wrist point.
-   * @evidence contracts/development/implementation.md#principled-implementation Reads the actual demanded shoulder once, then applies carried's same shoulder-minus-upper-arm floor origin and raised-forearm sine/cosine point for each pitch.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed shoulder/yaw/body lengths feed the shared carriedAt numerical owner used by the cold carried facade.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No limb goal, shoulder point, arm-length measure, pitch, trigonometric grouping or original carrying share is changed; a changed fixed posture/body requires new preparation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One actual demanded shoulder reading replaces C repeated readings for a fixed carry-place search; each requested pitch still computes its original world point. Runtime gain is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Receive's pitch search explicitly retains one held posture/body while pitch alone varies; cold and prepared paths share one original point formula without caching candidates or fit answers.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one private copied shoulder and yaw/length scalars until search release; returned points are fresh and retain no body/posture, FK reader, history or handle.
-   */
-  export function prepareCarried(body: IHumanBody, posture: IHumanPosture,
-    side: HumanHand.Side): (pitch?: number) => IAutoMovieVector3 {
-    const shoulder: IAutoMovieVector3 = { ...HumanTrunk.resolve(body, posture, undefined, undefined,
-      new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(`${side}UpperArm`)!.worldPosition };
-    const yaw: number = posture.yaw;
-    const upper: number = body.measure.upperArm;
-    const forearm: number = body.measure.forearm;
-    return (pitch: number = 0): IAutoMovieVector3 => carriedAt(shoulder, yaw, upper, forearm, pitch);
   }
 
   /** The longest interval between two instants an upright carry's turn is chosen at, seconds (provisional: a carry's arm changes its best turn over about a tenth of a second). */

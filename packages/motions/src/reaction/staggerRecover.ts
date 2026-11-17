@@ -12,7 +12,6 @@ import { staggerBounds } from "./staggerBounds";
 import { staggerClose } from "./staggerClose";
 import { staggerKnots } from "./staggerKnots";
 import { staggerStep } from "./staggerStep";
-import type { prepareStaggerPendulumEntry } from "./prepareStaggerPendulumEntry";
 
 /**
  * A stagger's recovery from a push (`stagger`): the steps the capture-point
@@ -206,8 +205,6 @@ export namespace staggerRecover {
    * @param speed The centre of mass's speed after the blow, m/s.
    * @param righting How long the centre of pressure takes to carry the extrapolated centre of mass to rest, seconds.
    * @param kinematic Whether each landing is placed by the stance course under the legs' ranges; the pendulum alone, its landings where the region puts them, when false.
-   * @param bending Optional operation-owned reader of this exact body's unchanged entry bending; evaluated once only when a stance course needs it.
-   * @param geometry Optional fixed entry geometry from this exact body and complete entry, owned by the current speed search.
    * @returns The recovery with its judged course, or null when no order of `STEPS` steps catches it with a course that meets the legs' ranges through its closing step and settling.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input and the null.
@@ -215,7 +212,7 @@ export namespace staggerRecover {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pendulum per order of the feet, each step by `staggerStep`; the first order that catches and closes is kept.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A push no order of `STEPS` steps catches is null, never a shortened bound; every bound is measured and cited.
    * @evidence contracts/development/implementation.md#efficient-algorithms At most 30 orders of up to `STEPS` steps, each sequence of feet stepped once and taken up by the orders that share it.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The pendulum reads entry mass/width once. Bending is demanded once only by a kinematic course, and an explicit same-body/same-entry supplier can share that invariant with a parent plan or speed search.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The pendulum observes the current entry centre before this invocation eagerly observes bending, in both modes. Only the original exactly shared foot-order prefixes reuse their actual state/course within this recovery; no completed entry observation or fitted verdict crosses recovery calls.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the shared sequences for the search only.
    */
   export function recover(
@@ -225,9 +222,6 @@ export namespace staggerRecover {
     speed: number,
     righting: number,
     kinematic: boolean = true,
-    bending: () => Record<"pitch" | "roll", IAutoMovieVector3> =
-      (): Record<"pitch" | "roll", IAutoMovieVector3> => staggerKnots.bending(body, entry),
-    geometry?: ReturnType<typeof prepareStaggerPendulumEntry>,
   ): IRecovery | null {
     const { REACTION, STEPS }: typeof staggerBounds = staggerBounds;
     const pendulum: StaggerPendulum = new StaggerPendulum(
@@ -235,11 +229,8 @@ export namespace staggerRecover {
       entry,
       push,
       speed,
-      geometry,
     );
-    let bend: Record<"pitch" | "roll", IAutoMovieVector3> | undefined;
-    const readBend: () => Record<"pitch" | "roll", IAutoMovieVector3> =
-      (): Record<"pitch" | "roll", IAutoMovieVector3> => (bend ??= bending());
+    const bend: Record<"pitch" | "roll", IAutoMovieVector3> = staggerKnots.bending(body, entry);
     const { entered, root, forward, across }: StaggerPendulum = pendulum;
 
     // The order of the feet is chosen with the steps: every order of up to
@@ -304,7 +295,7 @@ export namespace staggerRecover {
           const result: staggerStep.IResult = staggerStep.take(
             pendulum,
             {
-              bend: readBend,
+              bend,
               kinematic,
               checking:
                 k === 0
@@ -333,7 +324,7 @@ export namespace staggerRecover {
       if (caught) {
         const recovery: IRecovery | null = staggerClose.of(
           pendulum,
-          readBend,
+          bend,
           kinematic,
           order[order.length - 1]!,
           judging,

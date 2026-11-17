@@ -19,6 +19,8 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { floorEntry } from "./floorEntry";
@@ -220,6 +222,14 @@ export namespace lieDown {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the hold is negative.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the floor route, action seconds, hold refusal and existing position/base/contact behavior; current floor/folded-seat observations borrow synchronous FK/ROM sources without retaining them.
+   * @evidence contracts/development/implementation.md#principled-implementation Follows the existing position's ordered joint-space route, keeps the pelvis's horizontal place and rests each actual changing body on its exact collider bounds, then applies the existing folded-leg/side-hand goals when required.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed route keys and joint pairs feed one time-only posture reader; canonical floor and folded-seat owners retain their separate geometric responsibilities.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored routes, phase durations, clinical interpolation, floor minimum, folded targets and endpoint hold remain unchanged; no samples, contact tolerance or joint/goal admission is relaxed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(KJ) preparation removes per-query route joint unions and fixed progress-name lookup; native clock guards retain custom-callback behavior. First actual floor/fold demand prepares native collider selection or folded-seat target/name metadata once. Every changing query retains actual bounds/fold solve and synchronous FK/ROM; the fully arrived hold performs no new observations.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed route pairs and unchanged body/profile/sitting metadata prepare once. The primitive reads no earlier channel and lends one synchronous parent FK/ROM source through actual floor/folded-seat observations; only the original fully arrived posture is held, with no current map or query history.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns finite route/clock/joint readers, at most one body-fixed floor reader, one folded-seat reader and one arrived posture until release. Current FK/ROM and actual maps/placements end on return or throw and never enter those readers, the endpoint or the plan.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -276,6 +286,18 @@ export namespace lieDown {
       { holds: ["settled"] },
     );
     const duration: number = clock.duration;
+    const progress: ReturnType<typeof AutoMovieMotionClock.prepare>[] =
+      route.map(
+        (
+          _: unknown,
+          index: number,
+        ): ReturnType<typeof AutoMovieMotionClock.prepare> =>
+          AutoMovieMotionClock.prepare(
+            clock,
+            phases[index]!.name,
+            phases[index + 1]!.name,
+          ),
+      );
 
     // The pelvis's place over the floor, kept as the body goes down.
     const from: IHumanPosture = entered ?? standing;
@@ -287,19 +309,29 @@ export namespace lieDown {
       ),
     );
     let held: IHumanPosture | undefined;
-    const at = (seconds: number): IHumanPosture => {
+    let floor: ReturnType<typeof knockdown.prepareRest> | undefined;
+    let folded: ReturnType<typeof floorSeat.prepare> | undefined;
+    const at: (
+      seconds: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ) => IHumanPosture = (
+      seconds: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IHumanPosture => {
       let index: number = 0;
       for (let i: number = 0; i < route.length; i++)
         if (seconds >= clock.at(phases[i]!.name)) index = i;
-      const u: number = clock.progress(
-        phases[index]!.name,
-        phases[index + 1]!.name,
-        seconds,
-      );
+      const u: number = progress[index]!.progress(seconds);
 
       // Arrived, the posture no longer changes: it is rested on the floor once and held.
       const arrived: boolean = index === route.length - 1 && u >= 1;
       if (arrived && held !== undefined) return held;
+      const read: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution(resolution);
+      const project: ReturnType<typeof prepareHumanPostureProjection> =
+        projection ?? prepareHumanPostureProjection(body);
       const a: IPose = keys[index]!;
       const b: IPose = keys[index + 1]!;
       const joints: AutoMovieMotionHumanJoints.Angles = blend[index]!(u);
@@ -315,20 +347,26 @@ export namespace lieDown {
         resolveHumanPosture.heading(posed),
         body.rest.get("hips")!,
       );
+      floor ??= knockdown.prepareRest(body);
       const rested: IHumanPosture = {
         ...posed,
         root: {
           x: hips.x - offset.x,
-          y: knockdown.rest(body, posed),
+          y: floor(posed, read, project),
           z: hips.z - offset.z,
         },
       };
 
       // A folded sitting folds its legs over the last phase of its route.
       const out: IHumanPosture =
-        folds === undefined || index < route.length - 1
+        folds === undefined || index < route.length - 1 || u <= 0
           ? rested
-          : floorSeat.place(body, rested, folds, u);
+          : (folded ??= floorSeat.prepare(body, folds))(
+              rested,
+              u,
+              read,
+              project,
+            );
       if (arrived) held = out;
       return out;
     };
@@ -343,9 +381,16 @@ export namespace lieDown {
         "leftArm",
         "rightArm",
       ],
+      reads: [],
       from: 0,
       to: duration,
-      write: (_: IHumanPosture, seconds: number): IHumanPosture => at(seconds),
+      write: (
+        _: IHumanPosture,
+        seconds: number,
+        _before?: IAutoMovieMotionHumanPrimitive.Reader,
+        resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+        projection?: ReturnType<typeof prepareHumanPostureProjection>,
+      ): IHumanPosture => at(seconds, resolution, projection),
     };
     const settled: number = clock.at("settled") / duration;
     const sitting: boolean = position.startsWith("sit");

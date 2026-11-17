@@ -267,7 +267,7 @@ export namespace walkReach {
    * @evidence contracts/development/implementation.md#principled-implementation Solves the same smooth maximum's fixed point by a bracketed root; only stances whose claims read their ankles participate in trial placement, and deferred endpoints fit at that same final root when read.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Pelvis orientation and fixed weights precede trial placement, the scalar root solve and final endpoint completion.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the original claim formulas, bracket expansion, root tolerance and foot ranges; inactive stances only skip trials whose residual cannot read them.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each root trial fits at most the two bearing unnamed stances; inactive final endpoints fit only if read, and the original root iteration bounds remain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each root trial fits at most the two bearing unnamed stances; body-only short-reach preparation is lazy behind an actual unnamed bearing claim, so named/airborne-only claims omit it. Inactive final endpoints fit only if read, and the original root iteration bounds remain.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Stance weights and claim ownership remain fixed within one ground solve, so its root trials share them without sharing across input postures.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned ground result owns two endpoint records and one deferred final-fit callback until the query releases it; no time history or global cache is retained.
    */
@@ -285,7 +285,7 @@ export namespace walkReach {
       yaw,
       pivots,
       hips: joints,
-    }: IPelvis = pelvis(body, root, planned, hips, feet, resolution === undefined ? undefined : prepareHumanPoseResolution(resolution)());
+    }: IPelvis = pelvis(body, root, planned, hips, feet, resolution === undefined ? undefined : prepareHumanPoseResolution.read(resolution));
     const hip: (side: "left" | "right", drop: number) => IAutoMovieVector3 = (side: "left" | "right", drop: number): IAutoMovieVector3 => {
       const p: IAutoMovieVector3 = joints[side];
       return { x: p.x, y: p.y - drop, z: p.z };
@@ -294,7 +294,7 @@ export namespace walkReach {
       left: weight(feet.left),
       right: weight(feet.right),
     };
-    const short: ReturnType<typeof prepareShort> = prepareShort(body);
+    let short: ReturnType<typeof prepareShort> | undefined;
     const bearing: Record<"left" | "right", boolean> = {
       left: claims.left === undefined && weights.left > 0,
       right: claims.right === undefined && weights.right > 0,
@@ -327,9 +327,9 @@ export namespace walkReach {
       const named: number | undefined = claims[side];
       if (named !== undefined) return named;
       const w: number = weights[side];
-      return w <= 0
-        ? -CLAIM
-        : w * short(joints[side], placed[side].ankle) + (w - 1) * CLAIM;
+      if (w <= 0) return -CLAIM;
+      if (short === undefined) short = prepareShort(body);
+      return w * short(joints[side], placed[side].ankle) + (w - 1) * CLAIM;
     };
     const lowering: () => number = (): number =>
       -smoothMinimum(

@@ -1,3 +1,5 @@
+import { AirborneQuadratureAggregate } from "./AirborneQuadratureAggregate";
+
 /**
  * Adaptive Simpson integration of a shooting seed's vector integrand.
  *
@@ -15,10 +17,10 @@
  * @throws {Error} When data are non-finite, dimensions change, the budget is invalid, or a required panel cannot be bisected at machine resolution.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the nested Simpson rules, Richardson estimate, global criterion, failure and output-unit ownership.
- * @evidence contracts/development/implementation.md#principled-implementation Uses adaptive Simpson with its fourth-order Richardson factor 15 and sums the caller's panel error norms by the triangle inequality. The estimator assumes locally smooth data and can miss unsampled structure; it does not certify arbitrary histories or the final physical flight.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read a five-node initial panel, sum its live leaves, test global error, then replace the worst leaf by its two children.
+ * @evidence contracts/development/implementation.md#principled-implementation Uses adaptive Simpson with Richardson factor 15 and the triangle inequality. An explicitly separable nonnegative error measure admits component aggregates and current-weight maximum bounds; additional pairwise-sum roundoff is charged to that same output budget. Arbitrary callback measures retain the original full scan. Smoothness remains an estimator premise, not a continuous or final-flight certificate.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One actual panel producer serves the original general measure loop or the explicitly decomposed aggregate loop. Both refine the actual current maximum using the same samples, midpoint and Simpson rules.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No frame grid, tolerance floor, guessed history or iteration cap replaces evaluation; unresolved error at machine resolution throws.
- * @evidence contracts/development/implementation.md#efficient-algorithms P live leaves require 4P+1 integrand calls, sharing parent samples. For n components the straightforward leaf aggregation and largest-error scan cost O(P squared times n) over refinement; expensive history calls grow linearly with P rather than a prescribed time grid.
+ * @evidence contracts/development/implementation.md#efficient-algorithms P leaves require 4P+1 actual integrand calls. Generic measures retain O(P squared times n) aggregation over refinement. A separable k-component measure updates O(D(n+k)) ancestor aggregates at tree depth D and selects by valid current-weight bounds, with O(Pk) worst-case search when bounds overlap. Actual end-to-end gain is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each child's endpoints and midpoint are the parent's actual samples, and its coarse Simpson value is the parent's computed half-panel value; no time quantization or cross-history memo is used.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only O(Pn) numeric leaf samples and estimates live during integration. They and the pure callback are released on return or throw; only the numeric result escapes, with no handle or global cache.
  */
@@ -37,6 +39,14 @@ export function AirborneTakeoffQuadrature(props: {
 
   /** Pure nonnegative norm-like measure of one panel's absolute component errors, using the current whole integral. Infinity requests refinement; NaN and negative errors are invalid. */
   error: (value: readonly number[], error: readonly number[]) => number;
+
+  /** Optional exact decomposition error(value,e)=dot(weights(value),components(e)), with nonnegative fixed-dimension coordinates. The caller owns this mathematical premise; arbitrary measures retain the original full scan. Current weights are recomputed after every split and aggregate-addition roundoff is charged through error. */
+  separable?: {
+    /** Fixed nonnegative panel-error coordinates independent of the whole integral. */
+    components: (error: readonly number[]) => readonly number[];
+    /** Current nonnegative coordinate weights, recomputed once per integral. */
+    weights: (value: readonly number[]) => readonly number[];
+  };
 }): number[] {
   /** One leaf's samples, half rules and corrected integral/error vectors. */
   interface IPanel {
@@ -185,6 +195,25 @@ export function AirborneTakeoffQuadrature(props: {
       simpson(props.t0, props.t1, fa, fm, fb),
     ),
   ];
+  if (props.separable !== undefined) {
+    const tree: AirborneQuadratureAggregate.ITree<IPanel> = AirborneQuadratureAggregate(
+      leaves[0]!, props.separable.components,
+    );
+    for (;;) {
+      const { value, roundoff }: AirborneQuadratureAggregate.IRead = tree.read();
+      const weights: readonly number[] = props.separable.weights(value);
+      const rounding: number = props.error(value, roundoff);
+      if (!(rounding >= 0))
+        throw new Error("AirborneTakeoffQuadrature received an invalid panel error");
+      if (tree.estimate(weights, rounding) <= props.tolerance) return [...value];
+      const selected: IPanel = tree.worst(weights);
+      const middle: number = selected.a + (selected.b - selected.a) / 2;
+      tree.replace(selected,
+        panel(selected.a, middle, selected.fa, selected.fl, selected.fm, selected.left),
+        panel(middle, selected.b, selected.fm, selected.fr, selected.fb, selected.right),
+      );
+    }
+  }
   for (;;) {
     const value: number[] = Array.from(
       { length: dimensions! },

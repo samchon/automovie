@@ -20,6 +20,9 @@ import { motionHumanLawSweep } from "./motionHumanLawSweep";
  * takes a share of every law and the slow laws spread over all the parts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the design, how a part is cut and why.
+ * @evidence contracts/development/design.md#principled-representation Ledger parameter strings, canonical body names and seed identities define covering factors; stages supply actual public scenes and each finding retains law/row/body/seed attribution.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owns factor extraction, full/partitioned enumeration, cell counts and positional mirrors. Scene construction and physical detector execution stay with motionHumanLawSweep and motionHumanLawSweepCell.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses actual scene/film/body contracts and the one covering owner. Gesture face regions are coupled to touchFace because other gesture kinds do not consume them, rather than supplying a fixture-specific branch.
  * @evidence contracts/development/implementation.md#principled-implementation Every pair (or triple) of factor values meets in some cell of the covering array; a part is a fixed selection of those cells, so the parts together are exactly the whole array.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over laws and cells with a selection, read by both the whole sweep and a part.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A part out of range or a count that does not divide by the bodies throws, so no cell is left out unnoticed.
@@ -36,6 +39,14 @@ export namespace motionHumanLawCovering {
    *
    * @param law The law.
    * @returns Each factor's values.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines omitted-value markers and the gesture kind/region dependency; an unlisted law yields no parameter factors.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the maintained ledger's parameter=value rows and represents the face-region choice only alongside touchFace, the gesture kind that consumes it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the law, collect parameter values and merge the one dependent gesture region factor.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses ledger values unchanged apart from the documented dependent-factor encoding; it supplies no staged pose, expected result or refusal exception.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For L ledger laws and R rows of the selected law, lookup/collection is O(L+R), with O(R) retained strings and a linear face-region merge when applicable.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns fresh parameter arrays from the shared immutable ledger; it has no cross-call cache or mutable result alias.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned record owns its arrays; local references end at return and no scene, body or running task is acquired.
    */
   export function factors(law: string): Record<string, string[]> {
     const listed: { rows: { row: string }[] } | undefined = (
@@ -77,6 +88,14 @@ export namespace motionHumanLawCovering {
    * @param report Receives each cell as it finishes.
    * @param only Limits the sweep to laws whose name is in it, when given.
    * @returns Every complaint of every cell.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States covering strength, canonical body pairing, seed, callback, optional law selection and complete complaint return.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the single deterministic covering sweep with every body selected; laws with at least three parameter factors use triple coverage, otherwise pair coverage.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation supplies the all-bodies predicate and forwards the explicit selection/report inputs.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts It changes no cell, detector, physical bound or refusal policy and filters only caller-selected law names.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Per-law tuple construction belongs to motionCoveringArray; C resulting cells each incur real scene/performance/detector cost. No unmeasured speedup is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same sweep/staging/cell owners as partitioned runs; each actual cell shares one film across its physical detectors and repeats only the law's first cell for determinism.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the complete growing complaint list without a cap; active rows/film ownership belong to the sweep/cell calls and no process or global film cache is started.
    */
   export function covering(
     table: Readonly<Record<string, motionHumanLawSweep.Stage>>,
@@ -100,7 +119,15 @@ export namespace motionHumanLawCovering {
    * @param bodies The bodies; each is `a`, partnered by the next.
    * @param seeds The seeds.
    * @returns Every complaint of the part's cells.
-   * @throws {Error} When the count does not divide by the bodies or the part is out of range.
+   * @throws {Error} When the count/index is not a safe integer, the count is not positive, the body set is empty, the count does not divide by the bodies or the part is out of range.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines zero-based safe-integer part selection, body-first partitioning, modulo cell selection and malformed/range/divisibility refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation Admitted integer part inputs make body index floor(i/k) and ordinal modulo k partition each body's deterministic cell order exactly once across all parts; a fractional part must not silently select no cells.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate the existing bounds, choose one body and delegate a local ordinal predicate to the common sweep.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not suppress selected findings or alter a cell. Runtime admission rejects invalid numeric selections rather than returning an empty success; no physical threshold or valid integer partition changes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each part constructs the same complete per-law covering rows to preserve order, but performs only one body's every-kth cells and prepares that body's real scene participants. Physical work is not duplicated across parts.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the common enumeration and cell verifier instead of reimplementing factors or physical checks. The ordinal is local to this call and no result is retained across parts.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds only the selected body name, stride and ordinal besides the delegated rows/complaints; all temporary sweep state releases on return or throw.
    */
   export function part(
     table: Readonly<Record<string, motionHumanLawSweep.Stage>>,
@@ -109,7 +136,8 @@ export namespace motionHumanLawCovering {
     seeds: readonly string[] = motionHumanLawSweep.SEEDS,
   ): string[] {
     const [i, n] = at;
-    if (n % bodies.length !== 0 || !(i >= 0 && i < n))
+    if (!Number.isSafeInteger(i) || !Number.isSafeInteger(n) ||
+      n <= 0 || bodies.length === 0 || n % bodies.length !== 0 || !(i >= 0 && i < n))
       throw new Error(
         `part ${i} of ${n} cannot be cut over ${bodies.length} bodies`,
       );
@@ -131,6 +159,14 @@ export namespace motionHumanLawCovering {
    * @param bodies The bodies.
    * @param seeds The seeds.
    * @returns The cells by body.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States that counts size partitions without constructing a scene or performance.
+   * @evidence contracts/development/implementation.md#principled-implementation Enumerates the same factor/body/seed rows and strengths as execution, incrementing the actual named body for each row.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Initialize body counts, build each law's rows and count them once.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not estimate physical runtime from cell count or replace execution with a count; its result is scheduling data only.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Covering construction retains its tuple cost; counting C emitted rows is O(C) with O(B) output entries for B body names, without expensive performance preparation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Calls the same factor extractor and covering constructor as execution, so scheduling does not keep a second ledger interpretation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only numeric counts escape; row arrays and factor records are local and no body, film, task or process is acquired.
    */
   export function cells(
     table: Readonly<Record<string, motionHumanLawSweep.Stage>>,
@@ -165,6 +201,14 @@ export namespace motionHumanLawCovering {
    * @param body The body of `a`; the partner is the small woman.
    * @param seed The seed.
    * @returns Every complaint, a refusal of either row included.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the side/seed precondition, actual body pairing, positional mirror ownership and refusal attribution from either row.
+   * @evidence contracts/development/implementation.md#principled-implementation For each declared mirrored parameter containing left, stage the actual left scene and compare actual displayed joints with the right scene reflected in x=0 at the existing 10 mm positional bound.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Discover mirrored parameters, perform each left row, delegate its right comparison and append attributed construction/read failures.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refusal from either side remains a finding; finite-frame checks and the original bound remain. The comparison owns sampled joint positions over the common duration, not a separate proof of orientation or duration symmetry.
+   * @evidence contracts/development/implementation.md#efficient-algorithms M mirrored parameter rows need at most two actual performance constructions each plus sampled bone comparisons; body preparation uses the shared canonical fixture cache.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each left film is built once and handed to its one right comparison; both use the existing staging, film and frame-validation owners without replacing source behavior.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The left/right films live only through their pair comparison; the returned complaint list has no added cap and no film/global callback history or running task escapes.
    */
   export function mirrors(
     table: Readonly<Record<string, motionHumanLawSweep.Stage>>,
@@ -193,7 +237,7 @@ export namespace motionHumanLawCovering {
           out.push(...mirror(law, row, stage, pair, seed, left));
         } catch (error) {
           out.push(
-            `${law} | ${row} | ${pair[0]}+${pair[1]} | ${seed} | a | refused: ${(error as Error).message.split("\n")[0]}`,
+            `${law} | ${row} | ${pair[0]}+${pair[1]} | ${seed} | a | refused: ${error instanceof Error ? error.message.split("\n")[0] : String(error)}`,
           );
         }
       }
@@ -276,8 +320,10 @@ export namespace motionHumanLawCovering {
     try {
       scene = motionHumanLawSweep.staged(twin, stage, bodies, (): void => {});
       right = motionHumanLawSweep.perform(seed, scene);
-    } catch {
-      return [];
+    } catch (error) {
+      return [
+        `${law} | ${twin} | ${bodies[0]}+${bodies[1]} | ${seed} | a | refused: ${error instanceof Error ? error.message.split("\n")[0] : String(error)}`,
+      ];
     }
     const out: string[] = [];
     for (const { subject } of scene.people) {
@@ -286,7 +332,7 @@ export namespace motionHumanLawCovering {
           mirror: 0,
           rate: 4,
         }).distance;
-      if (m.value > motionHumanLawSweep.SKIN)
+      if (!Number.isFinite(m.value) || m.value > motionHumanLawSweep.SKIN)
         out.push(
           `${law} | ${row} | ${bodies[0]}+${bodies[1]} | ${seed} | ${subject} | mirror ${m.value.toFixed(4)} over ${motionHumanLawSweep.SKIN} at ${m.seconds.toFixed(2)} s (${m.where})`,
         );

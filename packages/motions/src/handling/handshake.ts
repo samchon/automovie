@@ -148,8 +148,8 @@ export namespace handshake {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Entry observations and meeting precede original shared timing, clasp selection, transports and the complete posture request.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original pumps, amplitudes, grip windows, actual paired candidate fits/clearance, references, seated/standing behavior and all refusals remain.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each entry observation requests only hips/feet/acting shoulder/hand; the same unchanged partner/start observation serves shoulder and standing prediction. Every original meeting/clasp solve remains, while runtime shape schedules reuse fixed phase geometry.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous plan fixes the partner and entry film second for both direct observations; shared meeting-role computation remains with its original owner and no pose/time result history is added.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Entry bone maps and clasp workspaces are local to planning; the returned plan retains its original base, transport/shape geometry, chosen wrist/reference and scalar timing without a partner bone reader/history.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed partner/start entry observations and shared meeting-role computation retain their original owners. Runtime current-person FK/ROM loans reach only its own original full base/leaned wrapper; partner planning never borrows that source and no pose/time result history is added.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Entry maps/clasp workspaces release with planning; the plan owns original base/transports/shapes/wrist/reference/timing. Runtime loans stay inside the current full-base call and no returned goal, partner reader or history retains them.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -312,9 +312,11 @@ export namespace handshake {
         },
       ],
       contact: reach,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const posture: IHumanPosture = base.posture(t);
+        const posture: IHumanPosture = base.posture(t, undefined, resolution, projection);
         let wrist: IAutoMovieVector3;
         let rotation: IAutoMovieQuaternion;
         let digits: IHumanPosture["joints"];

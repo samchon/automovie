@@ -18,12 +18,12 @@ export interface IPreparedGymnasticsFrame {
    * collider on world zero. Release this reader with its current query frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines world-metre root height, the floor-zero convention, original articulation and frame-owned reader lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation The actual prepareGymnasticsFrame producer delegates its current canonical bone map's exact collider minimum Y to KnockdownFloor.lowest and negates it; the source map was resolved at root Y zero.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One existing bounds reduction keeps physical floor policy with KnockdownFloor while this reader shares only the map already used for COM placement.
+   * @evidence contracts/development/implementation.md#principled-implementation The actual prepareGymnasticsFrame producer delegates its current canonical bone map's exact collider minimum Y to the same genuine whole-profile minimum owner as KnockdownFloor and negates it; the source map was resolved at root Y zero.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed neutral minimum binding serves this frame's actual map already used for COM; the original physical minimum is negated, so an empty Infinity minimum still produces -Infinity rather than a new refusal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every actual collider bound remains evaluated. No floor verdict, target substitution, tolerance change or arbitrary prepared flag supplies the result.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The actual reader traverses S profile segments and C shapes plus original hull vertices, without a second canonical solve/FK, flattened wrappers or unused bound axes/maxima; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The actual reader stages current segment Y/rotations/names/shapes in four arrays, then traverses every C shape and original hull vertex without unused placed/pose/XYZ records, bound axes/maxima or a second canonical solve/FK; speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only this synchronous query's actual canonical bones are shared with COM placement; changed posture queries construct independent frames and the floor value itself is never cached.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader borrows its frame-owned body/map only until the query releases the frame, with no FK supplier, previous-query history, external handle or global retention.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader borrows its static neutral minimum binding and frame-owned map until frame release. Four staging arrays and one-number minimum end after each actual call, without an FK supplier, previous-query history, external handle or global retention.
    */
   floor(): number;
 }

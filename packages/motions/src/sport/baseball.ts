@@ -118,9 +118,9 @@ export namespace baseball {
    * @evidence contracts/development/implementation.md#principled-implementation One phrase; each position's crouch, step and arm places on its envelope.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per position.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body measures and named places; provisional values named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One balance solve per crouch and one posture solve per arm per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the squat's drop, the crouch, the leg arc and the placed arm.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the stance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Keeps original crouch/balance, ground-ball 24-step inclination search and actual arm fits. Catcher/glove observations request only actual chest/shoulder frames and borrow current-person FK for runtime reads; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing squat/crouch/leg/placed-arm owners retain their formulas; current place callbacks explicitly forward same-person FK to original raw chest/shoulder observations rather than infer a result from pose identity.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns original clock/stance/geometry; optional current-person FK inputs are used synchronously and never stored in goals, the plan or query history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -142,7 +142,7 @@ export namespace baseball {
       modifiers,
     );
     const entry: IHumanPosture = context.entry.posture;
-    const into = (s: number): number =>
+    const into: (s: number) => number = (s: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], s);
     // The span the arms are planned over: the reach to the place, the hold and the return.
     const span: AutoMovieMotionHumanArm.ISpan = {
@@ -151,14 +151,14 @@ export namespace baseball {
       relax: clock.at("relax"),
       end: clock.at("end"),
     };
-    const local = (
+    const local: (posture: IHumanPosture, v: IAutoMovieVector3) => IAutoMovieVector3 = (
       posture: IHumanPosture,
       v: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
       HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, v);
-    const rest = (side: "left" | "right"): AutoMovieMotionHumanArm.IAngles =>
+    const rest: (side: "left" | "right") => AutoMovieMotionHumanArm.IAngles = (side: "left" | "right"): AutoMovieMotionHumanArm.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
-    const crouch = (
+    const crouch: (depth: number, pitch: number, legs?: readonly ("left" | "right")[]) => IAutoMovieMotionHumanPrimitive = (
       depth: number,
       pitch: number,
       legs?: readonly ("left" | "right")[],
@@ -173,16 +173,10 @@ export namespace baseball {
         pitch,
         ...(legs === undefined ? {} : { legs }),
       });
-    const placed = (
+    const placed: (side: "left" | "right", place: AutoMovieMotionHumanPlaced.IArm["place"],
+      shape: "flat" | "fist", bend: "forward" | "tucked" | "folded" | "front") => IAutoMovieMotionHumanPrimitive[] = (
       side: "left" | "right",
-      place: (
-        posture: IHumanPosture,
-        s: number,
-      ) => {
-        point: IAutoMovieVector3;
-        facing: IAutoMovieVector3;
-        forward?: IAutoMovieVector3;
-      },
+      place: AutoMovieMotionHumanPlaced.IArm["place"],
       shape: "flat" | "fist",
       bend: "forward" | "tucked" | "folded" | "front",
     ): IAutoMovieMotionHumanPrimitive[] =>
@@ -209,10 +203,10 @@ export namespace baseball {
           crouch(exercise.drop(m, "half"), 20),
           ...placed(
             "left",
-            (posture: IHumanPosture) => ({
+            (posture: IHumanPosture, _seconds: number, resolution?: IFK): ReturnType<AutoMovieMotionHumanPlaced.IArm["place"]> => ({
               // Ahead of the crouched chest, not of the standing one.
               point: Vector3.add(
-                AutoMovieMotionHumanPlaced.joint(body, posture, "chest"),
+                AutoMovieMotionHumanPlaced.joint(body, posture, "chest", resolution),
                 local(posture, { x: 0, y: 0, z: PRESENT * arm }),
               ),
               facing: local(posture, { x: 0, y: 0, z: 1 }),
@@ -240,18 +234,21 @@ export namespace baseball {
         break;
       case "groundBall": {
         // The glove on the floor ahead of the shoulders, open forward and up with the fingers down.
-        const glovePoint = (posture: IHumanPosture, up: number): IAutoMovieVector3 =>
+        const glovePoint: (posture: IHumanPosture, up: number, resolution?: IFK) => IAutoMovieVector3 =
+          (posture: IHumanPosture, up: number, resolution?: IFK): IAutoMovieVector3 =>
           Vector3.add(
             {
-              ...AutoMovieMotionHumanPlaced.shoulders(body, posture),
+              ...AutoMovieMotionHumanPlaced.shoulders(body, posture, resolution),
               y: up * arm,
             },
             local(posture, { x: 0, y: 0, z: AHEAD * arm }),
           );
-        const glove = (posture: IHumanPosture, up: number): {
+        const glove: (posture: IHumanPosture, up: number, resolution?: IFK) => {
+          point: IAutoMovieVector3; facing: IAutoMovieVector3; forward: IAutoMovieVector3;
+        } = (posture: IHumanPosture, up: number, resolution?: IFK): {
           point: IAutoMovieVector3; facing: IAutoMovieVector3; forward: IAutoMovieVector3;
         } => ({
-          point: glovePoint(posture, up),
+          point: glovePoint(posture, up, resolution),
           facing: Vector3.normalize(
             Vector3.add(local(posture, { x: 0, y: 0, z: 1 }), {
               x: 0,
@@ -283,7 +280,7 @@ export namespace baseball {
             (REACH * REACH - AHEAD * AHEAD) * arm * arm -
               m.shoulderHalfWidth * m.shoulderHalfWidth,
           );
-        const above = (inclination: number): number =>
+        const above: (inclination: number) => number = (inclination: number): number =>
           AutoMovieMotionHumanPlaced.shoulders(
             body,
             AutoMovieMotionHumanTrunk.sunk(
@@ -307,14 +304,14 @@ export namespace baseball {
           crouch(depth, inclination),
           ...placed(
             "left",
-            (posture: IHumanPosture) => glove(posture, low),
+            (posture: IHumanPosture, _seconds: number, resolution?: IFK): ReturnType<typeof glove> => glove(posture, low, resolution),
             "flat",
             "forward",
           ),
           ...placed(
             "right",
-            (posture: IHumanPosture) => ({
-              point: glovePoint(posture, low + 0.2),
+            (posture: IHumanPosture, _seconds: number, resolution?: IFK): ReturnType<AutoMovieMotionHumanPlaced.IArm["place"]> => ({
+              point: glovePoint(posture, low + 0.2, resolution),
               facing: { x: 0, y: -1, z: 0 },
             }),
             "flat",
@@ -417,3 +414,6 @@ export namespace baseball {
     });
   }
 }
+
+/** Optional same-person exact FK source used only during an actual current place observation. */
+type IFK = Parameters<IHumanActionPlan["posture"]>[2];

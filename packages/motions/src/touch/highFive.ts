@@ -399,10 +399,14 @@ export namespace highFive {
           ? under
           : {
               ...under,
-              posture: (seconds: number): IHumanPosture =>
+              posture: (
+                seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+                source?: Parameters<IHumanActionPlan["posture"]>[2],
+                projection?: Parameters<IHumanActionPlan["posture"]>[3],
+              ): IHumanPosture =>
                 HumanSeatedReach.posed(
                   body,
-                  under.posture(seconds),
+                  under.posture(seconds, undefined, source, projection),
                   lean.joints,
                   lean.share *
                     clock.envelope(["start", "ready"], ["relax", "end"], seconds),
@@ -457,8 +461,8 @@ export namespace highFive {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One record of the same plan with its time moved.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The posture is the plan's own, read at a clamped second; nothing is written for the wait.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the plan's events and windows.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The record closes over the plan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the original complete plan evaluation at its unchanged shifted/clamped clock; a current same-body exact FK/ROM loan passes through only this invocation without storing any posture or time answer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the original plan, lead and rescaled event/contact metadata. Borrowed query FK/ROM sources end on synchronous return or throw and enter no output, reader history or retained pose.
    */
   export function delayed(
     plan: IHumanActionPlan,
@@ -476,8 +480,11 @@ export namespace highFive {
           : { ...c, from: c.from <= 0 ? 0 : share(c.from), to: share(c.to) },
       ),
       ...(plan.contact === undefined ? {} : { contact: plan.contact + lead }),
-      posture: (seconds: number): IHumanPosture =>
-        plan.posture(Math.max(0, seconds - lead)),
+      posture: (
+        seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        source?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => plan.posture(Math.max(0, seconds - lead), undefined, source, projection),
     };
   }
 }

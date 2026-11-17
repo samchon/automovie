@@ -167,8 +167,8 @@ export namespace punchFootwork {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The feet's travel first, then the posture per second, then the contact windows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A planted foot is never moved by the trunk's clock; the stance keeps its length when a step is arrested.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the lower body's fit.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once; each actual posture shares only its own repeated opening/dragging phase values between the two identical lift factors. Changed seconds and arrest/derivative evaluations remain independent, with no new phase or pose history.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the entry's two foot placements, released with the geometry.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once; each actual posture shares its repeated opening/dragging phase factors. One actual advance(s) read feeds the position/speed arithmetic within each arrest or post-stop follow invocation; later frames still query their actual correction state. All derivative clocks and the existing arrested-state memo remain unchanged, with no new phase or pose history.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the original entry feet, timings, advance callback and lazy three-scalar arrested state until geometry release. New phase/advance scalars and any borrowed FK supplier end within the current synchronous evaluation; no new time history, pose or query workspace is retained.
    */
   export function create(props: IProps): IFootwork {
     const { context, timing, line, advance, turn, dip, fixed, out, back } =
@@ -225,9 +225,10 @@ export namespace punchFootwork {
       let arrested: { from: number; speed: number; rest: number } | undefined;
       const arrest = (): { from: number; speed: number; rest: number } => {
         if (arrested === undefined) {
-          const from: number = advance(s) * out(s);
+          const advanced: number = advance(s);
+          const from: number = advanced * out(s);
           const speed: number =
-            (advance(s) * minimumJerk(s / shown).ds) / shown;
+            (advanced * minimumJerk.rate(s / shown)) / shown;
           arrested = {
             from,
             speed,
@@ -244,18 +245,18 @@ export namespace punchFootwork {
       follow =
         s <= dragFrom
           ? (t: number): number => (t <= s ? 0 : arrest().rest * dragged(t))
-          : (t: number): number =>
-              t <= s
-                ? advance(t) * dragged(t)
-                : StrikingArrest.settle(
-                    advance(s) * dragged(s),
-                    (advance(s) *
-                      minimumJerk((s - dragFrom) / (dragTo - dragFrom)).ds) /
-                      (dragTo - dragFrom),
-                    arrest().rest,
-                    dragTo - s,
-                    t - s,
-                  );
+          : (t: number): number => {
+              if (t <= s) return advance(t) * dragged(t);
+              const advanced: number = advance(s);
+              return StrikingArrest.settle(
+                advanced * dragged(s),
+                (advanced * minimumJerk.rate((s - dragFrom) / (dragTo - dragFrom))) /
+                  (dragTo - dragFrom),
+                arrest().rest,
+                dragTo - s,
+                t - s,
+              );
+            };
     }
     const base = (t: number, clock: number = t, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture => {
       const turning: number = out(clock) - turnBack(clock);

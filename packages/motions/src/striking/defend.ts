@@ -172,9 +172,9 @@ export namespace defend {
    * @evidence contracts/development/implementation.md#principled-implementation The outcome law times the start from the strike's launch and contact; the goal is built from what the defender sees at that read second, the guard held before it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Decides the timing once, builds the geometry on first use after the read, and evaluates each posture from it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A strike that cannot be defended throws; nothing about contact is decided here, so no outcome is faked geometrically.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the limb fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The decision is made once per plan and the geometry built once, dropped on settle when the strike may have changed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry, cleared by settle, and one decision keyed weakly by the plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The original reaction decision, attacker reads and all current native posture fitting remain. Waiting and built-defence branches prepare fixed foot geometry and demanded rig names once, evaluate the movement envelope once per query and borrow genuine current FK/ROM inputs; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The decision is made once and built geometry is dropped on settle when the strike may change. The native context fixes entry feet and body, so waiting shares only their authored geometry/name preparation; every posture remains fresh, and query-supplied exact FK/ROM loans are forwarded without retaining them.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one built geometry cleared by settle, one lazy fixed-entry waiting reader and one decision keyed weakly by the plan. Plan release drops fixed metadata, and current maps, pose fits and borrowed query sources end with each synchronous return or failure.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -287,13 +287,21 @@ export namespace defend {
       p.kind === "check" ? defendGeometry.attacked(region, lead) : undefined,
       timing,
     );
+    let waiting: IHumanActionPlan["posture"] | undefined;
     const out: IHumanActionPlan = {
       duration,
       events,
       contacts,
-      posture: (seconds: number): IHumanPosture => {
+      posture: (
+        seconds: number,
+        channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IHumanActionPlan["posture"]>[3],
+      ): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        return t <= begin + 1e-9 ? idle(context, lead) : geometry().posture(t);
+        return t <= begin + 1e-9
+          ? (waiting ??= idle(context, lead))(t, channels, resolution, projection)
+          : geometry().posture(t, channels, resolution, projection);
       },
       settle: (): void => {
         built = undefined;
@@ -303,26 +311,31 @@ export namespace defend {
     return out;
   }
 
-  /** The guard held while waiting for the read: the entry's feet planted and the gloves up. */
+  /** Fixed entry-foot and guard demands while waiting; each query still resolves its complete current authored posture. */
   function idle(
     context: IHumanActionContext<IParams>,
     lead: "left" | "right",
-  ): IHumanPosture {
-    const entry: IHumanPosture = context.entry.posture;
-    const posture: IHumanPosture = {
-      ...entry,
-      joints: { ...entry.joints, ...StrikingStance.joints() },
-      limbs: StrikingStance.legs(
-        context.body,
-        StrikingTarget.feet(context.entry),
-      ),
-    };
-    return {
-      ...posture,
-      limbs: {
-        ...posture.limbs,
-        ...StrikingStance.guard(context.body, posture, { lead }),
-      },
+  ): IHumanActionPlan["posture"] {
+    const legs: ReturnType<typeof StrikingStance.prepareLegs> = StrikingStance.prepareLegs(
+      context.body, StrikingTarget.feet(context.entry),
+    );
+    const guard: ReturnType<typeof StrikingStance.prepareGuard> = StrikingStance.prepareGuard(context.body, { lead });
+    return (
+      _seconds: number,
+      _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+      resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IHumanActionPlan["posture"]>[3],
+    ): IHumanPosture => {
+      const entry: IHumanPosture = context.entry.posture;
+      const posture: IHumanPosture = {
+        ...entry,
+        joints: { ...entry.joints, ...StrikingStance.joints() },
+        limbs: legs(),
+      };
+      return {
+        ...posture,
+        limbs: { ...posture.limbs, ...guard(posture, resolution, projection) },
+      };
     };
   }
 }

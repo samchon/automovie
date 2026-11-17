@@ -11,7 +11,9 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 import type { rest } from "./rest";
@@ -36,8 +38,8 @@ import type { rest } from "./rest";
  * @evidence contracts/development/implementation.md#principled-implementation Each arm's goal lies on the other arm's surface, so both upper arms are fixed first and the one free width is solved for the forearm's length.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One elbow placement, one palm goal and one bisection of the width.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An infeasible width keeps the nearest feasible one, as stated; the least flexion is named provisional.
- * @evidence contracts/development/implementation.md#efficient-algorithms A 30-step width bisection retains every closed-form goal query. One observational posture solve demands only the actual shoulder-parent frames, falling back to full fitting when dependencies require it; shoulder frames, lengths, directions and elbow forward/down geometry are prepared once per plan.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Bisection trials share fixed body geometry, clamped shoulder origins and raw sternum placement; each changed width computes its two elbows once for both hand surfaces and excesses. The universal resolver owns the safe fit dependency proof and preserves full fallback.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A 30-step width bisection retains every closed-form goal query. One observational posture solve demands only the actual shoulder-parent frames, falling back to full fitting when dependencies require it; shoulder frames, lengths, directions and elbow forward/down geometry are prepared once per plan. Native scalar distance and addScaled owners preserve the original read/arithmetic order while omitting discarded separation/scaled-offset records in every actual width trial.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A same-operation exact FK reader serves the admitted shoulder solve, shoulder frames and raw sternum. Bisection trials share fixed body geometry, lazy actual palm offsets and clamped shoulder origins; each changed width computes its two elbows once for both hand surfaces and excesses. The universal resolver owns the safe fit dependency proof and preserves full fallback.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function restCrossedArms(
@@ -60,28 +62,27 @@ export function restCrossedArms(
       )?.parent ?? bone,
     ),
   );
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
   const pose: IAutoMoviePose = resolveHumanPosture.seeded(
-    body, posture, undefined, {}, undefined, parents,
+    body, posture, undefined, {}, resolution, parents,
   ).pose;
-  const bones: ReturnType<typeof poseBones> = poseBones(body, pose, undefined, requested);
+  const bones: ReturnType<typeof poseBones> = poseBones(body, pose, resolution(), requested);
   const length = (
     side: HumanHand.Side,
     from: "UpperArm" | "LowerArm",
     to: "LowerArm" | "Hand",
   ): number =>
-    Vector3.length(
-      Vector3.subtract(
-        body.rest.get(`${side}${to}`)!,
-        body.rest.get(`${side}${from}`)!,
-      ),
+    Vector3.distance(
+      body.rest.get(`${side}${to}`)!, body.rest.get(`${side}${from}`)!,
     );
   const sternum: IAutoMovieVector3 = frame.local(
-    HumanTrunk.region(body, posture, "sternum").point,
+    HumanTrunk.region(body, posture, "sternum", resolution).point,
   );
   const geometry: Record<HumanHand.Side, IArm> = {
     left: prepare("left"), right: prepare("right"),
   };
   const ahead: IAutoMovieVector3 = turn({ x: 0, y: 0, z: 1 });
+  const palms: Partial<Record<HumanHand.Side, IAutoMovieVector3>> = {};
   const elbowAt = (side: HumanHand.Side, inward: number): IAutoMovieVector3 => {
     const arm: IArm = geometry[side];
     const s: IAutoMovieVector3 = arm.shoulder;
@@ -107,30 +108,21 @@ export function restCrossedArms(
     const front: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(ahead, Vector3.scale(axis, Vector3.dot(ahead, axis))),
     );
-    const point: IAutoMovieVector3 = Vector3.add(
-      Vector3.add(
-        from,
-        Vector3.scale(axis, 0.75 * geometry[other].upper),
-      ),
-      Vector3.scale(front, body.measure.upperArmRadius),
+    const point: IAutoMovieVector3 = Vector3.addScaled(
+      Vector3.addScaled(from, axis, 0.75 * geometry[other].upper),
+      front, body.measure.upperArmRadius,
     );
     const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
       fingers: geometry[other].outward,
       palm: Vector3.scale(front, -1),
     });
     const elbow: IAutoMovieVector3 = elbows[side];
-    const wrist: IAutoMovieVector3 = HumanHand.place(
-      body,
-      side,
-      "palm",
-      point,
-      rotation,
-      "relaxed",
-    ).point;
+    const palm: IAutoMovieVector3 = palms[side] ??= HumanHand.offset(body, side, "palm", "relaxed").point;
+    const wrist: IAutoMovieVector3 = placeHumanHandSurface(palm, point, rotation).point;
     return {
       goal: { surface: "palm", shape: "relaxed", point, rotation, elbow },
       excess:
-        Vector3.length(Vector3.subtract(wrist, elbow)) -
+        Vector3.distance(wrist, elbow) -
         geometry[side].lower,
     };
   };

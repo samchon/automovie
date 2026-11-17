@@ -25,10 +25,10 @@ import type { combinePhysicalMassProperties } from "./combinePhysicalMassPropert
  *
  * @evidence contracts/development/common.md#meaningful-documentation States both tensor terms, common frame, SI units, zero-moment parts and caller admission. Namespace prepare returns a callable assembly reader with spin for an actual indexed part; both return fresh values, reject invalid spin indices, compare exact copied intrinsic inputs and release with the owning physical operation.
  * @evidence contracts/development/implementation.md#principled-implementation The rotation of a principal tensor into another frame, `R diag(I) R^T`, written as the sum over the principal axes `a_k` of `I_k a_k a_kᵀ`, and the parallel-axis (Huygens-Steiner) theorem for the shift of each part's mass to the point; both are exact, so the sum is the rigid assembly's tensor.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct assembly/spin share an allocation-free scalar component kernel. Prepared reads retain those same intrinsic expressions in private rotated storage, then apply current parallel-axis terms through preparedComponents; both paths share the same tensor/spin consumers. The separate direct path avoids preparation metadata for one-shot calls while this module remains the sole tensor owner.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct assembly/spin share one component kernel that rotates three axes and evaluates scalar terms. Prepared reads retain the same intrinsic expressions in private rotated storage, then apply current parallel-axis terms through preparedComponents; both paths share tensor/spin consumers. The separate direct path avoids preparation metadata for one-shot calls while this module remains the sole tensor owner.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No input is clamped or skipped: a non-finite input yields a non-finite tensor that the caller's admission refuses.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in parts, with three axis rotations and nine shared moment-times-row products for a changed intrinsic frame. Direct scalar displacement/consumer paths omit vector, part-array and tensor-row intermediates. Prepared entries reuse their private key/tensor storage even on misses, so a moving part allocates no replacement cache record after first use. Unchanged frames omit intrinsic work; current shifts and independent off-diagonal association remain.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Direct assembly/spin share the scalar kernel, immutable axes and consumers. Prepare separately caches each part index's nine intrinsic entries only after Object.is matches three copied moments and four quaternion coordinates, with independent assembly/spin slots. Current mass/centre/reference shifts, velocity products and model-order sums always run; changed coordinates recompute without a target/time/identity key.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in parts. Raw parts and changed prepared intrinsic frames each materialize three rotated-axis vectors and nine moment-times-row products. Scalar shifts/consumers omit displacement vectors, one-part arrays and per-part tensor rows. A populated prepared slot overwrites key/tensor storage on a miss; hits omit intrinsic work. Current shifts and independent off-diagonal association remain.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Direct assembly/spin share the scalar kernel, immutable axes and consumers. Prepare reads each actual moment/quaternion component once; its captured seven-scalar key supplies both Object.is and every intrinsic product. Independent assembly/spin rows become reusable only after all nine entries complete. Current mass/centre/reference shifts, velocity products and model-order sums always run; no target/time/identity key is used.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct calls retain no caller data and return fresh rows/vectors. A prepared reader owns at most one seven-scalar key plus nine intrinsic entries per current part for each of assembly and spin; either use truncates both populations when its part array shrinks. The mass-model/interval owner releases the closure with its operation, and no part, pose, query point or result history is held.
  */
 export function physicalInertiaTensor(
@@ -86,15 +86,16 @@ export namespace physicalInertiaTensor {
    *
    * States cached intrinsic inputs, current shift inputs, exact numeric keys and operation ownership.
    * R diag(I) R transpose is independent of both part centre and reference point; caching its nine scalar entries preserves the original axis-product association before the unchanged parallel-axis addition.
-   * One last rotated tensor per ordered part feeds the same nine-entry accumulation; the ordinary tensor and spin paths retain their allocation-free scalar component kernel.
+   * One last rotated tensor per ordered part feeds the same nine-entry accumulation. An active-call guard delegates reentrant requests to the existing direct component kernel so foreign getters cannot overwrite outer cached rows or spin scratch.
    * Every changed inertia or quaternion coordinate recomputes its actual tensor, and every mass/centre/reference shift remains evaluated. No normalized-input shortcut, symmetric-entry copy, time key or tolerance is introduced.
    * O(P) comparisons, shifts and ordered sums for P parts, with three axis rotations and nine row products only at changed intrinsic frames. Each call returns three fresh rows; retained scalar snapshots are O(P).
-   * Object.is compares copied three-moment and four-quaternion coordinates at the same ordered part index, including signed zero and caller mutations. Mass and translation do not invalidate an intrinsic tensor because they do not enter it.
-   * The caller owns one assembly slot and one spin slot per current part index, each holding a seven-scalar key and nine tensor entries; either reader truncates both populations when its parts array shrinks. No part, pose or result array is retained, and the enclosing mass-model owner drops the reader on release.
+   * Each moment/quaternion component is captured once before key comparison; that same private tuple drives every product. Object.is retains signed zero and caller edits, and a failed changed-row computation stays ineligible for reuse. Mass and translation do not enter an intrinsic tensor's key.
+   * The caller owns one active-call guard and assembly/spin slots per current part index, each with a seven-scalar key and nine entries; either reader truncates both populations on shrink. Finally restores the guard after success or throw. No part, result or depth pool is retained, and the mass owner drops this reader on release.
    */
   export function prepare(): IPrepared {
     const entries: (IRotated | undefined)[] = [];
     const spins: (IRotated | undefined)[] = [];
+    let active: boolean = false;
     const tensorAt: (
       parts: readonly combinePhysicalMassProperties.IPart[],
       about: IAutoMovieVector3,
@@ -102,15 +103,21 @@ export namespace physicalInertiaTensor {
       parts: readonly combinePhysicalMassProperties.IPart[],
       about: IAutoMovieVector3,
     ): number[][] => {
-      entries.length = parts.length;
-      spins.length = Math.min(spins.length, parts.length);
-      const tensor: number[][] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
-      for (let i: number = 0; i < parts.length; i++) {
-        const part: combinePhysicalMassProperties.IPart = parts[i]!;
-        const value: IRotated = readRotated(entries, i, part.inertia, part.inertiaRotation);
-        preparedComponents(part, about, value.tensor, addTensor, tensor);
+      if (active) return physicalInertiaTensor(parts, about);
+      active = true;
+      try {
+        entries.length = parts.length;
+        spins.length = Math.min(spins.length, parts.length);
+        const tensor: number[][] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+        for (let i: number = 0; i < parts.length; i++) {
+          const part: combinePhysicalMassProperties.IPart = parts[i]!;
+          const value: IRotated = readRotated(entries, i, part.inertia, part.inertiaRotation);
+          preparedComponents(part, about, value.tensor, addTensor, tensor);
+        }
+        return tensor;
+      } finally {
+        active = false;
       }
-      return tensor;
     };
     return Object.assign(tensorAt, {
       spin: (
@@ -119,13 +126,22 @@ export namespace physicalInertiaTensor {
         rotation: IAutoMovieQuaternion,
         velocity: IAutoMovieVector3,
       ): IAutoMovieVector3 => {
-        spins.length = parts.length;
-        entries.length = Math.min(entries.length, parts.length);
-        const part: combinePhysicalMassProperties.IPart | undefined = parts[index];
-        if (!Number.isInteger(index) || index < 0 || part === undefined)
-          throw new Error("A prepared intrinsic tensor needs an existing integer part index");
-        const value: IRotated = readRotated(spins, index, part.inertia, rotation);
-        return preparedComponents(part, part.centerOfMass, value.tensor, spinVector, velocity);
+        const nested: boolean = active;
+        if (!nested) active = true;
+        try {
+          if (!nested) {
+            spins.length = parts.length;
+            entries.length = Math.min(entries.length, parts.length);
+          }
+          const part: combinePhysicalMassProperties.IPart | undefined = parts[index];
+          if (!Number.isInteger(index) || index < 0 || part === undefined)
+            throw new Error("A prepared intrinsic tensor needs an existing integer part index");
+          if (nested) return physicalInertiaTensor.spin(part, rotation, velocity);
+          const value: IRotated = readRotated(spins, index, part.inertia, rotation);
+          return preparedComponents(part, part.centerOfMass, value.tensor, spinVector, velocity);
+        } finally {
+          if (!nested) active = false;
+        }
       },
     });
   }
@@ -159,8 +175,16 @@ export namespace physicalInertiaTensor {
 
 /** Last intrinsic tensor key and entries, with no part or caller record held. */
 interface IRotated {
+  /** False until all nine entries finish from this actual captured key. */
+  ready: boolean;
+
+  /** Copied principal moments in the caller's tensor unit, forming the exact intrinsic key. */
   moments: IAutoMovieVector3;
+
+  /** Copied principal-to-common quaternion coordinates, without normalization. */
   rotation: IAutoMovieQuaternion;
+
+  /** Nine row-major intrinsic entries, before any current parallel-axis shift. */
   tensor: number[];
 }
 
@@ -171,14 +195,36 @@ function readRotated(
   moments: IAutoMovieVector3,
   rotation: IAutoMovieQuaternion,
 ): IRotated {
+  const mx: number = moments.x;
+  const my: number = moments.y;
+  const mz: number = moments.z;
+  const qx: number = rotation.x;
+  const qy: number = rotation.y;
+  const qz: number = rotation.z;
+  const qw: number = rotation.w;
   const known: IRotated | undefined = entries[index];
   if (
-    known !== undefined &&
-    Object.is(known.moments.x, moments.x) && Object.is(known.moments.y, moments.y) && Object.is(known.moments.z, moments.z) &&
-    Object.is(known.rotation.x, rotation.x) && Object.is(known.rotation.y, rotation.y) &&
-    Object.is(known.rotation.z, rotation.z) && Object.is(known.rotation.w, rotation.w)
+    known !== undefined && known.ready &&
+    Object.is(known.moments.x, mx) && Object.is(known.moments.y, my) && Object.is(known.moments.z, mz) &&
+    Object.is(known.rotation.x, qx) && Object.is(known.rotation.y, qy) &&
+    Object.is(known.rotation.z, qz) && Object.is(known.rotation.w, qw)
   ) return known;
-  const value: IRotated = rotated(moments, rotation, known);
+  const value: IRotated = known ?? {
+    ready: false,
+    moments: { x: 0, y: 0, z: 0 },
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+    tensor: [],
+  };
+  value.ready = false;
+  value.moments.x = mx;
+  value.moments.y = my;
+  value.moments.z = mz;
+  value.rotation.x = qx;
+  value.rotation.y = qy;
+  value.rotation.z = qz;
+  value.rotation.w = qw;
+  rotated(value);
+  value.ready = true;
   entries[index] = value;
   return value;
 }
@@ -214,7 +260,9 @@ function preparedComponents<T, Context>(
  * Its nine expressions retain the scalar kernel's independent row/column
  * products; caching them does not fold unequal off-diagonal rounding.
  */
-function rotated(moments: IAutoMovieVector3, rotation: IAutoMovieQuaternion, target?: IRotated): IRotated {
+function rotated(value: IRotated): void {
+  const moments: IAutoMovieVector3 = value.moments;
+  const rotation: IAutoMovieQuaternion = value.rotation;
   const a: IAutoMovieVector3 = Quaternion.rotateVector(rotation, BASIS_X);
   const b: IAutoMovieVector3 = Quaternion.rotateVector(rotation, BASIS_Y);
   const c: IAutoMovieVector3 = Quaternion.rotateVector(rotation, BASIS_Z);
@@ -227,21 +275,8 @@ function rotated(moments: IAutoMovieVector3, rotation: IAutoMovieQuaternion, tar
   const cx: number = moments.z * c.x;
   const cy: number = moments.z * c.y;
   const cz: number = moments.z * c.z;
-  const value: IRotated = target ?? {
-    moments: { x: 0, y: 0, z: 0 },
-    rotation: { x: 0, y: 0, z: 0, w: 1 },
-    tensor: [],
-  };
-
-  // These private scalar slots never escape. Reusing their storage on a
-  // changed frame avoids allocating a new key/tensor record per moving part.
-  value.moments.x = moments.x;
-  value.moments.y = moments.y;
-  value.moments.z = moments.z;
-  value.rotation.x = rotation.x;
-  value.rotation.y = rotation.y;
-  value.rotation.z = rotation.z;
-  value.rotation.w = rotation.w;
+  // These private scalar slots never escape. Their already captured key
+  // supplies every product; admission becomes reusable only after completion.
   value.tensor[0] = 0 + ax * a.x + bx * b.x + cx * c.x;
   value.tensor[1] = 0 + ax * a.y + bx * b.y + cx * c.y;
   value.tensor[2] = 0 + ax * a.z + bx * b.z + cx * c.z;
@@ -251,7 +286,6 @@ function rotated(moments: IAutoMovieVector3, rotation: IAutoMovieQuaternion, tar
   value.tensor[6] = 0 + az * a.x + bz * b.x + cz * c.x;
   value.tensor[7] = 0 + az * a.y + bz * b.y + cz * c.y;
   value.tensor[8] = 0 + az * a.z + bz * b.z + cz * c.z;
-  return value;
 }
 
 /** A row-major scalar tensor consumer that needs no intermediate row arrays. */

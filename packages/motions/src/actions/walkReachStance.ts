@@ -85,8 +85,8 @@ export namespace walkReachStance {
    * @evidence contracts/development/implementation.md#principled-implementation Resolves only the foot's heading, initial pitch, sole pivot and rigid pivot reader once; each hip still runs every original rocker, trail, pivot and edge-range rule.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed stance geometry precedes one hip reader, keeping the constraint rules and their ordering in one owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves all search calls, iterations, range bounds, sole probes and contact formulas; no trial hip or fit result is memoized.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation per scheduled stance and the original bounded constraint work per hip; repeated root trials skip fixed quaternion decompositions, socket/pivot setup and heading-axis preparation for lean/trail. A toe-pad turn prepares its fixed yaw/roll prefix only on first use.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side, scheduled foot, pelvis heading, pivot turn, rocker width and course pitch determine the shared geometry; each returned reader is local to that fixed stance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation per scheduled stance and the original bounded constraint work per hip; repeated root trials skip fixed quaternion decompositions, socket/pivot setup and heading-axis preparation for lean/trail. A toe-pad turn lazily prepares fixed yaw/roll and socket geometry, then computes its actual toe-angle offset once for both original rigid transforms.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side, scheduled foot, pelvis heading, pivot turn, rocker width and course pitch determine the shared geometry. Each toe-pad turn's current articulated offset is identical under its old and new rotation, so that same local value serves both transforms; every trial still computes its own changing toe angle and placed contact.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader retains one fixed foot and rigid-pivot reader until its root solve and deferred endpoint result release it, with no hip/query history.
    */
   export function prepare(
@@ -117,6 +117,7 @@ export namespace walkReachStance {
     let rockerRise: ReturnType<typeof walkLeg.prepareHeelRise> | undefined;
     let sole: ReturnType<typeof HumanFoot.prepareSole> | undefined;
     let turning: ReturnType<typeof HumanFootRotation.prepare> | undefined;
+    let toeOffset: ReturnType<typeof HumanFoot.prepareOffset> | undefined;
     const lean: ReturnType<typeof walkLeg.prepareLean> | undefined =
       (about === "heel" && bears) || (about === "mtp" && course === undefined)
         ? walkLeg.prepareLean(body, heading) : undefined;
@@ -185,20 +186,15 @@ export namespace walkReachStance {
       const toes: number = Math.max(foot.toes, -pitch);
       // The pivot turn: the foot turns about its toe pad by its pivot.
       if (about === "mtp" && Math.abs(pivoted) > 1e-9) {
-        const pad: IAutoMovieVector3 = HumanFoot.point(
-          body,
-          side,
-          "toe",
-          placement,
-          toes,
-        );
+        const local: IAutoMovieVector3 = (toeOffset ??= HumanFoot.prepareOffset(body, side, "toe"))(toes);
+        const pad: IAutoMovieVector3 = Vector3.add(placement.ankle, Quaternion.rotateVector(placement.rotation, local));
         const turned: IAutoMovieQuaternion = (turning ??= HumanFootRotation.prepare(heading + pivoted, 0))(pitch);
         placement = {
           ankle: Vector3.subtract(
             pad,
             Quaternion.rotateVector(
               turned,
-              HumanFoot.offset(body, side, "toe", toes),
+              local,
             ),
           ),
           rotation: turned,
@@ -208,8 +204,6 @@ export namespace walkReachStance {
       // side of the foot than the ankle inverts or everts: the border on the
       // side the ankle lies from the hip stays on the floor and the other
       // rises, as a foot set wide of the body bears on its outer border.
-      const flat: (v: IAutoMovieVector3) => IAutoMovieVector3 = (v: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.normalize({ x: v.x, y: 0, z: v.z });
       const across: IAutoMovieVector3 = flat(
         Quaternion.rotateVector(placement.rotation, { x: 1, y: 0, z: 0 }),
       );
@@ -254,5 +248,10 @@ export namespace walkReachStance {
         contact,
       };
     };
+  }
+
+  /** The original normalized horizontal direction of an actual rotated foot axis. */
+  function flat(v: IAutoMovieVector3): IAutoMovieVector3 {
+    return Vector3.normalize({ x: v.x, y: 0, z: v.z });
   }
 }

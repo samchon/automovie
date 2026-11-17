@@ -21,6 +21,7 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -86,8 +87,8 @@ export namespace sprintStartSet {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Body-scaled contacts, one geometric seed, then one shared whole-body fit and a measured refusal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Arm extension is not fixed to the seed and no joint range is narrowed; a joint/contact problem the fit does not meet is refused with its actual residuals.
    * @evidence contracts/development/implementation.md#efficient-algorithms One geometric seed and one shared fit with analytic Jacobians replace nested machine-resolution bisections; fit iterations, not a claimed speedup, determine cost.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Seed trunk reads share one synchronous exact-FK workspace and request only both shoulder origins and hips; the completed stance's final read requests only hips, after unchanged canonical admission.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation-local exact reader and requested bone sets are released when the set solve returns or throws; the returned stance retains neither.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Geometric trunk, complete limb-seed and final stance reads share one synchronous exact-FK workspace. After the first original successful trunk observation, genuine ROM metadata is shared by subsequent actual complete direct-joint projections. Trunk FK requests only shoulders/hips and final stance FK only hips, without changing canonical admission or the whole-body fit's independent solver.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation-local exact reader, genuine ROM projector and requested bone sets release when the set solve returns or throws; the returned numeric stance retains none of them.
    */
   export function of(
     context: Pick<IHumanActionContext, "body">,
@@ -111,6 +112,7 @@ export namespace sprintStartSet {
     const body: IHumanBody = context.body;
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const trunkBones: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm", "hips"]);
+    let projector: ReturnType<typeof prepareHumanPostureProjection> | undefined;
     const m: IHumanBody["measure"] = body.measure;
     const frame: HumanFrame.IFrame = {
       origin: { x: entry.root.x, y: 0, z: entry.root.z },
@@ -202,7 +204,7 @@ export namespace sprintStartSet {
         };
         const bones: ReturnType<typeof poseBones> = poseBones(
           body,
-          resolveHumanPosture.seeded(body, turned, undefined, undefined, resolution).pose,
+          resolveHumanPosture.seeded(body, turned, undefined, undefined, resolution, undefined, projector).pose,
           resolution(),
           trunkBones,
         );
@@ -212,12 +214,14 @@ export namespace sprintStartSet {
           0.5,
         );
         const root: IAutoMovieVector3 = Vector3.subtract(shoulders, girdle);
-        return {
+        const stance: IStance = {
           pitch: tilt.pitch,
           joints: tilt.joints,
           hips: Vector3.add(root, bones.get("hips")!.worldPosition),
           root,
         };
+        if (projector === undefined) projector = prepareHumanPostureProjection(body);
+        return stance;
       };
       const free: IStance = at(Infinity);
       return at(
@@ -266,10 +270,10 @@ export namespace sprintStartSet {
         bend: AutoMovieMotionHumanBend.hang(body, posture, "right"),
       },
     };
-    const posedSeed: IAutoMoviePose = resolveHumanPosture(body, {
+    const posedSeed: IAutoMoviePose = resolveHumanPosture.seeded(body, {
       ...posture,
       limbs,
-    });
+    }, undefined, undefined, resolution, undefined, projector).pose;
     const targets: HumanBodyFit.ITarget[] = [];
     for (const side of ["left", "right"] as const) {
       targets.push({
@@ -385,7 +389,7 @@ export namespace sprintStartSet {
       });
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
-      resolveHumanPosture.seeded(body, solved.posture, undefined, undefined, resolution).pose,
+      resolveHumanPosture.seeded(body, solved.posture, undefined, undefined, resolution, undefined, projector).pose,
       resolution(),
       new Set<AutoMovieHumanoidBone>(["hips"]),
     );

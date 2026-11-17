@@ -64,8 +64,8 @@ export namespace HumanLimbFitFrame {
    * A body's fit-memory counters, copied by statistics for cost tests.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States hits versus actual solved misses and the copied observation purpose.
-   * @evidence contracts/development/design.md#principled-representation Two cumulative counts describe actual existing memory reads and misses for one body lifetime.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface count updates these fields and statistics exposes an independent observation without a reset, fixture key or result override.
+   * @evidence contracts/development/design.md#principled-representation Cumulative actual lookup, solve-attempt, serialization-character and eviction-event counts describe work for one weak body lifetime. A resident miss cannot identify a first-ever key versus an evicted return without an unbounded seen-key history, so neither category is fabricated.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface count and work update actual events and statistics exposes an independent observation without a reset, fixture key or result override.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Counters report actual memory operations and never decide physical acceptance or substitute for a fit.
    */
   export interface IStatistics {
@@ -74,6 +74,45 @@ export namespace HumanLimbFitFrame {
 
     /** Fits solved and kept. */
     misses: number;
+
+    /** Actual solver attempts without a near seed, including failed attempts. */
+    coldFits: number;
+
+    /** Actual solver attempts with a near seed, including failed attempts. */
+    continuedFits: number;
+
+    /** Actual solver attempts while memory was disabled. */
+    disabledFits: number;
+
+    /** Capacity-driven removal events, not later misses attributed to eviction. */
+    evictions: number;
+
+    /** Actual body-pool deletions caused by changed complete rig prerequisites. */
+    cacheInvalidations: number;
+
+    /** Complete normalized fit keys actually serialized. */
+    serializedKeys: number;
+
+    /** UTF-16 code units of those actual keys, not allocated-byte estimates. */
+    serializedCharacters: number;
+
+    /** Actual outer owned-free-curve queries, including unsupported inputs. */
+    curveQueries: number;
+
+    /** Actual current near-correction probes, including canonical-anchor construction. */
+    curveProbes: number;
+
+    /** Current probes passing every physical, bracket and chain-continuity check. */
+    curveAccepted: number;
+
+    /** Actual ordinary cold source preparations used as canonical anchors. */
+    curveColdAnchors: number;
+
+    /** Actual ordinary cold source preparations used as current-target fallbacks. */
+    curveColdFallbacks: number;
+
+    /** Rejected current candidates that required a finer deterministic predecessor. */
+    curveRefinements: number;
   }
 
   /**
@@ -247,34 +286,60 @@ export namespace HumanLimbFitFrame {
    * @evidence contracts/development/implementation.md#principled-implementation Increments exactly one existing cumulative counter for the actual memory lookup outcome.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One weak lookup, field increment and insertion keep counters with their body owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not affect lookup, fitting, physical acceptance or eviction; it records the supplied actual outcome.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant lookup/update and at most one two-number record per live body.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant lookup/update and at most one fixed-size scalar record per live body.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Counters are effects of every actual lookup and are never coalesced.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One weak body entry holds two cumulative numbers until that body is released; counter values grow with calls but entry size stays constant.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One weak body entry holds fixed cumulative scalar fields until that body is released; values grow with calls but entry size stays constant.
    */
   export function count(body: IHumanBody, hit: boolean): void {
-    const counts: IStatistics = COUNTS.get(body) ?? { hits: 0, misses: 0 };
+    const counts: IStatistics = counters(body);
     if (hit) counts.hits += 1;
     else counts.misses += 1;
-    COUNTS.set(body, counts);
+  }
+
+  /**
+   * Record one actual operation event without retaining keys or inputs.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines solve attempts, key counts/UTF-16 characters and actual capacity eviction events; positive amounts accumulate actual work only.
+   * @evidence contracts/development/implementation.md#principled-implementation Call sites report events at their actual solver, serialization and removal boundaries, separately from lookup success; no miss is guessed to have been an eviction or dependency change.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed field-name union updates the same weak body's fixed scalar counter record used by existing hit/miss observations.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Diagnostics never select a solver, alter acceptance, patch a method or keep a seen-key set to invent unavailable provenance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and no per-event allocation after the body's first counter record; there is no candidate logging or graph scan.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each supplied event is counted once at its actual owning call site.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One fixed scalar record is weakly owned per body; no input, key, pose, callback, output or query population is retained.
+   */
+  export function work(body: IHumanBody, event: Exclude<keyof IStatistics, "hits" | "misses">, amount: number = 1): void {
+    counters(body)[event] += amount;
   }
 
   /**
    * A body's fit memory counts since the process began.
    *
    * @param body The body.
-   * @returns Its hits and misses.
+   * @returns Independent cumulative actual lookup, fitting, serialization, eviction and curve-work counts.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines copied cumulative counters and initial zero values.
-   * @evidence contracts/development/implementation.md#principled-implementation Reads the body's actual counter pair or zero before its first lookup and returns an independent observation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One weak lookup and two-field copy expose existing counters without mutation access.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the body's actual scalar counters or initial zero fields and returns an independent observation; no unavailable cause of a historical miss is inferred.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One weak lookup and fixed-field copy expose existing counters without mutation access.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No counter reset, fabricated memory event or acceptance effect is introduced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant lookup and one fresh two-number record.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant lookup and one fresh fixed-size scalar record.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Every observation reads current effects; no previous statistics result is cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned record belongs to the caller; this read adds no retained state beyond the existing weak body counters.
    */
   export function statistics(body: IHumanBody): IStatistics {
-    const counts: IStatistics | undefined = COUNTS.get(body);
-    return { hits: counts?.hits ?? 0, misses: counts?.misses ?? 0 };
+    return { ...counters(body) };
+  }
+
+  /** Lazily allocate the one bounded scalar population for an actual body. */
+  function counters(body: IHumanBody): IStatistics {
+    let out: IStatistics | undefined = COUNTS.get(body);
+    if (out === undefined) {
+      out = { hits: 0, misses: 0, coldFits: 0, continuedFits: 0, disabledFits: 0,
+        evictions: 0, cacheInvalidations: 0, serializedKeys: 0, serializedCharacters: 0,
+        curveQueries: 0, curveProbes: 0, curveAccepted: 0, curveColdAnchors: 0,
+        curveColdFallbacks: 0, curveRefinements: 0 };
+      COUNTS.set(body, out);
+    }
+    return out;
   }
 
   /** The counts, by body, released with the body. */

@@ -106,20 +106,49 @@ export namespace walkLegClearance {
    * @evidence contracts/development/implementation.md#principled-implementation The tangle audit's own reading of every ordered pair of the two legs' segments, the probes it sets aside set aside; a pair whose bounding capsules keep apart holds the probes read apart from the other's collider.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The bones' frames, a capsule test per ordered pair, then the placements and one reading per pair that may meet.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every ordered pair of the two legs is tested, and every pair that may meet is read against the audit's reference depths.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen segment distances; only meeting segments are placed and only their readable probes are tested. Per-pair relative and per-shape fixed frames prepare once rather than per probe; the binding derivative places only its two actual segments. Body geometry/reference preparation remains once per body.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the audit model/references, one unchanged relative frame per meeting pair and one fixed-frame depth reader per visited shape. The binding keeps its original immutable profile shape/face and requests only its actual probe and hull bones from HumanColliders on each moved-leg query.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Pair frames and nonbinding shape readers release after reading; the returned binding owns its two fixed bone-entry selections and selected shape/plane reader until released, without moved-leg or query history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen segment distances; only meeting segments are placed and only their readable probes are tested. Per-pair relative and per-shape fixed frames prepare once rather than per probe. Only an actual first at call prepares its selected bone-entry readers and plane, then each binding derivative places its two actual segments; scalar-only bow and merit reads omit all derivative setup. Body geometry/reference preparation remains once per body.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the audit model/references, one unchanged relative frame per meeting pair and one fixed-frame depth reader per visited shape. The binding keeps its original immutable profile shape/face; its first actual derivative prepares the same fixed probe/hull bone membership once and shares that preparation across later moved-leg reads.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Pair frames and nonbinding shape readers release after reading. The returned binding retains only its selected immutable shape/face and optional selected depth reader before derivative demand, then owns its two fixed bone-entry selections and plane until released; no moved leg or query history is retained.
    */
   export function reading(
     body: IHumanBody,
     one: ILeg,
     other: ILeg,
   ): IReading {
+    return readingAt(body, one, other);
+  }
+
+  /**
+   * Prepare scalar clearance against one unchanged standing leg in a bow search.
+   *
+   * @param body The search's unchanged body/profile/reference geometry.
+   * @param other The exact standing leg held unchanged throughout this synchronous search.
+   * @returns The original excess for each actual moving leg, without retaining any moving leg or scalar answer.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed body/standing geometry, actual moving leg, scalar metre excess and synchronous search ownership; ordinary reading/excess remain unprepared.
+   * @evidence contracts/development/implementation.md#principled-implementation readingAt retains every original capsule distance, ordered meeting pair, readable probe, shape/face/reference and strict worst update. Fixed standing axes/placements and immutable profile-local shape transforms are shared; each actual relative bone frame and probe depth remains current.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One private operation record binds the standing side; the same readingAt numerical owner serves ordinary and prepared scalar calls, with standing geometry prepared lazily in its original first-observation order.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Accepts the actual fixed leg, never caller-derived capsules/placements or a clearance verdict. Every changed moving leg performs all original dependent tests; no pair, probe, reference, bound or candidate is skipped or rounded.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed standing axes prepare once, and each meeting standing bone's original placement prepares at most once across candidates. Each visited immutable profile shape also prepares its inverse/hull reader once in this operation. Moving geometry and all original scalar tests remain; unused derivative setup stays lazy.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The bow fixes a private standing leg and body/profile/reference data. Standing world geometry and profile-local shape transforms stay unchanged even when moving bone frames change, so only those prerequisites are shared; every actual relative frame, probe and worst result is computed anew.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One synchronous reader retains four standing axes, at most four indexed standing placements and one metadata reader per actually visited leg-profile shape until bow return/throw. No moving pose, scalar result, query time/history, global context or external handle is retained.
+   */
+  export function prepareAgainst(body: IHumanBody, other: ILeg): (one: ILeg) => number {
+    const against: IAgainst = {
+      placed: new Set<AutoMovieHumanoidBone>(), segments: new Map<number, HumanColliders.IPlaced>(),
+      depths: new Map<HumanColliders.IPlaced["shapes"][number], ReturnType<typeof walkLegBinding.prepareInside>>(),
+    };
+    return (one: ILeg): number => readingAt(body, one, other, against).excess;
+  }
+
+  /** Preserve one ordered clearance calculation, optionally borrowing only fixed standing geometry. */
+  function readingAt(body: IHumanBody, one: ILeg, other: ILeg, against?: IAgainst): IReading {
     const m: AutoMovieMotionHumanAuditTangleModel.IModel =
       AutoMovieMotionHumanAuditTangleModel.model(body);
     const fits: ReadonlyMap<AutoMovieHumanoidBone, walkLegCapsules.ICapsule> = walkLegCapsules.capsules(body);
     const index: ReadonlyMap<AutoMovieHumanoidBone, number> = walkLegCapsules.indices(body);
-    const legs: { leg: ILeg; axes: [AutoMovieHumanoidBone, IAutoMovieVector3, IAutoMovieVector3][] }[] = [one, other].map((leg: ILeg): { leg: ILeg; axes: [AutoMovieHumanoidBone, IAutoMovieVector3, IAutoMovieVector3][] } => {
+    const legs: { leg: ILeg; axes: [AutoMovieHumanoidBone, IAutoMovieVector3, IAutoMovieVector3][] }[] = [one, other].map((leg: ILeg, which: number): { leg: ILeg; axes: [AutoMovieHumanoidBone, IAutoMovieVector3, IAutoMovieVector3][] } => {
+      if (which === 1 && against?.axes !== undefined) return { leg, axes: against.axes };
       const k: IAutoMovieVector3 = leg.knee;
       const names: Record<string, AutoMovieHumanoidBone> = walkLegCapsules.NAMES[leg.side];
       const toes: IAutoMovieVector3 = walkLegCapsules.toes(body, leg);
@@ -152,15 +181,14 @@ export namespace walkLegClearance {
           Vector3.add(joint, Quaternion.rotateVector(leg.rotation, fit.to)),
         ];
       };
-      return {
-        leg,
-        axes: [
-          lined(names.UpperLeg!, leg.hip, k),
-          lined(names.LowerLeg!, k, leg.ankle),
-          rigid(names.Foot!, leg.ankle),
-          rigid(names.Toes!, toes),
-        ],
-      };
+      const axes: [AutoMovieHumanoidBone, IAutoMovieVector3, IAutoMovieVector3][] = [
+        lined(names.UpperLeg!, leg.hip, k),
+        lined(names.LowerLeg!, k, leg.ankle),
+        rigid(names.Foot!, leg.ankle),
+        rigid(names.Toes!, toes),
+      ];
+      if (which === 1 && against !== undefined) against.axes = axes;
+      return { leg, axes };
     });
     // A probe whose reference depth is unbounded, a corner of two colliders
     // that share one volume by their build, is set aside by the audit
@@ -215,11 +243,20 @@ export namespace walkLegClearance {
       meetingBones[from]!.add(m.parts[i]!.bone);
       meetingBones[to]!.add(m.parts[j]!.bone);
     }
-    const segments: Map<number, HumanColliders.IPlaced>[] = [
-      segmentsOf(one, meetingBones[0]),
-      segmentsOf(other, meetingBones[1]),
-    ];
-    const depths: Map<HumanColliders.IPlaced["shapes"][number], ReturnType<typeof walkLegBinding.prepareInside>> = new Map();
+    const first: Map<number, HumanColliders.IPlaced> = segmentsOf(one, meetingBones[0]);
+    let second: Map<number, HumanColliders.IPlaced>;
+    if (against === undefined) second = segmentsOf(other, meetingBones[1]);
+    else {
+      const missing: Set<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>();
+      for (const bone of meetingBones[1]!) if (!against.placed.has(bone)) missing.add(bone);
+      if (missing.size > 0) {
+        for (const [i, segment] of segmentsOf(other, missing)) against.segments.set(i, segment);
+        for (const bone of missing) against.placed.add(bone);
+      }
+      second = against.segments;
+    }
+    const segments: Map<number, HumanColliders.IPlaced>[] = [first, second];
+    const depths: Map<HumanColliders.IPlaced["shapes"][number], ReturnType<typeof walkLegBinding.prepareInside>> = against?.depths ?? new Map();
     let worst: number = 0;
     let binding: walkLegBinding.IBinding | undefined;
     for (const [from, i, to, j] of meeting) {
@@ -259,37 +296,36 @@ export namespace walkLegClearance {
       }
     }
     const bound: walkLegBinding.IBinding | undefined = binding;
-    const requested: readonly ReadonlySet<AutoMovieHumanoidBone>[] = bound === undefined
-      ? []
-      : bound.from === 0
-        ? [new Set<AutoMovieHumanoidBone>([m.parts[bound.i]!.bone]), new Set<AutoMovieHumanoidBone>([m.parts[bound.j]!.bone])]
-        : [new Set<AutoMovieHumanoidBone>([m.parts[bound.j]!.bone]), new Set<AutoMovieHumanoidBone>([m.parts[bound.i]!.bone])];
-    const placements: ReturnType<typeof HumanColliders.preparePlaced>[] = requested.map(
-      (demand: ReadonlySet<AutoMovieHumanoidBone>): ReturnType<typeof HumanColliders.preparePlaced> => HumanColliders.preparePlaced(body, demand),
-    );
-    let plane: ((local: IAutoMovieVector3) => number) | undefined;
-    if (bound !== undefined) {
-      const shape: HumanColliders.IPlaced["shapes"][number] = segments[bound.to]!.get(bound.j)!.shapes[bound.shape]!;
-      if (bound.face === undefined) {
-        const inside: ReturnType<typeof walkLegBinding.prepareInside> = depths.get(shape) ?? walkLegBinding.prepareInside(shape);
-        plane = (local: IAutoMovieVector3): number => inside(local, -Infinity).depth;
-      } else plane = walkLegBinding.preparePlanar(shape, bound.face);
-    }
+    if (bound === undefined) return { excess: worst, at: (): number => 0 };
+    const shape: HumanColliders.IPlaced["shapes"][number] = segments[bound.to]!.get(bound.j)!.shapes[bound.shape]!;
+    const selectedDepth: ReturnType<typeof walkLegBinding.prepareInside> | undefined = bound.face === undefined ? depths.get(shape) : undefined;
+    let derivative: IReading["at"] | undefined;
     return {
       excess: worst,
       at: (first: ILeg, second: ILeg): number => {
-        if (bound === undefined) return 0;
-        const moved: Map<number, HumanColliders.IPlaced>[] = [
-          indexed(placements[0]!(walkLegCapsules.bones(body, first, requested[0]))),
-          indexed(placements[1]!(walkLegCapsules.bones(body, second, requested[1]))),
-        ];
-        const b: HumanColliders.IPlaced = moved[bound.to]!.get(bound.j)!;
-        const local: IAutoMovieVector3 = walkLegBinding.relative(
-          bound.probe,
-          moved[bound.from]!.get(bound.i)!,
-          b,
-        );
-        return plane!(local) - bound.reference;
+        if (derivative === undefined) {
+          const requested: readonly ReadonlySet<AutoMovieHumanoidBone>[] = bound.from === 0
+            ? [new Set<AutoMovieHumanoidBone>([m.parts[bound.i]!.bone]), new Set<AutoMovieHumanoidBone>([m.parts[bound.j]!.bone])]
+            : [new Set<AutoMovieHumanoidBone>([m.parts[bound.j]!.bone]), new Set<AutoMovieHumanoidBone>([m.parts[bound.i]!.bone])];
+          const placements: ReturnType<typeof HumanColliders.preparePlaced>[] = requested.map(
+            (demand: ReadonlySet<AutoMovieHumanoidBone>): ReturnType<typeof HumanColliders.preparePlaced> => HumanColliders.preparePlaced(body, demand),
+          );
+          const inside: ReturnType<typeof walkLegBinding.prepareInside> | undefined = bound.face === undefined
+            ? selectedDepth ?? walkLegBinding.prepareInside(shape) : undefined;
+          const plane: (local: IAutoMovieVector3) => number = bound.face === undefined
+            ? (local: IAutoMovieVector3): number => inside!(local, -Infinity).depth
+            : walkLegBinding.preparePlanar(shape, bound.face);
+          derivative = (a: ILeg, b: ILeg): number => {
+            const moved: Map<number, HumanColliders.IPlaced>[] = [
+              indexed(placements[0]!(walkLegCapsules.bones(body, a, requested[0]))),
+              indexed(placements[1]!(walkLegCapsules.bones(body, b, requested[1]))),
+            ];
+            const hull: HumanColliders.IPlaced = moved[bound.to]!.get(bound.j)!;
+            const local: IAutoMovieVector3 = walkLegBinding.relative(bound.probe, moved[bound.from]!.get(bound.i)!, hull);
+            return plane(local) - bound.reference;
+          };
+        }
+        return derivative(first, second);
       },
     };
   }
@@ -364,6 +400,18 @@ export namespace walkLegClearance {
     });
     return out;
   }
+}
+
+/** Fixed standing geometry owned only by one synchronous bow candidate search. */
+interface IAgainst {
+  /** Four original world capsule axes; built only on the first actual read. */
+  axes?: [AutoMovieHumanoidBone, IAutoMovieVector3, IAutoMovieVector3][];
+  /** Canonical names whose actual fixed profile placement has been observed. */
+  placed: Set<AutoMovieHumanoidBone>;
+  /** Original last-indexed profile entries for observed standing bones. */
+  segments: Map<number, HumanColliders.IPlaced>;
+  /** Fixed profile-local shape metadata only, independent of current segment poses. */
+  depths: Map<HumanColliders.IPlaced["shapes"][number], ReturnType<typeof walkLegBinding.prepareInside>>;
 }
 
 /** Reuse only fixed neutral profile membership for the immutable body's four leg names. */

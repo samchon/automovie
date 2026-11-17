@@ -170,9 +170,9 @@ export namespace walk {
    * @evidence contracts/development/implementation.md#principled-implementation Keeps the same planned footprints, pelvis fixed-point reach, swing constraints and hip-pivoted trunk, while explicit channel demand computes only consumed leg goals and arm carriage.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Step planning, fixed-interval swing preparation, pelvis settling and posture assembly each have one owner before the unchanged clock warp.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No footprint, event, authored parameter, solver bound or sampling schedule changes; omitted demand still evaluates the complete posture.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Step lookup is logarithmic in footfalls; each query retains the original bounded pelvis/foot work for its demanded channels, while fixed swing endpoints and body terms are prepared once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Side and toe-off identify one immutable scheduled interval; scheduled and reached endpoint readers keep separate preparation because their stance sources differ. Root-only pacing queries skip unread carriage and swing-goal work.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains body/step references, one carriage and bounded endpoint/descent/swing entries per footfall, released with the plan. Synchronous descent/flight-endpoint construction borrows one exact FK reader until return or throw; only numeric results enter the retained maps, and arbitrary query times are not cached.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Step lookup is logarithmic in footfalls; every query retains actual bounded pelvis/foot work for demanded channels. Fixed body/stance prerequisites prepare once, while every reached swing endpoint is actually settled for that swing observation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Root-only pacing omits unread carriage/swing goals; current queries share only exact FK/body prerequisites. Scheduled and reached endpoint readers remain separate, and no completed reached endpoint or fit-derived interpolation reader is retained across observations.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains body/steps, declared scalar carriage/descent/flight profiles and fixed geometry, released with the plan. Synchronous endpoint construction borrows one exact FK reader until return/throw; completed stance endpoints and their interpolation reader end with the actual swing observation, without a retained fit or arbitrary-time pose cache.
    */
   export function locomote(
     given: IHumanActionContext<Omit<IParams, "pace">>,
@@ -289,7 +289,7 @@ export namespace walk {
       hips: readonly [number, number, number] = pelvis(t, steps.phase(t), amount),
       resolution?: Parameters<IHumanActionPlan["posture"]>[2],
     ): walkReach.IGround {
-      const read: ReturnType<typeof preparePoseResolution> | undefined = resolution === undefined ? undefined : prepareHumanPoseResolution(resolution)();
+      const read: ReturnType<typeof preparePoseResolution> | undefined = resolution === undefined ? undefined : prepareHumanPoseResolution.read(resolution);
       const claims: Partial<Record<"left" | "right", number>> = {};
       for (const side of ["left", "right"] as const) {
         const swing: walkFoot.IScheduled["swing"] = feet[side].swing;
@@ -338,19 +338,12 @@ export namespace walk {
         read,
       );
     }
-    // A foot's stance as reached at a swing's end, memoised by its second: every sample of that swing reads the same three.
-    const ends: Map<string, walkFoot.IEnd> = new Map();
+    // Settle every reached endpoint for the current swing observation.
     const end: (side: "left" | "right", t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]) => walkFoot.IEnd = (side: "left" | "right", t: number, resolution?: Parameters<IHumanActionPlan["posture"]>[2]): walkFoot.IEnd => {
-      const key: string = `${side}:${t}`;
-      let out: walkFoot.IEnd | undefined = ends.get(key);
-      if (out === undefined) {
-        out = settle(t, {
-          left: steps.foot("left", t),
-          right: steps.foot("right", t),
-        }, undefined, undefined, resolution).feet[side];
-        ends.set(key, out);
-      }
-      return out;
+      return settle(t, {
+        left: steps.foot("left", t),
+        right: steps.foot("right", t),
+      }, undefined, undefined, resolution).feet[side];
     };
     const reachedSwing: ReturnType<typeof walkSwing> = walkSwing(body, gait, end);
     const ranged: Partial<Record<"left" | "right", ReturnType<typeof walkReach.prepareSwing>>> = {};

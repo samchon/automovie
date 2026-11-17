@@ -13,6 +13,7 @@ import { nearestHullEdge } from "../math/nearestHullEdge";
 import { pointInHull } from "../math/pointInHull";
 import { AutoMovieGravity } from "../physics/AutoMovieGravity";
 import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
+import { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./resolvePose";
 
 /**
@@ -32,28 +33,34 @@ import { resolvePose } from "./resolvePose";
  * @returns The mass model.
  * @throws {Error} When a segment's bone is not in the rig or the profile has no positive mass.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the segmental method, its source, and the bone-local convention.
- * @evidence contracts/development/implementation.md#principled-implementation The whole-body centre of mass is the mass-weighted mean of segment centres; the extrapolated centre and margin are Hof's definitions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One model, one placement, one extrapolation and one margin.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A segment on a missing bone or a massless profile throws instead of skewing the mean.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in segments per pose.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the body; callers resolve once per body.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records and retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation States the segmental method, its source and the bone-local convention. Namespace fromRig consumes a genuine immutable rig's neutral rest, separately from the raw default's current skeleton; its local prose defines snapshot and returned-model ownership.
+ * @evidence contracts/development/implementation.md#principled-implementation The whole-body centre of mass is the mass-weighted mean of segment centres; the extrapolated centre and margin are Hof's definitions. Raw and prepared-rig construction share the same neutral-segment to bone-rest transform and ordered mass admission.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Raw rest FK or the genuine prepared-rig rest owner feeds one private segmental model constructor; placement, extrapolation and margin keep their existing owners.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A segment on a missing bone or a massless profile throws instead of skewing the mean. FromRig accepts neither an external rest map nor a caller-derived admission flag; the rig factory's private rest owner rejects a foreign rig and does not call a replaceable public resolver.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Raw preparation resolves B rig bones, indexes fresh frames directly without a mapped B-tuple array and constructs S segment records, adding each neutral translation into its owned rotated offset. FromRig reads the existing immutable producer's actual neutral rows instead of rebuilding raw axes/topology/rest composition; first-demand neutral work remains with that producer. Both obtain B fresh frames locally and construct S segments. Placement and each mass mean remain linear in S; extrapolation reuses its fresh scaled velocity for the original centre-plus-offset sums.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work FromRig shares only actual neutral values owned by the immutable rig, using the same root-null, identity-articulation parent-first arithmetic. The body's lazy mass getter uses the rig made from that same unchanged skeleton; raw callers retain fresh live-skeleton resolution. No posed centre, target or query history is memoized here.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Rest frame copies and their local name map end with construction. The returned model owns new segment, point and axis records and borrows the profile's principal-moment vectors as before; no skeleton, rest reader or query history is retained. Genuine static neutral rows remain with the rig's existing lifetime.
  */
 export function resolveAutoMovieCenterOfMass(
   skeleton: IAutoMovieSkeleton,
   profile: P,
 ): resolveAutoMovieCenterOfMass.IModel {
-  const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
+  return fromRest(
+    profile,
     resolvePose(
       { skeleton: skeleton.id, root: null, joints: [] },
       skeleton,
-    ).map(
-      (
-        r: IAutoMovieResolvedBone,
-      ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
     ),
   );
+}
+
+/** One segmental construction consumes actual fresh rest FK, never a public derived-value flag. */
+function fromRest(
+  profile: P,
+  frames: readonly IAutoMovieResolvedBone[],
+): resolveAutoMovieCenterOfMass.IModel {
+  const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
+  for (const frame of frames) rest.set(frame.bone, frame);
   const segments: resolveAutoMovieCenterOfMass.ISegment[] =
     profile.segments.map(
       (s: P.ISegment): resolveAutoMovieCenterOfMass.ISegment => {
@@ -62,10 +69,11 @@ export function resolveAutoMovieCenterOfMass(
         );
         if (bone === undefined)
           throw new Error(`The mass model needs the rig bone ${s.bone}`);
-        const world: IAutoMovieVector3 = Vector3.add(
-          s.neutral.position,
-          Quaternion.rotateVector(s.neutral.rotation, s.centerOfMass),
-        );
+        const origin: IAutoMovieVector3 = s.neutral.position;
+        const world: IAutoMovieVector3 = Quaternion.rotateVector(s.neutral.rotation, s.centerOfMass);
+        world.x = origin.x + world.x;
+        world.y = origin.y + world.y;
+        world.z = origin.z + world.z;
         const unturn: IAutoMovieQuaternion = Quaternion.inverse(
           bone.worldRotation,
         );
@@ -103,12 +111,30 @@ export function resolveAutoMovieCenterOfMass(
 /**
  * Companion types and helpers of {@link resolveAutoMovieCenterOfMass}.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame, unit and source.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame, unit and source, including raw versus immutable-rig rest construction.
  * @evidence contracts/development/design.md#principled-representation Bone-local segment points with masses; world points in, world points and metres out.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Balance reads the centre, its extrapolation and margin. Momentum shares the posed mass-point transform and the same ordered weighted mean instead of transforming each point twice or copying that sum.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses resolved bones and the engine's hull routines.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Balance reads the centre, its extrapolation and margin. Momentum shares the posed mass-point transform and the same ordered weighted mean instead of transforming each point twice or copying that sum. The body mass getter consumes fromRig with its existing genuine immutable producer, without exporting another rest-map representation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses resolved bones and the engine's hull routines. FromRig's private factory admission prevents a structural fake or a replaced public resolver from supplying claimed rest data; no skeleton/foreign-rest pair or unchecked snapshot is accepted.
  */
 export namespace resolveAutoMovieCenterOfMass {
+  /**
+   * Derive this profile's bone-local model against a genuine immutable rig.
+   * The producer supplies actual root-null, identity-articulation rest frames
+   * with the ordinary parent-first arithmetic, then the same segmental
+   * constructor performs all original missing-bone and positive-mass checks.
+   * Later source-rig edits do not alter that snapshot; recreate the body/rig
+   * to adopt them. The profile is read currently and must belong to that rig.
+   * Public rig.resolve replacement cannot inject derived frames here.
+   * Fresh rest copies and their map are call-local; model points/axes are
+   * fresh, and principal moments retain their original profile ownership.
+   */
+  export function fromRig(
+    rig: prepareSkeletonPoseResolution.IRig,
+    profile: P,
+  ): IModel {
+    return fromRest(profile, prepareSkeletonPoseResolution.rest(rig));
+  }
+
   /** A body's mass model. */
   export interface IModel {
     /** Total mass, kilograms. */
@@ -204,13 +230,14 @@ export namespace resolveAutoMovieCenterOfMass {
     segment: ISegment,
     bone: IAutoMovieResolvedBone,
   ): IAutoMovieVector3 {
+    const origin: IAutoMovieVector3 = bone.worldPosition;
     const posed: IAutoMovieVector3 = Quaternion.rotateVector(
       bone.worldRotation,
       segment.point,
     );
-    posed.x = bone.worldPosition.x + posed.x;
-    posed.y = bone.worldPosition.y + posed.y;
-    posed.z = bone.worldPosition.z + posed.z;
+    posed.x = origin.x + posed.x;
+    posed.y = origin.y + posed.y;
+    posed.z = origin.z + posed.z;
     return posed;
   }
 
@@ -246,6 +273,9 @@ export namespace resolveAutoMovieCenterOfMass {
    * `x + v / ω0` with `ω0 = sqrt(g / l)` (`frequency`), where `l` is the
    * pendulum length (Hof takes the leg length, `pendulum`).
    *
+   * The scaled velocity is fresh, so the same ordered centre-plus-offset
+   * sums reuse it without another vector or any mutation of either input.
+   *
    * @param com The centre of mass, world metres.
    * @param velocity Its velocity, metres per second.
    * @param length The pendulum length, metres; positive.
@@ -259,10 +289,11 @@ export namespace resolveAutoMovieCenterOfMass {
     length: number,
     gravity: number = AutoMovieGravity.STANDARD,
   ): IAutoMovieVector3 {
-    return Vector3.add(
-      com,
-      Vector3.scale(velocity, 1 / frequency(length, gravity)),
-    );
+    const offset: IAutoMovieVector3 = Vector3.scale(velocity, 1 / frequency(length, gravity));
+    offset.x = com.x + offset.x;
+    offset.y = com.y + offset.y;
+    offset.z = com.z + offset.z;
+    return offset;
   }
 
   /**

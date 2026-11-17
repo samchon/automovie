@@ -151,7 +151,7 @@ export namespace swim {
    * @evidence contracts/development/implementation.md#principled-implementation The root floats at the plane by the body's own mouth or chest depth; each limb's angles are periodic functions of the cycle's phase.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, root row, then the stroke's limb rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Provisional shares and times are named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per second; only the selected stroke's mouth/depth FK and prone orientation preparation run. Fixed kick bases, leg/arm phase offsets and the prone axis-angle reader leave actual time queries, while every active limb retains its actual phase/trigonometry.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per second; only the selected stroke's mouth/depth FK and prone orientation preparation run. Treading omits crawl-only sequencing, hip-rest and world-forward preparation. Fixed kick bases, leg/arm phase offsets and the prone axis-angle reader leave actual time queries, while every active limb retains its actual phase/trigonometry.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The local still base fixes the entry heading before any limb writer; its fixed prone orientation supplies the same root offset and whole-body roll axis at every queried second. Arm swing, head share and joint add remain shared owners.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and a few numbers.
    */
@@ -178,19 +178,18 @@ export namespace swim {
         cycles,
         tempo: modifiers.tempo,
       });
-    const period: number =
-      (p.kind === "frontCrawl" ? CYCLE : 1) * modifiers.tempo;
+    const prone: boolean = p.kind === "frontCrawl";
+    const period: number = (prone ? CYCLE : 1) * modifiers.tempo;
     // The left arm's entry follows the right's by the share the index of
     // coordination leaves: its propulsion starts that index's lag after the
     // right's ends (#3378).
-    const lag: number =
-      PROPULSIVE -
+    const lag: number = prone ? PROPULSIVE -
       HumanSkill.quantity(
         context.skill,
         "sequencing",
         COORDINATION.novice,
         COORDINATION.elite,
-      );
+      ) : 0;
     const instants: AutoMovieMotionClock.IInstant[] = [];
     for (let i: number = 0; i < cycles; i++)
       if (p.kind === "frontCrawl") {
@@ -212,12 +211,11 @@ export namespace swim {
       const u: number = s / period + offset;
       return u - Math.floor(u);
     };
-    const hipsRest: IAutoMovieVector3 = body.rest.get("hips")!;
-    const forward: IAutoMovieVector3 = HumanFrame.point(
+    const hipsRest: IAutoMovieVector3 | undefined = prone ? body.rest.get("hips")! : undefined;
+    const forward: IAutoMovieVector3 | undefined = prone ? HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       { x: 0, y: 0, z: 1 },
-    );
-    const prone: boolean = p.kind === "frontCrawl";
+    ) : undefined;
     const mouth: number = prone ? 0 :
       HumanTrunk.region(body, entry, "mouth").point.y - entry.root.y;
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
@@ -226,7 +224,7 @@ export namespace swim {
     const proneHeading: IAutoMovieQuaternion | undefined = prone ? resolveHumanPosture.heading({
       ...entry, pitch: entry.pitch + 90,
     }) : undefined;
-    const hipOffset: IAutoMovieVector3 | undefined = prone ? Quaternion.rotateVector(proneHeading!, hipsRest) : undefined;
+    const hipOffset: IAutoMovieVector3 | undefined = prone ? Quaternion.rotateVector(proneHeading!, hipsRest!) : undefined;
     const turn: ReturnType<typeof Quaternion.prepareAxisAngle> | undefined = prone
       ? Quaternion.prepareAxisAngle(Quaternion.rotateVector(proneHeading!, { x: 0, y: 1, z: 0 })) : undefined;
     // The body's roll about its long axis, a whole-body rotation about the
@@ -291,7 +289,7 @@ export namespace swim {
         };
         const hips: IAutoMovieVector3 = Vector3.add(
           { x: entry.root.x, y: water - depth, z: entry.root.z },
-          Vector3.scale(forward, (1.0 * s) / modifiers.tempo),
+          Vector3.scale(forward!, (1.0 * s) / modifiers.tempo),
         );
         return rolled(
           {

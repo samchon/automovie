@@ -5,6 +5,7 @@ import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
@@ -52,9 +53,9 @@ export namespace AutoMovieMotionHumanLeanInto {
     share: number;
 
     /**
-     * The wrist's goal on a posture at a progress of the stroke in [0, 1], world metres. Runtime calls also provide the action-relative clock second; plan-time progress probes omit it.
+     * The wrist's goal on a posture at a progress of the stroke in [0, 1], world metres.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States posture, stroke progress in [0,1], optional actual action-relative runtime second and returned world-metre wrist goal; arbitrary plan-progress probes omit the second.
+     * @evidence contracts/development/common.md#meaningful-documentation States the original posture/stroke-progress inputs and returned world-metre wrist goal without replacing a caller's progress-to-time policy.
      * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
@@ -62,7 +63,7 @@ export namespace AutoMovieMotionHumanLeanInto {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      */
-    wrist: (posture: IHumanPosture, progress: number, seconds?: number) => IAutoMovieVector3;
+    wrist: (posture: IHumanPosture, progress: number) => IAutoMovieVector3;
 
     /**
      * The working arm's goal on a posture at the stroke's start, so the
@@ -103,17 +104,18 @@ export namespace AutoMovieMotionHumanLeanInto {
    */
   export interface ILean {
     /**
-     * The least pitch in degrees that reaches at a progress; throws the refusal when the limit does not. An optional action-relative clock second is forwarded unchanged to the wrist reader.
+     * The least pitch in degrees that reaches at a progress; throws the refusal when the limit does not. Optional same-person FK is borrowed only by this synchronous observation.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States posture/progress and optional action-relative clock second forwarded to the wrist reader, returned pitch in degrees and the original out-of-reach refusal.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidence contracts/development/common.md#meaningful-documentation States the original posture/progress inputs, optional same-person FK borrowed only through this pitch call, returned degrees and original out-of-reach refusal.
+     * @evidence contracts/development/implementation.md#principled-implementation solve's implementation retains the original balanced five-degree first-reaching scan and hundredth-degree bisection, measuring each actual tipped shoulder against the unchanged wrist goal.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One wrist observation and query-local FK getter feed every original beyond check, scan and bisection through the prepared raw root-demand owner.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All original samples, strict reach comparisons, balance-shift interpolation, smallest-shortfall refusal and target coordinates remain; no pitch/root result is cached.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Each pitch query retains its original bounded scan/bisection but admits only the actual shoulder ancestry; one exact FK getter shares unchanged prerequisites across those actual poses. Speedup is unmeasured.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body/limb name metadata belongs to the plan, while each synchronous call alone owns or borrows its exact reader; current posture and wrist remain actual and no result crosses calls.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local getter releases on return or throw; only the numeric pitch escapes, and no workspace, target, candidate or query history enters the retained lean.
      */
-    pitch: (posture: IHumanPosture, progress: number, seconds?: number) => number;
+    pitch: (posture: IHumanPosture, progress: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => number;
 
     /**
      * A posture tipped by a pitch in degrees, the hips shifted back to balance it.
@@ -154,9 +156,9 @@ export namespace AutoMovieMotionHumanLeanInto {
    * @evidence contracts/development/implementation.md#principled-implementation The hips' shift at a pitch is the balance shift of the standing posture tipped there, lowered onto its legs and with the working arm on its goal, so the centre of mass stays where the unleaned body has it and moves no faster than the arm carries it (Hof et al. 2005's margin reads the centre's speed); it is solved at 5 degree steps and carried in proportion between, continuous in the pitch. The pitch is the least root of the wrist's distance beyond the kept share. That distance falls with the lean for a wrist below the shoulder and rises again for one above it, so the lean is scanned upward in 5 degree steps for the first pitch that reaches and bisected between it and the step before.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One balance solve per step of the pitch, one scan with its bisection, one primitive.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A wrist no scanned lean reaches throws with the smallest shortfall and the pitch that gives it; the leaned root is lowered until the planted legs reach their feet. A reach that opens and closes inside one 5 degree step is missed, the remaining gap; the shift between two steps of the pitch is their proportion, not a solve.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most nine scanned leans and nine halvings per read, to a hundredth of a degree; at most nine balance solves per plan, each made the first time a pitch needs its step and kept.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanLean.tip`, `HumanBalance.shift`, `AutoMovieMotionHumanReach.check` and `resolveHumanPosture.lower`; each step's balance shift is solved once.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closes over the props, the held centre and at most ten solved shifts.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Retains at most nine scanned leans and nine halvings per read and the original at-most-ten plan balance shifts. One static shoulder demand serves actual checks; each pitch query shares exact FK prerequisites across its current poses and emits only the consumed shoulder ancestry. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses original tip/balance/lowering owners and actual Reach.prepareCheck. Only fixed body/limb demand lives with the plan; each runtime pitch and final raw lowering borrow the same current-person FK source without ROM projection or a stored target answer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns props, held centre, static shoulder metadata and at most ten original solved shifts. Every dynamic getter/loan stays inside its synchronous pitch/write and releases on return or throw; returned postures retain no reader or query history.
    */
   export function solve(props: IProps): ILean {
     // The step of the scan for the first pitch that reaches, degrees
@@ -169,10 +171,12 @@ export namespace AutoMovieMotionHumanLeanInto {
     const KNOT: number = 5;
     const limit: number = AutoMovieMotionHumanReach.LEAN_LIMIT;
     const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
+    const checkReach: ReturnType<typeof AutoMovieMotionHumanReach.prepareCheck> =
+      AutoMovieMotionHumanReach.prepareCheck(props.body, limb);
 
     // The standing posture as the balance weighs it: lowered onto the
     // planted legs, the working arm on its goal.
-    const weighed = (posture: IHumanPosture): IHumanPosture => {
+    const weighed: (posture: IHumanPosture) => IHumanPosture = (posture: IHumanPosture): IHumanPosture => {
       const lowered: IHumanPosture = {
         ...posture,
         root: resolveHumanPosture.lower(props.body, posture).root,
@@ -192,7 +196,7 @@ export namespace AutoMovieMotionHumanLeanInto {
       weighed(props.standing),
     );
     const steps: Map<number, number> = new Map();
-    const step = (index: number): number => {
+    const step: (index: number) => number = (index: number): number => {
       let back: number | undefined = steps.get(index);
       if (back === undefined) {
         back =
@@ -218,7 +222,7 @@ export namespace AutoMovieMotionHumanLeanInto {
     };
     // Between two steps the shift is carried in proportion, so it follows
     // the pitch continuously.
-    const back = (pitch: number): number => {
+    const back: (pitch: number) => number = (pitch: number): number => {
       const at: number = Math.min(limit, Math.max(0, pitch)) / KNOT;
       const below: number = Math.floor(at);
       const share: number = at - below;
@@ -226,17 +230,18 @@ export namespace AutoMovieMotionHumanLeanInto {
         ? step(below)
         : step(below) * (1 - share) + step(below + 1) * share;
     };
-    const tip = (posture: IHumanPosture, pitch: number): IHumanPosture =>
+    const tip: ILean["tip"] = (posture: IHumanPosture, pitch: number): IHumanPosture =>
       AutoMovieMotionHumanLean.tip(props.body, posture, pitch, back(pitch));
-    const pitch = (posture: IHumanPosture, progress: number, seconds?: number): number => {
-      const wrist: IAutoMovieVector3 = props.wrist(posture, progress, seconds);
-      const beyond = (degrees: number): number => {
+    const pitch: ILean["pitch"] = (posture: IHumanPosture, progress: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): number => {
+      const wrist: IAutoMovieVector3 = props.wrist(posture, progress);
+      const operation: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+      const beyond: (degrees: number) => number = (degrees: number): number => {
         const check: AutoMovieMotionHumanReach.ICheck =
-          AutoMovieMotionHumanReach.check(
-            props.body,
+          checkReach(
             tip(posture, degrees),
-            `${props.side}Arm`,
             wrist,
+            operation,
           );
         return check.distance - props.share * check.length;
       };
@@ -289,19 +294,21 @@ export namespace AutoMovieMotionHumanLeanInto {
         channels: ["root", "trunk"],
         from: 0,
         to: clock.duration,
-        write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
+        write: (posture: IHumanPosture, seconds: number,
+          _before?: IAutoMovieMotionHumanPrimitive.Reader,
+          resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture => {
           const leaned: IHumanPosture = tip(
             posture,
             clock.envelope(["start", "ready"], ["relax", "end"], seconds) *
               pitch(
                 posture,
                 clock.progress("strokeStart", "strokeEnd", seconds),
-                seconds,
+                resolution,
               ),
           );
           return {
             ...leaned,
-            root: resolveHumanPosture.lower(props.body, leaned).root,
+            root: resolveHumanPosture.lower(props.body, leaned, undefined, resolution).root,
           };
         },
       }),

@@ -23,16 +23,17 @@ import { vclose } from "../internal/vclose";
  *    instant and at the first unit's end: one-sided values 1e-6 s apart differ
  *    by no more than their derivatives times that step.
  * 5. A non-finite time and a non-positive duration throw.
- * 6. Scalar-only share evaluates the same specified quintic independently:
+ * 6. Scalar-only share/rate evaluate the specified quintic independently:
  *    quarter/half/three-quarter values are53/512,1/2,459/512 in any query
- *    order. Finite outside values hold; NaN and either infinity refuse.
+ *    order, with normalized rates135/128,15/8,135/128. Finite outside
+ *    values hold with rate0; NaN and either infinity refuse on both readers.
  * 7. Position-only superposition at0.5s combines half of one unit and53/512
  *    of another, giving(309/128,117/64,587/128)m. Endpoint/reverse reads and
  *    output mutation preserve current points. Empty units still clone the
  *    origin without time admission; invalid durations retain their refusal.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates public full/scalar profiles and complete/position-only superposition. It reads shares, positions, velocities and accelerations and checks current literal points, output ownership and admission: nonzero end derivatives, a wrong scalar polynomial, dropped unit, altered refusal, wrong sign/scale or a boundary seam fails.
- * @evidence contracts/development/testing.md#independent-expectations The quintic s=10u^3-15u^4+6u^5 gives53/512,1/2,459/512 at quarter/half/three-quarter time and s'(1/2)=15/8. Those rational values independently specify the scalar reader rather than copying full.s. At0.5s, adding(2,-2,4)/2 and(4,8,-4)*53/512 to(1,2,3) fixes the literal position. Superposed end states are the origin plus displacements by linearity; continuity is checked against finite differences of the same function.
+ * @evidence contracts/development/testing.md#independent-expectations The quintic s=10u^3-15u^4+6u^5 gives53/512,1/2,459/512 at quarter/half/three-quarter time; its derivative30u²(1-u)² gives135/128,15/8,135/128 per normalized time. Those rational values independently specify scalar share/rate rather than copying full.s/ds. At0.5s, adding(2,-2,4)/2 and(4,8,-4)*53/512 to(1,2,3) fixes the literal position. Superposed end states are the origin plus displacements by linearity; continuity is checked against finite differences of the same function.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers both scalar/full ends, outside finite values and signed zero, three rational interior values in arbitrary order, NaN/both infinity refusal, a nonzero and a zero redirection, both unit boundaries and invalid duration.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation Lists seven scenarios, full versus scalar/position demand, normalized polynomial/rational values, output ownership, endpoint/admission semantics and the superposed-unit continuity bounds.
@@ -132,14 +133,15 @@ export function test_motion_minimum_jerk(): void {
       superposeMinimumJerk(origin, [{ ...first, duration: 0 }], 0),
     ),
   );
-  for (const [u, expected] of [[0.75, 459 / 512], [0.25, 53 / 512], [0.5, 0.5], [0.75, 459 / 512],
-    [-3, 0], [-0, 0], [0, 0], [1, 1], [4, 1]] as const)
-    TestValidator.predicate("scalar share keeps the independently evaluated normalized quintic",
-      nclose(minimumJerk.share(u), expected, 1e-12),
+  for (const [u, expected, rate] of [[0.75, 459 / 512, 135 / 128], [0.25, 53 / 512, 135 / 128],
+    [0.5, 0.5, 15 / 8], [0.75, 459 / 512, 135 / 128], [-3, 0, 0], [-0, 0, 0], [0, 0, 0], [1, 1, 0], [4, 1, 0]] as const)
+    TestValidator.predicate("scalar share/rate keep the independently evaluated normalized quintic/derivative",
+      nclose(minimumJerk.share(u), expected, 1e-12) && nclose(minimumJerk.rate(u), rate, 1e-12),
     );
   for (const u of [NaN, Infinity, -Infinity])
-    TestValidator.predicate("scalar share retains finite admission before endpoint hold",
-      throwsError((): number => minimumJerk.share(u), "time must be finite"),
+    TestValidator.predicate("scalar share/rate retain finite admission before endpoint hold",
+      throwsError((): number => minimumJerk.share(u), "time must be finite") &&
+      throwsError((): number => minimumJerk.rate(u), "time must be finite"),
     );
 
   const shifted: IAutoMovieVector3 = { x: 1, y: 2, z: 3 };

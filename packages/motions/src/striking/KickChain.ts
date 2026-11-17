@@ -278,7 +278,7 @@ export namespace KickChain {
       borrowed?: Parameters<typeof prepareHumanPoseResolution>[0],
     ): IFit => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(borrowed);
-      const hip: IAutoMovieVector3 = origin ?? KickCarriage.hip(body, base, side, resolution);
+      const hip: IAutoMovieVector3 = origin ?? KickCarriage.hip(body, base, side, resolution, project);
       let goal: IAutoMovieVector3 = solved.end;
       let hint: IAutoMovieVector3 = StrikingReach.hint(
         hip,

@@ -33,12 +33,15 @@ import { vclose } from "../internal/vclose";
  *    and zero angular momentum about the centre, without retained endpoints.
  * 4. Returned demand sets are independent. Missing posed bones refuse;
  *    repeated release is harmless and every later query refuses.
+ * 5. An owned local-point accessor first supplies1 and changes its later
+ *    value toNaN. The factory must validate and retain the captured numeric
+ *    snapshot, keeping finite COM(1,2,3) and literal diagonal inertia(2,3,4).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States kilogram/metre/second frames, snapshot versus live-bone ownership, hand-derived centre/inertia/momentum and released-token behavior across four scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Exercises public prepare/bones/place/pose/inertia/between/release against owned models, bone maps and outputs. It checks all tensor entries, actual momenta, changed-frame invalidation, fresh nested outputs, missing frames and every released reader.
- * @evidence contracts/development/testing.md#independent-expectations Weighted means fix the two point centres. Z90 times X90 permutes principal moments to (1.5,0.5,1); the parallel-axis sum gives diagonal (31/6,31/6,28/3) and xy=8/3. Uniform translation gives velocity (2,-4,1), linear momentum (6,-12,3) and zero angular momentum. No cached or unprepared output supplies those physical expectations.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers centre-only before parts, nonidentity principal axes, later source and output edits, same-object bone mutation, independently posed endpoints, missing bones, returned-set mutation and every released reader. Arbitrary biomechanical populations and airborne integration acceptance remain in their existing physical specifications.
- * @evidence contracts/development/testing.md#execution-ownership One discoverable portable numerical unit owns the complete two-segment model and all maps. It starts no renderer or process and changes no shared Human profile, tolerance, foreign method or global; preparation releases in finally.
+ * @evidence contracts/development/common.md#meaningful-documentation States kilogram/metre/second frames, snapshot versus live-bone ownership, hand-derived centre/inertia/momentum and released-token behavior across five scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises public prepare/bones/place/pose/inertia/between/release against owned models, bone maps and outputs. It checks all tensor entries, actual momenta, changed-frame invalidation, fresh nested outputs, captured-accessor admission/retention, missing frames and every released reader.
+ * @evidence contracts/development/testing.md#independent-expectations Weighted means fix the two point centres. Z90 times X90 permutes principal moments to (1.5,0.5,1); the parallel-axis sum gives diagonal (31/6,31/6,28/3) and xy=8/3. Uniform translation gives velocity (2,-4,1), linear momentum (6,-12,3) and zero angular momentum. A single unit-mass segment at captured local(1,2,3) in an identity bone frame has that same COM and unchanged diagonal inertia(2,3,4). Later accessor values cannot replace that already captured admitted value. No cached or unprepared output supplies those physical expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers centre-only before parts, nonidentity principal axes, later source and output edits, same-object bone mutation, independently posed endpoints, missing bones, returned-set mutation, source accessor capture-before-admission and every released reader. Arbitrary biomechanical populations and airborne integration acceptance remain in their existing physical specifications.
+ * @evidence contracts/development/testing.md#execution-ownership One discoverable portable numerical unit owns its complete two-segment and accessor singleton models and all maps. It starts no renderer or process and changes no shared Human profile, tolerance, foreign method or global; preparation releases in finally.
  */
 export function test_motion_prepared_model_contracts(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
@@ -163,6 +166,7 @@ export function test_motion_prepared_model_contracts(): void {
   } finally {
     M.release(prepared);
   }
+  capturedAccessor();
 }
 
 /** Supply an owned common-frame bone with independent nested records. */
@@ -173,4 +177,30 @@ function bone(
 ): IAutoMovieResolvedBone {
   return { bone: name, localRotation: { ...rotation },
     worldPosition: { ...position }, worldRotation: { ...rotation } };
+}
+
+/** Validate the same captured numerical point that subsequent physical queries consume. */
+function capturedAccessor(): void {
+  let current: number = 1;
+  const point: IAutoMovieVector3 = {
+    get x(): number { const captured: number = current; current = NaN; return captured; }, y: 2, z: 3,
+  };
+  const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+  const model: resolveAutoMovieCenterOfMass.IModel = { mass: 1, segments: [
+    { bone: "hips", mass: 1, point, inertia: { x: 2, y: 3, z: 4 }, axes: identity },
+  ] };
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map([
+    ["hips", bone("hips", { x: 0, y: 0, z: 0 }, identity)],
+  ]);
+  const prepared: M.IPrepared = M(model);
+  try {
+    const posed: resolveAutoMovieMomentum.IPosed = M.pose(prepared, bones);
+    const tensor: number[][] = M.inertia(prepared, posed);
+    TestValidator.predicate("physical reads consume the actual admitted copy rather than a later raw accessor value",
+      Number.isNaN(point.x) && vclose(M.place(prepared, bones), { x: 1, y: 2, z: 3 }, 1e-12) &&
+      vclose(posed.centre, { x: 1, y: 2, z: 3 }, 1e-12) &&
+      vclose(posed.parts[0]!.centerOfMass, { x: 1, y: 2, z: 3 }, 1e-12) &&
+      tensor.every((row: number[], i: number): boolean => row.every((value: number, j: number): boolean =>
+        nclose(value, i === j ? i + 2 : 0, 1e-12))));
+  } finally { M.release(prepared); }
 }

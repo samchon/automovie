@@ -13,6 +13,7 @@ import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHuma
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { KickForm } from "./KickForm";
 import { StrikingWeaponBones } from "./StrikingWeaponBones";
 import { StrikingWeaponSample } from "./StrikingWeaponSample";
@@ -43,17 +44,19 @@ export namespace StrikingWeapon {
    * @param seconds Film seconds.
    * @param channels Optional demands whose observed values equal the complete course; unsupported producers return the complete posture.
    * @param resolution Optional exact FK supplier borrowed only for this synchronous sample, never retained by the course.
+   * @param projection Optional lazy genuine same-body ROM metadata supplier for this unchanged-table sample; never retained, and legacy courses may ignore it.
    * @returns The posture.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the absolute film-time input and free-course posture output.
    * @evidence contracts/development/design.md#principled-representation Reuses the authored posture representation with a numeric film-second argument.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One time reader supplies the actual limb course; optional channels select observation demand and an optional synchronous FK supplier coordinates lowering and final fitting without storing a result.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One time reader supplies the actual limb course; optional channels select observation demand, while optional synchronous FK and lazy genuine ROM suppliers coordinate existing clamps/fits without storing a pose, time or result.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A callback leaves the actual action law responsible for its free course.
    */
   export type Course = (
     seconds: number,
     channels?: readonly AutoMovieMotionHumanChannel[],
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: () => ReturnType<typeof prepareHumanPostureProjection>,
   ) => IHumanPosture;
 
   /**

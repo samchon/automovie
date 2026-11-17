@@ -21,6 +21,7 @@ import type { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickCarriage } from "./KickCarriage";
 import { KickForm } from "./KickForm";
@@ -106,7 +107,7 @@ export namespace knee {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original round, authored joint/ROM admission, support contact, clinch look-back and stop/dwell/withdrawal rule. Proven leg-only observation omits only free guard/clinch goals; displayed and arm/rival paths remain complete, with no pose/time answer cache.
    * @evidence contracts/development/implementation.md#efficient-algorithms Geometry retains original solves once per settled plan. Fixed guard names are prepared once; each actual sample lends one exact workspace across lowering/hip/guard/final fitted endpoint reads, and only a demanded clinch queries its partner's neck. Speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan fixes body, hand joints, guard-name metadata and participant identity. Each world nape/pose is still read at its own exact film second; only same-invocation scalar FK prerequisites and the original lazy geometry key are shared, never another clock/stop context's pose.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its original geometry, fixed metadata, optional partner handle and stopped ride until settle/stop replacement or release. Every actual pose's exact workspace/map ends on synchronous return or throw; no returned posture retains a reader or new time history.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its original geometry, fixed metadata, optional partner handle and stopped ride until settle/stop replacement or release. Every actual pose's exact FK/ROM workspace and map end on synchronous return or throw; no returned posture retains a reader or new time history.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -212,7 +213,7 @@ export namespace knee {
 
     // The knee on its free course at a clock second (as if it met nothing),
     // the clinching hands reading the other's nape at the film second.
-    const free = (clock: number, seconds: number, arms: boolean = true, source?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture => {
+    const free = (clock: number, seconds: number, arms: boolean = true, source?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IHumanPosture => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
       const t: number = Math.min(duration, Math.max(0, clock));
       const g: KneeGeometry.IGeometry = geometry();
@@ -234,7 +235,7 @@ export namespace knee {
       // The thigh swung about the hip the carriage leaves, the shank folding
       // under it, and the stance's slack given back as the leg lifts.
       const joint: IAutoMovieVector3 = Vector3.add(
-        KickCarriage.hip(body, posture, side, resolution),
+        KickCarriage.hip(body, posture, side, resolution, projection),
         Vector3.scale(KneeReach.swing(g.from.thigh, g.to.thigh, rise), m.thigh),
       );
       const ankle: IAutoMovieVector3 = Vector3.add(
@@ -247,7 +248,7 @@ export namespace knee {
         ),
         Vector3.scale(g.slack, 1 - rise),
       );
-      const hands: ReturnType<typeof StrikingStance.guard> = arms ? guardAt(posture, resolution) : {};
+      const hands: ReturnType<typeof StrikingStance.guard> = arms ? guardAt(posture, resolution, projection) : {};
       if (arms && p.at.kind === "person") {
         const other: IHumanActionContext.IPerformer = (partner ??= context.performer(p.at.subject));
         const nape: IAutoMovieVector3 = other
@@ -294,8 +295,8 @@ export namespace knee {
     // The shown leg as capsules tapered between the girths at its joints,
     // fitted on the knee's free course (`StrikingWeapon.leg`): the thigh, the
     // shank and the foot.
-    const course: StrikingWeapon.Course = (at: number, channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2]): IHumanPosture =>
-      free(at - t0, at, channels === undefined || channels.some((channel: AutoMovieMotionHumanChannel): boolean => channel.endsWith("Arm") || channel.endsWith("Hand")), resolution);
+    const course: StrikingWeapon.Course = (at: number, channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2], projection?: Parameters<StrikingWeapon.Course>[3]): IHumanPosture =>
+      free(at - t0, at, channels === undefined || channels.some((channel: AutoMovieMotionHumanChannel): boolean => channel.endsWith("Arm") || channel.endsWith("Hand")), resolution, projection?.());
     const chain: StrikingWeapon.IChain = {
       ids: ["thigh", "shin", "foot"],
       limb: leg,
@@ -351,10 +352,10 @@ export namespace knee {
             },
           }
         : {}),
-      posture: (seconds: number): IHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1], source?: Parameters<IHumanActionPlan["posture"]>[2], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const at: number | undefined = stop(t0 + t);
-        if (at === undefined || t <= at - t0) return free(t, t0 + t);
+        if (at === undefined || t <= at - t0) return free(t, t0 + t, true, source, projection);
 
         // Held for the dwell, then the free course played back from the stop
         // to the start on a minimum-jerk clock: the way in was clear of the
@@ -366,7 +367,7 @@ export namespace knee {
           (t - s - StrikingStroke.DWELL) /
             Math.max(1e-3, duration - s - StrikingStroke.DWELL),
         );
-        return carried(free(s * (1 - w), at), t);
+        return carried(free(s * (1 - w), at, true, source, projection), t);
       },
     };
     StrikingRecord.register(out, (): StrikingRecord.IRecord => {
@@ -375,10 +376,11 @@ export namespace knee {
       // bones read the entry's (`StrikingWeapon`).
       const g: KneeGeometry.IGeometry = geometry();
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
       const frame: resolveAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(body, side === "left" ? "kneeLeft" : "kneeRight");
       const bones: ReturnType<typeof poseBones> = poseBones(
         body,
-        resolveHumanPosture.seeded(body, free(impact, t0 + impact, true, resolution), undefined, undefined, resolution).pose,
+        resolveHumanPosture.seeded(body, free(impact, t0 + impact, true, resolution, projection), undefined, undefined, resolution, undefined, projection).pose,
         resolution(), new Set<AutoMovieHumanoidBone>([frame.bone]),
       );
       const reached: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);

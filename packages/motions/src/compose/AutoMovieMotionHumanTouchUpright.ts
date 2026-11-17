@@ -78,8 +78,8 @@ export namespace AutoMovieMotionHumanTouchUpright {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop of goal, solve and compare.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every candidate that could still win is solved; head on is tried first, so a tie keeps it.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per candidate, at most thirteen per call: a tilt is never below 0, so the search stops at the first facing that holds the vessel exactly upright, a bound that returns what the whole search would.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `tilt`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One fixed body/side observation reader shares genuine FK/ROM metadata through the actual facing loop; tilt retains every distinct raw goal and actual fit.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous facing search releases its reader on return or throw; the returned facing/lean/tilt holds only original numeric payloads and no workspace or pose history.
    */
   export function solve(
     body: IHumanBody,
@@ -91,6 +91,8 @@ export namespace AutoMovieMotionHumanTouchUpright {
   ): IFacing {
     const level: number = Math.hypot(place.normal.x, place.normal.z);
     if (!(level > 1e-6)) return { facing: place.normal, lean: 0, tilt: 0 };
+    const read: ReturnType<typeof AutoMovieMotionHumanDrinkingArm.prepareRead> =
+      AutoMovieMotionHumanDrinkingArm.prepareRead(body, side);
     let best: IAutoMovieVector3 = place.normal;
     let least: number = Infinity;
     for (const facing of facings(place.normal, level)) {
@@ -102,6 +104,7 @@ export namespace AutoMovieMotionHumanTouchUpright {
         place,
         hint,
         facing,
+        read,
       );
       if (error < least - 1e-9) {
         least = error;
@@ -165,7 +168,7 @@ export namespace AutoMovieMotionHumanTouchUpright {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal and one read.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reached rotation is the resolver's, within the joints' ranges, never the asked one.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanTouchLaid.rest` and `AutoMovieMotionHumanDrinkingArm.read`; `solve` calls it per candidate and a held prop's choice calls it with the stroke's own elbow hint.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses rest and the actual drinking-arm observation; solve may lend its genuine same-body fixed-side reader across candidate calls while each current goal still receives its own native fit. Omitted preparation keeps the original cold read.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function tilt(
@@ -176,24 +179,22 @@ export namespace AutoMovieMotionHumanTouchUpright {
     place: Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     hint: IAutoMovieVector3,
     facing: IAutoMovieVector3,
+    read?: ReturnType<typeof AutoMovieMotionHumanDrinkingArm.prepareRead>,
   ): number {
-    return AutoMovieMotionHumanDrinkingArm.read(
+    const goal: IHumanPosture.IGoal = AutoMovieMotionHumanTouchLaid.rest(
       body,
       posture,
       side,
-      AutoMovieMotionHumanTouchLaid.rest(
-        body,
-        posture,
-        side,
-        effector,
-        place,
-        "up",
-        hint,
-        "upright",
-        facing,
-      ),
-      false,
-    ).tilt;
+      effector,
+      place,
+      "up",
+      hint,
+      "upright",
+      facing,
+    );
+    return read === undefined
+      ? AutoMovieMotionHumanDrinkingArm.read(body, posture, side, goal, false).tilt
+      : read(posture, goal, false).tilt;
   }
 
   /**

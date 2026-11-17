@@ -163,7 +163,7 @@ export namespace athletics {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Set, clock, root row, two leg rows, two arm rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every place is the body's; provisional times are named.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per arm per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed entry/block pair prepares each leg's original quaternion arc once; actual shares and fresh placements still evaluate at every queried second. Placed-arm and posture-heading formulas remain shared owners.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed entry/block pairs prepare each leg's original quaternion arc once; fixed standing/set hip points share Vector3.prepareLerp's original component deltas. Trunk pitch/flexion differences and the joint reader also prepare once, while current joints/shares/points evaluate each second. Placed-arm and posture-heading formulas remain shared owners.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the set position and the clock.
    */
   export function plan(
@@ -217,9 +217,17 @@ export namespace athletics {
       entry.root,
       Quaternion.rotateVector(resolveHumanPosture.heading(entry), hipsRest),
     );
+    const hipsAt: ReturnType<typeof Vector3.prepareLerp> = Vector3.prepareLerp(standingHips, target.hips);
     const flexions: Record<"spine" | "chest", number> = {
       spine: (target.joints.spine?.[0] ?? 0) - (entry.joints.spine?.[0] ?? 0),
       chest: (target.joints.chest?.[0] ?? 0) - (entry.joints.chest?.[0] ?? 0),
+    };
+    const pitchDelta: number = target.pitch - entry.pitch;
+    const flexed: (joints: IHumanPosture["joints"], bone: "spine" | "chest", share: number) => readonly [number, number, number] = (
+      joints: IHumanPosture["joints"], bone: "spine" | "chest", share: number,
+    ): readonly [number, number, number] => {
+      const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
+      return [was[0] + flexions[bone] * share, was[1], was[2]];
     };
     const primitives: IAutoMovieMotionHumanPrimitive[] = [
       {
@@ -230,30 +238,16 @@ export namespace athletics {
         write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
           const w: number = into(seconds);
           // The spine's share of the trunk's tilt comes in with the pelvis's.
-          const flexed: (
-            bone: "spine" | "chest",
-          ) => readonly [number, number, number] = (
-            bone: "spine" | "chest",
-          ): readonly [number, number, number] => {
-            const was: readonly [number, number, number] = posture.joints[
-              bone
-            ] ?? [0, 0, 0];
-            return [was[0] + flexions[bone] * w, was[1], was[2]];
-          };
           const pitched: IHumanPosture = {
             ...posture,
-            pitch: posture.pitch + (target.pitch - entry.pitch) * w,
+            pitch: posture.pitch + pitchDelta * w,
             joints: {
               ...posture.joints,
-              spine: flexed("spine"),
-              chest: flexed("chest"),
+              spine: flexed(posture.joints, "spine", w),
+              chest: flexed(posture.joints, "chest", w),
             },
           };
-          const hips: IAutoMovieVector3 = Vector3.lerp(
-            standingHips,
-            target.hips,
-            w,
-          );
+          const hips: IAutoMovieVector3 = hipsAt(w);
           return {
             ...pitched,
             root: Vector3.subtract(

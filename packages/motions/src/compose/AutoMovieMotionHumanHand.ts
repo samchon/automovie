@@ -115,6 +115,29 @@ export namespace AutoMovieMotionHumanHand {
   }
 
   /**
+   * Prepare the same fixed finger interpolation for an owned output joint map.
+   *
+   * @param side The fixed moving hand.
+   * @param shape The fixed named working shape.
+   * @returns A writer of fifteen fresh triples into its caller-owned joint record at the actual curl degrees and weight; unrelated keys remain untouched and weight admission stays with the caller.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed named geometry, caller-owned mutable output, actual degree curl/share inputs, unchanged thumb policy and fresh output triple ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses prepareFingers' same named scalar entries and fingers' same relaxed-plus-weighted-difference interpolation, adding curl before subtraction and excluding thumbs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bounded entry producer supplies the shared written owner; the fresh-map reader creates its own target while this explicit writer receives its caller's owned target.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changes no bone/order, degree arithmetic, zero abduction/twist, thumb exclusion, callback or weight policy. It accepts an output record rather than caller-supplied derived finger values or a completed posture.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Compiles fifteen scalar entries once and writes fifteen fresh triples per query, removing the intermediate joint-map allocation and second property-copy pass for actual hand/arm writers; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same fixed side/shape determines immutable asked/relaxed prerequisites. Curl, weight and the owned output target are current inputs; neither map nor completed triple is retained or reused.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning primitive retains one fifteen-entry array and writer until release. Every call retains no output map, posture, angle result, body, callback context or time history.
+   */
+  export function prepareFingerWriter(side: HumanHand.Side, shape: HumanHand.Shape):
+    (joints: IHumanPosture["joints"], curl: number, weight: number) => void {
+    const fixed: readonly IFinger[] = entries(side, shape);
+    return (joints: IHumanPosture["joints"], curl: number, weight: number): void => {
+      written(fixed, joints, curl, weight);
+    };
+  }
+
+  /**
    * A hand shaped by a weight.
    *
    * @param props The hand, the shape, the window and the weight.
@@ -124,12 +147,12 @@ export namespace AutoMovieMotionHumanHand {
    * @evidence contracts/development/implementation.md#principled-implementation The finger joints of the weighted shape replace the hand's own in the posture's joints.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Copy the posture/joints, read this second's weight and configuration, then use one fixed-shape reader for the joint update.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The weight is clamped to [0, 1], so an overshooting time course cannot bend a finger past its shape.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed shape scalars are compiled only on first use or changed side/shape; each written second reads the actual weight and creates fifteen output triples without temporary named-shape maps.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work prepareFingers supplies the same interpolation as fingers. Exact current side/shape keys guard one last preparation, preserving live props and recomputing changed configurations without a growing cache.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed shape scalars are compiled only on first use or changed side/shape; each written second reads the actual weight and writes fifteen fresh triples directly into its owned joint copy, without temporary named-shape or interpolated-joint maps.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work prepareFingerWriter shares prepareFingers/fingers' same scalar interpolation. Exact current side/shape keys guard one last preparation, preserving live props and recomputing changed configurations without a growing cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive holds props and at most one fixed fifteen-entry reader until release, retaining no per-second posture, weight, curl, result or time history.
    */
   export function shape(props: IShape): IAutoMovieMotionHumanPrimitive {
-    let fixed: { side: HumanHand.Side; shape: HumanHand.Shape; read: ReturnType<typeof prepareFingers> } | undefined;
+    let fixed: { side: HumanHand.Side; shape: HumanHand.Shape; write: ReturnType<typeof prepareFingerWriter> } | undefined;
     return {
       channels: [`${props.side}Hand`],
       reads: [`${props.side}Hand`],
@@ -142,8 +165,8 @@ export namespace AutoMovieMotionHumanHand {
         const curl: number = props.curl ?? 0;
         const weight: number = Math.min(1, Math.max(0, props.weight(seconds)));
         if (fixed === undefined || fixed.side !== side || fixed.shape !== asked)
-          fixed = { side, shape: asked, read: prepareFingers(side, asked) };
-        Object.assign(out.joints, fixed.read(curl, weight));
+          fixed = { side, shape: asked, write: prepareFingerWriter(side, asked) };
+        fixed.write(out.joints, curl, weight);
         return out;
       },
     };
@@ -211,9 +234,14 @@ function entries(side: HumanHand.Side, shape: HumanHand.Shape): readonly IFinger
 /** The original curl-then-subtract interpolation shared by cold and prepared reads. */
 function shaped(fixed: readonly IFinger[], curl: number, weight: number): IHumanPosture["joints"] {
   const out: IHumanPosture["joints"] = {};
-  for (const entry of fixed)
-    out[entry.bone] = interpolated(entry.asked, entry.relaxed, entry.curls, curl, weight);
+  written(fixed, out, curl, weight);
   return out;
+}
+
+/** Populate one owned output record with the same original ordered fresh triples. */
+function written(fixed: readonly IFinger[], joints: IHumanPosture["joints"], curl: number, weight: number): void {
+  for (const entry of fixed)
+    joints[entry.bone] = interpolated(entry.asked, entry.relaxed, entry.curls, curl, weight);
 }
 
 /** Preserve the original curl addition, subtraction and multiplication grouping. */

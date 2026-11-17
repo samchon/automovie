@@ -378,9 +378,9 @@ export namespace walkStanceSolve {
    * @evidence contracts/development/implementation.md#principled-implementation TrajOpt's convex subproblem: the cost's Gauss-Newton model and the constraints as exact l1 penalties of their linearisations, the linear rows hard.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The window, the build, then four closures over it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every constraint the course reads is a row.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One sweep per merit evaluation or new course/swivel linearization; steering penalties and restoration share the latter's derivatives, while prepared row topology serves radius reads.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses one fixed-window geometry, goal-only reader, row preparation and latest exact scalar/swivel derivative record; each returned QP owns fresh matrices and row arrays.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The problem owns its fixed window/build and one bounded numeric derivative record until release, all linear in knot count for fixed bandwidth and foot geometry; it keeps no query history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One sweep per merit evaluation or new course/swivel linearization; steering penalties and restoration share derivatives, while prepared row topology serves radius reads. Merit captures O(m) raw interval scalars and defers m bound records until correction actually reads them, without another physical sweep.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses fixed-window geometry, goal-only/row preparation and latest exact scalar/swivel derivatives; each QP owns fresh arrays. Each evaluation snapshots original ordered -over scalars before penalty clamping, then its first bounds read materializes and retains exactly that snapshot without reading a live course or selected-model state.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The problem owns its fixed window/build and latest derivative record until release, linear in knots for fixed bandwidth/foot geometry. Each evaluation separately owns scalar intervals until first bounds read replaces them with independent row records, or evaluation release; no query history or FK loan is retained.
    */
   export function problem(
     body: IHumanBody,
@@ -405,7 +405,8 @@ export namespace walkStanceSolve {
         let objective: number = 0;
         let violation: number = 0;
         let worst: number = 0;
-        const bounds: Pick<Q.IRow, "l" | "u">[] = [];
+        let upper: number[] | undefined = [];
+        let bounds: Pick<Q.IRow, "l" | "u">[] | undefined;
         built.sweep(
           x,
           false,
@@ -413,12 +414,23 @@ export namespace walkStanceSolve {
             objective += (r * r) / 2;
           },
           (over: number): void => {
-            bounds.push({ l: -Infinity, u: -over });
+            upper!.push(-over);
             violation += Math.max(0, over);
             worst = Math.max(worst, over);
           },
         );
-        return { objective, violation, worst, bounds };
+        return {
+          objective,
+          violation,
+          worst,
+          get bounds(): readonly Pick<Q.IRow, "l" | "u">[] {
+            if (bounds === undefined) {
+              bounds = upper!.map((u: number): Pick<Q.IRow, "l" | "u"> => ({ l: -Infinity, u }));
+              upper = undefined;
+            }
+            return bounds;
+          },
+        };
       },
       convexify: walkStanceConvexify(tail, size, built.sweep),
       region: (x: Float64Array, radius: number, borrowedRows: boolean = false): Q.IRow[] =>

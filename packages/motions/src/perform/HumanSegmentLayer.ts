@@ -5,7 +5,6 @@ import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { HumanSkill } from "../skill/HumanSkill";
 import type { HumanSegment } from "./HumanSegment";
@@ -38,8 +37,8 @@ export namespace HumanSegmentLayer {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Return immediately for an empty layer list; otherwise one action reader and one ordered reduction keep context construction with the layer that consumes it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Applies every active layer with its actual preceding posture and original window weight; random streams, action records and event arrays are not memoized or shared between queries.
    * @evidence contracts/development/implementation.md#efficient-algorithms An empty list costs a length read and no context closure. For L layers, scan L windows and pay each active apply and posture mix; each action query reads R entries backward to its last match, at most S placed segments, and maps its E events in O(R+E) time and O(E) output space.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual posture/time, original draws and every apply remain current. A same-body parent may lend exact FK metadata and genuine direct-ROM projection through separate lazy context getters during apply; rebased transfers only issued provenance for downstream exact free-leg checks. No layer, random stream or action answer is cached.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each layer clears both borrowed sources in finally, and outer source parameters clear on return/throw. Retained context getters then create fresh independent preparations; the layer contract forbids retaining an obtained reader/projector. No result map or parent workspace enters output postures. Existing raw provenance remains weak and retained action callbacks keep only their original person/second state.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual posture/time, original draws and every apply remain current. A same-body parent may lend FK prerequisites and genuine direct-ROM metadata through separate lazy context getters during apply. Mixed raw postures receive ordinary native admission/fitting, without a partial-leg reuse assertion or cached layer/random/action answer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each layer clears both borrowed sources in finally, and outer source parameters clear on return/throw. Retained context getters then create fresh independent preparations; the layer contract forbids retaining an obtained reader/projector. No result map or parent workspace enters output postures, and retained action callbacks keep only their original person/second state.
    */
   export function apply(
     person: HumanSegment.IPerson,
@@ -98,7 +97,7 @@ export namespace HumanSegmentLayer {
                 HumanSkill.stream(person.skill, person.performer.subject,
                   `layer:${layer.name}`, 0, channel),
             });
-            return resolveHumanPosture.rebased(current, mixHumanPosture(current, written, weight));
+            return mixHumanPosture(current, written, weight);
           } finally {
             borrowed?.release();
             projected?.release();

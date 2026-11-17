@@ -2,7 +2,7 @@ import type {
   IAutoMovieSeededChainFit,
   IAutoMovieSwivelNear,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieJointPose, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmMirror } from "./HumanArmMirror";
@@ -12,6 +12,7 @@ import { HumanLimbFitScalars } from "./HumanLimbFitScalars";
 import { HumanLimbMirror } from "./HumanLimbMirror";
 import type { IHumanPosture } from "./IHumanPosture";
 import type { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { prepareHumanLimbSource } from "./prepareHumanLimbSource";
 
 /**
  * The memory of limb fits (`HumanLimbFit.fit`): each body's fits kept by
@@ -21,7 +22,7 @@ import type { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is kept, by what and why.
  * @evidence contracts/development/design.md#principled-representation A memo of a pure function, owned by the body it fits.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The remembered fit and the memory's switch.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Public remembered reads issue independent complete results; the internal fitted consumer distinguishes actual same-source misses from owned issuing, and memory retains its original switch. No unused fixed-key reader or caller-supplied capture mode remains.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The fit is `HumanLimbFit`'s; nothing here solves one.
  */
 export namespace HumanLimbFitMemory {
@@ -41,6 +42,21 @@ export namespace HumanLimbFitMemory {
    */
   export function memory(on: boolean): void {
     REMEMBERING.on = on;
+  }
+
+  /**
+   * Discard a body's fit pool after actual rig prerequisites changed.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines actual complete-rig epoch invalidation separately from capacity eviction and ordinary cache misses.
+   * @evidence contracts/development/implementation.md#principled-implementation A fit depends on skeleton/ROM/topology data as well as keyed targets; the complete rig checker calls this only after detecting changed actual prerequisites, so an old numerical answer cannot survive a cold fallback.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The rig owner detects invalidation and this single memory owner releases its bounded body pool; no second metadata serializer or cache readiness flag is added.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Never guesses a miss's cause or changes any goal, tolerance, result or numerical admission.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One weak deletion releases the original at-most4096-entry pool, and a fixed scalar records actual deletion events; stable rig queries add no purge work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the complete unchanged rig epoch permits old fit equivalence; changed prerequisites start with an empty actual pool.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Releases all cache-entry references for that weak body without retaining a prior pool, pose, key, reader or handle.
+   */
+  export function invalidate(body: IHumanBody): void {
+    if (FITS.delete(body)) HumanLimbFitFrame.work(body, "cacheInvalidations");
   }
 
   /**
@@ -100,9 +116,9 @@ export namespace HumanLimbFitMemory {
    * @evidence contracts/development/implementation.md#principled-implementation The key is every input of a pure function; the body owns its fits.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One key, one lookup, one insertion in recency order.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All actual numerical inputs remain keyed, using the original mirror, heading and grid policy with full relative translation. World/on/clear/rests exclusions remain; root/target/bend/rival move together, fixed world goals still change their relative key, and no tolerance, raw demand or admission path is weakened.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Keys/schema checks/reconstruction are O(B+G). Scalar misses store W chain/toe records, 3B exact nullable values, B bone names/order codes and a B-slot recipe. Hits borrow exact-equal current records and materialize M cached-scalar corrections, M<=B; public reads still clone fully. Rich data keeps full snapshots, disabled calls solve normally, and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The original complete key/grid selects the same fit. Independent flat scalars/header/order retain exact cached untouched data even for grid-equal differing values; current records are borrowed only on exact value/shape agreement. Unknown/prototyped/shared graphs retain complete legacy output. Public results are independent, and actual miss/disabled solve inputs remain unchanged.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each weak body keeps at most FIT_MEMORY owned recipes plus flat scalar/order snapshots, or complete rich-data results. Ordinary entries retain W objects and O(B) primitive slots instead of B unrelated objects. Public output is independent; only module-owned emitters can observe private reconstruction, and no reader or query history escapes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The original key takes O(B+G). Public misses keep complete cloning without new raw schema probes; private native misses may store one output inspection's 3B nullable values, B names/order codes and constant header/seed/value packet. Every hit reconstructs the complete selected output without inspecting current joints; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged complete key/grid selects the fit. Flat snapshots retain every exact cached value/order beyond grid equality and reconstruct fresh records rather than compare mutable current input. Public capture preserves the original full-clone boundary; only module-owned native consumers can use compact output inspection and same-source miss transfer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each weak body keeps at most FIT_MEMORY independent full graphs or flat O(B) primitive snapshots plus owned header/seed/value packets. Hits issue B fresh records and public outputs remain independent. Cache entries contain no caller records, readers, continuations or query history.
    */
   export function remembered(
     body: IHumanBody,
@@ -114,108 +130,103 @@ export namespace HumanLimbFitMemory {
     near?: IAutoMovieSwivelNear,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieSeededChainFit {
-    return consume(body, pose, limb, goal, placed, rival, near, resolution, issue);
+    return consume(body, pose, limb, goal, placed, rival, near, resolution, COMPLETE_ISSUER);
   }
 
   /**
-   * An independently owned limb edit recipe; it contains no cached pose.
-   * Nonnegative order entries address owned replacements; a negative entry
-   * addresses source index -entry-1, admitted only on exact cached agreement.
+   * Consume actual native fitting inside a private constructor-owned COW
+   * refit. Public explicit sources use remembered's independent issuer.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines owned changed records, complete output ordering, current-source placeholders and independently owned continuation/score data.
-   * @evidence contracts/development/design.md#principled-representation Engine writes are confined to upper/lower/effector and possible contact toes. Actual output slots preserve duplicates/filter/append; independently issued replacements additionally carry M exact cached-scalar corrections when a grid-equal source differs. Unknown metadata/prototypes/shared graphs use complete owned fallback.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The internal applyHumanLimbFit consumer needs exactly written names, owned replacement records, ordering and existing seed/value; no cache entry or borrowed posed output is exposed.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The recipe comes from the actual selected cached or freshly solved output, never an invented endpoint or resolution flag, and retains every current untouched source record when applied.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the actual private constructor/refit entrypoint, one output inspection, exact complete hit reconstruction and original public issuer boundary.
+   * @evidence contracts/development/implementation.md#principled-implementation Actual private assembly/refit owns current records. query transfers only its closed-scalar miss with identical nonnull nonprivate source root: the engine preserves source root/prefix, while fixed-source factories mark their retained roots. Hits reconstruct complete exact cached snapshots; rich/null/private-source/disabled outputs clone fully.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Module-owned capture/solved/owned/issue functions select data ownership without changing the common lookup or solver. applyHumanLimbFit is the private consumer; independent public refit/pair entrypoints select remembered instead, accepting no caller flag or fitted answer.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Source/goal/near/mirror/root restoration, switch/key/grid/LRU/count and actual engine solving are unchanged. Public/incoming-reader/explicit-base paths retain complete issuing, hits add no current-input metadata probes, and no private cache/source-factory record escapes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A native miss inspects only its actual output once, stores O(B) primitives plus a constant-size copied packet, then transfers a proven same-source result. Hits allocate B exact records and copy the packet without current-source inspection; other paths clone fully. Two fixed module-owned issuing policies capture no request/result, avoiding per-fit policy/identity-function allocation. Disabled calls insert nothing and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same-call source-root proof applies only to actual constructor-owned misses; private factory roots, including reentry, decline. Hits use exact stored scalars/order independently of current values under the grid. Native compact capture and public complete capture are selected only by the owning call path, not inferred from arbitrary raw metadata.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A transferred miss contains only current-owned records/fresh writes. Hits own every reconstructed joint/header/seed/value, with only original current-root restoration borrowed within the operation; public issuers detach completely. No reader, continuation or result history enters an entry.
    */
-  export interface IPatch {
-    /** Engine chain/toe write domain used to pair the original nonwritten source subsequence. */
-    written: ReadonlySet<AutoMovieHumanoidBone>;
-    /** Owned chain/toe replacements and any exact cached-scalar corrections. */
-    joints: IAutoMovieJointPose[];
-    /** Replacement index, or -(sourceIndex + 1) for an exactly equal current source record. */
-    order: number[];
-    /** Independently owned selected continuation seed, or the original null. */
-    seed: IAutoMovieSeededChainFit["seed"];
-    /** Independently owned original numerical score, when present. */
-    value?: IAutoMovieSeededChainFit["value"];
-    /** Complete owned result when changed-record metadata requires preserving arbitrary graph relationships. */
-    full?: IAutoMovieSeededChainFit;
-    /** Independently owned cached skeleton/root data, after original current-root restoration. */
-    header: HumanLimbFitScalars.IHeader;
-    /** Original own-property order of the closed pose header. */
-    fields: HumanLimbFitScalars.IField[];
-  }
-
-  /**
-   * Issue an owned edit recipe for the same actual memory read or solve.
-   * The consumer merges only untouched caller-owned records, then its public
-   * refit boundary issues an independent full result.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines actual lookup/disabled behavior, changed-bone proof, original sequence recipe and nonescaping private entry use.
-   * @evidence contracts/development/implementation.md#principled-implementation Chain/toe writes and the engine's preserved nonwritten subsequence establish original source-slot correspondence. The actual cached output determines all slots; exact-equal current records may be reused, while differing cached untouched scalars become owned corrective replacements. Header/field order, duplicates, seed and score stay exact.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The private consume kernel owns the same normalized query; this selector issues only fresh replacement records and numeric layout. applyHumanLimbFit owns reconstruction and refit owns final public isolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the original full key/grid/LRU/count and actual miss/disabled solver; no private result is borrowed outside this module and no target, tolerance or effort/tie changes. Minimal edits require closed scalar source/output data; unknown metadata preserves the complete legacy result, while current untouched scalar records are not recreated from names.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Scans B output records and copies W chain/toe records plus M cached-scalar corrections, M<=B, alongside header/seed/score and fresh numeric layout. Ordinary exact hits have M=0. Native fresh assembly transfers directly; explicit caller-owned refit/base boundaries copy once, while public remembered still copies completely.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the same chosen numerical fit under the unchanged full key/grid. Flat scalar snapshots preserve exact cached data beyond that grid; a negative source slot requires exact record shape/value equality, otherwise a cached replacement is issued. No private cache record is borrowed outside the module.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Private entries stay inside consume. Only a fresh set/order and cloned changed/seed/value data, or an honest complete owned rich-metadata fallback, escape. No caller-supplied callback can observe an entry, and the original bounded weak-body pool remains unchanged.
-   */
-  export function patch(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb,
+  export function fitted(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb,
     goal: IHumanPosture.IGoal, placed: readonly ("left" | "right")[], rival?: IAutoMovieVector3,
-    near?: IAutoMovieSwivelNear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IPatch {
-    return consume(body, pose, limb, goal, placed, rival, near, resolution,
-      (fit: IAutoMovieSeededChainFit): IPatch => changes(limb, goal, fit, pose));
+    near?: IAutoMovieSwivelNear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieSeededChainFit {
+    return consume(body, pose, limb, goal, placed, rival, near, resolution, NATIVE_ISSUER);
   }
 
-  /** Own only actual written records; rich changed metadata keeps an honest complete snapshot. */
-  function changes(limb: IHumanPosture.Limb, goal: IHumanPosture.IGoal, fit: IAutoMovieSeededChainFit, before: IAutoMoviePose): IPatch {
-      const chain: HumanLimbFit.IChain = HumanLimbFit.chain(limb);
-      const written: Set<AutoMovieHumanoidBone> = new Set([chain.upper, chain.lower, chain.effector]);
-      if (limb.endsWith("Leg") && goal.contact !== undefined && goal.rotation !== undefined)
-        written.add(limb.startsWith("left") ? "leftToes" : "rightToes");
-      if (!HumanLimbFitScalars(before) || !HumanLimbFitScalars(fit.pose) ||
-        (fit.seed !== null && !scalarRecord(fit.seed, ["branch", "swivel"])) ||
-        (fit.value !== undefined && !scalarRecord(fit.value, ["overshoot", "error", "strain"]))) {
-        const full: IAutoMovieSeededChainFit = issue(fit);
-        return { written, joints: [], order: [], seed: full.seed, fields: [],
-          header: { skeleton: full.pose.skeleton, root: full.pose.root },
-          ...(full.value === undefined ? {} : { value: full.value }), full };
-      }
-      const retained: number[] = [];
-      before.joints.forEach((joint: IAutoMovieJointPose, i: number): void => { if (!written.has(joint.bone)) retained.push(i); });
-      let at: number = 0;
-      const joints: IAutoMovieJointPose[] = [];
-      const order: number[] = fit.pose.joints.map((joint: IAutoMovieJointPose): number => {
-        if (!written.has(joint.bone)) {
-          const sourceIndex: number | undefined = retained[at++];
-          if (sourceIndex === undefined || before.joints[sourceIndex]!.bone !== joint.bone)
-            throw new Error("Limb edit ordering does not match its source");
-          if (HumanLimbFitScalars.equal(joint, before.joints[sourceIndex]!)) return -sourceIndex - 1;
-        }
-        joints.push(joint);
-        return joints.length - 1;
-      });
-      if (at !== retained.length) throw new Error("Limb edit ordering omits a source joint");
-      const owned: Pick<IPatch, "joints" | "seed" | "value" | "header"> = structuredClone({ joints, seed: fit.seed,
-        header: { skeleton: fit.pose.skeleton, root: fit.pose.root },
-        ...(fit.value === undefined ? {} : { value: fit.value }) });
-      return { ...owned, written, order, fields: HumanLimbFitScalars.fields(fit.pose) };
+  /**
+   * Fit actual base-free assembler output with constructor-known capture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the native four-field clinical-record producer route and unchanged remembered solver/output contract.
+   * @evidence contracts/development/implementation.md#principled-implementation The actual base-free assembly and native clamp/mirror/chain writers establish the closed literal schema, permitting direct exact scalar capture; arbitrary public/base/rich sources retain fitted or remembered inspection/copying.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects one module-owned capture in the same consume/query kernel; targets, keys, solving and exact hit reconstruction remain shared.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no public provenance switch, resolved state, changed key, inferred equality, skipped numerical admission or altered fitting policy.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Removes repeated descriptor/key-array/set inspection for the known constructed records, retaining one B-record numeric capture and all actual fitting; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual producer call flow establishes record shape independently of reader identity. Exact current fitted scalars enter the existing bounded cache, and all hits reconstruct their stored values independently.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Uses the same weak body and4096-entry bound, retaining only primitive snapshots and independent header/seed/value packets without source poses, loans or outputs.
+   */
+  export function constructed(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb,
+    goal: IHumanPosture.IGoal, placed: readonly ("left" | "right")[], rival?: IAutoMovieVector3,
+    near?: IAutoMovieSwivelNear, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieSeededChainFit {
+    return consume(body, pose, limb, goal, placed, rival, near, resolution, CONSTRUCTED_ISSUER);
   }
+
+  /**
+   * Fit a constructor-owned continuous curve under its explicit point policy.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines actual continuous-curve fitting, independent exact cache outputs and a separate algorithm-key namespace.
+   * @evidence contracts/development/implementation.md#principled-implementation The actual free-curve constructor chooses current hinged correction; physical/continuity admission remains with that producer and unsupported engine cases retain same-source cold fallback.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One module-owned emitter chooses the existing continuous point entry in the same query/capture/issuing kernel.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The explicit policy is a solver dependency, never an ownership or success flag; ordinary public cold/near keys and solver ordering remain unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Current hinged correction avoids generic cold setup before a successful near fit. Exact capture and bounded LRU work remain, and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Distinct algorithm-key namespaces prevent a public near result from masquerading as the new correction policy; every remaining goal/root/joint/seed dependency stays in the original full key.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Both policies share the original4096-entry weak body LRU; no second pool, source pose, FK loan, callback or unbounded query log is retained.
+   */
+  export function continued(...args: Parameters<typeof constructed>): IAutoMovieSeededChainFit {
+    return consume(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], CONTINUED_ISSUER);
+  }
+
+  /** Capture only the native literal schema actually built by the constructor-owned route. */
+  function constructedEntry(fit: IAutoMovieSeededChainFit): IEntry {
+    const scalars: HumanLimbFitScalars.ISnapshot | undefined = HumanLimbFitScalars.constructed(fit.pose);
+    if (scalars === undefined) return scalarEntry(fit);
+    return { ...structuredClone({ header: { skeleton: fit.pose.skeleton, root: fit.pose.root }, seed: fit.seed,
+      ...(fit.value === undefined ? {} : { value: fit.value }) }), scalars };
+  }
+
+  /** The actual private native output needs one inspection and only its header/seed/value packet copied. */
+  function scalarEntry(fit: IAutoMovieSeededChainFit): IEntry {
+    const scalars: HumanLimbFitScalars.ISnapshot | undefined = HumanLimbFitScalars(fit.pose);
+    if (scalars === undefined || (fit.seed !== null && !scalarRecord(fit.seed, ["branch", "swivel"])) ||
+      (fit.value !== undefined && !scalarRecord(fit.value, ["overshoot", "error", "strain"]))) return completeEntry(fit);
+    return { ...structuredClone({ header: { skeleton: fit.pose.skeleton, root: fit.pose.root }, seed: fit.seed,
+      ...(fit.value === undefined ? {} : { value: fit.value }) }), scalars };
+  }
+
+  /** Preserve the original complete cloning/throw boundary for public or rich-data results. */
+  function completeEntry(fit: IAutoMovieSeededChainFit): IEntry { return { full: issue(fit) }; }
 
   /** Only module-owned issuers can observe a private entry during this synchronous call. */
   function consume<T>(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb,
     goal: IHumanPosture.IGoal, placed: readonly ("left" | "right")[], rival: IAutoMovieVector3 | undefined,
     near: IAutoMovieSwivelNear | undefined, resolution: Parameters<typeof prepareHumanPoseResolution>[0],
-    emit: (fit: IAutoMovieSeededChainFit) => T): T {
-    if (!REMEMBERING.on) return emit(HumanLimbFit.fit(body, pose, limb, goal, placed, rival, near, resolution));
+    emit: IEmitter<T>): T {
+    if (!REMEMBERING.on) {
+      HumanLimbFitFrame.work(body, "disabledFits");
+      HumanLimbFitFrame.work(body, near === undefined ? "coldFits" : "continuedFits");
+      return emit.issue(emit.solve(body, pose, limb, goal, placed, rival, near, resolution));
+    }
     if (limb.startsWith("left")) return consume(body, HumanLimbMirror.pose(pose), HumanLimbMirror.limb(limb),
       HumanLimbMirror.goal(goal), placed.map(HumanLimbMirror.side),
       rival === undefined ? undefined : HumanArmMirror.flip(rival), near, resolution,
-      (fit: IAutoMovieSeededChainFit): T => emit({ ...fit, pose: HumanLimbMirror.pose(fit.pose) }));
-    return query(inputs(body, pose, limb, goal, placed, rival, near), resolution, emit);
+      { capture: emit.capture, policy: emit.policy, solve: emit.solve, solved: (fit: IAutoMovieSeededChainFit): T => emit.solved({ ...fit, pose: HumanLimbMirror.pose(fit.pose) }),
+        owned: (fit: IAutoMovieSeededChainFit): T => emit.owned({ ...fit, pose: HumanLimbMirror.pose(fit.pose) }),
+        issue: (fit: IAutoMovieSeededChainFit): T => emit.issue({ ...fit, pose: HumanLimbMirror.pose(fit.pose) }) });
+    return query(inputs(body, pose, limb, goal, placed, rival, near, emit.policy), resolution, emit);
   }
 
-  /** The public remembered/prepare surface always issues an independent complete output. */
+  /** The public remembered surface always issues an independent complete output. */
   function issue(fit: IAutoMovieSeededChainFit): IAutoMovieSeededChainFit { return structuredClone(fit); }
+
+  /** Only an actual current-owned miss or fully owned hit reaches this noncapturing continuation. */
+  function transfer(fit: IAutoMovieSeededChainFit): IAutoMovieSeededChainFit { return fit; }
 
   /** Nested/unknown changed metadata requires the full clone to retain cross-record graph relationships. */
   function scalarRecord(record: object, allowed: readonly string[]): boolean {
@@ -229,45 +240,7 @@ export namespace HumanLimbFitMemory {
   }
 
 
-  /**
-   * Prepare only fixed mirror/root-frame/key work for one unchanged limb request.
-   * Each invocation still reads the actual bounded body memory and its LRU,
-   * and disabled memory still executes the ordinary solver on the raw source.
-   * A per-invocation FK supplier is borrowed synchronously and never retained.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed source inputs, reused normalization/key only, live memory switch/LRU and nonretained FK source.
-   * @evidence contracts/development/implementation.md#principled-implementation Mirror/root-frame transformations and serialization are pure functions of this explicit operation's fixed pose/goal/placed/rival/near inputs, so their completed key may serve repeated ordinary memory reads.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure inputs owns the unchanged key construction and query the existing memory policy; this producer adds only fixed-request preparation and delegates actual fits to HumanLimbFit.fit.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Stores no fitted result or target history, retains the existing grid and complete key, preserves hit counts/LRU/eviction and always bypasses reads/inserts while memory is disabled.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Mirror/root-frame/serialization O(J+G) work runs once at the first enabled read for J joints and G goal data; each later call retains its actual map read/recency update or full miss solve, without a measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit unchanged source/body/goal metadata prove key equivalence; each invocation receives its current synchronous FK supplier independently and actual memory contents remain live.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation owns at most one mirrored/normalized source, goal and key until release; its closure retains no solve result or FK reader. Issued outputs are independent complete clones, while the weak-body pool remains capped at4096 private snapshots.
-   */
-  export function prepare(
-    body: IHumanBody,
-    pose: IAutoMoviePose,
-    limb: IHumanPosture.Limb,
-    goal: IHumanPosture.IGoal,
-    placed: readonly ("left" | "right")[],
-    rival?: IAutoMovieVector3,
-    near?: IAutoMovieSwivelNear,
-  ): (resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieSeededChainFit {
-    let fixed: IRequest | undefined;
-    let mirrored: ReturnType<typeof prepare> | undefined;
-    return (resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieSeededChainFit => {
-      if (!REMEMBERING.on) return structuredClone(HumanLimbFit.fit(body, pose, limb, goal, placed, rival, near, resolution));
-      if (limb.startsWith("left")) {
-        mirrored ??= prepare(body, HumanLimbMirror.pose(pose), HumanLimbMirror.limb(limb),
-          HumanLimbMirror.goal(goal), placed.map(HumanLimbMirror.side),
-          rival === undefined ? undefined : HumanArmMirror.flip(rival), near);
-        const image: IAutoMovieSeededChainFit = mirrored(resolution);
-        return { ...image, pose: HumanLimbMirror.pose(image.pose) };
-      }
-      return query((fixed ??= inputs(body, pose, limb, goal, placed, rival, near)), resolution, issue);
-    };
-  }
-
-  /** Fixed normalized request data; no numerical answer or reader is retained here. */
+  /** Current normalized request data; no numerical answer or reader is retained here. */
   interface IRequest {
     body: IHumanBody;
     pose: IAutoMoviePose;
@@ -280,10 +253,58 @@ export namespace HumanLimbFitMemory {
     root: IAutoMoviePose["root"] | undefined;
   }
 
-  /** Exact retained scalar data accompanies a compact edit under the unchanged quantized key. */
-  interface IEntry { edit: IPatch; scalars?: HumanLimbFitScalars.ISnapshot; }
+  /** Public/rich entries own the original complete graph; private native entries own exact flat scalar data. */
+  type IEntry = { full: IAutoMovieSeededChainFit } | IScalarEntry;
 
-  /** Original right-side root-frame/key construction, shared by cold and fixed-request readers. */
+  /** No mutable current input or output joint object belongs to a scalar cache entry. */
+  interface IScalarEntry extends Pick<IAutoMovieSeededChainFit, "seed" | "value"> {
+    /** Independently copied normalized header; current root restoration remains outside memory storage. */
+    header: HumanLimbFitScalars.IHeader;
+    /** Exact complete ordered clinical values and own-key codes from the actual selected output. */
+    scalars: HumanLimbFitScalars.ISnapshot;
+  }
+
+  /** A proven current-source miss and every other ownership path take distinct private continuations. */
+  interface IEmitter<T> {
+    /** Actual solver policy is a complete memo dependency, not a readiness proof. */
+    policy: "ordinary" | "continuous";
+    /** The actual numerical owner selected by this internal producer path. */
+    solve: typeof HumanLimbFit.fit;
+    /** Public issuers clone fully; actual private constructor/refit consumers inspect only their owned native output. */
+    capture: (fit: IAutoMovieSeededChainFit) => IEntry;
+    /** Receives only an actual miss retaining its identical nonnull current source root and prefix. */
+    solved: (fit: IAutoMovieSeededChainFit) => T;
+    /** Receives an independently reconstructed complete cache hit, with only the current restored root borrowed. */
+    owned: (fit: IAutoMovieSeededChainFit) => T;
+    /** Independently issues hits, private-source factory results, null-root or disabled fits. */
+    issue: (fit: IAutoMovieSeededChainFit) => T;
+  }
+
+  /** Fixed public issuing functions capture no mutable query data or numerical result. */
+  const COMPLETE_ISSUER: IEmitter<IAutoMovieSeededChainFit> = {
+    policy: "ordinary", solve: (...args: Parameters<typeof HumanLimbFit.fit>): IAutoMovieSeededChainFit => HumanLimbFit.fit(...args),
+    capture: completeEntry, solved: issue, owned: issue, issue,
+  };
+
+  /** Fixed private issuing functions change only ownership handling, never lookup/fit policy. */
+  const NATIVE_ISSUER: IEmitter<IAutoMovieSeededChainFit> = {
+    policy: "ordinary", solve: (...args: Parameters<typeof HumanLimbFit.fit>): IAutoMovieSeededChainFit => HumanLimbFit.fit(...args),
+    capture: scalarEntry, solved: transfer, owned: transfer, issue,
+  };
+
+  /** Only the actual base-free assembler/refit path supplies the native literal-schema premise. */
+  const CONSTRUCTED_ISSUER: IEmitter<IAutoMovieSeededChainFit> = {
+    policy: "ordinary", solve: (...args: Parameters<typeof HumanLimbFit.fit>): IAutoMovieSeededChainFit => HumanLimbFit.fit(...args),
+    capture: constructedEntry, solved: transfer, owned: transfer, issue,
+  };
+
+  /** An actual owned-curve producer alone selects the separate correction policy. */
+  const CONTINUED_ISSUER: IEmitter<IAutoMovieSeededChainFit> = {
+    policy: "continuous", solve: (...args: Parameters<typeof HumanLimbFit.fit>): IAutoMovieSeededChainFit => HumanLimbFit.continued(...args),
+    capture: constructedEntry, solved: transfer, owned: transfer, issue,
+  };
+
+  /** Original right-side root-frame/key construction for each actual current request. */
   function inputs(
     body: IHumanBody,
     pose: IAutoMoviePose,
@@ -292,6 +313,7 @@ export namespace HumanLimbFitMemory {
     placed: readonly ("left" | "right")[],
     rival: IAutoMovieVector3 | undefined,
     near: IAutoMovieSwivelNear | undefined,
+    policy: "ordinary" | "continuous",
   ): IRequest {
     // Keyed and solved in the root-position frame (`HumanLimbFitFrame`), so
     // one body doing the same thing elsewhere or facing elsewhere shares the
@@ -308,19 +330,27 @@ export namespace HumanLimbFitMemory {
       frame === null || rival === undefined
         ? rival
         : HumanLimbFitFrame.point(frame, rival);
-    const key: string = JSON.stringify(
+    const ordinary: string = JSON.stringify(
       [limb, placed, away ?? null, aim, own.root, own.joints, near ?? null],
-      HumanLimbFitFrame.grid,
+      policy === "ordinary" ? HumanLimbFitFrame.grid : exactComponent,
     );
+    const key: string = policy === "ordinary" ? ordinary : `continuous:${ordinary}`;
+    HumanLimbFitFrame.work(body, "serializedKeys");
+    HumanLimbFitFrame.work(body, "serializedCharacters", key.length);
     return { body, pose: own, limb, goal: aim, placed, rival: away, near, key,
       root: frame === null ? undefined : pose.root };
+  }
+
+  /** Exact current numeric dependencies, including signed zero, keep continuous answer reuse query-order independent. */
+  function exactComponent(_key: string, value: unknown): unknown {
+    return typeof value === "number" && Object.is(value, -0) ? "number:-0" : value;
   }
 
   /** The unchanged live body-memory lookup, count, solve and LRU policy. */
   function query<T>(
     input: IRequest,
     resolution: Parameters<typeof prepareHumanPoseResolution>[0],
-    emit: (fit: IAutoMovieSeededChainFit) => T,
+    emit: IEmitter<T>,
   ): T {
     const { body, key }: Pick<IRequest, "body" | "key"> = input;
     let fits: Map<string, IEntry> | undefined =
@@ -330,10 +360,12 @@ export namespace HumanLimbFitMemory {
       FITS.set(body, fits);
     }
     let entry: IEntry | undefined = fits.get(key);
+    const missed: boolean = entry === undefined;
     HumanLimbFitFrame.count(body, entry !== undefined);
     let out: IAutoMovieSeededChainFit;
     if (entry === undefined) {
-      out = HumanLimbFit.fit(
+      HumanLimbFitFrame.work(body, input.near === undefined ? "coldFits" : "continuedFits");
+      out = emit.solve(
         body,
         input.pose,
         input.limb,
@@ -343,32 +375,32 @@ export namespace HumanLimbFitMemory {
         input.near,
         resolution,
       );
-      const edit: IPatch = changes(input.limb, input.goal, out, input.pose);
-      entry = { edit, ...(edit.full === undefined ? { scalars: HumanLimbFitScalars.snapshot(out.pose.joints) } : {}) };
+      entry = emit.capture(out);
     } else {
       fits.delete(key);
-      out = applied(input.pose, entry);
+      out = applied(entry);
     }
     fits.set(key, entry);
-    if (fits.size > FIT_MEMORY) fits.delete(fits.keys().next().value!);
-    return emit(input.root === undefined ? out : { ...out, pose: { ...out.pose, root: input.root } });
+    if (fits.size > FIT_MEMORY) {
+      fits.delete(fits.keys().next().value!);
+      HumanLimbFitFrame.work(body, "evictions");
+    }
+    const currentSource: boolean = missed && "scalars" in entry && input.pose.root !== null &&
+      out.pose.root === input.pose.root && !prepareHumanLimbSource.retainedRoot(out.pose.root);
+    const result: IAutoMovieSeededChainFit = input.root === undefined ? out : { ...out, pose: { ...out.pose, root: input.root } };
+    return !missed ? emit.owned(result) : currentSource ? emit.solved(result) : emit.issue(result);
   }
 
-  /** Temporary module-only reconstruction; no borrowed replacement reaches a public emitter. */
-  function applied(pose: IAutoMoviePose, entry: IEntry): IAutoMovieSeededChainFit {
-    const edit: IPatch = entry.edit;
-    if (edit.full !== undefined) return edit.full;
-    const saved: HumanLimbFitScalars.ISnapshot | undefined = entry.scalars;
-    if (saved === undefined) throw new Error("Limb edit lacks its retained scalar snapshot");
-    const borrow: boolean = HumanLimbFitScalars(pose);
-    const joints: IAutoMovieJointPose[] = edit.order.map((index: number, slot: number): IAutoMovieJointPose => {
-      const current: IAutoMovieJointPose | undefined = index < 0 && borrow ? pose.joints[-index - 1] : undefined;
-      const joint: IAutoMovieJointPose | undefined = index < 0 ? HumanLimbFitScalars.joint(saved, slot, current) : edit.joints[index];
-      if (joint === undefined) throw new Error("Limb edit ordering does not match its source");
-      return joint;
-    });
-    return { pose: HumanLimbFitScalars.pose(edit.header, edit.fields, joints), seed: edit.seed,
-      ...(edit.value === undefined ? {} : { value: edit.value }) };
+  /** Reconstruct the exact complete hit without observing or probing any current source joint. */
+  function applied(entry: IEntry): IAutoMovieSeededChainFit {
+    if ("full" in entry) return issue(entry.full);
+    const saved: HumanLimbFitScalars.ISnapshot = entry.scalars;
+    const joints: IAutoMovieJointPose[] = saved.bones.map((_bone: IAutoMovieJointPose["bone"], slot: number): IAutoMovieJointPose =>
+      HumanLimbFitScalars.joint(saved, slot));
+    const owned: Pick<IScalarEntry, "header" | "seed" | "value"> = structuredClone({ header: entry.header, seed: entry.seed,
+      ...(entry.value === undefined ? {} : { value: entry.value }) });
+    return { pose: HumanLimbFitScalars.pose(owned.header, saved.fields, joints), seed: owned.seed,
+      ...(owned.value === undefined ? {} : { value: owned.value }) };
   }
 
   /** The limb fits remembered, by body. */

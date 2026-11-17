@@ -16,11 +16,14 @@ import { nclose } from "../internal/nclose";
  *    independently owned across all those same-record edits.
  * 3. Adding a point mass, emptying the assembly and restoring it gives
  *    the current sum without retaining any removed part's contribution.
+ * 4. An owned positive X-moment accessor changes2→100 across observations.
+ *    Each tensor must use its actual captured scalar for both its key and
+ *    arithmetic: the first diagonalXX is2, the next100, and old rows stay2.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States kilogram/metre frames, independent intrinsic/shift dependencies and the three mutation/ownership scenarios with literal geometry.
+ * @evidence contracts/development/common.md#meaningful-documentation States kilogram/metre frames, independent intrinsic/shift dependencies and the four mutation/ownership scenarios with literal geometry.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public prepared tensor on changing same-object part inputs, reads every actual tensor entry, changes every declared key/shift cause and checks old output ownership and shrink/restore behavior.
- * @evidence contracts/development/testing.md#independent-expectations Rz90 permutes diagonal moments and the parallel-axis theorem m((d dot d)E-dd transpose) gives the literal 3x3 expectations, including signed cross entries. No cold or prepared product result supplies those values.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates inertia versus principal rotation changes from mass/centre/reference-only changes, exercises both cross-entry signs, zero intrinsic point masses, singleton/two-part/empty/restored assemblies and nested output mutation. General input admission belongs to physical-profile owners.
+ * @evidence contracts/development/testing.md#independent-expectations Rz90 permutes diagonal moments and the parallel-axis theorem m((d dot d)E-dd transpose) gives the literal 3x3 expectations, including signed cross entries. An identity principal frame at its own centre leaves the tensor diagonal unchanged, so an accessor first supplying2 and then100 requires those respective XX values with YY3/ZZ4. No cold or prepared product result supplies those values.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates inertia versus principal rotation changes from mass/centre/reference-only changes, exercises both cross-entry signs, zero intrinsic point masses, singleton/two-part/empty/restored assemblies, nested output mutation and same-capture key/arithmetic under an owned changing positive moment accessor. General input admission belongs to physical-profile owners.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable in-memory numerical unit owns every part, vector and returned row. It replaces no library operation or global, changes no physical acceptance bound and starts no host or compiler.
  */
 export function test_physics_prepared_inertia_tensor(): void {
@@ -84,6 +87,17 @@ export function test_physics_prepared_inertia_tensor(): void {
   tensor("restored singleton excludes removed point mass", read(parts, origin),
     [[2, 0, 0], [0, 7, 0], [0, 0, 8]],
   );
+  let moment: number = 2;
+  const capturedPart: combinePhysicalMassProperties.IPart = {
+    mass: 1, centerOfMass: { x: 0, y: 0, z: 0 }, inertiaRotation: { x: 0, y: 0, z: 0, w: 1 },
+    inertia: { get x(): number { const value: number = moment; moment = 100; return value; }, y: 3, z: 4 },
+  };
+  const captured: ReturnType<typeof physicalInertiaTensor.prepare> = physicalInertiaTensor.prepare();
+  const earlier: number[][] = captured([capturedPart], origin);
+  tensor("first captured positive moment drives the actual first tensor", earlier, [[2, 0, 0], [0, 3, 0], [0, 0, 4]]);
+  tensor("next actual moment replaces only its current intrinsic component", captured([capturedPart], origin),
+    [[100, 0, 0], [0, 3, 0], [0, 0, 4]]);
+  tensor("later accessor capture leaves the earlier issued tensor unchanged", earlier, [[2, 0, 0], [0, 3, 0], [0, 0, 4]]);
 }
 
 /** Compare all nine independently expected physical entries without symmetry assumptions. */

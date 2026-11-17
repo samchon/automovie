@@ -309,6 +309,7 @@ export namespace throwObject {
       fingers: toward,
       palm: Vector3.scale(up, -1),
     });
+    /** Actual world grip-surface point and hand attitude, before inverse wrist placement. */
     type GripFrame = Pick<AutoMovieMotionHumanArm.ITarget, "point" | "rotation">;
     const restAt: (posture: IHumanPosture) => GripFrame = (posture: IHumanPosture): GripFrame => ({
       point: AutoMovieMotionHumanArm.point(posture, origin),

@@ -7,14 +7,13 @@ import type {
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { AutoMovieHumanoidDigitSurfaces } from "./AutoMovieHumanoidDigitSurfaces";
 import type { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
 import { AutoMovieHumanoidSurfaceExtents } from "./AutoMovieHumanoidSurfaceExtents";
 import { AutoMovieHumanoidSurfaceRays } from "./AutoMovieHumanoidSurfaceRays";
 import { AutoMovieHumanoidSurfaceRegions } from "./AutoMovieHumanoidSurfaceRegions";
-import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
+import { AutoMovieHumanoidSurfacePlacement } from "./AutoMovieHumanoidSurfacePlacement";
 
 /**
  * Resolve every anatomical region and contact socket of a canonical humanoid
@@ -67,11 +66,11 @@ import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
  * @returns Every region and socket.
  * @throws {Error} When a bone or segment a definition needs is missing, or a ray misses its colliders.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States canonical frame, each surface's point/normal rule, measured defect, grip size and local result frame. Namespace point returns only fresh world metres under an admitted posed bone; place shares that exact expression and additionally rotates the full frame's directions.
+ * @evidence contracts/development/common.md#meaningful-documentation States canonical frame, each surface's point/normal rule, measured defect, grip size and local result frame. Namespace entries expose fresh world point, point/normal or complete placement under the same admitted bone, with field demand owned by SurfacePlacement.
  * @evidence contracts/development/implementation.md#principled-implementation Exact ray exits use anatomical stations/directions and the exited collider's physical normal; sole/seat/back use exact bounds. Point and place share bone.worldPosition plus the bone quaternion's rotation of the local point, with the same arithmetic as original full-frame placement.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Definition tables use one ray and bounds owner. The point helper owns local-to-world point placement, and place delegates that field before reading/rotating its normal and optional forward direction.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Definition tables use one ray and bounds owner. Placement entries delegate to one SurfacePlacement owner: point, pointNormal and full place add only demanded fields in the original point/normal/forward order; full place remains a plain callable facade.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone, segment or hit throws rather than inventing a point. Point-only observations omit unused direction work without changing the point expression, admitting another frame or altering complete place outputs; posed input admission remains with callers.
- * @evidence contracts/development/implementation.md#efficient-algorithms Resolution is linear in definitions times colliders. A genuine same-profile epoch reuses exact neutral bounds instead of duplicate hull rotations. Point-only hit-region, carried/coupling, force-site and planned-impact consumers require one point rotation/addition without unused normal/forward rotations or a wrapper; full place retains those requested directions.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Resolution is linear in definitions times colliders; a genuine same-profile epoch shares exact neutral bounds. Point-only hit/carry/force/impact reads omit unused directions and reuse the owned rotated offset. Strike/touch, clinch and held-coupling reads request pointNormal without forward. Full place adds optional forward to the same wrapper, without an extra spread object.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work SurfaceRays owns one unchanged rest bundle and can share exact segment extrema from preceding measurement through a genuine live profile epoch. Point and place share one numerical expression; every posed call reads current coordinates/rotation without a point or frame-result cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh surface records escape; ray/rest readers remain local and withSurfaces releases its neutral epoch in finally. Point returns one caller-owned vector without retaining inputs; place adds its own fresh wrapper/directions. No posed query history or source reader escapes these numeric outputs.
  */
@@ -253,7 +252,7 @@ export function resolveAutoMovieHumanoidSurfaces(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame, fresh posed point/full-frame ownership and caller-admitted transforms.
  * @evidence contracts/development/design.md#principled-representation Bone-local points and unit directions keyed by the closed region and socket unions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two maps, tangent offset and full-frame place serve motion laws. Point supplies the world position used by hit-region search, carried/coupling placement, force sites and planned impacts, sharing place's numerical owner without a second frame type.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The maps and tangent offset serve motion laws. Placement shares one owner: point serves hit/carry/force/impact positions, pointNormal serves strike/touch/clinch/holding observations, and place retains complete frames without another frame type or nested placement API.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Keys are the interface's closed unions, not strings.
  */
 export namespace resolveAutoMovieHumanoidSurfaces {
@@ -288,12 +287,13 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    * Fresh world point, metres, without normal/forward reads or rotations.
    * Uses place's original local-to-world expression; inputs are admitted.
    */
-  export function point(
-    frame: IFrame,
-    bone: Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">,
-  ): IAutoMovieVector3 {
-    return Vector3.add(bone.worldPosition, Quaternion.rotateVector(bone.worldRotation, frame.point));
-  }
+  export const point: typeof AutoMovieHumanoidSurfacePlacement.point = AutoMovieHumanoidSurfacePlacement.point;
+
+  /** Fresh world normal without observing point, parent position or forward. */
+  export const normal: typeof AutoMovieHumanoidSurfacePlacement.normal = AutoMovieHumanoidSurfacePlacement.normal;
+
+  /** Fresh world point and normal, without observing an unused forward direction. */
+  export const pointNormal: typeof AutoMovieHumanoidSurfacePlacement.pointNormal = AutoMovieHumanoidSurfacePlacement.pointNormal;
 
   /**
    * A surface frame's world point and normal under a posed bone.
@@ -304,21 +304,9 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    */
   export function place(
     frame: IFrame,
-    bone: Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">,
-  ): {
-    point: IAutoMovieVector3;
-    normal: IAutoMovieVector3;
-    forward?: IAutoMovieVector3;
-  } {
-    return {
-      point: point(frame, bone),
-      normal: Quaternion.rotateVector(bone.worldRotation, frame.normal),
-      ...(frame.forward === undefined
-        ? {}
-        : {
-            forward: Quaternion.rotateVector(bone.worldRotation, frame.forward),
-          }),
-    };
+    bone: Parameters<typeof AutoMovieHumanoidSurfacePlacement>[1],
+  ): ReturnType<typeof AutoMovieHumanoidSurfacePlacement> {
+    return AutoMovieHumanoidSurfacePlacement(frame, bone);
   }
 
   /** A point of a region's tangent plane, measured from the region's own point. */

@@ -1,6 +1,5 @@
 import {
   DEFAULT_JOINT_AXES,
-  HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
   type IAutoMovieSwivelNear,
@@ -10,7 +9,7 @@ import {
   Vector3,
   hingedArmSwivel,
   prepareChainPlant,
-  skeletonJointAxes,
+  preparePoseResolution,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -372,7 +371,11 @@ export namespace HumanLegChain {
     hinge: IAutoMovieVector3;
   }
 
-  /** The leg's chain at rest, read once per body and side. */
+  /**
+   * Read actual rest geometry once per immutable body/side. The body's static
+   * axes/neutral FK serve chain and hips under one local operation key; that
+   * reader ends here and only the original geometric record enters RESTS.
+   */
   function restOf(body: IHumanBody, side: "left" | "right"): IRest {
     let sides: Map<string, IRest> | undefined = RESTS.get(body);
     if (sides === undefined) {
@@ -381,27 +384,29 @@ export namespace HumanLegChain {
     }
     const known: IRest | undefined = sides.get(side);
     if (known !== undefined) return known;
-    const axes: ReturnType<typeof skeletonJointAxes> = skeletonJointAxes(
-      body.skeleton,
-      HUMANOID_JOINT_AXES,
-    );
+    const axes: IHumanBody["poseResolution"]["jointAxes"] = body.poseResolution.jointAxes;
+    const resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
     const pose: IAutoMoviePose = {
       skeleton: body.skeleton.id,
       root: null,
       joints: [],
     };
-    const prepared: IPreparedChainPlant = prepareChainPlant({
-      skeleton: body.skeleton,
-      pose,
-      chain: HumanLimbFit.chain(side === "left" ? "leftLeg" : "rightLeg"),
-      topology: body.topology,
-      jointAxes: axes,
-      restFrames: HUMANOID_REST_FRAME,
-    })!;
+    const prepared: IPreparedChainPlant = prepareChainPlant(
+      {
+        skeleton: body.skeleton,
+        pose,
+        chain: HumanLimbFit.chain(side === "left" ? "leftLeg" : "rightLeg"),
+        topology: body.topology,
+        jointAxes: axes,
+        restFrames: HUMANOID_REST_FRAME,
+      },
+      resolution,
+      body.poseResolution,
+    )!;
     const hips: IAutoMovieQuaternion = poseBones(
       body,
       pose,
-      undefined,
+      resolution,
       HIPS,
     ).get("hips")!.worldRotation;
     const out: IRest = {

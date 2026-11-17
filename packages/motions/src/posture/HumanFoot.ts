@@ -13,6 +13,8 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFootOutline } from "./HumanFootOutline";
 import { HumanFootRotation } from "./HumanFootRotation";
+import { humanFootBones } from "./humanFootBones";
+import { humanFootOffset } from "./humanFootOffset";
 import { prepareHumanFootAt } from "./prepareHumanFootAt";
 import { prepareHumanFootHeight } from "./prepareHumanFootHeight";
 import { prepareHumanFootSole } from "./prepareHumanFootSole";
@@ -93,10 +95,10 @@ export namespace HumanFoot {
         body.surfaces.sockets[`${socket}${side === "left" ? "Left" : "Right"}`];
       return {
         socket,
-        point: resolveAutoMovieHumanoidSurfaces.place(
+        point: resolveAutoMovieHumanoidSurfaces.point(
           frame,
           bones.get(frame.bone)!,
-        ).point,
+        ),
       };
     });
   }
@@ -195,6 +197,9 @@ export namespace HumanFoot {
   /** Prepare the exact height component of one fixed articulated socket for actual clearance-only queries. */
   export const prepareHeight: typeof prepareHumanFootHeight = prepareHumanFootHeight;
 
+  /** Actual socket/outline frame bone membership for one unchanged displayed-foot observation. */
+  export const bones: typeof humanFootBones = humanFootBones;
+
   /**
    * The roll of a foot's rotation about its forward axis, degrees, as
    * `rotation` takes it: the rise of its lateral axis.
@@ -285,30 +290,10 @@ export namespace HumanFoot {
    * @param toes The toes' flexion, degrees, positive lifting them.
    * @returns The offset, metres.
    */
-  export function offset(
-    body: IHumanBody,
-    side: "left" | "right",
-    point: "heel" | "ball" | "toe" | "sole" | "mtp",
-    toes: number = 0,
-  ): IAutoMovieVector3 {
-    const foot: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
-    if (point === "mtp")
-      return Vector3.subtract(body.rest.get(`${side}Toes`)!, foot);
-    const socket: resolveAutoMovieHumanoidSurfaces.IFrame =
-      body.surfaces.sockets[`${point}${side === "left" ? "Left" : "Right"}`];
-    if (socket.bone === `${side}Foot`) return socket.point;
-    const joint: IAutoMovieVector3 = Vector3.subtract(
-      body.rest.get(socket.bone)!,
-      foot,
-    );
-    return Vector3.add(
-      joint,
-      Quaternion.rotateVector(
-        TOE_FLEXION(toes),
-        socket.point,
-      ),
-    );
-  }
+  export const offset: typeof humanFootOffset = humanFootOffset;
+
+  /** Fixed body/socket geometry over varying actual toe angles, owned by humanFootOffset.prepare. */
+  export const prepareOffset: typeof humanFootOffset.prepare = humanFootOffset.prepare;
 
   /**
    * The foot placed by pivoting about a sole point fixed on the floor.
@@ -480,5 +465,3 @@ export namespace HumanFoot {
 /** The unchanged world-up axis shared only as axis-angle scalar preparation. */
 const YAW: ReturnType<typeof Quaternion.prepareAxisAngle> = Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
 
-/** The unchanged negative lateral toe-flexion axis; no toe angle or rotation result is retained. */
-const TOE_FLEXION: ReturnType<typeof Quaternion.prepareAxisAngle> = Quaternion.prepareAxisAngle({ x: -1, y: 0, z: 0 });

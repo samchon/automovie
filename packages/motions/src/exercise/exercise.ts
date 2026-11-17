@@ -173,8 +173,8 @@ export namespace exercise {
    * @evidence contracts/development/implementation.md#principled-implementation One repetition clock; per repetition a crouch, a step, a lift or a jump over its four spans.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per kind.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lengths are shares of the measure; provisional values are named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One balance/footing preparation serves all equal squat repetitions; active repetition lookup is logarithmic in repetitions and unchanged exact envelope evaluation is constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Squats share prepareCrouch only for their identical body, standing, depth and pitch, while every repetition keeps its own exact clock windows; high-knee destinations are fixed once per side.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed native repetition envelopes prepare their interval names once while all original repetition reductions and custom callback calls remain, including NaN propagation. Fixed jack endpoints share native interpolation metadata; current high-knee targets and borrowed entry observations remain per query. Root rows request only current root.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only native clock intervals, body metadata and original fixed jack placements share. Each squat factory observes the borrowed entry in its original repetition order; each high-knee placement rereads its original entry-derived destination before computing its share.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the stance.
    */
   export function plan(
@@ -237,29 +237,21 @@ export namespace exercise {
     const lead: "left" | "right" = p.side ?? "right";
     const trail: "left" | "right" = lead === "right" ? "left" : "right";
     // The share of the way into repetition i's low (or open) position.
-    const into = (i: number, seconds: number): number =>
-      clock.envelope(
-        [`eccentricStart${i}`, `bottom${i}`],
-        [`concentricStart${i}`, `top${i}`],
-        seconds,
-      );
-    const ends: number[] = Array.from(
+    const envelopes: ((seconds: number) => number)[] = Array.from(
       { length: reps },
-      (_: unknown, i: number): number => clock.at(`top${i + 1}`),
+      (_: unknown, index: number): ((seconds: number) => number) =>
+        AutoMovieMotionClock.prepareEnvelope(
+          clock,
+          [`eccentricStart${index + 1}`, `bottom${index + 1}`],
+          [`concentricStart${index + 1}`, `top${index + 1}`],
+        ),
     );
-    const active = (seconds: number): number => {
-      let lo: number = 0;
-      let hi: number = ends.length;
-      while (lo < hi) {
-        const mid: number = Math.floor((lo + hi) / 2);
-        if (seconds < ends[mid]!) hi = mid;
-        else lo = mid + 1;
-      }
-      return lo;
-    };
+    const into = (i: number, seconds: number): number =>
+      envelopes[i - 1]!(seconds);
     const any = (seconds: number): number => {
-      const index: number = active(seconds);
-      return index < reps ? into(index + 1, seconds) : 0;
+      let w: number = 0;
+      for (let i: number = 1; i <= reps; i++) w = Math.max(w, into(i, seconds));
+      return w;
     };
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     const contacts: IHumanContactWindow[] = [];
@@ -274,6 +266,7 @@ export namespace exercise {
       offset: (seconds: number) => IAutoMovieVector3,
     ): IAutoMovieMotionHumanPrimitive => ({
       channels: ["root"],
+      reads: ["root"],
       from: 0,
       to: clock.duration,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => ({
@@ -285,22 +278,18 @@ export namespace exercise {
     switch (p.kind) {
       case "squat": {
         const depth: Depth = p.depth ?? "parallel";
-        const crouch: ReturnType<
-          typeof AutoMovieMotionHumanTrunk.prepareCrouch
-        > = AutoMovieMotionHumanTrunk.prepareCrouch({
-          body,
-          standing: entry,
-          depth: drop(m, depth) * modifiers.extent,
-          pitch: PITCH[depth] * modifiers.extent,
-        });
         for (let i: number = 1; i <= reps; i++)
-          primitives.push({
-            channels: ["root", "trunk", "leftLeg", "rightLeg"],
-            from: clock.at(`eccentricStart${i}`),
-            to: clock.at(`top${i}`),
-            write: (posture: IHumanPosture, seconds: number): IHumanPosture =>
-              crouch(posture, into(i, seconds)),
-          });
+          primitives.push(
+            AutoMovieMotionHumanTrunk.crouch({
+              body,
+              standing: entry,
+              clock,
+              rise: [`eccentricStart${i}`, `bottom${i}`],
+              fall: [`concentricStart${i}`, `top${i}`],
+              depth: drop(m, depth) * modifiers.extent,
+              pitch: PITCH[depth] * modifiers.extent,
+            }),
+          );
         contacts.push(...AutoMovieMotionHumanBase.plants());
         break;
       }
@@ -337,15 +326,11 @@ export namespace exercise {
         };
         const sideOf = (i: number): "left" | "right" =>
           i % 2 === 1 ? lead : trail;
-        const destinations: Record<"left" | "right", HumanFoot.IPlacement> = {
-          left: raised("left"),
-          right: raised("right"),
-        };
         const lifted = (side: "left" | "right", s: number): number => {
-          const index: number = active(s);
-          return index < reps && sideOf(index + 1) === side
-            ? into(index + 1, s)
-            : 0;
+          let w: number = 0;
+          for (let i: number = 1; i <= reps; i++)
+            if (sideOf(i) === side) w = Math.max(w, into(i, s));
+          return w;
         };
         const half: number =
           Vector3.length(
@@ -370,7 +355,7 @@ export namespace exercise {
               placement: (_: IHumanPosture, s: number): HumanFoot.IPlacement =>
                 AutoMovieMotionHumanLegPhrase.between(
                   stance[side],
-                  destinations[side],
+                  raised(side),
                   lifted(side, s),
                 ),
               planted: (s: number): boolean => lifted(side, s) <= 0,
@@ -404,6 +389,9 @@ export namespace exercise {
                 ),
             ),
           );
+          const open: ReturnType<
+            typeof AutoMovieMotionHumanLegPhrase.prepareBetween
+          > = AutoMovieMotionHumanLegPhrase.prepareBetween(stance[side], out);
           primitives.push(
             AutoMovieMotionHumanLeg.place({
               body,
@@ -411,11 +399,7 @@ export namespace exercise {
               from: 0,
               to: clock.duration,
               placement: (_: IHumanPosture, s: number): HumanFoot.IPlacement =>
-                AutoMovieMotionHumanLegPhrase.between(
-                  stance[side],
-                  out,
-                  any(s),
-                ),
+                open(any(s)),
               planted: (s: number): boolean => any(s) <= 0 || any(s) >= 1,
             }),
             ...AutoMovieMotionHumanPlaced.arm({

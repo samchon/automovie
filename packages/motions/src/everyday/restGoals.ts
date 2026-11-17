@@ -38,8 +38,8 @@ import { restElbowSupport } from "./restElbowSupport";
  * @evidence contracts/development/implementation.md#principled-implementation Every place is an effector goal on the body's own surface, with the elbow's side stated by a named preset.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One case per place and one pass for the places that depend on another hand's goal.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No body is special-cased; a place is a region and directions in the performer's frame.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per place beyond the paired places' own solves.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanTrunk.region`, `HumanHand.rotation` and the bend presets.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per place beyond the paired places' own solves. One lazily prepared coefficient pair serves all direction transforms at this operation's already captured yaw; every current local direction still produces a fresh world vector.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanTrunk region placement, HumanHand rotation and the bend presets. A lazy zero-origin HumanFrame preparation shares only this operation's captured numeric yaw across direction reads; borrowed posture/root inputs and all actual point/goal calculations remain live.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export function restGoals(
@@ -72,11 +72,11 @@ export function restGoals(
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =>
     (trunk ??= HumanTrunk.prepare(body, posture, requested)).region(targets[side]!);
   const frame: HumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
-  const dir = (x: number, y: number, z: number): IAutoMovieVector3 =>
-    HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
-      { x, y, z },
-    );
+  let direction: HumanFrame.IPrepared | undefined;
+  const dir: (x: number, y: number, z: number) => IAutoMovieVector3 =
+    (x: number, y: number, z: number): IAutoMovieVector3 =>
+      (direction ??= HumanFrame.prepare({ origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw }))
+        .direction({ x, y, z });
   // The hint rides the root and the heading only, as the rest places were
   // captured: a standing rest does not pitch or roll the trunk.
   const elbow = (
@@ -159,9 +159,8 @@ export function restGoals(
       }
       case "behindHead": {
         const head: HumanTrunk.ISurface = region(side);
-        const beside: IAutoMovieVector3 = Vector3.add(
-          head.point,
-          Vector3.scale(dir(1, 0, 0), sign * 0.25 * m.headRadius),
+        const beside: IAutoMovieVector3 = Vector3.addScaled(
+          head.point, dir(1, 0, 0), sign * 0.25 * m.headRadius,
         );
         out[side] = lay(
           side,

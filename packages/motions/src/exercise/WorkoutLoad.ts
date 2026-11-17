@@ -9,7 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -19,7 +20,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { StrikingBody } from "../striking/StrikingBody";
 import { StrikingHeld } from "../striking/StrikingHeld";
@@ -132,8 +133,8 @@ export namespace WorkoutLoad {
    * @evidence contracts/development/implementation.md#principled-implementation One hand: the held owner's grip and hold. Two hands: the stroke planner's tool whose working point is the other handle; the holding hand's grip socket is kept where the key's joints put it and the tool's line is turned level toward the other side, then the other hand is placed on the working point with its knuckles the way the holding hand's face.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the hold once, then one frame and two arm goals per posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The refusals are the held owner's and the tool's own; nothing is grasped here.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two-handed placement requests only the holding shoulder, elbow and wrist from FK; mid-foot geometry and projection are demanded only by midfoot rows, and both original elbow solves remain.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The other hand's fist shape and fixed holding-chain trunk producer are prepared once for the unchanged body/side. Apply borrows its synchronous parent FK/ROM metadata when supplied; every current posture and arm target is still solved and no borrowed reader survives the call.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two-handed placement requests only the holding shoulder/elbow/wrist from FK; mid-foot geometry exists only for midfoot rows. The other hand's one actual wrist placement serves both its original elbow solve and final goal, while both original elbow searches remain.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The other hand's fist shape and holding-chain demand prepare once for unchanged body/side. Apply borrows one synchronous parent FK/ROM source, and prepareBoth shares only actual unchanged body-frame/TRUNK geometry between the original holding-side then other-side elbow searches. Every current target still solves normally.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The record closes over the tool read at plan time.
    */
   export function of(
@@ -220,19 +221,6 @@ export namespace WorkoutLoad {
           ),
           0.25,
         );
-    const bend = (
-      posture: IHumanPosture,
-      arm: HumanHand.Side,
-      goal: Pick<IHumanPosture.IGoal, "point" | "rotation">,
-    ): IAutoMovieVector3 =>
-      AutoMovieMotionHumanBend.solve({
-        body,
-        posture,
-        side: arm,
-        point: goal.point,
-        ...(goal.rotation === undefined ? {} : { rotation: goal.rotation }),
-        fallback: "hang",
-      });
     return {
       contacts: StrikingHeld.grips(tool),
       holds: StrikingHeld.holds(context, tool),
@@ -242,9 +230,11 @@ export namespace WorkoutLoad {
         resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
         projection?: ReturnType<typeof prepareHumanPostureProjection>,
       ): IHumanPosture => {
+        const read: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution(resolution);
         const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = trunk(
           posture,
-          resolution,
+          read,
           projection,
         );
         // The bar runs level to the performer's other side from the hand,
@@ -355,11 +345,25 @@ export namespace WorkoutLoad {
         const wrist: HumanHand.IWrist = HumanHand.place(
           body,
           other,
-          "grip",
+          second.surface,
           second.point,
           second.rotation,
-          "fist",
+          second.shape,
         );
+        const both: ReturnType<typeof AutoMovieMotionHumanBend.prepareBoth> =
+          AutoMovieMotionHumanBend.prepareBoth({ body, posture }, read);
+        const bend: (
+          arm: HumanHand.Side,
+          goal: Pick<IHumanPosture.IGoal, "point" | "rotation">,
+        ) => IAutoMovieVector3 = (
+          arm: HumanHand.Side,
+          goal: Pick<IHumanPosture.IGoal, "point" | "rotation">,
+        ): IAutoMovieVector3 =>
+          both(arm).solve({
+            point: goal.point,
+            ...(goal.rotation === undefined ? {} : { rotation: goal.rotation }),
+            fallback: "hang",
+          });
         return {
           ...posture,
           joints: {
@@ -369,11 +373,12 @@ export namespace WorkoutLoad {
           },
           limbs: {
             ...posture.limbs,
-            [`${side}Arm`]: { ...first, bend: bend(posture, side, first) },
-            [`${other}Arm`]: AutoMovieMotionHumanArm.goal(body, other, {
-              ...second,
-              bend: bend(posture, other, wrist),
-            }),
+            [`${side}Arm`]: { ...first, bend: bend(side, first) },
+            [`${other}Arm`]: AutoMovieMotionHumanArmTarget.fromWrist(
+              wrist,
+              bend(other, wrist),
+              HumanHand.offset(body, other, second.surface, second.shape).point,
+            ),
           },
         };
       },

@@ -11,6 +11,8 @@ import { resolvePreparedPoseFrame } from "./resolvePreparedPoseFrame";
 import { preparePoseBoneDemand } from "./preparePoseBoneDemand";
 import { preparePoseResolutionChanges } from "./preparePoseResolutionChanges";
 import { preparePoseJointResolution } from "./preparePoseJointResolution";
+import { preparePosePlacement } from "./preparePosePlacement";
+import type { preparePoseTupleScan } from "./preparePoseTupleScan";
 
 /** The immutable rooted node representation owned by this state producer. */
 type INode = preparePoseResolutionState.INode;
@@ -87,13 +89,13 @@ const ORIGIN: IAutoMovieVector3 = Object.freeze(Vector3.create());
 /**
  * Own sparse dynamic FK rows on one immutable prepared rig.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Documents immutable rooted nodes/clinical conventions, complete-pose and individual-joint admission, fixed-source source-plus-edits readers, optional name demand, metre frames and fresh output ownership, including each companion's lifetime below.
- * @evidence contracts/development/implementation.md#principled-implementation Complete poses compose admitted clinical quaternions through parent-first FK. An individual joint uses the same real admission and returns a copied quaternion without claiming a completed pose. Final complete-pose selections revise actual affected DFS subtrees. preparePose actually admits/snapshots source records/root once before complete ordered overlays; prepareDemand resolves actual rooted names. All paths keep raw grouping and missing identity.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Static rig construction remains prepareSkeletonPoseResolution's responsibility. preparePoseJointResolution owns ordered clinical admission and static scalar/query-factor separation; preparePoseResolutionChanges owns final selection and affected-subtree revisions. This owner shares root snapshots, demand and relative/placed rows across its ordinary reader and two companions.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines immutable graph/conventions, joint/pose/fixed-source and staged-tuple admission, fixed demand, genuine rest, metre frames, phase ordering and fresh-output/operation lifetime.
+ * @evidence contracts/development/implementation.md#principled-implementation Record poses compose admitted joints through parent-first FK. Fixed tuple scans validate all values and compose genuine requested ancestry only; omitted old selections invalidate prior rows, and future queries repopulate from actual admission. Fixed sources snapshot before overlays. Genuine rest uses immutable nodes, identity articulation and root-null operands through the same physical owner, retaining raw grouping/no scale.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Static construction, tuple staging, joint admission and final changes have their own owners. Record and genuine scalar scans meet at the same changes/root/sparse-FK phases here. Private static array/map writers receive the common frame owner's fresh copies; no foreign sink enters traversal. restFrameOf alone computes neutral geometry for ordinary rest and mass production.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Ordinary reads admit every current record, fixed-source production admits every baseline record and every query admits all supplied edits, including overwritten/stray records. No target, time, tolerance, editable whitelist or external admission flag certifies a result; numeric demands come only from the same immutable rig's name lookup.
- * @evidence contracts/development/implementation.md#efficient-algorithms Complete poses admit J records and compare current/previous membership; C final changes sort in O(C log C) and revise A affected descendants once. Demand sorts K names unless bound, then only invalidated ancestry needs checking before K fresh copies. Fixed sources admit baseline once then E edits. Actual identity-local and neutral root-relative computations prepare lazily once per static node. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Complete poses admit J records/compare membership; changes sort only after observation and revise affected observed frames. The tracker owns bounded insertion/sparse lookup. K names sort unless bound; full demand walks B indices directly. Invalidated ancestry precedes K copies; map reads allocate no temporary frame array and world metadata updates allocate no assignment objects. Fixed sources admit baseline once then E edits. Rest lazily computes static neutral once, then copies B frames without operation rows. Speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Static nodes lazily keep actual rest-times-identity and neutral root-relative computations. Neutral reuse requires that exact local quaternion and actual static parent's private rotation/position references; static rows retain no operation frame. Operation rows share exact dynamic dependencies. Fixed-source production admits baseline/current membership before independent overlay snapshots; all changed/removed joints, edits and roots remain visible.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources An ordinary reader owns O(U+B) current rows until release. A fixed-source workspace owns O(B+U) baseline/overlay/frame data and fixed root scalars until its source operation ends. A bound-demand closure owns only K indices and retains no borrowed reader, pose or source set. No query-result history, task or handle survives those owners.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Ordinary operation rows and fixed-source baseline/overlay/frame data cost O(U+B) until release. Bound demands retain K indices without a reader/pose/source set. Actual static neutral rows belong to the rig, while every rest output is a fresh caller-owned copy with no operation key or result history. No task or handle is created.
  */
 export function preparePoseResolutionState(
   nodes: readonly INode[],
@@ -107,12 +109,21 @@ export function preparePoseResolutionState(
     preparePose: (source: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>): preparePoseResolutionState.IOverlayReader =>
       preparePoseResolutionState.preparePose(nodes, indices, conventions, fallback, source, requested, state),
     resolve: (pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, demand?: readonly number[]): IAutoMovieResolvedBone[] => {
+      admitPose(state, pose);
+      return readFrames(nodes, indices, state, [], appendArray, requested, demand);
+    },
+    resolveMap: (pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, demand?: readonly number[]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+      admitPose(state, pose);
+      return readFrames(nodes, indices, state, new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>(), appendMap, requested, demand);
+    },
+    resolveTuples: (scan: preparePoseTupleScan.IScan, pose: Omit<IAutoMoviePose, "joints">,
+      demand?: readonly number[]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
       ++state.epoch;
       state.joints.begin();
-      for (const joint of pose.joints) state.joints.admit(joint);
+      scan(state.joints);
       state.changes.complete();
-      setRoot(state, pose);
-      return readFrames(nodes, indices, state, requested, demand);
+      preparePosePlacement(state, pose, IDENTITY, ORIGIN);
+      return readFrames(nodes, indices, state, new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>(), appendMap, undefined, demand);
     },
   };
 }
@@ -122,7 +133,7 @@ export function preparePoseResolutionState(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines static input ownership and ordinary versus fixed-source reader semantics.
  * @evidence contracts/development/design.md#principled-representation INode owns one rooted parent index, actual exclusive DFS subtree end, metre rest offset/quaternion and lazy actual identity-local/neutral-root-relative results. IConvention owns fixed raw axes/optional degree frames plus successful fixed basis/scalar preparation. Complete-pose and fixed-source readers retain actual numerical admission; types do not certify external records.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The static public rig consumes these constructors/types. Body/flight/digit paths need complete poses, actual fixed sources and fixed demand; chain-frame recovery also reads one actually admitted joint through the same convention. Existing interface/ROM owners supply numeric types, and no target result or mutable row escapes.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Body/flight/digit consumers need complete poses, fixed sources/demands and joint admission. The genuine authored tuple producer supplies staged scalar scans without intermediate records; private rest supplies mass without external frame injection. Existing numeric types remain authoritative and no private row escapes.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No scene, fixed body shape, editable whitelist, target answer, pose-identity cache or caller-set admission certificate is represented. Missing/unreachable bone handling stays with rooted FK, and actual supplied records still receive their stated admission.
  */
 export namespace preparePoseResolutionState {
@@ -194,12 +205,26 @@ export type IConvention = preparePoseJointResolution.IConvention;
     /**
      * Admit every complete-pose record in order, then resolve requested rooted
      * frames through the common recurrence and fresh-output copier. Internal
-     * demand indices come only from this rig's actual prepareDemand producer.
+     * demand indices come only from this rig's actual name-demand producer.
      * Current admission, actual changed-subtree revisions and invalidated
      * ancestry precede K copies and optional live-name sorting. Exact current
      * rows remain with this operation and no input/result is retained.
      */
     resolve(pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, demand?: readonly number[]): IAutoMovieResolvedBone[];
+
+    /**
+     * Same complete ordered admission/root phases, private sparse FK and
+     * exact invalidation as resolve, directly into a fresh name map. Static
+     * internal writers share the frame copier without a foreign callback or
+     * caller container. Current admission/changed ancestry and K fresh copies
+     * remain; no temporary frame array is allocated. Weak operation rows keep
+     * only current dependencies; callers own the map and all nested values.
+     */
+    resolveMap(pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, demand?: readonly number[]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
+    /** Admit every genuinely staged scalar after root construction, then use ordinary sparse FK/fresh copies. */
+    resolveTuples(scan: preparePoseTupleScan.IScan, pose: Omit<IAutoMoviePose, "joints">,
+      demand?: readonly number[]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   }
 
   /**
@@ -210,6 +235,15 @@ export type IConvention = preparePoseJointResolution.IConvention;
    * producer actually admits the source; arbitrary bone edits stay supported.
    */
   export interface IOverlayReader {
+    /**
+     * Same ordered edit admission, baseline restoration and sparse FK as
+     * resolve, directly into a fresh name map. Private output writers accept
+     * no external callback/validity flag; E edits/changed ancestry and K copies
+     * remain without a frame array. Exact rows share this workspace only;
+     * callers own every nested value and no query history is retained.
+     */
+    resolveMap(edits: readonly IAutoMovieJointPose[], requested?: ReadonlySet<AutoMovieHumanoidBone>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
     /**
      * Admit all current edits in order, including overwritten/stray records,
      * then resolve baseline plus those edits through the same sparse FK.
@@ -247,37 +281,36 @@ export type IConvention = preparePoseJointResolution.IConvention;
     baseline.joints.begin();
     for (const joint of source.joints) baseline.joints.admit(joint);
     const state: IState = createState(nodes, indices, conventions, fallback, baseline.joints.snapshot());
-    setRoot(state, source);
+    preparePosePlacement(state, source, IDENTITY, ORIGIN);
     const demanded: readonly number[] | undefined = requested === undefined
       ? undefined : preparePoseBoneDemand(indices, nodes.length, requested);
     return {
       resolve: (edits: readonly IAutoMovieJointPose[], requested?: ReadonlySet<AutoMovieHumanoidBone>): IAutoMovieResolvedBone[] => {
-        ++state.epoch;
-        state.joints.begin();
-        for (const joint of edits) state.joints.admit(joint);
-        state.changes.complete();
-        return readFrames(nodes, indices, state, requested,
+        admitEdits(state, edits);
+        return readFrames(nodes, indices, state, [], appendArray, requested,
+          requested === undefined ? demanded : undefined);
+      },
+      resolveMap: (edits: readonly IAutoMovieJointPose[], requested?: ReadonlySet<AutoMovieHumanoidBone>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+        admitEdits(state, edits);
+        return readFrames(nodes, indices, state, new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>(), appendMap, requested,
           requested === undefined ? demanded : undefined);
       },
     };
   }
 
   /**
-   * Snapshot demanded names once and read the same operation's actual FK state.
-   *
-   * Actual reachable names are sorted into rooted indices once in O(K log K).
-   * The returned closure passes only those private indices to a genuine
-   * same-rig reader; every current joint still receives ordinary admission.
-   * Exact dynamic rows remain shared with that operation's other reads. The
-   * closure retains K indices, without a reader, source set, pose or result.
+   * Read genuine geometric rest from this producer's immutable rooted nodes.
+   * No articulation or clinical frame is admitted: this is exactly root-null
+   * FK with no authored joints. The shared restFrameOf owner keeps original
+   * rest-times-identity and parent-first products/vector sums. First use costs
+   * O(B) actual FK, later reads only copy B fresh outputs; static rows stay
+   * with the rig and no operation, source pose or output array is retained.
    */
-  export function prepareDemand(
-    indices: ReadonlyMap<AutoMovieHumanoidBone, number>, count: number,
-    requested: ReadonlySet<AutoMovieHumanoidBone>,
-  ): (reader: IReader, pose: IAutoMoviePose) => IAutoMovieResolvedBone[] {
-    const demanded: readonly number[] = preparePoseBoneDemand(indices, count, requested);
-    return (reader: IReader, pose: IAutoMoviePose): IAutoMovieResolvedBone[] =>
-      reader.resolve(pose, undefined, demanded);
+  export function rest(nodes: readonly INode[]): IAutoMovieResolvedBone[] {
+    const result: IAutoMovieResolvedBone[] = [];
+    for (let index: number = 0; index < nodes.length; ++index)
+      result.push(resolvePreparedPoseFrame.copy(restFrameOf(nodes, index).frame));
+    return result;
   }
 }
 
@@ -293,38 +326,52 @@ function createState(
     rootRotation: IDENTITY, rootTranslation: ORIGIN, rootRevision: 0 };
 }
 
-/** Read root translation/rotation in raw FK order, then snapshot before either commit. */
-function setRoot(state: IState, pose: IAutoMoviePose): void {
-  const translation: IAutoMovieVector3 = pose.root?.translation ?? ORIGIN;
-  const rotation: IAutoMovieQuaternion = pose.root?.rotation ?? IDENTITY;
-  const sameRotationInput: boolean = PoseResolutionSnapshot.sameQuaternion(state.rootRotation, rotation);
-  const sameTranslationInput: boolean = PoseResolutionSnapshot.sameVector(state.rootTranslation, translation);
-  if (sameRotationInput && sameTranslationInput) return;
-  const nextRotation: IAutoMovieQuaternion = sameRotationInput ? state.rootRotation
-    : PoseResolutionSnapshot.sameQuaternion(IDENTITY, rotation) ? IDENTITY : PoseResolutionSnapshot.quaternion(rotation);
-  const nextTranslation: IAutoMovieVector3 = sameTranslationInput ? state.rootTranslation
-    : PoseResolutionSnapshot.sameVector(ORIGIN, translation) ? ORIGIN : PoseResolutionSnapshot.vector(translation);
-  state.rootRotation = nextRotation;
-  state.rootTranslation = nextTranslation;
-  ++state.rootRevision;
+/** Both output representations begin with the same original ordered admission/root phases. */
+function admitPose(state: IState, pose: IAutoMoviePose): void {
+  ++state.epoch;
+  state.joints.begin();
+  for (const joint of pose.joints) state.joints.admit(joint);
+  state.changes.complete();
+  preparePosePlacement(state, pose, IDENTITY, ORIGIN);
+}
+
+/** Complete every current appended edit before either output representation reads FK. */
+function admitEdits(state: IState, edits: readonly IAutoMovieJointPose[]): void {
+  ++state.epoch;
+  state.joints.begin();
+  for (const joint of edits) state.joints.admit(joint);
+  state.changes.complete();
 }
 
 /** Select parent-first output indices and visit only their actual ancestor closure. */
-function readFrames(
+function readFrames<T extends IAutoMovieResolvedBone[] | Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>>(
   nodes: readonly INode[], indices: ReadonlyMap<AutoMovieHumanoidBone, number>,
-  state: IState, requested?: ReadonlySet<AutoMovieHumanoidBone>,
+  state: IState, result: T, append: (result: T, frame: IAutoMovieResolvedBone) => void,
+  requested?: ReadonlySet<AutoMovieHumanoidBone>,
   fixedDemand?: readonly number[],
-): IAutoMovieResolvedBone[] {
-  const demanded: readonly number[] = fixedDemand ??
-    preparePoseBoneDemand(indices, nodes.length, requested);
-  const result: IAutoMovieResolvedBone[] = [];
-  for (const index of demanded) {
-    const frame: IAutoMovieResolvedBone = state.rootRotation === IDENTITY && state.rootTranslation === ORIGIN
+): T {
+  const demanded: readonly number[] | undefined = fixedDemand ?? (requested === undefined
+    ? undefined : preparePoseBoneDemand(indices, nodes.length, requested));
+  const count: number = demanded?.length ?? nodes.length;
+  const rootRelative: boolean = state.rootRotation === IDENTITY && state.rootTranslation === ORIGIN;
+  for (let ordinal: number = 0; ordinal < count; ++ordinal) {
+    const index: number = demanded === undefined ? ordinal : demanded[ordinal]!;
+    const frame: IAutoMovieResolvedBone = rootRelative
       ? relative(nodes, state, index).frame
       : placed(nodes, state, index, state.rootRotation, state.rootTranslation).frame;
-    result.push(copy(frame));
+    append(result, resolvePreparedPoseFrame.copy(frame));
   }
   return result;
+}
+
+/** Only the private FK owner supplies already copied frames to these static writers. */
+function appendArray(result: IAutoMovieResolvedBone[], frame: IAutoMovieResolvedBone): void {
+  result.push(frame);
+}
+
+/** Index actual copied frames directly, retaining original last-name precedence/order. */
+function appendMap(result: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, frame: IAutoMovieResolvedBone): void {
+  result.set(frame.bone, frame);
 }
 
 /** Articulation changes invalidate only this local rotation; parents are independent. */
@@ -374,18 +421,21 @@ function relative(nodes: readonly INode[], state: IState, index: number): IWorld
     (node.parent < 0 || (staticParent !== undefined &&
       staticParent.frame.worldRotation === parentRotation &&
       staticParent.frame.worldPosition === parentPosition));
-  if (atRest && node.restFrame === undefined)
-    node.restFrame = resolvePreparedPoseFrame(
-      node.name, node.translation, reading.localRotation, parentRotation, parentPosition,
-    );
   const frame: resolvePreparedPoseFrame.IReading = atRest
-    ? resolvePreparedPoseFrame.readRest(node.restFrame!, known)
+    ? resolvePreparedPoseFrame.readRest(restFrameOf(nodes, index), known)
     : resolvePreparedPoseFrame(node.name, node.translation, reading.localRotation,
       parentRotation, parentPosition, known);
-  const output: IWorldReading = Object.assign(frame, {
+  const output: IWorldReading = known ?? Object.assign(frame, {
     localRevision: reading.localRevision, parentRevision,
-    revision: (known?.revision ?? 0) + 1, articulationRevision,
+    revision: 1, articulationRevision,
   });
+  if (known !== undefined) {
+    known.localRevision = reading.localRevision;
+    known.parentRevision = parentRevision;
+    ++known.revision;
+    known.articulationRevision = articulationRevision;
+  }
+  if (known === undefined) state.changes.observe(index);
   reading.relative = output;
   return output;
 }
@@ -413,17 +463,36 @@ function placed(
     node.name, node.translation, reading.localRotation,
     parent?.frame.worldRotation ?? rotation, parent?.frame.worldPosition ?? translation, known,
   );
-  const output: NonNullable<IFrameReading["placed"]> = Object.assign(frame, {
+  const output: NonNullable<IFrameReading["placed"]> = known ?? Object.assign(frame, {
     rootRevision: state.rootRevision, parentRevision,
-    localRevision: reading.localRevision, revision: (known?.revision ?? 0) + 1,
+    localRevision: reading.localRevision, revision: 1,
     articulationRevision,
   });
+  if (known !== undefined) {
+    known.rootRevision = state.rootRevision;
+    known.parentRevision = parentRevision;
+    known.localRevision = reading.localRevision;
+    ++known.revision;
+    known.articulationRevision = articulationRevision;
+  }
+  if (known === undefined) state.changes.observe(index);
   reading.placed = output;
   return output;
 }
 
-/** Isolate all public mutable records from operation-owned dependency rows. */
-function copy(frame: IAutoMovieResolvedBone): IAutoMovieResolvedBone {
-  return { bone: frame.bone, localRotation: { ...frame.localRotation },
-    worldRotation: { ...frame.worldRotation }, worldPosition: { ...frame.worldPosition } };
+/** Actual neutral FK is shared by ordinary rest reads and genuine mass-model production. */
+function restFrameOf(nodes: readonly INode[], index: number): resolvePreparedPoseFrame.IReading {
+  const node: INode = nodes[index]!;
+  if (node.restFrame !== undefined) return node.restFrame;
+  const parent: resolvePreparedPoseFrame.IReading | undefined = node.parent < 0
+    ? undefined : restFrameOf(nodes, node.parent);
+  const local: IAutoMovieQuaternion = node.identityLocalRotation ??=
+    Quaternion.multiply(node.rotation, IDENTITY);
+  const frame: resolvePreparedPoseFrame.IReading = resolvePreparedPoseFrame(
+    node.name, node.translation, local,
+    parent?.frame.worldRotation ?? IDENTITY, parent?.frame.worldPosition ?? ORIGIN,
+  );
+  node.restFrame = frame;
+  return frame;
 }
+

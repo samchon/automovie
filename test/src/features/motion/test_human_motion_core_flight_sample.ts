@@ -94,6 +94,8 @@ export function test_human_motion_core_flight_sample(): void {
       limbFitMemory: { snapshot: memoryStart },
     }),
   );
+  const observation: ReturnType<typeof integrateAirborneRotation.observe> =
+    integrateAirborneRotation.observe();
   const planningCpuStart: NodeJS.CpuUsage = process.cpuUsage();
   const planningStart: number = performance.now();
   const params: Parameters<typeof motionHumanTakeoffDiagnostic>[2] = {
@@ -127,13 +129,14 @@ export function test_human_motion_core_flight_sample(): void {
   };
   let film: HumanPerformance;
   try {
-    film = new HumanPerformance(input);
+    film = new HumanPerformance(input, observation);
   } catch (error) {
     console.log(JSON.stringify({
       sample: "canonical-human-flight", phase: "planning-failed",
       planningMs: performance.now() - planningStart,
       planningCpuUs: process.cpuUsage(planningCpuStart),
       limbFitMemory: memorySince(body, memoryStart),
+      shapeWork: observation.read(),
       error: error instanceof Error ? error.message : String(error),
     }));
     boundary();
@@ -141,6 +144,7 @@ export function test_human_motion_core_flight_sample(): void {
   }
   const planningMs: number = performance.now() - planningStart;
   const planningCpuUs: NodeJS.CpuUsage = process.cpuUsage(planningCpuStart);
+  const planningShapeWork: ReturnType<typeof observation.read> = observation.read();
   const planningMemory: ReturnType<typeof memorySince> = memorySince(body, memoryStart);
   console.log(
     JSON.stringify({
@@ -149,6 +153,7 @@ export function test_human_motion_core_flight_sample(): void {
       planningMs,
       planningCpuUs,
       limbFitMemory: planningMemory,
+      shapeWork: planningShapeWork,
     }),
   );
   const segment: HumanSegment.ISegment = film.segments("a")[1]!;
@@ -382,6 +387,7 @@ export function test_human_motion_core_flight_sample(): void {
       captureMs,
       diagnosticMs,
       diagnosticCpuUs,
+      shapeWork: { planning: planningShapeWork, complete: observation.read() },
       limbFitMemory: {
         beforePlanning: memoryStart, planning: planningMemory,
         beforeObservation: observationMemoryStart, observation: observationMemory,

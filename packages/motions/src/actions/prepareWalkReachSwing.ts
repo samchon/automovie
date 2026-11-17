@@ -35,9 +35,9 @@ interface IBounds {
  * @evidence contracts/development/implementation.md#principled-implementation Preserves the original leg-length sphere, thigh-extension cone, hip-twist clamp, ankle side range, repeated ankle/clearance correction and optional boundary fade, preparing only fixed body and heel terms.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed reach/range/socket terms precede the one unchanged swing reader; walkReach owns the bounds and raw entry.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains all eight possible ankle/clearance passes, exact tolerances, contact clearance and interpolation arithmetic, without fitted or sampled replacement results.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and bounded constant work per foot; repeated time queries skip the body-only reach root, fixed range trigonometry and heel socket preparation.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side and the reach owner's bounds fix this reader; every pelvis, foot, toe angle and queried share still executes its dependent constraints.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader owns body/bound references and one fixed heel reader until its action releases it, retaining no queried foot, hip or time history.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and bounded constant work per foot; repeated time queries skip body-only reach, fixed range trigonometry and socket lookup. One actual toe-angle offset serves all original clearance passes; unchanged exact foot headings share the original shank's axes/length squares across those passes, while changed exact headings use ordinary current preparation.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side and the reach owner's bounds fix this reader. Each synchronous foot correction separately binds its actual toe offset and exact initial heading; every pelvis, ankle, rotation, toe angle and queried share still executes its dependent constraints, with exact heading mismatch handled by the ankle owner's raw preparation.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action retains fixed body/bound/socket geometry, and each correction releases its actual toe-offset and fixed-heading shank reader on return or throw; no queried foot, hip, rotation or time history is retained.
  */
 export function prepareWalkReachSwing(
   body: IHumanBody,
@@ -51,7 +51,9 @@ export function prepareWalkReachSwing(
   );
   const extensionAt: number = (bounds.extension * Math.PI) / 180;
   const sideAt: number = Math.tan((bounds.side * Math.PI) / 180);
+  const behind: ReturnType<typeof walkLeg.prepareBehind> = walkLeg.prepareBehind(body);
   const heel: ReturnType<typeof HumanFoot.prepareHeight> = HumanFoot.prepareHeight(body, side, "heel");
+  const toeAt: ReturnType<typeof HumanFoot.prepareHeight.articulated> = HumanFoot.prepareHeight.articulated(body, side, "toe");
   return (settled: walkReach.IGround, foot: walkFoot.IFoot, share?: number): walkFoot.IEnd => {
     const h: IAutoMovieVector3 = settled.hips[side];
 
@@ -67,7 +69,7 @@ export function prepareWalkReachSwing(
     // reach sphere preserves the knee angle at the extension boundary.
     const down: number = Math.hypot(local.x, local.y);
     const beta: number = Math.atan2(local.x, -local.y);
-    const extension: number = extensionAt + walkLeg.behind(body, Vector3.length(v));
+    const extension: number = extensionAt + behind(Vector3.length(v));
     if (local.y < 0 && Math.atan2(-local.z, down) > extension) {
       const reach: number = Math.hypot(local.z, down);
       const y: number = -reach * Math.cos(extension);
@@ -95,12 +97,13 @@ export function prepareWalkReachSwing(
 
     // Toe articulation is fixed across this foot's ankle/clearance passes;
     // every pass still fits the ankle again after any clearance lift.
-    const toe: ReturnType<typeof HumanFoot.prepareHeight> = HumanFoot.prepareHeight(body, side, "toe", foot.toes);
+    const toe: ReturnType<typeof HumanFoot.prepareHeight> = toeAt(foot.toes);
     const lowest: (placement: HumanFoot.IPlacement) => number = (placement: HumanFoot.IPlacement): number =>
       Math.min(toe(placement), heel(placement));
     const clear: number = Math.max(0, lowest(foot.placement));
+    const ankleRange: ReturnType<typeof walkLeg.prepareAnkleRange> = walkLeg.prepareAnkleRange(body, HumanFoot.heading(rotation));
     for (let k: number = 0; k < 8; k++) {
-      rotation = walkLeg.ankleRange(body, h, ankle, rotation);
+      rotation = ankleRange(h, ankle, rotation);
       const low: number = lowest({ ankle, rotation });
       if (low >= clear - 1e-6) break;
       ankle = { ...ankle, y: ankle.y + clear - low };

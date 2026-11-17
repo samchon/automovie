@@ -69,83 +69,159 @@ const shareOf: (need: number, range: IAutoMovieAngleRange | null) => number = (
  * @returns The joints of the aim pose, parent first; abduction is always
  *   `null`, and a neck axis that carries nothing is `null`.
  *
- * @evidence contracts/development/implementation.md#principled-implementation A greedy head-first split per axis bounded by each declared range, where `shareOf` never overshoots or flips sign; it relies on angles about the same default-basis axis adding along a parent-child chain, which is exact for one axis when the head rests unrotated under the neck, and the stated limitation is that a simultaneous flexion and twist split composes non-commuting rotations.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The actor synthesizer solves the aim angles with `aimYawPitch` and this function only decides which joints carry them; ROM lookup goes through the shared `getConstraint`, so the split and the gate read the same ranges.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The residual is left on the head for the gate to report instead of being clamped, and the single-bone fallbacks follow from the rig's structure, not from a named rig or shot.
+ * @evidence contracts/development/implementation.md#principled-implementation A greedy head-first split per axis bounded by each declared range, where `shareOf` never overshoots or flips sign; it relies on angles about the same default-basis axis adding along a parent-child chain, which is exact for one axis when the head rests unrotated under the neck, and the stated limitation is that a simultaneous flexion and twist split composes non-commuting rotations. Companion prepare: The same greedy head-first capacity and unclamped residual owner distributes every current axis. Fixed topology selects the same head/neck/default constraints, with null axes immobile and a missing or disconnected chain retaining the single-head result.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The actor synthesizer solves the aim angles with `aimYawPitch` and this function only decides which joints carry them; ROM lookup goes through the shared `getConstraint`, so the split and the gate read the same ranges. Companion prepare: One lazy cervical source preparation feeds the shared raw numerical owner; private lazy range snapshots preserve first-needed axis/bound order without a second split algorithm.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The residual is left on the head for the gate to report instead of being clamped, and the single-bone fallbacks follow from the rig's structure, not from a named rig or shot. Companion prepare: Original null/fallback/parent rules, shareOf formulas, residuals, nullable neck axes and output order remain. Unused bounds are not eagerly read, failed field reads are not retained, and no aim is clamped to hide insufficient combined range.
  * @evidence contracts/development/common.md#meaningful-documentation States the head-first order, the unclamped residual and why, the additivity premise and its limitation, every fallback to the single head joint including the parent requirement, the ROM fallback, and each parameter's unit and sign.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two linear searches of the rig's bones and constant arithmetic for two axes; it allocates only the returned joints.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one aim and rig that coordinates no work across calls.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned joints.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two linear bone searches and fixed arithmetic for two axes allocate only the returned joint array/records, without per-call lookup/split closures or intermediate split records. Explicit fixed-rig preparation shares the searches and lazily observed range bounds across actual aims. Companion prepare: Two O(B) bone searches and constraint selection run once across Q aims; at most four axis references and eight min/max scalar observations are prepared lazily. Each query retains fixed scalar arithmetic and fresh output joints, with no measured speedup claim.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw calls observe current rig/constraint/bound fields in their original order; prepare shares only explicitly unchanged rig/ROM prerequisites and both paths use this same greedy split owner. Companion prepare: This explicit API requires the rig/default cervical metadata to stay unchanged. Only topology and first-observed range prerequisites are shared; each flexion/twist request is evaluated afresh and no joint, pose, direction, target or time answer is reused.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Raw calls retain no input or result. An explicit prepared reader owns bounded fixed cervical metadata until its caller releases it; each actual output array and joint record remains fresh with no aim/time history. Companion prepare: The caller owns one reader, its fixed rig and at most two constraints/four range snapshots/eight bound scalars until release. Queries add no retained aim, output, dynamic workspace or growing history.
  */
-export const gazeChainJoints: (props: {
-  rig: IAutoMovieSkeleton | null;
-  flexionDeg: number;
-  twistDeg: number;
-}) => IAutoMovieJointPose[] = (props: {
-  rig: IAutoMovieSkeleton | null;
-  flexionDeg: number;
-  twistDeg: number;
-}): IAutoMovieJointPose[] => {
-  const declared: (bone: AutoMovieHumanoidBone) => IAutoMovieBone | null = (
-    bone: AutoMovieHumanoidBone,
-  ): IAutoMovieBone | null =>
-    props.rig?.bones.find(
-      (entry: IAutoMovieBone): boolean => entry.bone === bone,
-    ) ?? null;
-  const headBone: IAutoMovieBone | null = declared(HEAD);
-  const neckBone: IAutoMovieBone | null = declared(NECK);
+export function gazeChainJoints(props: IProps): IAutoMovieJointPose[] {
+  const headBone: IAutoMovieBone | null = props.rig?.bones.find(isHead) ?? null;
+  const neckBone: IAutoMovieBone | null = props.rig?.bones.find(isNeck) ?? null;
   if (headBone === null || neckBone === null || headBone.parent !== NECK)
-    return [
-      {
-        bone: HEAD,
-        flexion: props.flexionDeg,
-        abduction: null,
-        twist: props.twistDeg,
-      },
-    ];
+    return single(props);
 
-  // Both cervical bones sit in `DEFAULT_HUMANOID_ROM`, so a declared bone
-  // always resolves to a constraint: the override when the rig states one, the
-  // canonical table otherwise, which is the same fallback the ROM gate applies.
-  const headRom: IAutoMovieJointConstraint = getConstraint(
-    HEAD,
-    headBone.constraint,
-  )!;
-  const neckRom: IAutoMovieJointConstraint = getConstraint(
-    NECK,
-    neckBone.constraint,
-  )!;
-  const split: (
-    need: number,
-    axis: "flexion" | "twist",
-  ) => { head: number; neck: number } = (
-    need: number,
-    axis: "flexion" | "twist",
-  ): { head: number; neck: number } => {
-    const onHead: number = shareOf(need, headRom[axis]);
-    const onNeck: number = shareOf(need - onHead, neckRom[axis]);
-    // The residual rides the head: see the unclamped-failure note above.
-    return { head: need - onNeck, neck: onNeck };
+  const headRom: Constraint = getConstraint(HEAD, headBone.constraint)!;
+  const neckRom: Constraint = getConstraint(NECK, neckBone.constraint)!;
+  return resolved(props, headRom, neckRom);
+}
+
+/**
+ * Fixed-rig preparation for the same canonical cervical distribution.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the fixed-rig producer, lazy first-use structure/range observations and fresh actual-angle outputs. Companion prepare: Defines fixed rig/ROM lifetime, degree signs inherited from gazeChainJoints, lazy first-use admission, original fallback and fresh outputs.
+ * @evidence contracts/development/design.md#principled-representation Preparation separates unchanged cervical topology and degree limits from every current flexion/twist request; raw live inputs remain supported by the merged function.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface HumanGaze consumes prepare for its unchanged canonical body; the existing gazeChainJoints function serves ordinary current-rig callers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No caller-supplied indices, resolved flag, precomputed joint answer or range override replaces the actual rig/default constraint owner.
+ */
+export namespace gazeChainJoints {
+  /**
+   * Bind one unchanged rig for repeated actual clinical-degree aims.
+   *
+   * @param rig The unchanged resolved skeleton, or null for the original single-head policy.
+   * @returns Fresh parent-first joints at every flexion/twist pair. Rig structure and constraints are first demanded by an actual query; each axis and only its used min/max bound is captured on first actual need, after which that metadata must remain unchanged.
+   *
+   * Defines fixed rig/ROM lifetime, degree signs inherited from gazeChainJoints, lazy first-use admission, original fallback and fresh outputs.
+   * The same greedy head-first capacity and unclamped residual owner distributes every current axis. Fixed topology selects the same head/neck/default constraints, with null axes immobile and a missing or disconnected chain retaining the single-head result.
+   * One lazy cervical source preparation feeds the shared raw numerical owner; private lazy range snapshots preserve first-needed axis/bound order without a second split algorithm.
+   * Original null/fallback/parent rules, shareOf formulas, residuals, nullable neck axes and output order remain. Unused bounds are not eagerly read, failed field reads are not retained, and no aim is clamped to hide insufficient combined range.
+   * Two O(B) bone searches and constraint selection run once across Q aims; at most four axis references and eight min/max scalar observations are prepared lazily. Each query retains fixed scalar arithmetic and fresh output joints, with no measured speedup claim.
+   * This explicit API requires the rig/default cervical metadata to stay unchanged. Only topology and first-observed range prerequisites are shared; each flexion/twist request is evaluated afresh and no joint, pose, direction, target or time answer is reused.
+   * The caller owns one reader, its fixed rig and at most two constraints/four range snapshots/eight bound scalars until release. Queries add no retained aim, output, dynamic workspace or growing history.
+   */
+  export function prepare(rig: IAutoMovieSkeleton | null):
+    (flexionDeg: number, twistDeg: number) => IAutoMovieJointPose[] {
+    let known: { head: Constraint; neck: Constraint } | null | undefined;
+    return (flexionDeg: number, twistDeg: number): IAutoMovieJointPose[] => {
+      if (known === undefined) {
+        const head: IAutoMovieBone | null = rig?.bones.find(isHead) ?? null;
+        const neck: IAutoMovieBone | null = rig?.bones.find(isNeck) ?? null;
+        known = head === null || neck === null || head.parent !== NECK ? null : {
+          head: fixedConstraint(getConstraint(HEAD, head.constraint)!),
+          neck: fixedConstraint(getConstraint(NECK, neck.constraint)!),
+        };
+      }
+      const current: IAngles = { flexionDeg, twistDeg };
+      return known === null ? single(current) : resolved(current, known.head, known.neck);
+    };
+  }
+}
+
+/** Original degree inputs, read only when the selected branch actually needs them. */
+interface IAngles {
+  flexionDeg: number;
+  twistDeg: number;
+}
+
+/** The ordinary caller keeps a live rig read for each original bone lookup. */
+interface IProps extends IAngles {
+  rig: IAutoMovieSkeleton | null;
+}
+
+/** Only these two axes participate in the existing gaze-chain law. */
+type Constraint = Pick<IAutoMovieJointConstraint, "flexion" | "twist">;
+
+/** Original first-match head predicate, without a per-query closure. */
+function isHead(entry: IAutoMovieBone): boolean {
+  return entry.bone === HEAD;
+}
+
+/** Original first-match neck predicate, without a per-query closure. */
+function isNeck(entry: IAutoMovieBone): boolean {
+  return entry.bone === NECK;
+}
+
+/** Preserve the original missing/disconnected-chain head-only field read order. */
+function single(props: IAngles): IAutoMovieJointPose[] {
+  return [{ bone: HEAD, flexion: props.flexionDeg, abduction: null, twist: props.twistDeg }];
+}
+
+/** Each actual flexion finishes its residual before the twist getter is read. */
+function resolved(props: IAngles, headRom: Constraint, neckRom: Constraint): IAutoMovieJointPose[] {
+  const flexion: number = props.flexionDeg;
+  const headFlexion: number = shareOf(flexion, headRom.flexion);
+  const neckFlexion: number = shareOf(flexion - headFlexion, neckRom.flexion);
+  const flexionResidual: number = flexion - neckFlexion;
+  const twist: number = props.twistDeg;
+  const headTwist: number = shareOf(twist, headRom.twist);
+  const neckTwist: number = shareOf(twist - headTwist, neckRom.twist);
+  const twistResidual: number = twist - neckTwist;
+  const head: IAutoMovieJointPose = {
+    bone: HEAD, flexion: flexionResidual, abduction: null, twist: twistResidual,
   };
-  const flexion: { head: number; neck: number } = split(
-    props.flexionDeg,
-    "flexion",
-  );
-  const twist: { head: number; neck: number } = split(props.twistDeg, "twist");
+  return neckFlexion !== 0 || neckTwist !== 0 ? [{
+    bone: NECK, flexion: neckFlexion === 0 ? null : neckFlexion,
+    abduction: null, twist: neckTwist === 0 ? null : neckTwist,
+  }, head] : [head];
+}
 
-  return [
-    // The neck joins the pose only when it carries something, so an aim the
-    // head holds on its own is byte-identical to the single-bone pose.
-    ...(flexion.neck !== 0 || twist.neck !== 0
-      ? [
-          {
-            bone: NECK,
-            flexion: flexion.neck === 0 ? null : flexion.neck,
-            abduction: null,
-            twist: twist.neck === 0 ? null : twist.neck,
-          },
-        ]
-      : []),
-    { bone: HEAD, flexion: flexion.head, abduction: null, twist: twist.head },
-  ];
-};
+/** Capture only the actual axis reference first requested by the shared split. */
+function fixedConstraint(source: Constraint): Constraint {
+  let flexion: IAutoMovieAngleRange | null = null;
+  let twist: IAutoMovieAngleRange | null = null;
+  let hasFlexion: boolean = false;
+  let hasTwist: boolean = false;
+  return {
+    get flexion(): IAutoMovieAngleRange | null {
+      if (!hasFlexion) {
+        flexion = fixedRange(source.flexion);
+        hasFlexion = true;
+      }
+      return flexion;
+    },
+    get twist(): IAutoMovieAngleRange | null {
+      if (!hasTwist) {
+        twist = fixedRange(source.twist);
+        hasTwist = true;
+      }
+      return twist;
+    },
+  };
+}
+
+/** A positive/negative request admits only the original max/min field it uses. */
+function fixedRange(source: IAutoMovieAngleRange | null): IAutoMovieAngleRange | null {
+  if (source === null) return null;
+  let minimum: number = 0;
+  let maximum: number = 0;
+  let hasMinimum: boolean = false;
+  let hasMaximum: boolean = false;
+  return {
+    get min(): number {
+      if (!hasMinimum) {
+        minimum = source.min;
+        hasMinimum = true;
+      }
+      return minimum;
+    },
+    get max(): number {
+      if (!hasMaximum) {
+        maximum = source.max;
+        hasMaximum = true;
+      }
+      return maximum;
+    },
+  };
+}

@@ -1,14 +1,7 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-  resolveAutoMovieMomentum,
-  solveAirborneTakeoff,
-} from "@automovie/engine";
+import { Quaternion, solveAirborneTakeoff } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
   IAutoMovieMotionEvent,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -20,218 +13,135 @@ import {
   type HumanSegment,
   type IHumanBody,
   type IHumanLayer,
-  type IHumanPosture,
-  type jump,
-  poseBones,
-  resolveHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { motionCoveringArray } from "../internal/motionCoveringArray";
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { qunit } from "../internal/qunit";
 
 /**
- * Airborne rotation as compositions (#3428): `jump`'s `rotation` with the
- * flight shapes of `HumanAirborneShape` laid over its flight.
+ * Publicly composed flight shapes must realize a requested winding whenever
+ * their actual turn is admitted, rather than merely share upright endpoints.
+ * The count/shape/way/body design uses the campaign's existing strength-three
+ * covering owner instead of repeating the four-factor Cartesian product.
  *
  * Scenarios:
- * 1. Every cell of somersault {1, 2} by shape {tuck, pike, layout} by way
- *    {forward, backward, left} on the average man and the small woman, a
- *    1 m forward jump with a 0.6 m apex: either it lands, its root's turn at
- *    touchdown within 0.02 revolution of upright about each of Yeadon's
- *    axes, or it is refused with a `HumanRefusal` on the axis `turns`.
- * 2. Metamorphic on the composed inertia: arms wrapped in (`armsIn`) give a
- *    smaller moment about the long axis than the rig's arms-out rest, so a
- *    twist turns faster with arms in; a tuck gives a smaller moment about
- *    the somersault axis than a layout.
- * 3. A shape claims only the limbs its table names: a tuck sets the legs'
- *    joints and moves a held leg goal to exactly where the resolver puts the
- *    ankle for those joints, so a fading tuck carries the goal there rather
- *    than dropping it at full weight, and leaves the arm's goal as it was
- *    and gives no goal to a limb that held none; `armsIn` the reverse.
+ * 1. Every triple of somersault {1,2}, shape {tuck,pike,layout}, way
+ *    {forward,backward,left} and body {average man,small woman} appears.
+ *    Each actual performance stands 0.3 s and jumps 1 m with a 0.6 m apex.
+ *    A refusal remains allowed only as a typed turns-axis HumanRefusal;
+ *    this conditional matrix does not declare each cell feasible.
+ * 2. Every admitted root winds the requested signed count in its takeoff
+ *    frame at 60 Hz, within the original 0.02-revolution landing bound.
+ *    Forward winds positively in YZ, backward negatively, and a left salto
+ *    positively in YX. Finite unit rotations and observable projections
+ *    are required. A zero turn or wrong whole-turn count cannot hide behind
+ *    an upright endpoint. Endpoint tilt/twist keep the same bound as before.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs jumps with turns and shapes through the public performance and reads the displayed root's attitude; a landing off upright, a refusal of another kind, a shape that claims a limb it does not name, or a held goal dropped or left off the shape's end joint fails.
- * @evidence contracts/development/testing.md#independent-expectations Yeadon's attitude angles read independently of the solver's residual, the composed tensor of #3422 for the shapes' moments, and the shapes' own tables for what they claim.
- * @evidence contracts/development/testing.md#distinguishing-cases Two counts, three shapes, three ways, two bodies, arms in and out, legs and arms claimed; the flight pass's own conservation belongs to `test_human_motion_core_flight`.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and performs short films in memory, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and their bounds.
+ * Mandatory feasible flights are owned once by core_flight_sample and
+ * core_flight, including two bodies and tuck versus untucked composition.
+ * Thus rejecting all physical flight cannot pass the suite. Cheap full
+ * request-count/direction and six-shape ownership/inertia checks are owned
+ * by jump_turning and airborne_shape; this matrix adds their integration.
+ * Covering triples do not exhaust all four-factor interactions, and sampled
+ * winding does not certify continuous behavior between observations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the existing flight fixture, exact triple-covering scope, conditional refusal policy, mandatory baseline owners, signed winding observation and its numerical/coverage limits.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds real public shaped performances and reads actual displayed roots through a flight. Ignored/reversed/wrong-count turns, nonfinite/unit-invalid roots, unobservable projected winding, off-upright landings and failures outside typed turns refusal are findings.
+ * @evidence contracts/development/testing.md#independent-expectations A requested count requires signed 2*pi*count accumulated long-axis winding; explicit takeoff-relative YZ/YX projections set direction independently of the shooting residual. The original 0.02 revolution bounds both winding and upright endpoint error. sqrt(machine epsilon) guards atan2 conditioning on a unit direction, not physical admissibility.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains every three-factor interaction across two counts, three shapes, three ways and two actual Human proportions. Full count/way declarations and all shape ownership checks have separate cheap units; core_flight/sample require successful canonical flights, unchanged 1% momentum/contact/ROM/continuity contracts remain with their existing tests. Four-factor-only faults are outside this covering design.
+ * @evidence contracts/development/testing.md#execution-ownership This discoverable synchronous CPU entry owns one actual HumanPerformance per covering row and reuses it for endpoint and winding observations. Canonical fixtures and the existing covering constructor are shared; no renderer, process, global replacement or synthetic human rig is introduced.
  */
 export function test_human_motion_airborne_signature(): void {
-  type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   const findings: string[] = [];
-  const perform = (
-    body: IHumanBody,
-    rotation: jump.IParams["rotation"],
-    shape: HumanAirborneShape.Shape,
-  ): HumanPerformance => {
+  const rows: Record<string, string>[] = motionCoveringArray({
+    somersault: ["1", "2"],
+    shape: ["tuck", "pike", "layout"],
+    way: ["forward", "backward", "left"],
+    body: ["m-average", "f-small"],
+  }, 3);
+  if (rows.length === 0) findings.push("the covering design produced no physical cases");
+  for (const row of rows) {
+    const name: motionHumanBody.Name = row.body as motionHumanBody.Name;
+    const body: IHumanBody = motionHumanBody(name);
+    const somersault: number = Number(row.somersault);
+    const shape: HumanAirborneShape.Shape = row.shape as HumanAirborneShape.Shape;
+    const way: "forward" | "backward" | "left" = row.way as "forward" | "backward" | "left";
+    const label: string = `${name} ${somersault} ${shape} ${way}`;
     const layer: IHumanLayer.IScheduled = {
       layer: HumanAirborneShape.layer(shape),
       from: { of: "leap", event: "takeoff" },
       to: { of: "leap", event: "touchdown" },
       fade: 0.05,
     };
-    return new HumanPerformance({
-      seed: "airborne",
-      performers: [
-        {
-          subject: "a",
-          body,
-          at: { x: 0, y: 0, z: 0 },
-          yaw: 0,
+    let performance: HumanPerformance;
+    try {
+      performance = new HumanPerformance({
+        seed: "airborne",
+        performers: [{
+          subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0,
           proficiency: { level: "trained" },
-        },
-      ],
-      composition: HumanChain.subject("a")
-        .stand({ seconds: 0.3 })
-        .jump({ to: { x: 0, y: 0, z: 1 }, apex: 0.6, rotation }, "leap").node,
-      layers: { a: [layer] },
-    });
-  };
-
-  for (const name of ["m-average", "f-small"] as const) {
-    const body: IHumanBody = motionHumanBody(name);
-
-    // 1. Each cell lands upright or is refused on its turns.
-    for (const somersault of [1, 2])
-      for (const shape of ["tuck", "pike", "layout"] as const)
-        for (const way of ["forward", "backward", "left"] as const) {
-          const label: string = `${name} ${somersault} ${shape} ${way}`;
-          let p: HumanPerformance;
-          try {
-            p = perform(body, { somersault, way }, shape);
-          } catch (error) {
-            if (
-              !(error instanceof HumanRefusal) ||
-              !error.message.includes("turns")
-            )
-              findings.push(`${label}: refused otherwise: ${String(error)}`);
-            continue;
-          }
-          const s: HumanSegment.ISegment = p.segments("a")[1]!;
-          const touchdown: number =
-            s.start +
-            s.plan.events.find(
-              (e: IAutoMovieMotionEvent): boolean => e.name === "touchdown",
-            )!.share *
-              s.plan.duration;
-          const takeoff: number =
-            s.start +
-            s.plan.events.find(
-              (e: IAutoMovieMotionEvent): boolean => e.name === "takeoff",
-            )!.share *
-              s.plan.duration;
-          const q0: IAutoMovieQuaternion = p.pose("a", takeoff).root!.rotation;
-          const q1: IAutoMovieQuaternion = p.pose("a", touchdown - 1e-6).root!
-            .rotation;
-          const off: solveAirborneTakeoff.IAngles = solveAirborneTakeoff.angles(
-            q0,
-            q1,
-          );
-          const turns: number =
-            Math.max(
-              Math.abs(off.somersault),
-              Math.abs(off.tilt),
-              Math.abs(off.twist),
-            ) /
-            (2 * Math.PI);
-          if (turns > 0.02)
-            findings.push(
-              `${label}: lands ${turns.toFixed(3)} revolution off upright`,
-            );
-        }
-
-    // 2. The shapes' moments.
-    const model: resolveAutoMovieCenterOfMass.IModel =
-      resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
-    const shaped = (s: HumanAirborneShape.Shape | null): Bones =>
-      poseBones(body, {
-        skeleton: body.skeleton.id,
-        root: null,
-        joints: Object.entries(
-          s === null ? {} : HumanAirborneShape.ANGLES[s],
-        ).map(
-          ([bone, a]: [
-            string,
-            readonly [number, number, number],
-          ]): IAutoMovieJointPose => ({
-            bone: bone as AutoMovieHumanoidBone,
-            flexion: a[0],
-            abduction: a[1],
-            twist: a[2],
-          }),
-        ),
+        }],
+        composition: HumanChain.subject("a").stand({ seconds: 0.3 })
+          .jump({ to: { x: 0, y: 0, z: 1 }, apex: 0.6, rotation: { somersault, way } }, "leap").node,
+        layers: { a: [layer] },
       });
-    const moment = (bones: Bones, axis: 0 | 1): number =>
-      resolveAutoMovieMomentum.inertia(model, bones)[axis]![axis]!;
-    if (!(moment(shaped("armsIn"), 1) < moment(shaped(null), 1)))
-      findings.push(
-        `${name}: arms in do not lower the moment about the long axis`,
-      );
-    if (!(moment(shaped("tuck"), 0) < moment(shaped("layout"), 0)))
-      findings.push(
-        `${name}: a tuck does not lower the moment about the somersault axis`,
-      );
-  }
+    } catch (error) {
+      if (!(error instanceof HumanRefusal && error.axis === "turns"))
+        findings.push(`${label}: failed outside the allowed turns refusal: ${String(error)}`);
+      continue;
+    }
+    const segment: HumanSegment.ISegment = performance.segments("a")[1]!;
+    const at: (event: string) => number = (event: string): number => segment.start +
+      segment.plan.events.find((value: IAutoMovieMotionEvent): boolean => value.name === event)!.share * segment.plan.duration;
+    const takeoff: number = at("takeoff");
+    const touchdown: number = at("touchdown");
+    if (!(Number.isFinite(takeoff) && Number.isFinite(touchdown) && takeoff < touchdown)) {
+      findings.push(`${label}: no finite positive flight interval`);
+      continue;
+    }
+    const first: IAutoMoviePose = performance.pose("a", takeoff);
+    const end: number = touchdown - 1e-6;
+    const last: IAutoMoviePose = performance.pose("a", end);
+    if (first.root === null || last.root === null || !qunit(first.root.rotation) || !qunit(last.root.rotation)) {
+      findings.push(`${label}: flight endpoints lack finite unit root rotations`);
+      continue;
+    }
+    const off: solveAirborneTakeoff.IAngles = solveAirborneTakeoff.angles(first.root.rotation, last.root.rotation);
+    const error: number = Math.max(Math.abs(off.somersault), Math.abs(off.tilt), Math.abs(off.twist)) / (2 * Math.PI);
+    if (!(Number.isFinite(error) && error <= 0.02))
+      findings.push(`${label}: lands ${error} revolution off upright`);
 
-  // 3. What each shape claims.
-  const standing: IHumanPosture = {
-    root: { x: 0, y: 0, z: 0 },
-    yaw: 0,
-    pitch: 0,
-    roll: 0,
-    joints: {},
-    limbs: {
-      leftLeg: {
-        point: { x: 0.1, y: 0.1, z: 0 },
-        bend: { x: 0.1, y: 0.5, z: 0.5 },
-      },
-      leftArm: {
-        point: { x: 0.3, y: 1.2, z: 0.3 },
-        bend: { x: 0.5, y: 1, z: 0 },
-      },
-    },
-  };
-  const man: IHumanBody = motionHumanBody("m-average");
-  const context: IHumanLayer.IContext = { body: man } as IHumanLayer.IContext;
-  // Where the resolver puts an end joint for a shape's joints, the limbs it
-  // claims holding no goal and the others theirs.
-  const end = (
-    shape: HumanAirborneShape.Shape,
-    bone: AutoMovieHumanoidBone,
-    kept: IHumanPosture.Limb,
-  ): IAutoMovieVector3 =>
-    poseBones(
-      man,
-      resolveHumanPosture(man, {
-        ...standing,
-        joints: HumanAirborneShape.ANGLES[shape],
-        limbs: { [kept]: standing.limbs[kept] },
-      }),
-    ).get(bone)!.worldPosition;
-  for (const [shape, limb, kept, bone, set] of [
-    ["tuck", "leftLeg", "leftArm", "leftFoot", "leftUpperLeg"],
-    ["armsIn", "leftArm", "leftLeg", "leftHand", "leftUpperArm"],
-  ] as const) {
-    const laid: IHumanPosture = HumanAirborneShape.layer(shape).apply(
-      standing,
-      0,
-      context,
-    );
-    const moved: IHumanPosture.IGoal | undefined = laid.limbs[limb];
-    if (
-      moved === undefined ||
-      Vector3.length(Vector3.subtract(moved.point, end(shape, bone, kept))) >
-        0 ||
-      laid.limbs[kept] !== standing.limbs[kept] ||
-      Object.keys(laid.limbs).length !== 2 ||
-      laid.joints[set] === undefined
-    )
-      findings.push(
-        `${shape} does not claim exactly its limbs: ${JSON.stringify(laid.limbs)}`,
-      );
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(first.root.rotation);
+    const samples: number = Math.max(1, Math.ceil((end - takeoff) * 60));
+    let previous: number = 0;
+    let winding: number = 0;
+    let observable: boolean = true;
+    for (let index: number = 0; index <= samples; index++) {
+      const seconds: number = index === samples ? end : takeoff + (end - takeoff) * index / samples;
+      const pose: IAutoMoviePose = performance.pose("a", seconds);
+      if (pose.root === null || !qunit(pose.root.rotation)) {
+        findings.push(`${label}: nonfinite or nonunit displayed root at ${seconds} s`);
+        observable = false;
+        break;
+      }
+      const relative: IAutoMovieQuaternion = Quaternion.normalize(Quaternion.multiply(inverse, pose.root.rotation));
+      const direction: IAutoMovieVector3 = Quaternion.rotateVector(relative, { x: 0, y: 1, z: 0 });
+      const forward: number = way === "left" ? direction.x : direction.z;
+      const radius: number = Math.hypot(direction.y, forward);
+      if (!(Number.isFinite(radius) && radius > Math.sqrt(Number.EPSILON))) {
+        findings.push(`${label}: long-axis winding is unobservable at ${seconds} s, radius ${radius}`);
+        observable = false;
+        break;
+      }
+      const angle: number = Math.atan2(forward, direction.y);
+      if (index > 0) winding += Math.atan2(Math.sin(angle - previous), Math.cos(angle - previous));
+      previous = angle;
+    }
+    const expected: number = 2 * Math.PI * somersault * (way === "backward" ? -1 : 1);
+    if (observable && !(Number.isFinite(winding) && Math.abs(winding - expected) <= 0.02 * 2 * Math.PI))
+      findings.push(`${label}: displayed winding is ${winding / (2 * Math.PI)} turns, expected ${expected / (2 * Math.PI)}`);
   }
-
-  TestValidator.predicate(
-    `airborne signature: ${findings.join("; ") || "all hold"}`,
-    findings.length === 0,
-  );
+  TestValidator.equals("airborne composition signature", findings, []);
 }

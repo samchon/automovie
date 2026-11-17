@@ -29,7 +29,7 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
@@ -122,9 +122,9 @@ export namespace brace {
    * @evidence contracts/development/implementation.md#principled-implementation The anticipatory adjustments of Massion 1992: the foot away from the force steps back along its line and out to shoulder width, the pelvis drops by the leg-length change of a `KNEE` flexion (law of cosines over thigh and shank), and the root moves so the engine's centre of mass stands over the mean of the new base's hull vertices, measured on the solved posture; the trunk inclines toward the force by the cosine of its bearing, so a force from the side adds no lean.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans the step and the set root once; the posture closure interpolates root, lean and palms on one minimum-jerk set curve and delegates legs to the stand law and hands to handGoals.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts KNEE, STAGGER, SET, the 10 degree lean, the 0.55 reach share and the 0.4 s step with its 3 cm lift are named provisional magnitudes; the centring runs exactly two corrections, a fixed precision policy, and the hull centre is the vertex mean, not the area centroid.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Planning costs two posture solves with centre-of-mass and hull evaluation; each posture costs one leg solve, one bone resolve for the hanging palms and a two-hand solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Step, set root, lean and sternum name demand prepare once. The arm planner lends synchronous FK/ROM prerequisites through prior to actual lowering/selective sternum fitting, and ordinary posture queries can lend their parent FK source to lowering. Calls without loans keep local preparation, with every joint/goal current.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns body/feet/root/parameters and fixed name demand. Prior borrows FK/projector and runtime posture borrows FK only through synchronous return; no loan enters posture/request data. Standalone workspaces/fresh maps release locally, without a queried-pose history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning costs two posture solves with centre-of-mass and hull evaluation; each posture costs one leg solve, one bone resolve for the hanging palms and a two-hand solve. One fixed-heading standing-leg preparation omits repeated foot-heading quaternions and contact-offset reads while preserving every current knee transform.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Step, set root, same-body/yaw foot metadata and sternum demand prepare once. Initial centring shares fixed authored set-inclination joints, one exact FK workspace and genuine ROM projector across both complete support fits; each changing root is still lowered/fitted. Arm planning lends synchronous prerequisites through prior to actual lowering/sternum fitting, while runtime posture can lend FK to lowering and every current goal remains actual.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The initial centring IIFE releases its FK getter/projector and intermediate maps before returning only the set-root vector. The plan owns fixed body/feet/standing-foot/name metadata without query history. Prior and runtime posture borrow dynamic prerequisites only until synchronous return; no loan enters the root, posture, request data or returned closure.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -226,53 +226,59 @@ export namespace brace {
       (Math.atan2(toward.x, toward.z) * 180) / Math.PI - yaw;
     const upright: IHumanPosture["joints"] = standUpright.of(body).joints;
     const relaxed: IHumanPosture["joints"] = { ...stand.relaxed(body), ...upright };
+    const legsAt: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(body, yaw);
     const bearing: number = Math.cos((forward * Math.PI) / 180);
     const flatHands: IHumanPosture["joints"] = {
       ...HumanHand.shape("left", "flat"),
       ...HumanHand.shape("right", "flat"),
     };
-    const setAt: (root: IAutoMovieVector3) => IHumanPosture = (root: IAutoMovieVector3): IHumanPosture => {
+
+    // The set root: lowered by the knee flexion, then moved twice so the
+    // engine's centre of mass stands over the middle of the new base's hull.
+    const goal: IAutoMovieVector3 = ((): IAutoMovieVector3 => {
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
       const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
         relaxed,
         lean * bearing,
       );
-      return resolveHumanPosture.lower(body, {
-        root,
-        yaw,
-        pitch: tilt.pitch,
-        roll: 0,
-        joints: tilt.joints,
-        limbs: stand.legs(body, root, yaw, {
-          left: back === "left" ? placed : feet.left,
-          right: back === "right" ? placed : feet.right,
-        }),
-      });
-    };
-
-    // The set root: lowered by the knee flexion, then moved twice so the
-    // engine's centre of mass stands over the middle of the new base's hull.
-    let goal: IAutoMovieVector3 = {
-      x: settled.x - centre.x,
-      y: settled.y - m.ankleHeight - stand.DROP - (leg - bent),
-      z: settled.z - centre.z,
-    };
-    for (let round: number = 0; round < 2; round++) {
-      const held: ReturnType<typeof HumanBalance.support> = HumanBalance.support(body, setAt(goal));
-      const hull: IAutoMovieVector3[] = convexHull2D(held.points);
-      const mid: IAutoMovieVector3 = Vector3.scale(
-        hull.reduce(
-          (a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 =>
-            Vector3.add(a, b),
-          { x: 0, y: 0, z: 0 },
-        ),
-        1 / hull.length,
-      );
-      goal = {
-        x: goal.x + mid.x - held.centre.x,
-        y: goal.y,
-        z: goal.z + mid.z - held.centre.z,
+      const setAt: (root: IAutoMovieVector3) => IHumanPosture = (root: IAutoMovieVector3): IHumanPosture => {
+        return resolveHumanPosture.lower(body, {
+          root,
+          yaw,
+          pitch: tilt.pitch,
+          roll: 0,
+          joints: tilt.joints,
+          limbs: legsAt(root, {
+            left: back === "left" ? placed : feet.left,
+            right: back === "right" ? placed : feet.right,
+          }),
+        }, resolveHumanPosture.KNEE, resolution);
       };
-    }
+      let at: IAutoMovieVector3 = {
+        x: settled.x - centre.x,
+        y: settled.y - m.ankleHeight - stand.DROP - (leg - bent),
+        z: settled.z - centre.z,
+      };
+      for (let round: number = 0; round < 2; round++) {
+        const held: ReturnType<typeof HumanBalance.support> = HumanBalance.support(body, setAt(at), resolution, projection);
+        const hull: IAutoMovieVector3[] = convexHull2D(held.points);
+        const mid: IAutoMovieVector3 = Vector3.scale(
+          hull.reduce(
+            (a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 =>
+              Vector3.add(a, b),
+            { x: 0, y: 0, z: 0 },
+          ),
+          1 / hull.length,
+        );
+        at = {
+          x: at.x + mid.x - held.centre.x,
+          y: at.y,
+          z: at.z + mid.z - held.centre.z,
+        };
+      }
+      return at;
+    })();
 
     // The posture without its arms at a second: the root, lean and legs on
     // the set curve, and the hands opened flat once the brace begins.
@@ -289,7 +295,7 @@ export namespace brace {
       );
       const leftFoot: ReturnType<typeof footAt> = footAt("left", t);
       const rightFoot: ReturnType<typeof footAt> = footAt("right", t);
-      const legs: IHumanPosture["limbs"] = stand.legs(body, root, yaw, {
+      const legs: IHumanPosture["limbs"] = legsAt(root, {
         left: leftFoot.ankle,
         right: rightFoot.ankle,
       });

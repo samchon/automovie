@@ -4,12 +4,9 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { StrikingBody } from "../striking/StrikingBody";
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
+import { prepareWorkoutKeyFrames } from "./prepareWorkoutKeyFrames";
 
 /**
  * The exercises of the workout law done on the hands and the toes or feet
@@ -70,7 +67,7 @@ export namespace WorkoutFloor {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection over the pitch.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pitch is sought between 10 degrees (nearly upright, the hands on something high) and 150 (the head lower than the feet, the feet on something high); a height outside what that range gives ends at the nearer end.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each of the unchanged twenty pitch trials resolves one requested shoulder/toe bone map instead of separate full maps for the two means.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both height means read one exact trial map; fixed shoulder/toe demand and genuine same-body ROM metadata are prepared once for this synchronous search, while every trial's actual joints still project independently.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both height means read one exact trial map. Fixed name demand and genuine same-search FK/ROM metadata share only checked prerequisites; every arbitrary key callback's current clinical angles still resolve normally, with no source-shape inference, height or FK answer reuse.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fixed-name/exact FK readers and bounded ROM metadata end on return or throw; no trial pose/map escapes and only the final authored key returns.
    */
   export function pitched(
@@ -78,18 +75,14 @@ export namespace WorkoutFloor {
     height: number,
     key: (pitch: number) => ExerciseKey.IKey,
   ): ExerciseKey.IKey {
-    const prepared: ReturnType<typeof prepareHumanPoseResolution> =
-      prepareHumanPoseResolution();
-    const projection: ReturnType<typeof prepareHumanPostureProjection> =
-      prepareHumanPostureProjection(body);
-    const read: ReturnType<typeof StrikingBody.prepareTrunk> =
-      StrikingBody.prepareTrunk(body, PITCHED);
+    const read: ReturnType<typeof prepareWorkoutKeyFrames> =
+      prepareWorkoutKeyFrames(body, PITCHED);
     const above = (pitch: number): number => {
-      const posed: IHumanPosture = ExerciseKey.posed(key(pitch), 0);
-      const bones: ReturnType<typeof StrikingBody.trunk> = read(
-        posed,
-        prepared,
-        projection,
+      const {
+        posture: posed,
+        bones,
+      }: ReturnType<ReturnType<typeof prepareWorkoutKeyFrames>> = read(
+        key(pitch),
       );
       return (
         ExerciseKey.mean(body, posed, ["leftUpperArm", "rightUpperArm"], bones)
@@ -129,39 +122,26 @@ export namespace WorkoutFloor {
    * @evidence contracts/development/implementation.md#principled-implementation A body on two supports rests on both, so the roll is the one that puts both on the floor, read by forward kinematics of the key on the body's own colliders, the reading the floor audit makes; a straight line from the feet to the shoulder, as `plank` models a prone support, leaves the forearm's thickness and the hand's place out.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection over the roll.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The roll is sought between upright and lying on the side; a support that cannot reach the floor in that range ends at the nearer end.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The unchanged twenty trials request only bearing and foot bones for a stateless selector, so only their colliders receive frames and bounds; stateful regular expressions retain the full original traversal.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A stateless selector's fixed bone demand and genuine same-body ROM metadata are prepared once; each ExerciseKey.posed key has no limb goals, so the shared raw trunk owner preserves its original complete projection and fresh collider readings. Stateful selectors retain full output order.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fixed-demand/exact FK readers and bounded ROM metadata end with this synchronous search; only the final authored key returns, without a trial map or workspace.
+   * @evidence contracts/development/implementation.md#efficient-algorithms All neutral collider-entry metadata prepare once for the unchanged twenty trials; each retains the original complete FK map, actual ordered placements/bounds and per-shape selector calls. No public RegExp callback is invoked as a preparation predicate, and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only unchanged body/profile entry selection and genuine same-search FK/ROM metadata share. Each actual key callback precedes its complete canonical observation and all original per-shape test calls; neither global/sticky flags nor replaceable test/exec methods are inspected to infer purity.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fixed native collider-entry metadata, exact FK reader and bounded ROM metadata end with this synchronous search; only the final authored key returns, without a selector observation, trial map or workspace retained.
    */
   export function rolled(
     body: IHumanBody,
     on: RegExp,
     key: (roll: number) => ExerciseKey.IKey,
   ): ExerciseKey.IKey {
-    const prepared: ReturnType<typeof prepareHumanPoseResolution> =
-      prepareHumanPoseResolution();
-    const requested: ReadonlySet<AutoMovieHumanoidBone> | undefined =
-      on.global || on.sticky
-        ? undefined
-        : new Set(
-            [...body.rest.keys()].filter(
-              (bone: AutoMovieHumanoidBone): boolean =>
-                on.test(bone) || /(Foot|Toes)$/.test(bone),
-            ),
-          );
-    const projection: ReturnType<typeof prepareHumanPostureProjection> =
-      prepareHumanPostureProjection(body);
-    const read: ReturnType<typeof StrikingBody.prepareTrunk> =
-      StrikingBody.prepareTrunk(body, requested);
+    const read: ReturnType<typeof prepareWorkoutKeyFrames> =
+      prepareWorkoutKeyFrames(body);
+    const place: ReturnType<typeof HumanColliders.preparePlaced> =
+      HumanColliders.preparePlaced(body, HumanColliders.bones(body));
     // How far the bearing bones' lowest point lies above the feet's.
     const above = (roll: number): number => {
-      const posed: IHumanPosture = ExerciseKey.posed(key(roll), 0);
+      const current: ReturnType<ReturnType<typeof prepareWorkoutKeyFrames>> =
+        read(key(roll));
       let bearing: number = Infinity;
       let feet: number = Infinity;
-      for (const segment of HumanColliders.placed(
-        body,
-        read(posed, prepared, projection),
-      ))
+      for (const segment of place(current.bones))
         for (const shape of segment.shapes) {
           const low: number = physicalShapeBounds(segment.pose, shape).min.y;
           if (on.test(segment.bone)) bearing = Math.min(bearing, low);

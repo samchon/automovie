@@ -49,7 +49,7 @@ export namespace HumanCarriedBorne {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The row, the coupling, the windows, then one posture function.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A second helper on a carry with no other side is refused; the posture is rigid in the carry and its angles provisional.
    * @evidence contracts/development/implementation.md#efficient-algorithms One key construction and rigid frame composition remain per posture. Each actual bearer read requests only its coupling anchor and gripping-region bones with required ancestry; conservative pose dependencies still retain full arm/rival or unsupported fitting. Uncoupled fallback demands hips and every actually used region. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work This plan's unchanged carry row, coupling and bearer bodies prove the demanded bone metadata; only those sets are prepared once. Every film-second pose, partner contact, anchor frame and clinging target is evaluated from current displayed bones without a pose/time cache.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work This plan's unchanged carry row, coupling and bearer bodies prove the demanded bone metadata; only those sets are prepared once. Every film-second pose, partner contact, anchor frame and clinging target is evaluated from current displayed bones without a pose/time cache. An optional query FK source serves only the borne body's own raw region; independent carrier/helper observations never receive another person's workspace.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its existing carry/participant/coupling inputs plus at most three constant-size demanded bone sets. Each actual pose map ends with its synchronous posture evaluation, outputs retain only their physical goals, and plan release drops the metadata.
    */
   export function plan(
@@ -188,7 +188,11 @@ export namespace HumanCarriedBorne {
                         },
                 }),
               ),
-      posture: (at: number): IHumanPosture => {
+      posture: (
+        at: number,
+        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        source?: Parameters<IHumanActionPlan["posture"]>[2],
+      ): IHumanPosture => {
         // With no carrier the carry's posture is taken where the body stands.
         if (carrier === undefined)
           return { ...entry, pitch: row.pitch, joints, limbs: {} };
@@ -234,7 +238,7 @@ export namespace HumanCarriedBorne {
                 (carrier.body.measure.upperArm + carrier.body.measure.forearm),
               z: 0,
             }),
-            placed(body, HumanTrunk.resolve(body, turned, undefined, undefined, ownBones), row.mine, "carry"),
+            placed(body, HumanTrunk.resolve(body, turned, undefined, source, ownBones), row.mine, "carry"),
           ),
         };
         const limbs: IHumanPosture["limbs"] = {};

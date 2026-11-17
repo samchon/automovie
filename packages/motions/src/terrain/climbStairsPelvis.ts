@@ -38,8 +38,8 @@ export namespace climbStairsPelvis {
    * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk progress between stances, its height on the swing and its progress over the floor half a step behind.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepares contact and progress intervals once, then selects the height and floor spans separately.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts After the last step the path holds the last stance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation and storage in steps; two logarithmic interval selections and constant-size interpolation per read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The final clock and stances are fixed for the returned reader, so named step seconds and delayed progress windows are resolved once.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation/storage in steps includes fixed height differences, progress denominators and original XYZ interpolation deltas. Two logarithmic selections and constant-size interpolation remain per read; the prepared lerp's fresh output receives the original separate Y without a second vector copy.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The final clock/stances stay fixed, so named seconds, windows and original coordinate differences prepare once through the shared Vector3 owner. Every actual progress/lift still evaluates; only a guaranteed fresh interpolation vector is locally updated, never a retained stance or output from another read.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns one set of interval arrays bounded by the step count and releases them with the plan, without retaining query history.
    */
   export function of(
@@ -63,6 +63,9 @@ export namespace climbStairsPelvis {
     const starts: number[] = contacts.map((contact: number, i: number): number =>
       ((i === 0 ? 0 : contacts[i - 1]!) + contact) / 2,
     );
+    const spans: number[] = ends.map((end: number, i: number): number => end - starts[i]!);
+    const heights: number[] = contacts.map((_: number, i: number): number => stance[i + 1]!.y - stance[i]!.y);
+    const positions: ReturnType<typeof Vector3.prepareLerp>[] = contacts.map((_: number, i: number): ReturnType<typeof Vector3.prepareLerp> => Vector3.prepareLerp(stance[i]!, stance[i + 1]!));
     const interval: (times: readonly number[], seconds: number) => number = (times: readonly number[], seconds: number): number => {
       let low: number = 0;
       let high: number = times.length;
@@ -78,16 +81,17 @@ export namespace climbStairsPelvis {
       const height: number = interval(contacts, seconds);
       if (height < steps) {
         const lift: number = lifts[height]!(seconds);
-        y = stance[height]!.y + (stance[height + 1]!.y - stance[height]!.y) * lift;
+        y = stance[height]!.y + heights[height]! * lift;
       }
       const progress: number = interval(ends, seconds);
       if (progress < steps) {
         const begin: number = starts[progress]!;
-        const end: number = ends[progress]!;
         const u: number = minimumJerk.share(
-          Math.min(1, Math.max(0, (seconds - begin) / (end - begin))),
+          Math.min(1, Math.max(0, (seconds - begin) / spans[progress]!)),
         );
-        return { ...Vector3.lerp(stance[progress]!, stance[progress + 1]!, u), y };
+        const point: IAutoMovieVector3 = positions[progress]!(u);
+        point.y = y;
+        return point;
       }
       return { ...stance.at(-1)!, y };
     };

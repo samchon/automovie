@@ -109,7 +109,7 @@ export namespace MotionTrajectoryStepper {
    * @throws {MotionTrajectoryFailure} When the existing time-resolution guard catches the attempted step, including its roundoff margin, with the last rejected estimates and optional physical probe. Foreign model errors propagate unchanged.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the accepted-error norm, dense interpolation, time units, callback-shape checks, finite-data caller premise and time-resolution failure.
-   * @evidence contracts/development/implementation.md#principled-implementation Preserves the cited DP tableau/controller and generic RMS or explicit block norm. MotionTrajectoryDense matches endpoint body slopes by exact Jr^-1 and optionally constructs the cited paired continuous quintics, whose derivative defects are normalized in the caller's physical units and combined by max. Nonfinite/unresolved numeric trials reject before the physical callback; invalid model errors propagate. Local and sampled estimates do not certify global error or arbitrary black-box histories.
+   * @evidence contracts/development/implementation.md#principled-implementation Preserves the cited DP tableau/controller and generic RMS or explicit block norm. The tableau identities sum(A_i)=C_i and sum(E)=0 express stage/error sums as a common first rate plus rate differences, removing coefficient-sum roundoff on constant RHS without changing a budget. MotionTrajectoryDense matches body slopes through Jr^-1 and optionally checks paired quintics in physical units. This does not remove every binary64 cancellation floor or certify global error and arbitrary histories.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Form trial stages, measure their error, reject or retain the continuous extension, then expose binary-search sampling. An unresolvable step reports the last rejected estimates without changing admission or adding a runtime observer.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Tableau and controller constants retain their cited provenance; no fixture-specific time grid, cached answer or tolerance relaxation is introduced.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each trial has six new RHS stages after the initial call and O(n+1) scalar/rotation work. Physical dense control adds four RHS evaluations on RMS-admitted trials and model probes at method nodes and paired component extrema. Numeric output is O(A(n+1)) for A accepted steps; full reads cost O(log A+n+1), quaternion projection O(log A). No fixed accepted-step bound exists before time-resolution failure.
@@ -130,7 +130,8 @@ export namespace MotionTrajectoryStepper {
     const controlled: number = props.x0.length;
     const blocks: readonly number[] | undefined = props.tolerance!.blocks;
     const oriented: boolean = props.q0 !== undefined;
-    const first: number = Math.min(step, t1 - t0);
+    let first: number = Math.min(step, t1 - t0);
+    let initial: boolean = true;
     const steps: MotionTrajectoryRead.IDenseStep[] = [];
     let t: number = t0;
     let x: number[] = [...props.x0];
@@ -157,9 +158,14 @@ export namespace MotionTrajectoryStepper {
         h = end - t;
         last = end === t1;
       }
+      if (initial) {
+        first = h;
+        initial = false;
+      }
       if (0.1 * Math.abs(h) <= Math.abs(t) * Number.EPSILON || !(t + h > t))
         throw new MotionTrajectoryFailure(t, h, rejection, props.errorScope);
-      // The stages, the orientation's in the algebra from the step's start.
+      // Tableau consistency sum(A_i)=C_i preserves a common stage exactly;
+      // sum(E)=0 gives the same stable difference form for embedded error.
       const ks: integrateMotionTrajectory.IRate[] = [k1];
       const us: (IAutoMovieVector3 | undefined)[] | undefined = oriented
         ? [k1.w]
@@ -175,18 +181,15 @@ export namespace MotionTrajectoryStepper {
         const xi: number[] =
           controlled === 0
             ? x
-            : x.map(
-                (v: number, c: number): number =>
-                  v +
-                  h *
-                    row.reduce(
-                      (s: number, a: number, j: number): number =>
-                        s + a * ks[j]!.dx[c]!,
-                      0,
-                    ),
-              );
+            : x.map((v: number, c: number): number => {
+                const base: number = ks[0]!.dx[c]!;
+                let increment: number = C[i]! * base;
+                for (let j: number = 1; j < row.length; j++)
+                  if (row[j] !== 0) increment += row[j]! * (ks[j]!.dx[c]! - base);
+                return v + h * increment;
+              });
         const vi: IAutoMovieVector3 | undefined = oriented
-          ? sum(row, us!, h, i < 6 ? stage : undefined)
+          ? sum(row, us!, h, C[i]!, i < 6 ? stage : undefined)
           : undefined;
         const qi: IAutoMovieQuaternion | null = oriented ? turn(q, vi) : null;
         const ki: integrateMotionTrajectory.IRate = rate(t + C[i]! * h, xi, qi);
@@ -244,7 +247,7 @@ export namespace MotionTrajectoryStepper {
       if (oriented) {
         // The embedded weights sum to zero mathematically. Differencing
         // their shared first stage avoids a spurious defect for constant rates.
-        const e: IAutoMovieVector3 = sum(E, us!, h, undefined, us![0])!;
+        const e: IAutoMovieVector3 = sum(E, us!, h, 0)!;
         const scale: number = absolute + relative * Vector3.length(r!);
         rotationSquares =
           ratio(e.x, scale) + ratio(e.y, scale) + ratio(e.z, scale);
@@ -288,9 +291,10 @@ export namespace MotionTrajectoryStepper {
             q: { x: endpointQ!.x, y: endpointQ!.y, z: endpointQ!.z, w: endpointQ!.w },
             w: { x: ks[6]!.w!.x, y: ks[6]!.w!.y, z: ks[6]!.w!.z },
           } : undefined };
-        if (props.partition !== undefined && !props.partition.split(t))
-          throw new MotionTrajectoryFailure(t, h, rejection, props.errorScope);
-        h /= Math.min(1 / CONTROL.least, stretched / CONTROL.safety);
+        const reduced: number = h / Math.min(1 / CONTROL.least, stretched / CONTROL.safety);
+        if (props.partition !== undefined && !props.partition.split(t, reduced))
+          throw new MotionTrajectoryFailure(t, reduced, rejection, props.errorScope);
+        h = reduced;
         rejected = true;
         continue;
       }
@@ -326,6 +330,7 @@ export namespace MotionTrajectoryStepper {
    * @param weights The weights, as many as the rates or fewer.
    * @param us The rates.
    * @param h The step.
+   * @param total The exact mathematical weight sum from the tableau, C_i or zero.
    * @param out An exclusively owned workspace, absent from rates, callback
    *   inputs and dense records; omitted where the result must be retained.
    * @returns The workspace or a fresh vector, or undefined without orientation.
@@ -334,18 +339,19 @@ export namespace MotionTrajectoryStepper {
     weights: readonly number[],
     us: readonly (IAutoMovieVector3 | undefined)[],
     h: number,
+    total: number,
     out?: IAutoMovieVector3,
-    origin?: IAutoMovieVector3,
   ): IAutoMovieVector3 | undefined {
     if (us[0] === undefined) return undefined;
-    let x: number = 0;
-    let y: number = 0;
-    let z: number = 0;
+    const origin: IAutoMovieVector3 = us[0];
+    let x: number = total * origin.x;
+    let y: number = total * origin.y;
+    let z: number = total * origin.z;
     weights.forEach((w: number, j: number): void => {
       if (w === 0) return;
-      x += w * (us[j]!.x - (origin?.x ?? 0));
-      y += w * (us[j]!.y - (origin?.y ?? 0));
-      z += w * (us[j]!.z - (origin?.z ?? 0));
+      x += w * (us[j]!.x - origin.x);
+      y += w * (us[j]!.y - origin.y);
+      z += w * (us[j]!.z - origin.z);
     });
     if (out === undefined) return { x: h * x, y: h * y, z: h * z };
     out.x = h * x;

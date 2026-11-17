@@ -24,35 +24,38 @@ const STATES: WeakMap<prepareAutoMovieMassModel.IPrepared, IState> = new WeakMap
  * Preparation validates finite SI model values and copies every local numeric
  * prerequisite. A prepared model therefore keeps its meaning if its source is
  * edited, while every requested posed bone is still read at its actual value.
+ * A getter may reenter this owner. Nested reads use the existing uncached
+ * formulas instead of overwriting the outer call's frame or interval scratch.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States finite SI snapshot admission and release ownership. Its namespace's bones supplies a fresh mass-bearing FK demand, pose fresh ordered rigid parts and centre, place only the centre, inertia the current composite tensor, between positive-interval momentum, and release idempotent invalidation; their local comments state common-frame units and caller ownership.
  * @evidence contracts/development/implementation.md#principled-implementation The family retains the existing ordered segmental mean, bone-position-plus-rotated-local-point placement, bone-times-local-principal quaternion, physical tensor with every current parallel-axis term, and two-pose orbital-plus-spin momentum. Fixed bone-local properties are separate from each actual common-frame transform and interval.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One opaque token owns the admitted model and bounded scalar prerequisites. Namespace readers select the same model: bones exposes names, pose/place share readFrame and the existing mean, inertia delegates prepared physical tensor arithmetic, between delegates the original interval reduction, and release deletes the sole live state.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No posed answer, target, time grid or approximate key substitutes for a requested transform. Non-finite properties, negative mass or inertia, zero principal rotations and an inconsistent total mass are refused at preparation.
- * @evidence contracts/development/implementation.md#efficient-algorithms Preparation and each physical read are O(S) for S segments; bones returns O(U) names and release is one weak deletion. Private last-frame and intrinsic-key storage is reused on changes, while public pose results remain fresh. Place omits unused principal/part records; unchanged rotation, intrinsic frame and endpoint quaternions respectively omit local products, axis products and inverse/log/slerp preparation. All current sums/rates still run.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Copied model scalars fix one epoch. ReadFrame compares copied position/quaternion coordinates with Object.is; tensor preparation compares current moments/principal quaternions at each ordered index; interval preparation compares all eight copied endpoint coordinates and separately keys midpoint intrinsic tensors. Mutation and signed zero remain visible, and no bone identity, target, time grid or prior momentum answer establishes equivalence.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The token owns O(S) copied model, last frames, intrinsic and endpoint numeric prerequisites, with no query population or bone map. Each pose/centre/tensor/momentum result is fresh and retains no token/source; callers own returned sets and snapshots. Release deletes all private state on success or failure, is idempotent, and every later reader rejects the released token.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One opaque token owns the admitted model and bounded scalar prerequisites. Pose/place share readFrame, inertia/between lazily acquire the existing numeric workspace, and nested reads delegate uncached formulas while the outer workspace is active. Release deletes the sole live state.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No posed answer, target, time grid or approximate key substitutes for a requested transform. Preparation validates the actual copied numeric snapshot, without rereading source fields after admission. Non-finite properties, negative mass or inertia, zero principal rotations and an inconsistent total mass are refused.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Preparation and physical reads are O(S) for S segments; bones returns O(U) names and release is one weak deletion. Centre-only balance trials allocate no unused tensor/interval workspace, while all model scalars are still copied/validated at preparation. Private frame/intrinsic storage is reused; public results remain fresh. Place omits unused principal/part records. Unchanged rotations/intrinsic frames/endpoint quaternions omit local/axis/inverse-log-slerp products; current sums/rates still run.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Copied model scalars fix one epoch. ReadFrame captures seven actual position/quaternion coordinates once, uses that tuple for Object.is and the same local products, and commits keys only after point arithmetic finishes. Pure translation leaves rotation keys/products intact. Tensor and interval readers likewise compute from their captured intrinsic/endpoint keys and publish readiness after completion. Mutation and signed zero remain visible; no bone identity, target, grid or momentum answer establishes equivalence.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The token owns O(S) copied model, last frames, intrinsic/endpoint prerequisites, one quaternion scratch and one active-call guard, with no query population or depth pool. Finally releases the guard after success or failure; nested uncached pose results copy private inertia before escaping. Release deletes all state, is idempotent, and later readers reject the released token.
  */
 export function prepareAutoMovieMassModel(
   source: resolveAutoMovieCenterOfMass.IModel,
 ): prepareAutoMovieMassModel.IPrepared {
   const segments: resolveAutoMovieCenterOfMass.ISegment[] = source.segments.map(
     (segment: resolveAutoMovieCenterOfMass.ISegment): resolveAutoMovieCenterOfMass.ISegment => {
-      if (
-        !Number.isFinite(segment.mass) || segment.mass < 0 ||
-        !finiteVector(segment.point) || !finiteVector(segment.inertia) ||
-        segment.inertia.x < 0 || segment.inertia.y < 0 || segment.inertia.z < 0 ||
-        !finiteQuaternion(segment.axes) ||
-        !(Math.hypot(segment.axes.x, segment.axes.y, segment.axes.z, segment.axes.w) > 0)
-      )
-        throw new Error(`The prepared mass model needs finite physical data for ${segment.bone}`);
-      return {
+      const copied: resolveAutoMovieCenterOfMass.ISegment = {
         bone: segment.bone,
         mass: segment.mass,
         point: copyVector(segment.point),
         inertia: copyVector(segment.inertia),
         axes: copyQuaternion(segment.axes),
       };
+      if (
+        !Number.isFinite(copied.mass) || copied.mass < 0 ||
+        !finiteVector(copied.point) || !finiteVector(copied.inertia) ||
+        copied.inertia.x < 0 || copied.inertia.y < 0 || copied.inertia.z < 0 ||
+        !finiteQuaternion(copied.axes) ||
+        !(Math.hypot(copied.axes.x, copied.axes.y, copied.axes.z, copied.axes.w) > 0)
+      )
+        throw new Error(`The prepared mass model needs finite physical data for ${copied.bone}`);
+      return copied;
     },
   );
   const mass: number = segments.reduce(
@@ -65,8 +68,8 @@ export function prepareAutoMovieMassModel(
   STATES.set(token, {
     model: { mass, segments },
     frames: [],
-    tensor: physicalInertiaTensor.prepare(),
-    interval: resolveAutoMovieMomentum.prepareIntervals(),
+    rotationScratch: { x: 0, y: 0, z: 0, w: 1 },
+    active: false,
   });
   return token;
 }
@@ -102,14 +105,15 @@ export namespace prepareAutoMovieMassModel {
    * The exact set of declared mass-segment bone names is sufficient for the existing segmental mass formulas.
    * One model-state lookup and a set construction retain the existing names without a new hierarchy owner.
    * No segment is filtered by size or mass, and FK still owns every needed ancestor.
-   * O(S) traversal and O(U) fresh set storage for S segments on U distinct bones, paid once by the flight consumer.
+   * One O(S) traversal and O(U) fresh set storage for S segments on U bones, without a mapped S-entry intermediate array; paid once by the flight consumer.
    * Reads this token's immutable model snapshot; the returned set is independent of its private model and later caller edits.
    * The caller owns the fresh set; the function stores no additional population or handle.
    */
   export function bones(prepared: IPrepared): ReadonlySet<AutoMovieHumanoidBone> {
-    return new Set(state(prepared).model.segments.map(
-      (segment: resolveAutoMovieCenterOfMass.ISegment): AutoMovieHumanoidBone => segment.bone,
-    ));
+    const current: IState = state(prepared);
+    const names: Set<AutoMovieHumanoidBone> = new Set();
+    for (const segment of current.model.segments) names.add(segment.bone);
+    return names;
   }
 
   /**
@@ -130,23 +134,33 @@ export namespace prepareAutoMovieMassModel {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): resolveAutoMovieMomentum.IPosed {
     const current: IState = state(prepared);
-    const parts: combinePhysicalMassProperties.IPart[] = [];
-    const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.mean(
-      current.model,
-      (segment: resolveAutoMovieCenterOfMass.ISegment, i: number): IAutoMovieVector3 => {
-        const frame: IFrame = readFrame(current, segment, i, bones);
-        const principal: IAutoMovieQuaternion = frame.principal ??=
-          Quaternion.multiply(frame.rotation, segment.axes);
-        parts.push({
-          mass: segment.mass,
-          centerOfMass: copyVector(frame.point),
-          inertia: copyVector(segment.inertia),
-          inertiaRotation: copyQuaternion(principal),
-        });
-        return frame.point;
-      },
-    );
-    return { parts, centre };
+    if (current.active) {
+      const posed: resolveAutoMovieMomentum.IPosed = resolveAutoMovieMomentum.pose(current.model, bones);
+      for (const part of posed.parts) part.inertia = copyVector(part.inertia);
+      return posed;
+    }
+    current.active = true;
+    try {
+      const parts: combinePhysicalMassProperties.IPart[] = [];
+      const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.mean(
+        current.model,
+        (segment: resolveAutoMovieCenterOfMass.ISegment, i: number): IAutoMovieVector3 => {
+          const frame: IFrame = readFrame(current, segment, i, bones);
+          const principal: IAutoMovieQuaternion = frame.principal ??=
+            Quaternion.multiply(frame.rotation, segment.axes);
+          parts.push({
+            mass: segment.mass,
+            centerOfMass: copyVector(frame.point),
+            inertia: copyVector(segment.inertia),
+            inertiaRotation: copyQuaternion(principal),
+          });
+          return frame.point;
+        },
+      );
+      return { parts, centre };
+    } finally {
+      current.active = false;
+    }
   }
 
   /**
@@ -166,11 +180,17 @@ export namespace prepareAutoMovieMassModel {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieVector3 {
     const current: IState = state(prepared);
-    return resolveAutoMovieCenterOfMass.mean(
-      current.model,
-      (segment: resolveAutoMovieCenterOfMass.ISegment, i: number): IAutoMovieVector3 =>
-        readFrame(current, segment, i, bones).point,
-    );
+    if (current.active) return resolveAutoMovieCenterOfMass.place(current.model, bones);
+    current.active = true;
+    try {
+      return resolveAutoMovieCenterOfMass.mean(
+        current.model,
+        (segment: resolveAutoMovieCenterOfMass.ISegment, i: number): IAutoMovieVector3 =>
+          readFrame(current, segment, i, bones).point,
+      );
+    } finally {
+      current.active = false;
+    }
   }
 
   /**
@@ -180,14 +200,23 @@ export namespace prepareAutoMovieMassModel {
    *
    * States tensor units, centre and which current contributions remain evaluated.
    * Delegates R diag(I) R transpose and the parallel-axis sum to the physical tensor owner's prepared reader; translated centres never enter an intrinsic tensor's equivalence key.
-   * A live token lookup supplies one operation-owned tensor reader to the existing posed parts and centre.
+   * A live lookup lazily acquires the operation's tensor reader at its first actual tensor query, then supplies the existing posed parts and centre.
    * No inertia term, shift or physical check is omitted, and no symmetric-entry copy changes the original arithmetic.
    * O(S) comparisons and ordered sums for S parts; unchanged principal moments and rotations avoid repeated intrinsic axis rotations and products.
    * The physical owner compares copied moment/quaternion components at each segment index; the same token fixes model order without retaining a target-dependent tensor result.
    * Three fresh tensor rows escape. The token retains at most one fixed-size intrinsic record per current segment and releases the reader with all model state.
    */
   export function inertia(prepared: IPrepared, posed: resolveAutoMovieMomentum.IPosed): number[][] {
-    return state(prepared).tensor(posed.parts, posed.centre);
+    const current: IState = state(prepared);
+    if (current.active) return physicalInertiaTensor(posed.parts, posed.centre);
+    current.active = true;
+    try {
+      const tensor: ReturnType<typeof physicalInertiaTensor.prepare> = current.tensor ??=
+        physicalInertiaTensor.prepare();
+      return tensor(posed.parts, posed.centre);
+    } finally {
+      current.active = false;
+    }
   }
 
   /**
@@ -196,7 +225,7 @@ export namespace prepareAutoMovieMassModel {
    *
    * States ordered snapshot premise, positive seconds and lack of endpoint retention.
    * Delegates the unchanged chord velocities, shortest-arc spin and orbital-plus-spin sum to resolveAutoMovieMomentum.between with this exact copied model.
-   * A live-state lookup and one existing physical reduction introduce no second momentum formula.
+   * A live lookup lazily acquires the interval workspace on its first actual momentum query; the existing physical reduction introduces no second formula.
    * The original positive-interval check, model order and physical arithmetic remain authoritative.
    * O(S) time for the existing segment sum and fixed-size numeric result; this wrapper adds constant work.
    * Uses the same copied model as the endpoint pose producer; it adds no target-dependent momentum-result cache.
@@ -209,7 +238,15 @@ export namespace prepareAutoMovieMassModel {
     seconds: number,
   ): resolveAutoMovieMomentum.IMomentum {
     const current: IState = state(prepared);
-    return current.interval(current.model, before, after, seconds);
+    if (current.active) return resolveAutoMovieMomentum.between(current.model, before, after, seconds);
+    current.active = true;
+    try {
+      const interval: ReturnType<typeof resolveAutoMovieMomentum.prepareIntervals> = current.interval ??=
+        resolveAutoMovieMomentum.prepareIntervals();
+      return interval(current.model, before, after, seconds);
+    } finally {
+      current.active = false;
+    }
   }
 
   /**
@@ -237,11 +274,17 @@ interface IState {
   /** At most one last common-frame numeric dependency row per segment. */
   frames: (IFrame | undefined)[];
 
-  /** Exact intrinsic tensor prerequisites used only by this mass owner. */
-  tensor: ReturnType<typeof physicalInertiaTensor.prepare>;
+  /** One private quaternion scratch consumes exactly the captured current coordinates. */
+  rotationScratch: IAutoMovieQuaternion;
 
-  /** Exact endpoint quaternion prerequisites, without endpoint pose retention. */
-  interval: ReturnType<typeof resolveAutoMovieMomentum.prepareIntervals>;
+  /** Nested foreign reads use uncached formulas instead of borrowing live scratch. */
+  active: boolean;
+
+  /** Exact intrinsic workspace, acquired only at its first actual tensor read. */
+  tensor?: ReturnType<typeof physicalInertiaTensor.prepare>;
+
+  /** Exact endpoint workspace, acquired only at its first actual interval read. */
+  interval?: ReturnType<typeof resolveAutoMovieMomentum.prepareIntervals>;
 }
 
 /** Last actual bone inputs and their derived numeric mass-point transform. */
@@ -278,47 +321,60 @@ function readFrame(
 ): IFrame {
   const bone: IAutoMovieResolvedBone | undefined = bones.get(segment.bone);
   if (bone === undefined) throw new Error(`The momentum needs the posed bone ${segment.bone}`);
+  const rotation: IAutoMovieQuaternion = bone.worldRotation;
+  const position: IAutoMovieVector3 = bone.worldPosition;
+  const qx: number = rotation.x;
+  const qy: number = rotation.y;
+  const qz: number = rotation.z;
+  const qw: number = rotation.w;
+  const px: number = position.x;
+  const py: number = position.y;
+  const pz: number = position.z;
   const known: IFrame | undefined = current.frames[i];
   const sameRotation: boolean = known !== undefined &&
-    sameVector(known.rotation, bone.worldRotation) && Object.is(known.rotation.w, bone.worldRotation.w);
-  if (known !== undefined && sameRotation && sameVector(known.position, bone.worldPosition)) return known;
+    Object.is(known.rotation.x, qx) && Object.is(known.rotation.y, qy) &&
+    Object.is(known.rotation.z, qz) && Object.is(known.rotation.w, qw);
+  if (known !== undefined && sameRotation && Object.is(known.position.x, px) &&
+      Object.is(known.position.y, py) && Object.is(known.position.z, pz)) return known;
+  if (!sameRotation) {
+    current.rotationScratch.x = qx;
+    current.rotationScratch.y = qy;
+    current.rotationScratch.z = qz;
+    current.rotationScratch.w = qw;
+  }
   const offset: IAutoMovieVector3 = sameRotation
     ? known!.offset
-    : Quaternion.rotateVector(bone.worldRotation, segment.point);
+    : Quaternion.rotateVector(current.rotationScratch, segment.point);
+  const x: number = px + offset.x;
+  const y: number = py + offset.y;
+  const z: number = pz + offset.z;
   if (known !== undefined) {
     // Returned posed parts copy these fields, so changing the private last
     // frame cannot move an earlier stencil endpoint or caller-owned result.
-    known.position.x = bone.worldPosition.x;
-    known.position.y = bone.worldPosition.y;
-    known.position.z = bone.worldPosition.z;
-    known.rotation.x = bone.worldRotation.x;
-    known.rotation.y = bone.worldRotation.y;
-    known.rotation.z = bone.worldRotation.z;
-    known.rotation.w = bone.worldRotation.w;
-    known.offset = offset;
-    known.point.x = bone.worldPosition.x + offset.x;
-    known.point.y = bone.worldPosition.y + offset.y;
-    known.point.z = bone.worldPosition.z + offset.z;
-    if (!sameRotation) known.principal = undefined;
+    known.position.x = px;
+    known.position.y = py;
+    known.position.z = pz;
+    if (!sameRotation) {
+      known.rotation.x = qx;
+      known.rotation.y = qy;
+      known.rotation.z = qz;
+      known.rotation.w = qw;
+      known.offset = offset;
+      known.principal = undefined;
+    }
+    known.point.x = x;
+    known.point.y = y;
+    known.point.z = z;
     return known;
   }
   const frame: IFrame = {
-    position: copyVector(bone.worldPosition),
-    rotation: copyQuaternion(bone.worldRotation),
+    position: { x: px, y: py, z: pz },
+    rotation: { x: qx, y: qy, z: qz, w: qw },
     offset,
-    point: {
-      x: bone.worldPosition.x + offset.x,
-      y: bone.worldPosition.y + offset.y,
-      z: bone.worldPosition.z + offset.z,
-    },
+    point: { x, y, z },
   };
   current.frames[i] = frame;
   return frame;
-}
-
-/** Exact coordinates include signed zero and detect caller mutation. */
-function sameVector(a: IAutoMovieVector3, b: IAutoMovieVector3): boolean {
-  return Object.is(a.x, b.x) && Object.is(a.y, b.y) && Object.is(a.z, b.z);
 }
 
 /** A fresh three-scalar record crosses the private-state boundary. */

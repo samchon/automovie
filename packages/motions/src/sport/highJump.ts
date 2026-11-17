@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import { AutoMovieGravity, Quaternion, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionEvent,
@@ -176,9 +176,9 @@ export namespace highJump {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is read, where and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The affordance's translation carried into the world by the prop's frame.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one transform.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and the demanded Y component of the same rigid transform.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bar is refused with the prop's contacts, never replaced by a number.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the prop's affordances.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The original first-match affordance scan remains linear; its final height uses the engine's exact rotateVectorY expression without unused X/Z output arithmetic or two discarded vector records. Speedup is unmeasured.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -205,10 +205,9 @@ export namespace highJump {
         fix: "give the high jump's crossbar the id bar, as createHighJump does",
       });
     const frame: IHumanProp.IFrame = read.frame(context.start);
-    return Vector3.add(
-      frame.position,
-      Quaternion.rotateVector(frame.rotation, found.frame.translation),
-    ).y;
+    const position: IAutoMovieVector3 = frame.position;
+    const offset: number = Quaternion.rotateVectorY(frame.rotation, found.frame.translation);
+    return position.y + offset;
   }
 
   /**
@@ -223,7 +222,7 @@ export namespace highJump {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The lying height, the take-off, the flight posture, the touchdown, the landing, then the posture by phase.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound refuses with its numbers; nothing is clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms Four jump plans and all touchdown bisection stations remain. One actual take-off canonical solve supplies both COM and frozen joints. Each changing flight query shares its actual COM/floor map; playback omits unused bounds, and synchronous ROM/FK metadata share only prerequisites. No sample changes and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing take-off/flight/mat owners share two fixed key-pair preparations. Each changing shape shares its own actual COM/floor map without a time memo. The raw callback forwards only synchronous parent FK/projector loans through take-off, dynamic flight and landing, retaining full current joint projection.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing take-off/flight/mat owners share two fixed key-pair preparations. The ascending key blend and yaw share the same current clipped cubic progress. The initial lying floor/COM observations borrow one local FK/projector source; each changing flight shape shares its own actual COM/floor map without a time memo. Raw callbacks forward only synchronous parent FK/projector loans through take-off, dynamic flight and landing, retaining full current joint projection.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains take-off, mass model and two fixed key-pair readers. Query frame, bones and floor reader release on return/throw; borrowed FK/projector loans stay with their synchronous caller and never enter the plan, floor closure or previous-query state.
    */
   export function plan(
@@ -245,12 +244,14 @@ export namespace highJump {
       joints: lieDown.POSES.supine.joints,
       limbs: {},
     };
-    const lying: number =
-      surface +
-      GymnasticsFlight.centre(body, model, {
+    const lying: number = surface + ((): number => {
+      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
+      return GymnasticsFlight.centre(body, model, {
         ...supine,
-        root: { x: 0, y: knockdown.rest(body, supine), z: 0 },
-      }).y;
+        root: { x: 0, y: knockdown.rest(body, supine, read, projection), z: 0 },
+      }, read, projection).y;
+    })();
 
     // The take-off: the centre peaks at the bar and comes down at the
     // landing place at its lying height.
@@ -346,15 +347,16 @@ export namespace highJump {
     const piking: ReturnType<typeof ExerciseKey.prepareBlend> = ExerciseKey.prepareBlend(arch, pike);
     const frameAt: (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<IHumanActionPlan["posture"]>[3]) => IPreparedGymnasticsFrame =
       (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IPreparedGymnasticsFrame => {
+      const risingShare: number = ease(t / rising);
       const key: ExerciseKey.IKey =
         t <= rising
-          ? arching(ease(t / rising))
+          ? arching(risingShare)
           : piking(ease((t - rising) / rising));
       return prepareFrame(
         {
           ...from,
           joints: key.joints,
-          yaw: from.yaw + 180 * ease(t / rising),
+          yaw: from.yaw + 180 * risingShare,
           pitch: -somersault(t),
         },
         GymnasticsFlight.at(c0, v, t),

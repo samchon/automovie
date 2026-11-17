@@ -19,9 +19,10 @@ import { HumanColliders } from "../posture/HumanColliders";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
+import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
 
 /**
  * The airborne kernel of the gymnastic and jumping laws (#3377): a body in
@@ -42,7 +43,7 @@ import { knockdown } from "../reaction/knockdown";
  * about the centre of mass leaves that point on its parabola.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a flight posture is, why it is written by joints and the physics.
- * @evidence contracts/development/design.md#principled-representation Free functions over the posture record and the engine's mass model; no state.
+ * @evidence contracts/development/design.md#principled-representation Posture records and engine mass models remain actual inputs; prepared companions retain only bounded fixed geometric prerequisites, without pose or time-result history.
  * @evidence contracts/development/design.md#minimal-and-owned-surface What the gymnastic laws share: freezing, the centre, placing by it, a rigid turn, the fall time, the lowest point, the launch read off a plan and the touchdown search.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Gravity is the engine's (`AutoMovieGravity`); every length is the body's or the plan's.
  */
@@ -158,9 +159,9 @@ export namespace GymnasticsFlight {
    * @evidence contracts/development/implementation.md#principled-implementation The engine's segment mass model over the posture's bones: forward kinematics alone for a posture of joints, the full resolution for one with goals.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolution and one weighted mean.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Complete canonical joint admission and actual limb/digit fits remain. Final FK requests only mass-observed bone ancestry, followed by the unchanged segment reduction; one operation-scoped reader shares equal dependency math and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body's canonical mass model/collider demand share its unchanged profile; alternate models construct actual segment demands. An optional exact reader shares only equal FK dependencies, and a genuine same-body projector shares static ROM metadata while every current joint is still projected; unknown functions use ordinary admission.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local lazy reader ends on return/throw; optional borrowed FK/projector sources stay with their synchronous parent. No reader, projector, bone map or query history escapes in the returned centre vector.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Complete canonical joint admission and actual limb/digit fits remain. Final FK requests only mass-observed bone ancestry, followed by the unchanged segment reduction. The canonical model's genuine fixed-name lookup/sorting prepares once per actual body FK owner; alternate models retain their current segment demand. One operation-scoped reader shares equal dependency math and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body's canonical mass model/collider demand share its unchanged profile and one genuine fixed-demand reader; changing the FK owner rebinds it. Alternate models construct actual segment demands without freezing their membership. An optional exact reader shares only equal FK dependencies, and a genuine same-body projector shares static ROM metadata while every current joint is still projected; unknown functions use ordinary admission.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One bounded static canonical-demand reader is weakly owned per body, replacing itself after an FK-owner change without history. The local lazy reader ends on return/throw; optional borrowed FK/projector sources stay with their synchronous parent. No pose, workspace, projector, bone map or query history escapes in the returned centre vector or enters that weak metadata.
    */
   export function centre(
     body: IHumanBody,
@@ -171,15 +172,18 @@ export namespace GymnasticsFlight {
   ): IAutoMovieVector3 {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(resolution);
+    const canonical: boolean = model === body.massModel;
     let requested: ReadonlySet<AutoMovieHumanoidBone>;
-    if (model === body.massModel) requested = HumanColliders.bones(body);
+    if (canonical) requested = HumanColliders.bones(body);
     else {
       const massBones: Set<AutoMovieHumanoidBone> = new Set();
       for (const segment of model.segments) massBones.add(segment.bone);
       requested = massBones;
     }
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, resolveHumanPosture.seeded(body, posture, undefined, undefined, read, undefined, projection).pose, read(), requested);
+    const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, posture, undefined, undefined, read, undefined, projection).pose;
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = canonical
+      ? massReader(body, requested)(pose, read())
+      : poseBones(body, pose, read(), requested);
     return resolveAutoMovieCenterOfMass.place(model, bones);
   }
 
@@ -257,11 +261,11 @@ export namespace GymnasticsFlight {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines the fixed source/pivot premise, borrowed nested-data lifetime, query degree units, original no-roll refusal and raw output ownership.
    * @evidence contracts/development/implementation.md#principled-implementation Each current H(new) H(old)^-1 carries root and world goal points/poles around the same pivot, and rotates original goal orientations; bone-attached goals retain their original records.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the no-roll source once; each query reads its current target heading before lazily preparing the fixed old inverse on first demand, then runs the original world-goal loop and root placement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the no-roll source once; each query reads its current target heading before lazily preparing the fixed old inverse on first demand, then runs the original world-goal loop and root placement. The original root-minus-pivot displacement prepares only when that last root expression first needs it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No root, goal, contact, clinical angle, single-axis policy or rotation order changes. Current-heading admission still precedes old-heading admission. This is raw rigid geometry, never a resolver certificate, fitted target substitute or asserted resolved state.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The fixed old heading/inverse prepare only on the first actual query; each changing turn still evaluates the current heading and every original root/world goal transformation in O(L) limb work, with speedup unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit unchanged-source/pivot premise alone permits reuse of old orientation, while current yaw/pitch increments and transformed demands remain evaluated. The standalone turned path shares this owner without time/result memoization.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its original source/pivot and one fixed inverse quaternion until release. Each query returns fresh root/world-goal records with the original borrowed articulation/attached-goal ownership, retaining no query, FK reader, history or external handle.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The fixed old heading/inverse and three root-offset subtractions prepare only on first actual demand; each changing turn still evaluates the current heading, root rotation/addition and every original world goal transformation in O(L) limb work, with speedup unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit unchanged-source/pivot premise alone permits reuse of old orientation and the owned root displacement. Current yaw/pitch increments and transformed demands remain evaluated with the same subtract-rotate-add grouping. The standalone turned path shares this owner without time/result memoization.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its original source/pivot, one fixed inverse quaternion and one owned three-scalar root displacement until release. Each query returns fresh root/world-goal records with the original borrowed articulation/attached-goal ownership, retaining no query, FK reader, history or external handle.
    */
   export function prepareTurned(
     posture: IHumanPosture,
@@ -270,6 +274,9 @@ export namespace GymnasticsFlight {
     if (Math.abs(posture.roll) > 1e-9)
       throw new Error("GymnasticsFlight.turned turns a posture with no roll");
     let before: IAutoMovieQuaternion | undefined;
+    let rootOffset: IAutoMovieVector3 | undefined;
+    const rootAt: (turn: IAutoMovieQuaternion) => IAutoMovieVector3 = (turn: IAutoMovieQuaternion): IAutoMovieVector3 =>
+      Vector3.add(pivot, Quaternion.rotateVector(turn, rootOffset ??= Vector3.subtract(posture.root, pivot)));
     return (yaw: number, pitch: number): IHumanPosture => {
       const after: Pick<IHumanPosture, "yaw" | "pitch" | "roll"> = {
         yaw: posture.yaw + yaw,
@@ -301,7 +308,7 @@ export namespace GymnasticsFlight {
                   ? {}
                   : { rotation: Quaternion.multiply(turn, goal.rotation) }),
               };
-      return { ...posture, ...after, root: round(posture.root), limbs };
+      return { ...posture, ...after, root: rootAt(turn), limbs };
     };
   }
 
@@ -381,6 +388,33 @@ export namespace GymnasticsFlight {
   }
 
   /**
+   * Prepare this unchanged body's original lowest-point reading for all
+   * actual postures in one touchdown search, without retaining a sample.
+   *
+   * @param body The fixed canonical body, rig and physical profile.
+   * @returns A reader of each current posture and optional synchronous FK/ROM loans, returning the original lowest world height in metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed body/profile scope, current posture/loan inputs, metre output and touchdown-search lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation Retains lowest's original rootY-minus-rest expression. The native rest producer resolves each actual root-Y-zero trunk and reads its exact original ordered collider bounds.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Bind knockdown.prepareRest once and apply the same one-difference facade to every changing posture; raw lowest remains its ordinary standalone entry.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bracket station, posture, joint/digit admission, collider, hull vertex, floor verdict or tolerance is replaced or removed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed demand/profile selection serves Q search stations; each keeps actual canonical fitting, demanded FK, every current placement/bound and the original scalar difference. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work An explicit unchanged body/profile establishes only static demand/neutral-entry equivalence. Every current root and posture still evaluates; incoming FK/ROM loans share only current prerequisites and never supply a cached floor answer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The search owns one bounded native rest reader until return/throw. Each call returns one number, retaining no raw pose, FK/projector loan, bone map, bound or query/time history.
+   */
+  export function prepareLowest(body: IHumanBody): (
+    posture: IHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  ) => number {
+    const rest: ReturnType<typeof knockdown.prepareRest> = knockdown.prepareRest(body);
+    return (posture: IHumanPosture,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>): number =>
+      posture.root.y - rest(posture, resolution, projection);
+  }
+
+  /**
    * The centre and its velocity at a ballistic instant of a plan: an
    * instant from which the plan's displayed centre follows a parabola.
    *
@@ -392,11 +426,11 @@ export namespace GymnasticsFlight {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the premise and the units.
    * @evidence contracts/development/implementation.md#principled-implementation Two samples a millisecond and two after the instant: for c(t) = c0 + v t - g t² / 2, v = (c(2δ) - c(δ)) / δ + 3 g δ / 2 and c0 = c(δ) - v δ + g δ² / 2, exact on a parabola.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation-owned lazy reader lends the same FK workspace to each actual raw plan evaluation and its COM read; two original centres feed two formulas.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegate the two actual raw/COM observations and original formulas to prepareGymnasticsLaunch, shared with repeated take-off correction readings.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read from the displayed postures, so a plan that is not ballistic there gives what it shows.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Both original millisecond samples retain their complete actual resolution and mass reduction; their shared exact FK workspace avoids repeated unchanged dependency work, with speedup unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both changing raw plan postures, canonical preparations and COM reads borrow one explicit FK source and genuine same-body projector. Only equal FK dependencies and fixed ROM metadata share work; every current joint is projected and no sample, goal, result or velocity is cached/substituted.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local lazy getter, dynamic workspace and genuine projector release on synchronous return/throw; neither enters a retained plan, source token or output. Only fresh centre/velocity vectors escape without query history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Both original millisecond samples retain complete resolution and mass reduction; one genuine fixed-name demand and exact FK workspace avoid repeated static preparation/equal dependency work, with speedup unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Standalone and repeated launch readers share the same numerical owner. Both current raw postures and COM reads borrow one explicit FK source and genuine same-body projector; every joint remains projected without cached/substituted samples, goals or velocities.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary preparation, bounded demand, local FK getter/workspace and genuine projector release on synchronous return/throw; none enters a retained plan, source token or output. Only fresh centre/velocity vectors escape without query history.
    */
   export function launch(
     body: IHumanBody,
@@ -404,39 +438,7 @@ export namespace GymnasticsFlight {
     plan: IHumanActionPlan,
     seconds: number,
   ): { centre: IAutoMovieVector3; velocity: IAutoMovieVector3 } {
-    const delta: number = 1e-3;
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
-    const one: IAutoMovieVector3 = centre(
-      body,
-      model,
-      plan.posture(seconds + delta, undefined, resolution, projection),
-      resolution,
-      projection,
-    );
-    const two: IAutoMovieVector3 = centre(
-      body,
-      model,
-      plan.posture(seconds + 2 * delta, undefined, resolution, projection),
-      resolution,
-      projection,
-    );
-    const velocity: IAutoMovieVector3 = {
-      x: (two.x - one.x) / delta,
-      y: (two.y - one.y) / delta + 1.5 * AutoMovieGravity.STANDARD * delta,
-      z: (two.z - one.z) / delta,
-    };
-    return {
-      centre: {
-        x: one.x - velocity.x * delta,
-        y:
-          one.y -
-          velocity.y * delta +
-          0.5 * AutoMovieGravity.STANDARD * delta * delta,
-        z: one.z - velocity.z * delta,
-      },
-      velocity,
-    };
+    return prepareGymnasticsLaunch(body, model)(plan, seconds);
   }
 
   /**
@@ -472,4 +474,20 @@ export namespace GymnasticsFlight {
     }
     return high;
   }
+}
+
+/** Canonical mass-name metadata only; no model, pose, workspace or query result is retained. */
+const MASS_READERS: WeakMap<IHumanBody, {
+  rig: IHumanBody["poseResolution"];
+  read: ReturnType<typeof poseBones.prepare>;
+}> = new WeakMap();
+
+/** Bind the actual body's canonical demand after its current full solve; replace metadata on FK-owner change. */
+function massReader(body: IHumanBody, requested: ReadonlySet<AutoMovieHumanoidBone>): ReturnType<typeof poseBones.prepare> {
+  let known: ReturnType<typeof MASS_READERS.get> = MASS_READERS.get(body);
+  if (known === undefined || known.rig !== body.poseResolution) {
+    known = { rig: body.poseResolution, read: poseBones.prepare(body, requested) };
+    MASS_READERS.set(body, known);
+  }
+  return known.read;
 }

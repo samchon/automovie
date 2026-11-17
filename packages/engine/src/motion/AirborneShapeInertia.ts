@@ -4,6 +4,7 @@ import type { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMom
 import { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
 import { physicalPrincipalAxes } from "../physics/physicalPrincipalAxes";
 import type { integrateAirborneRotation } from "./integrateAirborneRotation";
+import type { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 
 /** Only this owner can issue an unobserved numeric tensor capability. */
 const OWNERS: WeakMap<integrateAirborneRotation.IInstant, IState> = new WeakMap();
@@ -24,6 +25,9 @@ interface IState {
 
   /** Undefined before the first demand, null after a refused SPD admission. */
   factor?: physicalInertiaFactor.IPrepared | null;
+
+  /** Optional native numeric counters, discarded when this history epoch ends. */
+  statistics?: AirborneShapeStatistics.IStatistics;
 }
 
 /**
@@ -35,25 +39,29 @@ interface IState {
  * thereafter the mutable principal values remain authoritative. Relative
  * momentum is evaluated synchronously, never deferred into playback.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States lazy principal materialization, unchanged numeric tensor, eager relative momentum and permanent public-observation fallback.
- * @evidence contracts/development/implementation.md#principled-implementation The symmetric tensor itself suffices for Euler's equation; choosing eigenvectors is unnecessary until a public principal value is requested. The history performs the existing positive-scale admission before stencil evaluation, and the principal reader delegates to the existing Jacobi owner.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One native accessor owns the public principal record, while a private weak entry lends a numerical factor only before that record can be observed or replaced.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Issued-object identity proves provenance only. Unobserved ownership plus an unchanged own accessor descriptor prove the tensor is still authoritative; any public observation or assignment selects the original mutable principal path.
- * @evidence contracts/development/implementation.md#efficient-algorithms Retains the history's three already-owned tensor rows without another admission scan. Jacobi and its copied rows occur only on public principal demand, and factorization only on numerical demand. Relative momentum keeps its original synchronous cost.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The immutable numeric tensor and one factor serve every physical/tangent read of this exact instant until public access. A failed factor is remembered as null, without caching any momentum-dependent answer.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each issued instant owns nine tensor scalars and optional fixed-size factor/principal data. Public observation discards the unused factor; clear additionally drops factor/accessor references and the weak registration. An externally held old instant retains only its numeric lazy principal data, with no model, bones or shape callback.
+ * @evidence contracts/development/common.md#meaningful-documentation States lazy principal materialization from the same root-frame tensor, eager relative momentum, permanent public-observation fallback, borrowed factor operations and explicit release. Optional native counters record actual factor/Jacobi calls only during the live history epoch, including refused preparations.
+ * @evidence contracts/development/implementation.md#principled-implementation Euler's equation needs the symmetric tensor, so eigenvectors are materialized only for public principal demand through the existing Jacobi owner. The history performs original scale admission before stencil evaluation. Private tensor ownership plus an unchanged unobserved accessor justify factor reuse; positive Cholesky admission stays with physicalInertiaFactor.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One native accessor owns the mutable public principal record. A private weak entry lends the numerical factor before that accessor is observed or replaced; factor delegates SPD work, and release discards preparation and unregisters the instant.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Issued-object identity proves provenance only: intact accessor identity and unobserved ownership also establish tensor authority. Public get/set or descriptor replacement permanently select the original mutable-principal path; foreign and non-SPD records fall back without a caller flag, repaired tensor or changed error bound.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Retains the history's three owned tensor rows without another admission scan. Public Jacobi copies rows only on its first actual demand. Factor lookup adds constant weak/descriptor checks and at most one fixed-size factorization per eligible instant; repeated failures remember null. Optional instrumentation adds guarded scalar increments, without callbacks or query arrays.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The exact private tensor and one factor serve all current right-hand sides before public observation, without caching attitude, momentum or relative-motion answers. First public materialization retains its mutable principal record instead. Repeated release is harmless and never recreates numerical eligibility.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each weakly keyed instant owns nine tensor scalars and optional fixed-size factor/principal state. Observation discards its now-unused factor. Release explicitly clears factor/get/set/statistics references before deleting the weak entry, including when an old public accessor remains externally held; that accessor retains only numeric materialization data, with no body, pose, model or shape callback.
  */
 export function AirborneShapeInertia(
   matrix: number[][],
   relative: IAutoMovieVector3,
+  statistics?: AirborneShapeStatistics.IStatistics,
 ): integrateAirborneRotation.IInstant {
-  const state: IState = { matrix, get: undefined, set: undefined, observed: false };
+  const state: IState = { matrix, get: undefined, set: undefined, observed: false, statistics };
   let principal: resolveAutoMovieMomentum.IPrincipal | undefined;
   const instant: integrateAirborneRotation.IInstant = {
     get inertia(): resolveAutoMovieMomentum.IPrincipal {
       state.observed = true;
       state.factor = undefined;
-      principal ??= physicalPrincipalAxes(matrix.map((row: number[]): number[] => [...row]));
+      if (principal === undefined) {
+        if (state.statistics !== undefined) state.statistics.publicJacobi++;
+        principal = physicalPrincipalAxes(matrix.map((row: number[]): number[] => [...row]));
+      }
       return principal;
     },
     set inertia(value: resolveAutoMovieMomentum.IPrincipal) {
@@ -82,13 +90,6 @@ export namespace AirborneShapeInertia {
   /**
    * Borrow the immutable factor only while the tensor is privately authoritative.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Returns undefined for foreign, observed, replaced or non-SPD records; a successful factor is borrowed and has independent-output methods.
-   * @evidence contracts/development/implementation.md#principled-implementation Private tensor ownership and the unchanged unobserved accessor prove equivalence; finite positive Cholesky admission is supplied by physicalInertiaFactor.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Check provenance and public-observation state, check the accessor descriptor, then lazily prepare the sole tensor factor.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changing a getter, setter, data property or public principal value cannot certify stale tensor reuse; fallback leaves established error and principal behavior intact.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant weak lookup and accessor comparisons per demand, with at most one constant-size factorization per eligible instant and no eigensolve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the exact owned tensor of this instant supplies all right-hand-side solves; neither world attitude nor momentum is cached.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The factor stays in this instant's weak state until release or collection, without retaining a query reader, pose or model.
    */
   export function factor(
     instant: integrateAirborneRotation.IInstant,
@@ -101,20 +102,16 @@ export namespace AirborneShapeInertia {
       state.factor = undefined;
       return undefined;
     }
-    if (state.factor === undefined) state.factor = physicalInertiaFactor(state.matrix);
+    if (state.factor === undefined) {
+      if (state.statistics !== undefined) state.statistics.factorizations++;
+      state.factor = physicalInertiaFactor(state.matrix);
+    }
     return state.factor ?? undefined;
   }
 
   /**
    * End numeric eligibility while leaving an issued public instant readable.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Invalidates the private capability without modifying independent principal or relative output values.
-   * @evidence contracts/development/implementation.md#principled-implementation Deleting the weak registration makes later internal consumers follow the same public principal path as an arbitrary ordinary instant.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Discard factor/accessor references, then remove the weak registration under the history's existing explicit epoch release.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No public record is cleared, clamped or made unusable by releasing private numerical work.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time and no traversal of tensor or principal coordinates.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Repeated release is harmless and never recreates a private capability.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Clears preparation even when an externally retained instant's accessor still holds its numeric state, then deletes the weak entry. Only the tensor needed for later lazy public materialization and independent public values remain with that instant.
    */
   export function release(instant: integrateAirborneRotation.IInstant): void {
     const state: IState | undefined = OWNERS.get(instant);
@@ -122,6 +119,7 @@ export namespace AirborneShapeInertia {
       state.factor = undefined;
       state.get = undefined;
       state.set = undefined;
+      state.statistics = undefined;
     }
     OWNERS.delete(instant);
   }

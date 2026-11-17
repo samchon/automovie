@@ -1,10 +1,13 @@
 import {
   Quaternion,
   Vector3,
+  type IAutoMovieResolvedBone,
   integrateAirborneRotation,
+  type resolveAutoMovieCenterOfMass,
   solveAirborneTakeoff,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -23,11 +26,14 @@ import { TestValidator } from "@nestia/e2e";
  * The requested adaptive budget is the flight pass's 0.005 relative with
  * zero absolute tolerance. Actual landing and winding use the existing
  * takeoff solver's angular tolerance, independently of its reported residual.
+ * The existing adaptive identity-world cell uses an actual factory history
+ * of that same single-part tensor, so operation-owned mesh/shape reuse is
+ * exercised without adding a shooting case. Other cells retain raw history.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the tensor, known feasible momentum, tilt bound, winding, frames and unchanged admission tolerance.
  * @evidence contracts/development/testing.md#behavioral-verification Calls public shooting on an independently feasible request and observes actual quaternion playback; inaccurate sensitivity causing refusal, a missed turn or a world-frame error fails.
  * @evidence contracts/development/testing.md#independent-expectations A rigid body rotating about a principal axis has constant L/I; the tilted-axis long-vector ellipse winds once and the 2 pi rotation lands at q0. No unique solved momentum is presumed.
- * @evidence contracts/development/testing.md#distinguishing-cases Fixed and adaptive solving, identity and rotated world frames, direct known-momentum integration and the corrected shooting answer.
+ * @evidence contracts/development/testing.md#distinguishing-cases Fixed and adaptive solving, identity and rotated world frames, direct known-momentum integration and the corrected shooting answer. One existing adaptive cell uses actual single-part factory provenance, while the other raw-history cells retain the general consumer path.
  * @evidence contracts/development/testing.md#execution-ownership One unit test of constant numeric inertia and public engine functions; it starts no host.
  */
 export function test_engine_airborne_takeoff_tilted(): void {
@@ -47,6 +53,16 @@ export function test_engine_airborne_takeoff_tilted(): void {
       inertia: { moments: { x: 1, y: 2, z: 3 }, rotation: principal },
       relative: { x: 0, y: 0, z: 0 },
     });
+  const model: resolveAutoMovieCenterOfMass.IModel = {
+    mass: 1,
+    segments: [{ bone: "hips", mass: 1, point: { x: 0, y: 0, z: 0 },
+      inertia: { x: 1, y: 2, z: 3 }, axes: identity }],
+  };
+  const native: integrateAirborneRotation.ICachedHistory = integrateAirborneRotation.history(model,
+    (): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => new Map([
+      ["hips", { bone: "hips", localRotation: identity, worldPosition: { x: 0, y: 0, z: 0 }, worldRotation: principal }],
+    ]),
+  );
   const observe: (
     flight: integrateAirborneRotation.IFlight,
     q0: IAutoMovieQuaternion,
@@ -73,17 +89,19 @@ export function test_engine_airborne_takeoff_tilted(): void {
     }
     return { winding, landing: Quaternion.angle(q0, flight.orientation(1)) };
   };
+  try {
   for (const q0 of [
     identity,
     Quaternion.fromAxisAngle({ x: 1, y: 2, z: 3 }, 97),
   ])
     for (const adaptive of [false, true]) {
+      const selected: integrateAirborneRotation.IHistory = adaptive && q0 === identity ? native : history;
       const precision: NonNullable<
         integrateAirborneRotation.IProps["tolerance"]
       > = { relative: 0.005, absolute: 0 };
       const known: integrateAirborneRotation.IFlight =
         integrateAirborneRotation({
-          history,
+          history: selected,
           t0: 0,
           t1: 1,
           q0,
@@ -94,7 +112,7 @@ export function test_engine_airborne_takeoff_tilted(): void {
           ...(adaptive ? { tolerance: precision } : {}),
         });
       const solved: solveAirborneTakeoff.ISolution = solveAirborneTakeoff({
-        history,
+        history: selected,
         t0: 0,
         t1: 1,
         q0,
@@ -123,6 +141,9 @@ export function test_engine_airborne_takeoff_tilted(): void {
           `known-feasible tilted takeoff refused, adaptive=${adaptive}: ${JSON.stringify(solved.residual)}`,
         );
     }
+  } finally {
+    native.clear();
+  }
   TestValidator.predicate(
     `tilted anisotropic takeoff: ${findings.join("; ") || "all hold"}`,
     findings.length === 0,

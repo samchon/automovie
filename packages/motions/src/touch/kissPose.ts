@@ -9,25 +9,24 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { kiss } from "./kiss";
 
 /**
- * Prepare a kiss search's fixed heading offset and shared cervical twist.
- * Every candidate still rises, pivots and adds its actual head flexion to
- * the entry's authored joints in the original arithmetic order.
+ * Build each actual kiss-search candidate from the current raw entry.
+ * Only the primitive fixed cervical twist is prepared; every candidate
+ * re-reads heading, standing rise, pivot and authored joint additions.
  *
  * @param body The unchanged canonical body for this synchronous search.
- * @param entry The unchanged entry posture.
- * @param stance Its unchanged standing foot placements.
- * @param twist The fixed head twist, degrees.
- * @param behind The fixed backward displacement along entry heading, metres.
- * @returns A fresh candidate posture reader, optionally borrowing the exact
- * foot-rise displacement already computed for that candidate's raise.
+ * @param entry The borrowed raw entry, whose fields/getters remain current.
+ * @param stance The standing placements read by every original rise.
+ * @param twist The fixed primitive head twist, degrees.
+ * @param behind The backward displacement along current entry heading, metres.
+ * @returns A fresh complete candidate posture for actual pitch/roll/flexion/raise.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States fixed body/entry/stance, angular and displacement units, fresh changing candidates and the exact optional rise premise.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the original foot-rise, trunk-pivot and cervical-sharing owners and the same ordered root additions and existing-joint angle additions for every candidate.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Heading offset and fixed twist are prepared once; the returned reader owns only the current candidate's rise, pivot and flexion assembly.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No candidate, authored joint, rise, lean or target is approximated or skipped. A supplied rise must be the original lift for the exact same body/stance/raise; omitted rise runs the ordinary lift owner.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fixed heading trigonometry and head-twist sharing run once per search. A least group can explicitly share its single actual raise displacement; each candidate still pays its own pivot, flexion, complete authored assembly and downstream FK, with no measured speedup.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The synchronous caller fixes body, entry, stance, twist and backward offset. Only those invariant values and an explicitly identical raise displacement are reused; changed candidate angles always create a fresh actual posture.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The search owns this closure and its fixed vectors until return or throw. No candidate posture, FK workspace, time, solved answer or history is stored; only the search's selected scalar angles and miss escape.
+ * @evidence contracts/development/common.md#meaningful-documentation States raw entry/stance observation, primitive angular/displacement units and fresh current candidate ownership.
+ * @evidence contracts/development/implementation.md#principled-implementation Uses the original standing-foot rise, trunk pivot, cervical sharing and ordered root/joint additions for every actual candidate.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed scalar twist supplies shared cervical constants; the returned reader independently computes current heading/rise/pivot/flexion and fresh authored fields.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No entry identity certifies fixed raw authoring. Every candidate re-reads its original entry heading, foot rise, pivot and joint fields without a supplied cached displacement, changed angle or omitted physical fit.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The primitive fixed twist's constant head-share record prepares once, while all original candidate rise, heading, pivot, current authored assembly and downstream FK work remains. Speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the immutable primitive twist and head-share formula establish reusable constants. Raw entry/stance fields and changing candidate angles are evaluated independently, with no pose, shoulder, rise or solved-answer memo.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous search owns this reader and fixed cervical constants until return or throw. It stores no candidate pose, derived raw offset, FK workspace, time, displacement or history; only selected scalar angles/miss escape the enclosing solve.
  */
 export function kissPose(
   body: IHumanBody,
@@ -35,17 +34,17 @@ export function kissPose(
   stance: AutoMovieMotionHumanRise.Stance,
   twist: number,
   behind: number,
-): (s: Pick<kiss.ISolved, "pitch" | "roll" | "flexion" | "raise">, raised?: IAutoMovieVector3) => IHumanPosture {
-  const yaw: number = (entry.yaw * Math.PI) / 180;
-  const offset: IAutoMovieVector3 = { x: -Math.sin(yaw) * behind, y: 0, z: -Math.cos(yaw) * behind };
+): (s: Pick<kiss.ISolved, "pitch" | "roll" | "flexion" | "raise">) => IHumanPosture {
   const turn: ReturnType<typeof AutoMovieMotionHumanHead.share> = AutoMovieMotionHumanHead.share(2, twist);
-  return (s: Pick<kiss.ISolved, "pitch" | "roll" | "flexion" | "raise">, raised?: IAutoMovieVector3): IHumanPosture => {
+  return (s: Pick<kiss.ISolved, "pitch" | "roll" | "flexion" | "raise">): IHumanPosture => {
+    const yaw: number = (entry.yaw * Math.PI) / 180;
+    const offset: IAutoMovieVector3 = { x: -Math.sin(yaw) * behind, y: 0, z: -Math.cos(yaw) * behind };
     const leaned: IHumanPosture = AutoMovieMotionHumanLean.pivot(
       body,
       {
         ...entry,
         root: Vector3.add(
-          Vector3.add(entry.root, raised ?? AutoMovieMotionHumanRise.lift(body, stance, s.raise)),
+          Vector3.add(entry.root, AutoMovieMotionHumanRise.lift(body, stance, s.raise)),
           offset,
         ),
       },

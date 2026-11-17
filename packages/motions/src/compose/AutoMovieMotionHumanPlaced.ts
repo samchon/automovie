@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
@@ -82,17 +83,19 @@ export namespace AutoMovieMotionHumanPlaced {
      * @param seconds Seconds since the action's start.
      * @returns The point in world metres, the unit direction the surface faces (its normal, pointing away from the surface) and, when the hand's fingers must point a given way, that unit direction.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States both arguments, the space and unit of the point, the sense of the normal and when the forward direction is given.
+     * @evidence contracts/development/common.md#meaningful-documentation States current posture/relative seconds, world-metre point, outward unit facing and optional forward; optional FK/ROM loans belong only to this same-person invocation and must not be stored.
      * @evidence contracts/development/implementation.md#principled-implementation The place is read on the posture so far, so a place on the performer's own moving body or on a moving object is followed frame by frame.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One query returning the three quantities the arm goal needs.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The facing is required, so the hand's orientation is never guessed from the point alone.
      * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The arm forwards genuine optional current-person FK/ROM loans to the actual callback, which may borrow them only at its existing observations; absent loans preserve native paths.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive keeps its original callback, while current-call posture/FK/ROM arguments belong only to this synchronous invocation and must not enter returned places, the plan or query history.
      */
     place(
       posture: IHumanPosture,
       seconds: number,
+      resolution?: IFK,
+      projection?: IROM,
     ): {
       point: IAutoMovieVector3;
       facing: IAutoMovieVector3;
@@ -123,8 +126,8 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One carried arm and one hand shape.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The weight is clamped by the carry.
    * @evidence contracts/development/implementation.md#efficient-algorithms Fixed hand surface/options prepare once per arm; each actual goal shares one wrist placement with its default bend and final assembly, while every original bend/carry trajectory/full-posture solve remains. Runtime improvement is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanHandTarget.prepareGoal owns fixed geometry and dynamic orientation/preset policy; ArmTarget's shared assembly retains exact contact admission and the original hand/carry primitives retain composition.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Primitives retain props and constant prepared surface/options until the action is released; each target's lazy wrist is local and no pose/time result history or solver reader enters the plan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanHandTarget owns fixed geometry/dynamic orientation, ArmTarget owns contact assembly and original hand/carry primitives keep composition. Current-person FK/ROM inputs flow synchronously to each actual place callback rather than preparing independent observation contexts there.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Primitives keep props and constant surface/options until release. Optional current-call FK/ROM inputs and each lazy wrist remain synchronous, without retained loans, query pose/time history or solver readers in the plan.
    */
   export function arm(props: IArm): IAutoMovieMotionHumanPrimitive[] {
     const surface: HumanHand.Surface = props.surface ?? "palm";
@@ -144,8 +147,10 @@ export namespace AutoMovieMotionHumanPlaced {
         goal: (
           posture: IHumanPosture,
           seconds: number,
+          resolution?: IFK,
+          projection?: IROM,
         ): IHumanPosture.IGoal => {
-          const at: ReturnType<IArm["place"]> = props.place(posture, seconds);
+          const at: ReturnType<IArm["place"]> = props.place(posture, seconds, resolution, projection);
           return target(posture, { point: at.point, normal: Vector3.scale(at.facing, -1) }, at.forward);
         },
       }),
@@ -212,22 +217,24 @@ export namespace AutoMovieMotionHumanPlaced {
    * @param body The body.
    * @param posture The posture, as written so far.
    * @param bone A bone of the trunk, the head or a shoulder girdle, or an upper arm, whose joint the girdle carries.
+   * @param resolution Optional same-person FK source borrowed for this raw observation only.
    * @returns The joint's point.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, which bones are valid and the result's frame.
+   * @evidence contracts/development/common.md#meaningful-documentation States valid current trunk/girdle joint inputs and world-metre output; optional same-person FK is borrowed only for the existing raw authored-joint observation.
    * @evidence contracts/development/implementation.md#principled-implementation A place on the performer's own trunk (ahead of the chest, under the shoulders, behind the head) moves with the trunk's pitch, roll and drop, so it is read from the trunk's forward kinematics on the posture written so far.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup of one resolve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A limb bone below the shoulder joint is not placed by a posture and is not offered by the parameter's documentation.
    * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass per call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanTrunk.resolve`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates actual requested output to HumanTrunk.resolve, optionally borrowing this same-person FK source without changing raw admission or adding ROM projection.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function joint(
     body: IHumanBody,
     posture: IHumanPosture,
     bone: AutoMovieHumanoidBone,
+    resolution?: IFK,
   ): IAutoMovieVector3 {
-    return HumanTrunk.resolve(body, posture, undefined, undefined,
+    return HumanTrunk.resolve(body, posture, undefined, resolution,
       new Set<AutoMovieHumanoidBone>([bone])).get(bone)!.worldPosition;
   }
 
@@ -241,6 +248,7 @@ export namespace AutoMovieMotionHumanPlaced {
    * @param standing The posture the point was stated on.
    * @param posture The posture, as written so far.
    * @param point The point on `standing`, world metres.
+   * @param resolution Optional same-person FK loan borrowed only by the current chest observation; the source standing read remains cold.
    * @returns The point on `posture`, world metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is carried, between which postures, and a use.
@@ -248,16 +256,17 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two resolves and one change of frame.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The chest's frame is read from the trunk's forward kinematics, so every joint below it counts, not one stated angle.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two forward-kinematics passes per call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanTrunk.resolve`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every call retains its original source and current raw trunk reads; an optional current-person loan shares only current exact FK metadata and never prepares the borrowed standing graph across calls.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Source/current point-transform scratch and the optional FK loan end with this synchronous call. Only the fresh world point escapes, without a retained posture, reader, query history or handle.
    */
   export function carried(
     body: IHumanBody,
     standing: IHumanPosture,
     posture: IHumanPosture,
     point: IAutoMovieVector3,
+    resolution?: IFK,
   ): IAutoMovieVector3 {
-    return carryFrom(body, standing)(posture)(point);
+    return carryFrom(body, standing)(posture, resolution)(point);
   }
 
   /**
@@ -267,24 +276,24 @@ export namespace AutoMovieMotionHumanPlaced {
    * @param standing The unchanged posture where each source point was authored.
    * @returns A current-posture reader; each call reads its chest once and returns a point transform from the original world frame to the current world frame.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the immutable source frame, varying current posture, two world-metre point frames and lifetime of both readers.
+   * @evidence contracts/development/common.md#meaningful-documentation States immutable source frame, varying current posture, world-metre points and reader lifetime; optional same-person FK is borrowed only at the current chest read and raw authored-trunk policy remains unchanged.
    * @evidence contracts/development/implementation.md#principled-implementation Uses the original current-chest times inverse-source-chest rigid transform; the source inverse and each current relative rotation are independent of the points they carry.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Source preparation, one current chest read and a pure point transform expose the two distinct invariant scopes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every current posture still performs canonical authored-joint FK with its actual root; no time samples, body size assumptions or fitted motion results are reused.
    * @evidence contracts/development/implementation.md#efficient-algorithms One demanded source chest FK per plan and one demanded current chest FK per place evaluation replace two FK calls per carried point; P points then use O(P) rigid transforms.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the same unchanged body and source posture share their chest frame; one current-posture call shares only that call's actual chest among its point transforms.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same unchanged body/source posture share only the source chest; one current call shares its actual chest among its points. An optional same-person FK loan shares original raw chest dependencies while changed current posture still receives its actual read.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns one source chest frame and inverse; each evaluation owns one current point-transform closure until its points are placed, with no FK reader or current-time history stored in the plan.
    */
   export function carryFrom(
     body: IHumanBody,
     standing: IHumanPosture,
-  ): (posture: IHumanPosture) => (point: IAutoMovieVector3) => IAutoMovieVector3 {
+  ): (posture: IHumanPosture, resolution?: IFK) => (point: IAutoMovieVector3) => IAutoMovieVector3 {
     const from: IAutoMovieResolvedBone =
       HumanTrunk.resolve(body, standing, undefined, undefined, CHEST).get("chest")!;
     const inverse: ReturnType<typeof Quaternion.inverse> = Quaternion.inverse(from.worldRotation);
-    return (posture: IHumanPosture): (point: IAutoMovieVector3) => IAutoMovieVector3 => {
+    return (posture: IHumanPosture, resolution?: IFK): (point: IAutoMovieVector3) => IAutoMovieVector3 => {
       const to: IAutoMovieResolvedBone =
-        HumanTrunk.resolve(body, posture, undefined, undefined, CHEST).get("chest")!;
+        HumanTrunk.resolve(body, posture, undefined, resolution, CHEST).get("chest")!;
       const rotation: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(to.worldRotation, inverse);
       return (point: IAutoMovieVector3): IAutoMovieVector3 => Vector3.add(
         to.worldPosition,
@@ -298,6 +307,7 @@ export namespace AutoMovieMotionHumanPlaced {
    *
    * @param body The body.
    * @param posture The posture, as written so far.
+   * @param resolution Optional current-person FK source borrowed for this raw authored-trunk observation.
    * @returns The point.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
@@ -305,15 +315,16 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolve and one mean.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read on the displayed trunk, never rebuilt from the measure's heights.
    * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics pass per call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanTrunk.resolve`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates both actual shoulder outputs to HumanTrunk.resolve, borrowing optional same-person FK without changing authored-joint admission or adding ROM projection.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function shoulders(
     body: IHumanBody,
     posture: IHumanPosture,
+    resolution?: IFK,
   ): IAutoMovieVector3 {
     const bones: ReturnType<typeof HumanTrunk.resolve> =
-      HumanTrunk.resolve(body, posture, undefined, undefined, SHOULDERS);
+      HumanTrunk.resolve(body, posture, undefined, resolution, SHOULDERS);
     return Vector3.lerp(
       bones.get("leftUpperArm")!.worldPosition,
       bones.get("rightUpperArm")!.worldPosition,
@@ -449,3 +460,9 @@ const CHEST: ReadonlySet<AutoMovieHumanoidBone> = new Set(["chest"]);
 
 /** Joints whose midpoint places a two-hand target. */
 const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm"]);
+
+/** Genuine current-person exact FK source borrowed only by actual observations. */
+type IFK = Parameters<IHumanActionPlan["posture"]>[2];
+
+/** Genuine current-person ROM metadata forwarded without changing raw authored-trunk policy. */
+type IROM = Parameters<IHumanActionPlan["posture"]>[3];

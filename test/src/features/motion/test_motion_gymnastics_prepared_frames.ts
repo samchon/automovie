@@ -12,6 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  GymnasticsFlight,
   GymnasticsMat,
   GymnasticsWheel,
   HumanChain,
@@ -41,16 +42,19 @@ import { vclose } from "../internal/vclose";
  * 2. Average-man and small-woman touchdown postures settle onto a 0.45 metre
  *    mat. At start, one-third, half, completion and hold, the actual lowest
  *    collider remains on that authored height, and horizontal COM follows
- *    the unit-entry-velocity quintic's exact rational values.
+ *    the unit-entry-velocity quintic's exact rational values. A prepared
+ *    lowest-point reader observes each actual shape at varying root Y.
  * 3. Mat queries arrive out of order. Mutating an earlier root and clinical
  *    head demand cannot change a later query or overwrite that earlier result.
  * 4. A five-row wheel joins each bone's contiguous support and preserves
  *    its literal first/last row times, including singleton and empty tables.
+ * 5. Signed-zero endpoint angles keep their distinct signs through the
+ *    analytic angle/360 clock, even when contact endpoints share a reading.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States canonical Human provenance, metre/degree frames, physical targets, rational time coefficients, result ownership and the four scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Exercises actual public handspring performance and GymnasticsMat.lie consumers, reading their canonical displayed geometry through full ordinary FK and independent mass/floor reductions; public wheel contact conversion is checked against hand-written run endpoints.
- * @evidence contracts/development/testing.md#independent-expectations Gravity fixes the flight second difference; a literal Y37 matrix plus authored translation fixes placement covariance within 1e-6 metres. The unit-initial-slope quintic with zero endpoint value/acceleration has coefficients 16/81 and 5/32 at thirds/halves. The authored mat height fixes the actual full-bound minimum. COM/floor arithmetic uses 1e-7 metres, with four such errors propagated through second differences. Canonical resolver, profile placement and the complete bounds geometry remain shared oracle owners, so this does not independently certify all of their internal geometry; full min/max bounds independently observe the new min-Y-only path.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers rotated/translated fixed flight, two Human proportions, changing joint/trunk mat geometry, positive/negative horizontal rates, start/interior/end/hold and repeated-time result mutation, plus continued/reopened/singleton/empty support runs. Existing action tests retain ROM, hand slip, takeoff continuity and whole-body physical admission coverage.
+ * @evidence contracts/development/common.md#meaningful-documentation States canonical Human provenance, metre/degree frames, physical targets, rational time coefficients, result ownership and the five scenarios, including exact signed-zero clock endpoints.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises public handspring performance and GymnasticsMat.lie through complete ordinary FK and independent mass/full-bound reductions. Public prepareLowest observes the same changing shapes with independently shifted root Y, and wheel contacts retain hand-written endpoints/signed-zero clock semantics.
+ * @evidence contracts/development/testing.md#independent-expectations Gravity fixes the flight second difference; a literal Y37 matrix plus authored translation fixes covariance within 1e-6m. The unit-entry-slope quintic gives 16/81 and 5/32 at thirds/halves; authored mat height fixes the full-bound minimum and rigid Y translation adds its displacement. COM/floor allows 1e-7m and four such errors through second differences. Angle/360 preserves a zero's sign, checked by Object.is. Full min/max bounds observe scalar min-Y, but shared canonical resolver/profile placement/geometry internals are not independently certified.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers rigidly placed fixed flight, two Human proportions, changing mat geometry and independent Y translations, positive/negative rates, start/interior/end/hold and output mutation, plus continued/reopened/singleton/empty runs and both zero-angle signs under one clock. Existing action tests retain ROM, hand slip, takeoff continuity and whole-body physical admission coverage.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable in-memory unit borrows unchanged canonical Human fixtures and owns all source/query/result records. It uses existing public package exports, starts no host or process, replaces no method/global, and adds no test-only product export.
  */
 export function test_motion_gymnastics_prepared_frames(): void {
@@ -146,6 +150,7 @@ function mat(name: motionHumanBody.Name): void {
   const lie: ReturnType<typeof GymnasticsMat.lie> = GymnasticsMat.lie({
     body, model: body.massModel, from, velocity, height,
   });
+  const lowest: ReturnType<typeof GymnasticsFlight.prepareLowest> = GymnasticsFlight.prepareLowest(body);
   const duration: number = GymnasticsMat.SETTLE;
   const samples: readonly { seconds: number; carry: number }[] = [
     { seconds: 0, carry: 0 },
@@ -156,7 +161,8 @@ function mat(name: motionHumanBody.Name): void {
     { seconds: 0, carry: 0 },
   ];
   let earlier: IHumanPosture | undefined;
-  for (const sample of samples) {
+  for (let index: number = 0; index < samples.length; index++) {
+    const sample: (typeof samples)[number] = samples[index]!;
     const raw: IHumanPosture = lie(sample.seconds);
     const actual: IReading = reading(body, model, resolveHumanPosture(body, raw));
     TestValidator.predicate(`${name} changing mat shape keeps its actual lowest collider on the authored height`,
@@ -165,6 +171,10 @@ function mat(name: motionHumanBody.Name): void {
     TestValidator.predicate(`${name} actual horizontal COM follows the unit-entry-velocity quintic`,
       nclose(actual.centre.x, start.centre.x + velocity.x * sample.carry, 1e-7) &&
       nclose(actual.centre.z, start.centre.z + velocity.z * sample.carry, 1e-7),
+    );
+    const lift: number = (index - 2) / 10;
+    TestValidator.predicate(`${name} prepared lowest reads the current shape and root Y`,
+      nclose(lowest({ ...raw, root: { ...raw.root, y: raw.root.y + lift } }), height + lift, 1e-7),
     );
     if (earlier !== undefined)
       TestValidator.predicate("later mat queries neither share nor overwrite earlier caller records",
@@ -216,6 +226,17 @@ function contacts(): void {
   TestValidator.predicate("a singleton hand support retains both zero-length contacts",
     singleton.length === 2 && singleton.every((window: IHumanContactWindow): boolean =>
       window.part.endsWith("Hand") && nclose(window.from, 1 / 2, 0) && nclose(window.to, 1 / 2, 0)),
+  );
+  const zeroWindows: IHumanContactWindow[] = GymnasticsWheel.contacts(
+    { ...wheel, rows: [
+      { angle: -0, root: origin, bears: 0 },
+      { angle: 0, root: origin, bears: 2 },
+    ] }, spokes, (angle: number): number => angle / 360,
+  );
+  TestValidator.predicate("the analytic clock preserves each signed-zero endpoint",
+    zeroWindows.length === 4 &&
+    Object.is(zeroWindows[0]!.from, -0) && Object.is(zeroWindows[0]!.to, -0) &&
+    Object.is(zeroWindows[2]!.from, 0) && Object.is(zeroWindows[2]!.to, 0),
   );
 }
 

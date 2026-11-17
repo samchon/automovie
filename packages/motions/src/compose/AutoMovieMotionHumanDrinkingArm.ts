@@ -168,7 +168,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One solve, one bone read and four readings.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The readings are the resolver's fit within the joints' ranges, never the asked goal.
    * @evidence contracts/development/implementation.md#efficient-algorithms Keeps the actual arm fit and referred reference fit; canonical selection omits only proven unrelated digit goals and final FK requests upper/lower arm, hand and hip frames. Every direct joint is still admitted, and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One local exact reader connects the referred reference, actual canonical fit and demanded FK; a parent may lend same-body FK/genuine ROM metadata. Source provenance retains only exact free-leg checks, and all actual fits/admission remain with their owners.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One local exact reader connects the referred reference, actual canonical fit and demanded FK; a parent may lend same-body FK/genuine ROM metadata. Every current raw goal and authored joint receives the resolver's original admission/fitting without a partial-leg reuse assertion.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The four-name demand and lazy exact FK preparation end on synchronous return/throw; the scalar result retains no pose, reader or candidate history.
    */
   export function read(
@@ -186,7 +186,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
       `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`, `${side}UpperLeg`,
     ]);
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
-    const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, resolveHumanPosture.rebased(posture, {
+    const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, {
       ...posture,
       limbs: {
         ...posture.limbs,
@@ -204,7 +204,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
             }
           : goal,
       },
-    }), undefined, undefined, resolution, requested, projection).pose;
+    }, undefined, undefined, resolution, requested, projection).pose;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       pose,

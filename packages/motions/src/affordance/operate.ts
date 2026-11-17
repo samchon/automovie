@@ -1,8 +1,5 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieMotionTarget,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieMotionTarget } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -10,19 +7,18 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLeanInto } from "../compose/AutoMovieMotionHumanLeanInto";
-import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import type { StrikingHeld } from "../striking/StrikingHeld";
 import { operateDrive } from "./operateDrive";
+import { operateHand } from "./operateHand";
 import { operateInsert } from "./operateInsert";
 import { operateState } from "./operateState";
 
@@ -200,6 +196,14 @@ export namespace operate {
    *
    * @param context The action's context.
    * @returns The plan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the operation's world effector goal, original reach/stroke clock, articulation drive and standing/carrier overlay; operateHand documents the full-target versus wrist-only consumers.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand follows the mechanism's original geometry or actual posed articulation; the original least-reaching lean is found by the same balanced pitch scan/bisection. Full arm targets retain actual default elbow selection and contact-aware arm placement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed mechanism/timing preparation delegates one hand-frame owner to the lean's wrist observation and the arm phrase's full target, then composes the unchanged base, lean and stroke.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves every nine planning reach probes, balance solve, pitch scan/bisection, insertion roll fit, full target Bend, contact window, drive, refusal and phase time; only wrist-only probes omit the elbow result they never consume.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Entry FK requests only the actual origin surface. Fixed hand geometry or insertion axis/grid prepares once; reach observations avoid an unconsumed bounded Bend sweep and repeated hand geometry. Every actual complete target and original lean cost remains; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged body/side/mechanism/initial place and clock fix only shared hand geometry. Every actual plan/runtime articulated target retains the original adjacent-float progress inversion, clock calls and external part.place film-second observation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns fixed mechanism/clock/hand metadata and the original bounded lean-shift table until release. Current frames, targets and wrist observations remain query-local with no new time/pose/fit history or borrowed solver reader retained.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -290,111 +294,10 @@ export namespace operate {
       context,
       duration,
     );
-    const surface: HumanHand.Surface =
-      mechanism.kind === "button" ? "indexTip" : "grip";
-    const shape: HumanHand.Shape =
-      mechanism.kind === "button" ? "point" : "relaxed";
-    const rigid: ReturnType<typeof operateState.prepare> | undefined =
-      part === undefined && mechanism.kind !== "insert"
-        ? operateState.prepare(mechanism, place, hinge) : undefined;
-    const insertion: ReturnType<typeof operateInsert.prepare> | undefined =
-      mechanism.kind === "insert"
-        ? operateInsert.prepare(context, mechanism, inserted!, place) : undefined;
-    const strokeStart: number = clock.at("strokeStart");
-    const strokeEnd: number = clock.at("strokeEnd");
-    // Arbitrary-progress plan probes invert the original clock to adjacent
-    // floats. Runtime targets already know their actual clock second and
-    // pass it through inside the stroke. Endpoints retain their own phase
-    // instants, including a synthetic progress-zero read used for extent.
-    const reached: (progress: number) => number = (progress: number): number => {
-      let lo: number = strokeStart;
-      let hi: number = strokeEnd;
-      if (!(progress > 0)) return lo;
-      if (!(progress < 1)) return hi;
-      for (;;) {
-        const mid: number = (lo + hi) / 2;
-        if (mid === lo || mid === hi) return mid;
-        if (clock.progress("strokeStart", "strokeEnd", mid) < progress) lo = mid;
-        else hi = mid;
-      }
-    };
-    const target: (posture: IHumanPosture, progress: number, seconds?: number) => AutoMovieMotionHumanArm.ITarget = (
-      posture: IHumanPosture,
-      progress: number,
-      seconds?: number,
-    ): AutoMovieMotionHumanArm.ITarget => {
-      if (mechanism.kind === "insert")
-        return insertion!(posture, progress);
-      const now: {
-        point: IAutoMovieVector3;
-        normal: IAutoMovieVector3;
-        roll: number;
-      } =
-        part === undefined
-          ? rigid!(progress)
-          : {
-              ...part.place(progress, context.start + (seconds === undefined
-                ? reached(progress)
-                : !(progress > 0) ? strokeStart
-                  : !(progress < 1) ? strokeEnd
-                    : Math.max(strokeStart, Math.min(strokeEnd, seconds)))),
-              roll: mechanism.kind === "knob" ? mechanism.turn * progress : 0,
-            };
-      const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-      const ahead: IAutoMovieVector3 = HumanFrame.point(
-        { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-        { x: 0, y: 0, z: 1 },
-      );
-      // A grasped part on an upright face is taken with the forearm along
-      // the face's normal: overhand on a handle, the palm on its top and the
-      // fingers hooked over it; on a knob that grasp rolled about the axis
-      // to the forearm's neutral, the palm facing inward, and from there
-      // half the turn back, so the turn is centred in the forearm's
-      // pronation and supination. A lid's knob takes the palm from above.
-      // The knob's roll turns the grasp itself, so the elbow's place is
-      // solved for the hand as it is turned.
-      const upright: boolean =
-        mechanism.kind !== "button" && Math.abs(now.normal.y) < UPRIGHT;
-      const spin: ReturnType<typeof Quaternion.fromAxisAngle> = Quaternion.fromAxisAngle(
-        now.normal,
-        mechanism.kind !== "knob"
-          ? 0
-          : (upright ? (side === "left" ? 90 : -90) : 0) +
-              mechanism.turn / 2 -
-              now.roll,
-      );
-      return AutoMovieMotionHumanTarget.hand(
-        body,
-        posture,
-        side,
-        upright
-          ? { point: now.point, normal: Quaternion.rotateVector(spin, up) }
-          : now,
-        {
-          surface,
-          shape,
-          forward:
-            mechanism.kind === "button"
-              ? up
-              : upright
-                ? Quaternion.rotateVector(
-                    spin,
-                    Vector3.scale(
-                      Vector3.normalize(Vector3.cross(up, now.normal)),
-                      side === "left" ? 1 : -1,
-                    ),
-                  )
-                : mechanism.kind === "knob"
-                  ? Quaternion.rotateVector(spin, ahead)
-                  : Quaternion.rotateVector(
-                      Quaternion.fromAxisAngle(up, side === "left" ? -90 : 90),
-                      ahead,
-                    ),
-          curl: mechanism.kind === "button" ? 0 : 40,
-        },
-      );
-    };
-
+    const hand: ReturnType<typeof operateHand> = operateHand(context, {
+      clock, place, part, hinge, inserted, upright: UPRIGHT,
+    });
+    const target: ReturnType<typeof operateHand>["target"] = hand.target;
 
     // The lean into a part beyond the standing arm.
     const standing: IHumanPosture = base.posture(0);
@@ -404,21 +307,7 @@ export namespace operate {
         standing,
         side,
         share: REACH,
-        wrist: (posture: IHumanPosture, progress: number, seconds?: number) => {
-          const goal: AutoMovieMotionHumanArm.ITarget = target(
-            posture,
-            progress,
-            seconds,
-          );
-          return HumanHand.place(
-            body,
-            side,
-            goal.surface,
-            goal.point,
-            goal.rotation,
-            goal.shape,
-          ).point;
-        },
+        wrist: hand.wrist,
         // The arm on the part at the stroke's start, as the stroke grips it.
         arm: (posture: IHumanPosture): IHumanPosture.IGoal =>
           AutoMovieMotionHumanArm.goal(body, side, target(posture, 0)),
@@ -447,8 +336,8 @@ export namespace operate {
                   ? { kind: "prop", subject: at.subject }
                   : { kind: "ground" },
           },
-          path: (posture: IHumanPosture, seconds: number, progress: number) =>
-            target(posture, progress, seconds),
+          path: (posture: IHumanPosture, _seconds: number, progress: number): AutoMovieMotionHumanArm.ITarget =>
+            target(posture, progress),
         }),
       ],
     });

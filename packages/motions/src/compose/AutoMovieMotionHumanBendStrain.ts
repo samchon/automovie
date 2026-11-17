@@ -48,8 +48,8 @@ export namespace AutoMovieMotionHumanBendStrain {
    * @evidence contracts/development/implementation.md#principled-implementation A joint-range-normalised discomfort (Cruse 1986; Kee and Karwowski 2001): each angle's distance from the hanging arm's over half its range, squared, with the turn the hand asks split between the forearm's twist and the wrist's swing (the engine's `swingTwist`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The ranges once, then one function of the two readings.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A turn the forearm and the wrist cannot make ranks behind every turn they make (`UNMADE`), never as a smaller strain.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The ranges and the hand's constraint are read once per chain; each place costs a few squares, and with a hand rotation one split and one decomposition.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The engine's decomposition, split and constraint reader.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Ranges and the hand constraint are read once per scoring factory; each actual place retains its original squares, split and decomposition. Pure angle/range readers are module functions rather than three closures allocated per candidate; runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The engine owns decomposition, split and constraint lookup. All candidates use the same pure scalar readers with their actual current quaternions/ranges; no angle, strain or legality answer is retained.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains the chain's ranges and the hanging arm's angles.
    */
   export function of(
@@ -63,7 +63,7 @@ export namespace AutoMovieMotionHumanBendStrain {
     u: AutoMovieMotionHumanBendSearch.IAngles,
     lowerWorld: () => IAutoMovieQuaternion,
   ) => number {
-    const { prepared } = chain;
+    const prepared: AutoMovieMotionHumanBendChain.IChain["prepared"] = chain.prepared;
     const upperRange: IAutoMovieJointConstraint | null =
       prepared.upperDomain.constraint;
     const halves: [number | null, number | null, number | null] = [
@@ -82,8 +82,6 @@ export namespace AutoMovieMotionHumanBendStrain {
     );
     const wrist: number | null = half(hand?.flexion ?? null);
     const handAxes: IAutoMovieJointAxes | undefined = chain.axes[`${side}Hand`];
-    const share = (value: number, of: number | null): number =>
-      of === null ? 0 : (value / of) ** 2;
     return (
       u: AutoMovieMotionHumanBendSearch.IAngles,
       lowerWorld: () => IAutoMovieQuaternion,
@@ -100,11 +98,7 @@ export namespace AutoMovieMotionHumanBendStrain {
         const needed: IAutoMovieQuaternion = Quaternion.normalize(
           Quaternion.multiply(Quaternion.inverse(lowerWorld()), rotation),
         );
-        const split = swingTwist(needed, lowerAxes.twist);
-        const degrees = (q: IAutoMovieQuaternion): number =>
-          (Quaternion.angle(Quaternion.normalize(q), Quaternion.identity()) *
-            180) /
-          Math.PI;
+        const split: ReturnType<typeof swingTwist> = swingTwist(needed, lowerAxes.twist);
         strain +=
           share(degrees(split.twist), forearm) +
           share(degrees(split.swing), wrist);
@@ -115,29 +109,6 @@ export namespace AutoMovieMotionHumanBendStrain {
         // the clinical angles of its joint (the engine's decomposition on the
         // hand's own chart), whose signs name the same motion on either hand,
         // where a sign read about a rig axis is the other hand's opposite.
-        const about = (
-          q: IAutoMovieQuaternion,
-          axis: IAutoMovieVector3 | undefined,
-        ): number => {
-          const n: IAutoMovieQuaternion = Quaternion.normalize(q);
-          const sign: number = n.w < 0 ? -1 : 1;
-          const sine: number = Math.hypot(n.x, n.y, n.z);
-          return axis === undefined || sine < 1e-9
-            ? 0
-            : ((Vector3.dot({ x: n.x, y: n.y, z: n.z }, axis) * sign) / sine) *
-                ((2 * Math.atan2(sine, Math.abs(n.w)) * 180) / Math.PI);
-        };
-        const past = (
-          value: number,
-          range: { min: number; max: number } | null | undefined,
-        ): number =>
-          range === null || range === undefined
-            ? 0
-            : Math.max(
-                0,
-                range.min + RESERVE * (range.max - range.min) - value,
-                value - range.max + RESERVE * (range.max - range.min),
-              );
         const bent: AutoMovieMotionHumanBendSearch.IAngles | null =
           handAxes === undefined
             ? null
@@ -182,5 +153,32 @@ export namespace AutoMovieMotionHumanBendStrain {
     return range === null || range.max <= range.min
       ? null
       : (range.max - range.min) / 2;
+  }
+
+  /** Original squared share of a clinical range; a fixed axis contributes nothing. */
+  function share(value: number, of: number | null): number {
+    return of === null ? 0 : (value / of) ** 2;
+  }
+
+  /** Original shortest normalized quaternion angle from rest, in degrees. */
+  function degrees(q: IAutoMovieQuaternion): number {
+    return (Quaternion.angle(Quaternion.normalize(q), Quaternion.identity()) * 180) / Math.PI;
+  }
+
+  /** Original signed turn about the rig axis, preserving the near-zero branch. */
+  function about(q: IAutoMovieQuaternion, axis: IAutoMovieVector3 | undefined): number {
+    const n: IAutoMovieQuaternion = Quaternion.normalize(q);
+    const sign: number = n.w < 0 ? -1 : 1;
+    const sine: number = Math.hypot(n.x, n.y, n.z);
+    return axis === undefined || sine < 1e-9 ? 0
+      : ((Vector3.dot({ x: n.x, y: n.y, z: n.z }, axis) * sign) / sine) *
+          ((2 * Math.atan2(sine, Math.abs(n.w)) * 180) / Math.PI);
+  }
+
+  /** Original degree excess beyond the clinical range's reserved interior. */
+  function past(value: number, range: { min: number; max: number } | null | undefined): number {
+    return range === null || range === undefined ? 0
+      : Math.max(0, range.min + RESERVE * (range.max - range.min) - value,
+          value - range.max + RESERVE * (range.max - range.min));
   }
 }

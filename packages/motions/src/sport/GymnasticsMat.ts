@@ -49,10 +49,10 @@ export namespace GymnasticsMat {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result's timebase.
    * @evidence contracts/development/implementation.md#principled-implementation Joint space blended on minimum-jerk progress, the tip to the nearest supine tip, the root height from the shapes' rest and the root's floor place from the centre carried by the engine's `carriedRate`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One blend, one centre, one rest per instant.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One blend, one centre and one rest per instant; the query's fresh frame posture receives its final root Y before ownership transfers to the caller.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Prepare J start/difference triples and their exact u=1 arithmetic once. The literal constant HOLD phase copies those raw triples, while every query still performs ordinary actual ROM/FK/COM/floor evaluation with one shared canonical map. No shape bound or phase time changes; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the authored interpolation prefix is fixed: the private joint union/start/delta and exact clipped u=1 endpoint. Fresh triples isolate returned mutations, and all actual body/ROM/profile/context work remains current. COM/floor share one query map and optional synchronous FK/projector loans share only prerequisites.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Prepare J start/difference triples, exact u=1 arithmetic and the literal HOLD progress/carried-time coefficients once. That phase copies raw triples without repeating the scalar kernels. Each query keeps actual ROM/FK/COM/floor evaluation and transfers its fresh posture/root directly, omitting two discarded shallow copies. No bound or phase time changes; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the authored interpolation prefix is fixed: the private joint union/start/delta and original scalar kernels at clipped t=SETTLE. Fresh triples isolate output mutations; current velocity/root requests and every actual body/ROM/profile/context reading remain evaluated. COM/floor share one query map and optional synchronous FK/projector loans share only prerequisites.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains original inputs and O(J) copied tracks. Query frame, bone map and floor reader release on return/throw; optional FK/projector loans stay with the synchronous parent and neither enters the returned posture, frame floor callback or retained landing closure.
    */
   export function lie(props: {
@@ -89,10 +89,12 @@ export namespace GymnasticsMat {
       const delta: readonly [number, number, number] = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
       tracks.push({ bone, from: source, delta, settled: [source[0] + delta[0] * 1, source[1] + delta[1] * 1, source[2] + delta[2] * 1] });
     }
+    const settledProgress: number = minimumJerk.share(1);
+    const settledCarry: number = carriedRate(SETTLE, SETTLE);
     return (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): IHumanPosture => {
       const t: number = Math.min(SETTLE, Math.max(0, seconds));
-      const u: number = minimumJerk.share(t / SETTLE);
       const resting: boolean = t === SETTLE;
+      const u: number = resting ? settledProgress : minimumJerk.share(t / SETTLE);
       const joints: IHumanPosture["joints"] = {};
       for (const track of tracks) {
         joints[track.bone] = resting
@@ -111,20 +113,17 @@ export namespace GymnasticsMat {
       };
 
       // The centre's floor place, carried out from the touchdown.
-      const carry: number = carriedRate(SETTLE, t);
+      const carry: number = resting ? settledCarry : carriedRate(SETTLE, t);
       const frame: IPreparedGymnasticsFrame = prepareFrame(
         posed,
         { x: centre.x + props.velocity.x * carry, y: 0, z: centre.z + props.velocity.z * carry },
         resolution,
         projection,
       );
-      return {
-        ...frame.posture,
-        root: {
-          ...frame.posture.root,
-          y: props.height + frame.floor(),
-        },
-      };
+
+      // The frame owns this fresh raw root; transfer it after final floor placement.
+      frame.posture.root.y = props.height + frame.floor();
+      return frame.posture;
     };
   }
 }

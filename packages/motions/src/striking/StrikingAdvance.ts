@@ -12,6 +12,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
@@ -53,7 +54,19 @@ export namespace StrikingAdvance {
       ? 0
       : (advance === "lunge" ? LUNGE : STEP) * context.body.measure.stature;
 
-  /** The base of a stroke on a phrase clock: the entry's posture, or the advance of the leading foot from `strokeStart` to `stroke` (its `travel`, metres, the advance's full travel when absent) and, unless the stroke stays, its recovery from `relax` to the end. */
+  /**
+   * The entry base, or the lead foot's advance on the stroke's phrase clock.
+   * Travel is metres from strokeStart to stroke, followed by the original
+   * relax-to-end recovery unless stay keeps the landed foot.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the original phrase marks, world-metre travel, planted/recovery policy and synchronous exact-FK loan consumed by the returned posture reader.
+   * @evidence contracts/development/implementation.md#principled-implementation The original clock shares move the lead foot and carry/lower the pelvis; a non-advance delegates the existing underlying base unchanged.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Construction declares the original foot windows; every query reads its original out/back envelope and delegates current geometry to stood.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the original foot lift, travel, clock ordering, all carried limb goals, floor lowering and planted windows; a borrowed reader changes no fit, range or target.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each query keeps its original constant envelope/rigid geometry and native lowering cost; exact FK prerequisites can be shared with this same posture query's blade shoulder/chest reads instead of creating an independent workspace. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual StrikingBlade runtime passes one exact native workspace through base lowering and current trunk observation. Scalar dependency checks still evaluate every changing source, and no other time's posture or lowering answer is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains only its original context, stroke and clock scalars. Query FK loans pass directly to stood/lower and end on return or failure; no borrowed reader, pose, map or projector enters the retained plan/output.
+   */
   export const base = (
     context: IHumanActionContext,
     stroke: {
@@ -99,7 +112,11 @@ export namespace StrikingAdvance {
           ? [plant(`${lead}Foot`, share("stroke"), 1)]
           : [plant(`${lead}Foot`, share("stroke"), share("relax"))]),
       ],
-      posture: (seconds: number): IHumanPosture => {
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IHumanActionPlan["posture"]>[2],
+      ): IHumanPosture => {
         const going: number = out(seconds);
         const coming: number = back(seconds);
         const along: number = going - coming;
@@ -112,18 +129,40 @@ export namespace StrikingAdvance {
           stroke.line,
           length * along,
           swinging ? lift * 4 * u * (1 - u) : null,
+          resolution,
         );
       },
     };
   };
 
-  /** The body with its leading foot a distance along a line from where it stood: the pelvis carried a share of that, the root lowered until both legs reach. `raised` is the swinging foot's height, or null when it is planted. */
+  /**
+   * The body with its lead foot advanced along the given world line.
+   * The pelvis follows CARRY of the foot's travel and the original native
+   * lower keeps both legs in reach; raised is metres or null for planting.
+   *
+   * @param context The current native body and entry posture/feet.
+   * @param lead The advancing foot.
+   * @param line The world horizontal travel direction.
+   * @param along Metres of lead-foot travel.
+   * @param raised Swinging foot height in metres, or null when planted.
+   * @param resolution Optional exact FK source borrowed only for this synchronous same-body evaluation.
+   * @returns The original carried and lowered posture with both actual leg goals.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines each world-metre displacement, lead/support foot, planting and synchronous reader ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Moves the lead ankle, carries the entry rigidly by CARRY of the travel, writes the original toe/knee/MTP goals and lowers the root with the existing five-degree knee allowance.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Current foot placements feed the original carry, stance goal builder and native lower in that order.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every entry limb, rigid carry, knee hint, foot rotation, contact and lowering bound. Lower performs its original geometry without adding a ROM projection or substituting a solved pose.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Retains original vector/carry work and native hip FK; an explicit parent workspace shares equal FK prerequisites with the same current blade trunk observation. No measured speedup is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The exact reader is an explicit operation loan checked by native scalar dependencies, while every actual current placement/carry/lowering still executes. One-shot callers without a reader retain ordinary independent resolution.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or result. The lower borrows its optional reader only through synchronous return/failure, and fresh authored posture/goals contain no workspace or query history.
+   */
   export const stood = (
     context: Pick<IHumanActionContext, "body" | "entry">,
     lead: "left" | "right",
     line: IAutoMovieVector3,
     along: number,
     raised: number | null,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IHumanPosture => {
     const entry: IHumanPosture = context.entry.posture;
     const rear: "left" | "right" = lead === "left" ? "right" : "left";
@@ -162,6 +201,7 @@ export namespace StrikingAdvance {
         },
       },
       5,
+      resolution,
     );
   };
 }

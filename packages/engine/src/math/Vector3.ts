@@ -10,7 +10,7 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the record shape, fresh-value and explicit write-target ownership, and why the engine keeps its own math instead of `three.js`.
  * @evidence contracts/development/design.md#principled-representation Three scalar components describe a vector or point in the caller's frame and unit; addition, subtraction, products, norm, distance and interpolation preserve those ordinary Euclidean meanings without another coordinate representation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The engine's shared vector operations serve geometry, FK and physical computation. distance serves actual bend residuals and two-bone lengths without an unused displacement record; crossDifferenceInto writes the raw hull candidate perpendicular into its private scratch without two edge records and a cross-product record.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Shared vector operations serve geometry, FK and physical computation. distance serves actual residuals/lengths without an unused displacement; addScaled serves actual ray-march points without an unused scaled offset; crossDifferenceInto writes raw hull candidate perpendiculars into private scratch without two edges and a cross record.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace Vector3 {
@@ -100,6 +100,34 @@ export namespace Vector3 {
     y: a.y * s,
     z: a.z * s,
   });
+
+  /**
+   * Return a fresh point a + b*s, with scale(b,s) evaluated before adding a.
+   * All three products precede the X/Y/Z additions, preserving the original
+   * add(a,scale(b,s)) input-read and rounding order without its offset record.
+   *
+   * @param a Base point in the caller's coordinate frame.
+   * @param b Direction or offset in the same frame.
+   * @param s Scalar giving b compatible offset units; ray callers use metres.
+   * @returns A fresh point with the original signed-zero/nonfinite arithmetic.
+   * @evidence contracts/development/common.md#meaningful-documentation States fresh output, scale-before-add association, complete product/read order, frame/unit premises and original signed-zero/nonfinite behavior.
+   * @evidence contracts/development/implementation.md#principled-implementation Computes b.x*s, b.y*s and b.z*s in scale's order before a.x+offsetX, a.y+offsetY and a.z+offsetZ in add's order; each original binary64 multiply/add boundary remains.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One affine point operation serves the actual collision ray marcher, beside independent add and scale for callers that consume those separate values; no ray rule is copied into math.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No normalization, fused/reassociated arithmetic, scalar clipping, finite gate or zero shortcut replaces the original six expressions, and neither input is changed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The same three products and additions use three scalar locals and one fresh point, omitting the scaled offset allocation at every actual march step; ray count, thresholds and physical queries remain with the caller. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the existing scale/add mathematical convention on the exact current inputs; only a discarded intermediate representation is removed, with no point, ray, scalar or result cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only three offset scalars live during the call; the caller owns one fresh output and the math layer retains no input, output, handle or task.
+   */
+  export function addScaled(
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+    s: number,
+  ): IAutoMovieVector3 {
+    const offsetX: number = b.x * s;
+    const offsetY: number = b.y * s;
+    const offsetZ: number = b.z * s;
+    return { x: a.x + offsetX, y: a.y + offsetY, z: a.z + offsetZ };
+  }
 
   /**
    * The dot product `a · b`, which is `|a| |b| cos θ`.
@@ -214,20 +242,22 @@ export namespace Vector3 {
    * @returns Their scalar separation in that unit, including the original nonfinite result.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States matching frames/units, operand-read order, exact length/subtract equivalence and scalar/nonfinite output.
-   * @evidence contracts/development/implementation.md#principled-implementation Forms the same three differences as subtract, then evaluates the same expanded self-dot square root or extreme Math.hypot selected by the shared binary64 magnitude gate.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A scalar point-distance operation beside length serves consumers that never use the displacement; extremeScale remains the single owner of magnitude thresholds.
+   * @evidence contracts/development/implementation.md#principled-implementation Completes the same three differences and leftfold self-dot. A squared norm in [2^-1000,2^1000] proves the original ordinary branch: m<2^-511 gives each rounded square<=2^-1022 and sum<=3*2^-1022; m>2^511 gives one square>=2^1022 and the nonnegative sum at least that. Neither can enter the interval, so its exact squared norm goes directly to the original sqrt. Other inputs retain the original magnitude gate and sqrt/Math.hypot choice.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A completed-scalar point distance sits beside live-input length. Its exact self-dot also proves ordinary-range admission when safely bounded, while extremeScale remains the single owner of component magnitude thresholds and every other value retains that gate.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps subtraction order, left-associated square sum, zero, NaN and infinity behavior and the existing extreme branch; no hypot-only replacement, distance tolerance, snapping or finite repair is added.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three scalar differences and the same fixed-size magnitude/norm work omit one displacement allocation per query. Both magnitude branches remain constant work, with runtime speedup unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the existing norm's magnitude policy and arithmetic on the exact completed differences; every current point pair is actually evaluated and no distance or point is cached.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Three scalar differences omit one displacement record. Certified ordinary norms also omit three absolute values, maximum and component-gate checks. Extreme inputs compute three unused raw squares before their original hypot; zero/nonfinite keep their original arithmetic. Every branch takes constant work, with runtime improvement unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The exact completed-difference self-dot serves both the conservative ordinary-range proof and original sqrt. Uncertified values keep the existing component gate; every point pair is actually evaluated with no distance, point or target cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one number, allocates no vector or collection and retains neither point nor any operation state.
    */
   export function distance(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
     const x: number = a.x - b.x;
     const y: number = a.y - b.y;
     const z: number = a.z - b.z;
+    const squared: number = x * x + y * y + z * z;
+    if (squared >= 2 ** -1000 && squared <= 2 ** 1000) return Math.sqrt(squared);
     const largest: number = Math.max(Math.abs(x), Math.abs(y), Math.abs(z));
     return extremeScale(largest) === 0
-      ? Math.sqrt(x * x + y * y + z * z)
+      ? Math.sqrt(squared)
       : Math.hypot(x, y, z);
   }
 
@@ -240,12 +270,12 @@ export namespace Vector3 {
    * that would overflow keep their direction. A non-finite component gives a
    * non-finite result.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Divides by the Euclidean length after the original positive extreme rescaling. The existing magnitude gate already proves an unscaled input takes length's ordinary square-root branch; a rescaled finite input has largest magnitude one, so it takes that same branch. Direct sqrt(dot(value,value)) therefore preserves the original norm arithmetic without repeating the range classification. Zero and nonfinite values retain their ordinary arithmetic and declared propagation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure normalize and length share the private magnitude gate, while normalize uses its completed classification to read the same self-dot square root directly and reuses scale for output construction.
+   * @evidence contracts/development/implementation.md#principled-implementation Divides by the Euclidean length after original positive extreme rescaling. The selected value passes through length's own magnitude gate: a borrowed ordinary input may change through getters, and even a rescaled record contains the later component reads divided by the earlier magnitude. Re-reading actual value therefore preserves the original sqrt/hypot branch and zero/nonfinite propagation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure normalize uses the shared magnitude owner to select its original positive rescaling, delegates actual selected-value norm to length and delegates fresh output construction to scale. Completed-scalar distance alone uses its separately proved ordinary norm certificate.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The zero vector for zero length is the stated degenerate value with no direction to keep, not a fallback; the rescaling thresholds are binary64 limits, and a non-finite input stays non-finite instead of being replaced.
    * @evidence contracts/development/common.md#meaningful-documentation States the zero-length result, the extreme-range rescaling and what it preserves, and the non-finite behavior.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One magnitude test, a three-term self-dot square root and three output products take constant work. Reusing the first gate removes the second three-component magnitude scan that length would repeat; extreme inputs keep the original scaled temporary. Runtime improvement is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The selected positive rescaling supplies all normalized components and proves the norm's ordinary branch within this call. No direction or magnitude result survives the call or a change to source coordinates.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Keeps the original first magnitude scan, selected-value length classification and sqrt/hypot calculation plus three output products. An extreme input creates the original scaled temporary; work/storage are constant and no live-record classification is omitted.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Normalization and length share the component magnitude policy while each reads its actual current input in the original order. No earlier raw-record reading certifies a later one, and no direction or magnitude result survives this call.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates the rescaled vector when extreme and the returned record, and retains nothing.
    */
   export const normalize: (a: IAutoMovieVector3) => IAutoMovieVector3 = (
@@ -256,7 +286,7 @@ export namespace Vector3 {
       divisor === 0
         ? a
         : { x: a.x / divisor, y: a.y / divisor, z: a.z / divisor };
-    const len: number = Math.sqrt(dot(value, value));
+    const len: number = length(value);
     return len === 0 ? create(0, 0, 0) : scale(value, 1 / len);
   };
 
@@ -311,4 +341,37 @@ export namespace Vector3 {
     y: a.y + (b.y - a.y) * t,
     z: a.z + (b.z - a.z) * t,
   });
+
+  /**
+   * Snapshot a fixed segment and read fresh points on its affine line. The
+   * endpoints must use the same frame and units. Construction reads each
+   * component in lerp's original a, b, a order and copies its origin and
+   * completed difference; later endpoint edits are not observed. Each t is
+   * evaluated as origin + difference * t, without clipping or endpoint
+   * shortcuts, so extrapolation and nonfinite arithmetic remain available.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States matching endpoint frame/units, eager scalar snapshot and component-read order, fresh outputs, later edit behavior, exact affine grouping and unclipped parameters.
+   * @evidence contracts/development/implementation.md#principled-implementation Copies each origin scalar and completes the same to-minus-from subtraction in x/y/z order as lerp. Every query then uses the original origin+(difference*t) multiply/add grouping with those fixed numerical operands.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed-segment producer sits beside the live-endpoint lerp. Its private six-scalar closure separates invariant endpoint reads/subtractions from the changing scalar parameter without adding a path, clock or pose abstraction.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not clamp t, snap endpoints, normalize coordinates, repair nonfinite values or cache sampled points. Signed-zero, cancellation and nonfinite behavior follow the same subtraction/product/addition sequence; the live lerp remains unchanged for mutable endpoints.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Construction takes three subtractions and fixed scalar reads once; every query takes three multiplications/additions and one fresh vector, omitting repeated endpoint reads/subtractions. All work and retention are constant-sized; runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Genuine fixed athletics/stair segments and prepared limb arcs can share completed component differences while every actual t is evaluated independently. No endpoint identity, target result or time history is consulted for reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader retains only six numeric origin/difference scalars, with neither endpoint record nor prior t/output retained. Each result owns its three coordinates and releasing the reader releases all operation state.
+   */
+  export function prepareLerp(
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+  ): (t: number) => IAutoMovieVector3 {
+    const x: number = from.x;
+    const dx: number = to.x - from.x;
+    const y: number = from.y;
+    const dy: number = to.y - from.y;
+    const z: number = from.z;
+    const dz: number = to.z - from.z;
+    return (t: number): IAutoMovieVector3 => ({
+      x: x + dx * t,
+      y: y + dy * t,
+      z: z + dz * t,
+    });
+  }
 }

@@ -171,6 +171,35 @@ export namespace AutoMovieMotionHumanTrunk {
   }
 
   /**
+   * Prepare fixed foot placements for repeated actual planted postures.
+   *
+   * @param body The unchanged body supplying rest knee/toe geometry.
+   * @param feet The unchanged ankle/rotation placements, borrowed for this reader.
+   * @param legs The unchanged ordered legs to plant, both by default; duplicate visits remain duplicate goal writes.
+   * @returns A fresh posture/limb map at each current root/yaw, with original borrowed foot fields and fresh knee/contact values.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed body/placements/ordered selection, both-leg default, duplicate order, current posture inputs and fresh/borrowed output ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation Each selected leg uses the existing Leg.prepareGoal producer for the same planted ankle, foot rotation, actual root/yaw knee and toe contact; all remaining posture fields and limb goals stay as originally spread.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed goal reader per distinct selected side precedes the original ordered limb-map writer; prepareCrouch and fixed-foot dive share this same preparation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The cold planted entry keeps live inputs unchanged. Explicit fixed geometry alone is shared; every selected visit writes its actual goal, including duplicates, and no joint, contact, ROM check or target is replaced.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most two fixed goal readers serve Q writes, avoiding repeated fixed foot heading/contact and exact-yaw knee prerequisites; every actual root transform, ordered goal write and fresh output map remains. Improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller establishes unchanged body, foot placements and leg selection. Current root/yaw and every raw posture/goal remain live inputs, while the leg owner guards exact rotation metadata and owns its original numerical knee/contact formulas.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning action holds the borrowed fixed selection/feet and at most two bounded goal readers until release. No current posture, returned limb map, target result, FK/ROM loan or time history is retained.
+   */
+  export function preparePlanted(body: IHumanBody,
+    feet: Record<AutoMovieMotionHumanLeg.Side, HumanFoot.IPlacement>,
+    legs: readonly AutoMovieMotionHumanLeg.Side[] = ["left", "right"]): (posture: IHumanPosture) => IHumanPosture {
+    const goals: Partial<Record<AutoMovieMotionHumanLeg.Side, ReturnType<typeof AutoMovieMotionHumanLeg.prepareGoal>>> = {};
+    for (const side of legs)
+      if (goals[side] === undefined)
+        goals[side] = AutoMovieMotionHumanLeg.prepareGoal(body, side, feet[side], true);
+    return (posture: IHumanPosture): IHumanPosture => {
+      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+      for (const side of legs) limbs[`${side}Leg`] = goals[side]!(posture);
+      return { ...posture, limbs };
+    };
+  }
+  /**
    * A posture sunk into its knees: the hips lowered and moved back along the
    * heading, and the trunk inclined forward over them by the lumbopelvic
    * rhythm (`HumanTrunk.incline`), the pelvis taking no more than the planted
@@ -308,15 +337,7 @@ export namespace AutoMovieMotionHumanTrunk {
     ];
     const feet: Record<AutoMovieMotionHumanLeg.Side, HumanFoot.IPlacement> =
       footing(props.body, props.standing);
-    const goals: Partial<Record<AutoMovieMotionHumanLeg.Side, ReturnType<typeof AutoMovieMotionHumanLeg.prepareGoal>>> = {};
-    for (const side of legs)
-      if (goals[side] === undefined)
-        goals[side] = AutoMovieMotionHumanLeg.prepareGoal(props.body, side, feet[side], true);
-    const plant: (posture: IHumanPosture) => IHumanPosture = (posture: IHumanPosture): IHumanPosture => {
-      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-      for (const side of legs) limbs[`${side}Leg`] = goals[side]!(posture);
-      return { ...posture, limbs };
-    };
+    const plant: ReturnType<typeof preparePlanted> = preparePlanted(props.body, feet, legs);
 
     // The legs are planted before the hips sink, so `sunk` reads the thighs
     // the pelvis's share is limited by, and the knees bend as the root goes

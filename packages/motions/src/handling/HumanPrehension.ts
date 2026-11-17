@@ -13,6 +13,7 @@ import type {
 
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanSkill } from "../skill/HumanSkill";
+import { prepareHumanShapeBlend } from "./prepareHumanShapeBlend";
 
 /**
  * Reach to grasp as two coupled components, the model of prehension since
@@ -246,11 +247,11 @@ export namespace HumanPrehension {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States world-metre endpoints/setback, approach direction, endpoint attitudes, second duration, positive-time refusal and returned independent point/turn readers.
    * @evidence contracts/development/implementation.md#principled-implementation Uses the original normalized approach setback and one direct unit or two overlapping minimum-jerk units (Flash/Henis), with an attitude slerp finishing by the approach unit's start.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed via/unit preparation precedes two stateless readers that delegate profiles, superposition and slerp to their existing engine owners.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Original via/unit preparation precedes point and turn readers that delegate profiles, superposition and actual current endpoint slerp to their existing engine owners.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original positive-duration admission, exact-zero setback branch, APPROACH timing and all displacement/arithmetic ordering remain unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Prepares one or two unit records once, then each requested point/turn takes constant work; full body, collider and trajectory searches are absent.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan explicitly fixes origin, unit displacements, duration and endpoint rotations; differing times compute actual values without sampled or previous-frame reuse.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned two-reader plan and its at-most-two units until release; only fixed vectors/rotations/scalars remain, with no time history, numerical reader, external handle or task.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Original one/two displacement units prepare once. Position-only and scalar profile owners omit unused derivatives, while every turn still reads current endpoint rotations and performs original slerp/normalization. All queries take constant work without body/collider searches; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only originally prepared path displacements/duration are retained. Public borrowed rotation endpoints have no new immutable premise: their original field reads, arc preparation and actual interpolation execute for every turn without result reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the original path/rotation references and at-most-two units until release. Outputs remain fresh and no endpoint coefficient snapshot, queried time, interpolated result, FK workspace, external handle or task is retained.
    */
   export function transport(
     from: IAutoMovieVector3,
@@ -293,12 +294,9 @@ export namespace HumanPrehension {
       duration: seconds,
       wrist: (t: number): IAutoMovieVector3 =>
         superposeMinimumJerk.position(from, units, Math.min(seconds, Math.max(0, t))),
-      turn: (t: number): IAutoMovieQuaternion =>
-        Quaternion.slerp(
-          rotation.from,
-          rotation.to,
-          minimumJerk.share(t / (APPROACH.start * seconds)),
-        ),
+      turn: (t: number): IAutoMovieQuaternion => Quaternion.slerp(
+        rotation.from, rotation.to, minimumJerk.share(t / (APPROACH.start * seconds)),
+      ),
     };
   }
 
@@ -314,12 +312,12 @@ export namespace HumanPrehension {
    * @returns The angles.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines clinical-degree entry/open/closed joints, peak/share inputs, clamped two-phase timing and fresh joint-angle output.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the original Jeannerod peak schedule and minimum-jerk blend through prepareShape, keeping the original per-component tuple arithmetic.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A one-shot facade delegates to the same fixed-schedule producer retained by actual grasp/placement plans.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the original Jeannerod peak schedule and source-first minimum-jerk phase selection before the shared live tuple interpolation owner.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One original phase selects its two current endpoint maps and actual weight, then cold owns ordered key/tuple reading without a fixed-source snapshot.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Phase choice, inclusive peak, key insertion order, absent-joint zeros and original minimum-jerk admission/clipping are unchanged.
    * @evidence contracts/development/implementation.md#efficient-algorithms One cold call prepares/evaluates the actual phase in O(D) digit bones, without full-body geometry or IK; fixed plans can avoid repeated key/set/tuple preparation.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both cold calls and plan-owned preparations use the same ordered phase-key and tuple interpolation owner, without retaining any evaluated shape result.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The one-shot builder is released at return; fresh output angle tuples escape and no source shape, phase list, time history or handle is retained by this facade.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Public calls use the shared cold interpolation policy, preserving current raw endpoint reads; explicit fixed schedules select the separate coefficient producer only under its unchanged-primitive premise. Neither entry retains an evaluated result.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Phase locals and cold interpolation scratch release at return; fresh angle tuples escape and this facade retains no source shape, coefficient list, query history or handle.
    */
   export function shape(
     shapes: Readonly<
@@ -333,7 +331,11 @@ export namespace HumanPrehension {
     peak: number,
     u: number,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-    return prepareShape(shapes, peak)(u);
+    const s: number = Math.min(1, Math.max(0, u));
+    const [a, b, w]: [ReturnType<typeof shape>, ReturnType<typeof shape>, number] = s <= peak
+      ? [shapes.entry, shapes.open, minimumJerk.share(s / peak)]
+      : [shapes.open, shapes.closed, minimumJerk.share((s - peak) / (1 - peak))];
+    return prepareHumanShapeBlend.cold(a, b, w);
   }
 
   /**
@@ -348,52 +350,27 @@ export namespace HumanPrehension {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States fixed source/peak lifetime, lazy per-phase endpoint admission, actual share input and fresh clinical-degree output.
    * @evidence contracts/development/implementation.md#principled-implementation Prepares the same ordered union and absent-zero tuples independent of time; the actual inclusive peak branch and original minimum-jerk weight feed unchanged x+(y-x)*w component arithmetic.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One stage builder owns endpoint/key preparation; one actual query selects its phase, computes the original weight and writes fresh tuples.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared clinical shape-blend owner prepares each phase's endpoints/differences; one actual query selects its phase and computes the original minimum-jerk weight.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each phase keeps its own original key union and order, with no whole-schedule union, clamping change, baked shape, skipped weight admission or dropped digit.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most two O(D) stage preparations replace per-frame Object.keys/Set/endpoint work; every actual output still performs O(D) required interpolation/allocation, and inactive phases remain unprepared. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most two O(D) phase preparations replace per-frame Object.keys/Set/endpoint work and scalar differences; every actual output still performs O(D) required interpolation/allocation, and inactive phases remain unprepared. Speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicitly unchanged endpoint tuples and peak establish phase geometry equivalence; scalar snapshots isolate output edits, and changed schedules require new preparation rather than a time/result cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning plan retains source endpoints plus at most two D-key scalar snapshots until release; every output object/tuple is fresh and no sampled share, pose history, external handle or task is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning plan retains the schedule plus at most two D-key scalar/difference lists until release; the shared blend drops its source references after first use. Every output object/tuple is fresh and no sampled share, pose history, external handle or task is retained.
    */
   export function prepareShape(
     shapes: Parameters<typeof shape>[0],
     peak: number,
   ): (u: number) => ReturnType<typeof shape> {
-    const stage: (a: ReturnType<typeof shape>, b: ReturnType<typeof shape>) => IShapeKey[] = (
-      a: ReturnType<typeof shape>, b: ReturnType<typeof shape>,
-    ): IShapeKey[] => [...new Set([...Object.keys(a), ...Object.keys(b)])].map(
-      (key: string): IShapeKey => {
-        const bone: AutoMovieHumanoidBone = key as AutoMovieHumanoidBone;
-        const x: readonly [number, number, number] = a[bone] ?? [0, 0, 0];
-        const y: readonly [number, number, number] = b[bone] ?? [0, 0, 0];
-        return { bone, x: [x[0], x[1], x[2]], y: [y[0], y[1], y[2]] };
-      },
-    );
-    let opening: IShapeKey[] | undefined;
-    let closing: IShapeKey[] | undefined;
+    let opening: ReturnType<typeof prepareHumanShapeBlend> | undefined;
+    let closing: ReturnType<typeof prepareHumanShapeBlend> | undefined;
     return (u: number): ReturnType<typeof shape> => {
       const s: number = Math.min(1, Math.max(0, u));
       const opens: boolean = s <= peak;
       const w: number = opens ? minimumJerk.share(s / peak) : minimumJerk.share((s - peak) / (1 - peak));
-      const keys: IShapeKey[] = opens
-        ? (opening ??= stage(shapes.entry, shapes.open))
-        : (closing ??= stage(shapes.open, shapes.closed));
-      const out: ReturnType<typeof shape> = {};
-      for (const { bone, x, y } of keys) out[bone] = [
-        x[0] + (y[0] - x[0]) * w,
-        x[1] + (y[1] - x[1]) * w,
-        x[2] + (y[2] - x[2]) * w,
-      ];
-      return out;
+      const blend: ReturnType<typeof prepareHumanShapeBlend> = opens
+        ? (opening ??= prepareHumanShapeBlend(shapes.entry, shapes.open))
+        : (closing ??= prepareHumanShapeBlend(shapes.open, shapes.closed));
+      return blend(w);
     };
   }
 }
 
-/** One phase's original ordered bone and fixed clinical-degree endpoints. */
-interface IShapeKey {
-  /** The actual authored bone key. */
-  bone: AutoMovieHumanoidBone;
-  /** The first endpoint, degrees, with the original absent-zero default. */
-  x: readonly [number, number, number];
-  /** The second endpoint in the same clinical axes, degrees. */
-  y: readonly [number, number, number];
-}

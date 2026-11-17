@@ -76,20 +76,18 @@ export namespace HumanSwordLanding {
    * @evidence contracts/development/implementation.md#principled-implementation Every candidate keeps the landing part on the target and the edge along the travel (`StrikingHeld.hand`); the arm's fit chooses among them and refines the lean and the turn between them (`StrikingRoll.chosen`), so the ranges of the shoulder, the forearm and the wrist decide.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Candidates on the line first, then the turned ones by strain, then one choice.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The turns and leans are a stated search resolution; the cut's refusal still judges the chosen pose.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The turned candidates are ranked by the closed-form strain and fitted lazily, ending at the first the arm holds exactly.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per cut plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The original grid, closed-form ranks, stable sort and lazy physical fitting remain. Every frame keeps actual rigid geometry and current raw shoulder admission; only immutable canonical body/side anatomy is weakly shared by StrikingStrain. No measured speedup is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrowed posture/tool/ray fields can carry getters or change during raw admission, so object identity and the internal frame producer establish no fixed-source proof. Each leaning/free frame retains original read order and cold current geometry, every rank reads its current shoulder, and chosen re-admits the complete raw posture for every fit.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Original candidate arrays and each current temporary frame/map end with this synchronous search on return or throw. No cached shoulder, fixed ray, rigid-basis map, direct-pose snapshot or candidate history is retained; only the chosen hand frame escapes.
    */
   export function frame(
     context: Pick<IHumanActionContext, "body">,
     props: IProps,
   ): StrikingHeld.IHandFrame {
-    const { tool, back, target, reach, travel, posture } = props;
-    const leaning = (lean: number, turn: number): StrikingHeld.IHandFrame =>
+    const { tool, back, target, reach, travel, posture }: IProps = props;
+    const leaning: (lean: number, turn: number) => StrikingHeld.IHandFrame = (lean: number, turn: number): StrikingHeld.IHandFrame =>
       StrikingHeld.hand(
-        tool,
-        back,
-        target,
+        tool, back, target,
         Quaternion.rotateVector(
           Quaternion.fromAxisAngle(travel, turn),
           Vector3.subtract(
@@ -105,12 +103,7 @@ export namespace HumanSwordLanding {
     )
       .map((values: [number, number]): [[number, number], number] => [
         values,
-        StrikingRoll.strain(
-          context,
-          tool,
-          leaning(values[0], values[1]),
-          posture,
-        ),
+        StrikingRoll.strain(context, tool, leaning(values[0], values[1]), posture),
       ])
       .sort(
         (
@@ -131,13 +124,8 @@ export namespace HumanSwordLanding {
       ];
       const frame: StrikingHeld.IHandFrame = leaning(lean, turn);
       if (roll === 0 && tilt === 0) return frame;
-      const run: IAutoMovieVector3 = Quaternion.rotateVector(
-        frame.rotation,
-        tool.axis,
-      );
-      const aside: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.cross(run, travel),
-      );
+      const run: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, tool.axis);
+      const aside: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(run, travel));
       const leant: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.fromAxisAngle(run, around),
         Quaternion.rotateVector(Quaternion.fromAxisAngle(aside, tilt), run),

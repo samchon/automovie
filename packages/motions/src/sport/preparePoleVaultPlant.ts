@@ -57,13 +57,13 @@ export function preparePoleVaultPlant(props: {
   const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(props.body);
   const readGrip: ReturnType<typeof poseBones.prepare> = poseBones.prepare(props.body, HumanHand.frameBones(props.body, props.side, "grip"));
   const trial: (height: number) => ITrial = (height: number): ITrial => {
-    const source: ReturnType<typeof GymnasticsFlight.freeze> = GymnasticsFlight.freeze(
+    const posture: IHumanPosture = GymnasticsFlight.frozen(
       props.body, props.posture(height, read, projection), read, projection,
     );
     const pose: IAutoMoviePose = resolveHumanPosture.seeded(
-      props.body, source.posture, undefined, undefined, read, undefined, projection,
+      props.body, posture, undefined, undefined, read, undefined, projection,
     ).pose;
-    return { posture: source.posture, pose, bones: readGrip(pose, read()) };
+    return { posture, pose, bones: readGrip(pose, read()) };
   };
   const endOf: (bones: ITrial["bones"]) => IAutoMovieVector3 = (bones: ITrial["bones"]): IAutoMovieVector3 => Vector3.add(
     HumanHand.frame(props.body, bones, props.side, "grip").point,

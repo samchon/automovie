@@ -1,4 +1,4 @@
-import { type IAutoMovieResolvedBone, Quaternion, Vector3 } from "@automovie/engine";
+import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
@@ -9,9 +9,11 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingGuard } from "./StrikingGuard";
 import { StrikingGuardBones } from "./StrikingGuardBones";
+import { StrikingLegGoals } from "./StrikingLegGoals";
 import { StrikingReach } from "./StrikingReach";
 
 /**
@@ -271,17 +273,17 @@ export namespace StrikingStance {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed-demand trunk producer feeds the same guard owner used by the one-shot guard entry; no second glove formula or physical fit exists.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both glove goals, shoulder withdrawal, canonical wrist offsets, authored joint admission and digit solves remain. Each query uses its actual posture; no pose, goal, time or contact outcome is retained.
    * @evidence contracts/development/implementation.md#efficient-algorithms Head/shoulder name sorting and reachable-demand preparation run once per action. Each actual guard still pays original admission/digit work, required FK ancestry and two side computations; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the unchanged body's canonical guard-name metadata is prepared. Captured stance/drop feed each actual glove calculation, while a borrowed FK supplier shares only exact dependencies inside that current synchronous evaluation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns fixed body/demand and guard inputs until release. Each query owns fresh frames/goals and a local or borrowed exact reader only until return or throw; the producer retains no reader or posture history.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the unchanged body's canonical guard-name metadata is prepared. Captured stance/drop feed each actual glove calculation, while optional same-body FK/ROM suppliers share only exact dependencies and current unchanged-table metadata inside that synchronous evaluation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns fixed body/demand and guard inputs until release. Each query owns fresh frames/goals and optional exact FK/genuine unchanged-table ROM loans only until return or throw; the fixed-demand producer retains no reader, projector, posture or time history.
    */
   export function prepareGuard(
     body: IHumanBody,
     stance: Pick<IStance, "lead">,
     drop: Partial<Record<"left" | "right", number>> = {},
-  ): (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> {
+  ): (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> {
     const trunk: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, StrikingGuardBones(body));
-    return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> =>
-      StrikingGuard(body, posture, stance, drop, trunk(posture, resolution));
+    return (posture: IHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> =>
+      StrikingGuard(body, posture, stance, drop, trunk(posture, resolution, projection));
   }
 
   /**
@@ -351,36 +353,31 @@ export namespace StrikingStance {
     feet: Record<"left" | "right", HumanFoot.IPlacement>,
     planted: Record<"left" | "right", boolean> = { left: true, right: true },
   ): Pick<IHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
-    const out: Pick<IHumanPosture["limbs"], "leftLeg" | "rightLeg"> = {};
-    for (const side of ["left", "right"] as const) {
-      const foot: HumanFoot.IPlacement = feet[side];
-      const toes: IAutoMovieVector3 = Quaternion.rotateVector(foot.rotation, {
-        x: 0,
-        y: 0,
-        z: 1,
-      });
-      const bend: IAutoMovieVector3 = Vector3.add(
-        foot.ankle,
-        Vector3.add(Vector3.scale(toes, 0.5 * body.measure.shank), {
-          x: 0,
-          y: body.measure.shank,
-          z: 0,
-        }),
-      );
-      out[side === "left" ? "leftLeg" : "rightLeg"] = {
-        point: foot.ankle,
-        bend,
-        rotation: foot.rotation,
-        // A planted foot stands on its forefoot: when the ankle's range
-        // cannot give the asked rotation, the foot turns about the toes'
-        // joint and the toes stay flat on the floor (the forefoot rocker,
-        // Perry and Burnfield), instead of turning about the ankle.
-        ...(planted[side]
-          ? { planted: true, contact: HumanFoot.offset(body, side, "mtp") }
-          : {}),
-      };
-    }
-    return out;
+    return StrikingLegGoals.read(body, feet, planted);
+  }
+
+  /**
+   * Prepare authored leg goals for a plan's unchanged feet and planted selection.
+   *
+   * @param body The unchanged canonical body.
+   * @param feet The unchanged world ankle placements and rotations.
+   * @param planted The unchanged planted selection, both feet by default.
+   * @returns A lazy reader issuing fresh safe authored goal records and vectors.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines fixed inputs, world placements and separate prepared-output ownership; legs preserves its original borrowed cold references.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the same original toe-axis/knee-hint and conditional MTP goal owner as legs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure StrikingLegGoals owns fixed-foot preparation and fresh field assembly once for both actual entry points.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every goal, field order, planted condition and MTP point remains; no pose, native fit, ROM projection or physical acceptance is skipped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed geometric hints and contacts prepare once instead of per repeated callback; every read still allocates fresh authored data and actual downstream fits remain unchanged.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual damped-balance and defence consumers keep body, entry feet and support selection unchanged throughout their plan/geometry; varying-foot callers retain the original legs entry point.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owner retains two private immutable geometric snapshots until plan release; each output is independent and captures no reader, pose, time or fit history.
+   */
+  export function prepareLegs(
+    body: IHumanBody,
+    feet: Record<"left" | "right", HumanFoot.IPlacement>,
+    planted: Record<"left" | "right", boolean> = { left: true, right: true },
+  ): () => Pick<IHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
+    return StrikingLegGoals.prepare(body, feet, planted);
   }
 
   /**

@@ -286,15 +286,15 @@ export namespace ExerciseKey {
    * @returns The key between.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the three inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Linear in joint space, member by member; a joint one key leaves out is 0 there.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the union of the two keys' bones.
+   * @evidence contracts/development/implementation.md#principled-implementation Linear in joint space, member by member; after forming the ordered bone union, each bone's a and b tuples are read and fully interpolated before the next bone is read. A joint one key leaves out is 0 there.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared blend owner's raw branch makes one pass over the union of the two keys' bones, followed by the original trunk-scalar construction.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The turn is blended as written, so a full turn is keyed as 360 and not shortened to 0.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function blend(a: IKey, b: IKey, u: number): IKey {
-    return prepareExerciseKeyBlend(a, b)(u);
+    return prepareExerciseKeyBlend.raw(a, b, u);
   }
 
   /** A random-access blend reader for two fixed keys, sharing their ordered joint union (`prepareExerciseKeyBlend`). */
@@ -375,8 +375,8 @@ export namespace ExerciseKey {
    * @evidence contracts/development/implementation.md#principled-implementation A socket is placed on its bone by the body's own surfaces, as a held prop's grip is.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A bone the rig lacks throws with its name.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A requested bone origin is one map read; a socket uses one actual point rotation/addition, omitting the full frame's unread normal/forward rotations and wrapper.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual resolved bone and body socket pass to the shared canonical surface.point expression; the caller's map is borrowed synchronously and no placed point is cached.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function at(
@@ -392,7 +392,7 @@ export namespace ExerciseKey {
       );
       if (bone === undefined)
         throw new Error(`The rig has no bone ${socket.bone}`);
-      return resolveAutoMovieHumanoidSurfaces.place(socket, bone).point;
+      return resolveAutoMovieHumanoidSurfaces.point(socket, bone);
     }
     const found: IAutoMovieVector3 | undefined =
       resolved.get(pin)?.worldPosition;

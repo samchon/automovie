@@ -120,10 +120,10 @@ export namespace StrikingBody {
    * @throws {Error} When an offset is asked of a region the engine does not place by a ray.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the result's frame and what the offset selects.
-   * @evidence contracts/development/implementation.md#principled-implementation The engine's bone-local region frame, or its surface point at the offset, placed by its bone's world transform.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's bone-local region frame or exact authored tangent-offset ray is placed on its actual world bone; pointNormal retains the original point and normal math while omitting unconsumed forward.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one placement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time at the region's own point; one rest pose and one ray at an offset.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant point/normal work at the region centre, or the original rest-pose/skin-ray cost at an offset. The canonical pointNormal producer omits unused forward rotation and an extra stripping wrapper; both actual consumed vectors stay fresh and speedup is unmeasured.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; a strike reads its offset point a few times per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -134,11 +134,9 @@ export namespace StrikingBody {
     tangent?: resolveAutoMovieHumanoidSurfaces.ITangent,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
     const local: resolveAutoMovieHumanoidSurfaces.IFrame = frame(body, region, tangent);
-    const placed = resolveAutoMovieHumanoidSurfaces.place(
-      local,
-      bones.get(local.bone)!,
-    );
-    return { point: placed.point, normal: placed.normal };
+    const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.pointNormal> =
+      resolveAutoMovieHumanoidSurfaces.pointNormal(local, bones.get(local.bone)!);
+    return placed;
   }
 
   /**
@@ -185,14 +183,21 @@ export namespace StrikingBody {
    * @evidence contracts/development/implementation.md#principled-implementation Half the nearest-neighbour distance is the largest ball about a point in which that point is the nearest of the set.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the regions at rest.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read from the body's own regions, with no radius typed per region.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One O(R) region scan computes the same rest points and distances; scalar distance preserves the existing ordinary/extreme norm branches without a temporary displacement vector per neighbor. Runtime speedup is unmeasured.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the body; a strike reads it once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The first body/region query retains the original O(R) ordered rest-point scan and exact scalar distance branches; later queries read one fixed radius. No posed point is retained and runtime speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The canonical body producer fixes rest joints and bone-local surface frames after creation, so the actual anatomical rest-space radius depends only on that body and region, never actor pose/time or ROM table values.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak body key owns at most R scalar radii for its valid named regions until body release. Temporary rest points end with the first scan, and no pose, world observation, reader or numerical time history is stored.
    */
   export function radius(
     body: IHumanBody,
     region: AutoMovieHumanoidRegion,
   ): number {
+    let radii: Map<AutoMovieHumanoidRegion, number> | undefined = RADII.get(body);
+    if (radii === undefined) {
+      radii = new Map();
+      RADII.set(body, radii);
+    }
+    const known: number | undefined = radii.get(region);
+    if (known !== undefined) return known;
     const at: (name: AutoMovieHumanoidRegion) => IAutoMovieVector3 = (
       name: AutoMovieHumanoidRegion,
     ): IAutoMovieVector3 => {
@@ -210,7 +215,9 @@ export namespace StrikingBody {
           nearest,
           Vector3.distance(at(name), own),
         );
-    return 0.5 * nearest;
+    const radius: number = 0.5 * nearest;
+    radii.set(region, radius);
+    return radius;
   }
 
   /**
@@ -375,3 +382,6 @@ export namespace StrikingBody {
     );
   }
 }
+
+/** Immutable rest/profile geometry only; no posed points or ROM metadata. */
+const RADII: WeakMap<IHumanBody, Map<AutoMovieHumanoidRegion, number>> = new WeakMap();

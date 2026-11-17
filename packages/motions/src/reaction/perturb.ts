@@ -132,9 +132,9 @@ export namespace perturb {
    * @evidence contracts/development/implementation.md#principled-implementation The impulse changes the centre's velocity by `J / m`; the engine's balance outcome reads it against the planted feet's base, its first capture step landing when the step `stagger` lays for this push lands (a push `stagger` cannot catch is a fall); the absorb is the critically damped linear inverted pendulum at the body's own frequency, and the step and the fall are the shipped laws at the impulse's speed and side.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the impulse, decide the outcome, then plan one of three motions.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An outcome the impulse cannot give is refused with the feasible range; no impulse is scaled to fit.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Reuses the body's prepared mass model and transforms only profile-bearing ancestry plus the actual bearing-foot sockets after complete entry-joint admission. One base serves both outcome decisions; stagger's plan is laid once past absorb and reused for step, while absorb is closed form per evaluated second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body owns the unchanged skeleton/profile mass model and matching profile-bone demand. The entry's actual planted sides add every socket frame that its unchanged base reader consumes; both outcome decisions share this exact bone map/support outline, and step/fall reuse the shipped plans.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its composed parts for as long as the performance does.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Uses the body's prepared mass model and fixed profile/both-foot socket ancestry after complete entry admission. The actual centre is measured before planted-foot state is read. One base serves both outcome decisions and one stagger plan serves step. Absorb stays closed form and prepares fixed authored foot hints/contacts once; every current native fit remains and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Canonical body metadata fixes mass/profile/both-foot socket demand without observing entry feet early. After the original pose admission and centre read, actual bearing sides select the base shared by both decisions. Absorb's authored foot placements fix only knee/contact geometry and both callbacks receive fresh goals. Step/fall retain their shipped owners without pose or fit-answer reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Absorb owns fixed body/entry-foot geometry and its two-foot authored producer until plan release, issuing fresh independent goals per read without an FK/ROM loan or queried-pose history. Other outcomes retain their delegated plans' resource ownership; this function adds no global model/answer cache.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -159,14 +159,11 @@ export namespace perturb {
         Vector3.add(sum, f.impulse),
       { x: 0, y: 0, z: 0 },
     );
-    const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
-      (side: "left" | "right"): boolean => entry.feet[side].planted,
-    );
-    const bearing: readonly ("left" | "right")[] = planted.length === 0 ? ["left", "right"] : planted;
     const requestedBones: Set<AutoMovieHumanoidBone> = new Set(HumanColliders.bones(body));
-    // The profile demand already includes every collider-outline frame;
-    // sockets can ride an additional foot/toe bone in the same actual base.
-    for (const side of bearing) {
+
+    // Prepare both sides' fixed socket demand without observing planted
+    // state before the original pose admission and centre measurement.
+    for (const side of ["left", "right"] as const) {
       const suffix: "Left" | "Right" = side === "left" ? "Left" : "Right";
       for (const socket of ["heel", "ball", "toe"] as const)
         requestedBones.add(body.surfaces.sockets[`${socket}${suffix}`].bone);
@@ -178,6 +175,10 @@ export namespace perturb {
       requestedBones,
     );
     const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(model, bones);
+    const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
+      (side: "left" | "right"): boolean => entry.feet[side].planted,
+    );
+    const bearing: readonly ("left" | "right")[] = planted.length === 0 ? ["left", "right"] : planted;
     const support: IAutoMovieVector3[] = HumanFoot.base(
       body,
       bones,
@@ -344,6 +345,7 @@ export namespace perturb {
     );
     const feet: Record<"left" | "right", HumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
+    const legsAt: ReturnType<typeof StrikingStance.prepareLegs> = StrikingStance.prepareLegs(body, feet);
     const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(duration, {
         root: entry.root,
@@ -365,8 +367,7 @@ export namespace perturb {
           }),
           shift: (seconds: number): IAutoMovieVector3 =>
             Vector3.scale(local, speed * seconds * Math.exp(-w0 * seconds)),
-          legs: (): Pick<IHumanPosture["limbs"], "leftLeg" | "rightLeg"> =>
-            StrikingStance.legs(body, feet),
+          legs: legsAt,
         }),
 
         // The sway reads the legs for the hips' height only; the legs stand
@@ -377,7 +378,7 @@ export namespace perturb {
           to: duration,
           write: (posture: IHumanPosture): IHumanPosture => ({
             ...posture,
-            limbs: { ...posture.limbs, ...StrikingStance.legs(body, feet) },
+            limbs: { ...posture.limbs, ...legsAt() },
           }),
         },
       ],

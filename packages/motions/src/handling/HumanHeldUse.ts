@@ -147,11 +147,11 @@ export namespace HumanHeldUse {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the key, its inputs and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The grasp was chosen so that this key holds (`pickUp`'s use), so an act that keeps its rotation asks only a pose the grip was taken for, the roll the same chooser takes; the closed hand is the entry's own digits, each phalanx and tip less its radius from the body's colliders, whose depth in the face adds to a roll's miss.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The entry hand and its digits, the clearance, one delegation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Entry hand/digit/body geometry precede one private numeric clearance reader and the ordinary current-input use owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tool is named; the region is the act's own.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanGraspUse.presented`.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One entry pose read and a few arm fits per act.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The private clearance reader shares only the entry digit coordinates and actual nonholding collider placement it owns. Its purity does not certify the borrowed posture graph as immutable; presented therefore retains current complete source admission rather than preparing a fixed direct base.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK supplies D digit points and collider placement. Direct bone collection removes per-digit map/filter callbacks and a discarded mapped array, retaining lookups before original phalanx/tip math; direct ordered nonholding-map construction omits two full-map arrays. Every roll/refinement/full fit/FK and D clearance query remains; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Digit points and collider query workspace belong only to this synchronous key search. Returned key/judge data retain their actual local tool/contact geometry, without the clearance workspace, fixed base, FK loan, candidate history or external handle.
    */
   export function key(
     context: Pick<IHumanActionContext, "body" | "entry" | "prop" | "start">,
@@ -174,7 +174,7 @@ export namespace HumanHeldUse {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       hand?.worldRotation ?? Quaternion.identity(),
     );
-    const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+    const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         inverse,
         Vector3.subtract(point, hand?.worldPosition ?? point),
@@ -186,13 +186,11 @@ export namespace HumanHeldUse {
         side,
         digit,
       );
-      const phalanges: IAutoMovieResolvedBone[] = HumanGrip.bones(side, digit)
-        .map((bone: AutoMovieHumanoidBone) => bones.get(bone))
-        .filter(
-          (
-            bone: IAutoMovieResolvedBone | undefined,
-          ): bone is IAutoMovieResolvedBone => bone !== undefined,
-        );
+      const phalanges: IAutoMovieResolvedBone[] = [];
+      for (const name of HumanGrip.bones(side, digit)) {
+        const phalanx: IAutoMovieResolvedBone | undefined = bones.get(name);
+        if (phalanx !== undefined) phalanges.push(phalanx);
+      }
       for (const phalanx of phalanges)
         digits.push({
           point: local(phalanx.worldPosition),
@@ -214,15 +212,12 @@ export namespace HumanHeldUse {
     const holding: RegExp = new RegExp(
       `^${side}(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)`,
     );
-    const apart: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      [...bones].filter(
-        ([bone]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): boolean =>
-          !holding.test(bone),
-      ),
-    );
+    const apart: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
+    for (const [bone, frame] of bones)
+      if (!holding.test(bone)) apart.set(bone, frame);
     const geometry: ReturnType<typeof HumanColliders.reading> =
       HumanColliders.reading(body, apart);
-    const clear = (wrist: HumanHand.IWrist): number => {
+    const clear: (wrist: HumanHand.IWrist) => number = (wrist: HumanHand.IWrist): number => {
       let least: number = Infinity;
       for (const digit of digits) {
         const point: IAutoMovieVector3 = Vector3.add(
@@ -235,7 +230,7 @@ export namespace HumanHeldUse {
       }
       return least;
     };
-    return HumanGraspUse.presented({
+    const use: Parameters<typeof HumanGraspUse.presented>[0] = {
       context,
       prop,
       handle: grasp.handle,
@@ -246,7 +241,8 @@ export namespace HumanHeldUse {
       },
       use: { tip: point, line: grasp.line, at: { region } },
       clear,
-    });
+    };
+    return HumanGraspUse.presented(use);
   }
 
   /**

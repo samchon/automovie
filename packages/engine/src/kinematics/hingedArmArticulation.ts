@@ -76,7 +76,10 @@ const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
  * seed's branch, its swivel refined within one step either way by the same
  * golden-section search under the same ordering, to the seed's `tolerance`
  * (`IAutoMovieSwivelNear`). Every result names its branch and swivel, the
- * seed a nearby fit continues from.
+ * seed a nearby fit continues from. If dividing a positive subnormal tolerance
+ * by the initial bracket width underflows, the difference of logarithms keeps
+ * the mathematically finite refinement count finite; ordinary ratios retain
+ * their original expression.
  * With certified global score minima and no second key, the first scored
  * coarse candidate ends a cold search only if its actual two keys equal both
  * minima exactly. No later candidate can be strictly ahead, so the original
@@ -360,6 +363,10 @@ export const hingedArmArticulation: (props: {
     const near: IAutoMovieSwivelNear = props.near;
     if (!(near.tolerance > 0) || !Number.isFinite(near.tolerance))
       throw new Error("A continued fit needs a positive finite tolerance");
+    const ratio: number = near.tolerance / (2 * SWIVEL_STEP);
+    const contraction: number = ratio === 0
+      ? Math.log(near.tolerance) - Math.log(2 * SWIVEL_STEP)
+      : Math.log(ratio);
     const branch: number = Math.min(near.branch, found.length - 1);
     const stop: IBranch = { ...found[branch]!, branch };
     const seeded: IScored = refineHingedSwivel(
@@ -369,7 +376,7 @@ export const hingedArmArticulation: (props: {
       Math.max(
         0,
         Math.ceil(
-          Math.log(near.tolerance / (2 * SWIVEL_STEP)) / Math.log(GOLDEN),
+          contraction / Math.log(GOLDEN),
         ),
       ),
     );

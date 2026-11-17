@@ -77,7 +77,7 @@ export function normalizeJointAxes(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes exact ownership of successfully produced frozen bases, without probing or admitting arbitrary candidate records.
  * @evidence contracts/development/design.md#principled-representation A weak membership fact identifies the normalizer's actual own-data results; it neither infers immutability from caller-controlled descriptors nor represents a second axis basis.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One read-only membership query serves the inverse's handedness metadata; only the existing normalizer can register its successfully created result.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One read-only membership query serves inverse handedness, direct OnBasis fixed-axis readers and prepared inner/outer cardinal support. Only this normalizer registers actual frozen outputs; arithmetic consumers still own their current input/frame checks.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No user basis, copied or proxied record gains trust from matching shape or values, and membership bypasses no normalization or numerical validation of raw inputs.
  */
 export namespace normalizeJointAxes {

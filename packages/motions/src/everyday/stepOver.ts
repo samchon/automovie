@@ -134,8 +134,8 @@ export namespace stepOver {
    * @evidence contracts/development/implementation.md#principled-implementation Preserves every sole-clearance path, root lowering, landing anticipation and six-round bounded secant correction. Each internal socket observation retains full direct-joint admission/clamping and the canonical resolver's dependency-selected actual leg fits, with ordinary complete fallback for unsupported context.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed trunk/knee/contact geometry precedes root/foot placement, lowering, active landing claims and actual lifted-foot clearance correction.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No event, clearance probe, iteration limit, 2 mm floor, secant ratio, contact, ROM or refusal changes; omitted demand retains the complete original posture computation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Trunk/rest/contact and fixed-knee reach prepare once; each foot trajectory evaluates once per query, planted spans omit unread landing FK, and root/trunk-only observation omits the later leg-only clearance corrections.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One fixed take shares measured body and footprint geometry. Each synchronous query borrows one exact FK reader across lowering/hips/clearance rounds and explicitly requests the observed socket bones from resolver/FK; each such partial pose stays inside that observation and never escapes as a complete pose or retained result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Trunk/rest/contact and fixed-knee reach prepare once; each foot trajectory evaluates once per query, planted spans omit unread landing FK, and explicit channel demand corrects only an observed leg. After the first complete clearance round, a moved trial prepares its fixed socket-name demand once for every remaining original round.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One fixed take shares measured body and footprint geometry. Each synchronous query borrows one exact FK reader across lowering/hips/clearance rounds and explicitly requests the observed socket bones from resolver/FK; its unchanged socket membership shares genuine FK demand preparation after the first successful observation. Each partial pose stays inside that observation and never escapes as a complete pose or retained result.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns fixed body/path/trunk readers until released; each query releases its FK workspace and current bone demand on return or throw, without retaining postures, solved poses or queried seconds.
    */
   export function plan(
@@ -332,9 +332,10 @@ export namespace stepOver {
         // until no socket is more than 2 mm under, in at most six rounds, so
         // the clearance holds on the sole itself.
         const lifted: ("left" | "right")[] = (["left", "right"] as const).filter(
-          (side: "left" | "right"): boolean => !footings[side].planted,
+          (side: "left" | "right"): boolean => !footings[side].planted &&
+            (channels === undefined || channels.includes(`${side}Leg`)),
         );
-        if (lifted.length === 0 || (channels !== undefined && !channels.includes("leftLeg") && !channels.includes("rightLeg"))) return posture;
+        if (lifted.length === 0) return posture;
         const requested: Set<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>();
         for (const side of lifted)
           for (const socket of HumanFoot.SOCKETS)
@@ -342,8 +343,12 @@ export namespace stepOver {
         const last: Partial<
           Record<"left" | "right", { ankle: number; short: number }>
         > = {};
+        let observe: ReturnType<typeof poseBones.prepare> | undefined;
         for (let round: number = 0; round < 6 && lifted.length > 0; round++) {
-          const bones: ReturnType<typeof poseBones> = poseBones(body, resolveHumanPosture.seeded(body, posture, undefined, {}, resolution, requested, projection).pose, resolution(), requested);
+          const posed: ReturnType<typeof resolveHumanPosture.seeded>["pose"] = resolveHumanPosture.seeded(body, posture, undefined, {}, resolution, requested, projection).pose;
+          const bones: ReturnType<typeof poseBones> = observe === undefined
+            ? poseBones(body, posed, resolution(), requested)
+            : observe(posed, resolution());
           const next: IHumanPosture["limbs"] = { ...posture.limbs };
           let moved: boolean = false;
           for (const side of lifted) {
@@ -375,6 +380,7 @@ export namespace stepOver {
           }
           if (!moved) break;
           posture = { ...posture, limbs: next };
+          if (observe === undefined) observe = poseBones.prepare(body, requested);
         }
         return posture;
       },

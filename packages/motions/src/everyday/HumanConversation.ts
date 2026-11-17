@@ -33,7 +33,7 @@ import { HumanGaze } from "./HumanGaze";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One small function per quantity.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Out-of-range inputs throw; provisional constants are named and marked.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call, or linear in the requests a call builds.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Pure functions of their inputs.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed 25-degree yaw and 10-degree depression share their identical scalar trigonometry across look-away requests; seeded side, current eye height, every random draw and output target remain actual, with original multiply/subtract grouping.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanConversation {
@@ -132,15 +132,18 @@ export namespace HumanConversation {
 
 /** A look-away point 2 m out, 25 degrees to a side of the looker's heading and 10 degrees below the eyes, in the looker's own frame. */
 function away(eyes: number, side: number): AutoMovieMotionTarget {
-  const yaw: number = (25 * Math.PI) / 180;
-  const pitch: number = (10 * Math.PI) / 180;
   return {
     kind: "point",
     at: {
-      x: side * 2 * Math.sin(yaw),
-      y: eyes - 2 * Math.tan(pitch),
-      z: 2 * Math.cos(yaw),
+      x: side * 2 * AWAY_SINE,
+      y: eyes - 2 * AWAY_TANGENT,
+      z: 2 * AWAY_COSINE,
     },
     frame: "performer",
   };
 }
+
+/** Fixed look-away law angles; current eye height and seeded side remain actual. */
+const AWAY_SINE: number = Math.sin((25 * Math.PI) / 180);
+const AWAY_COSINE: number = Math.cos((25 * Math.PI) / 180);
+const AWAY_TANGENT: number = Math.tan((10 * Math.PI) / 180);

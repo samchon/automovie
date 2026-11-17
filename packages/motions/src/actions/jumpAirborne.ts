@@ -9,6 +9,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
+import { HumanPosturePreparation } from "../posture/HumanPosturePreparation";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { jumpState } from "./jumpState";
 
@@ -75,31 +76,36 @@ export namespace jumpAirborne {
    *
    * @param body The body.
    * @param heading The jump's heading, degrees.
+   * @param poleHeadings The finite set of fixed pole headings used by this plan, copied in degrees; other headings retain ordinary point conversion.
    * @returns A world-metre pole reader of root metres, leg side and pole heading degrees.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the point.
    * @evidence contracts/development/implementation.md#principled-implementation A pole one metre ahead of the knee's rest place, the hint a two-bone fit bends toward.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the unchanged jump heading once, then each call applies the original two frame points with its actual root and pole heading.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the unchanged jump heading and explicitly supplied pole headings once; each call applies the same two point conversions with its actual root and exact pole heading, using the ordinary owner for an unprepared heading.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two fixed knee-local point readers prepare the heading trigonometry and scalar products once; each changing root/pole heading still evaluates the original scalar expressions. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan's unchanged body/heading fix the prepared frame, while every changed root/side/pole heading is actually read, without a time cache or changed addition order.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns two fixed point readers holding copied scalar terms; each call returns a fresh vector and retains no body, input root or previous pole.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two knee-local readers and H supplied pole readers prepare heading trigonometry/products once; the actual jump supplies H=4. Each query performs at most H exact scalar comparisons and the original fresh point expressions, without per-query trigonometry for those headings. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged body/heading and explicit copied pole angles fix only transform coefficients. Object.is preserves signed-zero distinctions; changed roots/sides are transformed normally and an unprepared angle uses the original point owner, with no time/result cache or changed addition order.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns two knee and H pole readers holding copied scalar terms until released; H is the supplied finite array length, with no query-driven growth. Every call returns fresh vectors and retains no body, input root or previous pole.
    */
   export function knee(
     body: IHumanBody,
     heading: number,
+    poleHeadings: readonly number[] = [],
   ): (root: IAutoMovieVector3, side: "left" | "right", yaw: number) => IAutoMovieVector3 {
     const lower: Record<"left" | "right", ReturnType<typeof HumanFrame.preparePoint>> = {
       left: HumanFrame.preparePoint(heading, body.rest.get("leftLowerLeg")!),
       right: HumanFrame.preparePoint(heading, body.rest.get("rightLowerLeg")!),
     };
-    return (root: IAutoMovieVector3, side: "left" | "right", yaw: number): IAutoMovieVector3 => HumanFrame.point(
-      {
-        origin: lower[side](root),
-        yaw,
-      },
-      { x: 0, y: 0, z: 1 },
+    const poles: (readonly [number, ReturnType<typeof HumanFrame.preparePoint>])[] = poleHeadings.map(
+      (yaw: number): readonly [number, ReturnType<typeof HumanFrame.preparePoint>] =>
+        [yaw, HumanFrame.preparePoint(yaw, { x: 0, y: 0, z: 1 })],
     );
+    return (root: IAutoMovieVector3, side: "left" | "right", yaw: number): IAutoMovieVector3 => {
+      const origin: IAutoMovieVector3 = lower[side](root);
+      for (const [fixed, point] of poles)
+        if (Object.is(fixed, yaw)) return point(origin);
+      return HumanFrame.point({ origin, yaw }, { x: 0, y: 0, z: 1 });
+    };
   }
 
   /**
@@ -117,43 +123,48 @@ export namespace jumpAirborne {
    * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk endpoint interpolation (Flash and Hogan 1985) uses achieved foot/knee/toe values and quaternion interpolation of achieved foot rotations. The existing provisional arch remains 0.1 hip heights times sin(pi*u); no extra path projection or rate law is added.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare fixed joint start/difference tracks and the heading turn once; each read copies the achieved seed, interpolates arms/toes and builds two free goals from the same endpoints.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fixed -40-degree seed, reconstructed ankle, ground plant, epsilon or boundary-only pose replaces the achieved shape. Coupled ROM remains the ordinary resolver's responsibility.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed joint tracks, four scalar point/bend interpolation readers and two quaternion endpoint arcs prepare once. Each query shares one minimum-jerk share/sine arch and evaluates original local-then-world expressions directly into four world vectors, avoiding four discarded local vectors. Original quaternion work remains and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed endpoint/delta/frame/arc prerequisites prepare. Every root/share/arch still evaluates its original scalar sequence: local interpolation, explicit point Y lift, then unchanged world multiply/add order; bends add no artificial zero lift. No affine regrouping, target substitute or time-keyed result cache is used.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed joint tracks, four scalar point/bend interpolation readers, the 0.1-hip-height arch coefficient and two quaternion endpoint arcs prepare once. Each query shares one minimum-jerk share/current sine arch and evaluates original local-then-world expressions directly into four world vectors, avoiding four discarded local vectors. Original quaternion work remains and speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed body-dimension/endpoint/delta/frame/arc prerequisites prepare; changed dimensions require another prepared shape. Every root/share/sine still evaluates its original scalar sequence: local interpolation, explicit point Y lift, then unchanged world multiply/add order; bends add no artificial zero lift. No affine regrouping, target substitute or time-keyed result cache is used.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns endpoints, fixed joint/scalar interpolation data and two arc readers. Each query owns fresh changed tuples/world vectors and retains no history, body workspace or handle; unchanged clinical tuples keep their original readonly endpoint ownership.
    */
   export function prepare(
     shape: IShape,
   ): (root: IAutoMovieVector3, u: number) => IHumanPosture {
     const { body, takeoff, heading }: IShape = shape;
+    const fixed: { start: Pick<jumpState.IState, "root" | "joints" | "legs">; end: Pick<jumpState.IState, "joints" | "legs"> } = structuredClone({
+      start: { root: shape.start.root, joints: shape.start.joints, legs: shape.start.legs },
+      end: { joints: shape.end.joints, legs: shape.end.legs },
+    });
+    const archHeight: number = 0.1 * body.measure.hipHeight;
     const tracks: IJointTrack[] = [];
     for (const bone of [
       "leftUpperArm", "rightUpperArm", "leftLowerArm", "rightLowerArm",
       "leftUpperLeg", "rightUpperLeg", "leftLowerLeg", "rightLowerLeg", "leftFoot", "rightFoot",
     ] as const) {
-      const from: readonly [number, number, number] = shape.start.joints[bone] ?? [0, 0, 0];
-      const into: readonly [number, number, number] = shape.end.joints[bone] ?? [0, 0, 0];
+      const from: readonly [number, number, number] = fixed.start.joints[bone] ?? [0, 0, 0];
+      const into: readonly [number, number, number] = fixed.end.joints[bone] ?? [0, 0, 0];
       tracks.push({ bone, from, delta: [into[0] - from[0], into[1] - from[1], into[2] - from[2]] });
     }
     const toe: AutoMovieHumanoidBone = `${takeoff}Toes`;
-    const fromToe: number = shape.start.joints[toe]?.[0] ?? 0;
-    const toeDelta: number = (shape.end.joints[toe]?.[0] ?? 0) - fromToe;
+    const fromToe: number = fixed.start.joints[toe]?.[0] ?? 0;
+    const toeDelta: number = (fixed.end.joints[toe]?.[0] ?? 0) - fromToe;
     const turn: ReturnType<typeof HumanFrame.turn> = HumanFrame.turn(heading);
-    const frame: HumanFrame.IFrame = { origin: shape.start.root, yaw: heading };
+    const frame: HumanFrame.IFrame = { origin: fixed.start.root, yaw: heading };
     const points: Record<"left" | "right", ReturnType<typeof HumanFrame.prepareLerp>> = {
-      left: HumanFrame.prepareLerp(frame, shape.start.legs.left.point, shape.end.legs.left.point),
-      right: HumanFrame.prepareLerp(frame, shape.start.legs.right.point, shape.end.legs.right.point),
+      left: HumanFrame.prepareLerp(frame, fixed.start.legs.left.point, fixed.end.legs.left.point),
+      right: HumanFrame.prepareLerp(frame, fixed.start.legs.right.point, fixed.end.legs.right.point),
     };
     const bends: Record<"left" | "right", ReturnType<typeof HumanFrame.prepareLerp>> = {
-      left: HumanFrame.prepareLerp(frame, shape.start.legs.left.bend, shape.end.legs.left.bend),
-      right: HumanFrame.prepareLerp(frame, shape.start.legs.right.bend, shape.end.legs.right.bend),
+      left: HumanFrame.prepareLerp(frame, fixed.start.legs.left.bend, fixed.end.legs.left.bend),
+      right: HumanFrame.prepareLerp(frame, fixed.start.legs.right.bend, fixed.end.legs.right.bend),
     };
     const rotations: Record<"left" | "right", ReturnType<typeof Quaternion.prepareSlerp>> = {
-      left: Quaternion.prepareSlerp(shape.start.legs.left.rotation, shape.end.legs.left.rotation),
-      right: Quaternion.prepareSlerp(shape.start.legs.right.rotation, shape.end.legs.right.rotation),
+      left: Quaternion.prepareSlerp(fixed.start.legs.left.rotation, fixed.end.legs.left.rotation),
+      right: Quaternion.prepareSlerp(fixed.start.legs.right.rotation, fixed.end.legs.right.rotation),
     };
     return (root: IAutoMovieVector3, u: number): IHumanPosture => {
       const s: number = minimumJerk.share(u);
-      const joints: IHumanPosture["joints"] = { ...shape.start.joints };
+      const joints: IHumanPosture["joints"] = { ...fixed.start.joints };
       for (const track of tracks)
         joints[track.bone] = [
           track.from[0] + track.delta[0] * s,
@@ -162,7 +173,7 @@ export namespace jumpAirborne {
         ];
       joints[toe] = [fromToe + toeDelta * s, 0, 0];
       const limbs: IHumanPosture["limbs"] = {};
-      const arch: number = 0.1 * body.measure.hipHeight * Math.sin(Math.PI * u);
+      const arch: number = archHeight * Math.sin(Math.PI * u);
       for (const side of ["left", "right"] as const) {
         const point: IAutoMovieVector3 = points[side](s, root, arch);
         const rotation: ReturnType<typeof Quaternion.slerp> = rotations[side](s);
@@ -270,7 +281,7 @@ export namespace jumpAirborne {
       turned: (posture: IHumanPosture, t: number): IHumanPosture =>
         rotated === null || t <= takeoff || t >= touchdown
           ? posture
-          : { ...posture, rotation: rotated(t) },
+          : HumanPosturePreparation.turned(posture, rotated(t)),
     };
   }
 }

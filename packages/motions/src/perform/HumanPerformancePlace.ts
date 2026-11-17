@@ -170,12 +170,14 @@ export namespace HumanPerformancePlace {
     // The inertialization the cut into this action decays over, the
     // tolerance its entry state is read to; none for an overlay.
     const blend: number | undefined = over ? undefined : (row?.blend ?? 0.25);
-    const entry = HumanSegment.entry(person, previous, start, blend);
+    const entry: ReturnType<typeof HumanSegment.entry> = HumanSegment.entry(person, previous, start, blend);
     const instance: number = [...person.segments, ...person.overlays].filter(
       (s: HumanSegment.ISegment): boolean => s.id === (intent.anchor ?? name),
     ).length;
-    const body = person.performer.body;
-    const carried: Map<number, IHumanPosture> = new Map();
+    const body: IHumanActionContext<never>["body"] = person.performer.body;
+    const ownBones: (requested?: ReadonlySet<AutoMovieHumanoidBone>) => ReturnType<typeof poseBones> =
+      (requested?: ReadonlySet<AutoMovieHumanoidBone>): ReturnType<typeof poseBones> =>
+        poseBones(body, entry.pose, undefined, requested);
     let performers: Map<string, IHumanActionContext.IPerformer> | undefined;
     const context: IHumanActionContext<never> = {
       subject: intent.subject,
@@ -197,23 +199,14 @@ export namespace HumanPerformancePlace {
                 resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
                 projection?: Parameters<IHumanActionPlan["posture"]>[3],
               ): IHumanPosture => {
-                // The overlay's primitives and the display each ask for the
-                // carrier at the same few instants, and a gait's posture is
-                // costly, so the latest ones are kept.
+                // Query-scoped prefix sharing belongs to the composer.
+                // A retained carrier callback must read current stop/plan
+                // state and the exact caller's demand and metadata loans.
                 const at: number = Math.min(
                   previous.plan.duration,
                   Math.max(0, start + seconds - previous.start),
                 );
-                let posture: IHumanPosture | undefined = carried.get(at);
-                if (posture === undefined && channels !== undefined)
-                  return previous.plan.posture(at, channels, resolution, projection);
-                if (posture === undefined) {
-                  posture = previous.plan.posture(at, undefined, resolution, projection);
-                  if (carried.size >= 64)
-                    carried.delete(carried.keys().next().value!);
-                  carried.set(at, posture);
-                }
-                return posture;
+                return previous.plan.posture(at, channels, resolution, projection);
               },
               // The prop the carrier plants on, the support the overlay rides.
               ...((): { support?: IHumanContactWindow.Support } => {
@@ -235,8 +228,7 @@ export namespace HumanPerformancePlace {
           HumanPerformanceAim.frame(
             body,
             entry.posture,
-            (requested?: ReadonlySet<AutoMovieHumanoidBone>): ReturnType<typeof poseBones> =>
-              poseBones(body, entry.pose, undefined, requested),
+            ownBones,
             intent.subject,
           ),
         ),
@@ -292,6 +284,7 @@ export namespace HumanPerformancePlace {
           );
         const cached: IHumanActionContext.IPerformer | undefined = performers?.get(subject);
         if (cached !== undefined) return { ...cached };
+        const axis: () => string = (): string => named(subject, "performer");
         const reader: IHumanActionContext.IPerformer = {
           body: HumanPerformanceRead.person(self, subject).performer.body,
           // The performer's own body is read as it entered the action, as
@@ -302,25 +295,17 @@ export namespace HumanPerformancePlace {
             requested?: ReadonlySet<AutoMovieHumanoidBone>,
           ): ReturnType<typeof poseBones> =>
             subject === intent.subject
-              ? poseBones(body, entry.pose, undefined, requested)
+              ? ownBones(requested)
               : HumanPerformanceRead.bones(self, subject, seconds, requested),
           root: (seconds: number): IHumanActionContext.IRoot =>
             HumanPerformanceRead.root(
               self,
               subject,
               seconds,
-              named(subject, "performer"),
+              axis,
             ),
-          posture: (seconds: number): IHumanPosture => {
-            // The same rule as the root's: refused beyond what is placed.
-            HumanPerformanceRead.root(
-              self,
-              subject,
-              seconds,
-              named(subject, "performer"),
-            );
-            return HumanPerformanceRead.posture(self, subject, seconds);
-          },
+          posture: (seconds: number): IHumanPosture =>
+            HumanPerformanceRead.posture(self, subject, seconds, undefined, axis),
         };
         (performers ??= new Map()).set(subject, reader);
         return { ...reader };

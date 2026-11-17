@@ -104,13 +104,13 @@ export namespace roll {
    * @returns The plan.
    * @throws {HumanRefusal} When the entry is not standing on both feet.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The crouch keeps the ankles where they stood by placing the root against the ankles the posture puts; the roll places it against the lowest joint centre and carries it by the integral of the turn times its height above that point, the speed of a ball rolling without slipping.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The tucked body's table, the three phases, the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A body not on both feet is refused; the travel is integrated, not guessed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms `SAMPLES` posture resolves at plan time and one per frame.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the posture resolver's heading and the entry's feet.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the table.
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal. Companion heightsOf: States borrowed current raw input, original callback/interval count and full bone-origin rather than collider-height output.
+   * @evidence contracts/development/implementation.md#principled-implementation The crouch keeps the ankles where they stood by placing the root against the ankles the posture puts; the roll places it against the lowest joint centre and carries it by the integral of the turn times its height above that point, the speed of a ball rolling without slipping. Companion heightsOf: Keeps every k=0..samples turn, actual current authored posture, complete canonical observation and full FK/minimum over all bone world-Y values; clinical source data are never replaced by an earlier sample.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The tucked body's table, the three phases, the contacts. Companion heightsOf: One bounded native metadata scope serves the same ordered callback, complete-resolution, full-FK and minimum loop.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A body not on both feet is refused; the travel is integrated, not guessed. Companion heightsOf: No borrowed entry value is frozen or certified from callback purity/JSON equality. No digit/rotation goal is dropped and no collider minimum replaces the all-bone-origin datum; every original sample/read remains.
+   * @evidence contracts/development/implementation.md#efficient-algorithms All SAMPLES+1 complete current posture resolutions, full FK maps and all-bone minimum readings remain. Only one synchronous exact FK/genuine ROM metadata scope shares native prerequisites; borrowed entry fields are reread for every original sample and runtime posture. Companion heightsOf: Each sample retains its full current nonlinear projection, native fits and full FK. One exact FK/genuine ROM scope shares only immutable metadata and checked numerical prerequisites, with no ineffective template/JSON source machinery or measured speedup claim.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Immutable body metadata alone shares across table construction. Each sample's posed callback reads current entry joints/yaw/roll/optional goals in its original order, with no fixed raw template or clinical projection inferred from that borrowed graph. Companion heightsOf: Only the body's immutable rig/ROM metadata and exact dependency checks share; the original current entry joint map, root orientation and optional context are observed anew through posed at each sample.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Construction releases its source/FK/ROM readers before return; the plan retains original numeric height/travel tables and fixed entry geometry, without a sampled pose, source loan or query history. Companion heightsOf: One synchronous construction owns bounded FK/ROM metadata until return or throw. Only the original numeric height table returns; no raw/solved pose, current map, getter or history of queried poses enters the roll plan.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -291,13 +291,22 @@ export namespace roll {
 }
 
 /**
- * Read every original roll-table sample, borrowing only a privately checked
- * identical direct-joint projection across rigid placements. One actual cold
- * source owns the projection; its owner rechecks current raw/rig scalars for
- * every later sample and reconstructs that sample's current Euler placement.
- * Changed/unsupported contexts retain ordinary canonical resolution. Source
- * proof checks and copying remain O(B+J), and every full FK/minimum reading
- * still executes; no time-keyed sample, map or query history is retained.
+ * Read every original roll-table sample from its current authored posture.
+ * The entry graph remains borrowed, so each sample keeps its original live
+ * observation and complete canonical resolution.
+ *
+ * @param body The unchanged body of this construction.
+ * @param posed The original per-sample posture builder, including current entry context.
+ * @param samples The positive original number of equal angular intervals.
+ * @returns One negated minimum per interval boundary, samples+1 total, over every actual bone-origin height in metres.
+ *
+ * States borrowed current raw input, original callback/interval count and full bone-origin rather than collider-height output.
+ * Keeps every k=0..samples turn, actual current authored posture, complete canonical observation and full FK/minimum over all bone world-Y values; clinical source data are never replaced by an earlier sample.
+ * One bounded native metadata scope serves the same ordered callback, complete-resolution, full-FK and minimum loop.
+ * No borrowed entry value is frozen or certified from callback purity/JSON equality. No digit/rotation goal is dropped and no collider minimum replaces the all-bone-origin datum; every original sample/read remains.
+ * Each sample retains its full current nonlinear projection, native fits and full FK. One exact FK/genuine ROM scope shares only immutable metadata and checked numerical prerequisites, with no ineffective template/JSON source machinery or measured speedup claim.
+ * Only the body's immutable rig/ROM metadata and exact dependency checks share; the original current entry joint map, root orientation and optional context are observed anew through posed at each sample.
+ * One synchronous construction owns bounded FK/ROM metadata until return or throw. Only the original numeric height table returns; no raw/solved pose, current map, getter or history of queried poses enters the roll plan.
  */
 function heightsOf(
   body: IHumanBody,
@@ -309,24 +318,17 @@ function heightsOf(
   const projection: ReturnType<typeof prepareHumanPostureProjection> =
     prepareHumanPostureProjection(body);
   const heights: number[] = [];
-  let source: resolveHumanPosture.IPrepared | undefined;
   for (let k: number = 0; k <= samples; k++) {
     const posture: IHumanPosture = posed((360 * k) / samples);
-    let pose: IAutoMoviePose;
-    if (source === undefined) {
-      source = resolveHumanPosture.prepare(body, posture, prepared, projection);
-      pose = source.pose;
-    } else {
-      pose = resolveHumanPosture.seeded(
-        body,
-        resolveHumanPosture.carried(source, posture),
-        undefined,
-        undefined,
-        prepared,
-        undefined,
-        projection,
-      ).pose;
-    }
+    const pose: IAutoMoviePose = resolveHumanPosture.seeded(
+      body,
+      posture,
+      undefined,
+      undefined,
+      prepared,
+      undefined,
+      projection,
+    ).pose;
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,
       pose,

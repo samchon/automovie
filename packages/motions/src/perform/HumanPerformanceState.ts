@@ -3,6 +3,7 @@ import {
   type IAutoMovieIntent,
   type IAutoMovieSchedule,
   checkAutoMovieLegality,
+  type integrateAirborneRotation,
   resolveAutoMovieSchedule,
 } from "@automovie/engine";
 import type {
@@ -128,8 +129,12 @@ export class HumanPerformanceState {
    * Resolve a performance.
    *
    * @param input The chain seed, the performers, the props and the composition.
+   * @param observation Optional native numeric observer forwarded only during this physical planning operation; it is never stored in the resulting state.
    */
-  public constructor(input: HumanPerformance.IInput) {
+  public constructor(
+    input: HumanPerformance.IInput,
+    observation?: ReturnType<typeof integrateAirborneRotation.observe>,
+  ) {
     this.props = new Map(
       (input.props ?? []).map((p: IHumanProp): [string, IHumanProp] => [
         p.subject,
@@ -331,7 +336,7 @@ export class HumanPerformanceState {
     // Every flight turns by the composed body's shape once the contacts are
     // resolved; the turned plans then show their rotation, so the displayed
     // poses read for it are forgotten.
-    HumanPerformanceFlight.flights(this, this.people.values());
+    HumanPerformanceFlight.flights(this, this.people.values(), observation);
     for (const person of this.people.values()) HumanSegment.settle(person);
     this.resolving = false;
     for (const entry of this.schedule.entries) {
@@ -380,19 +385,24 @@ export namespace HumanPerformanceState {
    * kept, so it is thrown afresh each time.
    *
    * @param input The chain seed, the performers, the props and the composition.
+   * @param observation An explicit native diagnostic request performs cold planning rather than observing a reused complete answer; absent, the existing memo policy is unchanged.
    * @returns The resolved performance.
    * @throws {HumanRefusal} When the input does not resolve.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read again, why it may be and what is not kept.
-   * @evidence contracts/development/implementation.md#principled-implementation Memoisation of a pure function by its argument's structural key, the least recently read dropped first.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One key, one look-up, one resolution where it misses.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The key is the input's content and identities, never a shared reference to a caller's object, so a changed input misses.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One key walk per call; a hit skips the whole resolution.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every performance of an equal input in the process reads one resolution, a website session's reread take as much as a test's.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most `KEEP` resolutions are kept; the least recently read is released first.
+   * @evidence contracts/development/common.md#meaningful-documentation States ordinary equal-input memo reuse and explicit diagnostic cold planning without retaining an observer in the result.
+   * @evidence contracts/development/implementation.md#principled-implementation Pure unobserved resolution uses structural-key memoization with LRU eviction; requested physical-work observation is an effect and therefore resolves afresh rather than replaying a complete answer.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Both paths perform the original key walk; an observation then constructs a new state, while ordinary inputs keep the original lookup and miss resolution.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Diagnostics changes no authored input, physical bound or refusal; it cannot report a whole-plan cache hit as cold work. Ordinary keys remain content/identity keys rather than mutable caller references.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Both paths pay the original key walk and one observer branch; an ordinary memo hit still skips resolution. Explicit observation pays full cold construction without concealing the ordinary key cost and is not a speedup path.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Equal unobserved inputs retain the existing whole-performance sharing. Observed construction still shares only its actually equivalent internal preparation, never another completed performance.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most KEEP ordinary resolutions remain in the memo. Observed states are neither read from nor inserted into it, and the observer is passed through construction without becoming a retained state field.
    */
-  export function of(input: HumanPerformance.IInput): HumanPerformanceState {
+  export function of(
+    input: HumanPerformance.IInput,
+    observation?: ReturnType<typeof integrateAirborneRotation.observe>,
+  ): HumanPerformanceState {
     const key: string = HumanPerformanceKey.of(input);
+    if (observation !== undefined) return new HumanPerformanceState(input, observation);
     const kept: HumanPerformanceState | undefined = KEPT.get(key);
     if (kept !== undefined) {
       KEPT.delete(key);

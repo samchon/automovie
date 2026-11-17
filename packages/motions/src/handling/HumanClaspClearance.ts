@@ -43,7 +43,7 @@ export namespace HumanClaspClearance {
    * @evidence contracts/development/implementation.md#principled-implementation Retains HumanGrip's canonical power-grip digit order and capsule geometry; each distal endpoint is the original rigidly placed core tip.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The chain owner supplies geometry and the shared placedDigits adapter places its three observed segments.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing capsule or bone behavior and the existing minimum-radius chain model are unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Five chain readings and fifteen segment placements occur once per candidate rather than once per candidate pair.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Five chain readings and fifteen segment placements occur once per candidate rather than once per pair; direct iteration of each genuine three-bone list omits five short-lived forEach closures and fifteen internal callback dispatches without removing a placement.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged candidate pose/body/side determines these segments; the synchronous pair search releases them before any input can change.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fifteen segment records, held only by the current pair search and released with its candidate arrays; no global cache or history exists.
    */
@@ -82,18 +82,18 @@ export namespace HumanClaspClearance {
   }
 
   /**
-   * Bone frames consumed by clasp band, digit, forearm and closure geometry.
+   * Bone frames consumed by clasp digit, forearm and closure geometry.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Lists one side's upper/lower arm, hand and power-grip digit joints for demanded current FK; ancestors remain the engine's dependency responsibility.
-   * @evidence contracts/development/implementation.md#principled-implementation Upper/lower arm frames determine the original posture band, lower arm supplies forearm clearance, and hand/digit frames place every original closure collider and phalanx.
+   * @evidence contracts/development/common.md#meaningful-documentation Lists one side's lower arm, hand and power-grip digit joints for actual contact/closure FK; posture bands request their separate two-arm observations and ancestors remain the engine's responsibility.
+   * @evidence contracts/development/implementation.md#principled-implementation Lower arm supplies forearm clearance while hand/digit frames place every original closure collider and phalanx; unrelated band-only upper-arm output is unnecessary here.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One fresh name set derives digit membership from HumanGrip's existing power-grip owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Omits only unobserved bones, retaining all original clasp geometry and full pose admission before requested FK output.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fixed eighteen-name assembly has no varying population.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fixed seventeen-name assembly has no varying population.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Candidate readbacks and ordered closure use the same required-name owner, without storing any pose or solution.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh name set without retaining body, pose, reader, history or handle.
    */
   export function bones(side: HumanHand.Side): ReadonlySet<AutoMovieHumanoidBone> {
-    return new Set<AutoMovieHumanoidBone>([`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`,
+    return new Set<AutoMovieHumanoidBone>([`${side}LowerArm`, `${side}Hand`,
       ...HumanGrip.CLOSING.power.flatMap((digit: HumanGrip.Digit): AutoMovieHumanoidBone[] => HumanGrip.bones(side, digit))]);
   }
 
@@ -143,14 +143,16 @@ function placedDigits(bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolv
   const out: HumanClaspClearance.IPhalanx[] = [];
   for (const digit of HumanGrip.CLOSING.power) {
     const chain: curlChainUntilContact.IChain = chainAt(digit);
-    chain.bones.forEach((bone: AutoMovieHumanoidBone, index: number): void => {
+    const count: number = chain.bones.length;
+    for (let index: number = 0; index < count; ++index) {
+      const bone: AutoMovieHumanoidBone = chain.bones[index]!;
       const from: IAutoMovieResolvedBone = bones.get(bone)!;
       const next: AutoMovieHumanoidBone | undefined = chain.bones[index + 1];
       out.push({ from: from.worldPosition,
         to: next === undefined ? Vector3.add(from.worldPosition,
           Quaternion.rotateVector(from.worldRotation, chain.tip)) : bones.get(next)!.worldPosition,
         radius: chain.radius });
-    });
+    }
   }
   return out;
 }

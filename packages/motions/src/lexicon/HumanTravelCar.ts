@@ -51,6 +51,9 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
  * bisection and its actual sitting query. Runtime sitting observations
  * borrow their synchronous parent's FK/ROM sources. The workspace and posed readings end with the search or current query; refusal
  * diagnostics reuse its measured maximum-duck excess.
+ * Positive flexion trials share one private raw joint-map construction
+ * within that sample, changing only its owned spine triple before every
+ * actual authored-joint admission and crown FK; no solved pose is reused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the entry phases, sources, duck search, refusals and first-pass limits, together with fixed crown metadata, synchronous sample-workspace lifetime and exact diagnostic reuse without a measured speedup claim.
  * @evidence contracts/development/design.md#principled-representation A law record over `sit`: the seat and the opening are the affordances the car declares (`HumanObject.seat`, `HumanObstacle.apertures`).
@@ -225,7 +228,23 @@ export namespace HumanTravelCar {
           prepareHumanPoseResolution();
         const posture: IHumanPosture = undocked(t, undefined, resolution);
         if (!(over(posture, resolution) > 0)) continue;
-        const excess: number = over(ducked(posture, DUCK), resolution);
+
+        // This sample's positive trials change only spine flexion. The raw
+        // input is private to this synchronous search and never returned.
+        const spine: readonly [number, number, number] = posture.joints
+          .spine ?? [0, 0, 0];
+        const angles: [number, number, number] = [spine[0], spine[1], spine[2]];
+        const trial: IHumanPosture = {
+          ...posture,
+          joints: { ...posture.joints, spine: angles },
+        };
+        const overAt: (degrees: number) => number = (
+          degrees: number,
+        ): number => {
+          angles[0] = spine[0] + degrees;
+          return over(trial, resolution);
+        };
+        const excess: number = overAt(DUCK);
         if (excess > 0)
           throw new HumanRefusal({
             kind: "reach",
@@ -244,7 +263,7 @@ export namespace HumanTravelCar {
         let high: number = DUCK;
         for (let i: number = 0; i < 16; ++i) {
           const middle: number = (low + high) / 2;
-          if (over(ducked(posture, middle), resolution) > 0) low = middle;
+          if (overAt(middle) > 0) low = middle;
           else high = middle;
         }
         needs.push({ at: t, degrees: high });
