@@ -160,7 +160,19 @@ export function fitHingedClosedRoots(
       posed(swivel);
     const scored: fitHingedClosedRoots.IScore = props.score(at.upper, at.lower);
     if (scored.overshoot !== 0) {
-      candidates.push({ ...at, ...scored, swivel, branch, stop, least: NaN });
+      candidates.push({
+        upper: at.upper,
+        lower: at.lower,
+        joint: scored.joint,
+        above: scored.above,
+        overshoot: scored.overshoot,
+        deviation: scored.deviation,
+        swivel,
+        branch,
+        stop,
+        shown: undefined,
+        least: NaN,
+      });
       return;
     }
     const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
@@ -178,8 +190,12 @@ export function fitHingedClosedRoots(
       },
     );
     candidates.push({
-      ...at,
-      ...scored,
+      upper: at.upper,
+      lower: at.lower,
+      joint: scored.joint,
+      above: scored.above,
+      overshoot: scored.overshoot,
+      deviation: scored.deviation,
       swivel,
       branch,
       stop,

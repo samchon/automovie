@@ -10,6 +10,7 @@ import type {
 
 import { boxExcludedSwivels } from "../kinematics/boxExcludedSwivels";
 import { clinicalDeviation } from "../kinematics/clinicalDeviation";
+import type { IAutoMovieResolvedJointAngles } from "../kinematics/IAutoMovieResolvedJointAngles";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { hingedArmArticulation } from "../kinematics/hingedArmArticulation";
 import { distalEndSwivelArcs } from "../kinematics/distalEndSwivelArcs";
@@ -214,15 +215,20 @@ export function fitHingedChainCandidate(
     basisOf(axes);
   const upperOf = (
     upper: IAutoMovieQuaternion,
-  ): IAutoMovieJointPose => ({
+  ): IAutoMovieJointPose => {
+    const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
+      upper,
+      upperBasis,
+      props.restFrames?.[props.chain.upper],
+      prepared.upperDomain,
+    );
+    return {
       bone: props.chain.upper,
-      ...decomposeJointRotationOnBasis(
-        upper,
-        upperBasis,
-        props.restFrames?.[props.chain.upper],
-        prepared.upperDomain,
-      ),
-  });
+      flexion: read.flexion,
+      abduction: read.abduction,
+      twist: read.twist,
+    };
+  };
   const previous = (bone: string): IAutoMovieQuaternion | null => {
     const joint: IAutoMovieJointPose | undefined =
       props.referencePose?.joints.find(
@@ -284,14 +290,17 @@ export function fitHingedChainCandidate(
   let mid: IMid | undefined;
   const midOf = (lower: IAutoMovieQuaternion): IMid => {
     if (mid !== undefined && mid.rotation === lower) return mid;
+    const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
+      lower,
+      lowerBasis,
+      props.restFrames?.[props.chain.lower],
+      prepared.lowerDomain,
+    );
     const joint: IAutoMovieJointPose = {
       bone: props.chain.lower,
-      ...decomposeJointRotationOnBasis(
-        lower,
-        lowerBasis,
-        props.restFrames?.[props.chain.lower],
-        prepared.lowerDomain,
-      ),
+      flexion: read.flexion,
+      abduction: read.abduction,
+      twist: read.twist,
     };
     mid = {
       rotation: lower,
