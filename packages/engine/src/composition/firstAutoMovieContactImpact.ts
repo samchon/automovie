@@ -30,7 +30,7 @@ import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
  * @evidence contracts/development/implementation.md#principled-implementation The signed-gap scan brackets the first admitted crossing, and the Illinois false-position search (`bracketedRoot`, Dowell and Jarratt 1971) closes the bracket to `RESOLUTION`, a thousandth of the microsecond the contact specifications and hit ids resolve; the root stays inside the bracket, so the touching end it tracks is within that width of the crossing. Physical departure information establishes when a previously resolved pair can next enter; a clearance witness is checked against the actual pair gap before it is used.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan owns the grid, the pair distances, the departure admission and the crossing search; this entry reads it alone against a horizon, and resolveAutoMovieContactEvents reads many in step. sampleAutoMovieContactWeapon supplies actual combined or legacy endpoints to every path.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unknown departure preserves initial penetration/touch reporting. A clearance witness must be finite, strictly later, inside the live search and strictly outside the actual body. No epsilon, shifted query clock, permanent collider exclusion or bounce cap is introduced.
- * @evidence contracts/development/implementation.md#efficient-algorithms Work is proportional to bodies times the scan steps plus the crossing search's evaluations: superlinear on a smooth gap where a bisection to the same width takes about 23 halvings of a 1/120 s step, and at most the search's limit of 64. The bracket's clear end is the gap the scan read one step before, not read again. Where a weapon and every body it can meet state a bound on the search's grid, a clear gap certifies the grid steps it cannot close within, which are not read (conservative advancement on the grid), with the same bracket and contact; each side's bound is prepared once a search, and a body's is asked only as far as the weapon's alone reaches. No measured count is claimed. Each initially contacting body may add its model's certificate cost and one actual witness check; opaque bodies add no certificate work.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Work is proportional to bodies times the scan steps plus the crossing search's evaluations: superlinear on a smooth gap where a bisection to the same width takes about 23 halvings of a 1/120 s step, and at most the search's limit of 64. The bracket's clear end is the gap the scan read one step before, not read again. Where a weapon and every body it can meet state a bound on the search's grid, a clear gap certifies the grid steps it cannot close within, which are not read (conservative advancement on the grid), with the same bracket and contact; each side's bound is prepared once a search and asked over a window doubling from one step, so neither is read past twice the stretch it certifies. No measured count is claimed. Each initially contacting body may add its model's certificate cost and one actual witness check; opaque bodies add no certificate work.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Sphere, capsule and tapered-capsule gaps share one reader. Each exact sample produces endpoints once for all bodies at that sample; witnesses also read actual endpoints through the shared primitive. The body supplies model-specific departure knowledge once per initial pair; all source/stop-dependent certificates are rebuilt for each event search, with no retained pose/time cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A lazy call-local map holds at most one scalar release time or no-entry marker per certified body, and the scan one gap of its last clear step, its weapon's speed reader and one per bounded body it asked, all released with the scan. Returned ids/times retain no callback, body, certificate object or map.
  */
@@ -140,26 +140,34 @@ export namespace firstAutoMovieContactImpact {
       if (weapon.speed === undefined || body.speed === undefined || !(d > 0))
         return 0;
       moving ??= weapon.speed(grid, stops);
-      const own: number | undefined = certified(
-        moving(t, until),
-        `weapon ${weapon.id}`,
-      );
-      if (own === undefined) return 0;
-
-      // The body is asked only as far as the weapon's bound alone could
-      // certify: any longer stretch the two certify together lies within it.
       let reader: IAutoMovieResolveContactEvents.Speed | undefined =
         bounds.get(body);
       if (reader === undefined) {
         reader = body.speed(grid, stops);
         bounds.set(body, reader);
       }
-      const other: number | undefined = certified(
-        reader(t, own > 0 ? Math.min(until, t + d / own) : until),
-        `body ${body.id}`,
-      );
-      if (other === undefined) return 0;
-      return own + other > 0 ? d / (own + other) : Infinity;
+
+      // Both bounds are asked over a window from this second that doubles
+      // from one grid step: a bound over the window certifies the grid
+      // seconds within the gap over the two bounds together where that time
+      // lies inside the window, and every second to the live end where the
+      // window reaches it. So neither side is read farther than twice the
+      // stretch certified, nor past the end.
+      const rest: number = until - t;
+      for (let h: number = Math.min(input.step, rest); ; h = Math.min(2 * h, rest)) {
+        const own: number | undefined = certified(
+          moving(t, t + h),
+          `weapon ${weapon.id}`,
+        );
+        if (own === undefined) return 0;
+        const other: number | undefined = certified(
+          reader(t, t + h),
+          `body ${body.id}`,
+        );
+        if (other === undefined) return 0;
+        const time: number = own + other > 0 ? d / (own + other) : Infinity;
+        if (time < h || !(h < rest)) return time;
+      }
     };
 
     /** The same actual pair measurement, before any departure eligibility gate. */

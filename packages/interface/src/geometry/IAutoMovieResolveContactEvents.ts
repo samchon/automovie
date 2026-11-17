@@ -166,7 +166,10 @@ export namespace IAutoMovieResolveContactEvents {
      * between the two closes on the grid no faster than the two bounds
      * together, so a clear gap rules out a contact at the grid seconds
      * within that gap over that rate, and the scan reads none of them. The
-     * scan asks it from a grid second it read to the weapon's live end. A
+     * scan asks it from a grid second it read over a window that doubles
+     * from one grid step, at most to the weapon's live end (with the
+     * body's over the same window), so it is read no farther than twice
+     * what it certifies. A
      * bound that a point exceeds lets a contact be missed, so only a
      * certified one is stated; absent, every grid step is read.
      *
@@ -276,9 +279,9 @@ export namespace IAutoMovieResolveContactEvents {
     /**
      * The body's speed bound on one search's grid (`Speed`), prepared once a
      * search under that search's stops and read with a weapon's own
-     * (`IWeapon.speed`). The scan asks it only from a grid second it read to
-     * the farthest second the weapon's bound alone could certify, so a body
-     * that holds still only for a while is still bound there; absent, every
+     * (`IWeapon.speed`), over the same doubling window from a grid second
+     * the scan read, so a body that holds still only for a while is still
+     * bound there; absent, every
      * grid step is read against this body.
      *
      * @param grid The search's grid.

@@ -38,11 +38,11 @@ export namespace HumanPerformanceContactSpeed {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the reader, the window and the off-grid answer.
    * @evidence contracts/development/implementation.md#principled-implementation The largest end displacement between neighbouring grid seconds over their interval bounds the displacement between any two grid seconds by the triangle inequality, and every capsule point moves no farther than its ends do (each is a fixed affine mix of them).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The grid seconds from the first one asked to the live end are read once, their rates kept with their suffix maxima.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The grid seconds from the first one asked are read once each, as far as an ask reaches, their neighbouring rates kept in order.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every grid second of the window is read from the actual path; a second off the grid is given no bound.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One read per grid second of the window a search, which the caller shares with the scan's own reads at those seconds; each ask to the live end is a constant lookup, a shorter one a walk of its steps.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One read per grid second an ask reaches, once a search, which the caller shares with the scan's own reads at those seconds; the scan asks over windows doubling from one step, so the seconds read are at most twice those certified; each ask walks its window's steps.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid seconds read are the scan's own.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Two number arrays over the window's steps, released with the search.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One number array over the steps read and the last axis read, released with the search.
    */
   export function weapon(
     read: (
@@ -74,45 +74,40 @@ export namespace HumanPerformanceContactSpeed {
     );
     while (last > 0 && second(last) > to) --last;
     if (last < ends && second(last + 1) <= to) ++last;
+    // The rates of neighbouring grid seconds read so far, from the first one
+    // asked: rates[i] lies between second(first + i) and the next. They are
+    // extended only as far as an ask reaches, the axis of the last second
+    // read kept for the next rate.
     let first: number | undefined;
-    let rates: number[] = [];
-    let suffix: number[] = [];
-    const build = (start: number): void => {
-      first = start;
-      rates = [];
-      let before: readonly [IAutoMovieVector3, IAutoMovieVector3 | undefined] =
-        read(second(start));
-      for (let k: number = start; k < last; ++k) {
-        const after: readonly [
-          IAutoMovieVector3,
-          IAutoMovieVector3 | undefined,
-        ] = read(second(k + 1));
+    const rates: number[] = [];
+    let before: readonly [IAutoMovieVector3, IAutoMovieVector3 | undefined] | undefined;
+    const extend = (end: number): void => {
+      for (let k: number = first! + rates.length; k < end; ++k) {
+        const after: readonly [IAutoMovieVector3, IAutoMovieVector3 | undefined] = read(second(k + 1));
         const moved: number = Math.max(
-          Vector3.distance(before[0], after[0]),
-          Vector3.distance(before[1] ?? before[0], after[1] ?? after[0]),
+          Vector3.distance(before![0], after[0]),
+          Vector3.distance(before![1] ?? before![0], after[1] ?? after[0]),
         );
         rates.push(moved / (second(k + 1) - second(k)));
         before = after;
       }
-      suffix = new Array<number>(rates.length + 1);
-      suffix[rates.length] = 0;
-      for (let i: number = rates.length - 1; i >= 0; --i)
-        suffix[i] = Math.max(rates[i]!, suffix[i + 1]!);
     };
     return (at: number, until: number): number | undefined => {
       const k: number | undefined = index(at);
       if (k === undefined || at < from) return undefined;
       if (k >= last) return 0;
-      if (first === undefined || k < first) build(k);
-      const i: number = k - first!;
-      if (until >= second(last)) return suffix[i];
+      if (first === undefined || k < first) {
+        first = k;
+        rates.length = 0;
+        before = read(second(k));
+      }
+
+      // The last grid second of the live window within the ask.
+      let end: number = k;
+      while (end < last && second(end + 1) <= until) ++end;
+      extend(end);
       let bound: number = 0;
-      for (
-        let j: number = i;
-        j < rates.length && second(first! + j + 1) <= until;
-        ++j
-      )
-        bound = Math.max(bound, rates[j]!);
+      for (let j: number = k - first; j < end - first; ++j) bound = Math.max(bound, rates[j]!);
       return bound;
     };
   }

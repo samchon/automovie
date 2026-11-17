@@ -31,12 +31,14 @@ import { TestValidator } from "@nestia/e2e";
  *    event nor the count: the gap's rate is unknown without both.
  * 4. The sphere that stops short meets nothing with the bounds as without.
  * 5. A wall still only until 1 s, with no bound stated past it, is asked
- *    only as far as the weapon's bound alone reaches (0.95 m at 2 m/s from
- *    0 s, to 0.475 s), so it is bound there: the same event, from under a
- *    third of the measurements.
+ *    over windows that double from one step and end once the stretch they
+ *    certify lies inside them, so no farther than twice that stretch (the
+ *    gap of 0.95 m at 2 m/s certifies 0.475 s: no window past 0.95 s), all
+ *    inside its still second: the same event, from under a third of the
+ *    measurements.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public resolver with and without stated bounds and reads its events, the grids the bounds are prepared on and the body's measurement count; an advancement that moves a contact, misses one or reads every step fails.
- * @evidence contracts/development/testing.md#independent-expectations Contact seconds are solved by hand from straight paths, the count's bound from the gap over the closing rate and the reach from the gap over the weapon's bound; none is read from the resolver.
+ * @evidence contracts/development/testing.md#independent-expectations Contact seconds are solved by hand from straight paths, the count's bound from the gap over the closing rate and the windows' reach from twice the gap over the bounds; none is read from the resolver.
  * @evidence contracts/development/testing.md#distinguishing-cases A still body and a moving one, both bounds, one bound alone on either side, none, a hit and a miss, and a body bound only for a while.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation States the geometry, the expected seconds, the count's bound, the reach and the 5 scenarios.
@@ -159,7 +161,7 @@ export function test_motion_contact_events_advancement(): void {
         .length === 0,
   );
 
-  // 5. A body bound only for a while is asked no farther than the weapon reaches.
+  // 5. A body bound only for a while is asked no farther than twice what is certified.
   const asked: number[] = [];
   const awhile = run({
     reach: 5,
@@ -171,9 +173,9 @@ export function test_motion_contact_events_advancement(): void {
     },
   });
   TestValidator.predicate(
-    `a wall still until 1 s is asked to at most 0.475 s ahead (${Math.max(...asked)}) and gives the same contact from ${awhile.calls} measurements, under a third of ${plain.calls}`,
+    `a wall still until 1 s is asked to at most 0.95 s ahead (${Math.max(...asked)}) and gives the same contact from ${awhile.calls} measurements, under a third of ${plain.calls}`,
     asked.length > 0 &&
-      asked.every((span: number): boolean => span <= 0.475 + 1e-12) &&
+      asked.every((span: number): boolean => span <= 2 * 0.475 + 1e-12) &&
       awhile.events.length === 1 &&
       awhile.events[0]!.seconds === plain.events[0]!.seconds &&
       awhile.calls * 3 < plain.calls,
