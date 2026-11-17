@@ -114,22 +114,13 @@ export const hingedArmArticulation: (props: {
   hinge: IAutoMovieVector3;
   target: IAutoMovieVector3;
   range?: { min: number; max: number };
-  score: (
-    upper: IAutoMovieQuaternion,
-    lower: IAutoMovieQuaternion,
-  ) => {
-    overshoot: number;
-    deviation: number;
-    exact?: () => number;
-    tiebreak?: () => number;
-  };
-  excluded?: (
-    upper: (swivel: number) => IAutoMovieQuaternion,
-  ) => (low: number, high: number) => boolean;
-  bound?: (
-    upper: (swivel: number) => IAutoMovieQuaternion,
-  ) => (low: number, high: number) => number;
-  pole?: (upper: (swivel: number) => IAutoMovieQuaternion) => number | null;
+  score: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) =>
+    { overshoot: number; deviation: number; exact?: () => number; tiebreak?: () => number };
+  excluded?: (upper: (swivel: number) => IAutoMovieQuaternion) => (low: number, high: number) => boolean;
+  bound?: (upper: (swivel: number) => IAutoMovieQuaternion) => (low: number, high: number) => number;
+  pole?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => number | null;
+  met?: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => boolean;
+  direct?: boolean;
   near?: IAutoMovieSwivelNear;
   tie?: number;
   minimum?: { overshoot: number; deviation: number };
@@ -209,13 +200,18 @@ export const hingedArmArticulation: (props: {
   ) => (low: number, high: number) => number;
 
   /**
-   * Given a branch's root rotation at a swivel, degrees, the swivel putting
-   * the mid joint toward the bend hint (two-bone IK's pole), in closed form;
-   * null for a limb too straight to have a side. A cold fit with no `tie` or
-   * `minimum` searches from it (`hingedSwivelPole`) and returns a legal
-   * result; omitted, or when an overshoot is left, the full sweep decides.
+   * Given a branch's poser, the closed-form start swivel, degrees: the pole
+   * (mid joint toward the hint) or a term's own minimiser; null when none.
+   * A cold fit with no `tie` or `minimum` searches from it (`hingedSwivelPole`)
+   * and returns a legal result that `met` accepts; otherwise the sweep decides.
    */
-  pole?: (upper: (swivel: number) => IAutoMovieQuaternion) => number | null;
+  pole?: (posed: ReturnType<typeof hingedArmSwivel.pose>) => number | null;
+
+  /** Whether a pole-started result meets every requested term; absent, legality alone decides. */
+  met?: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => boolean;
+
+  /** Whether the score is the start's own term alone, so an unrefused start is the answer. */
+  direct?: boolean;
 
   /**
    * The seed of a fit of a nearby target to continue (`IAutoMovieSwivelNear`):
@@ -462,7 +458,7 @@ export const hingedArmArticulation: (props: {
           const branch: ISweep = record(stop);
           const upper: (angle: number) => IAutoMovieQuaternion = (angle: number): IAutoMovieQuaternion =>
             branch.posed(angle).upper;
-          return { probe: branch.probe, upper,
+          return { probe: branch.probe, posed: branch.posed,
             refused: props.excluded === undefined ? null : props.excluded(upper) };
         }),
       pole: props.pole,
@@ -470,8 +466,10 @@ export const hingedArmArticulation: (props: {
       refine: (probe: (angle: number) => IScored, angle: number): IScored =>
         refineHingedSwivel(probe, better, angle, REFINEMENTS),
       step: SWIVEL_STEP,
+      ...(props.direct === true ? { direct: true } : {}),
     });
-    if (poled !== null && poled.overshoot === 0) return answer(poled);
+    if (poled !== null && poled.overshoot === 0 &&
+      (props.met === undefined || props.met(poled.upper, poled.lower))) return answer(poled);
   }
 
   // Pruned, the sweep is the full one whenever it finds a legal candidate;

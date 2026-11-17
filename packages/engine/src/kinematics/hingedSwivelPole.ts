@@ -15,7 +15,11 @@ import type { IAutoMovieQuaternion } from "@automovie/interface";
  * the caller's ordering, and refines the two-step bracket around the step
  * reached by the golden-section search (`refineHingedSwivel`). Every choice
  * is made by the scores alone, never by a preferred direction, so a mirrored
- * request, whose swivel runs the other way, takes the mirrored path. The
+ * request, whose swivel runs the other way, takes the mirrored path. When the
+ * caller's score is the start's own term alone (`direct`) and nothing refused
+ * the start, the start is the answer with no further candidate: the
+ * admissible swivel nearest the desired one, Tolani, Goswami and Badler's
+ * selection (2000, Graphical Models 62, section 3.2.4, p. 370). The
  * best branch result is returned. This is a
  * local search: a basin far from the pole is not visited, so the result can
  * differ from a global sweep's where that sweep would jump to a far swivel;
@@ -32,7 +36,7 @@ export namespace hingedSwivelPole {
    * One bend branch as the search reads it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and use.
-   * @evidence contracts/development/design.md#principled-representation The branch's scorer, its root rotation at a swivel and its optional certified refusal.
+   * @evidence contracts/development/design.md#principled-representation The branch's scorer, its root and mid rotations at a swivel and its optional certified refusal.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, each read by search.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The refusal is null rather than optional when the caller has none.
    */
@@ -40,8 +44,8 @@ export namespace hingedSwivelPole {
     /** The branch's scored candidate at a swivel, degrees. */
     probe: (angle: number) => T;
 
-    /** The root's bone-local rotation at a swivel, degrees, which the pole reads. */
-    upper: (angle: number) => IAutoMovieQuaternion;
+    /** The branch's bone-local root and mid rotations at a swivel, degrees, which the start reads. */
+    posed: (angle: number) => { upper: IAutoMovieQuaternion; lower: IAutoMovieQuaternion };
 
     /** Whether every swivel from `low` to `high` degrees certainly overshoots; null when nothing is refused. */
     refused: ((low: number, high: number) => boolean) | null;
@@ -50,27 +54,28 @@ export namespace hingedSwivelPole {
   /**
    * Search every branch from its pole.
    *
-   * @param props The branches, the pole, the ordering, the refinement and the step.
+   * @param props The branches, the start (read from each branch's poser), the ordering, the refinement, the step and whether the score is the start's term alone.
    * @returns The best branch result; null when a branch has no pole (a straight limb), so the caller's general search decides.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the null case.
-   * @evidence contracts/development/implementation.md#principled-implementation The pole of two-bone IK fixes the mid joint's direction in closed form; the downhill walk and golden refinement then minimise the caller's full score in that start's basin under the caller's strict ordering.
+   * @evidence contracts/development/implementation.md#principled-implementation The caller's closed-form start (the pole of two-bone IK, or a term's own minimiser) fixes the swivel; with a direct score the nearest admissible start is Tolani's selection, otherwise the downhill walk and golden refinement minimise the caller's full score in that start's basin under the caller's strict ordering.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop per branch: start, walk, refine, keep the best; start and direction are chosen by score, so the search has no direction-dependent tie-break beyond exactly equal scores.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refused bracket moves the start; a branch with no unrefused swivel within half a turn is skipped; a missing pole returns null rather than guessing a side.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Per branch one pole reading, at most 360 refusal tests and at most two start scores, the two neighbours, one score per further step walked plus the one that stops it, and the refinement's scores: a start already at its minimum costs three scores and the refinement, against the sweep's 360 and every minimum's refinement.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A direct score whose start is unrefused costs one start reading, the refusal test and one score per branch. Otherwise per branch one start reading, at most 360 refusal tests and at most two start scores, the two neighbours, one score per further step walked plus the one that stops it, and the refinement's scores: a start already at its minimum costs three scores and the refinement, against the sweep's 360 and every minimum's refinement.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure search of the caller's scorers.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds two candidates per branch until return.
    */
   export function search<T>(props: {
     branches: readonly IBranch<T>[];
-    pole: (upper: (swivel: number) => IAutoMovieQuaternion) => number | null;
+    pole: (posed: IBranch<T>["posed"]) => number | null;
     better: (a: T, b: T) => boolean;
     refine: (probe: (angle: number) => T, angle: number) => T;
     step: number;
+    direct?: boolean;
   }): T | null {
     let best: T | null = null;
     for (const branch of props.branches) {
-      const peak: number | null = props.pole(branch.upper);
+      const peak: number | null = props.pole(branch.posed);
       if (peak === null || !Number.isFinite(peak)) return null;
 
       // The nearest swivel from the peak whose two-step bracket the range does
@@ -89,6 +94,14 @@ export namespace hingedSwivelPole {
           }
         }
       if (here === null) continue;
+
+      // A score that is the start's own term alone is least at the start
+      // when nothing refused it: Tolani's selection, the admissible swivel
+      // nearest the desired one, with no further candidate.
+      if (props.direct === true && at === peak) {
+        if (best === null || props.better(here, best)) best = here;
+        continue;
+      }
 
       // Downhill one step at a time toward the better neighbour, read on
       // both sides first so the direction depends on the scores alone, then
