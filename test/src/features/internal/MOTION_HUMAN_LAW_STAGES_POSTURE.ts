@@ -117,7 +117,13 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
     return S.solo(
       a,
       S.chain().act("rest", {
-        ...(place === undefined ? {} : { left: place, right: place }),
+        // The thinking pose: one hand under the other's elbow while that
+        // hand is at the chin, as the law states `elbowSupport`.
+        ...(place === undefined
+          ? {}
+          : place === "elbowSupport"
+            ? { left: place, right: "chinRest" }
+            : { left: place, right: place }),
         seconds: 1,
       }),
     );
