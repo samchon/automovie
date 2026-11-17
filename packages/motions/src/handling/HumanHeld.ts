@@ -1,3 +1,4 @@
+import { ROM_TOLERANCE } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
@@ -99,6 +100,21 @@ export namespace HumanHeld {
   export const SIDES: readonly number[] = [0, 45, -45, 90, -90, 135, -135, 180];
 
   /**
+   * The rim's sides in the order a hand tries them: `SIDES` for the right
+   * hand and their mirror for the left. A turn is measured in the hand's own
+   * frame from its facing toward `normal x facing`, and a left hand's frame
+   * is the right's mirrored, where that cross product points the other way:
+   * one list for both hands had the left hand try the mirror of -45 where
+   * the right tries 45, so of two sides that hold the vessel alike the two
+   * hands took sides that are not each other's mirror.
+   */
+  function turns(side: HumanHand.Side): readonly number[] {
+    return side === "right"
+      ? SIDES
+      : SIDES.map((turn: number): number => (turn === 0 ? 0 : -turn));
+  }
+
+  /**
    * The effectors of an upright vessel at every side of its rim the search
    * tries (`SIDES`, the act's own side first), for an act that searches the
    * side with its own admission, as a drink does (`handToFaceVessel`).
@@ -108,7 +124,7 @@ export namespace HumanHeld {
    * @param side The holding hand.
    * @param subject The prop's subject id.
    * @param point The prop's point; the row's own when absent.
-   * @returns One effector per side, in `SIDES`' order.
+   * @returns One effector per side, in `SIDES`' order for the right hand and in its mirror's for the left.
    * @throws {HumanRefusal} As `effector`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the sides, their order, who reads them and the refusal.
@@ -133,7 +149,7 @@ export namespace HumanHeld {
       subject,
       point,
     );
-    return SIDES.map(
+    return turns(side).map(
       (turn: number): AutoMovieMotionHumanTouchEffector.IEffector =>
         effect(turn),
     );
@@ -186,7 +202,7 @@ export namespace HumanHeld {
     if (row.upright !== true) return best;
     const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(context.body, posture, side);
     let least: number = Infinity;
-    for (const turn of SIDES) {
+    for (const turn of turns(side)) {
       const candidate: AutoMovieMotionHumanTouchEffector.IEffector = effect(turn);
       const facing: IAutoMovieVector3 = AutoMovieMotionHumanTouchUpright.solve(
         context.body,
@@ -217,13 +233,19 @@ export namespace HumanHeld {
         ),
         facing,
       );
-      if (tilt < least - 1e-6) {
+
+      // Two tilts within the joints' tolerance (the resolution a fit meets a
+      // rotation to) are one, as the drink's facings read them
+      // (`AutoMovieMotionHumanTouchDrink`), so a rounding-sized difference
+      // between a hand's fit and its mirror's never chooses another side.
+      if (tilt < least - ROM_TOLERANCE) {
         least = tilt;
         best = candidate;
       }
+
       // A tilt is an angle, never below 0, so once the best is within the
-      // margin of 0 no later side can replace it.
-      if (least <= 1e-6) break;
+      // tolerance of 0 no later side can replace it.
+      if (least <= ROM_TOLERANCE) break;
     }
 
     // A vessel the arm cannot hold level there is not brought tilted, unless
