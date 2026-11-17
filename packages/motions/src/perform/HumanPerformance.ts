@@ -60,12 +60,6 @@ import type { IHumanProp } from "./IHumanProp";
  * it to a pose, adds the decaying inertialization offset of the transition
  * that entered it, re-solves every planted or gripping limb onto its goal so
  * no contact slides, and clamps to the range of motion ({@link HumanSegment}).
- * Once the performance is resolved, a second between those exact
- * evaluations is read from the action's compiled track
- * (`HumanSegmentTrack`): a quadratic through exact poses, checked to stay
- * within 1.25 mm per joint centre and 1.25 degrees per bone, clamped to the
- * range, with planted limbs turned back onto their contacts in closed form;
- * a flight and any interval that cannot meet the bound are evaluated exactly.
  * A person before their first action stands at their starting place.
  * Additive layers (gaze, breathing) apply over every action without cutting
  * it. While the schedule is resolved, a person's poses may read people whose

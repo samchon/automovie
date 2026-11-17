@@ -11,8 +11,9 @@ import { HumanSegmentTrackLeaf } from "./HumanSegmentTrackLeaf";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
- * A placed action's displayed pose compiled into a track once its
- * performance is resolved, so a pose at a new second is an interval lookup,
+ * A placed action's displayed pose compiled into a track once its resolved
+ * person is admitted ({@link enable}; no caller admits one at present), so a
+ * pose at a new second is an interval lookup,
  * a quadratic, the range clamp and a closed-form correction of the planted
  * limbs, with no iterative limb fit.
  *
@@ -134,10 +135,14 @@ export namespace HumanSegmentTrack {
 
   /**
    * Let a resolved person's actions be shown through tracks from now on.
+   * No caller admits a person at present: interpolated poses broke exact
+   * identities between films (an overlay's unclaimed channels) and their
+   * knot and check evaluations cost more than the exact reads they replaced,
+   * so every pose is exact until a redesigned build policy is admitted.
    *
    * @param person The person, once every placement, contact, flight and end of their performance is final.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the precondition.
+   * @evidence contracts/development/common.md#meaningful-documentation States the precondition and that no caller admits a person now, with the reasons.
    * @evidence contracts/development/implementation.md#principled-implementation A person with an entry in the weak map is tracked; before it, every pose is exact, as contacts and flights are resolved against exact poses.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One map insertion, idempotent.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Existing tracks are kept on a repeated call.
