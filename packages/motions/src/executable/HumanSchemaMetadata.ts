@@ -113,7 +113,7 @@ export namespace HumanSchemaMetadata {
    * are excluded. Equal keys are distinguished by their occurrence order in oneOf.
    * @param given Borrowed branch schema.
    * @param components Borrowed generated component table.
-   * @returns Deterministic JSON key with sorted property and required names.
+   * @returns Deterministic JSON key with UTF-16-sorted property and required names.
    * @evidence contracts/development/common.md#meaningful-documentation States which details are ignored and the ordering obligation for equal keys.
    * @evidence contracts/development/implementation.md#principled-implementation Type, constant discriminator, required names, property names and immediate property constants survive movement from tagged to canonical contracts.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Follow, collect the structural fields, sort and serialize.
@@ -130,9 +130,14 @@ export namespace HumanSchemaMetadata {
       type: schema.type === "integer" ? "number" : schema.type,
       const: schema.const,
       required: Array.isArray(schema.required)
-        ? [...schema.required].sort()
+        ? [...schema.required].sort((left: string, right: string): number =>
+            left < right ? -1 : left > right ? 1 : 0,
+          )
         : undefined,
-      properties: Object.keys(properties).sort(),
+      properties: Object.keys(properties).sort(
+        (left: string, right: string): number =>
+          left < right ? -1 : left > right ? 1 : 0,
+      ),
       discriminants: Object.entries(properties)
         .flatMap(([key, child]: [string, ISchema]): [string, unknown][] => {
           const own: ISchema = follow(child, components);
