@@ -21,12 +21,12 @@ import { HumanColliders } from "./HumanColliders";
  * the forearm is affine in the elbow, so its squared distance to a sphere is
  * one sinusoid of the swivel, refused on the arc between its roots
  * (`swivelArcs`). The body is read as spheres covering its colliders; the
- * refused arcs' union lets a caller keep the clear swivel nearest the one it
- * prefers, Kallmann's closest-valid-to-preferred rule (Kallmann 2008,
- * "Automatic Swivel Angle Determination") without his stepped search.
+ * swivel kept is the clear one nearest the preferred, Kallmann's "closest
+ * valid to preferred" rule (Kallmann 2008, "Automatic Swivel Angle
+ * Determination") without his stepped search.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the circle, why each clearance is a sinusoid, the cover of the body and the use of the union, with their sources.
- * @evidence contracts/development/design.md#principled-representation A sphere is a centre and a radius; the circle is the caller's swivel frame.
+ * @evidence contracts/development/common.md#meaningful-documentation States the circle, why each clearance is a sinusoid, the cover of the body and the choice, with their sources.
+ * @evidence contracts/development/design.md#principled-representation A sphere is a centre and a radius; the arm is its shoulder, its wrist and its two lengths.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One record and two functions, read by the arm course (`AutoMovieMotionHumanArmCourse`).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The spheres cover the body's own colliders and the arcs are exact roots; no sampling of the swivel.
  */
@@ -116,54 +116,78 @@ export namespace HumanArmSwivelClearance {
   }
 
   /**
-   * The swivels at which an arm meets the body, on the circle its elbow
-   * keeps about the shoulder-to-wrist line, in a frame the caller gives:
-   * the elbow at swivel `ψ` degrees is `centre + radius(u cos ψ + v sin ψ)`
-   * (a solver's own swivel frame, read off two of its poses). The points
-   * read are a third, two thirds and the whole way along the upper arm and a
-   * third of the way down the forearm (the part nearer the wrist is the
-   * hand's approach to its own place, left to the trajectory's reading).
+   * The elbow hint moved to the clear swivel nearest it: on the circle the
+   * wrist leaves the elbow, the swivels at which a point of the upper arm (a
+   * third, two thirds and the whole way to the elbow) or of the forearm (at
+   * the elbow and a third of the way to the wrist) lies within a sphere and
+   * the arm's radius are refused, each one exact arc of a sinusoid; the
+   * swivel nearest the hint's outside their union is kept. The forearm's
+   * part nearer the wrist is the hand's approach to its own place, which may
+   * lie on the body, and is left to the fit. The hint is kept when it is
+   * clear, when every swivel is refused, or when the wrist leaves no circle.
    *
    * @param shoulder The shoulder, world metres.
-   * @param wrist The wrist, world metres.
-   * @param centre The circle's centre, world metres.
-   * @param circle The circle's radius, metres.
-   * @param u The swivel's zero direction from the centre, unit, world.
-   * @param v The swivel's quarter-turn direction from the centre, unit, world.
+   * @param wrist The wrist's place, world metres.
+   * @param upper The upper arm's length, metres.
+   * @param lower The forearm's length to the wrist, metres.
+   * @param hint The elbow's hint, world metres.
    * @param spheres The body to keep out of (`spheres`).
    * @param radius The arm's own radius, metres.
-   * @returns The refused swivels' union (`swivelArcs.union`), degrees in that frame; every swivel when one point lies in a sphere at every swivel.
+   * @returns The hint, world metres.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame, the points read and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Each point is affine in the elbow, so its squared distance to a sphere is one sinusoid of the swivel (reference brief, sec. B.2, from Tolani et al. 2000), refused on one exact arc (`swivelArcs.above`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One sinusoid per point and sphere, one union.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact roots, no sampling of the swivel; the frame is the caller's, so the arcs are in the swivel the caller poses by.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four points per sphere, one arc each, one sort.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The engine's arcs and union (`swivelArcs`).
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh union and retains nothing.
+   * @evidence contracts/development/common.md#meaningful-documentation States the circle, the points, the refusal, the choice and the cases that keep the hint.
+   * @evidence contracts/development/implementation.md#principled-implementation `|p(ψ) − S|² = |c′ − S|² + R′² + 2R′[(c′ − S)·û cos ψ + (c′ − S)·v̂ sin ψ]` for a point `p = c′ + R′(û cos ψ + v̂ sin ψ)` affine in the elbow (reference brief, sec. B.2, derived from Tolani et al. 2000), so each clearance is one sinusoid kept above the squared reach.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The circle, one sinusoid per point and sphere, their union and its nearest swivel.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact roots; a fully refused circle keeps the hint for the fit and the trajectory model to judge, never a clamped guess.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Five points per sphere, one arc each, one sort of the union: constant work per sphere, no swivel search.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The engine's arcs, union and nearest swivel (`swivelArcs`).
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function refused(
+  export function hint(
     shoulder: IAutoMovieVector3,
     wrist: IAutoMovieVector3,
-    centre: IAutoMovieVector3,
-    circle: number,
-    u: IAutoMovieVector3,
-    v: IAutoMovieVector3,
+    upper: number,
+    lower: number,
+    hint: IAutoMovieVector3,
     spheres: readonly ISphere[],
     radius: number,
-  ): swivelArcs.IArc[] | "all" {
+  ): IAutoMovieVector3 {
+    const reach: IAutoMovieVector3 = Vector3.subtract(wrist, shoulder);
+    const distance: number = Vector3.length(reach);
+    if (!(distance > 1e-9) || distance >= upper + lower || distance <= Math.abs(upper - lower))
+      return hint;
+    const line: IAutoMovieVector3 = Vector3.scale(reach, 1 / distance);
+    const foot: number = (upper * upper - lower * lower + distance * distance) / (2 * distance);
+    const circle: number = Math.sqrt(Math.max(0, upper * upper - foot * foot));
+    const radial: IAutoMovieVector3 = Vector3.subtract(
+      Vector3.subtract(hint, shoulder),
+      Vector3.scale(line, Vector3.dot(Vector3.subtract(hint, shoulder), line)),
+    );
+    if (!(Vector3.length(radial) > 1e-9)) return hint;
+    const u: IAutoMovieVector3 = Vector3.normalize(radial);
+    const v: IAutoMovieVector3 = Vector3.cross(line, u);
+    const centre: IAutoMovieVector3 = Vector3.add(shoulder, Vector3.scale(line, foot));
+
+    // Each point `p = c′ + R′(û cos ψ + v̂ sin ψ)`: on the upper arm a share
+    // λ of the way to the elbow, on the forearm a share μ from it.
     const points: [IAutoMovieVector3, number][] = [
       ...[1 / 3, 2 / 3, 1].map((share: number): [IAutoMovieVector3, number] => [
         Vector3.add(Vector3.scale(shoulder, 1 - share), Vector3.scale(centre, share)),
         share * circle,
       ]),
-      [Vector3.add(Vector3.scale(centre, 2 / 3), Vector3.scale(wrist, 1 / 3)), (2 / 3) * circle],
+      ...[1 / 3].map((share: number): [IAutoMovieVector3, number] => [
+        Vector3.add(Vector3.scale(centre, 1 - share), Vector3.scale(wrist, share)),
+        (1 - share) * circle,
+      ]),
     ];
-    const arcs: swivelArcs.IArc[] = [];
+    const refused: swivelArcs.IArc[] = [];
     for (const sphere of spheres)
       for (const [at, far] of points) {
         const off: IAutoMovieVector3 = Vector3.subtract(at, sphere.centre);
         const keep: number = sphere.radius + radius;
+
+        // The squared distance less the squared reach, refused where
+        // negative: its negation exceeds 0 on the refused arc.
         const arc: swivelArcs.IArc | "all" | null = swivelArcs.above(
           {
             a: keep * keep - Vector3.dot(off, off) - far * far,
@@ -172,9 +196,15 @@ export namespace HumanArmSwivelClearance {
           },
           0,
         );
-        if (arc === "all") return "all";
-        if (arc !== null) arcs.push(arc);
+        if (arc === "all") return hint;
+        if (arc !== null) refused.push(arc);
       }
-    return swivelArcs.union(arcs);
+    const swivel: number | null = swivelArcs.nearest(swivelArcs.union(refused), 0);
+    if (swivel === null || swivel === 0) return hint;
+    const r: number = (swivel * Math.PI) / 180;
+    return Vector3.add(
+      centre,
+      Vector3.scale(Vector3.add(Vector3.scale(u, Math.cos(r)), Vector3.scale(v, Math.sin(r))), circle),
+    );
   }
 }
