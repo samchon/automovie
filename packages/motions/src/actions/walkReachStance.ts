@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -102,7 +102,12 @@ export namespace walkReachStance {
     const direction: ReturnType<typeof HumanFoot.headingPitch> = HumanFoot.headingPitch(initial.rotation);
     const heading: number = direction.heading;
     const starting: number = direction.pitch;
-    const about: "heel" | "mtp" = starting > 1e-6 ? "heel" : "mtp";
+    // A foot is toes-up, and so turns about its heel, only by a pitch a
+    // solver resolves: a placement read back from a posed foot carries the
+    // pose's rounding (a few millionths of a degree either way), and a flat
+    // foot must not become a heel strike by its sign. Within the joints'
+    // resolution of flat (`ROM_TOLERANCE`) the foot stands on its ball.
+    const about: "heel" | "mtp" = starting > ROM_TOLERANCE ? "heel" : "mtp";
     const pivot: IAutoMovieVector3 = HumanFoot.point(
       body,
       side,
