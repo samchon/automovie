@@ -2,7 +2,7 @@ import type { IAutoMovieSwivelNear } from "@automovie/engine";
 import type { IAutoMoviePose } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanPosture } from "../posture/IHumanPosture";
+import { IHumanPosture } from "../posture/IHumanPosture";
 import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { refitHumanPosture } from "../posture/refitHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -18,6 +18,58 @@ import { HumanSegmentPose } from "./HumanSegmentPose";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture resolver's complete attachment ordering, paired-arm behavior and clinical constraints; no limb or production receives a special fit.
  */
 export namespace HumanSegmentPlant {
+  /**
+   * Whether a displayed pose's planted limbs already stand on their goals
+   * when the final clamp returns: the evaluation fitted each planted goal
+   * itself (its leaf fit), nothing moved the pose between that fit and the
+   * clamp, and the clamp left every record of each planted limb as the fit
+   * wrote it. The planted stage exists so that a fade, an offset or the
+   * clamp cannot move a contact; when none of them touched the limb, the
+   * leaf fit's solution of that same goal is the contact's, and its seed is
+   * recorded as the planted stage's.
+   *
+   * @param before The pose the leaf fits left, before the final clamp.
+   * @param clamped The same pose after the clamp, record for record in the same order.
+   * @param limbs The current complete goals.
+   * @param seeds The evaluation's named seeds; each planted limb's `planted:` seed is set from its `leaf::` seed when the result is true.
+   * @returns Whether every planted limb keeps its leaf solution; false sends the pose to {@link fit}.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States when a planted limb needs no second fit, what is compared, what is written to the seeds and what false means.
+   * @evidence contracts/development/implementation.md#principled-implementation A fit's solution places the limb on its goal within the fit's own resolution; a second fit of the same goal on a pose that differs from the first fit's only by that solution solves the same task again. The clamp is the one operation between them in the caller's plain case, so exact equality of the limb's records across it shows the solution untouched.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the pose's records for the planted limbs' bones, then the seeds.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A planted limb without a leaf seed of its own (not fitted by this evaluation) or with any record the clamp changed is not accepted, and then every plant is fitted as before. The pose kept is the leaf's, which differs from a second fit's within the fit's resolution.
+   * @evidence contracts/development/implementation.md#efficient-algorithms J name tests and at most four exact record comparisons a planted limb, in place of one limb fit each.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The leaf fit and the planted stage of one evaluation ask the same goal object of the same body at the same second; the solution is shared only while the limb's records are exactly the fit's.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; writes at most four seeds into the caller's map.
+   */
+  export function settled(
+    before: IAutoMoviePose,
+    clamped: IAutoMoviePose,
+    limbs: IHumanPosture["limbs"],
+    seeds: HumanSegmentPose.IFits,
+  ): boolean {
+    const planted: IHumanPosture.Limb[] = [];
+    const bones: Set<string> = new Set();
+    for (const limb of IHumanPosture.LIMBS) {
+      if (limbs[limb]?.planted !== true) continue;
+      if (!seeds.has(`leaf::${limb}`)) return false;
+      planted.push(limb);
+      const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
+      for (const part of limb.endsWith("Arm") ? ["UpperArm", "LowerArm", "Hand"] : ["UpperLeg", "LowerLeg", "Foot", "Toes"])
+        bones.add(`${side}${part}`);
+    }
+    if (before.joints.length !== clamped.joints.length) return false;
+    for (let i: number = 0; i < before.joints.length; ++i) {
+      const was: IAutoMoviePose["joints"][number] = before.joints[i]!;
+      if (!bones.has(was.bone)) continue;
+      const now: IAutoMoviePose["joints"][number] = clamped.joints[i]!;
+      if (now.bone !== was.bone || !Object.is(now.flexion, was.flexion) ||
+        !Object.is(now.abduction, was.abduction) || !Object.is(now.twist, was.twist)) return false;
+    }
+    for (const limb of planted) seeds.set(`planted:${limb}`, seeds.get(`leaf::${limb}`) ?? null);
+    return true;
+  }
+
   /**
    * Refit every planted goal on the already clamped displayed pose.
    * With plants, attachment admission precedes resolution even on cold queries.

@@ -183,6 +183,10 @@ export namespace HumanSegmentPose {
     const carried: HumanSegment.IHeld[] = now.carried;
     let pose: IAutoMoviePose = now.pose;
 
+    // Whether the pose is still the leaf resolve's own: no overlay or hold
+    // shaped it, and no stop fit or transition offset writes it below.
+    let plain: boolean = person.overlays.length === 0 && carried.length === 0;
+
     // One more fit of the evaluation, continued where `near` holds its name.
     // The fitted pose is this evaluation's own intermediate, so the fit's
     // result is used as solved, without the public entry's complete clone.
@@ -249,6 +253,7 @@ export namespace HumanSegmentPose {
         ))(w, s);
         posture = { ...posture, limbs: { ...posture.limbs, [w.limb]: goal } };
         pose = fit(`stop:${w.id}:${w.limb}`, pose, w.limb, goal);
+        plain = false;
       }
     if (
       transition !== undefined &&
@@ -297,12 +302,22 @@ export namespace HumanSegmentPose {
       pose = clamp(
         transition.offset(Math.max(0, seconds - transition.cut), pose),
       );
+      plain = false;
     }
 
     // Contacts are the final operation, including an overlay's entire
     // declared window: neither a fade, an offset nor the range clamp can
     // move them. The ordinary resolver owns attachment order and arm pairs.
+    const fitted: IAutoMoviePose = pose;
     pose = clamp(pose);
+
+    // In the plain case (the leaf resolve of this very posture, with no
+    // overlay, hold, stop, offset, digit goal or whole-body rotation after
+    // it) the leaf fitted these same goal objects and only the clamp stands
+    // between its fits and the plants; a plant the clamp left untouched
+    // keeps the leaf's solution (`HumanSegmentPlant.settled`).
+    if (plain && posture.digits === undefined && posture.rotation === undefined &&
+      HumanSegmentPlant.settled(fitted, pose, posture.limbs, seeds)) return { pose, seeds };
     const planted: resolveHumanPosture.ISeeded = HumanSegmentPlant.fit(
       body,
       pose,
