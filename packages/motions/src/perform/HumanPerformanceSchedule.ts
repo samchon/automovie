@@ -189,7 +189,13 @@ export namespace HumanPerformanceSchedule {
           fix: "align one of the instants the action has",
         });
       lead = share * timing.duration;
+
+      // A plan is a function of the start it is planned at: a round that
+      // asks for the start it was planned at has settled, and planning it
+      // there again would give the same lead.
+      const planned: number = Math.max(floor, start);
       start = target - lead;
+      if (Math.max(floor, start) === planned) break;
     }
     if (start < floor - 1e-9) {
       // The instants of the same name the anchor or track still offers: the
