@@ -35,7 +35,9 @@ import { AutoMovieHumanNail } from "../nail/AutoMovieHumanNail";
  *   the thumb's (13.2 mm) over the ratio of their breadths is not computable without a published hallux breadth, so the toes take
  *   0.65, stated as an estimate.
  * - The hallux's width over length, 1.1, and the toes' plate thickness: a hallux plate of 1.38 mm is cited for women without its
- *   primary source; the lesser toes take the fingernails' mean.
+ *   primary source; the lesser toes take the fingernails' mean. The 1.38 mm is the figure widely quoted for a woman's great toenail
+ *   and attributed to Hamilton, Terada and Mestler, J Gerontol 1955, which was not read: it is an estimate here. Its check is the
+ *   free edge's step on a median cut, which on f1's reference is about 0.7 mm, so it may be about twice too thick.
  */
 export namespace AutoMovieHumanF1Nails {
   /** One digit's row. */
@@ -155,8 +157,31 @@ export namespace AutoMovieHumanF1Nails {
       const [p, q, r, w]: number[][] = [net[i]![j]!, net[i]![(j + 1) % SKIN.phases]!, net[i + 1]![j]!, net[i + 1]![(j + 1) % SKIN.phases]!];
       return [0, 1, 2].map((k: number): number => (1 - s) * ((1 - t) * p![k]! + t * q![k]!) + s * ((1 - t) * r![k]! + t * w![k]!));
     };
-    return { row, nail: AutoMovieHumanNail.create(plate, bed, segment, { point, first, tip: end }, row.proportions, 3 * CHORD_MM) };
+    return { row, nail: AutoMovieHumanNail.create(plate, bed, segment, { point, first, tip: end }, row.proportions, 3 * CHORD_MM, TURN) };
   }
+  /**
+   * How far a digit's nail may turn about its long axis from its distal segment's frame, rad: the spread of the prior the skin's
+   * levelling is weighed against (`AutoMovieHumanNail.create`).
+   *
+   * A nail's roll is the distal bone's, and the skin tells it only as far as the digit's back is flat across. No normal axial
+   * rotation by ray was found published. This is the root mean square of seven nail tilts against their segments' frames read on
+   * one person, f1's reference: 10 degrees on the index finger, 6 on the thumb, 16.5 on the little finger, 8 on the third toe, 1.8
+   * on the ring finger, 1.4 on the middle finger and 2 on the big toe, which is 8.3 degrees. It is an estimate from one person, this
+   * hand's little finger among the seven. It is a spread only: no digit's own tilt places that digit's nail. A digit whose back is
+   * round keeps its segment's frame, which is known to miss by the digit's own axial turn until the frames carry it.
+   */
+  const TURN: number = 0.145;
+
+  /**
+   * The nails of one side's digits, each from its own digit and the frames, made once.
+   *
+   * @param families The digits' families at the pose, without their beds.
+   * @param frames Every segment's frame at the pose.
+   */
+  export function all(families: readonly AutoMovieHumanConicLoft.IFamily[], frames: ReadonlyMap<string, F.IFrame>): IMade[] {
+    return families.map((family: AutoMovieHumanConicLoft.IFamily): IMade => create(family, frames));
+  }
+
   /** Columns of a nail's join round its curve: the curve is some 40 mm long, so they stand 0.4 mm apart, under the bed's cell. */
   export const COLUMNS: number = 96;
 

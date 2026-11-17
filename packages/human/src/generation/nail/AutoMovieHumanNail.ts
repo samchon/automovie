@@ -138,6 +138,18 @@ export namespace AutoMovieHumanNail {
 
     /** What each pass of the frame's fit still moved: `[the roll's turn, rad; the axis's slope; the axis's shift, mm]` by pass. */
     residuals: [number, number, number][];
+
+    /** The mean levelling turn left at the roll chosen, rad: nothing where the skin's two edges stand level there on the mean. */
+    misfit: number;
+
+    /** The roll's objective at the roll chosen: the squared misfit over the skin's error and the squared roll over the prior's spread. */
+    objective: number;
+
+    /** The share of an applied roll that the levelling reading registers at the roll chosen: 1 on a flat back, 0 on a round one. */
+    conditioning: number;
+
+    /** The mean levelling turn against the roll from the segment's frame, on the last pass's rings: `[roll, turn]`, rad, at 25 rolls across half a turn. */
+    levelling: [number, number][];
   }
 
   /** One digit's nail. */
@@ -275,6 +287,15 @@ export namespace AutoMovieHumanNail {
   const BED: number = 9;
 
   /**
+   * How far the fitted skin may stand off the digit across the plate, mm: the greatest rms of f1's fitted tip sections (0.08 to
+   * 0.17 mm, the body note's dome table). Over the plate's half width it is the angle a level roll read on that skin can be off by.
+   */
+  const FIT_RMS: number = 0.17;
+
+  /** The golden section's share, `(sqrt(5) - 1) / 2`. */
+  const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
+
+  /**
    * The middle weight of the conic from a level crown to an upright side extreme that turns on `radius` at the crown, where a conic of
    * weight `w` and depth `drop` turns on `2 w^2 side^2 / drop`, and has fallen `sagitta` at the edge. By bisection between the section
    * model's bounds of a shoulder `w / (1 + w)`, 0.03 and 0.85; where no weight between them passes through the edge, the ellipse's.
@@ -408,8 +429,10 @@ export namespace AutoMovieHumanNail {
    * @param skin The digit's own skin.
    * @param proportions The digit's row.
    * @param margin How far the plate's side extreme stands outside its edge, under the lateral fold, mm: room for the merge's rail.
+   * @param spread How far a digit's nail may turn about its long axis from its segment's frame, rad: the spread of the prior the
+   *   skin's levelling is weighed against.
    */
-  export function create(name: string, bed: string, segment: IFrame, skin: ISkin, proportions: IProportions, margin: number): INail {
+  export function create(name: string, bed: string, segment: IFrame, skin: ISkin, proportions: IProportions, margin: number, spread: number): INail {
     // 1. Breadth across the joint and length to the tip, in the segment's frame.
     const first: IReader = reader(skin, segment);
     const across: [number, number] = first.extent(0);
@@ -436,6 +459,11 @@ export namespace AutoMovieHumanNail {
     const mean = (values: readonly number[]): number => values.reduce((sum: number, x: number): number => sum + x, 0) / values.length;
     let passes: number = 0;
     const residuals: [number, number, number][] = [];
+    // What the roll's objective read on the last pass.
+    let misfit: number = 0;
+    let objective: number = 0;
+    let conditioning: number = 0;
+    const levelling: [number, number][] = [];
     // The greatest of the values round a ring, by the parabola through the greatest sample and its two neighbours.
     const peak = (values: readonly number[]): number => {
       let top: number = 0;
@@ -481,15 +509,34 @@ export namespace AutoMovieHumanNail {
         );
         return { turn: asked, slope: lean, shift: mean(middles) - lean * mean(bed0) };
       };
-      // The turn still asked is positive short of the level roll and negative past it; forty halvings of 2.4 rad are under 1e-11.
-      let [shy, past]: [number, number] = [-1.2, 1.2];
-      if (!(levelled(shy).turn > 0 && levelled(past).turn < 0)) throw new Error("nail: " + name + "'s back has no level roll within 1.2 rad of its frame");
-      for (let k: number = 0; k < 40; ++k) {
-        const tried: number = (shy + past) / 2;
-        if (levelled(tried).turn > 0) shy = tried;
-        else past = tried;
+      // The roll. On these rings the mean levelling turn is a function of the roll alone, and the roll, counted from the segment's
+      // frame, is the value that makes `(turn / error)^2 + (roll / spread)^2` least within a quarter turn either side: the skin's
+      // evidence, whose error is the fitted skin's across the plate, against the prior that the nail lies in its segment's frame.
+      // No crossing of the turn through zero is sought: a far, weakly held one on a round back lowers the first term a little and
+      // pays the second in full. Sought as the nearest crossing it rolled f1's two roundest toes 25 and 36 degrees (run 16-16-14).
+      // The objective is read at 49 rolls, each of its local leasts is placed by forty golden sections of the two steps about it,
+      // and the least of those is taken.
+      const error: number = FIT_RMS / half;
+      const cost = (by: number): number => (levelled(by).turn / error) ** 2 + ((roll + by) / spread) ** 2;
+      levelling.length = 0;
+      for (let n: number = 0; n < 25; ++n) levelling.push([-Math.PI / 2 + (n * Math.PI) / 24, levelled(-Math.PI / 2 + (n * Math.PI) / 24 - roll).turn]);
+      const [from, to]: [number, number] = [-Math.PI / 2 - roll, Math.PI / 2 - roll];
+      const sampled: number[] = Array.from({ length: 49 }, (_: unknown, n: number): number => cost(from + ((to - from) * n) / 48));
+      let [fewest, angle]: [number, number] = [Infinity, 0];
+      for (let n: number = 0; n <= 48; ++n) {
+        if ((n > 0 && sampled[n - 1]! < sampled[n]!) || (n < 48 && sampled[n + 1]! < sampled[n]!)) continue;
+        let [shy, past]: [number, number] = [Math.max(from, from + ((to - from) * (n - 1)) / 48), Math.min(to, from + ((to - from) * (n + 1)) / 48)];
+        for (let k: number = 0; k < 40; ++k) {
+          const [inner, outer]: [number, number] = [past - (past - shy) * GOLDEN, shy + (past - shy) * GOLDEN];
+          if (cost(inner) < cost(outer)) past = outer;
+          else shy = inner;
+        }
+        const found: number = cost((shy + past) / 2);
+        if (found < fewest) [fewest, angle] = [found, (shy + past) / 2];
       }
-      const angle: number = (shy + past) / 2;
+      conditioning = (levelled(angle - 0.05).turn - levelled(angle + 0.05).turn) / 0.1;
+      misfit = levelled(angle).turn;
+      objective = fewest;
       const { slope, shift }: { slope: number; shift: number } = levelled(angle);
       roll += angle;
       residuals.push([angle, slope, shift]);
@@ -497,6 +544,9 @@ export namespace AutoMovieHumanNail {
       const levelDorsal: V3 = unit(mix(frame.dorsal, Math.cos(angle), cut.lateral, Math.sin(angle)));
       const sideways: V3 = cross(frame.distal, levelDorsal);
       frame = { origin: [0, 1, 2].map((k: number): number => frame.origin[k]! + sideways[k]! * shift) as V3, distal: unit(mix(frame.distal, 1, sideways, slope)), dorsal: levelDorsal };
+      // Each pass cuts the rings anew at the axis the pass before fitted, and the re-cut rings still feed the shift and the roll
+      // back at first order: what a pass leaves falls by a measured 0.3 to 0.6 of the pass before's (run 16-00-55). Where the cap
+      // ends the fit first, what was still asked stays in `residuals`.
     }
     // Pitch: a plate is straight along its length and lies on the digit from the fold on, so its line is the taut line over the dorsal
     // skin from the fold's point: the steepest rise of the skin's median profile seen from that point, read every quarter millimetre
@@ -886,6 +936,10 @@ export namespace AutoMovieHumanNail {
         clippedIn,
         passes,
         residuals,
+        misfit,
+        objective,
+        conditioning,
+        levelling,
       },
     };
   }

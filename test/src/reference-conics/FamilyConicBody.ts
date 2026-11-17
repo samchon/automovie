@@ -14,6 +14,7 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
 import { FamilyConicExcursion as X } from "./FamilyConicExcursion";
 import { FamilyConicClosure } from "./FamilyConicClosure";
 import { FamilyConicDivide } from "./FamilyConicDivide";
+import { FamilyConicValley } from "./FamilyConicValley";
 import { FamilyConicLoop } from "./FamilyConicLoop";
 
 /**
@@ -276,6 +277,13 @@ export namespace FamilyConicBody {
 
   /** The least shoulder of a closure across an opening (`without`): the model's share bound (`AutoMovieHumanConicSection`'s `EDGE`). */
   const CLOSURE_LEAST: number = 0.03;
+
+  /**
+   * The least circumferential part of the skin's unit direction at which a kept skin's end still advances round its course
+   * (`without`): the premise of `FamilyConicClosure.continued`, which refuses a part of 1e-9 or less; a hundredth, about half a
+   * degree off the radius, keeps the continuation's rate of radius in phase under a hundred.
+   */
+  const ADVANCE_LEAST: number = 0.01;
 
 
   /**
@@ -1559,6 +1567,32 @@ export namespace FamilyConicBody {
         }
         lines.push(`${surface.name} | ${names.join(", ")} | ${read} | ${none} | ${[...shared.values()].reduce((sum: number, x: number): number => sum + x, 0)}${shared.size === 0 ? "" : " (" + [...shared].map(([k, v]: [string, number]): string => `${k}: ${v}`).join("; ") + ")"}`);
       }
+      // Where each row's parent ends against its children's valleys (`FamilyConicValley`): on the parent's section planes about the
+      // heads' plane, each pair of neighbouring digits as one chain with its valley's two depths, or apart with their gap. A composed
+      // end's host ring stands within a child's rail of the children's outline only where the valleys are within the rails (half the
+      // gap at which a pair first stands apart), so the heads' plane is read here against both.
+      const valleys = (label: string, centres: R.V[], halves: number[], up: R.V, index: number, digits: readonly string[]): void => {
+        const course: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed(centres, halves, up) as AutoMovieViewAxis.IAxis;
+        const station: number = AutoMovieHumanCourseRuns.joints(centres, halves)[index]!;
+        lines.push("", `${label}: the heads' plane stands at station ${station.toFixed(2)} mm of its parent's course; valleys left / right of each pair's line, mm`);
+        for (const d of [-8, -4, 0, 4, 8, 12, 16, 20]) {
+          const frame: AutoMovieLoftFrame.IFrame = course.at(station + d);
+          const normal: R.V = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
+          const pierced: ([number, number] | null)[] = digits.map((name: string): [number, number] | null => {
+            const [first, second]: R.V[] = [joint(name + "_01_r"), joint(name + "_02_r")];
+            const along: R.V = [second![0] - first![0], second![1] - first![1], second![2] - first![2]];
+            const rate: number = along[0] * normal[0] + along[1] * normal[1] + along[2] * normal[2];
+            if (Math.abs(rate) < 1e-9) return null;
+            const t: number = ((frame.origin[0] - first![0]) * normal[0] + (frame.origin[1] - first![1]) * normal[1] + (frame.origin[2] - first![2]) * normal[2]) / rate;
+            const q: R.V = [first![0] + t * along[0] - frame.origin[0], first![1] + t * along[1] - frame.origin[1], first![2] + t * along[2] - frame.origin[2]];
+            return [q[0] * frame.u[0] + q[1] * frame.u[1] + q[2] * frame.u[2], q[0] * frame.v[0] + q[1] * frame.v[1] + q[2] * frame.v[2]];
+          });
+          const pairs: FamilyConicValley.IPair[] = FamilyConicValley.pairs(R.chains(source.all, frame) as { points: [number, number][]; closed: boolean }[], pierced);
+          lines.push(`${d >= 0 ? "+" : ""}${d} mm | ` + pairs.map((pair: FamilyConicValley.IPair, i: number): string => `${digits[i]}-${digits[i + 1]} ${pair.kind === "one" ? `${pair.depths![0].toFixed(2)} / ${pair.depths![1].toFixed(2)}` : pair.kind === "apart" ? `apart ${pair.gap!.toFixed(2)}` : "no closed chain"}`).join(" | "));
+        }
+      };
+      valleys("hand", armCentres, handHalves, arm.up, 4, FamilyConicDivide.FINGERS);
+      valleys("foot", legCentres, [40, 62, TOE_TURN.half], [1, 0, 0], 3, FamilyConicDivide.TOES);
       process.stdout.write(lines.join("\n") + "\n");
       return;
     }
@@ -3905,6 +3939,9 @@ export namespace FamilyConicBody {
     };
     const contained = (points: readonly C.P[]): boolean => points.every((p: C.P): boolean => insideLoop(p) && opening!(world(p)) >= -0.5);
     const leaves = (points: readonly C.P[]): string => `${points.filter((p: C.P): boolean => !insideLoop(p)).length} of ${points.length} off the cut, opening down to ${Math.min(...points.map((p: C.P): number => opening!(world(p)))).toFixed(1)} mm`;
+    let trimmed: [number, number] = [0, 0];
+    // The first kept point after the last closure's entry: a later closure takes its exit back no farther.
+    let low: number = 0;
     const closure = (k: number): C.P[] | null => {
       const e1: C.P = out[k]!, e2: C.P = out[(k + 1) % out.length]!;
       const side: number = Math.sign(e1[1] + e2[1]) || 1;
@@ -3919,10 +3956,22 @@ export namespace FamilyConicBody {
       // kept skin's ends diverge (the arm's root, a horn in front of the chest), and each rule added to it moved the refusal to
       // another arc. Where the continuation's premises fail the opening is named in the report and closed across its chord below.
       if (around !== undefined && tube !== undefined) {
-        const span: [number, number] = [Math.atan2(e1[1], e1[0]), Math.atan2(e2[1], e2[0])];
-        const made: C.P[] | string = FamilyConicClosure.continued(e1, t1, e2, t2, tube);
+        // A ray's kept skin ends where it stops advancing round its course. At a web's floor, and where two digits are pressed on each
+        // other, the skin before the parting plane turns back toward the neighbour and runs into the groove between them: that
+        // stretch is the web's, which a composed end reads as the valley of the two walls' union and gives to its bands, and no
+        // child's round. So each end of the kept skin is taken back to its last point that still advances (the skin's direction
+        // there has a circumferential part in the loop's sense), within this opening's own neighbours in the loop, and the tube is
+        // continued from there. Left on, f1's pressed toes and its middle finger at the web's floor had no continuation at all.
+        const advancing = (at: C.P, along: C.P): boolean => (along[1] * at[0] - along[0] * at[1]) / (Math.hypot(at[0], at[1]) || 1) > ADVANCE_LEAST;
+        let [a, b]: [number, number] = [k, (k + 1) % out.length];
+        while (a > low && kinds[a - 1] === "vertex" && !advancing(out[a]!, unit(step(a, -1), out[a]!))) --a;
+        while (b + 1 < out.length && kinds[b + 1] === "vertex" && b !== 0 && !advancing(out[b]!, unit(out[b]!, step(b, 1)))) ++b;
+        const [x1, x2]: C.P[] = [out[a]!, out[b]!];
+        const span: [number, number] = [Math.atan2(x1![1], x1![0]), Math.atan2(x2![1], x2![0])];
+        const made: C.P[] | string = FamilyConicClosure.continued(x1!, unit(step(a, -1), x1!), x2!, unit(x2!, step(b, 1)), tube);
         if (typeof made !== "string") {
-          report?.("around", `continued: opening down to ${Math.min(...made.map((p: C.P): number => opening!(world(p)))).toFixed(1)} mm`, span);
+          trimmed = [k - a, b === 0 ? 0 : b - (k + 1)];
+          report?.("around", `continued${trimmed[0] + trimmed[1] > 0 ? ` (kept skin taken back ${trimmed[0]} and ${trimmed[1]} points)` : ""}: opening down to ${Math.min(...made.map((p: C.P): number => opening!(world(p)))).toFixed(1)} mm`, span);
           return made;
         }
         report?.("outside", `continued: ${made}`, span);
@@ -3957,11 +4006,23 @@ export namespace FamilyConicBody {
     // circle instead of the chord: the circle is the wall there, and a chord across it leaves the hull a corner where the chord meets the
     // skin. One point every 2 degrees, its radius running from the exit's to the entry's.
     const closed: C.P[] = [];
+    // The kept points a continued closure replaces at its two ends (`trimmed`, set by `closure`): the last of them before the exit
+    // are taken off again, and the first after the entry are passed over.
+    let skip: number = 0;
     out.forEach((p: C.P, k: number): void => {
+      if (skip > 0) {
+        --skip;
+        return;
+      }
       closed.push(p);
       const next: C.P = out[(k + 1) % out.length]!;
       if (kinds[k] === "exit" && kinds[(k + 1) % out.length] === "entry" && opened[k] === true) {
-        closed.push(...(closure(k) ?? []));
+        trimmed = [0, 0];
+        const made: C.P[] = closure(k) ?? [];
+        closed.splice(closed.length - trimmed[0], trimmed[0]);
+        closed.push(...made);
+        skip = trimmed[1];
+        low = k + 1 + trimmed[1];
         return;
       }
       if (round === undefined || kinds[k] !== "exit" || kinds[(k + 1) % out.length] !== "entry" || Math.abs(round(world(p))) > 0.5 || Math.abs(round(world(next))) > 0.5) return;

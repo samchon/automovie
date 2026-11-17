@@ -61,19 +61,26 @@ export namespace FamilyConicDivide {
     };
     const digit = (name: string): AutoMovieHumanF1Divide.IDigit => ({ part: part(name), first: joint(name + "_01_r"), second: joint(name + "_02_r") });
     // The thumb's root: the landmark surface through its four landmarks on the reference's skin about its metacarpophalangeal centre,
-    // its far side toward the thumb's next joint. It divides skin within twice the farthest landmark's distance from that centre: the
-    // ball that holds the root's ring with as much again round it, which the complement check reads.
+    // its far side toward the thumb's next joint. It divides skin inside the ball about that centre that holds its landmarks and,
+    // past it, inside the tube about the thumb's course that the landmarks' ring spans.
     const root: FamilyConicThumbRoot.IRoot = FamilyConicThumbRoot.read(source);
     const landmarks: V[] = root.landmarks.map(([name, p]: [string, V | null]): V => {
       if (p === null) throw new Error("divide: the thumb root's landmark " + name + " met no skin");
       return p;
     });
     const thumbRoot: AutoMovieHumanLandmarkSurface.ISurface = AutoMovieHumanLandmarkSurface.create(root.centre, landmarks, root.toward);
+    // A landmark's distance from the line a part's course starts along: the root ring's radius about the course, which bounds the
+    // part's own skin about it.
+    const off = (p: readonly number[], a: V, b: V): number => {
+      const e: V = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+      const t: number = ((p[0]! - a[0]) * e[0] + (p[1]! - a[1]) * e[1] + (p[2]! - a[2]) * e[2]) / (e[0] * e[0] + e[1] * e[1] + e[2] * e[2]);
+      return Math.hypot(p[0]! - a[0] - t * e[0], p[1]! - a[1] - t * e[1], p[2]! - a[2] - t * e[2]);
+    };
+    const armCourse: V[] = [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r")];
     return AutoMovieHumanF1Divide.create({
-      armscye: armscye.side,
-      shoulder: joint("upperarm_r"),
+      armscye: { side: armscye.side, centre: armCourse[0]!, reach: ARMSCYE_MM, course: armCourse, tube: Math.max(...armscye.landmarks.map((p: number[]): number => off(p, armCourse[0]!, armCourse[1]!))), part: "arm" },
       wrist: joint("hand_r"),
-      thumb: { side: thumbRoot.side, centre: root.centre, reach: 2 * Math.max(...landmarks.map((p: V): number => Math.hypot(p[0] - root.centre[0], p[1] - root.centre[1], p[2] - root.centre[2]))), part: part("thumb") },
+      thumb: { side: thumbRoot.side, centre: root.centre, reach: Math.max(...landmarks.map((p: V): number => Math.hypot(p[0] - root.centre[0], p[1] - root.centre[1], p[2] - root.centre[2]))), course: [root.centre, root.toward], tube: Math.max(...landmarks.map((p: V): number => off(p, root.centre, root.toward))), part: part("thumb") },
       fingers: FINGERS.map(digit),
       toes: TOES.map(digit),
       sole: [0, 1, 0],

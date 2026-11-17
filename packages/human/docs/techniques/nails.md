@@ -925,6 +925,144 @@ On f1's numbers (`s` about 0.03 rad): `w` is 0.92 to 0.93 for `k` of 0.44 to 0.4
 
 **Not built.** This paper is released by the supervisor for one code batch. The batch is not started: see the log's last entry.
 
+### The run on the weighed roll: all ten realize; the round toes' "level rolls" are far crossings
+
+The batch (three files, each written once by one script that checked every pattern first; the unit test's file was left as it is, see the log) was written 01:12:34 on a verified idle queue. The watch's 1:13:55 cycle, the first to start after the write, reads complete. Not checked before the write, and it should have been: the watch's tail then read `rebuilding at AM 1:12:00`, so a cycle was running; it read complete as well. Unit tests 01:16:06 to 01:16:12: `test_human_nail` passes in 352 ms, `test_construction_operator_capped_part` in 49 ms. Run `2026-11-17T16-16-14.321Z-realize`, `--relief`, 01:16:13 to 01:16:39, all on verified empty lists. All ten realize at both levels, no diagnostic, none refused.
+
+The three finger sheets of run `16-00-55` were opened first, as the before: `sheet.lateral.0.png` (the back steps at the fold, middle px 118-140 x 575-600), `sheet.end.0.png` (the tab under the middle finger's and the thumb's dome, px 158-170 x 625-632 and 1580-1625 x 640-652), `sheet.oblique-twin.0.png` (plates flush; the close row's dotted free edge, middle px 165-245 x 862-895).
+
+| Digit | Level roll, rad | `k` | Roll held | Passes | `clipped`, mm |
+| --- | --- | --- | --- | --- | --- |
+| Middle finger | 0.028 | 0.45 | 0.028 | 21 | 0 |
+| Ring finger | 0.152 | 0.31 | 0.144 | 24 | 0 |
+| Index finger | -0.136 | 0.49 | -0.133 | 20 | 0 |
+| Little finger | 0.412 | 0.30 | 0.382 | 23 | 0 |
+| Thumb | 0.123 | 0.46 | 0.121 | 23 | 0 |
+| Big toe | 0.028 | 0.15 | 0.026 | 32 | 0.001 |
+| Second toe | -0.370 | 0.30 | -0.347 | 48, the level phase **not settled** (shift 0.00024 mm still asked) | 0 |
+| Third toe | 0.117 | 0.32 | 0.108 | 44 | 0 |
+| Fourth toe | **0.967** | 0.08 | 0.430 | 45 | 0.014 |
+| Little toe | **0.794** | 0.19 | 0.626 | 20 | 0.016 |
+
+Vertices at the figure's level 58,434 on ten digits; at the close-up's 117,473. The law, made twice a digit, 1.3 s a digit.
+
+**What held.** No digit is refused. Every held phase settles to the tolerance. The fingers' frames are the run before's within 0.03 rad, and their sheets are the run before's to the eye. `k` read directly at the root agrees with the ratios' reading on the fingers (0.45, 0.31, 0.49, 0.30, 0.46 against 0.44, 0.28, 0.49, 0.21, 0.48).
+
+**What did not, and it is in the rule as I built it.**
+
+| Finding | Read |
+| --- | --- |
+| The fourth and the little toe did not keep their segments' frames | The search outward found a crossing for each, 0.97 and 0.79 rad from the frame (55 and 45 degrees), with `k` of 0.08 and 0.19. Those are not the rolls the old fit swung about (0.40 and -0.59); the little toe's is of the opposite sign. On a round back the levelling turn is small everywhere and crosses zero somewhere far off; "the nearest crossing within a quarter turn" takes that crossing for a level roll |
+| The spread is not this person's 0.22 rad | Those two far rolls enter it: the root mean square of the ten level rolls is 0.44 rad. So every weight is higher than the paper said (0.93 to 0.99 on the fingers, 0.44 and 0.79 on the two round toes) and the two round toes are rolled 25 and 36 degrees |
+| The second toe's level phase still does not settle | 24 passes, as before; the three residuals are not solved together in this batch |
+| The big toe's `k` is 0.15, not the 0.47 its first ratio suggested | Its swing misled the ratio; its level roll is small (0.028) so the weight changes little |
+
+So the accepted rule is right in form and wrong in one clause I wrote: **a crossing far from the frame on a round back is not a level roll.** What separates the two is already measured, `k` itself, and the distance: the weight should fall with how far the crossing lies as well as with how weakly it is held, or the search should end where the back's own conditioning says nothing more can be read. That is a decision for paper, not a number to move; nothing is changed after this run.
+
+**Every sheet opened** (ten), rows figure's level then close-up's.
+
+| Sheet | Seen | Where |
+| --- | --- | --- |
+| `dorsal.0` | Five fingers as the run before: plate, U fold, rims; the close row's faint free edge | middle px 115-245 x 480-600; close row arc px 130-230 x 838-860 |
+| `dorsal.1` | All five toes carry a nail again. Big, second, third: plate in a U. Fourth and little toe: a plate in a U, seen under a camera turned with their rolled frames | big px 105-250 x 480-590; index px 495-590 x 468-520; middle px 860-950 x 462-510; ring px 1205-1315 x 480-570; little px 1570-1660 x 490-560 |
+| `lateral.0` | The step at each finger's fold | middle px 118-140 x 575-600 |
+| `lateral.1` | A step at each toe's fold; the fourth toe's side in lengthwise strips | big px 135-160 x 480-510; ring px 1125-1280 x 470-670 |
+| `end.0` | The tab under the middle finger's and the thumb's dome, both levels | px 158-170 x 625-632; 1580-1625 x 640-652 |
+| `end.1` | Big toe's ledge across the top; the fourth toe's cell runs off the frame's top | big px 100-240 x 510-540; ring px 1180-1345 x 440-580 |
+| `oblique.0` | Fingers as before; the comb at the fold's corner; the thumb's ring bands | middle px 160-205 x 595-620; thumb px 1560-1700 x 620-690 |
+| `oblique.1` | Big toe's wall beside the plate. Fourth toe: a dark toothed hollow beside its plate. Little toe: a toothed hollow | big px 195-235 x 520-600; ring px 1190-1250 x 560-630; little px 1570-1640 x 540-610 |
+| `oblique-twin.0` | Plates flush at both levels; the close row's dotted free edge | close row, middle px 165-245 x 862-895 |
+| `oblique-twin.1` | Big, second, third toe clean. Fourth toe: a plate with a toothed fold. Little toe: a plate and a lip | ring px 1250-1370 x 540-640; little px 1590-1700 x 520-620 |
+
+### The roll as one objective: paper before any batch
+
+The roll had grown a clause a run: a level crossing, then the nearest crossing within a quarter turn, then a weight that should also fall with distance. It is one estimate and is stated as one.
+
+**The objective.** At a fixed axis the nine rings are fixed, and the mean levelling turn `g` is a function of the roll alone, read on those rings with no skin re-read. The roll `r`, counted from the distal segment's frame, is the value that minimises
+
+`g(r)^2 / s^2 + r^2 / t^2`
+
+over a quarter turn either side. The first term is the skin's evidence, the second the prior that the nail lies in its segment's frame. No crossing is searched. A far, weakly held crossing on a round back lowers the first term a little and pays the second in full, so it is not chosen; a near, well held one is. The weight `1 / (1 + (s / (k t))^2)` of the last batch is this objective's answer only where `g` is linear in the roll, which is what fails on the round toes. The objective's value at its minimum is a reading.
+
+**`s`**, the levelling turn's own uncertainty: 0.17 mm, the greatest rms of f1's fitted tip sections (the body note's dome table), over the plate's half width; 0.020 rad on the big toe to 0.043 on the little toe.
+
+**`t`**, the prior's spread, is a declared constant, not computed from the run's own rolls: taking it from them let two far crossings raise it from 0.22 to 0.44 rad and with it every weight. It is how far a nail is tilted against its segment's frame on this person, read on the seven digits whose reference nails could be read (survey `12-28-41`): 10, 6, 16.5, 8, 1.8, 1.4 and 2 degrees for the index finger, thumb, little finger, third toe, ring finger, middle finger and big toe. Their root mean square is 8.3 degrees, **0.145 rad**. An estimate from one person; it is a spread, so no digit's own tilt is used for that digit's roll.
+
+**For a section that is an ellipse the levelling function has a closed form**, which the unit test uses. With half axes `a` across and `b` high, turned by `p` from its own axes, the top's heights at offsets `+e` and `-e` about the centre differ by `-2 B e / C`, `B = sin p cos p (1 / a^2 - 1 / b^2)`, `C = sin^2 p / a^2 + cos^2 p / b^2`, so the levelling turn is `atan(B / C)` whatever `e` is, and near level it is `-(1 - b^2 / a^2) p`. The conditioning of an ellipse is therefore `1 - (b / a)^2`: one on a flat back, nothing on a round one.
+
+**The table before the batch.** The levelling function was read at 25 rolls, 7.5 degrees apart across half a turn, for all ten in one law-only reading that realizes nothing (`2026-11-17T16-27-59.966Z-realize`, 01:27:59 to 01:28:14, verified empty process list; the reading `levelling` was added to the law for it and changes no result). A first reading on the first pass's rings (`16-22-11`) was discarded: on the toes the axis is moved millimetres before it settles, and the big toe's function crossed zero at 20.6 degrees on those rings where its fitted level roll is 1.6. The second is taken at the fitted axis, so its rolls are counted from each digit's level frame `L`; the objective's roll is `L + d` for the `d` that minimises `g(d)^2 / s^2 + (L + d)^2 / t^2`. Minimised by hand on the samples, straight between two of them, `t` = 0.145 rad.
+
+| Digit | `s`, rad | Level roll `L`, degrees | `g` beside it, rad (at -7.5, +7.5 degrees) | The objective's roll, degrees | Moved from the level roll | The reference nail's tilt |
+| --- | --- | --- | --- | --- | --- | --- |
+| Middle finger | 0.030 | 1.6 | 0.058, -0.059 | 1.3 | -0.3 | -1.4 |
+| Ring finger | 0.033 | 8.7 | 0.038, -0.042 | 5.3 | -3.4 | 1.8 |
+| Index finger | 0.031 | -7.8 | 0.063, -0.063 | -6.5 | 1.3 | -10 |
+| Little finger | 0.037 | 23.6 | 0.036, -0.042 | 11.1 | **-12.5** | 16.5 |
+| Thumb | 0.026 | 7.0 | 0.060, -0.060 | 6.1 | -0.9 | 6 |
+| Big toe | 0.020 | 1.6 | 0.023, -0.016 | 1.0 | -0.6 | -2 |
+| Second toe | 0.034 | -21.2 (unsettled) | 0.040, -0.038 | -12.4 | 8.8 | not read |
+| Third toe | 0.041 | 6.7 | 0.040, -0.042 | 3.6 | -3.1 | 8 |
+| Fourth toe | 0.042 | 55.4 (a far crossing) | 0.009, -0.014 | 0.0 | back to its frame | not read |
+| Little toe | 0.043 | 45.5 (a far crossing) | 0.024, -0.025 | 2.9 | back to its frame | 19 from one station, sign unsure |
+
+How each was got, for the two that are not near-linear. Little finger: the objective reads 4.74, 4.13, 4.09, 4.09, 4.14, 4.24, 5.77 at `d` of -7.5, -11.25, -12, -13, -14, -15 and -22.5 degrees. Little toe: 1.07, 0.31, 0.23, 0.24, 0.31, 0.44 at -37.5, -41, -42.5, -43, -44 and -45.5 degrees. The fourth toe's `g` is within 0.004 rad of nothing from -45 to -60 degrees, so the prior alone places it, at its frame.
+
+**Is the table sane, by the two conditions set for it?**
+
+| Condition | Read |
+| --- | --- |
+| The round toes near their frames | Yes: the fourth toe at 0.0 degrees, the little toe at 2.9, where the last batch rolled them 25 and 36 |
+| The fingers as now within a few hundredths of a radian | **Not all.** Middle finger, index finger and thumb move 0.005, 0.023 and 0.016 rad. The ring finger moves 0.06. **The little finger moves 0.22 rad**, from 23.6 degrees to 11.1 |
+
+The little finger is the case the condition was set to catch. With a prior of 8.3 degrees a nail turned 16 to 24 degrees from its frame is two to three spreads out, and the objective pays for it: it is held weakly by the skin (`k` 0.30) and far from the frame. Against the check the objective is not worse: the reference's nail there is tilted 16.5 degrees, the level roll misses it by 7.1 and the objective's roll by 5.4, on the other side. On the ring finger the objective moves toward the reference (8.7 to 5.3 against 1.8); on the third toe away from it (6.7 to 3.6 against 8).
+
+**So the batch is not written.** One finger fails the condition as stated, and whether that is the objective working (the prior doing what a prior does to a far, weakly held reading) or `t` being too tight for a hand whose little finger turns more than the rest is a decision, not something to settle by running. What I can say from the readings: `t` is the root mean square of seven tilts of which the little finger's own 16.5 is the largest, so the prior that pulls it back was partly made from it; and a spread taken ray by ray, or one for the hand's border digits, has no published basis I found.
+
+What stays true whatever is decided: the objective needs no crossing, no weight formula and no hand-over, and it puts the two round toes in their frames.
+
+### The run on the objective: the fingers as predicted, three toes not
+
+Decision taken from the supervisor: the objective as tabled, `t` = 0.145 rad declared, not loosened for the little finger. The batch (four files, each written once at 01:33:11 by one script that checked every pattern first, on an idle queue with the watch's cycle finished) is whole; the watch's 1:33:36 and 1:37:39 cycles read complete. Unit tests 01:41:23 to 01:41:27: `test_human_nail` 456 ms, the new `test_human_nail_roll` 320 ms, `test_construction_operator_capped_part` 50 ms, all pass. Run `2026-11-17T16-41-29.590Z-realize`, `--relief`, 01:41:28 to 01:41:50, on verified idle queues. All ten realize at both levels, no diagnostic.
+
+| Digit | Roll, degrees | Predicted | Difference | Misfit left, rad | `k` | Passes | Still asked at the last pass |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Middle finger | 1.4 | 1.3 | 0.1 | 0.002 | 0.45 | 16 | nothing |
+| Ring finger | 5.4 | 5.3 | 0.1 | 0.018 | 0.29 | 15 | nothing |
+| Index finger | -6.5 | -6.5 | 0.0 | -0.011 | 0.48 | 12 | nothing |
+| Little finger | 10.9 | 11.1 | 0.2 | 0.058 | 0.21 | 10 | nothing |
+| Thumb | 6.2 | 6.1 | 0.1 | 0.008 | 0.46 | 11 | nothing |
+| Big toe | 1.5 | 1.0 | 0.5 | 0.004 | 0.12 | 13 | nothing |
+| Second toe | -16.8 | -12.4 | **4.4** | -0.050 | 0.32 | 24, at the cap | 0.00005 rad, 0.0022 mm |
+| Third toe | 0.1 | 3.6 | **3.5** | 0.001 | 0.24 | 24, settled there | 5e-7 mm |
+| Fourth toe | 0.5 | 0.0 | 0.5 | 0.104 | 0.01 | 24, settled there | 2e-6 mm |
+| Little toe | 7.3 | 2.9 | **4.4** | -0.029 | -0.39 | 24, at the cap | 0.00009 rad, 0.0019 mm |
+
+`clipped` at most 0.013 mm. Vertices 57,106 at the figure's level, 117,482 at the close-up's. The law 0.83 s a digit, made once.
+
+**The fingers agree with the table to 0.2 degrees, and the big and fourth toe to 0.5.** Three toes do not, and by the order that is a finding:
+
+| Toe | Read |
+| --- | --- |
+| Third toe | The table read its levelling function at the axis the level-roll fit had found, and placed its roll 3.6 degrees from the frame. Fitted with the objective from the start, the axis settles elsewhere and the skin is level there within 0.001 rad at 0.1 degrees. On the toes the axis and the roll move together (the shift is millimetres), so the levelling function at one fit's axis is not the function at another's: the table's premise, a fixed axis, does not hold for them |
+| Second and little toe | The same, and not settled: at the cap they still ask 0.002 mm of shift and 0.00005 to 0.00009 rad of roll. That is a hundredth of the fitted skin's own error (0.17 mm), so what the cap leaves is bounded far under what the skin can tell; but they are at the cap, and the little toe's conditioning there reads negative (-0.39): at its chosen roll the levelling turn rises with the roll, so it sits on the prior's side of a hump and not in a level valley |
+
+So the objective does what it was written to do on every digit whose axis is settled by its skin, and on three lesser toes the roll and the axis are one coupled problem that the pass-by-pass fit walks to a place the fixed-axis table did not predict. Not changed after the run.
+
+**Every sheet opened** (ten); rows figure's level then close-up's.
+
+| Sheet | Seen | Where |
+| --- | --- | --- |
+| `dorsal.0` | Five fingers: plate, U fold, rims, as before; the little finger's plate now sits nearer the finger's middle | middle px 115-245 x 480-600; pinky px 1205-1300 x 480-590 |
+| `dorsal.1` | All five toes a plate in a U. The fourth and little toe are seen along their segments' frames again | ring px 1200-1300 x 470-545; little px 1570-1650 x 480-545 |
+| `lateral.0` | The step at each fold | middle px 118-140 x 575-600 |
+| `lateral.1` | A step at each toe's fold; the fourth toe's side in lengthwise strips | ring px 1210-1370 x 460-660 |
+| `end.0` | The tab under the middle finger's and the thumb's dome | px 158-170 x 625-632; 1580-1625 x 640-652 |
+| `end.1` | Big toe's ledge; a lip on the fourth toe's top | big px 100-240 x 510-540; ring px 1180-1250 x 520-560 |
+| `oblique.0` | Fingers as before; the comb at the fold's corner; the thumb's ring bands | middle px 160-205 x 595-620; thumb px 1560-1700 x 620-690 |
+| `oblique.1` | Big toe's wall beside the plate; a hollow at the fourth toe's fold corner; a toothed hollow on the little toe | big px 195-235 x 520-600; ring px 1230-1290 x 530-570; little px 1580-1640 x 540-600 |
+| `oblique-twin.0` | Plates flush; the close row's dotted free edge | close row, middle px 165-245 x 862-895 |
+| `oblique-twin.1` | Five toes, each a plate with a fold; the fourth and little toe's plates no longer turned onto their sides | ring px 1220-1310 x 500-570; little px 1600-1680 x 510-570 |
+
 ### What was read for the fit, the big toe and the comb
 
 The owner's rule is research before the change. Order, stated as it happened: the fit's and the big toe's decisions above were written and their change saved at 00:56 before this reading was complete; the reading below was finished after and is set against them. Nothing in it reverses either, and the run had not been made.
@@ -1046,6 +1184,21 @@ The nails land in the single whole-figure round with the joints, the body and th
 
 Order against the tips: a nail reads the digit's lofted skin, so a digit whose tip changes after statement 1 has a nail made for the old tip. `FamilyConicNail.ts --figure` performs the same three steps outside that file and has not been run; it is not run while the joints queue runs.
 ## Open
+
+State after run `16-41-29`, which supersedes the list under it:
+
+- **The far crossings are gone**: the roll is the least of one objective, and the fourth toe sits 0.5 degrees from its frame.
+- **What the prior cannot do, by the check.** Against the reference's nail tilts the objective moves the index finger and the third toe away (index -6.5 against -10, where the level roll read -7.8; third toe 0.1 against 8, where it read 6.7), and the lesser toes sit in or near frames that are known to miss. The answer for those is not a looser prior but the segments' frames carrying each digit's own axial turn (next line).
+- **On three lesser toes the roll and the axis are one coupled problem.** The second and little toe end at the cap (0.002 mm and under 0.0001 rad still asked, a hundredth of the skin's error), the third settles at a roll the fixed-axis table did not predict, and the little toe's conditioning at its roll is negative. The pass-by-pass fit is not a solver of that coupled problem; the three residuals are still not solved together.
+- **`test_human_nail_roll` passed on its first run and was not shown red** on a made defect (the crossing-based law it is meant to catch was already replaced when it first ran).
+- **A stale comment** in `AutoMovieHumanNail.ts`, lines 486 to 491, still describes the roll as one equation with the slope at second order.
+- **The distal segments' frames miss the nails' orientation by the digits' own axial turn** (index finger 8 to 10 degrees, little finger 16 to 24, thumb 6 to 7, third toe 7 to 8, read on the skin and on the reference's nails alike). `AutoMovieHumanF1Frames` does not carry it. For the body issue; the supervisor relays it. Until it does, a digit whose back has no level roll can only keep a frame that is known to miss.
+- **The second toe's level phase does not settle** in its 24 passes; the three residuals are not solved together.
+- **The big toe's thickness, 1.38 mm, is an estimate** (attributed to Hamilton 1955, not read); the reference's free-edge step is about 0.7 mm, so it may be about twice too thick. Not fitted to the reference.
+- **The weighed roll has no unit test.** `test_human_nail` reads the level roll alone.
+- **`--figure` is brought to the wiring's form but not run**, and two of its pass forms are not built: the stills' tint by owner and the same tree's diagnostics without the nails.
+- **The comb at the fold's corners**: the mesh's diagonals, under a pixel at the figure's cameras; a close-up finding.
+- **The wiring's first statement now reads** `const nails = AutoMovieHumanF1Nails.all(assembled.digits.map((digit) => digit.family), assembled.frames);` since the ten are made together.
 
 Owed, in order: the free edge's end as one piece of work (rows 2, 3 and 4 of the run's table), then one run of all ten; the whole figure in the shared round ("Wiring"). The unit test passes on the law as it stands (`test_human_nail`, 1 of 1, 2.5 s, which is over the one second a Human test is allowed: the frame's fit reads nine rings of the made skin on each pass).
 

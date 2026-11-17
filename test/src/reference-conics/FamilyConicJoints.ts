@@ -5,6 +5,7 @@ import type { AutoMovieConstructionNode, IAutoMovieConstructionSplit } from "@au
 import { FamilyConicLoop } from "./FamilyConicLoop";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { FamilyConicThumbRoot } from "./FamilyConicThumbRoot";
+import { FamilyConicValley } from "./FamilyConicValley";
 
 /**
  * Readings of every joint of the f1 figure at once, for `packages/human/docs/techniques/joints-one-shot.md`: instruments only, nothing
@@ -309,20 +310,14 @@ namespace FamilyConicJoints {
           out.push(`  about ${pierced[i]!.name}: ${folded} of 360 rays cross the chain more than once`);
         }
       });
-      for (let i: number = 0; i + 1 < pierced.length; ++i) {
-        const [a, b]: (number | null)[] = [owner[i]!, owner[i + 1]!];
-        if (a === null || b === null || a === undefined || b === undefined) {
-          out.push(`${pierced[i]!.name} | ${pierced[i + 1]!.name}: one of them lies in no closed chain`);
-          continue;
-        }
-        if (a === b) {
-          out.push(`${pierced[i]!.name} | ${pierced[i + 1]!.name}: one chain holds both`);
-          continue;
-        }
-        let best: { gap: number; p: [number, number]; q: [number, number] } = { gap: Infinity, p: [0, 0], q: [0, 0] };
-        for (const p of chains[a]!.points) for (const q of chains[b]!.points) if (Math.hypot(p[0] - q[0], p[1] - q[1]) < best.gap) best = { gap: Math.hypot(p[0] - q[0], p[1] - q[1]), p, q };
-        out.push(`${pierced[i]!.name} | ${pierced[i + 1]!.name}: apart, least gap ${best.gap.toFixed(2)} mm between (${best.p[0].toFixed(1)}, ${best.p[1].toFixed(1)}) and (${best.q[0].toFixed(1)}, ${best.q[1].toFixed(1)})`);
-      }
+      // The valley between each pair of neighbouring children (`FamilyConicValley`): a composed end's host ring is measured against the
+      // outline of its children's sections, and a valley deeper than a child's rail is one a smooth host ring cannot follow.
+      FamilyConicValley.pairs(chains, pierced.map((p: { at: [number, number] | null }): [number, number] | null => p.at)).forEach((pair: FamilyConicValley.IPair, i: number): void => {
+        const label: string = `${pierced[i]!.name} | ${pierced[i + 1]!.name}`;
+        if (pair.kind === "open") out.push(`${label}: one of them lies in no closed chain`);
+        else if (pair.kind === "apart") out.push(`${label}: apart, least gap ${pair.gap!.toFixed(2)} mm`);
+        else out.push(`${label}: one chain holds both; ${pair.span.toFixed(1)} mm apart; valley ${pair.depths![0].toFixed(2)} mm on the left of the line from the first to the second and ${pair.depths![1].toFixed(2)} mm on the right`);
+      });
     }
     process.stdout.write(out.join("\n") + "\n");
   }

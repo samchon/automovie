@@ -54,7 +54,7 @@ export function test_human_nail(): void {
   });
   const proportions: AutoMovieHumanNail.IProportions = { width: 0.7, aspect: 0.91, radius: 0.7, thickness, fold, lunula: 1, wrap: 1 };
   const segment: AutoMovieHumanNail.IFrame = { origin: [0, 0, 0], distal: [1, 0, 0], dorsal: [0, Math.cos(turned), Math.sin(turned)] };
-  const nail: AutoMovieHumanNail.INail = AutoMovieHumanNail.create("nail.made", "nailbed.made", segment, skin(length), proportions, 0.69);
+  const nail: AutoMovieHumanNail.INail = AutoMovieHumanNail.create("nail.made", "nailbed.made", segment, skin(length), proportions, 0.69, 10);
 
   // 1. Breadth, tip, width and fold.
   const breadth: number = 2 * ((high * Math.sin(turned)) ** (8 / 7) + (broad * Math.cos(turned)) ** (8 / 7)) ** (7 / 8);
@@ -119,7 +119,7 @@ export function test_human_nail(): void {
 
   // 6. Red: a digit too short for its nail.
   try {
-    AutoMovieHumanNail.create("nail.short", "nailbed.short", segment, skin(-2), proportions, 0.69);
+    AutoMovieHumanNail.create("nail.short", "nailbed.short", segment, skin(-2), proportions, 0.69, 10);
     failures.push("a digit whose tip stands 4 mm from the joint was given a nail");
   } catch {
     // Refused, as it must be.

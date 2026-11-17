@@ -2,7 +2,7 @@ import { type Canvas, createCanvas, loadImage, type SKRSContext2D } from "@napi-
 import fs from "node:fs/promises";
 import path from "node:path";
 import { AutoMovieLoftChain, type AutoMovieMeshExtract as M, type AutoMovieViewLoft, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
-import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection, AutoMovieHumanF1, AutoMovieHumanF1Frames, AutoMovieHumanF1Nails, AutoMovieHumanF1Placement, type AutoMovieHumanNail, AutoMovieHumanNailLoop, type AutoMovieHumanSegmentFrame as F, AutoMovieHumanTipDome } from "@automovie/human";
+import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection, AutoMovieHumanF1, AutoMovieHumanF1Frames, AutoMovieHumanF1Nails, AutoMovieHumanF1Placement, AutoMovieHumanNail, AutoMovieHumanNailLoop, type AutoMovieHumanSegmentFrame as F, AutoMovieHumanTipDome } from "@automovie/human";
 import type { AutoMovieConstructionNode } from "@automovie/interface";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
@@ -216,6 +216,13 @@ namespace FamilyConicNail {
     NodeCanvasRaster.initialize();
     const report: Record<string, unknown>[] = [];
     const cells: ICell[] = [];
+    // The ten nails are made together: the prior's spread is the ten digits' own, so no one digit's roll is final without the others.
+    const lawStarted: number = performance.now();
+    const together: AutoMovieHumanF1Nails.IMade[] = AutoMovieHumanF1Nails.all(
+      AutoMovieHumanF1.DIGITS.map((digit: AutoMovieHumanF1.IDigit): AutoMovieHumanConicLoft.IFamily => domed(digit.family).family),
+      AutoMovieHumanF1Placement.REFERENCE,
+    );
+    const lawEach: number = Math.round((performance.now() - lawStarted) / together.length);
     for (const digit of AutoMovieHumanF1.DIGITS) {
       if (only !== undefined && digit.family.name !== only) continue;
       const dome: { family: AutoMovieHumanConicLoft.IFamily; was: number; start: AutoMovieHumanTipDome.IStart } = domed(digit.family);
@@ -223,15 +230,9 @@ namespace FamilyConicNail {
       let started: number = performance.now();
       const row: Record<string, unknown> = { digit: family.name, dome: { from: round(dome.start.from), was: dome.was, pole: family.tips?.[1]?.tip, held: dome.start.held } };
       report.push(row);
-      let made: AutoMovieHumanF1Nails.IMade;
-      try {
-        made = AutoMovieHumanF1Nails.create(family, AutoMovieHumanF1Placement.REFERENCE);
-      } catch (error: unknown) {
-        row.refused = error instanceof Error ? error.message : String(error);
-        continue;
-      }
+      const made: AutoMovieHumanF1Nails.IMade = together[AutoMovieHumanF1.DIGITS.indexOf(digit)]!;
       const { plate, bed, frame, readings }: AutoMovieHumanNail.INail = made.nail;
-      row.lawMilliseconds = Math.round(performance.now() - started);
+      row.lawMilliseconds = lawEach;
       row.profile = made.nail.profile.map((p: { along: number; middle: number; height: number; edge: number; turn: number }): number[] => [round(p.along), round(p.middle), round(p.height), round(p.edge), round((p.turn * 180) / Math.PI, 1)]);
       started = performance.now();
       row.readings = Object.fromEntries(
@@ -408,12 +409,16 @@ namespace FamilyConicNail {
     NodeCanvasRaster.initialize();
     const started: number = performance.now();
     const assembled: AutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
-    const nails: AutoMovieHumanF1Nails.IMade[] = assembled.digits.map((digit: AutoMovieHumanF1.IDigit): AutoMovieHumanF1Nails.IMade => AutoMovieHumanF1Nails.create(digit.family, assembled.frames));
-    const placed: AutoMovieHumanF1.IAssembly = { ...assembled, digits: assembled.digits.map((digit: AutoMovieHumanF1.IDigit, i: number): AutoMovieHumanF1.IDigit => ({ ...digit, family: AutoMovieHumanF1Nails.bedded(digit.family, nails[i]!) })) };
+    const domes: AutoMovieHumanF1.IDigit[] = assembled.digits.map((digit: AutoMovieHumanF1.IDigit): AutoMovieHumanF1.IDigit => ({ ...digit, family: domed(digit.family).family }));
+    const nails: AutoMovieHumanF1Nails.IMade[] = AutoMovieHumanF1Nails.all(
+      domes.map((digit: AutoMovieHumanF1.IDigit): AutoMovieHumanConicLoft.IFamily => digit.family),
+      assembled.frames,
+    );
+    const placed: AutoMovieHumanF1.IAssembly = { ...assembled, digits: domes.map((digit: AutoMovieHumanF1.IDigit, i: number): AutoMovieHumanF1.IDigit => ({ ...digit, family: AutoMovieHumanF1Nails.bedded(digit.family, nails[i]!) })) };
     const declared: AutoMovieHumanF1.IConstruction = AutoMovieHumanF1.constructionFrom(placed);
     const lawMilliseconds: number = Math.round(performance.now() - started);
     const sources: Map<string, IAutoMovieViewPart> = new Map(declared.sources);
-    const tree: AutoMovieConstructionNode = AutoMovieHumanF1Nails.attach(declared.root, sources, nails, (name: string): string => name + ".mirror");
+    const tree: AutoMovieConstructionNode = declared.root;
     const realized: ReturnType<typeof realizeAutoMovieConstruction> = realizeAutoMovieConstruction({ name: "f1.body", root: tree, fills: declared.fills }, { chord: 0.001, sources });
     const report: Record<string, unknown> = {
       lawAndDeclarationMilliseconds: lawMilliseconds,
@@ -427,6 +432,17 @@ namespace FamilyConicNail {
       const owned: number[] = mesh.owners.map((): number => 0);
       for (let v: number = 0; v < mesh.positions.length / 3; ++v) owned[mesh.coordinates[v * 3]!]! += 1;
       report.nailOwners = Object.fromEntries(mesh.owners.map((owner: string, k: number): [string, number] => [owner, owned[k]!]).filter(([owner]: [string, number]): boolean => owner.includes("nail.")));
+      // The vertices each nail's region claims on its digit's face and on the twin's, whose points are read reflected in the median plane.
+      const claimed: Record<string, number> = {};
+      for (const nail of nails)
+        for (const side of [1, -1]) {
+          const face: string = nail.row.digit + (side > 0 ? "" : ".mirror");
+          let count: number = 0;
+          for (let v: number = 0; v < mesh.positions.length / 3; ++v)
+            if (mesh.owners[mesh.coordinates[v * 3]!] === face && AutoMovieHumanNail.owns(nail.nail, [mesh.positions[v * 3]! * 1000, mesh.positions[v * 3 + 1]! * 1000, side * mesh.positions[v * 3 + 2]! * 1000])) count += 1;
+          claimed[face] = count;
+        }
+      report.nailOwned = claimed;
       const palette = (owner: string): [number, number, number] => (owner.startsWith("fold.nail.") ? [0.25, 0.4, 0.9] : owner.startsWith("nail.") ? [0.85, 0.25, 0.25] : owner.startsWith("band.") ? [0.25, 0.7, 0.3] : [0.64, 0.65, 0.67]);
       for (const made of nails)
         for (const side of [1, -1]) {

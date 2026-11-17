@@ -55,10 +55,12 @@ export namespace AutoMovieHumanF1Divide {
     side: (p: V) => number;
 
     /**
-     * Where the near parts give skin up to the surface: outside it they keep everything, whichever side it lies on. The far parts read
-     * the surface everywhere. A surface built about one joint runs on without end, and far from the joint it cuts skin that is the near
-     * part's alone (the armscye's surface passes the hip's side); the far part's own sections never reach there, but near the joint
-     * they are one loop with the near part's skin and must lose all of it. Absent, the near parts read it everywhere as well.
+     * The region the surface divides: inside it a point is the near parts' on the negative side and the far parts' on the positive
+     * side; outside it the near parts keep the point, whichever side it lies on, and the far parts have no claim to it. A surface
+     * built about one joint runs on without end: far from the joint it cuts skin that is the near part's alone (the armscye's
+     * surface passes the hip's side), and its far side takes in skin that is nobody's on that joint (the thumb's root surface, read
+     * at the knuckles, takes in the fingers). Stated on both sides by one region, every point has exactly one owner across the
+     * surface by construction. Absent, the surface divides everywhere (a plane between the parts of a row).
      */
     within?: (p: V) => boolean;
 
@@ -119,8 +121,14 @@ export namespace AutoMovieHumanF1Divide {
     /** The centre the surface was built about, mm. */
     centre: V;
 
-    /** How far from the centre the surface divides skin, mm. */
+    /** How far from the centre the surface divides skin, mm: the ball about the joint that holds its landmarks. */
     reach: number;
+
+    /** The part's course from the centre on, mm: the joint centres it runs through, at least two; it runs on straight past the last. */
+    course: V[];
+
+    /** How far from that course the part's own skin stands at most, mm: past the ball the surface divides within this of the course. */
+    tube: number;
 
     /** The part's name. */
     part: string;
@@ -135,11 +143,8 @@ export namespace AutoMovieHumanF1Divide {
    * @evidence contracts/development/common.md#meaningful-documentation Members state units and order.
    */
   export interface IInput {
-    /** The armscye's landmark surface: positive on the arm's side, mm. */
-    armscye: (p: V) => number;
-
-    /** The shoulder joint's centre, mm. */
-    shoulder: V;
+    /** The armscye's landmark surface about the shoulder joint, with the arm's course. */
+    armscye: ILandmarked;
 
     /** The breast's surface on the chest; absent on a figure without a breast family. */
     mammary?: ILandmarked;
@@ -213,16 +218,34 @@ export namespace AutoMovieHumanF1Divide {
    */
   export function create(input: IInput): ISurface[] {
     const { parts } = input;
-    const out: ISurface[] = [
-      { name: "armscye", group: "shoulder", near: [parts.trunk], far: [parts.arm], side: input.armscye, within: (p: V): boolean => Math.hypot(...sub(p, input.shoulder)) < ARMSCYE_MM, anchor: input.shoulder, reach: ARMSCYE_MM },
-    ];
-    for (const [name, group, landmarked] of [["mammary", "chest", input.mammary], ["ear.root", "ear", input.ear]] as [string, string, ILandmarked | undefined][])
-      if (landmarked !== undefined)
-        out.push({ name, group, near: [parts.trunk], far: [landmarked.part], side: landmarked.side, within: (p: V): boolean => Math.hypot(...sub(p, landmarked.centre)) < landmarked.reach, anchor: landmarked.centre, reach: landmarked.reach });
-
+    // A landmark surface divides inside the ball about its joint and, past it, inside the tube about its part's course.
+    const tubed = (p: V, course: readonly V[]): number => {
+      let least: number = Infinity;
+      for (let i: number = 0; i + 1 < course.length; ++i) {
+        const [a, e]: V[] = [course[i]!, sub(course[i + 1]!, course[i]!)];
+        // The last stretch runs on past its end: the part's skin goes on to its tip along it.
+        const t: number = Math.max(0, Math.min(i + 2 === course.length ? Infinity : 1, dot(sub(p, a!), e!) / (dot(e!, e!) || 1)));
+        least = Math.min(least, Math.hypot(p[0] - a![0] - t * e![0], p[1] - a![1] - t * e![1], p[2] - a![2] - t * e![2]));
+      }
+      return least;
+    };
+    const landmarked = (name: string, group: string, near: string[], surface: ILandmarked): ISurface => ({
+      name,
+      group,
+      near,
+      far: [surface.part],
+      side: surface.side,
+      within: (p: V): boolean => Math.hypot(...sub(p, surface.centre)) < surface.reach || tubed(p, surface.course) < surface.tube,
+      anchor: surface.centre,
+      reach: surface.reach,
+    });
+    const out: ISurface[] = [landmarked("armscye", "shoulder", [parts.trunk], input.armscye)];
+    if (input.mammary !== undefined) out.push(landmarked("mammary", "chest", [parts.trunk], input.mammary));
+    if (input.ear !== undefined) out.push(landmarked("ear.root", "ear", [parts.trunk], input.ear));
     // The hand: the arm's end plane, and the surface at the thumb's root.
     out.push({ name: "wrist", group: "hand", near: [parts.arm], far: [parts.hand], side: plane(input.ends.wrist.point, input.ends.wrist.normal), anchor: input.ends.wrist.point, reach: ROW_MM });
-    out.push({ name: "thumb.root", group: "hand", near: [parts.hand, ...input.fingers.map((d: IDigit): string => d.part)], far: [input.thumb.part], side: input.thumb.side, within: (p: V): boolean => Math.hypot(...sub(p, input.thumb.centre)) < input.thumb.reach, anchor: input.thumb.centre, reach: input.thumb.reach });
+    out.push(landmarked("thumb.root", "hand", [parts.hand, ...input.fingers.map((d: IDigit): string => d.part)], input.thumb));
+
     const row = (digits: readonly IDigit[], parent: string, end: IEnd, up: V, label: string): void => {
       const axes: V[] = digits.map((d: IDigit): V => unit(sub(d.second, d.first)));
       out.push({ name: "heads." + label, group: label, near: [parent], far: digits.map((d: IDigit): string => d.part), side: plane(end.point, end.normal), anchor: end.point, reach: ROW_MM });
@@ -244,7 +267,8 @@ export namespace AutoMovieHumanF1Divide {
 
   /**
    * How far a point stands outside a part's own skin, mm, positive outside: the greatest of the part's surfaces' distances past them
-   * on the neighbour's side, each read only where it divides. A part no surface names keeps everything.
+   * on the neighbour's side, each read inside its region; outside a surface's region its near parts keep the point and its far parts
+   * do not. A part no surface names keeps everything.
    *
    * @evidence contracts/development/implementation.md#principled-implementation A part keeps the intersection of its sides; the greatest signed distance to a neighbour's side is positive exactly outside that intersection.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter and one maximum.
@@ -256,6 +280,6 @@ export namespace AutoMovieHumanF1Divide {
    */
   export function outside(surfaces: readonly ISurface[], name: string): (p: V) => number {
     const mine: { surface: ISurface; sign: number }[] = surfaces.flatMap((surface: ISurface): { surface: ISurface; sign: number }[] => (surface.near.includes(name) ? [{ surface, sign: 1 }] : surface.far.includes(name) ? [{ surface, sign: -1 }] : []));
-    return (p: V): number => Math.max(-Infinity, ...mine.map(({ surface, sign }: { surface: ISurface; sign: number }): number => (sign < 0 || surface.within === undefined || surface.within(p) ? sign * surface.side(p) : -Infinity)));
+    return (p: V): number => Math.max(-Infinity, ...mine.map(({ surface, sign }: { surface: ISurface; sign: number }): number => (surface.within === undefined || surface.within(p) ? sign * surface.side(p) : sign < 0 ? Infinity : -Infinity)));
   }
 }
