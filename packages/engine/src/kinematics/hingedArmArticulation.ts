@@ -307,13 +307,20 @@ export function hingedArmArticulation(
     const stop: IBranch = { ...found[branch]!, branch };
     const posed: ReturnType<typeof hingedArmSwivel.pose> = pose(stop.theta);
 
-    // A closed-form candidate inside the seed's bracket answers when legal
-    // and met (`hingedSwivelNear`); the seed is refined otherwise.
+    // The search is centred on the admissible swivel nearest the seed where
+    // the caller knows it (`nearest`), taken in the seed's own turn: the
+    // seed itself while it stays admissible. A closed-form candidate inside
+    // that bracket answers when legal and met (`hingedSwivelNear`); the
+    // start is refined otherwise.
+    const toward: number | null = props.nearest === undefined ? null : props.nearest(posed, near.swivel);
+    const turn: number = toward === null ? 0 : toward - near.swivel;
+    const delta: number = Number.isFinite(turn) ? turn - 360 * Math.round(turn / 360) : 0;
     const met: typeof props.met = props.met;
     const seeded: IScored = hingedSwivelNear<IScored>({
       probe: prober(stop, posed),
       better,
       near,
+      ...(delta === 0 ? {} : { start: near.swivel + delta }),
       ...(props.closed !== undefined &&
       props.tie === undefined &&
       props.minimum === undefined
@@ -502,6 +509,15 @@ export namespace hingedArmArticulation {
     closed?: (
       posed: ReturnType<typeof hingedArmSwivel.pose>,
     ) => readonly number[] | null;
+
+    /**
+     * Given a branch's poser and a swivel, degrees, the swivel nearest it at
+     * which a requested term met over intervals of swivels can be met, in
+     * closed form (`distalEndSwivelNearest`): the given swivel itself where it
+     * is admissible; null where the analysis does not apply or nothing is
+     * admissible. A continued fit centres its search there (`hingedSwivelNear`).
+     */
+    nearest?: (posed: ReturnType<typeof hingedArmSwivel.pose>, swivel: number) => number | null;
 
     /** Whether a pole-started result meets every requested term; absent, legality alone decides. */
     met?: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => boolean;

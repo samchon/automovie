@@ -602,6 +602,24 @@ export function fitHingedChainCandidate(
       // A fit of a nearby target continued from its seed refines that seed
       // alone (`IAutoMovieSwivelNear`).
       ...(props.near === undefined ? {} : { near: props.near }),
+      // Such a fit of a requested rotation on a limb whose mid segment twists
+      // distally starts from the swivel nearest its seed at which the end
+      // joint's box and the mid segment's twist range both admit the
+      // rotation (`distalEndSwivelNearest`), however far the target moved
+      // that set: the seed itself while it stays inside it.
+      ...(props.near !== undefined && rotation !== undefined &&
+        lowerBasis.twistPlacement === "distal"
+        ? {
+            nearest: (posed: ReturnType<typeof hingedArmSwivel.pose>, swivel: number): number | null => {
+              if (along === null) return null;
+              const arcs: ReturnType<typeof distalEndSwivelArcs> = distalEndSwivelArcs({
+                ...pointing(posed),
+                margin: -INSIDE,
+              });
+              return arcs === null ? null : distalEndSwivelNearest(arcs, twisting(posed), swivel);
+            },
+          }
+        : {}),
       ...(strain === undefined ? {} : { tie: ROM_TOLERANCE }),
       // With no hint side, reference or obstruction, every actual term is
       // non-negative in the original arithmetic: ROM excess, rotation angle
