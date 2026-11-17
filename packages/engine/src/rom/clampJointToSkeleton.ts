@@ -67,12 +67,12 @@ export namespace clampJointToSkeleton {
    *
    * @param skeleton The rig, unchanged until the returned clamp is released.
    * @param resolvedAxes Its already resolved canonical axes table, when available.
-   * @returns A clamp that preserves each unconstrained input joint by identity.
+   * @returns A clamp that preserves each unconstrained input joint by identity, carrying its angle-taking form (IPrepared.values).
    */
   export function prepare(
     skeleton: IAutoMovieSkeleton,
     resolvedAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
-  ): (joint: IAutoMovieJointPose) => IAutoMovieJointPose {
+  ): clampJointToSkeleton.IPrepared {
     let bones: Map<AutoMovieHumanoidBone, IAutoMovieBone> | undefined;
     let axes:
       | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
@@ -107,32 +107,24 @@ export namespace clampJointToSkeleton {
       }
       return found;
     };
-    const clamp: IClamp = ownClamp((joint: IAutoMovieJointPose): IAutoMovieJointPose =>
-      pair(joint.bone).joint(joint));
-    VALUES.set(clamp, (
-      bone: AutoMovieHumanoidBone,
-      flexion: number | null,
-      abduction: number | null,
-      twist: number | null,
-    ): IAutoMovieJointPose => pair(bone).values(bone, flexion, abduction, twist));
-    return clamp;
-  }
-
-  /**
-   * The same clamps of a `prepare` clamp read from a joint's bone and three
-   * clinical angles instead of its record, for a writer that has the angles:
-   * the record each returns is the one the record clamp returns for the
-   * record of those values (an unconstrained bone's a fresh record of them,
-   * where the record clamp hands its input back).
-   *
-   * @param clamp A clamp `prepare` made.
-   * @returns Its angle-taking form, or undefined for any other function.
-   *
-   * One private weak lookup by the clamp's identity; nothing is invoked, and
-   * the form shares the clamp's own per-bone constraints and frames.
-   */
-  export function values(clamp: IClamp): IValues | undefined {
-    return VALUES.get(clamp);
+    // The clamp carries its angle-taking form as its own member (`values`):
+    // the same clamps read from a joint's bone and three clinical angles,
+    // for a writer that has the angles, each returning the record the
+    // record clamp returns for the record of those values (an unconstrained
+    // bone's a fresh record of them, where the record clamp hands its input
+    // back), on the same per-bone constraints and frames.
+    return Object.assign(
+      ownClamp((joint: IAutoMovieJointPose): IAutoMovieJointPose =>
+        pair(joint.bone).joint(joint)),
+      {
+        values: (
+          bone: AutoMovieHumanoidBone,
+          flexion: number | null,
+          abduction: number | null,
+          twist: number | null,
+        ): IAutoMovieJointPose => pair(bone).values(bone, flexion, abduction, twist),
+      },
+    );
   }
 
   /**
@@ -225,6 +217,28 @@ export namespace clampJointToSkeleton {
   export function borrow(clamp: IClamp): IClamp | undefined {
     return BORROWABLE.has(clamp) ? clamp : undefined;
   }
+
+  /**
+   * A `prepare` clamp: the record clamp itself, with its angle-taking form
+   * as its own member.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the call and the member and what the member returns.
+   * @evidence contracts/development/design.md#principled-representation One prepared clamp with two entries on the same per-bone constraints and frames: a record in, or a bone and its three clinical angles in, degrees or null at rest.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by `prepare`; the member is carried by the pose projection `clampPose.prepare` builds (`clampPose.IPrepared.values`) for a posture's assembly.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No answer is held; the member is made with the clamp, not looked up.
+   */
+  export interface IPrepared {
+    /** The record clamp. */
+    (joint: IAutoMovieJointPose): IAutoMovieJointPose;
+
+    /** The same clamp read from a joint's bone and three clinical angles: the record the record clamp returns for the record of those values; an unconstrained bone's a fresh record of them. */
+    values(
+      bone: AutoMovieHumanoidBone,
+      flexion: number | null,
+      abduction: number | null,
+      twist: number | null,
+    ): IAutoMovieJointPose;
+  }
 }
 
 /**
@@ -291,8 +305,6 @@ interface IPair {
   values: IValues;
 }
 
-/** Each `prepare` clamp's angle-taking form, by the clamp's identity. */
-const VALUES: WeakMap<IClamp, IValues> = new WeakMap();
 
 /** Register only actual source-only factory closures, without wrapping their calls. */
 function ownClamp(clamp: IClamp): IClamp {

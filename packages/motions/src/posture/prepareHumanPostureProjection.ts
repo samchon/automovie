@@ -58,7 +58,7 @@ export namespace prepareHumanPostureProjection {
 
   /**
    * The angle-taking form of the body's projector's one-joint owner
-   * (`clampPose.values`): a joint's record made in range from its bone and
+   * (`clampPose.IPrepared.values`, a member of the projector): a joint's record made in range from its bone and
    * three clinical angles, the record `joints`' owner gives for the record
    * of those values. Identity with the body's projector is tested first;
    * another function declines without being invoked.
@@ -70,8 +70,8 @@ export namespace prepareHumanPostureProjection {
   export function values(
     body: IHumanBody,
     source?: ReturnType<typeof clampPose.prepare>,
-  ): ReturnType<typeof clampPose.values> {
-    return source !== undefined && source === body.projection ? clampPose.values(source) : undefined;
+  ): clampPose.IPrepared["values"] | undefined {
+    return source !== undefined && source === body.projection ? source.values : undefined;
   }
 
   /** Project every actual joint of a pose through the body's projector; `source`, the function a caller passes along, is used only when it is that projector, which it then is. */

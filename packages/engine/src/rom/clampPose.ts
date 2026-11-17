@@ -1,5 +1,4 @@
 import {
-  IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
@@ -50,16 +49,19 @@ export namespace clampPose {
    */
   export function prepare(
     skeleton: IAutoMovieSkeleton,
-  ): (pose: IAutoMoviePose) => IAutoMoviePose {
-    const clamp: (joint: IAutoMovieJointPose) => IAutoMovieJointPose =
+  ): IPrepared {
+    const clamp: clampJointToSkeleton.IPrepared =
       clampJointToSkeleton.prepare(skeleton);
     const project: (pose: IAutoMoviePose) => IAutoMoviePose = (pose: IAutoMoviePose): IAutoMoviePose => ({
       skeleton: pose.skeleton,
       root: pose.root,
       joints: pose.joints.map(clamp),
     });
-    JOINTS.set(project, clamp);
-    return project;
+    // The projection carries its joint clamp's angle-taking form as its own
+    // member, for a writer that has a joint's angles (a posture's assembly).
+    const prepared: IPrepared = Object.assign(project, { values: clamp.values });
+    JOINTS.set(prepared, clamp);
+    return prepared;
   }
 
   /**
@@ -84,23 +86,24 @@ export namespace clampPose {
   }
 
   /**
-   * Borrow the angle-taking form of a genuine prepared pose projection's
-   * one-joint owner (`clampJointToSkeleton.values`): the joint's record made
-   * in range from its bone and three clinical angles, the record `joints`'
-   * owner gives for the record of those values, without that record being
-   * made first. Unknown functions return undefined.
+   * A prepared pose projection: the pose clamp itself, with its joint
+   * clamp's angle-taking form as its own member
+   * (clampJointToSkeleton.IPrepared.values): a joint's record made in range
+   * from its bone and three clinical angles, the record the joint clamp
+   * gives for the record of those values, without that record being made
+   * first.
    *
-   * @param source The pose projection issued by this factory, if genuine.
-   * @returns The angle-taking clamp, or undefined.
-   *
-   * Two private weak lookups; nothing is invoked or retained, and every
-   * joint still runs its own projection.
+   * @evidence contracts/development/common.md#meaningful-documentation States the call, the member and what the member returns.
+   * @evidence contracts/development/design.md#principled-representation One prepared projection with its pose entry and its one-joint angle entry on the same per-bone metadata.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by prepare; the member serves a posture's assembly.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The member is made with the projection, not looked up; no answer is held.
    */
-  export function values(
-    source: ReturnType<typeof prepare>,
-  ): ReturnType<typeof clampJointToSkeleton.values> {
-    const joint: ReturnType<typeof clampJointToSkeleton.prepare> | undefined = JOINTS.get(source);
-    return joint === undefined ? undefined : clampJointToSkeleton.values(joint);
+  export interface IPrepared {
+    /** The pose clamp. */
+    (pose: IAutoMoviePose): IAutoMoviePose;
+
+    /** The joint clamp's angle-taking form. */
+    values: clampJointToSkeleton.IPrepared["values"];
   }
 }
 
