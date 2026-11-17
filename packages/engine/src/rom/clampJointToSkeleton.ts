@@ -13,16 +13,22 @@ import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { clampJointRom } from "./clampJointRom";
 import { getConstraint } from "./getConstraint";
 
+/** Synchronous joint projection; returned records can alias an unconstrained input. */
+type IClamp = (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
+
+/** Only this owner's actual factory callables have no candidate-retaining closure. */
+const BORROWABLE: WeakSet<IClamp> = new WeakSet();
+
 /**
  * Clamp one joint using its skeleton override, otherwise the humanoid default table. Unconstrained joints return by identity. This targeted seam lets derived contact/retarget corrections leave authored neighboring joints alone.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Find the first matching skeleton bone and prefer a nonnull override over the humanoid table, returning the original unconstrained joint or a clamped record; swing-twist uses the skeleton's current axis precedence and canonical rest frame.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure A one-joint seam permits selective retarget/contact correction without changing authored neighbors.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure A one-joint seam permits selective correction; operation factories share the private constraint gate. borrow recognizes only those actual factory callables for query-owned scratch inputs, keeping arbitrary callbacks on their original fresh-input path.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing bones retain named-default fallback; this does not establish skeleton membership, identity or physical convergence.
- * @evidence contracts/development/common.md#meaningful-documentation Docs state precedence, borrowed unconstrained result and targeted use, with numerical clamp limitations delegated.
- * @evidence contracts/development/implementation.md#efficient-algorithms First-bone lookup is O(B); only a swing-twist constraint needs the additional O(B) current-axis merge, because box/cone projection never reads that frame. Full-pose callers share their operation's index and axes, followed by the unchanged numerical projection per joint.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work All consumers share getConstraint precedence; repeated standalone bone lookup remains uncached over mutable skeleton contents.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns new joints and borrows unchanged joints/constraints, with no retained index, handle or task.
+ * @evidence contracts/development/common.md#meaningful-documentation States precedence, borrowed unconstrained result and targeted use. Companion prose defines fixed-source factory scopes and genuine callable borrowing, including input/output nonretention, possible output aliasing and unknown/wrapped callback fallback.
+ * @evidence contracts/development/implementation.md#efficient-algorithms First-bone lookup is O(B); only swing-twist needs an O(B) current-axis merge. Full-pose callers share their operation's index/axes before unchanged projection. Factory provenance registration and borrow lookup are constant-time; actual query scratch reuse belongs to the projector, with no measured speedup.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All consumers share getConstraint precedence; standalone lookup remains live. Exact factory-callable provenance proves only that its closure stores source metadata, never input/output joints: projection still executes per call. Wrappers/proxies/bound/foreign callables have no registration and receive no borrowing capability.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Factory closures own only their existing constraint/frame/index metadata, never incoming or returned joints. A weak callable set adds no strong population/lifetime; source state releases with its caller-owned function. Unconstrained results may alias the input, so a scratch consumer must copy any retained answer before its next edit. No handle or task is retained.
  */
 export function clampJointToSkeleton(
   joint: IAutoMovieJointPose,
@@ -37,8 +43,8 @@ export function clampJointToSkeleton(
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the standalone, resolved-bone and multi-joint preparation entries, their shared constraint/frame semantics and the fixed-input operation scope described on each member.
  * @evidence contracts/development/design.md#principled-representation A one-bone clamp closure holds the effective constraint and any needed clinical frame for one unchanged solve; indexed operations retain the actual first-bone lookup without storing projected answers.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Standalone and multi-joint callers share the actual constraint gate and numerical projection; the operation factory also serves repeated full-pose clamps and arm-trajectory FK on one unchanged rig.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No new ROM representation, global skeleton cache or cached joint answer is introduced; missing bones retain the named-default constraint policy.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Standalone/multi-joint callers share constraint/projection owners; borrow gives the actual projector the same factory callable only when private producer provenance proves no candidate retention.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No user flag, new ROM representation, global skeleton cache or cached joint answer is introduced. Only actual factory functions are weakly registered, unknown/wrapped callables remain unsupported by borrow, and missing bones retain named-default constraints.
  */
 export namespace clampJointToSkeleton {
   /**
@@ -74,7 +80,7 @@ export namespace clampJointToSkeleton {
       AutoMovieHumanoidBone,
       (joint: IAutoMovieJointPose) => IAutoMovieJointPose
     > = new Map();
-    return (joint: IAutoMovieJointPose): IAutoMovieJointPose => {
+    return ownClamp((joint: IAutoMovieJointPose): IAutoMovieJointPose => {
       if (bones === undefined) {
         bones = new Map();
         for (const bone of skeleton.bones)
@@ -105,7 +111,7 @@ export namespace clampJointToSkeleton {
         clamps.set(name, clamp);
       }
       return clamp(joint);
-    };
+    });
   }
 
   /**
@@ -180,6 +186,24 @@ export namespace clampJointToSkeleton {
     );
     return prepareConstraintClamp(constraint, readRig);
   }
+
+  /**
+   * Borrow this owner's exact factory callable for synchronous scratch inputs.
+   * The returned function is the original callable, with no replacement or
+   * extra invocation. Its closure stores only fixed source metadata and never
+   * an input or result joint. Unconstrained projection can return the input
+   * itself; copy a selected/retained result before editing that scratch again.
+   *
+   * Private weak registration comes only from of/resolved/prepare production.
+   * Unknown, wrapped, proxied or bound callbacks return undefined, so their
+   * original fresh-input/callback behavior remains the consumer's fallback.
+   * This lookup certifies no ROM, matching domain, projection outcome or input
+   * validity. It costs constant work, stores no joint and retains no callable
+   * strongly; release the borrowed function with its owning operation.
+   */
+  export function borrow(clamp: IClamp): IClamp | undefined {
+    return BORROWABLE.has(clamp) ? clamp : undefined;
+  }
 }
 
 /**
@@ -192,7 +216,7 @@ function prepareConstraintClamp(
   readRig: () => swingTwistRange.IJoint | undefined,
 ): (joint: IAutoMovieJointPose) => IAutoMovieJointPose {
   if (constraint === null)
-    return (joint: IAutoMovieJointPose): IAutoMovieJointPose => joint;
+    return ownClamp((joint: IAutoMovieJointPose): IAutoMovieJointPose => joint);
   const source: swingTwistRange.IJoint | undefined = readRig();
   const rig: swingTwistRange.IJoint | undefined =
     source === undefined ||
@@ -200,6 +224,12 @@ function prepareConstraintClamp(
     constraint.swingTwist === null
       ? source
       : swingTwistRange.prepare(source);
-  return (joint: IAutoMovieJointPose): IAutoMovieJointPose =>
-    clampJointRom(joint, constraint, rig);
+  return ownClamp((joint: IAutoMovieJointPose): IAutoMovieJointPose =>
+    clampJointRom(joint, constraint, rig));
+}
+
+/** Register only actual source-only factory closures, without wrapping their calls. */
+function ownClamp(clamp: IClamp): IClamp {
+  BORROWABLE.add(clamp);
+  return clamp;
 }

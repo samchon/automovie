@@ -8,6 +8,7 @@ import { QUATERNION_NLERP_DOT_THRESHOLD } from "./constants/QUATERNION_NLERP_DOT
 import { quaternionNormalizationDivisor as normalizationDivisor } from "./quaternionNormalizationDivisor";
 import { readNormalizedQuaternion } from "./readNormalizedQuaternion";
 import { readQuaternionAngle } from "./readQuaternionAngle";
+import { readRotatedVector } from "./readRotatedVector";
 
 /**
  * Pure quaternion math over {@link IAutoMovieQuaternion}, components `(x, y, z, w)` in glTF order.
@@ -48,6 +49,11 @@ export namespace Quaternion {
     Y: { x: 0, y: 1, z: 0 },
     Z: { x: 0, y: 0, z: 1 },
   };
+
+  /** Private unchanged axes share only their lazy direction/length preparation. */
+  const eulerX: (angle: number) => IAutoMovieQuaternion = prepareAxisAngle(EULER_AXES.X!);
+  const eulerY: (angle: number) => IAutoMovieQuaternion = prepareAxisAngle(EULER_AXES.Y!);
+  const eulerZ: (angle: number) => IAutoMovieQuaternion = prepareAxisAngle(EULER_AXES.Z!);
 
   /**
    * The Hamilton product `a * b`, the rotation that applies `b` first and
@@ -232,13 +238,13 @@ export namespace Quaternion {
    * @param euler Angles in degrees and their application order.
    * @returns A new unit quaternion.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Intrinsic Euler composition is the product of single-axis rotations in the stated letter order, each from `fromAxisAngle`, so `"XYZ"` is `qx · qy · qz` and every one of the six orders of `IAutoMovieEuler` follows the same rule.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the order letters with a fixed axis table, used by the instance-set placement paths for their per-slot rotation offsets, instead of six hand-written products.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Angles are neither wrapped nor normalized and no order is special-cased; the product starts from the identity so every order takes the same arithmetic.
+   * @evidence contracts/development/implementation.md#principled-implementation Intrinsic Euler composition is the product of single-axis factors in stated letter order, so XYZ is qx*qy*qz for all six declared orders. Private canonical axes use the same axis-angle arithmetic owner with only their unchanged direction/length prepared lazily; every angle keeps original half-angle sine/division/components/cosine and Hamilton association.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop reads order letters and their original Euler fields; three private fixed-axis readers serve all valid letters without six handwritten products. Unsupported runtime letters retain the original axis-table/fromAxisAngle failure path, and no placement-specific heading math is introduced.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Angles are not wrapped, normalized, cached or skipped when zero. Original order/angle getter sequence, identity seed and every factor/product remain; private axis preparation admits no caller input and unsupported letters retain their original lookup/conversion path.
    * @evidence contracts/development/common.md#meaningful-documentation States the angle unit, that the rotation is intrinsic, the order convention and its equivalence to the `three.js` product, with an example.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three axis-angle conversions and three products in constant time, with no intermediate array.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one Euler record that coordinates no work across calls.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates the factors and the returned record and retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Every declared order retains three angle-dependent conversions/three products and the identity seed. Three module-private readers omit repeated fixed-axis magnitude/length work after their first actual uses. No output, factor or sample count changes; runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work All actual placement/heading Euler reads share only the private canonical axes' original direction/length preparation. Every current angle, factor and product is evaluated normally through the existing math owners, without a target/angle result cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Three fixed-axis readers and at most three direction/length readings live with the module's existing private axes. No Euler record or angle/result history is retained; factors, identity seed and each public output remain fresh and caller-owned.
    */
   export const fromEuler: (euler: IAutoMovieEuler) => IAutoMovieQuaternion = (
     euler: IAutoMovieEuler,
@@ -247,7 +253,10 @@ export namespace Quaternion {
     for (const letter of euler.order) {
       const angle: number =
         letter === "X" ? euler.x : letter === "Y" ? euler.y : euler.z;
-      result = multiply(result, fromAxisAngle(EULER_AXES[letter]!, angle));
+      const factor: IAutoMovieQuaternion = letter === "X" ? eulerX(angle)
+        : letter === "Y" ? eulerY(angle) : letter === "Z" ? eulerZ(angle)
+          : fromAxisAngle(EULER_AXES[letter]!, angle);
+      result = multiply(result, factor);
     }
     return result;
   };
@@ -262,11 +271,11 @@ export namespace Quaternion {
    * @returns A new rotated vector.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The expansion `v' = v + w·t + q⃗ × t` with `t = 2·(q⃗ × v)`, algebraically equal to `q · v · q*` for a unit quaternion, where the conjugate is the inverse.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Rotates directly from the quaternion instead of building a rotation matrix, since callers rotate one vector at a time.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared internal scalar owner rotates directly from the quaternion, preserving original q/v read order; this static record visitor returns fresh vectors while inverse extraction consumes numeric columns without temporary vectors.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The quaternion is not normalized here, so a caller passing a non-unit rotation gets the stated distortion instead of a hidden correction.
    * @evidence contracts/development/common.md#meaningful-documentation States the operation, the unit-length premise and what happens without it.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two cross products and eighteen multiplications in constant time, fewer operations than forming the full product `q · v · q*` or a 3×3 matrix for one vector.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one rotation and one vector that coordinates no work across calls.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The scalar rotation owner serves this fresh-record adapter and actual inverse column extraction, keeping every current vector calculation and original expression without a target cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates only the returned vector and retains nothing.
    */
   export const rotateVector: (
@@ -275,16 +284,12 @@ export namespace Quaternion {
   ) => IAutoMovieVector3 = (
     q: IAutoMovieQuaternion,
     v: IAutoMovieVector3,
-  ): IAutoMovieVector3 => {
-    const tx: number = 2 * (q.y * v.z - q.z * v.y);
-    const ty: number = 2 * (q.z * v.x - q.x * v.z);
-    const tz: number = 2 * (q.x * v.y - q.y * v.x);
-    return {
-      x: v.x + q.w * tx + (q.y * tz - q.z * ty),
-      y: v.y + q.w * ty + (q.z * tx - q.x * tz),
-      z: v.z + q.w * tz + (q.x * ty - q.y * tx),
-    };
-  };
+  ): IAutoMovieVector3 => readRotatedVector(q, v, rotatedRecord, undefined);
+
+  /** Fresh public vector after the original completed rotation expressions. */
+  function rotatedRecord(x: number, y: number, z: number): IAutoMovieVector3 {
+    return { x, y, z };
+  }
 
   /**
    * The exact Y component of rotateVector(q,v), without its vector record or

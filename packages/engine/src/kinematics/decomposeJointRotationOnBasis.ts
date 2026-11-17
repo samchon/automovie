@@ -5,9 +5,9 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { nearestAngleAlias } from "../math/nearestAngleAlias";
+import { readRotatedVector } from "../math/readRotatedVector";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { IAutoMovieJointRotationDomain } from "./IAutoMovieJointRotationDomain";
@@ -21,6 +21,17 @@ const RAD2DEG: number = 180 / Math.PI;
 
 /** Quaternion components in their existing finite-admission order. */
 const QUATERNION_AXES: readonly ["x", "y", "z", "w"] = ["x", "y", "z", "w"];
+
+/** Keep all original rotations before any dot, without per-column vector records. */
+function appendRotation(x: number, y: number, z: number, columns: number[]): void {
+  columns.push(x, y, z);
+}
+
+/** Original dot read/multiply/add order against one completed private column. */
+function columnDot(axis: IAutoMovieVector3, columns: readonly number[], offset: number): number {
+  return axis.x * columns[offset]! + axis.y * columns[offset + 1]! +
+    axis.z * columns[offset + 2]!;
+}
 
 /** Three lazy successful affine readings, independent of every quaternion/chart. */
 type IClinicalReaders = Readonly<Record<
@@ -84,11 +95,11 @@ const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the caller's prior basis admission, shared inverse conventions, error/invalid-basis behavior and optional domain. prepareQueries documents unchanged rig metadata, no constructor numerical admission, original first-use clinical ordering, independent query readers and fresh outputs/release lifetime.
  * @evidence contracts/development/implementation.md#principled-implementation Closed-form Euler extraction reads each angle's sine and projected cosine through atan2; a projected cosine within the square root of the binary64 unit roundoff, where a rounding error and the pin's truncation error meet, takes the undetermined-angle convention. Among the principal chart, the alternate chart and each angle's full-turn alias nearest its range, the least ROM overshoot wins, and every candidate is the same rotation. Nonnegative fault distances prove that an exact zero score is an unbeatable lower bound under the existing strict-improvement tie rule. A constraint's `swingTwist` is set aside while the readings are ranked, since both readings of one rotation lie equally inside such a gate; the three-angle box ranks them, so the reading a pose reports stays the one it always was.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The direct entry and prepared query readers share one extraction owner; clinical/align/lift helpers receive actual frame/domain and optional affine readers instead of per-call closures. Frame arithmetic remains with toClinicalAngle's direct/prepared owners, scoring/aliases keep their existing owners and decomposeJointRotation admits the basis before this inverse.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct/prepared readers share one extraction owner. The shared math rotation owner writes three completed columns into one query-local numeric array; original dots follow all rotations through one column reader. Clinical/align/lift helpers receive actual metadata/affine readers without per-call closures; conversion, scoring and aliases retain their owners and raw decomposition still admits the basis first.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Selection compares the caller's unchanged constraint and never clamps an angle into range; the gimbal pin is the standard convention for an undetermined pair and no bone is special-cased. Only exact zero terminates further alias construction/scoring; quaternion admission and both applicable clinical chart conversions keep their original order. prepareQueries reads no numerical input at construction, shares successful affine operands only under declared unchanged frame lifetime and admits replaced axis-frame objects at their next actual conversion. Failed admission installs no successful reading. No quaternion, extracted angle, alias, score or target result crosses queries. Pure numeric aliases that cannot improve zero need not be built, and no tolerance/projected answer is substituted. Weak handedness provenance recognizes only the normalizer's actual owned records, never caller-controlled freeze/descriptors or matching values.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three vector rotations, fixed dot products and at most three overshoot scores remain constant work. Scoring stops before alias construction at exact zero, saving up to two aliases, six whole-turn calculations, two fault scans/temporary joints and the former candidate-array allocation. Both applicable clinical charts still convert before scoring. Prepared native-source queries share three lazy affine readers, removing repeated sign/neutral admission for up to six actual conversions while retaining every multiply/add and coordinate lookup. Handedness hits avoid component arrays; normalizer-owned immutable records additionally avoid nine comparisons. Ordinary bases retain nine comparisons. Box hits avoid key arrays/comparison closures; misses add one key-count array/metadata record. Runtime speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller supplies its already admitted basis. Explicit prepareQueries additionally shares only three completed toClinicalAngle affine preparations across independent readers, as actual native-source jointsOf consumes; every quaternion still extracts/ranks its own charts. Existing weak handedness uses the normalizer's private exact provenance; wrappers/copies/inherited/user-frozen/accessor bases keep original reads/Object.is comparisons. No descriptor probe, extra numeric admission read or catch changes that boundary. Matching own key names/count and field identities detect constraint shape/member replacement; no target-dependent answer is reused.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Outputs are fresh local angles. A prepared source borrows basis/frame/domain, owns three lazy affine closures with at most one frame/two scalars each and creates one stateless closure per independent query; release those with the source/query. Direct calls retain no such preparation. Existing weak maps keep at most one nine-scalar handedness snapshot/signed twist vector/owner flag per basis and one borrowed-member box/key-count record per gated constraint; normalizer provenance remains weak. No quaternion, extracted coordinate, alias, score, output history, handle or task is retained.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three rotations/fixed dots and at most three ROM scores remain constant work. One nine-cell column array replaces three temporary vector records, with no per-rotation closure. Exact zero stops further aliases/scoring, saving at most two aliases/six turn calculations/two fault scans and the former candidate array; both clinical charts still convert first. Fixed projectors share three lazy affine readers. Genuine owned handedness hits omit snapshots/nine comparisons; unowned inputs retain all nine reads first. Gated-box hits keep original key/count/member checks. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller supplies an admitted basis. The actual projector's prepareQueries shares only successful fixed toClinicalAngle operands; every quaternion still extracts/ranks its own charts. Weak handedness trusts only genuine normalizer-owned immutable results. Unowned/copy/inherited/user-frozen/accessor bases complete the original nine reads once before comparing local snapshots, including misses. A known gated constraint completes Object.keys before private-count gating; only equal counts enter the original ordered member predicate. First misses keep the original spread without a preceding input key pass. No added descriptor-based trust, prototype enumeration or target-dependent result establishes reuse.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Outputs are fresh local angles; one nine-cell column array stays query-local. A prepared source borrows basis/frame/domain, owns three affine closures with at most one frame/two scalars each and one stateless closure per query; release those with the source/query. Direct calls retain no such preparation. Existing weak maps keep one nine-scalar handedness snapshot/signed twist vector/owner flag per basis and one member-box/key-count record per gated constraint; provenance stays weak. No quaternion, extracted coordinate, alias, score, output history, handle or task is retained.
  */
 export function decomposeJointRotationOnBasis(
   q: IAutoMovieQuaternion,
@@ -114,23 +125,24 @@ function extract(
   // recovered twist (a rotation about −t by θ is one about t by −θ).
   const { handed, twistAxis }: IHandedness = handednessOf(basis);
 
-  const Rf: IAutoMovieVector3 = Quaternion.rotateVector(q, basis.flexion);
-  const Ra: IAutoMovieVector3 = Quaternion.rotateVector(q, basis.abduction);
-  const Rt: IAutoMovieVector3 = Quaternion.rotateVector(q, twistAxis);
+  const columns: number[] = [];
+  readRotatedVector(q, basis.flexion, appendRotation, columns);
+  readRotatedVector(q, basis.abduction, appendRotation, columns);
+  readRotatedVector(q, twistAxis, appendRotation, columns);
 
   // Entries of R' = Mᵀ R M (M = [flex|abd|twist]): R'[i][j] = axisᵢ · (R axisⱼ).
   if (basis.twistPlacement === "distal") {
     // R = Ry(a)·Rx(f)·Rz(t): R12 = −sin f, R02 = sin a cos f, R22 = cos a cos f,
     // R10 = cos f sin t, R11 = cos f cos t (row i: basis axis i, column j:
     // basis axis j rotated)
-    const r12: number = Vector3.dot(basis.abduction, Rt);
-    const r10: number = Vector3.dot(basis.abduction, Rf);
-    const r11: number = Vector3.dot(basis.abduction, Ra);
+    const r12: number = columnDot(basis.abduction, columns, 6);
+    const r10: number = columnDot(basis.abduction, columns, 0);
+    const r11: number = columnDot(basis.abduction, columns, 3);
     const cosine: number = Math.hypot(r10, r11);
     if (cosine <= GIMBAL_COSINE_EPSILON) {
       // with abduction pinned to 0, R = Rx(±90°)·Rz(t): R00 = cos t, R01 = −sin t
-      const r00: number = Vector3.dot(basis.flexion, Rf);
-      const r01: number = Vector3.dot(basis.flexion, Ra);
+      const r00: number = columnDot(basis.flexion, columns, 0);
+      const r01: number = columnDot(basis.flexion, columns, 3);
       return lift(
         {
           flexion: r12 < 0 ? 90 : -90,
@@ -148,7 +160,7 @@ function extract(
       {
         flexion: Math.atan2(-r12, cosine) * RAD2DEG,
         abduction:
-          Math.atan2(Vector3.dot(basis.flexion, Rt), Vector3.dot(twistAxis, Rt)) *
+          Math.atan2(columnDot(basis.flexion, columns, 6), columnDot(twistAxis, columns, 6)) *
           RAD2DEG,
         twist: handed * Math.atan2(r10, r11) * RAD2DEG,
       },
@@ -160,17 +172,17 @@ function extract(
     );
   }
 
-  const m00: number = Vector3.dot(basis.flexion, Rf);
-  const m10: number = Vector3.dot(basis.abduction, Rf);
-  const m20: number = Vector3.dot(twistAxis, Rf);
-  const m21: number = Vector3.dot(twistAxis, Ra);
-  const m22: number = Vector3.dot(twistAxis, Rt);
+  const m00: number = columnDot(basis.flexion, columns, 0);
+  const m10: number = columnDot(basis.abduction, columns, 0);
+  const m20: number = columnDot(twistAxis, columns, 0);
+  const m21: number = columnDot(twistAxis, columns, 3);
+  const m22: number = columnDot(twistAxis, columns, 6);
 
   const cosine: number = Math.hypot(m00, m10);
   if (cosine <= GIMBAL_COSINE_EPSILON) {
     // Gimbal: abduction = ±90°, flexion folds into twist. Pin flexion = 0.
-    const m01: number = Vector3.dot(basis.flexion, Ra);
-    const m11: number = Vector3.dot(basis.abduction, Ra);
+    const m01: number = columnDot(basis.flexion, columns, 3);
+    const m11: number = columnDot(basis.abduction, columns, 3);
     // Both gimbals leave only (twist ± flexion) determined; with flexion pinned
     // to 0, twist = −atan2(R'[0][1], R'[1][1]) reconstructs the rotation.
     const abduction: number = m20 < 0 ? 90 : -90;
@@ -204,7 +216,7 @@ function extract(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines an already-admitted unchanged basis/frame/domain, no constructor numerical admission, original first-use frame errors and query-local extraction/chart/output ownership.
  * @evidence contracts/development/design.md#principled-representation Only three successful affine sign/neutral readings depend on the fixed clinical frame; quaternion components, extracted angles, aliases and ROM rankings remain local to each actual inverse call.
- * @evidence contracts/development/design.md#minimal-and-owned-surface prepareQueries serves actual native reach jointsOf upper/lower readers and the fixed-rig projector's stateless raw-reference inverse without changing raw four-argument decomposition or exposing metadata/result getters.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface prepareQueries serves the actual fixed-rig projector's stateless raw-reference inverse without changing raw four-argument decomposition or exposing metadata/result getters.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No caller freeze or dynamic target identity establishes reuse. The raw owner still admits axes before OnBasis, and prepared callers supply that same admitted basis at their original numerical site; no quaternion, branch, alias or target result crosses queries.
  */
 export namespace decomposeJointRotationOnBasis {
@@ -355,21 +367,21 @@ const componentsOf: (basis: IAutoMovieJointAxes) => number[] = (
   basis.twist.z,
 ];
 
-/** Match the existing snapshot without allocating another nine-component array. */
+/** Compare two completed scalar snapshots without rereading caller components. */
 function sameComponents(
   values: readonly number[],
-  basis: IAutoMovieJointAxes,
+  now: readonly number[],
 ): boolean {
   return (
-    Object.is(values[0], basis.flexion.x) &&
-    Object.is(values[1], basis.flexion.y) &&
-    Object.is(values[2], basis.flexion.z) &&
-    Object.is(values[3], basis.abduction.x) &&
-    Object.is(values[4], basis.abduction.y) &&
-    Object.is(values[5], basis.abduction.z) &&
-    Object.is(values[6], basis.twist.x) &&
-    Object.is(values[7], basis.twist.y) &&
-    Object.is(values[8], basis.twist.z)
+    Object.is(values[0], now[0]) &&
+    Object.is(values[1], now[1]) &&
+    Object.is(values[2], now[2]) &&
+    Object.is(values[3], now[3]) &&
+    Object.is(values[4], now[4]) &&
+    Object.is(values[5], now[5]) &&
+    Object.is(values[6], now[6]) &&
+    Object.is(values[7], now[7]) &&
+    Object.is(values[8], now[8])
   );
 }
 
@@ -383,12 +395,9 @@ const handednessOf: (basis: IAutoMovieJointAxes) => IHandedness = (
   basis: IAutoMovieJointAxes,
 ): IHandedness => {
   const known: IHandednessState | undefined = HANDEDNESS.get(basis);
-  if (
-    known !== undefined &&
-    (known.fixed || sameComponents(known.values, basis))
-  )
-    return known.read;
+  if (known?.fixed === true) return known.read;
   const now: number[] = componentsOf(basis);
+  if (known !== undefined && sameComponents(known.values, now)) return known.read;
 
   // Right-handedness of the basis: +1 when flex × abd = +twist. A left-handed
   // triple is made right-handed by extracting against −twist, then negating the
@@ -421,23 +430,15 @@ interface IBox {
 /** Each gated constraint's copy without its swing-twist gate. */
 const BOXES: WeakMap<IAutoMovieJointConstraint, IBox> = new WeakMap();
 
-/** Match own key names/count and field identities without per-hit key arrays. */
+/** Collect original own keys/count before reading any compared member value. */
 function sameBox(known: IBox, constraint: IAutoMovieJointConstraint): boolean {
-  let size: number = 0;
-  for (const key in constraint) {
-    if (!Object.prototype.hasOwnProperty.call(constraint, key)) continue;
-    ++size;
-    if (
-      !Object.prototype.hasOwnProperty.call(known.constraint, key) ||
-      (key !== "swingTwist" &&
-        !Object.is(
-          (known.constraint as unknown as Record<string, unknown>)[key],
-          (constraint as unknown as Record<string, unknown>)[key],
-        ))
-    )
-      return false;
-  }
-  return size === known.size;
+  const keys: string[] = Object.keys(constraint);
+  return keys.length === known.size && keys.every(
+    (key: string): boolean => key === "swingTwist" || Object.is(
+      (known.constraint as unknown as Record<string, unknown>)[key],
+      (constraint as unknown as Record<string, unknown>)[key],
+    ),
+  );
 }
 
 /**

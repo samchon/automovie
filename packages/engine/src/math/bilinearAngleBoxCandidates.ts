@@ -2,6 +2,14 @@ import type { IAutoMovieAngleRange } from "@automovie/interface";
 
 import { nearestAngleAlias } from "./nearestAngleAlias";
 
+/** Raw tuple adapters keep their original delayed live component reads. */
+interface IRawInputs {
+  /** Original matrix, read by its two original map operations after anchor lift. */
+  matrix: readonly [number, number, number, number];
+  /** Original reference, read inside each corresponding anchor expression. */
+  reference: readonly [number, number];
+}
+
 /**
  * Candidate full angles for maximizing the absolute bilinear form
  * `[cos(x/2),sin(x/2)] M [cos(y/2),sin(y/2)]^T` on a degree-valued box.
@@ -28,13 +36,13 @@ import { nearestAngleAlias } from "./nearestAngleAlias";
  * 2.3 and 3.1–3.5: https://www.geometrictools.com/Documentation/ConstrainedQuaternions.pdf
  * The general two-by-two SVD and limiting-family projections are derived below.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines matrix order, half-angle objective, full-angle degree boxes, reference handling, the candidate populations, null/refusal meanings and the caller's actual-rotation scoring responsibility.
- * @evidence contracts/development/implementation.md#principled-implementation On a positive-width box an interior maximum is a top singular pair; a boundary fixes one variable and leaves one sinusoid. Rotation/reflection limiting families include the equal-SVD continuum, whose reference-nearest point is a line projection clipped to the box. Whole-turn lifting uses nearestAngleAlias. When both interval endpoints have magnitude at most MAX_SAFE_INTEGER and the actual angle is inside, every first/last/nearest index numerator is at most twice that bound; division by 360 proves their rounded integers safe without evaluating unused first/last values. If its actual rounded turn is zero, the original angle+360*turn stays inside, so nearestAngleAlias's first branch and the final membership test are already proved; that original multiply/add still determines the zero sign.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct, prepared tuple and prepared scalar calls validate inputs then share one finite candidate construction separating alias admission, boundaries, the top singular pair and the two reference families. A private boundary reader owns each original cosine/sine expression; physical joint conversion remains with the caller.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No grid, iterative search, rank cutoff, physical tolerance or fitted answer chooses a candidate. Both singular-vector and all boundary candidates remain present, including beside the reference-family candidates. The bounded in-range lift omits only proved index admission and, for an actual zero turn, proved unchanged alias membership. It retains the exact reference-dependent round and whole-turn product/addition, including signed-zero behavior; a nonzero turn still uses nearestAlias/final range checks, preserving cancellation. Larger intervals and out-of-range angles retain all original index calculations/refusals.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most eighteen pairs and constant-size arithmetic are produced regardless of interval width. An unchanged prepared box admits its two ranges once and prepares each family's two range-only bounds once. The actual projector uses fromScalars to omit two argument tuples per query. At most twenty full lift computations remain: per axis, three fixed coordinates, one SVD coordinate, two opposite-edge stationary coordinates and four limiting-family coordinates; repeated fixed inputs reuse their original result and prepared endpoint bounds share their two safe-integer checks. A successful bounded in-range lift omits unused first/last admission work and the nearest-turn safety check; an uncached lift also omits two first/last subtractions/divisions/roundings and their two safe checks. An actual zero turn also omits one alias call and its four already-proved membership comparisons; nonzero turns retain alias/range work. Numeric row heads and links replace per-row Sets; searching a row has O(K²) worst-case total work for K<=18 retained pairs. Only two scalar phase indices bracketing the reference are needed per family. Exact-duplicate endpoints reduce append attempts without losing a returned pair; runtime speedup remains unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One matrix rescaling serves every candidate and each boundary reuses fixed sine/cosine. Exact-equal endpoints are enumerated once; prepare shares the unchanged range-admission result, two interval-bound facts, endpoint arrays, at most four lazy boundary readings, four range-only first/last whole-turn prefixes with their exact safety result and each limiting family's range-only interval. A prefix or family interval is read only at its original use site. Matrix/reference admission, reference-dependent turn and representability remain query-local; safety follows the explicit bounded in-range proof or original index checks, and zero turns use the alias owner's proved first branch while other turns still call it. A cached unsafe endpoint prefix still refuses that query and no alias answer crosses queries. Each query also reuses its min/max/reference alias locally. Row links preserve SameValueZero and first pair signs, and family scalar indices preserve former Set order/positive-zero behavior.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A direct call owns at most eighteen pair tuples, one row-head map/link array, two endpoint arrays, two bounded-interval flags and two three-slot alias records; only its pair list escapes. Family choices are scalars. Prepared callers retain their borrowed box, one range-admission flag, two interval-bound flags, endpoint arrays and at most four lazy boundary readings plus four raw first/last prefix records with safety flags and two family intervals. Unsafe raw prefix numbers keep this query's refusal. Direct lifts allocate no prefix wrapper. No target, alias/candidate history, global cache or handle is retained.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines objective, full-angle inputs/candidates/refusal and actual-score responsibility. Tuple reads retain live admission, inline anchor-reference reads and both delayed matrix maps; raw ranges also retain live lift/endpoint reads with none enumerated for zero matrices. Prepared unchanged boxes share source facts and may return completed flat lists; tuple output adapts only after enumeration without clamp interleaving.
+ * @evidence contracts/development/implementation.md#principled-implementation A box maximum is an interior top singular pair or a boundary sinusoid maximum; limiting orthogonal families include the equal-SVD continuum with its nearest line projection. Raw lifts retain original index admission/nearestAngleAlias/membership. On unchanged prepared endpoints within MAX_SAFE_INTEGER, actual in-range angles give index numerators at most twice that bound, proving safe rounded indices after division by360. An actual zero turn leaves angle+360*turn inside, proving the original alias first branch while retaining its multiply/add zero sign.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One enumerator stores flat pairs/checks that list for duplicates. Tuple adapters lend original arrays without extracting their values early; scalar callers supply completed primitives. Raw ranges keep original two-endpoint loops, while prepared ranges alone share fixed endpoint/alias/bound facts. Singular/boundary/family formulas and completion-only output adapters stay shared; physical clamp/scoring belongs to callers.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Tuple order stays matrix/reference/range admission, inline anchor-reference reads, anchor lift, scale map, zero return or rescale map. Raw lifts keep min/max/turn/safety/nearestAlias/membership without slot/memo/bounds; raw corners reread Y endpoints perX and boundaries each reread their pair. Prepared reuse alone requires unchanged ranges and retains resulting pair/order/refusal. === keeps SameValueZero/first signs. No grid, rank cutoff, tolerance, streamed clamp or fitted answer is introduced.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most eighteen pairs remain. Actual prepared flat output omits argument/pair tuples; scalar anchors/flat alias slots omit three containers and flat membership omits the Map/link array. O(K²) worst-case dedup stays for K<=18, with more comparisons possible for distinct rows. Prepared source work shares once and local aliases limit full lifts to20; raw calls retain up to36 live lifts/original endpoint repeats. Tuple reads add their adapter; runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Matrix rescaling serves every candidate. Prepared unchanged ranges alone share admission/bounded facts, endpoints/trigonometry, four endpoint prefixes/safety results and two family intervals; their query-local min/max/reference aliases share only within that query. Raw range reads/refusals and all matrix/reference-dependent work stay actual. No alias answer crosses queries. Flat membership preserves first pair signs, while family indices keep former Set order/positive zero.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Queries own at most36 output cells/two anchor scalars, plus6 local alias cells when prepared. Raw nonzero ranges use at most5 endpoint arrays/four boundary records; prepared metadata reuses those source facts. Tuple adapters borrow two arrays in one call-local record, retain their original mapped temporaries and return at most18 fresh pairs. Scalar reads return only their completed flat list. No query map/links or input/target/history/callback/handle enters preparation beyond its one borrowed unchanged box and bounded source facts.
  */
 export function bilinearAngleBoxCandidates(
   matrix: readonly [number, number, number, number],
@@ -57,9 +65,16 @@ function evaluateBox(
     !admitRanges(ranges, prepared)
   )
     throw new Error("Bilinear angle boxes require finite ordered inputs.");
-  return enumerateBox(
-    matrix[0], matrix[1], matrix[2], matrix[3], ranges, reference[0], reference[1], prepared,
-  );
+  return pairsOf(enumerateBox(0, 0, 0, 0, ranges, 0, 0, prepared, { matrix, reference }));
+}
+
+/** Preserve existing fresh tuple output after the entire shared enumeration finishes. */
+function pairsOf(flat: number[] | null): [number, number][] | null {
+  if (flat === null) return null;
+  const pairs: [number, number][] = [];
+  for (let offset: number = 0; offset < flat.length; offset += 2)
+    pairs.push([flat[offset]!, flat[offset + 1]!]);
+  return pairs;
 }
 
 /** Shared finite-input enumeration; scalar callers need no argument tuples. */
@@ -72,30 +87,29 @@ function enumerateBox(
   referenceX: number,
   referenceY: number,
   prepared?: IBoxState,
-): [number, number][] | null {
-  const anchor: [number, number] = [
-    Math.max(ranges[0].min, Math.min(ranges[0].max, referenceX)),
-    Math.max(ranges[1].min, Math.min(ranges[1].max, referenceY)),
-  ];
-  const ends: [number[], number[]] = prepared?.ends ?? [
-    endpoints(ranges[0]),
-    endpoints(ranges[1]),
-  ];
-  if (prepared !== undefined && prepared.ends === undefined) prepared.ends = ends;
-  const points: [number, number][] = [];
-  const seen: Map<number, number> = new Map();
-  const previous: (number | undefined)[] = [];
-  const aliases: [
-    Partial<Record<0 | 1 | 2, number | null>>,
-    Partial<Record<0 | 1 | 2, number | null>>,
-  ] = [{}, {}];
-  const bounded: readonly [boolean, boolean] = prepared?.bounded ?? [
-    Math.abs(ranges[0].min) <= Number.MAX_SAFE_INTEGER &&
-      Math.abs(ranges[0].max) <= Number.MAX_SAFE_INTEGER,
-    Math.abs(ranges[1].min) <= Number.MAX_SAFE_INTEGER &&
-      Math.abs(ranges[1].max) <= Number.MAX_SAFE_INTEGER,
-  ];
-  if (prepared !== undefined && prepared.bounded === undefined)
+  raw?: IRawInputs,
+): number[] | null {
+  const anchorX: number = Math.max(ranges[0].min,
+    Math.min(ranges[0].max, raw === undefined ? referenceX : raw.reference[0]));
+  const anchorY: number = Math.max(ranges[1].min,
+    Math.min(ranges[1].max, raw === undefined ? referenceY : raw.reference[1]));
+  const ends: [number[], number[]] | undefined = prepared === undefined
+    ? undefined : prepared.ends ?? [endpoints(ranges[0]), endpoints(ranges[1])];
+  if (prepared !== undefined && prepared.ends === undefined && ends !== undefined)
+    prepared.ends = ends;
+  const points: number[] = [];
+  // Only prepared unchanged axes share min/max/reference slots and refusals.
+  const aliases: (number | null | undefined)[] | undefined =
+    prepared === undefined ? undefined : [];
+  const bounded: readonly [boolean, boolean] | undefined =
+    prepared === undefined ? undefined
+      : prepared.bounded ?? [
+          Math.abs(ranges[0].min) <= Number.MAX_SAFE_INTEGER &&
+            Math.abs(ranges[0].max) <= Number.MAX_SAFE_INTEGER,
+          Math.abs(ranges[1].min) <= Number.MAX_SAFE_INTEGER &&
+            Math.abs(ranges[1].max) <= Number.MAX_SAFE_INTEGER,
+        ];
+  if (prepared !== undefined && prepared.bounded === undefined && bounded !== undefined)
     prepared.bounded = bounded;
   let representable: boolean = true;
 
@@ -107,37 +121,34 @@ function enumerateBox(
     const range: IAutoMovieAngleRange = ranges[axis];
     // Fixed coordinates are keyed by Object.is, unlike pair membership below.
     // A refused cached lift has already applied any unsafe-index refusal.
-    const slot: 0 | 1 | 2 | null = Object.is(angle, range.min)
-      ? 0
-      : Object.is(angle, range.max)
-        ? 1
-        : Object.is(angle, anchor[axis])
-          ? 2
-          : null;
+    const slot: 0 | 1 | 2 | null = prepared === undefined ? null
+      : Object.is(angle, range.min) ? 0
+        : Object.is(angle, range.max) ? 1
+          : Object.is(angle, axis === 0 ? anchorX : anchorY) ? 2 : null;
     const known: number | null | undefined =
-      slot === null ? undefined : aliases[axis][slot];
+      slot === null ? undefined : aliases?.[axis * 3 + slot];
     if (known !== undefined) return known;
     // For an angle inside these bounded intervals, all three index numerators
     // have magnitude at most 2*MAX_SAFE_INTEGER. Division by 360 keeps ceil,
     // floor and round strictly inside the safe-integer range. Their admission
     // cannot refuse; retain the original turn/add/nearestAlias arithmetic.
-    if (bounded[axis] &&
+    if (bounded?.[axis] === true &&
       (slot !== null || (angle >= range.min && angle <= range.max))) {
-      const turn: number = Math.round((anchor[axis] - angle) / 360);
+      const turn: number = Math.round(((axis === 0 ? anchorX : anchorY) - angle) / 360);
       const shifted: number = angle + 360 * turn;
       // A zero turn keeps this admitted angle inside, including either zero
       // sign produced by the original multiplication and addition above.
       const value: number = turn === 0 ? shifted : nearestAngleAlias(shifted, range);
       const result: number | null = turn === 0 || (value >= range.min && value <= range.max)
         ? value : null;
-      if (slot !== null) aliases[axis][slot] = result;
+      if (slot !== null && aliases !== undefined) aliases[axis * 3 + slot] = result;
       return result;
     }
     const bounds: IAliasBounds | undefined = slot === 0 || slot === 1
       ? prepared?.aliasBounds[axis][slot] : undefined;
     const first: number = bounds?.first ?? Math.ceil((range.min - angle) / 360);
     const last: number = bounds?.last ?? Math.floor((range.max - angle) / 360);
-    const turn: number = Math.round((anchor[axis] - angle) / 360);
+    const turn: number = Math.round(((axis === 0 ? anchorX : anchorY) - angle) / 360);
     const safe: boolean = bounds?.safe ??
       (Number.isSafeInteger(first) && Number.isSafeInteger(last));
     if (prepared !== undefined && (slot === 0 || slot === 1) && bounds === undefined)
@@ -153,7 +164,7 @@ function enumerateBox(
       const value: number = nearestAngleAlias(angle + 360 * turn, range);
       result = value >= range.min && value <= range.max ? value : null;
     }
-    if (slot !== null) aliases[axis][slot] = result;
+    if (slot !== null && aliases !== undefined) aliases[axis * 3 + slot] = result;
     return result;
   };
 
@@ -168,28 +179,25 @@ function enumerateBox(
 
     // Coordinates are finite, so === matches Set's SameValueZero, including
     // merged +/-0. The actual first pair keeps its original coordinate signs.
-    const head: number | undefined = seen.get(a);
-    let index: number | undefined = head;
-    while (index !== undefined) {
-      if (points[index]![1] === b) return;
-      index = previous[index];
-    }
-    seen.set(a, points.length);
-    previous.push(head);
-    points.push([a, b]);
+    for (let offset: number = 0; offset < points.length; offset += 2)
+      if (points[offset] === a && points[offset + 1] === b) return;
+    points.push(a, b);
   };
-  append(anchor[0], anchor[1]);
-  const scale: number = Math.max(
-    Math.abs(m00),
-    Math.abs(m01),
-    Math.abs(m10),
-    Math.abs(m11),
-  );
+  append(anchorX, anchorY);
+  const scale: number = raw === undefined
+    ? Math.max(Math.abs(m00), Math.abs(m01), Math.abs(m10), Math.abs(m11))
+    : Math.max(...raw.matrix.map(Math.abs));
   if (scale === 0) return representable ? points : null;
-  const a: number = m00 / scale;
-  const b: number = m01 / scale;
-  const c: number = m10 / scale;
-  const d: number = m11 / scale;
+  let rawA: number | undefined;
+  let rawB: number | undefined;
+  let rawC: number | undefined;
+  let rawD: number | undefined;
+  if (raw !== undefined)
+    [rawA, rawB, rawC, rawD] = raw.matrix.map((value: number): number => value / scale);
+  const a: number = raw === undefined ? m00 / scale : rawA!;
+  const b: number = raw === undefined ? m01 / scale : rawB!;
+  const c: number = raw === undefined ? m10 / scale : rawC!;
+  const d: number = raw === undefined ? m11 / scale : rawD!;
   const toDegrees: number = 180 / Math.PI;
   const halfRadians: number = Math.PI / 360;
 
@@ -203,25 +211,28 @@ function enumerateBox(
     (rotationPhase + reflectionPhase) * toDegrees,
     (reflectionPhase - rotationPhase) * toDegrees,
   );
-  for (const x of ends[0]) for (const y of ends[1]) append(x, y);
+  for (const x of ends?.[0] ?? [ranges[0].min, ranges[0].max])
+    for (const y of ends?.[1] ?? [ranges[1].min, ranges[1].max]) append(x, y);
 
   // A fixed boundary leaves A*cos(variable/2)+B*sin(variable/2).
   // All absolute maxima have atan2(B,A)+k*pi as their half angle.
-  for (let index: number = 0; index < ends[0].length; index++) {
-    const x: number = ends[0][index]!;
+  const xEnds: number[] = ends?.[0] ?? [ranges[0].min, ranges[0].max];
+  for (let index: number = 0; index < xEnds.length; index++) {
+    const x: number = xEnds[index]!;
     const { cosine, sine }: IBoundary = boundary(x, 0, index, halfRadians, prepared);
     const A: number = a * cosine + c * sine;
     const B: number = b * cosine + d * sine;
     if (A !== 0 || B !== 0) append(x, 2 * Math.atan2(B, A) * toDegrees);
-    append(x, anchor[1]);
+    append(x, anchorY);
   }
-  for (let index: number = 0; index < ends[1].length; index++) {
-    const y: number = ends[1][index]!;
+  const yEnds: number[] = ends?.[1] ?? [ranges[1].min, ranges[1].max];
+  for (let index: number = 0; index < yEnds.length; index++) {
+    const y: number = yEnds[index]!;
     const { cosine, sine }: IBoundary = boundary(y, 1, index, halfRadians, prepared);
     const A: number = a * cosine + b * sine;
     const B: number = c * cosine + d * sine;
     if (A !== 0 || B !== 0) append(2 * Math.atan2(B, A) * toDegrees, y);
-    append(anchor[0], y);
+    append(anchorX, y);
   }
 
   /** Add the closest reference point of each feasible orthogonal-family line. */
@@ -239,7 +250,7 @@ function enumerateBox(
       prepared.familyIntervals[sign] = { minimum, maximum };
     const first: number = Math.ceil((minimum - phaseDegrees) / 360);
     const last: number = Math.floor((maximum - phaseDegrees) / 360);
-    const near: number = (anchor[0] - sign * anchor[1] - phaseDegrees) / 360;
+    const near: number = (anchorX - sign * anchorY - phaseDegrees) / 360;
     const below: number = Math.floor(near);
     const above: number = Math.ceil(near);
     if (
@@ -272,7 +283,7 @@ function enumerateBox(
       if (low > high) continue;
       const y: number = Math.max(
         low,
-        Math.min(high, (sign * (anchor[0] - intercept) + anchor[1]) / 2),
+        Math.min(high, (sign * (anchorX - intercept) + anchorY) / 2),
       );
       append(sign * y + intercept, y);
     }
@@ -375,7 +386,7 @@ function boundary(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the unchanged box, lazy range admission/endpoints/trigonometry/min-max lift and family bounds, per-query matrix/reference and safe-index refusal, query-local aliases/candidates and release boundary.
  * @evidence contracts/development/design.md#principled-representation Finite/ordered range admission, bounded-index interval facts, endpoints, half-angle sine/cosine, first/last turn indices with their exact safety and feasible family intercept intervals depend only on the fixed box. Actual in-range membership and reference-nearest turn, final aliases, matrix phases and family projections remain query-local in the one enumeration owner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The prepared callable retains tuple queries; its fromScalars method serves the actual projector without manufacturing a matrix and reference tuple. The direct function retains independent-call behavior. No candidate getter, target key, global cache or second enumeration algorithm is exposed.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Existing direct/callable/fromScalars tuple contracts remain; fromScalarsFlat serves the actual projector's completed numeric pair loop without argument/pair tuples. Both forms share one enumerator and immutable range metadata, with no streaming callback, candidate getter, target key, global cache or second algorithm.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Construction reads no boundary. Matrix/reference checks precede the lazy unchanged range-admission result; raw lift prefixes and family intervals are first read at their original sites, constant safety is shared and reference-dependent unsafe indices still refuse each query. Trigonometry stays at its old edge site, absent on a zero matrix. No reference, turn or alias result is shared across queries. The caller keeps ranges unchanged and releases preparation with its operation.
  */
 export namespace bilinearAngleBoxCandidates {
@@ -386,6 +397,12 @@ export namespace bilinearAngleBoxCandidates {
       matrix: Parameters<typeof bilinearAngleBoxCandidates>[0],
       reference: Parameters<typeof bilinearAngleBoxCandidates>[2],
     ): ReturnType<typeof bilinearAngleBoxCandidates>;
+
+    /** Completed [x0,y0,x1,y1,...] list in the same order, without per-pair tuples. */
+    fromScalarsFlat(
+      m00: number, m01: number, m10: number, m11: number,
+      referenceX: number, referenceY: number,
+    ): number[] | null;
 
     /** Same row-major objective and reference, without allocating argument tuples. */
     fromScalars(
@@ -412,6 +429,17 @@ export namespace bilinearAngleBoxCandidates {
     const prepared: IBoxState = {
       trigonometry: [[], []], aliasBounds: [[], []], familyIntervals: {},
     };
+    const scalar: IPrepared["fromScalarsFlat"] = (
+      m00: number, m01: number, m10: number, m11: number,
+      referenceX: number, referenceY: number,
+    ): number[] | null => {
+      if (!Number.isFinite(m00) || !Number.isFinite(m01) ||
+        !Number.isFinite(m10) || !Number.isFinite(m11) ||
+        !Number.isFinite(referenceX) || !Number.isFinite(referenceY) ||
+        !admitRanges(ranges, prepared))
+        throw new Error("Bilinear angle boxes require finite ordered inputs.");
+      return enumerateBox(m00, m01, m10, m11, ranges, referenceX, referenceY, prepared);
+    };
     return Object.assign(
       (
         matrix: Parameters<typeof bilinearAngleBoxCandidates>[0],
@@ -421,14 +449,9 @@ export namespace bilinearAngleBoxCandidates {
       { fromScalars: (
         m00: number, m01: number, m10: number, m11: number,
         referenceX: number, referenceY: number,
-      ): ReturnType<typeof bilinearAngleBoxCandidates> => {
-        if (!Number.isFinite(m00) || !Number.isFinite(m01) ||
-          !Number.isFinite(m10) || !Number.isFinite(m11) ||
-          !Number.isFinite(referenceX) || !Number.isFinite(referenceY) ||
-          !admitRanges(ranges, prepared))
-          throw new Error("Bilinear angle boxes require finite ordered inputs.");
-        return enumerateBox(m00, m01, m10, m11, ranges, referenceX, referenceY, prepared);
-      } },
+      ): ReturnType<typeof bilinearAngleBoxCandidates> =>
+        pairsOf(scalar(m00, m01, m10, m11, referenceX, referenceY)),
+        fromScalarsFlat: scalar },
     );
   }
 }
