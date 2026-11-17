@@ -1,6 +1,5 @@
 import type {
   IAutoMovieCrowdAgent,
-  IAutoMovieSolveHalfPlaneProgram,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
