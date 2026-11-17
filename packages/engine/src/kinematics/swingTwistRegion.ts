@@ -14,6 +14,7 @@ import { swingConeAngle } from "../rom/swingConeAngle";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { toRigAngle } from "../rom/toRigAngle";
 import { swingTwistBasis } from "./swingTwistBasis";
+import { swingTwistReachBound } from "./swingTwistReachBound";
 
 /**
  * The swing region of a ball joint: the farthest the limb may point from its
@@ -132,15 +133,29 @@ function reach(
   const basis: swingTwistBasis.IBasis = swingTwistBasis.of(joint.axes);
   const table: Float64Array = new Float64Array(swingTwistBasis.RAYS);
   const across: number = Vector3.dot(Vector3.cross(basis.f, basis.u), basis.a);
+
+  // No swing past the intervals' closed-form reach on a ray can be inside
+  // (`swingTwistReachBound`), so the scan starts at the first grid step at
+  // or above it: the same steps from there on, the same bracket, the same
+  // table.
+  const bound: ((cosine: number, sine: number) => number) | null =
+    swingTwistReachBound.prepare(constraint, joint.frame, basis, across);
   for (let ray: number = 0; ray < swingTwistBasis.RAYS; ++ray) {
     const azimuth: number = (360 * ray) / swingTwistBasis.RAYS;
     const direction: (swing: number) => IAutoMovieVector3 =
       swingTwistBasis.prepareRay(basis, azimuth);
     const inside: (swing: number) => boolean = (swing: number): boolean =>
       reached(constraint, joint, basis, direction(swing), across);
-    let hi: number = 180;
+    const angle: number = azimuth / swingTwistBasis.DEG;
+    const farthest: number =
+      bound === null ? 180 : bound(Math.cos(angle), Math.sin(angle));
+    const start: number = Math.min(
+      180 - SCAN,
+      Math.ceil(farthest / SCAN) * SCAN,
+    );
+    let hi: number = start + SCAN;
     let lo: number = 0;
-    for (let swing: number = 180 - SCAN; swing > 0; swing -= SCAN) {
+    for (let swing: number = start; swing > 0; swing -= SCAN) {
       if (inside(swing)) {
         lo = swing;
         break;
