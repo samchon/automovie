@@ -316,7 +316,7 @@ export namespace HumanPopulation {
       gait: "stand",
       periodSeconds: segment.end - segment.entryTime,
       strideMeters: 0,
-      poses: Array<IAutoMoviePose>(samples).fill(held),
+      poses: new Array<IAutoMoviePose>(samples).fill(held),
     };
   }
 }
