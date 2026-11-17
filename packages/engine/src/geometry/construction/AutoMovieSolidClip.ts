@@ -26,7 +26,8 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * surface removal using polygon area sorting, SIGGRAPH 1977). Where both
  * do, as when the run stands outside a hole it starts and ends on, the one
  * that still removes everything the cycle removed is kept: a cut only takes
- * more of a face away.
+ * more of a face away. The rebuilt cycle's arc keeps the exact boundary each of
+ * its segments lay on, and the run's segments are chords (`ICycle.segments`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the crossing search, the two candidates and the side test.
  * @evidence contracts/development/design.md#principled-representation Represents A host rail laid onto the faces of a body: its points with the crossings between faces, and each face it runs over trimmed by it: companion namespace of 6 members (`IRailPoint`, `BISECTIONS`, `SIDE`, `rail`, `trim`, `clip`); units and frames named in its text: world, local, second. It has no optional member, so no absent-value state combines with another.
@@ -235,7 +236,7 @@ export namespace AutoMovieSolidClip {
    * @param kind The rail's kind on a single face (`AutoMovieSolidBlendChain.IBlend.host.kind`).
    * @returns Null, or why a face could not be trimmed.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Splits a multi-face rail into crossing-to-crossing runs, inserts crossings in one existing boundary cycle and builds the two replacement arcs, using an available local across probe to choose the kept side.
+   * @evidence contracts/development/implementation.md#principled-implementation Splits a multi-face rail into crossing-to-crossing runs, inserts crossings in one existing boundary cycle and builds the two replacement arcs, using an available local across probe to choose the kept side. Each rebuilt cycle keeps, per segment, the exact boundary its trim lay on (`AutoMovieSolidCycle.piece`) and the trim's winding curve: a segment between two consecutive vertices of an owner's seam stays that owner's curve on both faces, and only the two pieces beside a placed crossing and the run itself are chords, so a later cutter meets one seam wherever this one did not cut.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The single-face loop case is direct; multi-face runs delegate boundary insertion/candidate selection to one local clip operation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rejects unsupported run/cycle/probe outcomes, but missing interior probes default to the first candidate without proving the kept side; previous mutations also remain on a later failure until the body owner rolls back.
    * @evidence contracts/development/common.md#meaningful-documentation States in-place cycle changes, blend-neighbour identity, single-face kind and nullable error; the evidence records the no-probe validation gap.
@@ -384,6 +385,17 @@ export namespace AutoMovieSolidClip {
     return a.map((y: number, i: number): number => y + t * d[i]!);
   }
 
+  /** A rebuilt cycle's per-segment exact boundaries, or nothing where every segment is a chord. */
+  function carried(
+    segments: (AutoMovieSolidCycle.IExactSegment | null)[],
+  ): { segments?: (AutoMovieSolidCycle.IExactSegment | null)[] } {
+    return segments.some(
+      (s: AutoMovieSolidCycle.IExactSegment | null): boolean => s !== null,
+    )
+      ? { segments }
+      : {};
+  }
+
   /** What `clip` returns for a run that joins two of the face's trims. */
   const ACROSS: string = "across";
 
@@ -441,6 +453,9 @@ export namespace AutoMovieSolidClip {
             old.from[1] + foot.share * (old.to[1] - old.from[1]),
           ];
     const k: number = foot.segment + 1;
+
+    // The segment the crossing is placed into becomes two chords; every other segment keeps the exact boundary it lies on.
+    AutoMovieSolidCycle.divide(cycle, foot.segment);
     cycle.vertices.splice(k, 0, p.vertex);
     cycle.chart.splice(k, 0, [
       c[0],
@@ -508,6 +523,10 @@ export namespace AutoMovieSolidClip {
       const vertices: number[] = [];
       const chart: [number, number][] = [];
       const neighbours: AutoMovieSolidCycle.INeighbour[] = [];
+
+      // Each arc's segments stay on the exact boundary their trim lies on, an arc walked against its trim reversing their sense; the
+      // runs are this clip's own chords.
+      const segments: (AutoMovieSolidCycle.IExactSegment | null)[] = [];
       for (const [cycle, positions, run] of [[p, pArc, r], [q, qArc, s]] as [AutoMovieSolidCycle.ICycle, number[], IRailPoint[]][]) {
         const m: number = cycle.vertices.length;
         positions.forEach((k: number, i: number): void => {
@@ -515,7 +534,9 @@ export namespace AutoMovieSolidClip {
           chart.push(cycle.chart[k]!);
           if (i + 1 < positions.length) {
             const next: number = positions[i + 1]!;
-            neighbours.push(next === (k + 1) % m ? cycle.neighbours[k]! : reverse(cycle.neighbours[next]!));
+            const forward: boolean = next === (k + 1) % m;
+            neighbours.push(forward ? cycle.neighbours[k]! : reverse(cycle.neighbours[next]!));
+            segments.push(forward ? AutoMovieSolidCycle.piece(cycle, k) : AutoMovieSolidCycle.piece(cycle, next, true));
           }
         });
         for (let i: number = 0; i + 1 < run.length; i++) {
@@ -524,11 +545,12 @@ export namespace AutoMovieSolidClip {
             chart.push(run[i]!.chart.get(face)!);
           }
           neighbours.push(along(run[i]!, run[i + 1]!));
+          segments.push(null);
         }
       }
       for (let k: number = 1; k < chart.length; k++)
         chart[k] = [chart[k]![0], AutoMovieSolidCycle.shift(chart[k]![1], chart[k - 1]![1], period)];
-      return { kind: "island", vertices, chart, neighbours };
+      return { kind: "island", vertices, chart, neighbours, ...carried(segments) };
     };
     // Of the arc directions on the second trim, the one whose cycle closes without winding round the period.
     const unwound = (make: (step: 1 | -1) => AutoMovieSolidCycle.ICycle): AutoMovieSolidCycle.ICycle => {
@@ -624,6 +646,13 @@ export namespace AutoMovieSolidClip {
         .map(
           (k: number): AutoMovieSolidCycle.INeighbour => cycle.neighbours[k]!,
         );
+      // The arc's segments stay on the exact boundary the trim lies on; the run's are this clip's own chords.
+      const segments: (AutoMovieSolidCycle.IExactSegment | null)[] = positions
+        .slice(0, -1)
+        .map(
+          (k: number): AutoMovieSolidCycle.IExactSegment | null =>
+            AutoMovieSolidCycle.piece(cycle, k),
+        );
       const chain: IRailPoint[] = [head, ...tail, last];
       for (let k: number = 0; k + 1 < chain.length; k++) {
         if (k > 0) {
@@ -631,6 +660,7 @@ export namespace AutoMovieSolidClip {
           chart.push(chain[k]!.chart.get(face)!);
         }
         neighbours.push(along(chain[k]!, chain[k + 1]!));
+        segments.push(null);
       }
       // One branch of the periodic phase along the whole cycle.
       for (let k: number = 1; k < chart.length; k++)
@@ -638,7 +668,14 @@ export namespace AutoMovieSolidClip {
           chart[k]![0],
           AutoMovieSolidCycle.shift(chart[k]![1], chart[k - 1]![1], period),
         ];
-      return { kind: cycle.kind, vertices, chart, neighbours };
+      return {
+        kind: cycle.kind,
+        vertices,
+        chart,
+        neighbours,
+        ...(cycle.along === undefined ? {} : { along: cycle.along }),
+        ...carried(segments),
+      };
     };
     const one: AutoMovieSolidCycle.ICycle = build(
       arc(ib, ia),

@@ -2,6 +2,7 @@ import {
   type AutoMovieSolidMeshConstraints,
   AutoMovieSolidMeshPlan,
   insertAutoMovieSolidMeshPoints,
+  orientAutoMovieSolidChart as orient,
   triangulateAutoMovieSolidBoundary,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
@@ -45,15 +46,19 @@ interface Case {
  *    directed interior edges pair, inputs stay unchanged and outputs are owned.
  * 5. Unshared crossings, nonfinite coordinates, an unrepresentable strict
  *    centroid and an untriangulated kept band return named failures atomically.
- * 6. A curve meeting a straight constraint at a grazing angle, its last vertex
+ * 6. A point a few ulps off an unconstrained diagonal, a source constraint or
+ *    a vertex is inserted with every original ID, and the near-diagonal plan
+ *    joins it to all four cocircular corners; a point exactly on a source
+ *    constraint is refused with its inserted chart and located triangles.
+ * 7. A curve meeting a straight constraint at a grazing angle, its last vertex
  *    1e-14 off the line, still covers its square: the face is read beside
  *    another edge of the walk whose first edge has no represented corridor.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the native index planner directly and inspects triangle IDs/lifts, area and incidence rather than accepting a nonthrowing search as coverage proof. Production face/grid and f1 skin remain separate tests.
- * @evidence contracts/development/testing.md#independent-expectations Rectangles give exact sum/difference areas; a polygon with eight outer and eight hole vertices has sixteen triangles. Each directed interior edge has one reverse and each unpaired edge lies on a prescribed source segment.
+ * @evidence contracts/development/testing.md#independent-expectations Rectangles give exact sum/difference areas; a polygon with eight outer and eight hole vertices has sixteen triangles. Each directed interior edge has one reverse and each unpaired edge lies on a prescribed source segment. The insertion scenarios require 2V - 6 triangles by Euler's relation for a square disk, exact positive orientation, empty closed triangles and every constraint as a side, so any valid triangulation passes and a dropped point, crossed constraint or overlap fails.
  * @evidence contracts/development/testing.md#distinguishing-cases Includes collinear preservation, no retained interior grid, redundant constraints, domain contact, unequal winding populations, seam translation, three units and detached results. It does not claim arbitrary spiral-search completeness or measured f1 performance.
  * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU unit through --include construction_mesh_plan, with no person generation, host, renderer, process or global replacement.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A square with collinear boundary points, a collinear hole, redundant nested).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A square with collinear boundary points, a collinear hole, redundant nested).
  */
 export function test_construction_mesh_plan(): void {
   const failures: string[] = [];
@@ -270,7 +275,10 @@ export function test_construction_mesh_plan(): void {
     throw new Error(`Native mesh plan findings:\n${failures.join("\n")}`);
 }
 
-/** A near-diagonal interior point requires a new local triangulation, never a snap or lost source edge. */
+/**
+ * A point a few units of the last place off a diagonal, a source constraint or a vertex is inserted where its exact signs locate it, never
+ * snapped, welded or refused; a point exactly on a source constraint has no authoritative subdivision and is refused with its diagnostic.
+ */
 function cavity(failures: string[]): void {
   const points: Map<number, readonly [number, number]> = new Map([
     [0, [0, 0]],
@@ -285,71 +293,67 @@ function cavity(failures: string[]): void {
     { a: 2, b: 3, turn: 0 },
     { a: 3, b: 0, turn: 0 },
   ];
+  const diagonal: AutoMovieSolidMeshConstraints.ISegment[] = [
+    ...boundary,
+    { a: 0, b: 2, turn: 0 },
+  ];
   const triangles: AutoMovieSolidMeshPlan.ITriangle[] = [
     { vertices: [0, 1, 2], lifts: [0, 0, 0] },
     { vertices: [0, 2, 3], lifts: [0, 0, 0] },
   ];
+  const all: (u: number, v: number) => boolean = (
+    _u: number,
+    _v: number,
+  ): boolean => true;
   const before: string = JSON.stringify({
     points: [...points],
     boundary,
     triangles,
   });
-  const made: AutoMovieSolidMeshPlan.ITriangle[] | string =
-    insertAutoMovieSolidMeshPoints(
+  valid(
+    failures,
+    "near-diagonal insertion",
+    points,
+    boundary,
+    insertAutoMovieSolidMeshPoints(points, boundary, triangles, all),
+  );
+
+  // The square's corners are cocircular and the point lies strictly inside their circle, so the Delaunay plan joins it to all four.
+  const plan: AutoMovieSolidMeshPlan.IPlan | string =
+    AutoMovieSolidMeshPlan.triangulate(
       points,
       boundary,
-      triangles,
-      (_u: number, _v: number): boolean => true,
-    );
-  if (typeof made === "string") {
-    failures.push(`near-diagonal cavity: ${made}`);
-    return;
-  }
-  let area: number = 0;
-  const edges: Map<string, number> = new Map();
-  for (const triangle of made) {
-    if (!triangle.vertices.includes(4))
-      failures.push(
-        "near-diagonal cavity omitted the original interior authority",
-      );
-    const a: readonly [number, number] = points.get(triangle.vertices[0])!;
-    const b: readonly [number, number] = points.get(triangle.vertices[1])!;
-    const c: readonly [number, number] = points.get(triangle.vertices[2])!;
-    const value: number =
-      ((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) / 2;
-    if (!(value > 0))
-      failures.push("near-diagonal cavity made a nonpositive triangle");
-    area += value;
-    for (let k: number = 0; k < 3; k++) {
-      const first: number = triangle.vertices[k]!;
-      const last: number = triangle.vertices[(k + 1) % 3]!;
-      const key: string = `${Math.min(first, last)}/${Math.max(first, last)}`;
-      edges.set(key, (edges.get(key) ?? 0) + 1);
-    }
-  }
-  if (made.length !== 4 || !nclose(area, 16, 1e-12) || edges.has("0/2"))
-    failures.push(
-      `near-diagonal cavity did not replace the unconstrained diagonal: ${made.length}/${area}`,
-    );
-  for (const edge of boundary)
-    if (
-      edges.get(`${Math.min(edge.a, edge.b)}/${Math.max(edge.a, edge.b)}`) !== 1
-    )
-      failures.push("near-diagonal cavity changed an original source edge");
-  const constrained: AutoMovieSolidMeshPlan.ITriangle[] | string =
-    insertAutoMovieSolidMeshPoints(
-      points,
-      [...boundary, { a: 0, b: 2, turn: 0 }],
-      triangles,
-      (_u: number, _v: number): boolean => true,
+      (u: number, v: number): boolean => u > 0 && u < 4 && v > 0 && v < 4,
     );
   if (
-    typeof constrained !== "string" ||
-    !constrained.includes("source constraint")
+    typeof plan === "string" ||
+    plan.triangles.length !== 4 ||
+    !plan.triangles.every((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean =>
+      triangle.vertices.includes(4),
+    )
   )
     failures.push(
-      "near-diagonal cavity crossed a retained original constraint",
+      `near-diagonal plan did not join the point to every corner: ${JSON.stringify(plan)}`,
     );
+  valid(
+    failures,
+    "near-constraint insertion",
+    points,
+    diagonal,
+    insertAutoMovieSolidMeshPoints(points, diagonal, triangles, all),
+  );
+  const on: Map<number, readonly [number, number]> = new Map(points);
+  on.set(4, [2, 2]);
+  const refused: AutoMovieSolidMeshPlan.ITriangle[] | string =
+    insertAutoMovieSolidMeshPoints(on, diagonal, triangles, all);
+  if (
+    typeof refused !== "string" ||
+    !refused.includes("authoritative source-edge subdivision")
+  )
+    failures.push(
+      `point on a source constraint was not refused by name: ${JSON.stringify(refused)}`,
+    );
+  else insertionDiagnostic(failures, refused, 4, [2, 2]);
   const nearVertex: Map<number, readonly [number, number]> = new Map([
     [0, [0, 0]],
     [1, [2, 0]],
@@ -364,36 +368,104 @@ function cavity(failures: string[]): void {
       lifts: [0, 0, 0],
     }),
   );
-  const preserved: AutoMovieSolidMeshPlan.ITriangle[] | string =
-    insertAutoMovieSolidMeshPoints(
-      nearVertex,
-      boundary,
-      fan,
-      (_u: number, _v: number): boolean => true,
-    );
-  if (
-    typeof preserved === "string" &&
-    !preserved.includes("no represented strict triangle") &&
-    !preserved.includes("would remove an original point occurrence")
-  )
-    failures.push(
-      `near-vertex cavity refused for an unrelated premise: ${preserved}`,
-    );
-  if (
-    typeof preserved !== "string" &&
-    (preserved.length !== 6 ||
-      !preserved.some((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean =>
-        triangle.vertices.includes(4),
-      ) ||
-      !preserved.some((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean =>
-        triangle.vertices.includes(5),
-      ))
-  )
-    failures.push(
-      "near-vertex cavity silently removed an original point instead of preserving it or refusing its representation",
-    );
+  valid(
+    failures,
+    "near-vertex insertion",
+    nearVertex,
+    boundary,
+    insertAutoMovieSolidMeshPoints(nearVertex, boundary, fan, all),
+  );
   if (JSON.stringify({ points: [...points], boundary, triangles }) !== before)
-    failures.push("near-diagonal cavity mutated input data");
+    failures.push("near-diagonal insertion mutated input data");
+}
+
+/**
+ * A valid triangulation of a square disk with every point: `2V - 4 - 2` triangles by Euler's relation for four boundary vertices, each
+ * exactly positive, none holding another point in its closed chart triangle, and every source constraint a side.
+ */
+function valid(
+  failures: string[],
+  label: string,
+  points: ReadonlyMap<number, readonly [number, number]>,
+  constraints: readonly AutoMovieSolidMeshConstraints.ISegment[],
+  made: AutoMovieSolidMeshPlan.ITriangle[] | string,
+): void {
+  if (typeof made === "string") {
+    failures.push(`${label}: ${made}`);
+    return;
+  }
+  if (made.length !== 2 * points.size - 6)
+    failures.push(`${label}: ${made.length} triangles for ${points.size} points`);
+  for (const id of points.keys())
+    if (!made.some((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean => triangle.vertices.includes(id)))
+      failures.push(`${label}: original point ${id} lost`);
+  for (const triangle of made) {
+    const corners: (readonly [number, number])[] = triangle.vertices.map(
+      (id: number): readonly [number, number] => points.get(id)!,
+    );
+    if (orient(corners[0]!, corners[1]!, corners[2]!) <= 0)
+      failures.push(`${label}: triangle ${triangle.vertices.join("/")} is not exactly positive`);
+    for (const [id, point] of points)
+      if (
+        !triangle.vertices.includes(id) &&
+        corners.every((corner: readonly [number, number], k: number): boolean =>
+          orient(corner, corners[(k + 1) % 3]!, point) >= 0,
+        )
+      )
+        failures.push(`${label}: point ${id} lies in triangle ${triangle.vertices.join("/")}`);
+  }
+  for (const edge of constraints)
+    if (
+      !made.some((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean =>
+        triangle.vertices.some(
+          (id: number, k: number): boolean =>
+            id === edge.a && triangle.vertices[(k + 1) % 3] === edge.b,
+        ),
+      )
+    )
+      failures.push(`${label}: source constraint ${edge.a}->${edge.b} lost`);
+}
+
+/** The refusal carries the inserted point's authored ID and exact chart, and both located triangles meet it on the constraint 0-2. */
+function insertionDiagnostic(
+  failures: string[],
+  refusal: string,
+  insertedId: number,
+  insertedChart: readonly [number, number],
+): void {
+  const marker: string = "; diagnostic=";
+  const at: number = refusal.indexOf(marker);
+  if (at < 0) {
+    failures.push("source-constraint point: missing inserted point and located triangles");
+    return;
+  }
+  try {
+    const observation: {
+      inserted: { id: number; chart: [number, number] };
+      hits: { vertices: [number, number, number]; signs: [number, number, number] }[];
+    } = JSON.parse(refusal.slice(at + marker.length));
+    if (
+      observation.inserted.id !== insertedId ||
+      observation.inserted.chart[0] !== insertedChart[0] ||
+      observation.inserted.chart[1] !== insertedChart[1]
+    )
+      failures.push("source-constraint point: wrong inserted original ID or chart");
+    if (
+      observation.hits.length !== 2 ||
+      !observation.hits.every(
+        (hit: { vertices: [number, number, number]; signs: [number, number, number] }): boolean => {
+          const side: number = hit.signs.indexOf(0);
+          const ends: number[] = [hit.vertices[side]!, hit.vertices[(side + 1) % 3]!].sort(
+            (x: number, y: number): number => x - y,
+          );
+          return side >= 0 && ends[0] === 0 && ends[1] === 2;
+        },
+      )
+    )
+      failures.push("source-constraint point: located triangles do not meet it on the constraint");
+  } catch (error: unknown) {
+    failures.push("source-constraint point: unreadable diagnostic: " + String(error));
+  }
 }
 
 /**

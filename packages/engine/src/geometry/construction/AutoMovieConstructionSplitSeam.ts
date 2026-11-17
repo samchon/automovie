@@ -30,6 +30,9 @@ export namespace AutoMovieConstructionSplitSeam {
 
     /** Its unit tangent, toward the seam's second end. */
     tangent: Vec3;
+
+    /** Its curvature vector, the second derivative in its arclength, per mm: what a band's edge carried onto the seam needs between columns. */
+    bend: Vec3;
   }
 
   /**
@@ -291,7 +294,23 @@ export namespace AutoMovieConstructionSplitSeam {
         const d: Vec3 | null = unit(
           add(scale(e1, at.d[0]), scale(e2, at.d[1])),
         );
-        return { point: world(at.p), tangent: d ?? e1 };
+        // The curvature vector: the span's second derivative less its part along the tangent, over the squared speed.
+        const H: number = h[i]!;
+        const x: number = (lo + hi) / 2 / H;
+        const dd: [number, number] = [0, 1].map(
+          (c: number): number =>
+            ((12 * x - 6) * points[i]![c as 0 | 1]) / (H * H) +
+            ((6 * x - 4) * D[i]![c as 0 | 1]) / H +
+            ((-12 * x + 6) * points[i + 1]![c as 0 | 1]) / (H * H) +
+            ((6 * x - 2) * D[i + 1]![c as 0 | 1]) / H,
+        ) as [number, number];
+        const speed: number = at.d[0] * at.d[0] + at.d[1] * at.d[1];
+        const turn: number = speed > 0 ? (dd[0] * at.d[0] + dd[1] * at.d[1]) / speed : 0;
+        const bend: Vec3 =
+          speed > 0
+            ? add(scale(e1, (dd[0] - turn * at.d[0]) / speed), scale(e2, (dd[1] - turn * at.d[1]) / speed))
+            : [0, 0, 0];
+        return { point: world(at.p), tangent: d ?? e1, bend };
       },
     };
   }
@@ -304,6 +323,7 @@ export namespace AutoMovieConstructionSplitSeam {
    * @param input.station The host's end station, mm.
    * @param input.seam The seam's host phases `[a, b]`, radians.
    * @param input.normal The host end section's unit normal out of the host.
+   * @param input.heading A direction the plane holds in place of the end normal (a composed end's bisector, `IAutoMovieConstructionSplit.ICompose`), or absent.
    * @returns The chord as a seam, or the refusal.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The chord and its plane are the ones `create` builds its curve in, so a straight and a curved seam are ruled alike.
@@ -314,17 +334,20 @@ export namespace AutoMovieConstructionSplitSeam {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The two end jets serve both ends and the plane.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains two ends and one normal.
    */
-  export function straight(input: { host: IAutoMovieSolidSurface; station: number; seam: [number, number]; normal: Vec3 }): ISeam | string {
+  export function straight(input: { host: IAutoMovieSolidSurface; station: number; seam: [number, number]; normal: Vec3; heading?: Vec3 }): ISeam | string {
     const pa: readonly number[] = input.host.jet(input.station, input.seam[0]).p;
     const pb: readonly number[] = input.host.jet(input.station, input.seam[1]).p;
     const A: Vec3 = [pa[0]!, pa[1]!, pa[2]!];
     const B: Vec3 = [pb[0]!, pb[1]!, pb[2]!];
     const e1: Vec3 | null = unit(sub(B, A));
     if (e1 === null) return "the seam's ends coincide";
-    const e2: Vec3 | null = unit(sub(input.normal, scale(e1, dot(input.normal, e1))));
-    if (e2 === null) return "the host end's normal runs along the chord, so no seam plane stands";
+    // The plane's second axis, as `create` takes it: a composed end's bisector when one is given, else the end normal.
+    const toward: Vec3 = input.heading ?? input.normal;
+    const square: Vec3 | null = unit(sub(toward, scale(e1, dot(toward, e1))));
+    if (square === null) return input.heading === undefined ? "the host end's normal runs along the chord, so no seam plane stands" : "the seam's heading runs along the chord, so no seam plane stands";
+    const e2: Vec3 = dot(square, input.normal) < 0 ? scale(square, -1) : square;
     const length: number = norm(sub(B, A));
-    return { ends: [A, B], normal: cross(e1, e2), length, at: (t: number): IPoint => ({ point: add(A, scale(e1, Math.min(1, Math.max(0, t)) * length)), tangent: e1 }) };
+    return { ends: [A, B], normal: cross(e1, e2), length, at: (t: number): IPoint => ({ point: add(A, scale(e1, Math.min(1, Math.max(0, t)) * length)), tangent: e1, bend: [0, 0, 0] }) };
   }
 
   /** 8-point Gauss-Legendre nodes and weights on [-1, 1]. */

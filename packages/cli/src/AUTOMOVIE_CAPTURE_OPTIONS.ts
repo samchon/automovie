@@ -9,4 +9,5 @@ export const AUTOMOVIE_CAPTURE_OPTIONS: readonly string[] = [
   "props",
   "out",
   "backend",
+  "timeout-ms",
 ];

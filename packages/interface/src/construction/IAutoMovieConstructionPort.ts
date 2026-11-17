@@ -135,8 +135,10 @@ export namespace IAutoMovieConstructionPort {
 
     /**
      * The curve's distance from the centre at each of the band's column clocks `2 pi k / count`, as a share of the ellipse's there: the port
-     * curve's point at that clock is `centre + shape[k] (semi[0] cos c, sense semi[1] sin c)`. Absent, the ellipse itself. It lets the port
-     * curve follow the outline of the part's own ring where that is not an ellipse, so every column of the band is as long as its neighbours.
+     * curve's point at that clock is `centre + shape[k] (semi[0] cos c, sense semi[1] sin c)`, and between the columns the share is the
+     * periodic cubic spline through the shares, so the curve is one C2 curve that the host's trim, the band's start edge and the crossing
+     * between them all read. Absent, the ellipse itself. It lets the port curve follow the outline of the part's own ring where that is not
+     * an ellipse, so every column of the band is as long as its neighbours.
      */
     shape?: number[];
   }

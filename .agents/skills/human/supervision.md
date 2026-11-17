@@ -1,46 +1,46 @@
 # Supervision
 
-When workers build Human under a supervisor, the supervisor's work is briefing, verifying and steering. A worker's message is a pointer to evidence, never the evidence: approvals given to unmeasured causes and unopened frames have cost whole days.
+Subagents carry out the main implementation and assigned verification. The main agent researches, plans, delegates and performs the ten-minute inspections, personally checking code, measurements and renders. Worker reports alone do not establish acceptance.
 
-## Briefs
+## Before dispatch
 
-A worker knows only its brief, so the brief carries everything:
+- [ ] Personally complete the [required research](SKILL.md#the-skills-are-binding): skills, existing engine/interface capabilities, previous attempts and primary literature.
+- [ ] Group the complete inspection's findings by cause. Decide coupled curves, measurements, frames, connections, rails, cutters and bindings together. A changed dependency reopens the plan.
+- [ ] Assign one writer per file/tool in the [same checkout](workspace.md#ignored-paths). Resume existing workers unless the user orders replacement or termination.
+- [ ] Brief each worker with governing sections/issue, measured cause/scope, chosen method/basis, expected result/checks, execution owner, evidence paths and report deadline. Name superseded instructions.
 
-1. **What to read.** AGENTS.md, this skill's files, the 3d-modeling lofting page, the governing issue, and the code files to start from. The worker rereads the governing section before each decision.
-2. **The rules.** The skills bind the worker as they bind the supervisor ([The skills are binding](SKILL.md#the-skills-are-binding)). Quote the sections the task turns on, such as the [connection operators](construction.md#connections) and the [repair order](construction.md#repair).
-3. **The mission.** Ordered steps, each with its verification: a test proved red then green, numbers saved to files, frames written for the supervisor to open.
-4. **Reporting.** A report time, file paths for every number and frame, and a measured cause for every refusal.
+## Every ten minutes
 
-Self-review every brief against the skills and against every earlier brief it supersedes, and name the superseded parts. A worker that wanders was given an incomplete brief.
+While supervised Human work is active, inspect at the start and at fixed ten-minute deadlines, including during tests and renders. Record the next deadline before each inspection ends. Keep the supervisor active: an alarm is not an inspection.
 
-Dispatch by cause, not by region. Group every inventory row by its measured cause before any order. A cause shared by rows in several modules is one item: one capability fixes it, and every row it causes takes that fix in the same round, each module through its own writer. A row with a shared cause waits for that item.
+For every active worker, mark each item pass, fail or unobserved, with evidence and an action.
 
-Resume a worker with a message; never replace it, including when it cites its context, because a replacement loses everything the worker measured. Give each generated module, and each shared tool, one writer.
+- [ ] **Time:** record scheduled, actual and next times, including missed deadlines. Never backfill an inspection.
+- [ ] **Work:** read worker state, changed-file diff, latest save and new outputs. Verify scope, source version and ownership; preserve existing dirty work.
+- [ ] **Processes:** confirm the [single watch](testing.md#running) covers saved code. Check job progress/resources; prevent duplicate compilers, competing viewers and abandoned task-owned processes.
+- [ ] **Pictures:** personally open relevant frames against the reference, both sides and neighbours, using the [three passes](screenshot.md#the-three-passes). Without new frames, open an unread pair or arrange capture; unseen stages remain unobserved.
+- [ ] **Claims:** read numbers/failures from files. Match each cause to the fired diagnostic path and failing/passing controls. Distinguish curves, lofts, bands and skin.
+- [ ] **Rules:** check changed code and actions against governing skills. Stop violations immediately; identify the rule, evidence and correction.
+- [ ] **Stalls:** research the unresolved cause yourself before another variant. Update the coupled plan. Parameter changes and more instrumentation alone are not research; implement once evidence supports the plan.
+- [ ] **Checks:** read test/CI results at exact revisions. Separate current failures, demonstrated baseline failures and unavailable coverage. Check proposed commits against the delivery gate.
+- [ ] **Direction:** give each worker acceptance/rejection, next work, checks and deadline. Tell the user what changed, what you inspected and what remains blocked, measured against the issue's goal.
 
-## The Cycle
+Keep one compact inspection record containing those times, evidence paths, findings and orders. Reuse unchanged evidence by recorded version.
 
-Run this cycle every ten minutes while any worker runs, and schedule the next one before the cycle ends.
+If late, inspect immediately, record the gap and retain the next fixed deadline. If unable to supervise, stop workers rather than leave them unattended. On a user stop, stop workers and alarms; preserve work and evidence.
 
-1. **State.** For each worker, read its last commits, its uncommitted files and its newest outputs. Confirm that the main checkout is clean, since a dirty one means a worker wrote a relative path.
-2. **Renders.** Open the newest frames yourself, beside the reference, on both sides, as [Verification](verification.md#seeing-before-believing) requires. With no new frame, open the latest one not yet read, or render the region yourself, and send what you opened to the owner. Accept no shape from numbers alone.
-3. **Claims.** Read every number in its output file. Check every cause against the code that produced the diagnostic: list that function's failure paths and confirm which one fired. A cause without its failing and passing measurements is not accepted.
-4. **Skills.** Check the worker's latest diff and actions against the skills. Stop each of these at once, naming it:
-   - a fix on an inferred cause;
-   - a second variant of the same idea without a newly measured cause;
-   - a band, net or relief tuned to hide a line, wall or connection defect, against the [repair order](construction.md#repair);
-   - a capability without a test proved red first;
-   - a revert of a right direction because a dependent broke;
-   - a generated module re-emitted from an old state, two writers on one module, or a text merge of a generated module;
-   - a new capability written into a shared tool instead of a new file;
-   - a commit of an unverified or red state;
-   - an emit or round started before its pre-checks were read;
-   - a region's fix widened into rebuilding a working part, such as a family's layout, which is a planned item of its own;
-   - one row worked alone, or deferred alone, when its measured cause is shared with rows elsewhere;
-   - a commit without the whole-figure gate, or one that left any region worse than the last accepted round;
-   - work in another clone or worktree;
-   - a program or script kept in a scratch folder or an ignored path, because the owner allows logic only in tracked files; a measurement is a command of a tracked tool.
-5. **Research.** Research every item yourself before its first order. Reread the governing skill sections, read the engine and interface code at the operator (the capabilities it already has first), read the record, and search the practice: character modeling and topology, rigging and skinning, surface anatomy, and the method's literature. List every element coupled at the item, such as a seam's loop, the child's course, the fit's input, the rails, the band and a recess's cutter, read each one's governing section, and decide them together, changing only what the item names and leaving the rest as stored. A ruling that changes another element's input reopens the plan rather than starting the next ruling, because coupled elements ruled one at a time cycle: each fix breaks the next element and the first one returns. Then give the decision and its basis. Once a measured answer meets the item's purpose, build it and let the whole-figure gate judge what remains.
-6. **Order.** Send one message per worker: what is accepted and that you saw it, what is rejected and why, the next steps, the checks before any round, and the report time. Reject a method only for a measured cause under [Repair](construction.md#repair), never for a failed run. Relay between workers yourself.
-7. **Whole-figure gate.** Hold one accepted round: a figure and deviation run of the whole figure at the last accepted commit. Before any module is committed, its worker runs the same round on the changed tree and compares every region's cells and frames with the accepted round, not only its own. A change that worsens any other region is not committed; measure the cause of the worse region and fix it in the same change. Each cycle, check every commit since the last cycle against the gate, and make the newest gated round the accepted one.
-8. **Checks.** Read the pull request's checks, and compare every failing job with the same job on the main branch before calling it the main branch's.
-9. **Report.** Tell the owner in a few lines what each worker did, what you saw, what you stopped, and what blocks the merge. Send the frames behind every claim, and name each claim you took from a worker without opening its frames yourself. Measure progress against the issue's goal, not against the steps of your own plan, because a plan that covers only the easy part of a goal reads as nearly done while the goal is barely started.
+## Stop conditions
+
+Stop these before further work:
+
+- An inferred cause, an unresearched variant or separate fixes for one shared cause: return to the complete cause table and [repair order](construction.md#repair).
+- A band/rail/net/relief hiding a curve defect or an unplanned neighbour rebuild: repair the owning definition and its dependents together.
+- A capability without an independent failing test, or a correct method reverted for a dependent's failure: establish the missing evidence.
+- Conflicting writers, stale/text-merged generated files, another checkout or ignored executable logic: restore [workspace](workspace.md) and [development](../development/SKILL.md#scripts-and-shared-checkouts) ownership.
+- Execution before watch/pre-checks pass, or a commit with failed checks, missing whole-figure evidence or regression: hold that execution or commit.
+
+## Before delivery
+
+- [ ] Retain an accepted whole-figure capture/deviation round at an identified source revision.
+- [ ] Before committing a changed construction, compare the complete changed tree's same round across every region. Fix all regressions together; only a gated round becomes the baseline.
+- [ ] Verify delivery-revision checks. Separate verified results, unavailable checks and unresolved defects; compilation, connectedness and capture completion do not accept anatomy.

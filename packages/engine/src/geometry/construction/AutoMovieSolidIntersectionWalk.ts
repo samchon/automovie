@@ -1,3 +1,4 @@
+import { AutoMovieSolidTraceObservation as Observation } from "./AutoMovieSolidTraceObservation";
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidTraceLaw } from "./AutoMovieSolidTraceLaw";
@@ -58,6 +59,8 @@ export namespace AutoMovieSolidIntersectionWalk {
    * unchanged public controls (64 first-walk steps per target, 4 guide
    * points per target and 6 closing trials). Valid finite counts, host-face
    * indices and regular callback jets remain premises, not new admissions.
+   * Failed first walks retain at most the two actual terminal direction
+   * contexts. Observation never queries a surface or changes a proposal.
    *
    * @returns The walk, or why it failed.
    *
@@ -80,9 +83,10 @@ export namespace AutoMovieSolidIntersectionWalk {
     closingSteps: number,
   ): IWalk | string {
     /** Read the two original surface jets and consistently orient their cross-normal tangent. */
-    const tangent: (p: IPoint, along: Vec3 | null) => Vec3 | null = (
+    const tangent: (p: IPoint, along: Vec3 | null, observation?: Observation.IState) => Vec3 | null = (
       p: IPoint,
       along: Vec3 | null,
+      observation?: Observation.IState,
     ): Vec3 | null => {
       /** Part partials at this accepted preimage. */
       const a: IJet | null = AutoMovieSolidDomain.jet(part, p.s, p.phi);
@@ -93,13 +97,13 @@ export namespace AutoMovieSolidIntersectionWalk {
         p.y,
         p.theta,
       );
-      if (a === null || b === null) return null;
+      if (a === null || b === null) return Observation.fail(observation, a === null ? "part-jet-unavailable" : "host-jet-unavailable", [p.s, p.phi, p.y, p.theta], p.face, { part: a, host: b });
 
       /** Original normalized intersection tangent, absent at degeneracy. */
       const t: Vec3 | null = AutoMovieSolidVector.unit(
         cross(cross(a.u, a.v), cross(b.u, b.v)),
       );
-      if (t === null) return null;
+      if (t === null) return Observation.fail(observation, "singular-tangent", [p.s, p.phi, p.y, p.theta], p.face, { part: a, host: b });
       return along !== null && dot(t, along) < 0 ? scale(t, -1) : t;
     };
 
@@ -169,11 +173,15 @@ export namespace AutoMovieSolidIntersectionWalk {
       T: Vec3,
       h: number,
       previous: IPoint | null,
+      observation?: Observation.IState,
+      halving?: number,
     ) => IPoint | null = (
       p: IPoint,
       T: Vec3,
       h: number,
       previous: IPoint | null,
+      observation?: Observation.IState,
+      halving: number = 0,
     ): IPoint | null => {
       /** World tangent prediction at the requested mm chord. */
       const predicted: Vec3 = add(p.point, scale(T, h));
@@ -192,6 +200,10 @@ export namespace AutoMovieSolidIntersectionWalk {
               2 * x[3] - previous.theta,
             ];
 
+      if (observation !== undefined) observation.step = {
+        h, predicted, tangent: T, guess, halving, distance: null, allowance: null,
+      };
+
       /** Meeting corrected using the original predicted plane. */
       const next: IPoint | null = AutoMovieSolidTraceSolve.solve(
         part,
@@ -201,11 +213,15 @@ export namespace AutoMovieSolidIntersectionWalk {
         guess,
         p.face,
         tolerance,
+        observation,
       );
-      return next !== null &&
-        norm(sub(next.point, predicted)) <= 0.25 * h + 10 * tolerance
-        ? next
-        : null;
+      if (next === null) return null;
+      const distance: number = norm(sub(next.point, predicted));
+      const allowance: number = 0.25 * h + 10 * tolerance;
+      if (observation?.step !== undefined && observation.step !== null) {
+        observation.step.distance = distance; observation.step.allowance = allowance;
+      }
+      return distance <= allowance ? next : Observation.fail(observation, "branch-distance", [next.s, next.phi, next.y, next.theta], next.face);
     };
 
     // The first walk: the loop's length.
@@ -218,6 +234,7 @@ export namespace AutoMovieSolidIntersectionWalk {
      * curve walked either way, and a point where the two surfaces nearly touch can be passed from one side when it loses the walk from the
      * other: an ear's mirrored hollow lost its walk at the point its twin passes, the twin walking it the other way round.
      */
+    const directions: Observation.IDirection[] = [];
     const around: (sense: 1 | -1) => number | string = (sense: 1 | -1): number | string => {
       let h: number = stride;
 
@@ -232,6 +249,18 @@ export namespace AutoMovieSolidIntersectionWalk {
 
       /** Accumulated world chords of the first walk, mm. */
       let length: number = 0;
+      let attempt: Observation.IState | null = null;
+
+      /** Detach only a terminal accepted/attempted pair before the other direction runs. */
+      const retain: (reason: Observation.Reason) => void = (reason: Observation.Reason): void => {
+        const tried: Observation.IDirection["step"] = attempt?.step ?? null;
+        directions.push({ sense, reason, length,
+          last: { chart: [p.s, p.phi, p.y, p.theta], point: [...p.point], face: p.face },
+          step: tried === null ? null : { ...tried, predicted: [...tried.predicted],
+            tangent: [...tried.tangent], guess: [...tried.guess] },
+          solve: attempt?.failure ?? null,
+        });
+      };
       for (let k: number = 0; k < walkSteps * count; k++) {
         /** Displacement from the current point back toward its start. */
         const ahead: Vec3 = sub(start.point, p.point);
@@ -244,11 +273,14 @@ export namespace AutoMovieSolidIntersectionWalk {
           halving < AutoMovieSolidTraceSolve.HALVINGS && next === null;
           halving++
         ) {
-          next = step(p, T, h, previous);
+          attempt = { failure: null, trial: null, meeting: null, step: null };
+          next = step(p, T, h, previous, attempt, halving);
           if (next === null) h /= 2;
         }
-        if (next === null)
+        if (next === null) {
+          retain(attempt?.failure?.reason ?? "walk-step-failed");
           return `lost after ${length} mm of the walk, at [${p.point.map((x: number): string => x.toFixed(1)).join(", ")}] mm on host face ${p.face}`;
+        }
         length += norm(sub(next.point, p.point));
         previous = p;
         p = next;
@@ -258,10 +290,11 @@ export namespace AutoMovieSolidIntersectionWalk {
         h = Math.min(stride, 2 * h);
 
         /** Continue the first walk with the same tangent orientation. */
-        const t: Vec3 | null = tangent(p, T);
-        if (t === null) return `the surfaces touch ${length} mm along the walk`;
+        const t: Vec3 | null = tangent(p, T, attempt ?? undefined);
+        if (t === null) { retain(attempt?.failure?.reason ?? "singular-tangent"); return `the surfaces touch ${length} mm along the walk`; }
         T = t;
       }
+      retain("walk-step-limit");
       return `the walk does not return to its start in ${walkSteps * count} steps`;
     };
 
@@ -271,7 +304,7 @@ export namespace AutoMovieSolidIntersectionWalk {
     let length: number;
     if (typeof forth === "string") {
       const back: number | string = around(-1);
-      if (typeof back === "string") return forth;
+      if (typeof back === "string") return Observation.format(forth, directions);
       sense = -1;
       length = back;
     } else length = forth;

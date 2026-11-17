@@ -55,4 +55,6 @@ The active task sets person coverage; select f1 explicitly for an f1-only campai
 
 ## Running
 
+Type-check Human work only through the one shared `pnpm ttsc --watch` in `test/`. Reuse its log. Run no standalone `tsc` or `ttsc`, duplicate watch or other package compiler.
+
 Run tests on the CPU once the test type-check watch reads clean, with every test a question needs in one run, as development's [Tests](../development/validation.md#tests) describes. They confirm each batch of fixes; the instrument serves inspection. Selecting a person changes the run's scope, not its expectations.

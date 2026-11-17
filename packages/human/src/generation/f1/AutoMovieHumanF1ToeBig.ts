@@ -54,5 +54,9 @@ export const AutoMovieHumanF1ToeBig: AutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
-  tips: [null, {from: 53, tip: 56.13}],
+  // Each extreme closes on its own outline's taper and bend (`own`, lofting.md: a closing law meets the wall's slope and bend where the two
+  // meet): with one taper for the whole section the cap left the wall on the nail's side falling 0.26 mm a millimetre toward the tip where
+  // the wall rises 0.12 (secants over the last span), a turn of 21 degrees that drew a ring across the top of the toe (`toes.left`,
+  // `toes.high-oblique`), and underneath 0.33 against 0.52. A side that still widens toward the tip leaves level (`TAPER.least`).
+  tips: [null, {from: 53, tip: 56.13, own: true}],
 };

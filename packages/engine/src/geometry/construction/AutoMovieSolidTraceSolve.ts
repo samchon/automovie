@@ -1,3 +1,4 @@
+import { AutoMovieSolidTraceObservation as Observation } from "./AutoMovieSolidTraceObservation";
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import type { AutoMovieSolidTraceLaw } from "./AutoMovieSolidTraceLaw";
@@ -63,6 +64,7 @@ export namespace AutoMovieSolidTraceSolve {
     guess: Readonly<Vec4>,
     face: number,
     tolerance: number,
+    observation?: Observation.IState,
   ): IPoint | null {
     let f: number = face;
     let x: Vec4 = [guess[0], guess[1], guess[2], guess[3]];
@@ -77,22 +79,23 @@ export namespace AutoMovieSolidTraceSolve {
         tolerance,
         f,
         budget,
+        observation,
       );
       if (p === null) return null;
       f = p.face;
       if (host.kept(f, p.y, p.theta)) return p;
-      if (budget.left === 0) return null;
+      if (budget.left === 0) return Observation.fail(observation, "host-crossing-budget", [p.s, p.phi, p.y, p.theta], f, { budget: budget.left });
       const next: { face: number; u: number; v: number } | null = host.across(
         f,
         p.y,
         p.theta,
       );
-      if (next === null) return null;
+      if (next === null) return Observation.fail(observation, "host-open-boundary", [p.s, p.phi, p.y, p.theta], f, { budget: budget.left });
       budget.left--;
       f = next.face;
       x = [p.s, p.phi, next.u, next.v];
     }
-    return null;
+    return Observation.fail(observation, "host-face-limit", x, f, { budget: budget.left });
   }
 
   /**
@@ -116,13 +119,15 @@ export namespace AutoMovieSolidTraceSolve {
     tolerance: number,
     face: number,
     budget: { left: number },
+    observation?: Observation.IState,
   ): IPoint | null {
+    if (observation !== undefined) { observation.meeting = null; observation.trial = null; observation.failure = null; }
     let x: Vec4 = [guess[0], guess[1], guess[2], guess[3]];
     const initialA: IJet | null = AutoMovieSolidDomain.jet(part, x[0], x[1]);
-    if (initialA === null) return null;
+    if (initialA === null) return Observation.fail(observation, "part-jet-unavailable", x, face, { budget: budget.left });
     const initialB: ReturnType<typeof AutoMovieSolidTraceTrial> =
-      AutoMovieSolidTraceTrial(host, face, x[2], x[3], budget.left > 0);
-    if (initialB === null) return null;
+      AutoMovieSolidTraceTrial(host, face, x[2], x[3], budget.left > 0, observation);
+    if (initialB === null) return Observation.fail(observation, "host-trial-unavailable", x, face, { part: initialA, budget: budget.left });
     if (initialB.crossed) budget.left--;
     let currentFace: number = initialB.face;
     x = [x[0], x[1], initialB.u, initialB.v];
@@ -137,13 +142,16 @@ export namespace AutoMovieSolidTraceSolve {
       Math.hypot(...r);
     let r: number[] = residual(a, b, x);
     let gap: number = size(r);
+    Observation.hold(observation, gap, r, a, b, budget.left);
 
     for (let step: number = 0; step < STEPS && !(gap <= tolerance); step++) {
+      const J: number[][] = jacobian(a, b, law, t);
+      if (observation?.meeting !== undefined && observation.meeting !== null) observation.meeting.jacobian = J;
       const dx: number[] | null = AutoMovieSolidVector.solve(
-        jacobian(a, b, law, t),
+        J,
         r.map((v: number): number => -v),
       );
-      if (dx === null) return null;
+      if (dx === null) return Observation.fail(observation, "singular-newton-jacobian", x, currentFace);
 
       // A backtracking line search keeps every step a descent of the residual.
       let k: number = 1;
@@ -156,7 +164,7 @@ export namespace AutoMovieSolidTraceSolve {
           x[3] + k * dx[3]!,
         ];
         const ay: IJet | null = AutoMovieSolidDomain.jet(part, y[0], y[1]);
-        if (ay === null) continue;
+        if (ay === null) { Observation.reject(observation, "part-jet-unavailable", y, currentFace); continue; }
         const by: ReturnType<typeof AutoMovieSolidTraceTrial> =
           AutoMovieSolidTraceTrial(
             host,
@@ -164,11 +172,13 @@ export namespace AutoMovieSolidTraceSolve {
             y[2],
             y[3],
             budget.left > 0,
+            observation,
           );
         if (by === null) continue;
         const mapped: Vec4 = [y[0], y[1], by.u, by.v];
         const ry: number[] = residual(ay, by.jet, mapped);
-        if (size(ry) < gap) {
+        const candidateGap: number = size(ry);
+        if (candidateGap < gap) {
           if (by.crossed) budget.left--;
           currentFace = by.face;
           x = mapped;
@@ -176,13 +186,15 @@ export namespace AutoMovieSolidTraceSolve {
           b = by.jet;
           r = ry;
           gap = size(ry);
+          Observation.hold(observation, gap, r, a, b, budget.left);
           moved = true;
           break;
         }
+        Observation.reject(observation, "residual-not-decreasing", mapped, by.face);
       }
-      if (!moved) return null;
+      if (!moved) return Observation.fail(observation, "line-search-stalled", x, currentFace);
     }
-    if (!(gap <= tolerance)) return null;
+    if (!(gap <= tolerance)) return Observation.fail(observation, "newton-iterations", x, currentFace);
 
     // One more Newton step past the tolerance, kept only if it does not
     // widen the residual: near the root it takes the residual to rounding, so
@@ -208,20 +220,24 @@ export namespace AutoMovieSolidTraceSolve {
             y[2],
             y[3],
             budget.left > 0,
+            observation,
           );
         if (by !== null) {
           const mapped: Vec4 = [y[0], y[1], by.u, by.v];
-          if (size(residual(ay, by.jet, mapped)) <= gap) {
+          const polishedResidual: number[] = residual(ay, by.jet, mapped);
+          const polishedGap: number = size(polishedResidual);
+          if (polishedGap <= gap) {
             if (by.crossed) budget.left--;
             currentFace = by.face;
             x = mapped;
             a = ay;
             b = by.jet;
+            Observation.hold(observation, polishedGap, polishedResidual, a, b, budget.left);
           }
         }
       }
     }
-    return point(a, b, law, t, x, currentFace);
+    return point(a, b, law, t, x, currentFace, observation);
   }
 
   /** The 4 by 4 Jacobian by rows: the meeting's three, then the parameter's. */
@@ -250,15 +266,17 @@ export namespace AutoMovieSolidTraceSolve {
     t: number,
     x: Readonly<Vec4>,
     face: number,
+    observation?: Observation.IState,
   ): IPoint | null {
     const J: number[][] = jacobian(a, b, law, t);
+    if (observation?.meeting !== undefined && observation.meeting !== null) observation.meeting.jacobian = J;
     const rate: number[] | null = AutoMovieSolidVector.solve(J, [
       0,
       0,
       0,
       -law.gt(a.p, t),
     ]);
-    if (rate === null) return null;
+    if (rate === null) return Observation.fail(observation, "singular-first-rate", x, face);
     const [ds, dp, dy, dt] = rate as Vec4;
     const qa: Vec3 = combine([
       [ds * ds, a.uu],
@@ -282,7 +300,7 @@ export namespace AutoMovieSolidTraceSolve {
       -q[2],
       -qg,
     ]);
-    if (rate2 === null) return null;
+    if (rate2 === null) return Observation.fail(observation, "singular-second-rate", x, face);
 
     // The angle between the tangent planes from the normals' cross product.
     const na: Vec3 = cross(a.u, a.v);
@@ -319,6 +337,7 @@ export namespace AutoMovieSolidTraceSolve {
    * @param from The point to continue from.
    * @param target The parameter to reach.
    * @param tolerance Largest gap accepted, mm.
+   * @param observation Optional call-owned record of the last meeting attempt's refusal; it changes no candidate, budget or result.
    * @returns The point at the target, or null after more than {@link HALVINGS}
    *   consecutive failed halvings, 1024 meeting candidates, or a proposed
    *   parameter that cannot make finite representable progress.
@@ -348,6 +367,7 @@ export namespace AutoMovieSolidTraceSolve {
     from: IPoint,
     target: number,
     tolerance: number,
+    observation?: Observation.IState,
   ): IPoint | null {
     let current: IPoint = from;
 
@@ -385,6 +405,7 @@ export namespace AutoMovieSolidTraceSolve {
         guess,
         current.face,
         tolerance,
+        observation,
       );
       const length: number = norm(sub(predicted, current.point));
 
@@ -405,6 +426,19 @@ export namespace AutoMovieSolidTraceSolve {
             : step;
         continue;
       }
+      // A corrected point refused by the predictor allowance is this attempt's refusal; a failed solve has recorded its own.
+      if (next !== null)
+        Observation.fail(observation, "branch-distance", [next.s, next.phi, next.y, next.theta], next.face);
+      if (observation !== undefined)
+        observation.step = {
+          h: step,
+          predicted,
+          tangent: current.tangent,
+          guess,
+          halving: halvings,
+          distance: next === null ? null : defect,
+          allowance,
+        };
       if (++halvings > HALVINGS) return null;
       h = step / 2;
     }

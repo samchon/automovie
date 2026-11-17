@@ -4,7 +4,7 @@ import type { AutoMovieConstructionProfile } from "./AutoMovieConstructionProfil
 import type { AutoMovieConstructionProfileBody } from "./AutoMovieConstructionProfileBody";
 import type { AutoMovieConstructionRealization } from "./AutoMovieConstructionRealization";
 import type { AutoMovieSolidBody } from "./AutoMovieSolidBody";
-import type { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
+import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import type { AutoMovieSolidTrim } from "./AutoMovieSolidTrim";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
@@ -242,26 +242,8 @@ export namespace AutoMovieConstructionState {
     state.trims.length = s.trims;
   }
 
-  /** A deep copy of a cycle. */
+  /** A deep copy of a cycle, by the cycle's own copy, so a snapshot keeps its exact curve and boundary readers (`AutoMovieSolidCycle.copy`). */
   function copy(c: AutoMovieSolidCycle.ICycle): AutoMovieSolidCycle.ICycle {
-    return {
-      kind: c.kind,
-      vertices: c.vertices.slice(),
-      chart: c.chart.map((p: [number, number]): [number, number] => [
-        p[0],
-        p[1],
-      ]),
-      neighbours: c.neighbours.map(
-        (
-          n: AutoMovieSolidCycle.INeighbour,
-        ): AutoMovieSolidCycle.INeighbour => ({
-          face: n.face,
-          from: [n.from[0], n.from[1]],
-          to: [n.to[0], n.to[1]],
-        }),
-      ),
-      // The exact curve is a pure function of the chart, shared rather than copied.
-      ...(c.along === undefined ? {} : { along: c.along }),
-    };
+    return AutoMovieSolidCycle.copy(c);
   }
 }

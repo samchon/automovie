@@ -70,5 +70,8 @@ export const AutoMovieHumanF1ToeMiddle: AutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
-  tips: [null, {from: 44, tip: 47.63}],
+  // Each extreme closes on its own outline's taper and bend (`own`, lofting.md: a closing law meets the wall's slope and bend where the two
+  // meet): with one taper for the whole section the cap left the wall underneath 0.16 mm a millimetre toward the tip against the wall's
+  // 0.30 (secants over the last span), and on the -v side 0.15 against 0.07.
+  tips: [null, {from: 44, tip: 47.63, own: true}],
 };

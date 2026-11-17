@@ -95,6 +95,13 @@ export namespace FamilyConicSource {
     return { loop: outer, around: round.length, pieces: section.loops.length };
   }
 
+  /** Every chain of a mesh's cut by a frame's plane in the frame's chart, closed or open, in the order the cut gives them: a plane through an opening of the mesh has open chains only. */
+  export function chains(mesh: M.IMesh, frame: AutoMovieLoftFrame.IFrame): { points: C.P[]; closed: boolean }[] {
+    const n: V = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
+    const section: M.ISection = M.outline(mesh, { origin: [...frame.origin] as V, axes: [n, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!;
+    return section.loops.map((loop: M.ILoop): { points: C.P[]; closed: boolean } => ({ points: [...loop.points], closed: loop.closed }));
+  }
+
   /** Every closed loop of a mesh's cut by a frame's plane, counter-clockwise in the frame's chart, whether or not it winds round the origin. */
   export function loops(mesh: M.IMesh, frame: AutoMovieLoftFrame.IFrame): C.P[][] {
     const n: V = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];

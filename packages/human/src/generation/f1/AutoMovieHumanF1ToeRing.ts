@@ -70,5 +70,9 @@ export const AutoMovieHumanF1ToeRing: AutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
+  // The cap closes with one taper for the whole section, not each extreme's own (`own`), as the little toe's: the top's own taper over
+  // the cap is 0.92 of its extent (2.90 to 1.12 mm over the last span) against 0.02 to 0.21 for the other three, a cone. The wall's last
+  // span is steeper there than the skin, whose top stands 1.40 to 1.60 mm over the course from 34.8 to 39.3 mm
+  // (`FamilyConicScan.ts tips`), level against the wall's 0.24 mm a millimetre.
   tips: [null, {from: 38, tip: 41.13}],
 };

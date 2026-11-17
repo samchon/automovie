@@ -16,8 +16,8 @@
  * first crossing and is not a general inverse of that predicate.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the four kinds and which side each keeps.
- * @evidence contracts/development/design.md#principled-representation Represents A trim cycle of a face in its own chart: the closed boundary of the face's kept region, a sequence of shared vertices with their charts on this face and, per segment, the neighbour face across it with the segment's ends in the neighbour's chart: companion namespace of 12 members (`ICycle`, `INeighbour`, `IFoot`, `kept`, `prepare`, `IPrepared`, ...); units and frames named in its text: second, world, local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidCycle` in packages/engine/src/geometry/construction/AutoMovieSolidCycle.ts; its surface is the 12 members listed and the text shows 17 other files naming it, mostly packages/engine (14), test (3), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#principled-representation Represents A trim cycle of a face in its own chart: the closed boundary of the face's kept region, a sequence of shared vertices with their charts on this face and, per segment, the neighbour face across it with the segment's ends in the neighbour's chart: companion namespace of 15 exported members (`ICycle`, `IExactSegment`, `IExact`, `piece`, `divide`, `held`, ...); units and frames named in its text: second, world, local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidCycle` in packages/engine/src/geometry/construction/AutoMovieSolidCycle.ts; its surface is the 15 members listed and the text shows 17 other files naming it, mostly packages/engine (14), test (3), so no member is declared for a presumed future need.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidCycle {
@@ -26,7 +26,7 @@ export namespace AutoMovieSolidCycle {
    * neighbour mapping per closing polygon segment.
    *
    * @evidence contracts/development/design.md#principled-representation Parallel vertex/chart/segment arrays represent a face's boundary and its shared neighbour correspondence without deriving geometry from a rendered mesh.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four fields separate kept-side kind, shared mesh identity, this chart and the adjacent chart's endpoint maps; the optional fifth carries the exact curve a winding cycle samples, absent where its chords are its boundary.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four fields separate kept-side kind, shared mesh identity, this chart and the adjacent chart's endpoint maps; the optional fifth carries the exact curve a winding cycle samples, absent where its chords are its boundary, the sixth the owner's exact boundary readers and the seventh, on a cycle a clip has edited, which segments still lie on such a boundary.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not validate array lengths, winding, simplicity or inclusive boundary classification; prepared readers require unchanged kind/chart data during their lifetime.
    * @evidence contracts/development/common.md#meaningful-documentation States coindexing, closing-segment ownership, chart phase unwrapping and which face keeps each side.
    */
@@ -57,6 +57,246 @@ export namespace AutoMovieSolidCycle {
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The cycle holds the builder's function for its own lifetime; copies share it and retain nothing else.
      */
     along?: (v: number) => number;
+
+    /**
+     * The exact boundary this cycle samples, when one generating owner supplies it to both faces (a port's curve on the host and the
+     * band's start edge, the band's end edge and the part's rail): the face's kept side of that curve, and the neighbour's chart point
+     * for a point past it, both read on the curve between the stored vertices as well as at them. It describes the cycle as it was
+     * built; once a clip has edited the cycle, `segments` says which segments still lie on it. No tolerance and no fallback face is
+     * added by it.
+     */
+    exact?: IExact;
+
+    /**
+     * Per segment of a cycle a clip has edited (`divide`, and the clip's rebuilt cycles): the exact boundary the segment still lies
+     * on, or null for a chord. A segment between two consecutive vertices of an owner's boundary keeps that owner's readers; a segment
+     * a clip made, by placing a crossing into a segment or by laying its own run, is the chord between its vertices. Absent, the
+     * cycle is as built and `exact` covers every segment.
+     */
+    segments?: (IExactSegment | null)[];
+  }
+
+  /**
+   * The exact boundary one segment of an edited cycle lies on (`ICycle.segments`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the readers' owner and what the sense orients.
+   * @evidence contracts/development/design.md#principled-representation An edited cycle is a chain of pieces of its owners' curves and of clips' chords, so exactness is a property of a segment: a cut that crosses a seam at one column leaves every other column on the owner's curve, and a cycle joined from two trims has two owners.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The owner's shared readers and one sign; the segment's ends are the cycle's own chart points.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Stores no copy of the curve, no vertex-count proxy and no tolerance; the sign is fixed by the cycle the owner built and reversed only with the segment's direction.
+   */
+  export interface IExactSegment {
+    /** The owner's readers, shared with every other segment of that boundary. */
+    exact: IExact;
+
+    /**
+     * Which side of the directed chord the owner's boundary removes: a chart point `p` beside the segment from `a` to `b` lies on the
+     * removed side of the chord when `sense * cross(b - a, p - a)` is positive.
+     */
+    sense: number;
+  }
+
+  /**
+   * One shared boundary's exact readers on a face's chart (`ICycle.exact`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the count's role, the kept reading and the correspondence.
+   * @evidence contracts/development/design.md#principled-representation The atlas's kept test and crossing map read the generating owner's curve directly, so the two faces of one seam own complementary sides of one curve and map a point across it to the same physical point.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A count, an optional kept reader for a boundary whose chords are not already exact, and the crossing map.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The readers are the owner's; nothing is fitted or clamped here.
+   */
+  export interface IExact {
+    /** The vertex count the cycle was built with: the readers cover a cycle of that count with no `segments`, every segment of it. */
+    count: number;
+
+    /**
+     * Whether a chart point lies on the face's kept side of the curve, or on it; absent where the cycle's own chart is already the
+     * exact curve (a band's station line).
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the reading and the absent case.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; the owner's curve is the implementation.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body; its cost is the owner's.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
+     */
+    kept?: (u: number, v: number) => boolean;
+
+    /**
+     * The neighbour's chart point corresponding to a chart point past the curve: the point's foot on the curve by the owner's
+     * correspondence, read in the neighbour's chart.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the foot and the chart it returns.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; the owner's correspondence is the implementation.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body; its cost is the owner's.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
+     */
+    across: (u: number, v: number) => [number, number];
+  }
+
+  /**
+   * The exact boundary one segment of a cycle lies on: the cycle's own for every segment of a cycle as built, the segment's record
+   * on a cycle a clip has edited.
+   *
+   * @param cycle The cycle.
+   * @param k The segment, vertex `k` to `k + 1`.
+   * @param reversed Whether the caller walks the segment from `k + 1` to `k`, as a clip does that joins two trims.
+   * @returns The owner's readers with the removed side of the directed chord, or null where the segment is a chord.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Exactness belongs to a segment between two consecutive vertices of one owner's curve; an edited cycle records it per segment, and a cycle as built is such a segment throughout.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader serves the kept test, the crossing map and the clip's rebuilds.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cycle with a foreign vertex count and no per-segment record reads no curve; nothing is inferred from positions.
+   * @evidence contracts/development/common.md#meaningful-documentation States both sources of the record and the reversed walk.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time on an edited cycle; O(S) for the orientation of a cycle as built.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reader coordinates no work.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the cycle's record or a fresh one sharing the owner's readers; retains nothing.
+   */
+  export function piece(
+    cycle: Pick<ICycle, "kind" | "chart" | "exact" | "segments">,
+    k: number,
+    reversed: boolean = false,
+  ): IExactSegment | null {
+    const found: IExactSegment | null =
+      cycle.segments !== undefined
+        ? (cycle.segments[k] ?? null)
+        : cycle.exact !== undefined && cycle.exact.count === cycle.chart.length
+          ? { exact: cycle.exact, sense: removed(cycle) }
+          : null;
+    return found === null || !reversed
+      ? found
+      : { exact: found.exact, sense: -found.sense };
+  }
+
+  /**
+   * Record that a clip places a vertex into a segment, before the caller splices the vertex in: the segment becomes two chords, and
+   * every other segment keeps the boundary it lies on.
+   *
+   * @param cycle The cycle; its `segments` are written.
+   * @param segment The segment the vertex is placed into.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation A crossing is placed by a bisection of the clip's own rail, so the two pieces beside it run to a point the owner's curve does not own; the segments beyond them still join the owner's consecutive vertices.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The one place a cycle as built turns into an edited one.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Moves no vertex and drops no reader of an untouched segment.
+   * @evidence contracts/development/common.md#meaningful-documentation States the call order and what changes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(S) once per cycle for its orientation, then one splice.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every segment of one owner shares one record.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The cycle holds one array of S references.
+   */
+  export function divide(cycle: ICycle, segment: number): void {
+    if (cycle.segments === undefined) {
+      const whole: IExactSegment | null = piece(cycle, segment);
+      if (whole === null) return;
+      cycle.segments = cycle.chart.map((): IExactSegment => whole);
+    }
+    cycle.segments.splice(segment, 1, null, null);
+  }
+
+  /**
+   * Whether a chart point lies on a cycle's kept side, each segment read as what it is: the owner's curve where the segment lies on
+   * an exact boundary (`piece`), its chord elsewhere (`kept`).
+   *
+   * A cycle as built reads its owner's curve alone. On an edited cycle the chords give the reading, and it is reversed for a point
+   * between an exact segment's chord and its curve: the cycle's true boundary is the chords with each exact segment's chord replaced
+   * by its arc, and crossing parity adds over those replacements, so the reading changes exactly inside the lens between chord and
+   * arc. The lens a point can lie in is that of the segment at its foot; the point is in it when the owner's curve and that chord
+   * disagree about its side.
+   *
+   * @param cycle The cycle.
+   * @param u The point's `u`.
+   * @param v The point's `v`.
+   * @param period The face's phase period; absent for a face that is not periodic.
+   * @returns True on the kept side or on the boundary.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation The atlas's region is the owner's curve between an owner's consecutive vertices, the same curve the neighbouring face ends on, and a clip's chords elsewhere; the parity of crossings is additive over the chord-to-arc replacements.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The cycle as built keeps its one reader; an edited one adds one foot and one side test to the chords' reading.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no tolerance; a point whose foot is a chord reads exactly as `kept`. The lens is attributed by the nearest segment, so a point nearer another segment than the exact one whose lens it lies in reads its chords.
+   * @evidence contracts/development/common.md#meaningful-documentation States both readings and the lens rule.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The owner's reader alone on a cycle as built; on an edited one `kept` and `foot`, O(S) each, and the owner's reader.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reader coordinates no work.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a boolean; retains nothing.
+   */
+  export function held(
+    cycle: Pick<ICycle, "kind" | "chart" | "along" | "exact" | "segments">,
+    u: number,
+    v: number,
+    period: number | undefined,
+  ): boolean {
+    if (cycle.segments === undefined) {
+      const whole: IExact | undefined =
+        cycle.exact?.count === cycle.chart.length ? cycle.exact : undefined;
+      return whole?.kept !== undefined
+        ? whole.kept(u, v)
+        : kept(cycle, u, v, period);
+    }
+    const chords: boolean = kept(cycle, u, v, period);
+    const at: IFoot = foot(cycle, u, v, period);
+    const beside: IExactSegment | null = cycle.segments[at.segment] ?? null;
+    if (beside === null || beside.exact.kept === undefined) return chords;
+
+    // The point's side of the chord at its foot against its side of the owner's curve.
+    const a: [number, number] = cycle.chart[at.segment]!;
+    const b: [number, number] = cycle.chart[(at.segment + 1) % cycle.chart.length]!;
+    const w: number = shift(v, a[1], period);
+    const side: number =
+      beside.sense *
+      ((b[0] - a[0]) * (w - a[1]) - (shift(b[1], a[1], period) - a[1]) * (u - a[0]));
+    return side > 0 === beside.exact.kept(u, v) ? !chords : chords;
+  }
+
+  /**
+   * A deep copy of a cycle, so later clips that edit cycles in place leave it as it was; its exact curve and boundary readers are pure
+   * functions of the owner's curve, shared rather than copied.
+   *
+   * @param c The cycle.
+   * @returns The copy.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Copies every array a clip edits in place and shares the immutable readers.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The one copy every snapshot of a body uses, so none drops a reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changes no value.
+   * @evidence contracts/development/common.md#meaningful-documentation States what is copied and what is shared.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(S) for S vertices.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure copy coordinates no work.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record; retains nothing.
+   */
+  export function copy(c: ICycle): ICycle {
+    return {
+      kind: c.kind,
+      vertices: c.vertices.slice(),
+      chart: c.chart.map((p: [number, number]): [number, number] => [p[0], p[1]]),
+      neighbours: c.neighbours.map(
+        (n: INeighbour): INeighbour => ({
+          face: n.face,
+          from: [n.from[0], n.from[1]],
+          to: [n.to[0], n.to[1]],
+        }),
+      ),
+      ...(c.along === undefined ? {} : { along: c.along }),
+      ...(c.exact === undefined ? {} : { exact: c.exact }),
+      ...(c.segments === undefined ? {} : { segments: c.segments.slice() }),
+    };
+  }
+
+  /**
+   * The removed side of a cycle's directed chords as its owner built it (`IExactSegment.sense`): a hole removes its polygon's inside,
+   * the left of its chords when its signed chart area is positive, and an island the outside; a start cycle removes the stations
+   * below it, the left of chords of rising phase, and an end cycle those above.
+   */
+  function removed(cycle: Pick<ICycle, "kind" | "chart">): number {
+    const n: number = cycle.chart.length;
+    if (cycle.kind === "start" || cycle.kind === "end")
+      return (
+        Math.sign(cycle.chart[n - 1]![1] - cycle.chart[0]![1]) *
+        (cycle.kind === "start" ? 1 : -1)
+      );
+    let area: number = 0;
+    for (let k: number = 0; k < n; k++) {
+      const a: [number, number] = cycle.chart[k]!;
+      const b: [number, number] = cycle.chart[(k + 1) % n]!;
+      area += a[0] * b[1] - b[0] * a[1];
+    }
+    return Math.sign(area) * (cycle.kind === "hole" ? 1 : -1);
   }
 
   /**

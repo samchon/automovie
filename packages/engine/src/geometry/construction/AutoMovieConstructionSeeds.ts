@@ -1,5 +1,6 @@
 import type { AutoMovieConstructionSeed } from "@automovie/interface";
 
+import { AutoMovieConstructionSeedTrace as Trace } from "./AutoMovieConstructionSeedTrace";
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidFoot } from "./AutoMovieSolidFoot";
@@ -42,6 +43,7 @@ export namespace AutoMovieConstructionSeeds {
    * @param host The host face's surface.
    * @param face The host face's index in the host atlas.
    * @param tolerance Largest gap accepted at the meeting, mm.
+   * @param trace Optional nonthrowing observer of detached actual candidate/Newton states; absent, no snapshots are made.
    * @returns The seed, or the premise the search broke.
    *
    * Point mode converts chart lengths without checking a meeting. Search
@@ -63,6 +65,7 @@ export namespace AutoMovieConstructionSeeds {
     host: IAutoMovieSolidSurface,
     face: number,
     tolerance: number,
+    trace?: Trace.Sink,
   ): AutoMovieSolidIntersection.IInput["seed"] | string {
     const S: number = AutoMovieConstructionViews.SCALE;
     if (seed.type === "point")
@@ -108,6 +111,7 @@ export namespace AutoMovieConstructionSeeds {
         host,
         face,
         tolerance,
+        trace,
       );
       if (typeof found !== "number") return found;
       starts = found;
@@ -132,6 +136,7 @@ export namespace AutoMovieConstructionSeeds {
     host: IAutoMovieSolidSurface,
     face: number,
     tolerance: number,
+    trace?: Trace.Sink,
   ): AutoMovieSolidIntersection.IInput["seed"] | number {
     const low: number = Math.min(a, b);
     const high: number = Math.max(a, b);
@@ -151,6 +156,8 @@ export namespace AutoMovieConstructionSeeds {
       if (at === null) continue;
       const p: Vec3 = at.p;
       const start: [number, number] = guess ?? nearest(host, p);
+      let initialMode: "warm-foot" | "cold-foot" | "coarse" =
+        guess === null ? "cold-foot" : "warm-foot";
       let initial: [number, number] = start;
       let foot: AutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(
         host,
@@ -161,18 +168,31 @@ export namespace AutoMovieConstructionSeeds {
       if (foot === null && guess !== null) {
         const cold: [number, number] = nearest(host, p);
         initial = cold;
+        initialMode = "cold-foot";
         if (cold[0] !== start[0] || cold[1] !== start[1])
           foot = AutoMovieSolidFoot.of(host, p, cold, tolerance);
       }
       if (foot !== null) guess = [foot.u, foot.v];
       const chart: [number, number] =
         foot === null ? initial : [foot.u, foot.v];
+      if (trace !== undefined)
+        Trace.emit(trace, {
+          kind: "candidate",
+          phase,
+          start: s,
+          chart: [s, chart[0], chart[1]],
+          gap: null,
+          iteration: 0,
+          reason: "start",
+          initial: foot === null ? "coarse" : initialMode,
+        });
       const met: Vec3 | null = meet(
         part,
         host,
         phase,
         [s, chart[0], chart[1]],
         tolerance,
+        trace,
       );
       const domain: [number, number] | undefined = host.domain;
       if (
@@ -180,8 +200,29 @@ export namespace AutoMovieConstructionSeeds {
         met[0] >= low &&
         met[0] <= high &&
         (domain === undefined || (met[1] >= domain[0] && met[1] <= domain[1]))
-      )
+      ) {
+        if (trace !== undefined)
+          Trace.emit(trace, {
+            kind: "candidate",
+            phase,
+            start: s,
+            chart: [...met],
+            gap: null,
+            iteration: null,
+            reason: "converged",
+          });
         return { phi: phase, s: met[0], y: met[1], theta: met[2], face };
+      }
+      if (trace !== undefined)
+        Trace.emit(trace, {
+          kind: "candidate",
+          phase,
+          start: s,
+          chart: met === null ? null : [...met],
+          gap: null,
+          iteration: null,
+          reason: met === null ? "candidate-failed" : "outside-admission",
+        });
     }
     return steps.length;
   }
@@ -197,9 +238,22 @@ export namespace AutoMovieConstructionSeeds {
     phase: number,
     x0: Vec3,
     tolerance: number,
+    trace?: Trace.Sink,
   ): Vec3 | null {
     let x: Vec3 = [...x0];
-    if (!x.every(Number.isFinite)) return null;
+    if (!x.every(Number.isFinite)) {
+      if (trace !== undefined)
+        Trace.emit(trace, {
+          kind: "meet-end",
+          phase,
+          start: x0[0],
+          chart: x,
+          gap: null,
+          iteration: 0,
+          reason: "nonfinite-start",
+        });
+      return null;
+    }
     const p0: IAutoMovieSolidSurface.IJet | null = AutoMovieSolidDomain.jet(
       part,
       x[0],
@@ -210,21 +264,69 @@ export namespace AutoMovieConstructionSeeds {
       x[1],
       x[2],
     );
-    if (p0 === null || h0 === null) return null;
+    if (p0 === null || h0 === null) {
+      if (trace !== undefined)
+        Trace.emit(trace, {
+          kind: "meet-end",
+          phase,
+          start: x0[0],
+          chart: x,
+          gap: null,
+          iteration: 0,
+          reason: "unavailable-jet",
+        });
+      return null;
+    }
     let p: IAutoMovieSolidSurface.IJet = p0;
     let h: IAutoMovieSolidSurface.IJet = h0;
     let f: Vec3 = sub(p.p, h.p);
     let gap: number = norm(f);
-    if (!Number.isFinite(gap)) return null;
+    if (!Number.isFinite(gap)) {
+      if (trace !== undefined)
+        Trace.emit(trace, {
+          kind: "meet-end",
+          phase,
+          start: x0[0],
+          chart: x,
+          gap,
+          iteration: 0,
+          reason: "nonfinite-gap",
+        });
+      return null;
+    }
     for (let k: number = 0; k < STEPS; k++) {
-      if (gap <= tolerance) return x;
+      if (gap <= tolerance) {
+        if (trace !== undefined)
+          Trace.emit(trace, {
+            kind: "meet-end",
+            phase,
+            start: x0[0],
+            chart: x,
+            gap,
+            iteration: k,
+            reason: "converged",
+          });
+        return x;
+      }
       const dx: Vec3 | null = solve3(
         p.u,
         scale(h.u, -1),
         scale(h.v, -1),
         scale(f, -1),
       );
-      if (dx === null || !dx.every(Number.isFinite)) return null;
+      if (dx === null || !dx.every(Number.isFinite)) {
+        if (trace !== undefined)
+          Trace.emit(trace, {
+            kind: "meet-end",
+            phase,
+            start: x0[0],
+            chart: x,
+            gap,
+            iteration: k,
+            reason: dx === null ? "singular-step" : "nonfinite-step",
+          });
+        return null;
+      }
       let weight: number = 1;
       let moved: boolean = false;
       for (let trial: number = 0; trial < BACKTRACKINGS; trial++, weight /= 2) {
@@ -248,10 +350,42 @@ export namespace AutoMovieConstructionSeeds {
         f = residual;
         gap = distance;
         moved = true;
+        if (trace !== undefined)
+          Trace.emit(trace, {
+            kind: "iteration",
+            phase,
+            start: x0[0],
+            chart: x,
+            gap,
+            iteration: k + 1,
+            reason: "accepted-step",
+          });
         break;
       }
-      if (!moved) return null;
+      if (!moved) {
+        if (trace !== undefined)
+          Trace.emit(trace, {
+            kind: "meet-end",
+            phase,
+            start: x0[0],
+            chart: x,
+            gap,
+            iteration: k,
+            reason: "armijo-exhausted",
+          });
+        return null;
+      }
     }
+    if (trace !== undefined)
+      Trace.emit(trace, {
+        kind: "meet-end",
+        phase,
+        start: x0[0],
+        chart: x,
+        gap,
+        iteration: STEPS,
+        reason: gap <= tolerance ? "converged" : "updates-exhausted",
+      });
     return gap <= tolerance ? x : null;
   }
 

@@ -17,10 +17,11 @@ import { AutoMovieHumanConicLoft, AutoMovieHumanConicPose as Q, AutoMovieHumanCo
  * 4. The station map is the identity at the reference angle (none is returned), keeps the first run's stations, is continuous at every
  *    breakpoint and increasing, and shifts every station past the turn by the turn's change of arclength.
  * 5. A made twist: on a straight course of two 100 mm runs along -Y with `up` +X, the far run's segment turned 0.8 rad about Y. The
- *    rolled chart at the course's end is (cos 0.8, 0, -sin 0.8), the far segment's carried +X; at the middle of the far run (stations
- *    110 to 200 mm, past the straight joint's 20 mm) it has turned half as far and at its quarters a quarter and three quarters, within
- *    0.02 rad of a line; on the first run and across the joint it has not turned, within 0.02 rad. The same course untwisted
- *    takes no roll.
+ *    rolled chart at the course's end is (cos 0.8, 0, -sin 0.8), the far segment's carried +X. Along the far run (stations 110 to 200
+ *    mm, past the straight joint's 20 mm) the roll is a line eased over the joint's half length, 10 mm, at the run's start: its slope
+ *    rises there by the quintic smoothstep to `m = 0.8 / (90 - 5)` and holds, so `x` mm into the run, past the ease, the angle is
+ *    `m (x - 5)`: read at 22.5, 45 and 67.5 mm within 1e-9 rad. On the first run and across the joint the angle is exactly 0. The same
+ *    course untwisted takes no roll.
  * 6. f1 at the reference pose: `assemble()` adds no roll (only the plate rolls, by its own stored roll) and maps no station (445 mm on
  *    the arm reads 445, a 10 mm stretch 10). At the neutral pose the leg's course, whose four runs are bones of one segment each, keeps
  *    every segment's length and every set-back within 1e-9 mm, and the engine admits it.
@@ -30,6 +31,10 @@ import { AutoMovieHumanConicLoft, AutoMovieHumanConicPose as Q, AutoMovieHumanCo
  *    keeps its stations; and the turn's span is the posed turn's arclength plus the length the line gained, within 1e-9 mm.
  * 8. The neutral pose sets the articulated joints and nothing else: `ARTICULATED`, `RIGID` and the trunk's three frames are the whole
  *    chain without overlap, and `NEUTRAL` gives the identity for exactly the articulated ones.
+ * 9. A distal twist stays distal: a straight course of three 100 mm runs with halves 10 mm, its last run's segment turned 0.1 rad
+ *    about the course. On the first two runs and across both joints (stations 0, 50, 100, 150, 205) the rolled axis is the unrolled
+ *    axis bit for bit, `u` and `v`; a roll that is one cubic through all its knots stands 1e-9 rad off there, which refuses a root
+ *    whose planes must agree to 64 machine epsilons (f1's leg under a changed foot length).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicPose.share`, `course`, `halves`, `map`, `twist` and `repose` and reads the results through the engine's `prepare`, `runs` and `jointed` axis.
  * @evidence contracts/development/testing.md#independent-expectations The engine's own set-back and stations, a bone rotated rigidly about its joint, and a chart turned by a known angle about a straight course are derived apart from the law's formulas.
@@ -102,9 +107,9 @@ export function test_human_conic_pose(): void {
     const rolled = AutoMovieHumanConicLoft.axis({ ...family, roll });
     const angle = (s: number): number => Math.atan2(-rolled.at(s).u[2], rolled.at(s).u[0]);
     near("chart at the twisted end", rolled.at(200).u, [Math.cos(0.8), 0, -Math.sin(0.8)], 1e-9);
-    near("roll at the far run's middle", [angle(155)], [0.4], 0.02);
-    near("roll at the far run's quarters", [angle(132.5), angle(177.5)], [0.2, 0.6], 0.02);
-    near("no roll on the first run", [angle(0), angle(50), angle(100)], [0, 0, 0], 0.02);
+    const slope: number = 0.8 / (90 - 5);
+    near("roll along the far run", [angle(132.5), angle(155), angle(177.5)], [slope * (22.5 - 5), slope * (45 - 5), slope * (67.5 - 5)], 1e-9);
+    near("no roll on the first run", [angle(0), angle(50), angle(100), angle(110)], [0, 0, 0, 0], 0);
   }
   if (Q.twist(family, family, (_: number, d: V3): V3 => d) !== undefined) failures.push("the untwisted course took a roll");
   const carried = Q.repose(family, straight, [1, 0, 0], (_: number, d: V3): V3 => d);
@@ -145,6 +150,17 @@ export function test_human_conic_pose(): void {
     const posed: readonly (readonly number[])[] | undefined = P.NEUTRAL(joint.name);
     if ((posed !== undefined) !== P.ARTICULATED.includes(joint.name)) failures.push(`${joint.name}: neutral ${posed === undefined ? "keeps" : "sets"} its rotation`);
     if (posed !== undefined) near(joint.name + " neutral rotation", posed.flat(), [1, 0, 0, 0, 1, 0, 0, 0, 1], 0);
+  }
+
+  // 9: a distal twist stays distal.
+  const three: V3[] = [[0, 0, 0], [0, -100, 0], [0, -200, 0], [0, -300, 0]];
+  const long: AutoMovieHumanConicLoft.IFamily = { name: "made", centres: three, halves: [10, 10], up: [1, 0, 0], layout: AutoMovieHumanConicSection.limb(1), knots: [0, 300], values: [] };
+  const distal: AutoMovieHumanConicLoft.IRoll | undefined = Q.twist(long, long, (run: number, d: V3): V3 => (run === 2 ? [Math.cos(0.1) * d[0] + Math.sin(0.1) * d[2], d[1], -Math.sin(0.1) * d[0] + Math.cos(0.1) * d[2]] : d));
+  if (distal === undefined) failures.push("the distally twisted course took no roll");
+  else {
+    const [plain, rolled] = [AutoMovieHumanConicLoft.axis(long), AutoMovieHumanConicLoft.axis({ ...long, roll: distal })];
+    for (const s of [0, 50, 100, 150, 205]) near("untwisted runs at " + s, [...rolled.at(s).u, ...rolled.at(s).v], [...plain.at(s).u, ...plain.at(s).v], 0);
+    near("twisted end", [Math.atan2(-rolled.at(300).u[2], rolled.at(300).u[0])], [0.1], 1e-12);
   }
 
   if (failures.length > 0) throw new Error(`conic pose: ${failures.length} finding(s):\n${failures.join("\n")}`);

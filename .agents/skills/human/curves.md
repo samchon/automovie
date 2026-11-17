@@ -2,6 +2,16 @@
 
 Author the shape through anatomical points, construction lines and visible curve controls before composing its source or judging its loft. Changing a polynomial basis alone keeps the shape, so it cannot repair a wrong datum, domain or boundary condition.
 
+## Centres Before Curves
+
+A part's form follows from its own centres, so derive them first and let every curve follow them. A curve corrected while its centres are wrong is corrected again for every person.
+
+1. **Joint centres.** Place each joint centre from the person's measures by its published definition, in its parent segment's frame. A length moves the centres past it, and their frames follow.
+2. **Course centres.** The course a part is lofted about is the line its sections are centred on and star-shaped about. It is not the bone: state the offset from the joint centres to the course in the bone's frame as its own quantity with its law, because a section drawn about an off-centre course reads lopsided and refuses sooner.
+3. **The course.** Draw one curve through a part's course centres that keeps its promised continuity through every turn. Carry each station, knot and site along it by its position within its run between two centres, so a longer segment stretches its own run and moves the next.
+4. **Control curves.** Draw the outlines, fullness and inflection lines as continuous functions along that course. Apply every change to the function with its derivatives; a change applied at the knots leaves the curve between them behind, and a value bound at one station then stands off its neighbours as a ridge.
+5. **Joints.** Extend each part's course and control curves past its joint centre into its neighbour, so the joint is formed by the real fields of both parts. A joint's form is the logic of the parts that meet there, by its own kind: a hinge, a branch, a sheet over a wall, a part that comes out through a surface. A strip that only interpolates between two rails carries no anatomy. Write the joint as a function of its parts' centres and frames, never as a shape sculpted in place: the rig turns those same frames, so a joint that is their function follows a pose and yields its binding, while a sculpted one is true only in the pose it was shaped in.
+
 ## Few View Curves Per Segment
 
 Define a segment by a few 2D view curves in its own frame: the front outline pair, the side outline pair, its axis and a fullness control. Each cross-section is the chain of conic arcs through the outline points at its station, shaped by the fullness. This is conic lofting, the long-established method for fuselages and hulls. Draw lines, circles and arcs as such where the anatomy calls for them.

@@ -57,9 +57,95 @@ export interface IAutoMovieConstructionSplit {
 
   /** The children in the seams' order, one more than the seams. */
   children: [IAutoMovieConstructionSplit.IChild, IAutoMovieConstructionSplit.IChild, ...IAutoMovieConstructionSplit.IChild[]];
+
+  /**
+   * The end as the composition of the children's own sections in one declared plane (`ICompose`), so its forks, its seam planes and
+   * every child's rail follow from the children and move with them. Absent, the forks are the authored `seam` phases and each rail the
+   * child's `rail` station or its own `cut`.
+   */
+  compose?: IAutoMovieConstructionSplit.ICompose;
 }
 
 export namespace IAutoMovieConstructionSplit {
+  /**
+   * A plane with a kept side: the points `x` with `normal . (x - point) >= 0` are kept.
+   *
+   * Engine admission: every coordinate finite and the normal not zero; the normal need not be unit.
+   *
+   * @evidence contracts/development/design.md#principled-representation A point and a normal are the plane's whole definition in any orthonormal frame, and the normal's sense names the kept half space, so a rigid motion of the frame carries the plane with it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two vectors; the frame they are written in belongs to the record that holds the plane.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only; a zero normal is refused, never replaced by a default direction.
+   * @evidence contracts/development/common.md#meaningful-documentation States the kept side, the unit and the admission rule.
+   */
+  export interface IPlane {
+    /** A point of the plane, metres, in the holding record's frame. */
+    point: [number, number, number];
+
+    /** The plane's normal toward the kept side, in the holding record's frame; any positive length. */
+    normal: [number, number, number];
+  }
+
+  /**
+   * A child's rail as a curve on the child: the child's own skin cut by a declared surface fixed in a named frame, in place of one station ring.
+   *
+   * The surface is the boundary of the region every plane keeps (`IPlane`): with one plane, that plane; with several, the planes' common kept wedge, such as the end plane and the two planes that part a child from its neighbours. At each child phase the rail's station is the first, from the end that faces the host, at which the child's skin enters that region, so the child keeps exactly its skin inside the region and the band replaces the rest. The rail is read with its first and second derivatives round the child by the implicit function theorem on the child's own 2-jet, and the child's rail cycle, the band's end edge and the crossing between them read that one curve between the band's columns as well as at them. Two parallel positions of the same planes give two curves that are offsets of one another, so a loop on the first and a rail on the second bound a strip as wide as the planes stand apart.
+   *
+   * With `round` the wedge's edges are rounded: the region's boundary is the zero set of the smooth minimum `-round ln(sum_i exp(-g_i / round))` of the planes' signed distances `g_i` (millimetres in the kernel), which tends to the plane distance itself away from an edge and turns from one plane to the next over about `round`, staying inside the wedge by at most `round ln(planes)`. The rail is then one smooth curve; without it the rail keeps a corner where two planes cross on the child.
+   *
+   * Frames: `tree`, the construction's own coordinates; `host`, the host end section's frame, its origin the section's planar origin and its axes the section's first and second axes and its normal out of the host; `part`, the child's facing end section's frame likewise, its third axis into the child. A plane written in a section's frame follows that section when the part moves.
+   *
+   * Engine admission: at least one plane, each as `IPlane` states; `round`, when given, finite and positive; `frame` one of the three. The realization refuses, naming the child and the phase: a phase whose skin never enters the region inside the child's domain (two children that do not part, a plane beyond the child's far end); a phase already inside the region at the facing end (the cut lies before the child's end); a phase where the skin is tangent to the surface.
+   *
+   * @evidence contracts/development/design.md#principled-representation A rail generated as the part's skin cut by a surface fixed in a frame is the one curve both faces consume (construction.md, Connections: Ownership and Ports), exact with its jets by the implicit function theorem; half spaces intersected, with Ricci's smooth blend of implicit primitives in its exponential form for the rounded edge (Ricci 1973, A constructive geometry for computer graphics; Blinn 1982), express an end plane and the planes between neighbours as one surface.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A frame name, the planes and one optional rounding length; the station, its derivatives and the correspondence come from the child's own skin.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Declares planes only: nothing is fitted, searched from a mesh or stored from one pose; a phase without a crossing is refused, never clamped to the child's end.
+   * @evidence contracts/development/common.md#meaningful-documentation States the surface, the rail's station rule and jets, the rounding law and its bound, the three frames, the units and every refusal.
+   */
+  export interface ICut {
+    /** The frame the planes are written in. */
+    frame: "tree" | "host" | "part";
+
+    /** The planes; the child keeps its skin on every plane's kept side. */
+    planes: [IPlane, ...IPlane[]];
+
+    /** The rounding length of the wedge's edges, metres, positive; absent, the edges are sharp. */
+    round?: number;
+  }
+
+  /**
+   * An end composed of its children: the children's root sections, each child's own skin cut by one declared end plane, laid side by side in that plane in the children's order.
+   *
+   * What follows from the children, with nothing authored twice:
+   *
+   * - Each child's root section is its skin cut by the end plane (`ICut` with that one plane), a closed curve in the plane.
+   * - Each pair of neighbouring sections crosses in two points, the pair's forks; the composed outline is every section's arcs outside its neighbours (its lobes), so each lobe's extremes are the child's own, and the valley between two lobes ends in the pair's forks.
+   * - The pair's seam plane passes through both forks and holds the bisector of the two children's axes (each the mean direction of the child's stations across its root section, into the child), so the seam between two children turns as either child turns.
+   * - On the host's end ring, seam `j`'s two forks are the two points where its seam plane crosses the ring; the authored `seam` phases of the split and of `outer` are then not read, each entry declaring only that its seam exists.
+   * - Each seam is its children's valley: in the seam plane, at each place along the chord between the pair's forks, the deeper of the two children's skins cut by that plane, which is where the two children's union crosses the plane (the two cuts are one curve when the children mirror each other in the plane). It is read at the shares `i / (count / 4)` of that chord, the seam's own columns, and joined by the seam's spline from fork to fork on the host's ring. A `profile` under `compose` therefore declares no curve: its `knots` must be empty and its `heading` absent, either one refused by name as a second definition, and it carries only `corner`, `reach`, `square` and `fair`; without a profile the ribbons do not turn at the forks.
+   * - The composed outline is the sections' lobes joined through the forks, in order round the end. Sections that cross leave no gap, so the saddle rule (a radius of half the gap between two root sections) gives each fork a zero radius: a fork is a corner of the outline and a point of both lobes. The host's end ring is measured against that outline in the end plane, and a ring that stands farther from it anywhere than the shortest child `rail` is refused with the greatest and the mean distance, since a band `rail` long would then run more across the children than along them. A host family that adopts the outline for its last section stands at zero.
+   * - Each band's loop edge is its owners' curves between columns as well as at them: the host's ring on an arc and the shared seam on a seam, so the two bands beside a seam share its points and tangents everywhere.
+   * - Each child's rail is its skin cut by the end plane and its one or two seam planes, each moved along the child's axis by the child's `rail` distance, with `round` on the wedge's edges (`ICut`); a child's own `cut`, when declared, is used instead. On a straight child the rail is therefore the child's own boundary in the composition, moved along its stations by `rail`: where the host's end ring is the composed outline and a seam the children's own valley, each child's loop and its rail are offsets of one curve and the band between them is a strip `rail` wide all round. A plane moved along its own normal instead would carry a seam plane, which stands nearly along the child, many times `rail` down the child.
+   *
+   * The plane is written in `frame`: `tree`, the construction's coordinates, or `host`, the host end section's frame (`ICut`). Its normal points out of the host, into the children.
+   *
+   * Engine admission: the plane as `IPlane` states; `round`, when given, finite and positive. The realization refuses, naming the children: a child whose skin does not cross the end plane all round inside its domain (its section is not admitted in the plane); two neighbours whose sections do not cross exactly twice (lobes apart, or one inside the other); two children that are not neighbours whose sections overlap; a pair whose bisector runs along the chord between its forks; a seam plane that does not cross the host's end ring exactly twice, or whose forks do not enclose the seam before it; a host end ring farther from the composed outline than the shortest `rail`; a profile with knots or a heading; a valley that leaves the chord between the host's forks; and every refusal of a child's rail (`ICut`).
+   *
+   * @evidence contracts/development/design.md#principled-representation A branch node's surface is made of its children's root sections (Ji, Liu and Wang 2010, B-Mesh; sweep-based binding of a child's first section to its parent, Yoon and Kim 2006), and the planes between neighbours follow the bisectors of their axes, so the end, its forks and its seams are functions of the children's frames and are re-evaluated when a child moves instead of being stored from one pose.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One plane, its frame and one optional rounding length; sections, forks, seam planes, host fork phases and rails are derived.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No web depth, fork phase or chord is tabulated; a composition whose premises fail is refused by name and leaves the whole split out, never repaired by a fill or a clamp.
+   * @evidence contracts/development/common.md#meaningful-documentation States every derived quantity with its rule, which authored members are not read, the frames, the units and every refusal.
+   */
+  export interface ICompose {
+    /** The frame the end plane is written in. */
+    frame: "tree" | "host";
+
+    /** The end plane; its normal points out of the host, into the children. */
+    plane: IPlane;
+
+    /** The rounding length of each derived rail's wedge edges, metres, positive (`ICut.round`); absent, sharp. */
+    round?: number;
+  }
+
   /**
    * A curved seam: the shared contour both bands start from in place of the straight chord, such as a crotch's midsagittal line from the front fork under the perineum to the back fork.
    *
@@ -160,8 +246,15 @@ export namespace IAutoMovieConstructionSplit {
     /** The child face's end that faces the host: the band replaces the child's surface between that end and the rail. */
     partEnd: "bottom" | "top";
 
-    /** The rail's distance from that end into the child along its station, metres, positive: the child keeps the stations beyond it. */
+    /** The rail's distance from that end into the child along its station, metres, positive: the child keeps the stations beyond it. Not read when `cut` is given; under the split's `compose` it is the distance the derived rail's planes are moved along the child's axis. */
     rail: number;
+
+    /**
+     * The rail as a curve on the child, its skin cut by a declared surface (`ICut`), in place of the one station `rail`: for a child whose
+     * root does not lie in one of its own section planes, as a digit's does where it leaves an end aslant and is parted from its
+     * neighbours by the planes between them. Absent, the rail is the one station, or under the split's `compose` the derived cut.
+     */
+    cut?: ICut;
 
     /** A declared crease where the band meets the child, or absent for G2 all round. */
     crease?: ICrease;

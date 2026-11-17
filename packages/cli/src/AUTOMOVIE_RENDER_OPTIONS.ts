@@ -8,4 +8,5 @@ export const AUTOMOVIE_RENDER_OPTIONS: readonly string[] = [
   "props",
   "out",
   "backend",
+  "timeout-ms",
 ];

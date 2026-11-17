@@ -80,6 +80,14 @@ export namespace AutoMovieConstructionAdmission {
           need(part.views, node.seed.partFace, "part face");
           need(host.faces, node.seed.hostFace, "host face");
           if (node.fair !== undefined && !(Number.isFinite(node.fair) && node.fair > 0)) throw new Error(`realizeAutoMovieConstruction: ${name}'s fair ${node.fair} m is not positive and finite`);
+
+          // A mixed join's declared loop and each fold's reach (`IAutoMovieConstructionJoin.loop`, `IAutoMovieConstructionFoldWidth.reach`).
+          const loop: typeof node.loop = node.loop;
+          if (loop !== undefined && !(Number.isFinite(loop.centre[0]) && Number.isFinite(loop.centre[1]) && loop.semi[0] > 0 && loop.semi[1] > 0 && loop.semi[1] < Math.PI && (loop.sense === 1 || loop.sense === -1) && (loop.shape === undefined || (loop.shape.length === node.count && loop.shape.every((share: number): boolean => Number.isFinite(share) && share > 0)))))
+            throw new Error(`realizeAutoMovieConstruction: ${name}'s loop needs a finite centre, positive semi-axes with the phase one under pi, a sense of 1 or -1 and, when shaped, ${node.count} positive shares`);
+          for (const width of [node.partWidth, node.hostWidth])
+            if (width.type === "fold" && width.reach !== undefined && !(Number.isFinite(width.reach) && width.reach > 0))
+              throw new Error(`realizeAutoMovieConstruction: ${name}'s fold reach ${width.reach} m is not positive and finite`);
           return {
             views: union(host.views, part.views),
             faces: union(union(host.faces, part.faces), new Set([name])),
@@ -106,7 +114,21 @@ export namespace AutoMovieConstructionAdmission {
           const host: Names = check(node.host);
           need(host.views, node.hostFace, "host face");
           const [a, b]: [number, number] = node.seam;
+          // A composed end derives every seam's phases from its children (`IAutoMovieConstructionSplit.ICompose`), so the authored
+          // ones are not read and not admitted; its plane and rounding are.
+          const composed: boolean = node.compose !== undefined;
+          /** Refuse a declared plane that is not finite or has no normal, naming its holder. */
+          const flat: (plane: IAutoMovieConstructionSplit.IPlane, what: string) => void = (plane: IAutoMovieConstructionSplit.IPlane, what: string): void => {
+            if (!(plane.point.every(Number.isFinite) && plane.normal.every(Number.isFinite) && Math.hypot(...plane.normal) > 0))
+              refuse(`${what} plane (point [${plane.point.join(", ")}] m, normal [${plane.normal.join(", ")}]) is not finite with a nonzero normal`);
+          };
+          if (node.compose !== undefined) {
+            if (node.compose.frame !== "tree" && node.compose.frame !== "host") refuse(`compose frame ${String(node.compose.frame)} is neither tree nor host`);
+            flat(node.compose.plane, "compose");
+            if (node.compose.round !== undefined && !(Number.isFinite(node.compose.round) && node.compose.round > 0)) refuse(`compose round ${node.compose.round} m is not positive and finite`);
+          }
           if (
+            !composed &&
             !(
               Number.isFinite(a) &&
               Number.isFinite(b) &&
@@ -136,7 +158,11 @@ export namespace AutoMovieConstructionAdmission {
             profile: IAutoMovieConstructionSplit.IProfile | undefined,
           ): void => {
             if (profile === undefined) return;
-            if (profile.knots.length === 0) refuse("profile has no knot");
+            // A composed end derives each seam's valley and plane from its children, so authored knots or a heading would be a second
+            // definition of the same curve; the profile then carries only the ribbons' corner, reach, square and fair.
+            if (composed && profile.knots.length !== 0) refuse("profile knots conflict with compose, which derives the seam's valley from the children");
+            if (composed && profile.heading !== undefined) refuse("profile heading conflicts with compose, which derives the seam's plane from the children");
+            if (!composed && profile.knots.length === 0) refuse("profile has no knot");
             let previous: [number, number] = [0, 0];
             for (const [along, depth] of profile.knots) {
               if (
@@ -177,6 +203,7 @@ export namespace AutoMovieConstructionAdmission {
           for (const outer of node.outer ?? []) {
             const [oa, ob]: [number, number] = outer.seam;
             if (
+              !composed &&
               !(
                 Number.isFinite(oa) &&
                 Number.isFinite(ob) &&
@@ -203,7 +230,14 @@ export namespace AutoMovieConstructionAdmission {
             if (!(Number.isFinite(child.rail) && child.rail > 0))
               refuse(
                 `rail ${child.rail} m of ${child.partFace} is not positive`,
-              );            const crease: typeof child.crease = child.crease;
+              );
+            if (child.cut !== undefined) {
+              if (child.cut.frame !== "tree" && child.cut.frame !== "host" && child.cut.frame !== "part") refuse(`cut frame ${String(child.cut.frame)} of ${child.partFace} is none of tree, host and part`);
+              if (child.cut.planes.length === 0) refuse(`cut of ${child.partFace} has no plane`);
+              for (const plane of child.cut.planes) flat(plane, `cut of ${child.partFace}'s`);
+              if (child.cut.round !== undefined && !(Number.isFinite(child.cut.round) && child.cut.round > 0)) refuse(`cut round ${child.cut.round} m of ${child.partFace} is not positive and finite`);
+            }
+            const crease: typeof child.crease = child.crease;
             if (
               crease !== undefined &&
               !(

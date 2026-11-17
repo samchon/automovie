@@ -1,3 +1,4 @@
+import { countAutoMovieMeshComponents } from "@automovie/engine";
 import { AutoMovieHumanF1, AutoMovieHumanF1Joints } from "@automovie/human";
 
 /**
@@ -27,24 +28,12 @@ export function test_human_f1_body(): void {
   // 2. Closed and connected.
   const count: number = body.positions.length / 3;
   const uses: Map<number, number> = new Map();
-  const parent: number[] = Array.from({ length: count }, (_: unknown, i: number): number => i);
-  const find = (i: number): number => {
-    let root: number = i;
-    while (parent[root] !== root) root = parent[root]!;
-    while (parent[i] !== root) {
-      const next: number = parent[i]!;
-      parent[i] = root;
-      i = next;
-    }
-    return root;
-  };
   for (let t: number = 0; t + 2 < body.indices.length; t += 3)
     for (let e: number = 0; e < 3; ++e) {
       const a: number = body.indices[t + e]!;
       const b: number = body.indices[t + ((e + 1) % 3)]!;
       const key: number = Math.min(a, b) * count + Math.max(a, b);
       uses.set(key, (uses.get(key) ?? 0) + 1);
-      parent[find(a)] = find(b);
     }
   let open: number = 0;
   let over: number = 0;
@@ -53,9 +42,14 @@ export function test_human_f1_body(): void {
     if (used > 2) ++over;
   }
   if (open !== 0 || over !== 0) failures.push(`skin: ${open} edges used once and ${over} used more than twice, of ${uses.size}`);
-  const components: Set<number> = new Set();
-  for (let t: number = 0; t < body.indices.length; t += 3) components.add(find(body.indices[t]!));
-  if (components.size !== 1) failures.push(`the triangles form ${components.size} components`);
+  const components: number = countAutoMovieMeshComponents({
+    positions: body.positions,
+    indices: body.indices,
+    normals: null,
+    uvs: null,
+    skin: null,
+  });
+  if (components !== 1) failures.push(`the triangles form ${components} components`);
 
   // 3. Size, mm.
   const bound = (axis: number, pick: (...values: number[]) => number): number => {
