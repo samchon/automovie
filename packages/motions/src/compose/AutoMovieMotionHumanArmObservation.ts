@@ -12,6 +12,8 @@ import type {
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
+import { isHumanArmAlone } from "../posture/isHumanArmAlone";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
 import type { HumanHand } from "../posture/HumanHand";
@@ -20,6 +22,7 @@ import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import type { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 
 /**
@@ -137,6 +140,54 @@ export namespace AutoMovieMotionHumanArmObservation {
       last = next;
     }
     return (1.875 * Math.max(...length)) / HumanArmTrajectoryModel.SPEED_LIMIT;
+  }
+
+  /**
+   * {@link reaching} from an arm at rest to the arm a posture's solve fits
+   * for a goal, with the posture's pose without that arm resolved once for
+   * both: the base the arcs are measured on and, where the arm is the last
+   * limb the solve fits and fits alone (`isHumanArmAlone`), the pose the
+   * goal's arm is fitted on.
+   *
+   * @param body The body.
+   * @param posture The posture the arm moves in; its own goal for this arm is not read.
+   * @param side The arm.
+   * @param from The arm at the start.
+   * @param goal The arm's goal at the end, world or attached.
+   * @returns Seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two ends, the one base and when the end's arm is fitted on it.
+   * @evidence contracts/development/implementation.md#principled-implementation The posture's solve fits the legs first and this arm last, so under `isHumanArmAlone` the arm fitted alone on the pose without it is the arm the solve gives; otherwise the posture is solved with the goal as before.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One base, one end arm, then `reachingPose`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A posture whose other limbs couple with the arm keeps the whole solve; no arc sample or bound changes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve without the arm and one arm fit, where the caller's own posture solve with the goal and `reaching`'s base made two posture solves; then `reachingPose`'s samples.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The base is the pose `reaching` resolves from the same posture with the same arm left out, shared by the end's fit and the arcs within this call; one exact FK reader serves all three.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The base, the fitted pose and the reader end with the call; only the scalar escapes.
+   */
+  export function reachingGoal(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    side: HumanHand.Side,
+    from: HumanArmClearance.IArm,
+    goal: IHumanPosture.IGoal,
+  ): number {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const limb: "leftArm" | "rightArm" = `${side}Arm`;
+    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    delete limbs[limb];
+    const base: IAutoMoviePose = resolveHumanPosture.seeded(body, {
+      ...posture,
+      limbs,
+    }, undefined, undefined, resolution).pose;
+    const fitted: IAutoMoviePose = isHumanArmAlone(posture.limbs, side)
+      ? HumanLimbFit.fit(body, base, limb, goal, ["left", "right"],
+          undefined, undefined, resolution).pose
+      : resolveHumanPosture.seeded(body, {
+          ...posture,
+          limbs: { ...posture.limbs, [limb]: goal },
+        }, undefined, undefined, resolution).pose;
+    return reachingPose(body, base, side, from,
+      AutoMovieMotionHumanArmAngles.angles(fitted, side), resolution);
   }
 
   /**

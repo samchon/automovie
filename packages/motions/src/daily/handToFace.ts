@@ -9,6 +9,7 @@ import type { tags } from "typia";
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmObservation } from "../compose/AutoMovieMotionHumanArmObservation";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
@@ -377,7 +378,7 @@ export namespace handToFace {
 
     // The transport lasts at least as long as each arm needs to keep within
     // the audit's travel bound on the way to its place at the face
-    // (`AutoMovieMotionHumanArmPlanned.reaching`): the default time reads
+    // (`AutoMovieMotionHumanArmObservation.reachingGoal`): the default time reads
     // the hand's straight distance alone, and an arm whose fingertips sweep
     // an arc half again as long was asked to pass the bound whatever path
     // it took.
@@ -386,21 +387,12 @@ export namespace handToFace {
       const laid: handToFaceArm.IArm = arms[i]!;
       reach = Math.max(
         reach,
-        AutoMovieMotionHumanArmPlanned.reaching(
+        AutoMovieMotionHumanArmObservation.reachingGoal(
           body,
           atFace,
           side,
           AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-          AutoMovieMotionHumanArm.angles(
-            resolveHumanPosture.seeded(body, {
-              ...atFace,
-              limbs: {
-                ...atFace.limbs,
-                [`${side}Arm`]: { ...laid.goal, reference: laid.reference },
-              },
-            }).pose,
-            side,
-          ),
+          { ...laid.goal, reference: laid.reference },
         ),
       );
     });

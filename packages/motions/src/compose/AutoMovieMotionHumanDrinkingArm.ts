@@ -18,6 +18,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanHand } from "../posture/HumanHand";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
+import { isHumanArmAlone } from "../posture/isHumanArmAlone";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -200,7 +201,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     // reference is the same posture's solve of the unreferred goal, so it
     // is that one arm fit on the same base too.
     const only: ((fitted: IHumanPosture.IGoal) => IAutoMoviePose) | undefined =
-      base !== undefined && alone(posture.limbs, side)
+      base !== undefined && isHumanArmAlone(posture.limbs, side)
         ? (fitted: IHumanPosture.IGoal): IAutoMoviePose =>
             HumanLimbFit.fit(body, base(posture), limb, fitted, ["left", "right"],
               undefined, undefined, resolution).pose
@@ -305,18 +306,6 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     };
     return (posture: IHumanPosture, goal: IHumanPosture.IGoal, referred: boolean, axis?: IAutoMovieVector3): IArm =>
       read(body, posture, side, goal, referred, axis, resolution, projection, base);
-  }
-
-  /** Whether an arm is the last limb a posture's solve fits and fits alone: the other arm has no goal and no other limb's goal rides a bone of this arm. */
-  function alone(limbs: IHumanPosture["limbs"], side: HumanHand.Side): boolean {
-    const other: "leftArm" | "rightArm" = side === "left" ? "rightArm" : "leftArm";
-    if (limbs[other] !== undefined) return false;
-    for (const name of ["leftLeg", "rightLeg"] as const) {
-      const on: AutoMovieHumanoidBone | undefined = limbs[name]?.on;
-      if (on !== undefined && on.startsWith(side) &&
-        /(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/.test(on)) return false;
-    }
-    return true;
   }
 
   /**
