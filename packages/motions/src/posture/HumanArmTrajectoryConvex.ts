@@ -129,14 +129,14 @@ export namespace HumanArmTrajectoryConvex {
           const step = (dir: IAutoMovieVector3): ILinear =>
             join(
               ...(inner(k + 1)
-                ? [along(a, k + 1, jac[a]![k + 1]!.probes[probe]!, dir)]
+                ? [along(a, k + 1, jac[a]![k + 1]!.probe(probe), dir)]
                 : []),
               ...(inner(k)
                 ? [
                     along(
                       a,
                       k,
-                      jac[a]![k]!.probes[probe]!,
+                      jac[a]![k]!.probe(probe),
                       Quaternion.rotateVector(turn, dir),
                       -1,
                     ),
@@ -210,9 +210,9 @@ export namespace HumanArmTrajectoryConvex {
             Vector3.scale(g, u),
           );
           const s: ILinear = join(
-            ...(inner(k) ? [along(a, k, jac[a]![k]!.probes[probe]!, ga)] : []),
+            ...(inner(k) ? [along(a, k, jac[a]![k]!.probe(probe), ga)] : []),
             ...(inner(k + 1)
-              ? [along(a, k + 1, jac[a]![k + 1]!.probes[probe]!, gb)]
+              ? [along(a, k + 1, jac[a]![k + 1]!.probe(probe), gb)]
               : []),
           );
           if (s.idx.length > 0)
@@ -340,7 +340,7 @@ export namespace HumanArmTrajectoryConvex {
             pair.shape,
             placedK.probes[pair.probe]![0],
           );
-          const v: ILinear = along(a, k, jac[a]![k]!.probes[pair.probe]!, g);
+          const v: ILinear = along(a, k, jac[a]![k]!.probe(pair.probe), g);
           rows.push({
             key: `c|${a}|${k}|${pair.probe}|${pair.shape}`,
             index: v.idx,
@@ -403,7 +403,7 @@ export namespace HumanArmTrajectoryConvex {
             Vector3.normalize(Vector3.subtract(p, pair.shape.centre)),
           );
           const s: ILinear = join(
-            along(a, k, jac[a]![k]!.probes[pair.probe]!, g),
+            along(a, k, jac[a]![k]!.probe(pair.probe), g),
             along(b, k, carried(b, k, pair.owner, p), g, -1),
           );
           rows.push({

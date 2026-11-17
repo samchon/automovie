@@ -167,7 +167,7 @@ export namespace HumanArmTrajectoryClear {
         ? Quaternion.rotateVector(Quaternion.inverse(sweep.turn), normal)
         : normal;
       rows.push({
-        coef: jac.probes[sweep.probe]!.map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
+        coef: jac.probe(sweep.probe).map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
         gain: deepest + M.TOLERANCE,
       });
     }
@@ -176,7 +176,7 @@ export namespace HumanArmTrajectoryClear {
       if (pair.rested || pair.short < -M.TOLERANCE) continue;
       const g: IAutoMovieVector3 = S.normal(frame, pair.shape, placed.probes[pair.probe]![0]);
       rows.push({
-        coef: jac.probes[pair.probe]!.map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
+        coef: jac.probe(pair.probe).map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
         gain: pair.short + M.TOLERANCE,
       });
     }
