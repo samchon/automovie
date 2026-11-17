@@ -126,10 +126,34 @@ export namespace QuadrupedEquipment {
     params: IParams,
     archetype: string,
   ): void {
+    prepare(rig, params, archetype).emit(builder);
+  }
+
+  /**
+   * Admit and plan complete authored equipment without mutating a builder.
+   *
+   * @param rig Actual neutral body landmarks and dimensions, metres.
+   * @param params Complete authored assemblies; absence plans no parts.
+   * @param archetype Actual producer identity used by actionable refusals.
+   * @returns The fixed-size real primitive/contact plan, ready for one or more independent emissions.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines non-emitting actual-rig admission, whole assembly inputs and the independent builder-emission boundary.
+   * @evidence contracts/development/implementation.md#principled-implementation Existing yoke and pack planning admit their complete physical geometry against the actual rig before either can append a part or contact.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Create one plan, populate requested assemblies through their existing owners and return that same admitted plan.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No probe builder, partial emitted model, guessed source dimensions or repeated random construction establishes eligibility.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most two fixed assemblies require constant scalar/primitive planning, without full model construction or mesh inspection.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The ordinary lay operation and whole-cohort preflight share these exact geometry/admission routines; the selected prepared plan is emitted without replanning.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a bounded plan of fixed primitive/contact records; no builder, input model, cache or external handle is retained.
+   */
+  export function prepare(
+    rig: QuadrupedBody.IRig,
+    params: IParams,
+    archetype: string,
+  ): QuadrupedEquipmentPlan {
     const plan: QuadrupedEquipmentPlan = new QuadrupedEquipmentPlan(archetype);
     if (params.yoke !== undefined) planYoke(plan, rig, params.yoke);
     if (params.pack !== undefined) planPack(plan, rig, params.pack);
-    plan.emit(builder);
+    return plan;
   }
 
   /** Plan the beam above the neck/trunk envelope and connect its forward U hitch. */
@@ -150,7 +174,8 @@ export namespace QuadrupedEquipment {
     const length: number = Vector3.length(axis);
     plan.positive("rig.neck.length", length);
     if (axis.x !== 0 || !(axis.z > 0))
-      plan.refuse("rig.neckAxis",
+      plan.refuse(
+        "rig.neckAxis",
         axis,
         "a rest neck must lie in its +Z-forward sagittal plane",
         "use the actual canonical rest rig",
@@ -159,7 +184,8 @@ export namespace QuadrupedEquipment {
     plan.atMost("yoke.hook.radius", yoke.hook.radius, yoke.radius);
     const minimum: number = 2 * (rig.neckRadius + yoke.radius + yoke.clearance);
     if (!Number.isFinite(minimum) || yoke.width < minimum)
-      plan.refuse("yoke.width",
+      plan.refuse(
+        "yoke.width",
         yoke.width,
         `beam width must span at least ${minimum} m of neck and clearance`,
         "increase width or reduce the authored beam radius/clearance",
@@ -167,7 +193,8 @@ export namespace QuadrupedEquipment {
     const az: number = axis.z / length;
     const ay: number = axis.y / length;
     if (yoke.neckAt * az < yoke.radius + yoke.clearance)
-      plan.refuse("yoke.neckAt",
+      plan.refuse(
+        "yoke.neckAt",
         yoke.neckAt,
         "the beam's rear edge would pass behind the neck root",
         "move the beam farther along the actual neck or reduce its radius/clearance",
@@ -185,7 +212,8 @@ export namespace QuadrupedEquipment {
       ...anchor,
       y: Math.max(anchor.y + lift, rig.back + yoke.radius + yoke.clearance),
     };
-    plan.rod("yoke-beam",
+    plan.rod(
+      "yoke-beam",
       yoke.radius,
       { ...centre, x: centre.x - yoke.width / 2 },
       { ...centre, x: centre.x + yoke.width / 2 },
@@ -195,12 +223,7 @@ export namespace QuadrupedEquipment {
       ...centre,
       z: centre.z + yoke.radius + yoke.hook.opening / 2 + 2 * yoke.hook.radius,
     };
-    plan.rod("yoke-hitch-link",
-      yoke.hook.radius,
-      centre,
-      hook,
-      METAL,
-    );
+    plan.rod("yoke-hitch-link", yoke.hook.radius, centre, hook, METAL);
     plan.hook("yoke-hitch", "hitch", hook, yoke.hook, METAL);
   }
 
@@ -220,15 +243,13 @@ export namespace QuadrupedEquipment {
     plan.positive("rig.neckRadius", rig.neckRadius);
     plan.point("rig.neck", rig.neck);
     const middle: number = rig.back - rig.barrel;
-    plan.atMost("pack.width",
-      pack.width,
-      Math.min(2 * rig.barrel, 2 * middle),
-    );
+    plan.atMost("pack.width", pack.width, Math.min(2 * rig.barrel, 2 * middle));
     const span: number = Math.min(rig.trunk, 2 * (rig.neck.z - rig.neckRadius));
     plan.atMost("pack.length", pack.length, span - 2 * pack.railRadius);
     plan.atMost("pack.railRadius", pack.railRadius, pack.thickness / 2);
     plan.atMost("pack.hook.radius", pack.hook.radius, pack.railRadius);
-    plan.atMost("pack.hook.opening",
+    plan.atMost(
+      "pack.hook.opening",
       pack.hook.opening,
       pack.length - 4 * pack.hook.radius,
     );
@@ -246,7 +267,8 @@ export namespace QuadrupedEquipment {
         z: pack.length,
       };
       plan.box(`pack-${side}-pad`, size, at, WOOD);
-      plan.rod(`pack-${side}-rail`,
+      plan.rod(
+        `pack-${side}-rail`,
         pack.railRadius,
         { x: at.x, y: rail, z: -pack.length / 2 },
         { x: at.x, y: rail, z: pack.length / 2 },
@@ -254,7 +276,8 @@ export namespace QuadrupedEquipment {
       );
       for (const end of [-1, 1] as const)
         if (bridge > rail)
-          plan.rod(`pack-${side}-post-${end}`,
+          plan.rod(
+            `pack-${side}-post-${end}`,
             pack.railRadius,
             { x: at.x, y: rail, z: (end * pack.length) / 2 },
             { x: at.x, y: bridge, z: (end * pack.length) / 2 },
@@ -265,26 +288,22 @@ export namespace QuadrupedEquipment {
         y: rail,
         z: 0,
       };
-      plan.rod(`pack-${side}-hook-link`,
+      plan.rod(
+        `pack-${side}-hook-link`,
         pack.hook.radius,
         { x: at.x, y: rail, z: 0 },
         hook,
         METAL,
       );
-      plan.hook(`pack-${side}-hook`,
-        id,
-        hook,
-        pack.hook,
-        METAL,
-      );
+      plan.hook(`pack-${side}-hook`, id, hook, pack.hook, METAL);
     }
     for (const end of [-1, 1] as const)
-      plan.rod(`pack-bridge-${end}`,
+      plan.rod(
+        `pack-bridge-${end}`,
         pack.railRadius,
         { x: -x, y: bridge, z: (end * pack.length) / 2 },
         { x, y: bridge, z: (end * pack.length) / 2 },
         WOOD,
       );
   }
-
 }

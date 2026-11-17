@@ -6,6 +6,7 @@ import {
   type ArchetypeFriction,
   ArchetypeUnits,
 } from "../core";
+import { QuadrupedAttachments } from "./QuadrupedAttachments";
 
 /**
  * A four-legged animal's body as one bar per bone, built from its species' proportions: the bone vocabulary every quadruped shares, the joints at rest, and the bars laid on a model under construction.
@@ -107,14 +108,14 @@ export namespace QuadrupedBody {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None; every member is a proportion a species states with its source or as an estimate.
    */
   export interface IBody {
-    /** Bone lengths as fractions of the height at the withers, from the top of each limb down, and the trunk from the shoulder joints to the hip joints. */
+    /** Bone lengths as fractions of withers height, from the top of each limb down, and the torso's axial control span. */
     lengths: Readonly<{
       fore: readonly [number, number, number, number];
       hind: readonly [number, number, number, number];
       trunk: number;
     }>;
 
-    /** Each limb bone's standing direction, degrees from straight down toward the front, from the top of each limb down. */
+    /** Initial neutral directions, degrees from down toward the front. Shared grounding and parent-solid construction may articulate the first two links, preserving all lengths, footprint and distal directions. */
     stance: Readonly<{
       fore: readonly [number, number, number, number];
       hind: readonly [number, number, number, number];
@@ -184,13 +185,13 @@ export namespace QuadrupedBody {
     /** The back's height above the ground, metres. */
     back: number;
 
-    /** The distance from the shoulder joints to the hip joints, metres. */
+    /** The actual trunk capsule's axial span, metres; connected joints lie in their parent solids. */
     trunk: number;
 
-    /** Each limb's five joints from the top down: the shoulder or hip joint, the elbow or stifle, the carpus or hock, the fetlock, and the foot on the ground. */
+    /** Each connected neutral chain: shoulder/hip, elbow/stifle, carpus/hock, fetlock and terminal endpoint. Four lengths, footprint and distal directions are preserved; endpoint height gives the actual flat terminal cylinder's sole ground Y=0. */
     limbs: Readonly<Record<Limb, readonly IAutoMovieVector3[]>>;
 
-    /** The point of buttock, the rear of the hindquarters: `IBody.buttock` behind the shoulder joints, at the hip joints' height. No source read gives its height, so the hip joint's is a provisional value; the searches are in the sources record. */
+    /** The point of buttock, `IBody.buttock` behind the initial shoulder site, at the initial hind conformation's height. This provisional rump landmark is independent of later neutral joint connection; no measured buttock height is claimed. */
     buttock: IAutoMovieVector3;
 
     /** The neck's root on the trunk, where its bar starts. */
@@ -232,11 +233,11 @@ export namespace QuadrupedBody {
    * @returns The rest rig.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Each limb is laid from its foot on the ground up through its bones at their standing angles, then shifted along the trunk so its top joint lies at its end of the trunk; the landmarks are the species' fractions of the withers height from the back and the trunk's ends.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The limbs, then the landmarks.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse; the producer's bands admit the dimensions.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen bones.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidence contracts/development/implementation.md#principled-implementation Initial chains define body landmarks from declared lengths/directions without changing sourced dimensions. The common neutral construction then grounds the actual terminal cylinders by their support clearance and connects detached roots to the unchanged torso capsules with an exact length-preserving proximal fit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Construct initial chains and body landmarks, then connect the neutral chains using the same capsule definitions the body layout emits.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No species, speed or screenshot selects a correction. Parent solids, measured dimensions, all four lengths, footprints and distal carriage remain fixed; the terminal-centre height follows the real sole rather than a whole-model offset, and impossible connection refuses instead of stretching or hiding a motion-goal clamp.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen initial links and at most four closed-form neutral proximal fits take O(1) time/space; no mesh search, iteration history or motion sampling occurs.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Layout and conformation share the torso capsule definition, and neutral fitting reuses the existing exact four-bar owner while preserving already grounded and connected coordinates.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rig(
@@ -247,8 +248,9 @@ export namespace QuadrupedBody {
     const barrel: number = dimensions.girth! / (2 * Math.PI);
     const trunk: number = body.lengths.trunk * h;
     const back: number = body.back * h;
-    const limbs: Partial<Record<Limb, IAutoMovieVector3[]>> = {};
-    for (const limb of LIMBS) {
+
+    /** Initial provisional chain; body connection is resolved after the torso landmarks exist. */
+    function chain(limb: Limb): IAutoMovieVector3[] {
       const fore: boolean = limb.endsWith("Fore");
       const lengths: readonly number[] = fore
         ? body.lengths.fore
@@ -259,7 +261,8 @@ export namespace QuadrupedBody {
       const x: number =
         (limb.startsWith("left") ? 1 : -1) * (barrel - body.inset);
 
-      // From the foot on the ground up to the top joint, then listed from the top down.
+      // Start at a provisional terminal centre on Y=0, then list joints from the top down.
+      // Shared neutral construction later places the real terminal cylinder's sole on ground.
       let y: number = 0;
       let z: number = 0;
       const up: IAutoMovieVector3[] = [Vector3.create(x, 0, 0)];
@@ -270,17 +273,19 @@ export namespace QuadrupedBody {
         up.push(Vector3.create(x, y, z));
       }
       const top: number = (fore ? 1 : -1) * (trunk / 2) - z;
-      limbs[limb] = up
+      return up
         .reverse()
         .map(
           (p: IAutoMovieVector3): IAutoMovieVector3 =>
             Vector3.create(p.x, p.y, p.z + top),
         );
     }
-    const joints: Record<Limb, IAutoMovieVector3[]> = limbs as Record<
-      Limb,
-      IAutoMovieVector3[]
-    >;
+    const joints: Record<Limb, IAutoMovieVector3[]> = {
+      leftFore: chain("leftFore"),
+      rightFore: chain("rightFore"),
+      leftHind: chain("leftHind"),
+      rightHind: chain("rightHind"),
+    };
     const shoulder: IAutoMovieVector3 = joints.leftFore[0]!;
     const hip: IAutoMovieVector3 = joints.leftHind[0]!;
     const buttock: IAutoMovieVector3 = Vector3.create(
@@ -314,7 +319,11 @@ export namespace QuadrupedBody {
     return {
       back,
       trunk,
-      limbs: joints,
+      limbs: QuadrupedAttachments.conform(
+        joints,
+        QuadrupedAttachments.solids({ back, trunk, barrel, quarters }),
+        body.bones[3]! * h,
+      ),
       buttock,
       neck,
       neckRadius,
@@ -381,18 +390,20 @@ export namespace QuadrupedBody {
                 0,
               ));
 
-    // The trunk from the shoulder joints to the hip joints, and the hindquarters from the hip joints back to the point of buttock, the torso's share shared between them by volume.
-    const back: number = rig.back;
+    // The two unchanged torso solids also define neutral limb connection; their measured or authored total share is divided by their actual volumes.
     const half: number = rig.trunk / 2;
-    const rear: IAutoMovieVector3 = v(0, back - barrel, -half);
-    const quarters: IAutoMovieVector3 = rig.quarters;
-    const capsule = (length: number): number =>
+    const parents: Readonly<
+      Record<QuadrupedAttachments.Parent, QuadrupedAttachments.ICapsule>
+    > = QuadrupedAttachments.solids(rig);
+    const rear: IAutoMovieVector3 = parents.trunk.from;
+    const quarters: IAutoMovieVector3 = parents.hindquarters.to;
+    const capsule: (length: number) => number = (length: number): number =>
       Math.PI * barrel * barrel * length + (4 / 3) * Math.PI * barrel ** 3;
     const trunkVolume: number = capsule(2 * half);
     const quartersVolume: number = capsule(
       Vector3.length(Vector3.subtract(quarters, rear)),
     );
-    builder.rod("trunk", barrel, rear, v(0, back - barrel, half), {
+    builder.rod("trunk", barrel, rear, parents.trunk.to, {
       color: coat,
       round: true,
       share:
@@ -449,6 +460,7 @@ export namespace QuadrupedBody {
       BONES[limb].forEach((bone: Bone, k: number): void => {
         builder.rod(bone, body.bones[k]! * h, joints[k]!, joints[k + 1]!, {
           color: coat,
+          round: false,
           share: shares === undefined ? undefined : scale * shares[k]!,
           // The digit ends in the foot.
           ...(k === 3 ? { surface: body.foot } : {}),

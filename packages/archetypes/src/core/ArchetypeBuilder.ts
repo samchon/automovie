@@ -21,8 +21,8 @@ import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
 import { ArchetypeMaterial } from "./ArchetypeMaterial";
-import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeSpan } from "./ArchetypeSpan";
+import { archetypeSpanAnchor } from "./archetypeSpanAnchor";
 
 /**
  * What every producer assembles an archetype with: primitive parts stated by their dimensions and place, the affordances an act reads, and the total mass.
@@ -190,11 +190,11 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
    * @throws {ArchetypeRefusal} When an end names a part or affordance not yet recorded, or the two ends meet at rest.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input's unit, what an end may name and when, and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation The ends are located at rest by `ArchetypeSpan.locate` and the line recorded as a `rod` between them, a cylinder, so its mass counts at rest as every part's does; the archetype lays it again after each pose.
+   * @evidence contracts/development/implementation.md#principled-implementation Shared span state resolves both rest anchors and any held extension before recording the actual cylinder, so rest mass uses its full drawn length. The archetype resolves the same declaration after each pose.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Locate, record the rod, record the span.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An end must already exist, so the rest line is the one every pose lays; coincident ends are refused.
    * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the parts and affordances so far, tens at most.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `rod` and `ArchetypeSpan.locate`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses rod construction and the same state operation used by posed lines and grip frames.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps what it records until `build` hands it to the archetype.
    */
   public span(
@@ -205,31 +205,45 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
     options?: ArchetypeBuilder.IOptions,
     length?: number,
   ): this {
-    const start: IAutoMovieVector3 = ArchetypeSpan.locate(
-      this.#props.draw.archetype,
+    const span: ArchetypeSpan.ISpan = {
+      id,
       from,
-      this.#parts,
-      this.#affordances,
-    );
-    const end: IAutoMovieVector3 = ArchetypeSpan.locate(
-      this.#props.draw.archetype,
       to,
+      radius,
+      length: length ?? null,
+    };
+    const endpoints: ArchetypeSpan.IState = ArchetypeSpan.state(
+      this.#props.draw.archetype,
+      span,
       this.#parts,
       this.#affordances,
     );
-    if (!(Vector3.length(Vector3.subtract(end, start)) > 0))
-      throw new ArchetypeRefusal({
-        kind: "parameter",
-        archetype: this.#props.draw.archetype,
-        axis: id,
-        value: 0,
-        feasible: null,
-        reason: `the span "${id}" has both ends at one point at rest`,
-        fix: "end the span at two distinct places",
-      });
-    this.rod(id, radius, start, end, { ...options, round: false });
-    this.#spans.push({ id, from, to, radius, length: length ?? null });
+    this.rod(id, radius, endpoints.from, endpoints.to, {
+      ...options,
+      round: false,
+    });
+    this.#spans.push(span);
     return this;
+  }
+
+  /**
+   * Bind a construction point to a real part already laid by this builder.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Converts model metres to the actual named carrier's local span coordinates.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegate actual rigid-frame inversion to the shared span-anchor owner.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call, without recording an extra part or contact.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No reconstructed carrier frame or hidden world anchor is substituted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The owner performs one O(P) part lookup and constant rigid arithmetic.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the actual already-built frame and the common anchor conversion.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new local endpoint without retaining a query or external handle.
+   */
+  public anchor(id: string, point: IAutoMovieVector3): ArchetypeSpan.End {
+    return archetypeSpanAnchor(
+      this.#props.draw.archetype,
+      this.#parts,
+      id,
+      point,
+    );
   }
 
   /**

@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeArticulation } from "./ArchetypeArticulation";
+import type { ArchetypeArticulation } from "./ArchetypeArticulation";
 import { ArchetypeBody } from "./ArchetypeBody";
 import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
 import { ArchetypeFracture } from "./ArchetypeFracture";
@@ -22,6 +22,7 @@ import { ArchetypeShapes } from "./ArchetypeShapes";
 import { ArchetypeSite } from "./ArchetypeSite";
 import { ArchetypeSpan } from "./ArchetypeSpan";
 import type { IArchetypeProps } from "./IArchetypeProps";
+import { poseArchetype } from "./poseArchetype";
 import { reposeArchetype } from "./reposeArchetype";
 
 /**
@@ -90,32 +91,22 @@ export class Archetype<
    *
    * @param props The archetype at rest; the records are kept, not copied, so a producer hands over ownership.
    * @param state The travel of each articulation; at rest when absent.
-   * @throws {ArchetypeRefusal} As {@link ArchetypeArticulation.pose} does for a state the model does not admit, and as {@link ArchetypeSpan.lay} does for a span whose ends meet.
+   * @throws {ArchetypeRefusal} Through the articulation and {@link ArchetypeSpan.pose} owners for unsupported travels, invalid line geometry or incompatible held contacts.
    */
   public constructor(
     props: Archetype.IProps<Id, Dimension>,
     state: Partial<Record<Id, number>> = {},
   ) {
-    // The travels that were set, as the pose reads them.
     const travels: Map<string, number> = new Map();
     for (const id of Object.keys(state) as Id[]) {
       const travel: number | undefined = state[id];
       if (travel !== undefined) travels.set(id, travel);
     }
 
-    const posed: ArchetypeArticulation.IResult = ArchetypeArticulation.pose(
-      props.archetype,
-      { parts: props.parts, affordances: props.affordances },
-      travels,
-    );
+    const posed: ArchetypeArticulation.IResult = poseArchetype(props, travels);
     this.id = props.id;
     this.name = props.name;
-    this.parts = ArchetypeSpan.lay(
-      props.archetype,
-      props.spans,
-      posed.parts,
-      posed.affordances,
-    );
+    this.parts = posed.parts;
     this.#travels = posed.travels;
     this.body = ArchetypeBody(props);
     this.affordances = posed.affordances;
@@ -327,14 +318,14 @@ export class Archetype<
   }
 
   /**
-   * This archetype with its rest parts replaced, keeping its identity, materials, dimensions and mass properties: how an animal's skeleton poses it. A rig may also supply its explicitly moved contact frames; absent those, affordances retain their previous rest positions.
+   * This archetype with its rest parts replaced, keeping identity, materials, dimensions and rest mass properties. A rig may supply current contact frames; omitted frames retain rest contact origins. Declared spans are rebuilt and explicitly held line axes follow their current geometry.
    *
    * @param parts The parts in the new pose, in the model's space; the same ids as this archetype's.
-   * @param frames Complete posed contact frames, or omitted to retain rest contacts.
+   * @param frames Complete carrier contact frames, or omitted to retain rest origins; explicit held-span tangents are derived afterward.
    * @returns A new archetype at rest in that pose; this one is unchanged.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is kept, what is replaced and who calls it.
-   * @evidence contracts/development/implementation.md#principled-implementation The shared repose owner preserves each producer-declared contact identity and semantic record, changing only explicitly supplied frames. Omitted frames retain rest contacts and mass properties stay the rest pose's.
+   * @evidence contracts/development/implementation.md#principled-implementation The repose owner preserves each producer's contact identities and physical semantics, placing their carriers from supplied frames or rest. The constructor then resolves spans and their explicitly constrained held axes from that same pose; mass properties stay the rest pose's.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One construction.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A supplied frame map must bind every original contact exactly once; arbitrary replacement contacts cannot erase or widen the producer's Id contract. The caller owns geometric correctness, which validateModel admits.
    * @evidence contracts/development/implementation.md#efficient-algorithms The shared repose owner performs O(A) lookups for A supplied contact frames, beyond the constructor's pass.
@@ -345,7 +336,9 @@ export class Archetype<
     parts: IAutoMovieModelPart[],
     frames?: ReadonlyMap<string, IAutoMovieTransform>,
   ): Archetype<Id, Dimension> {
-    return new Archetype<Id, Dimension>(reposeArchetype(this.#rest, parts, frames));
+    return new Archetype<Id, Dimension>(
+      reposeArchetype(this.#rest, parts, frames),
+    );
   }
 
   /**

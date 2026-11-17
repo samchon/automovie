@@ -142,16 +142,16 @@ export namespace createQuadruped {
     /** The producer's name, which the animal's `archetype` carries and refusals name. */
     archetype: string;
 
-    /** Each limb bone's standing direction, degrees, which shapes a limb's lower piece in the ride: `QuadrupedBody.IBody.stance`. */
+    /** Producer neutral standing directions, degrees: QuadrupedBody.IBody.stance builds the declared form, while pose solvers recover actual constructed control directions. */
     stance: QuadrupedBody.IBody["stance"];
 
     /** The gaits. */
     table: QuadrupedGait.ITable;
 
-    /** The parts that pitch with the head as it nods, the neck and the head with any tack they wear. */
+    /** Producer part-id vocabulary carried by the common neck nod, including neck/head themselves and optional tack that need not exist on every actual animal. QuadrupedCarriage binds existing accessories only. */
     nodding: readonly string[];
 
-    /** Explicit contact ids carried by the nodding head; absent preserves the legacy static-contact policy. */
+    /** Producer contact-id vocabulary carried by the common neck nod; optional contacts need not exist on every animal. Absent or unlisted contacts preserve trunk carriage, including the legacy equid held-rein policy. */
     noddingContacts?: readonly string[];
   }
 

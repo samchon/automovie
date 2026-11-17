@@ -161,7 +161,8 @@ export namespace ArchetypeSea {
     const random: IAutoMovieRandom = createAutoMovieRandom(
       deriveAutoMovieSeed(String(options.seed), "archetype", "sea"),
     );
-    const heading: number = options.heading ?? random.float(0) * 360;
+    const heading: number =
+      options.heading === undefined ? random.float(0) * 360 : options.heading;
     if (!Number.isFinite(heading))
       throw new ArchetypeRefusal({
         kind: "parameter",

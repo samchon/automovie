@@ -287,7 +287,10 @@ export function test_archetype_harness(): void {
   const towedRide: ArchetypeRide.IRide<
     createCart.Affordance,
     createCart.Dimension
-  > = ArchetypeRide.towed(ride, "hitch", cart, "coupling", { lines });
+  > = ArchetypeRide.towed(ride, "hitch", cart, "coupling", {
+    lines,
+    support: createCart.towing(cart),
+  });
   const world = <I extends string, D extends string>(
     sample: ArchetypeRide.ISample<I, D>,
     id: string,

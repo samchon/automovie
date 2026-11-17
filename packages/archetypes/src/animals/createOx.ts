@@ -24,49 +24,60 @@ export function createOx(
   seed?: number | string,
 ): Archetype<createCohortQuadruped.Affordance, QuadrupedBody.Dimension> {
   const m: typeof OxBody.MEASURES = OxBody.MEASURES;
-  return createCohortQuadruped({
+  return createCohortQuadruped<"kathani-working-bullock">({
     archetype: "ox",
-    name: "Kathani working-ox prototype",
-    cohort: "kathani-working-bullock",
-    withers: m.withers,
-    girth: m.girth,
-    body: OxBody(),
+    name: (): string => "Kathani working-ox prototype",
+    names: ["kathani-working-bullock"],
+    choices: ["kathani-working-bullock"],
+    reference: "kathani-working-bullock",
+    references: { "kathani-working-bullock": m },
+    body: (): QuadrupedBody.IBody => OxBody(),
     params,
     seed,
-    add: (
-      builder: ArchetypeBuilder<
-        createCohortQuadruped.Affordance,
-        QuadrupedBody.Dimension
-      >,
-      rig: QuadrupedBody.IRig,
-    ): void => {
-      for (const [side, sign] of [
-        ["left", 1],
-        ["right", -1],
-      ] as const) {
-        const x: number = (sign * rig.headRadius) / 2;
-        const y: number = rig.poll.y + rig.headRadius / 2;
-        builder.rod(
-          `${side}Horn`,
-          m.horn * createOx.CONSTRUCTION.hornRadius,
-          { x, y, z: rig.poll.z },
-          {
-            x: x + sign * m.horn * Math.SQRT1_2,
-            y: y + m.horn * Math.SQRT1_2,
-            z: rig.poll.z,
-          },
-          { color: "#c0ac7a" },
-        );
-        builder.rod(
-          `${side}Ear`,
-          m.ear * createOx.CONSTRUCTION.earRadius,
-          { x: sign * rig.headRadius, y: rig.poll.y, z: rig.poll.z },
-          { x: sign * (rig.headRadius + m.ear), y: rig.poll.y, z: rig.poll.z },
-          { color: "#8a6a46" },
-        );
-      }
-      if (params.equipment !== undefined)
-        QuadrupedEquipment.lay(builder, rig, params.equipment, "ox");
+    prepare: (rig: QuadrupedBody.IRig): createCohortQuadruped.Addition => {
+      const equipment:
+        | ReturnType<typeof QuadrupedEquipment.prepare>
+        | undefined =
+        params.equipment === undefined
+          ? undefined
+          : QuadrupedEquipment.prepare(rig, params.equipment, "ox");
+      return (
+        builder: ArchetypeBuilder<
+          createCohortQuadruped.Affordance,
+          QuadrupedBody.Dimension
+        >,
+      ): void => {
+        for (const [side, sign] of [
+          ["left", 1],
+          ["right", -1],
+        ] as const) {
+          const x: number = (sign * rig.headRadius) / 2;
+          const y: number = rig.poll.y + rig.headRadius / 2;
+          builder.rod(
+            `${side}Horn`,
+            m.horn * createOx.CONSTRUCTION.hornRadius,
+            { x, y, z: rig.poll.z },
+            {
+              x: x + sign * m.horn * Math.SQRT1_2,
+              y: y + m.horn * Math.SQRT1_2,
+              z: rig.poll.z,
+            },
+            { color: "#c0ac7a" },
+          );
+          builder.rod(
+            `${side}Ear`,
+            m.ear * createOx.CONSTRUCTION.earRadius,
+            { x: sign * rig.headRadius, y: rig.poll.y, z: rig.poll.z },
+            {
+              x: sign * (rig.headRadius + m.ear),
+              y: rig.poll.y,
+              z: rig.poll.z,
+            },
+            { color: "#8a6a46" },
+          );
+        }
+        equipment?.emit(builder);
+      };
     },
   });
 }
@@ -85,6 +96,9 @@ export namespace createOx {
 
   /** Positive total mass is authored; no live weight was read for the source cohort. */
   export interface IParams extends createCohortQuadruped.IParams {
+    /** Required authored complete kilograms; no working-ox mass was measured. */
+    mass: number;
+
     /** Actual yoke or pack, each with its explicitly authored physical dimensions. */
     equipment?: QuadrupedEquipment.IParams;
   }

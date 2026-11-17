@@ -27,12 +27,15 @@ import { nclose } from "../internal/nclose";
  *    and orientation, with21 quadruped names and no dummy humanoid slot.
  * 2. A neck turn carries explicitly bound bridle parts and rein/lead frames;
  *    their neck-local coordinates stay fixed and their world positions move.
- * 3. Missing accessory/contact bindings and unknown replacement frame ids refuse. Construction and sampling
+ * 3. Independently binding the same held origins to the trunk keeps the hands
+ *    fixed while actual flexible spans retain head-local bit points, full
+ *    occupied runs and line-aligned grip frames. Both binding choices work.
+ * 4. Missing accessory/contact bindings and unknown replacement frame ids refuse. Construction and sampling
  *    leave the original horse's complete serialization unchanged.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States actual source bars, independent neutral-frame comparison, carried-contact invariants and preservation of original horse bytes.
- * @evidence contracts/development/testing.md#behavioral-verification Uses the public horse producer, generic engine reader and actual QuadrupedSkeleton.pose model output, including validation and affordance frames rather than an isolated private matrix.
- * @evidence contracts/development/testing.md#independent-expectations Original built part transforms are the neutral oracle. A rigid carrier preserves inverse-neck coordinates of every explicitly attached contact, while a nonzero neck turn must move at least one rein in world space. Expected bone count21 is the declared5 axial links plus4x4 limb links.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses the public horse producer, generic engine reader and actual QuadrupedSkeleton.pose output. Both rigid head-carried and independently trunk-held contact cases observe real parts and full flexible held runs instead of an isolated matrix.
+ * @evidence contracts/development/testing.md#independent-expectations Original built geometry is the neutral oracle. Head-bound contacts preserve inverse-neck coordinates; trunk-held origins preserve inverse-trunk coordinates while span distal points preserve inverse-head coordinates and contact +X follows actual rod +Y. Expected bone count21 is five axial links plus four times four limb links.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts neutral and articulated geometry, bone and accessory parts, root-carried and neck-carried contacts, complete versus missing bindings and current posed output versus untouched original serialization.
  * @evidence contracts/development/testing.md#execution-ownership One portable synchronous unit owns its producer, maps and posed outputs; no process, renderer, compiler or foreign runtime replacement is used.
  */
@@ -124,6 +127,96 @@ export function test_archetype_animal_skeleton(): void {
   }
   if (!moved)
     findings.push("the neck turn left every actual rein/lead frame at rest");
+
+  // A held hand can instead stay with the body while the bit moves separately.
+  // This complements the explicit head-following case rather than weakening it.
+  const trunkContacts: Record<string, QuadrupedBody.Bone> = {};
+  for (const contact of animal.affordances) trunkContacts[contact.id] = "trunk";
+  const heldPose: ReturnType<typeof createHorse> = QuadrupedSkeleton.pose(
+    animal,
+    joints,
+    parts,
+    trunkContacts,
+  );
+  const oldBody: IAutoMovieTransform = animal.parts.find(
+    (part: IAutoMovieModelPart): boolean => part.id === "trunk",
+  )!.transform!;
+  const heldBody: IAutoMovieTransform = heldPose.parts.find(
+    (part: IAutoMovieModelPart): boolean => part.id === "trunk",
+  )!.transform!;
+  const oldHead: IAutoMovieTransform = animal.parts.find(
+    (part: IAutoMovieModelPart): boolean => part.id === "head",
+  )!.transform!;
+  const heldHead: IAutoMovieTransform = heldPose.parts.find(
+    (part: IAutoMovieModelPart): boolean => part.id === "head",
+  )!.transform!;
+  const lines: readonly (readonly [createHorse.Affordance, string])[] = [
+    ["leftRein", "rein-left"],
+    ["rightRein", "rein-right"],
+    ["lead", "lead"],
+  ];
+  let bitMoved: boolean = false;
+  for (const [id, partId] of lines) {
+    const previous: ReturnType<typeof animal.affordance> =
+      animal.affordance(id);
+    const current: ReturnType<typeof animal.affordance> =
+      heldPose.affordance(id);
+    const beforeLine: IAutoMovieModelPart = animal.parts.find(
+      (part: IAutoMovieModelPart): boolean => part.id === partId,
+    )!;
+    const afterLine: IAutoMovieModelPart = heldPose.parts.find(
+      (part: IAutoMovieModelPart): boolean => part.id === partId,
+    )!;
+    const heldLength: number = current.length ?? NaN;
+    if (
+      current.kind !== "rein" ||
+      !(Number.isFinite(heldLength) && heldLength > 0) ||
+      afterLine.geometry.type !== "primitive" ||
+      afterLine.geometry.shape.type !== "cylinder"
+    ) {
+      findings.push(`${id} lost its actual flexible rein geometry`);
+      continue;
+    }
+    const lineAxis: IAutoMovieTransform["translation"] =
+      Quaternion.rotateVector(afterLine.transform!.rotation, {
+        x: 0,
+        y: 1,
+        z: 0,
+      });
+    const heldCentre: IAutoMovieTransform["translation"] = Vector3.add(
+      end(afterLine, -1),
+      Vector3.scale(lineAxis, heldLength / 2),
+    );
+    if (
+      distance(
+        local(oldBody, previous.frame.translation),
+        local(heldBody, current.frame.translation),
+      ) > 1e-9 ||
+      distance(
+        local(oldHead, end(beforeLine, 1)),
+        local(heldHead, end(afterLine, 1)),
+      ) > 1e-9 ||
+      distance(heldCentre, current.frame.translation) > 1e-9 ||
+      !nclose(
+        Math.abs(
+          Vector3.dot(
+            lineAxis,
+            Quaternion.rotateVector(current.frame.rotation, {
+              x: 1,
+              y: 0,
+              z: 0,
+            }),
+          ),
+        ),
+        1,
+        1e-9,
+      ) ||
+      afterLine.geometry.shape.height < heldLength - 1e-9
+    )
+      findings.push(`${id} detached its trunk-held run or actual head anchor`);
+    bitMoved ||= distance(end(beforeLine, 1), end(afterLine, 1)) > 0.001;
+  }
+  if (!bitMoved) findings.push("trunk-held spans hid the actual moving bit");
   const oldLink: IAutoMovieModelPart = animal.parts.find(
     (part: IAutoMovieModelPart): boolean => part.id === "neck",
   )!;
@@ -144,9 +237,11 @@ export function test_archetype_animal_skeleton(): void {
     (): unknown => QuadrupedSkeleton.pose(animal, joints, {}, contacts),
     (): unknown => QuadrupedSkeleton.pose(animal, joints, parts, {}),
     (): unknown => animal.reposed(animal.parts, new Map()),
-    (): unknown => animal.reposed(animal.parts, new Map([
-      ["unknown-contact", animal.affordances[0]!.frame],
-    ])),
+    (): unknown =>
+      animal.reposed(
+        animal.parts,
+        new Map([["unknown-contact", animal.affordances[0]!.frame]]),
+      ),
   ]) {
     try {
       run();
@@ -156,6 +251,17 @@ export function test_archetype_animal_skeleton(): void {
   if (JSON.stringify(animal) !== original)
     findings.push("posing changed the original horse serialization");
   TestValidator.equals("real non-humanoid skeleton consumer", findings, []);
+}
+
+/** Read a physical point in the actual primitive-centre carrier frame. */
+function local(
+  frame: IAutoMovieTransform,
+  point: IAutoMovieTransform["translation"],
+): IAutoMovieTransform["translation"] {
+  return Quaternion.rotateVector(
+    Quaternion.inverse(frame.rotation),
+    Vector3.subtract(point, frame.translation),
+  );
 }
 
 /** Euclidean separation is computed directly from coordinates as an independent geometric observation. */

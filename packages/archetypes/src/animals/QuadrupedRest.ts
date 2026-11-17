@@ -1,13 +1,10 @@
 import {
-  type IArticulatedRigReader,
   Quaternion,
   Vector3,
   minimumJerk,
-  prepareArticulatedRig,
   rotationBetween,
 } from "@automovie/engine";
 import type {
-  IAutoMovieArticulatedRig,
   IAutoMovieModelPart,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -16,11 +13,11 @@ import type {
 import { type Archetype, ArchetypeFrame } from "../core";
 import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedJoints } from "./QuadrupedJoints";
+import { QuadrupedPose } from "./QuadrupedPose";
+import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { QuadrupedRestLimb } from "./QuadrupedRestLimb";
 import type { QuadrupedRestPlan } from "./QuadrupedRestPlan";
-import { QuadrupedRestPose } from "./QuadrupedRestPose";
-import { QuadrupedSkeleton } from "./QuadrupedSkeleton";
 
 /**
  * Plan a deterministic standing-to-sternal-rest hold and supported rise.
@@ -47,9 +44,9 @@ import { QuadrupedSkeleton } from "./QuadrupedSkeleton";
  * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk authored windows move the one root from standing clearance to the actual trunk support height and return the distal carriage to neutral. Each fixed footprint determines a sole-cleared terminal target; an exact two-circle proximal fit preserves all actual lengths. Generic FK then poses actual parts and source contacts and verifies their surface clearance and terminal targets.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Snapshot authoring values and actual rigid-tree metadata once; each sample evaluates its clock, one root, four supported IK chains, actual generic FK and the resulting primitive support checks. Floor extrema, limb fitting and coordinate lowering each have one small pure owner.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No animal kind, fixture, human bone, root-per-limb correction, stretched segment or clamped missed contact selects a pose. Only a scale-derived binary64 roundoff budget admits arithmetic noise. ROM, forces, balance dynamics and exact greyhound sequence fidelity remain unclaimed.
- * @evidence contracts/development/implementation.md#efficient-algorithms Plan preparation is O(P+B+A); each sample is O(P+B+A) for actual parts, rig bones and affordances with four fixed-size analytic fits. Storage is O(P+B+A) for metadata and one independently returned model, with no frame table or iteration history.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Plan preparation and sampling are O(P+B+A+V) for actual parts, rig bones, affordances and independently copied geometry values, with four fixed-size analytic fits. No frame table or iteration history is retained.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Source joint measurements, admitted generic rig, neutral frames, source bar lookup, scalar clock and carrier copies are shared by all samples; every requested pose and its floor measurement are freshly computed.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the clip lifetime, which retains the source animal and O(P+B+A) metadata; samples retain new transforms and immutable source geometry/material data under reposed's contract. No global cache, process, file or external handle is acquired.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the clip lifetime and O(P+B+A+V) prepared snapshot; samples own independently copied geometry/transforms and current contact frames while material/rest mass metadata retain producer ownership. No global cache, process, file or external handle is acquired.
  */
 export function QuadrupedRest<Id extends string, Dimension extends string>(
   animal: Archetype<Id, Dimension>,
@@ -88,12 +85,13 @@ export function QuadrupedRest<Id extends string, Dimension extends string>(
   const contactCarriers: Readonly<Record<string, QuadrupedBody.Bone>> = {
     ...params.contacts,
   };
-  const rig: IAutoMovieArticulatedRig<QuadrupedBody.Bone> =
-    QuadrupedSkeleton.of(animal);
-  const reader: IArticulatedRigReader<QuadrupedBody.Bone> =
-    prepareArticulatedRig(rig);
+  const prepared: QuadrupedPosePlan.IPrepared<Id, Dimension> = QuadrupedPose(
+    animal,
+    partCarriers,
+    contactCarriers,
+  );
   const neutral: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> =
-    reader.read();
+    prepared.read().frames;
   const neutralTail: IAutoMovieVector3 = Quaternion.rotateVector(
     neutral.get("tail")!.rotation,
     { x: 0, y: 1, z: 0 },
@@ -113,7 +111,7 @@ export function QuadrupedRest<Id extends string, Dimension extends string>(
     animal.parts.map(
       (part: IAutoMovieModelPart): [string, IAutoMovieModelPart] => [
         part.id,
-        part,
+        structuredClone(part),
       ],
     ),
   );
@@ -202,7 +200,7 @@ export function QuadrupedRest<Id extends string, Dimension extends string>(
       scale: { x: 1, y: 1, z: 1 },
     };
     const placed: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> =
-      reader.read(undefined, root);
+      prepared.read(root).frames;
     const feet: Map<QuadrupedBody.Limb, IAutoMovieVector3> = new Map();
     const limbs: Map<QuadrupedBody.Limb, readonly IAutoMovieVector3[]> =
       new Map();
@@ -258,17 +256,17 @@ export function QuadrupedRest<Id extends string, Dimension extends string>(
       Quaternion.slerp(tailTurn, Quaternion.identity(), body),
       neutralTail,
     );
-    const joints: Map<QuadrupedBody.Bone, QuadrupedRestPlan.Rotation> =
-      QuadrupedRestPose(rig, neutral, placed, limbs, tail);
-    const posed: Archetype<Id, Dimension> = QuadrupedSkeleton.pose(
-      animal,
-      joints,
-      partCarriers,
-      contactCarriers,
-      root,
-    );
+    const axial: ReadonlyMap<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal> =
+      new Map<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal>([
+        ["tail", { kind: "direction", direction: tail }],
+      ]);
+    const samplePose: QuadrupedPosePlan.ISample<Id, Dimension> =
+      prepared.sample(limbs, root, axial);
+    const joints: ReadonlyMap<QuadrupedBody.Bone, QuadrupedRestPlan.Rotation> =
+      samplePose.joints;
+    const posed: Archetype<Id, Dimension> = samplePose.animal;
     const currentFrames: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> =
-      reader.read(joints, root);
+      samplePose.frames;
     for (const limb of QuadrupedBody.LIMBS) {
       const chain: readonly QuadrupedBody.Bone[] = QuadrupedBody.BONES[limb];
       const frame: IAutoMovieTransform = currentFrames.get(chain[3]!)!;

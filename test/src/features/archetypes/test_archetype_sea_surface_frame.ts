@@ -226,8 +226,11 @@ export function test_archetype_sea_surface_frame(): void {
     Number.MAX_VALUE,
   ])
     refused({ height, seed: 1 }, "height");
-  for (const heading of [NaN, Infinity, -Infinity])
-    refused({ height: 1.25, heading, seed: 1 }, "heading");
+  for (const heading of [NaN, Infinity, -Infinity, null, "0"])
+    refused(
+      { height: 1.25, heading, seed: 1 } as ArchetypeSea.IOptions,
+      "heading",
+    );
   TestValidator.equals("floating roots match their sea surface", findings, []);
 
   /** Finite-safe comparison keeps NaN from satisfying any geometry assertion. */

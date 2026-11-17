@@ -124,6 +124,7 @@ export function test_archetype_ride_towed_wagon(): void {
     createCart.Affordance,
     createCart.Dimension
   > = ArchetypeRide.towed(leader, "hitch", wagon, "coupling", {
+    support: createCart.towing(wagon),
     front: { pivot, turn: "frontAxle" },
   });
   const centre: IAutoMovieVector3 = Vector3.create(10, 0, 20);
@@ -190,7 +191,10 @@ export function test_archetype_ride_towed_wagon(): void {
       "hitch",
       wagon,
       "coupling",
-      { front: { pivot, turn: "frontAxle" } },
+      {
+        front: { pivot, turn: "frontAxle" },
+        support: createCart.towing(wagon),
+      },
     );
     findings.push("a turn past the lock was admitted");
   } catch (error) {

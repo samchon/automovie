@@ -2,6 +2,7 @@ import { Vector3 } from "@automovie/engine";
 
 import {
   CamelBody,
+  DeerBody,
   OxBody,
   QuadrupedBody,
   QuadrupedLocomotion,
@@ -10,16 +11,18 @@ import {
   createOx,
   rideQuadruped,
 } from "../animals";
+import type { QuadrupedEquipment } from "../animals/QuadrupedEquipment";
+import type { QuadrupedLead } from "../animals/QuadrupedLead";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
 /**
  * Actual reference species, equipment and authored faster-gait consumers.
  *
- * @returns Canonical coarse static subjects and real measured-walk/authored-fast rides.
+ * @returns Actual bare and combined-equipment subjects, their walks and explicitly authored faster rides.
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes measured reference dimensions and walking clocks from authored presentation mass, equipment dimensions and faster clocks.
  * @evidence contracts/development/implementation.md#principled-implementation Actual public producers make each model and real equipment; the shared ride samples their species tables or explicitly authored faster clocks. Every picture uses those actual model/placement outputs.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build three bare references, two explicitly dimensioned equipment variants and actual shared rides for their measured walks and declared faster constructions.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Build three bare references, a combined yoke/pack/lead ox, pack/lead camel and lead deer, then actual walks and explicitly authored faster rides. Local equipment helpers derive gallery dimensions from each actual source rig.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No renderer-only animal, biological default clock, source weight for an unweighed cohort, hidden override or perfect-fit/load claim supplies the subject. Construction inputs here are inspection choices, not producer defaults.
  * @evidence contracts/development/implementation.md#efficient-algorithms A fixed collection of reference models and existing bounded ride plans is prepared once; current poses are read through their actual samplers.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Static and moving subjects share immutable source references and the same capture/model/ride owners as production consumers.
@@ -33,7 +36,10 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
     createCamel.REFERENCE,
     73,
   );
-  const deer: ReturnType<typeof createDeer> = createDeer({}, 73);
+  const deer: ReturnType<typeof createDeer> = createDeer(
+    createDeer.REFERENCE,
+    73,
+  );
   const oxRig: QuadrupedBody.IRig = QuadrupedBody.rig(OxBody(), ox.dimensions);
   const camelRig: QuadrupedBody.IRig = QuadrupedBody.rig(
     CamelBody(),
@@ -48,7 +54,9 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
   const equippedOx: ReturnType<typeof createOx> = createOx(
     {
       ...createOx.REFERENCE,
+      lead: lead(oxRig),
       equipment: {
+        pack: pack(oxRig),
         yoke: {
           width: 4 * oxRig.neckRadius,
           radius: beam,
@@ -64,33 +72,30 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
     },
     73,
   );
-  const pad: number = camelRig.barrel / 8;
-  const packLength: number = (camelRig.trunk - 2 * camelRig.neckRadius) / 2;
   const equippedCamel: ReturnType<typeof createCamel> = createCamel(
     {
       ...createCamel.REFERENCE,
-      equipment: {
-        pack: {
-          length: packLength,
-          width: camelRig.barrel / 2,
-          thickness: pad,
-          railRadius: pad / 4,
-          clearance: pad,
-          hook: {
-            radius: pad / 8,
-            opening: packLength / 4,
-            depth: packLength / 8,
-          },
-        },
-      },
+      lead: lead(camelRig),
+      equipment: { pack: pack(camelRig) },
+    },
+    73,
+  );
+  const equippedDeer: ReturnType<typeof createDeer> = createDeer(
+    {
+      ...createDeer.REFERENCE,
+
+      // This number now declares complete authored model kilograms, rather than a measured bare/equipment sum.
+      mass: deer.dimensions.mass!,
+      lead: lead(QuadrupedBody.rig(DeerBody(), deer.dimensions)),
     },
     73,
   );
   const entries: Record<string, archetypeCaptureCatalog.ISubject> = {
     "reference-quadrupeds": archetypeCaptureSubject.still({ ox, camel, deer }),
     "equipped-quadrupeds": archetypeCaptureSubject.still({
-      "yoked-ox": equippedOx,
-      "pack-camel": equippedCamel,
+      "yoked-packed-led-ox": equippedOx,
+      "packed-led-camel": equippedCamel,
+      "led-deer": equippedDeer,
     }),
   };
   for (const [name, animal, speed] of [
@@ -111,6 +116,27 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
         },
         "walk",
       ),
+      animal,
+    );
+  for (const [name, animal, speed] of [
+    ["ox", equippedOx, 0.71],
+    ["camel", equippedCamel, 1.08],
+    ["deer", equippedDeer, 0.78],
+  ] as const)
+    entries[`ride-equipped-${name}-walk`] = archetypeCaptureSubject.moving(
+      name,
+      rideQuadruped(
+        animal,
+        {
+          start: { x: 0, z: 0, heading: 0 },
+          legs: [{ kind: "straight", length: 12 }],
+          cruise: speed,
+          startSpeed: speed,
+          endSpeed: speed,
+        },
+        "walk",
+      ),
+      animal,
     );
 
   // These round authoring choices demonstrate capability, not unreported biological timing measurements.
@@ -130,6 +156,7 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
         pace: [{ speed: 3, stride: 1, foreStance: 0.45, hindStance: 0.45 }],
       }),
     ),
+    camel,
   );
   const authoredDeer: ReturnType<typeof QuadrupedLocomotion.deer> =
     QuadrupedLocomotion.deer({
@@ -154,6 +181,33 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
         gait,
         authoredDeer,
       ),
+      deer,
     );
   return entries;
+}
+
+/** Authored inspection collar/lead ratios fit the actual neck; they are not maker dimensions. */
+function lead(rig: QuadrupedBody.IRig): QuadrupedLead.IParams {
+  return {
+    width: Vector3.length(Vector3.subtract(rig.poll, rig.neck)) / 8,
+    thickness: rig.neckRadius / 16,
+    leadLength: rig.barrel * 2,
+    leadRadius: rig.neckRadius / 32,
+  };
+}
+
+/** Explicit gallery pack dimensions use the actual free trunk span, barrel and neck footprint. */
+function pack(
+  rig: QuadrupedBody.IRig,
+): NonNullable<QuadrupedEquipment.IParams["pack"]> {
+  const length: number = (rig.trunk - 2 * rig.neckRadius) / 2;
+  const thickness: number = rig.barrel / 8;
+  return {
+    length,
+    width: rig.barrel / 2,
+    thickness,
+    railRadius: thickness / 4,
+    clearance: thickness,
+    hook: { radius: thickness / 8, opening: length / 4, depth: length / 8 },
+  };
 }

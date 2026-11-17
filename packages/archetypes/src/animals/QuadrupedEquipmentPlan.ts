@@ -58,13 +58,13 @@ export class QuadrupedEquipmentPlan {
   /**
    * Append the fully admitted fixed plan to the genuine animal builder.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the commit boundary and preserves ordinary duplicate-part producer errors.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the emission boundary, independent returned contact records and ordinary duplicate-part producer errors.
    * @evidence contracts/development/implementation.md#principled-implementation Emit the admitted actual rod/box records and then their contacts using the same public builder primitives as every producer.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One primitive loop followed by one contact loop after all assembly planning succeeded.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No append occurs during admission and no duplicate id is renamed or swallowed; duplicate producer defects keep the builder's ordinary error behavior.
    * @evidence contracts/development/implementation.md#efficient-algorithms Fixed assembly sizes bound plan storage; emitting each fixed primitive includes the builder's existing O(P) id scan over P previously built parts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses recorded geometry and contact frames directly instead of recomputing or fitting another assembly.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder owns emitted records; the caller releases this call-local plan after the single append and retains no builder or external handle here.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses recorded geometry and copied contact frames instead of recomputing or fitting another assembly; the same admitted plan may emit independent models.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each builder owns independent emitted records. The caller may retain the bounded plan until its final emission, while the plan retains no builder or external handle.
    */
   public emit(
     builder: ArchetypeBuilder<
@@ -78,7 +78,8 @@ export class QuadrupedEquipmentPlan {
           color: part.color,
         });
       else builder.box(part.id, part.size, part.at, { color: part.color });
-    for (const contact of this.#contacts) builder.affordance(contact);
+    for (const contact of this.#contacts)
+      builder.affordance(structuredClone(contact));
   }
 
   /**

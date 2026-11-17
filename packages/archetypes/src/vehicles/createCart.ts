@@ -16,6 +16,7 @@ import { CartDrawn } from "./CartDrawn";
 import { CartFit } from "./CartFit";
 import { CartLimber } from "./CartLimber";
 import { CartPushed } from "./CartPushed";
+import { cartTowing } from "./cartTowing";
 
 /**
  * A wheeled load carrier, pushed by hand or drawn: a shopping trolley, a wheelbarrow, a horse's two-wheeled cart, a runner's rickshaw, a pair's chariot, an artillery limber, a four-wheeled wagon or a closed carriage.
@@ -308,7 +309,8 @@ export namespace createCart {
    * - `chest`: a limber chest's lid on its hinge at its rear edge; a positive travel lifts its front.
    * - `pintle`: a limber's hook at its rear, which takes a gun's trail.
    * - `leftSpin`, `rightSpin`: a two-wheeled drawn kind's road wheels' roll about the axle, a positive travel rolling them forward.
-   * - `frontAxle`: a wagon's or carriage's front axle turning about its pivot over the axle, positive to the left; the pole, the front wheels and the `coupling` ride it.
+   * - `frontAxle`: a wagon's or carriage's front axle turning about its pivot over the axle, positive to the left; the front wheels and drawbar pitch pivot ride it.
+   * - `drawbarPitch`: the actual front-axle hinge of a four-wheeler's fixed-length pole, about +X, positive lowering the forward end; coupling rides it. Its ±180 degrees are a principal-angle chart, not a measured working limit.
    * - `frontLeftSpin`, `frontRightSpin`, `rearLeftSpin`, `rearRightSpin`: a four-wheeled kind's road wheels' roll, the front pair riding `frontAxle`.
    * - `bed`: a wagon body's floor, inside.
    * - `box`: a carriage driver's seat on the box at its front, facing forward.
@@ -332,6 +334,7 @@ export namespace createCart {
     | "leftSpin"
     | "rightSpin"
     | "frontAxle"
+    | "drawbarPitch"
     | "frontLeftSpin"
     | "frontRightSpin"
     | "rearLeftSpin"
@@ -440,6 +443,19 @@ export namespace createCart {
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = CART_BANDS;
+
+  /**
+   * Actual wheel/pivot support for generic towing; cartTowing owns admission.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names actual neutral axle/steering/pole geometry and the source reader's refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates actual producer role reads to cartTowing.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared reader binding.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No model frame or height is reconstructed here.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Delegation owns its cost.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One producer-owned support reader serves every towing consumer.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The binding retains no produced model.
+   */
+  export const towing: typeof cartTowing = cartTowing;
 
   /**
    * The traces and the driving lines between a cart and the horse in harness that draws it, for `ArchetypeRide.towed`'s `lines`: a trace from each point of draft at the breast collar's end to its end of the cart's single tree, and a driving line from each bit ring through the neck strap's ring and the saddle's terret to the driver's held run (Harness Stuff: the reins pass from the bit through the rings on the breastplate's neck strap, then the saddle's terrets, to the driver).

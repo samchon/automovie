@@ -14,6 +14,7 @@ import { FIELD_GUN } from "./FIELD_GUN";
 import { buildFieldGun } from "./buildFieldGun";
 import { cannonLaunch } from "./cannonLaunch";
 import { cannonRecoil } from "./cannonRecoil";
+import { cannonTowing } from "./cannonTowing";
 
 /** A hundredweight, kilograms: 112 pounds. */
 const CWT: number = 112 * ArchetypeUnits.POUND;
@@ -390,4 +391,17 @@ export namespace createCannon {
 
   /** A field gun's recoil after a shot, run back from rest by its read recoil and slowed evenly to rest: `cannonRecoil`, which refuses a gun without a `recoil` slider. */
   export const recoil: typeof cannonRecoil = cannonRecoil;
+
+  /**
+   * Actual field-gun axle support for generic towing; cannonTowing admits its kind.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names actual two-wheel support, reverse trail towing and the reader's unsupported-kind refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates source wheel-role reads to cannonTowing.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared reader binding.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No guessed axle or pintle offset is added here.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Delegation owns its cost.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the producer reader with every limbered-gun consumer.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The binding retains no model instance.
+   */
+  export const towing: typeof cannonTowing = cannonTowing;
 }
