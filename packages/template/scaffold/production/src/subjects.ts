@@ -1,8 +1,12 @@
-import type { IAutoMovieMark } from "@automovie/interface";
 import type {
-  AutoMovieDrawSubjects,
-  IAutoMovieDrawScene,
-  IAutoMovieDrawSubject,
+  IAutoMovieMark,
+  IAutoMovieRenderSoftPropFrame,
+} from "@automovie/interface";
+import {
+  type AutoMovieDrawSubjects,
+  type IAutoMovieDrawScene,
+  type IAutoMovieDrawSubject,
+  bindAutoMovieDrawSceneSoftProps,
 } from "@automovie/render";
 
 import type { IFilm } from "./IFilm";
@@ -17,12 +21,12 @@ import { markFilmProduction } from "./markFilmProduction";
  * Each film is created as the Viewer creates it, at its delivery raster (1280 × 720 when it states none), seeked through its own `seek` at a second clamped to its running time, and marked by `markFilmProduction`, so a capture, a delivered frame and the Viewer show the same state.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each subject is, who draws it, and how its raster, seek and marks are taken.
- * @evidence contracts/development/implementation.md#principled-implementation Wiring only: the film registry, the film's own create and seek, and the shared marks, mapped onto the render package's subject contract.
+ * @evidence contracts/development/implementation.md#principled-implementation Maps the film registry, placement and shared marks onto the draw contract, and binds optional soft surfaces after placement at the same clamped second.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One mapping per film.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No film is named; the props are not read, since films need none.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the registered films; a film is created only when its subject is.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A mapping made once per page.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The created film is released by the subject's `dispose`.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The subject's dispose releases the film, and the render adapter independently releases any soft prop meshes it mounts.
  */
 export const subjects: AutoMovieDrawSubjects = (): Readonly<
   Record<string, IAutoMovieDrawSubject>
@@ -34,7 +38,7 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
         {
           create: async (): Promise<IAutoMovieDrawScene> => {
             const production: IFilmProduction = await film.create();
-            return {
+            const subject: IAutoMovieDrawScene = {
               scene: production.scene,
               camera: production.camera,
               durationSeconds: film.durationSeconds,
@@ -58,6 +62,17 @@ export const subjects: AutoMovieDrawSubjects = (): Readonly<
                 ),
               dispose: (): void => production.dispose(),
             };
+            const softPropsAt: IFilmProduction["softPropsAt"] =
+              production.softPropsAt?.bind(production);
+            return softPropsAt === undefined
+              ? subject
+              : bindAutoMovieDrawSceneSoftProps(
+                  subject,
+                  (seconds: number): readonly IAutoMovieRenderSoftPropFrame[] =>
+                    softPropsAt(
+                      clampProductionSeconds(seconds, film.durationSeconds),
+                    ),
+                );
           },
         },
       ],

@@ -362,6 +362,7 @@ export namespace HumanPerformanceSoft {
             bones,
             k,
             k * dt,
+            prop?.softSpan,
           ),
         );
       const steps: Float64Array[] = [

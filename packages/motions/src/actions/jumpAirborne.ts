@@ -193,11 +193,12 @@ export namespace jumpAirborne {
    * @param takeoff Seconds of the jump at take-off.
    * @param touchdown Seconds of the jump at touchdown.
    * @param duration The jump's duration, seconds.
+   * @param admitTouchdown Validates the returned endpoint against a turned landing; absent for an ordinary landing.
    * @returns The turning.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the signs, the side salto's frame and when the rotation applies.
    * @evidence contracts/development/implementation.md#principled-implementation Turns become the plan's flight request; the flight pass solves the momentum and hands the rotation back once.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One request and one held rotation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One request and one held rotation. A turned landing checks its endpoint once before installing the playback reader.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No turn is scripted here.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs but for the held rotation.
@@ -208,6 +209,7 @@ export namespace jumpAirborne {
     takeoff: number,
     touchdown: number,
     duration: number,
+    admitTouchdown?: (rotation: IAutoMovieHumanPostureRotation) => void,
   ): ITurning {
     const somersault: number =
       (rotation?.somersault ?? 0) * (rotation?.way === "backward" ? -1 : 1);
@@ -243,6 +245,7 @@ export namespace jumpAirborne {
             airborne: (
               handed: (seconds: number) => IAutoMovieHumanPostureRotation,
             ): void => {
+              admitTouchdown?.(handed(touchdown));
               rotated = handed;
             },
           };
@@ -252,7 +255,10 @@ export namespace jumpAirborne {
         posture: IAutoMovieMotionHumanPosture,
         t: number,
       ): IAutoMovieMotionHumanPosture =>
-        rotated === null || t <= takeoff || t >= touchdown
+        rotated === null ||
+        t <= takeoff ||
+        t > touchdown ||
+        (t === touchdown && admitTouchdown === undefined)
           ? posture
           : { ...posture, rotation: rotated(t) },
     };

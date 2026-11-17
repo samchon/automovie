@@ -427,8 +427,8 @@ export namespace crouch {
         share,
       );
 
-    // The crouch rises again at its end, so it leaves the body standing
-    // (#3363: a base transition declares the base it ends in).
+    // The crouch ends standing (#3363). Its feet carry the body, so an
+    // overlay can take either resting arm or the head independently.
     return {
       ...composeAutoMovieMotionHumanAction({
         base,
@@ -437,6 +437,7 @@ export namespace crouch {
         primitives: [sink, rest("left"), rest("right")],
       }),
       base: { kind: "standing" },
+      yields: ["head", "leftHand", "rightHand", "leftArm", "rightArm"],
     };
   }
 }

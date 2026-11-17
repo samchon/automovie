@@ -3,7 +3,9 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidSocket,
   IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanProp,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieSoftAnchorBinding,
@@ -14,14 +16,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
 /**
  * One step's boundary of a soft prop in a performance: every moving
  * anchor's world point (an `actor-bone` binding on its person's displayed
- * bone, a `node` binding on a rigid prop's frame, a grip's particle on the
- * gripping hand's grip socket), the grips' particles released at this step,
- * and every body capsule on its person's displayed bones.
+ * bone, a `node` binding on a rigid prop's frame or a span endpoint on that
+ * prop, a grip's particle on the gripping hand's grip socket), the grips'
+ * particles released at this step, and every body capsule on its person's
+ * displayed bones.
  *
  * @param state The performance.
  * @param domain The soft domain with its grips' anchors added.
@@ -29,14 +33,15 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * @param bones The displayed bones by person and step.
  * @param k The absolute step.
  * @param seconds Its film second.
+ * @param softSpan A span whose first and last particles follow the owner's endpoints.
  * @returns The step's boundary sample.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the sample holds for each kind of anchor and capsule.
- * @evidence contracts/development/implementation.md#principled-implementation Each binding's rigid offset carried by its displayed bone or prop frame; a grip's particle follows the hand that closed last on it and is released when no grip holds it.
+ * @evidence contracts/development/implementation.md#principled-implementation Each binding's local offset is carried by its displayed bone or prop frame. A posed span supplies both local endpoints. A gripped particle follows the hand that closed last.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the anchors and one over the body capsules.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone or prop throws through its reader rather than leaving the anchor at an origin.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in anchors and capsules; the bones are read once per person and step through the reader.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The bone reader keeps each person's bones per step.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The bone reader keeps each person's bones per step. Both ends of a span use one prop frame and one posed span read at this step.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh sample and retains nothing.
  */
 export function HumanPerformanceSoftBoundary(
@@ -46,9 +51,14 @@ export function HumanPerformanceSoftBoundary(
   bones: HumanPerformanceSoftBoundary.BoneReader,
   k: number,
   seconds: number,
+  softSpan?: IAutoMovieMotionHumanProp.ISoftSpan,
 ): IAutoMovieSoftBodyBoundarySample {
   const anchors: { particle: number; position: IAutoMovieVector3 }[] = [];
   const released: number[] = [];
+  let placedSpan: {
+    frame: IAutoMovieRigidTransform;
+    ends: IAutoMovieMotionHumanObject.ISpanEnds | undefined;
+  } | undefined;
   for (const anchor of domain.anchors) {
     const binding: IAutoMovieSoftAnchorBinding | undefined = anchor.binding;
     if (binding === undefined) continue;
@@ -74,16 +84,40 @@ export function HumanPerformanceSoftBoundary(
       continue;
     }
     if (binding.kind === "node") {
-      const frame: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
-        state,
-        binding.node,
-        seconds,
-      );
+      const span: IAutoMovieMotionHumanProp.ISoftSpan | undefined =
+        softSpan?.owner === binding.node ? softSpan : undefined;
+      if (span !== undefined && placedSpan === undefined) {
+        const owner: IAutoMovieMotionHumanProp | undefined =
+          state.props.get(binding.node);
+        let ends: IAutoMovieMotionHumanObject.ISpanEnds | undefined;
+        if (
+          owner?.articulate !== undefined &&
+          HumanPerformanceObject.writers(state, owner).length !== 0
+        ) {
+          const posed: IAutoMovieMotionHumanProp.IPosed =
+            HumanPerformanceObject.pose(state, owner, seconds);
+          if (posed.span === undefined)
+            throw new Error(
+              `Prop "${binding.node}" does not supply posed endpoints for span "${span.id}".`,
+            );
+          ends = posed.span(span.id);
+        }
+        placedSpan = {
+          frame: HumanPerformanceRead.prop(state, binding.node, seconds),
+          ends,
+        };
+      }
+      const sample: typeof placedSpan =
+        span === undefined ? undefined : placedSpan;
+      const frame: IAutoMovieRigidTransform =
+        sample?.frame ?? HumanPerformanceRead.prop(state, binding.node, seconds);
+      const offset: IAutoMovieVector3 =
+        sample?.ends?.[anchor.particle === 0 ? "from" : "to"] ?? binding.offset;
       anchors.push({
         particle: anchor.particle,
         position: Vector3.add(
           frame.position,
-          Quaternion.rotateVector(frame.rotation, binding.offset),
+          Quaternion.rotateVector(frame.rotation, offset),
         ),
       });
       continue;

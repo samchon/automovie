@@ -6,6 +6,7 @@ import type { IAutoMoviePhysicalShape } from "../../../physics/IAutoMoviePhysica
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieSoftBodyDomain } from "../../../soft/IAutoMovieSoftBodyDomain";
 import type { AutoMovieMotionHumanScheduledInstant } from "../law/AutoMovieMotionHumanScheduledInstant";
+import type { IAutoMovieMotionHumanObject } from "./IAutoMovieMotionHumanObject";
 
 /**
  * A prop actions can aim at and hands can hold: a subject id, its world
@@ -125,6 +126,12 @@ export interface IAutoMovieMotionHumanProp {
    */
   soft?: IAutoMovieSoftBodyDomain;
 
+  /**
+   * A soft cord whose first and last anchors follow a single declared span.
+   * Absent leaves every soft anchor to its own ordinary binding.
+   */
+  softSpan?: IAutoMovieMotionHumanProp.ISoftSpan;
+
   /** Colliders in the prop's frame, for finger closure until contact and penetration audits. */
   shapes?: readonly IAutoMoviePhysicalShape[];
 
@@ -174,6 +181,22 @@ export interface IAutoMovieMotionHumanProp {
  */
 export namespace IAutoMovieMotionHumanProp {
   /**
+   * Which already placed prop and model line own the endpoints of a soft cord.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two identities and the first/last particle meaning.
+   * @evidence contracts/development/design.md#principled-representation This record selects one model span whose endpoints are resolved at the soft domain's fixed-step boundary.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanObject.cord supplies the binding and the performance soft boundary reads it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The cord does not redeclare any articulation, endpoint coordinates or frame callback.
+   */
+  export interface ISoftSpan {
+    /** Subject id of the rigid prop in the same performance. */
+    owner: string;
+
+    /** Span id on the owner's model. */
+    id: string;
+  }
+
+  /**
    * One authored attachment of a prop to a subject's bone. Its offset is expressed in that bone's posed frame; performance readers derive any worn interval from this configuration.
    *
    * @evidence contracts/development/common.md#meaningful-documentation offset: The prop's frame in the bone's posed frame, metres.
@@ -206,6 +229,19 @@ export namespace IAutoMovieMotionHumanProp {
 
     /** Its colliders, with the moved parts' colliders moved; absent when the prop declares none. */
     shapes?: readonly IAutoMoviePhysicalShape[];
+
+    /**
+     * The model's authored span endpoints in this posed model's local frame.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the model identity, posed frame and absence when a model supplies no spans.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The posed model's own reader computes its endpoints.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature has no body.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No fallback frame or inferred line is part of the signature.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Endpoint lookup belongs to the posed model.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature adds no extra pose; its provider already owns the current one.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources.
+     */
+    span?(id: string): IAutoMovieMotionHumanObject.ISpanEnds;
   }
 
   /**

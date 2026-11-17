@@ -30,9 +30,11 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { jumpAirborne } from "./jumpAirborne";
 import { jumpFlight } from "./jumpFlight";
 import { jumpLanding } from "./jumpLanding";
+import { jumpLandingHeading } from "./jumpLandingHeading";
 import { jumpPath } from "./jumpPath";
 import { jumpPush } from "./jumpPush";
 import { jumpTakeoff } from "./jumpTakeoff";
+import { jumpTouchdownRotation } from "./jumpTouchdownRotation";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
 
@@ -99,6 +101,14 @@ import { standUpright } from "./standUpright";
  * Planted legs are kept reachable by `resolveHumanPosture.lower`. The
  * push-off is drawn by `jumpPush`, the landing's places by `jumpLanding`
  * and the paths by `jumpPath`.
+ * A fractional twist with a complete somersault can land upright on the
+ * floor. Its COM endpoint, flat footprints and standing recovery face the
+ * twist's terminal heading. Other fractional landing supports are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the push-off, ballistic COM, support and what makes a fractional turn's landable endpoint.
+ * @evidence contracts/development/design.md#principled-representation The existing jump phases keep their separate roles. A turn with terminal up restored changes stance heading independently of the travel heading.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The action owns the foot targets, cut declarations, end of flight and absorption. The flight pass owns the airborne orientation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The jump keeps the entire signed request and checks its actual terminal rotation against the selected floor stance.
  */
 export namespace jump {
   /** The action's name. */
@@ -128,7 +138,15 @@ export namespace jump {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When no foot is planted to push off from, or the apex is not positive or does not clear a raised landing (jumpFlight).
+   * @throws {HumanRefusal} For missing take-off support, infeasible apex or an incompatible turned landing.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the plan inputs, result and refusal classes.
+   * @evidence contracts/development/implementation.md#principled-implementation Keeps the ballistic path in COM coordinates and rotates its endpoint offset into the terminal heading's foot frame. Absorption uses the resulting footprints while the flight retains its full signed winding.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The same push, flight and landing owners build the plan; the changed terminal heading and COM keep their separate world origins.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The endpoint check refuses measured discrepancies without rotating planted goals in playback or correcting a computed flight.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fractional landing adds constant-size footprint preparation and one terminal rotation check. Existing body-wide COM and flight work remains.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both plant windows share the chosen landing frame and the handback check reads the planned COM endpoint.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one set of phase geometry and one handed-back flight reader for the plan's lifetime.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanJump.IParams>,
@@ -215,10 +233,12 @@ export namespace jump {
       y: root0.y + 0.03 * l,
       z: 0.25 * l,
     });
+    const landingHeading: number = jumpLandingHeading(context.params, heading);
+    const headingChange: number = landingHeading - heading;
     const landed: jumpLanding.ILanding = jumpLanding.of(
       body,
       to,
-      heading,
+      landingHeading,
       rise,
       upright.lean,
     );
@@ -254,9 +274,10 @@ export namespace jump {
       left: takeoff === "left" ? local(rootT, pushed.ankle) : tuck,
       right: takeoff === "right" ? local(rootT, pushed.ankle) : tuck,
     };
+    const endFrame: IAutoMovieMotionHumanFrame = { origin: rootL, yaw: landingHeading };
     const endLocal: Record<"left" | "right", IAutoMovieVector3> = {
-      left: local(rootL, landing.left.ankle),
-      right: local(rootL, landing.right.ankle),
+      left: HumanFrame.local(endFrame, landing.left.ankle),
+      right: HumanFrame.local(endFrame, landing.right.ankle),
     };
 
     const knee = (
@@ -287,11 +308,10 @@ export namespace jump {
       y: rootT.y + offT.y,
       z: rootT.z + offT.z,
     };
-    const comL: IAutoMovieVector3 = {
-      x: rootL.x + offL.x,
-      y: rootL.y + offL.y,
-      z: rootL.z + offL.z,
-    };
+    const comL: IAutoMovieVector3 =
+      headingChange === 0
+        ? { x: rootL.x + offL.x, y: rootL.y + offL.y, z: rootL.z + offL.z }
+        : HumanFrame.point({ origin: rootL, yaw: headingChange }, offL);
     const flight: jumpFlight.IFlight = jumpFlight.solve(
       comT,
       comL,
@@ -409,6 +429,9 @@ export namespace jump {
       P,
       touchdown,
       duration,
+      headingChange !== 0
+        ? jumpTouchdownRotation(body, landed, comL, headingChange, context.subject)
+        : undefined,
     );
 
     return {
@@ -419,7 +442,8 @@ export namespace jump {
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const root: IAutoMovieVector3 = rootAt(t);
-        const yaw: number = push.yawAt(t);
+        const yaw: number =
+          headingChange !== 0 && t > touchdown ? landingHeading : push.yawAt(t);
         // Arms: forward and up with the push, held through flight, lowered as the landing absorbs.
         const raise = (side: "left" | "right"): number =>
           t <= P
@@ -449,7 +473,13 @@ export namespace jump {
             limbs[`${side}Leg`] = {
               point: landing[side].ankle,
               rotation: landing[side].rotation,
-              bend: knee(root, side, HumanFoot.heading(landing[side].rotation)),
+              bend: jumpAirborne.knee(
+                body,
+                landingHeading,
+                root,
+                side,
+                HumanFoot.heading(landing[side].rotation),
+              ),
               planted: true,
               contact: HumanFoot.offset(body, side, "mtp"),
             };
