@@ -10,6 +10,7 @@ export * from "./AutoMoviePhysicalTracking";
 export * from "./AutoMoviePhysicsCache";
 export * from "./AutoMovieStepPlanner";
 export * from "./IAutoMovieBallisticSolution";
+export * from "./IProjectileDragInterval";
 export * from "./IAutoMovieCollisionResponse";
 export * from "./IAutoMovieHit";
 export * from "./IAutoMovieImpact";

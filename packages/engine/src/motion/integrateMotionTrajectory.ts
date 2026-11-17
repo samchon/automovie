@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import type { IMotionTrajectoryInterval } from "./IMotionTrajectoryInterval";
 import { MotionTrajectoryStepper } from "./MotionTrajectoryStepper";
 import { samplePoseVelocity } from "./samplePoseVelocity";
 
@@ -22,13 +23,13 @@ const { turn, scaled, dexpinv } = MotionTrajectoryStepper;
  * @returns The trajectory.
  * @throws {Error} When the interval or the step is not finite and positive, the tolerance is not finite, non-negative and non-zero, the state is empty when no orientation is given, or `f` returns a rate of another length or without an angular velocity for the orientation: a caller's defect; or when an error-controlled step shrinks below its time's resolution.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the method, the step count, the orientation block, the read between knots, the held ends, the determinism contract, the default step and the stiff-case caveat.
+ * @evidence contracts/development/common.md#meaningful-documentation States method, orientation, held ends, determinism and stiff-case caveat; the returned interval reader documents finite query time, held-end selection, fixed-only availability and fresh knot ownership.
  * @evidence contracts/development/implementation.md#principled-implementation Classical RK4 (Butcher's tableau 1/2, 1/2, 1 with weights 1/6, 1/3, 1/3, 1/6), whose global error is fourth order in the step; cubic Hermite interpolation with the knots' exact derivatives; the orientation by Runge-Kutta-Munthe-Kaas (Munthe-Kaas 1999, Appl Numer Math 29:115-127), the classical tableau applied in the Lie algebra with the inverse differential of the exponential truncated after its second bracket, which keeps the fourth order on the unit sphere; its read between knots is the cubic Hermite of the rotation vector in the same algebra.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, hand an error-controlled request to the stepper, else step to `t1` keeping knots, then a reader that finds the knot interval by index.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The frame grid never enters the integration; reads are pure functions of the knots.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four evaluations of `f` per step and one at the last knot; a read finds its interval by division in constant time.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot's derivative is the next step's first stage, evaluated once.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The trajectory holds one state and derivative per knot, `ceil((t1 - t0) / h) + 1` of them, for as long as its caller keeps it.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, hand adaptive requests to the stepper, else keep fixed knots; at and interval select the same adjacent knot index and the latter copies four stored vectors.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The frame grid never enters integration. Fixed interval reads expose actual stored data without resampling, mutable loans, guessed coefficients or adaptive-as-Hermite classification.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Four f evaluations per step and one at the last knot. A fixed read selects its interval by division; copying endpoint data costs O(N) time/output for N state components, independent of duration.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot derivative is the next step's first stage. Both readers reuse retained knots; interval neither invokes f nor integrates or interpolates again.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The trajectory retains one state/derivative per knot for its lifetime. An interval record transfers four fresh arrays, retains no callback and cannot mutate source knots.
  */
 export function integrateMotionTrajectory(
   props: integrateMotionTrajectory.IProps,
@@ -292,28 +293,8 @@ export namespace integrateMotionTrajectory {
     q: IAutoMovieQuaternion | null;
   }
 
-  /**
-   * One fixed Hermite interval's exact stored endpoint data.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member identifies its knot time, state vector or endpoint derivative.
-   * @evidence contracts/development/design.md#principled-representation Adjacent stored states and right-hand-side derivatives define the actual cubic vector interpolant.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The physical departure certificate needs actual dense coefficients without reconstructing them through rounded interpolation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts All arrays are fresh copies; callers cannot change retained integration knots through this record.
-   */
-  export interface IInterval {
-    /** First knot time, seconds. */
-    from: number;
-    /** Next knot time, seconds. */
-    to: number;
-    /** State at the first knot. */
-    start: readonly number[];
-    /** State at the next knot. */
-    end: readonly number[];
-    /** State derivative at the first knot. */
-    first: readonly number[];
-    /** State derivative at the next knot. */
-    last: readonly number[];
-  }
+  /** Existing namespace spelling of the shared fixed Hermite endpoint contract. */
+  export type IInterval = IMotionTrajectoryInterval;
 
   /**
    * An integrated trajectory.
@@ -340,13 +321,6 @@ export namespace integrateMotionTrajectory {
      *
      * @param time Finite query second; outside the interval selects the nearest end interval.
      * @returns Fresh copies of actual states and derivatives with their adjacent knot times.
-     * @evidence contracts/development/common.md#meaningful-documentation States fixed versus adaptive availability, finite-time premise, held-end selection and copied ownership.
-     * @evidence contracts/development/implementation.md#principled-implementation Selects exactly the interval used by at and copies its stored states and derivative vectors, avoiding a second rounded interpolation at nominal knots.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Select one interval index and copy its four stored numeric vectors.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No resampling, guessed coefficients, mutable knot loans or adaptive-as-Hermite classification are used.
-     * @evidence contracts/development/implementation.md#efficient-algorithms O(N) time and output space for N state components, independent of trajectory duration after planning.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the existing stored integration result without invoking the right-hand side or integrating again.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Four fresh numeric arrays transfer to the caller and no source state, trajectory or callback is retained by the returned record.
      */
     interval?: (time: number) => IInterval;
 
