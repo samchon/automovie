@@ -290,13 +290,23 @@ export function hingedArmArticulation(props: {
     ): ((angle: number) => IScored) =>
     (angle: number): IScored => {
       const { upper, lower } = posed(angle);
+      const scored: ReturnType<typeof props.score> = props.score(upper, lower, angle, posed);
+
+      // Every candidate has the same members, its lazy readings absent until
+      // read (`hingedSwivelAhead` reads an absent one as undefined), rather
+      // than a copy of the score's own record.
       return {
         upper,
         lower,
         shortfall: stop.shortfall,
         swivel: angle,
         branch: stop.branch,
-        ...props.score(upper, lower, angle, posed),
+        overshoot: scored.overshoot,
+        deviation: scored.deviation,
+        exact: scored.exact,
+        known: undefined,
+        tiebreak: scored.tiebreak,
+        second: undefined,
       };
     };
   const better = (a: IScored, b: IScored): boolean =>
