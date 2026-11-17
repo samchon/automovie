@@ -176,7 +176,7 @@ export namespace HumanSegmentPose {
       }
       const overlaid: HumanSegmentOverlay.IOverlaid =
         HumanSegmentOverlay.overlaid(person, written, t, borne, fits, prepared.resolution,
-          unplantedHumanObservation(written.limbs, observed), prepared);
+          unplantedHumanObservation(written.limbs, observed), prepared, segment);
       return {
         posture: {
           ...written,

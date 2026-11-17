@@ -114,8 +114,9 @@ export namespace prepareHumanLimbSource {
     const workspace: fitSeededChainToTarget.IWorkspace = entry.bind(source);
     let records: Map<IAutoMoviePose["joints"][number], IAutoMoviePose["joints"][number]> | undefined;
     return {
-      fit: (point: IAutoMovieVector3, near?: Parameters<fitSeededChainToTarget.IWorkspace["fit"]>[1]): ReturnType<fitSeededChainToTarget.IWorkspace["fit"]> => {
-        const fitted: ReturnType<fitSeededChainToTarget.IWorkspace["fit"]> = workspace.fit(point, near);
+      fit: (point: IAutoMovieVector3, near?: Parameters<fitSeededChainToTarget.IWorkspace["fit"]>[1],
+        incumbent?: Parameters<fitSeededChainToTarget.IWorkspace["fit"]>[2]): ReturnType<fitSeededChainToTarget.IWorkspace["fit"]> => {
+        const fitted: ReturnType<fitSeededChainToTarget.IWorkspace["fit"]> = workspace.fit(point, near, incumbent);
         if (fitted.pose.root !== null) ROOTS.add(fitted.pose.root);
         return fitted;
       },

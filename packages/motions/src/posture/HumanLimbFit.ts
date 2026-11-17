@@ -10,6 +10,7 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieSeededChainFit,
   IAutoMovieSwivelNear,
+  IAutoMovieSwivelSeed,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -268,16 +269,16 @@ export namespace HumanLimbFit {
   export function direct(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limb: AutoMovieHumanLimb, attached: IAutoMovieHumanLimbGoal,
     placed: readonly ("left" | "right")[], rival: IAutoMovieVector3 | undefined, near: IAutoMovieSwivelNear | undefined,
     resolution: Parameters<typeof prepareHumanPoseResolution>[0], policy: "ordinary" | "continuous",
-    admit?: () => void): IAutoMovieSeededChainFit {
+    admit?: () => void, incumbent?: IAutoMovieSwivelSeed): IAutoMovieSeededChainFit {
     return solved(body, pose, limb, attached, placed, rival, near, resolution,
-      policy === "ordinary" ? ordinary : correcting, admit);
+      policy === "ordinary" ? ordinary : correcting, admit, incumbent);
   }
 
   /** The chain's own solve in the pose given: the world goal, the obstruction, the prepared fit and the contact re-aim. */
   function solved(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, limb: AutoMovieHumanLimb, attached: IAutoMovieHumanLimbGoal,
     placed: readonly ("left" | "right")[], rival: IAutoMovieVector3 | undefined, near: IAutoMovieSwivelNear | undefined,
     resolution: Parameters<typeof prepareHumanPoseResolution>[0], read: typeof ordinary,
-    admit?: () => void): IAutoMovieSeededChainFit {
+    admit?: () => void, incumbent?: IAutoMovieSwivelSeed): IAutoMovieSeededChainFit {
     const readResolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(resolution);
     const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
@@ -373,7 +374,7 @@ export namespace HumanLimbFit {
     );
     return fitHumanLimbContact(fitter, goal, side, limb.endsWith("Leg"),
       (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit => {
-        const fitted: IAutoMovieSeededChainFit = read(fitter, point, near, body, continued);
+        const fitted: IAutoMovieSeededChainFit = read(fitter, point, near, body, continued, incumbent);
 
         // A workspace of a shared source solves on its own snapshot; its
         // unchanged records are handed back as this pose's own, so the
@@ -465,8 +466,10 @@ export namespace HumanLimbFit {
 
   /** Public near/cold fitting retains its original workspace entry and order; a re-aim pass continues its previous pass. */
   function ordinary(workspace: ReturnType<typeof prepareHumanLimbFit>, point: IAutoMovieVector3,
-    _near: IAutoMovieSwivelNear | undefined, _body: IAutoMovieMotionHumanBody, continued?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit {
-    return workspace.fit(point, continued);
+    _near: IAutoMovieSwivelNear | undefined, _body: IAutoMovieMotionHumanBody, continued?: IAutoMovieSwivelNear,
+    incumbent?: IAutoMovieSwivelSeed): IAutoMovieSeededChainFit {
+    // A held seed only starts a swept fit's bounded search (HumanLimbIncumbent).
+    return continued === undefined && incumbent !== undefined ? workspace.fit(point, undefined, incumbent) : workspace.fit(point, continued);
   }
 
   /** Only the actual continuous-curve constructor selects current hinged correction. */

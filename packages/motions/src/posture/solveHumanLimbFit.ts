@@ -14,6 +14,7 @@ import type {
 import { HumanArmMirror } from "./HumanArmMirror";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
+import { HumanLimbIncumbent } from "./HumanLimbIncumbent";
 import { HumanLimbMirror } from "./HumanLimbMirror";
 import { HumanLimbView } from "./HumanLimbView";
 import { prepareHumanLimbSource } from "./prepareHumanLimbSource";
@@ -146,6 +147,9 @@ function solved(
   const out: IAutoMovieSeededChainFit = HumanLimbFit.direct(
     body, own, chain, aim, others, away, near, reader, policy,
     (): void => HumanLimbView.admitted(body, pose, admission),
+    // A seed held for this limb (`HumanLimbIncumbent`) starts a swept
+    // fit's bounded search; a continued fit has its own seed.
+    near === undefined ? HumanLimbIncumbent.of(body, limb) : undefined,
   );
 
   // The solved records go back into the whole pose, a left limb's renamed

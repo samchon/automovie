@@ -1,6 +1,7 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
+import type { IAutoMovieSwivelSeed } from "../../../pose/IAutoMovieSwivelSeed";
 import type { IAutoMovieSkeletonPoseResolution } from "../../../pose/IAutoMovieSkeletonPoseResolution";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { AutoMovieMotionHumanActionKey } from "../AutoMovieMotionHumanActionKey";
@@ -10,6 +11,7 @@ import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanInterruptRow } from "../law/IAutoMovieMotionHumanInterruptRow";
 import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLayer";
+import type { AutoMovieHumanLimb } from "../posture/AutoMovieHumanLimb";
 import type { IAutoMovieHumanLimbReference } from "../posture/IAutoMovieHumanLimbReference";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanSkill } from "../skill/IAutoMovieMotionHumanSkill";
@@ -70,6 +72,15 @@ export interface IAutoMovieMotionHumanSegment {
     /** The offset, captured on first use. */
     offset?: (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose;
   };
+
+  /**
+   * Each limb's seed of the action's last displayed leaf resolve, held for
+   * the next one's swept fits as their bounded search's incumbent
+   * (`IAutoMovieFitChainToTargetProps.incumbent`), which cannot change their
+   * answer; absent until a leaf resolve, and released when the person's memos
+   * are forgotten.
+   */
+  incumbents?: Readonly<Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>>>;
 }
 
 /** Operation-local contracts supporting IAutoMovieMotionHumanSegment. */
