@@ -19,6 +19,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -228,10 +229,6 @@ export namespace brace {
     const relaxed: IHumanPosture["joints"] = { ...stand.relaxed(body), ...upright };
     const legsAt: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(body, yaw);
     const bearing: number = Math.cos((forward * Math.PI) / 180);
-    const flatHands: IHumanPosture["joints"] = {
-      ...HumanHand.shape("left", "flat"),
-      ...HumanHand.shape("right", "flat"),
-    };
 
     // The set root: lowered by the knee flexion, then moved twice so the
     // engine's centre of mass stands over the middle of the new base's hull.
@@ -311,13 +308,16 @@ export namespace brace {
         resolveHumanPosture.KNEE,
         resolution,
       );
+      // The hands open on the set's own share: written flat at once from
+      // the first instant past zero, the fingers jumped from the entry's.
       return s <= 0
         ? posture
         : {
             ...posture,
             joints: {
               ...posture.joints,
-              ...flatHands,
+              ...AutoMovieMotionHumanHand.fingers("left", "flat", 0, s),
+              ...AutoMovieMotionHumanHand.fingers("right", "flat", 0, s),
             },
           };
     };

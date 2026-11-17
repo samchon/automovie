@@ -7,6 +7,7 @@ import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
@@ -458,6 +459,12 @@ export namespace crouch {
         share,
       );
 
+    // The hands open onto the thighs as the palms come to them: an open
+    // hand lies on the thigh where the standing hand's curled thumb and
+    // fingers went into it.
+    const open = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive =>
+      AutoMovieMotionHumanHand.shape({ side, shape: "flat", from: 0, to: duration, weight: share });
+
     // The crouch rises again at its end, so it leaves the body standing
     // (#3363: a base transition declares the base it ends in).
     return {
@@ -465,7 +472,7 @@ export namespace crouch {
         base,
         clock,
         contact: "lowest",
-        primitives: [sink, rest("left"), rest("right")],
+        primitives: [sink, rest("left"), rest("right"), open("left"), open("right")],
       }),
       base: { kind: "standing" },
     };

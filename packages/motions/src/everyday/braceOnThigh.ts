@@ -92,8 +92,10 @@ export function braceOnThigh(
             normal: Quaternion.rotateVector(thigh.worldRotation, region.normal),
           },
           {
+            // An open hand: the palm and the straight fingers and thumb lie on
+            // the thigh, where the relaxed cascade curled them into it.
             surface: "palm",
-            shape: "relaxed",
+            shape: "flat",
             forward: Vector3.subtract(kneeAt, thigh.worldPosition),
           },
         ),

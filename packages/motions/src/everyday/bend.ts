@@ -9,6 +9,7 @@ import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
 import { HumanBound } from "../law/HumanBound";
 import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -278,7 +279,16 @@ export namespace bend {
           body,
           {
             ...aimed,
-            joints: { ...aimed.joints, ...HumanHand.shape(side, "flat") },
+            // Both hands open as they go down, the reaching palm onto the
+            // target and the free one onto its thigh: an open hand from the
+            // relaxed one by the descent's share, so neither the fingers
+            // jump at the start nor the free hand's curled thumb goes into
+            // the thigh it braces on.
+            joints: {
+              ...aimed.joints,
+              ...AutoMovieMotionHumanHand.fingers(side, "flat", 0, s),
+              ...AutoMovieMotionHumanHand.fingers(free, "flat", 0, s),
+            },
           },
           [
             {
@@ -292,7 +302,7 @@ export namespace bend {
             {
               side: free,
               surface: "palm",
-              shape: "relaxed",
+              shape: "flat",
               point: Vector3.lerp(rest, brace, s),
               rotation: Quaternion.slerp(
                 hanging.get(`${free}Hand`)!.worldRotation,
