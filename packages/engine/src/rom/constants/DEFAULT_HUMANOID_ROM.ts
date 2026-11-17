@@ -91,11 +91,18 @@ const THUMB_END = constraint(range(-5, 90), null, null);
  * does not have. The shoulder's directional limit is a measured cone that
  * varies with the plane of elevation (Engin and Chen 1986, J Biomech Eng
  * 108:215), not reached; the figure is horizontal adduction from 90 degrees
- * of abduction, 130 in Physiotutors' active range of motion norms (IDEA
- * gives 140; Norkin and White tabulate none), and applied elsewhere it
- * clamps a hand wiping the mouth, which reaches 131.
+ * of abduction, for which the published norms run from 130 (Physiotutors'
+ * active range of motion norms) to 140 (IDEA, "The Shoulder, Part IV";
+ * Norkin and White tabulate none). One radius serves every great circle, so
+ * it is the greater norm: an arm crosses the body farther below the
+ * shoulder's height than at it, and the lesser one refused places people
+ * put an elbow at. A hand wiping the mouth reaches 131; two elbows brought
+ * to the midline ahead of the chest lie half the shoulder breadth across,
+ * which an upper arm of 0.226 m on a half breadth of 0.153 m reaches at 135
+ * degrees whatever its height, and at 140 with the chest turned 5 degrees
+ * away (the arm wrestle's elbow on the table).
  */
-const REACH: number = 130;
+const REACH: number = 140;
 
 /**
  * Default anatomical range-of-motion table for the normalized humanoid, keyed
