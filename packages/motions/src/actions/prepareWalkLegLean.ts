@@ -64,6 +64,11 @@ interface IGeometry {
   at: (hip: IAutoMovieVector3, ankle: IAutoMovieVector3, distance: number) => number;
 }
 
+/** An angle, radians, as its principal value in (-pi, pi]. */
+function wrap(angle: number): number {
+  return Math.atan2(Math.sin(angle), Math.cos(angle));
+}
+
 /** The least and the greatest square sum whose square root is the engine's ordinary vector length (`Vector3.distance`'s own bounds). */
 const ORDINARY_MIN: number = 2 ** -1000;
 const ORDINARY_MAX: number = 2 ** 1000;
@@ -134,7 +139,6 @@ function geometry(body: IHumanBody, heading: number): IGeometry {
       const half: number = Math.acos(
         Math.min(1, Math.max(-1, (across * (ux * lx + uy * ly + uz * lz)) / ((along - d) * size))),
       );
-      const wrap: (angle: number) => number = (angle: number): number => Math.atan2(Math.sin(angle), Math.cos(angle));
       const one: number = wrap(middle + half);
       const other: number = wrap(middle - half);
       swing = Math.abs(one) <= Math.abs(other) ? one : other;
