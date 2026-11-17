@@ -11,6 +11,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { bracketedRoot } from "../math/bracketedRoot";
 import { physicalHullFaces } from "../physics/physicalHullFaces";
 import { physicalShapeSegmentDistance } from "../physics/physicalShapeSegmentDistance";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
@@ -51,15 +52,18 @@ import { resolvePose } from "./resolvePose";
  *
  * Every joint's flexion is searched from its current value upward in steps
  * of `step` degrees, the first step whose gap is not positive is bracketed
- * and bisected 30 times, and the joint keeps the bisection's lower end, the
- * last angle with a positive gap, so a phalanx stops touching the collider
- * within the bisection's resolution and never inside it. A joint already in
+ * and the bracket closed to the width 30 bisections leave (`HALVINGS`), by
+ * false position on the gap, which is continuous in the angle
+ * (`bracketedRoot`), and by bisection for whatever width that leaves; the
+ * joint keeps the bracket's lower end, the last angle read with a positive
+ * gap, so a phalanx stops touching the collider within that resolution and
+ * never inside it. A joint already in
  * contact does not move. A joint that meets nothing stops at the flexion the
  * skeleton's range of motion allows (`clampJointToSkeleton`), so the result
  * never needs a later clamp. Forward kinematics is the engine's `resolvePose`
  * with the same axes and rest frames, so the angles read the same everywhere.
  *
- * The search is deterministic: a fixed step, a fixed bisection count and a
+ * The search is deterministic: a fixed step, a fixed bracket resolution and a
  * fixed chain and joint order. A step larger than the thinnest part of an
  * object can step a phalanx past it; the default of 1 degree moves a 0.1 m
  * phalanx tip less than 2 mm.
@@ -70,10 +74,10 @@ import { resolvePose } from "./resolvePose";
  *   radius or step is not positive, or a collider is malformed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the closing rule and its source, the phalanx capsules, the exact distances, the search with its stopping side, the range-of-motion cap, determinism and the step's resolution.
- * @evidence contracts/development/implementation.md#principled-implementation GraspIt!'s auto-grasp stopping rule (Miller and Allen 2004) evaluated proximal to distal, with exact segment distances and a bracket-then-bisect search on forward kinematics of the engine's own resolver.
+ * @evidence contracts/development/implementation.md#principled-implementation GraspIt!'s auto-grasp stopping rule (Miller and Allen 2004) evaluated proximal to distal, with exact segment distances and a bracketed root search on forward kinematics of the engine's own resolver: the Illinois false position of `bracketedRoot` (Dowell and Jarratt 1971) on the continuous gap, whose readings move the bracket end of their own sign exactly as a bisection's do, completed by bisection to the stated width.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One chain/joint loop shares one actual gap reader. Raw FK retains its array-to-map adapter; an explicit native overlay writes that same fresh map directly through its private canonical frame-copy owner.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance counts a gap as contact: a joint stops on the positive side of the first non-positive gap, and an unreached object leaves the joint at its range limit with the positive gap reported.
- * @evidence contracts/development/implementation.md#efficient-algorithms Every original range/step and 30 bisection probe remains. An explicit immutable rig admits each chain's first actual trial once, then its E complete existing edits rather than J rows. Native map output omits each probe's temporary FK array and subsequent indexing pass; fresh frame/Map output and all actual FK/contact work remain. Raw full resolvePose and original map construction are unchanged; speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Every original range/step probe remains and the scan's two bracket readings are not read again; the bracket is closed to the width of 30 bisections by false position, superlinear on a smooth gap, in place of 30 forward-kinematics and distance readings a joint (unmeasured). An explicit immutable rig admits each chain's first actual trial once, then its E complete existing edits rather than J rows. Native map output omits each probe's temporary FK array and subsequent indexing pass; fresh frame/Map output and all actual FK/contact work remain. Raw full resolvePose and original map construction are unchanged; speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The supplied rig fixes unchanged skeleton/axes/frames/topology. A per-chain source is created only after the original first trial edit, preserving admission order and overwrite behavior; prior-chain commits and fixed root/non-chain records then remain unchanged. Every later complete current-chain edit list is actually admitted, while absent future bones stay absent. Contact queries, brackets, angles and final gaps are never reused as results.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One lazy operation reader and fixed-collider readers live until this closure returns or throws. Each chain releases one fixed-source workspace, demanded set and bounded current-chain order before the next chain; no workspace, FK reader, queried pose/time history or handle escapes in the returned pose/reports.
  */
@@ -192,27 +196,56 @@ export function curlChainUntilContact(
         ).flexion ?? start,
       );
       let angle: number = start;
-      if (gap(k, start) > 0) {
+      let open: number = gap(k, start);
+      if (open > 0) {
         let lo: number = start;
         let hi: number | undefined;
+        let closed: number = 0;
         for (
           let a: number = Math.min(limit, start + step);
           ;
           a = Math.min(limit, a + step)
         ) {
-          if (gap(k, a) <= 0) {
+          const here: number = gap(k, a);
+          if (here <= 0) {
             hi = a;
+            closed = here;
             break;
           }
           lo = a;
+          open = here;
           if (a >= limit) break;
         }
-        if (hi !== undefined)
-          for (let i: number = 0; i < 30; i++) {
-            const mid: number = (lo + hi) / 2;
-            if (gap(k, mid) <= 0) hi = mid;
-            else lo = mid;
+        if (hi !== undefined) {
+          // The bracket [lo, hi] holds a positive gap at lo and a
+          // non-positive one at hi, and is closed to the width `HALVINGS`
+          // bisections would leave. The gap is continuous in the angle, so
+          // false position closes it in fewer readings (`bracketedRoot`);
+          // every reading moves the end of its own sign, as a bisection's
+          // does, and whatever width false position leaves (a reading of
+          // exactly zero ends it at once) is bisected away.
+          const tolerance: number = (hi - lo) * 2 ** -HALVINGS;
+          const ends: readonly [number, number, number, number] = [lo, open, hi, closed];
+          let low: number = lo;
+          let high: number = hi;
+          const read = (a: number): number => {
+            const here: number =
+              a === ends[0] ? ends[1] : a === ends[2] ? ends[3] : gap(k, a);
+            if (a > low && a < high) {
+              if (here <= 0) high = a;
+              else low = a;
+            }
+            return here;
+          };
+          if (Number.isFinite(open) && Number.isFinite(closed) && tolerance > 0)
+            bracketedRoot(read, lo, hi, tolerance);
+          while (high - low > tolerance) {
+            const mid: number = (low + high) / 2;
+            if (!(mid > low && mid < high)) break;
+            read(mid);
           }
+          lo = low;
+        }
         angle = lo;
       }
       joints.set(bone, { ...current, bone, flexion: angle });
@@ -350,3 +383,6 @@ function validate(shape: P.IShape): void {
   if (!ok)
     throw new Error(`A collider ${shape.id} has non-positive dimensions`);
 }
+
+/** The bisections whose final bracket width a joint's contact search closes to: a step of one degree to under a billionth of a degree, far finer than a joint's tolerance, so the positive side kept is the contact's own angle. */
+const HALVINGS: number = 30;
