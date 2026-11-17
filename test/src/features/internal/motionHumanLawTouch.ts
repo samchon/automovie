@@ -12,7 +12,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAuditDifference,
   AutoMovieMotionHumanTouchEffector,
   AutoMovieMotionHumanTouchForm,
   HumanChain,
@@ -24,7 +23,9 @@ import {
 } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
+import { motionHumanJointText } from "./motionHumanJointText";
 import { motionHumanLaw } from "./motionHumanLaw";
+import { motionHumanLawTouchMirror } from "./motionHumanLawTouchMirror";
 
 /**
  * Everything one touch owes on screen, read off the displayed bones, as
@@ -84,7 +85,7 @@ import { motionHumanLaw } from "./motionHumanLaw";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every expectation with its bound, how the distance is read and which films are performed.
  * @evidence contracts/development/implementation.md#principled-implementation Contact is the hand's own collider on the region's point of the displayed body, not the law's goal; the kind's shape is its definition as a lift or a travel.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One film, the audit's parts and the film's checks on it, then the mirror.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One film, the audit's parts and the film's checks on it, then the mirror (`motionHumanLawTouchMirror`); a failing complaint's joint text comes from `motionHumanJointText`.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every expectation is evaluated and reported; none stops the others, and no bound differs from the part-by-part reading it replaces.
  * @evidence contracts/development/implementation.md#efficient-algorithms One film per row instead of one per expectation group, its remembered 24 Hz frames shared by the audit's parts and the film's checks; a complaint's joint dumps are resolved only when it fails.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A self-directed row's right-hand mirror film has the same input as its film (a partner's stilling applies only to a partner), so the film stands for it; `motionHumanLaw` owns the film, the events, the travel and the audit.
@@ -134,7 +135,12 @@ export function motionHumanLawTouch(
       ? []
       : motionHumanLaw.auditParts(film, `${label} b`, "b", body)),
     ...expectations(label, params, body, film),
-    ...mirror(label, params, partner === undefined ? film : undefined, perform),
+    ...motionHumanLawTouchMirror(
+      label,
+      params,
+      partner === undefined ? film : undefined,
+      perform,
+    ),
   ];
 }
 
@@ -151,98 +157,6 @@ function length(v: IAutoMovieVector3): number {
 /** The difference of two vectors. */
 function minus(a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 {
   return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
-}
-
-/**
- * Some of a film's displayed clinical joints at a second, as
- * `bone flexion/abduction/twist` triples, for a complaint to say which joint
- * moved.
- *
- * @param film The film.
- * @param seconds The second.
- * @param bones The bones listed.
- * @param format One joint's text.
- * @param separator What the joints' texts are joined with.
- * @returns The listed joints, joined.
- */
-function joints(
-  film: motionHumanLaw.IFilm,
-  seconds: number,
-  bones: readonly string[],
-  format: (joint: IAutoMovieJointPose) => string,
-  separator: string,
-): string {
-  return film.performance
-    .pose("a", seconds)
-    .joints.filter((joint: IAutoMovieJointPose): boolean =>
-      bones.includes(joint.bone),
-    )
-    .map(format)
-    .join(separator);
-}
-
-/**
- * Expectation 8 of `motionHumanLawTouch`, the left-hand row against the
- * right-hand row's mirror image.
- *
- * @param label The row's name.
- * @param params The row.
- * @param right The right-hand film when the row's film is its own mirror's right-hand side; absent to perform it with the partner stilled.
- * @param perform Performs a row, its partner stilled or not.
- * @returns The complaint when the mirror does not hold; none for a two-hand row.
- */
-function mirror(
-  label: string,
-  params: touch.IParams,
-  right: motionHumanLaw.IFilm | undefined,
-  perform: (row: touch.IParams, still: boolean) => motionHumanLaw.IFilm,
-): string[] {
-  if (params.other !== undefined) return [];
-  const flip = (target: AutoMovieMotionTarget): AutoMovieMotionTarget =>
-    ({
-      ...target,
-      region: (target as { region: string }).region.replace(
-        /Left|Right/,
-        (found: string): string => (found === "Left" ? "Right" : "Left"),
-      ),
-    }) as AutoMovieMotionTarget;
-  const film: motionHumanLaw.IFilm = right ?? perform(params, true);
-  const left: motionHumanLaw.IFilm = perform(
-    {
-      ...params,
-      target: flip(params.target),
-      side: "left",
-    },
-    true,
-  );
-  const mirrored: AutoMovieMotionHumanAuditDifference.IResult =
-    AutoMovieMotionHumanAuditDifference.measure(film, left, "a", {
-      mirror: 0,
-      rate: 4,
-    });
-  // Each film's acting arm and trunk at the second, as clinical triples
-  // that a mirror keeps equal, so a miss says which joint differs.
-  const acting = (shown: motionHumanLaw.IFilm, side: string): string =>
-    joints(
-      shown,
-      mirrored.distance.seconds,
-      [
-        "hips",
-        "spine",
-        "chest",
-        `${side}UpperArm`,
-        `${side}LowerArm`,
-        `${side}Hand`,
-      ],
-      (joint: IAutoMovieJointPose): string =>
-        `${joint.bone.replace(side, "")} ${(joint.flexion ?? 0).toFixed(1)}/${(joint.abduction ?? 0).toFixed(1)}/${(joint.twist ?? 0).toFixed(1)}`,
-      ", ",
-    );
-  return motionHumanLaw.expect(
-    (): string =>
-      `${label}: the left-hand touch is ${mm(mirrored.distance.value)} mm off the right-hand touch's mirror at ${mirrored.distance.seconds.toFixed(2)} s on ${mirrored.distance.where} (limit 5.0; right ${acting(film, "right")}; left ${acting(left, "left")})`,
-    mirrored.distance.value <= 0.005 && mirrored.duration <= 1e-9,
-  );
 }
 
 /**
@@ -350,7 +264,7 @@ function expectations(
     // elbow's flexion, a fit every joint.
     const side: "left" | "right" = bone === "rightLowerArm" ? "right" : "left";
     const arm = (t: number): string =>
-      joints(
+      motionHumanJointText(
         film,
         t,
         [`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`],
@@ -489,7 +403,7 @@ function expectations(
     // whether the arm itself or the trunk under it moved.
     const when: number = times[strays.indexOf(strayed)] ?? 0;
     const trunk = (t: number): string =>
-      joints(
+      motionHumanJointText(
         film,
         t,
         ["hips", "spine", "chest", "leftUpperArm", "leftLowerArm"],
