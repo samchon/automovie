@@ -16,10 +16,12 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
 import type { IAutoMovieMotionHumanBlast } from "./IAutoMovieMotionHumanBlast";
 import type { IAutoMovieMotionHumanForce } from "./IAutoMovieMotionHumanForce";
 import type { IAutoMovieMotionHumanObstacle } from "./IAutoMovieMotionHumanObstacle";
+import type { IAutoMovieMotionHumanObject } from "./IAutoMovieMotionHumanObject";
 import type { IAutoMovieMotionHumanPerformanceAim } from "./IAutoMovieMotionHumanPerformanceAim";
 import type { IAutoMovieMotionHumanPerformer } from "./IAutoMovieMotionHumanPerformer";
 import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 import type { IAutoMovieMotionHumanPropFlight } from "./IAutoMovieMotionHumanPropFlight";
+import type { IAutoMovieMotionHumanPropFracture } from "./IAutoMovieMotionHumanPropFracture";
 import type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegment";
 
 /**
@@ -208,6 +210,21 @@ export interface IAutoMovieMotionHumanPerformance {
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPerformance.hits is used through packages/motions/src/perform/HumanPerformance.ts.
    */
   hits(subject?: string): readonly IAutoMovieInteractionEvent[];
+
+  /**
+   * Stages a breakaway prop at a recorded hit, or returns null while intact.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The request binds a model and authored budget to a hit on its placed prop.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation HumanPerformance.fracture owns hit selection and staging.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the staging boundary.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The implementation owns admission and trajectory math.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The implementation owns hit lookup and preparation cost.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The returned plan owns its prepared data.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The implementation documents the returned plan's lifetime.
+   */
+  fracture<Piece extends IAutoMovieMotionHumanObject.IModel>(
+    request: IAutoMovieMotionHumanPropFracture.IRequest<Piece>,
+  ): IAutoMovieMotionHumanPropFracture.IPlan<Piece> | null;
 
   /**
    * A soft prop's particle positions at a film second: its lattice solved

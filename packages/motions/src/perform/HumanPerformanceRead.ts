@@ -235,6 +235,7 @@ export namespace HumanPerformanceRead {
             side: held.side,
             from: held.from,
             to: held.until,
+            ...(held.capture === undefined ? {} : { capture: held.capture }),
           });
       for (const segment of [...person.segments, ...person.overlays])
         for (const c of segment.plan.contacts)

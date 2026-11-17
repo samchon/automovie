@@ -7,6 +7,7 @@ import type { AutoMovieMotionHumanChannelClaim } from "../compose/AutoMovieMotio
 import type { IAutoMovieMotionHumanActionContext } from "../law/IAutoMovieMotionHumanActionContext";
 import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHumanActionLaw";
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
+import type { IAutoMovieMotionPropHold } from "../law/IAutoMovieMotionPropHold";
 import type { IAutoMovieMotionHumanInterruptRow } from "../law/IAutoMovieMotionHumanInterruptRow";
 import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLayer";
 import type { IAutoMovieHumanLimbReference } from "../posture/IAutoMovieHumanLimbReference";
@@ -176,6 +177,9 @@ export namespace IAutoMovieMotionHumanSegment {
 
     /** Film second the hold starts. */
     from: number;
+
+    /** The launch that a staged hold captures on entry, if any. */
+    capture?: IAutoMovieMotionPropHold["capture"];
 
     /** Film second a later action takes the hand over; infinite while none has. */
     until: number;

@@ -22,7 +22,8 @@ import { HumanPropSweep } from "./HumanPropSweep";
  * turns its prop into the engine's flight (`projectileAt`) from the launch
  * until the flight's first contact, against the people, the props that do
  * not fly themselves and the floor, found by the engine's one sweep
- * (`projectileFirstContact`), and then into where the flight ends.
+ * (`projectileFirstContact`), and then into where the flight ends. An
+ * explicitly tagged catch limits the search for that launch to the grip.
  *
  * A launched prop leaves from its displayed frame at the launch second (the
  * hand that held it lets go there) with the launch's velocity; a prop the
@@ -43,10 +44,11 @@ import { HumanPropSweep } from "./HumanPropSweep";
  * or rolls on; a prop whose data grant none stays where it struck, on the
  * floor, riding a struck prop or a struck person's bone. A bounce or a pass
  * is swept again, contact by contact, until the prop stays, rolls to rest
- * or the film ends. A flight still in the air at the film's end is unended.
+ * or stops at a staged grip or the end of the film. A flight still in the
+ * air at the film's end is unended.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States where a flight starts, its drag, what it can meet, and how each contact ends or goes on with the outcome's source.
- * @evidence contracts/development/design.md#principled-representation A flight is its launch, its engine projectile, its first contact and the legs that follow; the prop's frame after them is a rest in the frame of what it struck.
+ * @evidence contracts/development/design.md#principled-representation A flight is its launch, its engine projectile, its first contact and the legs that follow. A tagged grip limits collision search by launch identity and records its takeover separately from collision.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The flights of a prop and its frame by flight; the hits they make are `HumanPerformanceHits`'.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The flight is the engine's, never a second closed form; the sweep is the engine's one resolver.
  */
@@ -58,11 +60,11 @@ export namespace HumanPropFlight {
    * @param subject The prop.
    * @returns The flights.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines film ordering, action-window launch filtering, borrowed cached output and predecessor flights exposed during recursive construction.
-   * @evidence contracts/development/implementation.md#principled-implementation Collects the prop's published launches inside their surviving action windows, stably sorts them by film time and delegates each flight to the engine-backed fly owner; recursive frame reads see only flights already built.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines film ordering, action-window launch filtering, the placed horizon during scheduling, borrowed cached output and predecessor flights exposed during recursive construction.
+   * @evidence contracts/development/implementation.md#principled-implementation Collects the prop's published launches inside their surviving action windows and stably sorts them by film time. A hit that schedules a later action may be searched through the end of the already placed actions. Once placed, the final schedule provides the horizon. A matching grip limits that launch's collision and leg horizon. Recursive frame reads see only flights already built.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Collection/order, flight construction and per-performance retention stay distinct; sweep and continuation laws remain with their existing owners.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Existing 1e-9-second action-window and 1e-6-second grip-close margins remain explicit planning policies; no CCD time shift or producer-specific flight equation is added. Final-state cache identity does not independently detect caller mutation of performance inputs.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A cache hit is O(1); uncached collection scans action segments/launches and sorts L matching launches in O(L log L), then adds each flight's sweep/continuation cost and output. Missing or unlaunched props are not memoized, so those reads repeat collection work where applicable.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A cache hit is O(1); uncached collection computes the provisional horizon during the existing segment/launch traversal, sorts L matching launches in O(L log L), and then adds each flight's sweep/continuation cost and output. Missing or unlaunched props are not memoized, so those reads repeat collection work where applicable.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Placed non-resolving performances reuse results by performance identity and prop subject, relying on their plans/placements/props remaining fixed. BUILDING shares predecessor output only during one recursive construction; resolving performances do not publish final cache results.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources BUILDING removes the subject in finally on success or refusal; final weak-state entries retain at most the queried launched props and their launch/contact/trajectory output until the performance is released. Returned records remain borrowed and mutable, and no host task is acquired.
    */
@@ -83,8 +85,10 @@ export namespace HumanPropFlight {
       source: IAutoMovieMotionHumanPropFlight.IFlight["source"];
       launch: IAutoMovieMotionPropLaunch;
     }[] = [];
+    let filmEnd: number = self.resolving ? 0 : self.schedule.duration;
     for (const person of self.people.values())
-      for (const segment of [...person.segments, ...person.overlays])
+      for (const segment of [...person.segments, ...person.overlays]) {
+        if (self.resolving) filmEnd = Math.max(filmEnd, segment.end);
         for (const launch of segment.plan.launches ?? []) {
           if (launch.prop !== subject) continue;
           const seconds: number = segment.start + launch.seconds;
@@ -99,6 +103,7 @@ export namespace HumanPropFlight {
             launch,
           });
         }
+      }
     launches.sort((a, b): number => a.seconds - b.seconds);
     if (launches.length === 0) return [];
     const out: IAutoMovieMotionHumanPropFlight.IFlight[] = [];
@@ -108,7 +113,7 @@ export namespace HumanPropFlight {
     BUILDING.set(self, map);
     try {
       for (const { seconds, source, launch } of launches)
-        out.push(fly(self, prop, seconds, source, launch));
+        out.push(fly(self, prop, seconds, source, launch, filmEnd));
     } finally {
       map.delete(subject);
     }
@@ -192,13 +197,19 @@ export namespace HumanPropFlight {
     seconds: number,
     source: IAutoMovieMotionHumanPropFlight.IFlight["source"],
     launch: IAutoMovieMotionPropLaunch,
+    filmEnd: number,
   ): IAutoMovieMotionHumanPropFlight.IFlight {
     // The prop leaves from where it is shown at the launch, when a grip
     // shows it there; a prop set on its way leaves from the launch's point.
-    const held: boolean = HumanPerformanceRead.grips(self, prop.subject).some(
-      (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
-        g.from < seconds && g.to >= seconds - 1e-6,
-    );
+    let held: boolean = false;
+    let capture: number | undefined;
+    for (const grip of HumanPerformanceRead.grips(self, prop.subject)) {
+      if (grip.from < seconds && grip.to >= seconds - 1e-6) held = true;
+      if (grip.capture === launch && grip.from > seconds) {
+        capture = grip.from;
+        break;
+      }
+    }
     const shown: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
       self,
       prop.subject,
@@ -221,7 +232,13 @@ export namespace HumanPropFlight {
             ? launch.attitude
             : { ...launch.attitude, rotation },
     };
-    const horizon: number = self.duration - seconds;
+    const horizon: number = filmEnd - seconds;
+    const capturedAt: number | undefined =
+      capture !== undefined && capture - seconds <= horizon
+        ? capture
+        : undefined;
+    const through: number =
+      capturedAt === undefined ? horizon : capturedAt - seconds;
     const flight: IAutoMovieMotionHumanPropFlight.IFlight = {
       prop: prop.subject,
       launch: seconds,
@@ -229,24 +246,32 @@ export namespace HumanPropFlight {
       published: launch,
       projectile,
       end: Infinity,
+      ...(capturedAt === undefined ? {} : { capturedAt }),
     };
-    if (!(horizon > 0)) return flight;
+    if (!(through > 0)) return flight;
     const meet = (
       p: IAutoMovieProjectile,
       base: number,
       leave?: string,
       departing?: string,
-    ): IAutoMovieMotionHumanPropOutcome.IMeeting | null =>
-      HumanPropSweep.sweep(
-        self,
-        prop,
-        source.subject,
-        seconds + base,
-        p,
-        horizon - base,
-        leave,
-        departing,
-      );
+    ): IAutoMovieMotionHumanPropOutcome.IMeeting | null => {
+      const meeting: IAutoMovieMotionHumanPropOutcome.IMeeting | null =
+        HumanPropSweep.sweep(
+          self,
+          prop,
+          source.subject,
+          seconds + base,
+          p,
+          through - base,
+          leave,
+          departing,
+        );
+      return capturedAt !== undefined &&
+        meeting !== null &&
+        base + meeting.hit.time >= through
+        ? null
+        : meeting;
+    };
     const settle = (
       m: IAutoMovieMotionHumanPropOutcome.IMeeting,
       p: IAutoMovieProjectile,
@@ -263,7 +288,7 @@ export namespace HumanPropFlight {
         prop,
         projectile,
         meeting: first,
-        horizon,
+        horizon: through,
         meet,
         settle,
       },

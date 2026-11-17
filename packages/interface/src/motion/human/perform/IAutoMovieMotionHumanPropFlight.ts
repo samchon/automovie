@@ -34,8 +34,8 @@ import type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegmen
  * is swept again, contact by contact, until the prop stays, rolls to rest
  * or the film ends. A flight still in the air at the film's end is unended.
  *
- * @evidence contracts/development/common.md#meaningful-documentation projectile: The flight, its time zero at `launch`. contact: Its first contact, absent while unended. point: The contact point on the struck surface, world metres.
- * @evidence contracts/development/design.md#principled-representation projectile: The flight, its time zero at `launch`. contact: Its first contact, absent while unended. point: The contact point on the struck surface, world metres.
+ * @evidence contracts/development/common.md#meaningful-documentation projectile: The flight, its time zero at `launch`. contact: Its first collision, if one was resolved. capturedAt: Film second a staged grip took custody. point: The contact point on the struck surface, world metres.
+ * @evidence contracts/development/design.md#principled-representation projectile: The flight, its time zero at `launch`. contact: Its first collision, if one was resolved. capturedAt: A grip can take custody without a collision. point: The contact point on the struck surface, world metres.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanPerformance.ts (HumanPerformance.flights, return); perform/HumanPropFlight.ts (HumanPropFlight.flights, return); perform/HumanPropFlight.ts (HumanPropFlight.fly, source); perform/HumanPropFlight.ts (HumanPropFlight.fly, return); perform/HumanPropFlight.ts (HumanPropFlight.fly.settle, return); perform/HumanPropFlight.ts (HumanPropFlight.contactOf, return).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSegment, IAutoMovieMotionPropLaunch, IAutoMovieProjectile, IAutoMovieMotionHumanPropOutcome.ILeg, IAutoMovieVector3, IAutoMovieRigidTransform identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
@@ -43,9 +43,9 @@ export namespace IAutoMovieMotionHumanPropFlight {
   /**
    * One flight of a prop.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States film-absolute launch/end times, launch-relative projectile/leg clocks, source action, optional first contact and unended-flight Infinity.
-   * @evidence contracts/development/design.md#principled-representation Reuses the engine projectile and continuation legs; optional contact and infinite end express an unended flight, with their consistency established by fly rather than by the record type alone.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Frame and hit readers consume the launch, source, projectile, end, contact and continuation legs emitted by this owner.
+   * @evidence contracts/development/common.md#meaningful-documentation States film-absolute launch/end times, launch-relative projectile/leg clocks, source action, optional collision and capture, and Infinity when there is no collision.
+   * @evidence contracts/development/design.md#principled-representation Reuses the engine projectile and continuation legs; optional contact records a collision, while capturedAt records custody independently. An infinite end without capture identifies an unended flight.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Frame and hit readers consume the launch, source, projectile, end, contact, capture and continuation legs emitted by this owner.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Stores neither sampled frames nor a second ballistic law; source/published records are borrowed from the planned performance and returned flight records are not deeply frozen.
    */
   export interface IFlight {
@@ -67,11 +67,14 @@ export namespace IAutoMovieMotionHumanPropFlight {
     /** The flight, its time zero at `launch`. */
     projectile: IAutoMovieProjectile;
 
-    /** Film second of its first contact; Infinity when it is still in the air at the film's end. */
+    /** Film second of its first collision; Infinity when no collision was resolved. */
     end: number;
 
-    /** Its first contact, absent while unended. */
+    /** Its first collision, absent when none was resolved. */
     contact?: IAutoMovieMotionHumanPropFlight.IContact;
+
+    /** Film second a staged grip took this launch over. A capture is separate from a collision. */
+    capturedAt?: number;
 
     /** What follows the first contact, by the body's flight data: a bounce, a pass, a roll (`HumanPropOutcome`); none when it stays where it struck. */
     legs?: readonly IAutoMovieMotionHumanPropOutcome.ILeg[];
