@@ -22,7 +22,7 @@ Then inspect the assembled form in its final appearance at the distance it is us
 
 For a form defined by original 2D views, accept the placement and form of each part's original curves before its lofting curves and realized surface, because a smooth surface can still express a wrong input. A finished observation round is not a passed construction: correct the affected defining curves together in one [correction round](../visual-debugging/correction-rounds.md).
 
-A part whose 2D definitions are accepted goes straight to the [3D passes](#construction) with its neighbors, whether or not unrelated parts are complete.
+A part whose 2D definitions are accepted goes straight to the 3D passes with its neighbors, whether or not unrelated parts are complete.
 
 ## Construction
 

@@ -4,13 +4,6 @@ Rigging owns an asset's rest state: where the joints sit, which vertices follow 
 
 Before changing a skeleton, skin, attachment or deformation control, read the asset's required use, its retained source, and the import, model, skinning and viewer contracts of the packages it uses. A generated rig is a candidate until its consumer deforms it correctly.
 
-- [Rig choice](#rig-choice)
-- [Characterization](#characterization)
-- [Weight sources](#weight-sources)
-- [Deformation proof](#deformation-proof)
-- [Handoff](#handoff)
-- [References](#references)
-
 ## Rig choice
 
 | The asset | Rig |

@@ -6,10 +6,6 @@ Text is concise when every sentence carries something its reader needs, and clea
 
 A set of documents says each thing in one place, and no two places disagree, because a reader who meets a point twice cannot tell which one holds.
 
-- [Wording](#wording)
-- [Structure](#structure)
-- [Revising](#revising)
-
 ## Wording
 
 ### Content and sentences
@@ -56,13 +52,13 @@ Every title in a document is plainly distinct from the others, so a reader never
 
 Link to a heading by its title's slug. Give it an explicit anchor such as `{#name}` only where its address must survive a retitle, because a renderer that does not read the syntax shows the anchor as text.
 
-A document over about 100 lines opens with a list of its main sections as links.
-
 ### Links
 
 Links flow one way. A document that routes to others links down to them, and a document links sideways to the one section that owns a point it needs.
 
 A document never links up to the one that routes to it, and the owner of a point never links back to the documents that use it. A reader who arrived from above gains nothing from the way back, and two documents that link each other read as a loop with no owner.
+
+A document does not link to its own sections either. It names a section in plain words, because the reader is already on the page.
 
 Where the text must mention what lies above or what uses it, it names it in plain words without a link.
 

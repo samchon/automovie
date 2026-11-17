@@ -12,9 +12,9 @@ A composed family declares its common physical plane and each contributing curve
 
 A few view curves can define the whole family, as in conic lofting: front and side outline pairs, an axis, and a fullness control, the value that sets how far each section bulges between its outline points. Each section is then the chain of conic or rational arcs through the outline points at its station, and measured section dimensions check the loft instead of being authored loop by loop.
 
-A section need not be convex. A groove, crease or valley along the form is one more longitudinal control curve, an inflection line drawn like the outlines, and each section turns inward where that line crosses it. Fit the sections to the surface itself, not to its [tape hull](#composition-before-lofting), because a hull leaves every concavity to cutters and reliefs, whose edges show as steps, slots and patches.
+A section need not be convex. A groove, crease or valley along the form is one more longitudinal control curve, an inflection line drawn like the outlines, and each section turns inward where that line crosses it. Fit the sections to the surface itself, not to its tape hull, because a hull leaves every concavity to cutters and reliefs, whose edges show as steps, slots and patches.
 
-The method's one limit is that each section is star-shaped about the course: every ray from the course point meets it once. A feature that folds back over itself becomes its own family, joined to its host under [Connections](#connections). Learn what the method can express from its section model's types and its literature before working around a limit inferred from its name.
+The method's one limit is that each section is star-shaped about the course: every ray from the course point meets it once. A feature that folds back over itself becomes its own family, joined to its host under Connections. Learn what the method can express from its section model's types and its literature before working around a limit inferred from its name.
 
 Fit a section that is symmetric about a plane as one half, with both extremes held on that plane, and reflect it. A free extreme wanders along a flat stretch of the outline from station to station, and its track shows as a crease.
 

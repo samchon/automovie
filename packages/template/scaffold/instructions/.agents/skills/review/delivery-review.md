@@ -57,7 +57,7 @@ Every acceptance records the revision, the media and output identities, the chec
 - the separate verdict on the depicted practice;
 - rejected requirements and any exclusion the user adopted;
 - the checklist: every scene and beat seen, on-model entities, contacts, presences, camera and continuity;
-- the [measures](#measurement-and-comparison);
+- the measures;
 - the views and passes reviewed;
 - what the user watched or heard, and what nobody did.
 

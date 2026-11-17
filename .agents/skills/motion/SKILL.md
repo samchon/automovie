@@ -30,7 +30,7 @@ Work in the order below, because each step fixes what the next one builds on.
 
 ### 1. Source reading
 
-Read the action family's [study](#studies). The study gives the key poses, the phases with their timing, and the measured values at novice and expert level. An action written before its study invents the practice.
+Read the action family's study. The study gives the key poses, the phases with their timing, and the measured values at novice and expert level. An action written before its study invents the practice.
 
 ### 2. Law surface
 

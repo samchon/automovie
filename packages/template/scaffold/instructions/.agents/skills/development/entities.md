@@ -12,9 +12,9 @@ Keep geometry coarse so motion, staging, timing and camera stay readable. Choose
 
 Prepare the canonical body from the cast record's body facts and pass that same prepared body to drawing and motion. A crowd takes its bodies from the crowd record and performs through the vocabulary's group capability. [AutoMovie packages](../automovie/SKILL.md#packages) names the owners, and their READMEs give the calls.
 
-A person has no modeled surface of its own: clothing, a face and a build beyond the body facts [stay out](#what-stays-out).
+A person has no modeled surface of its own: clothing, a face and a build beyond the body facts stay out.
 
-Equipment a person wears or holds, such as a glove, is an [object](#objects) attached to the body.
+Equipment a person wears or holds, such as a glove, is an object attached to the body.
 
 ### Objects
 
@@ -30,7 +30,7 @@ Every other subject is the simplest form that identifies it, such as a trunk and
 
 ### What stays out
 
-A fact the coarse form cannot show, such as a face or a fabric, is not modeled on it. It reaches a generated film through the record's canon references and the generation prompt, under [image](../image/SKILL.md) and [video](../video/SKILL.md), and a direct 3D film through a [detail](#detail) option that shows it. A 2D image can be an appearance reference or a conditioning input, never a substitute for coded motion.
+A fact the coarse form cannot show, such as a face or a fabric, is not modeled on it. It reaches a generated film through the record's canon references and the generation prompt, under [image](../image/SKILL.md) and [video](../video/SKILL.md), and a direct 3D film through a detail option that shows it. A 2D image can be an appearance reference or a conditioning input, never a substitute for coded motion.
 
 ## Detail
 

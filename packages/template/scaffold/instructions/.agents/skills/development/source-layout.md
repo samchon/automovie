@@ -2,12 +2,6 @@
 
 Where source, tests and runtime setup belong, and where a new subject, practice, scene, host or integration goes.
 
-- [Source](#source)
-- [How the parts work together](#how-the-parts-work-together)
-- [Dependencies and files](#dependencies-and-files)
-- [Modules](#modules)
-- [Execution and runtime setup](#execution-and-runtime-setup)
-
 ## Source
 
 One folder owns each responsibility, and the folders follow the chain from settings or brief through the screenplay to the delivered film, so a module and the document it realizes pair by path. Each source folder answers the shared [development contracts](../contracts/development/SKILL.md) and its own.
@@ -118,7 +112,7 @@ Each subject or action has one definition. Another version of it, such as a tall
 
 ### Shared modules
 
-A module a second production of the workspace needs moves to a workspace package under `packages/<name>` and is imported by both, because a copied entity or law is a [copied variant](#one-module) at workspace scale. A single production has no workspace packages and keeps its modules in `src`.
+A module a second production of the workspace needs moves to a workspace package under `packages/<name>` and is imported by both, because a copied entity or law is a copied variant at workspace scale. A single production has no workspace packages and keeps its modules in `src`.
 
 The shared module takes what differed between the productions as constructor input or parameters instead of citing one production's records, and keeps its unit tests with it. Each production's entity or scene still cites its own settings or brief facts and passes them in.
 

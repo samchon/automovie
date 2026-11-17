@@ -20,7 +20,7 @@ Rodin takes text, or up to five images, the first setting the materials. Beyond 
 
 ### Hunyuan3D
 
-Hunyuan3D takes one image, or front, left, back and right views in 2mv. Omni adds [shape conditions](#shape-techniques), and Paint textures a given mesh. Beyond the mesh it delivers material channels. Its documentation is the repositories of [2.1](https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1), [2mv](https://huggingface.co/tencent/Hunyuan3D-2mv) and [Omni](https://github.com/Tencent-Hunyuan/Hunyuan3D-Omni).
+Hunyuan3D takes one image, or front, left, back and right views in 2mv. Omni adds shape conditions, and Paint textures a given mesh. Beyond the mesh it delivers material channels. Its documentation is the repositories of [2.1](https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1), [2mv](https://huggingface.co/tencent/Hunyuan3D-2mv) and [Omni](https://github.com/Tencent-Hunyuan/Hunyuan3D-Omni).
 
 ### TRELLIS.2
 

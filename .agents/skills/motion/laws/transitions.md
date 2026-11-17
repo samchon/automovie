@@ -12,7 +12,7 @@ An action evaluates each pose from its plan and a time alone, as its law declare
 
 Each action declares its cuts: the actions it may be cut into, the window of each cut (a share of the action, or one of its events), where the target action is entered, and the transition kind. Refuse a cut the action does not list when the plan is built, so an impossible change of plan surfaces before the film renders.
 
-The kind follows what changes. A change to a different action [inertializes](#changing-action) instead of crossfading, and a change of target within one family of movement [redirects](#changing-target-within-an-action). A cyclic movement that continues into another, such as a walk into a run, joins on the matching foot event, so the gait keeps its phase.
+The kind follows what changes. A change to a different action inertializes instead of crossfading, and a change of target within one family of movement redirects. A cyclic movement that continues into another, such as a walk into a run, joins on the matching foot event, so the gait keeps its phase.
 
 A cut also names what it carries unchanged, such as the stance foot's plant or a grip, and the action cut into plans from that state as its entry state.
 

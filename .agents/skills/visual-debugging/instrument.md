@@ -2,11 +2,6 @@
 
 The instrument draws, plans, records and compares the stills of a capture. This page owns what it offers against this skill's requirements and what it leaves out by decision; the [`render` README](../../../packages/render/README.md) owns the request keys and maps each to the requirement it serves.
 
-- [Drawing](#drawing)
-- [Capture output](#capture-output)
-- [Left out by decision](#left-out-by-decision)
-- [Hosts](#hosts)
-
 ## Drawing
 
 ### One request, one picture

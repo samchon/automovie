@@ -34,7 +34,7 @@ Leave out what the request keeps from the hint, such as positions, actions, timi
 
 ### Sound
 
-Write the request's sound, as the audio skill's generated sound page decides it, in the dialogue form the chosen model's current guide gives, because forms differ and quotation marks make one model render a line as on-screen text. Attribute each line to its speaker by the name the [shared description](#shared-description) gives, and keep effects and ambience apart from speech.
+Write the request's sound, as the audio skill's generated sound page decides it, in the dialogue form the chosen model's current guide gives, because forms differ and quotation marks make one model render a line as on-screen text. Attribute each line to its speaker by the name the shared description gives, and keep effects and ambience apart from speech.
 
 Leave the scene's score out, because [film sound](../../audio/film-sound.md#one-bed-and-one-score-per-scene) lays it as one track; music played on screen stays as the screenplay decides it. When the model makes no sound, leave sound out.
 

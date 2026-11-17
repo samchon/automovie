@@ -2,13 +2,6 @@
 
 The primary sources behind shipped instructions, with what each supports and where it stops. Read the original before adopting an instruction from it: a source's existence, or another medium's success, does not establish an improvement here. Observations come from the production's own source, motion, audio and delivery records, and a tool's failure stays with the package that owns the tool.
 
-- [Prompting](#prompting)
-- [Story and editing](#story-and-editing)
-- [Performance and staging](#performance-and-staging)
-- [Images and forms](#images-and-forms)
-- [Video](#video)
-- [Sound and delivery](#sound-and-delivery)
-
 ## Prompting
 
 [Anthropic: Prompting best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) supports clear instructions with their reasons, saying what to do, examples and calm wording. It is general and gives no film-quality acceptance.
