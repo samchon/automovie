@@ -33,13 +33,14 @@ import { poseBones } from "./poseBones";
  * @param others Another body's placed colliders in the arm's way; none when absent.
  * @param baseline What each of the two readings may keep, degrees; none when absent.
  * @param operation The synchronous evaluation's FK reader, whose conversions the preparation shares; a private one when absent.
+ * @param read The pose's bones and placed segments, where the caller holds them for this very pose's values (`HumanArmSwing.of`'s second arm, posed as the first left it); read here when absent.
  * @returns The room of the arm at given joint angles, degrees, as `HumanArmClearance.room` reads it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is fixed at preparation, what each candidate recomputes, the unit and the lifetime of the reader.
  * @evidence contracts/development/implementation.md#principled-implementation A bone's frame depends only on its own and its ancestors' joints and the root, so the arm's three joints move only the shoulder's subtree. The fixed-source reader admits the pose once and composes that subtree from each candidate's edits through the same parent-first recurrence and arithmetic as a whole-pose read of the edited pose, and a profile segment's placement reads only its own bone, so each candidate's bones and placed segments hold the values `room` computes from the whole pose.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Preparation reads and places the body; the returned reader edits, replaces the subtree's bones and segments in their original places and takes the two readings in `room`'s order.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arm joint the pose does not carry is not written, as `HumanArmClearance.posed` leaves it; the placed segments keep the profile's order, and a subtree placement whose count differs from the body's own falls back to placing the whole body. No reading is kept between candidates.
- * @evidence contracts/development/implementation.md#efficient-algorithms Preparation costs one whole-pose read and placement, O(B+S) for B bones and S segments. A candidate costs three admitted edits, the subtree's bones (the arm and its hand), a B-entry map copy, the subtree's segments and an S-entry array copy, then the two readings' own queries.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Preparation costs one whole-pose read and placement, O(B+S) for B bones and S segments, none where the caller hands them. A candidate costs three admitted edits, the subtree's bones (the arm and its hand), a B-entry map copy, the subtree's segments and an S-entry array copy, then the two readings' own queries.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The pose, body, side, external colliders and baseline are fixed for the reader's life; bones and segments outside the shoulder's subtree are shared across candidates because no candidate changes a joint above or beside them; what the tangle reading prepares of a still placed segment is kept across candidates with that same placed record, and a moved segment's is cleared when it is replaced.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader owns one bone map, one placement, one fixed-source workspace and the subtree's names until its search releases it; it stores no candidate, reading or reader beyond that.
  */
@@ -50,6 +51,7 @@ export function prepareHumanArmRoom(
   others: readonly HumanColliders.IPlaced[] = [],
   baseline: HumanArmClearance.IBaseline = { forearm: 0, segments: 0 },
   operation?: ReturnType<typeof preparePoseResolution>,
+  read?: prepareHumanArmRoom.IRead,
 ): (arm: HumanArmClearance.IArm) => number {
   const upper: AutoMovieHumanoidBone = `${side}UpperArm`;
   const lower: AutoMovieHumanoidBone = `${side}LowerArm`;
@@ -72,8 +74,9 @@ export function prepareHumanArmRoom(
     if (joint.bone === upper || joint.bone === lower || joint.bone === hand) carried.add(joint.bone);
 
   // The body as the pose puts it, read and placed once.
-  const base: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, pose, operation);
-  const placed: HumanColliders.IPlaced[] = HumanColliders.placed(body, base);
+  const base: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    read?.bones ?? poseBones(body, pose, operation);
+  const placed: HumanColliders.IPlaced[] = read?.placed ?? HumanColliders.placed(body, base);
   const slots: number[] = [];
   placed.forEach((segment: HumanColliders.IPlaced, index: number): void => {
     if (moved.has(segment.bone)) slots.push(index);
@@ -118,4 +121,29 @@ export function prepareHumanArmRoom(
     const segments: number = AutoMovieMotionHumanAuditTangle.arm(body, bones, side, current, prepared) - baseline.segments;
     return Math.max(0, forearm, segments);
   };
+}
+/**
+ * The readings a caller may hand the preparation (`IRead`).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what the namespace holds.
+ * @evidence contracts/development/design.md#principled-representation The preparation's own two readings of its pose, as their owners give them.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One input type.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No reading of a candidate is handed in or out.
+ */
+export namespace prepareHumanArmRoom {
+  /**
+   * A pose's bones and placed segments, as `poseBones` and
+   * `HumanColliders.placed` give them.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the two members are and whose readings they are.
+   * @evidence contracts/development/design.md#principled-representation The two readings the preparation takes of its pose, handed in as they are.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The bones and the segments, nothing else.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither is copied or edited by the preparation (it copies the map and the array before replacing entries).
+   */
+  export interface IRead {
+    /** Each bone's frame. */
+    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+    /** The placed segments, in the profile's order. */
+    placed: HumanColliders.IPlaced[];
+  }
 }
