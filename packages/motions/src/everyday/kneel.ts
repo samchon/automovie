@@ -458,9 +458,8 @@ export namespace kneel {
       { ...context, params: { seconds: duration } },
       k,
     );
-    // A kneel that rises leaves the body standing; one that stays down
-    // leaves it kneeling (#3363: a base transition declares the base it
-    // ends in).
+    // A kneel's end base follows whether it rises (#3363). The feet and
+    // knees carry the body, leaving the resting arms and head to overlays.
     return {
       ...composeAutoMovieMotionHumanAction({
         base: { ...base, contacts },
@@ -469,6 +468,7 @@ export namespace kneel {
         primitives: [kneelBody, hand("left"), hand("right")],
       }),
       base: { kind: rise ? "standing" : "kneeling" },
+      yields: ["head", "leftHand", "rightHand", "leftArm", "rightArm"],
     };
   }
 
