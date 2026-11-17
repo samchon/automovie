@@ -76,19 +76,63 @@ export namespace IAutoMovieSolveDistalTwist {
     };
   };
 
-  /** Lazy fixed-frame data; these readers never retain a target or lower joint. */
+  /**
+   * Lazy fixed-frame data; these readers never retain a target or lower joint.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSolveDistalTwist.IPrepared: Lazy fixed-frame data.
+   * @evidence contracts/development/design.md#principled-representation One record of abduction, flexion, zero over the canonical IAutoMovieVector3 contracts.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Its producer fills it and the enclosing IAutoMovieSolveDistalTwist contract's readers use it; nothing else is declared.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A type contract only: it holds no cached answer, fitted constant or fixture-specific member, and admission and computation stay with its producer.
+   */
   export interface IPrepared {
-    /** Effector abduction axis rotated by the actual fixed frame. */
+    /**
+     * Effector abduction axis rotated by the actual fixed frame.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSolveDistalTwist.IPrepared.abduction: Effector abduction axis rotated by the actual fixed frame.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies abduction and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
+     */
     abduction(): IAutoMovieVector3;
 
-    /** Effector flexion axis, needed only for the proximal Euler convention. */
+    /**
+     * Effector flexion axis, needed only for the proximal Euler convention.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSolveDistalTwist.IPrepared.flexion: Effector flexion axis, needed only for the proximal Euler convention.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies flexion and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
+     */
     flexion(): IAutoMovieVector3;
 
-    /** Handed clinical-zero twist, admitting that frame only when first read. */
+    /**
+     * Handed clinical-zero twist, admitting that frame only when first read.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSolveDistalTwist.IPrepared.zero: Handed clinical-zero twist, admitting that frame only when first read.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies zero and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
+     */
     zero(): IZero;
   }
 
-  /** Fixed clinical-zero twist coefficients, borrowed unchanged by a solve. */
+  /**
+   * Fixed clinical-zero twist coefficients, borrowed unchanged by a solve.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSolveDistalTwist.IZero: Fixed clinical-zero twist coefficients, borrowed unchanged by a solve.
+   * @evidence contracts/development/design.md#principled-representation One record of cosine, sine.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Its producer fills it and the enclosing IAutoMovieSolveDistalTwist contract's readers use it; nothing else is declared.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A type contract only: it holds no cached answer, fitted constant or fixture-specific member, and admission and computation stay with its producer.
+   */
   export interface IZero {
     /** Cosine of the handed rest-relative clinical-zero twist, radians. */
     cosine: number;

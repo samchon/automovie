@@ -225,7 +225,14 @@ export namespace IAutoMovieMotionHumanSegment {
     reference: IAutoMovieHumanLimbReference;
   }
 
-  /** One displayed pose as its evaluation produced it, kept with what its readers take from it. */
+  /**
+   * One displayed pose as its evaluation produced it, kept with what its readers take from it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSegment.IShown: One displayed pose as its evaluation produced it, kept with what its readers take from it.
+   * @evidence contracts/development/design.md#principled-representation One record of pose, reading over the canonical IAutoMoviePose, IAutoMovieSkeletonPoseResolution contracts.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Its producer fills it and the enclosing IAutoMovieMotionHumanSegment contract's readers use it; nothing else is declared.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A type contract only: it holds no cached answer, fitted constant or fixture-specific member, and admission and computation stay with its producer.
+   */
   export interface IShown {
     /** The complete pose. */
     pose: IAutoMoviePose;

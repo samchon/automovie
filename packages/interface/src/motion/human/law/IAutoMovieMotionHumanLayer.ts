@@ -108,10 +108,28 @@ export namespace IAutoMovieMotionHumanLayer {
      * getter may be stored in a plan, output posture or callback. The host
      * revokes its borrowed source on return or throw; a retained getter then
      * creates an independent fresh reader rather than retaining the source.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.IContext.resolution: Exact FK metadata borrowed only during this synchronous layer apply.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies resolution and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
      */
     resolution?: () => IAutoMoviePoseResolution;
 
-    /** Genuine same-body direct ROM projection, borrowed only during apply; the host revokes this getter's source on return/throw and later reads create independent cold metadata. Never retain the returned projector. */
+    /**
+     * Genuine same-body direct ROM projection, borrowed only during apply; the host revokes this getter's source on return/throw and later reads create independent cold metadata. Never retain the returned projector.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.IContext.projection: Genuine same-body direct ROM projection, borrowed only during apply.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies projection and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
+     */
     projection?: () => (pose: IAutoMoviePose) => IAutoMoviePose;
 
     /**

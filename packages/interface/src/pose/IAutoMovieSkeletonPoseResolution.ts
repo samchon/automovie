@@ -23,7 +23,14 @@ import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No numeric index, state row, admission flag or cached answer is exposed; provenance stays the engine's runtime check, not a field of these shapes.
  */
 export namespace IAutoMovieSkeletonPoseResolution {
-  /** Clinical flexion, abduction and twist per bone, degrees or null, in their tuple order. */
+  /**
+   * Clinical flexion, abduction and twist per bone, degrees or null, in their tuple order.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSkeletonPoseResolution.IJoints: Clinical flexion, abduction and twist per bone, degrees or null, in their tuple order.
+   * @evidence contracts/development/design.md#principled-representation One named type over the canonical AutoMovieHumanoidBone, IAutoMovieJointPose contracts, so its readers share one spelling of it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Its producer fills it and the enclosing IAutoMovieSkeletonPoseResolution contract's readers use it; nothing else is declared.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A type contract only: it holds no cached answer, fitted constant or fixture-specific member, and admission and computation stay with its producer.
+   */
   export type IJoints = Partial<
     Record<
       AutoMovieHumanoidBone,
@@ -35,13 +42,27 @@ export namespace IAutoMovieSkeletonPoseResolution {
     >
   >;
 
-  /** Root construction after tuple staging, before the ordered numerical admission; returns fresh resolved bones by name. */
+  /**
+   * Root construction after tuple staging, before the ordered numerical admission; returns fresh resolved bones by name.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSkeletonPoseResolution.ITupleRead: Root construction after tuple staging, before the ordered numerical admission.
+   * @evidence contracts/development/design.md#principled-representation One named type over the canonical IAutoMoviePose, IAutoMoviePoseResolution, AutoMovieHumanoidBone, IAutoMovieResolvedBone contracts, so its readers share one spelling of it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Its producer fills it and the enclosing IAutoMovieSkeletonPoseResolution contract's readers use it; nothing else is declared.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A type contract only: it holds no cached answer, fitted constant or fixture-specific member, and admission and computation stay with its producer.
+   */
   export type ITupleRead = (
     pose: Omit<IAutoMoviePose, "joints">,
     operation?: IAutoMoviePoseResolution,
   ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-  /** Snapshot all current authored entries and scalars, without constructing intermediate joint records. */
+  /**
+   * Snapshot all current authored entries and scalars, without constructing intermediate joint records.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSkeletonPoseResolution.ITupleReader: Snapshot all current authored entries and scalars, without constructing intermediate joint records.
+   * @evidence contracts/development/design.md#principled-representation One named type, so its readers share one spelling of it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Its producer fills it and the enclosing IAutoMovieSkeletonPoseResolution contract's readers use it; nothing else is declared.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A type contract only: it holds no cached answer, fitted constant or fixture-specific member, and admission and computation stay with its producer.
+   */
   export type ITupleReader = (
     joints: IAutoMovieSkeletonPoseResolution.IJoints,
   ) => IAutoMovieSkeletonPoseResolution.ITupleRead;

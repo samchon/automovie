@@ -10,14 +10,41 @@ import type { IAutoMovieJointPose } from "../pose/IAutoMovieJointPose";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Proposals only; angle ranges, clamps and goals are still checked by their owners.
  */
 export namespace IAutoMoviePrepareJointRotationCoefficientDots {
-  /** One fixed coefficient's four-term dot reader, with its existing finite-input premise. */
+  /**
+   * One fixed coefficient's four-term dot reader, with its existing finite-input premise.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareJointRotationCoefficientDots.IDot: One fixed coefficient's four-term dot reader, with its existing finite-input premise.
+   * @evidence contracts/development/design.md#principled-representation One named type over the canonical IAutoMovieQuaternion contracts, so its readers share one spelling of it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `prepareJointRotationCoefficientDots` fills it and the enclosing IAutoMoviePrepareJointRotationCoefficientDots contract's readers use it; nothing else is declared.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A type contract only: it holds no cached answer, fitted constant or fixture-specific member, and admission and computation stay with `prepareJointRotationCoefficientDots`.
+   */
   export type IDot = (target: IAutoMovieQuaternion) => number;
-  /** Fixed-rig readers; query inputs are borrowed only until return. */
+  /**
+   * Fixed-rig readers; query inputs are borrowed only until return.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareJointRotationCoefficientDots.IReader: Fixed-rig readers.
+   * @evidence contracts/development/design.md#principled-representation One record of its call, swivels over the canonical IAutoMovieJointPose, IAutoMovieQuaternion contracts.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `prepareJointRotationCoefficientDots` fills it and the enclosing IAutoMoviePrepareJointRotationCoefficientDots contract's readers use it; nothing else is declared.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A type contract only: it holds no cached answer, fitted constant or fixture-specific member, and admission and computation stay with `prepareJointRotationCoefficientDots`.
+   */
   export interface IReader {
     /** Original four coefficient-dot callables for this fixed null/numeric mode. */
     (reference: IAutoMovieJointPose): readonly IDot[];
-    /** Propose degree swivels of q=cosine*cos(psi/2)+sine*sin(psi/2), or decline. */
-    swivels(reference: IAutoMovieJointPose, cosine: IAutoMovieQuaternion,
-      sine: IAutoMovieQuaternion): readonly number[] | "all" | null;
+    /**
+     * Propose degree swivels of q=cosine*cos(psi/2)+sine*sin(psi/2), or decline.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareJointRotationCoefficientDots.IReader.swivels: Propose degree swivels of q=cosine*cos(psi/2)+sine*sin(psi/2), or decline.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; `prepareJointRotationCoefficientDots` supplies swivels and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to `prepareJointRotationCoefficientDots`.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; `prepareJointRotationCoefficientDots` keeps every admission check.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; `prepareJointRotationCoefficientDots` owns its cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; `prepareJointRotationCoefficientDots` owns what it shares between calls.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; `prepareJointRotationCoefficientDots` owns what it retains and releases.
+     */
+    swivels(
+      reference: IAutoMovieJointPose,
+      cosine: IAutoMovieQuaternion,
+      sine: IAutoMovieQuaternion,
+    ): readonly number[] | "all" | null;
   }
 }

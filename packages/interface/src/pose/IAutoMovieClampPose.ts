@@ -15,6 +15,11 @@ import type { IAutoMoviePose } from "./IAutoMoviePose";
 export namespace IAutoMovieClampPose {
   /**
    * A one-joint clamp under a skeleton, with its angle-taking form.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieClampPose.IJoints: A one-joint clamp under a skeleton, with its angle-taking form.
+   * @evidence contracts/development/design.md#principled-representation One record of its call, values over the canonical IAutoMovieJointPose, AutoMovieHumanoidBone contracts.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `clampPose.prepare` fills it and the enclosing IAutoMovieClampPose contract's readers use it; nothing else is declared.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A type contract only: it holds no cached answer, fitted constant or fixture-specific member, and admission and computation stay with `clampPose.prepare`.
    */
   export interface IJoints {
     /**
@@ -33,6 +38,13 @@ export namespace IAutoMovieClampPose {
      * @param abduction Its abduction, degrees, or null at rest.
      * @param twist Its twist, degrees, or null at rest.
      * @returns The joint in range.
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieClampPose.IJoints.values: The record `(joint)` gives for a joint of these values.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; `clampPose.prepare` supplies values and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to `clampPose.prepare`.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; `clampPose.prepare` keeps every admission check.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; `clampPose.prepare` owns its cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; `clampPose.prepare` owns what it shares between calls.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; `clampPose.prepare` owns what it retains and releases.
      */
     values(
       bone: AutoMovieHumanoidBone,
@@ -44,6 +56,11 @@ export namespace IAutoMovieClampPose {
 
   /**
    * A whole-pose projection with the one-joint clamp it maps.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieClampPose.IPrepared: A whole-pose projection with the one-joint clamp it maps.
+   * @evidence contracts/development/design.md#principled-representation One record of its call, joints, values over the canonical IAutoMoviePose contracts.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `clampPose.prepare` fills it and the enclosing IAutoMovieClampPose contract's readers use it; nothing else is declared.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A type contract only: it holds no cached answer, fitted constant or fixture-specific member, and admission and computation stay with `clampPose.prepare`.
    */
   export interface IPrepared {
     /**

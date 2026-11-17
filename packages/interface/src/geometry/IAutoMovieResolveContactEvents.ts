@@ -35,7 +35,14 @@ export namespace IAutoMovieResolveContactEvents {
     tail?: IAutoMovieVector3;
   }
 
-  /** Actual initial pair state, with an ungated reader of its signed gap. */
+  /**
+   * Actual initial pair state, with an ungated reader of its signed gap.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieResolveContactEvents.IInitialContact: Actual initial pair state, with an ungated reader of its signed gap.
+   * @evidence contracts/development/design.md#principled-representation One record of weapon, from, to, stops, gap, at.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Its producer fills it and the enclosing IAutoMovieResolveContactEvents contract's readers use it; nothing else is declared.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A type contract only: it holds no cached answer, fitted constant or fixture-specific member, and admission and computation stay with its producer.
+   */
   export interface IInitialContact {
     /** The sphere or capsule whose already-present contact is being classified. */
     weapon: IAutoMovieResolveContactEvents.IWeapon;
@@ -242,6 +249,14 @@ export namespace IAutoMovieResolveContactEvents {
      * stops. When present, replaces position and tail calls for a geometry
      * query; tail presence must agree with the weapon's declared kind. The
      * resolver retains no sample across queries or changes to stops.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieResolveContactEvents.IWeapon.sample: Produce the actual endpoints together for this exact second and current stops.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies sample and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
      */
     sample?(seconds: number, stops: IStops): IWeaponFrame;
   }

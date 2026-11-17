@@ -71,6 +71,14 @@ export namespace IAutoMovieIntegrateMotionTrajectory {
      * Smoothness underlies the sampled estimator; arbitrary unsampled history
      * features and a downstream finite-difference observer are not certified.
      * Borrowed numeric records must not be mutated or retained for mutation.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateMotionTrajectory.IProps.rotationDefect: Optional continuous rotation-defect admission.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies rotationDefect and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
      */
     rotationDefect?: (
       seconds: number,
@@ -193,7 +201,17 @@ export namespace IAutoMovieIntegrateMotionTrajectory {
      */
     at: (time: number) => IAutoMovieIntegrateMotionTrajectory.IState;
 
-    /** Optional orientation-only projection of the same solved curve. Each read returns a fresh quaternion or null, without evaluating or copying the vector block. */
+    /**
+     * Optional orientation-only projection of the same solved curve. Each read returns a fresh quaternion or null, without evaluating or copying the vector block.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateMotionTrajectory.ITrajectory.orientation: Optional orientation-only projection of the same solved curve.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies orientation and its premises.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
+     */
     orientation?: (time: number) => IAutoMovieQuaternion | null;
   }
 }
