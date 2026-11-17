@@ -36,8 +36,18 @@ import { StrikingStroke } from "./StrikingStroke";
  * ends nearer the contact and the shin arrives slower. From the contact the
  * knee folds back over the re-chamber's share of the recoil.
  *
- * The lift from the plant and the lowering to the replant blend the carried
- * leg with the world plant on minimum-jerk weights.
+ * The lift from the plant and the lowering to the replant run on the leg's
+ * own joint arc too. The planted leg is solved from the hip the body has at
+ * that instant (the two-segment triangle from the hip to the planted ankle,
+ * its knee on the planted knee's side), and the thigh and the shank each
+ * turn from their planted direction to their chambered one on a minimum-jerk
+ * share, the ankle following by forward kinematics. In the leg's own plane
+ * that is the hip's and the knee's flexion each on the share, so the knee
+ * leads the lift and the foot trails under it, as a chamber is coached. A
+ * world-straight line from the planted ankle to the chambered one carries
+ * the foot forward of that arc, through whatever stands in front of the
+ * shin: measured on the staged push kick, the foot's capsule met the
+ * partner's lead leg at 0.970 s, during the lift.
  */
 export namespace KickSwing {
   /** What a kicking leg's path is built from. */
@@ -80,10 +90,10 @@ export namespace KickSwing {
    * @returns The leg's goal as a pure function of its clock, the body it hangs from and the launch plant's shift.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fitted chamber/contact, knee hinge, world plant, timing and optional exact same-base hip of the returned path.
-   * @evidence contracts/development/implementation.md#principled-implementation Keeps the original pelvis-local knee/shank and hinge rotation, minimum-jerk opening with its speed/flexion bounds and world-plant lift/return blending.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed contact-frame geometry is prepared once and the returned time reader carries it by the current body's heading and one shared hip.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every clock, band, hinge angle, weight and quaternion/vector expression remains; a supplied hip must belong to the same body/base currently being evaluated.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant path arithmetic plus one hip FK when the caller has not already read it; ankle and knee share that hip and superposed paths may borrow the same exact value.
+   * @evidence contracts/development/implementation.md#principled-implementation Keeps the pelvis-local knee/shank and hinge rotation and the minimum-jerk opening with its speed/flexion bounds; the lift and the lowering turn the thigh and the shank between the planted leg, solved from the current hip, and the chambered leg on minimum-jerk shares, the ankle by forward kinematics.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed contact-frame geometry is prepared once and the returned time reader carries it by the current body's heading and one shared hip; one segment-turn helper serves the lift and the lowering.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every clock, band, hinge angle and weight remains; the planted ankle is met exactly at either end of the arc even when the hip stands farther from it than the leg is long, the shank then carrying the excess that the share blends out; a supplied hip must belong to the same body/base currently being evaluated.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant path arithmetic plus one hip FK when the caller has not already read it; the planted triangle is solved in closed form only during the lift and the lowering; ankle and knee share that hip and superposed paths may borrow the same exact value.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Contact-local vectors and the hinge are fixed by the actual fitted contact; same-call knee/ankle and superposed candidate paths share only the exact current base's hip, never a pose from another time or context.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned path keeps fixed contact geometry and plant/timing data for its plan lifetime; each evaluation retains no current posture, hip or query history after returning its fresh leg goal.
    */
@@ -121,6 +131,10 @@ export namespace KickSwing {
       Quaternion.multiply(contact.rotation, Quaternion.inverse(key.rotation)),
       local,
     );
+    const lengths: readonly [number, number] = [
+      Vector3.length(knee),
+      Vector3.length(shank),
+    ];
 
     // The opening's unit: from before the chamber key to past the contact,
     // reaching the contact at the share of its travel that leaves the asked
@@ -153,32 +167,60 @@ export namespace KickSwing {
     ): IKickGeometry.ILeg => {
       const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(base);
       const currentHip: IAutoMovieVector3 = atHip ?? KickCarriage.hip(body, base, side);
-      const carried = (v: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(
-          currentHip,
-          Quaternion.rotateVector(heading, v),
-        );
       const opened: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
         hinge.axis,
         angle(clock),
       );
       const up: number = rising(clock);
       const down: number = lowering(clock);
+
+      // The carried leg from the hip: the chambered thigh, and the shank
+      // opened about the knee's hinge.
+      const chambered: ILeg = {
+        thigh: Quaternion.rotateVector(heading, knee),
+        shank: Quaternion.rotateVector(
+          heading,
+          Quaternion.rotateVector(opened, shank),
+        ),
+      };
+
+      // Between the plant and the chamber each segment turns on its share;
+      // the planted leg is the one the current hip holds on the plant.
+      const forward: IAutoMovieVector3 = Quaternion.rotateVector(heading, {
+        x: 0,
+        y: 0,
+        z: 1,
+      });
+      const posed: ILeg =
+        down > 0
+          ? between(
+              chambered,
+              planted(
+                currentHip,
+                Vector3.add(plant.ankle, props.step),
+                Vector3.add(plant.knee, props.step),
+                lengths,
+                forward,
+              ),
+              down,
+            )
+          : up < 1
+            ? between(
+                planted(
+                  currentHip,
+                  Vector3.add(plant.ankle, shift),
+                  Vector3.add(plant.knee, shift),
+                  lengths,
+                  forward,
+                ),
+                chambered,
+                up,
+              )
+            : chambered;
+      const hint: IAutoMovieVector3 = Vector3.add(currentHip, posed.thigh);
       return {
-        ankle: Vector3.lerp(
-          Vector3.lerp(
-            Vector3.add(plant.ankle, shift),
-            carried(Vector3.add(knee, Quaternion.rotateVector(opened, shank))),
-            up,
-          ),
-          Vector3.add(plant.ankle, props.step),
-          down,
-        ),
-        hint: Vector3.lerp(
-          Vector3.lerp(Vector3.add(plant.knee, shift), carried(knee), up),
-          Vector3.add(plant.knee, props.step),
-          down,
-        ),
+        ankle: Vector3.add(hint, posed.shank),
+        hint,
         rotation: Quaternion.slerp(
           Quaternion.slerp(
             plant.rotation,
@@ -195,6 +237,111 @@ export namespace KickSwing {
         ),
       };
     };
+  }
+
+  /** A leg from its hip: the thigh to the knee and the shank to the ankle, world metres. */
+  interface ILeg {
+    /** From the hip joint to the knee joint. */
+    thigh: IAutoMovieVector3;
+
+    /** From the knee joint to the ankle joint. */
+    shank: IAutoMovieVector3;
+  }
+
+  /**
+   * The leg a hip holds on a planted ankle: the two-segment triangle, its
+   * knee on the side of the knee the plant was read with (ahead of the body
+   * when that knee lies on the hip-to-ankle line). A hip farther from the
+   * ankle than the leg is long gives the straight leg toward it, and the
+   * shank carries what is missing, so the ankle is still the planted one.
+   */
+  function planted(
+    hip: IAutoMovieVector3,
+    ankle: IAutoMovieVector3,
+    knee: IAutoMovieVector3,
+    lengths: readonly [number, number],
+    forward: IAutoMovieVector3,
+  ): ILeg {
+    const [upper, lower]: readonly [number, number] = lengths;
+    const reach: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
+    const distance: number = Vector3.length(reach);
+    const axis: IAutoMovieVector3 =
+      distance > 1e-9
+        ? Vector3.scale(reach, 1 / distance)
+        : { x: 0, y: -1, z: 0 };
+    const span: number = Math.min(
+      upper + lower,
+      Math.max(Math.abs(upper - lower), distance, 1e-9),
+    );
+    const along: number = (upper * upper - lower * lower + span * span) / (2 * span);
+    const out: number = Math.sqrt(Math.max(0, upper * upper - along * along));
+    const side = (toward: IAutoMovieVector3): IAutoMovieVector3 =>
+      Vector3.subtract(toward, Vector3.scale(axis, Vector3.dot(toward, axis)));
+    const read: IAutoMovieVector3 = side(Vector3.subtract(knee, hip));
+    const bend: IAutoMovieVector3 =
+      Vector3.length(read) > 1e-6 ? read : side(forward);
+    const thigh: IAutoMovieVector3 = Vector3.add(
+      Vector3.scale(axis, along),
+      Vector3.length(bend) > 1e-9
+        ? Vector3.scale(bend, out / Vector3.length(bend))
+        : { x: 0, y: 0, z: 0 },
+    );
+    return { thigh, shank: Vector3.subtract(reach, thigh) };
+  }
+
+  /** A leg between two, each segment turned and lengthened by a share. */
+  function between(from: ILeg, to: ILeg, share: number): ILeg {
+    return {
+      thigh: turned(from.thigh, to.thigh, share),
+      shank: turned(from.shank, to.shank, share),
+    };
+  }
+
+  /**
+   * A segment turned from one direction to another by a share of the angle
+   * between them, on their great arc, its length going linearly: a joint's
+   * turn, not a chord. Opposite directions have no arc of their own, so they
+   * turn about a horizontal axis across the first.
+   */
+  function turned(
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+    share: number,
+  ): IAutoMovieVector3 {
+    const a: number = Vector3.length(from);
+    const b: number = Vector3.length(to);
+    if (a < 1e-9 || b < 1e-9) return Vector3.lerp(from, to, share);
+    const u: IAutoMovieVector3 = Vector3.scale(from, 1 / a);
+    const v: IAutoMovieVector3 = Vector3.scale(to, 1 / b);
+    const angle: number = Math.acos(
+      Math.min(1, Math.max(-1, Vector3.dot(u, v))),
+    );
+    const sine: number = Math.sin(angle);
+    const length: number = a + (b - a) * share;
+    if (angle < 1e-6) return Vector3.scale(Vector3.lerp(u, v, share), length);
+    if (sine < 1e-6) {
+      const across: IAutoMovieVector3 = Vector3.cross(
+        u,
+        Math.abs(u.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 1, y: 0, z: 0 },
+      );
+      return Vector3.scale(
+        Quaternion.rotateVector(
+          Quaternion.fromAxisAngle(
+            Vector3.normalize(across),
+            (angle * share) / Quaternion.DEG2RAD,
+          ),
+          u,
+        ),
+        length,
+      );
+    }
+    return Vector3.scale(
+      Vector3.add(
+        Vector3.scale(u, Math.sin((1 - share) * angle) / sine),
+        Vector3.scale(v, Math.sin(share * angle) / sine),
+      ),
+      length,
+    );
   }
 
   /** A hinge turn: its unit axis in the pelvis's frame and its angle. */
