@@ -79,6 +79,7 @@ export * from "./ensemble/HUMAN_ENSEMBLE_PRESETS";
 export * from "./ensemble/HUMAN_MANOEUVRES";
 export * from "./ensemble/HumanAttribute";
 export * from "./ensemble/HumanCrowd";
+export * from "./ensemble/humanCrowdGroupFormation";
 export * from "./ensemble/HumanEnsemble";
 export * from "./ensemble/HumanFormation";
 export * from "./ensemble/HumanManoeuvre";
