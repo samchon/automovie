@@ -58,6 +58,9 @@ export interface IHumanBody {
   /** The rig's range-of-motion projection of a whole pose (`clampPose.prepare`), built once on this body's rig: every joint of the given pose clamped in order into a new pose. Every consumer of the body's ordinary ROM reads this one; like the FK prerequisites it describes the rig the body was made from. */
   projection: ReturnType<typeof clampPose.prepare>;
 
+  /** The joints whose range clamp gives a record it issued back bit for bit and that no writer of a resolved posture sets outside a clamp (`humanSettledJoints`), read once from the rig: a plain displayed pose keeps their records through its final clamp. */
+  settled: ReadonlySet<AutoMovieHumanoidBone>;
+
   /** Bone-local mass/inertia model derived on its first read, once successfully, from the unchanged rig/profile. */
   massModel: resolveAutoMovieCenterOfMass.IModel;
 

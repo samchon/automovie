@@ -16,6 +16,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { humanSettledJoints } from "../posture/humanSettledJoints";
 import type { IHumanBody } from "./IHumanBody";
 
 /**
@@ -93,6 +94,7 @@ export function createHumanBody(
     // The rig's ROM projection is a constant of the body like its FK
     // prerequisites: one pose clamp on this rig, read by every consumer.
     projection: clampPose.prepare(skeleton),
+    settled: humanSettledJoints(skeleton),
     get massModel(): IHumanBody["massModel"] {
       massModel ??= resolveAutoMovieCenterOfMass.fromRig(poseResolution, profile);
       return massModel;

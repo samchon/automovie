@@ -8,7 +8,6 @@ import {
 import type { AutoMovieHumanoidBone, IAutoMoviePose } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import { humanSettledJoints } from "../posture/humanSettledJoints";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -312,13 +311,13 @@ export namespace HumanSegmentPose {
     // move them. The ordinary resolver owns attachment order and arm pairs.
     const fitted: IAutoMoviePose = pose;
     // In the plain case every record of the pose is the range clamp's own
-    // at the joints whose clamp gives it back (`humanSettledJoints`), so
+    // at the joints whose clamp gives it back (`IHumanBody.settled`), so
     // those are kept and the rest clamped; otherwise every joint is.
     const joint: ReturnType<typeof prepareHumanPostureProjection.joints> =
       plain ? prepareHumanPostureProjection.joints(body, clamp) : undefined;
     if (joint === undefined) pose = clamp(pose);
     else {
-      const settled: ReadonlySet<AutoMovieHumanoidBone> = humanSettledJoints(body);
+      const settled: ReadonlySet<AutoMovieHumanoidBone> = body.settled;
       pose = {
         skeleton: pose.skeleton,
         root: pose.root,
