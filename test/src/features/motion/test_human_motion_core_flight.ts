@@ -36,7 +36,9 @@ import { qunit } from "../internal/qunit";
 /**
  * A flight window and the performance pass over the composed shape (#3427):
  * a jump asked for turns is turned by the momentum its composed body needs,
- * after placement, through `IHumanActionPlan.airborne`.
+ * after placement, through `IHumanActionPlan.airborne`. This specification
+ * explicitly selects physical flight; staged film hints have a separate
+ * authored-rotation contract without conservation or impulse claims.
  *
  * Every case stands 0.3 s, then jumps 1 m forward with a 0.5 m apex,
  * anchored `leap`, on the average man and the small woman; a tuck is laid
@@ -104,6 +106,7 @@ export function test_human_motion_core_flight(): void {
   ): HumanPerformance =>
     new HumanPerformance({
       seed: "flight",
+      flight: "physical",
       performers: [
         {
           subject: "a",

@@ -27,6 +27,8 @@ import { qunit } from "../internal/qunit";
  * A turned actual Human flight is equivariant under a ground-preserving
  * world placement. Root-space shape FK must discard only the rigid root,
  * retaining the already resolved joints, contacts and internal shape motion.
+ * Explicit physical mode preserves this adaptive-shooting regression after
+ * authored staged rotation became the film-hint default.
  *
  * Scenarios:
  * 1. The unchanged core_flight layout input (average polygon man, seed
@@ -61,6 +63,7 @@ export function test_human_motion_core_flight_placement(): void {
   ): HumanPerformance =>
     new HumanPerformance({
       seed: "flight",
+      flight: "physical",
       performers: [
         {
           subject: "a",

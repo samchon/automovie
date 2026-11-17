@@ -51,6 +51,10 @@ import type { IHumanProp } from "./IHumanProp";
  * An input equal to one the process resolved recently reads that resolution
  * again (`HumanPerformanceState.of`): the resolution is a pure function of
  * its input.
+ * Authored airborne turn counts use staged rigid rotation by default, keeping
+ * the law's centre path, heading and articulation. Explicit physical mode
+ * solves their angular momentum instead; a supplied momentum always uses
+ * physical integration regardless of this authored-turn policy.
  *
  * Sampling a person at a second takes the active action's posture, resolves
  * it to a pose, adds the decaying inertialization offset of the transition
@@ -291,8 +295,8 @@ export class HumanPerformance {
 /**
  * Companion types of {@link HumanPerformance}.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member.
- * @evidence contracts/development/design.md#principled-representation A seed text, performers, props and an engine composition.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents each member, including staged authored-turn default, explicit physical mode and mandatory physics for a supplied momentum.
+ * @evidence contracts/development/design.md#principled-representation A seed text, performers, props and an engine composition, with one closed policy for authored airborne turns separate from supplied physical momentum.
  * @evidence contracts/development/design.md#minimal-and-owned-surface What a chain hands the performance.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine composition.
  */
@@ -310,6 +314,9 @@ export namespace HumanPerformance {
 
     /** What everyone does. */
     composition: AutoMovieComposition;
+
+    /** Authored airborne turns use deterministic staged rotation by default, preserving the law's centre path and fitted articulation without claiming angular-momentum conservation. Physical solves them from the composed body's inertia and take-off limit. A flight with explicitly supplied momentum always remains physical. */
+    flight?: "staged" | "physical";
 
     /**
      * The production's legality rules, such as `KickboxingRules.rules`,

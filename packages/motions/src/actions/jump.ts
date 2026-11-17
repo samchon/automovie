@@ -36,7 +36,7 @@ import type { jumpPushEnd } from "./jumpPushEnd";
 import { jumpPushPosture } from "./jumpPushPosture";
 import type { jumpState } from "./jumpState";
 import { jumpTakeoff } from "./jumpTakeoff";
-import { prepareJumpFlight } from "./prepareJumpFlight";
+import { prepareJumpPosture } from "./prepareJumpPosture";
 import { standUpright } from "./standUpright";
 
 /**
@@ -373,54 +373,28 @@ export namespace jump {
     const pushedAt: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IHumanPosture = (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IHumanPosture =>
       jumpPushPosture(pushProps, push, seconds, resolution, writers);
     const shape: jumpAirborne.IShape = { body, takeoff, heading, start: startState, end: endState };
-    const flightPosture: ReturnType<typeof prepareJumpFlight> =
-      prepareJumpFlight(body, model, shape, T);
-
-    const turning: jumpAirborne.ITurning = jumpAirborne.turning(
-      context.params.rotation,
-      P,
-      touchdown,
-      duration,
-    );
-
-    return {
-      duration,
-      events,
-      contacts,
-      ...turning.declared,
-      posture: (seconds: number, _channels?: Parameters<IHumanActionPlan["posture"]>[1], resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<IHumanActionPlan["posture"]>[3]): IHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        if (t <= P) return pushedAt(t, resolution);
-        if (t <= touchdown) {
-          const u: number = t - P;
-          const centre: IAutoMovieVector3 = {
-            x: comT.x + launch.x * u,
-            y: comT.y + launch.y * u - 0.5 * AutoMovieGravity.STANDARD * u * u,
-            z: comT.z + launch.z * u,
-          };
-          return turning.turned(flightPosture(u / T, centre, resolution, projection), t);
-        }
-        const root: IAutoMovieVector3 = rootAt(t);
-        const arms: number = 30 * (1 - minimumJerk.share((t - touchdown) / (ABSORB + RISE)));
-        const joints: IHumanPosture["joints"] = writers.joints(arms, arms);
-        const limbs: IHumanPosture["limbs"] = {};
-        for (const side of ["left", "right"] as const)
-            limbs[`${side}Leg`] = {
-              point: landing[side].ankle,
-              rotation: landing[side].rotation,
-              bend: knee(root, side, landingYaw[side]),
-              planted: true,
-              contact: { ...landingContact[side] },
-            };
-        return writers.lower({
-          root,
-          yaw: heading,
-          pitch: 0,
-          roll: 0,
-          joints,
-          limbs,
-        }, resolution);
-      },
+    const landedAt: (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IHumanPosture = (
+      t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    ): IHumanPosture => {
+      const root: IAutoMovieVector3 = rootAt(t);
+      const arms: number = 30 * (1 - minimumJerk.share((t - touchdown) / (ABSORB + RISE)));
+      const joints: IHumanPosture["joints"] = writers.joints(arms, arms);
+      const limbs: IHumanPosture["limbs"] = {};
+      for (const side of ["left", "right"] as const)
+        limbs[`${side}Leg`] = {
+          point: landing[side].ankle,
+          rotation: landing[side].rotation,
+          bend: knee(root, side, landingYaw[side]),
+          planted: true,
+          contact: { ...landingContact[side] },
+        };
+      return writers.lower({ root, yaw: heading, pitch: 0, roll: 0, joints, limbs }, resolution);
     };
+    const prepared: prepareJumpPosture.IConstruction = prepareJumpPosture(
+      body, model, shape,
+      { from: P, to: touchdown, duration, flightSeconds: T, centre: comT, launch },
+      context.params.rotation, pushedAt, landedAt,
+    );
+    return { duration, events, contacts, ...prepared.declared, posture: prepared.posture };
   }
 }

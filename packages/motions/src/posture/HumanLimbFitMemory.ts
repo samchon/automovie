@@ -10,6 +10,8 @@ import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
 import { HumanLimbFitScalars } from "./HumanLimbFitScalars";
 import { HumanLimbMirror } from "./HumanLimbMirror";
+import { HumanLimbRootProvenance } from "./HumanLimbRootProvenance";
+import { prepareHumanContinuationKey } from "./prepareHumanContinuationKey";
 import type { IHumanPosture } from "./IHumanPosture";
 import type { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanLimbSource } from "./prepareHumanLimbSource";
@@ -175,9 +177,9 @@ export namespace HumanLimbFitMemory {
    * @evidence contracts/development/implementation.md#principled-implementation The actual free-curve constructor chooses current hinged correction; physical/continuity admission remains with that producer and unsupported engine cases retain same-source cold fallback.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One module-owned emitter chooses the existing continuous point entry in the same query/capture/issuing kernel.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The explicit policy is a solver dependency, never an ownership or success flag; ordinary public cold/near keys and solver ordering remain unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Current hinged correction avoids generic cold setup before a successful near fit. Exact capture and bounded LRU work remain, and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Distinct algorithm-key namespaces prevent a public near result from masquerading as the new correction policy; every remaining goal/root/joint/seed dependency stays in the original full key.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Both policies share the original4096-entry weak body LRU; no second pool, source pose, FK loan, callback or unbounded query log is retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Current hinged correction avoids generic cold setup before a successful near fit. Native free legs use O(B) exact numeric keys and collision-checked buckets instead of full decimal serialization; unsupported/rich goals retain exact JSON. Serialized counters increase only for actual JSON keys, while actual lookup/solve/eviction counters include both representations. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Numeric key identity and the continuous JSON prefix separate correction policy from ordinary GRID keys. Every current finite goal/root/ordered joint/placed/rival/near dependency remains exact, signed zero and null remain distinct, and full equality resolves hash collisions. Only genuine actual-root seed evidence survives native copying; cache counts never certify a root.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Both policies share the original4096-entry weak body LRU. Its numeric collision index contains only those retained keys, removes actual evictions and releases with rig invalidation; failed solves insert no key. No source pose, FK loan, callback or unbounded query log is retained.
    */
   export function continued(...args: Parameters<typeof constructed>): IAutoMovieSeededChainFit {
     return consume(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], CONTINUED_ISSUER);
@@ -187,8 +189,9 @@ export namespace HumanLimbFitMemory {
   function constructedEntry(fit: IAutoMovieSeededChainFit): IEntry {
     const scalars: HumanLimbFitScalars.ISnapshot | undefined = HumanLimbFitScalars.constructed(fit.pose);
     if (scalars === undefined) return scalarEntry(fit);
-    return { ...structuredClone({ header: { skeleton: fit.pose.skeleton, root: fit.pose.root }, seed: fit.seed,
+    const entry: IScalarEntry = { ...structuredClone({ header: { skeleton: fit.pose.skeleton, root: fit.pose.root }, seed: fit.seed,
       ...(fit.value === undefined ? {} : { value: fit.value }) }), scalars };
+    return entry;
   }
 
   /** The actual private native output needs one inspection and only its header/seed/value packet copied. */
@@ -196,8 +199,9 @@ export namespace HumanLimbFitMemory {
     const scalars: HumanLimbFitScalars.ISnapshot | undefined = HumanLimbFitScalars(fit.pose);
     if (scalars === undefined || (fit.seed !== null && !scalarRecord(fit.seed, ["branch", "swivel"])) ||
       (fit.value !== undefined && !scalarRecord(fit.value, ["overshoot", "error", "strain"]))) return completeEntry(fit);
-    return { ...structuredClone({ header: { skeleton: fit.pose.skeleton, root: fit.pose.root }, seed: fit.seed,
+    const entry: IScalarEntry = { ...structuredClone({ header: { skeleton: fit.pose.skeleton, root: fit.pose.root }, seed: fit.seed,
       ...(fit.value === undefined ? {} : { value: fit.value }) }), scalars };
+    return entry;
   }
 
   /** Preserve the original complete cloning/throw boundary for public or rich-data results. */
@@ -225,6 +229,13 @@ export namespace HumanLimbFitMemory {
   /** The public remembered surface always issues an independent complete output. */
   function issue(fit: IAutoMovieSeededChainFit): IAutoMovieSeededChainFit { return structuredClone(fit); }
 
+  /** Only the exact continuous policy may transport genuine root facts through a full clone. */
+  function continuousIssue(fit: IAutoMovieSeededChainFit): IAutoMovieSeededChainFit {
+    const out: IAutoMovieSeededChainFit = structuredClone(fit);
+    HumanLimbRootProvenance.copy(fit.seed, out.seed);
+    return out;
+  }
+
   /** Only an actual current-owned miss or fully owned hit reaches this noncapturing continuation. */
   function transfer(fit: IAutoMovieSeededChainFit): IAutoMovieSeededChainFit { return fit; }
 
@@ -249,12 +260,21 @@ export namespace HumanLimbFitMemory {
     placed: readonly ("left" | "right")[];
     rival: IAutoMovieVector3 | undefined;
     near: IAutoMovieSwivelNear | undefined;
-    key: string;
+    key: IKey;
     root: IAutoMoviePose["root"] | undefined;
   }
 
   /** Public/rich entries own the original complete graph; private native entries own exact flat scalar data. */
   type IEntry = { full: IAutoMovieSeededChainFit } | IScalarEntry;
+
+  /** Ordinary JSON and exact native numeric keys share one recency population. */
+  type IKey = string | prepareHumanContinuationKey.IKey;
+
+  /** The numeric collision index contains only keys retained in this same LRU. */
+  interface IPool {
+    fits: Map<IKey, IEntry>;
+    numeric?: prepareHumanContinuationKey.IPrepared;
+  }
 
   /** No mutable current input or output joint object belongs to a scalar cache entry. */
   interface IScalarEntry extends Pick<IAutoMovieSeededChainFit, "seed" | "value"> {
@@ -301,7 +321,11 @@ export namespace HumanLimbFitMemory {
   /** An actual owned-curve producer alone selects the separate correction policy. */
   const CONTINUED_ISSUER: IEmitter<IAutoMovieSeededChainFit> = {
     policy: "continuous", solve: (...args: Parameters<typeof HumanLimbFit.fit>): IAutoMovieSeededChainFit => HumanLimbFit.continued(...args),
-    capture: constructedEntry, solved: transfer, owned: transfer, issue,
+    capture: (fit: IAutoMovieSeededChainFit): IEntry => {
+      const entry: IEntry = constructedEntry(fit);
+      HumanLimbRootProvenance.copy(fit.seed, "full" in entry ? entry.full.seed : entry.seed);
+      return entry;
+    }, solved: transfer, owned: transfer, issue: continuousIssue,
   };
 
   /** Original right-side root-frame/key construction for each actual current request. */
@@ -330,13 +354,21 @@ export namespace HumanLimbFitMemory {
       frame === null || rival === undefined
         ? rival
         : HumanLimbFitFrame.point(frame, rival);
-    const ordinary: string = JSON.stringify(
-      [limb, placed, away ?? null, aim, own.root, own.joints, near ?? null],
-      policy === "ordinary" ? HumanLimbFitFrame.grid : exactComponent,
-    );
-    const key: string = policy === "ordinary" ? ordinary : `continuous:${ordinary}`;
-    HumanLimbFitFrame.work(body, "serializedKeys");
-    HumanLimbFitFrame.work(body, "serializedCharacters", key.length);
+    let key: IKey | undefined;
+    if (policy === "continuous" && limb === "rightLeg") {
+      const owner: IPool = pool(body);
+      owner.numeric ??= prepareHumanContinuationKey(own);
+      key = owner.numeric.read(own, limb, aim, placed, away, near);
+      if (FITS.get(body) !== owner) key = undefined;
+    }
+    if (key === undefined) {
+      const ordinary: string = JSON.stringify(
+        [limb, placed, away ?? null, aim, own.root, own.joints, near ?? null],
+        policy === "ordinary" ? HumanLimbFitFrame.grid : exactComponent);
+      key = policy === "ordinary" ? ordinary : `continuous:${ordinary}`;
+      HumanLimbFitFrame.work(body, "serializedKeys");
+      HumanLimbFitFrame.work(body, "serializedCharacters", key.length);
+    }
     return { body, pose: own, limb, goal: aim, placed, rival: away, near, key,
       root: frame === null ? undefined : pose.root };
   }
@@ -352,13 +384,10 @@ export namespace HumanLimbFitMemory {
     resolution: Parameters<typeof prepareHumanPoseResolution>[0],
     emit: IEmitter<T>,
   ): T {
-    const { body, key }: Pick<IRequest, "body" | "key"> = input;
-    let fits: Map<string, IEntry> | undefined =
-      FITS.get(body);
-    if (fits === undefined) {
-      fits = new Map();
-      FITS.set(body, fits);
-    }
+    const body: IHumanBody = input.body;
+    let key: IKey = input.key;
+    const owner: IPool = pool(body);
+    const fits: Map<IKey, IEntry> = owner.fits;
     let entry: IEntry | undefined = fits.get(key);
     const missed: boolean = entry === undefined;
     HumanLimbFitFrame.count(body, entry !== undefined);
@@ -378,11 +407,17 @@ export namespace HumanLimbFitMemory {
       entry = emit.capture(out);
     } else {
       fits.delete(key);
-      out = applied(entry);
+      out = applied(entry, emit.policy);
+    }
+    if (typeof key !== "string") {
+      key = owner.numeric!.retain(key);
+      fits.delete(key);
     }
     fits.set(key, entry);
     if (fits.size > FIT_MEMORY) {
-      fits.delete(fits.keys().next().value!);
+      const oldest: IKey = fits.keys().next().value!;
+      fits.delete(oldest);
+      if (typeof oldest !== "string") owner.numeric!.remove(oldest);
       HumanLimbFitFrame.work(body, "evictions");
     }
     const currentSource: boolean = missed && "scalars" in entry && input.pose.root !== null &&
@@ -392,22 +427,27 @@ export namespace HumanLimbFitMemory {
   }
 
   /** Reconstruct the exact complete hit without observing or probing any current source joint. */
-  function applied(entry: IEntry): IAutoMovieSeededChainFit {
-    if ("full" in entry) return issue(entry.full);
+  function applied(entry: IEntry, policy: IEmitter<IAutoMovieSeededChainFit>["policy"]): IAutoMovieSeededChainFit {
+    if ("full" in entry) return policy === "continuous" ? continuousIssue(entry.full) : issue(entry.full);
     const saved: HumanLimbFitScalars.ISnapshot = entry.scalars;
     const joints: IAutoMovieJointPose[] = saved.bones.map((_bone: IAutoMovieJointPose["bone"], slot: number): IAutoMovieJointPose =>
       HumanLimbFitScalars.joint(saved, slot));
     const owned: Pick<IScalarEntry, "header" | "seed" | "value"> = structuredClone({ header: entry.header, seed: entry.seed,
       ...(entry.value === undefined ? {} : { value: entry.value }) });
+    if (policy === "continuous") HumanLimbRootProvenance.copy(entry.seed, owned.seed);
     return { pose: HumanLimbFitScalars.pose(owned.header, saved.fields, joints), seed: owned.seed,
       ...(owned.value === undefined ? {} : { value: owned.value }) };
   }
 
   /** The limb fits remembered, by body. */
-  const FITS: WeakMap<
-    IHumanBody,
-    Map<string, IEntry>
-  > = new WeakMap();
+  const FITS: WeakMap<IHumanBody, IPool> = new WeakMap();
+
+  /** Invalidated pools are never reattached after a reentrant numerical solve. */
+  function pool(body: IHumanBody): IPool {
+    let owner: IPool | undefined = FITS.get(body);
+    if (owner === undefined) { owner = { fits: new Map() }; FITS.set(body, owner); }
+    return owner;
+  }
 
   /** Whether limb fits are remembered (`memory`). */
   const REMEMBERING: { on: boolean } = { on: true };

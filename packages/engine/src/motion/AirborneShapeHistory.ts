@@ -4,6 +4,8 @@ import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBon
 import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
 import type { resolveAutoMovieCenterOfMass } from "../kinematics/resolveAutoMovieCenterOfMass";
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
+import { resolveAutoMovieMomentumRates } from "../kinematics/resolveAutoMovieMomentumRates";
+import type { resolveAutoMovieBoneRates } from "../kinematics/resolveAutoMovieBoneRates";
 import { Vector3 } from "../math/Vector3";
 import { Quaternion } from "../math/Quaternion";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
@@ -21,6 +23,18 @@ type IHistory = integrateAirborneRotation.IHistory;
 
 /** The memo's explicit owner can clear it after planning. */
 type ICachedHistory = integrateAirborneRotation.ICachedHistory;
+
+/** A private exact-time mass node retains only numeric physical sufficient data. */
+interface INode extends resolveAutoMovieMomentum.IPosed {
+  /** Rated nodes admit their tensor before evaluating the current rate producer. */
+  rated?: {
+    /** The same actual posed node's aggregate root-frame tensor. */
+    matrix: number[][];
+
+    /** A complete valid derivative reduction, or explicit unavailable stencil selection. */
+    relative: IAutoMovieVector3 | undefined;
+  };
+}
 
 /** Only actual numeric instants issued by this factory have prepared ownership. */
 const PRINCIPAL: WeakMap<IInstant, IPrincipalOwner | IPrincipalInverse> = new WeakMap();
@@ -62,14 +76,20 @@ interface IPrincipalInverse {
  * caller releases it after clearing this history, including on refusal.
  * An optional native observer records cumulative owner-event populations;
  * omitted, no counter record or per-query instrumentation value is allocated.
+ * An explicit instantaneous-rate producer receives these same current bones;
+ * complete mass-bearing rates use the shared centroidal reducer, while an
+ * unavailable or incomplete declaration preserves the original stencil.
+ * Every rated node assesses derivatives during its first actual shape read,
+ * including stencil neighbors, and retains only the numeric result or its
+ * unavailability. Later query order cannot change its derivative path.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States root-frame shape, difference seconds, quadratic boundary stencil and separate history/model ownership. Namespace factor lends an unobserved issued tensor operator with undefined fallback; inverse lends a root-to-principal quaternion only after actual copied-coordinate checks; owned recognizes the native pure reader without claiming smoothness. Optional native observation counts owner events without callbacks.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the existing physical tensor and two-pose rigid-body momentum formula with its unchanged quadratic boundary correction. Unobserved issued tensors use the physical SPD owner, public principal values retain Jacobi/inverse arithmetic, and the takeoff stage-sharing predicate proves only native pure-history construction, never a constant or smooth shape.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One exact-node reader and momentum reducer serve this history. AirborneShapeInertia owns lazy tensor/principal authority, factor lookup and release; the namespace delegates that capability, preserves the principal inverse owner, and recognizes native readers through one private weak set.
+ * @evidence contracts/development/implementation.md#principled-implementation Uses the existing physical tensor and two-pose momentum with unchanged quadratic boundary correction. Explicit simultaneous common-frame bone-origin linear/angular rates instead feed the shared instantaneous centroidal formula under that producer's derivative premise; no derivative truth is inferred by identity. Unsupported or incomplete rates retain the stencil, and invalid supplied numbers retain physical admission failure. Tensor scale admission precedes both reductions.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One exact-node reader and momentum reducer serve this history. The reader assesses supplied rates once with its actual bones and retains only numeric tensor/momentum or explicit unavailability, so requested and stencil-neighbor construction select the same path. AirborneShapeInertia owns lazy tensor/principal authority, factor lookup and release; the namespace delegates that capability, preserves the principal inverse owner, and recognizes native readers through one private weak set.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every new exact node evaluates the actual pure shape without rounded time, interpolation, a reduced stencil or changed physical bound. Factor reuse additionally requires an intact unobserved accessor, inverse reuse compares all four copied quaternion coordinates, and foreign callbacks/wrappers acquire no trusted native-reader flag.
- * @evidence contracts/development/implementation.md#efficient-algorithms For N queried instants and S parts, at most 3N+6 numeric nodes each perform actual shape/IK/FK once and each new reduction is O(S). Factor consumers omit Jacobi; public principal demand computes it once per instant. Namespace queries add constant weak lookups and accessor/scalar comparisons, while omitted observation allocates no counter or query record. Runtime gains remain unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact times under the same unchanged model, pure shape and span share numeric nodes and I/h. Private moment/principal vectors share only after actual Object.is matches. Each unobserved tensor shares its own factor independently of current attitude/momentum; inverse sharing requires current copied quaternion equality. Native-reader provenance permits checked stage reuse, not a smoothness certificate or cached IK answer.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources History owns O(N*S) numeric mass nodes, O(N) instants with nine tensor scalars and optional factor/principal/inverse data, two boundary moments and O(S) last-vector references. Clear empties every map/list, unregisters instants and explicitly releases factor/accessor/statistics references. Old externally held instants retain numeric public materialization data only. Weak history membership retains no reader; callers separately release the O(S) mass model.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For N queried instants and S parts, at most 3N+6 exact numeric nodes feed O(S) reductions. An admitted analytic instant uses its one actual shape without neighboring stencil shapes. Each rated node calls its producer once at actual construction, including stencil neighbors; later queries reuse the numeric packet without repeating shape or rate callbacks. Required-name completeness uses an allocation-free scan and the producer owns its differentiation cost. Runtime gains remain unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact times under the same unchanged model, pure shape, derivative premise and span share numeric nodes and I/h independently of first being requested or used as a stencil neighbor. Each rated node stores its tensor and validated relative momentum or explicit unavailability, never raw bones or a deferred callback. Private moment/principal vectors share only after actual Object.is matches. Each unobserved tensor shares its own factor independently of current attitude/momentum; inverse sharing requires current copied quaternion equality. Native-reader provenance permits checked stage reuse, not a smoothness certificate or cached IK answer.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources History owns O(N*S) numeric mass nodes, optional O(N) fixed-size rated tensor/momentum packets, O(N) instants with optional factor/principal/inverse data, two boundary moments and O(S) last-vector references. Clear empties every map/list, including rated packets, unregisters instants and explicitly releases their factor/accessor/statistics references. The reusable history retains its optional cumulative numeric counters across clears; old externally held instants retain numeric public materialization data only. Weak history membership retains no reader; callers separately release the O(S) mass model.
  */
 export function AirborneShapeHistory(
   model: resolveAutoMovieCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
@@ -77,10 +97,11 @@ export function AirborneShapeHistory(
   difference: number,
   span?: { from: number; to: number },
   observation?: AirborneShapeStatistics.IObserver,
+  analytic?: AirborneShapeHistory.IRates,
 ): ICachedHistory {
   const statistics: AirborneShapeStatistics.IStatistics | undefined = AirborneShapeStatistics.borrow(observation);
   const instants: Map<number, IInstant> = new Map();
-  const poses: Map<number, resolveAutoMovieMomentum.IPosed> = new Map();
+  const poses: Map<number, INode> = new Map();
   const intrinsicMoments: (IAutoMovieVector3 | undefined)[] = [];
   const principalRotations: (IAutoMovieQuaternion | undefined)[] = [];
   const principal: IPrincipalOwner = { kind: "owner" };
@@ -102,6 +123,10 @@ export function AirborneShapeHistory(
   const prepared: prepareAutoMovieMassModel.IPrepared | undefined =
     "segments" in model ? undefined : model;
   if (prepared !== undefined) prepareAutoMovieMassModel.bones(prepared);
+  const required: ReadonlySet<AutoMovieHumanoidBone> | undefined = analytic === undefined
+    ? undefined : "segments" in model
+      ? new Set(model.segments.map((segment: resolveAutoMovieCenterOfMass.ISegment): AutoMovieHumanoidBone => segment.bone))
+      : prepareAutoMovieMassModel.bones(model);
 
   // The mass snapshot and its interval reduction are selected together;
   // an unrelated raw model cannot be paired with a prepared token.
@@ -124,6 +149,13 @@ export function AirborneShapeHistory(
   const tensor: (posed: resolveAutoMovieMomentum.IPosed) => number[][] = "segments" in model
     ? (posed: resolveAutoMovieMomentum.IPosed): number[][] => physicalInertiaTensor(posed.parts, posed.centre)
     : (posed: resolveAutoMovieMomentum.IPosed): number[][] => prepareAutoMovieMassModel.inertia(model, posed);
+  // Preserve original zero/NaN admission before rate or stencil callbacks.
+  const admit: (matrix: number[][]) => void = (matrix: number[][]): void => {
+    let scale: number = Number.NEGATIVE_INFINITY;
+    for (const row of matrix)
+      for (const value of row) scale = Math.max(scale, Math.abs(value));
+    if (!(scale > 0)) throw new Error("Invalid aggregate inertia tensor");
+  };
 
   // Only the two boundary stencils recur at different query times.
   // Their numeric moments are sufficient; their bones need not survive.
@@ -135,10 +167,8 @@ export function AirborneShapeHistory(
   // A pure shape's sufficient numeric node belongs to this entire history,
   // including endpoints revisited after other stages or shooting trials.
   // Raw bones and canonical poses do not enter this operation-owned map.
-  const read: (at: number) => resolveAutoMovieMomentum.IPosed = (
-    at: number,
-  ): resolveAutoMovieMomentum.IPosed => {
-    const known: resolveAutoMovieMomentum.IPosed | undefined = poses.get(at);
+  const read: (at: number) => INode = (at: number): INode => {
+    const known: INode | undefined = poses.get(at);
     if (known !== undefined) return known;
     const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = shape(at);
     const posed: resolveAutoMovieMomentum.IPosed = pose(bones);
@@ -165,9 +195,25 @@ export function AirborneShapeHistory(
         part.inertiaRotation = rotation;
       else principalRotations[i] = part.inertiaRotation;
     }
-    poses.set(at, posed);
+    const node: INode = posed;
+    if (analytic !== undefined) {
+      const matrix: number[][] = tensor(posed);
+      admit(matrix);
+      if (statistics !== undefined) statistics.analyticAttempts++;
+      const rates: ReturnType<AirborneShapeHistory.IRates> = analytic(at, bones);
+      let complete: boolean = rates !== undefined;
+      if (rates !== undefined && required !== undefined)
+        for (const bone of required)
+          if (!rates.has(bone)) { complete = false; break; }
+      const instantaneous: resolveAutoMovieMomentum.IMomentum | undefined = rates === undefined || !complete
+        ? undefined : "segments" in model
+          ? resolveAutoMovieMomentumRates(model, posed, bones, rates)
+          : prepareAutoMovieMassModel.rates(model, posed, bones, rates);
+      node.rated = { matrix, relative: instantaneous?.angular };
+    }
+    poses.set(at, node);
     if (statistics !== undefined) statistics.uniqueNumericNodes++;
-    return posed;
+    return node;
   };
   const momentum: (from: number, to: number) => IAutoMovieVector3 = (
     from: number,
@@ -180,15 +226,17 @@ export function AirborneShapeHistory(
   const evaluate: (seconds: number) => IInstant = (
     seconds: number,
   ): IInstant => {
-    const posed: resolveAutoMovieMomentum.IPosed = read(seconds);
-    const matrix: number[][] = tensor(posed);
-
-    // Preserve the principal owner's existing zero/NaN-tensor admission
-    // before any additional stencil shape can throw its own failure.
-    let scale: number = Number.NEGATIVE_INFINITY;
-    for (const row of matrix)
-      for (const value of row) scale = Math.max(scale, Math.abs(value));
-    if (!(scale > 0)) throw new Error("Invalid aggregate inertia tensor");
+    const node: INode = read(seconds);
+    const matrix: number[][] = node.rated?.matrix ?? tensor(node);
+    if (node.rated === undefined) admit(matrix);
+    if (node.rated !== undefined) {
+      if (node.rated.relative !== undefined) {
+        const instant: IInstant = AirborneShapeInertia(matrix, node.rated.relative, statistics);
+        if (statistics !== undefined) statistics.analyticAccepted++;
+        return instant;
+      }
+      if (statistics !== undefined) statistics.analyticFallbacks++;
+    }
     if (stencil === undefined)
       return AirborneShapeInertia(matrix, momentum(seconds - difference, seconds + difference), statistics);
     const centre: number = Math.max(
@@ -248,12 +296,18 @@ export function AirborneShapeHistory(
 /**
  * Exact numeric prerequisites private to instants produced by this owner.
  *
- * @evidence contracts/development/common.md#meaningful-documentation inverse validates current issued principal coordinates, factor lends an unobserved tensor operator, owned recognizes actual native reader construction, and constant requires a live constructor-proven fixed shape covering the entire requested span with identically zero relative momentum.
+ * @evidence contracts/development/common.md#meaningful-documentation inverse/factor validate issued numeric prerequisites, owned recognizes native construction and constant requires a live whole-span fixed shape. IRates declares simultaneous common-frame bone-origin metres/second and angular radians/second for these actual bones; undefined or missing mass-bearing rates select the original stencil without a trusted eligibility flag.
  * @evidence contracts/development/design.md#principled-representation Instant-specific inverse/factor prerequisites are separate from a whole-curve invariant. The latter belongs only to a copied fixed bone/rig constructor whose native FK rates and centroidal reduction establish h=0; all quantities use the root frame and SI inertia/momentum units.
  * @evidence contracts/development/design.md#minimal-and-owned-surface ODE, dense physical reconstruction and invariant dispatch share the actual owning numerical factories. The namespace adds no registration surface, authored flag, duplicate physical model or callback sampling policy.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts General callbacks and wrapped readers retain the original path; issued instant reuse requires actual numeric/accessor checks. Constant membership locates constructor-owned fixed data and additionally checks live epoch/full-span coverage; it does not infer an invariant from native history identity or matching samples.
  */
 export namespace AirborneShapeHistory {
+  /** Actual simultaneous common-frame bone-origin metres/second and angular radians/second, derived for these exact current bones. Undefined or missing mass-bearing rates retain the original stencil; supplied invalid numbers retain physical admission failure. No whole-curve invariant or derivative truth is inferred from callback identity. */
+  export type IRates = (
+    seconds: number,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  ) => ReadonlyMap<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate> | undefined;
+
   /**
    * Borrow the issued instant's tensor factor before public principal access.
    * Undefined preserves the principal path for foreign, observed, replaced or

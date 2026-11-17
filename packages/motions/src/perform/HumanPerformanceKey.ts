@@ -10,7 +10,8 @@ import type { IHumanPerformer } from "./IHumanPerformer";
  * props' frames and points) is keyed by its content: each value by its type
  * and exact value, each array by its items in order and each plain object by
  * its own keys in sorted order, a key holding `undefined` apart from a key
- * absent. Everything else is keyed by its identity: a function (a law's
+ * absent. The authored-flight policy is normalized to its staged default;
+ * explicit physical mode has a distinct key. Everything else is keyed by its identity: a function (a law's
  * plan, a layer, a moving prop's course), an instance of a class, a map and
  * a performer's body, the prepared body a process keeps for its whole life,
  * whose content is the rig, the profile and the surfaces of that body.
@@ -28,7 +29,7 @@ export namespace HumanPerformanceKey {
    * @returns The key.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation A canonical form: plain data by content in a fixed order, behaviour and bodies by identity, so the key is a function of what the resolution reads.
+   * @evidence contracts/development/implementation.md#principled-implementation A canonical form: plain data by content in a fixed order, behaviour and bodies by identity, and the effective authored-flight mode including its staged default, so physical and staged resolutions cannot collide.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The performers with their bodies by identity, then one walk of the rest.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A value of a kind the walk does not read as data is keyed by identity, so an unknown value can only miss, never collide.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the input's plain data; a body is one identity read.
@@ -36,7 +37,9 @@ export namespace HumanPerformanceKey {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The identities are numbered in a weak map, released with their objects.
    */
   export function of(input: HumanPerformance.IInput): string {
-    return walk({
+    const value: Omit<HumanPerformance.IInput, "performers"> & {
+      performers: (Omit<IHumanPerformer, "body"> & { body: string })[];
+    } = {
       ...input,
       performers: input.performers.map(
         (
@@ -46,7 +49,9 @@ export namespace HumanPerformanceKey {
           body: identity(p.body),
         }),
       ),
-    });
+    };
+    if (value.flight === undefined) value.flight = "staged";
+    return walk(value);
   }
 
   /** A value's canonical text. */

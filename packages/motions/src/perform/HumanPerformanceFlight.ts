@@ -21,8 +21,9 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { poseBones } from "../posture/poseBones";
-import { createHumanPostureCurve } from "../posture/createHumanPostureCurve";
+import { HumanFreeCurveRates } from "../posture/HumanFreeCurveRates";
 import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation";
+import { HumanPerformanceStagedFlightRotation } from "./HumanPerformanceStagedFlightRotation";
 import { HumanPerformanceFlightFailure } from "./HumanPerformanceFlightFailure";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
@@ -30,11 +31,13 @@ import type { HumanPerformanceState } from "./HumanPerformanceState";
 import type { HumanSegment } from "./HumanSegment";
 
 /**
- * The flight pass of a performance (#3427): every placed action that
- * declares a flight (`IHumanActionPlan.flight`) is turned through it by its
- * angular momentum and the shape the whole composed body takes, and the
- * rotation is handed back to the plan (`IHumanActionPlan.airborne`), once,
- * after placement and the contacts, as the contacts hand back their stops.
+ * Hand each placed flight its rigid turn after placement and contacts.
+ * Authored turn counts use the performance's staged default: exact
+ * unwrapped angles about the law's composed centre, with its existing
+ * articulation and heading. This path samples only numeric centre/root
+ * playback data and creates no physical history or momentum verdict.
+ * Explicit physical mode and every supplied momentum use the physical
+ * path below. Both hand a reader back once through the same plan hook.
  *
  * The shape is the person's displayed body before the flight's rotation:
  * the carrier, overlays and layers at each actual integration or physical
@@ -62,11 +65,15 @@ import type { HumanSegment } from "./HumanSegment";
  * (`ACCURACY` and an independent physical momentum budget), its steps as short as the shape's changes need, and read
  * between its knots by the integrator's own continuous extension, so a
  * shape that changes fast turns at its momentum's rate there too.
+ * A bare native free-foot curve may supply actual current bone rates through
+ * its constructor-owned goal/Jacobian proof. Only then does rated history
+ * use instantaneous centroidal momentum; unsupported instants retain the
+ * original stencil and every physical acceptance bound remains unchanged.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what is turned, which shape is read and in which frame, where the momentum comes from, the refusal, the rotation handed back and why it reads no displayed pose afterwards.
- * @evidence contracts/development/design.md#principled-representation A post-contact pass turns each carrier's declared flight from one unchanged composed shape history, then hands a numeric rigid-rotation reader back to that plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The performance constructor calls flights once after placement and contact resolution; ACCURACY supplies the pass's existing integration budget and the private momentum budget supplies its independent physical dense-error criterion.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The engine owns inertia, relative momentum, integration and shooting; the pass supplies displayed shape and locates refusals by the placement walk's stable-id occurrence.
+ * @evidence contracts/development/common.md#meaningful-documentation States staged authored-turn default, mandatory physics for supplied momentum, current heading/COM/articulation preservation and numeric-only handback. The physical path states root/world frames, momentum source, refusal and independent dense-control budget without applying those conservation claims to staged motion.
+ * @evidence contracts/development/design.md#principled-representation One post-contact dispatcher selects an explicit authored-turn policy before preparing physics. Staged turn counts are an unwrapped kinematic curve; physical requests retain one unchanged composed shape history. Both use the same numeric COM/root playback owner and plan handback.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The performance constructor calls flights once after placement and contact resolution. Its one resolved mode selects authored turns only; ACCURACY and the independent dense momentum budget belong exclusively to physical integration.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Staged motion is an explicit production policy and never fabricates physical momentum, skips a declared force outcome or reports conservation. Given momentum always reaches the engine's existing inertia/integration path; physical turns retain shooting and original refusals. Stable-id occurrence locates either path's refusal.
  * Torque-free flight of the composed multibody through the engine's airborne integrator and take-off solver; the rotation is the integrated orientation relative to the unturned one, about the centre of mass, so the composed body is turned rigidly as a whole.
  * One pass over the people's flights: tabulate the shape, find the momentum, integrate, tabulate the rotation, hand it back.
  * A turn the take-off cannot give is refused, never clamped.
@@ -106,15 +113,15 @@ export namespace HumanPerformanceFlight {
    * @param self The performance, placed and its contacts resolved.
    * @param people The people.
    * @param observation Optional native cumulative history-work observer, borrowed only during planning; no diagnostic callback is invoked by this pass.
-   * @throws {HumanRefusal} When a flight's turns cannot be met by its take-off.
+   * @throws {HumanRefusal} For invalid staged data or physical turns the take-off cannot meet.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Turns each placed carrier with both flight and airborne declarations, and locates a refusal at its performer, action and stable-id occurrence.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates the composed physical flight to flight; a refused segment is located by the count of earlier walk entries with the same id across carriers and overlays, matching placement's occurrence rule despite film-time sorting.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Visit carriers, skip plans without a flight reader, turn each flight and locate only HumanRefusal errors.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts HumanRefusal.locate preserves already located nested refusals, and other thrown values are rethrown unchanged; a carrier index or film start never substitutes for id occurrence.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Visits each carrier once; numerical and shape work belong to flight. Only a refusal scans the person's carriers and overlays to recover its occurrence.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads already placed segment ids and walk-entry indices. A person's flights share one immutable mass snapshot, demanded bone set and exact intrinsic/interval prerequisites, prepared lazily at its first actual flight.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A person's pass owns one O(S) prepared mass token and demanded set until its last flight or refusal; finally releases the token. Each flight separately clears its temporary numeric history, and only completed numeric playback rotations survive.
+   * @evidence contracts/development/implementation.md#principled-implementation Authored turns in staged mode use the direct unwrapped rotation owner; explicit physical mode or supplied momentum uses the existing composed physical flight. Stable-id occurrence locates a refusal across carriers and overlays, matching placement despite film-time sorting.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Visit carriers, skip plans without a flight reader, dispatch before any physical preparation and locate only HumanRefusal errors. staged samples numeric playback data once; physical flight retains the existing solver and clear boundary.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Staged creates no physical history, inertia tensor, momentum shooting or dense controller, and makes no conservation claim. Supplied momentum cannot opt out of physics. HumanRefusal.locate preserves located nested refusals and all other errors pass through unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Visits each carrier once. Staged samples the existing 60 Hz playback grid once, O(T/step) actual displayed evaluations, then O(1) analytic turn work per read; it has no adaptive/shooting query population. Physical numerical/shape work retains its existing owners. Runtime gains remain unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both policies share numeric playback sampling/interpolation without a second displayed callback per sample. Only actual physical flights lazily share one immutable mass snapshot, demanded bone set and intrinsic/interval prerequisites for the person.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Staged retains only completed numeric table/angle data after its body/FK workspace ends. Physical flights separately clear temporary histories and the person's O(S) mass token releases in finally. No performance, body, displayed reader or physical history enters either completed playback.
    */
   export function flights(
     self: HumanPerformanceState,
@@ -132,11 +139,15 @@ export namespace HumanPerformanceFlight {
 
           // A body stays unchanged for the pass, but people without a flight
           // need neither a physical workspace nor a demanded-bone set.
-          prepared ??= prepareAutoMovieMassModel(person.performer.body.massModel);
-          requested ??= prepareAutoMovieMassModel.bones(prepared);
-          readBones ??= poseBones.prepare(person.performer.body, requested);
           try {
-            flight(self, person, segment, prepared, requested, readBones, observation);
+            if (self.flight === "staged" && plan.flight.momentum.kind === "turns")
+              staged(self, person, segment, plan.flight.momentum);
+            else {
+              prepared ??= prepareAutoMovieMassModel(person.performer.body.massModel);
+              requested ??= prepareAutoMovieMassModel.bones(prepared);
+              readBones ??= poseBones.prepare(person.performer.body, requested);
+              flight(self, person, segment, prepared, requested, readBones, observation);
+            }
           } catch (error) {
             if (!(error instanceof HumanRefusal)) throw error;
             throw error.locate({
@@ -154,6 +165,34 @@ export namespace HumanPerformanceFlight {
         if (prepared !== undefined) prepareAutoMovieMassModel.release(prepared);
       }
     }
+  }
+
+  /** Hand back authored turns without constructing a physical history or take-off problem. */
+  function staged(
+    self: HumanPerformanceState,
+    person: HumanSegment.IPerson,
+    segment: HumanSegment.ISegment,
+    turns: IHumanActionPlan.IFlightTurns,
+  ): void {
+    const body: IHumanBody = person.performer.body;
+    const model: resolveAutoMovieCenterOfMass.IModel = body.massModel;
+    const requested: Set<AutoMovieHumanoidBone> = new Set();
+    for (const part of model.segments) requested.add(part.bone);
+    const readBones: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
+    const evaluation: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(body);
+    const declared: IHumanActionPlan.IFlight = segment.plan.flight!;
+    const t0: number = segment.start + declared.from * segment.plan.duration;
+    const t1: number = segment.start + declared.to * segment.plan.duration;
+    const data: IPlayback = samples(t0, t1, (seconds: number): IPlayback["table"][number] => {
+      const pose: IAutoMoviePose = HumanPerformanceRead.pose(self, person.performer.subject, seconds, requested, evaluation);
+      return {
+        about: resolveAutoMovieCenterOfMass.place(model, readBones(pose, evaluation.resolution())),
+        root: pose.root?.rotation ?? Quaternion.identity(),
+      };
+    });
+    segment.plan.airborne!(HumanPerformanceStagedFlightRotation({
+      ...data, start: segment.start, t0, t1, turns,
+    }));
   }
 
   /**
@@ -196,35 +235,36 @@ export namespace HumanPerformanceFlight {
     // Contacts and IK have already resolved the composed joints. FK with no
     // rigid world root gives their root-frame shape directly, rather than
     // applying that root to every bone and then undoing it again.
+    const transition: HumanSegment.ISegment["transition"] = segment.transition;
+    const bare: boolean = person.segments.at(-1) === segment && segment.entryTime <= t0 && segment.end >= t1 &&
+      person.layers.length === 0 && person.overlays.length === 0 && person.holds.length === 0 && person.stops.size === 0 &&
+      plan.contacts.every((contact: IHumanActionPlan["contacts"][number]): boolean =>
+        contact.to <= declared.from || contact.from >= declared.to) &&
+      (transition === undefined || transition.kind === "redirect" || t0 - transition.cut >= transition.blend);
+    const actual: WeakMap<ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, IAutoMoviePose> | undefined =
+      bare ? new WeakMap() : undefined;
     const shape: (
       seconds: number,
     ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
       seconds: number,
-    ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-      readBones({ ...unturned(seconds), root: null }, readResolution());
-    // Whole-curve provenance proves constancy; the one actual displayed FK
-    // below supplies its value after all unchanged deterministic clamps.
-    // No sampled equality establishes this predicate, and every dynamic
-    // composition stage keeps the ordinary shape/stencil path.
-    const transition: HumanSegment.ISegment["transition"] = segment.transition;
-    const fixed: createHumanPostureCurve.IConstant | undefined =
-      person.segments.at(-1) === segment && segment.entryTime <= t0 && segment.end >= t1 &&
-      person.layers.length === 0 && person.overlays.length === 0 && person.holds.length === 0 &&
-      person.stops.size === 0 && plan.contacts.length === 0 &&
-      (transition === undefined || transition.kind === "redirect" || t0 - transition.cut >= transition.blend)
-        ? createHumanPostureCurve.fixed(body, plan.posture) : undefined;
-    let history: ReturnType<typeof integrateAirborneRotation.history> | undefined;
-    if (fixed !== undefined && fixed.unchanged()) {
-      const actual: IAutoMoviePose = HumanPerformanceRead.pose(self, subject, t0, undefined, evaluation);
-      const full: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, { ...actual, root: null });
-      if (fixed.unchanged())
-        history = integrateAirborneRotation.fixed(prepared, body.skeleton, full, { from: t0, to: t1 }, observation);
-      if (!fixed.unchanged()) {
-        history?.clear();
-        history = undefined;
-      }
-    }
-    history ??= integrateAirborneRotation.history(prepared, shape, { from: t0, to: t1 }, observation);
+    ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+      const pose: IAutoMoviePose = unturned(seconds);
+      const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = readBones({ ...pose, root: null }, readResolution());
+      actual?.set(bones, pose);
+      return bones;
+    };
+    const analytic: Parameters<typeof integrateAirborneRotation.rated>[2] = (
+      seconds: number,
+      bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    ): ReturnType<Parameters<typeof integrateAirborneRotation.rated>[2]> => {
+      const pose: IAutoMoviePose | undefined = actual?.get(bones);
+      actual?.delete(bones);
+      if (pose === undefined || !(seconds > t0 && seconds < t1)) return undefined;
+      return HumanFreeCurveRates.readCaptured(body, evaluation, pose, bones);
+    };
+    const history: ReturnType<typeof integrateAirborneRotation.history> =
+      bare ? integrateAirborneRotation.rated(prepared, shape, analytic, { from: t0, to: t1 }, observation)
+        : integrateAirborneRotation.history(prepared, shape, { from: t0, to: t1 }, observation);
     const errorScope: symbol = Symbol("human flight");
     try {
       const q0: IAutoMovieQuaternion = root(
@@ -315,19 +355,7 @@ export namespace HumanPerformanceFlight {
       // whatever steps the error control took; the turn from the one to the
       // integrated root, whose own read between its knots keeps the rate the
       // integration gave them.
-      const step: number = integrateMotionTrajectory.STEP;
-      const knots: number = Math.ceil((t1 - t0) / step) + 1;
-      const times: number[] = Array.from(
-        { length: knots },
-        (_: unknown, k: number): number =>
-          k === knots - 1 ? t1 : t0 + k * step,
-      );
-
-      /** The numeric sample owned by the playback factory's input contract. */
-      type Instant = Parameters<
-        typeof HumanPerformanceFlightRotation
-      >[0]["table"][number];
-      const table: Instant[] = times.map((t: number): Instant => {
+      const data: IPlayback = samples(t0, t1, (t: number): IPlayback["table"][number] => {
         const pose: IAutoMoviePose = unturned(t);
         return {
           about: prepareAutoMovieMassModel.place(
@@ -342,10 +370,8 @@ export namespace HumanPerformanceFlight {
           start: segment.start,
           t0,
           t1,
-          step,
-          times,
-          table,
-          flight: turned,
+          ...data,
+          orientation: turned.orientation,
         });
       plan.airborne!(rotation);
     } catch (error) {
@@ -367,3 +393,18 @@ export namespace HumanPerformanceFlight {
 
 /** Takeoff attitude observes the original root and demands no fitted bone frame. */
 const ROOT_ONLY: ReadonlySet<AutoMovieHumanoidBone> = new Set();
+
+/** Numeric playback data shared by staged and physical rotation policies. */
+type IPlayback = Pick<Parameters<typeof HumanPerformanceFlightRotation>[0], "step" | "times" | "table">;
+
+/** Sample the existing playback grid once, without retaining its displayed-pose reader. */
+function samples(from: number, to: number,
+  read: (seconds: number) => IPlayback["table"][number]): IPlayback {
+  if (!(Number.isFinite(from) && Number.isFinite(to) && Number.isFinite(to - from) && to > from))
+    throw new Error("Flight playback needs a positive finite interval");
+  const step: number = integrateMotionTrajectory.STEP;
+  const knots: number = Math.ceil((to - from) / step) + 1;
+  const times: number[] = Array.from({ length: knots }, (_: unknown, k: number): number =>
+    k === knots - 1 ? to : from + k * step);
+  return { step, times, table: times.map(read) };
+}

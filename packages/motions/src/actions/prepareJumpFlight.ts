@@ -7,6 +7,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanPosturePreparation } from "../posture/HumanPosturePreparation";
 import { prepareHumanFreeCurve } from "../posture/prepareHumanFreeCurve";
+import { HumanFreeCurveRates } from "../posture/HumanFreeCurveRates";
 import { jumpAirborne } from "./jumpAirborne";
 
 /**
@@ -27,7 +28,7 @@ import { jumpAirborne } from "./jumpAirborne";
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the authored joint/foot/knee/toe paths and original physical bounds. Every admitted continuation verifies actual endpoint/orientation/ROM/pole and bounded chain motion; singular/unsupported/changed context uses cold fitting. Arbitrary layers/cuts cannot acquire whole-pose authority; only a separately constructed native rigid turn may preserve the exact articulation.
  * @evidence contracts/development/implementation.md#efficient-algorithms Eligible targets use constrained correction instead of complete cold swivel sweeps. Native curve validation observes flat source clinical values and fresh demanded FK without allocating B temporary joint objects; changed tuples retain actual ROM scoring. Private COM reads avoid an incoming-reader full-pose clone. Original raw/rig checks and independent output construction remain; gains are unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A query's actual canonical solution shares only through exact resolver-owned evidence; the plan's mass-name set snapshots its model membership. Private-source FK still admits the actual pose, and borrowed FK/projector sources share only equal prerequisites/static ROM metadata across raw fitting, COM and parent consumers. Every current joint remains projected, without a time key or previous result.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains body/model/endpoints and one bounded mass-name set. Queries own raw shape, preparation and fresh requested FK; private canonical pose never escapes here. FK/projector loans stay synchronous and never enter issued source/token/output evidence; translated evidence remains bounded to its own lifetime, without history or handles.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains body/model/endpoints and one bounded mass-name set. Queries own raw shape, preparation and fresh requested FK; private canonical pose never escapes here. The same constructor's current analytic goal/direct rates and an independent canonical joint snapshot attach weakly to that raw output for the bare displayed derivative consumer; this adds O(J) copying and live-rig admission, with runtime gains unmeasured. FK/projector loans stay synchronous and never enter issued source/token/output evidence; translated and derivative evidence remain bounded to their own raw output lifetime, without history or handles.
  */
 export function prepareJumpFlight(
   body: IHumanBody,
@@ -46,6 +47,9 @@ export function prepareJumpFlight(
   return (share: number, centre: IAutoMovieVector3, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]): IHumanPosture => {
     const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
     const prepared: HumanPosturePreparation.IPrepared = curve(share, read, projection);
-    return HumanPosturePreparation.placed(prepared, model, requested, centre);
+    const raw: IHumanPosture = HumanPosturePreparation.placed(prepared, model, requested, centre);
+    if (HumanFreeCurveRates.wants(resolution, projection))
+      HumanFreeCurveRates.issued(body, raw, prepared, shapeAt.rates(share, duration));
+    return raw;
   };
 }

@@ -21,6 +21,7 @@ import type { HumanColliders } from "./HumanColliders";
 import { fitHumanLimbContact } from "./fitHumanLimbContact";
 import { HumanLimbFitMemory } from "./HumanLimbFitMemory";
 import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
+import { HumanLimbRootProvenance } from "./HumanLimbRootProvenance";
 import { HumanLimbMirror } from "./HumanLimbMirror";
 import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
@@ -405,7 +406,8 @@ export namespace HumanLimbFit {
   /** Only the actual continuous-curve constructor selects current hinged correction. */
   function correcting(workspace: ReturnType<typeof prepareHumanLimbFit>, point: IAutoMovieVector3,
     near: IAutoMovieSwivelNear | undefined, body: IHumanBody): IAutoMovieSeededChainFit {
-    return near === undefined ? workspace.fit(point) : workspace.continued(point, near,
+    if (near === undefined) return workspace.fit(point);
+    const fitted: IAutoMovieSeededChainFit = workspace.continued(point, near,
       (event: Parameters<NonNullable<Parameters<typeof workspace.continued>[2]>>[0]): void => {
         switch (event) {
           case "orientationRootTrial": HumanLimbFitFrame.work(body, "orientationRootTrials"); break;
@@ -414,6 +416,8 @@ export namespace HumanLimbFit {
           case "coldAttempt": HumanLimbFitFrame.work(body, "continuationColdAttempts"); break;
         }
       });
+    HumanLimbRootProvenance.capture(fitted);
+    return fitted;
   }
 
   /** What a limb's fit must keep clear of: the degrees a mid joint and an end joint, world metres, count as out of range. */

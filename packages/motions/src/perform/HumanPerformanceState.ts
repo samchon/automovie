@@ -52,7 +52,7 @@ import type { IHumanProp } from "./IHumanProp";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the record holds, who reads it, why its members are public and that it is not exported.
  * @evidence contracts/development/design.md#principled-representation One record of the resolved performance, built in one place and read by functions that take it, in place of one class of two thousand lines.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The members are the ones the performance kept privately before the split (#3399); none was added.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Shared performance members retain their existing owners; flight is the single resolved staged/physical authored-turn policy read by the flight dispatcher. Supplied momentum remains physical.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No reader keeps a copy of a member; the caches live here and are settled here.
  */
 export class HumanPerformanceState {
@@ -99,6 +99,9 @@ export class HumanPerformanceState {
   /** The forces on the performers (`HumanPerformance.IInput.forces`). */
   public readonly forces: readonly HumanForce.IForce[];
 
+  /** Resolved authored-turn policy; explicitly supplied momentum remains physical in either mode. */
+  public readonly flight: NonNullable<HumanPerformance.IInput["flight"]>;
+
   /** The cue tracks, by name. */
   public readonly cues: Readonly<
     Record<string, readonly resolveAutoMovieSchedule.ICue[]>
@@ -135,6 +138,15 @@ export class HumanPerformanceState {
     input: HumanPerformance.IInput,
     observation?: ReturnType<typeof integrateAirborneRotation.observe>,
   ) {
+    const selected: HumanPerformance.IInput["flight"] = input.flight;
+    const flight: NonNullable<HumanPerformance.IInput["flight"]> = selected === undefined ? "staged" : selected;
+    if (flight !== "staged" && flight !== "physical")
+      throw new HumanRefusal({
+        kind: "parameter", axis: "flight", value: flight,
+        reason: "the authored-flight mode must be staged or physical",
+        fix: "choose staged for authored turns or physical for angular-momentum flight",
+      });
+    this.flight = flight;
     this.props = new Map(
       (input.props ?? []).map((p: IHumanProp): [string, IHumanProp] => [
         p.subject,
@@ -333,9 +345,9 @@ export class HumanPerformanceState {
     HumanPerformanceContacts.contacts(this);
     for (const person of this.people.values()) HumanSegment.settle(person);
 
-    // Every flight turns by the composed body's shape once the contacts are
-    // resolved; the turned plans then show their rotation, so the displayed
-    // poses read for it are forgotten.
+    // Authored turns use the selected staged/physical policy after contacts.
+    // Given momentum remains physical. Handback changes displayed rotation,
+    // so the poses read while preparing it are forgotten.
     HumanPerformanceFlight.flights(this, this.people.values(), observation);
     for (const person of this.people.values()) HumanSegment.settle(person);
     this.resolving = false;

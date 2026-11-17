@@ -55,12 +55,26 @@ export function fitSeededChainToTarget(
 /**
  * Scoped preparation for repeated targets of one unchanged source request.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines ISource's six fixed source fields, IOptions' seven live goal/search fields and IWorkspace's model-metre fit/actual-rotation operations with unchanged-input lifetimes.
- * @evidence contracts/development/design.md#principled-representation ISource and IOptions partition actual preparation dependencies. fit retains the original fixed search policy; continued checks an explicitly owned curve's orientation-root candidate before ordinary near-bend/orientation and cold fallback. rotation reads actual fitted FK.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Contact re-aim uses fit/rotation, fixed-source goal search uses prepareSource, and the constructed immutable motion-curve owner uses continued with its own complete current goal gate. Internal rig maps and projected answers remain private; no second hinge solver is added.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No global identity cache, quantization or remembered solution is exposed. Explicit continuation is a documented local curve policy rather than hidden cold-global equivalence; every current goal, callback and required physical validation still runs.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines ISource's six fixed source fields, IOptions' seven live goal/search fields and IWorkspace's model-metre fit/actual-rotation operations with unchanged-input lifetimes. orientationRoot reads only actual unchanged uniquely admitted local-root return provenance as copied branch/swivel/proposal/trial/pass scalars.
+ * @evidence contracts/development/design.md#principled-representation ISource and IOptions partition actual preparation dependencies. fit retains the original fixed search policy; continued checks an explicitly owned curve's orientation-root candidate before ordinary near-bend/orientation and cold fallback. rotation reads actual fitted FK. A separate producer-owned weak result identity distinguishes one physically admitted local root from all-root families, multiple valid roots, ties and near/cold fallback; it certifies no derivative or cell.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Contact re-aim uses fit/rotation, fixed-source goal search uses prepareSource, and the constructed immutable motion-curve owner uses continued with its own complete current goal gate. The actual result-copying consumer reads orientationRoot before its owned transport; no registration, ready flag, mutable proof or second solver is exposed.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No global identity cache, quantization or remembered solution is exposed. Explicit continuation is a documented local curve policy rather than hidden cold-global equivalence; every current goal, callback and required physical validation still runs. Root provenance comes only from the actual producer's private return branch and rejects modified pose/seed scalars rather than trusting observer counts or supplied metadata.
  */
 export namespace fitSeededChainToTarget {
+  /**
+   * Read actual single-local-root provenance before an owned result copy.
+   * Only the producer's exact result identity can supply these facts, and
+   * changed pose/seed scalars decline. The return is an independent scalar
+   * copy; callers cannot register, alter or confer provenance on another fit.
+   * Checking original own-data output slots costs O(J) work; the read
+   * allocates only its scalar result and retains no query, callback or handle.
+   */
+  export function orientationRoot(
+    result: IAutoMovieSeededChainFit,
+  ): continueHingedOrientation.IRoot | undefined {
+    return continueHingedOrientation.root(result);
+  }
+
   /**
    * A fit operation's borrowed source dependencies and exact chain-frame reader.
    * Keep the rig, topology, source/reference poses, mappings and callback

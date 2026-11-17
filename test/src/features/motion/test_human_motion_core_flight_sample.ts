@@ -36,6 +36,8 @@ import { qunit } from "../internal/qunit";
  * man's untucked one-turn case from core_flight: stand 0.3 s, jump 1 m with
  * a 0.5 m apex and one forward somersault, seed flight, trained skill.
  * A refusal is a failure; an unturned jump cannot satisfy its winding.
+ * Explicit physical mode retains this original conservation/impulse sample
+ * after staged authored rotation became the film-hint default.
  *
  * Actual displayed roots wind once relative to takeoff. Their long-axis YZ
  * projection must exceed sqrt(machine epsilon), atan2's numerical-conditioning
@@ -103,6 +105,7 @@ export function test_human_motion_core_flight_sample(): void {
   };
   const input: HumanPerformance.IInput = {
     seed: "flight",
+    flight: "physical",
     performers: [
       {
         subject: "a",

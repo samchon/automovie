@@ -1,4 +1,4 @@
-import { Quaternion, minimumJerk } from "@automovie/engine";
+import { Quaternion, minimumJerk, prepareQuaternionSlerpRate } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
@@ -10,6 +10,7 @@ import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanPosturePreparation } from "../posture/HumanPosturePreparation";
+import type { HumanFreeCurveRates } from "../posture/HumanFreeCurveRates";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { jumpState } from "./jumpState";
 
@@ -117,19 +118,19 @@ export namespace jumpAirborne {
    * established by this shape interpolation.
    *
    * @param shape Fixed achieved endpoints, body dimensions and flight heading.
-   * @returns A posture reader of a world-metre root and flight share in [0,1].
+   * @returns A posture reader of a world-metre root and flight share in [0,1], with analytic pre-IK rate observation on the open phase.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what each part of the shape does over the flight.
-   * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk endpoint interpolation (Flash and Hogan 1985) uses achieved foot/knee/toe values and quaternion interpolation of achieved foot rotations. The existing provisional arch remains 0.1 hip heights times sin(pi*u); no extra path projection or rate law is added.
+   * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk endpoint interpolation (Flash and Hogan 1985) uses achieved foot/knee/toe values and quaternion interpolation of achieved foot rotations. The existing provisional arch remains 0.1 hip heights times sin(pi*u); no extra path projection or motion law is added. The same construction differentiates minimumJerk.share with minimumJerk.rate divided by physical duration, the arch with pi*cos(pi*u)/duration, and the actual shorter-arc SLERP/NLERP through the engine's prepared derivative owner. These are authoring derivatives, not solved IK rates or a C1 certificate across solver branch events.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare fixed joint start/difference tracks and the heading turn once; each read copies the achieved seed, interpolates arms/toes and builds two free goals from the same endpoints.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fixed -40-degree seed, reconstructed ankle, ground plant, epsilon or boundary-only pose replaces the achieved shape. Coupled ROM remains the ordinary resolver's responsibility.
    * @evidence contracts/development/implementation.md#efficient-algorithms Fixed joint tracks, four scalar point/bend interpolation readers, the 0.1-hip-height arch coefficient and two quaternion endpoint arcs prepare once. Each query shares one minimum-jerk share/current sine arch and evaluates original local-then-world expressions directly into four world vectors, avoiding four discarded local vectors. Original quaternion work remains and speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed body-dimension/endpoint/delta/frame/arc prerequisites prepare; changed dimensions require another prepared shape. Every root/share/sine still evaluates its original scalar sequence: local interpolation, explicit point Y lift, then unchanged world multiply/add order; bends add no artificial zero lift. No affine regrouping, target substitute or time-keyed result cache is used.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns endpoints, fixed joint/scalar interpolation data and two arc readers. Each query owns fresh changed tuples/world vectors and retains no history, body workspace or handle; unchanged clinical tuples keep their original readonly endpoint ownership.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns endpoints, fixed joint/scalar interpolation data, two arc readers, two fixed-size arc derivative readers and the B rig bone names. Each posture query owns fresh changed tuples/world vectors; an explicit rate query owns O(B) clinical triples and two complete task velocities. Neither retains history, a body workspace or a handle; unchanged clinical tuples keep their original readonly endpoint ownership.
    */
   export function prepare(
     shape: IShape,
-  ): (root: IAutoMovieVector3, u: number) => IHumanPosture {
+  ): IPrepared {
     const { body, takeoff, heading }: IShape = shape;
     const fixed: { start: Pick<jumpState.IState, "root" | "joints" | "legs">; end: Pick<jumpState.IState, "joints" | "legs"> } = structuredClone({
       start: { root: shape.start.root, joints: shape.start.joints, legs: shape.start.legs },
@@ -162,7 +163,12 @@ export namespace jumpAirborne {
       left: Quaternion.prepareSlerp(fixed.start.legs.left.rotation, fixed.end.legs.left.rotation),
       right: Quaternion.prepareSlerp(fixed.start.legs.right.rotation, fixed.end.legs.right.rotation),
     };
-    return (root: IAutoMovieVector3, u: number): IHumanPosture => {
+    const rotationRates: Record<"left" | "right", ReturnType<typeof prepareQuaternionSlerpRate>> = {
+      left: prepareQuaternionSlerpRate(fixed.start.legs.left.rotation, fixed.end.legs.left.rotation),
+      right: prepareQuaternionSlerpRate(fixed.start.legs.right.rotation, fixed.end.legs.right.rotation),
+    };
+    const names: AutoMovieHumanoidBone[] = body.skeleton.bones.map((bone: IHumanBody["skeleton"]["bones"][number]): AutoMovieHumanoidBone => bone.bone);
+    const posture: (root: IAutoMovieVector3, u: number) => IHumanPosture = (root: IAutoMovieVector3, u: number): IHumanPosture => {
       const s: number = minimumJerk.share(u);
       const joints: IHumanPosture["joints"] = { ...fixed.start.joints };
       for (const track of tracks)
@@ -185,6 +191,48 @@ export namespace jumpAirborne {
       }
       return { root, yaw: heading, pitch: 0, roll: 0, joints, limbs };
     };
+    return Object.assign(posture, {
+      rates: (u: number, duration: number): HumanFreeCurveRates.IAuthored | undefined => {
+        if (!(u > 0 && u < 1 && duration > 0 && Number.isFinite(duration))) return undefined;
+        const s: number = minimumJerk.share(u);
+        const ds: number = minimumJerk.rate(u) / duration;
+        const joints: HumanFreeCurveRates.IAuthored["joints"] = {};
+        for (const bone of names) joints[bone] = [0, 0, 0];
+        for (const track of tracks) joints[track.bone] = [track.delta[0] * ds, track.delta[1] * ds, track.delta[2] * ds];
+        joints[toe] = [toeDelta * ds, 0, 0];
+        const legRate: (side: "left" | "right") => HumanFreeCurveRates.IAuthored["legs"]["left"] | undefined = (side: "left" | "right"): HumanFreeCurveRates.IAuthored["legs"]["left"] | undefined => {
+          const angular: IAutoMovieVector3 | undefined = rotationRates[side](s, ds);
+          if (angular === undefined) return undefined;
+          const a: IAutoMovieVector3 = fixed.start.legs[side].point;
+          const b: IAutoMovieVector3 = fixed.end.legs[side].point;
+          return { linear: {
+            x: (b.x - a.x) * ds,
+            y: (b.y - a.y) * ds + archHeight * Math.PI * Math.cos(Math.PI * u) / duration,
+            z: (b.z - a.z) * ds,
+          }, angular };
+        };
+        const left: HumanFreeCurveRates.IAuthored["legs"]["left"] | undefined = legRate("left");
+        const right: HumanFreeCurveRates.IAuthored["legs"]["right"] | undefined = legRate("right");
+        return left === undefined || right === undefined ? undefined : { share: u, duration, joints, legs: { left, right } };
+      },
+    });
+  }
+
+  /**
+   * One immutable achieved-endpoint construction owns both actual targets and
+   * their derivatives. Rates are root-frame metres/radians per physical second;
+   * authored clinical rates are degrees per second before the leg IK.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States actual target reader and pre-IK analytic rates, their frames, units and unsupported-boundary result.
+   * @evidence contracts/development/design.md#principled-representation The same fixed endpoints, minimum-jerk coefficients, sine arch and actual quaternion interpolation law construct posture and derivative.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface prepareJumpFlight consumes the target call and rates together; neither introduces a second endpoint snapshot or opaque callback certification.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts rates returns undefined at phase events or invalid duration, never a guessed missing derivative or an IK result.
+   */
+  export interface IPrepared {
+    /** Original actual world target at a root and normalized flight share. */
+    (root: IAutoMovieVector3, u: number): IHumanPosture;
+    /** Actual analytic direct/goal derivative on the open phase. */
+    rates(u: number, duration: number): HumanFreeCurveRates.IAuthored | undefined;
   }
 
   /**

@@ -23,6 +23,8 @@ import { qunit } from "../internal/qunit";
 /**
  * Publicly composed flight shapes must realize a requested winding whenever
  * their actual turn is admitted, rather than merely share upright endpoints.
+ * This existing physical-refusal matrix opts into physical flight; default
+ * staged authoring has its own unconditional requested-turn specification.
  * The count/shape/way/body design uses the campaign's existing strength-three
  * covering owner instead of repeating the four-factor Cartesian product.
  *
@@ -79,6 +81,7 @@ export function test_human_motion_airborne_signature(): void {
     try {
       performance = new HumanPerformance({
         seed: "airborne",
+        flight: "physical",
         performers: [{
           subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0,
           proficiency: { level: "trained" },

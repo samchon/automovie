@@ -7,6 +7,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanPostureRaw as Raw } from "./HumanPostureRaw";
+import { HumanLimbRootProvenance } from "./HumanLimbRootProvenance";
 import { prepareHumanPostureRigCheck } from "./prepareHumanPostureRigCheck";
 import { prepareHumanPostureTranslation } from "./prepareHumanPostureTranslation";
 import { prepareIssuedHumanPosture } from "./prepareIssuedHumanPosture";
@@ -134,6 +135,35 @@ export namespace HumanPosturePreparation {
     const source: ISource | undefined = SOURCES.get(prepared);
     if (source === undefined) throw new Error("Unissued canonical posture preparation");
     return structuredClone(source.solved.seeds);
+  }
+
+  /**
+   * Observe actual isolated-root facts under this preparation's current rig.
+   * The curve must additionally match the current canonical cell and seeds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Returns fresh per-limb engine root facts only from genuine private solved seeds and an unchanged current rig; foreign/stale/no-root preparations decline and cell eligibility remains the consumer's responsibility.
+   * @evidence contracts/development/implementation.md#principled-implementation Actual original engine root issuance survives only the owning seed-copy path. Exact seed coordinates and the full current rig/ROM checker retain that source fact; matching counts or numerical seeds alone cannot produce evidence.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One private source lookup, existing live-rig check and at most four genuine seed observations connect engine provenance to the free-curve rates consumer without exposing source records.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No guessed root, public flag, ordinary GRID hit, changed mirror convention, skipped current goal/ROM check or approximate derivative is certified. Physical root facts do not alone prove a complete curve interval.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Current full rig checking remains O(B); four constant-size seed observations allocate only actual fresh packets, without pose materialization, serialization or a numerical solve. Gains are unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only private actual solved seeds with genuine copied engine provenance supply facts. The current body/rig/topology and full scalar epoch must still agree; callers separately require current strict cell, branch/swivel and unique local trials.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independently owned numeric packets and retains no observation, public seed, source pose, callback, reader or new history.
+   */
+  export function orientationRoots(prepared: IPrepared): Partial<Record<IHumanPosture.Limb,
+    NonNullable<ReturnType<typeof HumanLimbRootProvenance.read>>>> | undefined {
+    const source: ISource | undefined = SOURCES.get(prepared);
+    if (source === undefined || source.rigUnchanged === undefined ||
+      source.rig !== source.body.poseResolution || source.topology !== source.body.topology ||
+      !source.rigUnchanged()) return undefined;
+    const out: Partial<Record<IHumanPosture.Limb, NonNullable<ReturnType<typeof HumanLimbRootProvenance.read>>>> = {};
+    const limbs: readonly IHumanPosture.Limb[] = ["leftArm", "rightArm", "leftLeg", "rightLeg"];
+    for (const limb of limbs) {
+      const seed: resolveHumanPosture.ISeeded["seeds"][IHumanPosture.Limb] = source.solved.seeds[limb];
+      if (seed === undefined) continue;
+      const root: ReturnType<typeof HumanLimbRootProvenance.read> = HumanLimbRootProvenance.read(seed);
+      if (root !== undefined) out[limb] = root;
+    }
+    return Object.keys(out).length === 0 ? undefined : out;
   }
 
   /**

@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  type integrateAirborneRotation,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -12,16 +8,16 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { createHumanPostureRotation } from "../posture/createHumanPostureRotation";
 
 /**
- * Playback of a flight's solved turn about its composed centre, constructed
+ * Playback of a flight's supplied orientation about its composed centre, constructed
  * outside the performance's shape-evaluation scope.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Input times are film seconds, start is the action's film start, root orientations and centres are world values, and the returned callback reads action-local seconds.
- * @evidence contracts/development/implementation.md#principled-implementation Returns q(t) R(t)^-1 about the tabulated centre, with the existing linear centre and slerped unturned root; the physical trajectory reads its own dense extension.
+ * @evidence contracts/development/common.md#meaningful-documentation Input times are film seconds, start is the action's film start, root orientations and centres are world values, and the returned callback reads action-local seconds. The numeric orientation reader can be a physical dense trajectory or an explicitly staged authored curve; it receives the current unturned root and implies no conservation claim.
+ * @evidence contracts/development/implementation.md#principled-implementation Returns q(t,R(t)) R(t)^-1 about the tabulated centre, with the existing linear centre and slerped unturned root. The supplied physical trajectory reads its dense extension, while the staged owner supplies exact unwrapped authored angles under that same current heading.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Clamp the action time to the flight, find its tabulated interval and form the relative rigid rotation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original playback arithmetic; no displayed pose or shape history is read after solving.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant-time table lookup plus the solved trajectory's lookup. Each visited interval lazily prepares its endpoint dot, shorter-arc branch and spherical constants once; each actual read still evaluates its own weights and normalization.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the solved trajectory and numeric centre/root table. Copied root endpoint coordinates are compared with Object.is before sharing a prepared slerp, so editing a caller-owned table entry invalidates that interval without relying on identity.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Captures only numeric table data, completed flight and at most one fixed-size endpoint interpolation per visited table interval; shrinking the table truncates old slots. Performance, body, action segment, history and right-hand side are outside this factory's scope.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant-time table lookup plus the supplied orientation reader's own cost. Each visited interval lazily prepares its endpoint dot, shorter-arc branch and spherical constants once; each actual read still evaluates its own weights and normalization.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Both orientation policies share the numeric centre/root table reader. Copied root endpoint coordinates are compared with Object.is before sharing a prepared slerp, so editing a caller-owned table entry invalidates that interval without relying on identity.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Captures only numeric table data, the completed numeric orientation reader and at most one fixed-size endpoint interpolation per visited table interval; shrinking the table truncates old slots. Performance, body, action segment, history and right-hand side are outside this factory's scope.
  */
 export function HumanPerformanceFlightRotation(props: {
   start: number;
@@ -30,7 +26,7 @@ export function HumanPerformanceFlightRotation(props: {
   step: number;
   times: readonly number[];
   table: readonly { about: IAutoMovieVector3; root: IAutoMovieQuaternion }[];
-  flight: integrateAirborneRotation.IFlight;
+  orientation: (seconds: number, root: IAutoMovieQuaternion) => IAutoMovieQuaternion;
 }): (seconds: number) => IHumanPosture.IRotation {
   const roots: (IRootInterpolation | undefined)[] = [];
   return (seconds: number): IHumanPosture.IRotation => {
@@ -54,12 +50,13 @@ export function HumanPerformanceFlightRotation(props: {
       root = { from: before, to: after, read: Quaternion.prepareSlerp(before, after) };
       roots[i] = root;
     }
+    const unturned: IAutoMovieQuaternion = root.read(u);
     return createHumanPostureRotation(
       Vector3.lerp(props.table[i]!.about, props.table[i + 1]!.about, u),
       Quaternion.normalize(
         Quaternion.multiply(
-          props.flight.orientation(t),
-          Quaternion.inverse(root.read(u)),
+          props.orientation(t, unturned),
+          Quaternion.inverse(unturned),
         ),
       ),
     );
