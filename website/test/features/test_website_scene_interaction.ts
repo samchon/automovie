@@ -1,6 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
 import type { IPlaygroundRefusal } from "../../src/playground/structures/IPlaygroundRefusal";
+import { SCENE_FPS } from "../../src/scenes/SCENE_FPS";
 import { SceneFacts } from "../../src/scenes/SceneFacts";
 import { SceneTrack } from "../../src/scenes/SceneTrack";
 import { SCENES_HANDLING } from "../../src/scenes/data/SCENES_HANDLING";
@@ -18,7 +19,7 @@ import type { ITake } from "../../src/takes/structures/ITake";
  * Scenarios:
  * 1. Each scene has its installed action or registered row, composition and
  *    standard takes. All eleven original inputs run through TakeCompute at
- *    one frame per second; ten return tracks.
+ *    the website's actual scene rate; ten return tracks.
  * 2. The low-table scramble remains marked refused until #3573 and returns
  *    the actual reach refusal on stances: the left hand misses at lift1 by
  *    more than the unchanged 10 mm contact bound. A returned track fails so
@@ -32,7 +33,7 @@ import type { ITake } from "../../src/takes/structures/ITake";
  * accuracy certificate. The motions package owns those physical bounds.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios, the original-take scope, the tracked SDK refusal and the track's quantization limit.
- * @evidence contracts/development/testing.md#behavioral-verification Runs all eleven inputs through the real take worker. Ten must return their actual timelines and displayed placements; the unchanged low-table input must return its specific public reach refusal, and an arbitrary error or stale refusal mark fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs all eleven inputs through the real take worker at the scene consumer's SCENE_FPS. Ten must return their actual timelines and displayed placements; the unchanged low-table input must return its specific public reach refusal, and an arbitrary error or stale refusal mark fails.
  * @evidence contracts/development/testing.md#independent-expectations The required public actions and rows, authored fixed sled point, 1 mm track unit and unchanged 10 mm contact bound are expectations. The narrow refusal contract is the observed SDK boundary tracked by #3573, not a proof that the movement is physically impossible; no producer snapshot supplies expected placements.
  * @evidence contracts/development/testing.md#distinguishing-cases A support sequence, a stationary two-handle press, a held-prop release overlay, a nonzero impulse reaction, a raised-support row, keyed typing, an already held mug's grip change, and upper-body pointing, gesture, rest, touch, face, dress and tool rows exercise distinct input requirements.
  * @evidence contracts/development/testing.md#execution-ownership Runs eleven original inputs in memory through the website's discovered test entry, requiring ten tracks and one precise current SDK refusal; it launches no worker, viewer or browser.
@@ -89,7 +90,7 @@ export function test_website_scene_interaction(): void {
     console.log(JSON.stringify({ scene: scene.id, phase: "start" }));
     let made: ITake | IPlaygroundRefusal;
     try {
-      made = TakeCompute.take(scene.composition, 1);
+      made = TakeCompute.take(scene.composition, SCENE_FPS);
     } catch (error) {
       findings.push(
         `${scene.id}: ${error instanceof Error ? error.message : String(error)}`,
@@ -158,9 +159,10 @@ export function test_website_scene_interaction(): void {
     const width: number = made.track.values.length / made.track.frames;
     let changed: boolean = false;
     for (let frame: number = 1; frame < made.track.frames; frame++) {
+      const seconds: number = frame / SCENE_FPS;
       const current: SceneTrack.IPlacement[][] = SceneTrack.sample(
         made.track,
-        frame,
+        seconds,
       );
       if (
         made.track.values
@@ -182,7 +184,7 @@ export function test_website_scene_interaction(): void {
           Math.abs(placed.position[1]) > 1e-3 ||
           Math.abs(placed.position[2] - 0.35) > 1e-3
         )
-          findings.push(`${scene.id}: the fixed sled moved at ${frame} s`);
+          findings.push(`${scene.id}: the fixed sled moved at ${seconds} s`);
       }
     }
     if (!changed)
