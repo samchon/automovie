@@ -1,0 +1,262 @@
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Quaternion,
+  Transform,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+  resolvePose,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionEvent,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanManipulate,
+  HumanPerformance,
+  HumanRefusal,
+} from "@automovie/motions";
+import { TestValidator } from "@nestia/e2e";
+
+import { motionHumanBody } from "../internal/motionHumanBody";
+import { nclose } from "../internal/nclose";
+import { qclose } from "../internal/qclose";
+
+/** The per-press contact bound in the specification (#3446), metres. */
+const CONTACT: number = 0.002;
+
+/** The rigid grip translation bound in the specification (#3447), metres. */
+const SLIP: number = 0.001;
+
+/** Authored press times 0.30 s apart, the measured inward mean (Trudeau et al. 2012). */
+const TIMES: readonly [number, number] = [0.4, 0.7];
+
+/** The four fingers holding the pad. */
+const HOLDERS: readonly AutoMovieHumanoidBone[] = [
+  "rightIndexProximal",
+  "rightMiddleProximal",
+  "rightRingProximal",
+  "rightLittleProximal",
+];
+
+/**
+ * Thumb taps on a pad the same hand holds as the carrier moves.
+ *
+ * The pad is already in the hand at the start of the shot. Two reachable
+ * sites come from direct forward kinematics of distinct, authored flexion
+ * poses within the thumb's range. The independent oracle transforms those
+ * fixed sites by the displayed prop frame at each authored press time.
+ *
+ * Scenarios:
+ *
+ * 1. The overlay takes the right thumb alone, at both authored instants.
+ * 2. The thumb reaches each site within 2 mm after the moving carrier has
+ *    displaced it. Four fingers retain their authored grip throughout.
+ * 3. The prop's local translation and rotation in the hand stay constant
+ *    through the approach, presses and release.
+ * 4. The overlay refuses the same named pad if the hand has no hold.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the held pad fixture, the forward-kinematics oracle and the four scenarios.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs the public thumbText row over a moving carrier and observes displayed joints, thumb tip and prop frame at planned times.
+ * @evidence contracts/development/testing.md#independent-expectations Direct rig forward kinematics generates the fixed two-site fixture. Authored times, rigid transform composition, unchanged carrier joints, and the issue's contact and grip bounds provide the expected readings.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two distinct contacts after carrier displacement with intervening and releasing samples distinguish rigid following from a world-fixed finger target or a whole-hand motion. The same pad without its hold is refused.
+ * @evidence contracts/development/testing.md#execution-ownership One polygon man and one performance with no arm IK targets, viewers, clocks or host dependencies.
+ */
+export function test_human_motion_manipulate_held(): void {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const fingerAngles: IAutoMovieMotionHumanPosture["joints"] = {};
+  for (const bone of HOLDERS) fingerAngles[bone] = [45, 0, 0];
+  const poseJoints: IAutoMovieJointPose[] = HOLDERS.map(
+    (bone: AutoMovieHumanoidBone): IAutoMovieJointPose => ({
+      bone,
+      flexion: 45,
+      abduction: 0,
+      twist: 0,
+    }),
+  );
+  /** Resolve the fixture's forward rig with the given thumb flexion, independently of the overlay. */
+  const forward = (flexion: number): IAutoMovieResolvedBone[] =>
+    resolvePose(
+      {
+        skeleton: body.skeleton.id,
+        root: null,
+        joints: [
+          ...poseJoints,
+          { bone: "rightThumbProximal", flexion: 20, abduction: 0, twist: 0 },
+          { bone: "rightThumbDistal", flexion, abduction: 0, twist: 0 },
+        ],
+      },
+      body.skeleton,
+      HUMANOID_JOINT_AXES,
+      HUMANOID_REST_FRAME,
+    );
+  const hand: IAutoMovieResolvedBone = forward(15).find(
+    (bone: IAutoMovieResolvedBone): boolean => bone.bone === "rightHand",
+  )!;
+  const sites: IAutoMovieVector3[] = [15, 35].map(
+    (flexion: number): IAutoMovieVector3 => {
+      const surface: IAutoMovieHumanoidSurfaces.IFrame =
+        body.surfaces.regions.thumbTipRight;
+      const distal: IAutoMovieResolvedBone = forward(flexion).find(
+        (bone: IAutoMovieResolvedBone): boolean => bone.bone === surface.bone,
+      )!;
+      const tip: IAutoMovieVector3 =
+        resolveAutoMovieHumanoidSurfaces.place(surface, distal).point;
+      return Quaternion.rotateVector(
+        Quaternion.inverse(hand.worldRotation),
+        Vector3.subtract(tip, hand.worldPosition),
+      );
+    },
+  );
+  const prop: IAutoMovieMotionHumanProp = {
+    subject: "pad",
+    frame: { position: hand.worldPosition, rotation: hand.worldRotation },
+    points: {},
+    affordances: sites.map(
+      (
+        translation: IAutoMovieVector3,
+        index: number,
+      ): NonNullable<IAutoMovieMotionHumanProp["affordances"]>[number] => ({
+        id: `key${index + 1}`,
+        kind: "button",
+        frame: { ...Transform.identity(), translation },
+        extent: null,
+      }),
+    ),
+  };
+  const carried: IAutoMovieMotionHumanActionLaw<never> = {
+    name: "carryPad",
+    interrupts: {},
+    yields: ["rightThumb"],
+    plan: (): IAutoMovieMotionHumanActionPlan => ({
+      duration: 2,
+      contacts: [],
+      events: [],
+      holds: [{ side: "right", prop: "pad", from: 0, fingers: fingerAngles }],
+      posture: (seconds: number): IAutoMovieMotionHumanPosture => ({
+        root: { x: seconds, y: 0, z: 0 },
+        yaw: 0,
+        pitch: 0,
+        roll: 0,
+        limbs: {},
+        joints: fingerAngles,
+      }),
+    }),
+  };
+  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+    seed: "held-pad",
+    laws: [carried, HumanManipulate.thumbText],
+    props: [prop],
+    performers: [
+      { subject: "a", body, at: origin, yaw: 0, proficiency: { level: "trained" } },
+    ],
+    composition: HumanChain.subject("a")
+      .registered("carryPad")
+      .over(
+        (overlay: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+          overlay.registered("thumbText", {
+            prop: "pad",
+            contacts: TIMES.map(
+              (at: number, index: number): { site: string; at: number } => ({
+                site: `key${index + 1}`,
+                at,
+              }),
+            ),
+          }),
+      ).node,
+  });
+  const overlay: IAutoMovieMotionHumanSegment.IOverlay =
+    performance.overlays("a")[0]!;
+  TestValidator.equals("only the holding thumb", overlay.channels, [
+    "rightThumb",
+  ]);
+
+  const surface: IAutoMovieHumanoidSurfaces.IFrame =
+    body.surfaces.regions.thumbTipRight;
+  const identity: IAutoMovieQuaternion = Quaternion.identity();
+  const samples: number[] = [
+    0,
+    TIMES[0],
+    (TIMES[0] + TIMES[1]) / 2,
+    TIMES[1],
+    overlay.plan.duration,
+  ];
+  for (const t of samples) {
+    const seconds: number = overlay.start + t;
+    const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      performance.bones("a", seconds);
+    const world: IAutoMovieRigidTransform = performance.prop("pad", seconds);
+    const wrist: IAutoMovieResolvedBone = bones.get("rightHand")!;
+    const offset: IAutoMovieVector3 = Vector3.subtract(world.position, wrist.worldPosition);
+    const relative: IAutoMovieQuaternion = Quaternion.multiply(
+      Quaternion.inverse(wrist.worldRotation),
+      world.rotation,
+    );
+    TestValidator.predicate(
+      `the pad stays rigid in the wrist frame at ${t}`,
+      nclose(Vector3.length(offset), 0, SLIP) && qclose(relative, identity),
+    );
+
+    const pose: readonly IAutoMovieJointPose[] = performance.pose("a", seconds).joints;
+    TestValidator.predicate(
+      `all four fingers keep their grip at ${t}`,
+      HOLDERS.every((bone: AutoMovieHumanoidBone): boolean =>
+        nclose(pose.find((joint: IAutoMovieJointPose): boolean => joint.bone === bone)?.flexion ?? NaN, 45),
+      ),
+    );
+
+    const pressed: number = TIMES.indexOf(t);
+    if (pressed < 0) continue;
+    const event: IAutoMovieMotionEvent = overlay.plan.events[pressed]!;
+    TestValidator.predicate(
+      `key ${pressed + 1} has the authored time`,
+      event.name === `press${pressed + 1}` && nclose(event.share * overlay.plan.duration, t),
+    );
+    const measured: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+      surface,
+      bones.get(surface.bone)!,
+    ).point;
+    const target: IAutoMovieVector3 = Vector3.add(
+      world.position,
+      Quaternion.rotateVector(world.rotation, sites[pressed]!),
+    );
+    TestValidator.predicate(
+      `key ${pressed + 1} travels with the prop and is pressed within 2 mm`,
+      nclose(Vector3.length(Vector3.subtract(measured, target)), 0, CONTACT) &&
+        nclose(world.position.x - prop.frame.position.x, t, SLIP),
+    );
+  }
+
+  let refusal: unknown;
+  try {
+    HumanManipulate.thumbText.plan({
+      ...overlay.context,
+      params: { prop: "pad", contacts: [{ site: "key1", at: TIMES[0] }] },
+      entry: { ...overlay.context.entry, holds: {} },
+    });
+  } catch (error) {
+    refusal = error;
+  }
+  TestValidator.predicate(
+    "same prop without the hold is refused",
+    refusal instanceof HumanRefusal &&
+      refusal.kind === "affordance" &&
+      refusal.axis === "prop",
+  );
+}
