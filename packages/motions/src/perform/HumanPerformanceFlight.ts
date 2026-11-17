@@ -29,6 +29,7 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
 import type { HumanSegment } from "./HumanSegment";
+import { HumanSegmentPose } from "./HumanSegmentPose";
 
 /**
  * Hand each placed flight its rigid turn after placement and contacts.
@@ -248,7 +249,11 @@ export namespace HumanPerformanceFlight {
     ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
       seconds: number,
     ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-      const pose: IAutoMoviePose = unturned(seconds);
+      // The integrator reads the shape at stages of its own choosing, a
+      // millisecond either side of each for the momentum: off the film's
+      // grid (`HumanSegmentPose.tracked`) those cost the flight's knots, not
+      // a displayed pose each.
+      const pose: IAutoMoviePose = HumanSegmentPose.tracked(person, seconds, evaluation);
       const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = readBones({ ...pose, root: null }, readResolution());
       actual?.set(bones, pose);
       return bones;
