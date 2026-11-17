@@ -298,6 +298,35 @@ export function fitHingedChainCandidate(
       // overshoot can only score above zero, so the sweep spares them
       // (`boxExcludedSwivels`). The range is read in the frame
       // `jointRomOvershoot` reads it in without a rig.
+      // Under the continuous cost every term of the deviation is
+      // non-negative, so twice the hint-side term is a lower bound of it; the
+      // mid joint circles the root-to-target axis as the swivel turns, so
+      // that term is a sinusoid of the swivel, bounded over an interval in
+      // closed form (`sideBound`), and the sweep scores only the swivels the
+      // bound leaves open (`hingedSwivelBounded`).
+      ...(strain === undefined && side !== null
+        ? {
+            bound: (
+              upper: (swivel: number) => IAutoMovieQuaternion,
+            ): ((low: number, high: number) => number) =>
+              sideBound(
+                (swivel: number): IAutoMovieVector3 =>
+                  across(
+                    Vector3.add(
+                      root,
+                      Quaternion.rotateVector(
+                        Quaternion.multiply(
+                          prepared.upper.worldRotation,
+                          upper(swivel),
+                        ),
+                        prepared.lowerOffset,
+                      ),
+                    ),
+                  ),
+                side,
+              ),
+          }
+        : {}),
       excluded: (
         upper: (swivel: number) => IAutoMovieQuaternion,
       ): ((low: number, high: number) => boolean) =>
@@ -384,6 +413,51 @@ export function fitHingedChainCandidate(
 
 /** The mid joint's distance from the line to the target, metres, from which the bend hint's side weighs in full (provisional: a millimetre, past any rounding of a limb's joints and short of any bend one sees). */
 const SIDED: number = 1e-3;
+
+/**
+ * Below this a bound is lowered, deviation units: a hundred times the float
+ * error of reading the same side term two ways (a few operations at 2^-53
+ * relative on a term of at most 4), so the bound stays below every candidate
+ * it bounds.
+ */
+const ROUNDING: number = 1e-12;
+
+/**
+ * A lower bound of twice the hint-side term over a swivel interval.
+ *
+ * The mid joint's offset across the root-to-target axis at swivel `s`
+ * degrees is its offset at 0 turned by `s` about that axis, so its unit
+ * direction is `cos s e0 + sin s e90` and its dot with the side is
+ * `R cos(s - p)`, with `R` and `p` read from the offsets at 0 and 90
+ * degrees; the term `(1 - dot) min(1, off / SIDED)` is then least where the
+ * cosine is greatest: at `p` when the interval holds it, else at an end.
+ */
+function sideBound(
+  offset: (swivel: number) => IAutoMovieVector3,
+  side: IAutoMovieVector3,
+): (low: number, high: number) => number {
+  const zero: IAutoMovieVector3 = offset(0);
+  const quarter: IAutoMovieVector3 = offset(90);
+  const off: number = Vector3.length(zero);
+  const across: number = Vector3.length(quarter);
+
+  // A limb straight to within rounding has no side to bound.
+  if (!(off >= 1e-9 && across >= 1e-9)) return (): number => 0;
+  const a: number = Vector3.dot(zero, side) / off;
+  const b: number = Vector3.dot(quarter, side) / across;
+  const reach: number = Math.hypot(a, b);
+  const phase: number = (Math.atan2(b, a) * 180) / Math.PI;
+  const weight: number = 2 * Math.min(1, off / SIDED);
+  const cos = (degrees: number): number => Math.cos((degrees * Math.PI) / 180);
+  return (low: number, high: number): number => {
+    const next: number = phase + 360 * Math.ceil((low - phase) / 360);
+    const top: number =
+      high - low >= 360 || next <= high
+        ? reach
+        : reach * Math.max(cos(low - phase), cos(high - phase));
+    return Math.max(0, weight * (1 - top) - ROUNDING);
+  };
+}
 
 /** What a candidate reads of its mid rotation alone, read once per rotation record. */
 interface IMid {
