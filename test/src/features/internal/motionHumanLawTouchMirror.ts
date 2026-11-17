@@ -6,7 +6,6 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditDifference,
-  type touch,
 } from "@automovie/motions";
 
 import { motionHumanJointText } from "./motionHumanJointText";

@@ -1,6 +1,5 @@
 import {
   type resolveAutoMovieBoneRates,
-  type resolveAutoMovieCenterOfMass,
   resolveAutoMovieMomentum,
   resolveAutoMovieMomentumRates,
 } from "@automovie/engine";

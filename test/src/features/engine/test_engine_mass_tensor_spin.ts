@@ -1,7 +1,6 @@
 import {
   Quaternion,
   Vector3,
-  type combinePhysicalMassProperties,
   physicalInertiaTensor,
   physicalPrincipalAxes,
 } from "@automovie/engine";

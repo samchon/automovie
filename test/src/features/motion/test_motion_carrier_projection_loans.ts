@@ -1,5 +1,6 @@
 import { clampPose } from "@automovie/engine";
 import type {
+  AutoMovieMotionHumanChannel,
   IAutoMovieBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -11,11 +12,7 @@ import type {
   IAutoMoviePose,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
-import {
-  type AutoMovieMotionHumanChannel,
-  HumanChain,
-  HumanPerformance,
-} from "@automovie/motions";
+import { HumanChain, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";

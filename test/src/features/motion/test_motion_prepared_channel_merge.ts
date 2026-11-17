@@ -1,4 +1,5 @@
 import type {
+  AutoMovieMotionHumanChannelClaim,
   IAutoMovieHumanDigitGoal,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanPosture,
@@ -43,7 +44,7 @@ export function test_motion_prepared_channel_merge(): void {
     joints: { head: [66, 0, 0], chest: [22, 0, 0], leftThumbProximal: [33, 0, 0], rightUpperArm: [77, 0, 0] },
     limbs: { rightArm: goal(8) }, digits: {},
   };
-  const claims: C.Claim[] = ["root", "trunkTurn", "leftArm", "leftThumb"];
+  const claims: AutoMovieMotionHumanChannelClaim[] =["root", "trunkTurn", "leftArm", "leftThumb"];
   const merge: ReturnType<typeof C.prepareMerge> = C.prepareMerge(claims);
   claims.splice(0, claims.length, "rightArm");
   const first: IAutoMovieMotionHumanPosture = merge(base, written);

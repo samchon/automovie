@@ -1,7 +1,6 @@
 import {
   prepareAutoMovieMassModel as M,
   physicalInertiaTensor,
-  type resolveAutoMovieCenterOfMass,
   resolveAutoMovieMomentum,
 } from "@automovie/engine";
 import type {

@@ -14,7 +14,6 @@ import type {
 import {
   HumanChain,
   HumanPerformance,
-  type HumanSegment,
   jump,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";

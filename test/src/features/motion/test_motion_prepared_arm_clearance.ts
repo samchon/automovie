@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanColliders,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanArmOvershoot, type HumanColliders } from "@automovie/motions";
+import { HumanArmOvershoot } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";

@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionClock, IAutoMovieMotionClockInstant } from "@automovie/interface";
 import { AutoMovieMotionClock as C } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,7 +39,7 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable unit owns clock callbacks and scalar inputs, invokes existing public preparation and starts no Human producer, host, renderer, compiler or foreign replacement.
  */
 export function test_motion_prepared_clock_interval(): void {
-  const clock: C.IClock = C.of(8, [
+  const clock: IAutoMovieMotionClock = C.of(8, [
     { name: "open", seconds: 2 }, { name: "close", seconds: 6 }, { name: "zero", seconds: 4 },
     { name: "short", seconds: 0.5e-12 }, { name: "boundary", seconds: 1e-12 },
   ]);
@@ -79,9 +80,9 @@ export function test_motion_prepared_clock_interval(): void {
   let lines: number = 0;
   let progresses: number = 0;
   let offset: number = 0;
-  const custom: C.IClock = {
+  const custom: IAutoMovieMotionClock = {
     duration: 8,
-    get instants(): readonly C.IInstant[] {
+    get instants(): readonly IAutoMovieMotionClockInstant[] {
       return [{ name: "open", seconds: 2 + offset }, { name: "close", seconds: 6 + offset }];
     },
     at: (name: string): number => {
@@ -92,24 +93,24 @@ export function test_motion_prepared_clock_interval(): void {
       if (name === "end") return 8;
       throw new Error(`Unknown owned instant ${name}`);
     },
-    linear(this: C.IClock, from: string, to: string, seconds: number): number {
+    linear(this: IAutoMovieMotionClock, from: string, to: string, seconds: number): number {
       lines++;
       TestValidator.predicate("custom linear keeps its actual receiver", this === custom);
       const a: number = this.at(from);
       const b: number = this.at(to);
       return b - a < 1e-12 ? (seconds >= b ? 1 : 0) : Math.min(1, Math.max(0, (seconds - a) / (b - a)));
     },
-    progress(this: C.IClock, from: string, to: string, seconds: number): number {
+    progress(this: IAutoMovieMotionClock, from: string, to: string, seconds: number): number {
       progresses++;
       TestValidator.predicate("custom progress keeps its actual receiver", this === custom);
       const u: number = this.linear(from, to, seconds);
       return 10 * u ** 3 - 15 * u ** 4 + 6 * u ** 5;
     },
-    envelope(this: C.IClock, rise: readonly [string, string], fall: readonly [string, string], seconds: number): number {
+    envelope(this: IAutoMovieMotionClock, rise: readonly [string, string], fall: readonly [string, string], seconds: number): number {
       return Math.max(0, this.progress(rise[0], rise[1], seconds) - this.progress(fall[0], fall[1], seconds));
     },
-    events(this: C.IClock): ReturnType<C.IClock["events"]> {
-      return this.instants.map((instant: C.IInstant): ReturnType<C.IClock["events"]>[number] =>
+    events(this: IAutoMovieMotionClock): ReturnType<IAutoMovieMotionClock["events"]> {
+      return this.instants.map((instant: IAutoMovieMotionClockInstant): ReturnType<IAutoMovieMotionClock["events"]>[number] =>
         ({ name: instant.name, share: instant.seconds / this.duration }));
     },
   };
@@ -142,23 +143,23 @@ function getters(): void {
   let shifted: boolean = false;
   let fails: boolean = false;
   const sentinel: Error = new Error("owned current clock callback failure");
-  const clock: C.IClock = {
+  const clock: IAutoMovieMotionClock = {
     duration: 8, instants: [{ name: "open", seconds: 2 }, { name: "close", seconds: 6 }],
-    get at(): C.IClock["at"] { throw new Error("this custom callback has no at dependency"); },
-    get linear(): C.IClock["linear"] {
+    get at(): IAutoMovieMotionClock["at"] { throw new Error("this custom callback has no at dependency"); },
+    get linear(): IAutoMovieMotionClock["linear"] {
       counts.linear++;
       const start: number = shifted ? 1 : 2;
-      return function (this: C.IClock, from: string, to: string, seconds: number): number {
+      return function (this: IAutoMovieMotionClock, from: string, to: string, seconds: number): number {
         counts.lines++;
         TestValidator.predicate("the one captured current linear callback retains its receiver/names",
           this === clock && from === "open" && to === "close");
         return Math.min(1, Math.max(0, (seconds - start) / 4));
       };
     },
-    get progress(): C.IClock["progress"] {
+    get progress(): IAutoMovieMotionClock["progress"] {
       counts.progress++;
       const start: number = shifted ? 1 : 2;
-      return function (this: C.IClock, from: string, to: string, seconds: number): number {
+      return function (this: IAutoMovieMotionClock, from: string, to: string, seconds: number): number {
         counts.progresses++;
         TestValidator.predicate("the one captured current progress callback retains its receiver/names",
           this === clock && from === "open" && to === "close");
@@ -167,11 +168,11 @@ function getters(): void {
         return 10 * u ** 3 - 15 * u ** 4 + 6 * u ** 5;
       };
     },
-    envelope(this: C.IClock, rise: readonly [string, string], fall: readonly [string, string], seconds: number): number {
+    envelope(this: IAutoMovieMotionClock, rise: readonly [string, string], fall: readonly [string, string], seconds: number): number {
       return Math.max(0, this.progress(rise[0], rise[1], seconds) - this.progress(fall[0], fall[1], seconds));
     },
-    events(this: C.IClock): ReturnType<C.IClock["events"]> {
-      return this.instants.map((instant: C.IInstant): ReturnType<C.IClock["events"]>[number] =>
+    events(this: IAutoMovieMotionClock): ReturnType<IAutoMovieMotionClock["events"]> {
+      return this.instants.map((instant: IAutoMovieMotionClockInstant): ReturnType<IAutoMovieMotionClock["events"]>[number] =>
         ({ name: instant.name, share: instant.seconds / this.duration }));
     },
   };
@@ -197,7 +198,7 @@ function getters(): void {
 }
 
 /** Literal native envelope geometry and independent current foreign callback/array ownership. */
-function envelopes(native: C.IClock): void {
+function envelopes(native: IAutoMovieMotionClock): void {
   const rise: [string, string] = ["open", "zero"];
   const fall: [string, string] = ["zero", "close"];
   const envelope: ReturnType<typeof C.prepareEnvelope> = C.prepareEnvelope(native, rise, fall);
@@ -215,15 +216,15 @@ function envelopes(native: C.IClock): void {
   let fails: boolean = false;
   const retained: { rise: readonly [string, string]; fall: readonly [string, string] }[] = [];
   const sentinel: Error = new Error("owned foreign envelope failure");
-  const clock: C.IClock = {
+  const clock: IAutoMovieMotionClock = {
     duration: 8, instants: [],
-    get at(): C.IClock["at"] { throw new Error("foreign envelope has no at dependency"); },
-    get linear(): C.IClock["linear"] { throw new Error("foreign envelope has no linear dependency"); },
-    get progress(): C.IClock["progress"] { throw new Error("foreign envelope has no progress dependency"); },
-    get envelope(): C.IClock["envelope"] {
+    get at(): IAutoMovieMotionClock["at"] { throw new Error("foreign envelope has no at dependency"); },
+    get linear(): IAutoMovieMotionClock["linear"] { throw new Error("foreign envelope has no linear dependency"); },
+    get progress(): IAutoMovieMotionClock["progress"] { throw new Error("foreign envelope has no progress dependency"); },
+    get envelope(): IAutoMovieMotionClock["envelope"] {
       reads++;
       const weight: number = changed ? 0.75 : 0.25;
-      return function (this: C.IClock, up: readonly [string, string], down: readonly [string, string], seconds: number): number {
+      return function (this: IAutoMovieMotionClock, up: readonly [string, string], down: readonly [string, string], seconds: number): number {
         calls++;
         TestValidator.predicate("foreign envelope gets its original receiver, fixed names and actual current time",
           this === clock && up[0] === "open" && up[1] === "zero" && down[0] === "zero" && down[1] === "close" && nclose(seconds, 3, 0));
@@ -237,7 +238,7 @@ function envelopes(native: C.IClock): void {
         return weight;
       };
     },
-    events: (): ReturnType<C.IClock["events"]> => [],
+    events: (): ReturnType<IAutoMovieMotionClock["events"]> => [],
   };
   const up: [string, string] = ["open", "zero"];
   const down: [string, string] = ["zero", "close"];

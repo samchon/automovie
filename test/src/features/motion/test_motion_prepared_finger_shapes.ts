@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
@@ -62,7 +63,7 @@ export function test_motion_prepared_finger_shapes(): void {
     const raw: IAutoMovieMotionHumanPosture = { root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0,
       joints: { head: [7, 0, 0] }, limbs: {} };
     let multiplier: number = 1;
-    const props: Hand.IShape = { side, shape: "flat", curl: 12, from: 0, to: 2,
+    const props: IAutoMovieMotionHumanHand.IShape ={ side, shape: "flat", curl: 12, from: 0, to: 2,
       weight: (seconds: number): number => multiplier * seconds };
     const primitive: IAutoMovieMotionHumanPrimitive = Hand.shape(props);
     const first: IAutoMovieMotionHumanPosture = primitive.write(raw, 0.5);

@@ -18,8 +18,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  type HumanPerformance,
-  type HumanSegment,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions";

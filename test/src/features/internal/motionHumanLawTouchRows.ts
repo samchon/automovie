@@ -2,7 +2,6 @@ import type {
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanTouch,
 } from "@automovie/interface";
-import type { touch } from "@automovie/motions";
 
 import { motionHumanLawTouch } from "./motionHumanLawTouch";
 

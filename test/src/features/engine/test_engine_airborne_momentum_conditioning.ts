@@ -1,7 +1,6 @@
 import {
   Quaternion,
   integrateAirborneRotation,
-  type resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,

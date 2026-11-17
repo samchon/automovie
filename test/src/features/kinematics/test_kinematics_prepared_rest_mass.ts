@@ -1,5 +1,14 @@
-import { prepareSkeletonPoseResolution as R, resolveAutoMovieCenterOfMass as M } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMoviePhysicalProfile, IAutoMovieQuaternion, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  prepareSkeletonPoseResolution as R,
+  resolveAutoMovieCenterOfMass as M,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -72,7 +81,7 @@ export function test_kinematics_prepared_rest_mass(): void {
     vclose(operated.find((bone: ReturnType<typeof R.rest>[number]): boolean => bone.bone === "spine")!.worldPosition,
       { x: 6, y: 10, z: 10 }, 1e-12));
   rest(R.rest(rig), 4);
-  const prepared: M.IModel = M.fromRig(rig, profile);
+  const prepared: IAutoMovieResolveCenterOfMass.IModel = M.fromRig(rig, profile);
   mass(prepared, 3);
   mass(M(skeleton, profile), 3);
   TestValidator.predicate("placed segment masses retain the independently weighted world centre",
@@ -94,7 +103,7 @@ export function test_kinematics_prepared_rest_mass(): void {
   const foreign: typeof rig = { ...rig, resolve: (): never => { calls++; throw new Error("owned foreign resolver"); } };
   TestValidator.predicate("a structural foreign rig is refused before its resolver is consulted",
     throwsError((): ReturnType<typeof R.rest> => R.rest(foreign), ["rig", "prepareSkeletonPoseResolution"]) &&
-    throwsError((): M.IModel => M.fromRig(foreign, profile), ["rig", "prepareSkeletonPoseResolution"]) && calls === 0);
+    throwsError((): IAutoMovieResolveCenterOfMass.IModel => M.fromRig(foreign, profile), ["rig", "prepareSkeletonPoseResolution"]) && calls === 0);
 }
 
 /** Check exact parent-first rest geometry with a variable authored child joint translation. */
@@ -109,7 +118,7 @@ function rest(frames: ReturnType<typeof R.rest>, height: number): void {
 }
 
 /** The profile's actual world centre/axes are converted into the child's known cyclic frame. */
-function mass(model: M.IModel, childX: number): void {
+function mass(model: IAutoMovieResolveCenterOfMass.IModel, childX: number): void {
   TestValidator.predicate("mass construction preserves independent ordered masses, local centres and principal axes",
     nclose(model.mass, 3, 0) && model.segments.length === 2 && model.segments[0]!.bone === "hips" &&
     model.segments[1]!.bone === "spine" && nclose(model.segments[0]!.mass, 1, 0) && nclose(model.segments[1]!.mass, 2, 0) &&

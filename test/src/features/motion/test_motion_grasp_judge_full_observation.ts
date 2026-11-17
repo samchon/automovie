@@ -15,7 +15,6 @@ import type {
 } from "@automovie/interface";
 import {
   HumanGrasp,
-  type HumanHand,
   resolveHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";

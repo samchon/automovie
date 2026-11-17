@@ -2,7 +2,6 @@ import {
   Quaternion,
   Vector3,
   integrateAirborneRotation,
-  resolveAutoMovieCenterOfMass,
   resolveAutoMovieMomentum,
   solveAirborneTakeoff,
 } from "@automovie/engine";

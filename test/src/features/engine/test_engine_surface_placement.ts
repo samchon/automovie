@@ -1,5 +1,9 @@
 import { resolveAutoMovieHumanoidSurfaces as S } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../internal/vclose";
@@ -30,15 +34,15 @@ export function test_engine_surface_placement(): void {
   const origin: IAutoMovieVector3 = { x: 10, y: 20, z: 30 };
   const bone: Parameters<typeof S.place>[1] = { worldPosition: origin, worldRotation: rotation };
   const local: IAutoMovieVector3 = { x: 2, y: 3, z: 4 };
-  const frame: S.IFrame = { bone: "head", point: local, normal: { x: 1, y: 0, z: 0 }, forward: { x: 0, y: 0, z: 1 } };
-  const pairFrame: S.IFrame = { ...frame,
+  const frame: IAutoMovieHumanoidSurfaces.IFrame = { bone: "head", point: local, normal: { x: 1, y: 0, z: 0 }, forward: { x: 0, y: 0, z: 1 } };
+  const pairFrame: IAutoMovieHumanoidSurfaces.IFrame = { ...frame,
     get forward(): never { throw new Error("point/normal does not demand forward"); },
   };
-  const pointFrame: S.IFrame = { ...frame,
+  const pointFrame: IAutoMovieHumanoidSurfaces.IFrame = { ...frame,
     get normal(): never { throw new Error("point does not demand normal"); },
     get forward(): never { throw new Error("point does not demand forward"); },
   };
-  const normalFrame: S.IFrame = { ...frame,
+  const normalFrame: IAutoMovieHumanoidSurfaces.IFrame = { ...frame,
     get point(): never { throw new Error("normal does not demand point"); },
     get forward(): never { throw new Error("normal does not demand forward"); },
   };

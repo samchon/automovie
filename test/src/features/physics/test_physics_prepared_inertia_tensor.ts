@@ -1,5 +1,4 @@
 import {
-  type combinePhysicalMassProperties,
   physicalInertiaTensor,
 } from "@automovie/engine";
 import type { IAutoMovieCombinePhysicalMassProperties } from "@automovie/interface";

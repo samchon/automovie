@@ -1,4 +1,4 @@
-import { jointRomOvershoot, type swingTwistRange } from "@automovie/engine";
+import { jointRomOvershoot } from "@automovie/engine";
 import type {
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,

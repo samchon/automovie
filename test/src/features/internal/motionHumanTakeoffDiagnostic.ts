@@ -24,7 +24,6 @@ import {
   AutoMovieMotionManner,
   HumanChain,
   HumanPerformance,
-  type HumanSegment,
   jump,
   poseBones,
   resolveHumanPosture,

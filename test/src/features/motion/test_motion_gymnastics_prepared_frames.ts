@@ -26,7 +26,6 @@ import {
   HumanColliders,
   HumanGymnastics,
   HumanPerformance,
-  type HumanSegment,
   resolveHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";

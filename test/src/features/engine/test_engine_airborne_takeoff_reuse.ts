@@ -1,7 +1,6 @@
 import {
   Quaternion,
   Vector3,
-  integrateAirborneRotation,
   solveAirborneTakeoff,
 } from "@automovie/engine";
 import type {

@@ -7,6 +7,7 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieCurlChainUntilContact,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMoviePose,
@@ -53,7 +54,7 @@ export function test_kinematics_prepared_curl_contacts(): void {
     bone(names[1]!, "leftHand", 2, axes), bone("head", "leftHand", 0, axes),
   ] };
   const rig: ReturnType<typeof prepareSkeletonPoseResolution> = prepareSkeletonPoseResolution(skeleton);
-  const chains: readonly curl.IChain[] = names.map((name: AutoMovieHumanoidBone): curl.IChain =>
+  const chains: readonly IAutoMovieCurlChainUntilContact.IChain[] = names.map((name: AutoMovieHumanoidBone): IAutoMovieCurlChainUntilContact.IChain =>
     ({ bones: [name], tip: { x: 1, y: 0, z: 0 }, radius: 0.05 }));
   const centres: readonly IAutoMovieVector3[] = [{ x: -1.2, y: 0.6, z: 0 }, { x: 2.6, y: 0.8, z: 0 }];
   const angles: readonly number[] = [Math.atan2(0.6, 0.8), Math.atan2(0.8, 0.6)].map(
@@ -61,7 +62,7 @@ export function test_kinematics_prepared_curl_contacts(): void {
   for (const heading of [0, 37]) {
     const rotation: ReturnType<typeof Quaternion.fromAxisAngle> = Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, heading);
     const translation: IAutoMovieVector3 = { x: 1, y: 2, z: 3 };
-    const colliders: readonly curl.ICollider[] = centres.map((centre: IAutoMovieVector3, index: number): curl.ICollider => ({
+    const colliders: readonly IAutoMovieCurlChainUntilContact.ICollider[] = centres.map((centre: IAutoMovieVector3, index: number): IAutoMovieCurlChainUntilContact.ICollider => ({
       frame: { position: translation, rotation },
       shape: { id: `sphere${index}`, material: "kernel", kind: "sphere", radius: 0.1,
         transform: { position: centre, rotation: Quaternion.identity() } },
@@ -72,8 +73,8 @@ export function test_kinematics_prepared_curl_contacts(): void {
         joints: future ? [joint(names[1]!, { flexion: 7 })] : [] };
       const order: AutoMovieHumanoidBone[] = future ? [names[1]!, names[0]!] : [...names];
       for (const prepared of [false, true]) {
-        const input: curl.IInput = { skeleton, pose, chains, colliders, ...(prepared ? { resolution: rig } : {}) };
-        const result: curl.IResult = curl(input);
+        const input: IAutoMovieCurlChainUntilContact.IInput = { skeleton, pose, chains, colliders, ...(prepared ? { resolution: rig } : {}) };
+        const result: IAutoMovieCurlChainUntilContact.IResult = curl(input);
         verify(skeleton, result, names, angles, colliders);
         TestValidator.equals("closure retains authored map order and appends only encountered absent joints",
           result.pose.joints.map((value: IAutoMovieJointPose): AutoMovieHumanoidBone => value.bone), order);
@@ -84,7 +85,7 @@ export function test_kinematics_prepared_curl_contacts(): void {
         const invalid: IAutoMoviePose = { ...pose, joints: [...pose.joints,
           joint("head", { flexion: 0 }), joint("head", { flexion: NaN })] };
         TestValidator.predicate("an actual unrelated invalid last record cannot hide behind prepared chain demand",
-          throwsError((): curl.IResult => curl({ ...input, pose: invalid }), ["flexion", "finite"]));
+          throwsError((): IAutoMovieCurlChainUntilContact.IResult => curl({ ...input, pose: invalid }), ["flexion", "finite"]));
       }
     }
   }
@@ -99,16 +100,16 @@ function bone(name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null,
 }
 
 /** Compare displayed capsule geometry with the independently solved first sphere contacts. */
-function verify(skeleton: IAutoMovieSkeleton, result: curl.IResult,
-  names: readonly AutoMovieHumanoidBone[], angles: readonly number[], colliders: readonly curl.ICollider[]): void {
+function verify(skeleton: IAutoMovieSkeleton, result: IAutoMovieCurlChainUntilContact.IResult,
+  names: readonly AutoMovieHumanoidBone[], angles: readonly number[], colliders: readonly IAutoMovieCurlChainUntilContact.ICollider[]): void {
   const frames: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(resolvePose(result.pose, skeleton).map(
     (value: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [value.bone, value]));
   names.forEach((name: AutoMovieHumanoidBone, index: number): void => {
-    const report: curl.IChainResult = result.chains[index]!;
+    const report: IAutoMovieCurlChainUntilContact.IChainResult = result.chains[index]!;
     const angle: number = report.flexion[0]!;
     const frame: IAutoMovieResolvedBone = frames.get(name)!;
     const direction: IAutoMovieVector3 = Quaternion.rotateVector(frame.worldRotation, { x: 1, y: 0, z: 0 });
-    const collider: curl.ICollider = colliders[index]!;
+    const collider: IAutoMovieCurlChainUntilContact.ICollider = colliders[index]!;
     const relative: IAutoMovieVector3 = Quaternion.rotateVector(collider.frame.rotation, collider.shape.transform.position);
     const x: number = collider.frame.position.x + relative.x - frame.worldPosition.x;
     const y: number = collider.frame.position.y + relative.y - frame.worldPosition.y;

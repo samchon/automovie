@@ -2,11 +2,11 @@ import {
   integrateAirborneRotation as F,
   prepareAutoMovieMassModel as M,
   Quaternion,
-  type resolveAutoMovieCenterOfMass,
   resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieIntegrateAirborneRotation,
   IAutoMovieQuaternion,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
@@ -105,7 +105,7 @@ export function test_motion_prepared_shape_history(): void {
     const history: F.ICachedHistory = F.history(prepared ? token : model, shape, undefined, observation);
     const separate: F.ICachedHistory = F.history(prepared ? token : model, shape, undefined, observation);
     try {
-      const first: F.IInstant = history(0);
+      const first: IAutoMovieIntegrateAirborneRotation.IInstant = history(0);
       work(observation, [1, 0, 3, 0, 0]);
       physical(first);
       principalInput(first);
@@ -134,7 +134,7 @@ export function test_motion_prepared_shape_history(): void {
       separate.clear();
       work(observation, [8, 1, 17, 0, 7]);
       TestValidator.predicate("an actual failed history query remains a failure",
-        throwsError((): F.IInstant => history(failedAt), ["owned", "shape"]),
+        throwsError((): IAutoMovieIntegrateAirborneRotation.IInstant => history(failedAt), ["owned", "shape"]),
       );
       work(observation, [9, 1, 17, 0, 7]);
     } finally {
@@ -184,11 +184,11 @@ function fixedInput(model: IAutoMovieResolveCenterOfMass.IModel): void {
   const columns: readonly IAutoMovieVector3[] = [{ x: 1, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }, { x: 0, y: 0, z: 1 }];
 
   /** At L=0, q=q0 and eta=dt I^-1 R0^T dL for every actual requested column. */
-  const stationary: (label: string, reader: F.IHistory, from: number, to: number, exact: boolean) => F.IFlight | undefined = (
-    label: string, reader: F.IHistory, from: number, to: number, exact: boolean,
-  ): F.IFlight | undefined => {
+  const stationary: (label: string, reader: IAutoMovieIntegrateAirborneRotation.IHistory, from: number, to: number, exact: boolean) => IAutoMovieIntegrateAirborneRotation.IFlight | undefined = (
+    label: string, reader: IAutoMovieIntegrateAirborneRotation.IHistory, from: number, to: number, exact: boolean,
+  ): IAutoMovieIntegrateAirborneRotation.IFlight | undefined => {
     try {
-      const flight: F.IFlight = F({ history: reader, t0: from, t1: to, q0: { ...q0 },
+      const flight: IAutoMovieIntegrateAirborneRotation.IFlight = F({ history: reader, t0: from, t1: to, q0: { ...q0 },
         momentum: { x: 0, y: 0, z: 0 }, variations: columns, h: 0.25,
         tolerance: { relative: 1e-10, absolute: 1e-10 }, momentumTolerance: { relative: 0.01, absolute: 0 } });
       if (exact ? flight.knots !== 2 : !(flight.knots > 2))
@@ -212,7 +212,7 @@ function fixedInput(model: IAutoMovieResolveCenterOfMass.IModel): void {
   };
   try {
     const before: number = observation.read().queries;
-    const exact: F.IFlight | undefined = stationary("covered native fixed history", history, 0, 1, true);
+    const exact: IAutoMovieIntegrateAirborneRotation.IFlight | undefined = stationary("covered native fixed history", history, 0, 1, true);
     const queryWork: number = observation.read().queries - before;
     if (!(Number.isSafeInteger(queryWork) && queryWork >= 0 && queryWork <= 1))
       failures.push("a proved stationary curve performed numerical stage history work instead of its one physical validation");
@@ -234,7 +234,7 @@ function fixedInput(model: IAutoMovieResolveCenterOfMass.IModel): void {
     span.from = -10;
     span.to = 10;
     stationary("copied fixed span does not cover the requested interval", history, -0.25, 0.75, false);
-    const guarded: F.IFlight = F({ history, t0: 0, t1: 1, q0: identity,
+    const guarded: IAutoMovieIntegrateAirborneRotation.IFlight = F({ history, t0: 0, t1: 1, q0: identity,
       momentum: { x: 3, y: 0, z: 0 }, h: 0.25,
       tolerance: { relative: 1e-10, absolute: 1e-10 }, momentumTolerance: { relative: 0.01, absolute: 0 } });
     if (!(guarded.knots > 2)) failures.push("nonzero explicit physical budget lost its numerical admission");
@@ -244,20 +244,20 @@ function fixedInput(model: IAutoMovieResolveCenterOfMass.IModel): void {
       if (!(qunit(shown, 1e-12) && Quaternion.angle(shown, expected) <= 1e-6))
         failures.push(`nonzero budget fallback failed its principal-axis closed form at${seconds}`);
     }
-    const old: F.IInstant = history(0.2);
-    const fresh: F.IInstant = history(0.2);
+    const old: IAutoMovieIntegrateAirborneRotation.IInstant = history(0.2);
+    const fresh: IAutoMovieIntegrateAirborneRotation.IInstant = history(0.2);
     old.inertia.moments.x = 4;
     old.relative.x = 2;
     source.segments[0]!.inertia.x = 999;
     skeleton.bones[0]!.rest.translation.y = 999;
     bones.get("hips")!.worldPosition.x = 999;
-    const current: F.IInstant = history(0.2);
+    const current: IAutoMovieIntegrateAirborneRotation.IInstant = history(0.2);
     if (!(old !== fresh && fresh !== current && old.relative !== fresh.relative &&
       vclose(current.relative, { x: 0, y: 0, z: 0 }, 0) &&
       vclose(current.inertia.moments, { x: 2, y: 3, z: 5 }, 1e-10) &&
       vclose(F.rate(old, { x: 0, y: 0, z: 0 }), { x: -0.5, y: 0, z: 0 }, 1e-10)))
       failures.push("fixed constructor snapshots or per-query instant independence were lost");
-    const released: F.IInstant = history(0.3);
+    const released: IAutoMovieIntegrateAirborneRotation.IInstant = history(0.3);
     const retained: ReturnType<typeof observation.read> = observation.read();
     if (retained.uniqueNumericNodes !== 1 || retained.memoHits !== 0)
       failures.push("fixed construction repeated physical nodes or memoized mutable query results");
@@ -295,7 +295,7 @@ function isolatedInput(): void {
     ]),
   );
   try {
-    const instant: F.IInstant = history(0);
+    const instant: IAutoMovieIntegrateAirborneRotation.IInstant = history(0);
     instant.relative = { x: 2, y: 0, z: 0 };
     const rate: IAutoMovieVector3 = F.rate(instant, { x: 0, y: 0, z: 0 });
     TestValidator.predicate("an independent X axis stays exact inside a coupled YZ tensor",
@@ -326,7 +326,7 @@ function factorInput(): void {
       ]), undefined, observation,
     );
     try {
-      const instant: F.IInstant = history(0);
+      const instant: IAutoMovieIntegrateAirborneRotation.IInstant = history(0);
       const momentum: IAutoMovieVector3 = { x: 4 * scale, y: 6 * scale, z: 10 * scale };
       const expected: IAutoMovieVector3 = repeated ? { x: 2, y: 3, z: 10 / 3 } : { x: 13 / 6, y: 17 / 6, z: 2 };
       const first: IAutoMovieVector3 = F.rate(instant, momentum);
@@ -336,7 +336,7 @@ function factorInput(): void {
         vclose(F.rate(instant, momentum), expected, 1e-10) && Object.is(first.x, 999),
       );
       work(observation, [1, 0, 3, 1, 0]);
-      const replacement: F.IInstant["inertia"] = {
+      const replacement: IAutoMovieIntegrateAirborneRotation.IInstant["inertia"] = {
         moments: { x: 4 * scale, y: 6 * scale, z: 10 * scale },
         rotation: { x: 0, y: 0, z: 0, w: 1 },
       };
@@ -368,7 +368,7 @@ function work(observation: ReturnType<typeof F.observe>, expected: readonly [num
 }
 
 /** The actual current numeric principal frame, rather than its record identity, controls rate. */
-function principalInput(instant: F.IInstant): void {
+function principalInput(instant: IAutoMovieIntegrateAirborneRotation.IInstant): void {
   const original: IAutoMovieQuaternion = { ...instant.inertia.rotation };
   try {
     let previous: ReturnType<typeof F.rate> | undefined;
@@ -389,7 +389,7 @@ function principalInput(instant: F.IInstant): void {
 }
 
 /** Compare actual reduced physics to the independent one-part angular balance. */
-function physical(instant: F.IInstant): void {
+function physical(instant: IAutoMovieIntegrateAirborneRotation.IInstant): void {
   TestValidator.predicate("unchanged principal moments and actual relative spin",
     vclose(instant.inertia.moments, { x: 2, y: 3, z: 5 }, 1e-10) &&
     vclose(instant.relative, { x: 0, y: 0, z: 10 }, 1e-10) &&

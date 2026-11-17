@@ -5,6 +5,7 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanAuditMotion } from "@automovie/motions";
 
 import { motionHumanFrame } from "./motionHumanFrame";
 
@@ -43,7 +44,7 @@ export function motionHumanRepeat(
     );
   if (!Number.isFinite(first.duration) || !Number.isFinite(second.duration))
     return complaints;
-  for (const seconds of IAutoMovieMotionHumanAuditMotion.grid(
+  for (const seconds of AutoMovieMotionHumanAuditMotion.grid(
     0,
     Math.min(first.duration, second.duration),
     rate,
