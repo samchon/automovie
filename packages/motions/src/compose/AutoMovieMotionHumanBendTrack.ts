@@ -1,7 +1,7 @@
-import { hingedArmSwivel } from "@automovie/engine";
-import type {
-  IAutoMovieSwivelNear,
-  IAutoMovieSwivelSeed,
+import {
+  type IAutoMovieSwivelNear,
+  type IAutoMovieSwivelSeed,
+  hingedArmSwivel,
 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,

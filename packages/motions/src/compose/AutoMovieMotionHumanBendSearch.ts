@@ -8,10 +8,11 @@ import {
   decomposeJointRotationOnBasis,
   hingedArmArticulation,
   jointRomOvershoot,
+  type IAutoMovieSwivelNear,
+  type IAutoMovieSwivelSeed,
   normalizeJointAxes,
   swingTwistRange,
 } from "@automovie/engine";
-import type { IAutoMovieSwivelNear, IAutoMovieSwivelSeed } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
