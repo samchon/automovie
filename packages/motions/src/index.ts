@@ -121,6 +121,7 @@ export * from "./law/HumanSupport";
 export * from "./floor/dive";
 export * from "./floor/roll";
 export * from "./climbing/climbLadder";
+export * from "./climbing/wallClimbSupport";
 export * from "./grappling/clinch";
 export * from "./grappling/kuzushi";
 export * from "./ballStrike/kickBall";
