@@ -19,6 +19,7 @@ import type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { basisOf } from "./basisOf";
 import { fitHingedRotationError } from "./fitHingedRotationError";
+import { hingedChainSide } from "./hingedChainSide";
 import { posedHingeSwing } from "./posedHingeSwing";
 import { readHingeRange } from "./readHingeRange";
 import type { prepareChainFit } from "./prepareChainFit";
@@ -41,7 +42,11 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * the chosen swivel moves continuously as a target moves and jumps only where
  * two separate minima tie exactly; the reference term then decides the tie
  * toward the reference's side. The weights are provisional, as no source
- * fixes them: one degree of joint turn from the reference counts as much as
+ * fixes them. Under this continuous cost with a hint side, the cold fit
+ * starts at the side term's closed-form peak, the pole of two-bone IK
+ * (`hingedChainSide.peak`), searches locally from it and keeps a legal result; the full
+ * sweep runs only when that leaves an overshoot or the limb has no side.
+ * One degree of joint turn from the reference counts as much as
  * one degree of effector error (times the request's `referenceWeight`, 1
  * when omitted), so the reference's side is kept unless a
  * turn buys at least as much accuracy; and the
@@ -67,10 +72,10 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * @returns The candidate, or null for a degenerate chain.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the sweep, the overshoot-then-continuous-cost ranking with its terms and weights, the continuity premise and the frames of every input.
- * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through hingedArmArticulation, scored through actual clinical decomposition and ROM overshoot. Without strain, obstruction, reference or a hint side, every raw cost term is non-negative: ROM excess, quaternion angle and squared clinical effort. A zero global lower bound then certifies only an exact-zero original first candidate, retaining its original tie and seed.
+ * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through hingedArmArticulation, scored through actual clinical decomposition and ROM overshoot. The mid joint circles the root-to-target axis as the swivel turns, so the side term is a sinusoid whose peak is the pole direction in closed form; the local search then minimises the full score in that basin. Without strain, obstruction, reference or a hint side, every raw cost term is non-negative: ROM excess, quaternion angle and squared clinical effort. A zero global lower bound then certifies only an exact-zero original first candidate, retaining its original tie and seed.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoring closure over hingedArmArticulation's sweep; the effector error is a separate member.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overshoot ranks first, so no illegal candidate wins on the hint or the hand; a degenerate chain returns null for the caller's fallback.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. An exact-zero first candidate can end cold search only under its certified nonnegative objective; other searches remain. An absent hint side and obstruction need no midpoint FK or cross-axis vectors. Task priority omits unused effort; a reference-only second key needs no unused world prefix. Reference geodesic/strain composition remain lazy. Rotation keeps its existing distal/fallback work. No speedup is measured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. Eligibility for the pole start is exactly no strain and a hint side (so no tie band and no minimum certificate): it scores the start, each downhill step and one refinement per branch; the fallback to the full sweep is an overshoot left on the best branch result (range or obstruction) or a limb straight to within rounding. An exact-zero first candidate can end cold search only under its certified nonnegative objective; other searches remain. An absent hint side and obstruction need no midpoint FK or cross-axis vectors. Task priority omits unused effort; a reference-only second key needs no unused world prefix. Reference geodesic/strain composition remain lazy. Rotation keeps its existing distal/fallback work. No speedup is measured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied lazy workspace shares admitted bases, fixed references/weight, hinge range and posed source swing at the same first-use sites. A candidate reads its upper joint and shared lower record once without a discarded joint-pair array; an absent reference needs no unused quaternion normalization. Its already computed lower-preceding world frame also serves its rotation scorer in the original grouping. Source dependencies stay unchanged; target readings, scores, seed selection and caller callbacks still run per target. Standalone callers retain original setup and recomputation fallback.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns any borrowed workspace rig; this target's scoring closures and bounded sweep data are released when the search returns. Only the selected candidate escapes, and no target history, handle or background task is retained.
  */
@@ -108,6 +113,15 @@ export function fitHingedChainCandidate(
   );
   const side: IAutoMovieVector3 | null =
     Vector3.length(hint) < 1e-9 ? null : Vector3.normalize(hint);
+
+  // The mid joint's offset across the root-to-target axis at a swivel of a
+  // branch whose root rotation `upper` gives, read by the side bound and pole.
+  const offsetOf = (
+    upper: (swivel: number) => IAutoMovieQuaternion,
+  ): ((swivel: number) => IAutoMovieVector3) =>
+    (swivel: number): IAutoMovieVector3 =>
+      across(Vector3.add(root, Quaternion.rotateVector(
+        Quaternion.multiply(prepared.upper.worldRotation, upper(swivel)), prepared.lowerOffset)));
   // Each basis is admitted and normalized once for the whole sweep; the
   // candidates differ only in their rotation.
   const upperBasis: IAutoMovieJointAxes =
@@ -302,29 +316,19 @@ export function fitHingedChainCandidate(
       // non-negative, so twice the hint-side term is a lower bound of it; the
       // mid joint circles the root-to-target axis as the swivel turns, so
       // that term is a sinusoid of the swivel, bounded over an interval in
-      // closed form (`sideBound`), and the sweep scores only the swivels the
+      // closed form (`hingedChainSide.bound`), and the sweep scores only the swivels the
       // bound leaves open (`hingedSwivelBounded`).
+      // The same sinusoid's peak is the pole of two-bone IK: the fit starts
+      // there and searches locally (`hingedSwivelPole`), the sweep being the
+      // fallback when that leaves an overshoot.
       ...(strain === undefined && side !== null
         ? {
             bound: (
               upper: (swivel: number) => IAutoMovieQuaternion,
             ): ((low: number, high: number) => number) =>
-              sideBound(
-                (swivel: number): IAutoMovieVector3 =>
-                  across(
-                    Vector3.add(
-                      root,
-                      Quaternion.rotateVector(
-                        Quaternion.multiply(
-                          prepared.upper.worldRotation,
-                          upper(swivel),
-                        ),
-                        prepared.lowerOffset,
-                      ),
-                    ),
-                  ),
-                side,
-              ),
+              hingedChainSide.bound(offsetOf(upper), side),
+            pole: (upper: (swivel: number) => IAutoMovieQuaternion): number | null =>
+              hingedChainSide.peak(offsetOf(upper), side),
           }
         : {}),
       excluded: (
@@ -411,53 +415,8 @@ export function fitHingedChainCandidate(
   };
 }
 
-/** The mid joint's distance from the line to the target, metres, from which the bend hint's side weighs in full (provisional: a millimetre, past any rounding of a limb's joints and short of any bend one sees). */
-const SIDED: number = 1e-3;
-
-/**
- * Below this a bound is lowered, deviation units: a hundred times the float
- * error of reading the same side term two ways (a few operations at 2^-53
- * relative on a term of at most 4), so the bound stays below every candidate
- * it bounds.
- */
-const ROUNDING: number = 1e-12;
-
-/**
- * A lower bound of twice the hint-side term over a swivel interval.
- *
- * The mid joint's offset across the root-to-target axis at swivel `s`
- * degrees is its offset at 0 turned by `s` about that axis, so its unit
- * direction is `cos s e0 + sin s e90` and its dot with the side is
- * `R cos(s - p)`, with `R` and `p` read from the offsets at 0 and 90
- * degrees; the term `(1 - dot) min(1, off / SIDED)` is then least where the
- * cosine is greatest: at `p` when the interval holds it, else at an end.
- */
-function sideBound(
-  offset: (swivel: number) => IAutoMovieVector3,
-  side: IAutoMovieVector3,
-): (low: number, high: number) => number {
-  const zero: IAutoMovieVector3 = offset(0);
-  const quarter: IAutoMovieVector3 = offset(90);
-  const off: number = Vector3.length(zero);
-  const across: number = Vector3.length(quarter);
-
-  // A limb straight to within rounding has no side to bound.
-  if (!(off >= 1e-9 && across >= 1e-9)) return (): number => 0;
-  const a: number = Vector3.dot(zero, side) / off;
-  const b: number = Vector3.dot(quarter, side) / across;
-  const reach: number = Math.hypot(a, b);
-  const phase: number = (Math.atan2(b, a) * 180) / Math.PI;
-  const weight: number = 2 * Math.min(1, off / SIDED);
-  const cos = (degrees: number): number => Math.cos((degrees * Math.PI) / 180);
-  return (low: number, high: number): number => {
-    const next: number = phase + 360 * Math.ceil((low - phase) / 360);
-    const top: number =
-      high - low >= 360 || next <= high
-        ? reach
-        : reach * Math.max(cos(low - phase), cos(high - phase));
-    return Math.max(0, weight * (1 - top) - ROUNDING);
-  };
-}
+/** The hint side's full-weight distance (`hingedChainSide.SIDED`), metres. */
+const SIDED: number = hingedChainSide.SIDED;
 
 /** What a candidate reads of its mid rotation alone, read once per rotation record. */
 interface IMid {
