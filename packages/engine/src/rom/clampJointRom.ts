@@ -68,14 +68,11 @@ export const clampJointRom: (
       : (rig ?? swingTwistRange.of(joint.bone));
   if (range !== undefined) {
     // A non-finite angle first becomes its rest, as on every other joint.
-    const finite: (value: number | null) => number | null = (
-      value: number | null,
-    ): number | null => (value === null || Number.isFinite(value) ? value : 0);
     const sanitized: IAutoMovieJointPose = {
       bone: joint.bone,
-      flexion: finite(joint.flexion),
-      abduction: finite(joint.abduction),
-      twist: finite(joint.twist),
+      flexion: finiteOrRest(joint.flexion),
+      abduction: finiteOrRest(joint.abduction),
+      twist: finiteOrRest(joint.twist),
     };
     const basis: IAutoMovieJointAxes | undefined =
       SwingTwistFramePreparation.normalized(range, "jointToQuaternion axes");
@@ -152,6 +149,11 @@ export const clampJointRom: (
   }
   return { bone: joint.bone, flexion, abduction, twist };
 };
+
+/** A specified angle as it is, or its rest (0) when it is not finite; a resting `null` stays resting. One module function rather than a closure each call. */
+function finiteOrRest(value: number | null): number | null {
+  return value === null || Number.isFinite(value) ? value : 0;
+}
 
 /** How far past a swing-twist range a joint may lie and count as on its edge, degrees: a millionth, above the rounding of a rotation read back into angles. */
 const EDGE: number = 1e-6;
