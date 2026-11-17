@@ -354,9 +354,9 @@ export namespace walkLeg {
    * one. The pitch is therefore searched past the dip: the room is walked
    * down from the asked pitch in `SCAN` steps to its first low, which the rise
    * meets first (the room is not unimodal over the whole range: past the
-   * first dip it may dip again), that low found by golden-section search between the
-   * steps around it and the kept room by bisection beyond it, no steeper than
-   * `STEEPEST`. A pitch whose ankle lies beyond the leg's reach has no room at
+   * first dip it may dip again), and the kept room is bracketed beyond it, no
+   * steeper than `STEEPEST`, from the step before the room grew, or from the low
+   * itself by golden-section search where that step keeps the room. A pitch whose ankle lies beyond the leg's reach has no room at
    * all (`-Infinity`): it is no stance, and counting a lean read off a leg
    * stretched past its length made the room cross the kept one twice, the
    * pitch jumping between the crossings as the hip moved by nanometres. An
@@ -408,28 +408,38 @@ export namespace walkLeg {
     const kept: number =
       width > 0 ? -smoothMinimum(-asked, 0, width) : Math.max(asked, 0);
     // The dip is the first low of the room as the heel rises from the asked
-    // pitch: walked down in `SCAN` steps until the room grows again, then
-    // narrowed by golden-section search between the steps on either side, so
-    // the dip found is the one the rise meets first, not whichever of two
-    // lows a search over the whole range happens to fall into.
-    let far: number = -STEEPEST;
-    let near: number = pitch;
+    // pitch: walked down in `SCAN` steps until the room grows again, so it is
+    // the one the rise meets first. It is wanted only as an end of the kept
+    // room's bracket that does not keep the room, which the step before the
+    // room grew is when its room is under the kept one: the room has one low
+    // between the steps around it (`SCAN`), so it stays under that step's up
+    // to the low. Any other walk has its low narrowed by golden section.
+    let low: number = -STEEPEST;
+    let high: number = pitch;
     if (folds) {
+      let far: number = -STEEPEST;
+      let near: number = pitch;
       let before: number = asked;
+      let lowest: number = pitch;
+      let grew: boolean = false;
       for (let at: number = pitch - SCAN; at > -STEEPEST; at -= SCAN) {
         const value: number = room(at);
         // Pitches the leg cannot stand on lie before the dip, not in it.
         if (value > before && before > -Infinity) {
           far = Math.max(-STEEPEST, at);
           near = Math.min(pitch, at + 2 * SCAN);
+          grew = true;
           break;
         }
         before = value;
+        lowest = at;
       }
-      [far, near] = walkLegLow(room, far, near);
+      if (grew && before < kept) high = lowest;
+      else {
+        [far, near] = walkLegLow(room, far, near);
+        high = (far + near) / 2;
+      }
     }
-    let low: number = -STEEPEST;
-    let high: number = folds ? (far + near) / 2 : pitch;
     // The kept room's pitch, bracketed between a pitch that keeps it and one
     // that does not, to `RESOLVED`: a false-position step where both ends'
     // rooms are finite, the stale end's value halved when it is kept twice
