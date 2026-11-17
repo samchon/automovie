@@ -101,7 +101,7 @@ export namespace HumanArmTrajectoryLaid {
    * @evidence contracts/development/implementation.md#principled-implementation A joint-space blend in the optimiser's own coordinates, time-scaled along the fastest probe's arc under the speed bound, read by the same context, hard-range projection and evaluation the optimiser's iterates are read by, in the same mirror image `solve` reads a left-first problem in, so an admitted course meets every requirement a solved one meets and a mirrored course is admitted alike.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One context, the hold's encoding, two transports, one evaluation, then the shared playback factory.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bound is relaxed; a course that misses one is returned to the caller's optimisation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One context build, `ARC` placements of each arm per transport for the arc, at most `RETIMES` readings of a transport's waypoints (one placement each), and one evaluation over N waypoints, the work of a single optimiser iterate, with no limb fit, convexification or quadratic programme; a course inside a shape adds, per detour round, one Jacobian reading and one evaluation (`DETOURS` at most), where the optimiser spends a convexification, quadratic programmes and evaluations a round.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One context build, `ARC` placements of each arm per transport for the arc, at most `RETIMES` readings of a transport's waypoints (one placement each), and one evaluation over N waypoints, the work of a single optimiser iterate, with no limb fit, convexification or quadratic programme; a course inside a shape adds, per detour round, one Jacobian reading at each arm's detoured waypoint and one evaluation of the waypoints the round lays again, the rest of the reading kept (`DETOURS` at most), where the optimiser spends a convexification, quadratic programmes and evaluations a round.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the context builder, the model's placement and evaluation and `solve`'s playback, so both paths are read alike; the builder and the context are returned for `solve` to read the same grid on.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The arc's samples live until return; the readers keep only setups, times and coordinates, as `solve`'s do, and the reading's context lives while the caller holds the result.
    */
@@ -276,6 +276,7 @@ export namespace HumanArmTrajectoryLaid {
       laid: ILaid;
       region: number;
       depth?: number;
+      last: number;
       done: boolean;
     };
     const transports: IAutoMovieMotionHumanPrehension.ITransport[] = [[0, first], [last, n - 1]].map(
@@ -285,35 +286,49 @@ export namespace HumanArmTrajectoryLaid {
         detours: [],
         laid: lay(from!, to!, []),
         region: Clear.REGION,
+        last: 0,
         done: false,
       }),
     );
     let reading: M.IEvaluation = M.evaluate(context, x);
     for (let round: number = 0; round < DETOURS && reading.worst.value > M.TOLERANCE; ++round) {
       let moved: boolean = false;
+
+      // The waypoints this round lays again, a transport's inner ones: every
+      // other waypoint keeps its coordinates, so the round's reading reads
+      // only these (`M.evaluate`'s `kept`).
+      const laid: boolean[] = new Array<boolean>(n).fill(false);
+      const relay = (t: IAutoMovieMotionHumanPrehension.ITransport): void => {
+        t.laid = lay(t.from, t.to, t.detours);
+        for (let k: number = t.from + 1; k < t.to; ++k) laid[k] = true;
+      };
       for (const t of transports) {
         if (t.done) continue;
-        const detour: Clear.IDetour | undefined =
+        // One detour per arm still inside; the transport's depth is the
+        // deepest of them, the progress the rule below reads.
+        const found: Clear.IDetour[] =
           Clear.detour(context, x, reading, t.from, t.to, t.laid.shares, t.region);
-        if (detour !== undefined && t.depth !== undefined && !(detour.depth < t.depth)) {
-          t.detours.pop();
-          t.laid = lay(t.from, t.to, t.detours);
+        const depth: number = Math.max(0, ...found.map((d: Clear.IDetour): number => d.depth));
+        if (found.length > 0 && t.depth !== undefined && !(depth < t.depth)) {
+          t.detours.splice(t.detours.length - t.last, t.last);
+          relay(t);
           t.done = true;
           moved = true;
           continue;
         }
-        if (detour === undefined) {
+        if (found.length === 0) {
           t.done = true;
           continue;
         }
         if (t.depth !== undefined) t.region = Math.min(Clear.WIDEST, t.region * Clear.EXPAND);
-        t.depth = detour.depth;
-        t.detours.push(detour);
-        t.laid = lay(t.from, t.to, t.detours);
+        t.depth = depth;
+        t.last = found.length;
+        t.detours.push(...found);
+        relay(t);
         moved = true;
       }
       if (!moved) break;
-      reading = M.evaluate(context, x);
+      reading = M.evaluate(context, x, { reading, laid });
     }
     for (const t of transports) ramps.push(...t.laid.ramps);
     const worst: M.IEvaluation["worst"] = reading.worst;

@@ -4,6 +4,7 @@ import type {
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  IAutoMovieLoftViewRead,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 import { type IAutoMovieJointRotationFrame } from "@automovie/interface";
@@ -12,6 +13,7 @@ import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { clampJointRom } from "./clampJointRom";
+import { clampJointRomValues } from "./clampJointRomValues";
 import { getConstraint } from "./getConstraint";
 
 /** Synchronous joint projection; returned records can alias an unconstrained input. */
@@ -67,36 +69,30 @@ export namespace clampJointToSkeleton {
    *
    * @param skeleton The rig, unchanged until the returned clamp is released.
    * @param resolvedAxes Its already resolved canonical axes table, when available.
-   * @returns A clamp that preserves each unconstrained input joint by identity.
+   * @returns A clamp that preserves each unconstrained input joint by identity, carrying its angle-taking form (IPrepared.values).
    */
   export function prepare(
     skeleton: IAutoMovieSkeleton,
     resolvedAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
-  ): (joint: IAutoMovieJointPose) => IAutoMovieJointPose {
+  ): clampJointToSkeleton.IPrepared {
     let bones: Map<AutoMovieHumanoidBone, IAutoMovieBone> | undefined;
     let axes:
       | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
       | undefined = resolvedAxes;
-    const clamps: Map<
-      AutoMovieHumanoidBone,
-      (joint: IAutoMovieJointPose) => IAutoMovieJointPose
-    > = new Map();
-    return ownClamp((joint: IAutoMovieJointPose): IAutoMovieJointPose => {
+    const clamps: Map<AutoMovieHumanoidBone, IPair> = new Map();
+    const pair = (name: AutoMovieHumanoidBone): IPair => {
       if (bones === undefined) {
         bones = new Map();
         for (const bone of skeleton.bones)
           if (!bones.has(bone.bone)) bones.set(bone.bone, bone);
       }
-      const name: AutoMovieHumanoidBone = joint.bone;
-      let clamp:
-        | ((joint: IAutoMovieJointPose) => IAutoMovieJointPose)
-          | undefined = clamps.get(name);
-      if (clamp === undefined) {
+      let found: IPair | undefined = clamps.get(name);
+      if (found === undefined) {
         const constraint: IAutoMovieJointConstraint | null = getConstraint(
           name,
           bones.get(name)?.constraint ?? null,
         );
-        clamp = prepareConstraintClamp(
+        found = prepareConstraintPair(
           constraint,
           (): IAutoMovieJointRotationFrame | undefined => {
             if (
@@ -109,10 +105,28 @@ export namespace clampJointToSkeleton {
             return swingTwistRange.fromAxes(name, axes[name]);
           },
         );
-        clamps.set(name, clamp);
+        clamps.set(name, found);
       }
-      return clamp(joint);
-    });
+      return found;
+    };
+    // The clamp carries its angle-taking form as its own member (`values`):
+    // the same clamps read from a joint's bone and three clinical angles,
+    // for a writer that has the angles, each returning the record the
+    // record clamp returns for the record of those values (an unconstrained
+    // bone's a fresh record of them, where the record clamp hands its input
+    // back), on the same per-bone constraints and frames.
+    return Object.assign(
+      ownClamp((joint: IAutoMovieJointPose): IAutoMovieJointPose =>
+        pair(joint.bone).joint(joint)),
+      {
+        values: (
+          bone: AutoMovieHumanoidBone,
+          flexion: number | null,
+          abduction: number | null,
+          twist: number | null,
+        ): IAutoMovieJointPose => pair(bone).values(bone, flexion, abduction, twist),
+      },
+    );
   }
 
   /**
@@ -205,6 +219,28 @@ export namespace clampJointToSkeleton {
   export function borrow(clamp: IClamp): IClamp | undefined {
     return BORROWABLE.has(clamp) ? clamp : undefined;
   }
+
+  /**
+   * A `prepare` clamp: the record clamp itself, with its angle-taking form
+   * as its own member.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the call and the member and what the member returns.
+   * @evidence contracts/development/design.md#principled-representation One prepared clamp with two entries on the same per-bone constraints and frames: a record in, or a bone and its three clinical angles in, degrees or null at rest.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by `prepare`; the member is carried by the pose projection `clampPose.prepare` builds (`clampPose.IPrepared.values`) for a posture's assembly.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No answer is held; the member is made with the clamp, not looked up.
+   */
+  export interface IPrepared {
+    /** The record clamp. */
+    (joint: IAutoMovieJointPose): IAutoMovieJointPose;
+
+    /** The same clamp read from a joint's bone and three clinical angles: the record the record clamp returns for the record of those values; an unconstrained bone's a fresh record of them. */
+    values(
+      bone: AutoMovieHumanoidBone,
+      flexion: number | null,
+      abduction: number | null,
+      twist: number | null,
+    ): IAutoMovieJointPose;
+  }
 }
 
 /**
@@ -216,8 +252,24 @@ function prepareConstraintClamp(
   constraint: IAutoMovieJointConstraint | null,
   readRig: () => IAutoMovieJointRotationFrame | undefined,
 ): (joint: IAutoMovieJointPose) => IAutoMovieJointPose {
+  return ownClamp(prepareConstraintPair(constraint, readRig).joint);
+}
+
+/** One bone's record clamp and its angle-taking form, sharing one constraint and one prepared frame read once. */
+function prepareConstraintPair(
+  constraint: IAutoMovieJointConstraint | null,
+  readRig: () => IAutoMovieJointRotationFrame | undefined,
+): IPair {
   if (constraint === null)
-    return ownClamp((joint: IAutoMovieJointPose): IAutoMovieJointPose => joint);
+    return {
+      joint: (joint: IAutoMovieJointPose): IAutoMovieJointPose => joint,
+      values: (
+        bone: AutoMovieHumanoidBone,
+        flexion: number | null,
+        abduction: number | null,
+        twist: number | null,
+      ): IAutoMovieJointPose => ({ bone, flexion, abduction, twist }),
+    };
   const source: IAutoMovieJointRotationFrame | undefined = readRig();
   const rig: IAutoMovieJointRotationFrame | undefined =
     source === undefined ||
@@ -225,9 +277,36 @@ function prepareConstraintClamp(
     constraint.swingTwist === null
       ? source
       : swingTwistRange.prepare(source);
-  return ownClamp((joint: IAutoMovieJointPose): IAutoMovieJointPose =>
-    clampJointRom(joint, constraint, rig));
+  return {
+    joint: (joint: IAutoMovieJointPose): IAutoMovieJointPose =>
+      clampJointRom(joint, constraint, rig),
+    values: (
+      bone: AutoMovieHumanoidBone,
+      flexion: number | null,
+      abduction: number | null,
+      twist: number | null,
+    ): IAutoMovieJointPose =>
+      clampJointRomValues(bone, flexion, abduction, twist, constraint, rig),
+  };
 }
+
+/** A joint clamp read from a bone and its three clinical angles. */
+type IValues = (
+  bone: AutoMovieHumanoidBone,
+  flexion: number | null,
+  abduction: number | null,
+  twist: number | null,
+) => IAutoMovieJointPose;
+
+/** One bone's two clamp forms. */
+interface IPair {
+  /** The record clamp. */
+  joint: IClamp;
+
+  /** The angle-taking form. */
+  values: IAutoMovieLoftViewRead.IValues;
+}
+
 
 /** Register only actual source-only factory closures, without wrapping their calls. */
 function ownClamp(clamp: IClamp): IClamp {

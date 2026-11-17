@@ -118,6 +118,9 @@ export namespace HumanArmSwing {
     let pose: IAutoMoviePose = resolved ??
       resolveHumanPosture.seeded(body, posture, undefined, {}, resolution, undefined, projection).pose;
     const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+    // The pose's bones and placed segments, read once and shared by the
+    // next arm's search where the arm before it was written back as it was.
+    let read: prepareHumanArmRoom.IRead | undefined;
     for (const side of sides) {
       if (posture.limbs[`${side}Arm`] !== undefined) continue;
       const arm: IAutoMovieMotionHumanArmClearance.IArm = readArm(pose, side);
@@ -134,8 +137,12 @@ export namespace HumanArmSwing {
       // Every candidate turns this arm alone, so the rest of the body is
       // posed and placed once for the search (`prepareHumanArmRoom`), which
       // reads each candidate's room as `HumanArmClearance.room` does.
+      if (read === undefined) {
+        const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, pose, resolution());
+        read = { bones, placed: HumanColliders.placed(body, bones) };
+      }
       const room: (candidate: IAutoMovieMotionHumanArmClearance.IArm) => number =
-        prepareHumanArmRoom(body, pose, side, [], baseline, resolution());
+        prepareHumanArmRoom(body, pose, side, [], baseline, resolution(), read);
       const lacking: (a: number) => number = (a: number): number => room(out(a));
 
       // The least added abduction that clears the arm, by the engine's
@@ -151,6 +158,10 @@ export namespace HumanArmSwing {
           : bracketedBisection(short, 0, SPAN, precision(body));
       const clear: IAutoMovieMotionHumanArmClearance.IArm = out(added);
       joints[`${side}UpperArm`] = clear.upper;
+      // Written back with every record of the arm's three joints as it was,
+      // the pose's bones and segments are the ones read; otherwise the next
+      // arm reads its own.
+      if (!kept(pose, side, clear)) read = undefined;
       pose = HumanArmClearance.posed(pose, side, clear);
     }
     return { ...posture, joints };
@@ -315,4 +326,26 @@ function readArm(pose: IAutoMoviePose, side: "left" | "right"): IAutoMovieMotion
     lower: [lower?.flexion ?? 0, lower?.abduction ?? 0, lower?.twist ?? 0],
     hand: [hand?.flexion ?? 0, hand?.abduction ?? 0, hand?.twist ?? 0],
   };
+}
+
+/** Whether writing an arm back (`HumanArmClearance.posed`) leaves every record of its three joints with the values it holds. */
+function kept(
+  pose: IAutoMoviePose,
+  side: "left" | "right",
+  arm: IAutoMovieMotionHumanArmClearance.IArm,
+): boolean {
+  const written: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> = {
+    [`${side}UpperArm`]: arm.upper,
+    [`${side}LowerArm`]: arm.lower,
+    [`${side}Hand`]: arm.hand,
+  };
+  return pose.joints.every((joint: IAutoMovieJointPose): boolean => {
+    const angles: readonly [number, number, number] | undefined = written[joint.bone];
+    return (
+      angles === undefined ||
+      (Object.is(joint.flexion, angles[0]) &&
+        Object.is(joint.abduction, angles[1]) &&
+        Object.is(joint.twist, angles[2]))
+    );
+  });
 }

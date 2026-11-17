@@ -1,8 +1,6 @@
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieBone,
   IAutoMovieFitChainToTargetProps,
-  IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMoviePrepareChainFit,
@@ -12,7 +10,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { preparePoseResolution } from "../kinematics/preparePoseResolution";
 import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
@@ -21,9 +18,7 @@ import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation
 import { Quaternion } from "../math/Quaternion";
 import { prepareChainFitRig } from "./prepareChainFitRig";
 import { prepareChainPlant } from "./prepareChainPlant";
-import type { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 import { resolveBoneMap } from "./resolveBoneMap";
-import type { solveDistalTwist } from "./solveDistalTwist";
 
 /**
  * Prepare the unchanged dependencies of several target fits for one chain.

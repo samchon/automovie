@@ -79,8 +79,8 @@ export namespace HumanLimbView {
    * @evidence contracts/development/implementation.md#principled-implementation Forward kinematics composes a bone's frame from its parent's frame, its rest and its own record, so a bone's frame depends on the records of the bone and its ancestors alone; the kept set is closed under the rig's parent relation, so every bone the fit reads is placed as in the whole pose. The fit's contact step edits the toes' record in place, so a leg keeps it too.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The read bones, their closure under the parent relation, then one ordered selection.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The read bones are the ones the fit itself demands (`HumanLimbFit`): its chain, its attachment, `HumanArmObstacleBones` and the toes. Duplicate records of a kept bone are all kept, in order.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The closure climbs from each read bone to its first kept ancestor through the body's bone index, one step a bone added (the chain's depth, not a pass over the rig's B bones a level), and the selection walks the pose's joints once: O(D + J) set tests.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each fit selects its own records.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The read set closed under parents is the body's (`IHumanBody.reads`, made once with the rig); only an attached goal's bone is climbed, to its first kept ancestor, and the selection walks the pose's joints once: O(J) set tests.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The rig-only read set is the body's value, made with it; each fit selects its own records.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns caller-owned records and retains nothing.
    */
   export function of(
@@ -93,35 +93,24 @@ export namespace HumanLimbView {
     const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
     const arm: boolean = limb.endsWith("Arm");
 
-    // The bones whose frames or records the fit reads.
-    const read: Set<AutoMovieHumanoidBone> = new Set(
-      arm
-        ? HumanArmObstacleBones(
-            placed.filter((other: "left" | "right"): boolean => other !== side),
-          )
-        : [],
-    );
-    for (const part of arm
-      ? (["UpperArm", "LowerArm", "Hand"] as const)
-      : (["UpperLeg", "LowerLeg", "Foot", "Toes"] as const))
-      read.add(`${side}${part}`);
-    if (goal.on !== undefined) read.add(goal.on);
-
-    // Their ancestors: each read bone's parents are climbed until one is
-    // already kept. A kept parent is either a read bone, climbed in its own
-    // turn, or one an earlier climb added with its own ancestors, so the set
-    // is closed under the rig's parent relation whatever order the rig lists
-    // its bones in.
-    for (const bone of [...read])
+    // The bones whose frames or records the fit reads, closed under the
+    // rig's parents: the obstacles of the other arm where it is placed and
+    // the limb's own bones are the body's (`IHumanBody.reads`); a goal on a
+    // bone adds it and the parents the body's set does not already hold,
+    // climbed until one it holds.
+    const others: boolean = arm && placed.some((other: "left" | "right"): boolean => other !== side);
+    const kept: ReadonlySet<AutoMovieHumanoidBone> = body.reads[limb][others ? 1 : 0].bones;
+    let read: ReadonlySet<AutoMovieHumanoidBone> = kept;
+    if (goal.on !== undefined && !kept.has(goal.on)) {
+      const grown: Set<AutoMovieHumanoidBone> = new Set(kept);
       for (
-        let parent: AutoMovieHumanoidBone | null | undefined = readHumanBone(
-          body,
-          bone,
-        )?.parent;
-        parent !== null && parent !== undefined && !read.has(parent);
-        parent = readHumanBone(body, parent)?.parent
+        let bone: AutoMovieHumanoidBone | null | undefined = goal.on;
+        bone !== null && bone !== undefined && !grown.has(bone);
+        bone = readHumanBone(body, bone)?.parent
       )
-        read.add(parent);
+        grown.add(bone);
+      read = grown;
+    }
     const joints: IAutoMovieJointPose[] = [];
     const at: number[] = [];
     pose.joints.forEach((joint: IAutoMovieJointPose, index: number): void => {

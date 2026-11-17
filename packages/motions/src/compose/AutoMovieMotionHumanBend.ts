@@ -14,8 +14,10 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 import { AutoMovieMotionHumanBendPreparation } from "./AutoMovieMotionHumanBendPreparation";
+import { AutoMovieMotionHumanBendScope } from "./AutoMovieMotionHumanBendScope";
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendTurn } from "./AutoMovieMotionHumanBendTurn";
+import { AutoMovieMotionHumanBendWalk } from "./AutoMovieMotionHumanBendWalk";
 import { AutoMovieMotionHumanKneeBend } from "./AutoMovieMotionHumanKneeBend";
 
 /**
@@ -265,11 +267,27 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through the engine's `hingedArmArticulation`, with legality ranked before a joint-range-normalised discomfort, the form of Cruse 1986 and of Kee and Karwowski 2001.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One search and one refusal check; the search and the strain live in `AutoMovieMotionHumanBendSearch`, shared with `level` and `strain`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable wrist and a circle with no allowed place are refused with the reason; the fallback is taken only when the caller names it, and no candidate is clamped into range.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics of the rig and at most 720 candidates plus their refinements, each two decompositions and four shape distances.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics of the rig and at most 720 candidates plus their refinements, each two decompositions and four shape distances; inside an arm's scope (AutoMovieMotionHumanBendScope) a request continues the last one's seed, a refinement's probes, and sweeps only where the continuation leaves the allowed places.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's chain preparation, swivel sweep, clinical decomposition and range overshoot, and `HumanArmClearance`, the owner of a forearm's clearance.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the hanging arm's three angles per body and side, in a weak map keyed by the body.
    */
   export function solve(props: IAutoMovieMotionHumanBend.ISolve): IAutoMovieVector3 {
+    // Inside a scope of this arm (`AutoMovieMotionHumanBendScope`), a
+    // planner's time-ordered reads: the search continues the last request's
+    // seed (`AutoMovieMotionHumanBendWalk.next`), and a request with no
+    // allowed place takes the fallback or the refusal below, which the cold
+    // search finds too.
+    const scope: AutoMovieMotionHumanBendScope.IScope | undefined =
+      AutoMovieMotionHumanBendScope.of(props.body, props.side);
+    if (scope !== undefined) {
+      const found: AutoMovieMotionHumanBendWalk.ISolved | null =
+        AutoMovieMotionHumanBendWalk.next(props, hung, scope.seed ?? null);
+      if (found !== null) {
+        scope.seed = found.seed;
+        return found.candidate.elbow;
+      }
+      delete scope.seed;
+    }
     return prepare(props).solve(props);
   }
 

@@ -11,17 +11,20 @@ import type {
   IAutoMovieProjectileFirstContact,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import type { HumanPropFlight } from "./HumanPropFlight";
 
 /**
  * The one sweep of a flying prop (`HumanPropFlight`): its flight from a
  * film second against every person but the launcher, read on their displayed
  * bones at each second and passed over while a bound around their root
  * shows them out of reach (the bounding-sphere reject of #3379), the props
- * that do not fly and the floor, through the engine's one resolver
+ * that do not fly but those the launcher holds or wears as the flight starts
+ * (they go with the launcher), and the floor, through the engine's one resolver
  * (`projectileFirstContact`). The step keeps the prop from crossing the
  * thinnest collider it may meet in one step, finger bones aside: a finger is
  * the stated blind spot. A pass leaves the body it passes through behind.
@@ -120,21 +123,26 @@ export namespace HumanPropSweep {
       if (other.subject === prop.subject || other.shapes === undefined)
         continue;
       if (launched(self, other.subject)) continue;
-      other.shapes.forEach(
-        (shape: IAutoMoviePhysicalShape, k: number): void => {
-          const id: string = `prop:${other.subject}:${k}`;
-          if (id === leave) return;
-          solid.push(shape);
-          colliders.push(
-            projectileFirstContact.shape(
-              id,
-              shape,
-              (t: number): IAutoMovieRigidTransform =>
-                HumanPerformanceRead.prop(self, other.subject, seconds + t),
-            ),
-          );
-        },
-      );
+
+      // What the launcher holds or wears as the flight starts goes with the
+      // launcher, who is no collider: a ball leaving a gun's muzzle starts
+      // on the gun's own shape, and read as a collider the gun held the
+      // sweep's step at the muzzle's zero gap, each step a fresh read of
+      // the shooter's displayed pose (firearm_shot_launch ran 7 minutes).
+      if (carried(self, other.subject, launcher, seconds)) continue;
+      other.shapes.forEach((shape: IAutoMoviePhysicalShape, k: number): void => {
+        const id: string = `prop:${other.subject}:${k}`;
+        if (id === leave) return;
+        solid.push(shape);
+        colliders.push(
+          projectileFirstContact.shape(
+            id,
+            shape,
+            (t: number): IAutoMovieRigidTransform =>
+              HumanPerformanceRead.prop(self, other.subject, seconds + t),
+          ),
+        );
+      });
     }
     const tip: IAutoMovieVector3 | undefined = prop.points["tip"]?.point;
     const hit: IAutoMovieHit | null = projectileFirstContact(
@@ -151,9 +159,7 @@ export namespace HumanPropSweep {
     if (hit === null) return null;
     const id: string = hit.collider!;
     const at: number = seconds + hit.time;
-    const struck: IAutoMovieMotionHumanPropFlight.Struck = id.startsWith(
-      "person:",
-    )
+    const struck: IAutoMovieMotionHumanPropFlight.Struck = id.startsWith("person:")
       ? {
           kind: "person",
           subject: id.slice("person:".length),
@@ -174,11 +180,21 @@ export namespace HumanPropSweep {
     return { hit, struck, collider: id };
   }
 
-  /** Whether any action launches a prop. */
-  function launched(
+  /** Whether a person holds or wears a prop at a film second. */
+  function carried(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
+    person: string,
+    seconds: number,
   ): boolean {
+    return HumanPerformanceRead.grips(self, subject).some(
+      (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
+        g.subject === person && g.from <= seconds && g.to >= seconds - 1e-6,
+    );
+  }
+
+  /** Whether any action launches a prop. */
+  function launched(self: IAutoMovieMotionHumanPerformanceState, subject: string): boolean {
     for (const person of self.people.values())
       for (const segment of [...person.segments, ...person.overlays])
         if (

@@ -4,7 +4,7 @@ import type {
   IAutoMovieAngleRange,
   IAutoMovieBone,
   IAutoMovieJointConstraint,
-  IAutoMovieMotionHumanBody,
+  IAutoMovieSkeleton,
 } from "@automovie/interface";
 
 /**
@@ -23,34 +23,30 @@ import type {
  * joint (projected again) are left out, and so are the digits and the toes,
  * which the digit fit and a foot contact's toe edit write after the limbs.
  *
- * @param body The body.
+ * @param skeleton The body's rig, which the body reads this from once (`IHumanBody.settled`).
  * @returns Each such joint's bone.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States which joints are listed, the idempotence that admits each kind and the writers that exclude the rest.
  * @evidence contracts/development/implementation.md#principled-implementation Read off the clamp's own expressions (`clampJointRom`: `clampAxis`, `nearestNeutral`, the cone's blend) and `swingConeBlend`'s exact 1 inside the cone; the constraints are the rig's own (`getConstraint`).
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the skeleton's bones, one test a bone.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A joint whose second clamp is not proven to return its record is not listed, and neither is a bone a writer sets outside the clamp.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(B) once a body; a reader then tests a bone by one set lookup in place of its clamp.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A constant of the body's rig, listed once for it.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Held weakly by its body and released with it.
+ * @evidence contracts/development/implementation.md#efficient-algorithms O(B) once, when the body is made; a reader then tests a bone by one set lookup in place of its clamp.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A constant of the rig, held by the body as its projection is.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned set is the body's; nothing else is kept.
  */
 export function humanSettledJoints(
-  body: IAutoMovieMotionHumanBody,
+  skeleton: IAutoMovieSkeleton,
 ): ReadonlySet<AutoMovieHumanoidBone> {
-  let known: ReadonlySet<AutoMovieHumanoidBone> | undefined = SETTLED.get(body);
-  if (known !== undefined) return known;
   const out: Set<AutoMovieHumanoidBone> = new Set();
   const seen: Set<AutoMovieHumanoidBone> = new Set();
-  for (const bone of body.skeleton.bones) {
+  for (const bone of skeleton.bones) {
     // The clamp reads the first record of a name.
     if (seen.has(bone.bone)) continue;
     seen.add(bone.bone);
     if (WRITTEN.test(bone.bone)) continue;
     if (idempotent(bone)) out.add(bone.bone);
   }
-  known = out;
-  SETTLED.set(body, known);
-  return known;
+  return out;
 }
 
 /** Whether the clamp of a bone's joint gives back a record it issued. */
@@ -73,6 +69,3 @@ function holdsZero(range: IAutoMovieAngleRange | null): boolean {
 
 /** The bones a resolved posture's later writers set outside the clamp: the digits (the digit fit) and the toes (a foot contact's toe edit). */
 const WRITTEN: RegExp = /(Thumb|Index|Middle|Ring|Little|Toes)/u;
-
-/** Each body's list, held weakly by the body. */
-const SETTLED: WeakMap<IAutoMovieMotionHumanBody, ReadonlySet<AutoMovieHumanoidBone>> = new WeakMap();

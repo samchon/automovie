@@ -300,13 +300,24 @@ export namespace HumanLimbFit {
       IAutoMovieResolvedBone
     > = (): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
       if (authoredBones === undefined) {
-        const requested: Set<AutoMovieHumanoidBone> = new Set(limb.endsWith("Arm")
-          ? HumanArmObstacleBones(placed.filter((arm: "left" | "right"): boolean => arm !== side)) : []);
-        requested.add(chain(limb).effector);
-        if (attached.on !== undefined) requested.add(attached.on);
-        if (constants !== undefined && constants.parent !== null) requested.add(constants.parent);
-        admit?.();
-        authoredBones = poseBones(body, pose, readResolution(), requested);
+        // The body's bound demand of these bones (`IHumanBody.reads`) for a
+        // goal on no bone, or on one the demand already holds; another
+        // attachment reads its own set.
+        const arm: boolean = limb.endsWith("Arm");
+        const kept: IAutoMovieMotionHumanBody["reads"][AutoMovieHumanLimb][number] =
+          body.reads[limb][arm && placed.some((other: "left" | "right"): boolean => other !== side) ? 1 : 0];
+        if (attached.on === undefined || kept.requested.has(attached.on)) {
+          admit?.();
+          authoredBones = kept.demand.map(pose, readResolution());
+        } else {
+          const requested: Set<AutoMovieHumanoidBone> = new Set(arm
+            ? HumanArmObstacleBones(placed.filter((other: "left" | "right"): boolean => other !== side)) : []);
+          requested.add(chain(limb).effector);
+          requested.add(attached.on);
+          if (constants !== undefined && constants.parent !== null) requested.add(constants.parent);
+          admit?.();
+          authoredBones = poseBones(body, pose, readResolution(), requested);
+        }
       }
       return authoredBones;
     };

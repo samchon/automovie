@@ -121,34 +121,18 @@ function scan(
       return total;
     // The rotation the angles were read from, when the caller has it on
     // the range's own frame, is what composing them gives back.
-    const reading: IAutoMovieSwingTwistRange.IReading = swingTwistRange.read(
+    return gate(
+      total,
       rotation ??
         (compose === undefined
           ? jointToQuaternion(joint, range.axes, range.frame)
           : compose(joint)),
-      range,
-    );
-    const reach: number = swingTwistRange.radius(
+      constraint.swingTwist,
       constraint,
       range,
-      reading.azimuth,
+      report,
+      score,
     );
-    if (reading.swing > reach)
-      total = fault(
-        total,
-        report,
-        score,
-        "swing",
-        reading.swing,
-        reading.swing - reach,
-      );
-    const twist: IAutoMovieAngleRange = constraint.swingTwist.twist;
-    const turned: number = nearestAngleAlias(reading.twist, twist);
-    if (turned < twist.min)
-      total = fault(total, report, score, "twist", turned, twist.min - turned);
-    else if (turned > twist.max)
-      total = fault(total, report, score, "twist", turned, turned - twist.max);
-    return total;
   }
   for (const axis of AXES) {
     const angle: number | null = joint[axis];
@@ -191,6 +175,40 @@ function scan(
         swing - constraint.swingDeg,
       );
   }
+  return total;
+}
+
+/** A swing-twist gate's faults of one rotation on the range's own frame: the swing past its reach, then the twist past its interval. */
+function gate(
+  total: number,
+  rotation: IAutoMovieQuaternion,
+  swingTwist: NonNullable<IAutoMovieJointConstraint["swingTwist"]>,
+  constraint: IAutoMovieJointConstraint,
+  range: IAutoMovieJointRotationFrame,
+  report: Parameters<typeof scanJointRom>[2] | undefined,
+  score: boolean,
+): number {
+  const reading: IAutoMovieSwingTwistRange.IReading = swingTwistRange.read(rotation, range);
+  const reach: number = swingTwistRange.radius(
+    constraint,
+    range,
+    reading.azimuth,
+  );
+  if (reading.swing > reach)
+    total = fault(
+      total,
+      report,
+      score,
+      "swing",
+      reading.swing,
+      reading.swing - reach,
+    );
+  const twist: IAutoMovieAngleRange = swingTwist.twist;
+  const turned: number = nearestAngleAlias(reading.twist, twist);
+  if (turned < twist.min)
+    total = fault(total, report, score, "twist", turned, twist.min - turned);
+  else if (turned > twist.max)
+    total = fault(total, report, score, "twist", turned, turned - twist.max);
   return total;
 }
 
@@ -297,5 +315,36 @@ export namespace scanJointRom {
           };
     return (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion): number =>
       scan(joint, constraint, undefined, range, true, compose, rotation);
+  }
+
+  /**
+   * The same overshoot sum for one bone gated by swing and twist, read from
+   * the joint's rotation alone: what `prepare`'s scorer returns for a joint
+   * whose angles were read off that rotation on the range's own basis and
+   * rest frame (`readsSwingTwistFrame`), the gate's swing then twist faults in
+   * their order, with no angles to read. Such angles, read off a finite
+   * rotation, are finite, so the scorer's finite checks on them have nothing
+   * to report; a rotation with a non-finite component is the caller's to
+   * refuse. Null for an unconstrained or ungated bone, whose scan reads the
+   * angles themselves.
+   *
+   * @param bone The bone.
+   * @param constraint Its effective ROM.
+   * @param rig Its frame as the caller's rig resolves it; the humanoid tables' when absent.
+   * @returns The scorer of a rotation, degrees, or null.
+   */
+  export function prepareRotated(
+    bone: AutoMovieHumanoidBone,
+    constraint: IAutoMovieJointConstraint | null,
+    rig?: IAutoMovieJointRotationFrame,
+  ): ((rotation: IAutoMovieQuaternion) => number) | null {
+    if (constraint === null) return null;
+    const swingTwist: IAutoMovieJointConstraint["swingTwist"] = constraint.swingTwist;
+    if (swingTwist === undefined || swingTwist === null) return null;
+    const source: IAutoMovieJointRotationFrame | undefined = rig ?? swingTwistRange.of(bone);
+    if (source === undefined) return null;
+    const range: IAutoMovieJointRotationFrame = swingTwistRange.prepare(source);
+    return (rotation: IAutoMovieQuaternion): number =>
+      gate(0, rotation, swingTwist, constraint, range, undefined, true);
   }
 }

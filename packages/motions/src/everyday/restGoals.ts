@@ -1,20 +1,26 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeSpan } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRest,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 import type { rest } from "./rest";
 import { restClasped } from "./restClasped";
@@ -31,7 +37,12 @@ import { restElbowSupport } from "./restElbowSupport";
  * that holds one hand lays a hand surface on a named region with the palm
  * facing into it; the places that hold the hands together are
  * `restClasped`'s and `restCrossedArms`'s, and the hand under the other
- * elbow is `restElbowSupport`'s.
+ * elbow is `restElbowSupport`'s. A fist under the chin is moved forward by
+ * as far as its thumb side reaches past the throat, so it keeps clear of
+ * the neck; both hands at the chin put the chin on both fists, each beside
+ * the midline by its own closed depth on the palm side. Both reaches are
+ * read from the hand's and fingers' colliders, the throat by a ray cast
+ * back from the chin onto the neck.
  *
  * @param body The body.
  * @param posture The standing posture.
@@ -72,6 +83,7 @@ export function restGoals(
     ),
   );
   let trunk: HumanTrunk.IReading | undefined;
+  let neck: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> | undefined;
   const region = (
     side: AutoMovieHumanSide,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =>
@@ -179,15 +191,35 @@ export function restGoals(
         break;
       }
       case "chinRest": {
+        // The chin on both fists when both hands rest it: each fist beside
+        // the midline by its own depth on the palm side, so the two fists,
+        // palms in, meet at the midline, where one place would put both
+        // fists into each other.
+        // The fist's thumb side lies behind its top, so the fist is moved
+        // forward by as far as that side reaches past the throat behind the
+        // chin, and its body keeps clear of the neck.
         const chin: HumanTrunk.ISurface = region(side);
+        const fingers: IAutoMovieVector3 = dir(0, 1, 0);
+        const palm: IAutoMovieVector3 = dir(-sign, 0, 0);
+        const back: IAutoMovieVector3 = dir(0, 0, -1);
+        const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, { fingers, palm });
+        const rear: number = fistReach(body, posture, side, rotation, back);
+        const throat: IAutoMovieMotionHumanColliders.IHit | undefined = rear > 0
+          ? HumanColliders.cast(body, (neck ??= necked(body, posture)), chin.point, back, rear)
+          : undefined;
+        const under: IAutoMovieVector3 = throat === undefined
+          ? chin.point
+          : Vector3.addScaled(chin.point, back, Vector3.distance(throat.point, chin.point) - rear);
         out[side] = lay(
           side,
           place,
           "fist",
           "fist",
-          chin.point,
-          dir(0, 1, 0),
-          dir(-sign, 0, 0),
+          places.left === "chinRest" && places.right === "chinRest"
+            ? Vector3.addScaled(under, palm, -fistReach(body, posture, side, rotation, palm))
+            : under,
+          fingers,
+          palm,
         );
         break;
       }
@@ -207,6 +239,62 @@ export function restGoals(
     );
   }
   return out;
+}
+
+/** The posture's neck alone, posed, for a ray that meets the throat and nothing of the head above it. */
+function necked(
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+  const bones: ReturnType<typeof poseBones> = poseBones(
+    body,
+    resolveHumanPosture(body, posture),
+    undefined,
+    new Set<AutoMovieHumanoidBone>(["neck"]),
+  );
+  return new Map([["neck", bones.get("neck")!]]);
+}
+
+/**
+ * How far a fist laid at a world rotation reaches past its own fist surface
+ * along a world direction: the highest point of the hand's and the fingers'
+ * colliders along it, the hand closed in the fist, less the fist surface's
+ * own. The fist is closed on the posture's own hand and the direction read
+ * in that hand's frame, which the laid hand turns to the rotation.
+ */
+function fistReach(
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+  side: AutoMovieHumanSide,
+  rotation: IAutoMovieQuaternion,
+  direction: IAutoMovieVector3,
+): number {
+  const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(
+    [...HumanColliders.bones(body)].filter(
+      (bone: AutoMovieHumanoidBone): boolean =>
+        bone === `${side}Hand` ||
+        (bone.startsWith(side) && /(Thumb|Index|Middle|Ring|Little)/.test(bone)),
+    ),
+  );
+  const bones: ReturnType<typeof poseBones> = poseBones(
+    body,
+    resolveHumanPosture(body, {
+      ...posture,
+      joints: { ...posture.joints, ...HumanHand.shape(side, "fist") },
+    }),
+    undefined,
+    new Set([...requested, ...HumanHand.frameBones(body, side, "fist")]),
+  );
+  const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+    bones.get(`${side}Hand`)!.worldRotation,
+    Quaternion.rotateVector(Quaternion.inverse(rotation), direction),
+  );
+  let high: number = -Infinity;
+  for (const segment of HumanColliders.placed(body, bones))
+    if (requested.has(segment.bone))
+      for (const shape of segment.shapes)
+        high = Math.max(high, physicalShapeSpan(segment.pose, shape, axis)[1]);
+  return high - Vector3.dot(HumanHand.frame(body, bones, side, "fist", "fist").point, axis);
 }
 
 /**

@@ -3,6 +3,7 @@ import type {
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointRotationFrame,
+  IAutoMovieQuaternion,
   IAutoMovieSwingTwistBasis,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -45,7 +46,7 @@ export namespace swingTwistRegion {
    * @evidence contracts/development/implementation.md#principled-implementation Each radius is the farthest reached swing found by a scan from the far end and a bisection, or that same lattice point placed from the intervals' closed-form reach and confirmed by the scan's own test, widened for a proximal twist and raised to the slope bound.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A lookup by identity, and the build in three steps on a miss.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scan runs from the far end, so a ray the ranges leave and re-enter keeps its farthest reach. `SLOPE` (3) is provisional; `SCAN` and `HALVINGS` are resolutions.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A hit is three map reads by identity, no serialization; a miss builds the table once per constraint, axes and frame: on each of `swingTwistBasis.RAYS` (360) rays the scan's answer placed from the closed form in a handful of reach tests where the intervals' own reach covers the cell and no swing cone cuts it (`latticed`), and otherwise a scan from the farthest grid step a closed-form interval holds down in half-degree steps and 20 bisections, each one reach test of two flexions. One basis cross/dot serves the build, one extra ray reader holds its azimuth trig, and a module helper omits per-test admission closures. Each test projects its unchanged direction into the abduction plane at most once. Widening still reads one ray per twist degree and raising reads, for each ray, only the rays near enough to lend a positive radius (60 degrees either way at a radius of 180 and the slope of 3); speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A hit is three map reads by identity, no serialization; a miss builds the table once per constraint, axes and frame: on each of `swingTwistBasis.RAYS` (360) rays the scan's answer placed from the closed form in a handful of reach tests where the intervals' own reach covers the cell and no swing cone cuts it (`latticed`), and otherwise a scan from the farthest grid step a closed-form interval holds down in half-degree steps and 20 bisections, each one reach test of two flexions. One basis cross/dot serves the build, one prepared flexion-axis turn its tests (the axis's scaling and length read once, each angle's quaternion `fromAxisAngle`'s), one extra ray reader holds its azimuth trig, and a module helper omits per-test admission closures. Each test projects its unchanged direction into the abduction plane at most once. Widening still reads one ray per twist degree and raising reads, for each ray, only the rays near enough to lend a positive radius (60 degrees either way at a radius of 180 and the slope of 3); speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Every call after the first reads the kept table. During one cold build, the admitted basis fixes its cross/dot, each ray fixes its azimuth, and each test fixes its projected direction; every actual swing test and clinical-range reading retains its original order and arithmetic.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The tables are kept in weak maps keyed by the constraint and the axes and released with either; the frame map under them holds the rest-frame records, which are table constants.
    */
@@ -145,9 +146,7 @@ function reach(
   constraint: IAutoMovieJointConstraint,
   joint: IAutoMovieJointRotationFrame,
 ): Float64Array {
-  const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
-    joint.axes,
-  );
+  const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(joint.axes);
   const table: Float64Array = new Float64Array(swingTwistBasis.RAYS);
   const across: number = Vector3.dot(Vector3.cross(basis.f, basis.u), basis.a);
 
@@ -165,12 +164,17 @@ function reach(
   // reached swings on a ray are the closed form's own intervals, so the one
   // that holds the scan's step places the scan's answer (`latticed`).
   const free: boolean = bound !== null && coneFree(constraint);
+
+  // The flexion's turn about the basis's flexion axis, on that one axis for
+  // every test of the build: the axis's direction and length prepared once,
+  // each angle's quaternion the one Quaternion.fromAxisAngle gives.
+  const flexed: (degrees: number) => IAutoMovieQuaternion = Quaternion.prepareAxisAngle(basis.f);
   for (let ray: number = 0; ray < swingTwistBasis.RAYS; ++ray) {
     const azimuth: number = (360 * ray) / swingTwistBasis.RAYS;
     const direction: (swing: number) => IAutoMovieVector3 =
       swingTwistBasis.prepareRay(basis, azimuth);
     const inside: (swing: number) => boolean = (swing: number): boolean =>
-      reached(constraint, joint, basis, direction(swing), across);
+      reached(constraint, joint, basis, direction(swing), across, flexed);
     const angle: number = azimuth / swingTwistBasis.DEG;
     const farthest: number =
       bound === null ? 180 : bound(Math.cos(angle), Math.sin(angle), span);
@@ -368,6 +372,7 @@ function reached(
   basis: IAutoMovieSwingTwistBasis.IBasis,
   direction: IAutoMovieVector3,
   across: number,
+  flexed: (degrees: number) => IAutoMovieQuaternion,
 ): boolean {
   const flexion: IAutoMovieAngleRange = constraint.flexion!;
   const abduction: IAutoMovieAngleRange = constraint.abduction!;
@@ -377,10 +382,7 @@ function reached(
     ) * swingTwistBasis.DEG;
   let projected: IAutoMovieVector3 | undefined;
   for (const f of [first, 180 - first]) {
-    const swung: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.fromAxisAngle(basis.f, f),
-      basis.u,
-    );
+    const swung: IAutoMovieVector3 = Quaternion.rotateVector(flexed(f), basis.u);
     const from: IAutoMovieVector3 = flat(swung, basis.a);
     const to: IAutoMovieVector3 = (projected ??= flat(direction, basis.a));
     if (Vector3.length(from) < 1e-9 || Vector3.length(to) < 1e-9) {

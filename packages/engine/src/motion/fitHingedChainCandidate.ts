@@ -8,6 +8,7 @@ import type {
   IAutoMovieJointRotationFrame,
   IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedJointAngles,
   IAutoMovieRestFrame,
   IAutoMovieSolvedChainPlant,
   IAutoMovieVector3,
@@ -33,6 +34,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { getConstraint } from "../rom/getConstraint";
+import { scanJointRom } from "../rom/scanJointRom";
 import { basisOf } from "./basisOf";
 import { distalTwistRange } from "./distalTwistRange";
 import { fitHingedClosedRoots } from "./fitHingedClosedRoots";
@@ -129,7 +131,7 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoring closure over hingedArmArticulation's sweep; the effector error is a separate member.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overshoot ranks first, so no illegal candidate wins on the hint or the hand; a degenerate chain returns null for the caller's fallback.
  * @evidence contracts/development/implementation.md#efficient-algorithms Cold/near swivel search dominates, with root clinical/legality reads per candidate and branch-shared lower metadata. A requested rotation on a distal-twist limb costs one score a bend branch when its closed-form candidate (the swivel nearest the pole that the wrist's box and the forearm's twist range admit) is legal and met (measured with the box alone: 9 of 119 hand fits of test_human_motion_core_overlay_hold; with the twist range, unmeasured; a rotation no swivel meets goes to the sweep, which the rotation's certified miss bounds by branch and bound, unmeasured); a continued fit refines its seed first. A requested rotation on a limb without distal twist whose end joint has one immobile axis costs two scores a bend branch and no search when its best closed-form candidate is legal and met (measured: every one of 2,707 leg fits of test_human_motion_signature_run_m_average, 19.3 scores a fit before, 2 after). A fit with no hint side keeps its exact-zero first-candidate certificate and, with a requested rotation, is bounded by the miss as well; a strain fit with a requested rotation scores only the swivels whose miss shares the least legal error's bucket (both unmeasured). Eligibility for a closed-form start is exactly no strain and no minimum certificate, with either no requested rotation and a hint side (the pole; one score per branch when neither reference nor obstruction is asked and the pole is unrefused), or a requested rotation on a mid joint without distal twist (the least-articulation swivel). The local search scores the start, its two neighbours, each further downhill step and one refinement per branch. The full sweep runs when the best branch result keeps an overshoot (range or obstruction), when a rotation start leaves the rotation error above ROM_TOLERANCE degrees, and when the limb is straight to within rounding. An exact-zero first candidate can end cold search only under its certified nonnegative objective; other searches remain. An absent hint side and obstruction need no midpoint FK or cross-axis vectors. Task priority omits unused effort; a reference-only second key needs no unused world prefix. Reference geodesic/strain composition remain lazy. Rotation keeps its existing distal/fallback work. No speedup is measured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied lazy workspace shares admitted bases, fixed references/weight, hinge range and posed source swing at the same first-use sites. A candidate reads its upper joint and shared lower record once without a discarded joint-pair array; an absent reference needs no unused quaternion normalization. Its already computed lower-preceding world frame also serves its rotation scorer in the original grouping. A root gated by swing and twist whose angles are decomposed on its range's own basis and rest frame (`readsSwingTwistFrame`) has its range read on the candidate rotation itself, which its angles compose back to up to the round trip's rounding, so no candidate recomposes its root. Source dependencies stay unchanged; target readings, scores, seed selection and caller callbacks still run per target. Standalone callers retain original setup and recomputation fallback.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied lazy workspace shares admitted bases, fixed references/weight, hinge range and posed source swing at the same first-use sites. A candidate reads its upper joint and shared lower record once without a discarded joint-pair array; an absent reference needs no unused quaternion normalization. Its already computed lower-preceding world frame also serves its rotation scorer in the original grouping. A root gated by swing and twist whose angles are decomposed on its range's own basis and rest frame (`readsSwingTwistFrame`) has its range read on the candidate rotation itself, which its angles compose back to up to the round trip's rounding, so no candidate recomposes its root; under task priority, which weighs no clinical effort, such a root's candidates are not decomposed at all (`scanJointRom.prepareRotated` scores the rotation with the same arithmetic) and only the chosen one is, for its record. Source dependencies stay unchanged; target readings, scores, seed selection and caller callbacks still run per target. Standalone callers retain original setup and recomputation fallback.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns any borrowed workspace rig; this target's scoring closures and bounded sweep data are released when the search returns. Only the selected candidate escapes, and no target history, handle or background task is retained.
  */
 export function fitHingedChainCandidate(
@@ -215,15 +217,20 @@ export function fitHingedChainCandidate(
     basisOf(axes);
   const upperOf = (
     upper: IAutoMovieQuaternion,
-  ): IAutoMovieJointPose => ({
+  ): IAutoMovieJointPose => {
+    const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
+      upper,
+      upperBasis,
+      props.restFrames?.[props.chain.upper],
+      prepared.upperDomain,
+    );
+    return {
       bone: props.chain.upper,
-      ...decomposeJointRotationOnBasis(
-        upper,
-        upperBasis,
-        props.restFrames?.[props.chain.upper],
-        prepared.upperDomain,
-      ),
-  });
+      flexion: read.flexion,
+      abduction: read.abduction,
+      twist: read.twist,
+    };
+  };
   const previous = (bone: string): IAutoMovieQuaternion | null => {
     const joint: IAutoMovieJointPose | undefined =
       props.referencePose?.joints.find(
@@ -275,6 +282,19 @@ export function fitHingedChainCandidate(
       : swingTwistRange.of(props.chain.upper);
   const upperRotated: boolean = upperRange !== undefined &&
     readsSwingTwistFrame(upperBasis, props.restFrames?.[props.chain.upper], upperRange);
+  // Such a root's range reads its rotation alone, so under task priority,
+  // which weighs no clinical effort, its angles are needed by the answer
+  // alone: a candidate's are not decomposed, the chosen one's are where its
+  // record is made. The continuous cost's effort tie-break reads them for
+  // every candidate: near an optimum the refinement's neighbours differ by
+  // less than a billionth of the most two joints' efforts can be, so no
+  // certified band leaves them unread.
+  const rotatedOvershoot: ((rotation: IAutoMovieQuaternion) => number) | null =
+    !upperRotated || props.strain === undefined
+      ? null
+      : rig === undefined
+        ? scanJointRom.prepareRotated(props.chain.upper, upperConstraint)
+        : rig.rotatedOvershoot(props.chain.upper);
   const lowerOvershoot: (joint: IAutoMovieJointPose) => number =
     rig?.overshoot(props.chain.lower) ??
     jointRomOvershoot.prepare(props.chain.lower, prepared.lowerDomain.constraint);
@@ -285,14 +305,17 @@ export function fitHingedChainCandidate(
   let mid: IMid | undefined;
   const midOf = (lower: IAutoMovieQuaternion): IMid => {
     if (mid !== undefined && mid.rotation === lower) return mid;
+    const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
+      lower,
+      lowerBasis,
+      props.restFrames?.[props.chain.lower],
+      prepared.lowerDomain,
+    );
     const joint: IAutoMovieJointPose = {
       bone: props.chain.lower,
-      ...decomposeJointRotationOnBasis(
-        lower,
-        lowerBasis,
-        props.restFrames?.[props.chain.lower],
-        prepared.lowerDomain,
-      ),
+      flexion: read.flexion,
+      abduction: read.abduction,
+      twist: read.twist,
     };
     mid = {
       rotation: lower,
@@ -313,19 +336,33 @@ export function fitHingedChainCandidate(
       : rig.hingeRange((): { min: number; max: number } | null =>
           readHingeRange(props, prepared, axes, lowerBasis),
         );
-  // The root angles of the last two candidates read, kept for the answer.
+  // The root angles of the last two candidates decomposed, kept for the
+  // answer.
   let latest: { rotation: IAutoMovieQuaternion; joint: IAutoMovieJointPose } | undefined;
   let earlier: { rotation: IAutoMovieQuaternion; joint: IAutoMovieJointPose } | undefined;
+  const anglesOf = (upper: IAutoMovieQuaternion): IAutoMovieJointPose => {
+    if (latest?.rotation === upper) return latest.joint;
+    if (earlier?.rotation === upper) return earlier.joint;
+    const joint: IAutoMovieJointPose = upperOf(upper);
+    earlier = latest;
+    latest = { rotation: upper, joint };
+    return joint;
+  };
 
   // What a candidate reads besides the hint's side: its root's angles, its
   // mid joint's place, its overshoot, effort and turn from the reference.
+  // A root whose range reads its rotation leaves its angles unread unless
+  // the caller needs them at once (`full`); a rotation with a non-finite
+  // component is decomposed, which refuses it.
   const reading = (
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
+    full: boolean,
   ): IReading => {
-    const u: IAutoMovieJointPose = upperOf(upper);
-    earlier = latest;
-    latest = { rotation: upper, joint: u };
+    const u: IAutoMovieJointPose | undefined = rotatedOvershoot !== null && !full &&
+      Number.isFinite(upper.x) && Number.isFinite(upper.y) &&
+      Number.isFinite(upper.z) && Number.isFinite(upper.w)
+      ? undefined : anglesOf(upper);
     const known: IMid = midOf(lower);
 
     // Task priority reads no hint midpoint. A reference also replaces its
@@ -356,17 +393,21 @@ export function fitHingedChainCandidate(
             ),
           );
     return {
+      joint: u,
       mid,
       above,
       lowerWorld,
+      // Angles are left unread only under task priority, whose effort is 0.
       effort:
         strain === undefined ? clinicalDeviation({
-          flexion: u.flexion ?? 0,
-          abduction: u.abduction ?? 0,
-          twist: u.twist ?? 0,
+          flexion: u!.flexion ?? 0,
+          abduction: u!.abduction ?? 0,
+          twist: u!.twist ?? 0,
         }) + known.effort : 0,
       overshoot:
-        upperOvershoot(u, upperRotated ? upper : undefined) +
+        (u === undefined
+          ? rotatedOvershoot!(upper)
+          : upperOvershoot(u, upperRotated ? upper : undefined)) +
         known.overshoot +
         blocked,
       turned:
@@ -744,7 +785,7 @@ export function fitHingedChainCandidate(
         tiebreak?: () => number;
       } => {
         const { mid, above, lowerWorld, effort, overshoot, turned, midTurn }: IReading =
-          reading(upper, lower);
+          reading(upper, lower, false);
         if (strain !== undefined)
           return {
             overshoot,
@@ -814,7 +855,7 @@ export function fitHingedChainCandidate(
               upper: IAutoMovieQuaternion,
               lower: IAutoMovieQuaternion,
             ): fitHingedClosedRoots.IScore => {
-              const read: IReading = reading(upper, lower);
+              const read: IReading = reading(upper, lower, true);
               const offset: IAutoMovieVector3 = across(read.mid!);
               const off: number = Vector3.length(offset);
               const away: number =
@@ -823,7 +864,7 @@ export function fitHingedChainCandidate(
                   : (1 - Vector3.dot(Vector3.scale(offset, 1 / off), side)) *
                     Math.min(1, off / SIDED);
               return {
-                joint: latest!.joint,
+                joint: read.joint!,
                 above: read.above!,
                 overshoot: read.overshoot,
                 deviation: 0 + 2 * away + read.turned + 1e-9 * read.effort,
@@ -847,15 +888,10 @@ export function fitHingedChainCandidate(
     solved = search(false);
   if (solved === null) return null;
 
-  // The chosen candidate's root angles were read when it was scored; a
-  // closed-form answer is one of the last two scored, and any other chosen
-  // candidate is read again, the same pure reading of the same record.
-  const upper: IAutoMovieJointPose =
-    latest?.rotation === solved.upper
-      ? latest.joint
-      : earlier?.rotation === solved.upper
-        ? earlier.joint
-        : upperOf(solved.upper);
+  // The chosen candidate's root angles: one of the last two decomposed when
+  // its score read them, else decomposed now, the same pure reading of the
+  // same record.
+  const upper: IAutoMovieJointPose = anglesOf(solved.upper);
   const lower: IAutoMovieJointPose = midOf(solved.lower).joint;
   return {
     hinge: prepared.hinge,
@@ -935,6 +971,9 @@ interface IMid {
 
 /** What each candidate reads besides the hint's side, shared with its lazy exact score. */
 interface IReading {
+  /** The root's clinical angles; absent where its range read its rotation alone and nothing needed them yet. */
+  joint: IAutoMovieJointPose | undefined;
+
   /** Completed world frame preceding the lower articulation, for this exact upper candidate. */
   above: IAutoMovieQuaternion | undefined;
 

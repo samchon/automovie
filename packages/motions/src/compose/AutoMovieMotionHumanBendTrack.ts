@@ -6,13 +6,13 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieQuaternion,
-  IAutoMovieSwivelNear,
   IAutoMovieSwivelSeed,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
+import { AutoMovieMotionHumanBendWalk } from "./AutoMovieMotionHumanBendWalk";
 
 /**
  * The elbow of least strain of an arm a primitive writes over its span
@@ -176,44 +176,14 @@ export namespace AutoMovieMotionHumanBendTrack {
       fallback: props.fallback,
     });
 
-    // One allowed solve continued from a seed, walked while the refinement
-    // stops at its bracket's end; none when it leaves the allowed places.
+    // One allowed solve continued from a seed, and a knot's seed from the
+    // knot before it, are the sequence's own steps (`AutoMovieMotionHumanBendWalk`).
     const continued: (solve: IAutoMovieMotionHumanBend.ISolve, seed: IAutoMovieSwivelSeed) => ISolved | null = (
-      solve: IAutoMovieMotionHumanBend.ISolve,
-      seed: IAutoMovieSwivelSeed,
-    ): ISolved | null => {
-      let near: IAutoMovieSwivelNear = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
-      for (let walked: number = 0; walked * hingedArmSwivel.STEP <= 360; ++walked) {
-        const found: ReturnType<typeof AutoMovieMotionHumanBendSearch.continued> =
-          AutoMovieMotionHumanBendSearch.continued(solve, hang, near);
-        if (typeof found === "string") return null;
-        const moved: number = Math.abs(found.seed.swivel - near.swivel);
-        if (moved < hingedArmSwivel.STEP - hingedArmSwivel.RESOLUTION)
-          return found.candidate.overshoot === 0 ? found : null;
-        near = { ...found.seed, tolerance: hingedArmSwivel.RESOLUTION };
-      }
-      return null;
-    };
-
-    // A knot's seed: continued from the knot before it, else cold; none
-    // where no place is allowed. A cold swivel is read on the turn nearest
-    // the knot before it, so two knots' swivels interpolate the short way.
+      solve: IAutoMovieMotionHumanBend.ISolve, seed: IAutoMovieSwivelSeed): ISolved | null =>
+      AutoMovieMotionHumanBendWalk.walk(solve, hang, seed);
     const knot: (solve: IAutoMovieMotionHumanBend.ISolve, last: IAutoMovieSwivelSeed | null) => IAutoMovieSwivelSeed | null = (
-      solve: IAutoMovieMotionHumanBend.ISolve,
-      last: IAutoMovieSwivelSeed | null,
-    ): IAutoMovieSwivelSeed | null => {
-      const kept: ISolved | null = last === null ? null : continued(solve, last);
-      if (kept !== null) return kept.seed;
-      const cold: ReturnType<typeof AutoMovieMotionHumanBendSearch.continued> =
-        AutoMovieMotionHumanBendSearch.continued(solve, hang);
-      if (typeof cold === "string" || cold.candidate.overshoot !== 0) return null;
-      return last === null || last.branch !== cold.seed.branch
-        ? cold.seed
-        : {
-            branch: cold.seed.branch,
-            swivel: cold.seed.swivel - 360 * Math.round((cold.seed.swivel - last.swivel) / 360),
-          };
-    };
+      solve: IAutoMovieMotionHumanBend.ISolve, last: IAutoMovieSwivelSeed | null): IAutoMovieSwivelSeed | null =>
+      AutoMovieMotionHumanBendWalk.next(solve, hang, last)?.seed ?? null;
     return {
       prepare: (before: IAutoMovieMotionHumanPrimitive.Reader): void => {
         const solved: (IAutoMovieSwivelSeed | null)[] = [];
@@ -259,7 +229,7 @@ export namespace AutoMovieMotionHumanBendTrack {
 }
 
 /** A search's candidate with the seed it was chosen at (`AutoMovieMotionHumanBendSearch.continued`'s result when there is one). */
-type ISolved = Exclude<ReturnType<typeof AutoMovieMotionHumanBendSearch.continued>, string>;
+type ISolved = AutoMovieMotionHumanBendWalk.ISolved;
 
 /** The knots' spacing, seconds: the frame grid the planner's holds are sampled on (`AutoMovieMotionHumanArmPlanned`, `AutoMovieMotionHumanArmFollow`). */
 const STEP: number = 1 / 30;

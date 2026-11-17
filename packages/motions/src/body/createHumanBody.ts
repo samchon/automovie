@@ -17,6 +17,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanColliders } from "../posture/HumanColliders";
+import { humanLimbReads } from "../posture/humanLimbReads";
+import { humanSettledJoints } from "../posture/humanSettledJoints";
+
 /**
  * Derive a performer's body from a canonical rig and profile.
  *
@@ -80,6 +84,7 @@ export function createHumanBody(
       if (constants !== null) chains[`${side}${limb}`] = constants;
     }
   let massModel: IAutoMovieMotionHumanBody["massModel"] | undefined;
+  let colliderBones: IAutoMovieMotionHumanBody["colliderBones"] | undefined;
   const body: IAutoMovieMotionHumanBody = {
     skeleton,
     profile,
@@ -92,6 +97,14 @@ export function createHumanBody(
     // The rig's ROM projection is a constant of the body like its FK
     // prerequisites: one pose clamp on this rig, read by every consumer.
     projection: clampPose.prepare(skeleton),
+    settled: humanSettledJoints(skeleton),
+
+    // What each limb's fit reads of a pose is a value of the rig too.
+    reads: humanLimbReads(skeleton, poseResolution, chains),
+    get colliderBones(): IAutoMovieMotionHumanBody["colliderBones"] {
+      colliderBones ??= poseResolution.prepareBones(HumanColliders.bones(body));
+      return colliderBones;
+    },
     get massModel(): IAutoMovieMotionHumanBody["massModel"] {
       massModel ??= resolveAutoMovieCenterOfMass.fromRig(poseResolution, profile);
       return massModel;

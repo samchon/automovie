@@ -113,7 +113,7 @@ export namespace HumanJacobian {
     posture: IAutoMovieMotionHumanPosture,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieChainBone>,
     variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
-    projection?: ReturnType<typeof clampJointToSkeleton.prepare>,
+    projection?: (joint: IAutoMovieJointPose) => IAutoMovieJointPose,
   ): IReading {
     const rig: IRig = rigOf(body);
     const yawed: IAutoMovieQuaternion = Quaternion.fromAxisAngle(

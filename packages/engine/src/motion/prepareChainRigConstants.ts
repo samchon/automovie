@@ -9,18 +9,21 @@ import type {
   IAutoMoviePrepareChainRigConstants,
   IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
 } from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { hingedArmSpan } from "../kinematics/hingedArmSpan";
 import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
+import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { Quaternion } from "../math/Quaternion";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { getConstraint } from "../rom/getConstraint";
+import { scanJointRom } from "../rom/scanJointRom";
 import type { prepareChainFit } from "./prepareChainFit";
 import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 import { solveDistalTwist } from "./solveDistalTwist";
@@ -65,9 +68,18 @@ export function prepareChainRigConstants(
     AutoMovieHumanoidBone,
     (joint: IAutoMovieJointPose) => IAutoMovieJointPose
   > = new Map();
+  // Each bone's record composer, by the rest frame record it was prepared on.
+  const composers: Map<
+    AutoMovieHumanoidBone,
+    { frame: IAutoMovieRestFrame | undefined; compose: ReturnType<typeof jointToQuaternionOnBasis.prepare> }
+  > = new Map();
   const scores: Map<
     AutoMovieHumanoidBone,
     (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number
+  > = new Map();
+  const rotatedScores: Map<
+    AutoMovieHumanoidBone,
+    ((rotation: IAutoMovieQuaternion) => number) | null
   > = new Map();
   let project: ReturnType<typeof prepareJointRotationProjection> | undefined;
   let restInverse: IAutoMovieQuaternion | undefined;
@@ -123,6 +135,21 @@ export function prepareChainRigConstants(
     basis: (bone: AutoMovieHumanoidBone, path: string): IAutoMovieJointAxes => {
       return readBasis(props.jointAxes?.[bone] ?? DEFAULT_JOINT_AXES, path);
     },
+    composer: (
+      bone: AutoMovieHumanoidBone,
+      frame: IAutoMovieRestFrame | undefined,
+    ): ReturnType<typeof jointToQuaternionOnBasis.prepare> => {
+      let known: { frame: IAutoMovieRestFrame | undefined; compose: ReturnType<typeof jointToQuaternionOnBasis.prepare> } | undefined =
+        composers.get(bone);
+      if (known === undefined || known.frame !== frame) {
+        known = {
+          frame,
+          compose: jointToQuaternionOnBasis.prepare(rig.jointBasis(bone, "jointToQuaternion axes"), frame),
+        };
+        composers.set(bone, known);
+      }
+      return known.compose;
+    },
     jointBasis: (bone: AutoMovieHumanoidBone, path: string): IAutoMovieJointAxes => {
       const axes: IAutoMovieJointAxes | undefined = props.jointAxes?.[bone];
       return readBasis(axes === undefined ? DEFAULT_JOINT_AXES : axes, path);
@@ -162,6 +189,17 @@ export function prepareChainRigConstants(
       if (score === undefined) {
         score = jointRomOvershoot.prepare(bone, rig.domain(bone).constraint);
         scores.set(bone, score);
+      }
+      return score;
+    },
+    rotatedOvershoot: (
+      bone: AutoMovieHumanoidBone,
+    ): ((rotation: IAutoMovieQuaternion) => number) | null => {
+      let score: ((rotation: IAutoMovieQuaternion) => number) | null | undefined =
+        rotatedScores.get(bone);
+      if (score === undefined) {
+        score = scanJointRom.prepareRotated(bone, rig.domain(bone).constraint);
+        rotatedScores.set(bone, score);
       }
       return score;
     },

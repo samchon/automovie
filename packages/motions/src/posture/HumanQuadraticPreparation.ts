@@ -3,7 +3,6 @@ import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface
 import { HumanQuadraticAdmission } from "./HumanQuadraticAdmission";
 import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import { HumanQuadraticFactorOrder } from "./HumanQuadraticFactorOrder";
-import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
 import { HumanQuadraticTranspose } from "./HumanQuadraticTranspose";
 import type { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
@@ -30,6 +29,7 @@ export namespace HumanQuadraticPreparation {
    * scaling and therefore also invalidates preparation when it changes.
    *
    * @param problem The convex banded program; bounds may be infinite on their absent sides.
+   * @param fixed The variables' and the cost's scales of an earlier program of the same variables (one optimisation's first subproblem, `IScaling`): a miss then scales P, q and A by them in one pass and each row by one Ruiz row step on them, in place of the ten passes; ignored when its length is not the program's. Absent, the ten passes run.
    * @returns Shared numeric core with fresh scaled bounds and weights.
    * @throws {RangeError} For malformed or nonfinite data, an original row outside the band, or noninvertible scaling.
    *
@@ -41,7 +41,7 @@ export namespace HumanQuadraticPreparation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each live weak source owner retains one numeric preparation, O(S+n*w+Z+n+m), including inverse scales; replacement and collection release it. Initial factors have their own weak scaled-core owner. Fresh solve wrappers borrow raw rows, fixed models replace that loan with copies, and neither enters the retained core. A miss consumes fresh lo as scale scratch before overwriting it.
    * @evidence contracts/development/common.md#meaningful-documentation States the scaling source, zero and duplicate semantics, validation failures, exact reuse dependencies and retained-data lifetime.
    */
-  export function scaled(problem: IAutoMovieMotionHumanQuadraticProgram.IProblem): B.IScaled {
+  export function scaled(problem: IAutoMovieMotionHumanQuadraticProgram.IProblem, fixed?: IScaling): B.IScaled {
     let prepared: IPrepared | undefined = PREPARATIONS.get(problem.p);
     const admitted: ReturnType<typeof HumanQuadraticAdmission> = HumanQuadraticAdmission(
       problem,
@@ -49,7 +49,8 @@ export namespace HumanQuadraticPreparation {
     );
     const lo: Float64Array = new Float64Array(problem.rows.length);
     if (prepared === undefined || !admitted.same)
-      prepared = create(problem, admitted, lo, prepared);
+      prepared = create(problem, admitted, lo, prepared,
+        fixed !== undefined && fixed.d.length === problem.n ? fixed : undefined);
     const core: ICore = prepared.core;
     const hi: Float64Array = new Float64Array(core.m);
     const weight: Float64Array = new Float64Array(core.m);
@@ -116,6 +117,27 @@ export namespace HumanQuadraticPreparation {
     for (const row of out.system) finite(row, "Quadratic factor");
     INITIALS.set(s.p, { rho: Float64Array.from(rho), sigma, factor: out });
     return out;
+  }
+
+  /**
+   * The variables' and the cost's equilibration scales of one program, which
+   * a later program of the same variables reuses (`scaled`'s `fixed`): any
+   * positive diagonal scaling leaves a program's minimiser where it is
+   * (the scaled program is the same program in other units), so a solve of
+   * one optimisation's later subproblems on its first subproblem's scales
+   * finds the same step to its own accuracy, read on the data so scaled.
+   *
+   * @evidence contracts/development/design.md#principled-representation The variables' scales D (one positive number a variable, the unit of x = D x-bar) and the cost's scale c, the two parts of Ruiz equilibration that depend on the variables and not on the rows.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Made by `HumanQuadraticInterior` from its first solve of a session and read by `scaled`; the rows' scales are each program's own.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No row, bound, weight or solution is carried; a length unlike the program's is not used.
+   * @evidence contracts/development/common.md#meaningful-documentation States the two scales, their units and why reusing them leaves the solution.
+   */
+  export interface IScaling {
+    /** The variables' scales, positive, one a variable. */
+    d: Float64Array;
+
+    /** The cost's scale, positive. */
+    c: number;
   }
 
   /**
@@ -186,7 +208,9 @@ const PREPARATIONS: WeakMap<Float64Array[], HumanQuadraticPreparation.IPrepared>
 const INITIALS: WeakMap<Float64Array[], IInitial> = new WeakMap();
 
 /**
- * Compress exact zeros and run the ten-pass modified Ruiz algorithm.
+ * Compress exact zeros and run the ten-pass modified Ruiz algorithm, or,
+ * given an earlier program's variable and cost scales (`fixed`), apply them
+ * and one Ruiz row step in one pass.
  *
  * Applies Stellato et al. 2020 algorithm 2 to admitted matrices using the existing ten passes, norm limits and q-dependent cost equilibration.
  * Builds or reuses proved original CSR/raw snapshots and stable factor/transpose positions, then scales fresh canonical numeric buffers; exact-zero curvature positions avoid unchanged zero work, and P/q norms accumulate at their producer in original nonzero order, with an idempotent repeated diagonal maximum evaluated once.
@@ -201,6 +225,7 @@ function create(
   admitted: ReturnType<typeof HumanQuadraticAdmission>,
   dr: Float64Array,
   previous?: HumanQuadraticPreparation.IPrepared,
+  fixed?: HumanQuadraticPreparation.IScaling,
 ): HumanQuadraticPreparation.IPrepared {
   const { n, band, rows }: IAutoMovieMotionHumanQuadraticProgram.IProblem = problem;
   const m: number = rows.length;
@@ -290,7 +315,37 @@ function create(
       ? previous.scaling
       : { dx: new Float64Array(n), curvature: new Float64Array(n) };
   const { dx, curvature }: HumanQuadraticPreparation.IPrepared["scaling"] = scaling;
-  for (let pass: number = 0; pass < SCALING; ++pass) {
+
+  // Scales an earlier program of the same variables found: P, q and A in
+  // one pass on them, and each row by one Ruiz row step on the scaled
+  // columns, the step every pass of the loop below takes.
+  if (fixed !== undefined) {
+    c = fixed.c;
+    for (let i: number = 0; i < n; ++i) {
+      d[i] = fixed.d[i]!;
+      const row: Float64Array = p[i]!;
+      const first: number = pPattern?.start[i] ?? 0;
+      const end: number = diagonal ? 1 : pPattern === undefined
+        ? row.length : pPattern.start[i + 1]! - first;
+      for (let a: number = 0; a < end; ++a) {
+        const j: number = pPattern?.offsets[first + a] ?? a;
+        row[j] = row[j]! * fixed.d[i]! * fixed.d[i + j]! * c;
+      }
+      q[i] = q[i]! * fixed.d[i]! * c;
+    }
+    for (let r: number = 0; r < m; ++r) {
+      const end: number = start[r + 1]!;
+      let norm: number = 0;
+      for (let a: number = start[r]!; a < end; ++a)
+        norm = Math.max(norm, Math.abs(vals[a]! * d[cols[a]!]!));
+      const scale: number = inverseScale(norm);
+      dr[r] = scale;
+      e[r] = scale;
+      for (let a: number = start[r]!; a < end; ++a)
+        vals[a] = vals[a]! * scale * d[cols[a]!]!;
+    }
+  }
+  for (let pass: number = 0; pass < (fixed === undefined ? SCALING : 0); ++pass) {
     // Infinity norms of the KKT columns determine variable and row scales.
     // A diagonal has one column target; its symmetric repeated max is idempotent.
     curvature.fill(0);

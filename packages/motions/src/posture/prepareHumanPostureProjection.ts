@@ -24,7 +24,7 @@ import type {
  */
 export function prepareHumanPostureProjection(
   body: IAutoMovieMotionHumanBody,
-): ReturnType<typeof clampPose.prepare> {
+): (pose: IAutoMoviePose) => IAutoMoviePose {
   return body.projection;
 }
 
@@ -46,22 +46,40 @@ export namespace prepareHumanPostureProjection {
    * @param source The pose clamp the caller holds, if any.
    * @returns The body's projector's one-joint owner when `source` is that projector, or undefined for ordinary cold preparation.
    *
-   * Identity with the body's projector is tested before the engine's private
-   * factory lookup. Another function declines without being invoked. No
+   * Identity with the body's projector is tested before its joints member
+   * is read. Another function declines without being invoked. No
    * numerical answer, verdict, query history or handle is retained.
    */
   export function joints(
     body: IAutoMovieMotionHumanBody,
-    source?: ReturnType<typeof clampPose.prepare>,
-  ): ReturnType<typeof clampPose.joints> {
-    return source !== undefined && source === body.projection ? clampPose.joints(source) : undefined;
+    source?: (pose: IAutoMoviePose) => IAutoMoviePose,
+  ): clampPose.IPrepared["joints"] | undefined {
+    return source !== undefined && source === body.projection ? body.projection.joints : undefined;
+  }
+
+  /**
+   * The angle-taking form of the body's projector's one-joint owner
+   * (`clampPose.IPrepared.values`, a member of the projector): a joint's record made in range from its bone and
+   * three clinical angles, the record `joints`' owner gives for the record
+   * of those values. Identity with the body's projector is tested first;
+   * another function declines without being invoked.
+   *
+   * @param body The body.
+   * @param source The pose clamp the caller holds, if any.
+   * @returns The form when `source` is the body's projector, or undefined.
+   */
+  export function values(
+    body: IAutoMovieMotionHumanBody,
+    source?: (pose: IAutoMoviePose) => IAutoMoviePose,
+  ): clampPose.IPrepared["values"] | undefined {
+    return source !== undefined && source === body.projection ? body.projection.values : undefined;
   }
 
   /** Project every actual joint of a pose through the body's projector; `source`, the function a caller passes along, is used only when it is that projector, which it then is. */
   export function project(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    _source?: ReturnType<typeof clampPose.prepare>,
+    _source?: (pose: IAutoMoviePose) => IAutoMoviePose,
   ): IAutoMoviePose {
     return body.projection(pose);
   }

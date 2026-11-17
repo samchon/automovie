@@ -18,6 +18,7 @@ import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { AutoMovieMotionHumanArmAimed } from "./AutoMovieMotionHumanArmAimed";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObservation";
@@ -39,8 +40,6 @@ import { AutoMovieMotionHumanArmStated } from "./AutoMovieMotionHumanArmStated";
 export namespace AutoMovieMotionHumanArmPlanned {
   /** The interface contract (`IAutoMovieMotionHumanArmPlanned.IWarm`). */
   export type IWarm = IAutoMovieMotionHumanArmPlanned.IWarm;
-
-  
 
   /**
    * A group for arms moved together.
@@ -148,15 +147,11 @@ export namespace AutoMovieMotionHumanArmPlanned {
     // Each instant's posture so far and its pose with the planned arms left
     // out, the base each arm is read against, and each arm's goal there as
     // the plan perceives it, each read once however often the plan and its
-    // refinement ask.
-    const read: Map<number, { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose }> =
-      new Map();
-    const at = (
-      t: number,
-    ): { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose } => {
+    // refinement ask (each arm's goal by AutoMovieMotionHumanArmAimed).
+    const read: Map<number, { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose }> = new Map();
+    const at = (t: number): { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose } => {
       let found:
-        | { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose } | undefined =
-        read.get(t);
+        | { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose } | undefined = read.get(t);
       if (found === undefined) {
         const posture: IAutoMovieMotionHumanPosture = before(t, undefined, resolution, projection);
         found = { posture, pose: resolveHumanPosture.seeded(body, without(posture),
@@ -165,18 +160,10 @@ export namespace AutoMovieMotionHumanArmPlanned {
       }
       return found;
     };
-    const goals: Map<number, IAutoMovieHumanLimbGoal>[] = carries.map(
-      (): Map<number, IAutoMovieHumanLimbGoal> => new Map(),
-    );
-    const aimed = (a: number, t: number): IAutoMovieHumanLimbGoal => {
-      let found: IAutoMovieHumanLimbGoal | undefined = goals[a]!.get(t);
-      if (found === undefined)
-        goals[a]!.set(t, (found = AutoMovieMotionHumanArmObservation.aim(carries[a]!, at(t).posture, t, resolution, projection)));
-      return found;
-    };
-    const fits: Map<number, IAutoMovieMotionHumanArmAngles.IAngles>[] = carries.map(
-      (): Map<number, IAutoMovieMotionHumanArmAngles.IAngles> => new Map(),
-    );
+    const aimed: (a: number, t: number) => IAutoMovieHumanLimbGoal =
+      AutoMovieMotionHumanArmAimed(body, carries, at, resolution, projection);
+    const fits: Map<number, IAutoMovieMotionHumanArmAngles.IAngles>[] =
+      carries.map((): Map<number, IAutoMovieMotionHumanArmAngles.IAngles> => new Map());
 
     /** Travel and the initial guess share only completed fits of the same cached endpoint inputs. */
     const fitted = (a: number, t: number): IAutoMovieMotionHumanArmAngles.IAngles => {

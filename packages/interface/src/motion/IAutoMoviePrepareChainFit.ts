@@ -1,8 +1,10 @@
 import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieClinicalAxis } from "../pose/AutoMovieClinicalAxis";
 import type { IAutoMovieHingedArmSwivel } from "../pose/IAutoMovieHingedArmSwivel";
 import type { IAutoMovieJointPose } from "../pose/IAutoMovieJointPose";
 import type { IAutoMovieJointRotationDomain } from "../pose/IAutoMovieJointRotationDomain";
+import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieBone } from "../skeleton/IAutoMovieBone";
 import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
@@ -22,6 +24,10 @@ export namespace IAutoMoviePrepareChainFit {
   export interface IRig {
     /** Exact gate overshoot scorer for this bone's fixed domain under the original canonical scoring frame; the optional rotation is the one the angles were read from on that frame (`scanJointRom.prepare`). */
     overshoot(bone: AutoMovieHumanoidBone): (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number;
+
+    /** The same scorer of a bone gated by swing and twist, read from the rotation alone (`scanJointRom.prepareRotated`); null for a bone the gate does not hold. */
+    rotatedOvershoot(bone: AutoMovieHumanoidBone): ((rotation: IAutoMovieQuaternion) => number) | null;
+
     /** Actual skeleton record; an absent bone is remembered too. */
     bone(bone: AutoMovieHumanoidBone): IAutoMovieBone | undefined;
 
@@ -33,6 +39,12 @@ export namespace IAutoMoviePrepareChainFit {
 
     /** Direct clinical conversion's undefined-only default; runtime null must still fail even after a lenient default read. */
     jointBasis(bone: AutoMovieHumanoidBone, path: string): IAutoMovieJointAxes;
+
+    /** A bone's prepared record composer on its `jointBasis` and the given rest frame (`jointToQuaternionOnBasis.prepare`), kept while the frame record is the same: the chain's records of every read of a fit composed by one composer a bone. */
+    composer(
+      bone: AutoMovieHumanoidBone,
+      frame: IAutoMovieRestFrame | undefined,
+    ): (joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>) => IAutoMovieQuaternion;
 
     /** Resolve the actual rig clamp once, while every candidate is still clamped. */
     clamp(

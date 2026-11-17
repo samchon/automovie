@@ -216,8 +216,12 @@ export namespace gesture {
     // left it and rests where that body's arm hangs.
     // A one-handed gesture's stand sways in that hand's frame, so a left
     // gesture mirrors a right one (`stand.plan`).
+    // A body not standing on its feet at the entry (seated, kneeling) keeps
+    // the base it was entered in: the stand law would stand it up.
+    const standing: boolean = context.entry.supports.length > 0 && context.entry.supports.every(
+      (s: IAutoMovieMotionHumanActionContext["entry"]["supports"][number]): boolean => s.part.endsWith("Foot") && s.kind !== "seat");
     const under: (seconds: number) => IAutoMovieMotionHumanActionPlan = (seconds: number): IAutoMovieMotionHumanActionPlan =>
-      context.carrier === undefined
+      context.carrier === undefined && standing
         ? stand.plan({ ...context, params: { seconds } }, sides.length === 1 ? sides[0]! : "right")
         : AutoMovieMotionHumanBase.under(context, seconds);
     const probe: IAutoMovieMotionHumanActionPlan = under(1);

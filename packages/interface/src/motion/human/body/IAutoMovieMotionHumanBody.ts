@@ -9,6 +9,7 @@ import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidB
 import type { IAutoMovieBodyMeasure } from "../../../skeleton/IAutoMovieBodyMeasure";
 import type { IAutoMovieSkeleton } from "../../../skeleton/IAutoMovieSkeleton";
 import type { IAutoMoviePrepareChainConstants } from "../../IAutoMoviePrepareChainConstants";
+import type { IAutoMovieMotionHumanLimbReads } from "../posture/IAutoMovieMotionHumanLimbReads";
 
 /**
  * A performer's body as motion laws read it: the canonical VRM rig and its
@@ -51,6 +52,15 @@ export interface IAutoMovieMotionHumanBody {
 
   /** The rig's range-of-motion projection of a whole pose (`clampPose.prepare`), built once on this body's rig: every joint of the given pose clamped in order into a new pose. Every consumer of the body's ordinary ROM reads this one; like the FK prerequisites it describes the rig the body was made from. */
   projection: (pose: IAutoMoviePose) => IAutoMoviePose;
+
+  /** The joints whose range clamp gives a record it issued back bit for bit and that no writer of a resolved posture sets outside a clamp (`humanSettledJoints`), read once from the rig: a plain displayed pose keeps their records through its final clamp. */
+  settled: ReadonlySet<AutoMovieHumanoidBone>;
+
+  /** What each limb's fit reads of a pose (`humanLimbReads`), read once from the rig: per limb and per whether the other arm is placed, the bones its reduced pose keeps and the bound demand of its source read, for a goal attached to no bone. */
+  reads: IAutoMovieMotionHumanLimbReads.IReads;
+
+  /** The rig's bound demand of every bone a collider rides (`HumanColliders.bones`), made on its first read: a whole-body reader of the colliders or the mass (`HumanBalance.centre`) reads a pose through it. */
+  colliderBones: IAutoMovieSkeletonPoseResolution.IBoneDemand;
 
   /** Bone-local mass/inertia model derived on its first read, once successfully, from the unchanged rig/profile. */
   massModel: IAutoMovieResolveCenterOfMass.IModel;

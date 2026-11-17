@@ -24,8 +24,9 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Every row of the six lexicons is a law whose family is one of the
  *    shipped laws it is documented as a row of, and whose name is unique
  *    across them.
- * 2. `presentBow` fixes the face anchor, one hand, the `rest` tip and the
- *    `grip` edge; `presentCrossbow` the cheek anchor.
+ * 2. `presentBow` fixes the face anchor, one hand, the line from the `nock`
+ *    through the `rest` tip, the `grip` edge and the extended bow arm, as
+ *    its row documents them; `presentCrossbow` the cheek anchor.
  * 3. `throwJavelin` and `throwSpear` fix the overarm style, the velocity
  *    attitude and the middle of Campos, Brizuela and Ramón's release band,
  *    (27.7 + 40.1) / 2 degrees.
@@ -91,9 +92,16 @@ export function test_human_motion_launcher_rows(): void {
 
   // 2. The presenting rows.
   TestValidator.equals(
-    "presentBow fixes the face, one hand, the rest and the grip",
+    "presentBow fixes the face, one hand, the line from the nock through the rest, the grip and the extended bow arm",
     HumanArchery.presentBow.resolve!({}),
-    { anchor: "face", hands: 1, tip: "rest", edge: "grip" },
+    {
+      anchor: "face",
+      hands: 1,
+      from: "nock",
+      tip: "rest",
+      edge: "grip",
+      extended: true,
+    },
   );
   TestValidator.equals(
     "presentCrossbow fixes the cheek",

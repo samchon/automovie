@@ -1,13 +1,13 @@
-import { Vector3, physicalShapeNormal } from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeNormal } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryJacobians as J } from "./HumanArmTrajectoryJacobians";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
 /**
@@ -46,7 +46,7 @@ export namespace HumanArmTrajectoryClear {
     /** Each arm's change of coordinates there, the model's units; zeros for an arm left as it is. */
     delta: number[][];
 
-    /** How deep the pair the detour answers was, millimetres past its bound, before it. */
+    /** How far past what the admission allows the pair or the sweep the detour answers lay before it, millimetres. */
     depth: number;
   }
 
@@ -70,10 +70,10 @@ export namespace HumanArmTrajectoryClear {
    * @param to Its last waypoint.
    * @param shares The share of its path each waypoint of the transport stands at, by waypoint.
    * @param region The largest change of any coordinate the detour may make, coordinate units.
-   * @returns The detour, or none.
+   * @returns Each arm's detour, at its own deepest waypoint; none for an arm whose every pair and sweep inside the transport lies within what the admission allows.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is read, what is returned and when nothing is.
-   * @evidence contracts/development/implementation.md#principled-implementation The waypoint with the deepest pair past the admission's slack (`T.SKIN`); at it every pair within the tolerance of its bound linearised along its normal on the arm's point Jacobian (a probe's own, a body corner carried by the arm's segment the other way), and the least-norm change meeting each at its bound by an active set on the normal equations.
+   * @evidence contracts/development/implementation.md#principled-implementation The waypoint with the deepest pair past the admission's slack (`T.SKIN`), or the inner end of the interval whose swept sphere lies deepest past its bound (its row the shape's normal at that end, as the convex subproblem's sweep row reads it); at it every pair within the tolerance of its bound linearised along its normal on the arm's point Jacobian (a probe's own, a body corner carried by the arm's segment the other way), and the least-norm change meeting each at its bound by an active set on the normal equations.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The deepest waypoint, its rows, the least-norm change.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the model's pairs and normals are read; a change that cannot be found (no row moves) is no detour.
    * @evidence contracts/development/implementation.md#efficient-algorithms One scan of the reading's pairs over the transport, one Jacobian reading, and a normal-equation solve of at most the waypoint's pairs in the arm's free coordinates.
@@ -88,40 +88,97 @@ export namespace HumanArmTrajectoryClear {
     to: number,
     shares: readonly number[],
     region: number,
-  ): IDetour | undefined {
-    // The deepest pair inside the transport, past the admission's slack.
-    let arm: number = -1;
-    let waypoint: number = -1;
-    let deepest: number = T.SKIN + M.TOLERANCE;
-    x.forEach((_: readonly (readonly number[])[], a: number): void => {
-      for (let k: number = from + 1; k < to; ++k) {
-        const pairs: M.IEvaluation["pairs"][number][number] | undefined = at.pairs[a]?.[k];
-        if (pairs === undefined) continue;
-        for (const pair of [...pairs.deepest.values(), ...pairs.embedded.values()])
-          if (!pair.rested && pair.short > deepest) {
-            deepest = pair.short;
-            arm = a;
-            waypoint = k;
-          }
-      }
+  ): IDetour[] {
+    // Each arm is laid round its own deepest waypoint: two arms of one
+    // transport (a choke's two hands) each meet their own shapes, and a
+    // detour of one arm alone leaves the other's depth as it was.
+    const out: IDetour[] = [];
+    x.forEach((_: readonly (readonly number[])[], arm: number): void => {
+      const detour: IDetour | undefined = ofArm(c, x, at, arm, from, to, shares, region);
+      if (detour !== undefined) out.push(detour);
     });
-    if (arm < 0) return undefined;
+    return out;
+  }
+
+  /** One arm's detour of a transport (`detour`): its deepest waypoint's change, none where it lies within what the admission allows. */
+  function ofArm(
+    c: M.IContext,
+    x: readonly (readonly number[])[][],
+    at: M.IEvaluation,
+    arm: number,
+    from: number,
+    to: number,
+    shares: readonly number[],
+    region: number,
+  ): IDetour | undefined {
+    // The arm's deepest pair inside the transport past what the admission
+    // allows: a waypoint's pair past the skin's slack (`T.SKIN`), or an
+    // interval's sweep past its bound (a sweep has no slack), read at the
+    // interval's inner end. `excess` is how far past the admission it lies.
+    let waypoint: number = -1;
+    let excess: number = M.TOLERANCE;
+    let deepest: number = 0;
+    let swept: { sweep: HumanArmTrajectorySweep.ISwept; later: boolean } | undefined;
+    {
+      const a: number = arm;
+      for (let k: number = from; k < to; ++k) {
+        const pairs: M.IEvaluation["pairs"][number][number] | undefined = at.pairs[a]?.[k];
+        if (k > from && pairs !== undefined)
+          for (const pair of [...pairs.deepest.values(), ...pairs.embedded.values()])
+            if (!pair.rested && pair.short - T.SKIN > excess) {
+              excess = pair.short - T.SKIN;
+              deepest = pair.short;
+              waypoint = k;
+              swept = undefined;
+            }
+        for (const sweep of at.swept[a]?.[k] ?? []) {
+          const short: number = 1000 * (sweep.lower - sweep.clear);
+          if (short <= excess) continue;
+          const later: boolean = k + 1 < to;
+          excess = short;
+          deepest = short;
+          waypoint = later ? k + 1 : k;
+          swept = { sweep, later };
+        }
+      }
+    }
+    if (waypoint < 0 || !M.inner(c, waypoint)) return undefined;
 
     // Each pair near its bound there, a row: the change of its distance by
     // a change of the arm's coordinates, millimetres per unit, and what the
-    // distance must gain to reach its bound less the tolerance.
-    const all: J.IJacobian[][] = J.of(c, x, at);
-    const jac: J.IJacobian = all[arm]![waypoint]!;
+    // distance must gain to reach its bound less the tolerance. Only this
+    // waypoint's Jacobian is read, so only it is made (`J.waypoint`), held
+    // where `J.carried` reads it.
+    const jac: J.IJacobian = J.waypoint(c, x, at, arm, waypoint);
+    const all: J.IJacobian[][] = [];
+    all[arm] = [];
+    all[arm]![waypoint] = jac;
     const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[arm]![waypoint]!;
     const placed: IAutoMovieMotionHumanArmGeometry.IPlaced = at.placed[arm]![waypoint]!;
     const pairs: NonNullable<M.IEvaluation["pairs"][number][number]> = at.pairs[arm]![waypoint]!;
     const rows: { coef: number[]; gain: number }[] = [];
+
+    // A sweep's row at its inner end: the shape's normal at that end of the
+    // swept sphere, in that waypoint's frame, on the end's own Jacobian.
+    if (swept !== undefined) {
+      const { sweep, later } = swept;
+      const start: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[arm]![later ? waypoint - 1 : waypoint]!;
+      const end: IAutoMovieVector3 = later ? sweep.to : at.placed[arm]![waypoint]!.probes[sweep.probe]![0];
+      const normal: IAutoMovieVector3 = S.normal(start, sweep.shape, end);
+      const g: IAutoMovieVector3 = later
+        ? Quaternion.rotateVector(Quaternion.inverse(sweep.turn), normal)
+        : normal;
+      rows.push({
+        coef: jac.probe(sweep.probe).map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
+        gain: deepest + M.TOLERANCE,
+      });
+    }
     // A declared rest is drawn to its contact, not cleared of it.
     for (const pair of pairs.deepest.values()) {
       if (pair.rested || pair.short < -M.TOLERANCE) continue;
       const g: IAutoMovieVector3 = S.normal(frame, pair.shape, placed.probes[pair.probe]![0]);
       rows.push({
-        coef: jac.probes[pair.probe]!.map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
+        coef: jac.probe(pair.probe).map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
         gain: pair.short + M.TOLERANCE,
       });
     }
@@ -148,7 +205,7 @@ export namespace HumanArmTrajectoryClear {
     c.free[arm]!.forEach((d: number, f: number): void => {
       delta[arm]![d] = step[f]!;
     });
-    return { share: shares[waypoint]!, delta, depth: deepest };
+    return { share: shares[waypoint]!, delta, depth: excess };
   }
 
   /**

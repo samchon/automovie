@@ -6,7 +6,6 @@ import type {
 } from "@automovie/interface";
 
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
-import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { Quaternion } from "../math/Quaternion";
 import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
@@ -59,7 +58,7 @@ interface IReading {
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared private reader owns authored-order admission and the lower prefix. This complete-frame entry adds the effector frame; its lower companion uses the identical admission reader without unused world-effector assembly.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An invalid earlier chain duplicate still throws before a later record can overwrite it. Unchanged non-chain records were admitted during preparation. Missing articulations remain identity without admitting an unused basis, and no ideal target substitutes for actual FK.
  * @evidence contracts/development/implementation.md#efficient-algorithms One O(J) joint scan and one conversion per chain record, normally three, replace a full skeleton walk; duplicate admission is required and conversions are not repeated. The lower-only companion skips two final effector quaternion products, a vector rotation and an addition, while retaining every end conversion; runtime improvement is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Both frames share one completed lower prefix and admitted quaternions; an optional matching rig shares normalized bases without skipping any authored record. Fixed transforms and mappings belong to this fit's unchanged source, never a global body cache.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Both frames share one completed lower prefix and admitted quaternions; an optional matching rig lends each chain bone's prepared composer (`prepareChainFit.IRig.composer`), the same expressions, so every read of a fit composes its records with one composer a bone, without skipping any authored record. Fixed transforms and mappings belong to this fit's unchanged source, never a global body cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns only two returned frames and temporary quaternions; retains no pose, prepared record, history, process or resource handle after return.
  */
 export function resolvePreparedChainFrames(props: IProps): IFrames {
@@ -156,11 +155,7 @@ function read(props: IProps): IReading {
             props.jointAxes?.[joint.bone],
             props.restFrames?.[joint.bone],
           )
-        : jointToQuaternionOnBasis(
-            joint,
-            props.rig.jointBasis(joint.bone, "jointToQuaternion axes"),
-            props.restFrames?.[joint.bone],
-          );
+        : props.rig.composer(joint.bone, props.restFrames?.[joint.bone])(joint);
     if (joint.bone === props.prepared.chain.upper) {
       upper = joint;
       upperArticulation = articulation;

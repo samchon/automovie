@@ -27,8 +27,6 @@ import { ExerciseKey } from "../exercise/ExerciseKey";
 import { lieDown } from "../floor/lieDown";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanColliders } from "../posture/HumanColliders";
-import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { knockdown } from "../reaction/knockdown";
@@ -299,7 +297,7 @@ export namespace highJump {
       const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
       const frozen: ReturnType<typeof GymnasticsFlight.freeze> = GymnasticsFlight.freeze(body, takeoff.plan.posture(off, undefined, read, projection), read, projection);
       return { posture: frozen.posture, centre: resolveAutoMovieCenterOfMass.place(model,
-        poseBones(body, frozen.pose, read(), HumanColliders.bones(body))) };
+        body.colliderBones.map(frozen.pose, read())) };
     })();
     const from: IAutoMovieMotionHumanPosture = launchFrame.posture;
     const c0: IAutoMovieVector3 = launchFrame.centre;
