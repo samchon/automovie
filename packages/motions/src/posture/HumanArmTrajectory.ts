@@ -291,10 +291,29 @@ export namespace HumanArmTrajectory {
             if (k >= 0 && k + 1 < knots.length && knots[k + 1]! - knots[k]! >= 2)
               split.add(k);
         if (split.size === 0) break;
-        const carried: number[][][] = refine(
-          solved.x,
-          [...split].sort((p: number, q: number): number => p - q),
+
+        // A stretch the reading refuses is refined to the frame grid at
+        // once, not a halving a solve: each halving would cost a whole
+        // optimisation and a whole reading, and a stretch that needs the
+        // grid's own knots would pay as many of both as it has halvings.
+        const stretches: [number, number][] = [...split].map(
+          (k: number): [number, number] => [knots[k]!, knots[k + 1]!],
         );
+        let carried: number[][][] = solved.x;
+        for (
+          let within: number[] = [...split].sort((p: number, q: number): number => p - q);
+          within.length > 0;
+          within = knots.flatMap((g: number, k: number): number[] =>
+            k + 1 < knots.length &&
+            knots[k + 1]! - g >= 2 &&
+            stretches.some(
+              ([from, to]: [number, number]): boolean => g >= from && knots[k + 1]! <= to,
+            )
+              ? [k]
+              : [],
+          )
+        )
+          carried = refine(carried, within);
         solved = HumanArmOptimiser.optimise(context, carried, solved.penalty);
         played = Admission.read(context, fine, solved.x);
       }
