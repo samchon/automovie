@@ -117,8 +117,8 @@ import { staggerRecover } from "./staggerRecover";
  * 10.7 and 8.0 degrees, at its measured onset; Weerdesteyn, Laing and
  * Robinovitch 2008, Exp Brain Res 186:571), held through the steps and let
  * down as the body settles, each let out further where it would pass into
- * the body, read once for the plan as a gait reads its carriage
- * (`HumanArmSwing.carriage`) and carried on the abduction's rise and fall. The steps, the catch and the settling are
+ * the body, read once for the plan at `KNOTS` a second as a gait reads its
+ * carriage (`HumanArmSwing.carriage`) and interpolated between. The steps, the catch and the settling are
  * the body's dynamics, which no manner changes; the manner's tempo scales
  * the righting.
  *
@@ -181,7 +181,7 @@ export namespace stagger {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, one held base and two rows: the body over its feet, and the arms.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A push no `STEPS` steps catch is refused with the body's limit instead of shortening a step past the legs' reach; the righting is a named provisional constant.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning steps at most 30 closed-form pendulum prefixes and admits only the prefixes of an order the pendulum catches; a refused push adds the limit's bisection of such recoveries over one prepared entry geometry. No stance course or quadratic program is solved; each pose query is one course read, one ground settling and at most two prepared swing holds.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the recovery, feet, arm and causal-target owners. Step endpoints, swing curves and bows are kept per declared step; the arms' let-out is read once per plan (`HumanArmSwing.carriage` at the steps' lift-offs, mid-swings, touch-downs and rest) and carried on the abduction's rise and fall, so a pose query writes the arms as joint angles with no fit. Between those samples, where the abduction is still rising, the let-out scales with it, unverified there.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the recovery, feet, arm and causal-target owners. Step endpoints, swing curves and bows are kept per declared step; the arms' let-out is read once per plan (`HumanArmSwing.carriage` at `KNOTS` a second, about 50 samples a second of plan, each raised to its neighbours' largest) and interpolated, so a pose query writes the arms as joint angles with no fit; between samples the clearance is the interpolated envelope's, unverified inside an interval.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its recovery, feet and authored geometric data; refusal observations end on return or throw. Runtime loans last only through each writer call and never enter posture data, endpoint/bow caches or a solved-pose history.
    */
   export function plan(
@@ -333,14 +333,24 @@ export namespace stagger {
       to: duration,
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
         const more: number = raised(seconds);
-        const share: number = more / ABDUCTION;
+
+        // The let-out's envelope between the two samples around this second.
+        const at: number = Math.min(Math.max(0, seconds * KNOTS), Math.max(0, carried.left.length - 1));
+        const k: number = Math.floor(at);
+        const out: (side: "left" | "right") => number = (side: "left" | "right"): number => {
+          const series: number[] = carried[side];
+          if (series.length === 0) return 0;
+          const a: number = series[k]!;
+          const b: number = series[Math.min(series.length - 1, k + 1)]!;
+          return a + (b - a) * (at - k);
+        };
         const abducted: (side: "left" | "right") => AutoMovieMotionHumanArm.IAngles = (
           side: "left" | "right",
         ): AutoMovieMotionHumanArm.IAngles => ({
           ...held[side],
           upper: [
             held[side].upper[0],
-            held[side].upper[1] + more + carried[side] * share,
+            held[side].upper[1] + more + out(side),
             held[side].upper[2],
           ],
         });
@@ -353,11 +363,13 @@ export namespace stagger {
       },
     };
     // Each arm's let-out from the body (`HumanArmSwing.carriage`, the gait's
-    // own held carriage), read once at plan time at every step's lift-off,
-    // mid-swing and touch-down and at rest, and carried on the abduction's
-    // own rise and fall, so no pose query fits an arm and the arms leave
-    // and rejoin the entry's angles where they stand.
-    let carried: Record<"left" | "right", number> = { left: 0, right: 0 };
+    // own clearance), read once at plan time at `KNOTS` a second against the
+    // plan's own posture there (its dropped pelvis and swinging thighs), each
+    // sample raised to the largest of its neighbours' so the interpolated
+    // let-out holds at both samples around every second; no pose query fits
+    // an arm.
+    const KNOTS: number = staggerBounds.KNOTS;
+    let carried: Record<"left" | "right", number[]> = { left: [], right: [] };
     const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: {
         ...AutoMovieMotionHumanBase.still(duration, {
@@ -372,19 +384,20 @@ export namespace stagger {
       clock,
       primitives: [legs, arms],
     });
-    carried = HumanArmSwing.carriage(
-      body,
-      [
-        ...recovery.steps.flatMap((step: staggerRecover.IStep): number[] => [
-          step.start,
-          (step.start + step.land) / 2,
-          step.land,
-        ]),
-        recovery.settled,
-      ].map((seconds: number): number => Math.min(duration, seconds)),
-      composed.posture,
-      ["left", "right"],
+    const needs: Record<"left" | "right", number>[] = Array.from(
+      { length: Math.ceil(duration * KNOTS - 1e-9) + 1 },
+      (_: unknown, i: number): Record<"left" | "right", number> =>
+        HumanArmSwing.carriage(body, [Math.min(duration, i / KNOTS)], composed.posture, ["left", "right"]),
     );
+    const envelope: (side: "left" | "right") => number[] = (side: "left" | "right"): number[] =>
+      needs.map((_: Record<"left" | "right", number>, i: number): number =>
+        Math.max(
+          needs[Math.max(0, i - 1)]![side],
+          needs[i]![side],
+          needs[Math.min(needs.length - 1, i + 1)]![side],
+        ),
+      );
+    carried = { left: envelope("left"), right: envelope("right") };
     return {
       ...composed,
       get contacts(): IHumanContactWindow[] {
