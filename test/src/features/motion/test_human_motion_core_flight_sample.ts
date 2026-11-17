@@ -47,6 +47,8 @@ import { qunit } from "../internal/qunit";
  * Body construction, planning, the first bone query, new-time bone queries
  * and repeated-time queries are measured separately. Wall time and process
  * user/system CPU are diagnostic and never change physical acceptance.
+ * New-time percentiles use nearest ranks over the recorded non-first bone
+ * queries, without moving any physical observation out of its original scope.
  *
  * Scenarios:
  * 1. The unchanged one-somersault Human input must produce a real flight.
@@ -349,6 +351,9 @@ export function test_human_motion_core_flight_sample(): void {
   const diagnosticCpuUs: NodeJS.CpuUsage = process.cpuUsage(diagnosticCpuStart);
   const diagnosticMemory: ReturnType<typeof memorySince> = memorySince(body, repeatedMemory.snapshot);
   complaints.push(...diagnostic.problems);
+  const rankedQueries: number[] = queries.toSorted(
+    (left: number, right: number): number => left - right,
+  );
   console.log(
     JSON.stringify({
       sample: "canonical-human-flight",
@@ -364,6 +369,12 @@ export function test_human_motion_core_flight_sample(): void {
         0,
       ),
       newTimeMaximumMs: Math.max(...queries),
+      newTimePercentilesMs: {
+        method: "nearest-rank",
+        p50: rankedQueries[Math.ceil(0.5 * rankedQueries.length) - 1] ?? null,
+        p95: rankedQueries[Math.ceil(0.95 * rankedQueries.length) - 1] ?? null,
+        p99: rankedQueries[Math.ceil(0.99 * rankedQueries.length) - 1] ?? null,
+      },
       observationMs,
       observationCpuUs,
       repeatedMs,

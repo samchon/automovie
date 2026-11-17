@@ -10,8 +10,10 @@ import {
 } from "esbuild";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { getHeapStatistics } from "node:v8";
 
 import { parseScenarioSelection } from "./src/parseScenarioSelection.ts";
 import { selectScenarioNames } from "./src/selectScenarioNames.ts";
@@ -45,6 +47,8 @@ import { selectScenarioNames } from "./src/selectScenarioNames.ts";
  * still runs. Metadata records the selected names, output hashes, esbuild
  * metafile and input-file hashes read after building. Those input hashes are
  * post-build snapshots, not proof of bytes read during a concurrent edit.
+ * The same pre-execution record includes Node/V8, heap limits, profiling
+ * flags and CPU/memory capacity so later latency reports name their host.
  * A failed copy leaves its partial evidence in place and runs no tests.
  *
  * `AUTOMOVIE_TEST_BUILD_ONLY=1` additionally skips the test-program import
@@ -202,6 +206,7 @@ function preserveArtifacts(
     JSON.stringify(built.metafile, null, 2),
     { flag: "wx" },
   );
+  const processors: os.CpuInfo[] = os.cpus();
   fs.writeFileSync(
     path.join(directory, "build.json"),
     JSON.stringify({
@@ -210,6 +215,21 @@ function preserveArtifacts(
       testsExecuted: false,
       capturedAt: new Date().toISOString(),
       esbuildVersion: version,
+      runtime: {
+        node: process.version,
+        v8: process.versions.v8,
+        platform: process.platform,
+        architecture: process.arch,
+        execArgv: [...process.execArgv],
+        nodeOptions: process.env.NODE_OPTIONS ?? null,
+        heapSizeLimitBytes: getHeapStatistics().heap_size_limit,
+      },
+      host: {
+        logicalCpuCount: processors.length,
+        availableParallelism: os.availableParallelism(),
+        cpuModels: [...new Set(processors.map((cpu: os.CpuInfo): string => cpu.model))],
+        totalMemoryBytes: os.totalmem(),
+      },
       workingDirectory: root,
       originalOutputDirectory: output,
       selected: selectedNames,
