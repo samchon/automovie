@@ -19,6 +19,7 @@ import { QuadrupedJoints } from "./QuadrupedJoints";
 import { QuadrupedLimb } from "./QuadrupedLimb";
 import { QuadrupedLocomotion } from "./QuadrupedLocomotion";
 import { QuadrupedMotion } from "./QuadrupedMotion";
+import { QuadrupedRideClock } from "./QuadrupedRideClock";
 import { createQuadruped } from "./createQuadruped";
 import { admitQuadrupedPhase } from "./admitQuadrupedPhase";
 
@@ -29,10 +30,13 @@ import { admitQuadrupedPhase } from "./admitQuadrupedPhase";
  *
  * The gait of each stride is the one a course leg names, else the one `gait` names, else the one the speed calls for at the species' change points (`QuadrupedChange`), going up above a change point by the species' hysteresis and coming down below it by as much, so a speed hovering at the boundary does not flip the gait every stride. A change is decided at the left fore's landing, the stride's start, and takes the next stride: each foot's landing moves from the old gait's phase to the new one's, so a planted foot stays planted, and the ride names `gait:<from>-<to>` there. A leg may name a `lead` for a leaded gait, whose right lead mirrors the left; a change of lead is a flying change, taken the same way and named `lead:<from>-<to>`.
  *
- * Cruise and every selected gait's upper speed are admitted before timing is
- * read. A gap between declared gait domains is refused. Only genuine zero-speed
- * departures/arrivals retain the old minimum-speed timing: the allowed distance
- * is vMin²/(2a) under the course's declared acceleration or deceleration.
+ * Cruise, explicit positive speed marks and named gait requests are admitted
+ * before timing is read. Gaps between declared gait domains are refused.
+ * Virtual landing clocks use the actual course boundary's state while their
+ * spatial samples remain held by the original plan. Already committed legacy
+ * Froude/mass/overlap handovers can retain an endpoint clock only with actual
+ * adjacent-gait domain support; speed-availability rules do not bridge gaps.
+ * Genuine zero-speed ramps retain the minimum clock over vMin²/(2a).
  *
  * An optional authoring table is admitted and copied before planning. It supplies
  * only this ride's clocks and pose ranges; the animal's species identity, body
@@ -75,37 +79,6 @@ export function rideQuadruped<Affordance extends string, D extends string>(
   const withers: number = dimensions.withersHeight!;
   if (gait !== undefined)
     QuadrupedGait.timing(species, gait, course.cruise, tempo, withers);
-  const paced = (
-    which: QuadrupedGait.Gait,
-    state: ArchetypeCourse.IState,
-  ): QuadrupedGait.ITiming => {
-    const limits: { minimum: number; maximum: number } = QuadrupedGait.range(
-      species,
-      which,
-      withers,
-    );
-    let speed: number = state.speed;
-    if (speed < limits.minimum) {
-      const departing: boolean =
-        course.acceleration !== undefined &&
-        departures.some(
-          (distance: number): boolean =>
-            state.distance >= distance &&
-            state.distance - distance <=
-              limits.minimum ** 2 / (2 * course.acceleration!),
-        );
-      const stopping: boolean =
-        course.deceleration !== undefined &&
-        arrivals.some(
-          (distance: number): boolean =>
-            state.distance <= distance &&
-            distance - state.distance <=
-              limits.minimum ** 2 / (2 * course.deceleration!),
-        );
-      if (departing || stopping) speed = limits.minimum;
-    }
-    return QuadrupedGait.timing(species, which, speed, tempo, withers);
-  };
   const rig: ReturnType<typeof QuadrupedJoints.read> = QuadrupedJoints.read(
     animal.parts,
   );
@@ -113,26 +86,10 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     species.archetype,
     course,
   );
-  const departures: number[] = plan.instants
-    .filter(
-      (instant: { seconds: number; label: string }): boolean =>
-        /^depart\d*$/.test(instant.label) &&
-        plan.at(instant.seconds).speed === 0,
-    )
-    .map(
-      (instant: { seconds: number }): number =>
-        plan.at(instant.seconds).distance,
-    );
-  const arrivals: number[] = plan.instants
-    .filter(
-      (instant: { seconds: number; label: string }): boolean =>
-        /^stop\d*$/.test(instant.label) && plan.at(instant.seconds).speed === 0,
-    )
-    .map(
-      (instant: { seconds: number }): number =>
-        plan.at(instant.seconds).distance,
-    );
-  const selected = (speed: number): QuadrupedGait.Gait =>
+  const clock: QuadrupedRideClock.IClock = QuadrupedRideClock.create(
+    species, course, plan, tempo, withers,
+  );
+  const selected: (speed: number) => QuadrupedGait.Gait = (speed: number): QuadrupedGait.Gait =>
     QuadrupedChange.called(
       species,
       speed,
@@ -153,14 +110,14 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       tempo,
       withers,
     );
-  const copied = (frame: IAutoMovieTransform): IAutoMovieTransform => ({
+  const copied: (frame: IAutoMovieTransform) => IAutoMovieTransform = (frame: IAutoMovieTransform): IAutoMovieTransform => ({
     translation: { ...frame.translation },
     rotation: { ...frame.rotation },
     scale: { ...frame.scale },
   });
 
   // The leg holding each distance, and the gait and lead it names, by the legs the plan measured.
-  const legAt = (distance: number): rideQuadruped.ILeg => {
+  const legAt: (distance: number) => rideQuadruped.ILeg = (distance: number): rideQuadruped.ILeg => {
     let k: number = 0;
     while (
       k < plan.legSpans.length - 1 &&
@@ -190,9 +147,18 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         withers,
       );
   });
+  for (const [speed, distance] of [
+    [course.startSpeed ?? 0, 0],
+    [course.endSpeed ?? 0, plan.length],
+  ] as const)
+    if (speed > 0)
+      QuadrupedGait.timing(
+        species, legAt(distance).gait ?? gait ?? selected(speed),
+        speed, tempo, withers,
+      );
 
   // The stride's gait as the speed calls for it, from the one it is in.
-  const decide = (
+  const decide: (state: ArchetypeCourse.IState, from: QuadrupedGait.IStride) => QuadrupedGait.IStride = (
     state: ArchetypeCourse.IState,
     from: QuadrupedGait.IStride,
   ): QuadrupedGait.IStride => {
@@ -213,13 +179,13 @@ export function rideQuadruped<Affordance extends string, D extends string>(
   };
 
   // Phase against time, each stride at its own gait; a stride's gait is decided at the start of the one before it.
-  const step: number = plan.duration / rideQuadruped.STEPS;
+  const step: number = (clock.end - clock.start) / rideQuadruped.STEPS;
   const slowest: QuadrupedGait.Gait = species.table.order[0]!;
-  const first: QuadrupedGait.IStride = decide(plan.at(0), {
+  const first: QuadrupedGait.IStride = decide(clock.at(clock.start), {
     gait: gait ?? slowest,
     lead: "left",
   });
-  const strides: QuadrupedGait.IStride[] = [first, decide(plan.at(0), first)];
+  const strides: QuadrupedGait.IStride[] = [first, decide(clock.at(clock.start), first)];
   const phases: number[] = [0];
   for (let i: number = 0; i < rideQuadruped.STEPS; i++) {
     const current: QuadrupedGait.IStride = strides[Math.floor(phases[i]!)]!;
@@ -227,27 +193,27 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       species.archetype,
       phases[i]!,
       step,
-      paced(current.gait, plan.at((i + 0.5) * step)).stride,
+      clock.timing(current.gait, clock.start + (i + 0.5) * step).stride,
       rideQuadruped.STEPS,
     );
     for (let n: number = Math.floor(phases[i]!) + 1; n <= next; n++)
       strides[n + 1] = decide(
-        plan.at((i + (n - phases[i]!) / (next - phases[i]!)) * step),
+        clock.at(clock.start + (i + (n - phases[i]!) / (next - phases[i]!)) * step),
         strides[n]!,
       );
     phases.push(next);
   }
-  const strideOf = (m: number): QuadrupedGait.IStride =>
+  const strideOf: (m: number) => QuadrupedGait.IStride = (m: number): QuadrupedGait.IStride =>
     strides[Math.max(0, Math.min(strides.length - 1, m))]!;
-  const phaseAt = (seconds: number): number => {
+  const phaseAt: (seconds: number) => number = (seconds: number): number => {
     const at: number = Math.max(
       0,
-      Math.min(rideQuadruped.STEPS, seconds / step),
+      Math.min(rideQuadruped.STEPS, (seconds - clock.start) / step),
     );
     const i: number = Math.min(rideQuadruped.STEPS - 1, Math.floor(at));
     return phases[i]! + (phases[i + 1]! - phases[i]!) * (at - i);
   };
-  const secondsAt = (phase: number): number => {
+  const secondsAt: (phase: number) => number = (phase: number): number => {
     let low: number = 0;
     let high: number = rideQuadruped.STEPS;
     while (high - low > 1) {
@@ -256,12 +222,12 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       else high = middle;
     }
     return (
-      (low + (phase - phases[low]!) / (phases[high]! - phases[low]!)) * step
+      clock.start + (low + (phase - phases[low]!) / (phases[high]! - phases[low]!)) * step
     );
   };
 
   // Each foot's landing in a stride: the stride's gait's phase on its lead.
-  const landing = (limb: QuadrupedBody.Limb, m: number): number =>
+  const landing: (limb: QuadrupedBody.Limb, m: number) => number = (limb: QuadrupedBody.Limb, m: number): number =>
     m + QuadrupedGait.phase(species, strideOf(m), limb);
 
   // Every landing of every foot, and every change of gait or lead.
@@ -290,13 +256,14 @@ export function rideQuadruped<Affordance extends string, D extends string>(
 
   // Each foot's stance uses its end's declared duty when supplied; legacy
   // tables keep their common fore duty. Travel ends at that foot's own lift.
-  const stance = (
+  const stance: (at: number, which: QuadrupedGait.Gait, fore: boolean) => { duty: number; from: number; travel: number } = (
     at: number,
     which: QuadrupedGait.Gait,
     fore: boolean,
   ): { duty: number; from: number; travel: number } => {
-    const landed: ArchetypeCourse.IState = plan.at(secondsAt(at));
-    const timing: QuadrupedGait.ITiming = paced(which, landed);
+    const seconds: number = secondsAt(at);
+    const landed: ArchetypeCourse.IState = plan.at(seconds);
+    const timing: QuadrupedGait.ITiming = clock.timing(which, seconds);
     const duty: number = fore ? timing.duty : (timing.hindDuty ?? timing.duty);
     return {
       duty,
@@ -391,7 +358,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
           species,
           strideOf(Math.floor(phase)),
           phase,
-          paced(now, state).duty,
+          clock.timing(now, plan.when(state.distance)).duty,
         );
       const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
         { x: 1, y: 0, z: 0 },
@@ -432,7 +399,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
               moved.get(part.id) ?? part.transform;
             return {
               ...part,
-              ...(frame == null ? {} : { transform: copied(frame) }),
+              ...(frame === null || frame === undefined ? {} : { transform: copied(frame) }),
             };
           }),
           frames,

@@ -97,21 +97,34 @@ export function archetypeCatalogCarried(
     true,
   );
   add("horse", (seed?: number | string): Archetype => createHorse({}, seed));
+
+  // These interaction fixtures include real collar/lead geometry and its rein
+  // contact. The ox/camel reference masses are adopted as authored complete
+  // model totals; the deer's 62 kg total is authored separately from its bare
+  // cohort's 60.4 kg mean, without inventing an equipment weight measurement.
+  const lead: NonNullable<createOx.IParams["lead"]> = {
+    width: 0.02,
+    thickness: 0.003,
+    leadLength: 0.6,
+    leadRadius: 0.004,
+  };
+
+  // A fixed cohort body still draws tempo in [-1, 1], so these complete
+  // catalog rows remain seed-variable even when their geometry is unchanged.
   add(
     "ox",
-    (seed?: number | string): Archetype => createOx(createOx.REFERENCE, seed),
-    true,
+    (seed?: number | string): Archetype =>
+      createOx({ ...createOx.REFERENCE, lead }, seed),
   );
   add(
     "camel",
     (seed?: number | string): Archetype =>
-      createCamel(createCamel.REFERENCE, seed),
-    true,
+      createCamel({ ...createCamel.REFERENCE, lead }, seed),
   );
   add(
     "deer",
-    (seed?: number | string): Archetype => createDeer({}, seed),
-    true,
+    (seed?: number | string): Archetype =>
+      createDeer({ mass: 62, lead }, seed),
   );
   add("pony", (seed?: number | string): Archetype => createPony({}, seed));
   add("donkey", (seed?: number | string): Archetype => createDonkey({}, seed));

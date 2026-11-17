@@ -65,7 +65,7 @@ function carried<Id extends string, D extends string>(
   });
   if (Math.abs(change.w) >= 1 - 1e-8)
     findings.push(`${animal.archetype}: the authored nonzero nod was lost`);
-  const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+  const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 =>
     Vector3.add(
       posed.translation,
       Quaternion.rotateVector(

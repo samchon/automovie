@@ -57,7 +57,7 @@ export namespace animalLocomotionFixture {
       (candidate: IAutoMovieModelPart): boolean =>
         candidate.id === `${limb}Pastern`,
     );
-    if (part?.geometry.type !== "primitive" || part.transform == null)
+    if (part?.geometry.type !== "primitive" || part.transform === null || part.transform === undefined)
       throw new Error(
         "A real quadruped's lower bar must retain its placed primitive",
       );

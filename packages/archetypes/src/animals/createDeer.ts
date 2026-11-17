@@ -10,14 +10,18 @@ import { createCohortQuadruped } from "./createCohortQuadruped";
 /**
  * A coarse adult male Boso sika reference with source-sized antler beam controls.
  *
+ * Body and antler means come from the 1995 study's October 1992/1993
+ * sample, with different trait counts. DeerBody separately declares the
+ * older animals in the 1997 skull/limb study; these are not paired specimens.
+ *
  * @param params Optional authored mass, antler presence, timing coordinate and lead.
  * @param seed Independent construction seed.
  * @returns The actual shared deer model; absent mass uses the bare cohort's 60.4 kg mean.
  * @throws {ArchetypeRefusal} For invalid authored mass/lead, or a lead without explicitly authored whole-model mass.
- * @evidence contracts/development/common.md#meaningful-documentation Separates the adult male body cohort, older separate skeletal/antler cohort and coarse branching construction; equipment requires explicit total mass.
+ * @evidence contracts/development/common.md#meaningful-documentation Separates the 1995 adult male body/antler study and its trait-dependent counts from the older 1997 skeletal controls and coarse branching construction; equipment requires explicit total mass.
  * @evidence contracts/development/implementation.md#principled-implementation DeerBody owns the cited Boso means and real bone lengths. Antler beam controls preserve the published curve length and total tip width by an independent right triangle; named constructed tines remain distinct from the measured main-beam dimensions.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit equipment mass ownership, supply the coherent body and add two source-sized coarse beams and their explicitly constructed tines.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Separate ages/cohorts are not asserted paired. Straight beam controls and two tines are construction proxies, not recovered antler surfaces, and no measured body mass silently includes newly authored equipment.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Different trait counts and separate skeletal specimens are not asserted paired. Straight beam controls and two tines are construction proxies, not recovered antler surfaces, and no measured body mass silently includes newly authored equipment.
  * @evidence contracts/development/implementation.md#efficient-algorithms Fixed-size body and two main beams with a fixed number of tines; all coordinates follow named lengths and fractions without mesh fitting.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared body/reference/lead owners build the actual model; both antlers use the same source and construction definition.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent scalar model records without retained callbacks, global registry, process or renderer.
@@ -115,7 +119,17 @@ export namespace createDeer {
     antlers?: boolean;
   }
 
-  /** Ochiai/Asada 1997 Boso mature males: antler curve length, whole tip width and base ellipse diameters, metres (https://www.chiba-muse.or.jp/NATURAL/cms/wp-content/uploads/2024/01/journal_04-2_12ochiai.pdf). Separate from the 1995 body cohort. */
+  /**
+   * Ochiai and Asada 1995, Chiba 3(2):223-232, Table 7, printed p. 227
+   * (PDF p. 5): Boso males age four or more, measured in October 1992/1993.
+   * Table 1 gives 24 deer for each antler trait; left/right lengths and base
+   * diameters were averaged per deer. The curve length, tip-to-tip width and
+   * base ellipse diameters below convert its centimetre means to metres.
+   * Curve length follows the antler, not a straight root-to-tip distance.
+   * http://www.chiba-muse.or.jp/NATURAL/cms/wp-content/uploads/2024/01/journal_03-2_11ochiai.pdf
+   * This is the body study's population with different trait counts; the
+   * separate 1997 skull/limb references remain explicitly owned by DeerBody.
+   */
   export const ANTLERS: Readonly<{
     curve: number;
     tipWidth: number;

@@ -281,14 +281,15 @@ export namespace QuadrupedGait {
     tempo: number = 0,
     withers: number = species.table.reference,
   ): ITiming {
-    const refuse = (
+    /** Report a malformed timing coordinate with its dimensional range. */
+    function refuse(
       axis: string,
       value: number,
       low: number,
       high: number | null,
       unit: string,
       reason: string,
-    ): never => {
+    ): never {
       throw new ArchetypeRefusal({
         kind: "parameter",
         archetype: species.archetype,
@@ -298,7 +299,7 @@ export namespace QuadrupedGait {
         reason,
         fix: `give a ${axis} inside its range`,
       });
-    };
+    }
     if (!(Number.isFinite(withers) && withers > 0))
       refuse("withers", withers, 0, null, "m", "a height is positive");
     if (!(tempo >= -1 && tempo <= 1))
@@ -339,7 +340,10 @@ export namespace QuadrupedGait {
     const high: IRow = rows.length === 1 ? low : rows[k + 1]!;
     const share: number =
       rows.length === 1 ? 0 : (similar - low.speed) / (high.speed - low.speed);
-    const mix = (a: number, b: number): number => a + (b - a) * share;
+    /** Interpolate one pair at the already admitted speed bracket. */
+    function mix(a: number, b: number): number {
+      return a + (b - a) * share;
+    }
     const deviation: number = mix(low.deviation, high.deviation);
     const stride: number = mix(low.stride, high.stride);
     return {

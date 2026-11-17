@@ -17,7 +17,7 @@ import { QuadrupedBodyProfile } from "./QuadrupedBodyProfile";
  * The fourth limb bars, neck, short tail, skin radii and absolute standing
  * directions remain explicitly authored estimates. Head dimensions describe
  * the cleaned skull; using them for a coarse capsule does not recover soft
- * tissue. The producer owns ears, antlers and any authored tack separately.
+ * tissue. The producer owns antlers and any authored tack separately.
  *
  * @param withersHeight Admitted instance height in metres for lateral inset scaling.
  * @returns Fresh coarse controls, with unknown segment mass fractions and foot material absent.
@@ -70,7 +70,7 @@ export function DeerBody(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Source records retain distinct cohort/sample meanings and SI units; construction member comments identify every estimate's role.
  * @evidence contracts/development/design.md#principled-representation Weighed/tape body measures and actual bone/skull lengths remain separate records, while construction choices supply only what those references do not measure.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Current deer construction reads the same closed body representation as other quadrupeds. The producer owns ears and antlers rather than this profile duplicating their geometry.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Current deer construction reads the same closed body representation as other quadrupeds. The producer owns antlers rather than this profile duplicating their geometry.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No inferred withers height is mislabeled an independent measurement, no unknown anatomy or physical coefficient is invented and no published marginal spread becomes a fitted individual relationship.
  */
 export namespace DeerBody {
