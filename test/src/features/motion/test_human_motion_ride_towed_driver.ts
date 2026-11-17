@@ -1,0 +1,212 @@
+import {
+  ArchetypeFrame,
+  ArchetypeRide,
+  createCart,
+  createHorse,
+  rideHorse,
+} from "@automovie/archetypes";
+import {
+  Quaternion,
+  Vector3,
+  pointSegmentDistance,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanHand,
+  HumanObject,
+  HumanPerformance,
+  HumanRide,
+} from "@automovie/motions";
+import { TestValidator } from "@nestia/e2e";
+
+import { motionHumanBody } from "../internal/motionHumanBody";
+
+/**
+ * A seated driver stays on the seat and holds both driving lines while a
+ * horse draws a cart at a walk through a quarter turn.
+ *
+ * Scenarios:
+ * 1. The average man and the small woman board the same cart while it waits.
+ * 2. When it departs, enters the turn, reaches the middle of the turn and
+ *    leaves it, the seat socket lies within 10 mm of the seat rectangle.
+ * 3. At those same instants each palm lies within 10 mm of the skin of the
+ *    driving line's run between the terret and the point held by the driver.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the bodies, course and seat and palm observations in metres at four named course positions.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes a real horse and cart through the public towing and ride APIs and reads the displayed driver's seat and palm sockets against the actual posed cart and laid lines. A seat left behind or a hand following the wrong line fails.
+ * @evidence contracts/development/testing.md#independent-expectations The 10 mm tolerance and quarter-turn radius are from #3473 and #3495. The seat rectangle is the cart's own affordance and the rein surface is the emitted line segment widened by its declared radius. Neither oracle reads the rider's targets or a previously displayed rider pose. Sampling four course positions does not establish all phases, feet or finger closure.
+ * @evidence contracts/development/testing.md#distinguishing-cases Both body builds, both hands, and separate readings on the departure and before, during and after the steering change. Cart ground contact and each harness anchor have separate archetype specs.
+ * @evidence contracts/development/testing.md#execution-ownership The exported in-memory case shares one towing plan across the two drivers and reads their displayed bones once each at four instants.
+ */
+export function test_human_motion_ride_towed_driver(): void {
+  const departuresAt: number = 6;
+  const straight: number = 8;
+  const radius: number = 10;
+  const arc: number = (Math.PI * radius) / 2;
+  const tolerance: number = 0.01;
+  const seed: number = 4;
+  const horse: ReturnType<typeof createHorse> = createHorse(
+    { tack: "harness" },
+    seed,
+  );
+  const cart: ReturnType<typeof createCart> = createCart(
+    { kind: "cart", withersHeight: horse.dimensions.withersHeight! },
+    seed,
+  );
+  const leader: ReturnType<typeof rideHorse> = rideHorse(horse, {
+    start: { x: 0, z: 0, heading: 0 },
+    legs: [
+      { kind: "straight", length: straight },
+      { kind: "turn", radius, angle: 90 },
+      { kind: "straight", length: straight },
+    ],
+    at: departuresAt,
+    cruise: 1.5,
+    acceleration: 0.5,
+    deceleration: 0.5,
+  });
+  const ride: ArchetypeRide.IRide<createCart.Affordance, createCart.Dimension> =
+    ArchetypeRide.towed(leader, "hitch", cart, "coupling", {
+      lines: createCart.lines(cart),
+      support: createCart.towing(cart),
+    });
+  const placement = (seconds: number): IAutoMovieRigidTransform => {
+    const frame: IAutoMovieTransform = ride.at(seconds).placement;
+    return { position: frame.translation, rotation: frame.rotation };
+  };
+  const initial: IAutoMovieRigidTransform = placement(0);
+  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+    cart,
+    initial,
+    "seat",
+  );
+  const standAt: IAutoMovieVector3 = ride.frame("footboard", 0).translation;
+  const seatSurface: IAutoMovieAffordance = cart.affordance("seat");
+  const instants: readonly number[] = [
+    departuresAt,
+    ride.plan.when(straight),
+    ride.plan.when(straight + arc / 2),
+    ride.plan.when(straight + arc),
+  ];
+  const findings: string[] = [];
+
+  /** Report the missed contact in millimetres without interrupting the sweep. */
+  const check = (label: string, gap: number): void => {
+    if (!(gap <= tolerance))
+      findings.push(`${label}: ${(gap * 1000).toFixed(1)} mm from contact`);
+  };
+  for (const name of ["m-average", "f-small"] as const) {
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    let performance: HumanPerformance;
+    try {
+      performance = new HumanPerformance({
+        seed: "towed-driver",
+        laws: [HumanRide.ride],
+        props: [
+          HumanObject.prop(
+            "cart",
+            cart,
+            initial,
+            placement,
+            (id: string, seconds: number): IAutoMovieTransform =>
+              ride.frame(id as createCart.Affordance, seconds),
+          ),
+        ],
+        performers: [
+          {
+            subject: "driver",
+            body,
+            at: standAt,
+            yaw: seat.yaw,
+            proficiency: { level: "trained" },
+          },
+        ],
+        composition: HumanChain.subject("driver")
+          .stand({ seconds: 0.3, on: { prop: "cart" } })
+          .sit({ seat, seconds: 0.5 })
+          .registered("ride", {
+            on: "cart",
+            seconds: ride.duration,
+            seat: "seat",
+            hands: { left: "leftLine", right: "rightLine" },
+          }).node,
+      });
+    } catch (error) {
+      findings.push(
+        `${name}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      continue;
+    }
+
+    for (const seconds of instants) {
+      const label: string = `${name} at ${seconds.toFixed(2)} s`;
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        performance.bones("driver", seconds);
+      const sample: ReturnType<typeof ride.at> = ride.at(seconds);
+
+      // A seat's origin is the front edge. Its usable rectangle extends
+      // behind that edge, with its normal along local +Y.
+      const frame: IAutoMovieTransform = ArchetypeFrame.compose(
+        sample.placement,
+        sample.archetype.affordance("seat").frame,
+      );
+      const socket: typeof body.surfaces.regions.seat =
+        body.surfaces.regions.seat;
+      const local: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.inverse(frame.rotation),
+        Vector3.subtract(
+          resolveAutoMovieHumanoidSurfaces.place(socket, bones.get(socket.bone)!)
+            .point,
+          frame.translation,
+        ),
+      );
+      check(
+        `${label}, seat`,
+        Math.hypot(
+          Math.max(0, Math.abs(local.x) - seatSurface.width! / 2),
+          local.y,
+          Math.max(0, local.z, -seatSurface.depth! - local.z),
+        ),
+      );
+
+      for (const side of ["left", "right"] as const) {
+        const line: ArchetypeRide.ILineState | undefined = sample.lines?.find(
+          (entry: ArchetypeRide.ILineState): boolean =>
+            entry.id === `line-${side}`,
+        );
+        const from: IAutoMovieVector3 | undefined = line?.points.at(-2);
+        const to: IAutoMovieVector3 | undefined = line?.points.at(-1);
+        if (line === undefined || from === undefined || to === undefined) {
+          findings.push(`${label}, ${side} palm: no driving line was laid`);
+          continue;
+        }
+        const palm: IAutoMovieVector3 = HumanHand.frame(
+          body,
+          bones,
+          side,
+          "palm",
+        ).point;
+        check(
+          `${label}, ${side} palm`,
+          Math.abs(pointSegmentDistance(palm, from, to) - line.radius),
+        );
+      }
+    }
+  }
+  TestValidator.equals(
+    "the seated driver stays on the drawn cart",
+    findings,
+    [],
+  );
+}
