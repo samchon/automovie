@@ -5,6 +5,7 @@ import {
   Vector3,
   boxExcludedSwivels,
   decomposeJointRotation,
+  decomposeJointRotationOnBasis,
   hingedArmArticulation,
   jointRomOvershoot,
   normalizeJointAxes,
@@ -14,6 +15,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
+  IAutoMovieJointPose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -250,24 +252,33 @@ export namespace AutoMovieMotionHumanBendSearch {
     const clear: ReturnType<typeof HumanArmOvershoot.prepare> =
       HumanArmOvershoot.prepare(body, chain.shapes, side);
 
+    // The two joints' bases and ranges are the rig's, fixed over the search:
+    // admitted and resolved once, as the engine's own candidate scoring
+    // reads them, instead of once a candidate.
+    const lowerBasis: IAutoMovieJointAxes = normalizeJointAxes(
+      lowerAxes,
+      "AutoMovieMotionHumanBendSearch axes",
+    );
+    const upperOvershoot: (joint: IAutoMovieJointPose) => number =
+      jointRomOvershoot.prepare(upperBone, upperRange);
+    const lowerOvershoot: (joint: IAutoMovieJointPose) => number =
+      jointRomOvershoot.prepare(lowerBone, prepared.lowerDomain.constraint);
+
     // A branch's candidates share one lower rotation, the same record, and
     // differ only in the swivel of the upper arm, so the lower joint's
     // overshoot is read once per record: the same value, read once.
     let mid: { rotation: IAutoMovieQuaternion; overshoot: number } | undefined;
     const midOf: (lower: IAutoMovieQuaternion) => number = (lower: IAutoMovieQuaternion): number => {
       if (mid !== undefined && mid.rotation === lower) return mid.overshoot;
-      const l: IAngles = decomposeJointRotation(
+      const l: IAngles = decomposeJointRotationOnBasis(
         lower,
-        lowerAxes,
+        lowerBasis,
         HUMANOID_REST_FRAME[lowerBone],
         prepared.lowerDomain,
       );
       mid = {
         rotation: lower,
-        overshoot: jointRomOvershoot(
-          { bone: lowerBone, ...l },
-          prepared.lowerDomain.constraint,
-        ),
+        overshoot: lowerOvershoot({ bone: lowerBone, ...l }),
       };
       return mid.overshoot;
     };
@@ -275,9 +286,9 @@ export namespace AutoMovieMotionHumanBendSearch {
       upper: IAutoMovieQuaternion,
       lower: IAutoMovieQuaternion,
     ): ICandidate => {
-      const u: IAngles = decomposeJointRotation(
+      const u: IAngles = decomposeJointRotationOnBasis(
         upper,
-        chain.axes[upperBone],
+        upperBasis,
         HUMANOID_REST_FRAME[upperBone],
         prepared.upperDomain,
       );
@@ -301,7 +312,7 @@ export namespace AutoMovieMotionHumanBendSearch {
         elbow,
         angles: u,
         overshoot:
-          jointRomOvershoot({ bone: upperBone, ...u }, upperRange) +
+          upperOvershoot({ bone: upperBone, ...u }) +
           midOf(lower) +
           clear(elbow, point),
         strain,
