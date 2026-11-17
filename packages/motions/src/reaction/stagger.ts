@@ -272,7 +272,18 @@ export namespace stagger {
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
         resolution?: Parameters<IHumanActionPlan["posture"]>[2],
       ): IHumanPosture => {
-        const { feet: scheduled, settled, reached, trunk, ease }: ReturnType<StaggerFeet["solve"]> = feet.solve(seconds, resolution);
+        // The root carries the plan-time residual of the displayed centre of
+        // mass from the pendulum's course (`balanced`), interpolated, and the
+        // pelvis is settled where that puts it, under the trunk's tilt: the
+        // legs are fitted to the hips the pose shows.
+        const at: number = Math.min(Math.max(0, seconds * KNOTS), Math.max(0, balanced.length - 1));
+        const k: number = Math.floor(at);
+        const a: IAutoMovieVector3 | undefined = balanced[k];
+        const b: IAutoMovieVector3 | undefined = balanced[Math.min(balanced.length - 1, k + 1)];
+        const shift: IAutoMovieVector3 =
+          a === undefined || b === undefined ? { x: 0, y: 0, z: 0 } : Vector3.lerp(a, b, at - k);
+        const { feet: scheduled, settled, reached, trunk, ease }: ReturnType<StaggerFeet["solve"]> =
+          feet.solve(seconds, resolution, shift);
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
         for (const side of ["left", "right"] as const) {
           const key: "leftLeg" | "rightLeg" = side === "left" ? "leftLeg" : "rightLeg";
@@ -312,22 +323,13 @@ export namespace stagger {
                     : {}),
                 };
         }
-        // The root carries the plan-time residual of the displayed centre of
-        // mass from the pendulum's course (`balanced`), interpolated.
-        const at: number = Math.min(Math.max(0, seconds * KNOTS), Math.max(0, balanced.length - 1));
-        const k: number = Math.floor(at);
-        const a: IAutoMovieVector3 | undefined = balanced[k];
-        const b: IAutoMovieVector3 | undefined = balanced[Math.min(balanced.length - 1, k + 1)];
-        const shift: IAutoMovieVector3 =
-          a === undefined || b === undefined ? { x: 0, y: 0, z: 0 } : Vector3.lerp(a, b, at - k);
-
         // The trunk tilts about the hips against the fall (`staggerLean`),
         // so the legs stay on their feet.
         return AutoMovieMotionHumanLean.pivot(
           body,
           {
             ...posture,
-            root: { x: settled.root.x + shift.x, y: settled.root.y, z: settled.root.z + shift.z },
+            root: settled.root,
             yaw: settled.yaw,
             joints: {
               ...posture.joints,

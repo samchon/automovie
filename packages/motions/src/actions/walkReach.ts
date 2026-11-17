@@ -261,9 +261,10 @@ export namespace walkReach {
    *   starts and stops: a foot that is not stepping keeps its heel down until
    *   its ankle can bend no further.
    * @param resolution Optional exact FK loan from this synchronous person observation; only the actual hip read borrows it.
+   * @param tilt The pelvis's tilt from upright under its settled heading, given the unlowered root, that heading and the upright hip joints (`walkReachHeld.tilt`): its world rotation and the hip joints it carries. A caller that shows the pelvis tilted (a trunk tipped about the hips) gives it, so the lowering is settled on the hip joints as shown; upright when absent.
    * @returns The pelvis and each stance as reached.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States frames, units, claim replacement, rocker onset and both returned stances.
+   * @evidence contracts/development/common.md#meaningful-documentation States frames, units, claim replacement, rocker onset, the tilted pelvis and both returned stances.
    * @evidence contracts/development/implementation.md#principled-implementation Solves the smooth maximum's fixed point by a bracketed root with every taking foot's whole claim, once for each set of fading feet kept or left out, and runs between those lowerings by the feet's weights (multilinear), so the lowering is continuous in a weight: a weight inside the fixed point is ill-posed where a stance trades heel rise for lowering at a slope of one. Only stances whose claims read their ankles participate in trial placement, and deferred endpoints fit at that same final root when read.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Pelvis orientation and fixed weights precede trial placement, the scalar root solve and final endpoint completion.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the claim of a whole stance, the bracket expansion, the root tolerance and the foot ranges; a weight of one or none gives the single lowering it gave before, and inactive stances only skip trials whose residual cannot read them.
@@ -280,12 +281,24 @@ export namespace walkReach {
     claims: Readonly<Partial<Record<"left" | "right", number>>> = {},
     rocker: number = walkLeg.ROCKER,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    tilt?: (
+      root: IAutoMovieVector3,
+      yaw: number,
+      joints: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
+    ) => { rotation: IAutoMovieQuaternion; hips: Record<"left" | "right", IAutoMovieVector3> },
   ): IGround {
     const {
       yaw,
       pivots,
-      hips: joints,
+      hips: upright,
     }: IPelvis = pelvis(body, root, planned, hips, feet, resolution === undefined ? undefined : prepareHumanPoseResolution.read(resolution));
+
+    // A tilt about the hips bone carries each hip joint up or down by its
+    // offset from that bone times the tilt's sine (6 mm at 4 degrees of roll),
+    // and a lowering only translates the pelvis, so the tilted joints are
+    // read once at the unlowered root and lowered with it.
+    const tilted: ReturnType<NonNullable<typeof tilt>> | undefined = tilt?.(root, yaw, upright);
+    const joints: Record<"left" | "right", IAutoMovieVector3> = tilted?.hips ?? upright;
     const hip: (side: "left" | "right", drop: number) => IAutoMovieVector3 = (side: "left" | "right", drop: number): IAutoMovieVector3 => {
       const p: IAutoMovieVector3 = joints[side];
       return { x: p.x, y: p.y - drop, z: p.z };
@@ -405,6 +418,7 @@ export namespace walkReach {
       root: { ...root, y: root.y - drop },
       hips: { left: hip("left", drop), right: hip("right", drop) },
       ...completed,
+      ...(tilted === undefined ? {} : { pelvis: tilted.rotation }),
     };
   }
   /**

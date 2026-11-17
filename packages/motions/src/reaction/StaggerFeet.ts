@@ -3,6 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { walkFoot } from "../actions/walkFoot";
 import { walkReach } from "../actions/walkReach";
+import { walkReachHeld } from "../actions/walkReachHeld";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -106,14 +107,20 @@ export class StaggerFeet {
 
   /**
    * The pelvis and stances at a second: the root carrying the centre of
-   * mass's travel less the trunk lean's shift of it, settled over the feet
-   * as the walk settles its pelvis, the hips read upright.
+   * mass's travel less the trunk lean's shift of it, moved by the plan's
+   * balance shift, settled over the feet as the walk settles its pelvis on
+   * the hip joints the trunk's tilt about the hips carries (`walkReachHeld.tilt`):
+   * the pelvis as the plan shows it. Settled on the upright hips of the
+   * unshifted root and then shifted and tilted, a leg standing at its knee's
+   * least bend was asked for a hip some millimetres further than it reaches,
+   * and its foot left the floor.
    *
    * @param seconds Seconds since the push.
    * @param feet The scheduled feet at that second.
    * @param resolution Optional exact FK source borrowed by the same synchronous settlement.
-   * @param at The lean's reading at the second (`staggerLean`): the upright root before lowering and the reaction's share, over which the lowering comes in from the entry's height; read when absent.
-   * @returns The settled pelvis, feet and contacts.
+   * @param at The lean's reading at the second (`staggerLean`): the upright root before lowering, the trunk's tilt and the reaction's share, over which the lowering comes in from the entry's height; read when absent.
+   * @param shift The plan's level shift of the root at the second, world metres; none when absent.
+   * @returns The settled pelvis (its root shifted, its rotation the tilted one), feet and contacts.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the time, the root's course, the hips read upright and the settling.
    * @evidence contracts/development/implementation.md#principled-implementation The pelvis carries the centre of mass's course (Hof's pendulum and its settling) less the trunk's measured mass shift, and the walk's ground settling lowers it to the closed-form height the planted legs allow, each heel rising about its ball where the ankle runs out of room.
@@ -128,17 +135,24 @@ export class StaggerFeet {
     feet: Record<"left" | "right", walkFoot.IScheduled>,
     resolution?: Parameters<typeof walkReach.ground>[7],
     at: ReturnType<StaggerFeet["lean"]> = this.lean(seconds),
+    shift?: IAutoMovieVector3,
   ): walkReach.IGround {
     const entry: IHumanPosture = this.posture;
+    const body: IHumanActionContext["body"] = this.body;
     const ground: walkReach.IGround = walkReach.ground(
-      this.body,
-      at.root,
+      body,
+      shift === undefined ? at.root : { x: at.root.x + shift.x, y: at.root.y, z: at.root.z + shift.z },
       entry.yaw,
       entry.joints.hips ?? [0, 0, 0],
       feet,
       {},
       undefined,
       resolution,
+      (
+        root: IAutoMovieVector3,
+        yaw: number,
+        joints: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
+      ): ReturnType<typeof walkReachHeld.tilt> => walkReachHeld.tilt(body, root, yaw, joints, at.trunk),
     );
 
     // The lowering comes in with the reaction from the entry's own height,
@@ -208,6 +222,7 @@ export class StaggerFeet {
    *
    * @param seconds Seconds since the push.
    * @param resolution Optional parent FK source borrowed only by this synchronous settlement.
+   * @param shift The plan's level shift of the root at the second, world metres; none when absent.
    * @returns The scheduled, settled and reached feet.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the common clock and each part of the result.
@@ -218,7 +233,7 @@ export class StaggerFeet {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Body-only reach readers serve the fixed body; all current-time feet remain actual.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The result belongs to this evaluation; the FK loan ends with settlement.
    */
-  public solve(seconds: number, resolution?: Parameters<typeof walkReach.ground>[7]): {
+  public solve(seconds: number, resolution?: Parameters<typeof walkReach.ground>[7], shift?: IAutoMovieVector3): {
     feet: Record<"left" | "right", walkFoot.IScheduled>;
     settled: walkReach.IGround;
     reached: Record<"left" | "right", walkFoot.IEnd>;
@@ -244,7 +259,7 @@ export class StaggerFeet {
           ...(swing === undefined ? {} : { swing }),
         };
       }
-    const settled: walkReach.IGround = this.settle(seconds, claims, resolution, at);
+    const settled: walkReach.IGround = this.settle(seconds, claims, resolution, at, shift);
     const reached: Record<"left" | "right", walkFoot.IEnd> = {
       ...settled.feet,
     };
