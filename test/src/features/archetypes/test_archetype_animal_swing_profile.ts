@@ -1,6 +1,5 @@
+import { QuadrupedMotion } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
-
-import { QuadrupedMotion } from "../../../../packages/archetypes/src/animals/QuadrupedMotion";
 
 /**
  * A minimum-jerk foot swing stays inside its actual endpoint and lift domain.
@@ -19,7 +18,7 @@ import { QuadrupedMotion } from "../../../../packages/archetypes/src/animals/Qua
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual profile used by all quadruped rides and checks its raw shares before they become geometric goals. A descending subtraction that creates negative lift is caught without a tolerance or a patched ride.
  * @evidence contracts/development/testing.md#independent-expectations The rest-to-rest quintic has integrated coefficients 10,-15,6; literal values at eighths are exact binary64 fractions. Progress is in [0,1], lift is in [0,1], endpoint lift is zero, middle lift is one and time reversal leaves lift unchanged. Expectations never call the production minimumJerk helper.
  * @evidence contracts/development/testing.md#distinguishing-cases Literal anchors, 4097 exact dyadic phases, powers-of-two adjacent boundary distances, nonfinite input and returned-record mutation distinguish a mathematically correct but cancellation-prone expression from a bounded actual goal path.
- * @evidence contracts/development/testing.md#execution-ownership One portable synchronous unit calls the maintained exported module directly without adding a public package API, filesystem fixture, process, compiler, renderer, foreign-method replacement or wall-time assertion.
+ * @evidence contracts/development/testing.md#execution-ownership One portable synchronous unit uses the actual package entry point for the authoring profile consumed by rideQuadruped, with no filesystem fixture, process, compiler, renderer, foreign-method replacement or wall-time assertion.
  */
 export function test_archetype_animal_swing_profile(): void {
   const findings: string[] = [];

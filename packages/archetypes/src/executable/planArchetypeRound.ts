@@ -146,19 +146,16 @@ export async function planArchetypeRound(round: string): Promise<void> {
   } catch (error) {
     failures.push({ group: "preparation", cause: Round.describe(error) });
   } finally {
-    const disposal: PromiseSettledResult<void>[] = await Promise.allSettled(
-      [...prepared.values()].map(
-        async (item: Round.IPrepared): Promise<void> => {
-          item.scene.dispose();
-        },
-      ),
-    );
-    for (const result of disposal)
-      if (result.status === "rejected")
+    for (const item of prepared.values()) {
+      try {
+        item.scene.dispose();
+      } catch (error) {
         failures.push({
           group: "disposal",
-          cause: Round.describe(result.reason),
+          cause: Round.describe(error),
         });
+      }
+    }
   }
   const count: number = cells.reduce(
     (sum: number, item: (typeof cells)[number]): number =>
