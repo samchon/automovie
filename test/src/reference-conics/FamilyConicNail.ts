@@ -234,7 +234,12 @@ namespace FamilyConicNail {
       row.lawMilliseconds = Math.round(performance.now() - started);
       row.profile = made.nail.profile.map((p: { along: number; middle: number; height: number; edge: number; turn: number }): number[] => [round(p.along), round(p.middle), round(p.height), round(p.edge), round((p.turn * 180) / Math.PI, 1)]);
       started = performance.now();
-      row.readings = Object.fromEntries(Object.entries(readings).map(([key, value]: [string, number | number[]]): [string, unknown] => [key, typeof value === "number" ? round(value, 3) : value.map((x: number): number => round(x, 3))]));
+      row.readings = Object.fromEntries(
+        Object.entries(readings).map(([key, value]: [string, number | number[] | number[][]]): [string, unknown] => [
+          key,
+          typeof value === "number" ? round(value, 3) : (value as (number | number[])[]).map((x: number | number[]): unknown => (typeof x === "number" ? round(x, 3) : x.map((y: number): number => round(y, 7)))),
+        ]),
+      );
       row.bed = { stations: bed.stations.map((x: number): number => round(x)), phases: bed.phases.map((x: number): number => round(x, 3)), rows: bed.rows, columns: bed.columns, deepest: round(Math.min(...bed.heights), 3) };
       row.plate = { knots: plate.knots.length, length: round(plate.knots.at(-1)!), values: plate.values.map((field: number[]): number[] => [round(field[0]!), round(field[Math.floor(field.length / 2)]!), round(field.at(-1)!)]) };
 

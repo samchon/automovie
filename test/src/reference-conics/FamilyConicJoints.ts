@@ -4,6 +4,7 @@ import { AutoMovieHumanChainTopology, AutoMovieHumanConicLoft as H, AutoMovieHum
 import type { AutoMovieConstructionNode, IAutoMovieConstructionSplit } from "@automovie/interface";
 import { FamilyConicLoop } from "./FamilyConicLoop";
 import { FamilyConicSource as R } from "./FamilyConicSource";
+import { FamilyConicThumbRoot } from "./FamilyConicThumbRoot";
 
 /**
  * Readings of every joint of the f1 figure at once, for `packages/human/docs/techniques/joints-one-shot.md`: instruments only, nothing
@@ -398,75 +399,25 @@ namespace FamilyConicJoints {
   }
 
   /**
-   * `--thumb-landmarks`: the four landmarks of the thumb's root on the reference's skin, by rule, in the world and in the thumb
-   * metacarpal's frame, mm.
-   *
-   * The thumb leaves the hand's side, so its root is a landmark surface about its metacarpophalangeal centre, as the armscye's is
-   * about the shoulder's (`AutoMovieHumanLandmarkSurface`). The rules, on joint centres alone: in the plane through that centre square
-   * to the thumb's proximal phalanx, the skin's first point from the centre straight away from the index finger's knuckle (radial)
-   * and to either side of that line (dorsal and palmar); and the first web's floor, the skin's first point from the midpoint of the
-   * two knuckle centres along the bisector of the two proximal phalanges, in the plane those two directions span.
+   * `--thumb-landmarks`: the four landmarks of the thumb's root on the reference's skin (`FamilyConicThumbRoot`, which states their
+   * rules), in the world and in the thumb metacarpal's frame, mm.
    */
   async function thumbLandmarks(): Promise<void> {
-    const source: R.ISource = await R.load(path.resolve(process.cwd(), ".."));
-    type V = [number, number, number];
-    const joint = (name: string): V => {
-      const p: readonly number[] | undefined = source.joints.get(name);
-      if (p === undefined) throw new Error("the reference has no joint " + name);
-      return [p[0]!, p[1]!, p[2]!];
-    };
-    const sub = (a: V, b: V): V => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-    const dot = (a: V, b: V): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-    const cross = (a: V, b: V): V => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-    const unit = (a: V): V => {
-      const l: number = Math.hypot(a[0], a[1], a[2]);
-      return [a[0] / l, a[1] / l, a[2] / l];
-    };
-    const [centre, next, knuckle, beyond]: V[] = [joint("thumb_02_r"), joint("thumb_03_r"), joint("index_01_r"), joint("index_02_r")];
-    const axis: V = unit(sub(next!, centre!));
-    const across: V = sub(knuckle!, centre!);
-    const toward: V = unit([0, 1, 2].map((k: number): number => across[k]! - dot(across, axis) * axis[k]!) as V);
-    const beside: V = cross(axis, toward);
-    // The skin's first point from `origin` along the chart's direction `[du, dv]`, in the plane `origin + s u + t v`.
-    const first = (origin: V, u: V, v: V, du: number, dv: number): V | null => {
-      const chains = R.chains(source.all, { origin, u, v } as Parameters<typeof R.chains>[1]) as { points: [number, number][]; closed: boolean }[];
-      let best: number = Infinity;
-      for (const chain of chains)
-        for (let i: number = 0; i + (chain.closed ? 0 : 1) < chain.points.length; ++i) {
-          const [p, q]: [number, number][] = [chain.points[i]!, chain.points[(i + 1) % chain.points.length]!];
-          const e: [number, number] = [q[0] - p[0], q[1] - p[1]];
-          const den: number = du * e[1] - dv * e[0];
-          if (Math.abs(den) < 1e-12) continue;
-          const t: number = (p[0] * e[1] - p[1] * e[0]) / den;
-          const w: number = (p[0] * dv - p[1] * du) / den;
-          if (t > 1e-9 && w >= 0 && w <= 1 && t < best) best = t;
-        }
-      return Number.isFinite(best) ? ([0, 1, 2].map((k: number): number => origin[k]! + best * (du * u[k]! + dv * v[k]!)) as V) : null;
-    };
-    const bisector: V = unit([0, 1, 2].map((k: number): number => axis[k]! + unit(sub(beyond!, knuckle!))[k]!) as V);
-    const span: V = unit([0, 1, 2].map((k: number): number => across[k]! - dot(across, bisector) * bisector[k]!) as V);
-    const middle: V = [0, 1, 2].map((k: number): number => (centre![k]! + knuckle![k]!) / 2) as V;
-    const found: [string, V | null][] = [
-      ["radial", first(centre!, toward, beside, -1, 0)],
-      ["to one side (+ axis x toward-index)", first(centre!, toward, beside, 0, 1)],
-      ["to the other side", first(centre!, toward, beside, 0, -1)],
-      ["web floor", first(middle, span, bisector, 0, 1)],
-    ];
+    const root: FamilyConicThumbRoot.IRoot = FamilyConicThumbRoot.read(await R.load(path.resolve(process.cwd(), "..")));
     const frame = AutoMovieHumanF1Placement.REFERENCE.get("thumb.metacarpal");
     if (frame === undefined) throw new Error("the placement has no frame thumb.metacarpal");
-    const out: string[] = [`centre ${fixed(centre!)}, axis ${fixed(axis.map((x: number): number => 10 * x))} /10, toward the index knuckle ${fixed(toward.map((x: number): number => 10 * x))} /10, knuckles ${Math.hypot(...across).toFixed(1)} mm apart`, "landmark | on the skin | from its ray's origin mm | in the thumb metacarpal's frame"];
-    for (const [name, p] of found) {
+    const out: string[] = [`centre ${fixed(root.centre)}, toward ${fixed(root.toward)}, knuckles' midpoint ${fixed(root.middle)}`, "landmark | on the skin | from its ray's origin mm | in the thumb metacarpal's frame"];
+    for (const [name, p] of root.landmarks) {
       if (p === null) {
         out.push(`${name} | no skin on the ray | - | -`);
         continue;
       }
-      const from: V = name === "web floor" ? middle : centre!;
+      const from: readonly number[] = name === "web floor" ? root.middle : root.centre;
       const local: number[] = [0, 1, 2].map((a: number): number => [0, 1, 2].reduce((sum: number, c: number): number => sum + (p[c]! - frame.origin[c]!) * frame.axes[a]![c]!, 0));
-      out.push(`${name} | [${p.map((x: number): string => x.toFixed(2)).join(", ")}] | ${Math.hypot(...sub(p, from)).toFixed(2)} | [${local.map((x: number): string => x.toFixed(2)).join(", ")}]`);
+      out.push(`${name} | [${p.map((x: number): string => x.toFixed(2)).join(", ")}] | ${Math.hypot(p[0] - from[0]!, p[1] - from[1]!, p[2] - from[2]!).toFixed(2)} | [${local.map((x: number): string => x.toFixed(2)).join(", ")}]`);
     }
     process.stdout.write(out.join("\n") + "\n");
   }
-
   export async function main(): Promise<void> {
     if (process.argv.includes("--starts")) return starts();
     if (process.argv.includes("--thumb-landmarks")) return thumbLandmarks();

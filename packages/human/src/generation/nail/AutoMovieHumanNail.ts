@@ -4,13 +4,13 @@ import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 
 /**
- * A nail as a part of its own on a digit's distal segment: one law for every finger and toe.
+ * A nail on a digit's distal segment: one law for every finger and toe.
  *
- * The nail unit is two things. The plate is a rigid body of its own, a convex lens whose upper face is the visible nail; it is a
- * conic family in a frame fixed to the distal segment, so a rig carries it with the distal bone and a material finds it by its own
- * face. The bed is the digit's own skin under the plate: a relief of the digit's family that lowers the skin inside the nail's
- * outline, so the plate comes out through the skin along the proximal and the lateral folds, where the engine's merge traces the
- * curve and rounds the fold, and stands proud of the skin at its free edge.
+ * The nail is a feature of the digit's own skin: a relief of the digit's family (`INail.bed`) that takes the skin inside the nail's
+ * outline onto the plate's upper face, with the folds' walls outside the outline, and a second relief (`INail.strip`) that draws the
+ * free edge's step for a close-up. The whole distal segment's skin follows one bone, so the nail rides it; a material finds its
+ * region by `owns`. The plate is also returned as a conic family of its own (`INail.plate`), a straight body with these sections
+ * which nothing joins: a join cannot serve a part whose closed end lies on its own join loop.
  *
  * Inputs are the distal segment's frame (the last joint's centre, the distal and the dorsal direction), the digit's own skin as its
  * family lofts it, and published proportions (`IProportions`). Nothing is read from a reference body and nothing is stored per digit.
@@ -20,17 +20,18 @@ import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection"
  * 1. The digit's breadth `B` across the last joint and its length `T` from that joint to the tip are read on the skin.
  * 2. The plate's width is `W = width B` and its length from the proximal fold to the tip `W / aspect`, so the proximal fold stands
  *    at `x_f = T - W / aspect` along the distal direction.
- * 3. The nail's own frame: the segment's frame rolled about the distal direction until the skin stands equally high at both edges of
- *    the plate, then pitched until its distal axis is the skin's dorsal tangent at the fold. The plate's crown is the straight line
- *    along that axis one `fold` under the skin at the fold: the plate leaves the fold parallel to the fold's skin, sinks no further,
- *    and the skin's own curve toward the tip brings the plate out through it.
- * 4. Every section of the plate is the digit's own dorsal arc carried on that line: its crown on the line, its two edges as far under
- *    the crown as the skin's edges stand under the skin's crown there. The upper face is the quarter ellipse through the crown and the
- *    edge whose side extreme stands `margin` outside the edge, under the lateral fold.
- * 5. The free edge is where the crown stands one `thickness` over the skin; the plate closes there in a short cap.
- * 6. The bed takes the skin inside the outline (the two edges, the proximal fold's half ellipse and the free edge) onto the plate's
- *    upper face. Outside the outline the fold's wall rises from the plate's edge to the skin: beside the plate over the room the digit
- *    has there, behind it over two ramps. At the free edge the plate comes down to the skin inside the outline.
+ * 3. The nail's own frame, from the skin over the whole bed: its long axis is the straight line through the middles of the skin's
+ *    breadth, its roll levels the skin's two edges on the mean, and its pitch is the taut line over the dorsal skin from the fold.
+ * 4. The free edge's apex stands on the middle line where a straight edge laid from the fold, one `fold` under the skin there, stands
+ *    one `thickness` over the skin. The crown runs between those two places with the bed's own lengthwise arch over that chord.
+ * 5. Every section across is a conic through its crown and its two edges. At the fold and at the free edge the edges stand under the
+ *    crown by what the skin's edges stand under the skin's crown there; midway they stand under it by the published circle's sagitta;
+ *    the difference runs out to both ends. A digit with no published radius is its bed's arc all along.
+ * 6. The outline is the two edges, which keep the plate's share of the digit's breadth, the proximal fold's half ellipse, and the
+ *    free edge, which is the tip's own plan contour moved back by the apex's distance from the tip.
+ * 7. The bed takes the skin inside the outline onto the plate's upper face. Outside the outline the fold's wall rises from the plate's
+ *    edge to the skin: beside the plate over the room the digit has there, behind it over two ramps. At the free edge the plate comes
+ *    down to the skin inside the outline, as a slope in the bed and as a step one thickness long in the strip.
  */
 export namespace AutoMovieHumanNail {
   /** A point or direction in the figure's frame, mm. */
@@ -134,6 +135,9 @@ export namespace AutoMovieHumanNail {
 
     /** How many passes the frame's fit took to its fixed point, each of which reads the bed's stations anew. */
     passes: number;
+
+    /** What each pass of the frame's fit still moved: `[the roll's turn, rad; the axis's slope; the axis's shift, mm]` by pass. */
+    residuals: [number, number, number][];
   }
 
   /** One digit's nail. */
@@ -424,37 +428,75 @@ export namespace AutoMovieHumanNail {
     // 3. The nail's frame from the digit's own skin, over the whole bed. A rigid plate lies on its bed along its whole length, so
     // no one station sets its frame: at `BED` stations from the fold nine tenths of the way to the tip, the long axis is the straight
     // line fitted by least squares to the middles of the skin's breadth (the segment's axis runs to the pad's far point and stands off
-    // them), and the roll is the mean of the turns that would level the skin's two edges at each station. A fixed point of both.
+    // them), and the roll is the one at which the turns that would level the skin's two edges at each station have a mean of zero.
     let frame: IFrame = segment;
     let roll: number = 0;
     const midway0: number = (fold0 + tip0) / 2;
     const bed0: number[] = Array.from({ length: BED }, (_: unknown, k: number): number => fold0 + (0.9 * (tip0 - fold0) * k) / (BED - 1));
     const mean = (values: readonly number[]): number => values.reduce((sum: number, x: number): number => sum + x, 0) / values.length;
     let passes: number = 0;
+    const residuals: [number, number, number][] = [];
+    // The greatest of the values round a ring, by the parabola through the greatest sample and its two neighbours.
+    const peak = (values: readonly number[]): number => {
+      let top: number = 0;
+      for (let k: number = 1; k < values.length; ++k) if (values[k]! > values[top]!) top = k;
+      const [before, here, after]: [number, number, number] = [values[(top + values.length - 1) % values.length]!, values[top]!, values[(top + 1) % values.length]!];
+      const bend: number = before - 2 * here + after;
+      return bend < 0 ? here - (after - before) ** 2 / (8 * bend) : here;
+    };
+    // The dorsal height of a ring `[height, aside][]` at an offset aside, on the ring's own chord there (two degrees of the ring: a
+    // thousandth of its reach off the skin).
+    const crest = (ring: readonly [number, number][], z: number): number => {
+      let best: number = -Infinity;
+      for (let k: number = 0; k < ring.length; ++k) {
+        const [p, q]: [[number, number], [number, number]] = [ring[k]!, ring[(k + 1) % ring.length]!];
+        if (p[1] === q[1] || (p[1] - z) * (q[1] - z) > 0) continue;
+        best = Math.max(best, p[0] + ((q[0] - p[0]) * (z - p[1])) / (q[1] - p[1]));
+      }
+      return best;
+    };
+    // The stations are cut square to the long axis, so once its direction is fixed the rings are fixed: a roll or a shift of the
+    // frame only turns the coordinates the same rings are read in. For a fixed direction the roll is therefore one unknown in one
+    // equation, "the mean levelling turn is zero", solved on rings already read; only the axis's slope moves the cuts, at second
+    // order, and asks for another pass. Found instead by adding each pass's levelling turn and reading the skin anew, the roll crept
+    // by the back's roundness (0.51 to 0.79 a pass on f1's fingers), swung with the shift on the toes, and two toes had not settled
+    // at the cap (law-only run 15-53-57).
     for (let i: number = 0, last: number = Infinity; i < 24 && Math.abs(last) > 1e-7; ++i) {
       passes = i + 1;
-      const off: IReader = reader(skin, frame);
-      const middles: number[] = bed0.map((x: number): number => mid(off, x));
-      const slope: number = bed0.reduce((sum: number, x: number, k: number): number => sum + (x - mean(bed0)) * (middles[k]! - mean(middles)), 0) / bed0.reduce((sum: number, x: number): number => sum + (x - mean(bed0)) ** 2, 0);
-      const shift: number = mean(middles) - slope * mean(bed0);
-      const centred: IFrame = {
-        origin: [0, 1, 2].map((k: number): number => frame.origin[k]! + off.lateral[k]! * shift) as V3,
-        distal: unit(mix(frame.distal, 1, off.lateral, slope)),
-        dorsal: frame.dorsal,
+      const cut: IReader = reader(skin, frame);
+      const rings: V3[][] = bed0.map((x: number): V3[] => cut.ring(x));
+      // The frame rolled by an angle: `dorsal cos + lateral sin`, so a point `[height, aside]` reads `[y cos + z sin, z cos - y sin]`.
+      // A skin that stands higher on the `+lateral` side faces away from it, so the levelling turn leans the dorsal to the lower side.
+      const levelled = (by: number): { turn: number; slope: number; shift: number } => {
+        const [c, s]: [number, number] = [Math.cos(by), Math.sin(by)];
+        const turned: [number, number][][] = rings.map((ring: V3[]): [number, number][] => ring.map((p: V3): [number, number] => [p[1] * c + p[2] * s, p[2] * c - p[1] * s]));
+        const spans: [number, number][] = turned.map((ring: [number, number][]): [number, number] => [-peak(ring.map((p: [number, number]): number => -p[1])), peak(ring.map((p: [number, number]): number => p[1]))]);
+        const middles: number[] = spans.map((d: [number, number]): number => (d[0] + d[1]) / 2);
+        const lean: number = bed0.reduce((sum: number, x: number, k: number): number => sum + (x - mean(bed0)) * (middles[k]! - mean(middles)), 0) / bed0.reduce((sum: number, x: number): number => sum + (x - mean(bed0)) ** 2, 0);
+        const asked: number = mean(
+          spans.map((d: [number, number], k: number): number => {
+            const e: number = Math.min(half * Math.min(1, (d[1] - d[0]) / (spans[0]![1] - spans[0]![0])), 0.45 * (d[1] - d[0]));
+            return -Math.atan2(crest(turned[k]!, middles[k]! + e) - crest(turned[k]!, middles[k]! - e), 2 * e);
+          }),
+        );
+        return { turn: asked, slope: lean, shift: mean(middles) - lean * mean(bed0) };
       };
-      const on: IReader = reader(skin, centred);
-      const base: [number, number] = on.extent(fold0);
-      // A skin that stands higher on the `+lateral` side faces away from it, so the dorsal direction leans to the lower side.
-      const turn: number = mean(
-        bed0.map((x: number): number => {
-          const d: [number, number] = on.extent(x);
-          const e: number = Math.min(half * Math.min(1, (d[1] - d[0]) / (base[1] - base[0])), 0.45 * (d[1] - d[0]));
-          return -Math.atan2(on.find(x, (d[0] + d[1]) / 2 + e).height - on.find(x, (d[0] + d[1]) / 2 - e).height, 2 * e);
-        }),
-      );
-      roll += turn;
-      last = Math.abs(turn) + Math.abs(slope) + Math.abs(shift);
-      frame = { origin: centred.origin, distal: centred.distal, dorsal: unit(mix(centred.dorsal, Math.cos(turn), on.lateral, Math.sin(turn))) };
+      // The turn still asked is positive short of the level roll and negative past it; forty halvings of 2.4 rad are under 1e-11.
+      let [shy, past]: [number, number] = [-1.2, 1.2];
+      if (!(levelled(shy).turn > 0 && levelled(past).turn < 0)) throw new Error("nail: " + name + "'s back has no level roll within 1.2 rad of its frame");
+      for (let k: number = 0; k < 40; ++k) {
+        const tried: number = (shy + past) / 2;
+        if (levelled(tried).turn > 0) shy = tried;
+        else past = tried;
+      }
+      const angle: number = (shy + past) / 2;
+      const { slope, shift }: { slope: number; shift: number } = levelled(angle);
+      roll += angle;
+      residuals.push([angle, slope, shift]);
+      last = Math.abs(angle) + Math.abs(slope) + Math.abs(shift);
+      const levelDorsal: V3 = unit(mix(frame.dorsal, Math.cos(angle), cut.lateral, Math.sin(angle)));
+      const sideways: V3 = cross(frame.distal, levelDorsal);
+      frame = { origin: [0, 1, 2].map((k: number): number => frame.origin[k]! + sideways[k]! * shift) as V3, distal: unit(mix(frame.distal, 1, sideways, slope)), dorsal: levelDorsal };
     }
     // Pitch: a plate is straight along its length and lies on the digit from the fold on, so its line is the taut line over the dorsal
     // skin from the fold's point: the steepest rise of the skin's median profile seen from that point, read every quarter millimetre
@@ -843,6 +885,7 @@ export namespace AutoMovieHumanNail {
         clippedAt,
         clippedIn,
         passes,
+        residuals,
       },
     };
   }

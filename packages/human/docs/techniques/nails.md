@@ -746,6 +746,195 @@ Neither is touched by the nail's relief, whose window is dorsal. Not traced by m
 
 Before it, in a gap: the two unit tests as they stand, timed. After it: one run of all ten, every sheet, the table.
 
+### The one run on the outline's free edge, at both levels
+
+Run `2026-11-17T15-45-18.298Z-realize`, `--relief`, 00:45:14 to 00:45:56, each digit drawn three times: the reference, the figure's level (bed alone) and the close-up's (bed and strip). All ten realize at both levels, no diagnostic. The watch's 12:38:34 cycle, which holds the whole batch, read complete before it. **The process list was not verified at this run's start**: the query itself failed once (`Get-CimInstance`, call cancelled) and my loop read the failure as an empty list; the list read 42 s later showed a fit that had started at 00:46:25, after the run's end. The unit tests were not run before the change (another worker's test was running at 00:34:26); after it, 00:46:26 to 00:46:36: `test_human_nail` passes in 968 ms, `test_construction_operator_capped_part` passes in 84 ms in its green form.
+
+| Reading | This run | The run before |
+| --- | --- | --- |
+| `clipped` | 0 on eight digits, 0.002 and 0.009 mm on toes 4 and 5 | the same |
+| Plate's edge against the skin's edge (`under`), fingers | -0.56 to +0.55 mm | -1.38 to +1.21 |
+| The same, lesser toes | -0.39 to +0.45 | -0.88 to +0.76 |
+| The same, big toe | -1.12 to +0.45 | -1.69 to +0.69 |
+| Section's radius along a finger's plate | 3.3 to 10.4 mm (the middle finger 4.8 to 8.7 about the published 7.3) | one value |
+| Vertices, ten digits, figure's level | 57,514 (48,712 with no nail: 8,802 more, about 17,600 on twenty) | - |
+| Vertices, ten digits, close-up's level | 115,970 | 117,178 |
+| The frame fit's passes | 24 on nine digits, 23 on one: the fit runs to its cap and never meets its own tolerance | not recorded |
+| The law alone, a digit | 1.4 to 2.1 s | 1.2 to 2.8 s |
+
+Every sheet opened; rows are figure's level then close-up's.
+
+| Sheet | Seen | Where |
+| --- | --- | --- |
+| `dorsal.0` | The gable is gone. Both levels: a plate flush with the back inside a U fold and two rims, the same in both rows. The free edge: at the figure's level nothing but the thumb's faint arc; at the close-up's a faint dotted arc that follows the tip | figure row: middle px 115-245 x 480-600, thumb arc px 1565-1675 x 495-510; close row: middle arc px 130-230 x 838-860, index px 850-945 x 838-858 |
+| `dorsal.1` | Every toe a small round plate in a U; no scallop, no tick, no corner notch. The two levels do not differ to the eye | figure row: big px 105-250 x 480-585, index px 495-590 x 468-520, middle px 860-950 x 462-510, ring px 1205-1310 x 470-535, little px 1570-1660 x 470-540 |
+| `oblique.0` | The far wall still a dark face along the plate; the fold's comb at its corner on every finger, the same at both levels; no ridge across the plate. Close row: a light lip along the free edge. Thumb: the ring bands behind the fold | comb, figure row: middle px 160-210 x 595-620, ring px 525-575 x 595-620, index px 880-930 x 595-615; lip, close row: middle px 130-185 x 862-880; thumb bands px 1560-1700 x 620-690 |
+| `oblique.1` | Big toe: the wall beside the plate and a short comb at the fold's corner. Toes 2, 3: a shallow hollow where the pocket was. Toe 4: a toothed hollow at the fold's corner. Close row: a lip at each free edge | figure row: big px 200-235 x 520-600; index px 520-570 x 505-540; ring px 1235-1280 x 520-565; close row lip: big px 150-230 x 865-890 |
+| `oblique-twin.0` | The plate reads whole and flush. Figure row: no free edge. Close row: a dotted line from rim to rim that follows the tip | close row: middle px 165-245 x 862-895, index px 885-960 x 860-890, thumb px 1590-1665 x 850-900 |
+| `oblique-twin.1` | Toes 1 to 3 clean; toe 4's stairs; toe 5 a crease at its fold | figure row: ring px 1215-1260 x 560-650; little px 1600-1640 x 520-560 |
+| `lateral.0` | The back steps down at the fold and runs smooth to the tip. Close row: a small lip at the free edge | figure row: middle step px 118-140 x 575-600; close row lip: middle px 118-132 x 838-850 |
+| `lateral.1` | A step at each fold; close row: a small lip at each tip | figure row: big px 150-175 x 485-510 |
+| `end.0` | No line across the dome at the figure's level; a faint one at the close-up's. The tab under the middle finger's and the thumb's dome, both levels | tab: px 158-170 x 625-632 and 1580-1625 x 640-652 |
+| `end.1` | Big toe: a ledge across the top at both levels. The other toes smooth | big px 105-240 x 520-550 |
+
+**Against the paper.**
+
+| Decision | Held? |
+| --- | --- |
+| The free edge as the tip's contour moved back | Yes: no gable, no scallop, no tick; the line follows the tip on every digit |
+| The section across by the bed at both ends and the published arc midway | Yes: the edges stay within 0.56 mm of the skin's on the fingers (were up to 1.4), the lesser toes' pocket is a shallow hollow, the corner notches stay gone |
+| Two levels | The figure's level costs 8,802 vertices on ten digits, not the 40,000 I estimated; fold, rims and plate read the same as at the close-up's. The free edge does not read at the figure's level, as the paper said it would not |
+| The free edge at the close-up's level | Weaker than I expected: a dotted line, not a ledge. The plate now stands exactly one thickness over the skin at its edge, so the step is 0.46 to 0.48 mm on a tip that is itself falling away |
+
+**What remains, each with its standing.**
+
+| Remains | Standing |
+| --- | --- |
+| The fold's comb at the U's corners | As the paper has it: 2.6 to 3.3 phase samples across the wall there. Unchanged, both levels |
+| The fit's passes | New and measured: 24 of 24 on nine digits. The fixed point of centring and roll does not settle to 1e-7, so every digit pays the cap, about 2.4 million skin points, most of the law's time and the reason the unit test stands at 968 ms. Whether it oscillates or creeps is not read yet; no tolerance is moved to make it stop |
+| The big toe's wall and ledge | Its radius is derived from a published height; its `under` still reaches -1.12 mm at one end |
+| The dotted free edge at the close-up's level | The strip's rows are fine along the digit and the line now runs obliquely across them at the sides; the same crossing as the fold's corners |
+| Toe 4's strips, the tab under two domes | The body worker's, written above |
+| `test_human_nail` at 968 ms | Under the second by 32 ms; it will go over on a loaded machine until the fit's passes are settled |
+
+No further change and no further run.
+
+### The comb and the big toe: paper
+
+**What the figure's cameras resolve.** A hand 190 mm long on 900 px is 4.7 px a millimetre; a foot 250 mm long is 3.6. The fold's wall, 1.84 mm, is 8.7 px on the hand and 6.6 on the foot. The comb's teeth are one phase cell, 0.46 mm, square, 2.2 px on the hand and 1.7 on the foot, on a fold 0.46 mm deep; each tooth differs from its neighbour only by the turn of one flat triangle across a wall that is itself seven to nine pixels wide. It is not resolved as a comb there; at most it roughens a line two pixels wide. So it is a finding of the close-up's level, recorded open with its cause (2.6 to 3.3 phase samples across the wall at the U's corners where the rule asks four; the lack is a phase density local to a relief's window), and it does not hold the round. The made-figure check's hand and foot frames are where this is confirmed by eye.
+
+**The big toe's edge 1.12 mm over the skin: cause.** Its `under` reads -1.12 mm at its least and its sagitta 1.79 to 3.25 mm on a radius of 8.4 to 12.3 mm. Midway its plate's half width is about 7.5 mm, the published circle I gave it (0.7 of the width, 11.65 mm) falls 2.74 mm over that, and its own bed falls about 3.8 mm: the plate is flatter than its bed midway by 1.1 mm, so its edges stand that far over the skin, which is the wall beside it and the ledge from the end. A plate cannot stand off its bed.
+
+The number is at fault, not the toe. 0.7 was derived by me from Jung DJ's nail height of 3.3 mm "at its tip" on a width of 13.8 to 16.1 mm, a ratio of 0.205 to 0.24: a height read at the free edge, and I applied the circle it implies midway. As a ratio the toe's own bed agrees with it where it applies: 3.8 mm over a chord of 15 mm is 0.25 midway, and the published 0.21 to 0.24 is at the tip, where the rule now gives the plate its bed's arc anyway. So the big toe has no radius published for midway, as the lesser toes have none: its row's radius becomes `null`, the plate is its bed's arc all along, and `HALLUX_RADIUS` is removed. The published height stays as a check at the free edge, read after the run.
+
+### The frame's fit: paper before its reading
+
+Why there is a fixed point at all. The axis (a straight line through the middles of the skin's breadth at nine stations) and the roll (the mean of the levelling turns there) are each a linear fit **in a given frame**. But the things fitted are read in the frame being fitted: a "station a distance along" is cut square to the axis, "the middle of the breadth" and "the two edges" are extremes along the lateral direction, which turns with the roll, and the levelling turn is read at edges placed about that middle. So the second fit's inputs move with the first fit's answer. The coupling is second order (a cut tilted by a slope `s` moves a middle by about `s` times the skin's own slope along the digit), which is why a pass or two should settle it and why twenty-four passes that never meet 1e-7 are a defect.
+
+What can keep it from settling, to be told apart by the residuals:
+
+| Behaviour of the residuals | Cause | Answer |
+| --- | --- | --- |
+| They fall by a steady factor and are still falling at pass 24 | A slow contraction | A convergence bound from the factor, or the coupled fit solved at once |
+| They fall for a few passes and then wander at one level, signs changing | The readings' own noise floor. `extent` takes the least and greatest of 180 sampled points of a ring, so a middle is only as exact as a 2 degree step lets an extreme be, `r (1 - cos 1 deg)`, about 0.001 mm on a 6 mm reach, and it jumps when the extreme passes from one sample to the next. A tolerance of 1e-7 is under what the reading can give | The reading made as exact as the tolerance asks: each extreme refined between its neighbouring samples. The tolerance is not moved |
+| They alternate between two values | A true two-cycle of the coupled maps | The two fits solved together |
+
+The reading: `residuals`, each pass's turn, slope and shift, on all ten in one law-only run.
+
+### The frame's fit: read, and decided
+
+Law-only run `2026-11-17T15-53-57.759Z-realize`, 00:53:56 to 00:54:08, on a verified empty process list; no realization.
+
+| Digit | Passes | The turn still asked, passes 0, 1, 2, 3 | Ratio a pass | At the last pass: turn, shift |
+| --- | --- | --- | --- | --- |
+| Middle finger | 24 | 0.0124, 0.0070, 0.0040, 0.0022 | 0.56 | 0, 0 |
+| Ring finger | 24 | 0.0430, 0.0319, 0.0230, 0.0164 | 0.72 | 0.000011 rad, 0.00003 mm |
+| Index finger | 23 | -0.0663, -0.0338, -0.0172, -0.0088 | 0.51 | 0, 0 |
+| Little finger | 24 | 0.0923, 0.0773, 0.0625, 0.0485 | 0.79 | 0.00004, 0.00012 |
+| Thumb | 24 | 0.0593, 0.0312, 0.0163, 0.0084 | 0.52 | 0, 0.000001 |
+| Big toe | 24 | 0.0287, 0.0152, 0.0061, 0.0006, then -0.0021, -0.0030 | swings | -0.000004, 0.00004 |
+| Second toe | 24 | -0.018, -0.030, -0.043, -0.055, -0.061, -0.058 | grows, then swings | -0.0019, 0.069 |
+| Third toe | 24 | 0.096, 0.077, 0.053, 0.028, 0.002, -0.021 | swings | 0.00003, 0.0004 |
+| Fourth toe | 24 | 0.049, 0.087, 0.105, 0.102, 0.086 | grows, then swings | -0.0009, -0.035 |
+| Little toe | 24 | -0.044, -0.069, -0.090, -0.097, -0.086 | grows, then swings | -0.00007, -0.0005 |
+
+None of my three guesses alone. **It creeps on the fingers and swings on the toes, and it is not the readings' noise.** On the fingers each pass leaves 0.51 to 0.79 of the turn the pass before left. On the toes the turn, the slope and the shift feed each other and the three swing together, growing for four or five passes before they decay; **the second and the fourth toe had not settled when the cap stopped them** (0.07 and 0.035 mm of shift still asked), so their nails' frames depended on the cap. That is a defect of the result as well as of the time.
+
+Cause, read in the law. The roll is found by adding, each pass, the turn that would level the skin's two edges. On a back that is round across that turn says little about the roll: turn the frame on a circular back and the edges stay level whatever the roll. So the turn asked after a correction of `d` is not zero but `(1 - k) d` for a back of roundness `1 - k`, and adding it converges by that factor: the ratios above are the digits' roundness. And each pass reads the skin anew in the moved frame, where the middles (extremes along a lateral that has turned) and the turn move with each other, which on the toes, whose roll is large (0.29 to 0.59 rad), makes the three a coupled swing.
+
+Why is there a fixed point at all? Only because of where the stations are cut. Once the long axis's direction is fixed, the planes square to it are fixed, and the roll and the middle line's shift act inside those planes: turning or shifting the frame moves no ring, it only turns the coordinates the same rings are read in. So for a fixed direction the roll is one unknown in one equation, "the mean levelling turn is zero", read on rings already in hand. The axis's direction is the only thing that moves the cuts, and it enters at second order (a cut tilted by a slope `s` moves a middle by `s` times the side-to-side difference of the skin's taper).
+
+Decision:
+
+| Step | Rule |
+| --- | --- |
+| Inner, at a fixed axis direction | The nine rings are read once. The roll is the root of the mean levelling turn as a function of the roll, found by bisection between 1.2 rad either side (the turn is positive short of the root and negative past it, the same fact that made adding it converge); a back with no sign change there is refused. Forty halvings; no skin is read. The middles' line in the levelled coordinates gives the shift and the slope in closed form, as now |
+| Outer | The frame takes the roll and the shift, and the axis takes the slope; the rings are read again only because the cuts have tilted. It stops by the tolerance that is there, 1e-7, unmoved, with the cap of 24 kept as a guard and the residuals kept as a reading |
+| Bound | Not proved here: the outer pass's rate is second order in the slope by the argument above, and the run's residuals are the check. If any digit still reaches the cap, that is recorded as the defect standing |
+
+Inside a ring the two extremes are refined by the parabola through the extreme sample and its two neighbours, and a height at an offset aside is read on the ring's own chord (2 degrees: 0.001 mm on a 6 mm reach). The fit's law does not change: the same axis, the same levelling, the same nine stations.
+
+### The run on the separated fit: two toes refused, stopped
+
+Run `2026-11-17T16-00-55.507Z-realize`, `--relief`, 01:00:53 to 01:01:12, on verified empty process lists (bundle 01:00:39, tests 01:00:45, run 01:00:53); the watch's 12:58:11 cycle read complete before it. Unit tests: `test_human_nail` passes in 428 ms (968 before), `test_construction_operator_capped_part` passes in 53 ms.
+
+| Digit | Passes | The roll each pass still asked | Roll (run before) | Law, ms (before) |
+| --- | --- | --- | --- | --- |
+| Middle finger | 14 | 0.0258, 0.0018, 0.00058, 0.00017, ... 0 | 0.028 (0.028) | 660 (2,044) |
+| Ring finger | 14 | 0.154, -0.0012, -0.00039, ... 0 | 0.152 (0.152) | 619 (1,936) |
+| Index finger | 11 | -0.140, 0.0029, 0.00080, ... 0 | -0.136 (-0.135) | 577 (1,666) |
+| Little finger | 13 | 0.422, -0.0074, -0.0019, ... 0 | 0.412 (0.411) | 556 (1,571) |
+| Thumb | 12 | 0.128, -0.0033, -0.00082, ... 0 | 0.123 (0.124) | 687 (1,778) |
+| Big toe | 14 | 0.364, -0.446, 0.119, -0.0097, 0.0013, ... 0 | 0.028 (0.037) | 919 (1,891) |
+| Second toe | 24, **not settled** | -0.022, -0.040, -0.050, -0.048, ... -0.000024 | -0.370 (-0.290) | 689 (1,540) |
+| Third toe | 24, settled at the cap | 0.397, -0.054, -0.069, -0.069, -0.044, ... 0 | 0.117 (0.099) | 645 (2,102) |
+| Fourth toe | **refused** | `nail.toe.ring's back has no level roll within 1.2 rad of its frame` | - | - |
+| Little toe | **refused** | `nail.toe.little's back has no level roll within 1.2 rad of its frame` | - | - |
+
+**What held.** On the five fingers the roll is found in the first pass and the frames are the run before's to a thousandth of a radian; all five now meet the tolerance, in 11 to 14 passes, and the law takes a third of the time. The big toe meets it in 14.
+
+**What did not, each against what I wrote.**
+
+| I wrote | Read |
+| --- | --- |
+| The outer pass is second order in the slope | It is not. After the first pass the fingers' residual falls by about 0.27 a pass, a first-order rate; the second toe's by about 0.6, and it had not met the tolerance at the cap. The axis's slope is not the only thing that moves the cuts' reading: the shift, and through the edges' placing the roll, still feed back through the re-cut rings |
+| The turn asked is positive short of the level roll and negative past it, within 1.2 rad | Not on the fourth and the little toe: their bracket has no such sign change and the law refuses them. Those are the two shortest, most rolled toes (0.40 and -0.59 rad in the run before), where 1.2 rad either side reaches the toe's flank. The premise was mine and was not read on the ten before it was built |
+| The big toe's edge stands 1.12 mm over the skin because of its radius | Only in part, and the larger part I missed. With its radius gone its `under` still reads -1.18 mm at its least. That least is at the free edge, where the plate stands one thickness over the skin by the law's own definition, and the big toe's row gives its thickness as 1.38 mm, a figure my source notes cite "without its primary source". The ledge across its end (`sheet.end.1.png` px 100-240 x 510-540) is that thickness. The wall beside the plate midway is what the radius accounted for, and that part is gone from the reading (its greatest `under` 0.44 mm) |
+
+By the rule this work runs under, a refusal is recorded with its premise and the work stops: the fit is **not** fixed for the toes, two of the ten have no nail in this state of the tree, and no code is saved by me until the supervisor has read this. What the readings ask for next, on paper only: the roll's equation solved where its root is known to lie (the bracket taken about the roll the first levelling turn points to, and its width from the back's own half breadth, not a fixed 1.2 rad), and the outer loop's three residuals solved together, since they are coupled at first order; and for the big toe, a thickness with a source.
+
+Sheets of this run opened: `sheet.dorsal.0.png` (five fingers: as the run before, plate, U and rims at both levels, px 115-245 x 480-600 on the middle finger), `sheet.dorsal.1.png` (three toes only: big, second, third, each a plate in a U; the other two cells empty), `sheet.oblique.1.png` (big toe's wall beside the plate still dark, px 195-235 x 520-600), `sheet.end.1.png` (big toe's ledge px 100-240 x 510-540). Opened after that entry: `sheet.oblique.0.png` (five fingers at both levels: plate, rim and fold step as the run before; the comb at the fold's corner, middle px 160-205 x 595-620; thumb's ring bands px 1560-1700 x 620-690), `sheet.oblique-twin.1.png` (three toes: the big toe's fold and plate px 100-240 x 500-610, the second and third toe clean small plates px 505-585 x 485-545 and 880-955 x 495-545), `sheet.lateral.1.png` (a step at each of the three toes' folds, big px 135-160 x 480-510). **Not opened: `lateral.0`, `end.0`, `oblique-twin.0`**, all three of the five fingers, whose frames are numerically the run before's; what they show in this run is unobserved.
+
+### What determines a nail's roll where the skin does not: paper
+
+**(a) The conditioning on all ten**, from the old fit's residuals in run `15-53-57`, no new run. Adding the levelling turn left `1 - k` of it each pass, so `k`, the share of an applied roll that the levelling reading registers (the slope of the mean levelling turn against the roll at its root), is one less the ratio of successive turns while the roll alone was moving:
+
+| Digit | Ratio a pass | `k` | Roll from the skin, degrees | The reference nail's own tilt in the segment's frame, degrees (survey `12-28-41`, the chord between its two folds, as the roll it implies) |
+| --- | --- | --- | --- | --- |
+| Index finger | 0.51 | 0.49 | -7.8 | -10 |
+| Thumb | 0.52 | 0.48 | 7.0 | 6 |
+| Big toe | 0.53, before it swings | 0.47 | 1.6 | -2 |
+| Middle finger | 0.56 | 0.44 | 1.6 | -1.4 |
+| Ring finger | 0.72 | 0.28 | 8.7 | 1.8 |
+| Little finger | 0.79 | 0.21 | 23.6 | 16.5 |
+| Third toe | 0.80 | 0.20 | 6.7 | 8 |
+| Second toe | the turn asked grows, 1.7 a pass | not readable; none as read | -21 (unsettled; -17 before) | folds not found |
+| Fourth toe | grows, 1.8 | none as read; refused by the new fit | 23 (old fit, unsettled) | folds not found |
+| Little toe | grows, 1.6 | none as read; refused | -34 (old fit) | 19, from one station, the sign unsure |
+
+Three readings. The skin decides the roll on seven digits, weakly on three of them (`k` about 0.2). On the three roundest, shortest toes the levelling reading does not answer to the roll at all, and a root-finder there returns what the cap or the bracket lets it. And where the reference's nail can be read, **it is tilted the way the skin's roll says**, by 6 to 17 degrees on the index and little finger, the thumb and the third toe: the segment frames' miss is those digits' own turn about their long axes, which `AutoMovieHumanF1Frames` does not carry. The reference is the check here, not a source.
+
+**(b) What orients a plate anatomically, read.** The plate lies on the distal phalanx's dorsal face and is rigid with it; clinically a toe's rotation is judged by its nailbed (a review of overlapping and underlapping toes), and fifth-toe disorders are described with varus rotation (a radiographic study of 2,494 feet). So a nail's roll is the distal bone's roll about its own axis. No normal value of that rotation by ray was found in two searches: the one study on normal toe alignment found no objective value even for the joints' angles in the plane of the foot. So there is no published rotation a ray to state; the prior this law can honestly hold is the distal segment's frame as it is, with its known miss.
+
+**(c) One rule.** Two estimates of one angle, each with its spread, combined by their precisions; no threshold.
+
+| Part | Rule | Basis |
+| --- | --- | --- |
+| The skin's estimate | The level roll: the root of the mean levelling turn, sought from the segment's frame outward to the nearest place where the turn passes from positive to negative, no farther than a quarter turn; none found is `k = 0` | The levelling equation, as now |
+| Its conditioning | `k`: the slope of the mean levelling turn against the roll at that root, by a central difference on the rings in hand | The definition above; no skin is read |
+| Its spread | `s / k`, with `s` the angle the fitted skin can be off by across the plate: 0.17 mm, the greatest rms of the tip's fitted sections in the body note's dome table, over the plate's half width | A reading of this person's fit, not a setting |
+| The prior | The distal segment's frame, rotation zero | (b) |
+| Its spread | `t`: the rms of the level rolls of this person's own digits that have one | The frames' miss as this person shows it; 0.22 rad on f1 as read above. It is an estimate from ten digits and is stated as one |
+| The roll | `w` times the level roll, `w = 1 / (1 + (s / (k t))^2)` | The mean of two independent estimates weighted by their inverse variances |
+
+On f1's numbers (`s` about 0.03 rad): `w` is 0.92 to 0.93 for `k` of 0.44 to 0.49, 0.80 for 0.28, 0.70 for 0.2, and 0 where no level roll is found. The little finger's roll would be 16.6 degrees, the fourth and little toe's zero. Two things this rule does not hide: `t` needs the level rolls of all ten before any one roll is final, so the ten are fitted first and weighted second, in `AutoMovieHumanF1Nails` and not in the single digit's law; and the round toes then sit in the segment's frame, which is known to miss by an unknown turn, until the frames carry the toes' rotation.
+
+**The three residuals together.** At a fixed axis the roll is solved exactly; what remains coupled across passes is the axis's slope and shift against the roll, at first order (0.27 a pass on the fingers, 0.6 on the second toe). They are solved together by reading, each pass, how the three residuals moved for the step just taken and stepping by that measured relation (a secant step in three unknowns) in place of adding the residuals themselves; the tolerance and the cap stay, the residuals stay a reading.
+
+**The big toe's thickness.** 1.38 mm is the figure widely quoted for a woman's great toenail and attributed to Hamilton, Terada and Mestler, J Gerontol 1955; I have not fetched that paper, so the row marks it estimated. Its check is the free edge's step on the median cut: the reference's big toe steps about 0.7 mm there (2.44 to 1.73 mm) where the fingers' step 0.55 against the law's 0.47. The law's 1.38 mm ledge is therefore about twice what this one reference shows; it stands as the quoted value until the source is read, and it is the visible thing at the foot's scale (5 px).
+
+**Not built.** This paper is released by the supervisor for one code batch. The batch is not started: see the log's last entry.
+
+### What was read for the fit, the big toe and the comb
+
+The owner's rule is research before the change. Order, stated as it happened: the fit's and the big toe's decisions above were written and their change saved at 00:56 before this reading was complete; the reading below was finished after and is set against them. Nothing in it reverses either, and the run had not been made.
+
+| Question | Read | What it says | Against the decision |
+| --- | --- | --- | --- |
+| The frame as a closed-form least-squares problem | The law's own fit, line by line; the residuals of all ten digits. Not fetched, from what is standard: a straight line through fixed points has a closed form in both senses (ordinary least squares, and the orthogonal fit by the points' principal axis) | The middles are not fixed points: each is the middle of two extremes of a section's support along a direction that turns with the roll, on a section cut square to the axis being fitted. So the whole fit is not one linear problem. It does separate: at a fixed axis direction the cuts are fixed, the line through the middles is closed form at any roll, and the roll is one root of one function | The decision is that separation. A closed form for the roll itself does not exist for a general section; a bracketed root does, and it reads no skin |
+| How a hallux's plate is described against the others' | Web search, two queries. Jung DJ et al., Arch Plast Surg 2015;42(2):207 (the pincer nail study I had cited): it measures "the widths of the nail root and nail tip and the height of the nail tip" and forms a width index and a height index from them. A cadaver study of ten halluces (the hallucal distal phalanx and the nail's transverse convexity): the phalanx does not by itself set the plate's convexity. A UK radius-gauge study and Jung JW 2015: transverse radii for fingers only; one of them states that no normal transverse curvature data existed for nail plates before it | The 3.3 mm I used is the height of the nail's **tip**, by that study's own definition. No normal transverse radius of a hallux plate, and no hallux against lesser toe comparison with numbers, was found. The controls' width index (tip width over root width) is in the paper's tables, which I did not reach | Confirms the cause: a tip height was applied as a radius midway. The big toe's row has no radius; its plate is its bed's arc. What I could not find is stated: the hallux plate's own flatness midway, if it is flatter than the toe's back, has no number here, and the plate's root-to-tip width change (the width index) is not modelled: the plate keeps its share of the toe's breadth |
+| What the relief's evaluation does between net cells across a corner | `AutoMovieLoftRelief.ts` lines 1 to 118 (`height`, `jet`): a clamped-free uniform cubic B-spline in each direction, sixteen controls a point, value and two derivatives exact from the basis; `IAutoMovieLoftRelief.ts` read earlier | The field is C2 everywhere inside its window, across a corner of the fold as anywhere. The law's controls are samples of its function at their own abscissae, not a fit, so the net is the function smoothed over about a cell (the cubic's variation-diminishing blend): a wall four cells wide comes out a little wider and rounder, never toothed. The teeth are therefore not in the relief. They are the mesh's: the smooth field is read at rings and phases 0.46 mm apart and drawn as two flat triangles a cell, split along one diagonal, so a wall that crosses the cells obliquely is cut by diagonals that run with it on one flank and against it on the next. A tooth is as high as the wall falls across one cell: 0.46 mm of depth over 1.2 to 1.84 mm of wall, 0.11 to 0.18 mm | The comb is under a pixel at the figure's cameras (0.5 to 0.8 px at 4.7 px a millimetre, less on the foot): a close-up finding, open, not a blocker. A net aligned with the fold would not remove it, since the net is not its source; what would is the mesh's density there or its diagonals' choice, neither the nail's |
+
 ### The kernel fact, pinned by a test that is red
 
 `test/src/features/geometry/construction/operator/test_construction_operator_capped_part.ts`, read first against `test_construction_operator_pointed_cut.ts` and `test_construction_operator_mixed_join.ts`, whose composition it follows. Made case: the ellipsoid with half axes 10, 5 and 3 mm, charted as a lofted part is (a station along its long axis, a phase round it, both closed ends the chart's poles), its centre `h` under the plane `z = 0`; the declared loop is the plane's own section, one ellipse; the part is kept above. The geometry is regular at every depth. One run, 52 ms:
@@ -759,9 +948,79 @@ Before it, in a gap: the two unit tests as they stand, timed. After it: one run 
 So the fact stands as stated, with its adjacent positive case: a join on a declared loop serves a closed part only while the loop keeps clear of the part's poles.
 
 That run had the test expecting all three admitted, red on two. A test left failing breaks every full run, so it now pins today's behaviour the way `test_construction_operator_pointed_cut` pins its refusal: depths 0.3 and 0 must be refused under the contract `shared loop` with no join (the name, not the wording), depth 2.4 must be admitted with a rail at every point, and the capability is carried as the constant `SERVED_ROUND_A_POLE`, false today, under which the two near cases expect admission instead. The rewritten file passed the watch (cycle 12:24:39) and has **not been run**: a fit was alive when its turn came.
+## Wiring: the package for the round
+
+This is the whole of what the nails ask of `AutoMovieHumanF1.ts`, which is the joints worker's file. It replaces the two older wiring sections below. The nail was judged on domed digits and clipped on today's caps (2.1 to 4.2 mm asked of the net's zero rings), so the tip dome's start lands with it.
+
+### A. The tip dome's start (the body note's W3), stated exactly
+
+Read in full: `body-one-shot.md` "Tips", the dome table, rows W3 and W4, and "With the nails' work"; `joints-one-shot.md` rows F7 (both tables) and "The nails' and the face's wiring".
+
+1. Two constants beside `TOE_DOME` (0.8, which stays), each with its basis in its comment: `FINGER_DOME = 1.5` and `THUMB_DOME = 1.1`, the length of the digit's dome over the mean reach of the section it starts from, read on f1's ends as half ellipsoids (index, middle, ring, little finger 1.78, 1.39, 1.36, 1.45; thumb 1.09; the body note's table).
+2. One function beside `rounded`: `domed(family, share)` returns the family with `tips[1].from` set to `Math.min(AutoMovieHumanTipDome.start(reach, end.tip, share, family.knots[1]).from, family.knots.at(-1))`, where `end` is `family.tips[1]` and `reach(s)` is the mean of the four extents of `AutoMovieHumanConicSection.resolve(AutoMovieHumanConicLoft.reader(family)(Math.min(s, family.knots.at(-1))), family.layout)`, the reading `rounded` already makes. Every other field of the tip record is kept, `own` and `centre` among them.
+3. In `DIGITS`: the four fingers' families through `domed(..., FINGER_DOME)`, the thumb's through `domed(..., THUMB_DOME)`. In `rounded`, the three lines of fixed-point iteration replaced by the same call with `TOE_DOME`; its layout bound, its phase turn and its 30 cap rings stay.
+4. A `held` start is a diagnostic. None is held on f1.
+
+Order against the splice (F7): after a splice a digit's tip record is the stored one again, `own` kept, "until W3 sets its start". `domed` reads only the stored family's own knots, fields and tip record, so it stands after the splice by construction, and a digit's root stretch, proximal of its old first knot, does not enter: the earliest start it may take is the second knot, and every start found lies 14 to 50 mm distal of that.
+
+Verified on all ten, on the probe's copy (`FamilyConicNail.ts`, `domed`, the same call), runs `15-09-05` to `15-45-18`:
+
+| Digit | Cap starts at, mm (stored) | Pole | Dome's length (was) | Held |
+| --- | --- | --- | --- | --- |
+| Middle finger | 83.67 (89) | 92.88 | 9.21 (3.88) | no |
+| Ring finger | 78.09 (83) | 86.13 | 8.04 (3.13) | no |
+| Index finger | 75.80 (81) | 84.38 | 8.58 (3.38) | no |
+| Little finger | 57.57 (61) | 64.63 | 7.06 (3.63) | no |
+| Thumb | 88.51 (92) | 95.63 | 7.12 (3.63) | no |
+| Big toe | 48.43 (48.43) | 56.13 | 7.70 | no |
+| Second toe | 51.03 (51.03) | 56.63 | 5.60 | no |
+| Third toe | 42.98 (42.98) | 47.63 | 4.65 | no |
+| Fourth toe | 36.77 (36.77) | 41.13 | 4.36 | no |
+| Little toe | 30.16 (30.22) | 33.63 | 3.47 | no |
+
+All ten loft and realize on these starts at both levels with no diagnostic. The toes' starts are `rounded`'s own to 0.01 mm, the little toe's to 0.06 (its stored value is rounded to a hundredth after a 16-step iteration).
+
+**Must the pad datums be read again as well (W4)?** No, not for the nail to stand; it would move the toes' free edges, by an amount that cannot be read before it is done. What the nail takes from a datum is one thing, the pole, and from the pole one number, the digit's length along its distal direction (the fold stands a width over the aspect before it). W4 moves the thumb's and the toes' datums across the tip, 1 to 3 mm toward `-u`, and keeps the length, so the fold does not move; the nail's frame is fitted to the skin and does not read the segment's axis. What does depend on where the pole stands across the tip is how early the back falls away before it, hence the free edge's apex:
+
+| Digit | Free edge before the tip, generated | The reference's, read on its median cut |
+| --- | --- | --- |
+| Middle finger | 1.7 mm | 1.4 |
+| Thumb | 0.9 | 1.3 |
+| Big toe | 2.4 | 1.7 |
+| Second toe | 1.2 | 3.2 |
+| Third, fourth, little toe | 0.7, about 0, 0.6 | not read |
+
+On the lesser toes the plate runs nearly to the pole, which the body note explains: their poles stand on the dome's upper front. A datum lower on the tip would let the back fall sooner and bring those free edges back. So W4 belongs before the nails in the order (the nail re-reads everything from the skin and follows), it is not a condition of this round, and the lesser toes' free edge is the reading to take again when it lands.
+
+### B. The nails, in `constructionFrom`
+
+1. First statement, before any digit is read (the fans' seams, the thumb's capsule and the splits' children all read the digits), on digits that already carry A: `const nails = assembled.digits.map((digit) => AutoMovieHumanF1Nails.create(digit.family, assembled.frames));`
+2. The assembly every later line reads, with the parameter renamed `assembled`: `const placed = { ...assembled, digits: assembled.digits.map((digit, i) => ({ ...digit, family: AutoMovieHumanF1Nails.bedded(digit.family, nails[i]) })) };` This is the figure's level, the bed alone. `bedded` also sets the cap's rings from the bed's rows, so the family it returns is the one to loft; nothing sets `ITip.rings` after it.
+3. Nothing at the tree's end: no join, no plate source, `attach` is not called.
+
+The digit's layers inside the bed's station window are cut to the bed's rows by the leaf's existing rule (`AutoMovieHumanF1.ts` lines 2297 to 2330); its phases follow the bed's columns by `AutoMovieHumanConicLoft`'s. Nothing else is asked.
+
+**The mirror.** Nothing a side. The ten nails are made once; a twin's family is the bedded family through `AutoMovieHumanConicLoft.mirror`, which reflects each relief's window, axis and heights with the family. There is no right-side row, reading or condition.
+
+**The owner region.** A vertex of a digit's face is the nail's when `AutoMovieHumanNail.owns(nails[i].nail, point)` holds for its position in millimetres; on a twin's face, for its position reflected in the median plane. The plate's outline is `nails[i].nail.plan`.
+
+**Cost at the figure's level.** 8,802 vertices on ten digits over the digits without nails, about 17,600 on the figure. The law takes 1.4 to 2.1 s a digit today, about 17 s an assembly; the frame fit's defect below is most of it.
+
+### C. The made-figure check, when the tree stands
+
+`FamilyConicNail.ts --figure`, on a verified empty process list: the figure's own assembly with A applied on the probe's copy until A is in the file, then B's two statements, `constructionFrom`, one realization. Pass forms, all stated before it runs:
+
+| Form | Pass |
+| --- | --- |
+| Diagnostics | The realization reports no diagnostic that the same tree without B's two statements does not report; both lists are written to `figure.json` |
+| Every nail's net | `clipped` at most 0.01 mm on each of the ten |
+| Every nail's region | The vertices `owns` claims: more than zero on each of the twenty faces, and a twin's count equal to its side's |
+| Vertices | The figure's count less the same tree's without nails, against the 17,600 expected |
+| Frames | For each of the ten digits and its twin, the nail's own dorsal and oblique camera at 900 px, the owned vertices tinted: twenty digits, forty stills, each opened and entered with a pixel region for the fold's U, the two rims and the plate. Then the shared instrument's hand and foot frames in the round, where the question is only whether a nail reads at 0.21 and 0.28 mm a pixel |
+
 ## Wiring, for the relief
 
-Replaces "Wiring" below for the joints worker's declaration step. No join, no plate source.
+Superseded by "Wiring: the package for the round" above; kept for its history.
 
 1. In `constructionFrom`, before any digit is read, and after each digit's family has its tip and the body worker's tip dome: `const nails = assembled.digits.map((digit) => AutoMovieHumanF1Nails.create(digit.family, assembled.frames));`
 2. The assembly every later line reads: each digit's family replaced by `AutoMovieHumanF1Nails.bedded(digit.family, nails[i])`. The twin's relief comes from the digit's own mirror.

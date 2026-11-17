@@ -1,7 +1,8 @@
-import { AutoMovieHumanF1Divide } from "@automovie/human";
+import { AutoMovieHumanF1Divide, AutoMovieHumanLandmarkSurface } from "@automovie/human";
 
 import { FamilyConicLoop } from "./FamilyConicLoop";
 import type { FamilyConicSource as R } from "./FamilyConicSource";
+import { FamilyConicThumbRoot } from "./FamilyConicThumbRoot";
 
 /**
  * Every surface that divides f1's skin between two neighbouring parts, read on the reference's own joints.
@@ -42,7 +43,7 @@ export namespace FamilyConicDivide {
    * @param source The reference: its joint centres.
    * @param armscye The armscye's landmark surface on the reference's skin.
    * @param foot The trunk's foot, mm of height: its family's first station on its course.
-   * @param ends The arm's, the hand's and the leg's section planes where their children part from them: a point and the course's direction.
+   * @param ends The arm's section plane at its end, and the hand's and the leg's where their digits part from them: a point and the course's direction.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Every rule is `AutoMovieHumanF1Divide.create`'s; this function names the reference's joints that enter each.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One record of joints and one call.
@@ -52,26 +53,34 @@ export namespace FamilyConicDivide {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the package's closures.
    * @evidence contracts/development/common.md#meaningful-documentation States what each argument is read for.
    */
-  export function build(source: R.ISource, armscye: FamilyConicLoop.ILoop, foot: number, ends: { hand: IEnd; foot: IEnd; carpus: IEnd; wrist: IEnd }): ISurface[] {
+  export function build(source: R.ISource, armscye: FamilyConicLoop.ILoop, foot: number, ends: { hand: IEnd; foot: IEnd; wrist: IEnd }): ISurface[] {
     const joint = (name: string): V => {
       const p: V | undefined = source.joints.get(name);
       if (p === undefined) throw new Error("divide: the reference has no joint " + name);
       return p;
     };
     const digit = (name: string): AutoMovieHumanF1Divide.IDigit => ({ part: part(name), first: joint(name + "_01_r"), second: joint(name + "_02_r") });
+    // The thumb's root: the landmark surface through its four landmarks on the reference's skin about its metacarpophalangeal centre,
+    // its far side toward the thumb's next joint. It divides skin within twice the farthest landmark's distance from that centre: the
+    // ball that holds the root's ring with as much again round it, which the complement check reads.
+    const root: FamilyConicThumbRoot.IRoot = FamilyConicThumbRoot.read(source);
+    const landmarks: V[] = root.landmarks.map(([name, p]: [string, V | null]): V => {
+      if (p === null) throw new Error("divide: the thumb root's landmark " + name + " met no skin");
+      return p;
+    });
+    const thumbRoot: AutoMovieHumanLandmarkSurface.ISurface = AutoMovieHumanLandmarkSurface.create(root.centre, landmarks, root.toward);
     return AutoMovieHumanF1Divide.create({
       armscye: armscye.side,
       shoulder: joint("upperarm_r"),
       wrist: joint("hand_r"),
-      thumb: digit("thumb"),
+      thumb: { side: thumbRoot.side, centre: root.centre, reach: 2 * Math.max(...landmarks.map((p: V): number => Math.hypot(p[0] - root.centre[0], p[1] - root.centre[1], p[2] - root.centre[2]))), part: part("thumb") },
       fingers: FINGERS.map(digit),
-      palm: FINGERS.indexOf("middle"),
       toes: TOES.map(digit),
       sole: [0, 1, 0],
       hip: joint("thigh_r"),
       foot,
       ends,
-      parts: { trunk: "trunk", arm: "arm", wrist: "wrist", hand: "hand", leg: "leg", twin: "leg.mirror" },
+      parts: { trunk: "trunk", arm: "arm", hand: "hand", leg: "leg", twin: "leg.mirror" },
     });
   }
 

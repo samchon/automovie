@@ -51,10 +51,20 @@ export namespace AutoMovieHumanJoinLoop {
   /** The step a station line is walked in before a passing is bisected, mm. */
   const STEP_MM: number = 0.5;
 
-  /** How near a section plane a point is taken to lie in it, mm: a nanometre. */
-  const ADDRESS_MM: number = 1e-9;
+  /**
+   * How near a section plane a point is taken to lie in it, mm: a picometre. The station's own error is this over `1 - d / R` for a
+   * point `d` from the course on a turn of radius `R`, so under a nanometre wherever the search converges at all: stopped at a
+   * nanometre from the plane, stations inside a turn of 48.3 mm came back 1.9e-9 to 2.6e-9 mm short at 20 mm from the course.
+   */
+  const ADDRESS_MM: number = 1e-12;
 
-  /** Steps a point's station on the host is sought in: a point at half the turn's radius needs 30 to reach a nanometre from 1 mm. */
+  /**
+   * The distance from the plane under which a search that has stopped shrinking is taken as landed, mm: a course's frames are
+   * computed in doubles, and far along a long course their rounding can hold the distance above a picometre.
+   */
+  const ADDRESS_FLOOR_MM: number = 1e-9;
+
+  /** Steps a point's station is sought in: the secant lands in under ten from 40 mm away on a made turn; a search that needs more is refused. */
   const ADDRESS_STEPS: number = 64;
 
   /**
@@ -69,17 +79,17 @@ export namespace AutoMovieHumanJoinLoop {
    * angle in that station's frame, rad.
    *
    * The section plane's normal is `v x u` (`AutoMovieLoftFrame`), and a point `d` ahead of a section along it lies about `d` of
-   * station ahead while it stands inside the course's radius of curvature, so the station is stepped by that distance until it is
-   * under a nanometre: on a straight course the first step lands, round a turn each step shrinks the rest by the point's distance
-   * over the turn's radius.
+   * station ahead, so the first step is that distance and lands on a straight course; round a turn the distance to the plane is
+   * brought to zero by the secant through the last two stations, which does not depend on how tight the turn is (stepped by the
+   * distance alone, a made turn whose tightest radius is 1.6 times the point's distance had not landed in 64 steps).
    *
    * @param part The part whose chart is read.
    * @param domain The part's stations, mm.
    * @param p The point, mm.
    * @param guess The station the search starts at.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation A fixed-point step on the signed distance to the section plane, which contracts wherever the point is nearer the course than its centre of curvature; the phase is read in the found station's own frame.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop, one frame a step.
+   * @evidence contracts/development/implementation.md#principled-implementation The secant method on the signed distance to the section plane, started by one step of that distance; the phase is read in the found station's own frame.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop, one frame a step, one reader of the distance.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No straight-course premise and no nearest-sample search; a point the steps do not reach, or one past the part's stations, is refused with the station it stopped at.
    * @evidence contracts/development/implementation.md#efficient-algorithms One frame a step; one or two steps on a straight course, at most `ADDRESS_STEPS`.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A caller walking a curve passes the last station as the next guess.
@@ -87,14 +97,28 @@ export namespace AutoMovieHumanJoinLoop {
    * @evidence contracts/development/common.md#meaningful-documentation States units, the premise of convergence and the refusal.
    */
   export function address(part: IAutoMovieViewPart, domain: readonly [number, number], p: readonly number[], guess: number): [number, number] {
-    let station: number = guess;
-    for (let i: number = 0; i < ADDRESS_STEPS; ++i) {
+    // The signed distance of the point ahead of the section plane at a station, and the point in that station's frame.
+    const read = (station: number): { ahead: number; frame: AutoMovieLoftFrame.IFrame; q: V } => {
       const frame: AutoMovieLoftFrame.IFrame = part.axis.at(station);
       const q: V = [p[0]! - frame.origin[0], p[1]! - frame.origin[1], p[2]! - frame.origin[2]];
       const normal: V = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
-      const ahead: number = q[0] * normal[0] + q[1] * normal[1] + q[2] * normal[2];
-      if (Math.abs(ahead) <= ADDRESS_MM) return [station, Math.atan2(q[0] * frame.v[0] + q[1] * frame.v[1] + q[2] * frame.v[2], q[0] * frame.u[0] + q[1] * frame.u[1] + q[2] * frame.u[2])];
-      station = Math.min(domain[1], Math.max(domain[0], station + ahead));
+      return { ahead: q[0] * normal[0] + q[1] * normal[1] + q[2] * normal[2], frame, q };
+    };
+    const clamp = (station: number): number => Math.min(domain[1], Math.max(domain[0], station));
+    let [last, lastAhead]: [number, number] = [NaN, NaN];
+    let station: number = clamp(guess);
+    for (let i: number = 0; i < ADDRESS_STEPS; ++i) {
+      const { ahead, frame, q } = read(station);
+      // Landed: under the threshold, or the secant no longer moves the station (the frames' own rounding).
+      if (Math.abs(ahead) <= ADDRESS_MM || station === last) {
+        if (Math.abs(ahead) > ADDRESS_FLOOR_MM) break;
+        return [station, Math.atan2(q[0] * frame.v[0] + q[1] * frame.v[1] + q[2] * frame.v[2], q[0] * frame.u[0] + q[1] * frame.u[1] + q[2] * frame.u[2])];
+      }
+      // The first step is the distance itself; every later one is the secant through the last two stations.
+      const slope: number = (ahead - lastAhead) / (station - last);
+      const next: number = clamp(Number.isFinite(slope) && slope !== 0 ? station - ahead / slope : station + ahead);
+      [last, lastAhead] = [station, ahead];
+      station = next;
     }
     throw new Error("join loop: a point has no address on the chart of " + part.name + " (station " + station + " mm after " + ADDRESS_STEPS + " steps)");
   }

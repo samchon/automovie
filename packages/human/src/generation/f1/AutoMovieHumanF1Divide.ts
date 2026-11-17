@@ -12,11 +12,10 @@
  *   joint; the trunk medial of it, the arm lateral.
  * - `mammary`, `ear.root`: a landmark surface each, supplied as the armscye's is, within its own reach of its centre; the trunk on the
  *   near side, the breast and the auricle's plate on the far side. A figure without one of them declares none.
- * - `wrist`: the arm's section plane where its face ends; the arm proximal, the wrist's stub distal.
- * - `carpus`: the hand's section plane at its course's station nearest the midpoint of the wrist's centre and the thumb's first joint;
- *   the wrist's stub proximal, the palm and the thumb's ray distal.
- * - `web.thumb`: the plane through that midpoint that holds the bisector of the thumb's first segment and the wrist-to-middle-knuckle
- *   line and the normal of the plane those two span; the thumb on its side, the palm and the four fingers on the other.
+ * - `wrist`: the arm's section plane where its face ends; the arm proximal, the hand distal.
+ * - `thumb.root`: a landmark surface about the thumb's metacarpophalangeal centre, supplied as the armscye's is, within its own reach
+ *   of that centre; the hand and the four fingers on the near side, the thumb on the far side. The thumb leaves the hand's side: a
+ *   plane through the wrist and the thumb's first joint ran along the thumb's sections and left the first web's sheet on the thumb.
  * - `heads.hand`, `heads.foot`: the parent's section plane where its digits part from it; the parent proximal, the digits distal.
  * - `web.<a>.<b>` between neighbouring digits of a row: the plane through the midpoint of their two first joints that holds the
  *   bisector of their first segments and the row's normal (the palm's, from the wrist and the row's two outer knuckles; the sole's,
@@ -91,7 +90,7 @@ export namespace AutoMovieHumanF1Divide {
    *
    * @evidence contracts/development/design.md#principled-representation The two centres fix where the digit leaves its parent and which way.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `create` alone.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No digit is special: the thumb is one of these too.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No digit of a row is special; the thumb is no digit of a row and has its surface.
    * @evidence contracts/development/common.md#meaningful-documentation Members state units.
    */
   export interface IDigit {
@@ -151,14 +150,11 @@ export namespace AutoMovieHumanF1Divide {
     /** The wrist's centre, mm. */
     wrist: V;
 
-    /** The thumb. */
-    thumb: IDigit;
+    /** The surface at the thumb's root on the hand. */
+    thumb: ILandmarked;
 
     /** The fingers in their row's order, from the little one. */
     fingers: IDigit[];
-
-    /** The index of the finger whose first joint, with the wrist, gives the palm's line (the middle finger's). */
-    palm: number;
 
     /** The toes in their row's order, from the little one. */
     toes: IDigit[];
@@ -172,11 +168,11 @@ export namespace AutoMovieHumanF1Divide {
     /** The trunk's foot: the height of its family's first station, mm. */
     foot: number;
 
-    /** The section planes of the arm at its end, of the hand at the carpus and at the heads, and of the leg at the ball of the foot. */
-    ends: { wrist: IEnd; carpus: IEnd; hand: IEnd; foot: IEnd };
+    /** The section planes of the arm at its end, of the hand at the heads, and of the leg at the ball of the foot. */
+    ends: { wrist: IEnd; hand: IEnd; foot: IEnd };
 
-    /** The part names of the limbs' families: the trunk, the arm, the wrist's stub, the palm, the leg and the leg's twin. */
-    parts: { trunk: string; arm: string; wrist: string; hand: string; leg: string; twin: string };
+    /** The part names of the limbs' families: the trunk, the arm, the hand, the leg and the leg's twin. */
+    parts: { trunk: string; arm: string; hand: string; leg: string; twin: string };
   }
 
   /** How near the shoulder joint the armscye's surface divides, mm: the reach of the skin its landmarks were read on. */
@@ -224,16 +220,9 @@ export namespace AutoMovieHumanF1Divide {
       if (landmarked !== undefined)
         out.push({ name, group, near: [parts.trunk], far: [landmarked.part], side: landmarked.side, within: (p: V): boolean => Math.hypot(...sub(p, landmarked.centre)) < landmarked.reach, anchor: landmarked.centre, reach: landmarked.reach });
 
-    // The hand: the wrist's and the carpus's section planes, and the plane that parts the thumb's ray from the palm and the fingers.
-    const base: V = middle(input.wrist, input.thumb.first);
-    const ray: V = unit(sub(input.thumb.second, input.thumb.first));
-    const palm: V = unit(sub(input.fingers[input.palm]!.first, input.wrist));
-    const between: V = unit(add(ray, palm));
-    out.push({ name: "wrist", group: "hand", near: [parts.arm], far: [parts.wrist], side: plane(input.ends.wrist.point, input.ends.wrist.normal), anchor: input.ends.wrist.point, reach: ROW_MM });
-    out.push({ name: "carpus", group: "hand", near: [parts.wrist], far: [parts.hand, input.thumb.part], side: plane(input.ends.carpus.point, input.ends.carpus.normal), anchor: base, reach: ROW_MM });
-    // Toward the thumb: the part of the thumb's own direction square to the bisector.
-    out.push({ name: "web.thumb", group: "hand", near: [parts.hand, ...input.fingers.map((d: IDigit): string => d.part)], far: [input.thumb.part], side: plane(base, toward(cross(unit(cross(ray, palm)), between), ray)), anchor: base, reach: ROW_MM });
-
+    // The hand: the arm's end plane, and the surface at the thumb's root.
+    out.push({ name: "wrist", group: "hand", near: [parts.arm], far: [parts.hand], side: plane(input.ends.wrist.point, input.ends.wrist.normal), anchor: input.ends.wrist.point, reach: ROW_MM });
+    out.push({ name: "thumb.root", group: "hand", near: [parts.hand, ...input.fingers.map((d: IDigit): string => d.part)], far: [input.thumb.part], side: input.thumb.side, within: (p: V): boolean => Math.hypot(...sub(p, input.thumb.centre)) < input.thumb.reach, anchor: input.thumb.centre, reach: input.thumb.reach });
     const row = (digits: readonly IDigit[], parent: string, end: IEnd, up: V, label: string): void => {
       const axes: V[] = digits.map((d: IDigit): V => unit(sub(d.second, d.first)));
       out.push({ name: "heads." + label, group: label, near: [parent], far: digits.map((d: IDigit): string => d.part), side: plane(end.point, end.normal), anchor: end.point, reach: ROW_MM });
