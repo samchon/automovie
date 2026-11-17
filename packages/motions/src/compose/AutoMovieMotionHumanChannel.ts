@@ -194,7 +194,7 @@ export namespace AutoMovieMotionHumanChannel {
    * @evidence contracts/development/common.md#meaningful-documentation States what is copied, what stays and what happens to a field the written posture no longer sets.
    * @evidence contracts/development/implementation.md#principled-implementation Each field goes to the posture of its owner: the channels' fields from the written posture, the rest from the base, so a primitive cannot change a part it did not claim.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two passes over the joints, one over the four limbs, and four scalar choices.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An owned joint or limb goal absent from the written posture is cleared and not inherited from the base, so a primitive can release a goal.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An owned joint or limb goal absent from the written posture is cleared. Every digit reads only its selected source; optional-field presence never probes an unselected source. Root/trunk membership and selected getter reads retain their original order and frequency.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the joints the two postures hold.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `of` for every joint.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
@@ -209,7 +209,7 @@ export namespace AutoMovieMotionHumanChannel {
       written,
       (channel: AutoMovieMotionHumanChannel): boolean => channels.includes(channel),
       (bone: AutoMovieHumanoidBone): boolean => covers(channels, bone),
-      (digit: IHumanPosture.Digit): boolean => claims(channels, digit),
+      (digit: IHumanPosture.Digit): boolean => AutoMovieMotionHumanChannel.claims(channels, digit),
     );
   }
 
@@ -272,13 +272,12 @@ export namespace AutoMovieMotionHumanChannel {
     // Each digit's goal goes with its digit; a posture that has none keeps
     // none, so a merge without digit goals is the merge it always was.
     let digits: NonNullable<IHumanPosture["digits"]> | undefined;
-    if (base.digits !== undefined || written.digits !== undefined)
-      for (const d of IHumanPosture.DIGITS) {
-        const goal: IHumanPosture.IDigitGoal | undefined = (
-          ownsDigit(d) ? written : base
-        ).digits?.[d];
-        if (goal !== undefined) (digits ??= {})[d] = goal;
-      }
+    for (const d of IHumanPosture.DIGITS) {
+      const goal: IHumanPosture.IDigitGoal | undefined = (
+        ownsDigit(d) ? written : base
+      ).digits?.[d];
+      if (goal !== undefined) (digits ??= {})[d] = goal;
+    }
     const limbs: IHumanPosture["limbs"] = {};
     for (const limb of [
       "leftArm",
@@ -294,14 +293,14 @@ export namespace AutoMovieMotionHumanChannel {
 
     // A whole-body rotation turns the root, so it goes with the root's
     // channel (#3423); a posture that has none keeps none.
-    const root: IHumanPosture = owns("root") ? written : base;
-    const trunk: IHumanPosture = owns("trunk") ? written : base;
-    const rotation: IHumanPosture.IRotation | undefined = root.rotation;
+    const rotation: IHumanPosture.IRotation | undefined = (
+      owns("root") ? written : base
+    ).rotation;
     return {
-      root: root.root,
-      yaw: root.yaw,
-      pitch: trunk.pitch,
-      roll: trunk.roll,
+      root: owns("root") ? written.root : base.root,
+      yaw: owns("root") ? written.yaw : base.yaw,
+      pitch: owns("trunk") ? written.pitch : base.pitch,
+      roll: owns("trunk") ? written.roll : base.roll,
       joints,
       limbs,
       ...(digits === undefined ? {} : { digits }),
