@@ -84,7 +84,10 @@ export function preparePoseResolutionState(
   const tables: composePoseFrames.ITables = composePoseFrames.tables(nodes);
   const state: IState = createState(tables, indices, conventions, fallback);
   return {
-    joint: (joint: IAutoMovieJointPose): IAutoMovieQuaternion => ({ ...state.joints.admit(joint) }),
+    joint: (joint: IAutoMovieJointPose): IAutoMovieQuaternion => {
+      state.joints.admit(joint);
+      return state.joints.rotation();
+    },
     preparePose: (source: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>): preparePoseResolutionState.IOverlayReader =>
       preparePoseResolutionState.preparePose(nodes, indices, conventions, fallback, source, requested, state),
     resolve: (pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, demand?: readonly number[]): IAutoMovieResolvedBone[] =>
@@ -241,16 +244,8 @@ export type IConvention = preparePoseJointResolution.IConvention;
     const baseline: IState = (admission as IState | undefined) ?? createState(tables, indices, conventions, fallback);
     baseline.joints.begin();
     for (const joint of source.joints) baseline.joints.admit(joint);
-    const admitted: readonly (IAutoMovieQuaternion | undefined)[] = baseline.joints.snapshot();
     const rows: Float64Array = composePoseFrames.identities(tables.count);
-    for (let index: number = 0; index < tables.count; ++index) {
-      const rotation: IAutoMovieQuaternion | undefined = admitted[index];
-      if (rotation === undefined) continue;
-      rows[4 * index] = rotation.x;
-      rows[4 * index + 1] = rotation.y;
-      rows[4 * index + 2] = rotation.z;
-      rows[4 * index + 3] = rotation.w;
-    }
+    baseline.joints.snapshot(rows);
     const state: IState = createState(tables, indices, conventions, fallback, rows);
     preparePosePlacement(state, source, IDENTITY, ORIGIN);
     const demanded: readonly number[] | undefined = requested === undefined

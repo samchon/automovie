@@ -1,5 +1,3 @@
-import type { IAutoMovieQuaternion } from "@automovie/interface";
-
 /**
  * Select the articulations of one admitted pose on a rooted rig, as numbers.
  *
@@ -39,14 +37,14 @@ export function preparePoseResolutionChanges(
     begin: (): void => {
       ++generation;
     },
-    write: (index: number | undefined, rotation: IAutoMovieQuaternion): void => {
+    write: (index: number | undefined, x: number, y: number, z: number, w: number): void => {
       if (index === undefined) return;
       const row: number = 4 * index;
       stamps[index] = generation;
-      staged[row] = rotation.x;
-      staged[row + 1] = rotation.y;
-      staged[row + 2] = rotation.z;
-      staged[row + 3] = rotation.w;
+      staged[row] = x;
+      staged[row + 1] = y;
+      staged[row + 2] = z;
+      staged[row + 3] = w;
     },
     complete: (): void => {
       let changed: boolean = false;
@@ -89,8 +87,8 @@ export namespace preparePoseResolutionChanges {
     /** Start a query's writes without changing the completed selection. */
     begin(): void;
 
-    /** Record one admitted articulation; a later write of its row wins, and an undefined row is ignored. */
-    write(index: number | undefined, rotation: IAutoMovieQuaternion): void;
+    /** Record one admitted articulation's four components (x, y, z, w); a later write of its row wins, and an undefined row is ignored. */
+    write(index: number | undefined, x: number, y: number, z: number, w: number): void;
 
     /** Select every row's last write of this query, or its baseline, and advance the version when any component changed. */
     complete(): void;
