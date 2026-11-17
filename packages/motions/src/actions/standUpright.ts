@@ -1,6 +1,8 @@
 import {
   type IAutoMovieResolvedBone,
   Quaternion,
+  bracketedCrossing,
+  bracketedMinimum,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
@@ -198,58 +200,44 @@ export namespace standUpright {
   ]);
 
   /**
-   * Minimize the pure fixed-body cost to 0.01 degree, keeping the original
-   * candidate expressions. Only the preceding pair's exact numeric costs
-   * are shared; a rounded-nearby candidate is evaluated independently.
+   * The angle of the pure fixed-body cost's low on [lo, hi] degrees, by
+   * Brent's method (`bracketedMinimum`): a golden-section search closed its
+   * bracket to 0.01 degree and took the middle, within 0.005 degree of the
+   * low, and Brent's stopping rule places its point within about three
+   * tolerances of it, so the tolerance is a third of that.
    */
   function golden(
     cost: (angle: number) => number,
     lo: number,
     hi: number,
   ): number {
-    const r: number = (Math.sqrt(5) - 1) / 2;
-    let a: number = lo;
-    let b: number = hi;
-    let lastC: number | undefined;
-    let lastD: number | undefined;
-    let costC: number = 0;
-    let costD: number = 0;
-    const at: (angle: number) => number = (angle: number): number =>
-      Object.is(angle, lastC)
-        ? costC
-        : Object.is(angle, lastD)
-          ? costD
-          : cost(angle);
-    while (b - a > 0.01) {
-      const c: number = b - r * (b - a);
-      const d: number = a + r * (b - a);
-      const first: number = at(c);
-      const second: number = at(d);
-      lastC = c;
-      lastD = d;
-      costC = first;
-      costD = second;
-      if (first < second) b = d;
-      else a = c;
-    }
-    return (a + b) / 2;
+    return bracketedMinimum(cost, lo, hi, LOW / 3).at;
   }
 
-  /** The zero of a monotonic residual on [-range, range] degrees by bisection, or the end nearer to it when it has none there. */
+  /** How near its low a golden-section bracket of 0.01 degree left the cost's angle, degrees. */
+  const LOW: number = 0.005;
+
+  /**
+   * The zero of a monotonic residual on [-range, range] degrees, or the end
+   * nearer to it when it has none there: the bracket closed to the width 40
+   * bisections leave, by false position on the residual and bisection for
+   * whatever width that leaves (`bracketedCrossing`), and its middle taken.
+   */
   function bisect(
     residual: (angle: number) => number,
     range: number = 25,
   ): number {
-    let lo: number = -range;
-    let hi: number = range;
-    const a: number = residual(lo);
-    const b: number = residual(hi);
-    if (a * b > 0) return Math.abs(a) < Math.abs(b) ? lo : hi;
-    for (let i: number = 0; i < 40; i++) {
-      const m: number = (lo + hi) / 2;
-      if (residual(m) * a > 0) lo = m;
-      else hi = m;
-    }
-    return (lo + hi) / 2;
+    const a: number = residual(-range);
+    const b: number = residual(range);
+    if (a * b > 0) return Math.abs(a) < Math.abs(b) ? -range : range;
+    const closed: { low: number; high: number } = bracketedCrossing({
+      f: residual,
+      past: (value: number): boolean => !(value * a > 0),
+      low: -range,
+      high: range,
+      known: { low: a, high: b },
+      tolerance: 2 * range * 2 ** -40,
+    });
+    return (closed.low + closed.high) / 2;
   }
 }
