@@ -11,7 +11,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { bracketedRoot } from "../math/bracketedRoot";
+import { bracketedCrossing } from "../math/bracketedCrossing";
 import { physicalHullFaces } from "../physics/physicalHullFaces";
 import { physicalShapeSegmentDistance } from "../physics/physicalShapeSegmentDistance";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
@@ -54,7 +54,7 @@ import { resolvePose } from "./resolvePose";
  * of `step` degrees, the first step whose gap is not positive is bracketed
  * and the bracket closed to the width 30 bisections leave (`HALVINGS`), by
  * false position on the gap, which is continuous in the angle
- * (`bracketedRoot`), and by bisection for whatever width that leaves; the
+ * (`bracketedCrossing`), and by bisection for whatever width that leaves; the
  * joint keeps the bracket's lower end, the last angle read with a positive
  * gap, so a phalanx stops touching the collider within that resolution and
  * never inside it. A joint already in
@@ -220,31 +220,17 @@ export function curlChainUntilContact(
           // The bracket [lo, hi] holds a positive gap at lo and a
           // non-positive one at hi, and is closed to the width `HALVINGS`
           // bisections would leave. The gap is continuous in the angle, so
-          // false position closes it in fewer readings (`bracketedRoot`);
-          // every reading moves the end of its own sign, as a bisection's
-          // does, and whatever width false position leaves (a reading of
-          // exactly zero ends it at once) is bisected away.
-          const tolerance: number = (hi - lo) * 2 ** -HALVINGS;
-          const ends: readonly [number, number, number, number] = [lo, open, hi, closed];
-          let low: number = lo;
-          let high: number = hi;
-          const read = (a: number): number => {
-            const here: number =
-              a === ends[0] ? ends[1] : a === ends[2] ? ends[3] : gap(k, a);
-            if (a > low && a < high) {
-              if (here <= 0) high = a;
-              else low = a;
-            }
-            return here;
-          };
-          if (Number.isFinite(open) && Number.isFinite(closed) && tolerance > 0)
-            bracketedRoot(read, lo, hi, tolerance);
-          while (high - low > tolerance) {
-            const mid: number = (low + high) / 2;
-            if (!(mid > low && mid < high)) break;
-            read(mid);
-          }
-          lo = low;
+          // false position closes it in fewer readings and bisection
+          // whatever width that leaves (`bracketedCrossing`); the scan's two
+          // end readings are not read again.
+          lo = bracketedCrossing({
+            f: (a: number): number => gap(k, a),
+            past: (here: number): boolean => here <= 0,
+            low: lo,
+            high: hi,
+            known: { low: open, high: closed },
+            tolerance: (hi - lo) * 2 ** -HALVINGS,
+          }).low;
         }
         angle = lo;
       }

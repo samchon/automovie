@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
+import { bracketedCrossing } from "../math/bracketedCrossing";
 
 /**
  * The point where two people's hands meet when both reach for it: a
@@ -34,8 +35,8 @@ import { Vector3 } from "../math/Vector3";
  * action that has its own preferred contact height (`height`, as an object
  * is handed over at chest height) passes it: the point then lies at that
  * height where both arms are the same fraction of their comfortable reaches
- * (by bisection along the horizontal line between the shoulders, on which
- * one distance grows as the other shrinks), and the height is moved to the
+ * (by a bracketed crossing along the horizontal line between the shoulders,
+ * on which one distance grows as the other shrinks), and the height is moved to the
  * nearest one inside the band both straight arms reach there.
  *
  * A meeting is refused, not stretched, when it lies beyond a straight arm:
@@ -51,7 +52,7 @@ import { Vector3 } from "../math/Vector3";
  * @evidence contracts/development/implementation.md#principled-implementation The midpoint of equal arms (Hansen 2017) generalised to the one point at which both arms hold their comfortable reach: the intersection of two spheres in the shoulders' vertical plane.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One common extension factor, one two-circle intersection, and for a preferred height one bisection and one band.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable meeting is refused with the feasible gap, never clamped onto an arm; a preferred height only moves inside both arms' reach.
- * @evidence contracts/development/implementation.md#efficient-algorithms Closed form; a preferred height adds a fixed 50-step bisection, and its refusal another.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Closed form; a preferred height adds one crossing search to the width 50 bisections leave, by false position on the continuous excess (`bracketedCrossing`), and its refusal another, which halves where the band is not finite.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates its result only.
  */
@@ -135,14 +136,25 @@ export function resolveAutoMovieMutualGoal(input: {
       Math.hypot(g - t, preferred - b.shoulder.y) * a.reach;
     let lo: number = 0;
     let hi: number = g;
-    if (excess(lo) >= 0) hi = lo;
-    else if (excess(hi) <= 0) lo = hi;
-    else
-      for (let i: number = 0; i < 50; i++) {
-        const mid: number = (lo + hi) / 2;
-        if (excess(mid) < 0) lo = mid;
-        else hi = mid;
-      }
+    const near: number = excess(lo);
+    const far: number = near >= 0 ? near : excess(hi);
+    if (near >= 0) hi = lo;
+    else if (far <= 0) lo = hi;
+    else {
+      // The excess is continuous along the line, so its crossing is closed
+      // to the width `HALVINGS` bisections leave by false position and, for
+      // whatever width that leaves, by bisection (`bracketedCrossing`).
+      const closed: { low: number; high: number } = bracketedCrossing({
+        f: excess,
+        past: (value: number): boolean => !(value < 0),
+        low: lo,
+        high: hi,
+        known: { low: near, high: far },
+        tolerance: (hi - lo) * 2 ** -HALVINGS,
+      });
+      lo = closed.low;
+      hi = closed.high;
+    }
     const t: number = (lo + hi) / 2;
     // The heights each straight arm reaches at its horizontal distance.
     const reachA: number = Math.sqrt(Math.max(0, a.limit * a.limit - t * t));
@@ -164,15 +176,21 @@ export function resolveAutoMovieMutualGoal(input: {
   if (low > high) {
     // The widest closable gap, by bisection: the shared band only narrows as
     // the gap widens.
-    let lo: number = 0;
-    let hi: number = a.limit + b.limit;
-    for (let i: number = 0; i < 50; i++) {
-      const mid: number = (lo + hi) / 2;
-      const band = meet(mid);
-      if (band.low <= band.high) lo = mid;
-      else hi = mid;
-    }
-    throw refuse(lo);
+    // The band's width is not finite beyond a straight arm, where the
+    // crossing search halves instead (`bracketedCrossing`).
+    const widest: number = a.limit + b.limit;
+    throw refuse(
+      bracketedCrossing({
+        f: (mid: number): number => {
+          const band: { low: number; high: number } = meet(mid);
+          return band.low - band.high;
+        },
+        past: (short: number): boolean => !(short <= 0),
+        low: 0,
+        high: widest,
+        tolerance: widest * 2 ** -HALVINGS,
+      }).low,
+    );
   }
   return done({
     x: a.shoulder.x + share * span.x,
@@ -211,3 +229,6 @@ export namespace resolveAutoMovieMutualGoal {
     distance: [number, number];
   }
 }
+
+/** The bisections whose final bracket width both crossing searches close to: a bracket of metres to the last digits of a double. */
+const HALVINGS: number = 50;
