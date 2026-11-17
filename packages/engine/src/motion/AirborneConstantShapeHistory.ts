@@ -71,6 +71,16 @@ export function AirborneConstantShapeHistory(
     { position: { x: 0, y: 0, z: 0 }, linear: { x: 0, y: 0, z: 0 }, angular: { x: 0, y: 0, z: 0 } },
   );
   if (rates === undefined) return undefined;
+
+  // A map that lacks a mass-bearing bone proves no fixed shape: the rates
+  // skip an absent subtree without refusing it, so completeness is read
+  // here, before the mass model would throw for the bone it cannot pose.
+  if ("segments" in model) {
+    for (const segment of model.segments)
+      if (!rates.has(segment.bone)) return undefined;
+  } else
+    for (const bone of prepareAutoMovieMassModel.bones(model))
+      if (!rates.has(bone)) return undefined;
   const posed: resolveAutoMovieMomentum.IPosed = "segments" in model
     ? resolveAutoMovieMomentum.pose(model, bones) : prepareAutoMovieMassModel.pose(model, bones);
   if (statistics !== undefined) statistics.uniqueNumericNodes++;
