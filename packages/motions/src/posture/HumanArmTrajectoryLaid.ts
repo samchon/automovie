@@ -8,6 +8,7 @@ import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
+import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 
 /**
  * An arms' course laid without optimisation and read by the trajectory
@@ -67,8 +68,12 @@ export namespace HumanArmTrajectoryLaid {
    * take the share of the span the arc leaves, `1 - L / (v T)`, no more than
    * half (the triangle): the smoothest profile of that family the span
    * allows under the bound (the time-scaling of a fixed path, Hollerbach
-   * 1984). A span too short for the arc at the plateau is laid at constant
-   * speed and refused on `speed` by the reading below.
+   * 1984). The arc is read on the first waypoint's base, the speed the
+   * model reads on each waypoint's own (whose fingers may close as the hand
+   * arrives): where the course's fastest step as read passes the plateau's
+   * pace, the plateau is slowed by that ratio and the course timed again,
+   * `RETIMES` times at most. A span too short for the arc at the plateau is
+   * laid at constant speed and refused on `speed` by the reading below.
    *
    * The course is read by the model's own evaluation (`M.evaluate`: every
    * site, range, clearance, crossing and speed bound) at the problem's own
@@ -86,7 +91,7 @@ export namespace HumanArmTrajectoryLaid {
    * @evidence contracts/development/implementation.md#principled-implementation A joint-space blend in the optimiser's own coordinates, time-scaled along the fastest probe's arc under the speed bound, read by the same context, hard-range projection and evaluation the optimiser's iterates are read by, in the same mirror image `solve` reads a left-first problem in, so an admitted course meets every requirement a solved one meets and a mirrored course is admitted alike.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One context, the hold's encoding, two transports, one evaluation, then the shared playback factory.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bound is relaxed; a course that misses one is returned to the caller's optimisation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One context build, `ARC` placements of each arm per transport for the arc, and one evaluation over N waypoints, the work of a single optimiser iterate, with no limb fit, convexification or quadratic programme.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One context build, `ARC` placements of each arm per transport for the arc, at most `RETIMES` readings of a transport's waypoints (one placement each), and one evaluation over N waypoints, the work of a single optimiser iterate, with no limb fit, convexification or quadratic programme.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the context builder, the model's placement and evaluation and `solve`'s playback, so both paths are read alike; the builder and the context are returned for `solve` to read the same grid on.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The arc's samples live until return; the readers keep only setups, times and coordinates, as `solve`'s do, and the reading's context lives while the caller holds the result.
    */
@@ -157,27 +162,70 @@ export namespace HumanArmTrajectoryLaid {
       }
       const arc: number = along[ARC]!;
       const seconds: number = times[to]! - times[from]!;
-      const ramp: number = Math.max(0, Math.min(0.5, 1 - arc / (PACE * M.SPEED_LIMIT * seconds)));
+
+      // The waypoints on a trapezoid of the arc whose plateau runs at a
+      // speed, its ramps the share of the span the arc leaves.
+      const timed = (plateau: number): number => {
+        const ramp: number = Math.max(0, Math.min(0.5, 1 - arc / (plateau * seconds)));
+        const run = (w: number): number =>
+          ramp < 1e-9
+            ? w
+            : w < ramp
+              ? (w * w) / (2 * ramp * (1 - ramp))
+              : w > 1 - ramp
+                ? 1 - ((1 - w) * (1 - w)) / (2 * ramp * (1 - ramp))
+                : (w - ramp / 2) / (1 - ramp);
+        for (let k: number = from + 1; k < to; ++k) {
+          const reached: number = arc * run((times[k]! - times[from]!) / seconds);
+          let s: number = 1;
+          while (s < ARC && along[s]! < reached) ++s;
+          const span: number = along[s]! - along[s - 1]!;
+          const share: number = (s - 1 + (span > 1e-12 ? (reached - along[s - 1]!) / span : 0)) / ARC;
+          x.forEach((arm: number[][], a: number): void => {
+            arm[k] = M.ranged(context, a, mix(ends[a]![0], ends[a]![1], share));
+          });
+        }
+        return ramp;
+      };
+
+      // The speed the model reads (`M.evaluate`) is each probe's step
+      // against the base of each waypoint, where the arc above is read on
+      // the first waypoint's base alone: the base's own change between two
+      // waypoints (the fingers' grip closing, which moves the fingertip
+      // probe) and the sampled chords add to it. So the course's fastest
+      // step as read is measured, and where it passes the plateau's pace
+      // the plateau is slowed by that ratio and the course timed again,
+      // the time scaling of a fixed path (Hollerbach 1984) applied to the
+      // speed as the admission reads it.
+      const fastest = (): number => {
+        let most: number = 0;
+        x.forEach((arm: number[][], a: number): void => {
+          let before: G.IPlaced = G.placed(context.setups[a]!, context.frames[a]![from]!, arm[from]!);
+          for (let k: number = from; k < to; ++k) {
+            const next: G.IPlaced = G.placed(context.setups[a]!, context.frames[a]![k + 1]!, arm[k + 1]!);
+            const dt: number = times[k + 1]! - times[k]!;
+            for (const p of T.SPEED)
+              most = Math.max(most, Vector3.length(V.step(
+                context.frames[a]![k]!, context.frames[a]![k + 1]!,
+                before.probes[p]![0], next.probes[p]![0])) / dt);
+            before = next;
+          }
+        });
+        return most;
+      };
+      let plateau: number = PACE * M.SPEED_LIMIT;
+      let ramp: number = timed(plateau);
+      for (let pass: number = 0; pass < RETIMES; ++pass) {
+        const planned: number = arc / ((1 - ramp) * seconds);
+        // A course already at constant speed cannot be slowed in its span.
+        if (ramp < 1e-9) break;
+        const ratio: number = fastest() / planned;
+        if (ratio * planned <= PACE * M.SPEED_LIMIT) break;
+        plateau = (PACE * M.SPEED_LIMIT) / ratio;
+        ramp = timed(plateau);
+      }
       if (ramp >= 1e-9 && ramp < 0.5)
         ramps.push(times[from]! + ramp * seconds, times[to]! - ramp * seconds);
-      const run = (w: number): number =>
-        ramp < 1e-9
-          ? w
-          : w < ramp
-            ? (w * w) / (2 * ramp * (1 - ramp))
-            : w > 1 - ramp
-              ? 1 - ((1 - w) * (1 - w)) / (2 * ramp * (1 - ramp))
-              : (w - ramp / 2) / (1 - ramp);
-      for (let k: number = from + 1; k < to; ++k) {
-        const reached: number = arc * run((times[k]! - times[from]!) / seconds);
-        let s: number = 1;
-        while (s < ARC && along[s]! < reached) ++s;
-        const span: number = along[s]! - along[s - 1]!;
-        const share: number = (s - 1 + (span > 1e-12 ? (reached - along[s - 1]!) / span : 0)) / ARC;
-        x.forEach((arm: number[][], a: number): void => {
-          arm[k] = M.ranged(context, a, mix(ends[a]![0], ends[a]![1], share));
-        });
-      }
     };
     lay(0, first);
     lay(last, n - 1);
@@ -200,3 +248,6 @@ const PACE: number = 0.97;
 
 /** The samples a laid transport's arc is read on (provisional: under a degree of any joint's travel apiece on a daily reach). */
 const ARC: number = 48;
+
+/** The times a laid transport is timed again on the speed its waypoints are read at, at most: each slows the plateau by the ratio of the read speed to the planned one, which converges where the base's own motion varies little with the share (provisional). */
+const RETIMES: number = 3;
