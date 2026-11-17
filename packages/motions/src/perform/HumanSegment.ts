@@ -188,6 +188,7 @@ export namespace HumanSegment {
       segment.plan.settle?.();
       if (segment.transition !== undefined) delete segment.transition.offset;
       delete segment.incumbents;
+      delete segment.legs;
     }
     for (const overlay of person.overlays) overlay.plan.settle?.();
     for (const held of person.holds) delete held.carry;

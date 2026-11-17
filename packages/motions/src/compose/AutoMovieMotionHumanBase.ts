@@ -34,7 +34,7 @@ export namespace AutoMovieMotionHumanBase {
    * @returns The plan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input's unit and meaning and the default supports.
-   * @evidence contracts/development/implementation.md#principled-implementation The reader returns the exact borrowed posture for every second, with its caller's later edits visible and no constancy proof inferred from time independence of the callback itself.
+   * @evidence contracts/development/implementation.md#principled-implementation The reader returns the exact borrowed posture, a value its caller does not change, for every second, so the plan declares itself still over its whole span (`still`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The contacts are copied, so a later change of the caller's list does not reach the plan.
    * @evidence contracts/development/implementation.md#efficient-algorithms Construction copies C contact references; each posture read is constant work and neither traverses nor copies the borrowed authoring graph.
@@ -50,6 +50,9 @@ export namespace AutoMovieMotionHumanBase {
       duration,
       events: [],
       contacts: [...contacts],
+
+      // One posture throughout: still over the whole plan.
+      still: [0, duration],
       posture: (): IAutoMovieMotionHumanPosture => posture,
     };
   }

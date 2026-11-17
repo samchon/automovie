@@ -27,6 +27,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
+import { HumanSegmentLegs } from "./HumanSegmentLegs";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { unplantedHumanObservation } from "./unplantedHumanObservation";
@@ -168,13 +169,13 @@ export namespace HumanSegmentOverlay {
     ): { pose: IAutoMoviePose; contacts: IAutoMovieMotionHumanPosture["limbs"]; } {
       const overlay: IAutoMovieMotionHumanSegment.IOverlay | undefined = active?.[k];
       if (overlay === undefined) {
-        // The carrier's last leaf seeds start this leaf's swept fits' bounded
-        // searches (`HumanLimbIncumbent`), which they cannot answer.
-        const leafed = (): IAutoMovieMotionHumanResolveHumanPosture.ISeeded => resolveHumanPosture.seeded(body, under,
-          undefined, continuations(under.limbs, near, tag), resolution, unplantedHumanObservation(under.limbs, observed), projection);
+        // Kept legs in a legs-still window (`HumanSegmentLegs`); the last leaf's seeds as incumbents (`HumanLimbIncumbent`).
+        const leafed = (): IAutoMovieMotionHumanResolveHumanPosture.ISeeded => HumanSegmentLegs.resolved(person, carrier, seconds, under,
+          near === undefined && observed === undefined, (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanResolveHumanPosture.ISeeded =>
+            resolveHumanPosture.seeded(body, posture, undefined, continuations(posture.limbs, near, tag), resolution,
+              unplantedHumanObservation(posture.limbs, observed), projection));
         const held: IAutoMovieMotionHumanSegment["incumbents"] = carrier?.incumbents;
-        const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
-          held === undefined ? leafed() : HumanLimbIncumbent.within({ body, seeds: held }, leafed);
+        const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = held === undefined ? leafed() : HumanLimbIncumbent.within({ body, seeds: held }, leafed);
         if (carrier !== undefined) carrier.incumbents = fitted.seeds;
         for (const [limb, seed] of Object.entries(fitted.seeds))
           seeds.set(`leaf:${tag}:${limb}`, seed ?? null);

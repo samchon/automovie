@@ -22,7 +22,9 @@ import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionH
  * that second writes its channels onto it, in {@link AutoMovieMotionHumanChannel.ORDER}, so
  * an arm reads the trunk the action already placed. The plan's contact
  * windows and weapons are the base's followed by the primitives', and its
- * `channels` are the channels some primitive claims, in that order. Each
+ * `channels` are the channels some primitive claims, in that order; where
+ * none claims the root, the trunk or a leg, the base's legs-still or still
+ * window is the plan's `legsStill`. Each
  * primitive is also given the posture so far at any second of the action
  * (`IAutoMovieMotionHumanPrimitive.write`'s `before`): the base and the
  * primitives before it, so a movement planned once over its span (an arm's
@@ -200,10 +202,21 @@ export function composeAutoMovieMotionHumanAction(
   primitives.forEach((p: IAutoMovieMotionHumanPrimitive, i: number): void =>
     p.prepare?.(readers[i]!),
   );
+
+  // Primitives that move only the head, the arms and the hands leave the
+  // root, the trunk and the legs as the base keeps them: still wherever the
+  // base keeps its legs still or holds still altogether.
+  const legsStill: readonly [number, number] | undefined = primitives.some(
+    (p: IAutoMovieMotionHumanPrimitive): boolean =>
+      p.channels.some((c: AutoMovieMotionHumanChannel): boolean => LEGGED.includes(c)),
+  )
+    ? undefined
+    : (base.legsStill ?? base.still);
   return {
     duration,
     events: props.clock.events(),
     contacts,
+    ...(legsStill === undefined ? {} : { legsStill }),
     channels: HumanChannels.ORDER.filter(
       (c: AutoMovieMotionHumanChannel): boolean =>
         primitives.some((p: IAutoMovieMotionHumanPrimitive): boolean =>
@@ -332,3 +345,6 @@ export function composeAutoMovieMotionHumanAction(
     return posture;
   }
 }
+
+/** The channels that move the root, the trunk or a leg, which a leg fit reads. */
+const LEGGED: readonly AutoMovieMotionHumanChannel[] = ["root", "trunk", "leftLeg", "rightLeg"];

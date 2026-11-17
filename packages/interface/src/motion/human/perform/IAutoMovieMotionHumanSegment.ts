@@ -1,5 +1,6 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieJointPose } from "../../../pose/IAutoMovieJointPose";
 import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
 import type { IAutoMovieSwivelSeed } from "../../../pose/IAutoMovieSwivelSeed";
 import type { IAutoMovieSkeletonPoseResolution } from "../../../pose/IAutoMovieSkeletonPoseResolution";
@@ -81,6 +82,25 @@ export interface IAutoMovieMotionHumanSegment {
    * are forgotten.
    */
   incumbents?: Readonly<Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>>>;
+
+  /**
+   * The legs' fit of a leaf resolve inside the plan's legs-still window
+   * (`IAutoMovieMotionHumanActionPlan.legsStill`): the plan second it was
+   * read at, the legs' joint records it gave and their seeds, which every
+   * later leaf resolve in that window keeps in place of fitting the legs
+   * again; absent until then, and released when the person's memos are
+   * forgotten.
+   */
+  legs?: {
+    /** The plan second, clamped to the plan, the legs were fitted at. */
+    at: number;
+
+    /** The legs' joint records the fit gave, thigh to toes. */
+    joints: readonly IAutoMovieJointPose[];
+
+    /** The legs' seeds the fit chose. */
+    seeds: Readonly<Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>>>;
+  };
 }
 
 /** Operation-local contracts supporting IAutoMovieMotionHumanSegment. */

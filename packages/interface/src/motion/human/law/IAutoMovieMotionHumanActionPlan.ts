@@ -47,6 +47,17 @@ export interface IAutoMovieMotionHumanActionPlan {
   still?: readonly [number, number];
 
   /**
+   * Seconds since the action's start, from and to, over which `posture`
+   * keeps its root, its heading, its trunk and both legs' goals and joints
+   * one and the same while only the head, the arms or the hands move (a
+   * composed action whose primitives write only those, over a base that holds
+   * still): every record a leg fit reads is the same there, so a reader may
+   * keep the legs' fit of one second for another. Absent, no such window is
+   * declared.
+   */
+  legsStill?: readonly [number, number];
+
+  /**
    * The channels the plan's own movements write, when it is composed of part primitives over a base: what an overlay takes from its carrier. Absent for a plan that writes the whole body.
    */
   channels?: readonly AutoMovieMotionHumanChannelClaim[];
