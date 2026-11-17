@@ -29,9 +29,12 @@ import { vclose } from "../internal/vclose";
  * 1. A canonical Human's head flexion 10 degrees is translated to two roots.
  *    Source edits and mutation of the public prepared pose cannot alter the
  *    private original demand or any later resolved result.
- * 2. Changing a transported head demand to 20, then constraining it to a
- *    five-degree maximum, must produce 20 and 5 respectively. Neither the
- *    old canonical answer nor a mutable token may bypass current clamping.
+ * 2. Changing a transported head demand to 20 must produce 20. A body made
+ *    from a copy of the rig whose head is constrained to a five-degree
+ *    maximum must produce 5 for the transported demand of 10, and the
+ *    earlier body, whose rig is unchanged, still 10: a body describes the
+ *    rig it was made from, and neither the old canonical answer nor a
+ *    mutable token may bypass the clamping of the body that resolves.
  * 3. Adding a free-leg world goal after transport requires a fresh actual
  *    fit whose foot is within the existing 0.001 metre target bound.
  *    Translating that original goal preserves the asked point and bend.
@@ -61,12 +64,12 @@ import { vclose } from "../internal/vclose";
 export function test_motion_prepared_posture_translation(): void {
   const shared: IHumanBody = motionHumanBody("m-average");
   const skeleton: IAutoMovieSkeleton = structuredClone(shared.skeleton);
-  const body: IHumanBody = createHumanBody(skeleton, structuredClone(shared.profile));
+  const first: IHumanBody = createHumanBody(skeleton, structuredClone(shared.profile));
   const source: IHumanPosture = {
     root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0,
     joints: { head: [10, 0, 0] }, limbs: {},
   };
-  const prepared: resolveHumanPosture.IPrepared = resolveHumanPosture.prepare(body, source);
+  const prepared: resolveHumanPosture.IPrepared = resolveHumanPosture.prepare(first, source);
   const exposed: IAutoMovieJointPose = prepared.pose.joints.find(
     (value: IAutoMovieJointPose): boolean => value.bone === "head",
   )!;
@@ -80,15 +83,15 @@ export function test_motion_prepared_posture_translation(): void {
     TestValidator.predicate("transport retains its independent original authoring demand",
       vclose(raw.root, root, 0) && nclose(raw.joints.head![0], 10, 0),
     );
-    const actual: IAutoMoviePose = resolveHumanPosture(body, raw);
+    const actual: IAutoMoviePose = resolveHumanPosture(first, raw);
     TestValidator.predicate("prepared result retains literal head and current root",
       nclose(head(actual), 10, 1e-12) && vclose(actual.root!.translation, root, 0),
     );
-    const cold: IAutoMoviePose = resolveHumanPosture(body, structuredClone(raw));
+    const cold: IAutoMoviePose = resolveHumanPosture(first, structuredClone(raw));
     samePose(actual, cold);
     actual.root!.translation.x = 999;
     actual.joints.find((value: IAutoMovieJointPose): boolean => value.bone === "head")!.flexion = 888;
-    const replay: IAutoMoviePose = resolveHumanPosture(body, raw);
+    const replay: IAutoMoviePose = resolveHumanPosture(first, raw);
     TestValidator.predicate("result mutation cannot change the private solve",
       nclose(head(replay), 10, 1e-12) && vclose(replay.root!.translation, root, 0),
     );
@@ -97,17 +100,26 @@ export function test_motion_prepared_posture_translation(): void {
   const changed: IHumanPosture = resolveHumanPosture.translated(prepared, { x: 0, y: 0, z: 0 });
   changed.joints.head = [20, 0, 0];
   TestValidator.predicate("changed current demand cannot reuse canonical angles",
-    nclose(head(resolveHumanPosture(body, changed)), 20, 1e-12),
+    nclose(head(resolveHumanPosture(first, changed)), 20, 1e-12),
   );
-  jsonSpoof(body, prepared, 20);
-  const headBone: IAutoMovieBone = skeleton.bones.find(
+  jsonSpoof(first, prepared, 20);
+
+  // A body describes the rig it was made from: the constraint goes on a copy
+  // of the rig, and the body made from that copy clamps by it while the
+  // earlier body keeps its own range.
+  const narrowed: IAutoMovieSkeleton = structuredClone(skeleton);
+  const headBone: IAutoMovieBone = narrowed.bones.find(
     (value: IAutoMovieBone): boolean => value.bone === "head",
   )!;
   headBone.constraint = { flexion: { min: 0, max: 5 }, abduction: null, twist: null };
+  const body: IHumanBody = createHumanBody(narrowed, structuredClone(shared.profile));
   jsonSpoof(body, prepared, 5);
   const constrained: IHumanPosture = resolveHumanPosture.translated(prepared, { x: 0, y: 0, z: 0 });
-  TestValidator.predicate("changed rig constraint invalidates canonical evidence",
+  TestValidator.predicate("a body made from the constrained rig cannot reuse the earlier body's canonical evidence",
     nclose(head(resolveHumanPosture(body, constrained)), 5, 1e-12),
+  );
+  TestValidator.predicate("the earlier body keeps the range of the rig it was made from",
+    nclose(head(resolveHumanPosture(first, constrained)), 10, 1e-12),
   );
 
   const rest: IAutoMovieResolvedBone[] = Array.from(poseBones(body, resolveHumanPosture(body, constrained)).values());
