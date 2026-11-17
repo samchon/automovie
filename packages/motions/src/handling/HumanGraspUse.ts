@@ -338,12 +338,17 @@ export namespace HumanGraspUse {
       fitted.set(roll, miss);
       return miss;
     };
-    const seeds: number[] = [0];
-    for (let k: number = ROLL; k <= 180; k += ROLL)
-      seeds.push(...(k < 180 ? [k, -k] : [k]));
+    // The hand's own order of rolls, and its refinement's first sense with it.
+    const seeds: number[] = HumanFreedomChoice.turns(ROLL, props.side);
     const roll: number = HumanFreedomChoice.chosen({
       tried: seeds.map((degrees: number): number[] => [degrees]),
-      freedoms: [{ kind: "wrapped", step: ROLL, period: 360 }],
+      freedoms: [
+        {
+          kind: "wrapped",
+          step: props.side === "left" ? -ROLL : ROLL,
+          period: 360,
+        },
+      ],
       judge: (values: readonly number[]): number[] => [missed(values[0]!)],
     }).values[0]!;
     const selected: HumanGrasp.IKey = key(roll);

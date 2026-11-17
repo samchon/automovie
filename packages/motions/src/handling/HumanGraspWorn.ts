@@ -154,16 +154,19 @@ export namespace HumanGraspWorn {
     // A round thing's turn about the region is a wrapped freedom of the
     // shared chooser, tried every `ROUND` degrees round, nearest facing
     // the body's way first; any other is worn facing it.
-    const seeds: number[] = [0];
-    if (props.round === true)
-      for (let k: number = ROUND; k <= 180; k += ROUND)
-        seeds.push(...(k < 180 ? [k, -k] : [k]));
+    const seeds: number[] =
+      props.round === true ? HumanFreedomChoice.turns(ROUND, props.side) : [0];
     const turned: number = HumanFreedomChoice.chosen({
       tried: seeds.map((degrees: number): number[] => [degrees]),
       freedoms: [
         {
           kind: "wrapped",
-          step: props.round === true ? ROUND : 0,
+          step:
+            props.round === true
+              ? props.side === "left"
+                ? -ROUND
+                : ROUND
+              : 0,
           period: 360,
         },
       ],

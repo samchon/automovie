@@ -75,6 +75,35 @@ export namespace HumanFreedomChoice {
   }
 
   /**
+   * The turns a hand tries about an axis, in its own order: none, then each
+   * multiple of a step up to the half turn, the turn toward the hand's own
+   * sense before its opposite. A turn about an axis mirrors to the opposite
+   * turn about the mirrored axis, so the left hand's sense is the right's
+   * negated: listed in one order for both, the left hand tried the mirror
+   * of `-step` where the right tries `step`, and of two turns that hold
+   * alike the two hands kept turns that are not each other's mirror.
+   *
+   * @param step The spacing of the turns, degrees, positive.
+   * @param side The hand.
+   * @returns The turns, degrees, in `(-180, 180]`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the order, why it depends on the hand, the unit and the range.
+   * @evidence contracts/development/implementation.md#principled-implementation The mirror image of a rotation is the opposite rotation about the mirrored axis, so a mirrored list is the negated one.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The half turn is its own mirror and is listed once.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per turn.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One owner of the order for the grasp, wear and dress choosers.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list and retains nothing.
+   */
+  export function turns(step: number, side: "left" | "right"): number[] {
+    const sense: number = side === "left" ? -1 : 1;
+    const out: number[] = [0];
+    for (let k: number = step; k <= 180; k += step)
+      out.push(...(k < 180 ? [sense * k, -sense * k] : [k]));
+    return out;
+  }
+
+  /**
    * Choose a pose's values.
    *
    * @param problem The tried values, the freedoms and the judge.

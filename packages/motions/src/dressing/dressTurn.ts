@@ -70,12 +70,17 @@ export function dressTurn(props: {
     fitted.set(degrees, miss);
     return miss;
   };
-  const seeds: number[] = [0];
-  for (let k: number = props.step; k <= 180; k += props.step)
-    seeds.push(...(k < 180 ? [k, -k] : [k]));
+  // The hand's own order of turns, and its refinement's first sense with it.
+  const seeds: number[] = HumanFreedomChoice.turns(props.step, props.side);
   const turn: number = HumanFreedomChoice.chosen({
     tried: seeds.map((degrees: number): number[] => [degrees]),
-    freedoms: [{ kind: "wrapped", step: props.step, period: 360 }],
+    freedoms: [
+      {
+        kind: "wrapped",
+        step: props.side === "left" ? -props.step : props.step,
+        period: 360,
+      },
+    ],
     judge: (values: readonly number[]): number[] => [missed(values[0]!)],
   }).values[0]!;
   fitted.clear();
