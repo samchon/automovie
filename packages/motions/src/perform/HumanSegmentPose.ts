@@ -19,8 +19,7 @@ import { HumanSegmentLayer } from "./HumanSegmentLayer";
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
 import { HumanSegmentPlant } from "./HumanSegmentPlant";
 import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
-import { HumanPoseKnots } from "./HumanPoseKnots";
-import { HumanSegmentSelection } from "./HumanSegmentSelection";
+import { HumanSegmentShown } from "./HumanSegmentShown";
 import { HumanSegmentStop } from "./HumanSegmentStop";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { unplantedHumanObservation } from "./unplantedHumanObservation";
@@ -58,65 +57,7 @@ export namespace HumanSegmentPose {
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMoviePose {
-    const cached: IAutoMoviePose | undefined = person.resolving
-      ? person.planning?.get(seconds)
-      : person.cache.get(seconds);
-    if (cached !== undefined) return cached;
-    const active: HumanSegment.ISegment | undefined =
-      HumanSegmentSelection.last(person.segments, seconds);
-    const pose: IAutoMoviePose =
-      active === undefined ? initial(person, requested, prepared) : of(person, active, seconds, prepared, requested);
-    if (requested !== undefined) return pose;
-    if (person.resolving) {
-      // Within one action's planning the placed state is fixed
-      // (`HumanSegment.planning`).
-      person.planning?.set(seconds, pose);
-      return pose;
-    }
-    if (person.cache.size >= 4096)
-      person.cache.delete(person.cache.keys().next().value!);
-    person.cache.set(seconds, pose);
-    return pose;
-  }
-
-  /**
-   * A person's displayed pose read off the film's fixed grid
-   * (`HumanPoseKnots`): the pose itself on a knot, else the interpolant of
-   * the four knots around the second. For a reader that samples one stretch
-   * of film densely at seconds of its own choosing (an integrator's stages,
-   * a difference quotient, a bisection), which then costs the knots of that
-   * stretch rather than a pose a sample. {@link displayed} stays the pose at
-   * exactly the second asked; a reader that needs that reads it.
-   *
-   * @param person The person.
-   * @param seconds Film seconds.
-   * @param prepared Same-body preparation borrowed for the knots' evaluation.
-   * @returns The pose; before the schedule is resolved, the exact pose.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read, for which readers, and that the exact reader is unchanged.
-   * @evidence contracts/development/implementation.md#principled-implementation Sampled animation read between its samples: the four knots' exact poses under the monotone cubic Hermite interpolant of `HumanPoseKnots`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One place on the grid, four exact knot reads through `displayed` and one interpolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Never replaces `displayed`: frame instants and every exact reader keep the evaluated pose, and nothing is tracked while the schedule is being resolved.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Q readers inside one stretch of film cost at most its knots (120 a second) through the person's exact-second cache, plus a linear interpolation each. Measured on test_human_motion_core_flight_sample with the track under every read: 2,734 evaluated poses to 211.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The knots are `displayed`'s own exact poses, kept in the person's settled cache and forgotten with it.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing of its own; the knots live in the person's bounded cache.
-   */
-  export function tracked(
-    person: HumanSegment.IPerson,
-    seconds: number,
-    prepared?: prepareHumanSegmentPose.IPrepared,
-  ): IAutoMoviePose {
-    const place: ReturnType<typeof HumanPoseKnots.locate> = person.resolving ? null : HumanPoseKnots.locate(seconds);
-    if (place === null) return displayed(person, seconds, undefined, prepared);
-    return HumanPoseKnots.between(
-      [
-        displayed(person, place.knots[0], undefined, prepared),
-        displayed(person, place.knots[1], undefined, prepared),
-        displayed(person, place.knots[2], undefined, prepared),
-        displayed(person, place.knots[3], undefined, prepared),
-      ],
-      place.share,
-    );
+    return HumanSegmentShown.of(person, seconds, requested, prepared).pose;
   }
 
   /** The difference interval of every rate read of a shown pose, seconds. */

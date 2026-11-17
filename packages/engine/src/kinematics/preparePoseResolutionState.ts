@@ -9,6 +9,7 @@ import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { PoseResolutionSnapshot } from "./PoseResolutionSnapshot";
 import { resolvePreparedPoseFrame } from "./resolvePreparedPoseFrame";
 import { preparePoseBoneDemand } from "./preparePoseBoneDemand";
+import { preparePoseReading } from "./preparePoseReading";
 import { preparePoseResolutionChanges } from "./preparePoseResolutionChanges";
 import { preparePoseJointResolution } from "./preparePoseJointResolution";
 import { preparePosePlacement } from "./preparePosePlacement";
@@ -94,7 +95,7 @@ const ORIGIN: IAutoMovieVector3 = Object.freeze(Vector3.create());
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Static construction, tuple staging, joint admission and final changes have their own owners. Record and genuine scalar scans meet at the same changes/root/sparse-FK phases here. Private static array/map writers receive the common frame owner's fresh copies; no foreign sink enters traversal. restFrameOf alone computes neutral geometry for ordinary rest and mass production.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Ordinary reads admit every current record, fixed-source production admits every baseline record and every query admits all supplied edits, including overwritten/stray records. No target, time, tolerance, editable whitelist or external admission flag certifies a result; numeric demands come only from the same immutable rig's name lookup.
  * @evidence contracts/development/implementation.md#efficient-algorithms Complete poses admit J records/compare membership; changes sort only after observation and revise affected observed frames. The tracker owns bounded insertion/sparse lookup. K names sort unless bound; full demand walks B indices directly. Invalidated ancestry precedes K copies; map reads allocate no temporary frame array and world metadata updates allocate no assignment objects. Fixed sources admit baseline once then E edits. Rest lazily computes static neutral once, then copies B frames without operation rows. Speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Static nodes lazily keep actual rest-times-identity and neutral root-relative computations. Neutral reuse requires that exact local quaternion and actual static parent's private rotation/position references; static rows retain no operation frame. Operation rows share exact dynamic dependencies. Fixed-source production admits baseline/current membership before independent overlay snapshots; all changed/removed joints, edits and roots remain visible.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Static nodes lazily keep actual rest-times-identity and neutral root-relative computations. Neutral reuse requires that exact local quaternion and actual static parent's private rotation/position references; static rows retain no operation frame. Operation rows share exact dynamic dependencies. A reading (preparePoseReading) takes one completed admission's articulations and root as a value, so the readers its producer hands it to share its frames without another admission. Fixed-source production admits baseline/current membership before independent overlay snapshots; all changed/removed joints, edits and roots remain visible.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Ordinary operation rows and fixed-source baseline/overlay/frame data cost O(U+B) until release. Bound demands retain K indices without a reader/pose/source set. Actual static neutral rows belong to the rig, while every rest output is a fresh caller-owned copy with no operation key or result history. No task or handle is created.
  */
 export function preparePoseResolutionState(
@@ -108,14 +109,12 @@ export function preparePoseResolutionState(
     joint: (joint: IAutoMovieJointPose): IAutoMovieQuaternion => ({ ...state.joints.admit(joint) }),
     preparePose: (source: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>): preparePoseResolutionState.IOverlayReader =>
       preparePoseResolutionState.preparePose(nodes, indices, conventions, fallback, source, requested, state),
-    resolve: (pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, demand?: readonly number[]): IAutoMovieResolvedBone[] => {
-      admitPose(state, pose);
-      return readFrames(nodes, indices, state, [], appendArray, requested, demand);
-    },
-    resolveMap: (pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, demand?: readonly number[]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-      admitPose(state, pose);
-      return readFrames(nodes, indices, state, new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>(), appendMap, requested, demand);
-    },
+    resolve: (pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, demand?: readonly number[]): IAutoMovieResolvedBone[] =>
+      readFrames(nodes, indices, admitPose(state, pose), [], appendArray, requested, demand),
+    resolveMap: (pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, demand?: readonly number[]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+      readFrames(nodes, indices, admitPose(state, pose), new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>(), appendMap, requested, demand),
+    read: (pose: IAutoMoviePose): preparePoseReading.IReading =>
+      preparePoseReading(nodes, indices, admitPose(state, pose)),
     resolveTuples: (scan: preparePoseTupleScan.IScan, pose: Omit<IAutoMoviePose, "joints">,
       demand?: readonly number[]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
       ++state.epoch;
@@ -222,6 +221,9 @@ export type IConvention = preparePoseJointResolution.IConvention;
      */
     resolveMap(pose: IAutoMoviePose, requested?: ReadonlySet<AutoMovieHumanoidBone>, demand?: readonly number[]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
+    /** Admit a complete pose in order once and return its articulations and root as a reading whose bones any number of readers take without another admission; later edits of the pose do not reach it. */
+    read(pose: IAutoMoviePose): preparePoseReading.IReading;
+
     /** Admit every genuinely staged scalar after root construction, then use ordinary sparse FK/fresh copies. */
     resolveTuples(scan: preparePoseTupleScan.IScan, pose: Omit<IAutoMoviePose, "joints">,
       demand?: readonly number[]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
@@ -327,12 +329,10 @@ function createState(
 }
 
 /** Both output representations begin with the same original ordered admission/root phases. */
-function admitPose(state: IState, pose: IAutoMoviePose): void {
-  ++state.epoch;
-  state.joints.begin();
-  for (const joint of pose.joints) state.joints.admit(joint);
-  state.changes.complete();
+function admitPose(state: IState, pose: IAutoMoviePose): IState {
+  admitEdits(state, pose.joints);
   preparePosePlacement(state, pose, IDENTITY, ORIGIN);
+  return state;
 }
 
 /** Complete every current appended edit before either output representation reads FK. */
@@ -495,4 +495,3 @@ function restFrameOf(nodes: readonly INode[], index: number): resolvePreparedPos
   node.restFrame = frame;
   return frame;
 }
-

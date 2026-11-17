@@ -18,6 +18,7 @@ import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPropHold } from "./HumanPropHold";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
+import { HumanSegmentShown } from "./HumanSegmentShown";
 import type { IHumanProp } from "./IHumanProp";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
@@ -100,9 +101,9 @@ export namespace HumanPerformanceRead {
    * @evidence contracts/development/common.md#meaningful-documentation States person and film second; an optional requested set returns only those world bones, with the ordinary full map when absent.
    * @evidence contracts/development/implementation.md#principled-implementation The displayed evaluator omits only independently proven observational fits; contact/carry/transition dependencies keep complete evaluation, while unconstrained overlays may preserve the final digit observation. Canonical FK computes requested ancestor dependencies and still admits authored joints in order.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One participant lookup feeds the private fresh-bones adapter also used by hand-frame queries.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every call still runs full FK admission and returns a fresh map and transforms; no bone-result cache is added.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every call returns a fresh map and transforms. A displayed pose the person keeps is admitted by FK once and its readers take its bones from that reading (`HumanSegmentShown.bones`); a pose evaluated under the bone demand is not kept and is admitted in full by this call. No bone map is stored.
    * @evidence contracts/development/implementation.md#efficient-algorithms One participant lookup, the demanded displayed evaluation and ordered joint admission plus demanded FK ancestry and output. Full queries keep their existing complete costs; no speedup is claimed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the resolved participant and one explicit same-body preparation across the actual displayed evaluation and final demanded FK. Different queries retain separate readers and fresh FK results; no canonical result is cached here.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the resolved participant and one explicit same-body preparation across the actual displayed evaluation and final demanded FK. Different queries retain separate readers and fresh FK results; a kept displayed pose's one FK admission is shared through the person's record of it, and no bone map is kept here.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous query owns one lazy rig/FK preparation until return or throw; no returned map or transform retains it. The caller owns the fresh FK map and nested transforms.
    */
   export function bones(
@@ -123,7 +124,7 @@ export namespace HumanPerformanceRead {
    * @evidence contracts/development/implementation.md#principled-implementation A scan's actor and profile bone names stay fixed while its exact film seconds and stop-dependent displayed poses vary. Only genuine body-bound FK demand preparation is shared; every actual display and authored-joint admission still executes.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the person and snapshot optional names once, then delegate each second to the same placedBones owner used by ordinary bones/hand reads.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pose, time, stop signature, target fit or FK result is stored; contacts, transitions, requested-frame fallback and full-pose cache isolation retain their existing owners. Omitted demand remains full FK.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One actor lookup, O(K log K) fixed-name preparation and one lazy O(B+D) genuine ROM index replace repetition across Q scan queries. Each query keeps complete authored admission, current display fitting and independent demanded FK with fresh maps/frames; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One actor lookup, O(K log K) fixed-name preparation and one lazy O(B+D) genuine ROM index replace repetition across Q scan queries. Each query of a pose the person does not keep has complete authored admission, a kept pose's bones come from its one reading, current display fitting and independent demanded FK with fresh maps/frames; speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed person/body and copied names share only static FK-demand and genuine ROM metadata. Each exact second issues a separate empty FK workspace and reads current placement/stop state; edited source names cannot change the copied demand, and poses/results never share between query contexts here.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The scan owns one person, at most K names, fixed demand metadata and one lazy genuine ROM mapper until return/throw. Each call releases its independent FK workspace; no returned map or factory retains prior workspaces, query poses, frames or times.
    */
@@ -133,8 +134,10 @@ export namespace HumanPerformanceRead {
     const person: HumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
     const names: ReadonlySet<AutoMovieHumanoidBone> | undefined =
       requested === undefined ? undefined : new Set(requested);
-    const read: ReturnType<typeof poseBones.prepare> | undefined =
-      names === undefined ? undefined : poseBones.prepare(person.performer.body, names);
+    const read: Parameters<typeof HumanSegmentShown.bones>[4] = names === undefined ? undefined : {
+      pose: poseBones.prepare(person.performer.body, names),
+      reading: poseBones.prepareRead(person.performer.body, names),
+    };
     const prepare: ReturnType<typeof prepareHumanSegmentPose.queries> =
       prepareHumanSegmentPose.queries(person.performer.body);
     return (seconds: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
@@ -459,20 +462,14 @@ export namespace HumanPerformanceRead {
         );
   }
 
-  /** Fresh demanded FK for an already resolved person; never stores a bone map. */
+  /** Fresh demanded bones of an already resolved person's displayed pose (`HumanSegmentShown.bones`); never stores a bone map. */
   function placedBones(
     person: HumanSegment.IPerson,
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
-    read?: ReturnType<typeof poseBones.prepare>,
+    bound?: Parameters<typeof HumanSegmentShown.bones>[4],
     prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(person.performer.body),
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const pose: IAutoMoviePose = HumanSegment.displayed(person, seconds, requested, prepared);
-    return read === undefined ? poseBones(
-      person.performer.body,
-      pose,
-      prepared.resolution(),
-      requested,
-    ) : read(pose, prepared.resolution());
+    return HumanSegmentShown.bones(person, seconds, requested, prepared, bound);
   }
 }

@@ -12,6 +12,7 @@ import { indexSkeletonTopology } from "./indexSkeletonTopology";
 import type { preparePoseResolution } from "./preparePoseResolution";
 import { preparePoseResolutionState } from "./preparePoseResolutionState";
 import { preparePoseBoneDemand } from "./preparePoseBoneDemand";
+import type { preparePoseReading } from "./preparePoseReading";
 import { preparePoseTupleScan } from "./preparePoseTupleScan";
 import { PoseResolutionSnapshot } from "./PoseResolutionSnapshot";
 import { skeletonJointAxes } from "./skeletonJointAxes";
@@ -47,6 +48,18 @@ const REST_READERS: WeakMap<prepareSkeletonPoseResolution.IRig, () => IAutoMovie
 /** Genuine original map callables prove this factory's complete-before-demand admission. */
 const SOURCE_READERS: WeakMap<prepareSkeletonPoseResolution.IRig,
   prepareSkeletonPoseResolution.IRig["resolveMap"]> = new WeakMap();
+
+/** A reading's rig and its private reader, which also takes the rig's bound indices. */
+interface IOwnReading {
+  /** The rig that admitted the pose. */
+  rig: prepareSkeletonPoseResolution.IRig;
+
+  /** The admission's bones by names or by bound indices. */
+  read: preparePoseReading.IReading;
+}
+
+/** Each issued reading's private reader; a structural copy of a reading has none. */
+const READINGS: WeakMap<prepareSkeletonPoseResolution.IReading, IOwnReading> = new WeakMap();
 
 /**
  * Snapshot a rig's static FK prerequisites once, then resolve changing poses
@@ -170,7 +183,22 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
           readerOf(operation).resolve(pose, undefined, demand),
         map: (pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
           readerOf(operation).resolveMap(pose, undefined, demand),
+        read: (reading: prepareSkeletonPoseResolution.IReading): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+          const own: IOwnReading | undefined = READINGS.get(reading);
+          if (own === undefined || own.rig !== rig)
+            throw new Error("A bone demand reads only a pose reading of its own rig");
+          return own.read(undefined, demand);
+        },
       };
+    },
+    read: (pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>): prepareSkeletonPoseResolution.IReading => {
+      const read: preparePoseReading.IReading = readerOf(operation).read(pose);
+      const reading: prepareSkeletonPoseResolution.IReading = {
+        map: (requested?: ReadonlySet<AutoMovieHumanoidBone>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+          read(requested),
+      };
+      READINGS.set(reading, { rig, read });
+      return reading;
     },
     resolveMap: (pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>,
       requested?: ReadonlySet<AutoMovieHumanoidBone>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
@@ -338,6 +366,19 @@ export namespace prepareSkeletonPoseResolution {
      */
     prepareBones(requested: ReadonlySet<AutoMovieHumanoidBone>): IBoneDemand;
 
+    /**
+     * Admit a complete pose in its records' order once, as resolve does, and
+     * return it as a reading: a value its producer hands to every consumer of
+     * that pose's bones. Reading bones from it admits nothing again and
+     * composes each demanded bone at most once across all its readers, by
+     * the same parent-first products as resolve. It holds the admitted
+     * articulations and root, not the records, so a later edit of the pose
+     * needs a new reading. One O(J) admission, then K fresh copies a read;
+     * the reading keeps B references and at most B private frames until its
+     * holder releases it.
+     */
+    read(pose: IAutoMoviePose, operation?: ReturnType<typeof preparePoseResolution>): IReading;
+
     /** Immutable merged raw-axis snapshot for the same rig's IK; normalization remains lazy at each original use site. */
     readonly jointAxes: Readonly<Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>>;
 
@@ -372,12 +413,29 @@ export namespace prepareSkeletonPoseResolution {
   }
 
   /**
+   * One pose as this rig admitted it, handed by the pose's producer to the
+   * readers of its bones.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the value is, who holds it and what a read returns.
+   * @evidence contracts/development/design.md#principled-representation The admitted articulations and root stay private; the value exposes only the bones they place, world frames in model metres, so a holder cannot edit what its other readers see.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One member for named demand, read by the displayed pose's bone readers; a fixed demand reads the same value through `IBoneDemand.read`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No pose, time or validity flag is carried: the value exists only after a completed admission.
+   */
+  export interface IReading {
+    /** The requested reachable bones in parent-first order, all of them when no names are given, as a fresh map of fresh frames. */
+    map(requested?: ReadonlySet<AutoMovieHumanoidBone>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+  }
+
+  /**
    * A genuine immutable rig's fixed requested-bone snapshot.
    *
    * Actual rig name lookup fixes reachable output membership/order. Queries
    * supply complete current poses; numeric indices and state stay private.
    */
   export interface IBoneDemand {
+    /** The captured bones of a pose this rig already admitted (`IRig.read`), fresh, without sorting names or admitting again; a reading of another rig or a copied one throws. */
+    read(reading: IReading): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
     /**
      * The same full admission, fixed rooted demand, exact invalidation and
      * fresh nested ownership as resolve, written directly into a fresh map

@@ -17,6 +17,7 @@ import type { IHumanEntryState } from "../law/IHumanEntryState";
 import type { IHumanInterruptRow } from "../law/IHumanInterruptRow";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { poseBones } from "../posture/poseBones";
 import type { HumanSkill } from "../skill/HumanSkill";
 import { HumanSegmentCut } from "./HumanSegmentCut";
 import { HumanSegmentEntry } from "./HumanSegmentEntry";
@@ -50,6 +51,15 @@ import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
  * name and pass straight to their owners.
  */
 export namespace HumanSegment {
+  /** One displayed pose as its evaluation produced it, kept with what its readers take from it. */
+  export interface IShown {
+    /** The complete pose. */
+    pose: IAutoMoviePose;
+
+    /** The pose's bones as the body's rig admitted them (`poseBones.read`): made when the pose's bones are first read and taken by every later reader of them, so the pose is admitted once; absent until then. */
+    reading?: ReturnType<typeof poseBones.read>;
+  }
+
   /** One person's state in a performance. */
   export interface IPerson {
     /** The performer. */
@@ -68,7 +78,7 @@ export namespace HumanSegment {
     initial: IHumanPosture;
 
     /** Displayed poses already evaluated, by film second; bounded to 4096 entries. */
-    cache: Map<number, IAutoMoviePose>;
+    cache: Map<number, IShown>;
 
     /** Whether the schedule is still being resolved: nothing is cached meanwhile, because another person's actions may not be placed yet. */
     resolving: boolean;
@@ -78,7 +88,7 @@ export namespace HumanSegment {
      * (`planning`): what is placed does not change during one plan, so its
      * readers share each pose; absent outside a plan.
      */
-    planning?: Map<number, IAutoMoviePose>;
+    planning?: Map<number, IShown>;
 
     /** Additive layers over the person's actions, in order, each inside its window. */
     layers: ILayered[];
