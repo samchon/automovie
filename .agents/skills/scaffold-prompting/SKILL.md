@@ -29,7 +29,7 @@ Every exchange, outcome and reaction is decided in the [screenplay](../../../pac
 
 ### Reuse
 
-Composing the installed packages is the default every task page states first, as [task design](task-design.md#the-default-path) sets. A production varies a module instead of copying it, under its [package](../../../packages/template/scaffold/instructions/.agents/skills/automovie/SKILL.md) and [one module](../../../packages/template/scaffold/instructions/.agents/skills/development/source-layout.md#one-module) rules.
+Composing the installed packages is the default every task page states first, as [task design](task-design.md#the-default-path) sets. A production varies a module instead of copying it, under its [package](../../../packages/template/scaffold/instructions/.agents/skills/automovie/SKILL.md) and [one module](../../../packages/template/scaffold/instructions/.agents/skills/development/modules.md#one-module) rules.
 
 ### Two story routes
 
@@ -41,7 +41,7 @@ A skill gives the job and its boundaries. A rule every selected respondent must 
 
 ### Stills only
 
-No instruction asks the agent to watch playback, listen or read aloud. The production's [observation rule](../../../packages/template/scaffold/instructions/AGENTS.md#what-you-can-observe) says what it sees and asks the user for the rest.
+No instruction asks the agent to watch playback, listen or read aloud. The production's [attitude](../../../packages/template/scaffold/instructions/AGENTS.md#attitude) has it judge pictures on captured stills and ask the user for the rest.
 
 ## Repository and scaffold
 

@@ -1,6 +1,8 @@
 # Delivery review
 
-Identify the commissioned output from [project context](../production/project-context.md), inspect that complete output yourself with the unfiltered validation reports, and disclose what was not produced.
+Delivery review runs in a [separate context](../story/workflow/routes.md#separate-contexts) from the author's, so an author never accepts its own commissioned output. The author's acceptances while building, such as a catalog case or a segment, are not delivery review.
+
+Identify the commissioned output from [project context](../production/project-context.md), inspect that complete output directly with the unfiltered validation reports, never through the author's account of it, and disclose what was not produced.
 
 ## Output reviews
 

@@ -9,14 +9,14 @@ The request and [project context](project-context.md) decide which skills run an
 
 | Read | For |
 | --- | --- |
-| [Production workflow](workflow.md) | Planning the path, its branches and each task's handoff |
 | [Project context](project-context.md) | Establishing scope, the delivery profile, decisions and setup authority |
+| [Production workflow](workflow.md) | Planning the path, its branches and each task's handoff |
 | [Sustained runs](sustained-runs.md) | Running, observing or resuming sustained work |
 | [Stage caches](stage-caches.md) | Caching and resuming expensive stages |
 | [Media records](media-records.md) | Saving media and generation requests with their records |
-| [Reorganization](reorganization.md) | Reorganizing the production |
-| [Assembly and handoff](assembly.md) | Assembling the film, rendering it once and handing it off |
 | [Captions](captions.md) | Writing and timing a film's caption tracks |
+| [Assembly and handoff](assembly.md) | Assembling the film, rendering it once and handing it off |
+| [Reorganization](reorganization.md) | Reorganizing the production |
 
 ## Commissioned outputs
 
@@ -30,8 +30,6 @@ The request and [project context](project-context.md) decide which skills run an
 
 The writing workflow passes a screenplay at its [completion](../story/workflow/routes.md#completion). Stills or pilot clips do not complete a whole motion hint, and the motion hint behind a generated film's takes is a separate output.
 
+A motion hint and a direct 3D film are silent unless the commission asks for sound, and no stage waits on a soundtrack nobody commissioned.
+
 [Delivery review](../review/delivery-review.md) accepts each output. A rendered file with passing checks is reported as technical completion; the output is complete only when that review's acceptance is recorded.
-
-## Routing
-
-The entry file's skills table names each task's owner.

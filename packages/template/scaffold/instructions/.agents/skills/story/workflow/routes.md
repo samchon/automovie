@@ -35,6 +35,8 @@ Each link cites the addresses it realizes from the links above it, so no code ex
 
 Keep the author, the evidence answerer and the independent reviewer in separate contexts, because an author answering for its own body states what it meant, not what the body holds, and a reviewer reading answers judges paperwork instead of the work.
 
+Create a separate context by launching the author's model through an available subagent or separate-session tool, within its authorization, with no inherited conversation or working memory, passing only the job and input file paths. Calling the current context fresh does not isolate it; without a tool or authorization, report the task as unperformed.
+
 ## Completion
 
 Whole-work completion needs the route's passes with their closed review, passing unfiltered validation, the compiler and source checks, the required tests, and delivery review of any commissioned media. Run the README's evidence command and read its whole report, because a passing graph shows only the recorded relationships, and review judges the creative result.

@@ -4,13 +4,13 @@ An entity or a motion module is accepted alone, in the catalog, before any film 
 
 A case isolates one module with its target, partner response and outcome, and its variants are parameters of the same case composition.
 
-The [catalog film](../development/source-layout.md#scenes-and-films) gives each required case a labeled interval and replays every case after a repair, so acceptance happens only there. A rehearsal module the film registry does not list is scratch.
+The [catalog film](../development/source-layout.md#scenes-and-films) gives each required case a labeled interval and replays every case after a repair, so acceptance happens only there. A composition no registered film plays is scratch.
 
 ## Capture and review
 
 Capture the case through the README's command, with `joint` marks where available. Apply [motion judgment](judgment.md) against the case's subject records and any study it follows, and repair all findings before recapturing or expanding the case into a segment.
 
-Resolve the case's performance once for its mount. Run a report or audit of it as a separate check, never during mounting, playback or capture, where it delays inspection without checking a different performance. Keep the report with the inputs it checked, and reuse it only while those inputs and package versions remain unchanged.
+Resolve the case's performance once when it loads. Run a report or audit of it as a separate check, never during loading, playback or capture, where it delays inspection without checking a different performance. Keep the report with the inputs it checked, and reuse it only while those inputs and package versions remain unchanged.
 
 ## What each case owes
 

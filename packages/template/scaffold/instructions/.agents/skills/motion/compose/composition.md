@@ -63,8 +63,8 @@ People who act as one, such as a marching unit or a fleeing crowd, are composed 
 
 ### Seed
 
-Every performance takes the film's [one seed](../../development/source-layout.md#how-the-parts-work-together). The vocabulary draws each variation from the seed, the person and the action, so people given the same action already differ and a crowd needs no hand-set offsets. Another take of an action is another seed or parameter, never a copied composition, under [one module](../../development/source-layout.md#one-module).
+Every performance takes the film's [one seed](../../development/modules.md#how-the-parts-work-together). The vocabulary draws each variation from the seed, the person and the action, so people given the same action already differ and a crowd needs no hand-set offsets. Another take of an action is another seed or parameter, never a copied composition, under [one module](../../development/modules.md#one-module).
 
 ## Handoff
 
-A cast or crowd entity's capability returns the composition, as [source layout](../../development/source-layout.md#how-the-parts-work-together) sets. A composition the vocabulary cannot perform is refused when the performance is built, and one that plans is accepted in its [catalog case](../catalog-cases.md).
+A cast or crowd entity's capability returns the composition, as [modules](../../development/modules.md#how-the-parts-work-together) sets. A composition the vocabulary cannot perform is refused when the performance is built, and one that plans is accepted in its [catalog case](../catalog-cases.md).

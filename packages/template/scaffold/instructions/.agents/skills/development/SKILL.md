@@ -16,7 +16,7 @@ Divide the production's own behavior by responsibility, with explicit inputs, ou
 | [Entity work](entities.md) | Build or change a subject |
 | [Testing](testing.md) | Choose behavioral checks |
 | [Source layout](source-layout.md) | Place source, tests or runtime setup, or add a subject, practice or scene |
-| [Modules](source-layout.md#modules) | Vary or share a module |
+| [Modules](modules.md) | Join entities, scenes and films, or vary or share a module |
 | [Stage caches](../production/stage-caches.md) | Add or change an expensive stage |
 
 Every declaration you change answers its [development contracts](../contracts/development/SKILL.md) in its doc comment.
@@ -31,4 +31,4 @@ A production module's doc comment is the next agent's manual. Beyond the [meanin
 
 While editing, keep the README's compile checker running as the single compile check, and read errors from its output instead of rerunning a build.
 
-Finish with the README's lint, evidence and test commands, then verify the affected consumer through [review](../review/SKILL.md): a visual change on captured stills of the affected interval, and what stills cannot show as the production's `AGENTS.md` sets under what you can observe.
+Finish with the README's lint, evidence and test commands, then verify the affected consumer through [review](../review/SKILL.md): a visual change on captured stills of the affected interval, and what stills cannot show by asking the user.
