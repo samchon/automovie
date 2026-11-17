@@ -17,7 +17,6 @@ import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
-import type { HumanHand } from "../posture/HumanHand";
 import { HumanSkill } from "../skill/HumanSkill";
 import { stand } from "./stand";
 import { standFeet } from "./standFeet";

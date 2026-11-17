@@ -1,7 +1,6 @@
 import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
 
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
-import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
 
 /**
  * Restore an admitted row's original ordered zeros for a product whose

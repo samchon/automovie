@@ -14,10 +14,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmClearance } from "./HumanArmClearance";
-import { HumanArmMirror } from "./HumanArmMirror";
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 import { HumanArmOvershoot } from "./HumanArmOvershoot";
-import { HumanFoot } from "./HumanFoot";
 import { HumanLimbAt } from "./HumanLimbAt";
 import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
 import { HumanLimbMirror } from "./HumanLimbMirror";

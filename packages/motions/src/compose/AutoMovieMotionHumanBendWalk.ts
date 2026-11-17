@@ -5,7 +5,6 @@ import type {
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 
 /**

@@ -3,10 +3,8 @@ import type {
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanArmTrajectory,
-  IAutoMovieMotionHumanPrehension,
 } from "@automovie/interface";
 
-import type { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import type { HumanArmTrajectory } from "./HumanArmTrajectory";
 import { HumanArmTrajectoryClear as Clear } from "./HumanArmTrajectoryClear";
@@ -279,8 +277,8 @@ export namespace HumanArmTrajectoryLaid {
       last: number;
       done: boolean;
     };
-    const transports: IAutoMovieMotionHumanPrehension.ITransport[] = [[0, first], [last, n - 1]].map(
-      ([from, to]: number[]): IAutoMovieMotionHumanPrehension.ITransport => ({
+    const transports: ITransport[] = [[0, first], [last, n - 1]].map(
+      ([from, to]: number[]): ITransport => ({
         from: from!,
         to: to!,
         detours: [],
@@ -298,7 +296,7 @@ export namespace HumanArmTrajectoryLaid {
       // other waypoint keeps its coordinates, so the round's reading reads
       // only these (`M.evaluate`'s `kept`).
       const laid: boolean[] = new Array<boolean>(n).fill(false);
-      const relay = (t: IAutoMovieMotionHumanPrehension.ITransport): void => {
+      const relay = (t: ITransport): void => {
         t.laid = lay(t.from, t.to, t.detours);
         for (let k: number = t.from + 1; k < t.to; ++k) laid[k] = true;
       };

@@ -5,7 +5,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmTrajectoryEvaluate } from "./HumanArmTrajectoryEvaluate";
 import { HumanArmTrajectoryInvalid } from "./HumanArmTrajectoryInvalid";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";

@@ -1,6 +1,5 @@
 import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
 
-import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
 
 /**
  * Evaluate the existing quadratic and exact soft-interval l1 objective.

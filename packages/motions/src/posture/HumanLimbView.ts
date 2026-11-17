@@ -8,7 +8,6 @@ import type {
 } from "@automovie/interface";
 
 import { readHumanBone } from "../body/readHumanBone";
-import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 import { poseBones } from "./poseBones";
 
 /**

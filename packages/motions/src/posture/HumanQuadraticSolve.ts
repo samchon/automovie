@@ -3,7 +3,6 @@ import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface
 import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import { HumanQuadraticEntries } from "./HumanQuadraticEntries";
 import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
-import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
 import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
 /**

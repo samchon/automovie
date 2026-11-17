@@ -9,7 +9,6 @@ import type {
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObservation";
-import type { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanBendScope } from "./AutoMovieMotionHumanBendScope";
 
 /**

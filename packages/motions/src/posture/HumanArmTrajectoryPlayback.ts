@@ -5,7 +5,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmBranch } from "./HumanArmBranch";
-import type { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmRefine } from "./HumanArmRefine";
 

@@ -18,7 +18,6 @@ import { HumanColliders } from "../posture/HumanColliders";
 import { StrikingWeapon } from "../striking/StrikingWeapon";
 import { HumanPerformanceContactSpeed } from "./HumanPerformanceContactSpeed";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanSegment } from "./HumanSegment";
 
 /**
@@ -159,19 +158,19 @@ export namespace HumanPerformanceContacts {
     // their chain's evaluation. `apply` clears this with the bones.
     const limbs: Map<
       string,
-      { weapon: IHumanActionPlan.IWeapon; from: number; to: number }[]
+      { weapon: IAutoMovieMotionHumanActionPlan.IWeapon; from: number; to: number }[]
     > = new Map();
     const axes: Map<
       number,
-      Map<IHumanActionPlan.IWeapon, StrikingWeapon.IAxis>
+      Map<IAutoMovieMotionHumanActionPlan.IWeapon, StrikingWeapon.IAxis>
     > = new Map();
     const axis = (
-      weapon: IHumanActionPlan.IWeapon,
+      weapon: IAutoMovieMotionHumanActionPlan.IWeapon,
       limb: string,
       t: number,
     ): StrikingWeapon.IAxis => {
       let known:
-        | Map<IHumanActionPlan.IWeapon, StrikingWeapon.IAxis>
+        | Map<IAutoMovieMotionHumanActionPlan.IWeapon, StrikingWeapon.IAxis>
         | undefined = axes.get(t);
       if (known === undefined) {
         known = new Map();
@@ -179,21 +178,21 @@ export namespace HumanPerformanceContacts {
       }
       const found: StrikingWeapon.IAxis | undefined = known.get(weapon);
       if (found !== undefined) return found;
-      const live: IHumanActionPlan.IWeapon[] = limbs
+      const live: IAutoMovieMotionHumanActionPlan.IWeapon[] = limbs
         .get(limb)!
         .filter(
           (w: {
-            weapon: IHumanActionPlan.IWeapon;
+            weapon: IAutoMovieMotionHumanActionPlan.IWeapon;
             from: number;
             to: number;
           }): boolean => !(t < w.from || t > w.to),
         )
         .map(
           (w: {
-            weapon: IHumanActionPlan.IWeapon;
+            weapon: IAutoMovieMotionHumanActionPlan.IWeapon;
             from: number;
             to: number;
-          }): IHumanActionPlan.IWeapon => w.weapon,
+          }): IAutoMovieMotionHumanActionPlan.IWeapon => w.weapon,
         );
       for (const [w, a] of StrikingWeapon.sample(live, t)) known.set(w, a);
       return known.get(weapon)!;
@@ -217,7 +216,7 @@ export namespace HumanPerformanceContacts {
           const tail = w.tail;
           const group: string = `${person.performer.subject}|${segment.index}:${w.limb}`;
           const siblings: {
-            weapon: IHumanActionPlan.IWeapon;
+            weapon: IAutoMovieMotionHumanActionPlan.IWeapon;
             from: number;
             to: number;
           }[] = limbs.get(group) ?? [];

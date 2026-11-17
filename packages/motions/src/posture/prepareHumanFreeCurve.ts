@@ -29,7 +29,6 @@ import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { prepareHumanPostureRigCheck } from "./prepareHumanPostureRigCheck";
-import type { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
  * Continue a constructor-owned, pure free-leg curve from its canonical

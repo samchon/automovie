@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanSegment,
   IAutoMovieResolveContactEvents,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanSegment } from "./HumanSegment";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 
 /**
@@ -134,7 +134,7 @@ export namespace HumanPerformanceContactSpeed {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function still(
-    person: HumanSegment.IPerson,
+    person: IAutoMovieMotionHumanSegment.IPerson,
     from: number,
     to: number,
   ): boolean {
@@ -145,12 +145,12 @@ export namespace HumanPerformanceContactSpeed {
       person.stops.size !== 0
     )
       return false;
-    const active: HumanSegment.ISegment | undefined =
+    const active: IAutoMovieMotionHumanSegment.ISegment | undefined =
       HumanSegmentSelection.last(person.segments, from);
     if (HumanSegmentSelection.last(person.segments, to) !== active)
       return false;
     if (active === undefined) return true;
-    const transition: HumanSegment.ISegment["transition"] = active.transition;
+    const transition: IAutoMovieMotionHumanSegment.ISegment["transition"] = active.transition;
     if (
       transition !== undefined &&
       transition.kind !== "redirect" &&

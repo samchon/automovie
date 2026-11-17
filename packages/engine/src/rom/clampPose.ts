@@ -1,4 +1,4 @@
-import type { IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
+import type { IAutoMovieClampPose, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
 
 import { clampJointToSkeleton } from "./clampJointToSkeleton";
 
@@ -61,26 +61,6 @@ export namespace clampPose {
     return Object.assign(project, { joints: clamp, values: clamp.values });
   }
 
-  /**
-   * A prepared pose projection: the pose clamp itself, with its one-joint
-   * clamp (`joints`, the clamp every joint of a pose goes through) and that
-   * clamp's angle-taking form (`values`: a joint's record made in range from
-   * its bone and three clinical angles, the record the joint clamp gives for
-   * the record of those values) as its own members.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the call, both members and what they return.
-   * @evidence contracts/development/design.md#principled-representation One prepared projection with its pose entry, its one-joint entry and its angle entry on the same per-bone metadata.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by prepare; the members serve differential kinematics (`joints`) and a posture's assembly (`values`) of the body that holds the projection.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The members are made with the projection, not looked up; no answer is held.
-   */
-  export interface IPrepared {
-    /** The pose clamp. */
-    (pose: IAutoMoviePose): IAutoMoviePose;
-
-    /** The one-joint clamp the pose clamp maps every joint through. */
-    joints: clampJointToSkeleton.IPrepared;
-
-    /** The joint clamp's angle-taking form. */
-    values: clampJointToSkeleton.IPrepared["values"];
-  }
+  /** The interface contract (`IAutoMovieClampPose.IPrepared`): the pose clamp with its one-joint clamp (`joints`) and that clamp's angle-taking form (`values`) as its own members. */
+  export type IPrepared = IAutoMovieClampPose.IPrepared;
 }

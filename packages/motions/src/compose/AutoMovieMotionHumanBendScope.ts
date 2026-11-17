@@ -4,7 +4,6 @@ import type {
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 
 /**
  * A sequence of elbow requests one arm makes in time order, inside which

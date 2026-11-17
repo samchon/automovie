@@ -6,6 +6,7 @@ export type { IAutoMovieAxisFrame } from "./IAutoMovieAxisFrame";
 export type { IAutoMovieBodyMomentum } from "./IAutoMovieBodyMomentum";
 export type { IAutoMovieBoxExcludedSwivels } from "./IAutoMovieBoxExcludedSwivels";
 export type { IAutoMovieChainBone } from "./IAutoMovieChainBone";
+export type { IAutoMovieClampPose } from "./IAutoMovieClampPose";
 export type { IAutoMovieCurlChainUntilContact } from "./IAutoMovieCurlChainUntilContact";
 export type { IAutoMovieFitDigitDescent } from "./IAutoMovieFitDigitDescent";
 export type { IAutoMovieFitDigitToTarget } from "./IAutoMovieFitDigitToTarget";

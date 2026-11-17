@@ -1,11 +1,11 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieClampPose,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
   IAutoMovieJointRotationFrame,
-  IAutoMovieLoftViewRead,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
@@ -223,27 +223,8 @@ export namespace clampJointToSkeleton {
     return BORROWABLE.has(clamp) ? clamp : undefined;
   }
 
-  /**
-   * A `prepare` clamp: the record clamp itself, with its angle-taking form
-   * as its own member.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the call and the member and what the member returns.
-   * @evidence contracts/development/design.md#principled-representation One prepared clamp with two entries on the same per-bone constraints and frames: a record in, or a bone and its three clinical angles in, degrees or null at rest.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by `prepare`; the member is carried by the pose projection `clampPose.prepare` builds (`clampPose.IPrepared.values`) for a posture's assembly.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No answer is held; the member is made with the clamp, not looked up.
-   */
-  export interface IPrepared {
-    /** The record clamp. */
-    (joint: IAutoMovieJointPose): IAutoMovieJointPose;
-
-    /** The same clamp read from a joint's bone and three clinical angles: the record the record clamp returns for the record of those values; an unconstrained bone's a fresh record of them. */
-    values(
-      bone: AutoMovieHumanoidBone,
-      flexion: number | null,
-      abduction: number | null,
-      twist: number | null,
-    ): IAutoMovieJointPose;
-  }
+  /** The interface contract (`IAutoMovieClampPose.IJoints`): the record clamp with its angle-taking form as its own member, carried by the pose projection `clampPose.prepare` builds. */
+  export type IPrepared = IAutoMovieClampPose.IJoints;
 }
 
 /**
@@ -307,7 +288,7 @@ interface IPair {
   joint: IClamp;
 
   /** The angle-taking form. */
-  values: IAutoMovieLoftViewRead.IValues;
+  values: IValues;
 }
 
 /** Register only actual source-only factory closures, without wrapping their calls. */

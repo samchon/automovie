@@ -1,7 +1,6 @@
 import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
 
 import type { HumanQuadraticPreparation as Prep } from "./HumanQuadraticPreparation";
-import type { HumanQuadraticProgram as Q } from "./HumanQuadraticProgram";
 
 /**
  * Validate all original entries and compare copied dependencies in one scan.

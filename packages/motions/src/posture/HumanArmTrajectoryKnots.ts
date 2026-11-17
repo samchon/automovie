@@ -2,7 +2,6 @@ import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface
 
 import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
-import type { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
 
 /**
  * An arms' trajectory optimised on few knots and constrained on the whole

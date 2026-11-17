@@ -1,6 +1,5 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
-import type { IAutoMovieHumanF1Placing } from "../../../human/generation/f1/IAutoMovieHumanF1Placing";
 import type { IAutoMovieJointPose } from "../../../pose/IAutoMovieJointPose";
 import type { IAutoMovieJointRotationFrame } from "../../../pose/IAutoMovieJointRotationFrame";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
@@ -202,6 +201,20 @@ export namespace IAutoMovieMotionHumanArmGeometry {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanArmFollow.ts (AutoMovieMotionHumanArmFollow.follower.next.placed, return); compose/AutoMovieMotionHumanArmFollow.ts (AutoMovieMotionHumanArmFollow.follower.next.contact, p); posture/HumanArmGeometry.ts (HumanArmGeometry.placed, return); posture/HumanArmJacobian.ts (HumanArmJacobian.columns, placed); posture/HumanArmRefine.ts (certified.inside, return); posture/HumanArmRefine.ts (certified.ends, return).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
-  export interface IPlaced extends IAutoMovieHumanF1Placing.IPlaced {
+  export interface IPlaced {
+    /** Each probe's world point and radius: eight axis spheres (two on the upper arm, four on the forearm to the wrist, two on the hand), then optional collider probes with radius 0. With surface=false there are exactly eight probes. */
+    probes: readonly (readonly [IAutoMovieVector3, number])[];
+    /** The shoulder's world point. */
+    shoulder: IAutoMovieVector3;
+    /** The elbow's world point. */
+    elbow: IAutoMovieVector3;
+    /** The upper arm's world rotation. */
+    upper: IAutoMovieQuaternion;
+    /** The forearm's world rotation. */
+    lower: IAutoMovieQuaternion;
+    /** The wrist's world point. */
+    wrist: IAutoMovieVector3;
+    /** The hand's world rotation. */
+    hand: IAutoMovieQuaternion;
   }
 }

@@ -4,10 +4,7 @@ import type {
   IAutoMovieJointRotationFrame,
 } from "@automovie/interface";
 
-import { jointToQuaternion } from "../kinematics/jointToQuaternion";
-import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { clampJointRomValues } from "./clampJointRomValues";
-import { swingConeBlend } from "./swingConeBlend";
 
 /**
  * Project one joint into admitted axis intervals, preserving null rest and forcing specified immobile axes to zero. Specified nonfinite angles first become neutral. A swing cap blends toward the box point nearest neutral; unrestricted multi-turn overrides are outside the bisection's monotonic-segment guarantee.
