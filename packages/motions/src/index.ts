@@ -317,6 +317,7 @@ export * from "./lexicon/HUMAN_LEXICON_SCHEMAS";
 export * from "./lexicon/IHumanLexiconParams";
 export * from "./lexicon/HumanTravelDoor";
 export * from "./lexicon/HumanTravelCar";
+export * from "./lexicon/HumanTravelCarExit";
 export * from "./lexicon/HumanTravelLeaf";
 export * from "./striking/StrikingHeld";
 export * from "./striking/StrikingBlade";
