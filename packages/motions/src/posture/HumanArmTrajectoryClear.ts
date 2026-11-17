@@ -90,10 +90,9 @@ export namespace HumanArmTrajectoryClear {
     // Each arm is laid round its own deepest waypoint: two arms of one
     // transport (a choke's two hands) each meet their own shapes, and a
     // detour of one arm alone leaves the other's depth as it was.
-    const all: J.IJacobian[][] = J.of(c, x, at);
     const out: IDetour[] = [];
     x.forEach((_: readonly (readonly number[])[], arm: number): void => {
-      const detour: IDetour | undefined = ofArm(c, x, at, all, arm, from, to, shares, region);
+      const detour: IDetour | undefined = ofArm(c, x, at, arm, from, to, shares, region);
       if (detour !== undefined) out.push(detour);
     });
     return out;
@@ -104,7 +103,6 @@ export namespace HumanArmTrajectoryClear {
     c: M.IContext,
     x: readonly (readonly number[])[][],
     at: M.IEvaluation,
-    all: J.IJacobian[][],
     arm: number,
     from: number,
     to: number,
@@ -146,8 +144,13 @@ export namespace HumanArmTrajectoryClear {
 
     // Each pair near its bound there, a row: the change of its distance by
     // a change of the arm's coordinates, millimetres per unit, and what the
-    // distance must gain to reach its bound less the tolerance.
-    const jac: J.IJacobian = all[arm]![waypoint]!;
+    // distance must gain to reach its bound less the tolerance. Only this
+    // waypoint's Jacobian is read, so only it is made (`J.waypoint`), held
+    // where `J.carried` reads it.
+    const jac: J.IJacobian = J.waypoint(c, x, at, arm, waypoint);
+    const all: J.IJacobian[][] = [];
+    all[arm] = [];
+    all[arm]![waypoint] = jac;
     const frame: G.IFrame = c.frames[arm]![waypoint]!;
     const placed: G.IPlaced = at.placed[arm]![waypoint]!;
     const pairs: NonNullable<M.IEvaluation["pairs"][number][number]> = at.pairs[arm]![waypoint]!;

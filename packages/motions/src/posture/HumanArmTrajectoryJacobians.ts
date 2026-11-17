@@ -91,84 +91,113 @@ export namespace HumanArmTrajectoryJacobians {
   ): IJacobian[][] {
     return x.map(
       (arm: readonly (readonly number[])[], a: number): IJacobian[] =>
-        arm.map((v: readonly number[], k: number): IJacobian => {
-          const entry: IJacobian = {
-            probes: [],
-            pad: [],
-            hand: [],
-            move: 0,
-            segments: [],
-          };
-          if (!M.inner(c, k)) return entry;
-          const site: M.ISite | undefined = c.sites[a]![k];
-          const here: G.IPlaced = at.placed[a]![k]!;
-          const frame: G.IFrame = c.frames[a]![k]!;
-          entry.probes = here.probes.map((): IAutoMovieVector3[] => []);
-          const origins: Record<"upper" | "lower" | "hand", IAutoMovieVector3> =
-            { upper: here.shoulder, lower: here.elbow, hand: here.wrist };
-          const owners: ("upper" | "lower" | "hand")[] = here.probes.map(
-            (
-              _probe: readonly [IAutoMovieVector3, number],
-              i: number,
-            ): "upper" | "lower" | "hand" => {
-              const segment: M.Segment = S.segment(frame, i);
-              return segment === "upperArm"
-                ? "upper"
-                : segment === "lowerArm"
-                  ? "lower"
-                  : "hand";
-            },
-          );
-          const offsets: IAutoMovieVector3[] = [];
-          let contact: IAutoMovieVector3 | undefined;
-          for (const column of HumanArmJacobian.columns(
-            c.setups[a]!,
-            frame,
-            v,
-            here,
-            c.free[a]!,
-          )) {
-            const frames: Record<"upper" | "lower" | "hand", IMotion> = {
-              upper: motion(column.upper),
-              lower: motion(column.lower),
-              hand: motion(column.hand),
-            };
-            entry.segments.push(frames);
-            here.probes.forEach(
-              ([p]: readonly [IAutoMovieVector3, number], i: number): void => {
-                const owner: "upper" | "lower" | "hand" = owners[i]!;
-                const offset: IAutoMovieVector3 =
-                  offsets[i] ??
-                  (offsets[i] = Vector3.subtract(p, origins[owner]));
-                entry.probes[i]!.push(
-                  pointMotion(frames[owner], offset),
-                );
-              },
-            );
-            if (site !== undefined) {
-              contact ??= Vector3.subtract(
-                P.pad(here, site.contact),
-                here.wrist,
-              );
-              entry.pad.push(pointMotion(frames.hand, contact));
-              if (site.rotation !== undefined)
-                entry.hand.push(
-                  turned(site.rotation, here.hand, column.hand.angular),
-                );
-            }
-          }
-          for (const column of entry.probes)
-            entry.move = Math.max(
-              entry.move,
-              column.reduce(
-                (s: number, g: IAutoMovieVector3): number =>
-                  s + Vector3.length(g),
-                0,
-              ),
-            );
-          return entry;
-        }),
+        arm.map((_: readonly number[], k: number): IJacobian => waypoint(c, x, at, a, k)),
     );
+  }
+
+  /**
+   * The Jacobians of one arm at one waypoint, the entry `of` makes there:
+   * every probe's, the contact's and the hand rotation's columns at an inner
+   * waypoint, empty arrays and no move at an outer one.
+   *
+   * @param c The context.
+   * @param x Each arm's coordinates at each waypoint.
+   * @param at The iterate's evaluation.
+   * @param a The arm.
+   * @param k The waypoint.
+   * @returns Its Jacobians.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the one entry it makes, its columns and the outer waypoint's empty entry.
+   * @evidence contracts/development/implementation.md#principled-implementation The rigid-body point motion `of` states: each column's segment twist moves an attached point by v_origin plus omega cross its displacement, scaled to millimetres; the rotation's columns are the residual's central differences.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure `of` is this entry mapped over every arm and waypoint, so a reader of one waypoint (a laid course's detour) and the convex subproblem read one owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every column, probe order, contact placement, HAIR and movement bound as `of` made them; an entry depends on the arm's coordinates and placement at its own waypoint alone.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(F P) for F free coordinates and P probes at the one waypoint, where a reader of one waypoint used to pay for every waypoint of every arm.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The waypoint's probe points, origins, hand frame and contact are read once and shared by its columns; nothing crosses waypoints.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh vectors; offsets live until return.
+   */
+  export function waypoint(
+    c: M.IContext,
+    x: readonly (readonly number[])[][],
+    at: M.IEvaluation,
+    a: number,
+    k: number,
+  ): IJacobian {
+    const v: readonly number[] = x[a]![k]!;
+    const entry: IJacobian = {
+      probes: [],
+      pad: [],
+      hand: [],
+      move: 0,
+      segments: [],
+    };
+    if (!M.inner(c, k)) return entry;
+    const site: M.ISite | undefined = c.sites[a]![k];
+    const here: G.IPlaced = at.placed[a]![k]!;
+    const frame: G.IFrame = c.frames[a]![k]!;
+    entry.probes = here.probes.map((): IAutoMovieVector3[] => []);
+    const origins: Record<"upper" | "lower" | "hand", IAutoMovieVector3> =
+      { upper: here.shoulder, lower: here.elbow, hand: here.wrist };
+    const owners: ("upper" | "lower" | "hand")[] = here.probes.map(
+      (
+        _probe: readonly [IAutoMovieVector3, number],
+        i: number,
+      ): "upper" | "lower" | "hand" => {
+        const segment: M.Segment = S.segment(frame, i);
+        return segment === "upperArm"
+          ? "upper"
+          : segment === "lowerArm"
+            ? "lower"
+            : "hand";
+      },
+    );
+    const offsets: IAutoMovieVector3[] = [];
+    let contact: IAutoMovieVector3 | undefined;
+    for (const column of HumanArmJacobian.columns(
+      c.setups[a]!,
+      frame,
+      v,
+      here,
+      c.free[a]!,
+    )) {
+      const frames: Record<"upper" | "lower" | "hand", IMotion> = {
+        upper: motion(column.upper),
+        lower: motion(column.lower),
+        hand: motion(column.hand),
+      };
+      entry.segments.push(frames);
+      here.probes.forEach(
+        ([p]: readonly [IAutoMovieVector3, number], i: number): void => {
+          const owner: "upper" | "lower" | "hand" = owners[i]!;
+          const offset: IAutoMovieVector3 =
+            offsets[i] ??
+            (offsets[i] = Vector3.subtract(p, origins[owner]));
+          entry.probes[i]!.push(
+            pointMotion(frames[owner], offset),
+          );
+        },
+      );
+      if (site !== undefined) {
+        contact ??= Vector3.subtract(
+          P.pad(here, site.contact),
+          here.wrist,
+        );
+        entry.pad.push(pointMotion(frames.hand, contact));
+        if (site.rotation !== undefined)
+          entry.hand.push(
+            turned(site.rotation, here.hand, column.hand.angular),
+          );
+      }
+    }
+    for (const column of entry.probes)
+      entry.move = Math.max(
+        entry.move,
+        column.reduce(
+          (s: number, g: IAutoMovieVector3): number =>
+            s + Vector3.length(g),
+          0,
+        ),
+      );
+    return entry;
   }
 
   /**
