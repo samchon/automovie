@@ -20,7 +20,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three readings of a sample, what is assembled once and what each later reading derives and takes.
  * @evidence contracts/development/implementation.md#principled-implementation Each reading is the cold resolve of its posture: `fit` of `assemble` is that resolve, `derive` gives the assembly `assemble` gives, and a completed fit is taken only where every leg's fit reads exactly the same records, root and goal, of which a limb fit is a function. The carriage is `HumanArmSwing.of` on that resolve and the centre `HumanBalance.centre` on it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One record a sample holding its assembly and fit; two readers over it.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One record a sample holding its assembly and fit; three readers over it.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pose or centre is kept for another posture: every reading resolves the posture it is given, and a posture whose legs read anything different is fitted in full.
  * @evidence contracts/development/implementation.md#efficient-algorithms A sample's three readings cost one assembly, two derivations of the changed records and two leg-fit pairs (the carriage's, shared by the first balance pass, and the shifted pass's), in place of three assemblies and three pairs.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A sample's assembly and completed fit are shared by its later readings; equivalence is decided inside `derive` (exact angles, root and heading) and `fit` (exact goals, root and the very records each leg reads).
@@ -41,6 +41,10 @@ export function staggerResolved(body: IHumanBody): staggerResolved.IReader {
       const added: (side: "left" | "right") => number = (side: "left" | "right"): number =>
         Math.max(0, (cleared.joints[`${side}UpperArm`]?.[1] ?? 0) - (posture.joints[`${side}UpperArm`]?.[1] ?? 0));
       return { left: added("left"), right: added("right") };
+    },
+    fitted: (index: number, posture: IHumanPosture): void => {
+      const assembled: resolveHumanPosture.IAssembled = resolveHumanPosture.assemble(body, posture);
+      knots[index] = { assembled, seeded: resolveHumanPosture.fit(body, assembled) };
     },
     centre: (index: number, posture: IHumanPosture): IAutoMovieVector3 => {
       const knot: Parameters<typeof resolveHumanPosture.fit>[5] = knots[index];
@@ -66,6 +70,9 @@ export namespace staggerResolved {
   export interface IReader {
     /** Each arm's added abduction that keeps it clear in the sample's posture, degrees (`HumanArmSwing.carriage` at one instant); resolves the posture and keeps its assembly and fit for the sample. */
     carriage(index: number, posture: IHumanPosture): Record<"left" | "right", number>;
+
+    /** Resolves the sample's posture and keeps its assembly and fit for the sample, as `carriage` does, without reading the arms' let-out. */
+    fitted(index: number, posture: IHumanPosture): void;
 
     /** The whole-body centre of mass of a posture of the sample, world metres (`HumanBalance.centre`), resolved on the sample's kept assembly; resolved plainly when the sample has none. */
     centre(index: number, posture: IHumanPosture): IAutoMovieVector3;
