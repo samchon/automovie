@@ -161,7 +161,7 @@ export namespace HumanJacobian {
     posture: IHumanPosture,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieChainBone>,
     variables: readonly IVariable[],
-    projection?: ReturnType<typeof clampJointToSkeleton.prepare>,
+    projection?: (joint: IAutoMovieJointPose) => IAutoMovieJointPose,
   ): IReading {
     const rig: IRig = rigOf(body);
     const yawed: IAutoMovieQuaternion = Quaternion.fromAxisAngle(

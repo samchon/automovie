@@ -1,4 +1,5 @@
 import {
+  IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
@@ -80,8 +81,8 @@ export namespace clampPose {
    * retained, and the borrower releases the callable with its operation.
    */
   export function joints(
-    source: ReturnType<typeof prepare>,
-  ): ReturnType<typeof clampJointToSkeleton.prepare> | undefined {
+    source: (pose: IAutoMoviePose) => IAutoMoviePose,
+  ): ((joint: IAutoMovieJointPose) => IAutoMovieJointPose) | undefined {
     return JOINTS.get(source);
   }
 
@@ -108,4 +109,4 @@ export namespace clampPose {
 }
 
 /** Only the actual pose factory registers its existing source-only joint callable. */
-const JOINTS: WeakMap<ReturnType<typeof clampPose.prepare>, ReturnType<typeof clampJointToSkeleton.prepare>> = new WeakMap();
+const JOINTS: WeakMap<(pose: IAutoMoviePose) => IAutoMoviePose, (joint: IAutoMovieJointPose) => IAutoMovieJointPose> = new WeakMap();

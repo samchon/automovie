@@ -23,7 +23,7 @@ import type { IHumanBody } from "../body/IHumanBody";
  */
 export function prepareHumanPostureProjection(
   body: IHumanBody,
-): ReturnType<typeof clampPose.prepare> {
+): (pose: IAutoMoviePose) => IAutoMoviePose {
   return body.projection;
 }
 
@@ -51,7 +51,7 @@ export namespace prepareHumanPostureProjection {
    */
   export function joints(
     body: IHumanBody,
-    source?: ReturnType<typeof clampPose.prepare>,
+    source?: (pose: IAutoMoviePose) => IAutoMoviePose,
   ): ReturnType<typeof clampPose.joints> {
     return source !== undefined && source === body.projection ? clampPose.joints(source) : undefined;
   }
@@ -69,16 +69,16 @@ export namespace prepareHumanPostureProjection {
    */
   export function values(
     body: IHumanBody,
-    source?: ReturnType<typeof clampPose.prepare>,
+    source?: (pose: IAutoMoviePose) => IAutoMoviePose,
   ): clampPose.IPrepared["values"] | undefined {
-    return source !== undefined && source === body.projection ? source.values : undefined;
+    return source !== undefined && source === body.projection ? body.projection.values : undefined;
   }
 
   /** Project every actual joint of a pose through the body's projector; `source`, the function a caller passes along, is used only when it is that projector, which it then is. */
   export function project(
     body: IHumanBody,
     pose: IAutoMoviePose,
-    _source?: ReturnType<typeof clampPose.prepare>,
+    _source?: (pose: IAutoMoviePose) => IAutoMoviePose,
   ): IAutoMoviePose {
     return body.projection(pose);
   }
