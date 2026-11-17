@@ -136,7 +136,7 @@ export namespace HumanPerformanceHold {
     ): IAutoMovieRigidTransform => {
       if (w.offset !== undefined) return w.offset;
       const earlier: IAutoMovieMotionHumanPerformanceState.IGrip | undefined =
-        w.bone !== undefined || w.mount !== undefined
+        w.bone !== undefined || w.mount !== undefined || w.capture !== undefined
           ? undefined
           : grips.find(
               (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
@@ -152,7 +152,7 @@ export namespace HumanPerformanceHold {
       const before: IAutoMovieRigidTransform = HumanPerformanceHold.prop(
         self,
         subject,
-        w.from - 1e-6,
+        w.capture === undefined ? w.from - 1e-6 : w.from,
       );
       const hand: IAutoMovieRigidTransform = carrier(w, w.from);
       const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);

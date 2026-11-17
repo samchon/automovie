@@ -253,7 +253,8 @@ export namespace HumanVerdicts {
     const unended: string[] = [];
     for (const prop of launched)
       for (const f of performance.flights(prop))
-        if (f.end === Infinity) unended.push(`${prop}@${f.launch.toFixed(3)}`);
+        if (f.end === Infinity && f.capturedAt === undefined)
+          unended.push(`${prop}@${f.launch.toFixed(3)}`);
     return { clean: findings.length === 0, findings, unended };
   }
 

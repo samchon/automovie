@@ -87,6 +87,7 @@ export namespace HumanPerformanceContacts {
         fingers: hold.fingers ?? {},
         source: segment,
         from: segment.start + hold.from * plan.duration,
+        ...(hold.capture === undefined ? {} : { capture: hold.capture }),
         until: Infinity,
       });
   }

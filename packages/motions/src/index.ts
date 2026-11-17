@@ -106,6 +106,7 @@ export * from "./everyday/braceOnThigh";
 export * from "./everyday/kneel";
 export * from "./terrain/climbStairs";
 export * from "./throwing/catchObject";
+export * from "./throwing/stageCatch";
 export * from "./throwing/throwObject";
 export * from "./throwing/release";
 export * from "./affordance/operate";

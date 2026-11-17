@@ -6,6 +6,7 @@ import type { IAutoMovieScheduleCue } from "../../composition/IAutoMovieSchedule
 import type { IAutoMovieMotionMeeting } from "../compose/IAutoMovieMotionMeeting";
 import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHumanActionLaw";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
+import type { IAutoMovieMotionPropHold } from "../law/IAutoMovieMotionPropHold";
 import type { IAutoMovieMotionWeaponPath } from "../law/IAutoMovieMotionWeaponPath";
 import type { IAutoMovieMotionHumanBlast } from "./IAutoMovieMotionHumanBlast";
 import type { IAutoMovieMotionHumanForce } from "./IAutoMovieMotionHumanForce";
@@ -158,6 +159,9 @@ export namespace IAutoMovieMotionHumanPerformanceState {
 
     /** The span's first film second. */
     from: number;
+
+    /** The exact launch this staged grip captures when it starts. */
+    capture?: IAutoMovieMotionPropHold["capture"];
 
     /** The span's last film second. */
     to: number;
