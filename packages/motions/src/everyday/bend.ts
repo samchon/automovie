@@ -218,6 +218,10 @@ export namespace bend {
           { eyes: s, head: s, trunk: 0 },
         );
 
+        // Upright at both ends, the arms are the ones the body holds: no goal
+        // is fitted where the hands have not left where they hang.
+        if (s <= 0) return aimed;
+
         // The palm from where it hangs to the target, facing down onto it.
         const hanging = bones(body, lowered);
         const from: IAutoMovieVector3 = HumanHand.frame(
@@ -225,6 +229,7 @@ export namespace bend {
           hanging,
           side,
           "palm",
+          "flat",
         ).point;
         const turn = HumanHand.rotation(side, {
           fingers: HumanFrame.point(
@@ -270,6 +275,7 @@ export namespace bend {
           hanging,
           free,
           "palm",
+          "flat",
         ).point;
         const freeTurn = HumanHand.rotation(free, {
           fingers: Vector3.subtract(kneeAt, thigh.worldPosition),
@@ -291,13 +297,21 @@ export namespace bend {
             },
           },
           [
+            // Each hand leaves the arm as it hangs: its turn and its elbow
+            // go from the hanging arm's own by the share, so at the start
+            // the goal is the arm the body holds, not a palm turned down at
+            // once or an elbow on another side of its swivel.
             {
               side,
               surface: "palm",
               shape: "flat",
               point: Vector3.lerp(from, target, s),
-              rotation: turn,
-              bend: AutoMovieMotionHumanBend.hang(body, lowered, side, 0.2),
+              rotation: Quaternion.slerp(hanging.get(`${side}Hand`)!.worldRotation, turn, s),
+              bend: Vector3.lerp(
+                hanging.get(`${side}LowerArm`)!.worldPosition,
+                AutoMovieMotionHumanBend.hang(body, lowered, side, 0.2),
+                s,
+              ),
             },
             {
               side: free,
@@ -309,7 +323,11 @@ export namespace bend {
                 freeTurn,
                 s,
               ),
-              bend: AutoMovieMotionHumanBend.hang(body, lowered, free, 0.3),
+              bend: Vector3.lerp(
+                hanging.get(`${free}LowerArm`)!.worldPosition,
+                AutoMovieMotionHumanBend.hang(body, lowered, free, 0.3),
+                s,
+              ),
             },
           ],
         );
