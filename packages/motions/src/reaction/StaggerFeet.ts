@@ -223,12 +223,28 @@ export class StaggerFeet {
     settled: walkReach.IGround;
     reached: Record<"left" | "right", walkFoot.IEnd>;
     trunk: { pitch: number; roll: number };
+    ease: number;
   } {
     const feet: Record<"left" | "right", walkFoot.IScheduled> =
       this.scheduled(seconds);
     const at: ReturnType<StaggerFeet["lean"]> = this.lean(seconds);
     const trunk: { pitch: number; roll: number } = at.trunk;
-    const settled: walkReach.IGround = this.settle(seconds, feet, resolution, at);
+
+    // The pelvis reads a swinging foot's claim where it stands, not where
+    // it flies: at the place it left until mid-swing and at its landing
+    // after, the claim's weight being none at mid-swing (`walkReach.weight`),
+    // so the lowering is continuous at lift-off and touch-down alike.
+    const claims: Record<"left" | "right", walkFoot.IScheduled> = { ...feet };
+    for (const step of this.recovery.steps)
+      if (seconds > step.start && seconds < step.land) {
+        const swing: walkFoot.IScheduled["swing"] = feet[step.side].swing;
+        claims[step.side] = {
+          placement: (swing?.u ?? 0) < 0.5 ? step.from : step.to,
+          toes: 0,
+          ...(swing === undefined ? {} : { swing }),
+        };
+      }
+    const settled: walkReach.IGround = this.settle(seconds, claims, resolution, at);
     const reached: Record<"left" | "right", walkFoot.IEnd> = {
       ...settled.feet,
     };
@@ -239,7 +255,7 @@ export class StaggerFeet {
           feet[side],
           this.swinging(side, seconds),
         );
-    return { feet, settled, reached, trunk };
+    return { feet, settled, reached, trunk, ease: at.ease };
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
   IAutoMovieVector3,
@@ -20,6 +20,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -260,6 +261,7 @@ export namespace stagger {
     const duration: number = clock.duration;
     const last: () => number = (): number => recovery.steps.at(-1)!.land;
     const feet: StaggerFeet = new StaggerFeet(body, context.entry, recovery, fixed.bend);
+    const entryLegs: IHumanPosture["limbs"] = entry.limbs;
     const legs: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
@@ -270,9 +272,11 @@ export namespace stagger {
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
         resolution?: Parameters<IHumanActionPlan["posture"]>[2],
       ): IHumanPosture => {
-        const { feet: scheduled, settled, reached, trunk }: ReturnType<StaggerFeet["solve"]> = feet.solve(seconds, resolution);
+        const { feet: scheduled, settled, reached, trunk, ease }: ReturnType<StaggerFeet["solve"]> = feet.solve(seconds, resolution);
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
         for (const side of ["left", "right"] as const) {
+          const key: "leftLeg" | "rightLeg" = side === "left" ? "leftLeg" : "rightLeg";
+
           // The knee points over the foot's own heading.
           const knee: IAutoMovieVector3 = staggerKnots.kneePole(
             body,
@@ -281,22 +285,49 @@ export namespace stagger {
             side,
             HumanFoot.heading(reached[side].rotation),
           );
-          limbs[side === "left" ? "leftLeg" : "rightLeg"] = {
-            point: reached[side].ankle,
-            bend: knee,
-            rotation: reached[side].rotation,
-            ...(scheduled[side].swing === undefined
-              ? { planted: true, contact: settled.contacts[side] }
-              : {}),
-          };
+
+          // A foot that has not yet stepped leaves the entry's own leg goal
+          // over the reaction, so the first pose is the entry's: the walk's
+          // stance reader may stand the same foot otherwise (its heel, its
+          // contact point), and the leg would jump at the cut.
+          const entered: IHumanPosture["limbs"][typeof key] = entryLegs[key];
+          const unstepped: boolean = !recovery.steps.some(
+            (step: staggerRecover.IStep): boolean => step.side === side && step.start < seconds,
+          );
+          limbs[key] =
+            unstepped && ease < 1 && entered?.point !== undefined && entered.rotation !== undefined
+              ? {
+                  point: Vector3.lerp(entered.point, reached[side].ankle, ease),
+                  bend: entered.bend === undefined ? knee : Vector3.lerp(entered.bend, knee, ease),
+                  rotation: Quaternion.slerp(entered.rotation, reached[side].rotation, ease),
+                  planted: true,
+                  contact: entered.contact ?? settled.contacts[side],
+                }
+              : {
+                  point: reached[side].ankle,
+                  bend: knee,
+                  rotation: reached[side].rotation,
+                  ...(scheduled[side].swing === undefined
+                    ? { planted: true, contact: settled.contacts[side] }
+                    : {}),
+                };
         }
+        // The root carries the plan-time residual of the displayed centre of
+        // mass from the pendulum's course (`balanced`), interpolated.
+        const at: number = Math.min(Math.max(0, seconds * KNOTS), Math.max(0, balanced.length - 1));
+        const k: number = Math.floor(at);
+        const a: IAutoMovieVector3 | undefined = balanced[k];
+        const b: IAutoMovieVector3 | undefined = balanced[Math.min(balanced.length - 1, k + 1)];
+        const shift: IAutoMovieVector3 =
+          a === undefined || b === undefined ? { x: 0, y: 0, z: 0 } : Vector3.lerp(a, b, at - k);
+
         // The trunk tilts about the hips against the fall (`staggerLean`),
         // so the legs stay on their feet.
         return AutoMovieMotionHumanLean.pivot(
           body,
           {
             ...posture,
-            root: settled.root,
+            root: { x: settled.root.x + shift.x, y: settled.root.y, z: settled.root.z + shift.z },
             yaw: settled.yaw,
             joints: {
               ...posture.joints,
@@ -370,6 +401,7 @@ export namespace stagger {
     // an arm.
     const KNOTS: number = staggerBounds.KNOTS;
     let carried: Record<"left" | "right", number[]> = { left: [], right: [] };
+    let balanced: IAutoMovieVector3[] = [];
     const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: {
         ...AutoMovieMotionHumanBase.still(duration, {
@@ -398,6 +430,32 @@ export namespace stagger {
         ),
       );
     carried = { left: envelope("left"), right: envelope("right") };
+
+    // The displayed centre of mass kept on the pendulum's course: at each
+    // sample the residual of the displayed posture's centre of mass
+    // (`HumanBalance.centre`) from the course's horizontal point is added
+    // to the root, twice, as a fixed-point step of the per-frame centre of
+    // mass correction (Phillips and Badler 1991): the legs stand planted
+    // while the rest of the body follows the root, so one step leaves the
+    // planted legs' share of the residual, which the second takes off.
+    const samples: number[] = Array.from(
+      { length: Math.ceil(duration * KNOTS - 1e-9) + 1 },
+      (_: unknown, i: number): number => Math.min(duration, i / KNOTS),
+    );
+    for (let pass: number = 0; pass < 2; pass++) {
+      const residual: IAutoMovieVector3[] = samples.map((seconds: number): IAutoMovieVector3 => {
+        const shown: IAutoMovieVector3 = HumanBalance.centre(body, composed.posture(seconds));
+        const travel: IAutoMovieVector3 = recovery.course(seconds);
+        return {
+          x: recovery.centre.x + travel.x - shown.x,
+          y: 0,
+          z: recovery.centre.z + travel.z - shown.z,
+        };
+      });
+      balanced = residual.map((e: IAutoMovieVector3, i: number): IAutoMovieVector3 =>
+        Vector3.add(balanced[i] ?? { x: 0, y: 0, z: 0 }, e),
+      );
+    }
     return {
       ...composed,
       get contacts(): IHumanContactWindow[] {
