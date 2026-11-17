@@ -404,18 +404,8 @@
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanBase.under",
       "tests": [
-        "test_human_motion_overlay_channels_m_average_unclaimed",
-        "test_human_motion_overlay_channels_m_average_claimed",
-        "test_human_motion_overlay_channels_f_small_unclaimed",
-        "test_human_motion_overlay_channels_f_small_claimed",
-        "test_human_motion_overlay_channels_continuity_1",
-        "test_human_motion_overlay_channels_continuity_2",
-        "test_human_motion_overlay_channels_continuity_3",
-        "test_human_motion_overlay_channels_continuity_4",
-        "test_human_motion_overlay_channels_continuity_5",
-        "test_human_motion_overlay_channels_continuity_6",
-        "test_human_motion_overlay_channels_continuity_7",
-        "test_human_motion_overlay_channels_continuity_8"
+        "test_human_motion_overlay_channels_m_average",
+        "test_human_motion_overlay_channels_f_small"
       ]
     },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.of", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.grasped", "tests": ["test_human_motion_firearm_shot"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.point", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.grip", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.hold", "tests": ["test_human_motion_core_held_frame"] },

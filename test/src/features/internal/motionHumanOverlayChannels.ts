@@ -16,7 +16,7 @@ import {
 import { motionHumanBody } from "./motionHumanBody";
 
 /**
- * The readings of the specs `test_human_motion_overlay_channels_<part>`: a
+ * The readings of the specs `test_human_motion_overlay_channels_<body>`: a
  * person performs two actions at once on different parts of the body: the
  * overlaid action takes only the channels it claims, the carrier keeps the
  * rest untouched, and a combination no body could perform is refused with
@@ -52,11 +52,11 @@ import { motionHumanBody } from "./motionHumanBody";
  * 6. The other hand at the same time is not a clash: a phone in the right
  *    hand and a drink in the left over one walk plan.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the act, the 6 scenarios, the source and provisional bound of the trunk-held hand, and which part reads which.
+ * @evidence contracts/development/common.md#meaningful-documentation States the act, the 6 scenarios, the source and provisional bound of the trunk-held hand, and which body reads which.
  * @evidence contracts/development/implementation.md#principled-implementation Performs the compositions through the public chain and reads displayed joint centres and thrown refusals.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader per body for scenarios 1 to 3, 5 and 6, and one for the continuity of scenario 4.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every scenario is read as before; the split only places them in their own specs.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two films per body; the continuity reading resolves its film's departing intervals.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader per body for scenarios 1 to 3, 5 and 6, which also reads the continuity of scenario 4 off its film with the task when asked.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every scenario is read as before, the continuity over the same eight windows; only the films are shared.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two films per body, the plain walk and the walk with the task, each performed once and read by every scenario of the body; the continuity reading resolves the task film's departing intervals.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Bodies come from `motionHumanBody`.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing once read.
  */
@@ -89,16 +89,18 @@ export namespace motionHumanOverlayChannels {
     );
 
   /**
-   * Scenario 1 (`unclaimed`) or scenarios 2, 3, 5 and 6 (`claimed`) on one body.
+   * Scenarios 1, 2, 3, 5 and 6 on one body, and scenario 4 when asked, all
+   * read off the body's two films: the plain walk and the walk with the
+   * task, each performed once.
    *
    * @param name The body.
-   * @param part Which scenarios.
    * @param complaints Receives every complaint.
+   * @param continuous Whether scenario 4 is read off the film with the task.
    */
   export function read(
     name: motionHumanBody.Name,
-    part: "unclaimed" | "claimed",
     complaints: string[],
+    continuous: boolean,
   ): void {
     const body: IHumanBody = motionHumanBody(name);
     const plain: HumanPerformance = perform(body, walk());
@@ -116,35 +118,37 @@ export namespace motionHumanOverlayChannels {
       0,
     );
     const walking: number = plain.duration;
-    if (part === "unclaimed") {
-      // 1. The carrier's own channels, and the free arm, are untouched.
-      const UNCLAIMED: readonly AutoMovieHumanoidBone[] = [
-        "hips",
-        "leftUpperLeg",
-        "rightUpperLeg",
-        "leftLowerLeg",
-        "rightLowerLeg",
-        "leftFoot",
-        "rightFoot",
-        "leftHand",
-      ];
-      let worst: { moved: number; where: string } = { moved: 0, where: "" };
-      for (let t: number = 0; t <= walking; t += 1 / 12)
-        for (const bone of UNCLAIMED) {
-          const moved: number = gap(
-            HumanSignature.joint(without, t, bone),
-            HumanSignature.joint(withTask, t, bone),
-          );
-          if (moved > worst.moved)
-            worst = { moved, where: `${bone} at ${t.toFixed(2)} s` };
-        }
-      if (worst.moved > 1e-9)
-        complaints.push(
-          `${name}: the task moves an unclaimed joint by ${mm(worst.moved)} mm (${worst.where}), nothing expected`,
-        );
 
-      return;
-    }
+    // 1. The carrier's own channels, and the free arm, are untouched.
+    const UNCLAIMED: readonly AutoMovieHumanoidBone[] = [
+      "hips",
+      "leftUpperLeg",
+      "rightUpperLeg",
+      "leftLowerLeg",
+      "rightLowerLeg",
+      "leftFoot",
+      "rightFoot",
+      "leftHand",
+    ];
+    let worst: { moved: number; where: string } = { moved: 0, where: "" };
+    for (let t: number = 0; t <= walking; t += 1 / 12)
+      for (const bone of UNCLAIMED) {
+        const moved: number = gap(
+          HumanSignature.joint(without, t, bone),
+          HumanSignature.joint(withTask, t, bone),
+        );
+        if (moved > worst.moved)
+          worst = { moved, where: `${bone} at ${t.toFixed(2)} s` };
+      }
+    if (worst.moved > 1e-9)
+      complaints.push(
+        `${name}: the task moves an unclaimed joint by ${mm(worst.moved)} mm (${worst.where}), nothing expected`,
+      );
+
+    // 4. The film with the task runs without a step in any joint's path.
+    if (continuous)
+      for (let part: number = 0; part < PARTS; part++)
+        continuity(name, withRead, part, complaints);
 
     // 2 and 3. The phone hand is up, ahead of the chest, and held with it.
     const task: HumanSegment.IOverlay | undefined = withRead.overlays("a")[0];
@@ -264,21 +268,26 @@ export namespace motionHumanOverlayChannels {
     }
   }
 
-  /** The parts the continuity reading is cut into, each its own spec. */
-  export const PARTS: number = 8;
+  /** The windows the continuity reading is cut into. */
+  const PARTS: number = 8;
 
   /**
-   * Scenario 4: the film with the task, on the average man, has no joint
-   * centre that jumps by more than the audit's 5 mm, read over one eighth
-   * of the film: its frames on the audit's 24 Hz grid, the part running
-   * one frame into the next so no interval between them goes unread.
+   * Scenario 4: the film with the task has no joint centre that jumps by
+   * more than the audit's 5 mm, read over one eighth of the film: its frames
+   * on the audit's 24 Hz grid, the window running one frame into the next so
+   * no interval between them goes unread.
    *
-   * @param part Which part, from 0.
+   * @param name The body, for the complaint.
+   * @param film The film with the task.
+   * @param part Which window, from 0.
    * @param complaints Receives every complaint.
    */
-  export function continuity(part: number, complaints: string[]): void {
-    const name: motionHumanBody.Name = "m-average";
-    const film: HumanPerformance = reading(motionHumanBody(name));
+  function continuity(
+    name: motionHumanBody.Name,
+    film: HumanPerformance,
+    part: number,
+    complaints: string[],
+  ): void {
     const rate: number = 24;
     const frames: number = Math.ceil(film.duration * rate);
     const from: number = Math.floor((frames * part) / PARTS) / rate;
