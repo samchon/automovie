@@ -1,7 +1,6 @@
 // Written by `pnpm --filter @automovie/motions schemas` from the lexicon laws' parameter types (src/executable/lexiconSchemas.ts); do not edit by hand.
 import type { IAutoMovieMotionHumanLexiconSchemas } from "@automovie/interface";
 
-
 /**
  * The generated schemas as data: OpenAPI 3.1 JSON schemas of every lexicon
  * row's and every action's parameters, as one typed constant the package
@@ -8793,7 +8792,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "seconds": {
             "type": "number",
-            "description": "Seconds of the sitting down; `sit`'s own when absent."
+            "description": "Seated hold forwarded to sit, seconds; sit's own when absent."
           }
         },
         "required": [
@@ -17446,7 +17445,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "rotation": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanJumpAirborne.IRotation",
-            "description": "Turns the body makes in flight (#3428): somersaults about the axis\nacross the heading (`forward` or `backward`) or about the axis along it\n(`left` or `right`, a side salto), and twists about the body's long\naxis, signed by the right-hand rule about up. The flight turns by the\nangular momentum that lands these turns on the composed body's shape\n(`HumanPerformanceFlight`), so a tuck laid over the flight turns it\nfaster. No turn when absent."
+            "description": "Turns the body makes in flight (#3428): somersaults about the axis\nacross the heading (`forward` or `backward`) or about the axis along it\n(`left` or `right`, a side salto), and twists about the body's long\naxis, signed by the right-hand rule about up. The performance's staged\ndefault follows the authored turn clock and requires a complete net\nrotation for this feet-first landing. Explicit physical mode solves\nangular momentum on the composed body, so a tuck can change its rate.\nStaged turns make no momentum-conservation claim. No turn when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
