@@ -68,6 +68,14 @@ export namespace KickForm {
    */
   export const PUSH_RAISE_MOST: number = 30;
 
+  /**
+   * How much of its shank's turn a push kick's ankle takes up while the leg
+   * extends, degrees, so the sole faces the target before the knee is
+   * straight: the ankle's dorsiflexion (20 degrees, the clinical range,
+   * AAOS).
+   */
+  export const PUSH_ANKLE_GIVE: number = 20;
+
   /** Share of the way the root travels from its entry to over the support ankle at contact (provisional: the centre of mass stays inside the support foot's length). */
   export const CENTRE_SHARE: number = 0.8;
 

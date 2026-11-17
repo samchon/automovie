@@ -71,13 +71,11 @@ export function motionKickSignature(
     );
     const picked = (key: string): string | undefined =>
       row.startsWith(`${key}=`) ? row.slice(key.length + 1) : undefined;
-    const ribs: IAutoMovieVector3 = M.region(
-      s,
-      "b",
-      partner,
-      motionKickFlank(picked("technique"), picked("leg")),
-      impact,
+    const aimed: ReturnType<typeof motionKickFlank> = motionKickFlank(
+      picked("technique"),
+      picked("leg"),
     );
+    const ribs: IAutoMovieVector3 = M.region(s, "b", partner, aimed, impact);
     const ankle: IAutoMovieVector3 = M.joint(s, impact, `${side}Foot`);
     const reach: number = Math.hypot(
       ribs.x - ankle.x,
@@ -92,7 +90,7 @@ export function motionKickSignature(
       toe.z - heel.z,
     );
     complaints.check(
-      `${cell}: the kicking ankle is ${(reach * 1000).toFixed(0)} mm from the partner's ribs at impact, within a foot length (${(footLength * 1000).toFixed(0)} mm) expected`,
+      `${cell}: the kicking ankle is ${(reach * 1000).toFixed(0)} mm from the partner's ${aimed === "abdomen" ? "abdomen" : "ribs"} at impact, within a foot length (${(footLength * 1000).toFixed(0)} mm) expected`,
       reach <= footLength,
     );
     const set: number = M.event(s, "set") ?? launch;

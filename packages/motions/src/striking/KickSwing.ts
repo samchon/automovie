@@ -221,8 +221,7 @@ export namespace KickSwing {
       // The carried leg from the hip: the chambered thigh and the shank
       // opened about the knee's hinge, or the thrust's leg at its share. The
       // foot is carried by the shank: turned on the hinge from the chamber,
-      // or from the contact by the turn that brings the contact's shank
-      // onto the thrust's.
+      // or from the contact by the thrust's own turn (`KickThrust.footed`).
       const carried: KickThrust.ILeg =
         thrust === undefined
           ? { thigh: knee, shank: Quaternion.rotateVector(opened, shank) }
@@ -235,10 +234,7 @@ export namespace KickSwing {
         thrust === undefined
           ? Quaternion.multiply(opened, folded)
           : Quaternion.multiply(
-              rotationBetween(
-                Vector3.normalize(reached.shank),
-                Vector3.normalize(carried.shank),
-              ),
+              KickThrust.footed(reached.shank, carried.shank),
               struck,
             );
 

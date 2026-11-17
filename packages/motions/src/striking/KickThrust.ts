@@ -1,5 +1,8 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { KickForm } from "./KickForm";
 
@@ -123,6 +126,47 @@ export namespace KickThrust {
       thigh: segment(lengths[0], raise),
       shank: segment(lengths[1], fold),
     };
+  }
+
+  /**
+   * The turn of a thrust's foot from its contact rotation while its shank
+   * still points elsewhere than at the contact: the shank's own turn less
+   * what the ankle takes up, `KickForm.PUSH_ANKLE_GIVE`. The sole so faces
+   * the target before the leg is straight and meets it on the ball, as a
+   * push kick is coached with the toes pulled back. Carried rigidly by the
+   * shank, the foot arrived toes first: measured on the staged lead push
+   * kick, the toe end of the foot's capsule met the partner's trunk 13 ms
+   * before the contact, the knee still folded 57.4 degrees.
+   *
+   * @param reached The contact leg's shank, in the pelvis's frame.
+   * @param carried The thrust's shank now, in the same frame.
+   * @returns The rotation to apply before the contact foot's rotation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the turn, what the ankle takes up, the coached form and the measured reason.
+   * @evidence contracts/development/implementation.md#principled-implementation The great-arc turn from the contact shank to the current one, shortened by the ankle's named range about the same axis.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One angle, one share, one interpolation from no turn.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The give is a named clinical range, not a value fitted to a target; a shank within it leaves the foot on its contact rotation exactly.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function footed(
+    reached: IAutoMovieVector3,
+    carried: IAutoMovieVector3,
+  ): IAutoMovieQuaternion {
+    const from: IAutoMovieVector3 = Vector3.normalize(reached);
+    const to: IAutoMovieVector3 = Vector3.normalize(carried);
+    const angle: number =
+      Math.acos(Math.max(-1, Math.min(1, Vector3.dot(from, to)))) /
+      Quaternion.DEG2RAD;
+    const none: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+    return angle <= KickForm.PUSH_ANKLE_GIVE
+      ? none
+      : Quaternion.slerp(
+          none,
+          rotationBetween(from, to),
+          (angle - KickForm.PUSH_ANKLE_GIVE) / angle,
+        );
   }
 
   /**
