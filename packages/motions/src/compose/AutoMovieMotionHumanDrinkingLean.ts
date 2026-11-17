@@ -45,13 +45,43 @@ export namespace AutoMovieMotionHumanDrinkingLean {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing of an earlier attempt is kept past the next one's start.
    */
   export interface IMisses {
-    /** Forget the last attempt's arms; called when an attempt starts. */
+    /**
+     * Forget the last attempt's arms; called when an attempt starts.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States when the member is called and what it gives.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; `misses`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; `misses`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; `misses`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; `misses`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; `misses`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; `misses`, which implements it, carries this claim.
+     */
     begin: () => void;
 
-    /** Show an arm the attempt tried. */
+    /**
+     * Show an arm the attempt tried.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States when the member is called and what it gives.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; `misses`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; `misses`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; `misses`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; `misses`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; `misses`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; `misses`, which implements it, carries this claim.
+     */
     see: (arm: AutoMovieMotionHumanDrinkingArm.IArm) => void;
 
-    /** The least miss of the vessel's axis among the arms shown since the start that drink, degrees; none when none drinks. */
+    /**
+     * The least miss of the vessel's axis among the arms shown since the start that drink, degrees; none when none drinks.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States when the member is called and what it gives.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; `misses`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; `misses`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; `misses`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; `misses`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; `misses`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; `misses`, which implements it, carries this claim.
+     */
     least: () => number | undefined;
   }
 

@@ -72,10 +72,30 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Both read the same bounds, built once.
    */
   export interface IRanged {
-    /** From the wrist's place and a hint, world metres, the hint in the range (`bounded`). */
+    /**
+     * From the wrist's place and a hint, world metres, the hint in the range (`bounded`).
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States when the member is called and what it gives.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; `ranged`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; `ranged`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; `ranged`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; `ranged`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; `ranged`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; `ranged`, which implements it, carries this claim.
+     */
     hint: (point: IAutoMovieVector3, hint: IAutoMovieVector3) => IAutoMovieVector3;
 
-    /** Whether the wrist's place, world metres, leaves a reaching elbow in the range. */
+    /**
+     * Whether the wrist's place, world metres, leaves a reaching elbow in the range.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States when the member is called and what it gives.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; `ranged`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; `ranged`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; `ranged`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; `ranged`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; `ranged`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; `ranged`, which implements it, carries this claim.
+     */
     admits: (point: IAutoMovieVector3) => boolean;
   }
 

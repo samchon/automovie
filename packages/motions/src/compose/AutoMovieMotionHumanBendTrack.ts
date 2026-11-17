@@ -74,7 +74,17 @@ export namespace AutoMovieMotionHumanBendTrack {
     /** Seconds since the action's start until which it writes; not before `from`. */
     to: number;
 
-    /** The wrist asked on the posture so far at a second in [`from`, `to`]; a pure function of both. */
+    /**
+     * The wrist asked on the posture so far at a second in [`from`, `to`]; a pure function of both.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States when the member is called and what it gives.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; the primitive that makes the track, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; the primitive that makes the track, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; the primitive that makes the track, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; the primitive that makes the track, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; the primitive that makes the track, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; the primitive that makes the track, which implements it, carries this claim.
+     */
     goal: (posture: IHumanPosture, seconds: number) => IGoal;
 
     /** The preset `solve` returns where no elbow place is allowed. */
@@ -90,10 +100,30 @@ export namespace AutoMovieMotionHumanBendTrack {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A read before any preparation is the cold solve, not a guess.
    */
   export interface ITrack {
-    /** Solve the knots on the posture so far (`IAutoMovieMotionHumanPrimitive.prepare`'s reader); called once, when the action is planned. */
+    /**
+     * Solve the knots on the posture so far (`IAutoMovieMotionHumanPrimitive.prepare`'s reader); called once, when the action is planned.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States when the member is called and what it gives.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; `of`, which implements it, carries this claim.
+     */
     prepare: (before: IAutoMovieMotionHumanPrimitive.Reader) => void;
 
-    /** The elbow's place at a second on the posture so far there, world metres, usable as a bend hint; `asked` is the goal at that posture and second, which the writer has already read. */
+    /**
+     * The elbow's place at a second on the posture so far there, world metres, usable as a bend hint; `asked` is the goal at that posture and second, which the writer has already read.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States when the member is called and what it gives.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; `of`, which implements it, carries this claim.
+     */
     elbow: (posture: IHumanPosture, seconds: number, asked: IGoal) => IAutoMovieVector3;
   }
 

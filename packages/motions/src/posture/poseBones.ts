@@ -86,14 +86,6 @@ export namespace poseBones {
    * @param pose The pose, complete; its records are read now, in order.
    * @param prepared Optional FK reader of the synchronous evaluation that produced the pose, whose conversions the admission shares.
    * @returns The reading; it holds the admitted values, so a later edit of the pose does not reach it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States who makes and who reads the value, what is read when and that later edits of the pose do not reach it.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the body's prepared rig, whose reading composes bones by the same parent-first products as `poseBones` on the same admission.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call on the body's rig.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every record is admitted in order exactly as `poseBones` admits it, and a malformed one throws here.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One O(J) admission; each later read copies its K demanded bones and composes only ancestors not composed before.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The readers of one produced pose share its admission and frames through the value its producer holds; nothing is looked up or compared.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The holder owns the reading (B references and at most B private frames) and releases it with the pose.
    */
   export function read(
     body: IHumanBody,
@@ -111,14 +103,6 @@ export namespace poseBones {
    * @param body The body.
    * @param requested The names, copied now.
    * @returns The bound reader of this body's readings.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the fixed demand, the copied names and the fresh result.
-   * @evidence contracts/development/implementation.md#principled-implementation The rig's own bound demand reads a reading's frames by index, the same bones a named read of that reading returns.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bound demand and its reading method.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A reading of another body's rig throws in the rig.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(K log K) once, then K copies a call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The names' order is shared across the scan's readings; each reading's frames are its own.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns K indices until its scan ends.
    */
   export function prepareRead(
     body: IHumanBody,

@@ -62,13 +62,43 @@ export namespace AutoMovieMotionHumanArmCourse {
       on?: string;
     }[];
 
-    /** The posture so far and its pose with the group's arms left out, at an instant. */
+    /**
+     * The posture so far and its pose with the group's arms left out, at an instant.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States when the member is called and what it gives.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; the caller of `course`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; the caller of `course`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; the caller of `course`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; the caller of `course`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; the caller of `course`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; the caller of `course`, which implements it, carries this claim.
+     */
     at: (seconds: number) => { posture: IHumanPosture; pose: IAutoMoviePose };
 
-    /** An arm's goal at an instant, as the plan perceives it. */
+    /**
+     * An arm's goal at an instant, as the plan perceives it.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States when the member is called and what it gives.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; the caller of `course`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; the caller of `course`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; the caller of `course`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; the caller of `course`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; the caller of `course`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; the caller of `course`, which implements it, carries this claim.
+     */
     aimed: (arm: number, seconds: number) => IHumanPosture.IGoal;
 
-    /** The trajectory problem on given waypoints, the optimiser's own. */
+    /**
+     * The trajectory problem on given waypoints, the optimiser's own.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States when the member is called and what it gives.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; the caller of `course`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; the caller of `course`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; the caller of `course`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; the caller of `course`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; the caller of `course`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; the caller of `course`, which implements it, carries this claim.
+     */
     problem: (times: readonly number[]) => HumanArmTrajectory.IProblem;
 
     /** The plan's exact FK reader. */

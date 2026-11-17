@@ -18,7 +18,14 @@ import { KickForm } from "./KickForm";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No pose, time or target is retained; the frame is the caller's.
  */
 export namespace KickThrust {
-  /** A leg from its hip: the thigh to the knee and the shank to the ankle, world metres. */
+  /**
+   * A leg from its hip: the thigh to the knee and the shank to the ankle, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the type holds, with units and frame.
+   * @evidence contracts/development/design.md#principled-representation A leg is its two segment vectors from the hip, the form its swing, its planted triangle and its thrust all read.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members its readers take.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's vector type; no flag or cached result is carried.
+   */
   export interface ILeg {
     /** From the hip joint to the knee joint. */
     thigh: IAutoMovieVector3;

@@ -30,10 +30,30 @@ export namespace AutoMovieMotionHumanDrinkingPool {
     /** The fitted-arm reader of the fixed body and hand (`AutoMovieMotionHumanDrinkingArm.prepareRead`); every call still fits its own goal. */
     read: ReturnType<typeof AutoMovieMotionHumanDrinkingArm.prepareRead>;
 
-    /** The drinking range's swivel bound on the fixed posture (`AutoMovieMotionHumanDrinkingSwivel.bounded`), prepared at its first use. */
+    /**
+     * The drinking range's swivel bound on the fixed posture (`AutoMovieMotionHumanDrinkingSwivel.bounded`), prepared at its first use.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States when the member is called and what it gives.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; `of`, which implements it, carries this claim.
+     */
     bounds: () => ReturnType<typeof AutoMovieMotionHumanDrinkingSwivel.bounded>;
 
-    /** Whether a wrist's place, world metres, leaves any reaching elbow inside the drinking range on the fixed posture (`AutoMovieMotionHumanDrinkingSwivel.IRanged.admits`), the screen a candidate passes before its fit. */
+    /**
+     * Whether a wrist's place, world metres, leaves any reaching elbow inside the drinking range on the fixed posture (`AutoMovieMotionHumanDrinkingSwivel.IRanged.admits`), the screen a candidate passes before its fit.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States when the member is called and what it gives.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; `of`, which implements it, carries this claim.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; `of`, which implements it, carries this claim.
+     */
     admits: () => AutoMovieMotionHumanDrinkingSwivel.IRanged["admits"];
 
     /** The arm tried so far that lies least past the drinking range (`AutoMovieMotionHumanDrinkingArm.nearer`); absent before the first. */

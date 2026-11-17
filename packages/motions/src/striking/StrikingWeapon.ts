@@ -16,6 +16,7 @@ import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseReso
 import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { KickForm } from "./KickForm";
 import { StrikingWeaponBones } from "./StrikingWeaponBones";
+import type { StrikingWeaponRecord } from "./StrikingWeaponRecord";
 import { StrikingWeaponSample } from "./StrikingWeaponSample";
 
 /**
@@ -204,14 +205,8 @@ export namespace StrikingWeapon {
     /** Film second they stop being live. */
     to: number;
 
-    /**
-     * The record the ends are read on: the law's geometry as built. A law
-     * builds its geometry again when the performance settles or commits a
-     * stop, and the ends of a second on the new one may differ (a stopped
-     * stroke, a partner shown otherwise), so ends posed at a second are kept
-     * only while this is the same record.
-     */
-    on: () => object;
+    /** The reader of the record the ends are read on: kept ends hold while it returns the same object. */
+    on: StrikingWeaponRecord;
 
     /**
      * The capsules' axis ends at a film second, one more than the capsules:
