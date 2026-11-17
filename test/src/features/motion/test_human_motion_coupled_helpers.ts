@@ -322,6 +322,7 @@ function checkLeftGrip(
       grip.part === "leftHand" &&
         grip.kind === "grip" &&
         grip.support.kind === "person" &&
+        "region" in grip.support &&
         grip.support.region === "palmLeft",
     );
     for (const foot of ["leftFoot", "rightFoot"] as const)

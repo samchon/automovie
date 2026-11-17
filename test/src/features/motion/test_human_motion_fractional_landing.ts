@@ -13,6 +13,7 @@ import type {
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieScanJointRom,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -87,9 +88,15 @@ export function test_human_motion_fractional_landing(): void {
         const constraint: IAutoMovieJointConstraint | undefined =
           DEFAULT_HUMANOID_ROM[joint.bone];
         if (constraint !== undefined)
-          scanJointRom(joint, constraint, (part: scanJointRom.Part): void => {
-            throw new Error(`${label}: ${joint.bone} ${part} exceeds the clinical range`);
-          });
+          scanJointRom(
+            joint,
+            constraint,
+            (part: IAutoMovieScanJointRom.Part): void => {
+              throw new Error(
+                `${label}: ${joint.bone} ${part} exceeds the clinical range`,
+              );
+            },
+          );
       }
     }
     TestValidator.predicate(

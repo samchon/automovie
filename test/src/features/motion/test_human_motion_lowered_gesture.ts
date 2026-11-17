@@ -47,11 +47,12 @@ export function test_human_motion_lowered_gesture(): void {
       kind === "partial" || kind === "sitBack"
         ? start.stand({ seconds: 1 })
         : start;
-    const crouched: boolean = kind === "partial" || kind === "full";
-    const event: "lowest" | "settled" = crouched ? "lowest" : "settled";
-    const carrier: IAutoMovieMotionHumanChain = crouched
-      ? entry.crouch({ depth: kind, hold: 3 }, "low")
-      : entry.kneel({ kind, hold: 3, rise: false }, "low");
+    const event: "lowest" | "settled" =
+      kind === "partial" || kind === "full" ? "lowest" : "settled";
+    const carrier: IAutoMovieMotionHumanChain =
+      kind === "partial" || kind === "full"
+        ? entry.crouch({ depth: kind, hold: 3 }, "low")
+        : entry.kneel({ kind, hold: 3, rise: false }, "low");
 
     try {
       const plain: IAutoMovieMotionHumanPerformance = perform(body, carrier);
@@ -90,7 +91,7 @@ export function test_human_motion_lowered_gesture(): void {
       );
       all.equals(
         `${name} ${kind}: the gesture claims its own arm and hand`,
-        [...signal.channels].sort(),
+        [...signal.channels].sort((a: string, b: string): number => a.localeCompare(b)),
         ["rightArm", "rightHand"],
       );
       all.equals(`${name} ${kind}: gaze claims the head`, gaze.channels, ["head"]);

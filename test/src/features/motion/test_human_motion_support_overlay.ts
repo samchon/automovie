@@ -86,7 +86,7 @@ export function test_human_motion_support_overlay(): void {
     );
     all.equals(
       "the signal takes the arm opposite the planted hand",
-      [...signal.channels].sort(),
+      [...signal.channels].sort((a: string, b: string): number => a.localeCompare(b)),
       ["leftArm", "leftHand"],
     );
     const posed: IAutoMovieResolvedBone = supported
