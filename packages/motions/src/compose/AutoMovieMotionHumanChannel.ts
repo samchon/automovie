@@ -195,7 +195,7 @@ export namespace AutoMovieMotionHumanChannel {
    * @evidence contracts/development/implementation.md#principled-implementation Each field goes to the posture of its owner: the channels' fields from the written posture, the rest from the base, so a primitive cannot change a part it did not claim.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two passes over the joints, one over the four limbs, and four scalar choices.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An owned joint or limb goal absent from the written posture is cleared. Every digit reads only its selected source; optional-field presence never probes an unselected source. Root/trunk membership and selected getter reads retain their original order and frequency.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the joints the two postures hold.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the joints the two postures hold: each record's own keys are listed once and each value read by its key, with no pair record per joint.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `of` for every joint.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -257,17 +257,19 @@ export namespace AutoMovieMotionHumanChannel {
     coversBone: (bone: AutoMovieHumanoidBone) => boolean,
     ownsDigit: (digit: IHumanPosture.Digit) => boolean,
   ): IHumanPosture {
+    // Each record's own keys in their order, then each value read by its key:
+    // the order `Object.entries` gives, without a pair per joint.
     const joints: IHumanPosture["joints"] = {};
-    for (const [bone, angles] of Object.entries(base.joints) as [
-      AutoMovieHumanoidBone,
-      readonly [number, number, number],
-    ][])
+    const kept: IHumanPosture["joints"] = base.joints;
+    for (const bone of Object.keys(kept) as AutoMovieHumanoidBone[]) {
+      const angles: readonly [number, number, number] | undefined = kept[bone];
       if (!coversBone(bone)) joints[bone] = angles;
-    for (const [bone, angles] of Object.entries(written.joints) as [
-      AutoMovieHumanoidBone,
-      readonly [number, number, number],
-    ][])
+    }
+    const taken: IHumanPosture["joints"] = written.joints;
+    for (const bone of Object.keys(taken) as AutoMovieHumanoidBone[]) {
+      const angles: readonly [number, number, number] | undefined = taken[bone];
       if (coversBone(bone)) joints[bone] = angles;
+    }
 
     // Each digit's goal goes with its digit; a posture that has none keeps
     // none, so a merge without digit goals is the merge it always was.
@@ -279,12 +281,7 @@ export namespace AutoMovieMotionHumanChannel {
       if (goal !== undefined) (digits ??= {})[d] = goal;
     }
     const limbs: IHumanPosture["limbs"] = {};
-    for (const limb of [
-      "leftArm",
-      "rightArm",
-      "leftLeg",
-      "rightLeg",
-    ] as const) {
+    for (const limb of LIMBS) {
       const goal: IHumanPosture.IGoal | undefined = (
         owns(limb) ? written : base
       ).limbs[limb];
@@ -308,3 +305,11 @@ export namespace AutoMovieMotionHumanChannel {
     };
   }
 }
+
+/** The four limbs a merge reads a goal of, in the order it writes them. */
+const LIMBS: readonly ["leftArm", "rightArm", "leftLeg", "rightLeg"] = [
+  "leftArm",
+  "rightArm",
+  "leftLeg",
+  "rightLeg",
+];

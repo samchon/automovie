@@ -120,8 +120,17 @@ export function composeAutoMovieMotionHumanAction(
   ];
   const base: IHumanActionPlan = props.base;
 
-  /** Completed demanded prefixes at each exact second of one evaluation. */
-  type Evaluation = Map<number, Map<number, IHumanPosture>>;
+  /** Completed demanded prefixes at each exact second of one evaluation: the first second read and its prefixes, and every other second's prefixes in `later`, made when a second one is read. */
+  interface Evaluation {
+    /** The first clamped second this evaluation read; absent until one is. */
+    seconds: number | undefined;
+
+    /** That second's completed prefixes by prefix and demand. */
+    first: Map<number, IHumanPosture> | undefined;
+
+    /** Every other second's completed prefixes, the map `Map`'s own key equality finds a second in. */
+    later: Map<number, Map<number, IHumanPosture>> | undefined;
+  }
 
   /** Fixed-claim posture merge retained by each primitive's plan. */
   type Merger = ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge>;
@@ -227,7 +236,7 @@ export function composeAutoMovieMotionHumanAction(
     const previous: Evaluation | undefined = scope;
     const previousResolution: Resolution = resolution;
     const previousProjection: Projection = projection;
-    const current: Evaluation = new Map();
+    const current: Evaluation = { seconds: undefined, first: undefined, later: undefined };
     scope = current;
     resolution = source;
     projection = projector;
@@ -256,10 +265,24 @@ export function composeAutoMovieMotionHumanAction(
     demand: number,
   ): IHumanPosture {
     const t: number = Math.min(duration, Math.max(0, seconds));
-    let postures: Map<number, IHumanPosture> | undefined = current.get(t);
-    if (postures === undefined) {
+
+    // One evaluation reads one second, apart from a primitive that reads its
+    // prefix at others: the first second's prefixes stand in the scope itself.
+    let postures: Map<number, IHumanPosture> | undefined;
+    if (current.first === undefined) {
       postures = new Map();
-      current.set(t, postures);
+      current.seconds = t;
+      current.first = postures;
+    } else if (current.seconds === t || (current.seconds !== current.seconds && t !== t))
+      // The same second as a `Map` key is: equal, or both not a number.
+      postures = current.first;
+    else {
+      const later: Map<number, Map<number, IHumanPosture>> = (current.later ??= new Map());
+      postures = later.get(t);
+      if (postures === undefined) {
+        postures = new Map();
+        later.set(t, postures);
+      }
     }
     const key: number = index * width + demand;
     const known: IHumanPosture | undefined =
