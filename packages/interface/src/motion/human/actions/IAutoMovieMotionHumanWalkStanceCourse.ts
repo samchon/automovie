@@ -1,8 +1,8 @@
+import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionHumanFoot } from "../posture/IAutoMovieMotionHumanFoot";
 import type { IAutoMovieMotionHumanLegChain } from "../posture/IAutoMovieMotionHumanLegChain";
 import type { IAutoMovieMotionHumanQuadraticProgram } from "../posture/IAutoMovieMotionHumanQuadraticProgram";
-import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * The course of a stepping take's stances, solved once when the take is

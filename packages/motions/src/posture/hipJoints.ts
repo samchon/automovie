@@ -1,6 +1,12 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Transform } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { poseBones } from "./poseBones";
 
 /**

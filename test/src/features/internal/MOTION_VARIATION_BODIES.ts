@@ -1,6 +1,5 @@
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 
-
 /**
  * Three stubs of the measures a named place reads, metres: an average body
  * 1.7 m tall, a small one 1.5 m tall with narrow shoulders and a tall one 1.9
@@ -46,4 +45,7 @@ export const MOTION_VARIATION_BODIES: readonly IAutoMovieMotionHumanBody[] = [
     chestHeight: 1.4,
     neckHeight: 1.66,
   },
-].map((measure): IAutoMovieMotionHumanBody => ({ measure }) as unknown as IAutoMovieMotionHumanBody);
+].map(
+  (measure): IAutoMovieMotionHumanBody =>
+    ({ measure }) as unknown as IAutoMovieMotionHumanBody,
+);

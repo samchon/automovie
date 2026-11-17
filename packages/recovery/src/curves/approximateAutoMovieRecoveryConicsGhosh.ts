@@ -1,4 +1,5 @@
 import type { IAutoMovieConicApproximation } from "@automovie/interface";
+
 import { GhoshConicApproximationBalance as balance } from "../internal/GhoshConicApproximationBalance";
 import { GhoshConicApproximationDisplacement as displacement } from "../internal/GhoshConicApproximationDisplacement";
 import { AutoMovieRecoveryConicApproximation as C } from "./AutoMovieRecoveryConicApproximation";
@@ -37,20 +38,19 @@ export function approximateAutoMovieRecoveryConicsGhosh(
   curve: IAutoMovieConicApproximation.ICurve,
   options: IAutoMovieConicApproximation.IOptions,
 ): IAutoMovieConicApproximation.IResult {
- 
- /** A source point and its Euclidean unit normal, in the caller's frame. */
+  /** A source point and its Euclidean unit normal, in the caller's frame. */
   interface Sample {
     point: IAutoMovieConicApproximation.Point;
     normal: IAutoMovieConicApproximation.Point;
   }
- 
- /** Source and normal expressed in the endpoint tangent triangle. */
+
+  /** Source and normal expressed in the endpoint tangent triangle. */
   interface Coordinate {
     value: readonly number[];
     normal: readonly number[];
   }
- 
- /** A pending chart never crosses a caller-supplied source break. */
+
+  /** A pending chart never crosses a caller-supplied source break. */
   interface Interval {
     a: number;
     b: number;
@@ -65,8 +65,7 @@ export function approximateAutoMovieRecoveryConicsGhosh(
   let sourceFailure: string | undefined;
   const roundoff: number = 128 * Number.EPSILON;
 
- 
- /** Root-rounding residual admission changes the decision, never the source jet. */
+  /** Root-rounding residual admission changes the decision, never the source jet. */
   function zeroCurvature(
     t: number,
     v: IAutoMovieConicApproximation.Point,
@@ -80,8 +79,7 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     return Math.abs(C.cross(v, a)) <= roundoff * scale;
   }
 
- 
- /** Count every source callback and reject nonfinite data at its first use. */
+  /** Count every source callback and reject nonfinite data at its first use. */
   function point(
     t: number,
     order: 0 | 1 | 2 | 3 | 4 = 0,
@@ -103,18 +101,21 @@ export function approximateAutoMovieRecoveryConicsGhosh(
       throw error;
     }
   }
- 
- /** Form a local vector without retaining or modifying the source tuple. */
-  function subtract(a: IAutoMovieConicApproximation.Point, b: IAutoMovieConicApproximation.Point): IAutoMovieConicApproximation.Point {
+
+  /** Form a local vector without retaining or modifying the source tuple. */
+  function subtract(
+    a: IAutoMovieConicApproximation.Point,
+    b: IAutoMovieConicApproximation.Point,
+  ): IAutoMovieConicApproximation.Point {
     return [a[0] - b[0], a[1] - b[1]];
   }
- 
- /** Keep admission separate from coefficient approximation and tolerance. */
+
+  /** Keep admission separate from coefficient approximation and tolerance. */
   function finite(p: IAutoMovieConicApproximation.Point): boolean {
     return Number.isFinite(p[0]) && Number.isFinite(p[1]);
   }
- 
- /** Sample proposition 2.3; this is evidence of admission, not a proof of it. */
+
+  /** Sample proposition 2.3; this is evidence of admission, not a proof of it. */
   function admit(a: number, b: number): "regular" | "line" | string {
     let sign: number = 0;
     let trend: number = 0;
@@ -127,7 +128,11 @@ export function approximateAutoMovieRecoveryConicsGhosh(
       const side: "left" | "right" | undefined =
         i === 0 ? "right" : i === 8 ? "left" : undefined;
       const v: IAutoMovieConicApproximation.Point = point(t, 1, side);
-      const acceleration: IAutoMovieConicApproximation.Point = point(t, 2, side);
+      const acceleration: IAutoMovieConicApproximation.Point = point(
+        t,
+        2,
+        side,
+      );
       const jerk: IAutoMovieConicApproximation.Point = point(t, 3, side);
       const fourth: IAutoMovieConicApproximation.Point = point(t, 4, side);
       if (
@@ -193,16 +198,22 @@ export function approximateAutoMovieRecoveryConicsGhosh(
       );
     return "regular";
   }
- 
- /** Exact straight input is a declared extension beyond the paper's premise. */
-  function line(a: number, b: number): IAutoMovieConicApproximation.IArc | undefined {
+
+  /** Exact straight input is a declared extension beyond the paper's premise. */
+  function line(
+    a: number,
+    b: number,
+  ): IAutoMovieConicApproximation.IArc | undefined {
     const p: IAutoMovieConicApproximation.Point = point(a);
     const q: IAutoMovieConicApproximation.Point = point(b);
     const chord: IAutoMovieConicApproximation.Point = subtract(q, p);
     const length: number = Math.hypot(...chord);
     if (!finite(p) || !finite(q) || length === 0) return undefined;
     for (let i: number = 1; i < 16; ++i) {
-      const v: IAutoMovieConicApproximation.Point = subtract(point(a + ((b - a) * i) / 16), p);
+      const v: IAutoMovieConicApproximation.Point = subtract(
+        point(a + ((b - a) * i) / 16),
+        p,
+      );
       const projection: number =
         (v[0] * chord[0] + v[1] * chord[1]) / length ** 2;
       if (
@@ -220,11 +231,15 @@ export function approximateAutoMovieRecoveryConicsGhosh(
       domain: [a, b],
       controls: [p, [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], q],
       weight: 1,
-      maximumSampleErrorMm: 0 };
+      maximumSampleErrorMm: 0,
+    };
   }
- 
- /** Fit the one-parameter bitangent family, never free least-squares controls. */
-  function fit(a: number, b: number): IAutoMovieConicApproximation.IArc | undefined {
+
+  /** Fit the one-parameter bitangent family, never free least-squares controls. */
+  function fit(
+    a: number,
+    b: number,
+  ): IAutoMovieConicApproximation.IArc | undefined {
     const p: IAutoMovieConicApproximation.Point = point(a);
     const q: IAutoMovieConicApproximation.Point = point(b);
     const v: IAutoMovieConicApproximation.Point = point(a, 1, "right");
@@ -236,8 +251,14 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     )
       return undefined;
     const factor: number = C.cross(subtract(q, p), z) / determinant;
-    const corner: IAutoMovieConicApproximation.Point = [p[0] + factor * v[0], p[1] + factor * v[1]];
-    const endDirection: IAutoMovieConicApproximation.Point = subtract(q, corner);
+    const corner: IAutoMovieConicApproximation.Point = [
+      p[0] + factor * v[0],
+      p[1] + factor * v[1],
+    ];
+    const endDirection: IAutoMovieConicApproximation.Point = subtract(
+      q,
+      corner,
+    );
     if (factor <= 0 || endDirection[0] * z[0] + endDirection[1] * z[1] <= 0)
       return undefined;
     const x: IAutoMovieConicApproximation.Point = subtract(corner, p);
@@ -245,18 +266,20 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     const area: number = C.cross(x, y);
     if (!finite(corner) || area === 0) return undefined;
 
- 
-   /** Affine barycentric coordinates are linear, including along a normal. */
+    /** Affine barycentric coordinates are linear, including along a normal. */
     function coordinates(sample: Sample): Coordinate {
-      const delta: IAutoMovieConicApproximation.Point = subtract(sample.point, p);
+      const delta: IAutoMovieConicApproximation.Point = subtract(
+        sample.point,
+        p,
+      );
       const l1: number = C.cross(delta, y) / area;
       const l2: number = C.cross(x, delta) / area;
       const n1: number = C.cross(sample.normal, y) / area;
       const n2: number = C.cross(x, sample.normal) / area;
       return { value: [1 - l1 - l2, l1, l2], normal: [-n1 - n2, n1, n2] };
     }
- 
-   /** Source evaluation is cached once across the coefficient bisections. */
+
+    /** Source evaluation is cached once across the coefficient bisections. */
     function sample(t: number): Coordinate | undefined {
       const position: IAutoMovieConicApproximation.Point = point(t);
       const tangent: IAutoMovieConicApproximation.Point = point(t, 1);
@@ -265,14 +288,23 @@ export function approximateAutoMovieRecoveryConicsGhosh(
         return undefined;
       return coordinates({
         point: position,
-        normal: [-tangent[1] / speed, tangent[0] / speed] });
+        normal: [-tangent[1] / speed, tangent[0] / speed],
+      });
     }
     // Section 3.1 defines endpoint limits by triple contact. For rational
     // Q=(A,B,E), Q'(0)=2w(B-A), so kappa(0)=|det(B-A,E-A)| /
     // (2w²|B-A|³). Matching each source endpoint curvature gives the exact
     // boundary weights of C_u, without truncating its interior contact range.
-    const accelerationA: IAutoMovieConicApproximation.Point = point(a, 2, "right");
-    const accelerationB: IAutoMovieConicApproximation.Point = point(b, 2, "left");
+    const accelerationA: IAutoMovieConicApproximation.Point = point(
+      a,
+      2,
+      "right",
+    );
+    const accelerationB: IAutoMovieConicApproximation.Point = point(
+      b,
+      2,
+      "left",
+    );
     const ka: number = zeroCurvature(a, v, accelerationA, point(a, 3, "right"))
       ? 0
       : Math.abs(C.cross(v, accelerationA)) / Math.hypot(...v) ** 3;
@@ -334,10 +366,11 @@ export function approximateAutoMovieRecoveryConicsGhosh(
       domain: [a, b],
       controls: [p, corner, q],
       weight,
-      maximumSampleErrorMm: maximum };
+      maximumSampleErrorMm: maximum,
+    };
   }
- 
- /** Construct an immutable report, with omissions distinct from fit precision. */
+
+  /** Construct an immutable report, with omissions distinct from fit precision. */
   function result(): IAutoMovieConicApproximation.IResult {
     return {
       method:
@@ -356,7 +389,8 @@ export function approximateAutoMovieRecoveryConicsGhosh(
         0,
       ),
       certified: false,
-      queries };
+      queries,
+    };
   }
   if (errors.length !== 0) return result();
   diagnostics.add(

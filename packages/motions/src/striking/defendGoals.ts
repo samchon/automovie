@@ -1,6 +1,15 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanDefend, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanDefend,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingStance } from "./StrikingStance";
@@ -96,7 +105,9 @@ export namespace defendGoals {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function of the instant's posture, which changes each instant.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record and retains nothing.
    */
-  export function at(props: IProps): Partial<IAutoMovieMotionHumanPosture["limbs"]> {
+  export function at(
+    props: IProps,
+  ): Partial<IAutoMovieMotionHumanPosture["limbs"]> {
     const { body, sight } = props;
     const { incoming, across, outside, attackedSide } = sight;
     const m = body.measure;
@@ -108,7 +119,8 @@ export namespace defendGoals {
       side: "left" | "right",
       at: IAutoMovieVector3,
       elbow: IAutoMovieVector3,
-    ): IAutoMovieMotionHumanPosture.IGoal => StrikingStance.glove(body, side, at, elbow);
+    ): IAutoMovieMotionHumanPosture.IGoal =>
+      StrikingStance.glove(body, side, at, elbow);
     const shoulder = (side: "left" | "right"): IAutoMovieVector3 =>
       bones.get(`${side}UpperArm` as AutoMovieHumanoidBone)!.worldPosition;
     const toward: IAutoMovieVector3 = Vector3.normalize({

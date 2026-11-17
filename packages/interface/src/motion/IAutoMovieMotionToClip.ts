@@ -1,8 +1,8 @@
+import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
-import type { IAutoMovieMotion } from "./IAutoMovieMotion";
-import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
+import type { IAutoMovieMotion } from "./IAutoMovieMotion";
 
 /** Data and callback contracts shared by the MotionToClip operations. */
 export namespace IAutoMovieMotionToClip {
@@ -12,22 +12,22 @@ export namespace IAutoMovieMotionToClip {
   export type IProps = {
     /** The humanoid motion to lower. */
     motion: IAutoMovieMotion;
-  
+
     /** The rig the motion articulates; lowered to the returned nodes. */
     skeleton: IAutoMovieSkeleton;
-  
+
     /**
      * Optional per-bone clinical-axis remap, as {@link resolvePose} takes; a
      * bone's own declared axes take precedence.
      */
     jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-  
+
     /** Optional per-bone rest-frame remap, as {@link resolvePose} takes. */
     restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-  
+
     /** Bake samples per second. Defaults to `24`. */
     sampleRate?: number;
-  
+
     /**
      * Node-id prefix applied to every lowered node AND every clip channel ref
      * (root and bones alike). Defaults to `""`: the bare single-actor naming. A

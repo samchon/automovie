@@ -1,6 +1,10 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryChartBoxSolve, IAutoMovieRecoveryChartFitPrepare, IAutoMovieRecoveryChartFitSolve, IAutoMovieRecoveryChartFitSystem } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryChartBoxSolve,
+  IAutoMovieRecoveryChartFitPrepare,
+  IAutoMovieRecoveryChartFitSolve,
+  IAutoMovieRecoveryChartFitSystem,
+} from "@automovie/interface";
 
 import { RecoveryChartBoxSolve as S } from "./RecoveryChartBoxSolve";
 
@@ -27,11 +31,13 @@ export function RecoveryChartFitSolve(
     origin,
     scale,
     slots,
-    reduced }: ReturnType<IAutoMovieRecoveryChartFitPrepare.Operation> = prepared;
+    reduced,
+  }: ReturnType<IAutoMovieRecoveryChartFitPrepare.Operation> = prepared;
   const {
     hessian,
     rhs,
-    diagnostics }: ReturnType<IAutoMovieRecoveryChartFitSystem.Operation> = system;
+    diagnostics,
+  }: ReturnType<IAutoMovieRecoveryChartFitSystem.Operation> = system;
   const lo: [number, number, number] = [
     (lower[0] - origin[0]!) / scale,
     (lower[1] - origin[1]!) / scale,
@@ -44,7 +50,8 @@ export function RecoveryChartFitSolve(
   ];
   const initialValues: number[] | undefined = input.initialControlsMm
     ? reduced.independent.flatMap((id: number): number[] => {
-        const point: Readonly<AutoMovieVector3Tuple> | undefined = input.initialControlsMm![id];
+        const point: Readonly<AutoMovieVector3Tuple> | undefined =
+          input.initialControlsMm![id];
         if (!point || !finite(point))
           throw new Error(
             "Prolonged initialization must address every independent coefficient finitely",
@@ -63,7 +70,8 @@ export function RecoveryChartFitSolve(
     for (let id: number = 0; id < reduced.expressions.length; id++) {
       const expression: (typeof reduced.expressions)[number] =
         reduced.expressions[id]!;
-      const point: Readonly<AutoMovieVector3Tuple> | undefined = input.initialControlsMm[id];
+      const point: Readonly<AutoMovieVector3Tuple> | undefined =
+        input.initialControlsMm[id];
       if (!point || !finite(point))
         throw new Error("Every prolonged coefficient must be finite");
       const reconstructed: number[] = expression.constant.map(
@@ -101,12 +109,16 @@ export function RecoveryChartFitSolve(
     upper: hi,
     maxIterations: input.maxIterations,
     gradientTolerance: input.gradientTolerance,
-    initialValues });
+    initialValues,
+  });
   const x: Float64Array = solved.values,
     iterations: number = solved.iterations,
     projectedGradient: number = solved.projectedGradient;
   const controls: Readonly<AutoMovieVector3Tuple>[] = input.controls.map(
-    (p: Readonly<AutoMovieVector3Tuple> | null, id: number): Readonly<AutoMovieVector3Tuple> =>
+    (
+      p: Readonly<AutoMovieVector3Tuple> | null,
+      id: number,
+    ): Readonly<AutoMovieVector3Tuple> =>
       p === null
         ? ([0, 1, 2].map((k: number): number =>
             reduced.expressions[id]!.terms.reduce(
@@ -119,7 +131,9 @@ export function RecoveryChartFitSolve(
           ) as [number, number, number])
         : [...p],
   );
-  if (controls.some((p: Readonly<AutoMovieVector3Tuple>): boolean => !finite(p)))
+  if (
+    controls.some((p: Readonly<AutoMovieVector3Tuple>): boolean => !finite(p))
+  )
     throw new Error("The fitted coefficient registry became nonfinite");
   const dependentEnclosureViolationMm: number = controls.reduce(
     (maximum: number, point: Readonly<AutoMovieVector3Tuple>): number =>
@@ -144,5 +158,6 @@ export function RecoveryChartFitSolve(
     iterations,
     projectedGradient,
     controls,
-    dependentEnclosureViolationMm };
+    dependentEnclosureViolationMm,
+  };
 }

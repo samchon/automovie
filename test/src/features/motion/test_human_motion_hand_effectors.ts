@@ -1,6 +1,21 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanTouch, IAutoMovieMotionHumanTouchEffectors, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionHumanBend, AutoMovieMotionHumanTouchEffector, HumanChain, HumanPerformance, HumanRefusal, HumanSignature, touch } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchEffectors,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanBend,
+  AutoMovieMotionHumanTouchEffector,
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+  touch,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -95,7 +110,8 @@ export function test_human_motion_hand_effectors(): void {
         .touch(params)
         .with(HumanChain.subject("b").stand({ seconds: 4 })).node,
     });
-    const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+    const placed: IAutoMovieMotionHumanSegment.ISegment =
+      performance.segments("a")[1]!;
     const instant = (event: string): number =>
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -120,7 +136,10 @@ export function test_human_motion_hand_effectors(): void {
   // 1, 2. The named part of the hand on the sternum.
   for (const name of ["handEdge", "heel"] as const)
     try {
-      const read: { performance: IAutoMovieMotionHumanPerformance; held: number } = perform({
+      const read: {
+        performance: IAutoMovieMotionHumanPerformance;
+        held: number;
+      } = perform({
         target: { kind: "person", subject: "b", region: "sternum" },
         with: name,
         kind: "hold",

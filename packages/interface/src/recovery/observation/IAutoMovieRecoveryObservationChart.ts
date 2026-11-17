@@ -1,6 +1,5 @@
 import type { AutoMovieVector3Tuple } from "../../index";
 
-
 /** Current immutable closed-cycle observations and their requested features.
  *
  * @evidence contracts/development/design.md#principled-representation Physical points, persistent identities and observation ordinals retain source observations while an ordered relation transports their phase.
@@ -9,23 +8,18 @@ import type { AutoMovieVector3Tuple } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Defines millimetres, borrowed populations and zero-based feature addresses.
  */
 export interface IAutoMovieRecoveryObservationChart {
- 
- /** Caller-supplied name retained by the transported row. */
+  /** Caller-supplied name retained by the transported row. */
   name: string;
 
- 
- /** Borrowed closed-cycle points in millimetres, without repeating the first point. */
+  /** Borrowed closed-cycle points in millimetres, without repeating the first point. */
   pointsMm: readonly Readonly<AutoMovieVector3Tuple>[];
 
- 
- /** Same-order persistent identities; null means no declared identity. */
+  /** Same-order persistent identities; null means no declared identity. */
   anchorIds: readonly (string | null)[];
 
- 
- /** Zero-based current-point indices requiring one-sided corner tangents. */
+  /** Zero-based current-point indices requiring one-sided corner tangents. */
   corners: readonly number[];
 
- 
- /** Zero-based current-point indices requested in the transported schedule. */
+  /** Zero-based current-point indices requested in the transported schedule. */
   schedule: readonly number[];
 }

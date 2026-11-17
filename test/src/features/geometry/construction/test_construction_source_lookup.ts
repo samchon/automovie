@@ -1,5 +1,12 @@
-import type { IAutoMovieNaturalSpline, IAutoMovieViewOutline, IAutoMovieViewPart } from "@automovie/interface";
-import { AutoMovieNaturalSpline, AutoMovieViewOutline } from "@automovie/engine";
+import {
+  AutoMovieNaturalSpline,
+  AutoMovieViewOutline,
+} from "@automovie/engine";
+import type {
+  IAutoMovieNaturalSpline,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionHermiteReading } from "../../internal/construction/ConstructionHermiteReading";

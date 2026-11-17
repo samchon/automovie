@@ -1,6 +1,22 @@
-import type { IAutoMoviePropClearanceBounds, IAutoMoviePropSupportFace, IAutoMovieBuiltEnvironment, IAutoMoviePropBox, IAutoMoviePropSpec, IAutoMovieStageSetPiece, IAutoMovieTransform } from "@automovie/interface";
-import { footprintRing, propAnchorFrame, propBoundsOverlap, propClearanceBounds, propOccupancyBounds, propSpaceContainsBounds, propSupportFace, validatePropPlacements } from "@automovie/engine";
-
+import {
+  footprintRing,
+  propAnchorFrame,
+  propBoundsOverlap,
+  propClearanceBounds,
+  propOccupancyBounds,
+  propSpaceContainsBounds,
+  propSupportFace,
+  validatePropPlacements,
+} from "@automovie/engine";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMoviePropBox,
+  IAutoMoviePropClearanceBounds,
+  IAutoMoviePropSpec,
+  IAutoMoviePropSupportFace,
+  IAutoMovieStageSetPiece,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import type { IFilmChairRing } from "../internal/IFilmChairRing";

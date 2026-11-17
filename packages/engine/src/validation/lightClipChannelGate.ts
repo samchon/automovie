@@ -1,5 +1,9 @@
-import type { IAutoMovieClipChannelGate, IAutoMovieLightChannelProperty, IAutoMovieLightPointer, IAutoMovieConstraintViolation } from "@automovie/interface";
-
+import type {
+  IAutoMovieClipChannelGate,
+  IAutoMovieConstraintViolation,
+  IAutoMovieLightChannelProperty,
+  IAutoMovieLightPointer,
+} from "@automovie/interface";
 
 import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "../resolve/parseLightPointer";

@@ -1,5 +1,7 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanDigitTipCap } from "@automovie/interface";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanDigitTipCap,
+} from "@automovie/interface";
 
 /**
  * A digit's tip cap: where the tube's sections end and the rounded tip begins.
@@ -20,8 +22,6 @@ export namespace AutoMovieHumanDigitTipCap {
   /** Station step of the search, mm. */
   const STEP: number = 0.05;
 
-  
-
   /**
    * Arc length where the cap starts; one millimetre before the apex when the
    * radius never reaches the distance left.
@@ -29,7 +29,8 @@ export namespace AutoMovieHumanDigitTipCap {
    * @param input The cap's inputs.
    */
   export function start(input: IAutoMovieHumanDigitTipCap.IInput): number {
-    for (let s: number = input.from + 1; s < input.length; s += STEP) if (input.radius(s) >= input.length - s) return s;
+    for (let s: number = input.from + 1; s < input.length; s += STEP)
+      if (input.radius(s) >= input.length - s) return s;
     return input.length - 1;
   }
 
@@ -48,6 +49,10 @@ export namespace AutoMovieHumanDigitTipCap {
     length: number,
   ): AutoMovieVector3Tuple {
     const d: number = length - cap;
-    return [at[0] + d * tangent[0], at[1] + d * tangent[1], at[2] + d * tangent[2]];
+    return [
+      at[0] + d * tangent[0],
+      at[1] + d * tangent[1],
+      at[2] + d * tangent[2],
+    ];
   }
 }

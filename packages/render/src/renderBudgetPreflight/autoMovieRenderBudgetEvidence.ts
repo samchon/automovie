@@ -1,10 +1,13 @@
-import type { IAutoMovieRenderBudget, IAutoMovieRenderBudgetAssessment, IAutoMovieRenderBudgetEvidence, IAutoMovieRenderBudgetEvidenceProps } from "@automovie/interface";
-
-
-import { autoMovieRenderDigest, compareAutoMovieRenderIds } from "@automovie/engine";
-
-
-
+import {
+  autoMovieRenderDigest,
+  compareAutoMovieRenderIds,
+} from "@automovie/engine";
+import type {
+  IAutoMovieRenderBudget,
+  IAutoMovieRenderBudgetAssessment,
+  IAutoMovieRenderBudgetEvidence,
+  IAutoMovieRenderBudgetEvidenceProps,
+} from "@automovie/interface";
 
 import { selectAutoMovieRenderBudget } from "./selectAutoMovieRenderBudget.js";
 
@@ -27,7 +30,11 @@ const STATUS_ORDER: Readonly<
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing assessment reports and targets are referenced rather than recomputed; canonical ordering permits callers to reuse byte-identical evidence for equivalent verdict inputs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The output retains the sorted assessment array and tier list; sorting copies the input array and opens no file, encoder or renderer resource.
  */
-export const autoMovieRenderBudgetEvidence: (props: IAutoMovieRenderBudgetEvidenceProps) => IAutoMovieRenderBudgetEvidence = (props: IAutoMovieRenderBudgetEvidenceProps): IAutoMovieRenderBudgetEvidence => {
+export const autoMovieRenderBudgetEvidence: (
+  props: IAutoMovieRenderBudgetEvidenceProps,
+) => IAutoMovieRenderBudgetEvidence = (
+  props: IAutoMovieRenderBudgetEvidenceProps,
+): IAutoMovieRenderBudgetEvidence => {
   const shots: IAutoMovieRenderBudgetAssessment[] = [...props.assessments].sort(
     (
       left: IAutoMovieRenderBudgetAssessment,

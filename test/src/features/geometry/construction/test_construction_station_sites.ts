@@ -1,6 +1,19 @@
-import type { IAutoMovieConstructionRealization, IAutoMovieLoftViewSource, IAutoMovieViewCurves, IAutoMovieViewLoft, IAutoMovieViewPart, IAutoMovieConstructionView } from "@automovie/interface";
-import { AutoMovieLoftChain, AutoMovieLoftViewSource, AutoMovieViewCurves, AutoMovieViewLoft, AutoMovieViewParallelAxis, realizeAutoMovieConstruction } from "@automovie/engine";
-
+import {
+  AutoMovieLoftChain,
+  AutoMovieLoftViewSource,
+  AutoMovieViewCurves,
+  AutoMovieViewLoft,
+  AutoMovieViewParallelAxis,
+  realizeAutoMovieConstruction,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionRealization,
+  IAutoMovieConstructionView,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewCurves,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionNativeContinuation as Made } from "../../internal/construction/ConstructionNativeContinuation";
@@ -243,7 +256,9 @@ function rejected(
     failures.push(`${name}: missing site still published a final loft.`);
   if (
     !loft.diagnostics.some(
-      (diagnostic: IAutoMovieViewLoft.IResult["diagnostics"][number]): boolean =>
+      (
+        diagnostic: IAutoMovieViewLoft.IResult["diagnostics"][number],
+      ): boolean =>
         diagnostic.contract === "stations" &&
         diagnostic.detail.includes(name) &&
         diagnostic.detail.includes(String(SITE)),
@@ -319,8 +334,9 @@ function multiple(failures: string[]): void {
   const missing: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
   if (
     missing.diagnostics.filter(
-      (diagnostic: IAutoMovieViewLoft.IResult["diagnostics"][number]): boolean =>
-        diagnostic.contract === "stations",
+      (
+        diagnostic: IAutoMovieViewLoft.IResult["diagnostics"][number],
+      ): boolean => diagnostic.contract === "stations",
     ).length !== 9
   )
     failures.push(

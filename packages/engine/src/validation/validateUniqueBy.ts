@@ -1,5 +1,7 @@
-import { type IAutoMovieValidateUniqueBy, IAutoMovieConstraintViolation } from "@automovie/interface";
-
+import {
+  IAutoMovieConstraintViolation,
+  type IAutoMovieValidateUniqueBy,
+} from "@automovie/interface";
 
 import { pushViolation } from "./pushViolation";
 

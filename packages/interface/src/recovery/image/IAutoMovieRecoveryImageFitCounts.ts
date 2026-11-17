@@ -6,15 +6,12 @@
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes row observations, spline span count and independently fitted scalar count.
  */
 export interface IAutoMovieRecoveryImageFitCounts {
- 
- /** Number of corresponding observed physical rows. */
+  /** Number of corresponding observed physical rows. */
   rows: number;
 
- 
- /** Number of longitudinal spline spans. */
+  /** Number of longitudinal spline spans. */
   spans: number;
 
- 
- /** Number of independently fitted scalar coefficients. */
+  /** Number of independently fitted scalar coefficients. */
   freeScalars: number;
 }

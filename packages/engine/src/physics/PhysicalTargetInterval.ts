@@ -1,4 +1,9 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalTargetInterval, IAutoMovieSamplePhysicalTarget } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalTargetInterval,
+  IAutoMovieSamplePhysicalTarget,
+} from "@automovie/interface";
+
 import { preparePhysicalTargetSampler } from "./preparePhysicalTargetSampler";
 
 /**
@@ -10,7 +15,6 @@ import { preparePhysicalTargetSampler } from "./preparePhysicalTargetSampler";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace PhysicalTargetInterval {
-
   /**
    * Retain the completed prefix when an in-interval policy revision changes its future goal.
    *
@@ -22,7 +26,9 @@ export namespace PhysicalTargetInterval {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
    */
-  export function plan(input: IAutoMoviePhysicalTargetInterval.IPlanInput): IAutoMoviePhysicalTargetInterval.IPlan {
+  export function plan(
+    input: IAutoMoviePhysicalTargetInterval.IPlanInput,
+  ): IAutoMoviePhysicalTargetInterval.IPlan {
     const start: number =
       input.previous?.step === input.step
         ? (Math.round(input.seconds * input.nativeRate) - 1) / input.nativeRate
@@ -38,7 +44,10 @@ export namespace PhysicalTargetInterval {
                 ([bone, goal]: [
                   string,
                   IAutoMovieSamplePhysicalTarget.IResult,
-                ]): [string, IAutoMoviePhysicalProfile.ITransform] => [bone, goal.pose],
+                ]): [string, IAutoMoviePhysicalProfile.ITransform] => [
+                  bone,
+                  goal.pose,
+                ],
               ),
             )
           : input.previous?.step === input.step - 1
@@ -59,7 +68,11 @@ export namespace PhysicalTargetInterval {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
    */
-  export function fraction(plan: IAutoMoviePhysicalTargetInterval.IPlan, seconds: number, rate: number): number {
+  export function fraction(
+    plan: IAutoMoviePhysicalTargetInterval.IPlan,
+    seconds: number,
+    rate: number,
+  ): number {
     return Math.max(
       0,
       Math.min(1, (seconds - plan.start) / (plan.step / rate - plan.start)),
@@ -83,10 +96,8 @@ export namespace PhysicalTargetInterval {
     rate: number,
     selection?: ReadonlySet<string>,
   ): Record<string, IAutoMovieSamplePhysicalTarget.IResult> {
-    const result: Record<
-      string,
-      IAutoMovieSamplePhysicalTarget.IResult
-    > = Object.create(null);
+    const result: Record<string, IAutoMovieSamplePhysicalTarget.IResult> =
+      Object.create(null);
     const portion: number = fraction(plan, seconds, rate);
     const speed: number = 1 / (plan.step / rate - plan.start);
     let compiled: ReturnType<typeof MOTIONS.get> = MOTIONS.get(plan);
@@ -138,7 +149,7 @@ const MOTIONS: WeakMap<
       {
         before: IAutoMoviePhysicalProfile.ITransform;
         after: IAutoMoviePhysicalProfile.ITransform;
-        sample: ((fraction: number) => IAutoMovieSamplePhysicalTarget.IResult);
+        sample: (fraction: number) => IAutoMovieSamplePhysicalTarget.IResult;
       }
     >;
   }

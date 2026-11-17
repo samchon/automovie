@@ -72,7 +72,8 @@ export namespace AutoMovieHumanTrunkRows {
       const b: number = kept[k]!;
       const h: number = Math.min(gap(a), gap((a + b) / 2), gap(b));
       const count: number = Math.max(1, Math.ceil((b - a) / h - 1e-9));
-      for (let i: number = 1; i <= count; i++) out.push(a + ((b - a) * i) / count);
+      for (let i: number = 1; i <= count; i++)
+        out.push(a + ((b - a) * i) / count);
     }
     return out;
   }

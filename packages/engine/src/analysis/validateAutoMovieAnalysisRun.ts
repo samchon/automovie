@@ -1,5 +1,9 @@
-import { type IAutoMovieValidateAnalysisRun, type IAutoMovieViolationCollector, IAutoMovieAnalysisRun, IAutoMovieValidation } from "@automovie/interface";
-
+import {
+  IAutoMovieAnalysisRun,
+  type IAutoMovieValidateAnalysisRun,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
@@ -33,7 +37,11 @@ import { validateAutoMovieAnalysisRunContents } from "./validateAutoMovieAnalysi
  * @evidence contracts/development/implementation.md#reuse-equivalent-work No digest is cached on the run or across calls: a received run must be re-proven each time, and the seal path no longer calls this function, so a freshly sealed run is hashed once rather than twice.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The collector and the recomputed digest string are call-local; the returned validation, owned by the caller, holds the violations, which may reference fragments of the run.
  */
-export const validateAutoMovieAnalysisRun: (props: IAutoMovieValidateAnalysisRun.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateAnalysisRun.IProps): IAutoMovieValidation => {
+export const validateAutoMovieAnalysisRun: (
+  props: IAutoMovieValidateAnalysisRun.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateAnalysisRun.IProps,
+): IAutoMovieValidation => {
   const run: IAutoMovieAnalysisRun = props.run;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   validateAutoMovieAnalysisRunContents(run, out);

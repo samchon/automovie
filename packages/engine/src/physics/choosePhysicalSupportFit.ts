@@ -1,4 +1,8 @@
-import type { IAutoMovieChoosePhysicalSupportFit, IAutoMoviePhysicalProfile } from "@automovie/interface";
+import type {
+  IAutoMovieChoosePhysicalSupportFit,
+  IAutoMoviePhysicalProfile,
+} from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { physicalJointRelativeRotation } from "./physicalJointRelativeRotation";
 
@@ -70,10 +74,11 @@ function angle(
   second: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
   joint: IAutoMoviePhysicalProfile.IJoint,
 ): number {
-  const difference: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-    physicalJointRelativeRotation(first, joint),
-    Quaternion.inverse(physicalJointRelativeRotation(second, joint)),
-  );
+  const difference: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+    Quaternion.multiply(
+      physicalJointRelativeRotation(first, joint),
+      Quaternion.inverse(physicalJointRelativeRotation(second, joint)),
+    );
   return (
     2 *
     Math.atan2(

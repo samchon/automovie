@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanAffect, IAutoMovieMotionHumanPosture } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanAffect,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 import { HumanAffect } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

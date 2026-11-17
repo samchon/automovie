@@ -1,5 +1,16 @@
-import type { IAutoMovieSolidCycle, IAutoMovieSolidMesh, IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshPlan, IAutoMovieSolidSurface } from "@automovie/interface";
-import { AutoMovieSolidCycle, AutoMovieSolidMesh, AutoMovieSolidMeshConstraints, openAutoMovieSolidMesh } from "@automovie/engine";
+import {
+  AutoMovieSolidCycle,
+  AutoMovieSolidMesh,
+  AutoMovieSolidMeshConstraints,
+  openAutoMovieSolidMesh,
+} from "@automovie/engine";
+import type {
+  IAutoMovieSolidCycle,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshPlan,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { nclose } from "../../internal/nclose";
 

@@ -1,4 +1,7 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanGestureStroke } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanGestureStroke,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { gestureSignal } from "./gestureSignal";

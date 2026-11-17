@@ -1,9 +1,11 @@
-import type { IAutoMovieLoftContract, IAutoMovieViewLoft, IAutoMovieViewPart, IAutoMovieHumanSiteControls, IAutoMovieHumanSiteViewPart } from "@automovie/interface";
-
-
-
 import { AutoMovieViewLoft } from "@automovie/engine";
-
+import type {
+  IAutoMovieHumanSiteControls,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieLoftContract,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSiteDefinition } from "./AutoMovieHumanSiteDefinition";
 
@@ -56,18 +58,10 @@ export namespace AutoMovieHumanSiteViewPart {
     };
   }
 
-  
-
-  
-
-  
-
-  
-
-  
-
   /** Prepare the identical production source without constructing a raw loft. */
-  export function define(input: IAutoMovieHumanSiteViewPart.IInput): IAutoMovieHumanSiteViewPart.IDefinition {
+  export function define(
+    input: IAutoMovieHumanSiteViewPart.IInput,
+  ): IAutoMovieHumanSiteViewPart.IDefinition {
     return AutoMovieHumanSiteDefinition.of(input);
   }
 
@@ -79,7 +73,9 @@ export namespace AutoMovieHumanSiteViewPart {
   }
 
   /** Loft this exact prepared part once; copy diagnostics so the shared definition remains unchanged. */
-  export function loft(definition: IAutoMovieHumanSiteViewPart.IDefinition): IAutoMovieHumanSiteViewPart.IResult {
+  export function loft(
+    definition: IAutoMovieHumanSiteViewPart.IDefinition,
+  ): IAutoMovieHumanSiteViewPart.IResult {
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [
       ...definition.diagnostics,
     ];
@@ -98,7 +94,9 @@ export namespace AutoMovieHumanSiteViewPart {
    * @param input The axis, the sites, the pole and the sampling.
    * @returns The part, its loft and the diagnostics.
    */
-  export function create(input: IAutoMovieHumanSiteViewPart.IInput): IAutoMovieHumanSiteViewPart.IResult {
+  export function create(
+    input: IAutoMovieHumanSiteViewPart.IInput,
+  ): IAutoMovieHumanSiteViewPart.IResult {
     return loft(define(input));
   }
 
@@ -115,7 +113,10 @@ export namespace AutoMovieHumanSiteViewPart {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns an owned declaration with no cache or source-result lifetime beyond its caller.
    */
   export function outline(
-    input: Pick<IAutoMovieHumanSiteViewPart.IInput, "sites" | "pole" | "poleJets" | "ranges" | "parameter">,
+    input: Pick<
+      IAutoMovieHumanSiteViewPart.IInput,
+      "sites" | "pole" | "poleJets" | "ranges" | "parameter"
+    >,
     quarter: 0 | 1 | 2 | 3,
   ): IAutoMovieViewPart.IOutline {
     return AutoMovieHumanSiteDefinition.outline(input, quarter);

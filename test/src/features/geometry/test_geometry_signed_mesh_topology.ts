@@ -1,6 +1,8 @@
-import type { IAutoMovieSignedMeshQueryHit, IAutoMovieMesh } from "@automovie/interface";
 import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
-
+import type {
+  IAutoMovieMesh,
+  IAutoMovieSignedMeshQueryHit,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createSignedOctahedron } from "../internal/createSignedMeshFixture";

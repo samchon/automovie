@@ -1,6 +1,5 @@
 import type { IAutoMovieSpringStep } from "@automovie/interface";
 
-
 /**
  * One axis's displayed angle and the solver state carried to the next frame.
  * Null keeps a never-authored, never-sprung axis absent; an existing spring may

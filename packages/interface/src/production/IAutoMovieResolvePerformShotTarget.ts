@@ -1,5 +1,3 @@
-
-
 /**
  * Untrusted positional-target input and the context for its diagnostic paths.
  */
@@ -22,29 +20,29 @@ export namespace IAutoMovieResolvePerformShotTarget {
    * @evidence contracts/development/common.md#meaningful-documentation Untrusted positional-target input and the context for its diagnostic paths. target is deliberately unknown at the runtime admission boundary; the resolver checks record shape, ids, staged membership and a finite world-metre point before returning it. seconds is a shot-local lookup time.
    */
   export type IProps = {
-      /**
+    /**
      * Authored value before shape admission. Invalid records, unresolved membership or nonfinite resolved coordinates append a violation and return null; the successful point can alias a callback or staged vector.
      */
     target: unknown;
-      /**
+    /**
      * Diagnostic path for this target, such as an action's at field. Child id checks append member/index suffixes to this path.
      */
     path: string;
-      /**
+    /**
      * Human-readable target name used in id/record diagnostics, supplied by the calling gate.
      */
     label: string;
-      /**
+    /**
      * Noun phrase used in positional-resolution diagnostics; independent of the serialized target identity.
      */
     subject: string;
-      /**
+    /**
      * Shot-local seconds passed unchanged to the live resolver. The caller admits this time; target resolution validates the returned coordinates, not this clock value.
      */
     seconds: number;
-      /**
+    /**
      * True for lens subjects that may combine compiled formations; false rejects any nonempty formation list before other target checks.
      */
     formationsFramed: boolean;
-    };
+  };
 }

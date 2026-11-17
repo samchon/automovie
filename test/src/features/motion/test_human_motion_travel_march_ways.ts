@@ -1,6 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HUMAN_LEXICON, HumanChain, HumanFoot, HumanPerformance, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanFoot,
+  HumanPerformance,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -93,7 +107,8 @@ export function test_human_motion_travel_march_ways(): void {
         );
         continue;
       }
-      const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+      const segment: IAutoMovieMotionHumanSegment.ISegment =
+        performance.segments("a")[1]!;
       const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "a",
@@ -197,7 +212,8 @@ export function test_human_motion_travel_march_ways(): void {
         // The toe's sole point rides the toes, which stay flat on the floor from foot-flat until the foot leaves; the ball's rides the foot, which turns about the toes' joint above it once the heel rises.
         const ball = (t: number): IAutoMovieVector3 =>
           HumanFoot.sockets(body, HumanSignature.bones(reader, t), w.side).find(
-            (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === "toe",
+            (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
+              s.socket === "toe",
           )!.point;
         const a: number = w.from + (w.to - w.from) / 3;
         const third: number = (w.to - w.from) / 3;

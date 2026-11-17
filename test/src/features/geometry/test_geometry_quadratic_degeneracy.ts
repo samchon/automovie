@@ -1,4 +1,3 @@
-import type { IAutoMovieQuadraticRow } from "@automovie/interface";
 /**
  * An independent nearly parallel constraint family guards the numerical method
  * used by shared surface contact. Small primal residual alone is insufficient:
@@ -6,6 +5,7 @@ import type { IAutoMovieQuadraticRow } from "@automovie/interface";
  * No portrait data, reference image or previous solver output supplies it.
  */
 import { solveAutoMovieQuadraticProgram } from "@automovie/engine";
+import type { IAutoMovieQuadraticRow } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

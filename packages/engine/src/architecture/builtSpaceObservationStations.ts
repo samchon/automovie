@@ -1,5 +1,13 @@
-import { type IAutoMovieSpaceObservationStation, IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieBuiltSpace, IAutoMoviePlanarPoint, IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMovieBuiltSpace,
+  IAutoMoviePlanarPoint,
+  type IAutoMovieSpaceObservationStation,
+  IAutoMovieSubjectBox,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";

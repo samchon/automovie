@@ -1,7 +1,11 @@
-import type { IAutoMovieRecoveryHomographyFittingOperation, IAutoMovieRecoveryImagePointsNormalizationOperation } from "@automovie/interface";
 import {
   AutoMovieMatrix3,
-  decomposeAutoMovieSingularMatrix } from "@automovie/engine";
+  decomposeAutoMovieSingularMatrix,
+} from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryHomographyFittingOperation,
+  IAutoMovieRecoveryImagePointsNormalizationOperation,
+} from "@automovie/interface";
 
 import { normalizeRecoveryImagePoints } from "./normalizeRecoveryImagePoints";
 
@@ -44,7 +48,8 @@ export function fitRecoveryHomography(
   const options: Parameters<typeof decomposeAutoMovieSingularMatrix>[1] = {
     maxEntries: Math.max(81, rows.length * 9),
     maxSweeps,
-    orthogonalityTolerance: 1e-12 };
+    orthogonalityTolerance: 1e-12,
+  };
   const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
     decomposeAutoMovieSingularMatrix(rows, options);
   const ratio: number = factors.singularValues[7]! / factors.singularValues[0]!;

@@ -1,78 +1,296 @@
-import type { IAutoMoviePrimitiveShape, IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
+import type {
+  IAutoMovieModelPart,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-
+import { QuadrupedAttachments } from "./QuadrupedAttachments";
 import { QuadrupedBody } from "./QuadrupedBody";
 
+/** One actual admitted rigid bar, with independently owned geometric observations. */
+interface Bar {
+  /** Actual primitive discriminator, not a reconstructed species assumption. */
+  kind: "cylinder" | "capsule";
+  /** Actual source primitive radius, metres. */
+  radius: number;
+  /** Actual source cylindrical span, excluding capsule caps, metres. */
+  height: number;
+  /** Actual primitive-centre frame, admitted rigid and copied. */
+  frame: IAutoMovieTransform;
+  /** Directed upper axis endpoint, source model metres. */
+  from: IAutoMovieVector3;
+  /** Directed lower axis endpoint, source model metres. */
+  to: IAutoMovieVector3;
+}
+
 /**
- * A quadruped's rest joints read back off its built bars, which a ride poses it from, kept apart from `QuadrupedBody` so each file stays within its size.
+ * Admit the actual neutral quadruped bars and read their fixed body connections.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read and why it is its own file.
- * @evidence contracts/development/design.md#principled-representation The joints in `QuadrupedBody`'s own limb and bone vocabulary.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `read`, which `rideQuadruped` calls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The joints come from the animal built, never rebuilt from a species' proportions.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines actual primitive admission, closed bone identities, adjacent endpoint closure and physically connected parent-local roots, all in the source model frame.
+ * @evidence contracts/development/design.md#principled-representation The actual 21 bars supply finite rigid frames, positive shapes and their directed endpoints; no body dimensions or species pose table rebuilds another animal.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One read prepares the limbs, neck and fixed attachment observations needed by locomotion and rest. Primitive validation stays here and actual torso connection geometry stays with QuadrupedAttachments.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing or unsupported geometry, dummy bone attachment, nonunit transforms, gaps and detached roots refuse rather than acquiring guessed heights, casts or replacement parts.
  */
 export namespace QuadrupedJoints {
   /**
-   * The joints a ride poses from, read off an animal's own bars at rest: each limb's five joints and the neck's root.
+   * Read and admit the five actual joints of every neutral limb and its parent.
    *
-   * Each bone is a bar from joint to joint whose `+Y` runs from its upper joint to its lower (`QuadrupedBody.lay`), so its upper joint is its centre less half its length along that axis and its lower joint its centre plus as much. Reading them off the animal, rather than rebuilding them from a species' proportions, poses the animal the producer built, whatever breed or sample it drew.
+   * The source bar's +Y runs from its upper to its lower endpoint. A capsule's
+   * height is its cylindrical span, so cap radius never changes joint length.
+   * The returned attachment's parentLocal is relative to the actual parent's
+   * primitive-centre TRS, not the generic skeleton's upper-joint frame.
    *
-   * @param parts The animal's parts at rest.
-   * @returns Each limb's five joints from the top down, and the neck's root.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read, from which bars and why.
-   * @evidence contracts/development/implementation.md#principled-implementation A bar's two ends from its transform and its cylinder's height, the convention `QuadrupedBody.lay` builds every bone by.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One end per bone, then the neck's root.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The parts are found by the bone vocabulary's ids; a model without them is no quadruped `QuadrupedBody.lay` built, and the ride refuses it by its species first.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Seventeen lookups.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function, called once per ride.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @param parts Actual neutral model parts with root-local rigid transforms.
+   * @returns Independent limb/neck points and admitted fixed parent coordinates.
+   * @throws {RangeError} For malformed, missing, repeated or nonrigid bars, broken chains, unsupported parent solids or detached upper joints.
+   * @evidence contracts/development/common.md#meaningful-documentation Gives source frame and units, directed endpoint/capsule semantics, primitive-centre attachment coordinates, independent output and each refusal category.
+   * @evidence contracts/development/implementation.md#principled-implementation Index source parts, admit each actual named bar once, derive directed axis endpoints from its own primitive height and rigid frame, require adjacent closure and a common sagittal plane, then admit each root in its actual trunk/rump solid.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One source index and one fixed bar-admission pass precede four chain reads and one shared fixed-attachment read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unsupported shape becomes height zero, no gap is used as an inferred bone length, and no source root is moved while reading. Only scale-derived binary64 noise is admitted; visible contact tolerances are not used for skeletal closure.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(P+B) indexing/admission for P source parts and the fixed 21 bones, with four fixed-size closure checks and bounded independent output.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each actual bar and parent frame is decoded once and reused by chain endpoints and parent-local attachment preparation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned scalar points and frames retain no source part, array or geometry buffer; call-local maps are released after this one preparation.
    */
   export function read(parts: readonly IAutoMovieModelPart[]): {
     limbs: Readonly<Record<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>>;
     neck: IAutoMovieVector3;
+    attachments: Readonly<
+      Record<QuadrupedBody.Limb, QuadrupedAttachments.IAttachment>
+    >;
   } {
-    const ends = (
-      id: QuadrupedBody.Bone,
-    ): [IAutoMovieVector3, IAutoMovieVector3] => {
-      const part: IAutoMovieModelPart = parts.find(
-        (p: IAutoMovieModelPart): boolean => p.id === id,
-      )!;
-      const shape: IAutoMoviePrimitiveShape | null =
-        part.geometry.type === "primitive" ? part.geometry.shape : null;
-      const half: number =
-        shape !== null &&
-        (shape.type === "cylinder" || shape.type === "capsule")
-          ? shape.height / 2
-          : 0;
-      const along: IAutoMovieVector3 = Quaternion.rotateVector(
-        part.transform!.rotation,
-        Vector3.create(0, half, 0),
-      );
-      return [
-        Vector3.subtract(part.transform!.translation, along),
-        Vector3.add(part.transform!.translation, along),
-      ];
-    };
-    const limbs: Partial<Record<QuadrupedBody.Limb, IAutoMovieVector3[]>> = {};
-    for (const limb of QuadrupedBody.LIMBS) {
-      const bones: readonly (readonly [
-        IAutoMovieVector3,
-        IAutoMovieVector3,
-      ])[] = QuadrupedBody.BONES[limb].map(ends);
-      limbs[limb] = [
-        bones[0]![0],
-        ...bones.map(
-          (
-            b: readonly [IAutoMovieVector3, IAutoMovieVector3],
-          ): IAutoMovieVector3 => b[1],
-        ),
-      ];
+    const indexed: Map<string, IAutoMovieModelPart> = new Map();
+    for (const part of parts) {
+      if (indexed.has(part.id))
+        throw new RangeError(`Repeated quadruped part: ${part.id}`);
+      indexed.set(part.id, part);
     }
-    return {
-      limbs: limbs as Record<QuadrupedBody.Limb, IAutoMovieVector3[]>,
-      neck: ends("neck")[0],
+    const names: readonly QuadrupedBody.Bone[] = [
+      "trunk",
+      "hindquarters",
+      "neck",
+      "head",
+      "tail",
+      ...QuadrupedBody.LIMBS.flatMap(
+        (limb: QuadrupedBody.Limb): QuadrupedBody.Bone[] => [
+          ...QuadrupedBody.BONES[limb],
+        ],
+      ),
+    ];
+    const bars: Map<QuadrupedBody.Bone, Bar> = new Map();
+    for (const bone of names) {
+      const source: IAutoMovieModelPart | undefined = indexed.get(bone);
+      if (source === undefined)
+        throw new RangeError(`Missing actual quadruped bar: ${bone}`);
+      bars.set(bone, admit(source));
+    }
+    const neck: Bar = bar("neck");
+    const head: Bar = bar("head");
+    closure(
+      neck.to,
+      head.from,
+      Math.max(neck.height, head.height),
+      "neck/head",
+    );
+    closure(
+      bar("trunk").from,
+      bar("hindquarters").from,
+      Math.max(bar("trunk").height, bar("hindquarters").height),
+      "trunk/hindquarters",
+    );
+    const limbs: Readonly<
+      Record<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>
+    > = {
+      leftFore: chain("leftFore"),
+      rightFore: chain("rightFore"),
+      leftHind: chain("leftHind"),
+      rightHind: chain("rightHind"),
     };
+    return {
+      limbs,
+      neck: { ...neck.from },
+      attachments: QuadrupedAttachments.read(limbs, {
+        trunk: parent("trunk"),
+        hindquarters: parent("hindquarters"),
+      }),
+    };
+
+    /** Require an already admitted named bar instead of asserting a map cast. */
+    function bar(bone: QuadrupedBody.Bone): Bar {
+      const found: Bar | undefined = bars.get(bone);
+      if (found === undefined)
+        throw new RangeError(`Unprepared quadruped bar: ${bone}`);
+      return found;
+    }
+
+    /** The actual coarse body contract uses capsules for both torso parents. */
+    function parent(
+      id: QuadrupedAttachments.Parent,
+    ): QuadrupedAttachments.IParent {
+      const actual: Bar = bar(id);
+      if (actual.kind !== "capsule")
+        throw new RangeError(
+          `Quadruped parent ${id} must be its actual capsule solid`,
+        );
+      return {
+        from: actual.from,
+        to: actual.to,
+        radius: actual.radius,
+        frame: actual.frame,
+      };
+    }
+
+    /** Every joint is simultaneously the preceding lower and following upper endpoint. */
+    function chain(limb: QuadrupedBody.Limb): IAutoMovieVector3[] {
+      const links: readonly Bar[] = QuadrupedBody.BONES[limb].map(bar);
+      const points: IAutoMovieVector3[] = [{ ...links[0]!.from }];
+      for (let index: number = 0; index < links.length; index++) {
+        const link: Bar = links[index]!;
+        if (index > 0) {
+          const previous: Bar = links[index - 1]!;
+          closure(
+            previous.to,
+            link.from,
+            Math.max(previous.height, link.height),
+            `${limb}/${index}`,
+          );
+        }
+        if (
+          Math.abs(link.from.x - points[0]!.x) >
+            roundoff(link.from, points[0]!, link.height) ||
+          Math.abs(link.to.x - points[0]!.x) >
+            roundoff(link.to, points[0]!, link.height)
+        )
+          throw new RangeError(
+            `Actual ${limb} bars do not share their neutral sagittal plane`,
+          );
+        points.push({ ...link.to });
+      }
+      return points;
+    }
+
+    /** One arithmetic-noise closure contract for actual axial and limb junctions. */
+    function closure(
+      left: IAutoMovieVector3,
+      right: IAutoMovieVector3,
+      length: number,
+      label: string,
+    ): void {
+      const gap: number = Math.hypot(
+        left.x - right.x,
+        left.y - right.y,
+        left.z - right.z,
+      );
+      if (gap > roundoff(left, right, length))
+        throw new RangeError(
+          `Actual quadruped junction ${label} has a gap: ${gap} m`,
+        );
+    }
+  }
+
+  /** Admit the actual positive primitive and root-local unit rigid frame before decoding either endpoint. */
+  function admit(part: IAutoMovieModelPart): Bar {
+    if (
+      part.geometry.type !== "primitive" ||
+      (part.geometry.shape.type !== "cylinder" &&
+        part.geometry.shape.type !== "capsule") ||
+      part.transform === null ||
+      part.transform === undefined ||
+      part.attachedBone !== null
+    )
+      throw new RangeError(
+        `Quadruped ${part.id} must be an actual root-local transformed rigid bar`,
+      );
+    const shape: typeof part.geometry.shape = part.geometry.shape;
+    const frame: IAutoMovieTransform = part.transform;
+    if (
+      ![shape.height, shape.radius].every(
+        (value: number): boolean => Number.isFinite(value) && value > 0,
+      ) ||
+      ![
+        frame.translation.x,
+        frame.translation.y,
+        frame.translation.z,
+        frame.rotation.x,
+        frame.rotation.y,
+        frame.rotation.z,
+        frame.rotation.w,
+      ].every(Number.isFinite) ||
+      frame.scale.x !== 1 ||
+      frame.scale.y !== 1 ||
+      frame.scale.z !== 1
+    )
+      throw new RangeError(
+        `Quadruped ${part.id} requires positive finite dimensions and a finite unit-scale transform`,
+      );
+    const norm: number = Math.hypot(
+      frame.rotation.x,
+      frame.rotation.y,
+      frame.rotation.z,
+      frame.rotation.w,
+    );
+    if (Math.abs(norm - 1) > 64 * Number.EPSILON)
+      throw new RangeError(`Quadruped ${part.id} requires a unit quaternion`);
+    const offset: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+      x: 0,
+      y: shape.height / 2,
+      z: 0,
+    });
+    const from: IAutoMovieVector3 = {
+      x: frame.translation.x - offset.x,
+      y: frame.translation.y - offset.y,
+      z: frame.translation.z - offset.z,
+    };
+    const to: IAutoMovieVector3 = {
+      x: frame.translation.x + offset.x,
+      y: frame.translation.y + offset.y,
+      z: frame.translation.z + offset.z,
+    };
+    const length: number = Math.hypot(
+      to.x - from.x,
+      to.y - from.y,
+      to.z - from.z,
+    );
+    if (
+      !(Number.isFinite(length) && length > 0) ||
+      ![from.x, from.y, from.z, to.x, to.y, to.z].every(Number.isFinite)
+    )
+      throw new RangeError(
+        `Quadruped ${part.id} axis is not finitely representable`,
+      );
+    return {
+      kind: shape.type,
+      height: shape.height,
+      radius: shape.radius,
+      from,
+      to,
+      frame: {
+        translation: { ...frame.translation },
+        rotation: { ...frame.rotation },
+        scale: { ...frame.scale },
+      },
+    };
+  }
+
+  /** Bounded endpoint/rigid-transform arithmetic noise, independent of visible-contact tolerances. */
+  function roundoff(
+    left: IAutoMovieVector3,
+    right: IAutoMovieVector3,
+    length: number,
+  ): number {
+    return (
+      64 *
+      Number.EPSILON *
+      Math.max(
+        1,
+        Math.abs(length),
+        Math.abs(left.x),
+        Math.abs(left.y),
+        Math.abs(left.z),
+        Math.abs(right.x),
+        Math.abs(right.y),
+        Math.abs(right.z),
+      )
+    );
   }
 }

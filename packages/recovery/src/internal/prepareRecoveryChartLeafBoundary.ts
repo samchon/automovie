@@ -1,9 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryChartLeafBoundaryPreparationOperation } from "@automovie/interface";
-
 import { AutoMovieBernstein64 as S } from "@automovie/engine";
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryChartLeafBoundaryPreparationOperation,
+} from "@automovie/interface";
 
 /**
  * Prepare fixed outer collar coefficients from the original boundary cubics.
@@ -20,7 +19,9 @@ export function prepareRecoveryChartLeafBoundary(
   input: Parameters<IAutoMovieRecoveryChartLeafBoundaryPreparationOperation.Operation>[0],
   registry: Parameters<IAutoMovieRecoveryChartLeafBoundaryPreparationOperation.Operation>[1],
 ): ReturnType<IAutoMovieRecoveryChartLeafBoundaryPreparationOperation.Operation> {
-  const controls: (Readonly<AutoMovieVector3Tuple> | null)[] = new Array(registry.controls).fill(null),
+  const controls: (Readonly<AutoMovieVector3Tuple> | null)[] = new Array(
+      registry.controls,
+    ).fill(null),
     endpoints: Map<string, Readonly<AutoMovieVector3Tuple>> = new Map();
   for (const edge of registry.edges) {
     if (edge.line !== 0 && edge.line !== 1) continue;
@@ -41,11 +42,13 @@ export function prepareRecoveryChartLeafBoundary(
       (edge.end - knots[span]!) / (knots[span + 1]! - knots[span]!);
     const original: [number, number, number][] = input.curves[
       side
-    ]!.curve.spans[span]!.map((p: Readonly<AutoMovieVector3Tuple>): [number, number, number] => [
-      p[0],
-      p[1],
-      p[2],
-    ]);
+    ]!.curve.spans[span]!.map(
+      (p: Readonly<AutoMovieVector3Tuple>): [number, number, number] => [
+        p[0],
+        p[1],
+        p[2],
+      ],
+    );
     const net: [number, number, number][] = S.restrict(original, start, end);
     for (let k: number = 0; k < 4; k++) {
       let point: Readonly<AutoMovieVector3Tuple> = net[k]!;
@@ -61,7 +64,8 @@ export function prepareRecoveryChartLeafBoundary(
             : local === 1
               ? original[3]!
               : S.split(original, local)[0][3]!;
-        const old: Readonly<AutoMovieVector3Tuple> | undefined = endpoints.get(key);
+        const old: Readonly<AutoMovieVector3Tuple> | undefined =
+          endpoints.get(key);
         if (
           old &&
           (uv[0] === 0 || uv[0] === 1) &&

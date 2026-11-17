@@ -42,15 +42,15 @@ export interface IAutoMovieConstructionKnownPort {
  */
 export namespace IAutoMovieConstructionKnownPort {
   /**
- * One original field neighborhood, its chart map and its owned rail.
- *
- * AutoMovieConstructionKnownPort resolves field and map in the invocation source. The map must cover the complete band rectangle with the original C2 field; boundary identifies the rail whose material and binding owners must agree. These strings are references, not serialized callback implementations or evidence that two charts are geometrically continuous.
- *
- * @evidence contracts/development/design.md#principled-representation Explicit source/map and boundary/material/binding identities preserve the original neighborhood and its sewn ownership.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Known-port preparation resolves this side into the existing source callbacks and retains the declared rail identity.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No Taylor extension, later contact search or sampled refit substitutes for the cited original field and complete map.
- * @evidence contracts/development/common.md#meaningful-documentation Explains what each identity addresses and which neighborhood and boundary obligations remain for preparation.
- */
+   * One original field neighborhood, its chart map and its owned rail.
+   *
+   * AutoMovieConstructionKnownPort resolves field and map in the invocation source. The map must cover the complete band rectangle with the original C2 field; boundary identifies the rail whose material and binding owners must agree. These strings are references, not serialized callback implementations or evidence that two charts are geometrically continuous.
+   *
+   * @evidence contracts/development/design.md#principled-representation Explicit source/map and boundary/material/binding identities preserve the original neighborhood and its sewn ownership.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Known-port preparation resolves this side into the existing source callbacks and retains the declared rail identity.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No Taylor extension, later contact search or sampled refit substitutes for the cited original field and complete map.
+   * @evidence contracts/development/common.md#meaningful-documentation Explains what each identity addresses and which neighborhood and boundary obligations remain for preparation.
+   */
   export interface ISide {
     /** Key of the actual original neighboring field in the runtime context. */
     field: string;

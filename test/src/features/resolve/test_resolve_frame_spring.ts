@@ -1,6 +1,12 @@
-import { type IAutoMovieResolveOutput, type IAutoMovieSpringState, IAutoMovieIKDriver, IAutoMovieNode, IAutoMovieSpringDriver, IAutoMovieVector3 } from "@automovie/interface";
 import { createSpringState, resolveFrame } from "@automovie/engine";
-
+import {
+  IAutoMovieIKDriver,
+  IAutoMovieNode,
+  type IAutoMovieResolveOutput,
+  IAutoMovieSpringDriver,
+  type IAutoMovieSpringState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";

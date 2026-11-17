@@ -1,4 +1,3 @@
-import { IAutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditDifference,
@@ -7,6 +6,8 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
 /**
  * How far two displayed motions are apart: the largest distance between the

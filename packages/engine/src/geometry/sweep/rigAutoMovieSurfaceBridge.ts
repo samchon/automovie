@@ -1,5 +1,8 @@
-import type { IAutoMovieSurfaceNetwork, IAutoMovieSurfaceSample, IAutoMovieRigSurfaceBridge } from "@automovie/interface";
-
+import type {
+  IAutoMovieRigSurfaceBridge,
+  IAutoMovieSurfaceNetwork,
+  IAutoMovieSurfaceSample,
+} from "@automovie/interface";
 
 /**
  * Compile a bridge patch's interior for per-pose evaluation, returning the
@@ -39,7 +42,11 @@ import type { IAutoMovieSurfaceNetwork, IAutoMovieSurfaceSample, IAutoMovieRigSu
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Hermite weights per row and arc lengths per loop are computed once per call and shared by every column.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the index arrays and O(n + r) numbers of arcs, weights and scratch.
  */
-export const rigAutoMovieSurfaceBridge: (props: IAutoMovieRigSurfaceBridge.IProps) => (targets: Float64Array) => void = (props: IAutoMovieRigSurfaceBridge.IProps): ((targets: Float64Array) => void) => {
+export const rigAutoMovieSurfaceBridge: (
+  props: IAutoMovieRigSurfaceBridge.IProps,
+) => (targets: Float64Array) => void = (
+  props: IAutoMovieRigSurfaceBridge.IProps,
+): ((targets: Float64Array) => void) => {
   const { rows, tension, interior, probes } = props;
   const n: number = props.from.length;
   const ia: Int32Array = Int32Array.from(props.fromIndex);

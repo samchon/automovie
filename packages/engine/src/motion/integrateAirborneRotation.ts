@@ -1,5 +1,13 @@
-import type { IAutoMovieResolvedBone, IAutoMovieIntegrateAirborneRotation, IAutoMovieIntegrateMotionTrajectory, IAutoMovieResolveCenterOfMass, IAutoMovieResolveMomentum, AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolveMomentum,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { Quaternion } from "../math/Quaternion";
@@ -71,7 +79,8 @@ export function integrateAirborneRotation(
         x: readonly number[],
         q: IAutoMovieQuaternion | null,
       ): IAutoMovieIntegrateMotionTrajectory.IRate => {
-        const instant: IAutoMovieIntegrateAirborneRotation.IInstant = history(t);
+        const instant: IAutoMovieIntegrateAirborneRotation.IInstant =
+          history(t);
         const back: IAutoMovieQuaternion = Quaternion.inverse(q!);
         const carried: IAutoMovieVector3 = Quaternion.rotateVector(
           back,
@@ -188,7 +197,8 @@ export namespace integrateAirborneRotation {
       bones.set(seconds, posed);
       return posed;
     };
-    const instants: Map<number, IAutoMovieIntegrateAirborneRotation.IInstant> = new Map();
+    const instants: Map<number, IAutoMovieIntegrateAirborneRotation.IInstant> =
+      new Map();
     const momentum = (from: number, to: number): IAutoMovieVector3 =>
       resolveAutoMovieMomentum(model, read(from), read(to), to - from).angular;
     const relative = (seconds: number): IAutoMovieVector3 => {
@@ -211,7 +221,8 @@ export namespace integrateAirborneRotation {
       );
     };
     return (seconds: number): IAutoMovieIntegrateAirborneRotation.IInstant => {
-      const known: IAutoMovieIntegrateAirborneRotation.IInstant | undefined = instants.get(seconds);
+      const known: IAutoMovieIntegrateAirborneRotation.IInstant | undefined =
+        instants.get(seconds);
       if (known !== undefined) return known;
       const instant: IAutoMovieIntegrateAirborneRotation.IInstant = {
         inertia: resolveAutoMovieMomentum.principal(

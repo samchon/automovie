@@ -1,5 +1,19 @@
-import { type IAutoMovieClipChannelGate, type IAutoMovieNodeChannel, type IAutoMovieObjectMotionGate, type IAutoMovieProfileApplication, type IAutoMovieResolveViolation, type IAutoMovieViolationCollector, IAutoMovieCamera, IAutoMovieClip, IAutoMovieConstraintViolation, IAutoMovieLight, IAutoMovieNode, IAutoMoviePropSpec, IAutoMovieSceneNode, IAutoMovieTrack } from "@automovie/interface";
-
+import {
+  IAutoMovieCamera,
+  IAutoMovieClip,
+  type IAutoMovieClipChannelGate,
+  IAutoMovieConstraintViolation,
+  IAutoMovieLight,
+  IAutoMovieNode,
+  type IAutoMovieNodeChannel,
+  type IAutoMovieObjectMotionGate,
+  type IAutoMovieProfileApplication,
+  IAutoMoviePropSpec,
+  type IAutoMovieResolveViolation,
+  IAutoMovieSceneNode,
+  IAutoMovieTrack,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { channelKey } from "../resolve/channelKey";
 import { placementNodePrefix } from "../resolve/placementNodePrefix";

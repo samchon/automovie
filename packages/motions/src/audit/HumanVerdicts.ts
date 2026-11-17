@@ -1,6 +1,14 @@
-import type { IAutoMovieMotionHumanAudit, IAutoMovieMotionHumanAuditContact, IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanAuditRange, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPerformer, IAutoMovieMotionHumanVerdicts } from "@automovie/interface";
-
 import { ROM_TOLERANCE } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanAudit,
+  IAutoMovieMotionHumanAuditContact,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditRange,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformer,
+  IAutoMovieMotionHumanVerdicts,
+} from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
 import { AutoMovieMotionHumanAudit } from "./AutoMovieMotionHumanAudit";
@@ -109,7 +117,8 @@ export namespace HumanVerdicts {
       ): ReturnType<IAutoMovieMotionHumanAuditRange.IPosed["pose"]> =>
         performance.pose(subject, from + seconds),
     };
-    const people: readonly IAutoMovieMotionHumanPerformer[] = performance.performers;
+    const people: readonly IAutoMovieMotionHumanPerformer[] =
+      performance.performers;
     const findings: IAutoMovieMotionHumanVerdicts.IFinding[] = [];
     const place = (
       subject: string,
@@ -254,7 +263,9 @@ export namespace HumanVerdicts {
    * @param report A report.
    * @returns `clean`, or each finding as `subject.act#instance check value over limit at seconds (where)`.
    */
-  export function describe(report: IAutoMovieMotionHumanVerdicts.IReport): string {
+  export function describe(
+    report: IAutoMovieMotionHumanVerdicts.IReport,
+  ): string {
     if (report.clean) return "clean";
     return report.findings
       .map((f: IAutoMovieMotionHumanVerdicts.IFinding): string => {

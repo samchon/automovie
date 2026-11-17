@@ -1,5 +1,3 @@
-
-
 /**
  * The Catmull-Clark limit stencil of every vertex of a quad cage, from
  * `stencilAutoMovieSubdivisionLimit`, in compressed rows.

@@ -1,4 +1,11 @@
-import type { IAutoMovieByteDigest, IAutoMovieFileReceipt, IAutoMovieLocalHermiteStream64, IAutoMovieMesh, IAutoMovieRecoveryMeshChunkOwner, IAutoMovieRecoveryMeshCounts } from "../../index";
+import type {
+  IAutoMovieByteDigest,
+  IAutoMovieFileReceipt,
+  IAutoMovieLocalHermiteStream64,
+  IAutoMovieMesh,
+  IAutoMovieRecoveryMeshChunkOwner,
+  IAutoMovieRecoveryMeshCounts,
+} from "../../index";
 
 /**
  * Run-owned append-only mesh storage and immutable prefix publication operations.
@@ -24,24 +31,19 @@ import type { IAutoMovieByteDigest, IAutoMovieFileReceipt, IAutoMovieLocalHermit
  */
 
 export interface IAutoMovieRecoveryMeshSpool {
- 
- /** Append-only generated mesh placeholders. */
+  /** Append-only generated mesh placeholders. */
   mesh: IAutoMovieMesh;
 
- 
- /** Generated construction placeholders backed by persisted fragments. */
+  /** Generated construction placeholders backed by persisted fragments. */
   construction: object[];
 
- 
- /** Generated domain ownership placeholders. */
+  /** Generated domain ownership placeholders. */
   ownership: object[];
 
- 
- /** Current appended populations. */
+  /** Current appended populations. */
   counts: IAutoMovieRecoveryMeshCounts;
 
- 
- /** Append one admitted globally indexed engine chunk.
+  /** Append one admitted globally indexed engine chunk.
    * @evidence contracts/development/implementation.md#principled-implementation The spool checks finite aligned positions and normals, valid global indices and append-only chunk offsets before writing channels.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One append keeps mesh, physical identities, construction and ownership channels aligned.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source geometry, fabricated indices or repaired chunk offsets enter the spool.
@@ -50,10 +52,12 @@ export interface IAutoMovieRecoveryMeshSpool {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the generated chunk once for each required output channel without regenerating geometry.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The run owns staging channels and flushes bounded buffers; appended data are released after writing.
    */
-  append: (chunk: IAutoMovieLocalHermiteStream64.Chunk, owner: IAutoMovieRecoveryMeshChunkOwner) => void;
+  append: (
+    chunk: IAutoMovieLocalHermiteStream64.Chunk,
+    owner: IAutoMovieRecoveryMeshChunkOwner,
+  ) => void;
 
- 
- /** Flush all channels and publish a closed journal frontier.
+  /** Flush all channels and publish a closed journal frontier.
    * @evidence contracts/development/implementation.md#principled-implementation Matching channel populations admit one complete engine-chunk frontier before its immutable journal is written.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One commit binds channel fragments, run context and the previous frontier.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A partial channel population is refused instead of being published as resumable geometry.
@@ -64,8 +68,7 @@ export interface IAutoMovieRecoveryMeshSpool {
    */
   commit: (output: string, context: object) => IAutoMovieFileReceipt;
 
- 
- /** Publish an artifact using the same immutable fragment sources.
+  /** Publish an artifact using the same immutable fragment sources.
    * @evidence contracts/development/implementation.md#principled-implementation The artifact writer streams the existing channel fragment bindings after all pending buffers are flushed.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One publication shares mesh storage with checkpoints while keeping the output immutable.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The writer does not regenerate geometry or replace missing channel data.

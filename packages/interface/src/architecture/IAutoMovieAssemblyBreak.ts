@@ -1,5 +1,3 @@
-
-
 /**
  * One construction role that only one side of a junction declares, so it stops
  * there.

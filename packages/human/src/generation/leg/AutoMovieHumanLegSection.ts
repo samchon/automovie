@@ -1,12 +1,13 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanLegAxis, IAutoMovieHumanLegSection, IAutoMovieHumanLegSectionLaw } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanLegAxis,
+  IAutoMovieHumanLegSection,
+  IAutoMovieHumanLegSectionLaw,
+} from "@automovie/interface";
 
 import { AutoMovieHumanLegAxis } from "./AutoMovieHumanLegAxis";
 import { AutoMovieHumanLegSectionLaw } from "./AutoMovieHumanLegSectionLaw";
 import { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
-
 
 const { dot, sub } = AutoMovieHumanLegVector;
 
@@ -22,8 +23,6 @@ const { dot, sub } = AutoMovieHumanLegVector;
  * a smooth `tanh` of the contact's softness.
  */
 export namespace AutoMovieHumanLegSection {
-  
-
   /** Softness of the thighs' contact at the midline, mm. */
   export const CONTACT: number = 1.5;
 
@@ -45,7 +44,10 @@ export namespace AutoMovieHumanLegSection {
     ankle: IAutoMovieHumanLegSection.OfAnkle,
     s: number,
   ): IAutoMovieHumanLegSection.ISection {
-    const frame: IAutoMovieHumanLegAxis.IFrame = AutoMovieHumanLegAxis.frameAt(frames, s);
+    const frame: IAutoMovieHumanLegAxis.IFrame = AutoMovieHumanLegAxis.frameAt(
+      frames,
+      s,
+    );
     const depth: number = law.top - s;
     const rise: number = s - law.bottom;
     const world: AutoMovieVector3Tuple[] =
@@ -56,11 +58,14 @@ export namespace AutoMovieHumanLegSection {
           : AutoMovieHumanLegSectionLaw.points(law, s, frame, centre(s));
 
     // The thighs meet at the midline and do not pass it.
-    const local: AutoMovieVector3Tuple[] = world.map((p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => {
-      const z: number = p[2] >= 0 ? p[2] : CONTACT * Math.tanh(p[2] / CONTACT);
-      const d: AutoMovieVector3Tuple = sub([p[0], p[1], z], frame.origin);
-      return [dot(d, frame.u), dot(d, frame.v), dot(d, frame.n)];
-    });
+    const local: AutoMovieVector3Tuple[] = world.map(
+      (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => {
+        const z: number =
+          p[2] >= 0 ? p[2] : CONTACT * Math.tanh(p[2] / CONTACT);
+        const d: AutoMovieVector3Tuple = sub([p[0], p[1], z], frame.origin);
+        return [dot(d, frame.u), dot(d, frame.v), dot(d, frame.n)];
+      },
+    );
     return { frame, local };
   }
 }

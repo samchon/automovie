@@ -1,6 +1,14 @@
-import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieRecoveryEventChartInput, IAutoMovieRecoveryEventCurvePiece } from "@automovie/interface";
 import { realizeAutoMovieBicubicAtlas64 as realize } from "@automovie/engine";
-import { AutoMovieRecoveryEventCurve as E, assembleAutoMovieRecoveryFieldComplex as assemble } from "@automovie/recovery";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieRecoveryEventChartInput,
+  IAutoMovieRecoveryEventCurvePiece,
+} from "@automovie/interface";
+import {
+  AutoMovieRecoveryEventCurve as E,
+  assembleAutoMovieRecoveryFieldComplex as assemble,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -164,7 +172,9 @@ export function test_geometry_recovery_field_complex(): void {
           (
             piece: IAutoMovieRecoveryEventCurvePiece,
           ): IAutoMovieRecoveryEventCurvePiece => {
-            const parent: IAutoMovieCurve64.Span = E.fullparentControls(piece.source);
+            const parent: IAutoMovieCurve64.Span = E.fullparentControls(
+              piece.source,
+            );
             const net: IAutoMovieCurve64.Span = [
               parent[0],
               [parent[1][0] + 1, parent[1][1], parent[1][2]],

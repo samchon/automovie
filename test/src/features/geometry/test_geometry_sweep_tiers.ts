@@ -1,5 +1,13 @@
-import type { AutoMovieSurfaceTier, IAutoMovieSurfaceCage, IAutoMovieSurfaceCoordinate } from "@automovie/interface";
-import { locateAutoMovieSurfaceCoordinate, mapAutoMovieSurfaceTier, sampleAutoMovieSurfaceNetwork } from "@automovie/engine";
+import {
+  locateAutoMovieSurfaceCoordinate,
+  mapAutoMovieSurfaceTier,
+  sampleAutoMovieSurfaceNetwork,
+} from "@automovie/engine";
+import type {
+  AutoMovieSurfaceTier,
+  IAutoMovieSurfaceCage,
+  IAutoMovieSurfaceCoordinate,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { sweepBottle } from "../internal/sweepBottle";

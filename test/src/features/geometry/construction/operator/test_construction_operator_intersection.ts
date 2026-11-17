@@ -1,5 +1,10 @@
-import type { AutoMovieVector3Tuple, IAutoMovieLoftContract, IAutoMovieSolidIntersection, IAutoMovieSolidSurface } from "@automovie/interface";
 import { AutoMovieSolidIntersection } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieLoftContract,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { HumanSolidShapes } from "../../../internal/HumanSolidShapes";
 import { ConstructionOwnedAtlas } from "../../../internal/construction/ConstructionOwnedAtlas";

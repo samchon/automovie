@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanDeltoidCap } from "@automovie/interface";
 
-
 import { AutoMovieHumanShoulderCap } from "./AutoMovieHumanShoulderCap";
 
 /**
@@ -15,10 +14,6 @@ import { AutoMovieHumanShoulderCap } from "./AutoMovieHumanShoulderCap";
  * at the point where both stand at the same lateral place.
  */
 export namespace AutoMovieHumanDeltoidCap {
-  
-
-  
-
   /** Smallest lateral half size kept, mm: under it the cap is the girdle's. */
   const MINIMUM: number = 0.5;
 
@@ -29,7 +24,10 @@ export namespace AutoMovieHumanDeltoidCap {
    * @param y Height, mm.
    * @returns The ellipse, or null at and above the shoulder point and where it is too small to keep.
    */
-  export function at(input: IAutoMovieHumanDeltoidCap.IInput, y: number): IAutoMovieHumanDeltoidCap.IOval | null {
+  export function at(
+    input: IAutoMovieHumanDeltoidCap.IInput,
+    y: number,
+  ): IAutoMovieHumanDeltoidCap.IOval | null {
     const [x, , gz]: readonly [number, number, number] = input.glenohumeral;
     if (y >= input.outline.to) return null;
 

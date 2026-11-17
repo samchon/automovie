@@ -1,6 +1,8 @@
-import { type IAutoMovieBallisticSolution, IAutoMovieVector3 } from "@automovie/interface";
 import { solveMovingLaunch } from "@automovie/engine";
-
+import {
+  type IAutoMovieBallisticSolution,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";

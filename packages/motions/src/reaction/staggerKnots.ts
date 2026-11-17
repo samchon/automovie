@@ -1,10 +1,15 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanWalkFoot, IAutoMovieMotionHumanWalkStanceCourse, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanWalkFoot,
+  IAutoMovieMotionHumanWalkStanceCourse,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { walkReach } from "../actions/walkReach";
 import { walkReachHeld } from "../actions/walkReachHeld";
-import {
-  AutoMovieMotionHumanAuditContact,
-} from "../audit/AutoMovieMotionHumanAuditContact";
+import { AutoMovieMotionHumanAuditContact } from "../audit/AutoMovieMotionHumanAuditContact";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -57,11 +62,8 @@ export namespace staggerKnots {
       pitch: number;
       roll: number;
     }): IAutoMovieVector3 => {
-      const tilted: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.pivot(
-        body,
-        standing,
-        more,
-      );
+      const tilted: IAutoMovieMotionHumanPosture =
+        AutoMovieMotionHumanLean.pivot(body, standing, more);
       const centre: IAutoMovieVector3 = HumanBalance.support(body, {
         ...tilted,
         root: resolveHumanPosture.lower(body, tilted).root,
@@ -97,13 +99,21 @@ export namespace staggerKnots {
     entry: IAutoMovieMotionHumanPosture,
     bend: Record<"pitch" | "roll", IAutoMovieVector3>,
     travel: IAutoMovieVector3,
-    feet: Readonly<Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>>,
+    feet: Readonly<
+      Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>
+    >,
   ): {
-    root: (trunk: IAutoMovieMotionHumanWalkStanceCourse.ITrunk) => IAutoMovieVector3;
-    pelvis: (trunk: IAutoMovieMotionHumanWalkStanceCourse.ITrunk) => IAutoMovieMotionHumanWalkStanceCourse.IPelvis;
+    root: (
+      trunk: IAutoMovieMotionHumanWalkStanceCourse.ITrunk,
+    ) => IAutoMovieVector3;
+    pelvis: (
+      trunk: IAutoMovieMotionHumanWalkStanceCourse.ITrunk,
+    ) => IAutoMovieMotionHumanWalkStanceCourse.IPelvis;
     yaw: number;
   } {
-    const root = (trunk: IAutoMovieMotionHumanWalkStanceCourse.ITrunk): IAutoMovieVector3 => {
+    const root = (
+      trunk: IAutoMovieMotionHumanWalkStanceCourse.ITrunk,
+    ): IAutoMovieVector3 => {
       const p: number = Math.sin((trunk.pitch * Math.PI) / 180);
       const r: number = Math.sin((trunk.roll * Math.PI) / 180);
       return {
@@ -122,7 +132,9 @@ export namespace staggerKnots {
     );
     return {
       root,
-      pelvis: (trunk: IAutoMovieMotionHumanWalkStanceCourse.ITrunk): IAutoMovieMotionHumanWalkStanceCourse.IPelvis => {
+      pelvis: (
+        trunk: IAutoMovieMotionHumanWalkStanceCourse.ITrunk,
+      ): IAutoMovieMotionHumanWalkStanceCourse.IPelvis => {
         const at: IAutoMovieVector3 = root(trunk);
         const moved = (hip: IAutoMovieVector3): IAutoMovieVector3 => ({
           x: hip.x + at.x - base.x,
@@ -178,7 +190,9 @@ export namespace staggerKnots {
    * @param body The body.
    * @returns The share.
    */
-  export function risingOf(body: IAutoMovieMotionHumanActionContext["body"]): number {
+  export function risingOf(
+    body: IAutoMovieMotionHumanActionContext["body"],
+  ): number {
     return (
       Math.asin(
         Math.sqrt(
@@ -223,13 +237,22 @@ export namespace staggerKnots {
     },
     until: number,
   ): IKnot[] {
-    const entered: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      StrikingTarget.feet(entry);
+    const entered: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = StrikingTarget.feet(entry);
     const rising: number = risingOf(body);
     const knots: IKnot[] = [];
-    for (let k: number = 0; k <= Math.ceil(until * staggerBounds.KNOTS - 1e-9); k++) {
+    for (
+      let k: number = 0;
+      k <= Math.ceil(until * staggerBounds.KNOTS - 1e-9);
+      k++
+    ) {
       const t: number = Math.min(until, k / staggerBounds.KNOTS);
-      const feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> = {
+      const feet: Record<
+        "left" | "right",
+        IAutoMovieMotionHumanWalkFoot.IScheduled
+      > = {
         left: { placement: entered.left, toes: 0 },
         right: { placement: entered.right, toes: 0 },
       };
@@ -266,7 +289,9 @@ export namespace staggerKnots {
             : []),
         ],
         stances: stances.map(
-          (side: "left" | "right"): IAutoMovieMotionHumanWalkStanceCourse.IStance => ({
+          (
+            side: "left" | "right",
+          ): IAutoMovieMotionHumanWalkStanceCourse.IStance => ({
             side,
             placement: feet[side].placement,
             turning: walk.steps.some(
@@ -289,6 +314,8 @@ export namespace staggerKnots {
     return knots;
   }
 
-/** A recovery's stance-course knot with the frame its pelvis stands in (`of`). */
-  export type IKnot = IAutoMovieMotionHumanWalkStanceCourse.IKnot & { frame: ReturnType<typeof frame> };
+  /** A recovery's stance-course knot with the frame its pelvis stands in (`of`). */
+  export type IKnot = IAutoMovieMotionHumanWalkStanceCourse.IKnot & {
+    frame: ReturnType<typeof frame>;
+  };
 }

@@ -12,14 +12,14 @@ export namespace IAutoMoviePhysicalHullNearest {
    * @evidence contracts/development/design.md#minimal-and-owned-surface physicalHullNearest allocates the point but may borrow a normal from its cached hull faces; callers must treat the returned normal as read-only.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer requires a volumetric hull. Interior queries use the nearest face; outside edge queries use the direction toward the query, with a face-normal fallback near zero distance.
    */
-  export type IResult = { 
-  
-  /** Signed surface separation in metres; negative inside the convex hull. */
-  distance: number; 
-  
-  /** New nearest surface point in the input hull's local frame, metres. */
-  point: IAutoMovieVector3; 
-  
-  /** Outward unit direction in the hull frame; may alias a cached hull-face normal, so do not mutate it. */
-  normal: IAutoMovieVector3 };
+  export type IResult = {
+    /** Signed surface separation in metres; negative inside the convex hull. */
+    distance: number;
+
+    /** New nearest surface point in the input hull's local frame, metres. */
+    point: IAutoMovieVector3;
+
+    /** Outward unit direction in the hull frame; may alias a cached hull-face normal, so do not mutate it. */
+    normal: IAutoMovieVector3;
+  };
 }

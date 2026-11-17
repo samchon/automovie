@@ -1,6 +1,25 @@
-import { type IAutoMovieResolvedCamera, type IAutoMovieRealizeShotContract, type IAutoMovieRealizeShotContractProps, type IAutoMovieShotContractSubjectReader, IAutoMovieCamera, IAutoMovieCompiledContractRealization, IAutoMovieCompiledFormation, IAutoMovieCompiledFormationHero, IAutoMovieCompiledPredicateResult, IAutoMovieDiagnostic, IAutoMovieFormationChunk, IAutoMovieFormationDesign, IAutoMovieSceneNode, IAutoMovieShotContract, IAutoMovieShotEventContract, IAutoMovieShotParticipant, IAutoMovieShotPredicate, IAutoMovieSubjectBox, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  IAutoMovieCamera,
+  IAutoMovieCompiledContractRealization,
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledFormationHero,
+  IAutoMovieCompiledPredicateResult,
+  IAutoMovieDiagnostic,
+  IAutoMovieFormationChunk,
+  IAutoMovieFormationDesign,
+  type IAutoMovieRealizeShotContract,
+  type IAutoMovieRealizeShotContractProps,
+  type IAutoMovieResolvedCamera,
+  IAutoMovieSceneNode,
+  IAutoMovieShotContract,
+  type IAutoMovieShotContractSubjectReader,
+  IAutoMovieShotEventContract,
+  IAutoMovieShotParticipant,
+  IAutoMovieShotPredicate,
+  IAutoMovieSubjectBox,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { productionRuntimeModelId } from "../productionRuntimeModelId";
 import { createShotContractSubjectReader } from "./createShotContractSubjectReader";
@@ -37,7 +56,9 @@ const TRANSFORM_TOLERANCE: number = 1e-9;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Builds one subject reader per call and shares it across every predicate, event, camera sample and participant check, so object-motion sampling and subject extents computed for one grade are reused by the others; nothing is shared across calls, because each call grades different artifacts.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader and its caches are owned by this call and released on return; the returned record holds fresh outcome objects plus references to the contract's predicates and copies of resolved camera placements, sized by the contract.
  */
-export function realizeShotContract(props: IAutoMovieRealizeShotContractProps): IAutoMovieRealizeShotContract.IResult {
+export function realizeShotContract(
+  props: IAutoMovieRealizeShotContractProps,
+): IAutoMovieRealizeShotContract.IResult {
   const reader: IAutoMovieShotContractSubjectReader =
     createShotContractSubjectReader(props);
   const diagnostics: IAutoMovieDiagnostic[] = [];

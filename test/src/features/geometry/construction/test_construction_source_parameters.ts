@@ -1,6 +1,15 @@
-import type { IAutoMovieConstructionOutlineParameter, IAutoMovieViewAxis, IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieConstructionParallelAxis } from "@automovie/interface";
-import { AutoMovieConstructionViews, AutoMovieViewOutline, AutoMovieViewParallelAxis } from "@automovie/engine";
-
+import {
+  AutoMovieConstructionViews,
+  AutoMovieViewOutline,
+  AutoMovieViewParallelAxis,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieConstructionParallelAxis,
+  IAutoMovieViewAxis,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionSourceParameterSubset } from "../../internal/construction/ConstructionSourceParameterSubset";
@@ -231,8 +240,12 @@ export function test_construction_source_parameters(): void {
       );
     }
   }
-  const closing: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
-    AutoMovieViewOutline.create(angle, { bottom: 0, top: 4 });
+  const closing:
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(angle, {
+    bottom: 0,
+    top: 4,
+  });
   if (!("detail" in closing) || closing.contract !== "pole knot")
     failures.push("radial zero closure was weakened for world parameters");
   const mismatched:

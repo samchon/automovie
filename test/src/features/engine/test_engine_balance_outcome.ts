@@ -1,10 +1,12 @@
-import type { IAutoMovieResolveBalanceOutcome, IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieGravity,
   Vector3,
   resolveAutoMovieBalanceOutcome,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieResolveBalanceOutcome,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

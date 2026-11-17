@@ -1,4 +1,12 @@
-import type { IAutoMovieContourLoft64, AutoMovieVector3Tuple, IAutoMoviePreparedContourEvent64, IAutoMoviePlanContourSlabs64Group, IAutoMoviePlanContourSlabs64Props, IAutoMoviePlanContourSlabs64Ring, IAutoMoviePlanContourSlabs64Slab } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieContourLoft64,
+  IAutoMoviePlanContourSlabs64Group,
+  IAutoMoviePlanContourSlabs64Props,
+  IAutoMoviePlanContourSlabs64Ring,
+  IAutoMoviePlanContourSlabs64Slab,
+  IAutoMoviePreparedContourEvent64,
+} from "@automovie/interface";
 
 import { AutoMovieContourLoftCurves64 as curves } from "./AutoMovieContourLoftCurves64";
 import { admitAutoMovieContourIntervals64 } from "./admitAutoMovieContourIntervals64";
@@ -31,8 +39,13 @@ interface Incident {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The completed plan is reused for common slit preparation and subsequent emission.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-call partition maps, union-find arrays and plan records retain no input mesh or external resource; plans transfer to one tessellation.
  */
-export function planAutoMovieContourSlabs64(props: IAutoMoviePlanContourSlabs64Props): IAutoMoviePlanContourSlabs64Slab[] {
-  const separation: (a: IAutoMoviePlanContourSlabs64Ring, b: IAutoMoviePlanContourSlabs64Ring) => number = (
+export function planAutoMovieContourSlabs64(
+  props: IAutoMoviePlanContourSlabs64Props,
+): IAutoMoviePlanContourSlabs64Slab[] {
+  const separation: (
+    a: IAutoMoviePlanContourSlabs64Ring,
+    b: IAutoMoviePlanContourSlabs64Ring,
+  ) => number = (
     a: IAutoMoviePlanContourSlabs64Ring,
     b: IAutoMoviePlanContourSlabs64Ring,
   ): number => {
@@ -94,13 +107,15 @@ export function planAutoMovieContourSlabs64(props: IAutoMoviePlanContourSlabs64P
       parent[root(j)] = root(i);
     };
     const reserved: Set<number> = new Set();
-    const critical: IAutoMoviePreparedContourEvent64[] = (props.events ?? []).filter(
-      (e: IAutoMoviePreparedContourEvent64): boolean =>
-        e.unsupported === undefined
-          ? e.y > below.y && e.y <= above.y
-          : e.y0 < above.y && e.y1 >= above.y,
+    const critical: IAutoMoviePreparedContourEvent64[] = (
+      props.events ?? []
+    ).filter((e: IAutoMoviePreparedContourEvent64): boolean =>
+      e.unsupported === undefined
+        ? e.y > below.y && e.y <= above.y
+        : e.y0 < above.y && e.y1 >= above.y,
     );
-    const eventNodes: Map<IAutoMoviePreparedContourEvent64, number[]> = new Map();
+    const eventNodes: Map<IAutoMoviePreparedContourEvent64, number[]> =
+      new Map();
     const invalidEvents: Set<IAutoMoviePreparedContourEvent64> = new Set();
     for (const event of critical) {
       const nodes: number[] = [];
@@ -110,11 +125,19 @@ export function planAutoMovieContourSlabs64(props: IAutoMoviePlanContourSlabs64P
         for (const [incidents, saved, current, coordinate, offset] of [
           [event.below, event.y0, a, below.y, 0],
           [event.above, event.y1, b, above.y, a.length],
-        ] as [Incident[], number, IAutoMoviePlanContourSlabs64Ring[], number, number][])
+        ] as [
+          Incident[],
+          number,
+          IAutoMoviePlanContourSlabs64Ring[],
+          number,
+          number,
+        ][])
           for (const id of saved === coordinate
             ? incidents.map((incident: Incident): number => incident.loop)
             : incidents.length
-              ? current.map((_: IAutoMoviePlanContourSlabs64Ring, i: number): number => i)
+              ? current.map(
+                  (_: IAutoMoviePlanContourSlabs64Ring, i: number): number => i,
+                )
               : [])
             if (!nodes.includes(id + offset)) nodes.push(id + offset);
         for (const node of nodes) {
@@ -129,18 +152,24 @@ export function planAutoMovieContourSlabs64(props: IAutoMoviePlanContourSlabs64P
         [event.below, event.y0, a, 0],
         [event.above, event.y1, b, a.length],
       ] as [Incident[], number, IAutoMoviePlanContourSlabs64Ring[], number][]) {
-        const ref: IAutoMoviePlanContourSlabs64Ring[] = props.rings[referenceSlice.get(refY)!];
+        const ref: IAutoMoviePlanContourSlabs64Ring[] =
+          props.rings[referenceSlice.get(refY)!];
         const assigned: Set<number> = new Set();
         for (const incident of incidents) {
           const original: IAutoMoviePlanContourSlabs64Ring = ref[incident.loop];
           const candidates: { i: number; error: number }[] = current
-            .map((r: IAutoMoviePlanContourSlabs64Ring, i: number): { i: number; error: number } => ({
-              i,
-              error:
-                !assigned.has(i) && r.winding === incident.winding
-                  ? separation(original, r)
-                  : Infinity,
-            }))
+            .map(
+              (
+                r: IAutoMoviePlanContourSlabs64Ring,
+                i: number,
+              ): { i: number; error: number } => ({
+                i,
+                error:
+                  !assigned.has(i) && r.winding === incident.winding
+                    ? separation(original, r)
+                    : Infinity,
+              }),
+            )
             .sort(
               (
                 x: { i: number; error: number },
@@ -196,7 +225,9 @@ export function planAutoMovieContourSlabs64(props: IAutoMoviePlanContourSlabs64P
     }
     for (const [event, nodes] of eventNodes)
       if (nodes.length) {
-        const group: IAutoMoviePlanContourSlabs64Group = groups.get(root(nodes[0]))!;
+        const group: IAutoMoviePlanContourSlabs64Group = groups.get(
+          root(nodes[0]),
+        )!;
         group.critical.push(event);
         if (invalidEvents.has(event))
           group.unsupported =
@@ -226,7 +257,9 @@ function explicitGroups(
   events: readonly IAutoMovieContourLoft64.IEvent[],
 ): IAutoMoviePlanContourSlabs64Group[] {
   const groups: IAutoMoviePlanContourSlabs64Group[] = interval.groups.map(
-    (group: IAutoMovieContourLoft64.IInterval["groups"][number]): IAutoMoviePlanContourSlabs64Group => {
+    (
+      group: IAutoMovieContourLoft64.IInterval["groups"][number],
+    ): IAutoMoviePlanContourSlabs64Group => {
       const selected: number[] = [];
       events.forEach(
         (event: IAutoMovieContourLoft64.IEvent, i: number): void => {
@@ -298,7 +331,9 @@ function explicitGroups(
       return {
         a: [...group.before],
         b: [...group.after],
-        critical: selected.map((i: number): IAutoMoviePreparedContourEvent64 => critical[i]!),
+        critical: selected.map(
+          (i: number): IAutoMoviePreparedContourEvent64 => critical[i]!,
+        ),
         ...(reason === undefined ? {} : { unsupported: reason }),
       };
     },

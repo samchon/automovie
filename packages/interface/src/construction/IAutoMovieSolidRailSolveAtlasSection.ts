@@ -1,5 +1,3 @@
-
-
 /**
  * Successful normal-section rail location on one retained atlas face.
  * The solver returns a fresh mutable record and tuples after its plane/chord

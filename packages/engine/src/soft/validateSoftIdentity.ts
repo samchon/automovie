@@ -1,4 +1,5 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
+
 /**
  * Report blank or duplicate sibling identities, then record the identity as seen.
  *

@@ -46,8 +46,14 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_human_motion_core_sequential_convex(): void {
   type IEvaluation = IAutoMovieMotionHumanSequentialConvex.IEvaluation;
-  type IProblem = IAutoMovieMotionHumanSequentialConvex.IProblem<number, IEvaluation>;
-  type IResult = IAutoMovieMotionHumanSequentialConvex.IResult<number, IEvaluation>;
+  type IProblem = IAutoMovieMotionHumanSequentialConvex.IProblem<
+    number,
+    IEvaluation
+  >;
+  type IResult = IAutoMovieMotionHumanSequentialConvex.IResult<
+    number,
+    IEvaluation
+  >;
   const schedule: (
     overrides: Partial<IAutoMovieMotionHumanSequentialConvex.ISchedule>,
   ) => IAutoMovieMotionHumanSequentialConvex.ISchedule = (
@@ -72,8 +78,12 @@ export function test_human_motion_core_sequential_convex(): void {
     miss: number,
   ): IProblem => ({
     evaluate: (x: number): IEvaluation => ({ objective: f(x), violation: 0 }),
-    convexify: (x: number): IAutoMovieMotionHumanSequentialConvex.IModel<number> => ({
-      solve: (radius: number): IAutoMovieMotionHumanSequentialConvex.IStep<number> => {
+    convexify: (
+      x: number,
+    ): IAutoMovieMotionHumanSequentialConvex.IModel<number> => ({
+      solve: (
+        radius: number,
+      ): IAutoMovieMotionHumanSequentialConvex.IStep<number> => {
         const p: number = Math.max(-radius, Math.min(radius, 3 - x));
         return {
           trial: x + p + miss,
@@ -141,8 +151,12 @@ export function test_human_motion_core_sequential_convex(): void {
 
   const lying: IProblem = {
     evaluate: (x: number): IEvaluation => ({ objective: x * x, violation: 0 }),
-    convexify: (x: number): IAutoMovieMotionHumanSequentialConvex.IModel<number> => ({
-      solve: (radius: number): IAutoMovieMotionHumanSequentialConvex.IStep<number> => ({
+    convexify: (
+      x: number,
+    ): IAutoMovieMotionHumanSequentialConvex.IModel<number> => ({
+      solve: (
+        radius: number,
+      ): IAutoMovieMotionHumanSequentialConvex.IStep<number> => ({
         trial: x + radius,
         predicted: 1,
         length: radius,
@@ -204,7 +218,9 @@ export function test_human_motion_core_sequential_convex(): void {
   );
   const frozen: IProblem = {
     evaluate: (): IEvaluation => ({ objective: 0, violation: 1 }),
-    convexify: (x: number): IAutoMovieMotionHumanSequentialConvex.IModel<number> => ({
+    convexify: (
+      x: number,
+    ): IAutoMovieMotionHumanSequentialConvex.IModel<number> => ({
       solve: (): IAutoMovieMotionHumanSequentialConvex.IStep<number> => ({
         trial: x,
         predicted: 0,

@@ -1,6 +1,13 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanObstacle, IAutoMovieMotionHumanProp, IAutoMoviePhysicalProfile, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanObstacle,
+  IAutoMovieMotionHumanProp,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanObject } from "./HumanObject";
 
@@ -27,9 +34,14 @@ import { HumanObject } from "./HumanObject";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No object kind is named: a door's opening is its `aperture` affordance, read like any object's.
  */
 export namespace HumanObstacle {
-
   /** Why a path is blocked, as data: a solid with no opening on the path, an opening narrower than the body, or one lower than it. */
-  export const CAUSES = ["solid", "narrow", "headroom"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanObstacle.IBlock["cause"]>[];
+  export const CAUSES = [
+    "solid",
+    "narrow",
+    "headroom",
+  ] as const satisfies readonly NonNullable<
+    IAutoMovieMotionHumanObstacle.IBlock["cause"]
+  >[];
 
   /**
    * A straight wall as an obstacle.
@@ -102,7 +114,8 @@ export namespace HumanObstacle {
     model: IAutoMovieMotionHumanObject.IModel,
     placement: IAutoMovieMotionHumanObject.Placement,
   ): IAutoMovieMotionHumanObstacle.IAperture[] {
-    const placed: IAutoMovieMotionHumanProp.IFrame = HumanObject.frame(placement);
+    const placed: IAutoMovieMotionHumanProp.IFrame =
+      HumanObject.frame(placement);
     const out: IAutoMovieMotionHumanObstacle.IAperture[] = [];
     for (const affordance of model.affordances ?? []) {
       if (
@@ -177,7 +190,8 @@ export namespace HumanObstacle {
       throw new Error(
         `The object ${subject} has no colliders, so nothing says where its solid stands: give it shapes, or state it as a wall`,
       );
-    const placed: IAutoMovieMotionHumanProp.IFrame = HumanObject.frame(placement);
+    const placed: IAutoMovieMotionHumanProp.IFrame =
+      HumanObject.frame(placement);
     const corners: IAutoMovieVector3[] = [];
     let bottom: number = Infinity;
     let top: number = -Infinity;
@@ -219,7 +233,10 @@ export namespace HumanObstacle {
       throw new Error(
         `The object ${subject}'s colliders cover no area of the floor plan, so they stand in no path's way`,
       );
-    const openings: IAutoMovieMotionHumanObstacle.IAperture[] = apertures(model, placement);
+    const openings: IAutoMovieMotionHumanObstacle.IAperture[] = apertures(
+      model,
+      placement,
+    );
     return {
       subject,
       footprint,

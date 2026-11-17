@@ -1,9 +1,10 @@
-import type { AutoMovieQuaternionTuple, AutoMovieVector3Tuple, IAutoMovieHumanChainRings, IAutoMovieHumanNeutralBody, IAutoMovieHumanNeutralHip } from "@automovie/interface";
-
-
-
-
-
+import type {
+  AutoMovieQuaternionTuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanChainRings,
+  IAutoMovieHumanNeutralBody,
+  IAutoMovieHumanNeutralHip,
+} from "@automovie/interface";
 
 import { AutoMovieHumanNeutralTurn as Turn } from "./AutoMovieHumanNeutralTurn";
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
@@ -24,8 +25,6 @@ import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMa
  * own abduction, which clears by construction.
  */
 export namespace AutoMovieHumanNeutralHip {
-  
-
   /** Step of the abduction scan, degrees. */
   export const STEP: number = 0.25;
 
@@ -37,33 +36,59 @@ export namespace AutoMovieHumanNeutralHip {
    * @param side Which leg.
    * @returns The thigh's world turn and its abduction.
    */
-  export function derive(body: IAutoMovieHumanNeutralBody, rings: readonly IAutoMovieHumanChainRings[], side: "left" | "right"): IAutoMovieHumanNeutralHip.IOutput {
+  export function derive(
+    body: IAutoMovieHumanNeutralBody,
+    rings: readonly IAutoMovieHumanChainRings[],
+    side: "left" | "right",
+  ): IAutoMovieHumanNeutralHip.IOutput {
     const s: number = side === "left" ? 1 : -1;
     const bind: AutoMovieVector3Tuple = body.direction(`${side}UpperLeg`);
-    const hip: AutoMovieVector3Tuple = body.byBone.get(`${side}UpperLeg`)!.position;
-    const leg: IAutoMovieHumanChainRings | undefined = rings.find((r: IAutoMovieHumanChainRings): boolean => r.chain === `leg.${side}`);
-    const target: (degrees: number) => AutoMovieVector3Tuple = (degrees: number): AutoMovieVector3Tuple => {
+    const hip: AutoMovieVector3Tuple = body.byBone.get(
+      `${side}UpperLeg`,
+    )!.position;
+    const leg: IAutoMovieHumanChainRings | undefined = rings.find(
+      (r: IAutoMovieHumanChainRings): boolean => r.chain === `leg.${side}`,
+    );
+    const target: (degrees: number) => AutoMovieVector3Tuple = (
+      degrees: number,
+    ): AutoMovieVector3Tuple => {
       const a: number = (degrees * Math.PI) / 180;
       return [0, -Math.cos(a), s * Math.sin(a)];
     };
-    const plumb: IAutoMovieHumanNeutralHip.IOutput = { turn: Turn.arc(bind, Turn.DOWN), resting: 0 };
+    const plumb: IAutoMovieHumanNeutralHip.IOutput = {
+      turn: Turn.arc(bind, Turn.DOWN),
+      resting: 0,
+    };
     if (leg === undefined || leg.stations.length < 2) return plumb;
 
     // The skin under the crotch: every ring below the chain's top one.
     const top: number = leg.stations.length - 1;
     const points: AutoMovieVector3Tuple[] = [];
-    for (let k: number = 0; k < top * leg.phases; k++) points.push([leg.points[3 * k]!, leg.points[3 * k + 1]!, leg.points[3 * k + 2]!]);
+    for (let k: number = 0; k < top * leg.phases; k++)
+      points.push([
+        leg.points[3 * k]!,
+        leg.points[3 * k + 1]!,
+        leg.points[3 * k + 2]!,
+      ]);
 
     // The bind's own abduction in the frontal plane bounds the scan.
     const limit: number = (Math.atan2(s * bind[2], -bind[1]) * 180) / Math.PI;
     for (let degrees: number = 0; degrees < limit; degrees += STEP) {
       const turn: AutoMovieQuaternionTuple = Turn.arc(bind, target(degrees));
-      const clear: boolean = points.every((p: AutoMovieVector3Tuple): boolean => {
-        const q: AutoMovieVector3Tuple = Math3D.add(hip, Math3D.rotate(turn, Math3D.sub(p, hip)));
-        return s * q[2] >= Math.min(0, s * p[2]);
-      });
+      const clear: boolean = points.every(
+        (p: AutoMovieVector3Tuple): boolean => {
+          const q: AutoMovieVector3Tuple = Math3D.add(
+            hip,
+            Math3D.rotate(turn, Math3D.sub(p, hip)),
+          );
+          return s * q[2] >= Math.min(0, s * p[2]);
+        },
+      );
       if (clear) return { turn, resting: degrees };
     }
-    return { turn: Turn.arc(bind, target(Math.max(0, limit))), resting: Math.max(0, limit) };
+    return {
+      turn: Turn.arc(bind, target(Math.max(0, limit))),
+      resting: Math.max(0, limit),
+    };
   }
 }

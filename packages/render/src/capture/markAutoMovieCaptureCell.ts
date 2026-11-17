@@ -1,8 +1,5 @@
 import type { IAutoMovieRasterImage } from "@automovie/interface";
 
-
-
-
 /** Dark red, which no inspection shade fills a whole cell with, so the cell reads as a gap and not as a dark still. */
 const MARK: readonly [number, number, number] = [96, 16, 16];
 

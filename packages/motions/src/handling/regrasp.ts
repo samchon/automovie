@@ -1,7 +1,20 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanRegrasp, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanRegrasp,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
@@ -81,7 +94,8 @@ export namespace regrasp {
         reason: `the ${side} hand does not hold ${subject} at the act's start`,
         fix: "take the object up in that hand first",
       });
-    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(subject);
+    const read: IAutoMovieMotionHumanActionContext.IProp =
+      context.prop(subject);
     const frame: IAutoMovieMotionHumanProp.IFrame = read.frame(context.start);
     const placed: IAutoMovieResolvedBone = poseBones(
       body,
@@ -289,7 +303,10 @@ const need: <T>(value: T | undefined, axis: string) => T = <T>(
 };
 
 /** An affordance of the object, refused with its alternatives when absent. */
-const site: (prop: IAutoMovieMotionHumanProp, id: string) => IAutoMovieAffordance = (
+const site: (
+  prop: IAutoMovieMotionHumanProp,
+  id: string,
+) => IAutoMovieAffordance = (
   prop: IAutoMovieMotionHumanProp,
   id: string,
 ): IAutoMovieAffordance => {

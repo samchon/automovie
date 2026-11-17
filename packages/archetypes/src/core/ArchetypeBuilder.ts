@@ -1,25 +1,29 @@
-import type { IAutoMoviePrimitiveShape, IAutoMovieAffordance, IAutoMovieBodyContact, IAutoMovieBodyDrag, IAutoMovieMaterial, IAutoMovieModelPart, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-import {
-  Vector3,
-  rotationBetween,
-  srgbHexToLinearColor,
-} from "@automovie/engine";
-
+import { Vector3, rotationBetween } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieBodyContact,
+  IAutoMovieBodyDrag,
+  IAutoMovieModelPart,
+  IAutoMoviePrimitiveShape,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Archetype } from "./Archetype";
+import { ArchetypeBuilderParts } from "./ArchetypeBuilderParts";
 import type { ArchetypeBuilderTypes } from "./ArchetypeBuilderTypes";
+import { ArchetypeConvexCell } from "./ArchetypeConvexCell";
 import type { ArchetypeFracture } from "./ArchetypeFracture";
-import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
 import { ArchetypeMaterial } from "./ArchetypeMaterial";
-import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeSpan } from "./ArchetypeSpan";
+import { archetypeSpanAnchor } from "./archetypeSpanAnchor";
 
 /**
- * What every producer assembles an archetype with: primitive parts stated by their dimensions and place, the affordances an act reads, and the total mass.
+ * What every producer assembles an archetype with: dimensioned primitive or actual convex-cell parts, the affordances an act reads, and the total mass.
  *
- * A producer is a short list of calls, one per part, each from named dimensions: a box by its size and centre, a rod by its radius and two ends, a ball by its radius and centre. The repository keeps every model as coarse as identification allows, so there is nothing here to round an edge or shape a profile; a part exists because the thing would not be recognised, or could not be touched in the right place, without it. Parts carry unit scale, flat colours and no texture.
+ * A producer states named dimensions and formulas: a box by its size and centre, a rod by its radius and ends, a ball by its radius and centre, or an actual convex wall by its generating corners. Hollow forms assemble separate wall cells so rendering, mass and collision preserve their empty space. The repository keeps every model as coarse as identification allows. Parts carry unit scale, flat colours and no texture.
  *
  * `build` computes the centre of mass and inertia from the parts under the stated total mass ({@link ArchetypeMass}) and returns the {@link Archetype}.
  *
@@ -27,31 +31,19 @@ import { ArchetypeSpan } from "./ArchetypeSpan";
  * @template Dimension The archetype's free dimensions.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a producer writes with it, the coarseness rule it serves and what `build` derives.
- * @evidence contracts/development/design.md#principled-representation Code CAD over dimensioned primitives, the representation the 3D modeling skill names for furniture, tools and machines; every placement is a named dimension of the producer, none a vertex.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Three part calls (`box`, `rod`, `ball`), a line between moving frames (`span`), one affordance call and `build`, each used by producers of this package or, for `span`, by the bow and harness producers #3475 unblocks.
+ * @evidence contracts/development/design.md#principled-representation Code CAD over named dimensions and formula-defined primitives or actual convex cells. One recorded cell supplies visible and physical boundaries; producer-authored corner formulas own the wall profile.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Existing primitive, span, contact and build calls remain unchanged. Armour uses convex to express actual hollow walls that filled primitives cannot represent; recording/material ownership is shared with existing parts.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No call knows a kind of object; a repeated part id is a producer's defect and throws at once.
  */
 export class ArchetypeBuilder<Id extends string, Dimension extends string> {
-  /** The parts so far, at rest. */
-  readonly #parts: IAutoMovieModelPart[] = [];
+  /** Actual parts and their common material/mass/cell ownership. */
+  readonly #inventory: ArchetypeBuilderParts;
 
   /** The affordances so far, at rest. */
   readonly #affordances: (IAutoMovieAffordance & { id: Id })[] = [];
 
-  /** The materials cited so far, by id. */
-  readonly #materials: Map<string, IAutoMovieMaterial> = new Map();
-
-  /** Relative densities stated so far, by part id. */
-  readonly #density: Record<string, number> = {};
-
-  /** Mass shares stated so far, by part id. */
-  readonly #shares: Record<string, number> = {};
-
   /** The spans so far. */
   readonly #spans: ArchetypeSpan.ISpan[] = [];
-
-  /** Surface materials declared so far, by part id. */
-  readonly #surfaces: Record<string, ArchetypeFriction.Material> = {};
 
   /** The fragment sets declared so far. */
   readonly #fractures: ArchetypeFracture.ISet[] = [];
@@ -66,6 +58,7 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
    */
   public constructor(props: ArchetypeBuilder.IProps<Dimension>) {
     this.#props = props;
+    this.#inventory = new ArchetypeBuilderParts(props.draw.archetype);
   }
 
   /**
@@ -169,6 +162,35 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
   }
 
   /**
+   * Add one actual convex wall cell, sharing its visible and physical boundary.
+   * @param id Unique part id.
+   * @param points Cell-local finite corners in metres, or an immutable admitted cell prepared by ArchetypeConvexCell.of for repeated rigid instances.
+   * @param at Local origin in model metres; zero when absent.
+   * @param options Existing colour, rigid rotation, mass weight and surface options.
+   * @returns This builder.
+   * @throws {Error} For a repeated id or inadmissible convex cell.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the copied local point set, rigid placement and actual-cell premise.
+   * @evidence contracts/development/implementation.md#principled-implementation ArchetypeConvexCell derives the visible polyhedron, hull collider and local integrated mass from one explicit actual convex volume. An already admitted immutable cell can be reused for exactly rigid-equivalent instances, with each part's own transform. Hollow forms use separate wall cells.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Use a prepared cell or derive it from copied corners, record its exact mesh through the common part owner, then retain its physical correspondence by id.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No whole-shell hull or hidden solid fills a cavity, and no arbitrary mesh is guessed convex.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Raw corners require one small V-corner hull preparation. A prepared cell reuses all geometry and integration in constant time; every added part still scans P existing ids. Both build reductions reuse the prepared mass record.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One admitted cell serves rendering, mass, collision and subsequent rigid poses; optical material recording is shared with primitives.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Raw corners are copied into owned cell buffers; a supplied immutable prepared cell is explicitly shared. The builder retains cells until build hands them to the archetype. No caller raw-point array or external resource is retained.
+   */
+  public convex(
+    id: string,
+    points: readonly IAutoMovieVector3[] | ArchetypeConvexCell.ICell,
+    at: IAutoMovieVector3 = { x: 0, y: 0, z: 0 },
+    options?: ArchetypeBuilder.IOptions,
+  ): this {
+    const cell: ArchetypeConvexCell.ICell =
+      "geometry" in points ? points : ArchetypeConvexCell.of(points);
+    this.#inventory.add(id, cell.geometry, at, options?.rotation, options);
+    this.#inventory.cells.set(id, cell);
+    return this;
+  }
+
+  /**
    * A span: a taut line between two frames of the model, laid again between them after every pose (`ArchetypeSpan`), such as a bowstring between its limbs' tips.
    *
    * @param id Part id of the line, unique in the archetype.
@@ -182,11 +204,11 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
    * @throws {ArchetypeRefusal} When an end names a part or affordance not yet recorded, or the two ends meet at rest.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input's unit, what an end may name and when, and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation The ends are located at rest by `ArchetypeSpan.locate` and the line recorded as a `rod` between them, a cylinder, so its mass counts at rest as every part's does; the archetype lays it again after each pose.
+   * @evidence contracts/development/implementation.md#principled-implementation Shared span state resolves both rest anchors and any held extension before recording the actual cylinder, so rest mass uses its full drawn length. The archetype resolves the same declaration after each pose.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Locate, record the rod, record the span.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An end must already exist, so the rest line is the one every pose lays; coincident ends are refused.
    * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the parts and affordances so far, tens at most.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `rod` and `ArchetypeSpan.locate`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses rod construction and the same state operation used by posed lines and grip frames.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps what it records until `build` hands it to the archetype.
    */
   public span(
@@ -197,31 +219,45 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
     options?: ArchetypeBuilder.IOptions,
     length?: number,
   ): this {
-    const start: IAutoMovieVector3 = ArchetypeSpan.locate(
-      this.#props.draw.archetype,
+    const span: ArchetypeSpan.ISpan = {
+      id,
       from,
-      this.#parts,
-      this.#affordances,
-    );
-    const end: IAutoMovieVector3 = ArchetypeSpan.locate(
-      this.#props.draw.archetype,
       to,
-      this.#parts,
+      radius,
+      length: length ?? null,
+    };
+    const endpoints: ArchetypeSpan.IState = ArchetypeSpan.state(
+      this.#props.draw.archetype,
+      span,
+      this.#inventory.parts,
       this.#affordances,
     );
-    if (!(Vector3.length(Vector3.subtract(end, start)) > 0))
-      throw new ArchetypeRefusal({
-        kind: "parameter",
-        archetype: this.#props.draw.archetype,
-        axis: id,
-        value: 0,
-        feasible: null,
-        reason: `the span "${id}" has both ends at one point at rest`,
-        fix: "end the span at two distinct places",
-      });
-    this.rod(id, radius, start, end, { ...options, round: false });
-    this.#spans.push({ id, from, to, radius, length: length ?? null });
+    this.rod(id, radius, endpoints.from, endpoints.to, {
+      ...options,
+      round: false,
+    });
+    this.#spans.push(span);
     return this;
+  }
+
+  /**
+   * Bind a construction point to a real part already laid by this builder.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Converts model metres to the actual named carrier's local span coordinates.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegate actual rigid-frame inversion to the shared span-anchor owner.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call, without recording an extra part or contact.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No reconstructed carrier frame or hidden world anchor is substituted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The owner performs one O(P) part lookup and constant rigid arithmetic.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the actual already-built frame and the common anchor conversion.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new local endpoint without retaining a query or external handle.
+   */
+  public anchor(id: string, point: IAutoMovieVector3): ArchetypeSpan.End {
+    return archetypeSpanAnchor(
+      this.#props.draw.archetype,
+      this.#inventory.parts,
+      id,
+      point,
+    );
   }
 
   /**
@@ -280,7 +316,9 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
       ids.add(set.id);
       for (const part of set.parts) {
         if (
-          !this.#parts.some((p: IAutoMovieModelPart): boolean => p.id === part)
+          !this.#inventory.parts.some(
+            (p: IAutoMovieModelPart): boolean => p.id === part,
+          )
         )
           throw new Error(
             `fracture set ${set.id} names the unrecorded part ${part}`,
@@ -325,7 +363,7 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Material and contact admission precede one construction from the builder's recorded geometry and mass properties.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing material is refused. Unmeasured restitution and undeclared resting friction remain absent; neither becomes zero or a universal coefficient. The mass remains the producer's cited value rather than a guessed density-derived total.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, through `ArchetypeMass.of`.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Records one independent part or contact per call.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Aggregate and per-part mass reductions share admitted actual-cell integration records and the same local-solid/weight owners; geometry and material records pass directly to the built archetype.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps what it records until `build` hands it to the archetype.
    */
   public build(
@@ -359,31 +397,34 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
       archetype: this.#props.draw.archetype,
       id: this.#props.id ?? this.#props.draw.archetype,
       name: this.#props.name,
-      parts: this.#parts,
+      parts: this.#inventory.parts,
+      cells: this.#inventory.cells,
       affordances: this.#affordances,
-      materials: [...this.#materials.values()],
+      materials: [...this.#inventory.materials.values()],
       properties: ArchetypeMass.of(
-        this.#parts,
+        this.#inventory.parts,
         mass,
-        this.#density,
-        this.#shares,
+        this.#inventory.density,
+        this.#inventory.shares,
+        this.#inventory.cells,
       ),
       friction: pair === null ? null : ArchetypeFriction.value(pair.static),
       kineticFriction:
         pair === null || pair.kinetic === null
           ? null
           : ArchetypeFriction.value(pair.kinetic),
-      surfaces: this.#surfaces,
+      surfaces: this.#inventory.surfaces,
       material,
       restitution,
       drag: contact?.drag ?? null,
       contact: contact?.outcome ?? null,
       fractures: this.#fractures,
       masses: ArchetypeMass.parts(
-        this.#parts,
+        this.#inventory.parts,
         mass,
-        this.#density,
-        this.#shares,
+        this.#inventory.density,
+        this.#inventory.shares,
+        this.#inventory.cells,
       ),
       dimensions: this.#props.draw.values,
       provenance: this.#props.draw.provenance,
@@ -391,7 +432,7 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
     });
   }
 
-  /** Record one primitive part with its material and density. */
+  /** Record one primitive through the shared actual-part/material owner. */
   #add(
     id: string,
     shape: IAutoMoviePrimitiveShape,
@@ -399,42 +440,13 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
     rotation: IAutoMovieQuaternion | undefined,
     options: ArchetypeBuilder.IOptions | undefined,
   ): this {
-    if (this.#parts.some((p: IAutoMovieModelPart): boolean => p.id === id))
-      throw new Error(
-        `Archetype ${this.#props.draw.archetype} already has a part "${id}"`,
-      );
-
-    // One flat material per colour, shared by every part of that colour.
-    const hex: string = (
-      options?.color ?? ArchetypeBuilder.NEUTRAL
-    ).toLowerCase();
-    const material: string = `flat-${hex.slice(1)}`;
-    if (!this.#materials.has(material))
-      this.#materials.set(material, {
-        id: material,
-        name: null,
-        baseColor: srgbHexToLinearColor(hex),
-        metallic: 0,
-        roughness: 0.8,
-        emissive: null,
-        opacity: 1,
-        baseColorTexture: null,
-      });
-    if (options?.density !== undefined) this.#density[id] = options.density;
-    if (options?.share !== undefined) this.#shares[id] = options.share;
-    if (options?.surface !== undefined) this.#surfaces[id] = options.surface;
-    this.#parts.push({
+    this.#inventory.add(
       id,
-      name: null,
-      geometry: { type: "primitive", shape },
-      material,
-      attachedBone: null,
-      transform: {
-        translation: { ...at },
-        rotation: rotation ?? { x: 0, y: 0, z: 0, w: 1 },
-        scale: { ...ArchetypeFrame.UNIT },
-      },
-    });
+      { type: "primitive", shape },
+      at,
+      rotation,
+      options,
+    );
     return this;
   }
 }
@@ -444,7 +456,7 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
  */
 export namespace ArchetypeBuilder {
   /** The colour of a part that states none: a mid grey. */
-  export const NEUTRAL: string = "#9a9a9a";
+  export const NEUTRAL: string = ArchetypeBuilderParts.NEUTRAL;
 
   /**
    * The producer identity and draw record, with an explicit physical material.

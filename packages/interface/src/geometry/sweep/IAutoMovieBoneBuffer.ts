@@ -1,5 +1,5 @@
-import type { AutoMovieHumanoidBone } from "../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieResolvedBone } from "../../pose/IAutoMovieResolvedBone";
+import type { AutoMovieHumanoidBone } from "../../skeleton/AutoMovieHumanoidBone";
 
 /**
  * Each bone's rigid motion from rest to the current pose in arrays, from

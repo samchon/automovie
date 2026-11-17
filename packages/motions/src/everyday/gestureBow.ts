@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -41,13 +46,19 @@ export namespace gestureBow {
     back: number,
   ): IAutoMovieMotionHumanPosture {
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
+    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+      origin: posture.root,
+      yaw: posture.yaw,
+    };
     const target: IAutoMovieVector3 = HumanFrame.point(frame, {
       x: hips.x,
       y: hips.y,
       z: hips.z - back,
     });
-    const tipped: IAutoMovieMotionHumanPosture = { ...posture, pitch: posture.pitch + pitch };
+    const tipped: IAutoMovieMotionHumanPosture = {
+      ...posture,
+      pitch: posture.pitch + pitch,
+    };
     const offset: IAutoMovieVector3 = Quaternion.rotateVector(
       resolveHumanPosture.heading(tipped),
       hips,

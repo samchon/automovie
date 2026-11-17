@@ -1,5 +1,10 @@
-import { type IAutoMovieResolvedBone, type IAutoMovieCreateBoneMotion, AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieCreateBoneMotion,
+  IAutoMovieQuaternion,
+  type IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
@@ -26,10 +31,14 @@ import { Vector3 } from "../../math/Vector3";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each bone's relative rotation is computed once on first use and cached for every later point of that bone.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains the two bone maps and at most one cached rotation per bone, released with the closure.
  */
-export const createAutoMovieBoneMotion: (props: IAutoMovieCreateBoneMotion.IProps) => (bone: AutoMovieHumanoidBone) => {
+export const createAutoMovieBoneMotion: (
+  props: IAutoMovieCreateBoneMotion.IProps,
+) => (bone: AutoMovieHumanoidBone) => {
   rotation: IAutoMovieQuaternion;
   apply: (point: IAutoMovieVector3) => IAutoMovieVector3;
-} = (props: IAutoMovieCreateBoneMotion.IProps): ((bone: AutoMovieHumanoidBone) => {
+} = (
+  props: IAutoMovieCreateBoneMotion.IProps,
+): ((bone: AutoMovieHumanoidBone) => {
   rotation: IAutoMovieQuaternion;
   apply: (point: IAutoMovieVector3) => IAutoMovieVector3;
 }) => {

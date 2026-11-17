@@ -1,5 +1,7 @@
-import type { IAutoMovieConstructionProfileSource, IAutoMovieConstructionProfile } from "@automovie/interface";
-
+import type {
+  IAutoMovieConstructionProfile,
+  IAutoMovieConstructionProfileSource,
+} from "@automovie/interface";
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 

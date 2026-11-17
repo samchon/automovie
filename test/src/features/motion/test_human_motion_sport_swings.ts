@@ -1,6 +1,18 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment } from "@automovie/interface";
 import { createBall } from "@automovie/archetypes";
-import { HumanChain, HumanObject, HumanPerformance, HumanSportSwing, HumanSportThrow, HumanWeaponMelee } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanSportSwing,
+  HumanSportThrow,
+  HumanWeaponMelee,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -84,7 +96,8 @@ export function test_human_motion_sport_swings(): void {
             .stand({ seconds: 0.3 })
             .registered(law.name, given[law.name] ?? {}).node,
         });
-        const act: IAutoMovieMotionHumanSegment.ISegment | undefined = film.segments("a")[1];
+        const act: IAutoMovieMotionHumanSegment.ISegment | undefined =
+          film.segments("a")[1];
         if (act === undefined || act.name !== law.name)
           complaints.push(
             `${law.name} on ${name}: placed as ${act?.name}, ${law.name} expected`,

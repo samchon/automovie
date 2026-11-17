@@ -1,5 +1,11 @@
-import { type IAutoMovieContinuityTolerances, type IAutoMovieResolveBeatProps, type IAutoMovieValidateFilmContinuity, type IAutoMovieViolationCollector, IAutoMovieBeatEndState, IAutoMovieValidation } from "@automovie/interface";
-
+import {
+  IAutoMovieBeatEndState,
+  type IAutoMovieContinuityTolerances,
+  type IAutoMovieResolveBeatProps,
+  type IAutoMovieValidateFilmContinuity,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { resolveBeatEnd } from "../film/resolveBeatEnd";
 import { resolveBeatOpening } from "../film/resolveBeatOpening";
@@ -18,7 +24,11 @@ import { readContinuityTolerances } from "./readContinuityTolerances";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Middle beat rows supply their opening to the incoming cut and their end to the outgoing cut; first-opening and last-end states are still resolved but unused. No snapshot is cached across mutable film inputs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Resolution inputs are borrowed; snapshots/maps release after validation while diagnostics transfer to the caller.
  */
-export const validateFilmContinuity: (props: IAutoMovieValidateFilmContinuity.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateFilmContinuity.IProps): IAutoMovieValidation => {
+export const validateFilmContinuity: (
+  props: IAutoMovieValidateFilmContinuity.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateFilmContinuity.IProps,
+): IAutoMovieValidation => {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const tolerances: IAutoMovieContinuityTolerances | null =
     readContinuityTolerances(

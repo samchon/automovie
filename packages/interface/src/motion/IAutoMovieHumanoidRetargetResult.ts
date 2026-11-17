@@ -1,6 +1,6 @@
+import type { IAutoMovieValidation } from "../validation/IAutoMovieValidation";
 import type { IAutoMovieHumanoidRetargetCharacterization } from "./IAutoMovieHumanoidRetargetCharacterization";
 import type { IAutoMovieMotion } from "./IAutoMovieMotion";
-import type { IAutoMovieValidation } from "../validation/IAutoMovieValidation";
 
 /**
  * Result of retargeting. `motion` and `characterization` are present only when

@@ -1,6 +1,14 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanStrikingHeld, IAutoMovieMotionHumanSword, IAutoMovieMotionHumanSwordParry, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionHumanSword,
+  IAutoMovieMotionHumanSwordParry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -42,7 +50,6 @@ import { HumanSword } from "./HumanSword";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The attacker's blade is read from the performance's displayed prop, never restated in the parry's parameters.
  */
 export namespace HumanSwordParry {
-
   /** Where a parry meets the attacking blade, a share of that blade's length back from its point: its weak (provisional). */
   export const WEAK: number = 0.25;
 
@@ -69,7 +76,8 @@ export namespace HumanSwordParry {
     const p: IAutoMovieMotionHumanSwordParry.IParry = context.params;
     const forward: IAutoMovieVector3 = s.world({ out: 0, up: 0, forward: 1 });
     if (p.against === undefined) {
-      const line: IAutoMovieMotionHumanSwordParry.Opening = p.line ?? "highOutside";
+      const line: IAutoMovieMotionHumanSwordParry.Opening =
+        p.line ?? "highOutside";
       const high: boolean = line.startsWith("high");
       const out: number = line.endsWith("Outside") ? 0.2 : -0.45;
       return {
@@ -87,7 +95,9 @@ export namespace HumanSwordParry {
     }
 
     // The attacker's blade where the attack is stopped, at its decisive instant.
-    const attack: IAutoMovieMotionHumanActionContext.IPlaced = context.action(p.against);
+    const attack: IAutoMovieMotionHumanActionContext.IPlaced = context.action(
+      p.against,
+    );
     const theirs: string | undefined = attack.plan.wields?.prop;
     if (theirs === undefined)
       throw new HumanRefusal({
@@ -169,144 +179,176 @@ export namespace HumanSwordParry {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
    */
-  export const parry: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSwordParry.IParry> = {
-    name: "swordParry",
-    interrupts: HumanSword.follows("stroke"),
-    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwordParry.IParry>): IAutoMovieMotionHumanActionPlan => {
-      const s: IAutoMovieMotionHumanSword.ISetup = HumanSword.setup(context);
+  export const parry: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSwordParry.IParry> =
+    {
+      name: "swordParry",
+      interrupts: HumanSword.follows("stroke"),
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwordParry.IParry>,
+      ): IAutoMovieMotionHumanActionPlan => {
+        const s: IAutoMovieMotionHumanSword.ISetup = HumanSword.setup(context);
 
-      // The parry receives as near its hilt as the arm allows: the strong
-      // first, then farther up the blade while the wrist is out of reach.
-      const grip: IAutoMovieVector3 = HumanHand.offset(
-        context.body,
-        s.tool.side,
-        "grip",
-      ).point;
-      const receive = (
-        meeting: IMeet,
-        share: number,
-      ): IAutoMovieMotionHumanStrikingHeld.IHandFrame =>
-        StrikingRoll.hand(
-          context,
-          s.tool,
-          (1 - share) * s.tool.length,
-          meeting.at,
-          meeting.point,
-          LEAN,
-          context.entry.posture,
-        );
-      const received = (
-        meeting: IMeet,
-      ): { share: number; frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame } => {
-        for (const more of [0, 0.1, 0.2, 0.3, 0.4, 0.5]) {
-          const share: number = HumanSword.LANDS.parry + more;
-          const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = receive(meeting, share);
-          if (
-            Vector3.length(
-              Vector3.subtract(
+        // The parry receives as near its hilt as the arm allows: the strong
+        // first, then farther up the blade while the wrist is out of reach.
+        const grip: IAutoMovieVector3 = HumanHand.offset(
+          context.body,
+          s.tool.side,
+          "grip",
+        ).point;
+        const receive = (
+          meeting: IMeet,
+          share: number,
+        ): IAutoMovieMotionHumanStrikingHeld.IHandFrame =>
+          StrikingRoll.hand(
+            context,
+            s.tool,
+            (1 - share) * s.tool.length,
+            meeting.at,
+            meeting.point,
+            LEAN,
+            context.entry.posture,
+          );
+        const received = (
+          meeting: IMeet,
+        ): {
+          share: number;
+          frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
+        } => {
+          for (const more of [0, 0.1, 0.2, 0.3, 0.4, 0.5]) {
+            const share: number = HumanSword.LANDS.parry + more;
+            const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = receive(
+              meeting,
+              share,
+            );
+            if (
+              Vector3.length(
                 Vector3.subtract(
-                  frame.point,
-                  Quaternion.rotateVector(frame.rotation, grip),
+                  Vector3.subtract(
+                    frame.point,
+                    Quaternion.rotateVector(frame.rotation, grip),
+                  ),
+                  s.shoulder,
                 ),
-                s.shoulder,
-              ),
-            ) <=
-            HumanSword.REACH * s.arm
-          )
-            return { share, frame };
-        }
-        return {
-          share: HumanSword.LANDS.parry,
-          frame: receive(meeting, HumanSword.LANDS.parry),
+              ) <=
+              HumanSword.REACH * s.arm
+            )
+              return { share, frame };
+          }
+          return {
+            share: HumanSword.LANDS.parry,
+            frame: receive(meeting, HumanSword.LANDS.parry),
+          };
         };
-      };
 
-      // It meets the attacking blade on its weak, and slides the meeting
-      // back along that blade (`SLIDE`) while the arm cannot hold its own
-      // blade across it there: the first meeting the fitted hand holds within
-      // `StrikingRoll.MISS`, else the one it holds best.
-      let m: IMeet | undefined;
-      let chosen: { share: number; frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame } | undefined;
-      let least: number = Infinity;
-      for (const weak of context.params.against === undefined
-        ? [WEAK]
-        : SLIDE) {
-        const meeting: IMeet = meet(context, s, weak);
-        const found: { share: number; frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame } =
-          received(meeting);
-        const missed: number = StrikingRoll.miss(
+        // It meets the attacking blade on its weak, and slides the meeting
+        // back along that blade (`SLIDE`) while the arm cannot hold its own
+        // blade across it there: the first meeting the fitted hand holds within
+        // `StrikingRoll.MISS`, else the one it holds best.
+        let m: IMeet | undefined;
+        let chosen:
+          | {
+              share: number;
+              frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
+            }
+          | undefined;
+        let least: number = Infinity;
+        for (const weak of context.params.against === undefined
+          ? [WEAK]
+          : SLIDE) {
+          const meeting: IMeet = meet(context, s, weak);
+          const found: {
+            share: number;
+            frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
+          } = received(meeting);
+          const missed: number = StrikingRoll.miss(
+            context,
+            s.tool,
+            found.frame,
+            (1 - found.share) * s.tool.length,
+            context.entry.posture,
+          );
+          if (
+            chosen === undefined ||
+            missed < least - HumanFreedomChoice.EXACT
+          ) {
+            least = missed;
+            m = meeting;
+            chosen = found;
+          }
+          if (least <= StrikingRoll.MISS) break;
+        }
+        const share: number = chosen!.share;
+        const back: number = (1 - share) * s.tool.length;
+        const closed: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+          chosen!.frame;
+        const met: IMeet = m!;
+        StrikingRoll.reachable(
           context,
           s.tool,
-          found.frame,
-          (1 - found.share) * s.tool.length,
+          closed,
+          back,
           context.entry.posture,
+          `stand closer to the blade to parry, which is met at ${met.at.x.toFixed(2)}, ${met.at.y.toFixed(2)}, ${met.at.z.toFixed(2)} m, or have the attack aim nearer`,
         );
-        if (chosen === undefined || missed < least - HumanFreedomChoice.EXACT) {
-          least = missed;
-          m = meeting;
-          chosen = found;
-        }
-        if (least <= StrikingRoll.MISS) break;
-      }
-      const share: number = chosen!.share;
-      const back: number = (1 - share) * s.tool.length;
-      const closed: IAutoMovieMotionHumanStrikingHeld.IHandFrame = chosen!.frame;
-      const met: IMeet = m!;
-      StrikingRoll.reachable(
-        context,
-        s.tool,
-        closed,
-        back,
-        context.entry.posture,
-        `stand closer to the blade to parry, which is met at ${met.at.x.toFixed(2)}, ${met.at.y.toFixed(2)}, ${met.at.z.toFixed(2)} m, or have the attack aim nearer`,
-      );
-      const bones: ReturnType<typeof poseBones> = poseBones(
-        context.body,
-        context.entry.pose,
-      );
-      const held: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
-        point: HumanHand.frame(context.body, bones, s.tool.side, "grip").point,
-        rotation: bones.get(`${s.tool.side}Hand`)!.worldRotation,
-      };
+        const bones: ReturnType<typeof poseBones> = poseBones(
+          context.body,
+          context.entry.pose,
+        );
+        const held: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
+          point: HumanHand.frame(context.body, bones, s.tool.side, "grip")
+            .point,
+          rotation: bones.get(`${s.tool.side}Hand`)!.worldRotation,
+        };
 
-      // The parry's own time, then as much waiting in the entry hold as puts
-      // its meeting on the attack's decisive instant.
-      const natural: number = Math.max(
-        0.15,
-        (1.875 *
-          Vector3.length(
-            Vector3.subtract(met.at, StrikingHeld.point(s.tool, held, back)),
-          )) /
-          s.skill(HumanSword.SPEED.thrust),
-      );
-      const lead: number = met.lead ?? natural;
-      const recovery: number = StrikingSkill.recovery(context.skill);
-      return StrikingBlade.plan(context, {
-        tool: s.tool,
-        clock: AutoMovieMotionManner.time(
-          AutoMovieMotionClock.phrase({
-            prepare: Math.max(0, lead - natural),
-            attack: lead >= 0.1 ? Math.min(lead, natural) : natural,
-            hold: HumanBound.least("hold", context.params.hold ?? 0.15, 0, "s"),
-            retract: 0.35 * recovery,
-          }),
-          AutoMovieMotionManner.of(context, context.params.manner),
-        ),
-        path: (progress: number): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
-          point: Vector3.lerp(held.point, closed.point, Math.min(1, progress)),
-          rotation: Quaternion.slerp(
-            held.rotation,
-            closed.rotation,
-            Math.min(1, progress),
+        // The parry's own time, then as much waiting in the entry hold as puts
+        // its meeting on the attack's decisive instant.
+        const natural: number = Math.max(
+          0.15,
+          (1.875 *
+            Vector3.length(
+              Vector3.subtract(met.at, StrikingHeld.point(s.tool, held, back)),
+            )) /
+            s.skill(HumanSword.SPEED.thrust),
+        );
+        const lead: number = met.lead ?? natural;
+        const recovery: number = StrikingSkill.recovery(context.skill);
+        return StrikingBlade.plan(context, {
+          tool: s.tool,
+          clock: AutoMovieMotionManner.time(
+            AutoMovieMotionClock.phrase({
+              prepare: Math.max(0, lead - natural),
+              attack: lead >= 0.1 ? Math.min(lead, natural) : natural,
+              hold: HumanBound.least(
+                "hold",
+                context.params.hold ?? 0.15,
+                0,
+                "s",
+              ),
+              retract: 0.35 * recovery,
+            }),
+            AutoMovieMotionManner.of(context, context.params.manner),
           ),
-        }),
-        back,
-        support: s.support,
-        advance: "none",
-        line: s.world({ out: 0, up: 0, forward: 1 }),
-        stay: false,
-        stop: 1,
-      });
-    },
-  };
+          path: (
+            progress: number,
+          ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
+            point: Vector3.lerp(
+              held.point,
+              closed.point,
+              Math.min(1, progress),
+            ),
+            rotation: Quaternion.slerp(
+              held.rotation,
+              closed.rotation,
+              Math.min(1, progress),
+            ),
+          }),
+          back,
+          support: s.support,
+          advance: "none",
+          line: s.world({ out: 0, up: 0, forward: 1 }),
+          stay: false,
+          stop: 1,
+        });
+      },
+    };
 }

@@ -1,6 +1,9 @@
-import { type IAutoMovieTwoBoneArticulation, type IAutoMovieTwoBoneChainArticulation, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  IAutoMovieQuaternion,
+  type IAutoMovieTwoBoneArticulation,
+  type IAutoMovieTwoBoneChainArticulation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -45,7 +48,11 @@ const POLE_FALLBACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Segment lengths and rest directions are derived once for the supplied resolved chain; another pose or target changes those frames and has no reusable cached articulation here.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned rotations.
  */
-export const twoBoneChainArticulation: (props: IAutoMovieTwoBoneChainArticulation.IProps) => IAutoMovieTwoBoneArticulation | null = (props: IAutoMovieTwoBoneChainArticulation.IProps): IAutoMovieTwoBoneArticulation | null => {
+export const twoBoneChainArticulation: (
+  props: IAutoMovieTwoBoneChainArticulation.IProps,
+) => IAutoMovieTwoBoneArticulation | null = (
+  props: IAutoMovieTwoBoneChainArticulation.IProps,
+): IAutoMovieTwoBoneArticulation | null => {
   const root: IAutoMovieVector3 = props.upper.worldPosition;
   const mid: IAutoMovieVector3 = props.lower.worldPosition;
 

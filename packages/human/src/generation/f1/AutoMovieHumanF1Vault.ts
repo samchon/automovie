@@ -1,9 +1,8 @@
 import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
-
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
-import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
+import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
 
 /**
  * f1's vault tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -72,5 +71,8 @@ export const AutoMovieHumanF1Vault: IAutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The part closes in a point at `tip`, a station placed by anatomy; its cap starts at `from`.
-  tips: [{from: 2, tip: -1}, {from: 18, tip: 20}],
+  tips: [
+    { from: 2, tip: -1 },
+    { from: 18, tip: 20 },
+  ],
 };

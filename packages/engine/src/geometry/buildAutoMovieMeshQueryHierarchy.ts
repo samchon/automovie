@@ -1,4 +1,5 @@
 import type { IAutoMovieMeshQueryHierarchy } from "@automovie/interface";
+
 /**
  * Partition resident entry boxes into a median box hierarchy.
  *

@@ -1,8 +1,8 @@
+import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
-import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * Arm primitives: a hand surface carried to a target, kept on it and taken

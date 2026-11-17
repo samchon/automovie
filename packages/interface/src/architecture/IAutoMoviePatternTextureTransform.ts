@@ -1,5 +1,3 @@
-
-
 /**
  * One occurrence's sampling of its material, in the PBR record's own UV
  * transform.

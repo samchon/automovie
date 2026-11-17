@@ -1,5 +1,13 @@
-import type { IAutoMovieResolvedBone, IAutoMovieRestFrame, IAutoMovieFitChainToTargetProps, AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieFitChainToTargetProps,
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRestFrame,
+} from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";

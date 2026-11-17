@@ -1,6 +1,12 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { typeText } from "../everyday/typeText";
 import { HumanHand } from "../posture/HumanHand";
 
@@ -44,7 +50,8 @@ export function manipulateReach(
   depth: number,
   rotation: IAutoMovieQuaternion,
 ): IAutoMovieVector3 {
-  const surface: IAutoMovieMotionHumanHand.Surface = `${digit}Tip` as IAutoMovieMotionHumanHand.Surface;
+  const surface: IAutoMovieMotionHumanHand.Surface =
+    `${digit}Tip` as IAutoMovieMotionHumanHand.Surface;
   const name: string = `${digit[0]!.toUpperCase()}${digit.slice(1)}`;
   const first: AutoMovieHumanoidBone = `${side}${name}${
     digit === "thumb" ? "Metacarpal" : "Proximal"

@@ -1,4 +1,12 @@
-import type { IAutoMovieBicubicAtlas64, IAutoMovieBicubicAtlasPlan64, IAutoMovieBicubicAtlasRegistry64, IAutoMovieBicubicAtlasTessellation64, IAutoMovieCanonicalBoundary64, IAutoMovieCanonicalBoundaryPhase64 } from "@automovie/interface";
+import type {
+  IAutoMovieBicubicAtlas64,
+  IAutoMovieBicubicAtlasPlan64,
+  IAutoMovieBicubicAtlasRegistry64,
+  IAutoMovieBicubicAtlasTessellation64,
+  IAutoMovieCanonicalBoundary64,
+  IAutoMovieCanonicalBoundaryPhase64,
+} from "@automovie/interface";
+
 import { AutoMovieCanonicalBoundary64 as Q } from "./AutoMovieCanonicalBoundary64";
 
 type Patch = IAutoMovieBicubicAtlas64.Patch;
@@ -22,17 +30,15 @@ export function AutoMovieBicubicAtlasRegistry64(
   SIDES: readonly (readonly number[])[],
   CORNERS: readonly (readonly [number, number, number])[],
 ): IAutoMovieBicubicAtlasRegistry64.IResult {
-  const { plans, boundary }: IAutoMovieBicubicAtlasPlan64.IResult =
-    prepared;
+  const { plans, boundary }: IAutoMovieBicubicAtlasPlan64.IResult = prepared;
   const { authorities, bindings, root }: typeof boundary = boundary;
   const edges: Map<string, IAutoMovieBicubicAtlas64.Edge> = new Map(),
     corners: Map<string, IAutoMovieBicubicAtlas64.Corner> = new Map();
   const patchEdges: (IAutoMovieBicubicAtlas64.Edge | undefined)[][] = plans.map(
     (): (IAutoMovieBicubicAtlas64.Edge | undefined)[] => [],
   );
-  const occurrences: (IAutoMovieBicubicAtlas64.Occurrence | undefined)[][] = plans.map(
-    (): (IAutoMovieBicubicAtlas64.Occurrence | undefined)[] => [],
-  );
+  const occurrences: (IAutoMovieBicubicAtlas64.Occurrence | undefined)[][] =
+    plans.map((): (IAutoMovieBicubicAtlas64.Occurrence | undefined)[] => []);
   for (let p: number = 0; p < plans.length; p++) {
     const plan: Plan = plans[p]!,
       patch: Patch = input.patches[p]!;
@@ -45,7 +51,8 @@ export function AutoMovieBicubicAtlasRegistry64(
         )
       ) {
         const key: string = root(`control:${patch.controlIds[slot]}`),
-          corner: IAutoMovieBicubicAtlas64.Corner | undefined = corners.get(key);
+          corner: IAutoMovieBicubicAtlas64.Corner | undefined =
+            corners.get(key);
         if (corner) corner.last = p;
         else
           corners.set(key, {
@@ -122,7 +129,10 @@ export function AutoMovieBicubicAtlasRegistry64(
   }
   // Numeric views order distinct doubles; exact dyadic keys break rounded ties.
   // The registered keys were admitted by Q.phase, so their bounded encoding is known.
-  const comparePhase: (a: IAutoMovieCanonicalBoundaryPhase64, b: IAutoMovieCanonicalBoundaryPhase64) => number = (
+  const comparePhase: (
+    a: IAutoMovieCanonicalBoundaryPhase64,
+    b: IAutoMovieCanonicalBoundaryPhase64,
+  ) => number = (
     a: IAutoMovieCanonicalBoundaryPhase64,
     b: IAutoMovieCanonicalBoundaryPhase64,
   ): number => {
@@ -145,30 +155,38 @@ export function AutoMovieBicubicAtlasRegistry64(
   for (const edge of edges.values()) {
     edge.samples = [...edge.phases.values()].sort(comparePhase);
     edge.roundedCollisions = edge.samples.reduce(
-      (count: number, q: IAutoMovieCanonicalBoundaryPhase64, i: number): number =>
+      (
+        count: number,
+        q: IAutoMovieCanonicalBoundaryPhase64,
+        i: number,
+      ): number =>
         count + (i > 0 && edge.samples[i - 1]!.value === q.value ? 1 : 0),
       0,
     );
   }
   const excessiveIncidence: Set<string> = new Set();
   for (const edge of edges.values()) {
-    const uses: [readonly {
-      id: string;
-      authority: string;
-      start: number;
-      end: number;
-      walk: 1 | -1;
-    }[]][0] = edge.incidents.map(
+    const uses: [
+      readonly {
+        id: string;
+        authority: string;
+        start: number;
+        end: number;
+        walk: 1 | -1;
+      }[],
+    ][0] = edge.incidents.map(
       (
         occurrence: IAutoMovieBicubicAtlas64.Occurrence,
         i: number,
-      ): [readonly {
-      id: string;
-      authority: string;
-      start: number;
-      end: number;
-      walk: 1 | -1;
-    }[]][0][number] => ({
+      ): [
+        readonly {
+          id: string;
+          authority: string;
+          start: number;
+          end: number;
+          walk: 1 | -1;
+        }[],
+      ][0][number] => ({
         id: `${i}`,
         authority: edge.key,
         start: occurrence.binding?.start ?? (occurrence.reverse ? 1 : 0),
@@ -178,8 +196,9 @@ export function AutoMovieBicubicAtlasRegistry64(
     );
     if (
       Q.partition(uses).atoms.some(
-        (atom: IAutoMovieCanonicalBoundary64.IPartitionResult["atoms"][number]): boolean =>
-          atom.uses.length > 2,
+        (
+          atom: IAutoMovieCanonicalBoundary64.IPartitionResult["atoms"][number],
+        ): boolean => atom.uses.length > 2,
       )
     )
       excessiveIncidence.add(edge.key);

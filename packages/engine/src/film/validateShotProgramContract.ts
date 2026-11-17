@@ -1,5 +1,11 @@
-import { type IAutoMovieAuthoringDiagnostic, IAutoMovieDefinedShot, IAutoMovieShotActorProgram, IAutoMovieShotEventContract, IAutoMovieShotProgram, IAutoMovieStageActor } from "@automovie/interface";
-
+import {
+  type IAutoMovieAuthoringDiagnostic,
+  IAutoMovieDefinedShot,
+  IAutoMovieShotActorProgram,
+  IAutoMovieShotEventContract,
+  IAutoMovieShotProgram,
+  IAutoMovieStageActor,
+} from "@automovie/interface";
 
 /** One returned event sample: a contract event id and its claimed time. */
 type IEventSample = IAutoMovieShotProgram["eventSamples"][number];

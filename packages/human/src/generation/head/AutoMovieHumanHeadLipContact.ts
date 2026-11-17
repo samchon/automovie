@@ -1,9 +1,17 @@
-import type { IAutoMovieLoftFrame, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanHeadLipContact } from "@automovie/interface";
-
-
-
-import { AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieLoftViewWorldJet } from "@automovie/engine";
-
+import {
+  AutoMovieLoftSectionNative,
+  AutoMovieLoftViewRead,
+  AutoMovieLoftViewSource,
+  AutoMovieLoftViewWorldJet,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanHeadLipContact,
+  IAutoMovieLoftFrame,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * Original mass contact and both lip borders in one declared level chart.
@@ -20,23 +28,20 @@ import { AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSou
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned contact retains its original parent and admitted scalar source; query temporaries and vectors have call scope, with no global cache.
  */
 export namespace AutoMovieHumanHeadLipContact {
-  
-
   /** The same native field with optional implicit-coordinate total2. */
   interface IField extends IAutoMovieHumanHeadLipContact.IReading {
     /** Fy, Fz, Fyy, Fyz, Fzz for world X=F(world Y,world Z). */
     derivatives: [number, number, number, number, number] | null;
   }
 
-  
-
-  
-
   /**
    * Admit one original level field, retaining the actual source and axis.
    * Queries reject unsupported charts and domains instead of moving a point.
    */
-  export function create(parent: IAutoMovieViewPart, height: number): IAutoMovieHumanHeadLipContact.IContact {
+  export function create(
+    parent: IAutoMovieViewPart,
+    height: number,
+  ): IAutoMovieHumanHeadLipContact.IContact {
     const admitted: IAutoMovieLoftViewSource.IResult | null =
       AutoMovieLoftViewSource.create(parent);
     if (admitted?.source === null || admitted === null)
@@ -134,7 +139,8 @@ export namespace AutoMovieHumanHeadLipContact {
       parent,
       source,
       frame,
-      at: (lateral: number): IAutoMovieHumanHeadLipContact.IReading => field(height, lateral),
+      at: (lateral: number): IAutoMovieHumanHeadLipContact.IReading =>
+        field(height, lateral),
       section: (
         z: number,
         h: number,
@@ -197,7 +203,11 @@ export namespace AutoMovieHumanHeadLipContact {
           border.point[1] - height,
           0,
         ];
-        const u: AutoMovieVector3Tuple = [(sign * delta[0]) / h, (sign * delta[1]) / h, 0];
+        const u: AutoMovieVector3Tuple = [
+          (sign * delta[0]) / h,
+          (sign * delta[1]) / h,
+          0,
+        ];
         const value: IAutoMovieLoftFrame.IFrame = {
           origin: [
             (rest.point[0] + border.point[0]) / 2,
@@ -248,7 +258,11 @@ export namespace AutoMovieHumanHeadLipContact {
     const dx: number = fy * dy + fz;
     const ddx: number = fyy * dy * dy + 2 * fyz * dy + fzz + fy * ddy;
     const firstDelta: AutoMovieVector3Tuple = [dx - rest.derivatives[1], dy, 0];
-    const secondDelta: AutoMovieVector3Tuple = [ddx - rest.derivatives[4], ddy, 0];
+    const secondDelta: AutoMovieVector3Tuple = [
+      ddx - rest.derivatives[4],
+      ddy,
+      0,
+    ];
     const firstU: AutoMovieVector3Tuple = [0, 0, 0];
     const secondU: AutoMovieVector3Tuple = [0, 0, 0];
     for (let i: number = 0; i < 2; i++) {

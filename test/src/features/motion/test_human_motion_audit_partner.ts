@@ -1,7 +1,16 @@
-import type { IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanAuditPartner, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
-import { AutoMovieMotionHumanAuditPartner, HumanColliders } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditPartner,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAuditPartner,
+  HumanColliders,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditMoved } from "../internal/motionAuditMoved";
@@ -106,18 +115,19 @@ export function test_human_motion_audit_partner(): void {
   });
 
   // His trunk's front surface, right of the midline.
-  const hit: IAutoMovieMotionHumanColliders.IHit | undefined = HumanColliders.cast(
-    man,
-    new Map(
-      [...his].filter(
-        ([bone]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): boolean =>
-          bone === "chest" || bone === "spine",
+  const hit: IAutoMovieMotionHumanColliders.IHit | undefined =
+    HumanColliders.cast(
+      man,
+      new Map(
+        [...his].filter(
+          ([bone]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): boolean =>
+            bone === "chest" || bone === "spine",
+        ),
       ),
-    ),
-    { x: -0.05, y: his.get("chest")!.worldPosition.y, z: 1 },
-    { x: 0, y: 0, z: -1 },
-    2,
-  );
+      { x: -0.05, y: his.get("chest")!.worldPosition.y, z: 1 },
+      { x: 0, y: 0, z: -1 },
+      2,
+    );
   if (hit === undefined) throw new Error("The ray missed the trunk");
   const middle = (
     from: AutoMovieHumanoidBone,

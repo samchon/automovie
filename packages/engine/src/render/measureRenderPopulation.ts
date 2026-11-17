@@ -1,4 +1,15 @@
-import type { IAutoMovieRenderSubject, IAutoMovieMeasureRenderPopulation, IAutoMovieTessellation, AutoMovieRenderMetric, IAutoMovieCompiledInstancePrototype, IAutoMovieModel, IAutoMovieRenderModelCost, IAutoMovieRenderOwnerCost, IAutoMovieSemanticMaskEntry, IAutoMovieSpace } from "@automovie/interface";
+import type {
+  AutoMovieRenderMetric,
+  IAutoMovieCompiledInstancePrototype,
+  IAutoMovieMeasureRenderPopulation,
+  IAutoMovieModel,
+  IAutoMovieRenderModelCost,
+  IAutoMovieRenderOwnerCost,
+  IAutoMovieRenderSubject,
+  IAutoMovieSemanticMaskEntry,
+  IAutoMovieSpace,
+  IAutoMovieTessellation,
+} from "@automovie/interface";
 
 /**
  * Count scene nodes, ground and compact instance populations for inventory.
@@ -9,7 +20,6 @@ import type { IAutoMovieRenderSubject, IAutoMovieMeasureRenderPopulation, IAutoM
  * Scene, ground, instance-set and formation order is retained because later
  * resource measurement relies on this complete drawn/flattened model closure.
  */
-
 
 import { tessellateSurface } from "../geometry/tessellateSurface";
 import { AUTOMOVIE_INDEX_BYTES } from "./constants/AUTOMOVIE_INDEX_BYTES";
@@ -28,7 +38,11 @@ import { measure } from "./measure";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each canonical model is measured once per request and reused across nodes/tier citations; drawn/flattened sets share complete resource closure with subsequent material/geometry phases.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The orchestrator owns mutable caches/sets/rows through the request; only scalar cumulative counts return and no renderer geometry handle or population expansion is retained.
  */
-export const measureRenderPopulation: (props: IAutoMovieMeasureRenderPopulation.IProps) => IAutoMovieMeasureRenderPopulation.IResult = (props: IAutoMovieMeasureRenderPopulation.IProps): IAutoMovieMeasureRenderPopulation.IResult => {
+export const measureRenderPopulation: (
+  props: IAutoMovieMeasureRenderPopulation.IProps,
+) => IAutoMovieMeasureRenderPopulation.IResult = (
+  props: IAutoMovieMeasureRenderPopulation.IProps,
+): IAutoMovieMeasureRenderPopulation.IResult => {
   const {
     subject,
     nodeIndex,

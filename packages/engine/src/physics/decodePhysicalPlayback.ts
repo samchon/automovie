@@ -1,4 +1,8 @@
-import type { IAutoMovieDecodePhysicalPlayback, IAutoMoviePhysicalPlayback } from "@automovie/interface";
+import type {
+  IAutoMovieDecodePhysicalPlayback,
+  IAutoMoviePhysicalPlayback,
+} from "@automovie/interface";
+
 import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 import { admitPhysicalPlaybackMetadata } from "./admitPhysicalPlaybackMetadata";
 import { freezePhysicalRecord } from "./freezePhysicalRecord";

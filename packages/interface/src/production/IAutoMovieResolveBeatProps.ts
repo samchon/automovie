@@ -1,7 +1,7 @@
+import type { IAutoMovieShot } from "../cinematics/IAutoMovieShot";
 import type { IAutoMovieBeatEndFootPlant } from "../harness/IAutoMovieBeatEndFootPlant";
 import type { IAutoMovieMotion } from "../motion/IAutoMovieMotion";
 import type { IAutoMovieScene } from "../scene/IAutoMovieScene";
-import type { IAutoMovieShot } from "../cinematics/IAutoMovieShot";
 import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 
 /**

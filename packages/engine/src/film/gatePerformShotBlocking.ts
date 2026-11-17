@@ -1,4 +1,11 @@
-import { type IAutoMovieEnginePerformShotGateContext, type IAutoMoviePerformShotFrameJob, type IAutoMovieViolationCollector, IAutoMovieActionCall, IAutoMovieBlocking, IAutoMoviePerformance } from "@automovie/interface";
+import {
+  IAutoMovieActionCall,
+  IAutoMovieBlocking,
+  type IAutoMovieEnginePerformShotGateContext,
+  type IAutoMoviePerformShotFrameJob,
+  IAutoMoviePerformance,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { performShotActionSpan } from "./performShotActionSpan";
 import { performShotActors } from "./performShotActors";

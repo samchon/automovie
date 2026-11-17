@@ -1,6 +1,14 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionHumanCourse, HumanBalance, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanCourse,
+  HumanBalance,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 
 import { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -50,7 +58,10 @@ export function motionComposeCourse(name: motionHumanBody.Name): void {
   {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const omega: number = Math.sqrt(9.81 / (1.34 * body.measure.hipHeight));
-    const centre = (posture: IAutoMovieMotionHumanPosture, yaw: 0 | 90): number => {
+    const centre = (
+      posture: IAutoMovieMotionHumanPosture,
+      yaw: 0 | 90,
+    ): number => {
       const c: IAutoMovieVector3 = HumanBalance.support(body, posture).centre;
       return yaw === 90 ? c.x : c.z;
     };
@@ -136,7 +147,10 @@ export function motionComposeCourse(name: motionHumanBody.Name): void {
       { x: 0, y: 0, z: 0 },
       0,
     );
-    const planted = (_seconds: number, along: number): IAutoMovieMotionHumanPosture =>
+    const planted = (
+      _seconds: number,
+      along: number,
+    ): IAutoMovieMotionHumanPosture =>
       resolveHumanPosture.lower(body, {
         ...standing,
         root: { x: 0, y: 0, z: along },

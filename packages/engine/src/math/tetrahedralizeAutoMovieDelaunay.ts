@@ -1,5 +1,7 @@
-import type { IAutoMovieTetrahedralizeDelaunay, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieTetrahedralizeDelaunay,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "./Vector3";
 import { seededValue } from "./seededValue";
@@ -153,7 +155,10 @@ export namespace tetrahedralizeAutoMovieDelaunay {
    * @param n The number of points.
    * @returns The neighbour lists by point.
    */
-  export function neighbours(mesh: IAutoMovieTetrahedralizeDelaunay.IMesh, n: number): number[][] {
+  export function neighbours(
+    mesh: IAutoMovieTetrahedralizeDelaunay.IMesh,
+    n: number,
+  ): number[][] {
     const sets: Set<number>[] = Array.from(
       { length: n },
       (): Set<number> => new Set(),

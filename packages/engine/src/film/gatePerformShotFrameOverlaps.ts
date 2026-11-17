@@ -1,4 +1,8 @@
-import type { IAutoMovieEnginePerformShotGateContext, IAutoMoviePerformShotFrameJob } from "@automovie/interface";
+import type {
+  IAutoMovieEnginePerformShotGateContext,
+  IAutoMoviePerformShotFrameJob,
+} from "@automovie/interface";
+
 /**
  * Sort the live camera's frame moves by start, in place, and refuse moves that double-book the camera.
  *
@@ -20,8 +24,10 @@ export function gatePerformShotFrameOverlaps(
   frames: IAutoMoviePerformShotFrameJob[],
 ): void {
   frames.sort(
-    (a: IAutoMoviePerformShotFrameJob, b: IAutoMoviePerformShotFrameJob): number =>
-      a.action.start - b.action.start,
+    (
+      a: IAutoMoviePerformShotFrameJob,
+      b: IAutoMoviePerformShotFrameJob,
+    ): number => a.action.start - b.action.start,
   );
   for (let i: number = 0; i + 1 < frames.length; ++i) {
     const move: IAutoMoviePerformShotFrameJob = frames[i]!;

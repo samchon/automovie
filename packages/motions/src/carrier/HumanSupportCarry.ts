@@ -1,7 +1,16 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSupportAim, IAutoMovieMotionHumanSupportCarry, IAutoMovieMotionHumanSupportFrame, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSupportAim,
+  IAutoMovieMotionHumanSupportCarry,
+  IAutoMovieMotionHumanSupportFrame,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanSupportAim } from "./HumanSupportAim";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 
@@ -27,7 +36,6 @@ import { HumanSupportFrame } from "./HumanSupportFrame";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The support's frame is read through its one reader (`HumanSupportFrame`) or the prop's own frame; nothing is extrapolated.
  */
 export namespace HumanSupportCarry {
-
   /**
    * The carry from a start to a second of a support whose frame a function
    * gives.
@@ -175,7 +183,11 @@ export namespace HumanSupportCarry {
       return { position: at.position, rotation: at.rotation };
     };
     const carried = (seconds: number): IAutoMovieMotionHumanPosture => {
-      const carry: IAutoMovieMotionHumanSupportCarry.ICarry = of(frame, context.start, context.start + seconds);
+      const carry: IAutoMovieMotionHumanSupportCarry.ICarry = of(
+        frame,
+        context.start,
+        context.start + seconds,
+      );
       // The root and the heading are the carrier's, which its own plan has
       // already carried; only the goals this plan made at its start ride on.
       const own: IAutoMovieMotionHumanPosture = plan.posture(seconds);
@@ -197,7 +209,9 @@ export namespace HumanSupportCarry {
         ? {}
         : {
             launches: plan.launches.map(
-              (l: IAutoMovieMotionHumanActionPlan.ILaunch): IAutoMovieMotionHumanActionPlan.ILaunch =>
+              (
+                l: IAutoMovieMotionHumanActionPlan.ILaunch,
+              ): IAutoMovieMotionHumanActionPlan.ILaunch =>
                 launch(context, frame, l),
             ),
           }),
@@ -218,7 +232,11 @@ export namespace HumanSupportCarry {
     frame: (seconds: number) => IAutoMovieMotionHumanProp.IFrame,
     l: IAutoMovieMotionHumanActionPlan.ILaunch,
   ): IAutoMovieMotionHumanActionPlan.ILaunch {
-    const carry: IAutoMovieMotionHumanSupportCarry.ICarry = of(frame, context.start, context.start + l.seconds);
+    const carry: IAutoMovieMotionHumanSupportCarry.ICarry = of(
+      frame,
+      context.start,
+      context.start + l.seconds,
+    );
     const support: IAutoMovieVector3 = HumanSupportFrame.at(
       context,
       context.start + l.seconds,

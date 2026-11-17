@@ -1,7 +1,22 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrehension, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPutDown, IAutoMovieMotionHumanStrikingHeld, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrehension,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPutDown,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
@@ -147,11 +162,10 @@ export namespace putDown {
       side,
     );
     const on = context.params.on;
-    const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] = context.params.onto;
-    const wearing: IAutoMovieMotionHumanProp.IFrame | undefined = putDownTarget.of(
-      context,
-      context.entry.pose,
-    );
+    const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] =
+      context.params.onto;
+    const wearing: IAutoMovieMotionHumanProp.IFrame | undefined =
+      putDownTarget.of(context, context.entry.pose);
     if (wearing === undefined && context.params.at === undefined)
       throw new HumanRefusal({
         kind: "parameter",
@@ -198,10 +212,11 @@ export namespace putDown {
           : holding(context.params.yaw);
 
     // The arm keeps the configuration it carried the prop in.
-    const reference: IAutoMovieMotionHumanPosture.IReference = resolveHumanPosture.reference(
-      context.entry.pose,
-      side === "left" ? "leftArm" : "rightArm",
-    );
+    const reference: IAutoMovieMotionHumanPosture.IReference =
+      resolveHumanPosture.reference(
+        context.entry.pose,
+        side === "left" ? "leftArm" : "rightArm",
+      );
     const rotation: IAutoMovieQuaternion = chosen.rotation;
     const place: IAutoMovieVector3 = chosen.point;
 
@@ -256,32 +271,41 @@ export namespace putDown {
       0,
     );
     const duration: number = down + OPEN + back;
-    const carry: IAutoMovieMotionHumanPrehension.ITransport = HumanPrehension.transport(
-      hand.worldPosition,
-      place,
-      { x: 0, y: -1, z: 0 },
-      SETBACK,
-      { from: hand.worldRotation, to: rotation },
-      down,
-    );
+    const carry: IAutoMovieMotionHumanPrehension.ITransport =
+      HumanPrehension.transport(
+        hand.worldPosition,
+        place,
+        { x: 0, y: -1, z: 0 },
+        SETBACK,
+        { from: hand.worldRotation, to: rotation },
+        down,
+      );
 
     // The return is a placing transport played backwards: it leaves straight
     // up for the setback and ends at rest where the arm hangs.
-    const retreat: IAutoMovieMotionHumanPrehension.ITransport = HumanPrehension.transport(
-      home.worldPosition,
-      place,
-      { x: 0, y: -1, z: 0 },
-      SETBACK,
-      { from: home.worldRotation, to: rotation },
-      back,
-    );
+    const retreat: IAutoMovieMotionHumanPrehension.ITransport =
+      HumanPrehension.transport(
+        home.worldPosition,
+        place,
+        { x: 0, y: -1, z: 0 },
+        SETBACK,
+        { from: home.worldRotation, to: rotation },
+        back,
+      );
     const closed: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.fingers(
       context.entry.pose,
       side,
     );
-    const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "flat");
-    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
-    const limb: IAutoMovieMotionHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
+    const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      "flat",
+    );
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      "relaxed",
+    );
+    const limb: IAutoMovieMotionHumanPosture.Limb =
+      side === "left" ? "leftArm" : "rightArm";
     const part: IAutoMovieMotionHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
     return {
@@ -419,7 +443,9 @@ export namespace putDown {
       ahead,
       resolveHumanPosture(ahead.body, ahead.grip.posture),
     )!;
-    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = ahead.grip.tool({ tip: via });
+    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = ahead.grip.tool({
+      tip: via,
+    });
     const frame: IAutoMovieMotionHumanProp.IFrame = HumanPropFrame.parent(
       destination,
       tool.held!.frame,

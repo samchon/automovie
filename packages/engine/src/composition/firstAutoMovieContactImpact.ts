@@ -1,5 +1,7 @@
-import type { IAutoMovieResolveContactEvents, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieResolveContactEvents,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Find one weapon's first new contact, retaining the resolver's scan grid,

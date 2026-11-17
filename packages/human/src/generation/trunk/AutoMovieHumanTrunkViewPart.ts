@@ -1,17 +1,18 @@
-import type { IAutoMovieLoftContract, IAutoMovieViewPart, IAutoMovieHumanSiteViewPart, IAutoMovieHumanTrunkAxis, IAutoMovieHumanTrunkSectionFamily, IAutoMovieHumanTrunkViewPart, IAutoMovieHumanTrunkViews } from "@automovie/interface";
-
-
-
-
-
-
 import { AutoMovieViewParameter } from "@automovie/engine";
+import type {
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanTrunkAxis,
+  IAutoMovieHumanTrunkSectionFamily,
+  IAutoMovieHumanTrunkViewPart,
+  IAutoMovieHumanTrunkViews,
+  IAutoMovieLoftContract,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanTrunkAxis } from "./AutoMovieHumanTrunkAxis";
 import { AutoMovieHumanTrunkConnection } from "./AutoMovieHumanTrunkConnection";
 import { AutoMovieHumanTrunkSectionFamily } from "./AutoMovieHumanTrunkSectionFamily";
-
 
 /**
  * The trunk base as a part lofted from its own views (campaign #3044,
@@ -57,10 +58,6 @@ export namespace AutoMovieHumanTrunkViewPart {
 
   /** Widest spacing between layers, mm: `AutoMovieHumanTrunkRows.MAX_GAP`, under the reference's densest mean section gap of 3.9 mm. */
   export const GAP: number = 3.5;
-
-  
-
-  
 
   /**
    * Build the trunk base from its views.
@@ -122,15 +119,25 @@ export namespace AutoMovieHumanTrunkViewPart {
       const plane: IAutoMovieHumanTrunkSectionFamily.IPlane | undefined =
         sections.get(site.site);
       const depth: number = (site.front - site.back) / 2;
-      const extents: readonly number[] = site.sectionBox?.extents ?? [depth, site.half, depth, site.half];
+      const extents: readonly number[] = site.sectionBox?.extents ?? [
+        depth,
+        site.half,
+        depth,
+        site.half,
+      ];
       if (
         plane === undefined ||
         plane.y !== site.y ||
         plane.back !== site.back ||
-        plane.origin[0] !== (site.sectionBox === undefined ? (site.front + site.back) / 2 : site.back + extents[2]!) ||
+        plane.origin[0] !==
+          (site.sectionBox === undefined
+            ? (site.front + site.back) / 2
+            : site.back + extents[2]!) ||
         plane.origin[1] !== 0 ||
         (site.sectionBox !== undefined &&
-          (extents[0] !== extents[2] || extents[1] !== site.half || extents[3] !== site.half ||
+          (extents[0] !== extents[2] ||
+            extents[1] !== site.half ||
+            extents[3] !== site.half ||
             site.front !== site.back + (extents[0]! + extents[2]!))) ||
         plane.box.extents.some(
           (extent: number, quarter: number): boolean =>

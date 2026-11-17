@@ -1,6 +1,16 @@
-import { type IAutoMovieForgedProp, type IAutoMovieValidatePropPlacements, type IAutoMovieViolationCollector, IAutoMovieBuiltEnvironment, IAutoMovieClearanceBox, IAutoMoviePropBox, IAutoMoviePropRelation, IAutoMoviePropRelationTarget, IAutoMoviePropSpec, IAutoMovieStageSetPiece, IAutoMovieValidation } from "@automovie/interface";
-
-
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieClearanceBox,
+  type IAutoMovieForgedProp,
+  IAutoMoviePropBox,
+  IAutoMoviePropRelation,
+  IAutoMoviePropRelationTarget,
+  IAutoMoviePropSpec,
+  IAutoMovieStageSetPiece,
+  type IAutoMovieValidatePropPlacements,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { forgeProp } from "./forgeProp";
@@ -27,34 +37,36 @@ type Environments = ReadonlyMap<
 
 type Props = ReadonlyMap<string, readonly IIndexed<IAutoMoviePropSpec>[]>;
 
-type GeometryEntry = [{
-  /** Every registry entry in declaration order, with what the registry gate resolved for it. */
-  entries: readonly {
-    /** The registry's prop. */
-    prop: IAutoMoviePropSpec;
+type GeometryEntry = [
+  {
+    /** Every registry entry in declaration order, with what the registry gate resolved for it. */
+    entries: readonly {
+      /** The registry's prop. */
+      prop: IAutoMoviePropSpec;
 
-    /** Its index in the registry, for violation paths. */
-    index: number;
+      /** Its index in the registry, for violation paths. */
+      index: number;
 
-    /** The one set piece staging it, or `undefined` when zero or several do. */
-    piece: IAutoMovieStageSetPiece | undefined;
+      /** The one set piece staging it, or `undefined` when zero or several do. */
+      piece: IAutoMovieStageSetPiece | undefined;
 
-    /** Whether `forgeProp` accepted it. */
-    forged: boolean;
+      /** Whether `forgeProp` accepted it. */
+      forged: boolean;
 
-    /** Whether its node is declared once. */
-    unique: boolean;
+      /** Whether its node is declared once. */
+      unique: boolean;
 
-    /** The uniquely declared environment of its `in-space` target, or `null`. */
-    located: IAutoMovieBuiltEnvironment | null;
-  }[];
+      /** The uniquely declared environment of its `in-space` target, or `null`. */
+      located: IAutoMovieBuiltEnvironment | null;
+    }[];
 
-  /** Built environments by id, holding only ids declared exactly once. */
-  environments: ReadonlyMap<string, IAutoMovieBuiltEnvironment>;
+    /** Built environments by id, holding only ids declared exactly once. */
+    environments: ReadonlyMap<string, IAutoMovieBuiltEnvironment>;
 
-  /** Collector the violations are appended to. */
-  out: IAutoMovieViolationCollector;
-}][0]["entries"][number];
+    /** Collector the violations are appended to. */
+    out: IAutoMovieViolationCollector;
+  },
+][0]["entries"][number];
 
 type BuildingTarget = Exclude<
   IAutoMoviePropRelationTarget,
@@ -105,7 +117,11 @@ const BUILDING_TARGET_LABELS: Readonly<Record<BuildingTarget["kind"], string>> =
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One validation per call; production runs it once per shot compile and every index is rebuilt from that shot's registry.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the indexes and collector die with the call and the returned violations belong to the caller.
  */
-export const validatePropPlacements: (props: IAutoMovieValidatePropPlacements.IProps) => IAutoMovieValidation = (props: IAutoMovieValidatePropPlacements.IProps): IAutoMovieValidation => {
+export const validatePropPlacements: (
+  props: IAutoMovieValidatePropPlacements.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidatePropPlacements.IProps,
+): IAutoMovieValidation => {
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const byNode: Props = indexBy(
     props.props,

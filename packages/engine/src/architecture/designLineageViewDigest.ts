@@ -1,5 +1,13 @@
-import { type IAutoMovieDesignLineageViewDigest, IAutoMovieDesignChange, IAutoMovieDesignLineage, IAutoMovieDesignPhaseSnapshot, IAutoMovieDesignPhaseState, IAutoMovieDesignRevision, IAutoMovieDesignSubject, IAutoMovieDesignVariant } from "@automovie/interface";
-
+import {
+  IAutoMovieDesignChange,
+  IAutoMovieDesignLineage,
+  type IAutoMovieDesignLineageViewDigest,
+  IAutoMovieDesignPhaseSnapshot,
+  IAutoMovieDesignPhaseState,
+  IAutoMovieDesignRevision,
+  IAutoMovieDesignSubject,
+  IAutoMovieDesignVariant,
+} from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { compareCodeUnits } from "../text/compareCodeUnits";

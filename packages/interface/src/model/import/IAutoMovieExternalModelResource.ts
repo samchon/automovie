@@ -11,7 +11,6 @@
 export type IAutoMovieExternalModelResource = {
   /** URI exactly as the glTF declares it, unresolved and undecoded. */
   uri: string;
-
 } & (
   | {
       /** A buffers entry declares this URI and its required extent. */

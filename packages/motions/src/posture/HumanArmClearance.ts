@@ -1,6 +1,16 @@
-import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointPose, IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { getConstraint, jointRomOvershoot } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
 import { HumanArmClearing } from "./HumanArmClearing";
@@ -57,7 +67,8 @@ export namespace HumanArmClearance {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieMotionHumanColliders.IPlaced[] {
     return HumanColliders.placed(body, bones).filter(
-      (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean => TRUNK.has(segment.bone),
+      (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+        TRUNK.has(segment.bone),
     );
   }
 
@@ -416,4 +427,7 @@ const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
   ]);
 
 /** No baseline: every reading of an arm's room counts from zero. */
-const NONE: IAutoMovieMotionHumanArmClearance.IBaseline = { forearm: 0, segments: 0 };
+const NONE: IAutoMovieMotionHumanArmClearance.IBaseline = {
+  forearm: 0,
+  segments: 0,
+};

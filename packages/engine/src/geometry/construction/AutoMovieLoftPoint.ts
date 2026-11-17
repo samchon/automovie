@@ -1,5 +1,11 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftCoefficientSource, IAutoMovieLoftFrame, IAutoMovieLoftPhaseReading, IAutoMovieLoftSectionPhase, IAutoMovieStationHermite } from "@automovie/interface";
-
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftCoefficientSource,
+  IAutoMovieLoftFrame,
+  IAutoMovieLoftPhaseReading,
+  IAutoMovieLoftSectionPhase,
+  IAutoMovieStationHermite,
+} from "@automovie/interface";
 
 import { AutoMovieLoftCapRead } from "./AutoMovieLoftCapRead";
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
@@ -41,10 +47,10 @@ export namespace AutoMovieLoftPoint {
     chain: IAutoMovieLoftChain,
     s: number,
   ): (t: number) => [number, number, number] {
-    const cap: (((phi: number) => IAutoMovieLoftPhaseReading) | null) =
+    const cap: ((phi: number) => IAutoMovieLoftPhaseReading) | null =
       AutoMovieLoftCapRead.phase(chain, s);
     if (cap !== null) return (t: number): [number, number, number] => cap(t).p;
-    const source: (((phi: number) => IAutoMovieLoftSectionPhase) | null) =
+    const source: ((phi: number) => IAutoMovieLoftSectionPhase) | null =
       AutoMovieLoftSection.phase(chain, s);
     const c: number[] | null =
       source === null ? AutoMovieLoftChain.coefficients(chain, s) : null;
@@ -144,10 +150,10 @@ export namespace AutoMovieLoftPoint {
     chain: IAutoMovieLoftChain,
     s: number,
   ): IAutoMovieLoftChain.IPhaseSamplerResult {
-    const cap: (((phi: number) => IAutoMovieLoftPhaseReading) | null) =
+    const cap: ((phi: number) => IAutoMovieLoftPhaseReading) | null =
       AutoMovieLoftCapRead.phase(chain, s);
     if (cap !== null) return cap;
-    const source: (((phi: number) => IAutoMovieLoftSectionPhase) | null) =
+    const source: ((phi: number) => IAutoMovieLoftSectionPhase) | null =
       AutoMovieLoftSection.phase(chain, s);
     const c: number[] | null =
       source === null ? AutoMovieLoftChain.coefficients(chain, s) : null;

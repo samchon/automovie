@@ -1,4 +1,4 @@
-import { IAutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
+import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditMotion,
@@ -6,7 +6,7 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
 /**
  * Whether every bone turns continuously: the orientation counterpart of the
@@ -56,7 +56,7 @@ export namespace AutoMovieMotionHumanAuditSpin {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The grid pass decides, the bisection measures.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A resolved turn below the limit is not reported, so the reading is zero exactly when no snap of that size exists.
    * @evidence contracts/development/implementation.md#efficient-algorithms Grid poses are resolved once; inner poses once per interval.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid is `IAutoMovieMotionHumanAuditMotion.grid`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid is `AutoMovieMotionHumanAuditMotion.grid`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Inner poses live in one interval's map.
    */
   export function measure(

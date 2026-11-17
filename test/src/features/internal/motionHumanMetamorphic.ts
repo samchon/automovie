@@ -1,5 +1,7 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanChain } from "@automovie/motions";
 
 import { MOTION_HUMAN_LAW_STAGES } from "./MOTION_HUMAN_LAW_STAGES";

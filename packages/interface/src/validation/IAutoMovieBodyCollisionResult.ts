@@ -1,5 +1,5 @@
-import type { IAutoMovieCollisionResponse } from "../physics/IAutoMovieCollisionResponse";
 import type { IAutoMovieInteractionEvent } from "../cinematics/IAutoMovieInteractionEvent";
+import type { IAutoMovieCollisionResponse } from "../physics/IAutoMovieCollisionResponse";
 import type { IAutoMovieValidation } from "./IAutoMovieValidation";
 
 /**

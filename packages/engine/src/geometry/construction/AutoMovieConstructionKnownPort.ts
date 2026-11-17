@@ -1,6 +1,11 @@
-import type { IAutoMovieConstructionKnownPortSource, IAutoMovieSolidSurface, AutoMovieVector2Tuple, IAutoMovieConstructionKnownPortSide, IAutoMoviePreparedConstructionKnownPort, IAutoMovieConstructionKnownPort } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieConstructionKnownPort,
+  IAutoMovieConstructionKnownPortSide,
+  IAutoMovieConstructionKnownPortSource,
+  IAutoMoviePreparedConstructionKnownPort,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 
@@ -53,8 +58,14 @@ export function AutoMovieConstructionKnownPort(
     definition.domain[1] !== definition.domain[0] + definition.period
   )
     fail("A periodic known port must own one complete original clock period.");
-  const parent: IAutoMovieConstructionKnownPortSide = side(source, definition.parent);
-  const child: IAutoMovieConstructionKnownPortSide = side(source, definition.child);
+  const parent: IAutoMovieConstructionKnownPortSide = side(
+    source,
+    definition.parent,
+  );
+  const child: IAutoMovieConstructionKnownPortSide = side(
+    source,
+    definition.child,
+  );
   for (const current of [parent, child])
     if (
       !interval(current.map.domain) ||
@@ -170,11 +181,12 @@ function side(
 }
 
 /** Read one actual chart and preserve original field Point0 separately from its total2. */
-function point(side: IAutoMovieConstructionKnownPortSide, u: number, v: number): Vector {
-  const chart: AutoMovieVector2Tuple = side.map.point(
-    u,
-    v,
-  );
+function point(
+  side: IAutoMovieConstructionKnownPortSide,
+  u: number,
+  v: number,
+): Vector {
+  const chart: AutoMovieVector2Tuple = side.map.point(u, v);
   chartPoint(side.field, chart);
   const value: Vector =
     side.field.point?.(chart[0], chart[1]) ??

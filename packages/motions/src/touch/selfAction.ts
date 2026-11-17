@@ -1,6 +1,20 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanRange, IAutoMovieMotionHumanSelfAction, IAutoMovieMotionHumanTargetGrid, IAutoMovieMotionManner } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanRange,
+  IAutoMovieMotionHumanSelfAction,
+  IAutoMovieMotionHumanTargetGrid,
+  IAutoMovieMotionManner,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";

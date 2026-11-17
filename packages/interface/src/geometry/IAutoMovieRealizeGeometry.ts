@@ -24,7 +24,7 @@ export namespace IAutoMovieRealizeGeometry {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Display requests may receive incomplete finite atlases; an explicit complete requirement throws on incomplete processing, while source-fit diagnostics can remain on complete output.
    * @evidence contracts/development/common.md#meaningful-documentation Finite mesh output and processing diagnostics for a public geometry recipe. Mesh coordinates are model-local metres; complete describes recipe processing rather than embedding, source fidelity or watertightness.
    */
-  export type IResult = { 
+  export type IResult = {
     /**
      * Renderable metre mesh; an explicit mesh recipe returns the same object, while primitive and atlas recipes allocate geometry. Borrowed mesh mutation remains visible to its owner.
      */
@@ -38,5 +38,6 @@ export namespace IAutoMovieRealizeGeometry {
     /**
      * New processing and source-fit messages; empty for primitive and explicit-mesh dispatch. A nonempty list alone does not imply complete is false.
      */
-    diagnostics: string[] };
+    diagnostics: string[];
+  };
 }

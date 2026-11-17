@@ -1,12 +1,16 @@
-import { type IAutoMoviePhysicalProfile, IAutoMovieModel, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieModel,
+  type IAutoMoviePhysicalProfile,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import { Transform } from "../math/Transform";
 import { Vector3 } from "../math/Vector3";
 import { physicalModelRestTransforms } from "./physicalModelRestTransforms";
 import { primitiveCentroid } from "./primitiveCentroid";
 import { primitiveVolume } from "./primitiveVolume";
-import { Transform } from "../math/Transform";
 
 /**
  * Volume-weighted center of mass of a model's primitive geometry, in the

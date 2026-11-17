@@ -1,6 +1,11 @@
-import type { IAutoMovieImpact, IAutoMovieImpactBodyState, IAutoMovieInteractionEvent, IAutoMovieMotionHumanForce, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, resolveImpact } from "@automovie/engine";
+import type {
+  IAutoMovieImpact,
+  IAutoMovieImpactBodyState,
+  IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanForce,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Forces on a performer as input to a performance (#3429): an impulse at an
@@ -20,7 +25,6 @@ import { Vector3, resolveImpact } from "@automovie/engine";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The impulse of a hit is the engine's `resolveImpact` or the record's own momentum change, not a law's own formula.
  */
 export namespace HumanForce {
-
   /**
    * The impulse a hit delivers to the struck person, the only conversion of
    * a hit record into a force (P1, #3480).
@@ -47,7 +51,9 @@ export namespace HumanForce {
       bone: hit.bone ?? "hips",
       point: { x: 0, y: 0, z: 0 },
     };
-    const of = (impulse: IAutoMovieVector3): IAutoMovieMotionHumanForce.IImpulse => ({
+    const of = (
+      impulse: IAutoMovieVector3,
+    ): IAutoMovieMotionHumanForce.IImpulse => ({
       kind: "impulse",
       subject: hit.target!,
       at,
@@ -108,7 +114,10 @@ export namespace HumanForce {
    * @param seconds Film seconds.
    * @returns World newtons; zero outside its span.
    */
-  export function at(force: IAutoMovieMotionHumanForce.ISustained, seconds: number): IAutoMovieVector3 {
+  export function at(
+    force: IAutoMovieMotionHumanForce.ISustained,
+    seconds: number,
+  ): IAutoMovieVector3 {
     if (seconds < force.from || seconds > force.to) return { x: 0, y: 0, z: 0 };
     return typeof force.force === "function"
       ? force.force(seconds)

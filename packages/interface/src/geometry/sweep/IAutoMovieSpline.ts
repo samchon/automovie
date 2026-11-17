@@ -1,5 +1,3 @@
-
-
 /** Data and callback contracts shared by the Spline operations. */
 export namespace IAutoMovieSpline {
   /**

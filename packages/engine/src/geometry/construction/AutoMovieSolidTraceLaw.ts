@@ -1,6 +1,12 @@
-import type { AutoMovieVector3Tuple, IAutoMovieSolidIntersection, IAutoMovieSolidTraceLaw } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidTraceLaw,
+} from "@automovie/interface";
+
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
+
 const { add, cross, dot, scale, sub } = AutoMovieSolidVector;
 
 /**
@@ -14,7 +20,6 @@ const { add, cross, dot, scale, sub } = AutoMovieSolidVector;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieSolidTraceLaw {
-
   /**
    * The reference-guide law used for requested arc parameterization through
    * equal-chord walked points; it is not an exact arclength reparameterization. The
@@ -35,7 +40,9 @@ export namespace AutoMovieSolidTraceLaw {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reference controls are prepared once, while g/grad/gt/extra independently reevaluate the same parameter's basis/jet; no per-parameter jet sharing is implemented.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned law closures retain O(N) prepared reference controls for their owner's lifetime; callback basis/jet arrays are fixed-size temporaries and no global cache grows.
    */
-  export function arc(points: readonly AutoMovieVector3Tuple[]): IAutoMovieSolidTraceLaw.ILaw {
+  export function arc(
+    points: readonly AutoMovieVector3Tuple[],
+  ): IAutoMovieSolidTraceLaw.ILaw {
     const n: number = points.length;
     const xy: number[] = AutoMovieSplineCurve.interpolate(
       points.map((p: AutoMovieVector3Tuple): [number, number] => [p[0], p[1]]),
@@ -45,9 +52,20 @@ export namespace AutoMovieSolidTraceLaw {
     );
     const control: AutoMovieVector3Tuple[] = Array.from(
       { length: n },
-      (_: unknown, k: number): AutoMovieVector3Tuple => [xy[k]!, xy[n + k]!, z[k]!],
+      (_: unknown, k: number): AutoMovieVector3Tuple => [
+        xy[k]!,
+        xy[n + k]!,
+        z[k]!,
+      ],
     );
-    const at = (t: number): [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple] => {
+    const at = (
+      t: number,
+    ): [
+      AutoMovieVector3Tuple,
+      AutoMovieVector3Tuple,
+      AutoMovieVector3Tuple,
+      AutoMovieVector3Tuple,
+    ] => {
       const u: number = ((((t / (2 * Math.PI)) % 1) + 1) % 1) * n;
       const i: number = Math.min(n - 1, Math.floor(u));
       const f: number = u - i;
@@ -69,7 +87,12 @@ export namespace AutoMovieSolidTraceLaw {
         [g, 3 * f - 2, 1 - 3 * f, f],
         [-1, 3, -3, 1],
       ];
-      const out: [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple] = [
+      const out: [
+        AutoMovieVector3Tuple,
+        AutoMovieVector3Tuple,
+        AutoMovieVector3Tuple,
+        AutoMovieVector3Tuple,
+      ] = [
         [0, 0, 0],
         [0, 0, 0],
         [0, 0, 0],
@@ -77,7 +100,8 @@ export namespace AutoMovieSolidTraceLaw {
       ];
       for (let d: number = 0; d < 4; d++)
         for (let j: number = 0; j < 4; j++) {
-          const c: AutoMovieVector3Tuple = control[(((i - 1 + j) % n) + n) % n]!;
+          const c: AutoMovieVector3Tuple =
+            control[(((i - 1 + j) % n) + n) % n]!;
           const s: number = w[d]![j]! * k ** d;
           out[d]![0] += s * c[0];
           out[d]![1] += s * c[1];
@@ -95,7 +119,11 @@ export namespace AutoMovieSolidTraceLaw {
         const [q, q1, q2] = at(t);
         return -dot(q1, q1) + dot(sub(p, q), q2);
       },
-      extra: (p: AutoMovieVector3Tuple, dp: AutoMovieVector3Tuple, t: number): number => {
+      extra: (
+        p: AutoMovieVector3Tuple,
+        dp: AutoMovieVector3Tuple,
+        t: number,
+      ): number => {
         const [q, q1, q2, q3] = at(t);
         return 2 * dot(dp, q2) - 3 * dot(q1, q2) + dot(sub(p, q), q3);
       },
@@ -123,13 +151,16 @@ export namespace AutoMovieSolidTraceLaw {
     if (parameter.kind === "arc") return null;
     if (parameter.kind === "phase")
       return {
-        g: (_p: AutoMovieVector3Tuple, phi: number, t: number): number => phi - t,
+        g: (_p: AutoMovieVector3Tuple, phi: number, t: number): number =>
+          phi - t,
         grad: (): [AutoMovieVector3Tuple, number] => [[0, 0, 0], 1],
         gt: (): number => -1,
         extra: (): number => 0,
         angle: (): number => 0,
       };
-    const n: AutoMovieVector3Tuple | null = AutoMovieSolidVector.unit(parameter.normal);
+    const n: AutoMovieVector3Tuple | null = AutoMovieSolidVector.unit(
+      parameter.normal,
+    );
     if (n === null) return null;
     const e1: AutoMovieVector3Tuple | null = AutoMovieSolidVector.unit(
       sub(parameter.reference, scale(n, dot(parameter.reference, n))),
@@ -142,11 +173,16 @@ export namespace AutoMovieSolidTraceLaw {
     const m = (t: number): AutoMovieVector3Tuple =>
       add(scale(e1, -Math.sin(t)), scale(e2, Math.cos(t)));
     return {
-      g: (p: AutoMovieVector3Tuple, _phi: number, t: number): number => dot(sub(p, c), m(t)),
+      g: (p: AutoMovieVector3Tuple, _phi: number, t: number): number =>
+        dot(sub(p, c), m(t)),
       grad: (t: number): [AutoMovieVector3Tuple, number] => [m(t), 0],
-      gt: (p: AutoMovieVector3Tuple, t: number): number => -dot(sub(p, c), d(t)),
-      extra: (p: AutoMovieVector3Tuple, dp: AutoMovieVector3Tuple, t: number): number =>
-        -2 * dot(dp, d(t)) - dot(sub(p, c), m(t)),
+      gt: (p: AutoMovieVector3Tuple, t: number): number =>
+        -dot(sub(p, c), d(t)),
+      extra: (
+        p: AutoMovieVector3Tuple,
+        dp: AutoMovieVector3Tuple,
+        t: number,
+      ): number => -2 * dot(dp, d(t)) - dot(sub(p, c), m(t)),
       angle: (p: AutoMovieVector3Tuple): number =>
         Math.atan2(dot(sub(p, c), e2), dot(sub(p, c), e1)),
     };

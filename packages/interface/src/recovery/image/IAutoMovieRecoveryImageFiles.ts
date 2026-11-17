@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryImageFile, IAutoMovieRecoveryImageInput } from "../../index";
+import type {
+  IAutoMovieRecoveryImageFile,
+  IAutoMovieRecoveryImageInput,
+} from "../../index";
 
 /** Fixed-byte file host for the known-camera resident capture contract.
  * Image paths resolve relative to this manifest. The P6 sRGB variation is an
@@ -11,19 +14,15 @@ import type { IAutoMovieRecoveryImageFile, IAutoMovieRecoveryImageInput } from "
  * @evidence contracts/development/common.md#meaningful-documentation States relative paths, exact byte hashes, sRGB-variant assertion, header bound and absence of image transformations.
  */
 export interface IAutoMovieRecoveryImageFiles {
- 
- /** Exact supported byte interpretation; standard BT.709 PPM needs a separately recorded conversion. */
+  /** Exact supported byte interpretation; standard BT.709 PPM needs a separately recorded conversion. */
   encoding: "ppm-srgb-rgb8";
 
- 
- /** Resident capture metadata, foreground policy and aggregate observation budgets. */
+  /** Resident capture metadata, foreground policy and aggregate observation budgets. */
   capture: Omit<IAutoMovieRecoveryImageInput, "views">;
 
- 
- /** Header scan budget in bytes for each fixed P6 image. */
+  /** Header scan budget in bytes for each fixed P6 image. */
   maxHeaderBytes: number;
 
- 
- /** Explicit same-object images and supplied charts, with no directory discovery. */
+  /** Explicit same-object images and supplied charts, with no directory discovery. */
   views: IAutoMovieRecoveryImageFile[];
 }

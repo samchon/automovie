@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanLegSectionRows } from "@automovie/interface";
 
-
 /**
  * The landmark rows of the leg's section, as one table: the eight guides'
  * `[rho, rho_theta, rho_thetatheta]` and the sixteen sectors' `[fullness]`
@@ -20,10 +19,6 @@ import type { IAutoMovieHumanLegSectionRows } from "@automovie/interface";
  * value from the median of the other three.
  */
 export namespace AutoMovieHumanLegSectionRows {
-  
-
-  
-
   /** The eight guides by increasing angle, 0 to 315 degrees; each owns its point, tangent and curvature in every section it crosses, which both neighbouring sectors copy (G2 across the guide). */
   export const GUIDES: readonly IAutoMovieHumanLegSectionRows.IGuide[] = [
     // anterior, 0 degrees: the rectus femoris crest on the thigh and the tibial crest, the anterior border on the shank; held-out deviation 0.0129 to 0.0615 (thigh), 0.0211 to 0.0799 (shank).

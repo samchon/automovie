@@ -1,7 +1,13 @@
-import type { IAutoMovieCaptionGraphemeRuntime, IAutoMovieCaptionGraphemeSegmentationIdentity, IAutoMovieCaptionReadabilityBoundary, IAutoMovieCaptionReadabilityMeasurement, IAutoMovieCaptionReadabilityOutcome, IAutoMovieCaptionReadabilityProfile, IAutoMovieCaptionReadabilityReport, IAutoMovieFilmTimeline } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieCaptionGraphemeRuntime,
+  IAutoMovieCaptionGraphemeSegmentationIdentity,
+  IAutoMovieCaptionReadabilityBoundary,
+  IAutoMovieCaptionReadabilityMeasurement,
+  IAutoMovieCaptionReadabilityOutcome,
+  IAutoMovieCaptionReadabilityProfile,
+  IAutoMovieCaptionReadabilityReport,
+  IAutoMovieFilmTimeline,
+} from "@automovie/interface";
 
 import { autoMovieCaptionLanguageComparisonKey } from "./autoMovieCaptionLanguageComparisonKey.js";
 import { canonicalizeAutoMovieCaptionText } from "./canonicalizeAutoMovieCaptionText.js";

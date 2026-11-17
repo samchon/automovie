@@ -29,9 +29,11 @@ open.affordance("pull").frame; // the lever's grip on the open leaf
 open.site("aperture", 0.5, 0); // the middle of the threshold
 ```
 
-The same parameters and seed always give the same model. Without a seed every dimension takes the middle of its band. A producer's affordance ids and dimension names are closed types, so a misspelt one fails the type check. A request a producer cannot honour throws an `ArchetypeRefusal` whose fields name the axis at fault and what would have been accepted: a dimension outside its band gives the band, and an affordance the variant lacks gives the ids it has.
+With the source revision, dependencies and runtime fixed, the same parameters and seed give the same model. Without a seed, free band draws use their midpoints and an omitted model name selects the first eligible model. Fixed and derived dimensions follow the producer's documented rules. Upgrades may intentionally correct model selection, geometry, physical properties or contacts, changing later output.
 
-An archetype serialises as a plain model. Its accessors (`affordance`, `site`, `articulate`, `travel`, `span`, `placed`, `shapes`, `moment`, `dimensions`, `properties`) are not part of the serialised data.
+A producer's affordance ids and dimension names are closed types, so a misspelt one fails the type check. A request a producer cannot honour throws an `ArchetypeRefusal` whose fields name the axis at fault and what would have been accepted: a dimension outside its band gives the band, and an affordance the variant lacks gives the ids it has.
+
+An archetype serialises as a plain model. Retain that serialised data when the model data produced by an earlier revision must be preserved. Its accessors (`affordance`, `site`, `articulate`, `travel`, `span`, `placed`, `shapes`, `moment`, `dimensions`, `properties`) are not part of the serialised data.
 
 ## Entry points
 
@@ -44,11 +46,11 @@ Each family is also a subpath, such as `@automovie/archetypes/furniture`.
 | `/architecture` | `createDoor`, `createWindow`, `createSwitch`, `createStairs`, `createRamp`, `createWall`, `createBar`, `createLadder`, `createKerb`, `createTap`, `createSanitary`, `createAppliance`, `createObstacle`, `createStreetFixture`, `createBin`, `createMachine`, `createGate`, `createElevator`, `createValve`, `createHandhold`, `createCellFront`, `createMirror`, `createBoard`, `createSaloonDoor`, `createControl`, `createHatch`, `createBeerTap` |
 | `/vehicles` | `createCar`, `createBicycle`, `createMotorcycle`, `createCart`, `createPram`, `createWheelchair`, `createBoat`, `createDeck`, and the rides `driveCar`, `rideBicycle`, `rideMotorcycle`, `rideWheelchair`, `rowBoat` |
 | `/animals` | Eight kinds through `createQuadruped`, shared body/rig `QuadrupedBody` and `QuadrupedSkeleton`, actual equipment, `rideQuadruped`/`rideHorse`, measured and authored gait tables, `QuadrupedRest`, and source-aware `EquineGoniometry` |
-| `/weapons` | `createHandgun`, `createHolster`, `createMagazine`, `createLongGun`, `createClub`, `createSword`, `createShield`, `createPolearm`, `createProjectile`, `createBow`, `createCannon`, `createPell`, `createWeaponLoop`, `createWeaponRack` |
+| `/weapons` | `createHandgun`, `createHolster`, `createMagazine`, `createLongGun`, `createClub`, `createSword`, `createShield`, `createArmour`, `createPolearm`, `createProjectile`, `createBow`, `createCannon`, `createSiegeEngine`, `createPell`, `createWeaponLoop`, `createWeaponRack` |
 | `/gym` | `createBarbell`, `createDumbbell`, `createKettlebell`, `createBench`, `createPullUpBar`, `createParallelBars`, `createPlyoBox`, `createRack`, `createSled`, `createRowingMachine`, `createExerciseBike`, `createExerciseMat`, `createJumpRope`, `createRing`, `createBoxingGlove`, `createHeavyBag` |
 | `/sport` | `createVaultingPole`, `createHighJump`, `createLandingMat`, `createVaultingTable`, `createBall`, `createRacket`, `createGolfClub`, `createGlove`, `createJavelin`, `createShot`, `createDiscus`, `createHammerThrow`, `createHurdle`, `createStartingBlock`, `createRelayBaton`, `createPoolEdge`, `createGoal`, `createStick`, `createCue`, `createCueTable`, `createSurfboard`, `createSki`, `createSkateboard` |
 | `/music` | `createInstrument`, `createMicrophone` |
-| `/nature` | `createRock` |
+| `/nature` | `createFireRing`, `createRock`, `createTent`, `createTree` |
 
 Each producer's JSDoc states how the thing stands in its own space, and its namespace lists its kinds, affordance ids, dimensions and bands (`createSeat.BANDS`).
 

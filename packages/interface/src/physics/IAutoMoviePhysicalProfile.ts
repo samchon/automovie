@@ -44,15 +44,15 @@ export interface IAutoMoviePhysicalProfile {
  */
 export namespace IAutoMoviePhysicalProfile {
   /**
- * A rigid placement: metre translation and unit-quaternion orientation.
- *
- * The containing field names the reference frame: neutral body, parent bone, child bone or collider carrier. There is no scale or shear. validatePhysicalProfile checks finite native-representable translation and quaternion norm within 1e-6; numerical readers do not normalize the record automatically.
- *
- * @evidence contracts/development/design.md#principled-representation Translation and a unit quaternion represent a rigid transform, with reference frame supplied by its owning field.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Segment, joint and shape placements share this representation without introducing scale that rigid-body consumers cannot use.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A frame mismatch is not repaired by this record, and a non-unit rotation is refused rather than silently normalized.
- * @evidence contracts/development/common.md#meaningful-documentation States metre translation, quaternion premise, field-owned frame and absence of scale.
- */
+   * A rigid placement: metre translation and unit-quaternion orientation.
+   *
+   * The containing field names the reference frame: neutral body, parent bone, child bone or collider carrier. There is no scale or shear. validatePhysicalProfile checks finite native-representable translation and quaternion norm within 1e-6; numerical readers do not normalize the record automatically.
+   *
+   * @evidence contracts/development/design.md#principled-representation Translation and a unit quaternion represent a rigid transform, with reference frame supplied by its owning field.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Segment, joint and shape placements share this representation without introducing scale that rigid-body consumers cannot use.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A frame mismatch is not repaired by this record, and a non-unit rotation is refused rather than silently normalized.
+   * @evidence contracts/development/common.md#meaningful-documentation States metre translation, quaternion premise, field-owned frame and absence of scale.
+   */
   export interface ITransform {
     /** Parent/world metre translation, as the containing field specifies. */
     position: IAutoMovieVector3;
@@ -60,15 +60,15 @@ export namespace IAutoMoviePhysicalProfile {
     rotation: IAutoMovieQuaternion;
   }
   /**
- * One massive rigid segment and its attached collision geometry.
- *
- * The neutral transform places its bone origin in the body frame. Principal moments about the bone-local centre of mass use kg m²; inertiaRotation places their axes in the bone frame. validatePhysicalProfile requires positive mass and moments, triangle inequalities and at least one admitted shape. Equipment is already included in all segment totals.
- *
- * @evidence contracts/development/design.md#principled-representation A centre of mass, diagonal principal moments and a principal-axis rotation describe arbitrary rigid inertia without assuming the bone axes diagonalize it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Native articulation construction and body-centre calculations read these fields; collider mass is incorporated in the segment rather than counted independently.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The segment uses arbitrary bone identity and explicit measured or derived inertia, without choosing a shape or mass from an anatomical name.
- * @evidence contracts/development/common.md#meaningful-documentation Defines neutral and inertia frames, kilograms, metre centre, kg m² moments and nonempty shapes.
- */
+   * One massive rigid segment and its attached collision geometry.
+   *
+   * The neutral transform places its bone origin in the body frame. Principal moments about the bone-local centre of mass use kg m²; inertiaRotation places their axes in the bone frame. validatePhysicalProfile requires positive mass and moments, triangle inequalities and at least one admitted shape. Equipment is already included in all segment totals.
+   *
+   * @evidence contracts/development/design.md#principled-representation A centre of mass, diagonal principal moments and a principal-axis rotation describe arbitrary rigid inertia without assuming the bone axes diagonalize it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Native articulation construction and body-centre calculations read these fields; collider mass is incorporated in the segment rather than counted independently.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The segment uses arbitrary bone identity and explicit measured or derived inertia, without choosing a shape or mass from an anatomical name.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines neutral and inertia frames, kilograms, metre centre, kg m² moments and nonempty shapes.
+   */
   export interface ISegment {
     /** Arbitrary skeleton bone id, not a humanoid vocabulary. */
     bone: string;
@@ -86,15 +86,15 @@ export namespace IAutoMoviePhysicalProfile {
     shapes: IShape[];
   }
   /**
- * A finite solid collider placed in its segment's bone frame.
- *
- * A kind discriminator chooses sphere, local-Y capsule, oriented box or convex hull dimensions. The hull is the convex hull of its supplied shape-local points; interior points are refused by physical admission. Every shape references a profile material and has an identity unique within its segment. Dimensions are metres; soft-layer depth must leave a positive solid core.
- *
- * @evidence contracts/development/design.md#principled-representation The closed kind union admits only dimensions needed by each solid while sharing local rigid placement, identity and physical material.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Profile validation, native collider creation and geometric audits consume the same four solid descriptions.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No renderer mesh or arbitrary nonconvex triangle soup is presented as a supported physical solid; hull admission verifies a three-dimensional boundary.
- * @evidence contracts/development/common.md#meaningful-documentation Specifies shape-local coordinates, metre extents, capsule direction, material identity and solid-core obligations.
- */
+   * A finite solid collider placed in its segment's bone frame.
+   *
+   * A kind discriminator chooses sphere, local-Y capsule, oriented box or convex hull dimensions. The hull is the convex hull of its supplied shape-local points; interior points are refused by physical admission. Every shape references a profile material and has an identity unique within its segment. Dimensions are metres; soft-layer depth must leave a positive solid core.
+   *
+   * @evidence contracts/development/design.md#principled-representation The closed kind union admits only dimensions needed by each solid while sharing local rigid placement, identity and physical material.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Profile validation, native collider creation and geometric audits consume the same four solid descriptions.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No renderer mesh or arbitrary nonconvex triangle soup is presented as a supported physical solid; hull admission verifies a three-dimensional boundary.
+   * @evidence contracts/development/common.md#meaningful-documentation Specifies shape-local coordinates, metre extents, capsule direction, material identity and solid-core obligations.
+   */
   export type IShape = {
     /** Unique within its segment. */
     id: string;
@@ -122,15 +122,15 @@ export namespace IAutoMoviePhysicalProfile {
       }
   );
   /**
- * One limited angular coordinate in a joint's parent frame.
- *
- * The parent-frame axis is unique within the joint. Physical limits are ordered radians within [-pi, pi]. Motor stiffness and damping are nonnegative, maximum torque positive. Runtime readers use zero passiveDamping and +1 coordinateSign when absent. A supplied sourceDomain describes the provider's pre-sign authoring interval; physical limits must lie inside it after applying the sign. validatePhysicalProfile checks these relationships.
- *
- * @evidence contracts/development/design.md#principled-representation Physical angular limits and torque-control coefficients retain their SI units while channel and coordinateSign link them to a provider's authored coordinate.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Motor tracking, passive damping and range auditing share one axis record; optional sourceDomain records only an available provider interval.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A named channel does not invent a range or axis, and omitted sourceDomain makes no claim that the physical limits cover an external clinical range.
- * @evidence contracts/development/common.md#meaningful-documentation Defines frame, radian limits, PD units, optional defaults and source-to-physical sign correspondence.
- */
+   * One limited angular coordinate in a joint's parent frame.
+   *
+   * The parent-frame axis is unique within the joint. Physical limits are ordered radians within [-pi, pi]. Motor stiffness and damping are nonnegative, maximum torque positive. Runtime readers use zero passiveDamping and +1 coordinateSign when absent. A supplied sourceDomain describes the provider's pre-sign authoring interval; physical limits must lie inside it after applying the sign. validatePhysicalProfile checks these relationships.
+   *
+   * @evidence contracts/development/design.md#principled-representation Physical angular limits and torque-control coefficients retain their SI units while channel and coordinateSign link them to a provider's authored coordinate.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Motor tracking, passive damping and range auditing share one axis record; optional sourceDomain records only an available provider interval.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A named channel does not invent a range or axis, and omitted sourceDomain makes no claim that the physical limits cover an external clinical range.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines frame, radian limits, PD units, optional defaults and source-to-physical sign correspondence.
+   */
   export interface IAxis {
     /** Unique angular coordinate in the joint frame. */
     axis: "x" | "y" | "z";
@@ -157,15 +157,15 @@ export namespace IAutoMoviePhysicalProfile {
     };
   }
   /**
- * A fixed or angularly limited connection between two rigid segments.
- *
- * Parent and child frames describe the same neutral anchor in their respective bone frames. validatePhysicalProfile checks that anchors coincide within 1e-8 metres and that joints form one connected acyclic tree with one parent per nonroot segment. An empty axes list is fixed; translations and all unlisted angular axes are locked.
- *
- * @evidence contracts/development/design.md#principled-representation Explicit frames preserve a common anchor while a list of unique angular axes identifies the only permitted relative freedoms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Articulation creation and joint-limit audits share the frame pair and axis list without a separate fixed-joint schema.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The joint graph does not infer parentage from names, and an empty axis list never means unconstrained motion.
- * @evidence contracts/development/common.md#meaningful-documentation Defines anchor frames, graph constraints, metre tolerance and locked-axis/empty-list semantics.
- */
+   * A fixed or angularly limited connection between two rigid segments.
+   *
+   * Parent and child frames describe the same neutral anchor in their respective bone frames. validatePhysicalProfile checks that anchors coincide within 1e-8 metres and that joints form one connected acyclic tree with one parent per nonroot segment. An empty axes list is fixed; translations and all unlisted angular axes are locked.
+   *
+   * @evidence contracts/development/design.md#principled-representation Explicit frames preserve a common anchor while a list of unique angular axes identifies the only permitted relative freedoms.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Articulation creation and joint-limit audits share the frame pair and axis list without a separate fixed-joint schema.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The joint graph does not infer parentage from names, and an empty axis list never means unconstrained motion.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines anchor frames, graph constraints, metre tolerance and locked-axis/empty-list semantics.
+   */
   export interface IJoint {
     /** Unique profile-local id. */
     id: string;
@@ -181,15 +181,15 @@ export namespace IAutoMoviePhysicalProfile {
     axes: IAxis[];
   }
   /**
- * Physical surface response addressed by profile collision shapes.
- *
- * Friction and restitution are unitless coefficients in [0, 1]; the pair response uses their arithmetic means. Compliance is nonnegative metres per newton and damping a nonnegative dissipative time constant in seconds. Nonzero compliance requires a positive maximumCompression smaller than each referencing shape's solid core extent; a rigid material needs no soft depth. validatePhysicalProfile checks numeric ranges and shape-specific core clearance.
- *
- * @evidence contracts/development/design.md#principled-representation Separate compliance, depth and damping distinguish deformable contact response from a rigid collider's geometric extent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Contact and native collider creation reference one profile-local material identity independently of optical rendering materials.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A material name never chooses response coefficients; compliance cannot remove the solid core or imply unbounded penetration.
- * @evidence contracts/development/common.md#meaningful-documentation Defines coefficient units, pair combination, required compliant depth and rigid-material omission.
- */
+   * Physical surface response addressed by profile collision shapes.
+   *
+   * Friction and restitution are unitless coefficients in [0, 1]; the pair response uses their arithmetic means. Compliance is nonnegative metres per newton and damping a nonnegative dissipative time constant in seconds. Nonzero compliance requires a positive maximumCompression smaller than each referencing shape's solid core extent; a rigid material needs no soft depth. validatePhysicalProfile checks numeric ranges and shape-specific core clearance.
+   *
+   * @evidence contracts/development/design.md#principled-representation Separate compliance, depth and damping distinguish deformable contact response from a rigid collider's geometric extent.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Contact and native collider creation reference one profile-local material identity independently of optical rendering materials.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A material name never chooses response coefficients; compliance cannot remove the solid core or imply unbounded penetration.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines coefficient units, pair combination, required compliant depth and rigid-material omission.
+   */
   export interface IMaterial {
     /** Nonblank profile-local id. */
     id: string;

@@ -1,7 +1,7 @@
-import type { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
+import type { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
 
 /**
  * One part's movement over one window of an action: a pure function of time

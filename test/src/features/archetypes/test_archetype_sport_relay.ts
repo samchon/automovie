@@ -1,8 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { createRelayBaton } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanHand, HumanObject, HumanPartner, HumanPerformance } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanHand,
+  HumanObject,
+  HumanPartner,
+  HumanPerformance,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -104,7 +116,10 @@ export function test_archetype_sport_relay(): void {
     }
 
     // 2. The baton's front in the outgoing palm.
-    const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop("baton", at);
+    const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop(
+      "baton",
+      at,
+    );
     const end: IAutoMovieVector3 = Vector3.add(
       frame.position,
       Quaternion.rotateVector(frame.rotation, front),

@@ -10,11 +10,9 @@ import type { IAutoMovieCurve64 } from "../../index";
  */
 
 export interface IAutoMovieRecoveryCurveOverride {
- 
- /** Finite continuous millimetre cubic retaining its original closure and phase. */
+  /** Finite continuous millimetre cubic retaining its original closure and phase. */
   curve: IAutoMovieCurve64.Cubic;
 
- 
- /** Nonnegative numerical PL-data upper estimate in millimetres. */
+  /** Nonnegative numerical PL-data upper estimate in millimetres. */
   dataUpperEstimateMm: number;
 }

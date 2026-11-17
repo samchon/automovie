@@ -1,4 +1,9 @@
-import type { IAutoMovieSource, IAutoMovieViewSection, IAutoMovieViewSectionRange } from "@automovie/interface";
+import type {
+  IAutoMovieSource,
+  IAutoMovieViewSection,
+  IAutoMovieViewSectionRange,
+} from "@automovie/interface";
+
 import { AutoMovieViewSection } from "./AutoMovieViewSection";
 import { AutoMovieViewSectionConic } from "./AutoMovieViewSectionConic";
 
@@ -34,8 +39,11 @@ export namespace AutoMovieViewSectionRange {
     const trials: Map<number, IAutoMovieViewSectionRange.ITrial> = new Map();
 
     /** Public generic algebra callbacks never enter this numeric preparation. */
-    const at: IAutoMovieViewSectionRange.IFamily["at"] = (shoulder: number): IAutoMovieViewSectionRange.ITrial => {
-      const previous: IAutoMovieViewSectionRange.ITrial | undefined = trials.get(shoulder);
+    const at: IAutoMovieViewSectionRange.IFamily["at"] = (
+      shoulder: number,
+    ): IAutoMovieViewSectionRange.ITrial => {
+      const previous: IAutoMovieViewSectionRange.ITrial | undefined =
+        trials.get(shoulder);
       if (previous !== undefined) return previous;
       const source: IAutoMovieSource = measure(
         box,
@@ -67,8 +75,10 @@ export namespace AutoMovieViewSectionRange {
           girth < anchor.source.girth ? ellipse / 2 : (ellipse + 1) / 2;
         if (allowed(probe)) {
           const other: IAutoMovieViewSectionRange.ITrial = at(probe);
-          const low: IAutoMovieViewSectionRange.ITrial = probe < ellipse ? other : anchor;
-          const high: IAutoMovieViewSectionRange.ITrial = probe < ellipse ? anchor : other;
+          const low: IAutoMovieViewSectionRange.ITrial =
+            probe < ellipse ? other : anchor;
+          const high: IAutoMovieViewSectionRange.ITrial =
+            probe < ellipse ? anchor : other;
           if (
             other.fault === null &&
             low.source.girth <= girth &&
@@ -99,7 +109,9 @@ export namespace AutoMovieViewSectionRange {
     box: IAutoMovieViewSection.IBox,
     departures: IAutoMovieViewSection.ISection["shoulders"] = [0, 0, 0, 0],
   ): IAutoMovieViewSection.IRange | null {
-    const at: (r: number) => IAutoMovieSource | null = (r: number): IAutoMovieSource | null => {
+    const at: (r: number) => IAutoMovieSource | null = (
+      r: number,
+    ): IAutoMovieSource | null => {
       const s: IAutoMovieViewSection.ISection["shoulders"] = departures.map(
         (d: number): number => r + d,
       ) as IAutoMovieViewSection.ISection["shoulders"];
@@ -136,7 +148,9 @@ export namespace AutoMovieViewSectionRange {
     };
     const lo: number = edge(AutoMovieViewSection.ELLIPSE, 0);
     const hi: number = edge(AutoMovieViewSection.ELLIPSE, 1);
-    const shaped: (r: number) => IAutoMovieSource = (r: number): IAutoMovieSource =>
+    const shaped: (r: number) => IAutoMovieSource = (
+      r: number,
+    ): IAutoMovieSource =>
       measure(
         box,
         departures.map(
@@ -164,7 +178,10 @@ export namespace AutoMovieViewSectionRange {
     box: IAutoMovieViewSection.IBox,
     shoulders: IAutoMovieViewSection.ISection["shoulders"],
   ): IAutoMovieSource {
-    const value: IAutoMovieSource = AutoMovieViewSectionConic.prepare(box, shoulders);
+    const value: IAutoMovieSource = AutoMovieViewSectionConic.prepare(
+      box,
+      shoulders,
+    );
     value.girth = AutoMovieViewSectionConic.length(value);
     return value;
   }

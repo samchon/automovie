@@ -1,4 +1,5 @@
 import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
+
 import { admitPhysicalBody } from "./admitPhysicalBody";
 import { admitPhysicalReleasePolicy } from "./admitPhysicalReleasePolicy";
 import { admitPhysicalTargets } from "./admitPhysicalTargets";
@@ -16,10 +17,14 @@ import { validatePhysicalProfile } from "./validatePhysicalProfile";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 20 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function admitPhysicalSimulation(input: IAutoMoviePhysicalSimulationInput.IInput): void {
+export function admitPhysicalSimulation(
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+): void {
   const positive: (value: number) => boolean = (value: number): boolean =>
     scalar(value) && Math.fround(value) > 0;
-  const floor: IAutoMoviePhysicalSimulationInput.IInput["floorBounds"] | undefined = input.floorBounds;
+  const floor:
+    | IAutoMoviePhysicalSimulationInput.IInput["floorBounds"]
+    | undefined = input.floorBounds;
   if (
     !floor?.min ||
     !floor.max ||
@@ -119,9 +124,11 @@ export function admitPhysicalSimulation(input: IAutoMoviePhysicalSimulationInput
     admitPhysicalTargets(input, body);
   }
   for (const impulse of input.impulses) {
-    const body: IAutoMoviePhysicalSimulationInput.IBody | undefined = input.bodies.find(
-      (candidate: IAutoMoviePhysicalSimulationInput.IBody): boolean => candidate.id === impulse?.body,
-    );
+    const body: IAutoMoviePhysicalSimulationInput.IBody | undefined =
+      input.bodies.find(
+        (candidate: IAutoMoviePhysicalSimulationInput.IBody): boolean =>
+          candidate.id === impulse?.body,
+      );
     if (
       !impulse ||
       !body ||
@@ -129,8 +136,9 @@ export function admitPhysicalSimulation(input: IAutoMoviePhysicalSimulationInput
       impulse.step < 1 ||
       impulse.step > count ||
       !body.profile.segments.some(
-        (segment: IAutoMoviePhysicalSimulationInput.IBody["profile"]["segments"][number]): boolean =>
-          segment.bone === impulse.bone,
+        (
+          segment: IAutoMoviePhysicalSimulationInput.IBody["profile"]["segments"][number],
+        ): boolean => segment.bone === impulse.bone,
       ) ||
       !impulse.impulse ||
       !impulse.point ||

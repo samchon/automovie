@@ -1,7 +1,18 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
-import { AutoMovieMotionHumanBend, AutoMovieMotionHumanDrinkingArm, AutoMovieMotionHumanDrinkingSwivel, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanBend,
+  AutoMovieMotionHumanDrinkingArm,
+  AutoMovieMotionHumanDrinkingSwivel,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -34,7 +45,11 @@ import { nclose } from "../internal/nclose";
  */
 export function test_motion_compose_drinking_swivel(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const posture: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const posture: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
     body,
     resolveHumanPosture(body, { ...posture, limbs: {} }),

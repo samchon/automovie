@@ -1,6 +1,9 @@
-import type { IAutoMovieSurfaceNetwork, IAutoMovieSweep, IAutoMovieSweepSection, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieSurfaceNetwork,
+  IAutoMovieSweep,
+  IAutoMovieSweepSection,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /** The same count at every tier. */
 const fixed = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({

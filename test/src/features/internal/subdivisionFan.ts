@@ -1,6 +1,5 @@
 import type { IAutoMovieSubdivisionCage } from "@automovie/interface";
 
-
 /**
  * A synthetic open cage of `n` quads around vertex 0, which is interior with
  * valence `n`. Vertex 0 sits at `(0, 0, apex)`, vertex `1 + i` on the unit

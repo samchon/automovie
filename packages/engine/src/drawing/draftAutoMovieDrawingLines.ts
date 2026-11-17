@@ -1,6 +1,17 @@
-import { type IAutoMovieDrawingDesignIndex, type IAutoMovieDrawingEdge, type IAutoMovieDrawingTriangle, type IAutoMovieDraftDrawingLines, AutoMovieDrawingRole, IAutoMovieBuiltBoundary, IAutoMovieBuiltElement, IAutoMovieDrawingFrame, IAutoMovieDrawingLine, IAutoMovieDrawingPoint, IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  AutoMovieDrawingRole,
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltElement,
+  type IAutoMovieDraftDrawingLines,
+  type IAutoMovieDrawingDesignIndex,
+  type IAutoMovieDrawingEdge,
+  IAutoMovieDrawingFrame,
+  IAutoMovieDrawingLine,
+  IAutoMovieDrawingPoint,
+  type IAutoMovieDrawingTriangle,
+  IAutoMovieModel,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
 import { autoMovieBoundaryShellTriangles } from "./autoMovieBoundaryShellTriangles";
@@ -60,7 +71,9 @@ interface IDrawable {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Element geometry comes from the design index, so a model placed many times is tessellated once per derivation; each drawable's triangles are computed once and shared by its classification, cut and silhouette passes.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The drawable list, drafted strokes and deduplication map live for the call and are released on return; the retained population is bounded by the drawn triangles, and only the returned lines, owned by the caller, survive.
  */
-export const draftAutoMovieDrawingLines = (props: IAutoMovieDraftDrawingLines.IProps): IAutoMovieDraftDrawingLines.IResult => {
+export const draftAutoMovieDrawingLines = (
+  props: IAutoMovieDraftDrawingLines.IProps,
+): IAutoMovieDraftDrawingLines.IResult => {
   const { environment, view, frame, design, cut, drawn } = props;
   const drawables: IDrawable[] = [];
   let unresolvedModels: number = 0;

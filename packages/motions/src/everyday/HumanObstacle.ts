@@ -1,6 +1,11 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanRefusal, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
@@ -52,7 +57,8 @@ export namespace HumanObstacle {
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     subject: string,
   ): IObstacle {
-    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(subject);
+    const read: IAutoMovieMotionHumanActionContext.IProp =
+      context.prop(subject);
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];
     const find = (id: string): IAutoMovieAffordance | undefined =>

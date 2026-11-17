@@ -1,4 +1,9 @@
-import type { IAutoMovieBicubicAtlasGeometry, IAutoMovieRecoveryFieldComplexCounts, IAutoMovieRecoveryFieldComplexPiece, IAutoMovieRecoveryUnsupportedDomain } from "../../index";
+import type {
+  IAutoMovieBicubicAtlasGeometry,
+  IAutoMovieRecoveryFieldComplexCounts,
+  IAutoMovieRecoveryFieldComplexPiece,
+  IAutoMovieRecoveryUnsupportedDomain,
+} from "../../index";
 
 /**
  * Assembled coefficient authority with explicit coverage and qualification limits.
@@ -10,39 +15,30 @@ import type { IAutoMovieBicubicAtlasGeometry, IAutoMovieRecoveryFieldComplexCoun
  */
 
 export interface IAutoMovieRecoveryFieldComplex {
- 
- /** Final shared coefficient atlas in model metres. */
+  /** Final shared coefficient atlas in model metres. */
   recipe: IAutoMovieBicubicAtlasGeometry;
 
- 
- /** Retained patch provenance including owning chart. */
+  /** Retained patch provenance including owning chart. */
   sourcePieces: IAutoMovieRecoveryFieldComplexPiece[];
 
- 
- /** Omitted domains and their original textual causes. */
+  /** Omitted domains and their original textual causes. */
   unsupported: IAutoMovieRecoveryUnsupportedDomain[];
 
- 
- /** Actual requested, retained and shared populations. */
+  /** Actual requested, retained and shared populations. */
   counts: IAutoMovieRecoveryFieldComplexCounts;
 
- 
- /** True only when no domain was omitted and observations were complete. */
+  /** True only when no domain was omitted and observations were complete. */
   coverageComplete: boolean;
 
- 
- /** Original producer observation completion. */
+  /** Original producer observation completion. */
   observationComplete: boolean;
 
- 
- /** Assembly does not qualify source-interior fidelity. */
+  /** Assembly does not qualify source-interior fidelity. */
   sourceFitQualified: false;
 
- 
- /** Assembly does not qualify geometric embedding. */
+  /** Assembly does not qualify geometric embedding. */
   embeddingQualified: false;
 
- 
- /** The result contains no original skin topology. */
+  /** The result contains no original skin topology. */
   sourceTopologyPublic: false;
 }

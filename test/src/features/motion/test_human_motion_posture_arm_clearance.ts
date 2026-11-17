@@ -1,7 +1,22 @@
-import type { IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-
-import { HumanArmClearance, HumanColliders, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanArmClearance,
+  HumanColliders,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -64,26 +79,27 @@ export function test_human_motion_posture_arm_clearance(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   for (const name of motionHumanBody.EXTREMES) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const posture: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+    const posture: IAutoMovieMotionHumanPosture = stand.posture(
+      body,
+      { x: 0, y: 0, z: 0 },
+      0,
+    );
     const pose: IAutoMoviePose = resolveHumanPosture(body, posture);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       pose,
     );
-    const placed: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
+    const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanColliders.placed(body, bones);
     const r: number = body.measure.forearmRadius;
     const degrees = (metres: number): number =>
       ((metres / body.measure.upperArm) * 180) / Math.PI;
 
     // 1. The trunk and the obstacles.
-    const trunk: IAutoMovieMotionHumanColliders.IPlaced[] = HumanArmClearance.trunk(
-      body,
-      bones,
-    );
-    const obstacles: IAutoMovieMotionHumanColliders.IPlaced[] = HumanArmClearance.obstacles(
-      body,
-      bones,
-    );
+    const trunk: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanArmClearance.trunk(body, bones);
+    const obstacles: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanArmClearance.obstacles(body, bones);
     complaints.equals(
       `${name}: trunk`,
       trunk,
@@ -179,11 +195,10 @@ export function test_human_motion_posture_arm_clearance(): void {
       );
       // Without the other arm's room: that arm is placed, or its coming goal
       // lies on its own side; and an elbow hinted across.
-      const placedOther: IAutoMovieMotionHumanColliders.IPlaced[] = HumanArmClearance.obstacles(
-        body,
-        bones,
-        [side === "left" ? "right" : "left"],
-      );
+      const placedOther: IAutoMovieMotionHumanColliders.IPlaced[] =
+        HumanArmClearance.obstacles(body, bones, [
+          side === "left" ? "right" : "left",
+        ]);
       const kept: number = HumanArmClearance.overshoot(
         body,
         placedOther,
@@ -233,13 +248,14 @@ export function test_human_motion_posture_arm_clearance(): void {
       );
 
       // 5. A palm laid on the chest, against its own trunk and another body.
-      const hit: IAutoMovieMotionHumanColliders.IHit | undefined = HumanColliders.cast(
-        body,
-        new Map([...bones].filter(([bone]) => bone === chest.bone)),
-        toward(chest.pose.position, sign * 0.02, 0, 0.6),
-        { x: 0, y: 0, z: -1 },
-        1,
-      );
+      const hit: IAutoMovieMotionHumanColliders.IHit | undefined =
+        HumanColliders.cast(
+          body,
+          new Map([...bones].filter(([bone]) => bone === chest.bone)),
+          toward(chest.pose.position, sign * 0.02, 0, 0.6),
+          { x: 0, y: 0, z: -1 },
+          1,
+        );
       if (hit === undefined)
         complaints.check(`${cell}: the chest is hit`, false);
       else {

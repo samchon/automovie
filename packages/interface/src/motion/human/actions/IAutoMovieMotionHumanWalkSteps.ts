@@ -1,10 +1,10 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionHumanEntryState } from "../law/IAutoMovieMotionHumanEntryState";
 import type { IAutoMovieMotionHumanWalkFacing } from "./IAutoMovieMotionHumanWalkFacing";
 import type { IAutoMovieMotionHumanWalkFoot } from "./IAutoMovieMotionHumanWalkFoot";
 import type { IAutoMovieMotionHumanWalkGait } from "./IAutoMovieMotionHumanWalkGait";
 import type { IAutoMovieMotionHumanWalkPace } from "./IAutoMovieMotionHumanWalkPace";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * The footstep plan of a walk: footprints, their heel-strike and toe-off

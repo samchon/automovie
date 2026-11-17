@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionHumanAttribute, IAutoMovieMotionHumanResponse, IAutoMovieMotionHumanSkill, IAutoMovieRandom } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanAttribute,
+  IAutoMovieMotionHumanResponse,
+  IAutoMovieMotionHumanSkill,
+  IAutoMovieRandom,
+} from "@automovie/interface";
 
 import { HUMAN_ATTRIBUTE_EFFECTS } from "../ensemble/HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "../ensemble/HumanAttribute";
@@ -28,7 +33,6 @@ import { HumanSkill } from "./HumanSkill";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The reaction's parameters stay the orienting law's: no second copy.
  */
 export namespace HumanResponse {
-
   /**
    * The shortest latency a reaction is given, seconds: a start within 0.1 s
    * of the gun counts as false in athletics because no one reacts faster

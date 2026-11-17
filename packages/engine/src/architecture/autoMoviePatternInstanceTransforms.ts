@@ -1,6 +1,14 @@
-import { type IAutoMoviePatternFaceFrame, type IAutoMoviePatternFacet, type IAutoMoviePatternInstancing, type IAutoMoviePatternPoint, type IAutoMoviePatternZoneQuantities, type IAutoMovieSurfacePatternResult, type IAutoMoviePatternInstanceTransforms, IAutoMovieExplicitInstanceTransform, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  IAutoMovieExplicitInstanceTransform,
+  type IAutoMoviePatternFaceFrame,
+  type IAutoMoviePatternFacet,
+  type IAutoMoviePatternInstanceTransforms,
+  type IAutoMoviePatternInstancing,
+  type IAutoMoviePatternPoint,
+  type IAutoMoviePatternZoneQuantities,
+  type IAutoMovieSurfacePatternResult,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { positive } from "../geometry/positive";
 import { Quaternion } from "../math/Quaternion";
@@ -44,7 +52,11 @@ import { quaternionFromAutoMovieBasis } from "../math/quaternionFromAutoMovieBas
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Every placement of a zone reuses that zone's resolved panel basis instead of re-validating its frame; nothing is reused across calls, since the result and frames are inputs.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The panel map is dropped on return; the caller owns the slots and cut ids, together bounded by the placement count.
  */
-export const autoMoviePatternInstanceTransforms: (props: IAutoMoviePatternInstanceTransforms.IProps) => IAutoMoviePatternInstancing = (props: IAutoMoviePatternInstanceTransforms.IProps): IAutoMoviePatternInstancing => {
+export const autoMoviePatternInstanceTransforms: (
+  props: IAutoMoviePatternInstanceTransforms.IProps,
+) => IAutoMoviePatternInstancing = (
+  props: IAutoMoviePatternInstanceTransforms.IProps,
+): IAutoMoviePatternInstancing => {
   positive(props.thickness, "pattern module thickness");
   const flat: IResolvedPanel = resolvePanel(
     { u: 0, v: 0 },

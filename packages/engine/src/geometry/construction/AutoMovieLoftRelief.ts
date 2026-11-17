@@ -1,5 +1,7 @@
-import type { IAutoMovieLoftRelief, AutoMovieVector3Tuple } from "@automovie/interface";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieLoftRelief,
+} from "@automovie/interface";
 
 /**
  * Evaluation of a relief's height field over its window.
@@ -185,7 +187,11 @@ export namespace AutoMovieLoftRelief {
     const x: number = t - (relief.phases[0] + width(relief) / 2);
     const c: number = Math.cos(x);
     const s: number = Math.sin(x);
-    const e: AutoMovieVector3Tuple = [c * a[0] + s * b[0], c * a[1] + s * b[1], c * a[2] + s * b[2]];
+    const e: AutoMovieVector3Tuple = [
+      c * a[0] + s * b[0],
+      c * a[1] + s * b[1],
+      c * a[2] + s * b[2],
+    ];
     return [
       e,
       [c * b[0] - s * a[0], c * b[1] - s * a[1], c * b[2] - s * a[2]],

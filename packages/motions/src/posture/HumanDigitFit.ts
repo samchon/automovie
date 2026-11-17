@@ -1,7 +1,28 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieCurlChainUntilContact, IAutoMovieFitDigitToTarget, IAutoMovieHumanoidSurfaces, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanGrip, IAutoMovieMotionHumanPosture, IAutoMoviePhysicalProfile, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Quaternion,
+  Vector3,
+  fitDigitToTarget,
+  physicalShapeSegmentDistance,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieCurlChainUntilContact,
+  IAutoMovieFitDigitToTarget,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanGrip,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, fitDigitToTarget, physicalShapeSegmentDistance } from "@automovie/engine";
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanColliders } from "./HumanColliders";
 import { HumanPosture } from "./HumanPosture";
@@ -57,7 +78,8 @@ export namespace HumanDigitFit {
     if (digits === undefined) return pose;
     let out: IAutoMoviePose = pose;
     for (const digit of HumanPosture.DIGITS) {
-      const goal: IAutoMovieMotionHumanPosture.IDigitGoal | undefined = digits[digit];
+      const goal: IAutoMovieMotionHumanPosture.IDigitGoal | undefined =
+        digits[digit];
       if (goal === undefined) continue;
       const side: "left" | "right" = digit.startsWith("left")
         ? "left"
@@ -231,30 +253,40 @@ const nearBody: (
         !p.bone.startsWith(side) ||
         !(OWN.test(p.bone.slice(side.length)) || p.bone === `${side}LowerArm`),
     )
-    .flatMap((p: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieCurlChainUntilContact.ICollider[] =>
-      p.shapes
-        .filter((shape: IAutoMoviePhysicalProfile.IShape): boolean => {
-          const ball: IAutoMovieMotionHumanColliders.IBall = HumanColliders.bound(shape);
-          const centre: IAutoMovieVector3 = Vector3.add(
-            p.pose.position,
-            Quaternion.rotateVector(
-              p.pose.rotation,
-              Vector3.add(
-                shape.transform.position,
-                Quaternion.rotateVector(shape.transform.rotation, ball.centre),
+    .flatMap(
+      (
+        p: IAutoMovieMotionHumanColliders.IPlaced,
+      ): IAutoMovieCurlChainUntilContact.ICollider[] =>
+        p.shapes
+          .filter((shape: IAutoMoviePhysicalProfile.IShape): boolean => {
+            const ball: IAutoMovieMotionHumanColliders.IBall =
+              HumanColliders.bound(shape);
+            const centre: IAutoMovieVector3 = Vector3.add(
+              p.pose.position,
+              Quaternion.rotateVector(
+                p.pose.rotation,
+                Vector3.add(
+                  shape.transform.position,
+                  Quaternion.rotateVector(
+                    shape.transform.rotation,
+                    ball.centre,
+                  ),
+                ),
               ),
-            ),
-          );
-          return (
-            Vector3.length(Vector3.subtract(centre, hand)) <
-            ball.radius + body.measure.hand
-          );
-        })
-        .map(
-          (
-            shape: IAutoMoviePhysicalProfile.IShape,
-          ): IAutoMovieCurlChainUntilContact.ICollider => ({ shape, frame: p.pose }),
-        ),
+            );
+            return (
+              Vector3.length(Vector3.subtract(centre, hand)) <
+              ball.radius + body.measure.hand
+            );
+          })
+          .map(
+            (
+              shape: IAutoMoviePhysicalProfile.IShape,
+            ): IAutoMovieCurlChainUntilContact.ICollider => ({
+              shape,
+              frame: p.pose,
+            }),
+          ),
     );
 };
 

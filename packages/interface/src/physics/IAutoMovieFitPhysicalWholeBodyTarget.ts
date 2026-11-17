@@ -1,27 +1,27 @@
-import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 
 /** Data and callback contracts shared by the FitPhysicalWholeBodyTarget operations. */
 export namespace IAutoMovieFitPhysicalWholeBodyTarget {
   /** A whole-body fit and its residual report. */
-    export interface IResult {
-      /** World pose of every original segment. */
-      targets: Record<string, IAutoMoviePhysicalProfile.ITransform>;
-  
-      /** Total residual norm, metres. */
-      residual: number;
-  
-      /** Endpoint point error, metres. */
-      position: number;
-  
-      /** Weighted approach direction error, metres; zero without an approach. */
-      approach: number;
-    }
+  export interface IResult {
+    /** World pose of every original segment. */
+    targets: Record<string, IAutoMoviePhysicalProfile.ITransform>;
+
+    /** Total residual norm, metres. */
+    residual: number;
+
+    /** Endpoint point error, metres. */
+    position: number;
+
+    /** Weighted approach direction error, metres; zero without an approach. */
+    approach: number;
+  }
 
   /**
    * Fit a whole articulated body to one endpoint goal while a support segment
    * stays held, turning only about its contact.
-   * 
+   *
    * The tree is held from the support ({@link rerootPhysicalProfile}), and a
    * virtual base hinges onto it at the contact point about the contact normal
    * within the declared turn, so the old root (a pelvis) rotates, tilts and

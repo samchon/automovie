@@ -12,11 +12,9 @@
  */
 
 export interface IAutoMovieByteDigest {
- 
- /** SHA-256 of the exact artifact bytes, including compression when present. */
+  /** SHA-256 of the exact artifact bytes, including compression when present. */
   sha256: string;
 
- 
- /** Number of artifact bytes covered by sha256. */
+  /** Number of artifact bytes covered by sha256. */
   bytes: number;
 }

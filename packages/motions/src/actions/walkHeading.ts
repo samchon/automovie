@@ -1,6 +1,5 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
 import { wrapDegrees } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * How far a walk's footprint may turn, from the foot's own last footprint

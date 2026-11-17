@@ -1,5 +1,24 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftJet, IAutoMovieLoftPhaseSource, IAutoMovieViewConic, IAutoMovieViewCurves, IAutoMovieViewLoft, IAutoMovieViewPart, IAutoMovieViewSection } from "@automovie/interface";
-import { AutoMovieLoftChain, AutoMovieLoftFrame, AutoMovieLoftJet, AutoMovieLoftPhaseSource, AutoMovieSplineCurve, AutoMovieViewAxis, AutoMovieViewCurves, AutoMovieViewLoft, AutoMovieViewSection } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  AutoMovieLoftFrame,
+  AutoMovieLoftJet,
+  AutoMovieLoftPhaseSource,
+  AutoMovieSplineCurve,
+  AutoMovieViewAxis,
+  AutoMovieViewCurves,
+  AutoMovieViewLoft,
+  AutoMovieViewSection,
+} from "@automovie/engine";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftJet,
+  IAutoMovieLoftPhaseSource,
+  IAutoMovieViewConic,
+  IAutoMovieViewCurves,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 import { performance } from "node:perf_hooks";
 
 /** Independent original-source and actual-consumer observations for the phase question. */
@@ -40,7 +59,11 @@ export namespace ConstructionPhaseSourceComparison {
     let originalJetError: number = 0;
     let directPhaseJetError: number = 0;
     for (const s of [0, 0.125, 0.25, 0.5, 0.75, 0.875, 1]) {
-      const native: IAutoMovieViewSection.ISection = section(prepared, input, s);
+      const native: IAutoMovieViewSection.ISection = section(
+        prepared,
+        input,
+        s,
+      );
       const at: IAutoMovieLoftPhaseSource.IStation =
         AutoMovieLoftPhaseSource.station(principal, s);
       const reading: IAutoMovieViewCurves.IReading | string =

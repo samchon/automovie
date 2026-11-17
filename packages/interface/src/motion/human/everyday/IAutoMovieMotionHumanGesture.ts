@@ -1,9 +1,9 @@
-import type { IAutoMovieMotionHumanEffort } from "./IAutoMovieMotionHumanEffort";
-import type { IAutoMovieMotionHumanGestureStroke } from "./IAutoMovieMotionHumanGestureStroke";
+import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
+import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanHandShape } from "../posture/IAutoMovieMotionHumanHandShape";
-import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
-import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
+import type { IAutoMovieMotionHumanEffort } from "./IAutoMovieMotionHumanEffort";
+import type { IAutoMovieMotionHumanGestureStroke } from "./IAutoMovieMotionHumanGestureStroke";
 
 /**
  * A communicative gesture while standing: the hand, head or trunk moves

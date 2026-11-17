@@ -1,5 +1,7 @@
-import { type IAutoMovieProductionRenderLayersForPass, AutoMovieGuidePass } from "@automovie/interface";
-
+import {
+  AutoMovieGuidePass,
+  type IAutoMovieProductionRenderLayersForPass,
+} from "@automovie/interface";
 
 /**
  * The layers one render pass draws for one film frame.

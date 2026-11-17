@@ -1,6 +1,16 @@
-import type { IAutoMovieRecoveryFeasibleModel, IAutoMovieRecoverySqpArc, IAutoMovieRecoverySqpOptions, IAutoMovieRecoverySqpTightening, IAutoMovieSimplexAtom } from "@automovie/interface";
-
-import { chooseRecoverySqpTightening, createRecoveryFeasibleSqpArc, mixRecoveryFeasibleSqpStep, solveRecoveryFeasibleDirection } from "@automovie/recovery";
+import type {
+  IAutoMovieRecoveryFeasibleModel,
+  IAutoMovieRecoverySqpArc,
+  IAutoMovieRecoverySqpOptions,
+  IAutoMovieRecoverySqpTightening,
+  IAutoMovieSimplexAtom,
+} from "@automovie/interface";
+import {
+  chooseRecoverySqpTightening,
+  createRecoveryFeasibleSqpArc,
+  mixRecoveryFeasibleSqpStep,
+  solveRecoveryFeasibleDirection,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

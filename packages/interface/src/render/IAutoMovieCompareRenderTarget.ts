@@ -6,7 +6,7 @@ import type { IAutoMovieRenderTargetDrift } from "./IAutoMovieRenderTargetDrift"
 export namespace IAutoMovieCompareRenderTarget {
   /**
    * Decide whether a report is still evidence about the target in front of you.
-   * 
+   *
    * A budget verdict is a claim about a specific renderer drawing specific bytes
    * at a specific size. Change any of that and the verdict is not conservative,
    * it is wrong in an unknown direction: a smaller shadow map makes a failing
@@ -23,7 +23,7 @@ export namespace IAutoMovieCompareRenderTarget {
 
   /**
    * Decide whether a report is still evidence about the target in front of you.
-   * 
+   *
    * A budget verdict is a claim about a specific renderer drawing specific bytes
    * at a specific size. Change any of that and the verdict is not conservative,
    * it is wrong in an unknown direction: a smaller shadow map makes a failing

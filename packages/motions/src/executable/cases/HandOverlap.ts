@@ -1,6 +1,12 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMoviePhysicalProfile, IAutoMovieResolvedBone } from "@automovie/interface";
-
 import { physicalShapePairDistance } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
+
 import { HumanColliders } from "../../posture/HumanColliders";
 
 /**

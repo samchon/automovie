@@ -1,4 +1,12 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanSegment, IAutoMovieMotionMeeting } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionMeeting,
+} from "@automovie/interface";
 
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { poseBones } from "../posture/poseBones";
@@ -60,7 +68,8 @@ export namespace HumanPerformanceMeeting {
         posture: entry.posture,
         bones: poseBones(body, entry.pose),
         seated: entry.supports.some(
-          (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat",
+          (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+            s.kind === "seat",
         ),
       };
       const others: readonly IAutoMovieMotionHumanActionContext.IPartner[] =
@@ -74,7 +83,8 @@ export namespace HumanPerformanceMeeting {
       const key: string = `${kind.name}|${[
         subject,
         ...others.map(
-          (other: IAutoMovieMotionHumanActionContext.IPartner): string => other.subject,
+          (other: IAutoMovieMotionHumanActionContext.IPartner): string =>
+            other.subject,
         ),
       ]
         .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))

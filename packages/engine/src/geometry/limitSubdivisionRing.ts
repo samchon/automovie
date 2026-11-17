@@ -1,4 +1,8 @@
-import type { IAutoMovieLimitSubdivisionRing, IAutoMovieSubdivisionRing } from "@automovie/interface";
+import type {
+  IAutoMovieLimitSubdivisionRing,
+  IAutoMovieSubdivisionRing,
+} from "@automovie/interface";
+
 import { subdivisionRingEigenbasis } from "./subdivisionRingEigenbasis";
 
 /**
@@ -145,7 +149,9 @@ export const limitSubdivisionRing = (
 const smoothLimit: (ring: IAutoMovieSubdivisionRing) => {
   position: number[];
   normal: number[];
-} = (ring: IAutoMovieSubdivisionRing): { position: number[]; normal: number[] } => {
+} = (
+  ring: IAutoMovieSubdivisionRing,
+): { position: number[]; normal: number[] } => {
   const n: number = ring.sharpness.length;
   const position: number[] = ring.centre.map((x: number): number => n * n * x);
   const along: number[] = [0, 0, 0];

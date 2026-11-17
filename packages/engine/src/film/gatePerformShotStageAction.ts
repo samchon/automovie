@@ -1,5 +1,13 @@
-import { type IAutoMovieArmChainFault, type IAutoMovieClassifyLocomoteGroundDisplacement, type IAutoMovieEnginePerformShotActionPlan, type IAutoMovieEnginePerformShotGateContext, type IAutoMovieViolationCollector, IAutoMovieActionCall, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieActionCall,
+  type IAutoMovieArmChainFault,
+  type IAutoMovieClassifyLocomoteGroundDisplacement,
+  type IAutoMovieEnginePerformShotActionPlan,
+  type IAutoMovieEnginePerformShotGateContext,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { armChainFault } from "../kinematics/armChainFault";
 import { classifyLocomoteGroundDisplacement } from "../motion/classifyLocomoteGroundDisplacement";
@@ -83,11 +91,12 @@ export function gatePerformShotStageAction(
       for (const actor of actors) {
         if (!context.nodeIds.has(actor)) continue;
         const origin: IAutoMovieVector3 = context.nodePositions.get(actor)!;
-        const displacement: IAutoMovieClassifyLocomoteGroundDisplacement.IResult = classifyLocomoteGroundDisplacement({
-          x: destination.x - origin.x,
-          y: destination.y - origin.y,
-          z: destination.z - origin.z,
-        });
+        const displacement: IAutoMovieClassifyLocomoteGroundDisplacement.IResult =
+          classifyLocomoteGroundDisplacement({
+            x: destination.x - origin.x,
+            y: destination.y - origin.y,
+            z: destination.z - origin.z,
+          });
         if (displacement.verticalOnly)
           out.push(
             "range",
@@ -335,7 +344,7 @@ function refuseUnbendableArm(
   for (const performer of performers) {
     const rig: IAutoMovieSkeleton | null = context.skeleton(performer);
     if (rig === null) continue;
-    const fault: (IAutoMovieArmChainFault | null) = armChainFault(rig, side);
+    const fault: IAutoMovieArmChainFault | null = armChainFault(rig, side);
     if (fault === null) continue;
     context.out.push(
       "type",

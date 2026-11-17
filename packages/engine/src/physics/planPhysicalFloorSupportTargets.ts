@@ -1,5 +1,11 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePlanPhysicalFloorSupportTargets, IAutoMoviePlanPhysicalSupportTargets, IAutoMovieSolvePhysicalFloorChainTarget, IAutoMovieFootfallPattern, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePlanPhysicalFloorSupportTargets,
+  IAutoMoviePlanPhysicalSupportTargets,
+  IAutoMovieSolvePhysicalArticulationTargets,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 import { physicalShapeBounds } from "./physicalShapeBounds";
@@ -23,7 +29,9 @@ import { solvePhysicalFloorChainTarget } from "./solvePhysicalFloorChainTarget";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 14 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function planPhysicalFloorSupportTargets(input: IAutoMoviePlanPhysicalFloorSupportTargets.IInput): IAutoMoviePlanPhysicalFloorSupportTargets.IResult {
+export function planPhysicalFloorSupportTargets(
+  input: IAutoMoviePlanPhysicalFloorSupportTargets.IInput,
+): IAutoMoviePlanPhysicalFloorSupportTargets.IResult {
   if (
     !Number.isSafeInteger(input.passes) ||
     input.passes < 1 ||
@@ -50,7 +58,8 @@ export function planPhysicalFloorSupportTargets(input: IAutoMoviePlanPhysicalFlo
     )
   )
     throw new Error("Invalid floor-support fitting policy");
-  let targets: Record<string, IAutoMoviePhysicalProfile.ITransform> = structuredClone(input.targets);
+  let targets: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+    structuredClone(input.targets);
   const goals: Record<string, IAutoMovieVector3> = Object.fromEntries(
     input.pattern.limbs.map(
       (
@@ -99,7 +108,7 @@ export function planPhysicalFloorSupportTargets(input: IAutoMoviePlanPhysicalFlo
     targets = result.targets;
     rootDrop += result.rootDrop;
     for (const limb of input.pattern.limbs) {
-      const fitted: IAutoMovieSolvePhysicalFloorChainTarget.IResult =
+      const fitted: IAutoMovieSolvePhysicalArticulationTargets.IResult =
         solvePhysicalFloorChainTarget({
           profile: input.profile,
           targets,
@@ -137,9 +146,11 @@ export function planPhysicalFloorSupportTargets(input: IAutoMoviePlanPhysicalFlo
   function minimum(limb: IAutoMovieFootfallPattern["limbs"][number]): number {
     const heights: number[] = (limb.contacts ?? [limb.bone]).flatMap(
       (bone: string): number[] => {
-        const segment: IAutoMoviePhysicalProfile.ISegment | undefined = input.profile.segments.find(
-          (candidate: IAutoMoviePhysicalProfile.ISegment): boolean => candidate.bone === bone,
-        );
+        const segment: IAutoMoviePhysicalProfile.ISegment | undefined =
+          input.profile.segments.find(
+            (candidate: IAutoMoviePhysicalProfile.ISegment): boolean =>
+              candidate.bone === bone,
+          );
         if (!segment || !targets[bone])
           throw new Error(`Missing support patch ${bone}`);
         return segment.shapes.map(

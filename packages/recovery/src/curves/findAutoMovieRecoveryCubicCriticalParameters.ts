@@ -1,7 +1,5 @@
-import type { IAutoMovieConicApproximation } from "@automovie/interface";
 import { rootsAutoMovieViewPolynomial } from "@automovie/engine";
-
-
+import type { IAutoMovieConicApproximation } from "@automovie/interface";
 
 /**
  * Locate isolated cubic regularity and affine-curvature candidates analytically.
@@ -31,47 +29,148 @@ import { rootsAutoMovieViewPolynomial } from "@automovie/engine";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All coefficients and root arrays are call-local; only scalar parameters and diagnostics transfer to the caller, with no retained source or external resource.
  */
 export function findAutoMovieRecoveryCubicCriticalParameters(
-  controls: readonly [IAutoMovieConicApproximation.Point, IAutoMovieConicApproximation.Point, IAutoMovieConicApproximation.Point, IAutoMovieConicApproximation.Point],
+  controls: readonly [
+    IAutoMovieConicApproximation.Point,
+    IAutoMovieConicApproximation.Point,
+    IAutoMovieConicApproximation.Point,
+    IAutoMovieConicApproximation.Point,
+  ],
 ): IAutoMovieConicApproximation.ICubicCriticalParameters {
   if (controls.length !== 4)
-    throw new RangeError("Cubic critical parameters require four finite planar Bernstein controls.");
+    throw new RangeError(
+      "Cubic critical parameters require four finite planar Bernstein controls.",
+    );
   for (let i: number = 0; i < 4; ++i) {
     const p: IAutoMovieConicApproximation.Point | undefined = controls[i];
-    if (p === undefined || !Array.isArray(p) || p.length !== 2 || !Number.isFinite(p[0]) || !Number.isFinite(p[1]))
-      throw new RangeError("Cubic critical parameters require four finite planar Bernstein controls.");
+    if (
+      p === undefined ||
+      !Array.isArray(p) ||
+      p.length !== 2 ||
+      !Number.isFinite(p[0]) ||
+      !Number.isFinite(p[1])
+    )
+      throw new RangeError(
+        "Cubic critical parameters require four finite planar Bernstein controls.",
+      );
   }
-  const raw: IAutoMovieConicApproximation.Point[] = controls.slice(1).map((p: IAutoMovieConicApproximation.Point, i: number): IAutoMovieConicApproximation.Point => [p[0] - controls[i]![0], p[1] - controls[i]![1]]);
-  const scale: number = Math.max(...raw.flatMap((p: IAutoMovieConicApproximation.Point): number[] => [Math.abs(p[0]), Math.abs(p[1])]));
-  if (!Number.isFinite(scale)) throw new RangeError("Source control differences exceed finite binary64 arithmetic.");
-  if (scale === 0) return { breaks: [], zeroCurvature: [], affineCritical: [], stationary: [], collinear: true,
-    diagnostics: ["Constant cubic: every parameter is stationary; no isolated critical parameters exist."] };
-  const edges: IAutoMovieConicApproximation.Point[] = raw.map((p: IAutoMovieConicApproximation.Point): IAutoMovieConicApproximation.Point => [p[0] / scale, p[1] / scale]);
-  const a: IAutoMovieConicApproximation.Point = [edges[2]![0] - 2 * edges[1]![0] + edges[0]![0], edges[2]![1] - 2 * edges[1]![1] + edges[0]![1]];
-  const b: IAutoMovieConicApproximation.Point = [3 * (edges[1]![0] - edges[0]![0]), 3 * (edges[1]![1] - edges[0]![1])];
-  const c: IAutoMovieConicApproximation.Point = [3 * edges[0]![0], 3 * edges[0]![1]];
-  const determinant: (x: IAutoMovieConicApproximation.Point, y: IAutoMovieConicApproximation.Point) => number = (x: IAutoMovieConicApproximation.Point, y: IAutoMovieConicApproximation.Point): number => x[0] * y[1] - x[1] * y[0];
+  const raw: IAutoMovieConicApproximation.Point[] = controls
+    .slice(1)
+    .map(
+      (
+        p: IAutoMovieConicApproximation.Point,
+        i: number,
+      ): IAutoMovieConicApproximation.Point => [
+        p[0] - controls[i]![0],
+        p[1] - controls[i]![1],
+      ],
+    );
+  const scale: number = Math.max(
+    ...raw.flatMap((p: IAutoMovieConicApproximation.Point): number[] => [
+      Math.abs(p[0]),
+      Math.abs(p[1]),
+    ]),
+  );
+  if (!Number.isFinite(scale))
+    throw new RangeError(
+      "Source control differences exceed finite binary64 arithmetic.",
+    );
+  if (scale === 0)
+    return {
+      breaks: [],
+      zeroCurvature: [],
+      affineCritical: [],
+      stationary: [],
+      collinear: true,
+      diagnostics: [
+        "Constant cubic: every parameter is stationary; no isolated critical parameters exist.",
+      ],
+    };
+  const edges: IAutoMovieConicApproximation.Point[] = raw.map(
+    (
+      p: IAutoMovieConicApproximation.Point,
+    ): IAutoMovieConicApproximation.Point => [p[0] / scale, p[1] / scale],
+  );
+  const a: IAutoMovieConicApproximation.Point = [
+    edges[2]![0] - 2 * edges[1]![0] + edges[0]![0],
+    edges[2]![1] - 2 * edges[1]![1] + edges[0]![1],
+  ];
+  const b: IAutoMovieConicApproximation.Point = [
+    3 * (edges[1]![0] - edges[0]![0]),
+    3 * (edges[1]![1] - edges[0]![1]),
+  ];
+  const c: IAutoMovieConicApproximation.Point = [
+    3 * edges[0]![0],
+    3 * edges[0]![1],
+  ];
+  const determinant: (
+    x: IAutoMovieConicApproximation.Point,
+    y: IAutoMovieConicApproximation.Point,
+  ) => number = (
+    x: IAutoMovieConicApproximation.Point,
+    y: IAutoMovieConicApproximation.Point,
+  ): number => x[0] * y[1] - x[1] * y[0];
   const d0: number = 2 * determinant(c, b);
   const e0: number = 6 * determinant(c, a);
   const f: number = 12 * determinant(b, a);
   const collinear: boolean = d0 === 0 && e0 === 0 && f === 0;
-  const zeroCurvature: number[] = collinear ? [] : rootsAutoMovieViewPolynomial([d0, e0, f / 2]);
-  const affineCritical: number[] = collinear ? [] : [...new Set([
-    ...rootsAutoMovieViewPolynomial([e0, f]),
-    ...rootsAutoMovieViewPolynomial([4 * e0 * e0 - 9 * f * d0, -f * e0, -f * f / 2]),
-  ])].sort((x: number, y: number): number => x - y);
+  const zeroCurvature: number[] = collinear
+    ? []
+    : rootsAutoMovieViewPolynomial([d0, e0, f / 2]);
+  const affineCritical: number[] = collinear
+    ? []
+    : [
+        ...new Set([
+          ...rootsAutoMovieViewPolynomial([e0, f]),
+          ...rootsAutoMovieViewPolynomial([
+            4 * e0 * e0 - 9 * f * d0,
+            -f * e0,
+            (-f * f) / 2,
+          ]),
+        ]),
+      ].sort((x: number, y: number): number => x - y);
 
   // A common velocity root is a regularity event even when D is identically
   // zero or touches zero without changing sign. Both components must agree.
   const vx: number[] = [c[0], 2 * b[0], 3 * a[0]];
   const vy: number[] = [c[1], 2 * b[1], 3 * a[1]];
   const primary: number[] = vx.some((v: number): boolean => v !== 0) ? vx : vy;
-  const residual: (coefficients: number[], t: number) => number = (coefficients: number[], t: number): number => coefficients[0]! + t * (coefficients[1]! + t * coefficients[2]!);
-  const allowance: (coefficients: number[], t: number) => number = (coefficients: number[], t: number): number => 64 * Number.EPSILON * (Math.abs(coefficients[0]!) + Math.abs(t * coefficients[1]!) + Math.abs(t * t * coefficients[2]!));
-  const stationary: number[] = rootsAutoMovieViewPolynomial(primary).filter((t: number): boolean =>
-    Math.abs(residual(vx, t)) <= allowance(vx, t) && Math.abs(residual(vy, t)) <= allowance(vy, t));
-  const diagnostics: string[] = ["Critical parameters are binary64 polynomial-root candidates, not certified real-root enclosures; close multiple roots may remain unresolved."];
-  if (collinear) diagnostics.push("Curvature numerator is identically zero: regular pieces are collinear and have no isolated curvature roots.");
-  if (!collinear && e0 === 0 && f === 0) diagnostics.push("Affine curvature is constant on regular intervals; no isolated affine-curvature extrema exist.");
-  return { breaks: [...new Set([...zeroCurvature, ...affineCritical, ...stationary])].sort((x: number, y: number): number => x - y),
-    zeroCurvature, affineCritical, stationary, collinear, diagnostics };
+  const residual: (coefficients: number[], t: number) => number = (
+    coefficients: number[],
+    t: number,
+  ): number => coefficients[0]! + t * (coefficients[1]! + t * coefficients[2]!);
+  const allowance: (coefficients: number[], t: number) => number = (
+    coefficients: number[],
+    t: number,
+  ): number =>
+    64 *
+    Number.EPSILON *
+    (Math.abs(coefficients[0]!) +
+      Math.abs(t * coefficients[1]!) +
+      Math.abs(t * t * coefficients[2]!));
+  const stationary: number[] = rootsAutoMovieViewPolynomial(primary).filter(
+    (t: number): boolean =>
+      Math.abs(residual(vx, t)) <= allowance(vx, t) &&
+      Math.abs(residual(vy, t)) <= allowance(vy, t),
+  );
+  const diagnostics: string[] = [
+    "Critical parameters are binary64 polynomial-root candidates, not certified real-root enclosures; close multiple roots may remain unresolved.",
+  ];
+  if (collinear)
+    diagnostics.push(
+      "Curvature numerator is identically zero: regular pieces are collinear and have no isolated curvature roots.",
+    );
+  if (!collinear && e0 === 0 && f === 0)
+    diagnostics.push(
+      "Affine curvature is constant on regular intervals; no isolated affine-curvature extrema exist.",
+    );
+  return {
+    breaks: [
+      ...new Set([...zeroCurvature, ...affineCritical, ...stationary]),
+    ].sort((x: number, y: number): number => x - y),
+    zeroCurvature,
+    affineCritical,
+    stationary,
+    collinear,
+    diagnostics,
+  };
 }

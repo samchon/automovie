@@ -1,4 +1,15 @@
-import type { IAutoMovieConicArcField, IAutoMovieConicFieldJet, IAutoMovieLoftSectionJet, IAutoMovieLoftSectionNative, IAutoMovieLoftSectionPhase, IAutoMovieLoftViewRead, IAutoMoviePolarSector, IAutoMovieViewChain, IAutoMovieViewConic, IAutoMovieViewSectionField } from "@automovie/interface";
+import type {
+  IAutoMovieConicArcField,
+  IAutoMovieConicFieldJet,
+  IAutoMovieLoftSectionJet,
+  IAutoMovieLoftSectionNative,
+  IAutoMovieLoftSectionPhase,
+  IAutoMovieLoftViewRead,
+  IAutoMoviePolarSector,
+  IAutoMovieViewChain,
+  IAutoMovieViewConic,
+  IAutoMovieViewSectionField,
+} from "@automovie/interface";
 
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
@@ -46,7 +57,6 @@ type Reader = (phi: number) => IAutoMovieViewChain.IReading | null;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A rejected chain or ray stays rejected, with its original phase and orientation preserved. Value and Point0 require no unavailable derivatives.
  */
 export namespace AutoMovieLoftSectionNative {
-
   /**
    * Prepare the numeric source once when a consumer needs Point0 inversion and a later phase tangent.
    *
@@ -58,10 +68,15 @@ export namespace AutoMovieLoftSectionNative {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both actual operations share this call's unchanged numeric source; no station or trial map is introduced.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The descriptor owns fixed source records only until the caller releases it.
    */
-  export function curve(inputs: IAutoMovieLoftViewRead.IValues): IAutoMovieLoftSectionNative.ICurve {
+  export function curve(
+    inputs: IAutoMovieLoftViewRead.IValues,
+  ): IAutoMovieLoftSectionNative.ICurve {
     if (declares(inputs)) {
       const input: IAutoMovieViewChain.IFieldInput = need(valued(inputs));
-      return { point: chainPoint(section(input)), phase: chainPhase(reader(input)) };
+      return {
+        point: chainPoint(section(input)),
+        phase: chainPhase(reader(input)),
+      };
     }
     const geometry: IAutoMovieViewConic.ICurve = prepare(inputs);
     return { point: pointFrom(geometry), phase: phaseFrom(geometry) };
@@ -202,7 +217,12 @@ export namespace AutoMovieLoftSectionNative {
     if (declares(inputs)) {
       const read: Reader = reader(
         need(
-          controls(inputs.extents, inputs.shoulders, inputs.touch, need(lists(inputs.splits, inputs.pieces))),
+          controls(
+            inputs.extents,
+            inputs.shoulders,
+            inputs.touch,
+            need(lists(inputs.splits, inputs.pieces)),
+          ),
         ),
       );
       return (phi: number): IAutoMovieLoftSectionJet => {
@@ -210,8 +230,12 @@ export namespace AutoMovieLoftSectionNative {
         return cartesianJet(towards(at.point), at.radial);
       };
     }
-    const source: (IAutoMovieViewSectionField.IPrepared | IAutoMovieConicArcField.IFailure) =
-      AutoMovieViewSectionField.prepare(inputs.extents, inputs.shoulders);
+    const source:
+      | IAutoMovieViewSectionField.IPrepared
+      | IAutoMovieConicArcField.IFailure = AutoMovieViewSectionField.prepare(
+      inputs.extents,
+      inputs.shoulders,
+    );
     if (source.kind === "failure")
       throw new AutoMovieLoftAdmissionError(
         `Native physical source2: ${source.detail}`,
@@ -225,7 +249,9 @@ export namespace AutoMovieLoftSectionNative {
         ? null
         : AutoMovieViewSectionReading.validate(source);
       if (fault === null) verified = true;
-      const radial: (IAutoMovieViewSectionField.IRadialJet | IAutoMovieConicArcField.IFailure) =
+      const radial:
+        | IAutoMovieViewSectionField.IRadialJet
+        | IAutoMovieConicArcField.IFailure =
         fault === null
           ? AutoMovieViewSectionReading.evaluate(source, ray)
           : { kind: "failure", detail: fault };
@@ -239,15 +265,29 @@ export namespace AutoMovieLoftSectionNative {
 }
 
 /** A source declaring touch offsets, splits or split lists is read as its chain. */
-function declares(inputs: { touch?: unknown; splits?: unknown; pieces?: unknown }): boolean {
-  return inputs.touch !== undefined || inputs.splits !== undefined || inputs.pieces !== undefined;
+function declares(inputs: {
+  touch?: unknown;
+  splits?: unknown;
+  pieces?: unknown;
+}): boolean {
+  return (
+    inputs.touch !== undefined ||
+    inputs.splits !== undefined ||
+    inputs.pieces !== undefined
+  );
 }
 
 /** Each quarter's ordered split points: one split as a one-point list, a split list as it stands; a source declaring both is refused. */
-function lists<T>(splits: readonly T[] | undefined, pieces: readonly (readonly T[])[] | undefined): (readonly T[])[] | undefined | string {
-  if (splits !== undefined && pieces !== undefined) return "the source declares both one split per quarter and a split list per quarter";
+function lists<T>(
+  splits: readonly T[] | undefined,
+  pieces: readonly (readonly T[])[] | undefined,
+): (readonly T[])[] | undefined | string {
+  if (splits !== undefined && pieces !== undefined)
+    return "the source declares both one split per quarter and a split list per quarter";
   if (splits !== undefined) return splits.map((split: T): T[] => [split]);
-  return pieces === undefined ? undefined : pieces.map((list: readonly T[]): readonly T[] => list);
+  return pieces === undefined
+    ? undefined
+    : pieces.map((list: readonly T[]): readonly T[] => list);
 }
 
 /** A chain fault is an admission refusal for the readers that require a section. */
@@ -264,13 +304,18 @@ function valued(
   inputs: IAutoMovieLoftViewRead.IValues,
 ): IAutoMovieViewChain.IFieldInput | string {
   const lift = (v: number): Station => [v, 0, 0];
-  const quarters: (readonly number[][])[] | undefined | string = lists(inputs.splits, inputs.pieces);
+  const quarters: (readonly number[][])[] | undefined | string = lists(
+    inputs.splits,
+    inputs.pieces,
+  );
   if (typeof quarters === "string") return quarters;
   return controls(
     inputs.extents.map(lift),
     inputs.shoulders.map(lift),
     inputs.touch?.map(lift),
-    quarters?.map((list: readonly number[][]): Station[][] => list.map((split: number[]): Station[] => split.map(lift))),
+    quarters?.map((list: readonly number[][]): Station[][] =>
+      list.map((split: number[]): Station[] => split.map(lift)),
+    ),
   );
 }
 
@@ -295,7 +340,9 @@ function controls(
     (touch !== undefined && touch.length !== 4) ||
     (quarters !== undefined &&
       (quarters.length !== 4 ||
-        quarters.some((list: readonly (readonly Station[])[]): boolean => list.some((split: readonly Station[]): boolean => split.length !== 4))))
+        quarters.some((list: readonly (readonly Station[])[]): boolean =>
+          list.some((split: readonly Station[]): boolean => split.length !== 4),
+        )))
   )
     return "a chain section needs four extents, shoulders and touch offsets and four quarters of four-role split points";
   type R = IAutoMovieConicFieldJet.IJet;
@@ -324,7 +371,12 @@ function controls(
     tangents.push([constant(lines[q]![0]), constant(lines[q]![1])]);
     pieces.push(J(shoulders[q]!));
     for (const split of quarters?.[q] ?? []) {
-      const [u, v, angle, shoulder] = split as readonly [Station, Station, Station, Station];
+      const [u, v, angle, shoulder] = split as readonly [
+        Station,
+        Station,
+        Station,
+        Station,
+      ];
 
       // cos and sin of the angle's station jet, by the chain rule.
       const [a, a1, a2] = angle;
@@ -411,8 +463,15 @@ function towards(point: readonly [number, number]): Direction {
 }
 
 /** The six Cartesian vectors of a radial Hessian `[r, s, phi, ss, sphi, phiphi]` along one ray. */
-function cartesianJet(at: Direction, radial: readonly number[]): IAutoMovieLoftSectionJet {
-  const value: IAutoMovieLoftSectionPhase = polarPhase(at, [radial[0]!, radial[2]!, radial[5]!]);
+function cartesianJet(
+  at: Direction,
+  radial: readonly number[],
+): IAutoMovieLoftSectionJet {
+  const value: IAutoMovieLoftSectionPhase = polarPhase(at, [
+    radial[0]!,
+    radial[2]!,
+    radial[5]!,
+  ]);
   return admit({
     ...value,
     s: [radial[1]! * at.radial[0], radial[1]! * at.radial[1]],

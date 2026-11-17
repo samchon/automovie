@@ -1,14 +1,12 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanFootColumnLaw, IAutoMovieHumanFootFrame } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootColumnLaw,
+  IAutoMovieHumanFootFrame,
+} from "@automovie/interface";
 import { Singleton } from "tstl";
 
 import { AutoMovieHumanFootColumnLaw } from "./AutoMovieHumanFootColumnLaw";
-
-
 import { AutoMovieHumanFootHeelCorner } from "./AutoMovieHumanFootHeelCorner";
-
 
 /**
  * The Achilles: the back of the heel above its posterior corner and the tendon
@@ -25,12 +23,19 @@ export namespace AutoMovieHumanFootAchilles {
    * @param frame The foot's frame.
    * @param side -1 for the medial edge, 1 for the lateral.
    */
-  export function knots(frame: IAutoMovieHumanFootFrame.IFrame, side: -1 | 1): AutoMovieVector3Tuple[] {
+  export function knots(
+    frame: IAutoMovieHumanFootFrame.IFrame,
+    side: -1 | 1,
+  ): AutoMovieVector3Tuple[] {
     const law: IAutoMovieHumanFootColumnLaw.IPlan = LAW.get();
 
     return KNOTS.map(
       (q: readonly [number, number, number]): AutoMovieVector3Tuple =>
-        frame.at(law.along(q[2]), law.across(q[2]) + side * AutoMovieHumanFootHeelCorner.HALF, q[2] * frame.H),
+        frame.at(
+          law.along(q[2]),
+          law.across(q[2]) + side * AutoMovieHumanFootHeelCorner.HALF,
+          q[2] * frame.H,
+        ),
     );
   }
 }

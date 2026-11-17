@@ -1,6 +1,17 @@
-import type { IAutoMovieHit, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropFlight, IAutoMovieMotionHumanPropOutcome, IAutoMoviePhysicalProfile, IAutoMovieProjectile, IAutoMovieProjectileFirstContact, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, projectileFirstContact } from "@automovie/engine";
+import type {
+  IAutoMovieHit,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropFlight,
+  IAutoMovieMotionHumanPropOutcome,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieProjectile,
+  IAutoMovieProjectileFirstContact,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
@@ -108,19 +119,21 @@ export namespace HumanPropSweep {
       if (other.subject === prop.subject || other.shapes === undefined)
         continue;
       if (launched(self, other.subject)) continue;
-      other.shapes.forEach((shape: IAutoMoviePhysicalProfile.IShape, k: number): void => {
-        const id: string = `prop:${other.subject}:${k}`;
-        if (id === leave) return;
-        solid.push(shape);
-        colliders.push(
-          projectileFirstContact.shape(
-            id,
-            shape,
-            (t: number): IAutoMoviePhysicalProfile.ITransform =>
-              HumanPerformanceRead.prop(self, other.subject, seconds + t),
-          ),
-        );
-      });
+      other.shapes.forEach(
+        (shape: IAutoMoviePhysicalProfile.IShape, k: number): void => {
+          const id: string = `prop:${other.subject}:${k}`;
+          if (id === leave) return;
+          solid.push(shape);
+          colliders.push(
+            projectileFirstContact.shape(
+              id,
+              shape,
+              (t: number): IAutoMoviePhysicalProfile.ITransform =>
+                HumanPerformanceRead.prop(self, other.subject, seconds + t),
+            ),
+          );
+        },
+      );
     }
     const tip: IAutoMovieVector3 | undefined = prop.points["tip"]?.point;
     const hit: IAutoMovieHit | null = projectileFirstContact(
@@ -137,7 +150,9 @@ export namespace HumanPropSweep {
     if (hit === null) return null;
     const id: string = hit.collider!;
     const at: number = seconds + hit.time;
-    const struck: IAutoMovieMotionHumanPropFlight.Struck = id.startsWith("person:")
+    const struck: IAutoMovieMotionHumanPropFlight.Struck = id.startsWith(
+      "person:",
+    )
       ? {
           kind: "person",
           subject: id.slice("person:".length),
@@ -159,12 +174,16 @@ export namespace HumanPropSweep {
   }
 
   /** Whether any action launches a prop. */
-  function launched(self: IAutoMovieMotionHumanPerformanceState, subject: string): boolean {
+  function launched(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+  ): boolean {
     for (const person of self.people.values())
       for (const segment of [...person.segments, ...person.overlays])
         if (
           (segment.plan.launches ?? []).some(
-            (l: IAutoMovieMotionHumanActionPlan.ILaunch): boolean => l.prop === subject,
+            (l: IAutoMovieMotionHumanActionPlan.ILaunch): boolean =>
+              l.prop === subject,
           )
         )
           return true;

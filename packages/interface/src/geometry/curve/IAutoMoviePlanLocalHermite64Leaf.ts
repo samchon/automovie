@@ -10,16 +10,17 @@ import type { IAutoMovieLocalHermiteField64 } from "./IAutoMovieLocalHermiteFiel
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The stored error is a binary64 evaluation of a Taylor estimate, not an outward-rounded certificate or source-fidelity measurement.
  * @evidence contracts/development/common.md#meaningful-documentation States grid parameterization, physical station conversion, estimate formula and patch identity scope.
  */
-export type IAutoMoviePlanLocalHermite64Leaf = IAutoMovieLocalHermiteField64.Cell & {
-  /** Lower normalized longitudinal coordinate in [0,1]; physical station is stations[j] + t0*(stations[j+1]-stations[j]). */
-  t0: number;
+export type IAutoMoviePlanLocalHermite64Leaf =
+  IAutoMovieLocalHermiteField64.Cell & {
+    /** Lower normalized longitudinal coordinate in [0,1]; physical station is stations[j] + t0*(stations[j+1]-stations[j]). */
+    t0: number;
 
-  /** Upper normalized longitudinal coordinate, strictly greater than t0 and at most 1. */
-  t1: number;
+    /** Upper normalized longitudinal coordinate, strictly greater than t0 and at most 1. */
+    t1: number;
 
-  /** Muu/8 + Mut/4 + Mtt/8 from this restricted grid's derivative-control norms, in millimetres. Retained leaves meet toleranceMm; zero is a pending-work placeholder before evaluation. */
-  error: number;
+    /** Muu/8 + Mut/4 + Mtt/8 from this restricted grid's derivative-control norms, in millimetres. Retained leaves meet toleranceMm; zero is a pending-work placeholder before evaluation. */
+    error: number;
 
-  /** Name of the original common-partition cell, formed from run name, interval index and root-cell index; descendants share it while bounds distinguish their regions. */
-  patch: string;
-};
+    /** Name of the original common-partition cell, formed from run name, interval index and root-cell index; descendants share it while bounds distinguish their regions. */
+    patch: string;
+  };

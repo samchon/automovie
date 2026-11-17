@@ -1,6 +1,13 @@
-import { type IAutoMovieActionSynthesizer, AutoMovieGestureKind, AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
 import { compilePerformance, gestureMotion } from "@automovie/engine";
-
+import {
+  AutoMovieGestureKind,
+  AutoMovieHumanoidBone,
+  IAutoMovieActionCall,
+  type IAutoMovieActionSynthesizer,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { keyframe, makeMotion, makePose } from "../internal/fixtures";

@@ -1,14 +1,23 @@
-import type { AutoMovieVector3Tuple, IAutoMovieLoftChain, IAutoMovieLoftContract, IAutoMovieSolidBody, IAutoMovieSolidMesh, IAutoMovieSolidSurface, IAutoMovieHumanBodyCalibration, IAutoMovieHumanSurfaceBoundary, IAutoMovieHumanSurfaceContext } from "@automovie/interface";
-
-
-
-
-import { AutoMovieSolidChain, AutoMovieSolidMesh, AutoMovieSolidVector } from "@automovie/engine";
+import {
+  AutoMovieSolidChain,
+  AutoMovieSolidMesh,
+  AutoMovieSolidVector,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanSurfaceBoundary,
+  IAutoMovieHumanSurfaceContext,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftContract,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanLoftStations } from "../lofting/AutoMovieHumanLoftStations";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
-
 
 type Vec3 = AutoMovieVector3Tuple;
 
@@ -119,15 +128,18 @@ export namespace AutoMovieHumanBodySurfaceSolids {
         continue;
       }
       groups.push({ name: `${m.blend}/solid`, start: mesh.indices.length });
-      const joined: IAutoMovieSolidMesh.IJoined = AutoMovieSolidMesh.seam(mesh, {
-        host,
-        part,
-        blend,
-        length: m.length,
-        hostLoop: m.hostLoop,
-        partLoop: m.partLoop,
-        rows: m.rows,
-      });
+      const joined: IAutoMovieSolidMesh.IJoined = AutoMovieSolidMesh.seam(
+        mesh,
+        {
+          host,
+          part,
+          blend,
+          length: m.length,
+          hostLoop: m.hostLoop,
+          partLoop: m.partLoop,
+          rows: m.rows,
+        },
+      );
       loops.set(m.host, [...(loops.get(m.host) ?? []), joined.host]);
       loops.set(m.part, [...(loops.get(m.part) ?? []), joined.part]);
       if (m.diff === true) inverted.add(m.part);

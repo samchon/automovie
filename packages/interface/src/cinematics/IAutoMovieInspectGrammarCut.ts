@@ -1,5 +1,3 @@
-
-
 /**
  * Numerical policy thresholds for inspecting adjacent editorial shots.
  *

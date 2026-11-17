@@ -8,11 +8,9 @@ import type { AutoMovieRecoveryOperator } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Separates operation identity from diagnostics and from the enclosing terminal status.
  */
 export interface IAutoMovieRecoveryOutcome {
- 
- /** Actual operation identity, without a visual quality assertion. */
+  /** Actual operation identity, without a visual quality assertion. */
   operator: AutoMovieRecoveryOperator;
 
- 
- /** Operation limitations and reasons, including unknown coverage. */
+  /** Operation limitations and reasons, including unknown coverage. */
   diagnostics: string[];
 }

@@ -1,5 +1,7 @@
-import type { IAutoMovieHumanCanonicalBody, IAutoMovieMotionHumanPerformance } from "@automovie/interface";
-
+import type {
+  IAutoMovieHumanCanonicalBody,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
 import { HumanPerformance } from "@automovie/motions";
 
 import type { IPlaygroundComposition } from "../structures/IPlaygroundComposition";
@@ -76,9 +78,8 @@ export namespace PlaygroundPerformance {
 
     // Props exist only where the composition places objects; lexicon rows are
     // registered only where the installed package takes registered laws.
-    const props: IAutoMovieMotionHumanPerformance.IInput["props"] = PlaygroundObjects.props(
-      composition.objects ?? [],
-    );
+    const props: IAutoMovieMotionHumanPerformance.IInput["props"] =
+      PlaygroundObjects.props(composition.objects ?? []);
     const full: IAutoMovieMotionHumanPerformance.IInput = {
       ...input,
       ...(props === undefined || props.length === 0 ? {} : { props }),
@@ -87,7 +88,10 @@ export namespace PlaygroundPerformance {
       performance: new HumanPerformance(
         built.laws.length === 0
           ? full
-          : ({ ...full, laws: built.laws } as IAutoMovieMotionHumanPerformance.IInput),
+          : ({
+              ...full,
+              laws: built.laws,
+            } as IAutoMovieMotionHumanPerformance.IInput),
       ),
       figures,
     };

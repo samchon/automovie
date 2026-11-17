@@ -1,4 +1,12 @@
-import type { IAutoMovieSurfaceLayout, IAutoMovieSurfaceNetwork, IAutoMovieSurfaceRegistry, IAutoMovieSurfaceSample, IAutoMoviePlanSurfaceRigPatches, IAutoMoviePlanSurfaceRigPatchesOutput, IAutoMovieSurfaceCoordinate } from "@automovie/interface";
+import type {
+  IAutoMoviePlanSurfaceRigPatches,
+  IAutoMoviePlanSurfaceRigPatchesOutput,
+  IAutoMovieSurfaceCoordinate,
+  IAutoMovieSurfaceLayout,
+  IAutoMovieSurfaceNetwork,
+  IAutoMovieSurfaceRegistry,
+  IAutoMovieSurfaceSample,
+} from "@automovie/interface";
 
 import { layoutAutoMovieSurfacePatches } from "./layoutAutoMovieSurfacePatches";
 import { layoutAutoMovieSurfaceTransition } from "./layoutAutoMovieSurfaceTransition";
@@ -21,7 +29,9 @@ import { rigAutoMovieSurfaceCoons } from "./rigAutoMovieSurfaceCoons";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The supplied registry deduplicates shared vertices; each patch's topology is emitted once.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Transfers layout arrays and the blend index Set to the owning rig; temporary edge samples are released on return.
  */
-export function planAutoMovieSurfaceRigPatches(props: IAutoMoviePlanSurfaceRigPatches.IProps): IAutoMoviePlanSurfaceRigPatchesOutput {
+export function planAutoMovieSurfaceRigPatches(
+  props: IAutoMoviePlanSurfaceRigPatches.IProps,
+): IAutoMoviePlanSurfaceRigPatchesOutput {
   const {
     network,
     registry,
@@ -116,26 +126,26 @@ export function planAutoMovieSurfaceRigPatches(props: IAutoMoviePlanSurfaceRigPa
         layoutAutoMovieSurfaceTransition(start, end, rows).map(
           (
             quad: Array<
-  [
-    Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
-    Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
-    Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
-    Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
-  ]
->[number],
+              [
+                Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+              ]
+            >[number],
           ): Array<[number, number, number]> =>
             quad.map(
               ({
                 s,
                 t,
               }: Array<
-  [
-    Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
-    Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
-    Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
-    Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
-  ]
->[number][number]): [number, number, number] => {
+                [
+                  Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                  Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                  Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                  Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                ]
+              >[number][number]): [number, number, number] => {
                 const u: number = t === 1 ? u1 : u0 + (u1 - u0) * t;
                 const v: number = s === 1 ? v1 : v0 + (v1 - v0) * s;
                 const across: number = (v1 - v0) / fine;

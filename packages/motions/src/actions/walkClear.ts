@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObstacle, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObstacle,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanObstacle } from "../perform/HumanObstacle";
@@ -32,7 +37,8 @@ export function walkClear(
     via?: IAutoMovieVector3[];
   }>,
 ): void {
-  const obstacles: readonly IAutoMovieMotionHumanObstacle.IObstacle[] = context.obstacles();
+  const obstacles: readonly IAutoMovieMotionHumanObstacle.IObstacle[] =
+    context.obstacles();
   if (obstacles.length === 0) return;
   const body: IAutoMovieMotionHumanBody = context.body;
   const way: readonly IAutoMovieVector3[] = [
@@ -45,12 +51,8 @@ export function walkClear(
     height: body.measure.stature,
   };
   for (let i: number = 0; i + 1 < way.length; ++i) {
-    const block: IAutoMovieMotionHumanObstacle.IBlock | null = HumanObstacle.blocking(
-      obstacles,
-      way[i]!,
-      way[i + 1]!,
-      need,
-    );
+    const block: IAutoMovieMotionHumanObstacle.IBlock | null =
+      HumanObstacle.blocking(obstacles, way[i]!, way[i + 1]!, need);
     if (block === null) continue;
     const where: string = `${block.subject} at (${block.at.x.toFixed(2)}, ${block.at.z.toFixed(2)}), ${block.distance.toFixed(2)} m along the way`;
     if (block.cause === "solid")
@@ -121,15 +123,11 @@ export namespace walkClear {
     place: IAutoMovieVector3,
     person: IAutoMovieVector3,
   ): void {
-    const block: IAutoMovieMotionHumanObstacle.IBlock | null = HumanObstacle.blocking(
-      context.obstacles(),
-      place,
-      person,
-      {
+    const block: IAutoMovieMotionHumanObstacle.IBlock | null =
+      HumanObstacle.blocking(context.obstacles(), place, person, {
         breadth: context.body.measure.chestBreadth,
         height: context.body.measure.stature,
-      },
-    );
+      });
     if (block !== null)
       throw new HumanRefusal({
         kind: "reach",

@@ -1,5 +1,9 @@
-import { type IAutoMovieBuiltPlacementBody, type IAutoMovieBuiltEnvironmentPlacementBounds, IAutoMovieBuiltPlacementBounds, IAutoMovieSubjectBox } from "@automovie/interface";
-
+import {
+  type IAutoMovieBuiltEnvironmentPlacementBounds,
+  type IAutoMovieBuiltPlacementBody,
+  IAutoMovieBuiltPlacementBounds,
+  IAutoMovieSubjectBox,
+} from "@automovie/interface";
 
 import { builtEnvironmentElementPartBounds } from "./builtEnvironmentElementPartBounds";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
@@ -23,7 +27,11 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Answers one locator per call and caches nothing across calls; the building-wide sweep resolves every body from one part table instead of calling this per body.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing after returning; the caller owns the returned box.
  */
-export const builtEnvironmentPlacementBounds: (props: IAutoMovieBuiltEnvironmentPlacementBounds.IProps) => IAutoMovieBuiltPlacementBounds | null = (props: IAutoMovieBuiltEnvironmentPlacementBounds.IProps): IAutoMovieBuiltPlacementBounds | null => {
+export const builtEnvironmentPlacementBounds: (
+  props: IAutoMovieBuiltEnvironmentPlacementBounds.IProps,
+) => IAutoMovieBuiltPlacementBounds | null = (
+  props: IAutoMovieBuiltEnvironmentPlacementBounds.IProps,
+): IAutoMovieBuiltPlacementBounds | null => {
   const body: IAutoMovieBuiltPlacementBody | null = resolveBuiltPlacementBody({
     environment: props.environment,
     target: props.target,

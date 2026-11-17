@@ -1,8 +1,10 @@
-import type { IAutoMovieMotionHumanExerciseKey, IAutoMovieMotionHumanWorkoutKind } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanWorkoutKind,
+} from "@automovie/interface";
 
 /** Companion types of {@link WorkoutKind}. */
 export namespace WorkoutKind {
-
   /**
    * A step of a counted repetition.
    *

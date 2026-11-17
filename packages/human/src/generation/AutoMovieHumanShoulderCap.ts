@@ -1,7 +1,8 @@
-import type { IAutoMovieHumanShoulderCap, IAutoMovieHumanShoulderOutline, IAutoMovieHumanTrunkSolve } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieHumanShoulderCap,
+  IAutoMovieHumanShoulderOutline,
+  IAutoMovieHumanTrunkSolve,
+} from "@automovie/interface";
 
 import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
 import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
@@ -41,9 +42,8 @@ export namespace AutoMovieHumanShoulderCap {
    * plane into an ellipse longer by one over the cosine of that tilt, along
    * the lean, which lies almost in the frontal plane.
    */
-  export const STRETCH: number = Math.hypot(HUMERUS[0]!, HUMERUS[1]!, HUMERUS[2]!) / -HUMERUS[1]!;
-
-  
+  export const STRETCH: number =
+    Math.hypot(HUMERUS[0]!, HUMERUS[1]!, HUMERUS[2]!) / -HUMERUS[1]!;
 
   /**
    * The lateral extreme of the arm's horizontal ellipse at the centre's

@@ -1,5 +1,15 @@
-import type { IAutoMovieConicHermite, IAutoMoviePolarSector, IAutoMovieViewConic, IAutoMovieViewSection } from "@automovie/interface";
-import { AutoMovieConicArc, AutoMovieConicHermite, AutoMovieViewConic, AutoMovieViewSection } from "@automovie/engine";
+import {
+  AutoMovieConicArc,
+  AutoMovieConicHermite,
+  AutoMovieViewConic,
+  AutoMovieViewSection,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConicHermite,
+  IAutoMoviePolarSector,
+  IAutoMovieViewConic,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 import { ConstructionConicOracle } from "../../internal/construction/ConstructionConicOracle";
 import { ConstructionViewOracle } from "../../internal/construction/ConstructionViewOracle";
@@ -192,10 +202,8 @@ export function test_construction_source_conic(): void {
         const shoulder: number = Math.atan2(b, a);
         const shoulderRadius: number =
           (Math.hypot(a, b) * (1 + shoulders[q]!)) / 2;
-        const shoulderJet: IAutoMoviePolarSector.Jet = AutoMovieViewConic.radius(
-          curve,
-          start + shoulder,
-        );
+        const shoulderJet: IAutoMoviePolarSector.Jet =
+          AutoMovieViewConic.radius(curve, start + shoulder);
         if (
           !Number.isFinite(shoulderJet[0]) ||
           Math.abs(shoulderJet[0] - shoulderRadius) >
@@ -467,12 +475,13 @@ export function test_construction_source_conic(): void {
           );
         previous = section.girth;
         if (i % 4 !== 0) continue;
-        const solved: IAutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
-          "analytic conic",
-          box,
-          section.girth,
-          departures,
-        );
+        const solved: IAutoMovieViewSection.ISolved =
+          AutoMovieViewSection.solve(
+            "analytic conic",
+            box,
+            section.girth,
+            departures,
+          );
         if (
           solved.section === null ||
           solved.diagnostics.length !== 0 ||

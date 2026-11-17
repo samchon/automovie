@@ -1,12 +1,12 @@
+import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
 import type { IAutoMovieBuiltElement } from "./IAutoMovieBuiltElement";
 import type { IAutoMovieBuiltOpening } from "./IAutoMovieBuiltOpening";
-import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
 
 /** Opening-operation validation context with shared element-drive ownership tracking. */
 export namespace IAutoMovieValidateBuiltOpeningOperation {
   /**
    * Opening-operation validation context with shared element-drive ownership tracking.
-   * 
+   *
    * An operated opening must name the element it fills, and declare at least
    * one panel and one state. Each panel needs a unique non-blank id, an element
    * that resolves and is the filling element or below it, a positive width and

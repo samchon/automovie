@@ -112,7 +112,10 @@ export namespace HumanArmClearing {
       let near: number = 0;
       while (near < reach - 1e-9) {
         const far: number = Math.min(near + STEP, reach);
-        const candidate: IAutoMovieMotionHumanArmClearance.IArm = turned(direction, far);
+        const candidate: IAutoMovieMotionHumanArmClearance.IArm = turned(
+          direction,
+          far,
+        );
         if (props.range(candidate) > limit) break;
         const value: number = props.over(candidate);
         if (value <= TOLERANCE) {
@@ -202,10 +205,13 @@ export namespace HumanArmClearing {
   }): IAutoMovieMotionHumanArmClearance.IArm {
     const turn = (key: number): readonly [number, number] => {
       if (key <= 0 || key >= SHARES.length - 1) return [0, 0];
-      const arm: IAutoMovieMotionHumanArmClearance.IArm = (props.planned ?? props.plain)(
+      const arm: IAutoMovieMotionHumanArmClearance.IArm = (
+        props.planned ?? props.plain
+      )(SHARES[key]!);
+      const clear: IAutoMovieMotionHumanArmClearance.IArm = props.clear(
+        arm,
         SHARES[key]!,
       );
-      const clear: IAutoMovieMotionHumanArmClearance.IArm = props.clear(arm, SHARES[key]!);
       return [clear.upper[1] - arm.upper[1], clear.lower[0] - arm.lower[0]];
     };
     const share: number = Math.min(1, Math.max(0, props.share));
@@ -215,7 +221,9 @@ export namespace HumanArmClearing {
       (share - SHARES[before]!) / (SHARES[before + 1]! - SHARES[before]!);
     const a: readonly [number, number] = turn(before);
     const b: readonly [number, number] = weight === 0 ? a : turn(before + 1);
-    const arm: IAutoMovieMotionHumanArmClearance.IArm = props.plain(props.share);
+    const arm: IAutoMovieMotionHumanArmClearance.IArm = props.plain(
+      props.share,
+    );
     return {
       upper: [
         arm.upper[0],

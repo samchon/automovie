@@ -1,5 +1,12 @@
-import { type IAutoMovieSampleFluidSpray, IAutoMovieFluidDomain, IAutoMovieFluidSpray, IAutoMovieFluidSprayParticle, IAutoMovieFluidSpraySample, IAutoMovieFluidState, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieFluidDomain,
+  IAutoMovieFluidSpray,
+  IAutoMovieFluidSprayParticle,
+  IAutoMovieFluidSpraySample,
+  IAutoMovieFluidState,
+  type IAutoMovieSampleFluidSpray,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { seededValue } from "../math/seededValue";
@@ -32,7 +39,11 @@ const JITTER_Z: number = 0x7370727a;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No cross-call cache or random stream is owned; unchanged domain, full state and camera distance reproduce this operation order, while equal step/id alone does not prove those mutable inputs equivalent.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned sample owns at most `maxParticles` particles per emitter, and the per-emitter scratch list dies with the call.
  */
-export const sampleFluidSpray: (props: IAutoMovieSampleFluidSpray.IProps) => IAutoMovieFluidSpraySample = (props: IAutoMovieSampleFluidSpray.IProps): IAutoMovieFluidSpraySample => {
+export const sampleFluidSpray: (
+  props: IAutoMovieSampleFluidSpray.IProps,
+) => IAutoMovieFluidSpraySample = (
+  props: IAutoMovieSampleFluidSpray.IProps,
+): IAutoMovieFluidSpraySample => {
   const domain: IAutoMovieFluidDomain = props.domain;
   const state: IAutoMovieFluidState = props.state;
   if (state.domain !== domain.id)

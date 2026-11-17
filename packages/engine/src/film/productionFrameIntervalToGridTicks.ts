@@ -1,4 +1,5 @@
 import type { IAutoMovieProductionFrameIntervalToGridTicks } from "@automovie/interface";
+
 import { productionFrameBoundaryToGridTick } from "./productionFrameBoundaryToGridTick";
 
 /**
@@ -21,7 +22,9 @@ import { productionFrameBoundaryToGridTick } from "./productionFrameBoundaryToGr
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure conversion of one interval; a caller tiling many intervals maps each shared boundary twice, two constant-time conversions that need no cache.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned pair.
  */
-export function productionFrameIntervalToGridTicks(props: IAutoMovieProductionFrameIntervalToGridTicks.IProps): IAutoMovieProductionFrameIntervalToGridTicks.IResult {
+export function productionFrameIntervalToGridTicks(
+  props: IAutoMovieProductionFrameIntervalToGridTicks.IProps,
+): IAutoMovieProductionFrameIntervalToGridTicks.IResult {
   if (props.endFrame <= props.startFrame)
     throw new Error(
       `Production interval ${props.startFrame}..${props.endFrame} must have a positive frame duration.`,

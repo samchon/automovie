@@ -1,11 +1,16 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanWalkFoot, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanWalkFoot,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { walkFoot } from "./walkFoot";
-import { walkReachStance } from "./walkReachStance";
 import { walkReach } from "./walkReach";
+import { walkReachStance } from "./walkReachStance";
 
 /**
  * A stance course's pelvis over its feet (`walkStanceCourse`): the pelvis
@@ -87,7 +92,9 @@ export namespace walkReachHeld {
     root: IAutoMovieVector3,
     planned: number,
     hips: readonly [number, number, number],
-    feet: Readonly<Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>>,
+    feet: Readonly<
+      Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>
+    >,
     course: {
       drop: number;
       pitch: Record<"left" | "right", number>;

@@ -1,5 +1,13 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanWalkStanceCourse } from "@automovie/interface";
-import { HumanFoot, walkStanceCourse, walkStanceSolve } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanWalkStanceCourse,
+} from "@automovie/interface";
+import {
+  HumanFoot,
+  walkStanceCourse,
+  walkStanceSolve,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -66,7 +74,10 @@ export function test_human_motion_walk_heel_rise(): void {
       };
       const knots: IAutoMovieMotionHumanWalkStanceCourse.IKnot[] = Array.from(
         { length: 251 },
-        (_: unknown, m: number): IAutoMovieMotionHumanWalkStanceCourse.IKnot => ({
+        (
+          _: unknown,
+          m: number,
+        ): IAutoMovieMotionHumanWalkStanceCourse.IKnot => ({
           seconds: m / 48,
           stances: [{ side: "right", placement }],
           pelvis: (): IAutoMovieMotionHumanWalkStanceCourse.IPelvis => ({
@@ -103,7 +114,10 @@ export function test_human_motion_walk_heel_rise(): void {
             body,
             Array.from(
               { length: 51 },
-              (_: unknown, j: number): IAutoMovieMotionHumanWalkStanceCourse.IKnot => ({
+              (
+                _: unknown,
+                j: number,
+              ): IAutoMovieMotionHumanWalkStanceCourse.IKnot => ({
                 ...knots[0]!,
                 seconds: j / 48,
                 drop: (from + j * step) * 1e-3,

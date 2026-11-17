@@ -1,5 +1,7 @@
-import { type IAutoMovieViolationCollector, IAutoMovieTravelMotion } from "@automovie/interface";
-
+import {
+  IAutoMovieTravelMotion,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { AUTOMOVIE_FULL_TURN_EPSILON } from "./constants/AUTOMOVIE_FULL_TURN_EPSILON";

@@ -1,8 +1,12 @@
-import type { IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanTrunkAxis } from "@automovie/interface";
-
-
-import { AutoMovieViewOutline, AutoMovieViewParameter } from "@automovie/engine";
-
+import {
+  AutoMovieViewOutline,
+  AutoMovieViewParameter,
+} from "@automovie/engine";
+import type {
+  IAutoMovieHumanTrunkAxis,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
 
@@ -23,8 +27,6 @@ import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructi
  * @evidence contracts/performance.md#bound-retention-and-release-resources Each call owns its temporary prepared curves and returned axis/back record. Temporaries become unreachable on return; the caller owns the result, with no process, renderer or external handle.
  */
 export namespace AutoMovieHumanTrunkAxis {
-  
-
   /**
    * Add actual source values and parameter jets without recentering their
    * first values. At a closure, an unspecified back jet is minus the radial
@@ -111,14 +113,10 @@ export namespace AutoMovieHumanTrunkAxis {
       knots: [],
     };
     for (const station of stations) {
-      const a: IAutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
-        prepared,
-        station,
-      );
-      const b: IAutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
-        radial,
-        station,
-      );
+      const a: IAutoMovieViewOutline.IReading | string =
+        AutoMovieViewOutline.at(prepared, station);
+      const b: IAutoMovieViewOutline.IReading | string =
+        AutoMovieViewOutline.at(radial, station);
       if (typeof a === "string") return a;
       if (typeof b === "string") return b;
       const site: string =

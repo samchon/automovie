@@ -1,6 +1,5 @@
 import type { IAutoMovieProductionVideoProfile } from "@automovie/interface";
 
-
 /**
  * The ITU-T H.273 code points that spell sRGB in an MP4 `colr` box.
  *
@@ -11,7 +10,9 @@ import type { IAutoMovieProductionVideoProfile } from "@automovie/interface";
  * probe classifies a container as sRGB by them, and the normalizer writes them.
  * Spelling them three times is how one of those readings drifts from the others.
  */
-export const AUTOMOVIE_MP4_SRGB_COLOUR: Readonly<IAutoMovieProductionVideoProfile["color"]> = {
+export const AUTOMOVIE_MP4_SRGB_COLOUR: Readonly<
+  IAutoMovieProductionVideoProfile["color"]
+> = {
   primaries: 1,
   transfer: 13,
   matrix: 1,

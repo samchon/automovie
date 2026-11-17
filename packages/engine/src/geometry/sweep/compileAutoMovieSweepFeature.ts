@@ -1,4 +1,8 @@
-import type { IAutoMovieSweep, IAutoMovieCompileSweepFeature, IAutoMovieCompileSweepFeatureOutput } from "@automovie/interface";
+import type {
+  IAutoMovieCompileSweepFeature,
+  IAutoMovieCompileSweepFeatureOutput,
+  IAutoMovieSweep,
+} from "@automovie/interface";
 
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 

@@ -1,9 +1,10 @@
-import type { IAutoMovieRecoveryMeshSections, IAutoMovieRecoverySourceLineage, IAutoMovieRecoveryInput } from "@automovie/interface";
-
+import type {
+  IAutoMovieRecoveryInput,
+  IAutoMovieRecoveryMeshSections,
+  IAutoMovieRecoverySourceLineage,
+} from "@automovie/interface";
 
 import { extractRecoveryMeshSections } from "../internal/extractRecoveryMeshSections";
-
-
 
 /**
  * Automatic section extraction and source-independent cubic publication.
@@ -14,8 +15,7 @@ import { extractRecoveryMeshSections } from "../internal/extractRecoveryMeshSect
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Open paths, isolated contacts and unsupported events remain visible; a station prefix cannot be presented as full source coverage.
  */
 export namespace AutoMovieRecoveryMeshSections {
- 
- /**
+  /**
    * Extract every section component with automatic stations, feature corners and PL critical brackets.
    * Physical ties remain explicit; cutting and PL topology share one immutable scalar chart.
    * The optional progress observer reports completed plane and slab populations without changing geometry.

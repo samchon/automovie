@@ -10,14 +10,19 @@ import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
  */
 export namespace IAutoMovieCurveMath64 {
   /**
-     * One mutable cubic Bernstein record in P0, P1, P2, P3 order; the inner coefficients are handles, not interpolated supports. All four triples use a common caller-defined frame and coefficient unit; the tuple shape enforces degree but not finiteness.
-     *
-     * @evidence contracts/development/design.md#principled-representation Four ordered vectors enforce a cubic Bernstein coefficient net; frame, coefficient units and finite-value admission belong to the consuming operation.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface One tuple records endpoint and handle order for all cubic helpers.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Handles remain coefficients rather than interpolation samples.
-     * @evidence contracts/development/common.md#meaningful-documentation P0/P1/P2/P3 order is stated independently of the enclosing coordinate units.
-     */
-    export type Span = [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple];
+   * One mutable cubic Bernstein record in P0, P1, P2, P3 order; the inner coefficients are handles, not interpolated supports. All four triples use a common caller-defined frame and coefficient unit; the tuple shape enforces degree but not finiteness.
+   *
+   * @evidence contracts/development/design.md#principled-representation Four ordered vectors enforce a cubic Bernstein coefficient net; frame, coefficient units and finite-value admission belong to the consuming operation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One tuple records endpoint and handle order for all cubic helpers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Handles remain coefficients rather than interpolation samples.
+   * @evidence contracts/development/common.md#meaningful-documentation P0/P1/P2/P3 order is stated independently of the enclosing coordinate units.
+   */
+  export type Span = [
+    AutoMovieVector3Tuple,
+    AutoMovieVector3Tuple,
+    AutoMovieVector3Tuple,
+    AutoMovieVector3Tuple,
+  ];
 
   /**
    * Endpoint Hermite data converted from four cubic Bernstein controls on a

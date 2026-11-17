@@ -1,5 +1,8 @@
-import type { IAutoMoviePhysicalGravityTorques, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalGravityTorques,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import type { RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";

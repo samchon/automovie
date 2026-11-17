@@ -1,5 +1,7 @@
-import type { IAutoMovieResolveMutualGoal, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieResolveMutualGoal,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 
@@ -56,7 +58,9 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates its result only.
  */
-export function resolveAutoMovieMutualGoal(input: IAutoMovieResolveMutualGoal.IInput): IAutoMovieResolveMutualGoal.IGoal {
+export function resolveAutoMovieMutualGoal(
+  input: IAutoMovieResolveMutualGoal.IInput,
+): IAutoMovieResolveMutualGoal.IGoal {
   const a: IAutoMovieResolveMutualGoal.ISide = input.a;
   const b: IAutoMovieResolveMutualGoal.ISide = input.b;
   for (const side of [a, b])

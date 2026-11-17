@@ -1,8 +1,26 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { createBicycle, rideBicycle } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
-
-import { HumanChain, HumanFoot, HumanFrame, HumanObject, HumanPerformance, HumanRefusal, HumanRide, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFoot,
+  HumanFrame,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanRide,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -51,7 +69,8 @@ export function test_human_motion_ride_pedals(): void {
   });
   const known: Map<number, IAutoMovieMotionHumanProp.IFrame> = new Map();
   const placed = (seconds: number): IAutoMovieMotionHumanProp.IFrame => {
-    const kept: IAutoMovieMotionHumanProp.IFrame | undefined = known.get(seconds);
+    const kept: IAutoMovieMotionHumanProp.IFrame | undefined =
+      known.get(seconds);
     if (kept !== undefined) return kept;
     const placement: IAutoMovieTransform = cycling.at(
       Math.max(0, seconds - WAIT),
@@ -70,7 +89,10 @@ export function test_human_motion_ride_pedals(): void {
       id as Parameters<typeof cycling.frame>[0],
       Math.max(0, seconds - WAIT),
     );
-  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(bicycle, placed(0));
+  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+    bicycle,
+    placed(0),
+  );
   const perform = (left: string): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "pedals",
@@ -127,7 +149,8 @@ export function test_human_motion_ride_pedals(): void {
     );
   }
   if (performance !== null) {
-    const ride: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+    const ride: IAutoMovieMotionHumanSegment.ISegment =
+      performance.segments("a")[1]!;
     const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
@@ -149,7 +172,8 @@ export function test_human_motion_ride_pedals(): void {
     const ball = (side: "left" | "right", t: number): IAutoMovieVector3 =>
       local(
         HumanFoot.sockets(body, HumanSignature.bones(reader, t), side).find(
-          (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === "ball",
+          (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
+            s.socket === "ball",
         )!.point,
         part(`${side}Pedal`, t).translation,
         t,

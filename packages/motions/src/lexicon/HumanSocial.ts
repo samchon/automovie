@@ -1,4 +1,10 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanLexiconParams, IAutoMovieMotionHumanMutual, IAutoMovieMotionHumanSocial, IAutoMovieMotionMeeting } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+  IAutoMovieMotionHumanMutual,
+  IAutoMovieMotionHumanSocial,
+  IAutoMovieMotionMeeting,
+} from "@automovie/interface";
 
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { handToFace } from "../daily/handToFace";
@@ -19,47 +25,63 @@ import { touch } from "../touch/touch";
  */
 export namespace HumanSocial {
   /** A whisper: the lips brought to the partner's ear and held (two seconds, provisional). */
-  export const whisper: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["social"]["whisper"]> = HumanActionRow.of("whisper", kiss, {
+  export const whisper: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["social"]["whisper"]
+  > = HumanActionRow.of("whisper", kiss, {
     region: "earLeft",
     hold: 2,
   });
 
   /** A kiss on the cheek. */
-  export const cheekKiss: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["social"]["cheekKiss"]> = HumanActionRow.of("cheekKiss", kiss, {
+  export const cheekKiss: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["social"]["cheekKiss"]
+  > = HumanActionRow.of("cheekKiss", kiss, {
     region: "cheekLeft",
   });
 
   /** A kiss on the forehead. */
-  export const foreheadKiss: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["social"]["foreheadKiss"]> = HumanActionRow.of("foreheadKiss", kiss, {
+  export const foreheadKiss: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["social"]["foreheadKiss"]
+  > = HumanActionRow.of("foreheadKiss", kiss, {
     region: "forehead",
   });
 
   /** A pat on the partner's shoulder; the composition gives the shoulder as the target. */
-  export const shoulderPat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["social"]["shoulderPat"]> = HumanActionRow.of("shoulderPat", touch, {
+  export const shoulderPat: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["social"]["shoulderPat"]
+  > = HumanActionRow.of("shoulderPat", touch, {
     with: "palm",
     kind: "pat",
     count: 2,
   });
 
   /** A comforting hand held on the partner. */
-  export const comfort: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["social"]["comfort"]> = HumanActionRow.of("comfort", touch, {
+  export const comfort: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["social"]["comfort"]
+  > = HumanActionRow.of("comfort", touch, {
     with: "palm",
     kind: "hold",
     hold: 2,
   });
 
   /** A fist bump, one role of it. */
-  export const fistBump: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["social"]["fistBump"]> = HumanActionRow.of("fistBump", highFive, {
+  export const fistBump: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["social"]["fistBump"]
+  > = HumanActionRow.of("fistBump", highFive, {
     kind: "fist",
   });
 
   /** A low five, one role of it. */
-  export const lowFive: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["social"]["lowFive"]> = HumanActionRow.of("lowFive", highFive, {
+  export const lowFive: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["social"]["lowFive"]
+  > = HumanActionRow.of("lowFive", highFive, {
     kind: "low",
   });
 
   /** A sip taken after a toast. */
-  export const toastSip: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["social"]["toastSip"]> = HumanActionRow.of("toastSip", handToFace, {
+  export const toastSip: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["social"]["toastSip"]
+  > = HumanActionRow.of("toastSip", handToFace, {
     task: "sip",
   });
 
@@ -91,7 +113,10 @@ export namespace HumanSocial {
    * role's held glass; without it the toast is mimed and the fists meet.
    * `window`, film seconds, holds the clink over it as `bump`'s does.
    */
-  export const toast: IAutoMovieMotionHumanMutual<IAutoMovieMotionHumanSocial.IToast, "host" | "guest"> = {
+  export const toast: IAutoMovieMotionHumanMutual<
+    IAutoMovieMotionHumanSocial.IToast,
+    "host" | "guest"
+  > = {
     name: "toast",
     roles: ["host", "guest"],
     act: (
@@ -111,12 +136,17 @@ export namespace HumanSocial {
   };
 
   /** A pinky promise, one role of it: the hands meet at chest height as fists do (first pass; the hooked little fingers are not shaped). */
-  export const pinkyPromise: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["social"]["pinkyPromise"]> = HumanActionRow.of("pinkyPromise", highFive, {
+  export const pinkyPromise: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["social"]["pinkyPromise"]
+  > = HumanActionRow.of("pinkyPromise", highFive, {
     kind: "fist",
   });
 
   /** Rock, paper, scissors: both players pump a fist three times on one start (first pass: each performs `shakeFist` three times; the shared count is the common start, and the throw's hand shape is not set). */
-  export const rockPaperScissors: IAutoMovieMotionHumanMutual<object, "one" | "other"> = {
+  export const rockPaperScissors: IAutoMovieMotionHumanMutual<
+    object,
+    "one" | "other"
+  > = {
     name: "rockPaperScissors",
     roles: ["one", "other"],
     act: (): IAutoMovieMotionHumanMutual.IAct => ({
@@ -126,21 +156,28 @@ export namespace HumanSocial {
   };
 
   /** A firm, slow pat or press of the palm on the partner (Laban's press: strong, sustained, direct); the composition gives the region. */
-  export const firmPress: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["social"]["firmPress"]> = HumanActionRow.of("firmPress", touch, {
+  export const firmPress: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["social"]["firmPress"]
+  > = HumanActionRow.of("firmPress", touch, {
     with: "palm",
     kind: "press",
     manner: AutoMovieMotionManner.PRESETS.press,
   });
 
   /** A light, quick flick of the fingertips on the partner, as brushing lint off a shoulder (Laban's flick: light, sudden, indirect); the composition gives the region. */
-  export const flickOff: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["social"]["flickOff"]> = HumanActionRow.of("flickOff", touch, {
+  export const flickOff: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["social"]["flickOff"]
+  > = HumanActionRow.of("flickOff", touch, {
     with: "fingertips",
     kind: "stroke",
     manner: AutoMovieMotionManner.PRESETS.flick,
   });
 
   /** Arm wrestling across a table: both perform `armWrestle` on one point of the table's top, `table` in world metres, and `winner` pins the other after `seconds` of struggle (3 when absent), the forearms ending `pin` degrees from upright (the law's own when absent; an angle past either arm's range is refused with the angle it holds). Register the `armWrestle` law with it. */
-  export const armWrestle: IAutoMovieMotionHumanMutual<IAutoMovieMotionHumanSocial.IArmWrestle, "one" | "other"> = {
+  export const armWrestle: IAutoMovieMotionHumanMutual<
+    IAutoMovieMotionHumanSocial.IArmWrestle,
+    "one" | "other"
+  > = {
     name: "armWrestle",
     roles: ["one", "other"],
     act: (
@@ -164,7 +201,10 @@ export namespace HumanSocial {
   };
 
   /** Thumb wrestling, first pass: the clasp of a handshake held through five small pumps (the thumbs' own play is not staged yet). */
-  export const thumbWrestle: IAutoMovieMotionHumanMutual<object, "one" | "other"> = {
+  export const thumbWrestle: IAutoMovieMotionHumanMutual<
+    object,
+    "one" | "other"
+  > = {
     name: "thumbWrestle",
     roles: ["one", "other"],
     act: (

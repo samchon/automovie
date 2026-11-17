@@ -8,23 +8,18 @@ import type { IAutoMovieRecoveryEventCurveCoefficients } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Parent positions use millimetres; start and end use normalized native phase.
  */
 export interface IAutoMovieRecoveryEventCurveSource {
- 
- /** Stable owner of all four native coefficients. */
+  /** Stable owner of all four native coefficients. */
   authority: string;
 
- 
- /** Single-span native curve authority with millimetre coefficients and its original phase width. */
+  /** Single-span native curve authority with millimetre coefficients and its original phase width. */
   curve: IAutoMovieRecoveryEventCurveCoefficients;
 
- 
- /** Native P0 and P3 identity, independent of occurrence orientation. */
+  /** Native P0 and P3 identity, independent of occurrence orientation. */
   endpointAuthorities: [string, string];
 
- 
- /** First normalized native parameter, in [0,1]. */
+  /** First normalized native parameter, in [0,1]. */
   start: number;
 
- 
- /** Last normalized native parameter, in [0,1]. */
+  /** Last normalized native parameter, in [0,1]. */
   end: number;
 }

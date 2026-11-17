@@ -1,14 +1,17 @@
-import type { IAutoMovieViewAxis, AutoMovieVector3Tuple, IAutoMovieHumanSiteViewPart, IAutoMovieHumanWalkPart } from "@automovie/interface";
-
-
-
-
-import { AutoMovieConstructionViews, AutoMovieViewAxis } from "@automovie/engine";
+import {
+  AutoMovieConstructionViews,
+  AutoMovieViewAxis,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanWalkPart,
+  IAutoMovieViewAxis,
+} from "@automovie/interface";
 
 import { AutoMovieHumanBendArc } from "./AutoMovieHumanBendArc";
 import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView";
 import { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
-
 
 /**
  * A part lofted as one walk over a bone chain (a digit over its phalanges, a
@@ -28,17 +31,15 @@ import { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
  * pulp beyond the distal phalanx's end).
  */
 export namespace AutoMovieHumanWalkPart {
-  
-
-  
-
   /**
    * Build and loft the walk.
    *
    * @param input The centres, joints, sites and tip.
    * @returns The part, its loft and the diagnostics.
    */
-  export function create(input: IAutoMovieHumanWalkPart.IInput): IAutoMovieHumanSiteViewPart.IResult {
+  export function create(
+    input: IAutoMovieHumanWalkPart.IInput,
+  ): IAutoMovieHumanSiteViewPart.IResult {
     const built: IAutoMovieHumanWalkPart.ISource | string = source(input);
     return typeof built === "string"
       ? {
@@ -57,10 +58,10 @@ export namespace AutoMovieHumanWalkPart {
       : AutoMovieHumanSiteViewPart.create(built.input);
   }
 
-  
-
   /** Prepare the production axis and named source once, without a section or loft. */
-  export function source(input: IAutoMovieHumanWalkPart.IInput): IAutoMovieHumanWalkPart.ISource | string {
+  export function source(
+    input: IAutoMovieHumanWalkPart.IInput,
+  ): IAutoMovieHumanWalkPart.ISource | string {
     const producer: string = `walk.${input.name}`;
 
     const fail = (detail: string): string => `${producer}: ${detail}`;
@@ -70,8 +71,10 @@ export namespace AutoMovieHumanWalkPart {
     // conversion may leave a tiny nonzero angle; use the same geometric
     // bend-radius conversion as every other digit joint, rather than
     // reserving a fixed quarter segment for that numerical angle.
-    const last: AutoMovieVector3Tuple = input.centres[input.centres.length - 1]!;
-    const before: AutoMovieVector3Tuple = input.centres[input.centres.length - 2]!;
+    const last: AutoMovieVector3Tuple =
+      input.centres[input.centres.length - 1]!;
+    const before: AutoMovieVector3Tuple =
+      input.centres[input.centres.length - 2]!;
     const length: number = Math.hypot(
       last[0] - before[0],
       last[1] - before[1],
@@ -96,7 +99,9 @@ export namespace AutoMovieHumanWalkPart {
     // reconstructed axis. A second mm-to-m conversion need not be bit-identical.
     const positions: ReturnType<typeof AutoMovieHumanConstructionView.point>[] =
       raw.map(AutoMovieHumanConstructionView.point);
-    const centres: AutoMovieVector3Tuple[] = positions.map(AutoMovieConstructionViews.point);
+    const centres: AutoMovieVector3Tuple[] = positions.map(
+      AutoMovieConstructionViews.point,
+    );
     const metreHalves: number[] = [
       ...input.joints.map((j: { half: number }): number => j.half),
       ...(tip > 0
@@ -124,7 +129,9 @@ export namespace AutoMovieHumanWalkPart {
     // Each site's station from its bone and share, then its edges in the
     // engine's chart.
     const sites: IAutoMovieHumanSiteViewPart.ISite[] = input.sites.map(
-      (s: IAutoMovieHumanWalkPart.ISite): IAutoMovieHumanSiteViewPart.ISite => ({
+      (
+        s: IAutoMovieHumanWalkPart.ISite,
+      ): IAutoMovieHumanSiteViewPart.ISite => ({
         site: s.site,
         station: station(centres, runs, s.bone, s.share),
         edges: engine(s.edges),

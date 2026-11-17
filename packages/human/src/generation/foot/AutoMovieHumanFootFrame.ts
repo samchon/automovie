@@ -1,9 +1,10 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanFootFrame, IAutoMovieHumanFootPrior } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootFrame,
+  IAutoMovieHumanFootPrior,
+} from "@automovie/interface";
 
 import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
-
 
 /**
  * The foot's own frame from its three dimensions: the one place a person's
@@ -21,19 +22,18 @@ import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
  * the left foot lateral toward +Z.
  */
 export namespace AutoMovieHumanFootFrame {
-  
-
-  
-
   /**
    * A foot's frame.
    *
    * @param d Dimensions in calibration millimetres, all positive.
    */
-  export function of(d: IAutoMovieHumanFootFrame.IDimensions): IAutoMovieHumanFootFrame.IFrame {
+  export function of(
+    d: IAutoMovieHumanFootFrame.IDimensions,
+  ): IAutoMovieHumanFootFrame.IFrame {
     if (!(d.length > 0) || !(d.breadth > 0) || !(d.ankle > 0))
       throw new Error("A foot needs positive dimensions");
-    const prior: IAutoMovieHumanFootPrior.IPrior = AutoMovieHumanFootPrior.PRIOR;
+    const prior: IAutoMovieHumanFootPrior.IPrior =
+      AutoMovieHumanFootPrior.PRIOR;
     const c: number = Math.cos(prior.yaw);
     const s: number = Math.sin(prior.yaw);
 

@@ -1,5 +1,3 @@
-
-
 /**
  * One beat's caption and the slug of its enclosing scene, as the caption join
  * reads them from the screenplay tree.

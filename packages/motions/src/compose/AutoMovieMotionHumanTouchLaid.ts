@@ -1,6 +1,18 @@
-import type { IAutoMovieAngleRange, IAutoMovieBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanTouch, IAutoMovieMotionHumanTouchEffector, IAutoMovieMotionHumanTouchForm, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3, getConstraint } from "@automovie/engine";
+import type {
+  IAutoMovieAngleRange,
+  IAutoMovieBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionHumanTouchForm,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
@@ -65,26 +77,27 @@ export namespace AutoMovieMotionHumanTouchLaid {
       tangent,
       side,
     );
-    const g: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanTouchEffector.goal(
-      body,
-      side,
-      effector,
-      place.point,
-      ...lie(
+    const g: IAutoMovieMotionHumanPosture.IGoal =
+      AutoMovieMotionHumanTouchEffector.goal(
         body,
-        posture,
         side,
-        along,
+        effector,
         place.point,
-        normal,
-        travel,
-        facing,
-        elbow,
-        undefined,
-        lean,
-      ),
-      AutoMovieMotionHumanBend.hang(body, posture, side),
-    );
+        ...lie(
+          body,
+          posture,
+          side,
+          along,
+          place.point,
+          normal,
+          travel,
+          facing,
+          elbow,
+          undefined,
+          lean,
+        ),
+        AutoMovieMotionHumanBend.hang(body, posture, side),
+      );
     return (
       elbow === "level"
         ? AutoMovieMotionHumanBend.level
@@ -189,13 +202,14 @@ export namespace AutoMovieMotionHumanTouchLaid {
     goal: IAutoMovieMotionHumanPosture.IGoal,
   ): NonNullable<IAutoMovieMotionHumanPosture.IGoal["reference"]> {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
-    const solved: IAutoMovieMotionHumanPosture.IReference = resolveHumanPosture.reference(
-      resolveHumanPosture(body, {
-        ...posture,
-        limbs: { ...posture.limbs, [limb]: goal },
-      }),
-      limb,
-    );
+    const solved: IAutoMovieMotionHumanPosture.IReference =
+      resolveHumanPosture.reference(
+        resolveHumanPosture(body, {
+          ...posture,
+          limbs: { ...posture.limbs, [limb]: goal },
+        }),
+        limb,
+      );
 
     // A law does not ask a joint at the end of its range: the forearm's
     // twist is kept `MARGIN` degrees inside the forearm's own range.

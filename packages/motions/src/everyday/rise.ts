@@ -1,6 +1,18 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBase, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRise, IAutoMovieMotionHumanSeated, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBase,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRise,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
@@ -314,10 +326,15 @@ export namespace rise {
       root: IAutoMovieVector3,
       t: number,
     ): IAutoMovieMotionHumanPosture["limbs"] => {
-      const legs: IAutoMovieMotionHumanPosture["limbs"] = stand.legs(body, root, yaw, {
-        left: footAt("left", t).ankle,
-        right: footAt("right", t).ankle,
-      });
+      const legs: IAutoMovieMotionHumanPosture["limbs"] = stand.legs(
+        body,
+        root,
+        yaw,
+        {
+          left: footAt("left", t).ankle,
+          right: footAt("right", t).ankle,
+        },
+      );
       for (const side of ["left", "right"] as const) {
         const limb: "leftLeg" | "rightLeg" =
           side === "left" ? "leftLeg" : "rightLeg";
@@ -352,7 +369,11 @@ export namespace rise {
     ];
     for (const side of ["left", "right"] as const) {
       const swing: [number, number] | undefined = swings[side];
-      const windows: [IAutoMovieMotionHumanContactWindow["part"], number, number][] =
+      const windows: [
+        IAutoMovieMotionHumanContactWindow["part"],
+        number,
+        number,
+      ][] =
         swing === undefined
           ? [[`${side}Foot`, 0, 1]]
           : [
@@ -443,14 +464,17 @@ export namespace rise {
           pitch: tilt.pitch,
           roll: 0,
         });
-        const posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(body, {
-          root,
-          yaw,
-          pitch: tilt.pitch,
-          roll: 0,
-          joints: tilt.joints,
-          limbs: stand.legs(body, root, yaw, drawn),
-        });
+        const posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+          body,
+          {
+            root,
+            yaw,
+            pitch: tilt.pitch,
+            roll: 0,
+            joints: tilt.joints,
+            limbs: stand.legs(body, root, yaw, drawn),
+          },
+        );
         return seated.rested(
           body,
           posture,

@@ -1,6 +1,5 @@
 import type { IAutoMoviePlanVideoSceneCutsProps } from "@automovie/interface";
 
-
 /**
  * Plan the FFmpeg arguments that detect a video file's scene cuts with the `scdet` filter and write each cut to a report, which `readAutoMovieVideoSceneCuts` reads.
  *
@@ -20,7 +19,9 @@ import type { IAutoMoviePlanVideoSceneCutsProps } from "@automovie/interface";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of three values.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list and keeps nothing.
  */
-export function planAutoMovieVideoSceneCuts(props: IAutoMoviePlanVideoSceneCutsProps): string[] {
+export function planAutoMovieVideoSceneCuts(
+  props: IAutoMoviePlanVideoSceneCutsProps,
+): string[] {
   if (
     !(
       Number.isFinite(props.threshold) &&

@@ -1,8 +1,8 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieAffordance } from "../../../model/IAutoMovieAffordance";
 import type { IAutoMovieBody } from "../../../model/IAutoMovieBody";
-import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 import type { IAutoMoviePhysicalProfile } from "../../../physics/IAutoMoviePhysicalProfile";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 
 /**
  * Attach actions to an object: an object says where a person meets it

@@ -1,6 +1,11 @@
-import type { IAutoMoviePrimitiveShape, IAutoMovieModelPart, IAutoMoviePhysicalProfile, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, physicalShapeBounds } from "@automovie/engine";
-
+import type {
+  IAutoMovieModelPart,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePrimitiveShape,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Exact lowest world Y of one rigid primitive used by a rest cycle.

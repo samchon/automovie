@@ -1,6 +1,18 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingHeld, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { HumanHand } from "../posture/HumanHand";
@@ -46,7 +58,10 @@ export namespace HumanGraspDemand {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The grip closes over the grasp record.
    */
   export function grip(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "prop" | "start">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "prop" | "start"
+    >,
     prop: string,
     side: IAutoMovieMotionHumanHand.Side,
     shown: IAutoMovieMotionHumanHand.IWrist,
@@ -65,7 +80,9 @@ export namespace HumanGraspDemand {
     return {
       prop,
       side,
-      tool: (points: IAutoMovieMotionHumanStrikingHeld.IPoints): IAutoMovieMotionHumanStrikingHeld.ITool =>
+      tool: (
+        points: IAutoMovieMotionHumanStrikingHeld.IPoints,
+      ): IAutoMovieMotionHumanStrikingHeld.ITool =>
         StrikingHeld.read(grasped, points),
       posture,
     };

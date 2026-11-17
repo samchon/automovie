@@ -1,5 +1,3 @@
-
-
 /** Clinical axis targets in degrees used to construct a recoil pose.
  *
  * @evidence contracts/development/design.md#principled-representation Optional degree-valued clinical axes let impactRecoil distinguish absent/zero axes from requested nonzero targets; they are targets to clamp, not a general rest-neutral additive rotation.

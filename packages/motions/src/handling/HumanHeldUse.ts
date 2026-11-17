@@ -1,6 +1,24 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanArmPlanned, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanGrip, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanHeldUse, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanProp, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanGrip,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanHeldUse,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
@@ -57,7 +75,10 @@ export namespace HumanHeldUse {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function kept(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "start">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop" | "start"
+    >,
     side: IAutoMovieMotionHumanHand.Side,
     kept: IAutoMovieMotionHumanHeldUse.IKept,
     region: AutoMovieHumanoidRegion | null,
@@ -113,7 +134,10 @@ export namespace HumanHeldUse {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function key(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "start">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop" | "start"
+    >,
     side: IAutoMovieMotionHumanHand.Side,
     prop: string,
     point: string,
@@ -232,10 +256,13 @@ export namespace HumanHeldUse {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the held owner, the grasp's target, hand and reachable search, the bend solver and the arm carry.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over the tool read at plan time and one hint.
    */
-  export function second(props: IAutoMovieMotionHumanHeldUse.ISecondProps): IAutoMovieMotionHumanPrimitive[] {
+  export function second(
+    props: IAutoMovieMotionHumanHeldUse.ISecondProps,
+  ): IAutoMovieMotionHumanPrimitive[] {
     const { context, clock } = props;
     const body: IAutoMovieMotionHumanBody = context.body;
-    const other: IAutoMovieMotionHumanHand.Side = props.side === "right" ? "left" : "right";
+    const other: IAutoMovieMotionHumanHand.Side =
+      props.side === "right" ? "left" : "right";
     const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
       context,
       props.side,
@@ -249,7 +276,9 @@ export namespace HumanHeldUse {
     ).point;
 
     // The other handle where a wrist of the holding hand puts the tool.
-    const target = (wrist: IAutoMovieMotionHumanHand.IWrist): IAutoMovieMotionHumanGrasp.ITarget =>
+    const target = (
+      wrist: IAutoMovieMotionHumanHand.IWrist,
+    ): IAutoMovieMotionHumanGrasp.ITarget =>
       HumanGrasp.at(record, props.handle, {
         position: Vector3.add(
           wrist.point,
@@ -296,7 +325,10 @@ export namespace HumanHeldUse {
           posture: IAutoMovieMotionHumanPosture,
           seconds: number,
         ): IAutoMovieMotionHumanPosture.IGoal => {
-          const first: IAutoMovieMotionHumanPosture.IGoal = props.goal(posture, seconds);
+          const first: IAutoMovieMotionHumanPosture.IGoal = props.goal(
+            posture,
+            seconds,
+          );
           const wrist: IAutoMovieMotionHumanHand.IWrist = HumanGrasp.hand(
             body,
             other,

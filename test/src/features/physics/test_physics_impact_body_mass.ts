@@ -1,6 +1,8 @@
-import { type IAutoMovieImpactBodyState, IAutoMovieVector3 } from "@automovie/interface";
 import { resolveImpact } from "@automovie/engine";
-
+import {
+  type IAutoMovieImpactBodyState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (

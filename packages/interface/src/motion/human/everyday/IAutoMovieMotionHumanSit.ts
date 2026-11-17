@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanSeated } from "./IAutoMovieMotionHumanSeated";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanSeated } from "./IAutoMovieMotionHumanSeated";
 
 /**
  * Sitting down on a chair, bench or stool from standing in front of it:

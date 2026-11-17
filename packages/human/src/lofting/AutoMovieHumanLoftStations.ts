@@ -1,5 +1,5 @@
-import type { IAutoMovieLoftChain } from "@automovie/interface";
 import { AutoMovieLoftChain } from "@automovie/engine";
+import type { IAutoMovieLoftChain } from "@automovie/interface";
 
 /**
  * Tessellation stations of a chain: where its rings are generated.
@@ -51,8 +51,15 @@ export namespace AutoMovieHumanLoftStations {
     const out: number[] = [from];
     // Each interval's end sections are handed down to its halves, so every
     // station's section is evaluated once.
-    const at: (s: number) => Ring = (s: number): Ring => AutoMovieLoftChain.ring(chain, s, probes);
-    const split = (a: number, b: number, level: number, ra: Ring, rb: Ring): void => {
+    const at: (s: number) => Ring = (s: number): Ring =>
+      AutoMovieLoftChain.ring(chain, s, probes);
+    const split = (
+      a: number,
+      b: number,
+      level: number,
+      ra: Ring,
+      rb: Ring,
+    ): void => {
       const m: number = (a + b) / 2;
 
       if (level < depth) {

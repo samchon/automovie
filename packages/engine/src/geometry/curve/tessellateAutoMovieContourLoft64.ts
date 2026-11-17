@@ -1,4 +1,9 @@
-import type { IAutoMovieContourLoftEmission64, IAutoMovieContourLoftSink64, AutoMovieVector3Tuple, IAutoMovieContourLoft64 } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieContourLoft64,
+  IAutoMovieContourLoftEmission64,
+  IAutoMovieContourLoftSink64,
+} from "@automovie/interface";
 
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 import { computeAutoMovieContourNormals64 } from "./computeAutoMovieContourNormals64";
@@ -17,10 +22,16 @@ import { generateAutoMovieContourLoft64 } from "./generateAutoMovieContourLoft64
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One kernel invocation supplies indexed geometry, construction and actual qualification metadata.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This memory API deliberately retains complete vertex/triangle channels. Borrowed construction-point references and paid phase arrays survive until normal reduction and final construction conversion; no file or cache is acquired.
  */
-export function tessellateAutoMovieContourLoft64(input: IAutoMovieContourLoft64): IAutoMovieContourLoft64.IResult {
+export function tessellateAutoMovieContourLoft64(
+  input: IAutoMovieContourLoft64,
+): IAutoMovieContourLoft64.IResult {
   const vertices: Readonly<AutoMovieVector3Tuple>[] = [],
     triangles: [number, number, number][] = [];
-  const sources: [string, readonly Readonly<AutoMovieVector3Tuple>[], number[]][] = [];
+  const sources: [
+    string,
+    readonly Readonly<AutoMovieVector3Tuple>[],
+    number[],
+  ][] = [];
   const sink: IAutoMovieContourLoftSink64 = {
     vertex: (index: number, pointMm: Readonly<AutoMovieVector3Tuple>): void => {
       if (index !== vertices.length)
@@ -50,7 +61,8 @@ export function tessellateAutoMovieContourLoft64(input: IAutoMovieContourLoft64)
     stripObservations: generated.stripObservations,
     mesh: {
       positions: vertices.flatMap(
-        (point: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => M.scale(point, 0.001),
+        (point: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple =>
+          M.scale(point, 0.001),
       ),
       indices: triangles.flat(),
       normals,
@@ -65,7 +77,10 @@ export function tessellateAutoMovieContourLoft64(input: IAutoMovieContourLoft64)
       ]): IAutoMovieContourLoft64.IResult["construction"][number] => ({
         id,
         closed: true,
-        points: points.map((point: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => M.scale(point, 0.001)),
+        points: points.map(
+          (point: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple =>
+            M.scale(point, 0.001),
+        ),
         phases,
       }),
     ),

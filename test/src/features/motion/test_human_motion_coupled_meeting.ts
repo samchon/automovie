@@ -1,11 +1,32 @@
-import type { IAutoMovieMotionCoupling, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanRefusal, IAutoMovieMotionHumanSignature, IAutoMovieMotionMeeting, IAutoMovieVector3 } from "@automovie/interface";
 import {
   Quaternion,
   Vector3,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
-
-import { AutoMovieMotionMeeting, HumanCarried, HumanCarriedCoupling, HumanCarriedCouplingLoad, HumanCarriedLean, HumanChain, HumanFoot, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionCoupling,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieMotionMeeting,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionMeeting,
+  HumanCarried,
+  HumanCarriedCoupling,
+  HumanCarriedCouplingLoad,
+  HumanCarriedLean,
+  HumanChain,
+  HumanFoot,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -87,20 +108,21 @@ export function test_human_motion_coupled_meeting(): void {
       a: motionHumanBody(names[0]),
       b: motionHumanBody(names[1]),
     };
-    const own: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({ seconds: 0.3 });
+    const own: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({
+      seconds: 0.3,
+    });
     const moved: IAutoMovieMotionHumanChain = walking
       ? own.walk({ to: { x: 0, y: 0, z: 2 } })
       : own.stand({ seconds: 2 });
     // The hold rides the bearer's own action, which keeps its trunk, so the
     // pair's tip is scheduled as a layer over it.
-    const coupling: IAutoMovieMotionCoupling =
-      HumanCarriedCoupling.couple(
-        bodies.a,
-        bodies.b,
-        HumanCarried.CARRIES[carry],
-        carry,
-        extra.mass ?? 0,
-      );
+    const coupling: IAutoMovieMotionCoupling = HumanCarriedCoupling.couple(
+      bodies.a,
+      bodies.b,
+      HumanCarried.CARRIES[carry],
+      carry,
+      extra.mass ?? 0,
+    );
     return {
       bodies,
       film: new HumanPerformance({
@@ -154,23 +176,20 @@ export function test_human_motion_coupled_meeting(): void {
   for (const names of PAIRS)
     for (const carry of CARRIES) {
       const cell: string = `${carry}, ${names[0]} bearing ${names[1]}`;
-      const coupling: IAutoMovieMotionCoupling =
-        HumanCarriedCoupling.couple(
-          motionHumanBody(names[0]),
-          motionHumanBody(names[1]),
-          HumanCarried.CARRIES[carry],
-          carry,
-        );
+      const coupling: IAutoMovieMotionCoupling = HumanCarriedCoupling.couple(
+        motionHumanBody(names[0]),
+        motionHumanBody(names[1]),
+        HumanCarried.CARRIES[carry],
+        carry,
+      );
 
       // 4. The shares.
       const bearing: IAutoMovieMotionCoupling.IContact[] =
         coupling.contacts.filter(
-          (c: IAutoMovieMotionCoupling.IContact): boolean =>
-            c.kind === "bear",
+          (c: IAutoMovieMotionCoupling.IContact): boolean => c.kind === "bear",
         );
       const sum: number = bearing.reduce(
-        (s: number, c: IAutoMovieMotionCoupling.IContact): number =>
-          s + c.load,
+        (s: number, c: IAutoMovieMotionCoupling.IContact): number => s + c.load,
         0,
       );
       all.check(
@@ -201,7 +220,8 @@ export function test_human_motion_coupled_meeting(): void {
         .segments("b")
         .flatMap((s) => [...s.plan.contacts]);
       for (const w of windows.filter(
-        (w: IAutoMovieMotionHumanContactWindow): boolean => w.support.kind !== "ground",
+        (w: IAutoMovieMotionHumanContactWindow): boolean =>
+          w.support.kind !== "ground",
       ))
         all.check(
           `${cell}: the borne ${w.part} window bears on ${JSON.stringify(w.support)}, the bearer a expected`,
@@ -299,7 +319,11 @@ export function test_human_motion_coupled_meeting(): void {
     }
 
   // 5. A heavier borne body leans the bearer more.
-  const tip = (film: IAutoMovieMotionHumanPerformance, body: IAutoMovieMotionHumanBody, t: number): number => {
+  const tip = (
+    film: IAutoMovieMotionHumanPerformance,
+    body: IAutoMovieMotionHumanBody,
+    t: number,
+  ): number => {
     const up: IAutoMovieVector3 = Quaternion.rotateVector(
       HumanSignature.bones(HumanSignature.of(film, "a", body, 0), t).get(
         "chest",
@@ -359,7 +383,10 @@ export function test_human_motion_coupled_meeting(): void {
   const once = stage(["m-average", "f-small"], "piggyback", true);
   const twice = stage(["m-average", "f-small"], "piggyback", true);
   for (const t of [0.9, 1.5, 2.1]) {
-    const p = (film: IAutoMovieMotionHumanPerformance, body: IAutoMovieMotionHumanBody): string =>
+    const p = (
+      film: IAutoMovieMotionHumanPerformance,
+      body: IAutoMovieMotionHumanBody,
+    ): string =>
       JSON.stringify(
         [...HumanSignature.bones(HumanSignature.of(film, "b", body, 0), t)].map(
           ([bone, b]) => [bone, b.worldPosition, b.worldRotation],
@@ -441,7 +468,8 @@ export function test_human_motion_coupled_meeting(): void {
       bears(w) && w.support.kind === "person",
   );
   const ground: IAutoMovieMotionHumanContactWindow[] = contacts.filter(
-    (w: IAutoMovieMotionHumanContactWindow): boolean => w.support.kind === "ground",
+    (w: IAutoMovieMotionHumanContactWindow): boolean =>
+      w.support.kind === "ground",
   );
   const opens: number = Math.min(
     ...onBearer.map((w: IAutoMovieMotionHumanContactWindow): number => w.from),
@@ -449,10 +477,17 @@ export function test_human_motion_coupled_meeting(): void {
   all.check(
     `with a lift: the feet leave the ground no earlier than the bearer bears (${opens.toFixed(3)}), read ${ground.map((w) => `${w.part} ${w.from.toFixed(3)}-${w.to.toFixed(3)}`).join(", ")}`,
     onBearer.length > 0 &&
-      ground.some((w: IAutoMovieMotionHumanContactWindow): boolean => w.from === 0) &&
+      ground.some(
+        (w: IAutoMovieMotionHumanContactWindow): boolean => w.from === 0,
+      ) &&
       ground
-        .filter((w: IAutoMovieMotionHumanContactWindow): boolean => w.from === 0)
-        .every((w: IAutoMovieMotionHumanContactWindow): boolean => w.to >= opens - 1e-9),
+        .filter(
+          (w: IAutoMovieMotionHumanContactWindow): boolean => w.from === 0,
+        )
+        .every(
+          (w: IAutoMovieMotionHumanContactWindow): boolean =>
+            w.to >= opens - 1e-9,
+        ),
   );
   all.assert("a coupled carry bears the borne body on the bearer");
 }

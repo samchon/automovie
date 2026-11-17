@@ -1,7 +1,21 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSignature, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanCarried, HumanCarriedLean, HumanChain, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanCarried,
+  HumanCarriedLean,
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -81,7 +95,10 @@ export function test_human_motion_carried_carries(): void {
     by: string = "a",
     lean: boolean = false,
     phases: { lift?: number; setDown?: number } = {},
-  ): { film: IAutoMovieMotionHumanPerformance; bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> } => {
+  ): {
+    film: IAutoMovieMotionHumanPerformance;
+    bodies: Record<"a" | "b", IAutoMovieMotionHumanBody>;
+  } => {
     const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
       a: motionHumanBody(names[0]),
       b: motionHumanBody(names[1]),

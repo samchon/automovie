@@ -1,10 +1,20 @@
-import type { AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanStrikingRecord, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Vector3,
   physicalShapeSegmentDistance,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSkill,
+  IAutoMovieMotionHumanStrikingRecord,
+  IAutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { AutoMovieMotionHumanVariation } from "../../compose/AutoMovieMotionHumanVariation";
@@ -285,10 +295,12 @@ function defended(
     );
     const punch: IAutoMovieMotionHumanSegment.ISegment = standing
       .segments("a")
-      .find((g: IAutoMovieMotionHumanSegment.ISegment): boolean => g.name === "punch")!;
-    const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined = StrikingRecord.of(
-      punch.plan,
-    );
+      .find(
+        (g: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+          g.name === "punch",
+      )!;
+    const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined =
+      StrikingRecord.of(punch.plan);
     if (record === undefined || punch.plan.contact === undefined)
       throw new Error("A punch records its aim and has a contact");
     return {
@@ -350,7 +362,10 @@ function defended(
       "b",
       covered
         .segments("b")
-        .find((g: IAutoMovieMotionHumanSegment.ISegment): boolean => g.name === "defend")!,
+        .find(
+          (g: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+            g.name === "defend",
+        )!,
     ),
   ];
 }

@@ -1,5 +1,3 @@
-
-
 /** A light property a shot's `lightMotions` may animate.
  *
  * @evidence contracts/development/design.md#principled-representation The closed union names intensity/color/range/coneAngle/position/rotation properties supported by shot light-motion channel resolution; property-specific scalar/vector/quaternion semantics are owned by parse/apply lighting helpers.

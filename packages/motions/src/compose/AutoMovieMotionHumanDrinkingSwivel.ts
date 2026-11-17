@@ -1,6 +1,14 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSwivelBound, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSwivelBound,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
@@ -105,7 +113,11 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
         );
       },
     );
-    const of: IAutoMovieMotionHumanSwivelBound.IArm = { shoulder, upper, lower };
+    const of: IAutoMovieMotionHumanSwivelBound.IArm = {
+      shoulder,
+      upper,
+      lower,
+    };
     const bounds: IAutoMovieMotionHumanSwivelBound.IHalfPlane[] = normals.map(
       (
         normal: IAutoMovieVector3,

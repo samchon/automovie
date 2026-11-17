@@ -6,7 +6,7 @@ export namespace IAutoMovieLocateSurfaceCoordinate {
   /**
    * Find the cage face and local coordinates of a surface coordinate on one
    * sampled tier.
-   * 
+   *
    * A patch's grid is even in `(s, t)`, so the face holding a coordinate is
    * column `floor(s * columns)` and row `floor(t * rows)`, the last column or
    * row taking `s` or `t` equal to 1, and the local coordinates are the

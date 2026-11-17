@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryOptions, IAutoMovieRecoveryResult } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryOptions,
+  IAutoMovieRecoveryResult,
+} from "@automovie/interface";
 import {
   observeAutoMovieRecovery,
   reconstructAutoMovieRecoveryModel,
@@ -177,9 +180,13 @@ export function test_recovery_public_lifecycle(): void {
   TestValidator.equals("cancellation stops further callbacks", progress, 2);
 
   // Predicate failures are execution failures, not cancellation or retry requests.
-  const operations: readonly ((options: IAutoMovieRecoveryOptions) => IAutoMovieRecoveryResult<unknown>)[] = [
-    (options: IAutoMovieRecoveryOptions): IAutoMovieRecoveryResult<unknown> => observeAutoMovieRecovery(input, options),
-    (options: IAutoMovieRecoveryOptions): IAutoMovieRecoveryResult<unknown> => reconstructAutoMovieRecoveryModel(empty, options),
+  const operations: readonly ((
+    options: IAutoMovieRecoveryOptions,
+  ) => IAutoMovieRecoveryResult<unknown>)[] = [
+    (options: IAutoMovieRecoveryOptions): IAutoMovieRecoveryResult<unknown> =>
+      observeAutoMovieRecovery(input, options),
+    (options: IAutoMovieRecoveryOptions): IAutoMovieRecoveryResult<unknown> =>
+      reconstructAutoMovieRecoveryModel(empty, options),
   ];
   for (const run of operations) {
     for (const afterProgress of [false, true]) {
@@ -194,41 +201,101 @@ export function test_recovery_public_lifecycle(): void {
           }
           return false;
         },
-        onProgress: (): void => { entered = true; notifications++; },
+        onProgress: (): void => {
+          entered = true;
+          notifications++;
+        },
       });
-      TestValidator.equals("predicate exception fails", result.status, "failed");
-      TestValidator.equals("failing predicate is not re-read in catch", failures, 1);
-      TestValidator.equals("failure stops progress", notifications, afterProgress ? 1 : 0);
-      TestValidator.equals("predicate exception survives", result.diagnostics, ["predicate failure"]);
-      TestValidator.predicate("predicate failure has no value", !("value" in result));
+      TestValidator.equals(
+        "predicate exception fails",
+        result.status,
+        "failed",
+      );
+      TestValidator.equals(
+        "failing predicate is not re-read in catch",
+        failures,
+        1,
+      );
+      TestValidator.equals(
+        "failure stops progress",
+        notifications,
+        afterProgress ? 1 : 0,
+      );
+      TestValidator.equals("predicate exception survives", result.diagnostics, [
+        "predicate failure",
+      ]);
+      TestValidator.predicate(
+        "predicate failure has no value",
+        !("value" in result),
+      );
     }
     let cancellation: boolean = false;
     let probes: number = 0;
     let probesAtFailure: number = 0;
     const progressFailure: IAutoMovieRecoveryResult<unknown> = run({
-      cancelled: (): boolean => { probes++; return cancellation; },
+      cancelled: (): boolean => {
+        probes++;
+        return cancellation;
+      },
       onProgress: (): void => {
         cancellation = true;
         probesAtFailure = probes;
         throw new Error("progress failure after cancellation request");
       },
     });
-    TestValidator.equals("progress exception outranks unobserved cancellation", progressFailure.status, "failed");
-    TestValidator.equals("failure classification does not invoke predicate", probes, probesAtFailure);
-    TestValidator.predicate("progress failure has no value", !("value" in progressFailure));
+    TestValidator.equals(
+      "progress exception outranks unobserved cancellation",
+      progressFailure.status,
+      "failed",
+    );
+    TestValidator.equals(
+      "failure classification does not invoke predicate",
+      probes,
+      probesAtFailure,
+    );
+    TestValidator.predicate(
+      "progress failure has no value",
+      !("value" in progressFailure),
+    );
     for (const invalidResult of [undefined, null, "yes", 1]) {
       let callbacks: number = 0;
-      const invalid: IAutoMovieRecoveryOptions = Object.defineProperty({
-        onProgress: (): void => { callbacks++; },
-      }, "cancelled", { value: (): unknown => invalidResult });
+      const invalid: IAutoMovieRecoveryOptions = Object.defineProperty(
+        {
+          onProgress: (): void => {
+            callbacks++;
+          },
+        },
+        "cancelled",
+        { value: (): unknown => invalidResult },
+      );
       const result: IAutoMovieRecoveryResult<unknown> = run(invalid);
-      TestValidator.equals("nonboolean predicate result fails", result.status, "failed");
-      TestValidator.equals("invalid predicate result precedes progress", callbacks, 0);
-      TestValidator.predicate("invalid predicate result has no value", !("value" in result));
+      TestValidator.equals(
+        "nonboolean predicate result fails",
+        result.status,
+        "failed",
+      );
+      TestValidator.equals(
+        "invalid predicate result precedes progress",
+        callbacks,
+        0,
+      );
+      TestValidator.predicate(
+        "invalid predicate result has no value",
+        !("value" in result),
+      );
     }
-    const invalidPredicate: IAutoMovieRecoveryResult<unknown> = run(JSON.parse('{"cancelled":null}'));
-    TestValidator.equals("invalid predicate refuses", invalidPredicate.status, "refused");
-    TestValidator.predicate("invalid predicate has no value", !("value" in invalidPredicate));
+    const invalidPredicate: IAutoMovieRecoveryResult<unknown> = run(
+      JSON.parse('{"cancelled":null}'),
+    );
+    TestValidator.equals(
+      "invalid predicate refuses",
+      invalidPredicate.status,
+      "refused",
+    );
+    TestValidator.predicate(
+      "invalid predicate has no value",
+      !("value" in invalidPredicate),
+    );
   }
 
   const observed: ReturnType<typeof observeAutoMovieRecovery> =

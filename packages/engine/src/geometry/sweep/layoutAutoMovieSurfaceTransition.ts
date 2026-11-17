@@ -1,4 +1,5 @@
 import type { IAutoMovieSurfaceCoordinate } from "@automovie/interface";
+
 /** A corner of a band quad in the band's own coordinates. */
 type ICorner = Pick<IAutoMovieSurfaceCoordinate, "s" | "t">;
 

@@ -1,12 +1,38 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanStrikingHeld, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import {
   createDrinkware,
   createSmoking,
   createSword,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { AutoMovieMotionClock, AutoMovieMotionHumanArm, AutoMovieMotionHumanBase, AutoMovieMotionHumanBend, AutoMovieMotionHumanTiming, HumanChain, HumanGraspUse, HumanObject, HumanPerformance, StrikingHeld, StrikingRoll, composeAutoMovieMotionHumanAction, poseBones } from "@automovie/motions";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionClock,
+  AutoMovieMotionHumanArm,
+  AutoMovieMotionHumanBase,
+  AutoMovieMotionHumanBend,
+  AutoMovieMotionHumanTiming,
+  HumanChain,
+  HumanGraspUse,
+  HumanObject,
+  HumanPerformance,
+  StrikingHeld,
+  StrikingRoll,
+  composeAutoMovieMotionHumanAction,
+  poseBones,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -91,7 +117,9 @@ export function test_human_motion_core_grasp_use(): void {
     const present = (rise: number): IAutoMovieMotionHumanActionLaw<never> => ({
       name: "present",
       interrupts: {},
-      plan: (context: IAutoMovieMotionHumanActionContext<never>): IAutoMovieMotionHumanActionPlan => {
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<never>,
+      ): IAutoMovieMotionHumanActionPlan => {
         // The held sword as the striking owner reads it, and the place its
         // grip is presented at, the one the grasp is judged at
         // (`HumanGraspUse.place`).
@@ -117,15 +145,16 @@ export function test_human_motion_core_grasp_use(): void {
         // (`StrikingRoll.hand`, the shared chooser judged by the fitted
         // arm), so the arm a law presents with is the arm the grasp is
         // judged with.
-        const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = StrikingRoll.hand(
-          context,
-          tool,
-          back,
-          at,
-          line(rise),
-          0,
-          context.entry.posture,
-        );
+        const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+          StrikingRoll.hand(
+            context,
+            tool,
+            back,
+            at,
+            line(rise),
+            0,
+            context.entry.posture,
+          );
         const asked: IAutoMovieMotionHumanPosture.IGoal = StrikingHeld.goal(
           context,
           tool,
@@ -177,31 +206,36 @@ export function test_human_motion_core_grasp_use(): void {
             { name: "ready", seconds: 0.3 },
           ]);
         const ready: number = clock.at("ready");
-        const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-          base: AutoMovieMotionHumanBase.still(
-            clock.duration,
-            context.entry.posture,
-            contacts,
-          ),
-          clock,
-          primitives: [
-            AutoMovieMotionHumanArm.carried({
-              body,
-              side: "right",
-              from: 0,
-              to: clock.duration,
-              rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
-              weight: (seconds: number): number => Math.min(1, seconds / ready),
-              span: {
-                start: 0,
-                ready,
-                relax: clock.duration,
-                end: clock.duration,
-              },
-              goal: (): IAutoMovieMotionHumanPosture.IGoal => goal,
-            }),
-          ],
-        });
+        const composed: IAutoMovieMotionHumanActionPlan =
+          composeAutoMovieMotionHumanAction({
+            base: AutoMovieMotionHumanBase.still(
+              clock.duration,
+              context.entry.posture,
+              contacts,
+            ),
+            clock,
+            primitives: [
+              AutoMovieMotionHumanArm.carried({
+                body,
+                side: "right",
+                from: 0,
+                to: clock.duration,
+                rest: AutoMovieMotionHumanArm.angles(
+                  context.entry.pose,
+                  "right",
+                ),
+                weight: (seconds: number): number =>
+                  Math.min(1, seconds / ready),
+                span: {
+                  start: 0,
+                  ready,
+                  relax: clock.duration,
+                  end: clock.duration,
+                },
+                goal: (): IAutoMovieMotionHumanPosture.IGoal => goal,
+              }),
+            ],
+          });
         return { ...composed, holds: StrikingHeld.holds(context, tool) };
       },
     });
@@ -237,11 +271,18 @@ export function test_human_motion_core_grasp_use(): void {
           .registered("pickUp", { prop: "sword", handle: "grip", ...use })
           .registered("present").node,
       });
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("sword", film.duration);
-      const points: IAutoMovieMotionHumanProp["points"] = HumanObject.prop("sword", sword, {
-        at: { x: 0, y: 0, z: 0 },
-        yaw: 0,
-      }).points;
+      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
+        "sword",
+        film.duration,
+      );
+      const points: IAutoMovieMotionHumanProp["points"] = HumanObject.prop(
+        "sword",
+        sword,
+        {
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+        },
+      ).points;
       const shown: IAutoMovieVector3 = Vector3.normalize(
         Quaternion.rotateVector(
           frame.rotation,

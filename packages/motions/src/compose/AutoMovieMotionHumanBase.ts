@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 /**
  * Bases of composed actions: the plan whose posture every unclaimed channel
@@ -66,21 +71,27 @@ export namespace AutoMovieMotionHumanBase {
     duration: number,
     contacts?: readonly IAutoMovieMotionHumanContactWindow[],
   ): IAutoMovieMotionHumanActionPlan {
-    const carrier: IAutoMovieMotionHumanActionContext.ICarrier | undefined = context.carrier;
+    const carrier: IAutoMovieMotionHumanActionContext.ICarrier | undefined =
+      context.carrier;
     if (carrier === undefined)
       return still(
         duration,
         context.entry.posture,
         contacts ??
           context.entry.supports.map(
-            (s): IAutoMovieMotionHumanContactWindow => ({ ...s, from: 0, to: 1 }),
+            (s): IAutoMovieMotionHumanContactWindow => ({
+              ...s,
+              from: 0,
+              to: 1,
+            }),
           ),
       );
     return {
       duration,
       events: [],
       contacts: [],
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => carrier.posture(seconds),
+      posture: (seconds: number): IAutoMovieMotionHumanPosture =>
+        carrier.posture(seconds),
     };
   }
 

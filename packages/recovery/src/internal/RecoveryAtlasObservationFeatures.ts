@@ -1,10 +1,12 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryAtlasObservationFeatures, IAutoMovieRecoveryAtlasObservationState, IAutoMovieRecoveryFeatureChartPreparation } from "@automovie/interface";
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryAtlasObservationFeatures,
+  IAutoMovieRecoveryAtlasObservationState,
+  IAutoMovieRecoveryFeatureChartPreparation,
+} from "@automovie/interface";
 
 import { RecoveryFeatureChartPreparation } from "./RecoveryFeatureChartPreparation";
+
 /**
  * Register feature-prepared charts and their original shared outcome records.
  *
@@ -16,7 +18,9 @@ import { RecoveryFeatureChartPreparation } from "./RecoveryFeatureChartPreparati
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Pending entries and the interval ledger retain the identical outcomes array.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Prepared charts transfer to the observation state; no source registry or fit is duplicated.
  */
-export function RecoveryAtlasObservationFeatures(context: Parameters<IAutoMovieRecoveryAtlasObservationFeatures.Operation>[0]): ReturnType<IAutoMovieRecoveryAtlasObservationFeatures.Operation> {
+export function RecoveryAtlasObservationFeatures(
+  context: Parameters<IAutoMovieRecoveryAtlasObservationFeatures.Operation>[0],
+): ReturnType<IAutoMovieRecoveryAtlasObservationFeatures.Operation> {
   const {
     input,
     name,
@@ -34,7 +38,8 @@ export function RecoveryAtlasObservationFeatures(context: Parameters<IAutoMovieR
     triangleSourceFaces,
     featureEdges,
     failedSelectedComponents,
-    incrementUnsupported }: {
+    incrementUnsupported,
+  }: {
     input: IAutoMovieRecoveryAtlasObservationState["Input"];
     name: string;
     positions: Readonly<AutoMovieVector3Tuple>[];
@@ -66,26 +71,27 @@ export function RecoveryAtlasObservationFeatures(context: Parameters<IAutoMovieR
       featureEdges: featureEdges.map(
         (
           edge: (typeof featureEdges)[number],
-        ): Parameters<
-          IAutoMovieRecoveryFeatureChartPreparation.Operation
-        >[0]["featureEdges"][number] => ({
+        ): Parameters<IAutoMovieRecoveryFeatureChartPreparation.Operation>[0]["featureEdges"][number] => ({
           a: slots.get(edge.from)!,
           b: slots.get(edge.to)!,
           sourceEdge: edge.sourceEdge,
           sourceFaces: edge.sourceFaces,
-          angleDegrees: edge.angleDegrees }),
+          angleDegrees: edge.angleDegrees,
+        }),
       ),
       cornerDegrees: input.cornerDegrees,
       maxCharts: input.inventoryOnly
         ? Number.MAX_SAFE_INTEGER
-        : input.maxCharts - pending.length });
+        : input.maxCharts - pending.length,
+    });
   for (const failed of prepared.unsupported)
     outcomes.push({
       component: component.id,
       chart: null,
       proposedChart: failed.chart,
       sourceFaces: failed.sourceFaces,
-      reason: `feature-preparation: ${failed.reason}` });
+      reason: `feature-preparation: ${failed.reason}`,
+    });
   if (input.inventoryOnly) {
     for (const chart of prepared.charts)
       inventory.push({
@@ -97,14 +103,16 @@ export function RecoveryAtlasObservationFeatures(context: Parameters<IAutoMovieR
           (sum: number, side: number[]): number => sum + side.length,
           0,
         ),
-        feature: true });
+        feature: true,
+      });
     outcomes.push({
       component: component.id,
       chart: null,
       sourceFaces: component.faces,
       reason: "inventory-only-feature-candidates-not-fitted",
       candidateCharts: prepared.charts.length,
-      unsupportedFeatureCharts: prepared.unsupported.length });
+      unsupportedFeatureCharts: prepared.unsupported.length,
+    });
     return;
   }
   for (const chart of prepared.charts)
@@ -124,9 +132,11 @@ export function RecoveryAtlasObservationFeatures(context: Parameters<IAutoMovieR
         residualReference:
           "current-private-PL-correspondences; not original-source closest distance",
         originalSourceContinuousDistanceBoundMm: null,
-        diagnostics: prepared.diagnostics },
+        diagnostics: prepared.diagnostics,
+      },
       externalBoundaryAuthorityQualified: false,
-      outcomes });
+      outcomes,
+    });
   if (prepared.unsupported.length || !prepared.charts.length) {
     incrementUnsupported();
     failedSelectedComponents.add(`${interval}:${component.id}`);

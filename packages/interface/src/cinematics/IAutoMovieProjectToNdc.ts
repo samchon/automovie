@@ -1,5 +1,3 @@
-
-
 /**
  * Perspective projection measurements shared by framing, grammar and keypoint readers.
  *
@@ -11,7 +9,7 @@
 export namespace IAutoMovieProjectToNdc {
   /**
    * Fresh, caller-owned projection of one world point into the delivered frame's normalized device coordinates.
-   * 
+   *
    * The camera looks down its local −Z, as glTF cameras do, so `depth = −localZ` is positive in front of the lens, and NDC is `local / (depth · halfY)` vertically and `local / (depth · halfY · aspect)` horizontally. With a crop, NDC is rescaled so the crop window spans `[−1, 1]` on both axes; without one, the whole gate does. Behind the lens (`depth <= 0`) the NDC is meaningless and at `depth = 0` it is infinite or `NaN`: this never clamps, and the caller reads `depth`, the near and far bounds and the `[−1, 1]` rectangle to decide. A malformed crop throws the `RangeError` of {@link deliveryCropNdc}.
    *
    * @evidence contracts/development/design.md#principled-representation NDC components are dimensionless and depth is signed camera-forward metres. A finite world point alone cannot guarantee finite projection; camera rotation, positive lens/aspect and nonzero depth remain producer premises.

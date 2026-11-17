@@ -1,4 +1,11 @@
-import type { IAutoMovieContourLoft64, IAutoMovieAdmitContourEvents64, IAutoMoviePreparedContourEvent64, IAutoMoviePrepareContourDocument64Document, IAutoMoviePrepareContourDocument64Observation, IAutoMoviePrepareContourDocument64Slice } from "@automovie/interface";
+import type {
+  IAutoMovieAdmitContourEvents64,
+  IAutoMovieContourLoft64,
+  IAutoMoviePrepareContourDocument64Document,
+  IAutoMoviePrepareContourDocument64Observation,
+  IAutoMoviePrepareContourDocument64Slice,
+  IAutoMoviePreparedContourEvent64,
+} from "@automovie/interface";
 
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 import { admitAutoMovieContourEvents64 } from "./admitAutoMovieContourEvents64";
@@ -43,17 +50,25 @@ export function prepareAutoMovieContourDocument64(
           ),
       )
       .map(
-        (section: IAutoMovieContourLoft64.ISection): IAutoMoviePrepareContourDocument64Slice => ({
+        (
+          section: IAutoMovieContourLoft64.ISection,
+        ): IAutoMoviePrepareContourDocument64Slice => ({
           y: section.coordinateMm,
           loops: section.loops.map(
             (
               loop: IAutoMovieContourLoft64.ISection["loops"][number],
-            ): IAutoMoviePrepareContourDocument64Observation => ({ curve: loop.curve, winding: loop.winding }),
+            ): IAutoMoviePrepareContourDocument64Observation => ({
+              curve: loop.curve,
+              winding: loop.winding,
+            }),
           ),
         }),
       ),
     events: events.map(
-      (event: IAutoMovieContourLoft64.IEvent, i: number): IAutoMoviePreparedContourEvent64 => ({
+      (
+        event: IAutoMovieContourLoft64.IEvent,
+        i: number,
+      ): IAutoMoviePreparedContourEvent64 => ({
         y: event.coordinateMm,
         y0: event.beforeMm,
         y1: event.afterMm,

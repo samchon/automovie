@@ -1,6 +1,21 @@
-import type { AutoMovieHumanoidBone, AutoMovieMotionHumanActionKey, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGive, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanLean, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGive,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanLean,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";

@@ -1,6 +1,10 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
-
 import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanQuadraticProgram,
+} from "@automovie/interface";
 
 /**
  * The variables a whole-body fit (`HumanBodyFit`) moves a posture by, as the
@@ -92,12 +96,14 @@ export namespace HumanFitVariables {
     variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
     posture: IAutoMovieMotionHumanPosture,
   ): Float64Array {
-    return Float64Array.from(variables, (v: IAutoMovieMotionHumanJacobian.IVariable): number =>
-      v.kind === "place"
-        ? posture.root[v.axis]
-        : v.kind === "heading"
-          ? posture[v.axis]
-          : (posture.joints[v.bone]?.[v.axis] ?? 0),
+    return Float64Array.from(
+      variables,
+      (v: IAutoMovieMotionHumanJacobian.IVariable): number =>
+        v.kind === "place"
+          ? posture.root[v.axis]
+          : v.kind === "heading"
+            ? posture[v.axis]
+            : (posture.joints[v.bone]?.[v.axis] ?? 0),
     );
   }
 
@@ -120,19 +126,23 @@ export namespace HumanFitVariables {
       pitch: posture.pitch,
       roll: posture.roll,
     };
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
-    variables.forEach((v: IAutoMovieMotionHumanJacobian.IVariable, i: number): void => {
-      if (v.kind === "place") root[v.axis] = x[i]!;
-      else if (v.kind === "heading") heading[v.axis] = x[i]!;
-      else {
-        const was: readonly [number, number, number] = joints[v.bone] ?? [
-          0, 0, 0,
-        ];
-        const set: [number, number, number] = [was[0], was[1], was[2]];
-        set[v.axis] = x[i]!;
-        joints[v.bone] = set;
-      }
-    });
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...posture.joints,
+    };
+    variables.forEach(
+      (v: IAutoMovieMotionHumanJacobian.IVariable, i: number): void => {
+        if (v.kind === "place") root[v.axis] = x[i]!;
+        else if (v.kind === "heading") heading[v.axis] = x[i]!;
+        else {
+          const was: readonly [number, number, number] = joints[v.bone] ?? [
+            0, 0, 0,
+          ];
+          const set: [number, number, number] = [was[0], was[1], was[2]];
+          set[v.axis] = x[i]!;
+          joints[v.bone] = set;
+        }
+      },
+    );
     return { ...posture, root, ...heading, joints, limbs: {} };
   }
 
@@ -183,7 +193,10 @@ export namespace HumanFitVariables {
     radius: number,
   ): IAutoMovieMotionHumanQuadraticProgram.IRow[] {
     return variables.map(
-      (v: IAutoMovieMotionHumanJacobian.IVariable, i: number): IAutoMovieMotionHumanQuadraticProgram.IRow => {
+      (
+        v: IAutoMovieMotionHumanJacobian.IVariable,
+        i: number,
+      ): IAutoMovieMotionHumanQuadraticProgram.IRow => {
         const span: readonly [number, number] | null = range(v);
         const step: number = reach(v) * radius;
         const lo: number = span === null ? 0 : Math.max(-step, span[0] - x[i]!);
@@ -235,7 +248,9 @@ export namespace HumanFitVariables {
    * @param v The variable.
    * @returns The resolution, in the variable's own unit.
    */
-  export function resolution(v: IAutoMovieMotionHumanJacobian.IVariable): number {
+  export function resolution(
+    v: IAutoMovieMotionHumanJacobian.IVariable,
+  ): number {
     return v.kind === "place" ? RESOLUTION[0] : RESOLUTION[1];
   }
 
@@ -264,7 +279,9 @@ export namespace HumanFitVariables {
   }
 
   /** A variable's range: unbounded for the root, the table's for a joint, null for an axis the table locks. */
-  function range(v: IAutoMovieMotionHumanJacobian.IVariable): readonly [number, number] | null {
+  function range(
+    v: IAutoMovieMotionHumanJacobian.IVariable,
+  ): readonly [number, number] | null {
     if (v.kind !== "angle") return [-Infinity, Infinity];
     const joint: (typeof DEFAULT_HUMANOID_ROM)[AutoMovieHumanoidBone] =
       DEFAULT_HUMANOID_ROM[v.bone];

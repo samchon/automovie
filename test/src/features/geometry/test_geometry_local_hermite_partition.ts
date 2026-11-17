@@ -1,17 +1,35 @@
-import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieLocalHermiteField64, IAutoMovieLocalHermiteStream64 } from "@automovie/interface";
-import { AutoMovieLocalHermiteField64, tessellateAutoMovieLocalHermite64 as Stream, tessellateAutoMovieCurveGrid64 } from "@automovie/engine";
+import {
+  AutoMovieLocalHermiteField64,
+  tessellateAutoMovieLocalHermite64 as Stream,
+  tessellateAutoMovieCurveGrid64,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieLocalHermiteField64,
+  IAutoMovieLocalHermiteStream64,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
 
 /** Exact real-arithmetic half restrictions, formed independently of the field and tessellator. */
-const halve: (span: IAutoMovieCurve64.Span) => [IAutoMovieCurve64.Span, IAutoMovieCurve64.Span] = (
+const halve: (
+  span: IAutoMovieCurve64.Span,
+) => [IAutoMovieCurve64.Span, IAutoMovieCurve64.Span] = (
   span: IAutoMovieCurve64.Span,
 ): [IAutoMovieCurve64.Span, IAutoMovieCurve64.Span] => {
-  const mean: (a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>) => Readonly<AutoMovieVector3Tuple> = (
+  const mean: (
     a: Readonly<AutoMovieVector3Tuple>,
     b: Readonly<AutoMovieVector3Tuple>,
-  ): Readonly<AutoMovieVector3Tuple> => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2];
+  ) => Readonly<AutoMovieVector3Tuple> = (
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+  ): Readonly<AutoMovieVector3Tuple> => [
+    (a[0] + b[0]) / 2,
+    (a[1] + b[1]) / 2,
+    (a[2] + b[2]) / 2,
+  ];
   const a: Readonly<AutoMovieVector3Tuple> = mean(span[0], span[1]),
     b: Readonly<AutoMovieVector3Tuple> = mean(span[1], span[2]),
     c: Readonly<AutoMovieVector3Tuple> = mean(span[2], span[3]);
@@ -176,7 +194,9 @@ const translatedStrip: (
  */
 export function test_geometry_local_hermite_partition(): void {
   const count: number = 10000;
-  const course: (station: number) => IAutoMovieCurve64.Cubic = (station: number): IAutoMovieCurve64.Cubic => ({
+  const course: (station: number) => IAutoMovieCurve64.Cubic = (
+    station: number,
+  ): IAutoMovieCurve64.Cubic => ({
     type: "cubicBezier",
     name: `affine-${station}`,
     closed: false,
@@ -239,7 +259,10 @@ export function test_geometry_local_hermite_partition(): void {
     nclose(grid.boundaries.stationLast.positions.at(-1)![0], 0.001, 1e-12) &&
       nclose(grid.boundaries.stationLast.positions.at(-1)![1], 0.003, 1e-12),
   );
-  const refuses: (stations: number[], input: IAutoMovieCurve64.Cubic[]) => boolean = (
+  const refuses: (
+    stations: number[],
+    input: IAutoMovieCurve64.Cubic[],
+  ) => boolean = (
     stations: number[],
     input: IAutoMovieCurve64.Cubic[],
   ): boolean => {

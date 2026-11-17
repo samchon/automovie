@@ -1,6 +1,5 @@
 import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 
-
 import { throwsError } from "../predicates";
 import { inspectGlb } from "./inspectGlb";
 

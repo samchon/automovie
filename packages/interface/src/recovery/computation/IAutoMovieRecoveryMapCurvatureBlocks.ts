@@ -6,11 +6,9 @@
  * @evidence contracts/development/common.md#meaningful-documentation Camera coordinates precede three per landmark physically; factor elimination orders points first. Point rows concatenate the three point columns and the camera cross tail.
  */
 export interface IAutoMovieRecoveryMapCurvatureBlocks {
- 
- /** Upper camera Hessian, overwritten by its Schur upper factor. */
+  /** Upper camera Hessian, overwritten by its Schur upper factor. */
   camera: number[][];
 
- 
- /** Per-point three rows: upper3x3 followed by the3xC point-camera cross block. */
+  /** Per-point three rows: upper3x3 followed by the3xC point-camera cross block. */
   points: number[][][];
 }

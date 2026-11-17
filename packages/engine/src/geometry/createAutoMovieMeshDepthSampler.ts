@@ -1,5 +1,7 @@
-import type { IAutoMovieCreateMeshDepthSampler, IAutoMovieMesh } from "@automovie/interface";
-
+import type {
+  IAutoMovieCreateMeshDepthSampler,
+  IAutoMovieMesh,
+} from "@automovie/interface";
 
 import { triangleIndicesOf } from "./triangleIndicesOf";
 

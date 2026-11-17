@@ -10,8 +10,8 @@ import type { IAutoMovieRasterImage } from "../picture/IAutoMovieRasterImage.js"
  * @evidence contracts/development/common.md#meaningful-documentation One decoded pass of a sampled subject frame. The prose and members document how AutoMovieDrawSession.frame interprets and admits these values.
  */
 export interface IAutoMovieDrawnPass {
-      /** Inspection shade or guide pass requested for this picture. */
-pass: IAutoMovieInspectionRequest.Shade;
-      /** Owned decoded raster of this pass at the sampled second. */
-picture: IAutoMovieRasterImage;
-    }
+  /** Inspection shade or guide pass requested for this picture. */
+  pass: IAutoMovieInspectionRequest.Shade;
+  /** Owned decoded raster of this pass at the sampled second. */
+  picture: IAutoMovieRasterImage;
+}

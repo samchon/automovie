@@ -3,9 +3,6 @@ import type { IAutoMovieLoftSectionPhase } from "../../../construction/IAutoMovi
 import type { IAutoMovieLoftViewSource } from "../../../construction/IAutoMovieLoftViewSource";
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 
-
-
-
 /** Type contracts exchanged by AutoMovieHumanFootSource; runtime evaluation remains in Human. */
 export namespace IAutoMovieHumanFootSource {
   /** Call-owned scalar/fullness preparation; the original axis remains authoritative.

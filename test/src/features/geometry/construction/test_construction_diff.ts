@@ -1,6 +1,11 @@
-import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieSolidIntersection, IAutoMovieConstructionView, IAutoMovieVector3 } from "@automovie/interface";
 import { realizeAutoMovieConstruction } from "@automovie/engine";
-
+import type {
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionRealization,
+  IAutoMovieConstructionView,
+  IAutoMovieSolidIntersection,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
@@ -91,10 +96,10 @@ export function test_construction_diff(): void {
       ],
     );
     // Each realized sphere stands off its closed form by its own approximation: the pole spline over its stations and the section spline over its 16 points.
-    const shape: (view: IAutoMovieConstructionNode, radius: number) => number = (
+    const shape: (
       view: IAutoMovieConstructionNode,
       radius: number,
-    ): number =>
+    ) => number = (view: IAutoMovieConstructionNode, radius: number): number =>
       ConstructionChecks.poleSpline(
         radius,
         radius,

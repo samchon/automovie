@@ -12,8 +12,6 @@ import type { IAutoMovieHumanHandWindow } from "@automovie/interface";
  * the hand uses it, each with its own centre, half extent and amplitude.
  */
 export namespace AutoMovieHumanHandWindow {
-  
-
   /**
    * The bump `(1 - x^2)^3` of a coordinate scaled so its edge is at 1; zero
    * outside.
@@ -23,7 +21,11 @@ export namespace AutoMovieHumanHandWindow {
   export function bump(x: number): IAutoMovieHumanHandWindow.IJet {
     if (Math.abs(x) >= 1) return { value: 0, slope: 0, curvature: 0 };
     const q: number = 1 - x * x;
-    return { value: q ** 3, slope: -6 * x * q * q, curvature: q * (30 * x * x - 6) };
+    return {
+      value: q ** 3,
+      slope: -6 * x * q * q,
+      curvature: q * (30 * x * x - 6),
+    };
   }
 
   /**
@@ -39,10 +41,6 @@ export namespace AutoMovieHumanHandWindow {
     return q <= 0 ? 0 : q ** 3;
   }
 
-  
-
-  
-
   /**
    * The fingertip pulp: the fat pad of the palmar side of the distal phalanx,
    * from the distal interphalangeal crease to the apex, in the pad's own axis
@@ -56,7 +54,11 @@ export namespace AutoMovieHumanHandWindow {
    * the extra a knot cannot, localised at the pad. The toes' pads take the same
    * mass (`AutoMovieHumanFootToeSpan`, `AutoMovieHumanFootToeLines`).
    */
-  export const PULP: IAutoMovieHumanHandWindow.IMass = { height: 0.12, length: 0.45, width: 0.85 };
+  export const PULP: IAutoMovieHumanHandWindow.IMass = {
+    height: 0.12,
+    length: 0.45,
+    width: 0.85,
+  };
 
   /**
    * The hypothenar eminence: the long narrow mass along the fifth metacarpal on
@@ -66,7 +68,11 @@ export namespace AutoMovieHumanHandWindow {
    * is lower than the thenar's mass, and meets the palmar sector at the
    * proximal palmar crease, a declared G1 seam.
    */
-  export const HYPOTHENAR: IAutoMovieHumanHandWindow.IMass = { height: 0.18, length: 0.7, width: 0.2 };
+  export const HYPOTHENAR: IAutoMovieHumanHandWindow.IMass = {
+    height: 0.18,
+    length: 0.7,
+    width: 0.2,
+  };
 
   /**
    * A mass's height over the skin under it, mm.
@@ -77,7 +83,16 @@ export namespace AutoMovieHumanHandWindow {
    * @param t Across it, mm.
    * @returns The height, mm.
    */
-  export function mass(mass: IAutoMovieHumanHandWindow.IMass, size: IAutoMovieHumanHandWindow.IMassSize, s: number, t: number): number {
-    return mass.height * size.depth * ellipse(s / (mass.length * size.length), t / (mass.width * size.width));
+  export function mass(
+    mass: IAutoMovieHumanHandWindow.IMass,
+    size: IAutoMovieHumanHandWindow.IMassSize,
+    s: number,
+    t: number,
+  ): number {
+    return (
+      mass.height *
+      size.depth *
+      ellipse(s / (mass.length * size.length), t / (mass.width * size.width))
+    );
   }
 }

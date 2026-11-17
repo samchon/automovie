@@ -36,7 +36,11 @@ export function test_engine_prototype_empty_table(): void {
       if (
         !throwsError(
           (): unknown =>
-            selectInstancePrototype({ ...base, prototypes: [] }, slot, explicit),
+            selectInstancePrototype(
+              { ...base, prototypes: [] },
+              slot,
+              explicit,
+            ),
           "admission-set",
         )
       )
@@ -44,7 +48,11 @@ export function test_engine_prototype_empty_table(): void {
 
     for (const explicit of [undefined, "default"]) {
       try {
-        const selected: typeof entry = selectInstancePrototype(base, slot, explicit);
+        const selected: typeof entry = selectInstancePrototype(
+          base,
+          slot,
+          explicit,
+        );
         if (
           selected.id !== "default" ||
           selected.model !== "base-model" ||

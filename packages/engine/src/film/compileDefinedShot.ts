@@ -1,5 +1,24 @@
-import { type IAutoMovieAuthoringDiagnostic, type IAutoMovieBlockedBeat, type IAutoMovieCompiledDefinedShot, type IAutoMoviePerformedShot, type IAutoMovieStagedSet, type IAutoMovieCompileDefinedShot, type IAutoMovieRealizeShotContract, type IAutoMovieResolveBeatProps, IAutoMovieBeatEndActorState, IAutoMovieBeatEndState, IAutoMovieConstraintViolation, IAutoMovieDefinedShot, IAutoMovieDiagnostic, IAutoMovieMotion, IAutoMovieSceneNode, IAutoMovieShotProgram, IAutoMovieShotSourceOutput, IAutoMovieStage, IAutoMovieStageActor } from "@automovie/interface";
-
+import {
+  type IAutoMovieAuthoringDiagnostic,
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndState,
+  type IAutoMovieBlockedBeat,
+  type IAutoMovieCompileDefinedShot,
+  type IAutoMovieCompiledDefinedShot,
+  IAutoMovieConstraintViolation,
+  IAutoMovieDefinedShot,
+  IAutoMovieDiagnostic,
+  IAutoMovieMotion,
+  type IAutoMoviePerformedShot,
+  type IAutoMovieRealizeShotContract,
+  type IAutoMovieResolveBeatProps,
+  IAutoMovieSceneNode,
+  IAutoMovieShotProgram,
+  IAutoMovieShotSourceOutput,
+  IAutoMovieStage,
+  IAutoMovieStageActor,
+  type IAutoMovieStagedSet,
+} from "@automovie/interface";
 
 import { blockBeat } from "./blockBeat";
 import { performShot } from "./performShot";
@@ -28,7 +47,9 @@ type IPriorActors = ReadonlyMap<string, IAutoMovieBeatEndActorState>;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Within one call each phase's accepted artifact is handed forward rather than recomputed, the prior-actor map is built once for all three resume merges, and one continuity input feeds both the opening and the closing snapshot; across calls nothing is reused, because the builder is author code whose result the engine cannot prove equal for the same context.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds intermediate phase artifacts for the call; success returns scene, motions, shot, continuity and realization plus deep-cloned event samples and advice. Scene fields and accepted motion objects can retain caller-owned references; the result does not retain the runtime capability container.
  */
-export function compileDefinedShot<Context>(props: IAutoMovieCompileDefinedShot.IProps<Context>): IAutoMovieCompiledDefinedShot {
+export function compileDefinedShot<Context>(
+  props: IAutoMovieCompileDefinedShot.IProps<Context>,
+): IAutoMovieCompiledDefinedShot {
   let registration: IAutoMovieAuthoringDiagnostic[];
   try {
     registration = validateRegistration(props.shot);
@@ -187,8 +208,8 @@ export function compileDefinedShot<Context>(props: IAutoMovieCompileDefinedShot.
       shot: performed.shot,
     };
     phase = "contract";
-    const measured: IAutoMovieRealizeShotContract.IResult =
-      realizeShotContract({
+    const measured: IAutoMovieRealizeShotContract.IResult = realizeShotContract(
+      {
         contract: {
           ...props.shot.contract,
           id: props.shot.id,
@@ -211,7 +232,8 @@ export function compileDefinedShot<Context>(props: IAutoMovieCompileDefinedShot.
         },
         skeleton: props.runtime.skeleton,
         collisions: props.runtime.collisions ?? [],
-      });
+      },
+    );
     if (measured.diagnostics.length !== 0)
       return {
         success: false,
@@ -246,8 +268,9 @@ export function compileDefinedShot<Context>(props: IAutoMovieCompileDefinedShot.
       mounts: staged.mounts,
       plants: [
         ...(props.runtime.plants ?? []).filter(
-          (entry: NonNullable<IAutoMovieResolveBeatProps["plants"]>[number]): boolean =>
-            replantedNodes.has(entry.node) === false,
+          (
+            entry: NonNullable<IAutoMovieResolveBeatProps["plants"]>[number],
+          ): boolean => replantedNodes.has(entry.node) === false,
         ),
         ...performed.plants,
       ],

@@ -1,5 +1,8 @@
-import type { IAutoMovieConicHermite, IAutoMoviePolarSector, IAutoMovieViewSection } from "@automovie/interface";
-
+import type {
+  IAutoMovieConicHermite,
+  IAutoMoviePolarSector,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 /**
  * Independent implicit conics and Taylor arithmetic for source-section tests.
@@ -419,7 +422,10 @@ export namespace ConstructionConicOracle {
         _: unknown,
         g: number,
       ): [IAutoMoviePolarSector.Jet, IAutoMoviePolarSector.Jet] => {
-        const one: (q: number, reverse: boolean) => IAutoMoviePolarSector.Jet = (
+        const one: (
+          q: number,
+          reverse: boolean,
+        ) => IAutoMoviePolarSector.Jet = (
           q: number,
           reverse: boolean,
         ): IAutoMoviePolarSector.Jet => {

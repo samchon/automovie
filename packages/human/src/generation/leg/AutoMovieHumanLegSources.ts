@@ -1,40 +1,32 @@
-import type { IAutoMovieLoftContract, IAutoMovieHumanBodyLane, IAutoMovieHumanBodyMeasures, IAutoMovieHumanFootInterim, IAutoMovieHumanFootSource, IAutoMovieHumanFootToeSources, IAutoMovieHumanLegSourceFamily, IAutoMovieHumanLegSources, IAutoMovieHumanLegWalk, IAutoMovieHumanLimbRest, IAutoMovieHumanSiteControls, IAutoMovieHumanSiteViewPart } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+import type {
+  IAutoMovieHumanBodyLane,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanFootInterim,
+  IAutoMovieHumanFootSource,
+  IAutoMovieHumanFootToeSources,
+  IAutoMovieHumanLegSourceFamily,
+  IAutoMovieHumanLegSources,
+  IAutoMovieHumanLegWalk,
+  IAutoMovieHumanLimbRest,
+  IAutoMovieHumanSiteControls,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieLoftContract,
+} from "@automovie/interface";
 
 import { AutoMovieHumanLegSites } from "../AutoMovieHumanLegSites";
-
 import { AutoMovieHumanTrunkRows } from "../AutoMovieHumanTrunkRows";
-
 import { AutoMovieHumanFootInterim } from "../foot/AutoMovieHumanFootInterim";
-
 import { AutoMovieHumanToePart } from "../foot/AutoMovieHumanToePart";
-
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanLegLaws } from "./AutoMovieHumanLegLaws";
 import { AutoMovieHumanLegSourceFamily } from "./AutoMovieHumanLegSourceFamily";
 
-
 /** Local leg, foot and toe original factories, before trunk or whole-skeleton assembly. */
 export namespace AutoMovieHumanLegSources {
-  
-
-  
-
   /** Prepare this side without an arm, head, trunk source or complete skeleton. */
-  export function create(input: IAutoMovieHumanLegSources.IInput): IAutoMovieHumanLegSources.IOutput {
+  export function create(
+    input: IAutoMovieHumanLegSources.IInput,
+  ): IAutoMovieHumanLegSources.IOutput {
     const side: IAutoMovieHumanLegSources.IInput["side"] = input.side;
     const measures: IAutoMovieHumanBodyMeasures = input.measures;
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = input.diagnostics;

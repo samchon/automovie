@@ -1,5 +1,11 @@
-import { type IAutoMovieValidateMaterialAssembly, type IAutoMovieViolationCollector, IAutoMovieMaterialAssembly, IAutoMovieMaterialLayer, IAutoMovieMaterialSubstance, IAutoMovieValidation } from "@automovie/interface";
-
+import {
+  IAutoMovieMaterialAssembly,
+  IAutoMovieMaterialLayer,
+  IAutoMovieMaterialSubstance,
+  type IAutoMovieValidateMaterialAssembly,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 
@@ -60,7 +66,11 @@ const THICKNESS_EPSILON: number = 1e-9;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A check of one build-up per call; the resolver calls it once before placing, and no work is shared across calls.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The substance and layer id sets are local and released on return, bounded by their counts; the returned validation holds the findings.
  */
-export const validateAutoMovieMaterialAssembly: (props: IAutoMovieValidateMaterialAssembly.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateMaterialAssembly.IProps): IAutoMovieValidation => {
+export const validateAutoMovieMaterialAssembly: (
+  props: IAutoMovieValidateMaterialAssembly.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateMaterialAssembly.IProps,
+): IAutoMovieValidation => {
   const assembly: IAutoMovieMaterialAssembly = props.assembly;
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";

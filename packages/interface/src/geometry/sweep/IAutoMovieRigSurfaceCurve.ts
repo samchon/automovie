@@ -6,7 +6,7 @@ import type { IAutoMovieSurfacePoint } from "./IAutoMovieSurfacePoint";
 export namespace IAutoMovieRigSurfaceCurve {
   /**
    * Compile a network curve for per-pose evaluation.
-   * 
+   *
    * The curve is the centripetal Catmull-Rom spline through its start node,
    * its through points and its end node, by chord-length share. At a node on a
    * sweep its end direction is the spline's own less its part along the

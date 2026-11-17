@@ -9,7 +9,7 @@ export namespace IAutoMovieValidateMotion {
   export type IProps = {
     /** Borrowed clip with second-valued timestamps and degree-valued joints. */
     motion: IAutoMovieMotion;
-  
+
     /** Current target rig supplying joint membership and effective ROM overrides. */
     skeleton: IAutoMovieSkeleton;
   };

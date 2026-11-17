@@ -1,4 +1,7 @@
-import type { IAutoMovieSeededChainFit, IAutoMovieFitChainToTargetProps } from "@automovie/interface";
+import type {
+  IAutoMovieFitChainToTargetProps,
+  IAutoMovieSeededChainFit,
+} from "@automovie/interface";
 
 import { fitChainBend } from "./fitChainBend";
 import { orientChainEffector } from "./orientChainEffector";

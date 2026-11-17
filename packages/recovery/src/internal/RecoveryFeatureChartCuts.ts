@@ -1,6 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryFeatureChartCuts, IAutoMovieRecoveryFeatureChartCutsSubdivide } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryFeatureChartCuts,
+  IAutoMovieRecoveryFeatureChartCutsSubdivide,
+} from "@automovie/interface";
 
 import { RecoveryFeatureChartCutsFans } from "./RecoveryFeatureChartCutsFans";
 import { RecoveryFeatureChartCutsSeams } from "./RecoveryFeatureChartCutsSeams";
@@ -34,7 +36,9 @@ import { RecoveryFeatureChartCutsTopology } from "./RecoveryFeatureChartCutsTopo
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One admitted incidence registry serves initial bank-collision detection. It is rebuilt only after required conforming subdivisions, then reused for fan labels, actual component boundaries and feature-bank provenance. Each maximal chain has one canonical physical order for both banks.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All registries and arithmetic buffers expire on return or failure. At most three vertex occurrences per resulting triangle transfer to private chart owners; no global cache, task, handle or source geometry enters a reconstruction consumer.
  */
-export function RecoveryFeatureChartCuts(input: Parameters<IAutoMovieRecoveryFeatureChartCuts.Operation>[0]): ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation> {
+export function RecoveryFeatureChartCuts(
+  input: Parameters<IAutoMovieRecoveryFeatureChartCuts.Operation>[0],
+): ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation> {
   type Row = { a: number; b: number; face: number };
   type Topology = {
     edges: Map<string, Row[]>;
@@ -69,7 +73,8 @@ export function RecoveryFeatureChartCuts(input: Parameters<IAutoMovieRecoveryFea
       (word: string): boolean => typeof word !== "string" || !word.length,
     ) ||
     input.verticesMm.some(
-      (p: Readonly<AutoMovieVector3Tuple>): boolean => p.length !== 3 || !p.every(Number.isFinite),
+      (p: Readonly<AutoMovieVector3Tuple>): boolean =>
+        p.length !== 3 || !p.every(Number.isFinite),
     ) ||
     input.triangleSourceFaces.length !== input.triangles.length ||
     input.triangleSourceFaces.some(
@@ -79,10 +84,14 @@ export function RecoveryFeatureChartCuts(input: Parameters<IAutoMovieRecoveryFea
     fail(
       "aligned finite observations, unique occurrence keys and original face owners are required",
     );
-  const physicalPositions: Map<string, Readonly<AutoMovieVector3Tuple>> = new Map();
+  const physicalPositions: Map<
+    string,
+    Readonly<AutoMovieVector3Tuple>
+  > = new Map();
   for (let i: number = 0; i < count; i++) {
     const key: string = input.physicalKeys[i]!,
-      previous: Readonly<AutoMovieVector3Tuple> | undefined = physicalPositions.get(key);
+      previous: Readonly<AutoMovieVector3Tuple> | undefined =
+        physicalPositions.get(key);
     if (
       previous &&
       previous.some(
@@ -182,7 +191,8 @@ export function RecoveryFeatureChartCuts(input: Parameters<IAutoMovieRecoveryFea
     owners,
     parents,
     expanded,
-    subdivided }: ReturnType<IAutoMovieRecoveryFeatureChartCutsSubdivide.Operation> =
+    subdivided,
+  }: ReturnType<IAutoMovieRecoveryFeatureChartCutsSubdivide.Operation> =
     RecoveryFeatureChartCutsSubdivide(
       input,
       source,
@@ -288,12 +298,14 @@ export function RecoveryFeatureChartCuts(input: Parameters<IAutoMovieRecoveryFea
           (best: string, face: number): string =>
             lex(words[face]!, best) < 0 ? words[face]! : best,
           words[faces[0]!]!,
-        ) }))
+        ),
+      }))
       .sort((a: { word: string }, b: { word: string }): number =>
         lex(a.word, b.word),
       )
       .map((component: { faces: number[] }): number[] => component.faces);
-  const charts: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation>["charts"] = [],
+  const charts: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation>["charts"] =
+      [],
     localOf: Map<number, number> = new Map(),
     chartOf: Map<number, number> = new Map();
   const componentCycles: Map<number, number[][]> = new Map();
@@ -352,7 +364,9 @@ export function RecoveryFeatureChartCuts(input: Parameters<IAutoMovieRecoveryFea
     );
     charts.push({
       id: `feature-chart.${chart}`,
-      verticesMm: ids.map((id: number): Readonly<AutoMovieVector3Tuple> => [...cutVertices[id]!]),
+      verticesMm: ids.map(
+        (id: number): Readonly<AutoMovieVector3Tuple> => [...cutVertices[id]!],
+      ),
       triangles: faces.map(
         (face: number): [number, number, number] =>
           cutTriangles[face]!.map((id: number): number => local.get(id)!) as [
@@ -364,7 +378,8 @@ export function RecoveryFeatureChartCuts(input: Parameters<IAutoMovieRecoveryFea
       physicalKeys: ids.map((id: number): string => cutPhysical[id]!),
       occurrenceKeys: ids.map((id: number): string => cutOccurrences[id]!),
       triangleSourceFaces: faces.map((face: number): number => owners[face]!),
-      cycles });
+      cycles,
+    });
   }
   return RecoveryFeatureChartCutsSeams(
     {
@@ -380,7 +395,8 @@ export function RecoveryFeatureChartCuts(input: Parameters<IAutoMovieRecoveryFea
       triangles,
       insertions,
       diagnostics,
-      observationDisplacementUpperMm },
+      observationDisplacementUpperMm,
+    },
     fail,
     edge,
     lex,

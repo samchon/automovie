@@ -1,5 +1,3 @@
-
-
 /**
  * One fixed Hermite interval's exact stored endpoint data.
  *

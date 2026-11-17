@@ -1,5 +1,3 @@
-
-
 /**
  * The quad one-ring of one vertex: the vertex, its edge neighbours, its
  * diagonal neighbours and the sharpness of its edges.

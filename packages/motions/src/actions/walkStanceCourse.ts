@@ -1,6 +1,6 @@
+import { ROM_TOLERANCE } from "@automovie/engine";
 import type { IAutoMovieMotionHumanWalkStanceCourse } from "@automovie/interface";
 
-import { ROM_TOLERANCE } from "@automovie/engine";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -106,8 +106,12 @@ export namespace walkStanceCourse {
    * @param seconds Seconds since the take's start.
    * @returns The course's values there.
    */
-  export function at(course: IAutoMovieMotionHumanWalkStanceCourse.ICourse, seconds: number): IAutoMovieMotionHumanWalkStanceCourse.IReading {
-    const knots: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[] = course.knots;
+  export function at(
+    course: IAutoMovieMotionHumanWalkStanceCourse.ICourse,
+    seconds: number,
+  ): IAutoMovieMotionHumanWalkStanceCourse.IReading {
+    const knots: readonly IAutoMovieMotionHumanWalkStanceCourse.IKnot[] =
+      course.knots;
     if (knots.length === 1)
       return {
         drop: course.drop[0]!,

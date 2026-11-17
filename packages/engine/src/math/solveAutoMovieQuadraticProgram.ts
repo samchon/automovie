@@ -1,4 +1,8 @@
-import type { IAutoMovieQuadraticRow, IAutoMovieSolveQuadraticKernel, IAutoMovieSolveQuadraticProgram } from "@automovie/interface";
+import type {
+  IAutoMovieQuadraticRow,
+  IAutoMovieSolveQuadraticKernel,
+  IAutoMovieSolveQuadraticProgram,
+} from "@automovie/interface";
 
 import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
 import { assembleAutoMovieQuadraticProgram } from "./assembleAutoMovieQuadraticProgram";
@@ -25,7 +29,9 @@ import { solveAutoMovieQuadraticKernel } from "./solveAutoMovieQuadraticKernel";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Solves the current mutable input once and reconstructs its original residuals once; no cached status or gradient is shared across problems.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Assembled arrays and gradient are local and become unreachable on return; the result owns copied primal and dual arrays, and the engine kernel retains no reactor, factor or workspace across calls.
  */
-export function solveAutoMovieQuadraticProgram(input: IAutoMovieSolveQuadraticProgram.IInput): IAutoMovieSolveQuadraticProgram.IResult {
+export function solveAutoMovieQuadraticProgram(
+  input: IAutoMovieSolveQuadraticProgram.IInput,
+): IAutoMovieSolveQuadraticProgram.IResult {
   const result: IAutoMovieSolveQuadraticKernel.IResult =
     solveAutoMovieQuadraticKernel(assembleAutoMovieQuadraticProgram(input));
   let maximumViolation: number = 0;

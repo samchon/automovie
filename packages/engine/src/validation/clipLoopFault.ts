@@ -1,4 +1,5 @@
 import type { IAutoMovieClipShapeFault } from "@automovie/interface";
+
 /**
  * Return a loop-shape fault unless the authored flag is boolean.
  *

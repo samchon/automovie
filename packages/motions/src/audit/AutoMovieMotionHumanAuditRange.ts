@@ -1,4 +1,8 @@
-import { IAutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
+import {
+  ANKLE_DORSIFLEXION,
+  DEFAULT_HUMANOID_ROM,
+  scanJointRom,
+} from "@automovie/engine";
 import type {
   IAutoMovieJointConstraint,
   IAutoMovieMotionHumanAuditMotion,
@@ -6,11 +10,7 @@ import type {
   IAutoMovieScanJointRom,
 } from "@automovie/interface";
 
-import {
-  ANKLE_DORSIFLEXION,
-  DEFAULT_HUMANOID_ROM,
-  scanJointRom,
-} from "@automovie/engine";
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
 /**
  * Whether every joint of a displayed motion stays inside its anatomical
@@ -49,7 +49,7 @@ export namespace AutoMovieMotionHumanAuditRange {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two nested loops and one callback.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A fault without a distance is a non-finite angle and reads as `Infinity`, never as zero.
    * @evidence contracts/development/implementation.md#efficient-algorithms One scan per joint per instant, no allocation beyond the grid.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid is `IAutoMovieMotionHumanAuditMotion.grid`, the scan the engine's.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid is `AutoMovieMotionHumanAuditMotion.grid`, the scan the engine's.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function measure(
@@ -103,7 +103,7 @@ export namespace AutoMovieMotionHumanAuditRange {
    * the passive, unloaded one (`ANKLE_DORSIFLEXION.unloaded`), read here
    * apart from the range table's one limit for the joint. A foot bears weight while a plant window on the ground holds
    * it, the windows the contact audit reads
-   * (`IAutoMovieMotionHumanAuditMotion.windows`), so a foot's load has one
+   * (`AutoMovieMotionHumanAuditMotion.windows`), so a foot's load has one
    * source. At each grid instant each foot outside such a window is read:
    * its dorsiflexion past the unloaded limit overshoots.
    *

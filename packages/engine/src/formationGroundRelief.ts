@@ -1,6 +1,10 @@
-import { type IAutoMovieGroundQueryPoint, type IAutoMovieFormationGrounding, type IAutoMovieFormationGroundRelief, IAutoMovieVector3, IAutoMovieWorldSurface } from "@automovie/interface";
-
-
+import {
+  type IAutoMovieFormationGroundRelief,
+  type IAutoMovieFormationGrounding,
+  type IAutoMovieGroundQueryPoint,
+  IAutoMovieVector3,
+  IAutoMovieWorldSurface,
+} from "@automovie/interface";
 
 import { worldGroundHeight } from "./worldGroundHeight";
 

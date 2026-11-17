@@ -1,4 +1,7 @@
-import type { IAutoMovieSweepSection, IAutoMovieSampleSweepSection } from "@automovie/interface";
+import type {
+  IAutoMovieSampleSweepSection,
+  IAutoMovieSweepSection,
+} from "@automovie/interface";
 
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { parameterizeAutoMovieSweepSection } from "./parameterizeAutoMovieSweepSection";
@@ -42,7 +45,9 @@ const BISECTIONS: number = 40;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per station when a sweep compiles; the compiled sweep keeps the radii.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the walk's arrays, O(64 S), are released on return and the radii array is transferred to the caller.
  */
-export const sampleAutoMovieSweepSection: (props: IAutoMovieSampleSweepSection.IProps) => number[] = (props: IAutoMovieSampleSweepSection.IProps): number[] => {
+export const sampleAutoMovieSweepSection: (
+  props: IAutoMovieSampleSweepSection.IProps,
+) => number[] = (props: IAutoMovieSampleSweepSection.IProps): number[] => {
   const { section, count }: typeof props = props;
   if (!Number.isSafeInteger(count) || count < 3)
     throw new Error("section sampling needs an integer count of at least 3");

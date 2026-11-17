@@ -1,6 +1,16 @@
-import type { AutoMovieHumanoidBone, IAutoMovieComposition, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, physicalShapeBounds } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieComposition,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanColliders } from "../../posture/HumanColliders";

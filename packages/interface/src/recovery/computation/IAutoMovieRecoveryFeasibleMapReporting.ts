@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryFeasibleMapWork, IAutoMovieRecoveryFeasibleReportCapacity } from "../../index";
+import type {
+  IAutoMovieRecoveryFeasibleMapWork,
+  IAutoMovieRecoveryFeasibleReportCapacity,
+} from "../../index";
 
 /** Admitted numerical work and the borrowed reporting scope for one map fit.
  *
@@ -8,7 +11,6 @@ import type { IAutoMovieRecoveryFeasibleMapWork, IAutoMovieRecoveryFeasibleRepor
  * @evidence contracts/development/common.md#meaningful-documentation Inherited values keep their original units; reporting is an internal borrowed scope, never returned geometry.
  */
 export interface IAutoMovieRecoveryFeasibleMapReporting extends IAutoMovieRecoveryFeasibleMapWork {
- 
- /** Shared admitted capacities; nested owners do not reserve them again. */
+  /** Shared admitted capacities; nested owners do not reserve them again. */
   reporting: IAutoMovieRecoveryFeasibleReportCapacity;
 }

@@ -1,5 +1,15 @@
-import { type IAutoMovieCameraClearanceEvaluation, type IAutoMovieCameraClearanceObstacleState, type IAutoMovieCameraClearanceSample, type IAutoMovieEvaluateCameraClearanceBox, IAutoMovieCameraClearanceFinding, IAutoMovieCameraClearanceReport, IAutoMovieCameraClearanceSphere, IAutoMovieQuaternion, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieCameraClearanceEvaluation,
+  IAutoMovieCameraClearanceFinding,
+  type IAutoMovieCameraClearanceObstacleState,
+  IAutoMovieCameraClearanceReport,
+  type IAutoMovieCameraClearanceSample,
+  IAutoMovieCameraClearanceSphere,
+  type IAutoMovieEvaluateCameraClearanceBox,
+  IAutoMovieQuaternion,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -7,7 +17,10 @@ import { sampleTimes } from "../motion/sampleTimes";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 
 /** Reject a non-finite coordinate or an inverted box. */
-function assertBox(box: IAutoMovieEvaluateCameraClearanceBox, path: string): void {
+function assertBox(
+  box: IAutoMovieEvaluateCameraClearanceBox,
+  path: string,
+): void {
   const coordinates: number[] = [
     box.min.x,
     box.min.y,
@@ -23,7 +36,10 @@ function assertBox(box: IAutoMovieEvaluateCameraClearanceBox, path: string): voi
 }
 
 /** The smallest box holding both endpoint boxes of one obstacle. */
-function unionBoxes(first: IAutoMovieEvaluateCameraClearanceBox, second: IAutoMovieEvaluateCameraClearanceBox): IAutoMovieEvaluateCameraClearanceBox {
+function unionBoxes(
+  first: IAutoMovieEvaluateCameraClearanceBox,
+  second: IAutoMovieEvaluateCameraClearanceBox,
+): IAutoMovieEvaluateCameraClearanceBox {
   return {
     min: {
       x: Math.min(first.min.x, second.min.x),
@@ -41,7 +57,10 @@ function unionBoxes(first: IAutoMovieEvaluateCameraClearanceBox, second: IAutoMo
 /**
  * Grow a box by a radius on every side, the box a sphere centre must enter to touch it; this over-covers the rounded corners, which keeps it conservative.
  */
-function inflateBox(box: IAutoMovieEvaluateCameraClearanceBox, radius: number): IAutoMovieEvaluateCameraClearanceBox {
+function inflateBox(
+  box: IAutoMovieEvaluateCameraClearanceBox,
+  radius: number,
+): IAutoMovieEvaluateCameraClearanceBox {
   return {
     min: {
       x: box.min.x - radius,
@@ -213,10 +232,13 @@ export function evaluateCameraClearance(
       "$input.samples must contain every endpoint-inclusive fixed-clock instant in strict time order; additional causal instants are allowed",
     );
 
-  const obstacleMaps: Map<string, IAutoMovieEvaluateCameraClearanceBox>[] = input.samples.map(obstaclesByNode);
+  const obstacleMaps: Map<string, IAutoMovieEvaluateCameraClearanceBox>[] =
+    input.samples.map(obstaclesByNode);
   for (let index: number = 1; index < obstacleMaps.length; index++) {
-    const previous: Map<string, IAutoMovieEvaluateCameraClearanceBox> = obstacleMaps[index - 1]!;
-    const current: Map<string, IAutoMovieEvaluateCameraClearanceBox> = obstacleMaps[index]!;
+    const previous: Map<string, IAutoMovieEvaluateCameraClearanceBox> =
+      obstacleMaps[index - 1]!;
+    const current: Map<string, IAutoMovieEvaluateCameraClearanceBox> =
+      obstacleMaps[index]!;
     if (
       previous.size !== current.size ||
       [...previous.keys()].some((node: string): boolean => !current.has(node))

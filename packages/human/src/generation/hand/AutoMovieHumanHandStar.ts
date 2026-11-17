@@ -1,15 +1,15 @@
-import type { IAutoMovieNaturalSpline, AutoMovieVector3Tuple, IAutoMovieHumanArmPrior, IAutoMovieHumanHandStar, IAutoMovieHumanHandStarField } from "@automovie/interface";
+import { AutoMovieNaturalSpline } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanArmPrior,
+  IAutoMovieHumanHandStar,
+  IAutoMovieHumanHandStarField,
+  IAutoMovieNaturalSpline,
+} from "@automovie/interface";
 
-
-
-
-
-
+import { AutoMovieHumanMonotoneCubic } from "../../lofting/AutoMovieHumanMonotoneCubic";
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-import { AutoMovieHumanMonotoneCubic } from "../../lofting/AutoMovieHumanMonotoneCubic";
-import { AutoMovieNaturalSpline } from "@automovie/engine";
-
 
 const { smoother }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 
@@ -21,7 +21,9 @@ const { smoother }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
  */
 export namespace AutoMovieHumanHandStar {
   /** Compile a star. */
-  export function star(field: IAutoMovieHumanArmPrior.IStar): IAutoMovieHumanHandStarField {
+  export function star(
+    field: IAutoMovieHumanArmPrior.IStar,
+  ): IAutoMovieHumanHandStarField {
     const count: number = field.series[0]!.length;
     return {
       stations: field.stations,
@@ -52,7 +54,9 @@ export namespace AutoMovieHumanHandStar {
     );
     let r: number = v[4]!;
     for (let k: number = 1; 4 + 2 * k < v.length; k++)
-      r += v[3 + 2 * k]! * Math.cos(k * theta) + v[4 + 2 * k]! * Math.sin(k * theta);
+      r +=
+        v[3 + 2 * k]! * Math.cos(k * theta) +
+        v[4 + 2 * k]! * Math.sin(k * theta);
     return [
       v[0]! + v[2]! * r * Math.cos(theta),
       v[1]! + v[3]! * r * Math.sin(theta),
@@ -73,13 +77,21 @@ export namespace AutoMovieHumanHandStar {
   }
 
   /** Heel skin at a station and angle. */
-  export function wholeSkin(field: IAutoMovieHumanHandStarField, a: number, theta: number): AutoMovieVector3Tuple {
+  export function wholeSkin(
+    field: IAutoMovieHumanHandStarField,
+    a: number,
+    theta: number,
+  ): AutoMovieVector3Tuple {
     const [b, c] = starPoint(field, a, theta);
     return [a, b, c];
   }
 
   /** Palm skin at a station and angle, with the valleys between the knuckles. */
-  export function palmSkin(field: IAutoMovieHumanHandStarField, a: number, theta: number): AutoMovieVector3Tuple {
+  export function palmSkin(
+    field: IAutoMovieHumanHandStarField,
+    a: number,
+    theta: number,
+  ): AutoMovieVector3Tuple {
     let p: [number, number] = starPoint(field, a, theta);
     for (const web of AutoMovieHumanArmPrior.PRIOR.hand.webs)
       p = webbed(p, a, web);
@@ -103,7 +115,11 @@ export namespace AutoMovieHumanHandStar {
   }
 
   /** Palm skin on the family from the thumb's branch (0) to the finger roots (1). */
-  export function palmPoint(field: IAutoMovieHumanHandStarField, u: number, theta: number): AutoMovieVector3Tuple {
+  export function palmPoint(
+    field: IAutoMovieHumanHandStarField,
+    u: number,
+    theta: number,
+  ): AutoMovieVector3Tuple {
     const from: number = AutoMovieHumanArmPrior.PRIOR.hand.branch;
     let a: number = from + u * (knuckle(0) - from);
     for (let i: number = 0; i < 3; i++)

@@ -1,8 +1,7 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryDiskBoundaryPreparationOperation } from "@automovie/interface";
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryDiskBoundaryPreparationOperation,
+} from "@automovie/interface";
 
 /**
  * Choose a private disk boundary anchor and exact physical quarter measures.
@@ -180,5 +179,6 @@ export function prepareRecoveryDiskBoundary(
     total,
     scaled,
     perimeterMm,
-    quarterMm };
+    quarterMm,
+  };
 }

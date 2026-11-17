@@ -1,5 +1,3 @@
-
-
 /**
  * One construction role carried through a junction by both build-ups.
  *

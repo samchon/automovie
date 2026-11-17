@@ -1,6 +1,10 @@
-import type { IAutoMovieConstructionSeed, IAutoMovieSolidIntersection, IAutoMovieSolidSurface, IAutoMovieConstructionSearchSeed } from "@automovie/interface";
 import { AutoMovieConstructionSeeds } from "@automovie/engine";
-
+import type {
+  IAutoMovieConstructionSearchSeed,
+  IAutoMovieConstructionSeed,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -243,7 +247,13 @@ export function test_construction_seed_search(): void {
         to: direction > 0 ? 1 : 0,
       };
       const fixed: Seed | string = AutoMovieConstructionSeeds.create(
-        { type: "search", partFace: part.name, hostFace: host.name, phase: 0, ...shares },
+        {
+          type: "search",
+          partFace: part.name,
+          hostFace: host.name,
+          phase: 0,
+          ...shares,
+        },
         part,
         [0, length / 2, length],
         host,
@@ -251,12 +261,21 @@ export function test_construction_seed_search(): void {
         1e-12 * length,
       );
       if (typeof fixed !== "string")
-        failures.push(`window/${length}/${direction}: the top line never crosses, yet a fixed phase-0 search returned ${JSON.stringify(fixed)}`);
+        failures.push(
+          `window/${length}/${direction}: the top line never crosses, yet a fixed phase-0 search returned ${JSON.stringify(fixed)}`,
+        );
       meeting(
         failures,
         `window/${length}/${direction}`,
         AutoMovieConstructionSeeds.create(
-          { type: "search", partFace: part.name, hostFace: host.name, phase: 0, phases: 2, ...shares },
+          {
+            type: "search",
+            partFace: part.name,
+            hostFace: host.name,
+            phase: 0,
+            phases: 2,
+            ...shares,
+          },
           part,
           [0, length / 2, length],
           host,
@@ -274,7 +293,24 @@ export function test_construction_seed_search(): void {
     const part: IAutoMovieSolidSurface = sideTube(1, { host: 0, part: 0 });
     const host: IAutoMovieSolidSurface = plane(1, 0, { host: 0, part: 0 });
     // At phase pi the line itself crosses, so only the line count's refusal can return a string.
-    if (typeof AutoMovieConstructionSeeds.create({ type: "search", partFace: part.name, hostFace: host.name, phase: Math.PI, phases, from: 0, to: 1 }, part, [0, 0.5, 1], host, 7, 1e-12) !== "string")
+    if (
+      typeof AutoMovieConstructionSeeds.create(
+        {
+          type: "search",
+          partFace: part.name,
+          hostFace: host.name,
+          phase: Math.PI,
+          phases,
+          from: 0,
+          to: 1,
+        },
+        part,
+        [0, 0.5, 1],
+        host,
+        7,
+        1e-12,
+      ) !== "string"
+    )
       failures.push(`invalid line count accepted: ${phases}`);
   }
   console.log("seed search authored callback observations", {

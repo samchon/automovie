@@ -1,6 +1,18 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionHumanArm, AutoMovieMotionHumanTarget, HumanHand, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanArm,
+  AutoMovieMotionHumanTarget,
+  HumanHand,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -25,7 +37,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_core_hold_to_end(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const quiet: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const quiet: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
   const side: IAutoMovieMotionHumanHand.Side = "right";
   const place = {
     point: { x: -0.2, y: 0.95, z: 0.4 },

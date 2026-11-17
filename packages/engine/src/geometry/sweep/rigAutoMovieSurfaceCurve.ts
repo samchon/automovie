@@ -1,5 +1,10 @@
-import { type IAutoMovieSurfaceCurveRig, type IAutoMovieSurfacePoint, type IAutoMovieSweepTransport, type IAutoMovieRigSurfaceCurve, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieRigSurfaceCurve,
+  type IAutoMovieSurfaceCurveRig,
+  type IAutoMovieSurfacePoint,
+  type IAutoMovieSweepTransport,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
 
@@ -36,7 +41,11 @@ const FLAT: number = 1e-9;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The spline is updated once per pose and serves every sample of the curve.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the spline buffers, 3 n rest points and nine numbers of normal and direction.
  */
-export const rigAutoMovieSurfaceCurve: (props: IAutoMovieRigSurfaceCurve.IProps) => IAutoMovieSurfaceCurveRig = (props: IAutoMovieRigSurfaceCurve.IProps): IAutoMovieSurfaceCurveRig => {
+export const rigAutoMovieSurfaceCurve: (
+  props: IAutoMovieRigSurfaceCurve.IProps,
+) => IAutoMovieSurfaceCurveRig = (
+  props: IAutoMovieRigSurfaceCurve.IProps,
+): IAutoMovieSurfaceCurveRig => {
   const { name, curve, from, to, bone, bones } = props;
   const through: IAutoMovieVector3[] = curve.through ?? [];
   const n: number = through.length + 2;

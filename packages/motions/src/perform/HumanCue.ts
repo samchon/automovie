@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanCue, IAutoMovieResolveSchedule } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanCue,
+  IAutoMovieResolveSchedule,
+} from "@automovie/interface";
 
 /**
  * Cue tracks: the named instants of a film's speech and music, for actions
@@ -15,7 +18,6 @@ import type { IAutoMovieMotionHumanCue, IAutoMovieResolveSchedule } from "@autom
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No instant is derived from a guessed speech rate; an accent is given or absent.
  */
 export namespace HumanCue {
-
   /**
    * A command track: for each order its preparatory word `${word}Caution`
    * (when it has one) and its word of execution `${word}`, in film order, as
@@ -41,36 +43,42 @@ export namespace HumanCue {
   ): IAutoMovieResolveSchedule.ICue[] {
     const track: { cue: IAutoMovieResolveSchedule.ICue; order: number }[] = [];
     const sorted: IAutoMovieMotionHumanCue.IOrder[] = [...orders].sort(
-      (a: IAutoMovieMotionHumanCue.IOrder, b: IAutoMovieMotionHumanCue.IOrder): number => a.at - b.at,
+      (
+        a: IAutoMovieMotionHumanCue.IOrder,
+        b: IAutoMovieMotionHumanCue.IOrder,
+      ): number => a.at - b.at,
     );
-    sorted.forEach((order: IAutoMovieMotionHumanCue.IOrder, i: number): void => {
-      if (!Number.isFinite(order.at))
-        throw new Error(`The command ${order.word} has no finite second`);
-      if (order.caution !== undefined) {
-        if (!(order.caution > 0))
-          throw new Error(
-            `The command ${order.word}'s preparatory word comes ${order.caution} s before it; a positive time is expected`,
-          );
-        const caution: number = order.at - order.caution;
-        if (caution < 0)
-          throw new Error(
-            `The command ${order.word}'s preparatory word would fall at ${caution.toFixed(3)} s, before the film begins`,
-          );
-        const before: IAutoMovieMotionHumanCue.IOrder | undefined = sorted[i - 1];
-        if (before !== undefined && caution <= before.at)
-          throw new Error(
-            `The command ${order.word}'s preparatory word at ${caution.toFixed(3)} s falls at or before the word of execution of ${before.word} at ${before.at.toFixed(3)} s`,
-          );
+    sorted.forEach(
+      (order: IAutoMovieMotionHumanCue.IOrder, i: number): void => {
+        if (!Number.isFinite(order.at))
+          throw new Error(`The command ${order.word} has no finite second`);
+        if (order.caution !== undefined) {
+          if (!(order.caution > 0))
+            throw new Error(
+              `The command ${order.word}'s preparatory word comes ${order.caution} s before it; a positive time is expected`,
+            );
+          const caution: number = order.at - order.caution;
+          if (caution < 0)
+            throw new Error(
+              `The command ${order.word}'s preparatory word would fall at ${caution.toFixed(3)} s, before the film begins`,
+            );
+          const before: IAutoMovieMotionHumanCue.IOrder | undefined =
+            sorted[i - 1];
+          if (before !== undefined && caution <= before.at)
+            throw new Error(
+              `The command ${order.word}'s preparatory word at ${caution.toFixed(3)} s falls at or before the word of execution of ${before.word} at ${before.at.toFixed(3)} s`,
+            );
+          track.push({
+            cue: { name: `${order.word}Caution`, seconds: caution },
+            order: 2 * i,
+          });
+        }
         track.push({
-          cue: { name: `${order.word}Caution`, seconds: caution },
-          order: 2 * i,
+          cue: { name: order.word, seconds: order.at },
+          order: 2 * i + 1,
         });
-      }
-      track.push({
-        cue: { name: order.word, seconds: order.at },
-        order: 2 * i + 1,
-      });
-    });
+      },
+    );
     return track
       .sort((a, b) => a.cue.seconds - b.cue.seconds || a.order - b.order)
       .map((each) => each.cue);
@@ -128,7 +136,9 @@ export namespace HumanCue {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new list and retains nothing.
    */
-  export function beats(beats: IAutoMovieMotionHumanCue.IBeats): IAutoMovieResolveSchedule.ICue[] {
+  export function beats(
+    beats: IAutoMovieMotionHumanCue.IBeats,
+  ): IAutoMovieResolveSchedule.ICue[] {
     const meter: number = beats.meter ?? 4;
     if (!(beats.bpm > 0))
       throw new Error("A beat track needs a positive tempo");
@@ -169,23 +179,25 @@ export namespace HumanCue {
     lines: readonly IAutoMovieMotionHumanCue.ILine[],
   ): IAutoMovieResolveSchedule.ICue[] {
     const track: IAutoMovieResolveSchedule.ICue[] = [];
-    lines.forEach((line: IAutoMovieMotionHumanCue.ILine, index: number): void => {
-      if (!(line.to >= line.from))
-        throw new Error(`Line ${index} ends before it starts`);
-      const inside = (name: string, list: readonly number[] = []): void => {
-        for (const seconds of list) {
-          if (!(seconds >= line.from && seconds <= line.to))
-            throw new Error(
-              `Line ${index} has ${name === "accent" ? "an accent" : "a phrase end"} at ${seconds} s, outside its ${line.from} to ${line.to} s`,
-            );
-          track.push({ name, seconds });
-        }
-      };
-      track.push({ name: "lineStart", seconds: line.from });
-      inside("accent", line.accents);
-      inside("phraseEnd", line.phrases);
-      track.push({ name: "lineEnd", seconds: line.to });
-    });
+    lines.forEach(
+      (line: IAutoMovieMotionHumanCue.ILine, index: number): void => {
+        if (!(line.to >= line.from))
+          throw new Error(`Line ${index} ends before it starts`);
+        const inside = (name: string, list: readonly number[] = []): void => {
+          for (const seconds of list) {
+            if (!(seconds >= line.from && seconds <= line.to))
+              throw new Error(
+                `Line ${index} has ${name === "accent" ? "an accent" : "a phrase end"} at ${seconds} s, outside its ${line.from} to ${line.to} s`,
+              );
+            track.push({ name, seconds });
+          }
+        };
+        track.push({ name: "lineStart", seconds: line.from });
+        inside("accent", line.accents);
+        inside("phraseEnd", line.phrases);
+        track.push({ name: "lineEnd", seconds: line.to });
+      },
+    );
     return track
       .map((cue, order) => ({ cue, order }))
       .sort((a, b) => a.cue.seconds - b.cue.seconds || a.order - b.order)

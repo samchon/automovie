@@ -1,6 +1,9 @@
-import { type IAutoMovieBuiltPlacementBody, type IAutoMovieBuiltEnvironmentPlacementOverlap, IAutoMovieBuiltPlacementOverlapResult, IAutoMovieSubjectBox } from "@automovie/interface";
-
-
+import {
+  type IAutoMovieBuiltEnvironmentPlacementOverlap,
+  type IAutoMovieBuiltPlacementBody,
+  IAutoMovieBuiltPlacementOverlapResult,
+  IAutoMovieSubjectBox,
+} from "@automovie/interface";
 
 import { propBoundsOverlap } from "../film/propBoundsOverlap";
 import { builtEnvironmentElementPartBounds } from "./builtEnvironmentElementPartBounds";
@@ -23,7 +26,11 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each side's part boxes are measured once and serve both as its reported box and as its solids, where the earlier form measured every element side twice; nothing is cached across calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing after returning; the caller owns the small result record.
  */
-export const builtEnvironmentPlacementOverlap: (props: IAutoMovieBuiltEnvironmentPlacementOverlap.IProps) => IAutoMovieBuiltPlacementOverlapResult = (props: IAutoMovieBuiltEnvironmentPlacementOverlap.IProps): IAutoMovieBuiltPlacementOverlapResult => {
+export const builtEnvironmentPlacementOverlap: (
+  props: IAutoMovieBuiltEnvironmentPlacementOverlap.IProps,
+) => IAutoMovieBuiltPlacementOverlapResult = (
+  props: IAutoMovieBuiltEnvironmentPlacementOverlap.IProps,
+): IAutoMovieBuiltPlacementOverlapResult => {
   const parts: (elementId: string) => IAutoMovieSubjectBox[] | null = (
     elementId: string,
   ): IAutoMovieSubjectBox[] | null =>

@@ -1,6 +1,8 @@
-import type { IAutoMovieIntegrateMotionTrajectory, IAutoMovieQuaternion } from "@automovie/interface";
 import { Quaternion, integrateMotionTrajectory } from "@automovie/engine";
-
+import type {
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -88,20 +90,24 @@ export function test_engine_motion_trajectory(): void {
   const i1: number = 1;
   const i3: number = 2;
   const axial: number = 3;
-  const top: IAutoMovieIntegrateMotionTrajectory.ITrajectory = integrateMotionTrajectory({
-    f: (_t: number, w: readonly number[]): IAutoMovieIntegrateMotionTrajectory.IRate => ({
-      dx: [
-        ((i1 - i3) / i1) * w[1]! * w[2]!,
-        ((i3 - i1) / i1) * w[0]! * w[2]!,
-        0,
-      ],
-      w: { x: w[0]!, y: w[1]!, z: w[2]! },
-    }),
-    x0: [0.5, 0, axial],
-    q0: { x: 0, y: 0, z: 0, w: 1 },
-    t0: 0,
-    t1: 2,
-  });
+  const top: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
+    integrateMotionTrajectory({
+      f: (
+        _t: number,
+        w: readonly number[],
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => ({
+        dx: [
+          ((i1 - i3) / i1) * w[1]! * w[2]!,
+          ((i3 - i1) / i1) * w[0]! * w[2]!,
+          0,
+        ],
+        w: { x: w[0]!, y: w[1]!, z: w[2]! },
+      }),
+      x0: [0.5, 0, axial],
+      q0: { x: 0, y: 0, z: 0, w: 1 },
+      t0: 0,
+      t1: 2,
+    });
   const precession: number = ((i3 - i1) / i1) * axial;
   for (let k: number = 0; k <= 20; k++) {
     const t: number = (2 * k) / 20;

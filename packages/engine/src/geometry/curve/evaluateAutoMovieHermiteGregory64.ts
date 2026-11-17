@@ -1,4 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieEvaluateHermiteGregory64 } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieEvaluateHermiteGregory64,
+} from "@automovie/interface";
+
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
 /** Evaluate a rational Hermite transfinite chart and its analytic first partials.
@@ -52,7 +56,11 @@ export function evaluateAutoMovieHermiteGregory64(
   ]);
   const hu: number[][] = basis(u),
     hv: number[][] = basis(v);
-  const result: { point: AutoMovieVector3Tuple; du: AutoMovieVector3Tuple; dv: AutoMovieVector3Tuple } = {
+  const result: {
+    point: AutoMovieVector3Tuple;
+    du: AutoMovieVector3Tuple;
+    dv: AutoMovieVector3Tuple;
+  } = {
     point: [0, 0, 0],
     du: [0, 0, 0],
     dv: [0, 0, 0],
@@ -125,7 +133,12 @@ export function evaluateAutoMovieHermiteGregory64(
     ];
   }
   /** Accumulate one vector contribution and its explicit product derivatives. */
-  function add(p: AutoMovieVector3Tuple, weight: number, du: number, dv: number): void {
+  function add(
+    p: AutoMovieVector3Tuple,
+    weight: number,
+    du: number,
+    dv: number,
+  ): void {
     result.point = M.add(result.point, M.scale(p, weight));
     result.du = M.add(result.du, M.scale(p, du));
     result.dv = M.add(result.dv, M.scale(p, dv));

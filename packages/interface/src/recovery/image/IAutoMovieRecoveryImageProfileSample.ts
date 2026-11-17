@@ -8,11 +8,9 @@
 export interface IAutoMovieRecoveryImageProfileSample<
   T extends number[] = number[],
 > {
- 
- /** Physical model Y coordinate, millimetres. */
+  /** Physical model Y coordinate, millimetres. */
   yMm: number;
 
- 
- /** Ordered section-family scalar fields, millimetres. */
+  /** Ordered section-family scalar fields, millimetres. */
   values: T;
 }

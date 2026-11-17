@@ -1,5 +1,3 @@
-import type { IAutoMovieBone, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   HUMANOID_REST_FRAME,
   Quaternion,
@@ -8,6 +6,16 @@ import {
   getConstraint,
   swingTwist,
 } from "@automovie/engine";
+import type {
+  IAutoMovieBone,
+  IAutoMovieJointAxes,
+  IAutoMovieJointConstraint,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import type { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 

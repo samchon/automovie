@@ -1,4 +1,25 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmPlanned, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanTouch, IAutoMovieMotionHumanTouchEffector, IAutoMovieMotionHumanTouchEffectors, IAutoMovieMotionHumanTouchForm, IAutoMovieMotionHumanTouchStance, IAutoMovieMotionManner, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionHumanTouchEffectors,
+  IAutoMovieMotionHumanTouchForm,
+  IAutoMovieMotionHumanTouchStance,
+  IAutoMovieMotionManner,
+  IAutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -84,7 +105,10 @@ export namespace touch {
 
   /** Each part's effector (`touchEffectors`). */
   export const EFFECTORS: Readonly<
-    Record<IAutoMovieMotionHumanTouchEffectors.With, IAutoMovieMotionHumanTouchEffector.IEffector>
+    Record<
+      IAutoMovieMotionHumanTouchEffectors.With,
+      IAutoMovieMotionHumanTouchEffector.IEffector
+    >
   > = touchEffectors.TABLE;
 
   /** The share of the arm's length (upper arm and forearm) the wrist is kept within before the trunk leans in, so the elbow never locks straight on a region (provisional, as `operate.REACH`). */
@@ -124,7 +148,10 @@ export namespace touch {
     // one whose arm reaches the region with the least strain (	ouchSide).
     const touching: IAutoMovieMotionHumanTouchEffector.IEffector =
       AutoMovieMotionHumanTouchForm.curled(EFFECTORS[p.with ?? "palm"], kind);
-    const first: IAutoMovieMotionHumanHand.Side = touchSide.of(context, touching);
+    const first: IAutoMovieMotionHumanHand.Side = touchSide.of(
+      context,
+      touching,
+    );
     const resting = AutoMovieMotionHumanTouchContacts.sided(
       p.rests,
       first,
@@ -192,12 +219,15 @@ export namespace touch {
       context.carrier === undefined &&
       context.entry.feet.left.planted &&
       context.entry.feet.right.planted &&
-      context.entry.supports.every((s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
-        /Foot$/.test(s.part),
+      context.entry.supports.every(
+        (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+          /Foot$/.test(s.part),
       );
     // The first arm laid on its region at the stroke's start: its wrist is
     // what the stance reaches for, and the whole arm what the lean weighs.
-    const laidOn = (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture.IGoal =>
+    const laidOn = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanPosture.IGoal =>
       AutoMovieMotionHumanTouchLaid.rest(
         body,
         posture,
@@ -342,7 +372,8 @@ export namespace touch {
               p.elbow,
             )
           : undefined;
-      const own: IAutoMovieMotionHumanGrasp.IKey | null = side === first ? kept : null;
+      const own: IAutoMovieMotionHumanGrasp.IKey | null =
+        side === first ? kept : null;
       const bend: IAutoMovieVector3 =
         from ??
         own?.bend ??
@@ -426,12 +457,13 @@ export namespace touch {
         }),
       );
     }
-    const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.under(context, clock.duration),
-      clock,
-      primitives,
-      contact: "ready",
-    });
+    const plan: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.under(context, clock.duration),
+        clock,
+        primitives,
+        contact: "ready",
+      });
     return p.prop === undefined
       ? plan
       : HumanHeld.kept(context, plan, first, p.prop);

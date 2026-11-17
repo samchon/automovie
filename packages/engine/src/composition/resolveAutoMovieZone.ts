@@ -1,6 +1,8 @@
-import type { IAutoMovieZone, IAutoMovieResolveZone, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieResolveZone,
+  IAutoMovieVector3,
+  IAutoMovieZone,
+} from "@automovie/interface";
 
 /**
  * The point of a zone a move goes to: a named landmark, or the zone's centre

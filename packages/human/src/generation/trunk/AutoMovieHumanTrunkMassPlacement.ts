@@ -1,9 +1,14 @@
-import type { IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanTrunkMassPlacement } from "@automovie/interface";
-
-
-
-import { AutoMovieIllinois, AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource } from "@automovie/engine";
-
+import {
+  AutoMovieIllinois,
+  AutoMovieLoftSectionNative,
+  AutoMovieLoftViewRead,
+  AutoMovieLoftViewSource,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanTrunkMassPlacement,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * A trunk mass's AP axis from the actual original trunk section and its
@@ -19,8 +24,6 @@ import { AutoMovieIllinois, AutoMovieLoftSectionNative, AutoMovieLoftViewRead, A
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns fixed-size owned tuples or one failure; no source, host or cache is retained.
  */
 export namespace AutoMovieHumanTrunkMassPlacement {
-  
-
   /**
    * Place an AP extreme without moving its height or transverse coordinate.
    * The selected front/back branch follows the source owner's convex-section
@@ -82,7 +85,11 @@ export namespace AutoMovieHumanTrunkMassPlacement {
     )
       return "mass wall across query has no admitted source root";
     const local: [number, number] = point(phase);
-    const origin: AutoMovieVector3Tuple = [frame.origin[0] + local[0], y, target[2]];
+    const origin: AutoMovieVector3Tuple = [
+      frame.origin[0] + local[0],
+      y,
+      target[2],
+    ];
     const amplitude: number = facing * (target[0] - origin[0]);
     if (!(Number.isFinite(amplitude) && amplitude > 0))
       return `mass apex leaves no positive AP projection above its source wall: ${amplitude} mm`;

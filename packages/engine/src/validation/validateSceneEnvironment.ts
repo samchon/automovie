@@ -1,5 +1,9 @@
-import { type IAutoMovieResolveShadowProfile, type IAutoMovieValidateSceneEnvironment, type IAutoMovieViolationCollector, IAutoMovieValidation } from "@automovie/interface";
-
+import {
+  type IAutoMovieResolveShadowProfile,
+  type IAutoMovieValidateSceneEnvironment,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { resolveAutoMovieShadowProfile } from "../render/resolveAutoMovieShadowProfile";
 import { ViolationCollector } from "./ViolationCollector";
@@ -26,7 +30,9 @@ const SHADOW_TYPES: ReadonlySet<string> = new Set(["pcf", "pcfSoft", "vsm"]);
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Validates one current environment snapshot and optional light context; the module shares constant policy sets, while no mutable environment result or renderer effects are cached across calls.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns one collector and a transient shadow profile until return; contextual profile storage is bounded by supplied light count, and only the returned violations transfer to the caller. Module policy sets have fixed size and no resources or tasks are acquired.
  */
-export function validateSceneEnvironment(props: IAutoMovieValidateSceneEnvironment.IProps): IAutoMovieValidation {
+export function validateSceneEnvironment(
+  props: IAutoMovieValidateSceneEnvironment.IProps,
+): IAutoMovieValidation {
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const value: unknown = props.environment;
   if (!isRecord(value)) {
@@ -110,7 +116,7 @@ export function validateSceneEnvironment(props: IAutoMovieValidateSceneEnvironme
       typeof value.shadows.type === "string" &&
       SHADOW_TYPES.has(value.shadows.type)
     ) {
-      const profile: (IAutoMovieResolveShadowProfile.IResult) =
+      const profile: IAutoMovieResolveShadowProfile.IResult =
         resolveAutoMovieShadowProfile({
           lights: props.lights,
           shadows: props.environment.shadows,

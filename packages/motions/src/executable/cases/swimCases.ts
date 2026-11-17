@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSwim, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSwim,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { createHumanBody } from "../../body/createHumanBody";
@@ -48,7 +52,10 @@ export function swimCases(
     );
     const m = body.measure;
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
-    for (const kind of ["treadWater", "frontCrawl"] as IAutoMovieMotionHumanSwim.Kind[]) {
+    for (const kind of [
+      "treadWater",
+      "frontCrawl",
+    ] as IAutoMovieMotionHumanSwim.Kind[]) {
       const name: string = `swim-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
       try {

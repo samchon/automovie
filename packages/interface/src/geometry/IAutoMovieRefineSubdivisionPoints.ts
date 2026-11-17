@@ -30,7 +30,7 @@ export namespace IAutoMovieRefineSubdivisionPoints {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts This numerical step relies on admitted topology and aligned finite position arrays; it does not perform cage admission or repair.
    * @evidence contracts/development/common.md#meaningful-documentation New Catmull-Clark points and the parent-vertex masks used to compute them. Packed xyz positions retain local metres; output order is parent vertices, parent edges, then parent faces.
    */
-  export type IResult = { 
+  export type IResult = {
     /**
      * New packed xyz metre array of length 3(V+E+F), ordered by parent vertices, edges and faces; the parent positions are unchanged.
      */
@@ -39,5 +39,6 @@ export namespace IAutoMovieRefineSubdivisionPoints {
     /**
      * New affine vertex masks, one per parent vertex in vertex order; their edge and face weights follow that vertex's fan order and are reused for UV refinement.
      */
-    masks: IAutoMovieSubdivisionVertexMask[] };
+    masks: IAutoMovieSubdivisionVertexMask[];
+  };
 }

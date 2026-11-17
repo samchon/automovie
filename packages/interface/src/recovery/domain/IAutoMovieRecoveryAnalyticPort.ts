@@ -8,11 +8,9 @@
  */
 
 export interface IAutoMovieRecoveryAnalyticPort {
- 
- /** Saved coefficient curve identity. */
+  /** Saved coefficient curve identity. */
   curveName: string;
 
- 
- /** Lower or upper end in the declared native chart; not a world-space height classification. */
+  /** Lower or upper end in the declared native chart; not a world-space height classification. */
   side: "lower" | "upper";
 }

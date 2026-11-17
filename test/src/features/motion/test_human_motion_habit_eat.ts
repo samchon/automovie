@@ -1,18 +1,35 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
 import {
   createTable,
   createTableware,
   createTool,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanRefusal, HumanVerdicts, seated } from "@automovie/motions";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanVerdicts,
+  seated,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** A prop's named contact in the world, read from its rest frame. */
-const contact = (prop: IAutoMovieMotionHumanProp, id: string): IAutoMovieVector3 => {
+const contact = (
+  prop: IAutoMovieMotionHumanProp,
+  id: string,
+): IAutoMovieVector3 => {
   const a: IAutoMovieAffordance = prop.affordances!.find(
     (x: IAutoMovieAffordance): boolean => x.id === id,
   )!;
@@ -79,7 +96,10 @@ export function test_human_motion_habit_eat(): void {
   );
   const top: IAutoMovieVector3 = contact(table, "top");
 
-  const scene = (side: "left" | "right", ahead: number): IAutoMovieMotionHumanPerformance => {
+  const scene = (
+    side: "left" | "right",
+    ahead: number,
+  ): IAutoMovieMotionHumanPerformance => {
     const out: number = (side === "left" ? 1 : -1) * m.shoulderHalfWidth;
     const plate: IAutoMovieMotionHumanProp = HumanObject.prop(
       "plate",

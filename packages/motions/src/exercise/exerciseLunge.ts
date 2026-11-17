@@ -1,6 +1,13 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -105,7 +112,10 @@ export namespace exerciseLunge {
         channels: ["root"],
         from: 0,
         to: duration,
-        write: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanPosture => ({
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          s: number,
+        ): IAutoMovieMotionHumanPosture => ({
           ...posture,
           root: Vector3.add(
             posture.root,
@@ -122,7 +132,10 @@ export namespace exerciseLunge {
         side: lead,
         from: 0,
         to: duration,
-        placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement =>
+        placement: (
+          _: IAutoMovieMotionHumanPosture,
+          s: number,
+        ): IAutoMovieMotionHumanFoot.IPlacement =>
           AutoMovieMotionHumanLeg.arc(
             stance[lead],
             stepped,
@@ -136,7 +149,10 @@ export namespace exerciseLunge {
         channels: [`${trail}Leg`],
         from: 0,
         to: duration,
-        write: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanPosture => {
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          s: number,
+        ): IAutoMovieMotionHumanPosture => {
           const share: number = any(s) * extent;
           return {
             ...posture,

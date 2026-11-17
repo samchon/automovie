@@ -1,4 +1,5 @@
 import type { IAutoMoviePolarSector } from "@automovie/interface";
+
 /**
  * A closed section about an axis point as a radius in the polar angle, built
  * from guides and the sectors between them (rule J2's sector fill).
@@ -30,7 +31,6 @@ import type { IAutoMoviePolarSector } from "@automovie/interface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMoviePolarSector {
-
   /**
    * The radius at an angle and its two angle derivatives.
    *
@@ -113,7 +113,10 @@ export namespace AutoMoviePolarSector {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the same sine, cosine and radius derivatives for the point and both derivative orders.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the fresh outer array and three pairs; no guide or jet state is retained.
    */
-  export function point(jet: IAutoMoviePolarSector.Jet, phi: number): [number[], number[], number[]] {
+  export function point(
+    jet: IAutoMoviePolarSector.Jet,
+    phi: number,
+  ): [number[], number[], number[]] {
     const [r, r1, r2] = jet;
     const c: number = Math.cos(phi);
     const s: number = Math.sin(phi);

@@ -1,12 +1,12 @@
+import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
 import type { IAutoMovieDesignLineage } from "./IAutoMovieDesignLineage";
 import type { IAutoMovieDesignVariant } from "./IAutoMovieDesignVariant";
-import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
 
 /** Derived-artifact validation context for identity, freshness, provenance and comparison consistency. */
 export namespace IAutoMovieValidateDesignLineageDerived {
   /**
    * Derived-artifact validation context for identity, freshness, provenance and comparison consistency.
-   * 
+   *
    * Each artifact needs a unique non-blank id that is not a subject's, a
    * non-blank kind, at least one input naming a subject or another artifact once,
    * and lowercase `sha256:` digests for its bytes and its configuration. It is
@@ -19,7 +19,7 @@ export namespace IAutoMovieValidateDesignLineageDerived {
    * of the same kind stamped with that decision's alternatives must share a
    * configuration and a phase, because a comparison shot under two cameras
    * compares the cameras.
-   * 
+   *
    * Findings are pushed to `out` with `<root>.derived[i]` paths, in artifact
    * order and then decision order for the fairness check. The operation does not
    * deliberately throw for findings; exceptions from the supplied sink propagate.

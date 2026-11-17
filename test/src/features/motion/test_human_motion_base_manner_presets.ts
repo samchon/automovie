@@ -1,5 +1,16 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionManner } from "@automovie/interface";
-import { AutoMovieMotionManner, HumanChain, HumanPerformance, seated } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionManner,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionManner,
+  HumanChain,
+  HumanPerformance,
+  seated,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -49,27 +60,30 @@ export function test_human_motion_base_manner_presets(): void {
     const times = (
       manner: IAutoMovieMotionManner.IManner | undefined,
     ): ITimes => {
-      const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-        seed: "manners",
-        performers: [
-          {
-            subject: "a",
-            body,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-        ],
-        composition: HumanChain.subject("a")
-          .sit({
-            seat: chair,
-            seconds: 1,
-            ...(manner === undefined ? {} : { manner }),
-          })
-          .rise(manner === undefined ? {} : { manner }).node,
-      });
-      const sitting: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[0]!;
-      const rising: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+      const performance: IAutoMovieMotionHumanPerformance =
+        new HumanPerformance({
+          seed: "manners",
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
+          composition: HumanChain.subject("a")
+            .sit({
+              seat: chair,
+              seconds: 1,
+              ...(manner === undefined ? {} : { manner }),
+            })
+            .rise(manner === undefined ? {} : { manner }).node,
+        });
+      const sitting: IAutoMovieMotionHumanSegment.ISegment =
+        performance.segments("a")[0]!;
+      const rising: IAutoMovieMotionHumanSegment.ISegment =
+        performance.segments("a")[1]!;
       const down: number =
         sitting.plan.events.find(
           (e: { name: string; share: number }): boolean => e.name === "seated",

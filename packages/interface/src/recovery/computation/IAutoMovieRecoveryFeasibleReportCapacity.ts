@@ -7,15 +7,12 @@
  * @evidence contracts/development/common.md#meaningful-documentation Scene entries govern growth/resection/checkpoint work; fit entries can be narrower and are tested after original configuration/gauge admission.
  */
 export interface IAutoMovieRecoveryFeasibleReportCapacity {
- 
- /** Numerical scene capacity after the scope's entire report reservation. */
+  /** Numerical scene capacity after the scope's entire report reservation. */
   readonly sceneEntries: number;
 
- 
- /** Numerical fit capacity after both original fit and scene ceilings. */
+  /** Numerical fit capacity after both original fit and scene ceilings. */
   readonly fitEntries: number;
 
- 
- /** Fixed logical scalar/reference slots reserved once under the scene limit. */
+  /** Fixed logical scalar/reference slots reserved once under the scene limit. */
   readonly reservedEntries: number;
 }

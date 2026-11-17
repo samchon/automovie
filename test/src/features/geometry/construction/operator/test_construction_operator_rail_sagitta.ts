@@ -1,5 +1,9 @@
-import type { IAutoMovieSolidAtlas, IAutoMovieSolidBody, IAutoMovieSolidSurface } from "@automovie/interface";
 import { AutoMovieSolidBody, AutoMovieSolidRailSolve } from "@automovie/engine";
+import type {
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 type Vec3 = [number, number, number];
 
@@ -23,34 +27,60 @@ export function test_construction_operator_rail_sagitta(): void {
     orientation: 1,
     domain: [-20, 20],
     period: 2 * Math.PI,
-    jet: (u: number, v: number) => ({ p: [R * Math.cos(v), u, R * Math.sin(v)], u: [0, 1, 0], v: [-R * Math.sin(v), 0, R * Math.cos(v)], uu: [0, 0, 0], uv: [0, 0, 0], vv: [-R * Math.cos(v), 0, -R * Math.sin(v)] }),
+    jet: (u: number, v: number) => ({
+      p: [R * Math.cos(v), u, R * Math.sin(v)],
+      u: [0, 1, 0],
+      v: [-R * Math.sin(v), 0, R * Math.cos(v)],
+      uu: [0, 0, 0],
+      uv: [0, 0, 0],
+      vv: [-R * Math.cos(v), 0, -R * Math.sin(v)],
+    }),
   };
   const band: IAutoMovieSolidSurface = {
     name: "band",
     orientation: 1,
     domain: [-20, 0],
     period: 2 * Math.PI,
-    jet: (u: number, v: number) => ({ p: [R * Math.cos(v), g(v) + u, R * Math.sin(v)], u: [0, 1, 0], v: [-R * Math.sin(v), -A * Math.sin(v), R * Math.cos(v)], uu: [0, 0, 0], uv: [0, 0, 0], vv: [-R * Math.cos(v), -A * Math.cos(v), -R * Math.sin(v)] }),
+    jet: (u: number, v: number) => ({
+      p: [R * Math.cos(v), g(v) + u, R * Math.sin(v)],
+      u: [0, 1, 0],
+      v: [-R * Math.sin(v), -A * Math.sin(v), R * Math.cos(v)],
+      uu: [0, 0, 0],
+      uv: [0, 0, 0],
+      vv: [-R * Math.cos(v), -A * Math.cos(v), -R * Math.sin(v)],
+    }),
   };
   const n: number = 24;
-  const phases: number[] = Array.from({ length: n }, (_: unknown, k: number): number => (2 * Math.PI * k) / n);
+  const phases: number[] = Array.from(
+    { length: n },
+    (_: unknown, k: number): number => (2 * Math.PI * k) / n,
+  );
   const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create("sagitta", [
     { surface: sheet, stations: [-20, 20], phases },
     { surface: band, stations: [-20, 0], phases },
   ]);
-  const next = (k: number): number => (k + 1 < n ? phases[k + 1]! : 2 * Math.PI);
+  const next = (k: number): number =>
+    k + 1 < n ? phases[k + 1]! : 2 * Math.PI;
   body.faces[0]!.cycles.push({
     kind: "start",
     vertices: phases.map((_: number, k: number): number => k),
     chart: phases.map((v: number): [number, number] => [g(v), v]),
-    neighbours: phases.map((v: number, k: number) => ({ face: 1, from: [0, v] as [number, number], to: [0, next(k)] as [number, number] })),
+    neighbours: phases.map((v: number, k: number) => ({
+      face: 1,
+      from: [0, v] as [number, number],
+      to: [0, next(k)] as [number, number],
+    })),
     along: g,
   });
   body.faces[1]!.cycles.push({
     kind: "end",
     vertices: phases.map((_: number, k: number): number => k),
     chart: phases.map((v: number): [number, number] => [0, v]),
-    neighbours: phases.map((v: number, k: number) => ({ face: 0, from: [g(v), v] as [number, number], to: [g(next(k)), next(k)] as [number, number] })),
+    neighbours: phases.map((v: number, k: number) => ({
+      face: 0,
+      from: [g(v), v] as [number, number],
+      to: [g(next(k)), next(k)] as [number, number],
+    })),
   });
   const host: IAutoMovieSolidAtlas = AutoMovieSolidBody.atlas(body).atlas;
 
@@ -58,7 +88,10 @@ export function test_construction_operator_rail_sagitta(): void {
   const star: number = Math.PI + h / 2;
   const chord: number = (g(Math.PI) + g(Math.PI + h)) / 2;
   const root: number = g(star) + 0.7 * (chord - g(star));
-  if (!(chord > root && root > g(star))) failures.push(`premise: the chord ${chord} does not stand above the root ${root} above the curve ${g(star)}`);
+  if (!(chord > root && root > g(star)))
+    failures.push(
+      `premise: the chord ${chord} does not stand above the root ${root} above the curve ${g(star)}`,
+    );
   const width: number = 0.25;
   const from: Vec3 = [R * Math.cos(star), root - width, R * Math.sin(star)];
   const m: Vec3 = [-Math.sin(star), 0, Math.cos(star)];
@@ -66,14 +99,51 @@ export function test_construction_operator_rail_sagitta(): void {
     { face: 0, u: root },
     { face: 1, u: root - 2 * width - g(star) },
   ];
-  for (const [face, u] of [[0, root + 0.1], [0, root + 0.3], [1, -0.1], [1, -0.05]] as const) {
-    const report: { reason: string; numbers: Record<string, number> } = { reason: "", numbers: {} };
-    const out = AutoMovieSolidRailSolve.atlas(host, face, [u, star], from, m, [0, 1, 0], width, 40, 1e-12, 4, report);
-    const visits: string = Object.entries(report.numbers).filter(([key]) => key.startsWith("visit")).map(([, f]) => f).join(", ");
+  for (const [face, u] of [
+    [0, root + 0.1],
+    [0, root + 0.3],
+    [1, -0.1],
+    [1, -0.05],
+  ] as const) {
+    const report: { reason: string; numbers: Record<string, number> } = {
+      reason: "",
+      numbers: {},
+    };
+    const out = AutoMovieSolidRailSolve.atlas(
+      host,
+      face,
+      [u, star],
+      from,
+      m,
+      [0, 1, 0],
+      width,
+      40,
+      1e-12,
+      4,
+      report,
+    );
+    const visits: string = Object.entries(report.numbers)
+      .filter(([key]) => key.startsWith("visit"))
+      .map(([, f]) => f)
+      .join(", ");
     const label: string = `from face ${face} at u ${u} (roots: sheet u ${root}, band u ${roots[1]!.u}; curve ${g(star)}, chord ${chord}, v* ${star})`;
-    if (out === null) failures.push(`${label}: refused (${report.reason}; at face ${report.numbers.face} u ${report.numbers.u} v ${report.numbers.v}, switches left ${report.numbers.switchesLeft}; faces visited ${visits})`);
-    else if (!roots.some((r): boolean => r.face === out.face && Math.abs(out.chart[0] - r.u) <= 1e-9) || !(Math.abs(out.chart[1] - star) <= 1e-9))
-      failures.push(`${label}: settled on face ${out.face} at (${out.chart[0]}, ${out.chart[1]}) (faces visited ${visits}), expected a root`);
+    if (out === null)
+      failures.push(
+        `${label}: refused (${report.reason}; at face ${report.numbers.face} u ${report.numbers.u} v ${report.numbers.v}, switches left ${report.numbers.switchesLeft}; faces visited ${visits})`,
+      );
+    else if (
+      !roots.some(
+        (r): boolean =>
+          r.face === out.face && Math.abs(out.chart[0] - r.u) <= 1e-9,
+      ) ||
+      !(Math.abs(out.chart[1] - star) <= 1e-9)
+    )
+      failures.push(
+        `${label}: settled on face ${out.face} at (${out.chart[0]}, ${out.chart[1]}) (faces visited ${visits}), expected a root`,
+      );
   }
-  if (failures.length) throw new Error(`${failures.length} rail sagitta failures:\n${failures.join("\n")}`);
+  if (failures.length)
+    throw new Error(
+      `${failures.length} rail sagitta failures:\n${failures.join("\n")}`,
+    );
 }

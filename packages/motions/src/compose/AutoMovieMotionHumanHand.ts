@@ -1,4 +1,10 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionClock, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+} from "@automovie/interface";
 
 import { HumanHand } from "../posture/HumanHand";
 
@@ -16,7 +22,6 @@ import { HumanHand } from "../posture/HumanHand";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the hand owner's shape vocabulary and angles; no shape is defined here.
  */
 export namespace AutoMovieMotionHumanHand {
-
   /**
    * The finger joints of a hand on its way to a shape.
    *
@@ -40,8 +45,14 @@ export namespace AutoMovieMotionHumanHand {
     curl: number,
     weight: number,
   ): IAutoMovieMotionHumanPosture["joints"] {
-    const asked: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, shape);
-    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
+    const asked: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      shape,
+    );
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      "relaxed",
+    );
     const out: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const bone of Object.keys(asked) as AutoMovieHumanoidBone[]) {
       const a: number = asked[bone]![0] + (bone.includes("Thumb") ? 0 : curl);
@@ -65,12 +76,17 @@ export namespace AutoMovieMotionHumanHand {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `fingers`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
-  export function shape(props: IAutoMovieMotionHumanHand.IShape): IAutoMovieMotionHumanPrimitive {
+  export function shape(
+    props: IAutoMovieMotionHumanHand.IShape,
+  ): IAutoMovieMotionHumanPrimitive {
     return {
       channels: [`${props.side}Hand`],
       from: props.from,
       to: props.to,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => ({
         ...posture,
         joints: {
           ...posture.joints,

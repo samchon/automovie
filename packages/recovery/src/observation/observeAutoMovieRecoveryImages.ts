@@ -1,9 +1,12 @@
-import type { IAutoMovieRecoveryImageChartAssertOperation, IAutoMovieRecoveryOptions, IAutoMovieRecoveryResult, IAutoMovieRecoveryImageInput, IAutoMovieRecoveryImageObservation } from "@automovie/interface";
-
+import type {
+  IAutoMovieRecoveryImageChartAssertOperation,
+  IAutoMovieRecoveryImageInput,
+  IAutoMovieRecoveryImageObservation,
+  IAutoMovieRecoveryOptions,
+  IAutoMovieRecoveryResult,
+} from "@automovie/interface";
 
 import { assertRecoveryImageChart } from "../internal/assertRecoveryImageChart";
-
-
 
 /**
  * Measure opaque row supports using a supplied fixed RGB background and cameras.
@@ -35,7 +38,9 @@ export function observeAutoMovieRecoveryImages(
     cancellationCallback = true;
     const requested: boolean | undefined = probe?.();
     if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error("Cancellation callback must return a boolean synchronously");
+      throw new Error(
+        "Cancellation callback must return a boolean synchronously",
+      );
     cancellationCallback = false;
     cancellationRequested = requested === true;
     return cancellationRequested;
@@ -43,15 +48,19 @@ export function observeAutoMovieRecoveryImages(
   try {
     probe = options?.cancelled;
     if (probe !== undefined && typeof probe !== "function")
-      return { operator, status: "refused", diagnostics: ["Cancellation callback must be a function"] };
+      return {
+        operator,
+        status: "refused",
+        diagnostics: ["Cancellation callback must be a function"],
+      };
 
-  if (cancelled())
-    return {
-      operator,
-      status: "cancelled",
-      diagnostics: ["Cancelled before image admission"] };
-  
-  
+    if (cancelled())
+      return {
+        operator,
+        status: "cancelled",
+        diagnostics: ["Cancelled before image admission"],
+      };
+
     const finite: (value: unknown) => value is number = (
       value: unknown,
     ): value is number => typeof value === "number" && Number.isFinite(value);
@@ -164,7 +173,8 @@ export function observeAutoMovieRecoveryImages(
         return {
           operator,
           status: "cancelled",
-          diagnostics: ["Cancelled between image scans"] };
+          diagnostics: ["Cancelled between image scans"],
+        };
       const rows: IAutoMovieRecoveryImageObservation["views"][number]["rows"] =
         [];
       const chart: ReturnType<IAutoMovieRecoveryImageChartAssertOperation.Operation> =
@@ -234,9 +244,11 @@ export function observeAutoMovieRecoveryImages(
         height: view.height,
         camera: {
           ...view.camera,
-          principalPointPx: [...view.camera.principalPointPx] },
+          principalPointPx: [...view.camera.principalPointPx],
+        },
         rows,
-        quantizationMm: view.camera.pixelPitchMm / 2 });
+        quantizationMm: view.camera.pixelPitchMm / 2,
+      });
       callback = true;
       options.onProgress?.("image-support", views.length, input.views.length);
       callback = false;
@@ -245,7 +257,8 @@ export function observeAutoMovieRecoveryImages(
       return {
         operator,
         status: "cancelled",
-        diagnostics: ["Cancelled before observation transfer"] };
+        diagnostics: ["Cancelled before observation transfer"],
+      };
     return {
       operator,
       status: "complete",
@@ -255,13 +268,20 @@ export function observeAutoMovieRecoveryImages(
         frame: input.frame,
         cohort: input.cohort,
         method: "fixed-background-channel-distance-v1",
-        views } };
+        views,
+      },
+    };
   } catch (failure: unknown) {
     return {
       operator,
-      status: cancellationRequested ? "cancelled" : cancellationCallback || callback ? "failed" : "refused",
+      status: cancellationRequested
+        ? "cancelled"
+        : cancellationCallback || callback
+          ? "failed"
+          : "refused",
       diagnostics: [
         failure instanceof Error ? failure.message : String(failure),
-      ] };
+      ],
+    };
   }
 }

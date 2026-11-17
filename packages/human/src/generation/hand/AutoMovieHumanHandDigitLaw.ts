@@ -1,15 +1,16 @@
-import type { IAutoMovieNaturalSpline, AutoMovieVector3Tuple, IAutoMovieHumanArmPrior, IAutoMovieHumanHandDigit, IAutoMovieHumanHandDigitLaw } from "@automovie/interface";
-
-
-
-
-
+import { AutoMovieNaturalSpline } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanArmPrior,
+  IAutoMovieHumanHandDigit,
+  IAutoMovieHumanHandDigitLaw,
+  IAutoMovieNaturalSpline,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-import { AutoMovieNaturalSpline } from "@automovie/engine";
 
-
-const { sub, dot, norm, unit, cross, TWO_PI }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
+const { sub, dot, norm, unit, cross, TWO_PI }: typeof AutoMovieHumanHandVector =
+  AutoMovieHumanHandVector;
 
 /**
  * A digit's law in the hand form's axes: the centre line through its anchors,
@@ -18,7 +19,10 @@ const { sub, dot, norm, unit, cross, TWO_PI }: typeof AutoMovieHumanHandVector =
  */
 export namespace AutoMovieHumanHandDigitLaw {
   /** A digit's line at a length from its root. */
-  export function linePoint(d: IAutoMovieHumanHandDigit, s: number): AutoMovieVector3Tuple {
+  export function linePoint(
+    d: IAutoMovieHumanHandDigit,
+    s: number,
+  ): AutoMovieVector3Tuple {
     return [
       AutoMovieNaturalSpline.evaluate(d.line[0]!, s),
       AutoMovieNaturalSpline.evaluate(d.line[1]!, s),
@@ -27,12 +31,17 @@ export namespace AutoMovieHumanHandDigitLaw {
   }
 
   /** A digit's unit tangent toward its tip. */
-  export function lineTangent(d: IAutoMovieHumanHandDigit, s: number): AutoMovieVector3Tuple {
+  export function lineTangent(
+    d: IAutoMovieHumanHandDigit,
+    s: number,
+  ): AutoMovieVector3Tuple {
     return unit(sub(linePoint(d, s + 0.05), linePoint(d, s - 0.05)));
   }
 
   /** Axes across a digit's line: toward the thumb's side and through the hand. */
-  export function digitAxes(t: AutoMovieVector3Tuple): IAutoMovieHumanHandDigitLaw.DigitAxesResult {
+  export function digitAxes(
+    t: AutoMovieVector3Tuple,
+  ): IAutoMovieHumanHandDigitLaw.DigitAxesResult {
     const k: number = t[1];
     const b: AutoMovieVector3Tuple = unit([-k * t[0], 1 - k * t[1], -k * t[2]]);
     return [b, cross(t, b)];
@@ -54,7 +63,10 @@ export namespace AutoMovieHumanHandDigitLaw {
       start?.centre ??
       ([0, 1, 2].map(
         (c: number): number =>
-          root.reduce((s: number, p: AutoMovieVector3Tuple): number => s + p[c]!, 0) / root.length,
+          root.reduce(
+            (s: number, p: AutoMovieVector3Tuple): number => s + p[c]!,
+            0,
+          ) / root.length,
       ) as AutoMovieVector3Tuple);
     const sizes: number[] = source.anchors
       .map((r: readonly number[]): number => Math.sqrt(r[3]! * r[4]!))
@@ -69,7 +81,9 @@ export namespace AutoMovieHumanHandDigitLaw {
       .reverse();
     const points: AutoMovieVector3Tuple[] = [
       centre,
-      ...kept.map((r: readonly number[]): AutoMovieVector3Tuple => [r[0]!, r[1]!, r[2]!]),
+      ...kept.map(
+        (r: readonly number[]): AutoMovieVector3Tuple => [r[0]!, r[1]!, r[2]!],
+      ),
     ];
     const lengths: number[] = [0];
     for (let i: number = 1; i < points.length; i++)
@@ -103,18 +117,22 @@ export namespace AutoMovieHumanHandDigitLaw {
       return low + Math.min(1, Math.max(0, f)) * (high - low);
     };
     const last: number = lengths[lengths.length - 1]!;
-    const apex: AutoMovieVector3Tuple = [source.pole[0], source.pole[1], source.pole[2]];
+    const apex: AutoMovieVector3Tuple = [
+      source.pole[0],
+      source.pole[1],
+      source.pole[2],
+    ];
     let cap: number = last;
     for (let s: number = lengths[1]!; s < last; s += 0.25)
-      if (Math.sqrt(size(s, 3) * size(s, 4)) >= norm(sub(apex, linePoint(tube, s)))) {
+      if (
+        Math.sqrt(size(s, 3) * size(s, 4)) >=
+        norm(sub(apex, linePoint(tube, s)))
+      ) {
         cap = s;
         break;
       }
     const knots = (c: number): [number, number][] => [
-      [
-        0,
-        start === null ? kept[0]![c]! : c === 3 ? start.width : start.depth,
-      ],
+      [0, start === null ? kept[0]![c]! : c === 3 ? start.width : start.depth],
       ...lengths
         .slice(1)
         .filter((s: number): boolean => s < cap - 1)
@@ -150,7 +168,10 @@ export namespace AutoMovieHumanHandDigitLaw {
       0,
     );
     const turn: number = area >= 0 ? TWO_PI : -TWO_PI;
-    tube.angles = Array.from({ length: n }, (_: unknown, m: number): number => (turn * m) / n);
+    tube.angles = Array.from(
+      { length: n },
+      (_: unknown, m: number): number => (turn * m) / n,
+    );
 
     return tube;
   }

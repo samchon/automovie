@@ -1,4 +1,9 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanHand, IAutoMoviePose } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanHand,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 
@@ -14,7 +19,6 @@ import { HumanArmClearance } from "../posture/HumanArmClearance";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Each triple is the posture's own joint triple, so it is written back without conversion.
  */
 export namespace AutoMovieMotionHumanArmAngles {
-
   /**
    * An arm's joint angles read off a solved pose.
    *
@@ -30,7 +34,10 @@ export namespace AutoMovieMotionHumanArmAngles {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing computed twice.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function angles(pose: IAutoMoviePose, side: IAutoMovieMotionHumanHand.Side): IAutoMovieMotionHumanArmAngles.IAngles {
+  export function angles(
+    pose: IAutoMoviePose,
+    side: IAutoMovieMotionHumanHand.Side,
+  ): IAutoMovieMotionHumanArmAngles.IAngles {
     const read = (
       bone: AutoMovieHumanoidBone,
     ): readonly [number, number, number] => {

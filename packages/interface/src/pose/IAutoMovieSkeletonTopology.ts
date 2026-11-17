@@ -1,6 +1,6 @@
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
-import type { AutoMovieSkeletonParentKey } from "./AutoMovieSkeletonParentKey";
 import type { IAutoMovieBone } from "../skeleton/IAutoMovieBone";
+import type { AutoMovieSkeletonParentKey } from "./AutoMovieSkeletonParentKey";
 
 /**
  * Pose-independent hierarchy index for a skeleton's forward-kinematics walk.

@@ -1,6 +1,9 @@
-import type { IAutoMovieRecoveryRelativePoseStepOperation, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieRecoveryRelativePoseStepOperation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Apply a five-coordinate local step while retaining a rotation and unit t.
@@ -34,7 +37,8 @@ export function stepRecoveryRelativePose(
     const value: IAutoMovieVector3 = Quaternion.rotateVector(quaternion, {
       x: pose.rotation[column]!,
       y: pose.rotation[3 + column]!,
-      z: pose.rotation[6 + column]! });
+      z: pose.rotation[6 + column]!,
+    });
     rotation[column] = value.x;
     rotation[3 + column] = value.y;
     rotation[6 + column] = value.z;
@@ -52,5 +56,6 @@ export function stepRecoveryRelativePose(
       direction[0]! / norm,
       direction[1]! / norm,
       direction[2]! / norm,
-    ] };
+    ],
+  };
 }

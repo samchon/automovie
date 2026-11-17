@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 
 /**
  * Team ball skills performed with an implied ball (#3247): the stationary

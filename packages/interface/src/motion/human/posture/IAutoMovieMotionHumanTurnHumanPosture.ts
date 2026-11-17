@@ -1,6 +1,6 @@
-import type { IAutoMovieMotionHumanPosture } from "./IAutoMovieMotionHumanPosture";
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanPosture } from "./IAutoMovieMotionHumanPosture";
 
 /**
  * Contracts used by turnHumanPosture, HumanTrunk.resolve, HumanCarriedLift.over.mix, resolveHumanPosture.seeded.

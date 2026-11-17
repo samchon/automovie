@@ -1,6 +1,9 @@
-import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieConstructionView } from "@automovie/interface";
 import { realizeAutoMovieConstruction } from "@automovie/engine";
-
+import type {
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionRealization,
+  IAutoMovieConstructionView,
+} from "@automovie/interface";
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";

@@ -1,6 +1,16 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanStrikingAdvance, IAutoMovieMotionHumanStrikingHeld, IAutoMovieMotionHumanSword, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanStrikingAdvance,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionHumanSword,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanSkill } from "../skill/HumanSkill";
@@ -42,9 +52,10 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sword kind is named; lengths are shares of the arm and the blade's own length.
  */
 export namespace HumanSword {
-
   /** Where each cut comes from, across the line to the target: `out` and `up` parts of a unit direction. */
-  export const LINES: Readonly<Record<IAutoMovieMotionHumanSword.Line, readonly [number, number]>> = {
+  export const LINES: Readonly<
+    Record<IAutoMovieMotionHumanSword.Line, readonly [number, number]>
+  > = {
     above: [0, 1],
     aboveForehand: [Math.SQRT1_2, Math.SQRT1_2],
     forehand: [1, 0],
@@ -93,7 +104,9 @@ export namespace HumanSword {
    * @param context The action's context.
    * @returns The setup.
    */
-  export const setup = (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IWield>): IAutoMovieMotionHumanSword.ISetup => {
+  export const setup = (
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IWield>,
+  ): IAutoMovieMotionHumanSword.ISetup => {
     const p: IAutoMovieMotionHumanSword.IWield = context.params;
     const side: IAutoMovieMotionHumanHand.Side = p.hand ?? "right";
     const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
@@ -140,7 +153,9 @@ export namespace HumanSword {
   };
 
   /** The cancel table of a blade action: anything may follow from the named instant on, the grip kept. */
-  export const follows = (instant: string): IAutoMovieMotionHumanActionLaw["interrupts"] => ({
+  export const follows = (
+    instant: string,
+  ): IAutoMovieMotionHumanActionLaw["interrupts"] => ({
     any: [
       {
         window: [instant, 1],
@@ -193,7 +208,8 @@ export namespace HumanSword {
     const advance: IAutoMovieMotionHumanStrikingAdvance.Advance =
       p.advance ??
       (["none", "step"] as const).find(
-        (candidate: IAutoMovieMotionHumanStrikingAdvance.Advance): boolean => within(candidate),
+        (candidate: IAutoMovieMotionHumanStrikingAdvance.Advance): boolean =>
+          within(candidate),
       ) ??
       "lunge";
 
@@ -256,7 +272,9 @@ export namespace HumanSword {
   export const timed: typeof HumanSwordTiming.timed = HumanSwordTiming.timed;
 
   /** The share of its path an attack runs: all of it, a feint's shown share, or a parried attack's stop. */
-  export const stopped = (params: IAutoMovieMotionHumanSword.IAttack): number => {
+  export const stopped = (
+    params: IAutoMovieMotionHumanSword.IAttack,
+  ): number => {
     if (params.feint !== undefined)
       return HumanBound.within("feint", params.feint, 0, 1, "", "both");
     return params.outcome === "parried" ? STOPPED : 1;
@@ -277,87 +295,99 @@ export namespace HumanSword {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
    */
-  export const cut: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSword.ICut> = {
-    name: "swordCut",
-    interrupts: follows("strokeEnd"),
-    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.ICut>): IAutoMovieMotionHumanActionPlan => {
-      const s: IAutoMovieMotionHumanSword.ISetup = setup(context);
-      // What lands is the held thing's own striking part: `LANDS.cut` along
-      // its edge from the hand's end, or its working point when it declares
-      // no edge.
-      const back: number =
-        s.tool.span === null
-          ? 0
-          : s.tool.span[1] - LANDS.cut * (s.tool.span[1] - s.tool.span[0]);
-      const a: IAutoMovieMotionHumanSword.IAim = aim(
-        context,
-        s,
-        { out: 0, up: -0.1, forward: 0.6 },
-        s.tool.length - back,
-      );
-      const [out, up]: readonly [number, number] =
-        LINES[context.params.from ?? "above"];
-      const origin: IAutoMovieVector3 = s.world({ out, up, forward: 0 }, a.yaw);
-      const travel: IAutoMovieVector3 = Vector3.scale(origin, -1);
-
-      // The contact pose: the landing part on the target, the edge leading
-      // along the travel, the blade's lean and turn as the arm holds them.
-      const landed: IAutoMovieMotionHumanStrikingHeld.IHandFrame = HumanSwordLanding.frame(context, {
-        tool: s.tool,
-        back,
-        target: a.target,
-        reach: a.reach,
-        travel,
-        cone: CONE,
-        posture: a.posture,
-      });
-      if (context.params.target !== undefined)
-        StrikingRoll.reachable(context, s.tool, landed, back, a.posture, FIX);
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(
-        landed.rotation,
-        s.tool.axis,
-      );
-      const about: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.cross(axis, travel),
-      );
-      const chamber: IAutoMovieVector3 = Vector3.add(
-        s.shoulder,
-        Vector3.scale(
-          Vector3.add(Vector3.scale(origin, 0.35), Vector3.scale(a.line, 0.25)),
-          s.arm,
-        ),
-      );
-      const path = (progress: number): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
-        rotation: Quaternion.multiply(
-          Quaternion.fromAxisAngle(about, -SWING * (1 - progress)),
-          landed.rotation,
-        ),
-        point:
-          progress <= 1
-            ? Vector3.lerp(chamber, landed.point, progress)
-            : Vector3.add(
-                landed.point,
-                Vector3.scale(travel, (progress - 1) * 0.3 * s.arm),
-              ),
-      });
-      return StrikingBlade.plan(context, {
-        tool: s.tool,
-        clock: timed(
+  export const cut: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSword.ICut> =
+    {
+      name: "swordCut",
+      interrupts: follows("strokeEnd"),
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.ICut>,
+      ): IAutoMovieMotionHumanActionPlan => {
+        const s: IAutoMovieMotionHumanSword.ISetup = setup(context);
+        // What lands is the held thing's own striking part: `LANDS.cut` along
+        // its edge from the hand's end, or its working point when it declares
+        // no edge.
+        const back: number =
+          s.tool.span === null
+            ? 0
+            : s.tool.span[1] - LANDS.cut * (s.tool.span[1] - s.tool.span[0]);
+        const a: IAutoMovieMotionHumanSword.IAim = aim(
           context,
-          ((SWING * Math.PI) / 180) * (s.tool.length - back) +
-            Vector3.length(Vector3.subtract(landed.point, chamber)),
-          s.skill(SPEED.cut),
-          0.6,
-        ),
-        path,
-        back,
-        support: s.support,
-        advance: a.advance,
-        travel: a.travel,
-        line: a.line,
-        stay: false,
-        stop: stopped(context.params),
-      });
-    },
-  };
+          s,
+          { out: 0, up: -0.1, forward: 0.6 },
+          s.tool.length - back,
+        );
+        const [out, up]: readonly [number, number] =
+          LINES[context.params.from ?? "above"];
+        const origin: IAutoMovieVector3 = s.world(
+          { out, up, forward: 0 },
+          a.yaw,
+        );
+        const travel: IAutoMovieVector3 = Vector3.scale(origin, -1);
+
+        // The contact pose: the landing part on the target, the edge leading
+        // along the travel, the blade's lean and turn as the arm holds them.
+        const landed: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+          HumanSwordLanding.frame(context, {
+            tool: s.tool,
+            back,
+            target: a.target,
+            reach: a.reach,
+            travel,
+            cone: CONE,
+            posture: a.posture,
+          });
+        if (context.params.target !== undefined)
+          StrikingRoll.reachable(context, s.tool, landed, back, a.posture, FIX);
+        const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+          landed.rotation,
+          s.tool.axis,
+        );
+        const about: IAutoMovieVector3 = Vector3.normalize(
+          Vector3.cross(axis, travel),
+        );
+        const chamber: IAutoMovieVector3 = Vector3.add(
+          s.shoulder,
+          Vector3.scale(
+            Vector3.add(
+              Vector3.scale(origin, 0.35),
+              Vector3.scale(a.line, 0.25),
+            ),
+            s.arm,
+          ),
+        );
+        const path = (
+          progress: number,
+        ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
+          rotation: Quaternion.multiply(
+            Quaternion.fromAxisAngle(about, -SWING * (1 - progress)),
+            landed.rotation,
+          ),
+          point:
+            progress <= 1
+              ? Vector3.lerp(chamber, landed.point, progress)
+              : Vector3.add(
+                  landed.point,
+                  Vector3.scale(travel, (progress - 1) * 0.3 * s.arm),
+                ),
+        });
+        return StrikingBlade.plan(context, {
+          tool: s.tool,
+          clock: timed(
+            context,
+            ((SWING * Math.PI) / 180) * (s.tool.length - back) +
+              Vector3.length(Vector3.subtract(landed.point, chamber)),
+            s.skill(SPEED.cut),
+            0.6,
+          ),
+          path,
+          back,
+          support: s.support,
+          advance: a.advance,
+          travel: a.travel,
+          line: a.line,
+          stay: false,
+          stop: stopped(context.params),
+        });
+      },
+    };
 }

@@ -1,5 +1,3 @@
-
-
 /**
  * One mark kind a picture can draw, with the legend label and default colour it is drawn in.
  *

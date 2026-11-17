@@ -1,6 +1,5 @@
 import type { IAutoMovieSupportSectionVertex } from "./IAutoMovieSupportSectionVertex";
 
-
 /**
  * Prepared half-plane intersection queries with fixed section directions.
  *
@@ -54,5 +53,7 @@ export namespace IAutoMovieCreateSupportSectionQuery {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Dense finite unit normals, matching finite offsets, bounded directions and a finite sine threshold in (0,1) are caller admission premises; the query checks finite intersections, feasible weak pairs and positive area.
    * @evidence contracts/development/common.md#meaningful-documentation Prepared half-plane intersection queries with fixed section directions. The inequality is nx X + nz Z <= offset in a common XZ metre chart; tight plane indices identify corners independently of coordinate proximity.
    */
-  export type IResult = (offsets: readonly number[]) => IAutoMovieSupportSectionVertex[];
+  export type IResult = (
+    offsets: readonly number[],
+  ) => IAutoMovieSupportSectionVertex[];
 }

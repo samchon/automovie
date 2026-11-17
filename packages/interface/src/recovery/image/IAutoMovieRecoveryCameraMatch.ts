@@ -6,35 +6,27 @@
  * @evidence contracts/development/common.md#meaningful-documentation Members give feature identities, both pixel-centre coordinates, Euclidean ratio and the meaning of geometric support flags.
  */
 export interface IAutoMovieRecoveryCameraMatch {
- 
- /** Selected first-view feature index. */
+  /** Selected first-view feature index. */
   firstFeatureIndex: number;
 
- 
- /** Selected second-view feature index. */
+  /** Selected second-view feature index. */
   secondFeatureIndex: number;
 
- 
- /** First original pixel-centre coordinate [column,row]. */
+  /** First original pixel-centre coordinate [column,row]. */
   firstPx: [number, number];
 
- 
- /** Second original pixel-centre coordinate [column,row]. */
+  /** Second original pixel-centre coordinate [column,row]. */
   secondPx: [number, number];
 
- 
- /** Euclidean descriptor distance divided by its distinct second-neighbour distance. */
+  /** Euclidean descriptor distance divided by its distinct second-neighbour distance. */
   descriptorDistanceRatio: number;
 
- 
- /** Squared Euclidean distance between normalized appearance descriptors. */
+  /** Squared Euclidean distance between normalized appearance descriptors. */
   squaredDescriptorDistance: number;
 
- 
- /** Whether the fitted final consensus meets the Sampson threshold, before the separate essential-projection consistency check. */
+  /** Whether the fitted final consensus meets the Sampson threshold, before the separate essential-projection consistency check. */
   epipolarInlier: boolean;
 
- 
- /** Whether the best competing map supports this final epipolar inlier. */
+  /** Whether the best competing map supports this final epipolar inlier. */
   homographyInlier: boolean;
 }

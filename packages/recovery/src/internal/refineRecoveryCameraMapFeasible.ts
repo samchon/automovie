@@ -1,20 +1,27 @@
-import type { IAutoMovieRecoveryCurvatureAdmission, IAutoMovieRecoveryCurvatureReport, IAutoMovieRecoveryFeasibleJointOptions, IAutoMovieRecoveryFeasibleMapLinearizeOperation, IAutoMovieRecoveryFeasibleMapReporting, IAutoMovieRecoveryFeasibleModel, IAutoMovieRecoveryFeasibleReportCapacity, IAutoMovieRecoveryFeasibleStateRefinementOperation, IAutoMovieRecoveryMapCurvatureBlocks, IAutoMovieRecoveryMapCurvatureFit, IAutoMovieRecoveryMapJointBlock, IAutoMovieRecoveryMapJointResult, IAutoMovieRecoveryMapLandmark, IAutoMovieRecoveryMapMetricFactorizationOperation, IAutoMovieRecoveryMapPointProjectionOperation, IAutoMovieRecoveryMapPose, IAutoMovieRecoveryMapState, IAutoMovieRecoveryRegularizationReport, IAutoMovieRecoveryScenePointEvaluationOperation, IAutoMovieRecoveryUntiltedEstimate, IAutoMovieRecoveryCameraMapBudget, IAutoMovieRecoveryCameraMapPolicy } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+import type {
+  IAutoMovieRecoveryCameraMapBudget,
+  IAutoMovieRecoveryCameraMapPolicy,
+  IAutoMovieRecoveryCurvatureAdmission,
+  IAutoMovieRecoveryCurvatureReport,
+  IAutoMovieRecoveryFeasibleJointOptions,
+  IAutoMovieRecoveryFeasibleMapLinearizeOperation,
+  IAutoMovieRecoveryFeasibleMapReporting,
+  IAutoMovieRecoveryFeasibleModel,
+  IAutoMovieRecoveryFeasibleReportCapacity,
+  IAutoMovieRecoveryFeasibleStateRefinementOperation,
+  IAutoMovieRecoveryMapCurvatureBlocks,
+  IAutoMovieRecoveryMapCurvatureFit,
+  IAutoMovieRecoveryMapJointBlock,
+  IAutoMovieRecoveryMapJointResult,
+  IAutoMovieRecoveryMapLandmark,
+  IAutoMovieRecoveryMapMetricFactorizationOperation,
+  IAutoMovieRecoveryMapPointProjectionOperation,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoveryMapState,
+  IAutoMovieRecoveryRegularizationReport,
+  IAutoMovieRecoveryScenePointEvaluationOperation,
+  IAutoMovieRecoveryUntiltedEstimate,
+} from "@automovie/interface";
 
 import { admitRecoveryMapCurvature } from "./admitRecoveryMapCurvature";
 import { assembleRecoveryMapCurvature } from "./assembleRecoveryMapCurvature";
@@ -75,7 +82,8 @@ export function refineRecoveryCameraMapFeasible(
     retained,
     evaluationWork,
     modelWork,
-    reporting }: IAutoMovieRecoveryFeasibleMapReporting =
+    reporting,
+  }: IAutoMovieRecoveryFeasibleMapReporting =
     prepareRecoveryFeasibleMapReporting(
       initialPoses,
       initialLandmarks,
@@ -107,14 +115,17 @@ export function refineRecoveryCameraMapFeasible(
           attempted: 0,
           supported: 0,
           refused: 0,
-          latestReason: null };
+          latestReason: null,
+        };
   let seed: IAutoMovieRecoveryUntiltedEstimate | null = null;
   const initial: IAutoMovieRecoveryMapState = structuredClone({
     poses: initialPoses.slice(),
-    landmarks: initialLandmarks.slice() });
+    landmarks: initialLandmarks.slice(),
+  });
   const charts: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[3] =
     intrinsics.map((matrix: readonly number[]): (typeof charts)[number] => ({
-      matrix: matrix.slice() }));
+      matrix: matrix.slice(),
+    }));
   let minimumPointDesignRatio: number = Infinity,
     minimumCameraDesignRatio: number = Infinity;
   let initialSquaredError: number | null = null;
@@ -128,7 +139,8 @@ export function refineRecoveryCameraMapFeasible(
         finalDamping: damping,
         supportedUpdates: 0,
         unsupportedUpdates: 0,
-        lastUpdate: null }
+        lastUpdate: null,
+      }
     : null;
   const squared: (state: IAutoMovieRecoveryMapState) => number = (
     state: IAutoMovieRecoveryMapState,
@@ -154,7 +166,7 @@ export function refineRecoveryCameraMapFeasible(
   };
   const fit: ReturnType<
     IAutoMovieRecoveryFeasibleStateRefinementOperation.Operation<IAutoMovieRecoveryMapState>
-    > = refineRecoveryFeasibleState(
+  > = refineRecoveryFeasibleState(
     {
       initial,
       evaluate: (state: IAutoMovieRecoveryMapState): number | null => {
@@ -252,7 +264,8 @@ export function refineRecoveryCameraMapFeasible(
                 ? {
                     metric: null,
                     rows: null,
-                    reason: "local-formation" }
+                    reason: "local-formation",
+                  }
                 : factorRecoveryMapCurvature(
                     blocks,
                     solution.cameraScales,
@@ -277,7 +290,8 @@ export function refineRecoveryCameraMapFeasible(
           physicalRows: local.rows,
           width,
           fromMetric: metric.unwhiten,
-          toPhysicalCovector: metric.toPhysicalCovector };
+          toPhysicalCovector: metric.toPhysicalCovector,
+        };
       },
       retract: (
         state: IAutoMovieRecoveryMapState,
@@ -314,8 +328,10 @@ export function refineRecoveryCameraMapFeasible(
               point: landmark.point.map(
                 (value: number, axis: number): number =>
                   value + step[cameraWidth + 3 * at + axis]!,
-              ) as [number, number, number] }),
-          ) };
+              ) as [number, number, number],
+            }),
+          ),
+        };
       },
       constraintValues:
         options.sqpAcceleration === true
@@ -432,7 +448,8 @@ export function refineRecoveryCameraMapFeasible(
                 currentBase = null;
               }
             }
-          : undefined },
+          : undefined,
+    },
     budget.maxRefinementIterations,
     1e-8,
     options.directionBudget,
@@ -445,7 +462,8 @@ export function refineRecoveryCameraMapFeasible(
           maxEntries: options.directionBudget.maxEntries,
           maxResidentEntries: reporting.fitEntries,
           retainedEntries: curvatureAdmission?.retainedEntries ?? retained,
-          maxWork: options.directionBudget.maxWork }
+          maxWork: options.directionBudget.maxWork,
+        }
       : undefined,
   );
   charge(evaluationWork);
@@ -467,5 +485,7 @@ export function refineRecoveryCameraMapFeasible(
       ...(regularization === null
         ? {}
         : { regularization: { ...regularization } }),
-      ...(curvature === null ? {} : { curvature: { ...curvature } }) } };
+      ...(curvature === null ? {} : { curvature: { ...curvature } }),
+    },
+  };
 }

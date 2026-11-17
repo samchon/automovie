@@ -1,6 +1,10 @@
-import { type IAutoMovieDeliveryCropNdc, type IAutoMovieResolvedCamera, type IAutoMovieIntersectsPerspectiveFrustumBox, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  type IAutoMovieDeliveryCropNdc,
+  type IAutoMovieIntersectsPerspectiveFrustumBox,
+  IAutoMovieQuaternion,
+  type IAutoMovieResolvedCamera,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -52,7 +56,9 @@ const BOX_EDGES: ReadonlyArray<readonly [number, number]> = [
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure predicate over one box and one camera that coordinates no work across calls; the grader calls it once per sampled instant.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Creates bounded constant-size original, camera-local and frustum corner arrays plus vector arithmetic temporaries, and retains none after return.
  */
-export function intersectsPerspectiveFrustumBox(props: IAutoMovieIntersectsPerspectiveFrustumBox.IProps): boolean {
+export function intersectsPerspectiveFrustumBox(
+  props: IAutoMovieIntersectsPerspectiveFrustumBox.IProps,
+): boolean {
   const crop: IAutoMovieDeliveryCropNdc = deliveryCropNdc(props.crop);
   const halfX: number = props.halfY * props.aspect;
   const inverse: IAutoMovieQuaternion = Quaternion.inverse(

@@ -1,22 +1,24 @@
-import type { IAutoMovieRecoveryCameraSceneCreationOperation, IAutoMovieRecoveryCameraSceneEstimate, IAutoMovieRecoveryCameraTracksLinkageOperation, IAutoMovieRecoveryMapPose, IAutoMovieRecoveryResectionConsensusFittingOperation, IAutoMovieRecoverySceneAttempt, IAutoMovieRecoverySceneCandidate, IAutoMovieRecoverySceneCheckpointCompletionOperation, IAutoMovieRecoverySceneFeasibleRouting, IAutoMovieRecoverySceneQueue, IAutoMovieRecoverySceneSeedInitializationOperation, IAutoMovieRecoverySceneWork } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
+import type {
+  IAutoMovieRecoveryCameraSceneCreationOperation,
+  IAutoMovieRecoveryCameraSceneEstimate,
+  IAutoMovieRecoveryCameraTracksLinkageOperation,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoveryResectionConsensusFittingOperation,
+  IAutoMovieRecoverySceneAttempt,
+  IAutoMovieRecoverySceneCandidate,
+  IAutoMovieRecoverySceneCheckpointCompletionOperation,
+  IAutoMovieRecoverySceneFeasibleRouting,
+  IAutoMovieRecoverySceneQueue,
+  IAutoMovieRecoverySceneSeedInitializationOperation,
+  IAutoMovieRecoverySceneWork,
+} from "@automovie/interface";
 
 import { RecoveryFeasibleCapacityError } from "./RecoveryFeasibleCapacityError";
 import { assertRecoverySceneLinearRetention } from "./assertRecoverySceneLinearRetention";
 import { collectRecoverySceneSupport } from "./collectRecoverySceneSupport";
 import { completeRecoverySceneCheckpoint } from "./completeRecoverySceneCheckpoint";
-
 import { createRecoverySceneSeedReportObserver } from "./createRecoverySceneSeedReportObserver";
 import { describeRecoverySceneRegistration } from "./describeRecoverySceneRegistration";
-
 import { fitRecoveryResectionConsensus } from "./fitRecoveryResectionConsensus";
 import { initializeRecoverySceneSeed } from "./initializeRecoverySceneSeed";
 import { linkRecoveryCameraTracks } from "./linkRecoveryCameraTracks";
@@ -63,7 +65,8 @@ export function createRecoveryCameraScene(
           triangulationRefusals: 0,
           jointFits: 0,
           jointIterationAttempts: 0,
-          linearWork: 0 };
+          linearWork: 0,
+        };
   const routing: IAutoMovieRecoverySceneFeasibleRouting | null =
     routingWork === null
       ? null
@@ -131,7 +134,9 @@ export function createRecoveryCameraScene(
         camera: {
           ...view.camera,
           focalPx: [...view.camera.focalPx],
-          principalPointPx: [...view.camera.principalPointPx] } }),
+          principalPointPx: [...view.camera.principalPointPx],
+        },
+      }),
     ),
     seed,
     policy: { ...input.policy },
@@ -160,10 +165,12 @@ export function createRecoveryCameraScene(
       triangulationRefusals: 0,
       jointFits: 0,
       jointIterationAttempts: 0,
-      linearWork: 0 },
+      linearWork: 0,
+    },
     joint: null,
     maximumReprojectionErrorPx: null,
-    minimumPointParallaxDegrees: null };
+    minimumPointParallaxDegrees: null,
+  };
   const numerical: (error: unknown) => boolean = (error: unknown): boolean =>
     error instanceof Error &&
     error.name === "Error" &&
@@ -220,10 +227,12 @@ export function createRecoveryCameraScene(
   );
   initialPoses[0] = {
     rotation: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-    translation: [0, 0, 0] };
+    translation: [0, 0, 0],
+  };
   initialPoses[1] = {
     rotation: seed.pose.rotation.slice(),
-    translation: [...seed.pose.translation] };
+    translation: [...seed.pose.translation],
+  };
   try {
     if (routing !== null)
       prepareRecoverySceneReportCapacity(routing, result.work);
@@ -274,7 +283,8 @@ export function createRecoveryCameraScene(
       .map(
         (view: number): IAutoMovieRecoverySceneQueue => ({
           view,
-          candidates: support[view]! }),
+          candidates: support[view]!,
+        }),
       )
       .filter(
         (item: IAutoMovieRecoverySceneQueue): boolean =>
@@ -308,7 +318,8 @@ export function createRecoveryCameraScene(
         resection: null,
         joint: null,
         proposedLandmarks: null,
-        proposedObservations: null };
+        proposedObservations: null,
+      };
       try {
         spendRecoverySceneWork(
           result.work,
@@ -373,7 +384,8 @@ export function createRecoveryCameraScene(
           finalRefits: resection.finalRefits,
           stable: resection.stable,
           converged: resection.refinement?.converged ?? null,
-          refusalReasons: resection.refusalReasons.slice() };
+          refusalReasons: resection.refusalReasons.slice(),
+        };
         if (resection.pose === null) {
           attempt.reasons = resection.refusalReasons.slice();
           continue;

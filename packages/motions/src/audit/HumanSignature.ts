@@ -1,6 +1,17 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  resolveAutoMovieCenterOfMass,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { Quaternion, resolveAutoMovieCenterOfMass, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
 
@@ -121,7 +132,10 @@ export namespace HumanSignature {
    * about 0 (Kendall, McCreary, Provance, Rodgers and Romani 2005, Muscles:
    * Testing and Function, 5th ed.).
    */
-  export function trunk(reader: IAutoMovieMotionHumanSignature.IReader, seconds: number): number {
+  export function trunk(
+    reader: IAutoMovieMotionHumanSignature.IReader,
+    seconds: number,
+  ): number {
     const l: IAutoMovieVector3 = joint(reader, seconds, "leftUpperLeg");
     const r: IAutoMovieVector3 = joint(reader, seconds, "rightUpperLeg");
     const sl: IAutoMovieVector3 = joint(reader, seconds, "leftUpperArm");
@@ -198,7 +212,10 @@ export namespace HumanSignature {
   }
 
   /** The head's pitch: how far its forward axis points below the horizon, degrees. */
-  export function head(reader: IAutoMovieMotionHumanSignature.IReader, seconds: number): number {
+  export function head(
+    reader: IAutoMovieMotionHumanSignature.IReader,
+    seconds: number,
+  ): number {
     const b: IAutoMovieResolvedBone | undefined = bones(reader, seconds).get(
       "head",
     );
@@ -212,7 +229,10 @@ export namespace HumanSignature {
   }
 
   /** The whole-body centre of mass of the performer, world metres. */
-  export function centre(reader: IAutoMovieMotionHumanSignature.IReader, seconds: number): IAutoMovieVector3 {
+  export function centre(
+    reader: IAutoMovieMotionHumanSignature.IReader,
+    seconds: number,
+  ): IAutoMovieVector3 {
     return resolveAutoMovieCenterOfMass.place(
       resolveAutoMovieCenterOfMass(reader.body.skeleton, reader.body.profile),
       bones(reader, seconds),
@@ -308,9 +328,8 @@ export namespace HumanSignature {
         // A foot strikes once a stride: a contact that flickers within a
         // quarter second of the same foot's last strike (a heel handing the
         // load to the ball) is the same footfall.
-        const mine: IAutoMovieMotionHumanSignature.IGait["strikes"] = strikes.filter(
-          (s): boolean => s.side === side,
-        );
+        const mine: IAutoMovieMotionHumanSignature.IGait["strikes"] =
+          strikes.filter((s): boolean => s.side === side);
         const last: number | undefined = mine[mine.length - 1]?.seconds;
         if (
           before === false &&

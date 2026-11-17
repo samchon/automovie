@@ -1,4 +1,8 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSimulationInput,
+} from "@automovie/interface";
+
 /**
  * Contact withdrawal names actual other-body geometry and a finite local-time window.
  *
@@ -15,14 +19,20 @@ export function admitPhysicalReleasePolicy(
   body: IAutoMoviePhysicalSimulationInput.IBody,
 ): void {
   if (body.releaseOnContact === undefined) return;
-  const policy: NonNullable<IAutoMoviePhysicalSimulationInput.IBody["releaseOnContact"]> =
-    body.releaseOnContact;
+  const policy: NonNullable<
+    IAutoMoviePhysicalSimulationInput.IBody["releaseOnContact"]
+  > = body.releaseOnContact;
   if (!policy || typeof policy !== "object")
     throw new Error(`${body.id}: invalid contact-triggered release policy`);
-  const other: IAutoMoviePhysicalSimulationInput.IBody | undefined = input.bodies.find(
-    (candidate: IAutoMoviePhysicalSimulationInput.IBody): boolean => candidate.id === policy.otherBody,
-  );
-  const validShapes: (profile: IAutoMoviePhysicalProfile, selected: readonly string[]) => boolean = (
+  const other: IAutoMoviePhysicalSimulationInput.IBody | undefined =
+    input.bodies.find(
+      (candidate: IAutoMoviePhysicalSimulationInput.IBody): boolean =>
+        candidate.id === policy.otherBody,
+    );
+  const validShapes: (
+    profile: IAutoMoviePhysicalProfile,
+    selected: readonly string[],
+  ) => boolean = (
     profile: IAutoMoviePhysicalProfile,
     selected: readonly string[],
   ): boolean =>
@@ -32,8 +42,12 @@ export function admitPhysicalReleasePolicy(
     Array.from(selected).every(
       (id: string): boolean =>
         typeof id === "string" &&
-        profile.segments.some((segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
-          segment.shapes.some((shape: IAutoMoviePhysicalProfile.IShape): boolean => shape.id === id),
+        profile.segments.some(
+          (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+            segment.shapes.some(
+              (shape: IAutoMoviePhysicalProfile.IShape): boolean =>
+                shape.id === id,
+            ),
         ),
     );
   if (

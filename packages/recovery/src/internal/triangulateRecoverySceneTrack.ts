@@ -1,12 +1,14 @@
-import type { IAutoMovieRecoveryCameraChartCreationOperation, IAutoMovieRecoveryMapObservation, IAutoMovieRecoveryMapPose, IAutoMovieRecoveryScenePointEvaluationOperation, IAutoMovieRecoverySceneTrackTriangulationOperation } from "@automovie/interface";
 import {
   AutoMovieMatrix3,
-  decomposeAutoMovieSingularMatrix } from "@automovie/engine";
-
-
-
-
-
+  decomposeAutoMovieSingularMatrix,
+} from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryCameraChartCreationOperation,
+  IAutoMovieRecoveryMapObservation,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoveryScenePointEvaluationOperation,
+  IAutoMovieRecoverySceneTrackTriangulationOperation,
+} from "@automovie/interface";
 
 import { evaluateRecoveryScenePoint } from "./evaluateRecoveryScenePoint";
 
@@ -42,13 +44,15 @@ export function triangulateRecoverySceneTrack(
   )
     return {
       point: null,
-      reasons: ["insufficient-distinct-point-observations"] };
+      reasons: ["insufficient-distinct-point-observations"],
+    };
   const rows: number[][] = [];
   for (const observation of observations) {
     const pose: IAutoMovieRecoveryMapPose | null | undefined =
       poses[observation.viewIndex];
-    const chart: ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation> | undefined =
-      charts[observation.viewIndex];
+    const chart:
+      | ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>
+      | undefined = charts[observation.viewIndex];
     if (!pose || !chart)
       return { point: null, reasons: ["unregistered-point-observation"] };
     const ray: [number, number, number] = AutoMovieMatrix3.apply(
@@ -71,7 +75,8 @@ export function triangulateRecoverySceneTrack(
     factors = decomposeAutoMovieSingularMatrix(rows, {
       maxEntries: budget.maxLinearEntries,
       maxSweeps: budget.maxSingularSweeps,
-      orthogonalityTolerance: 1e-12 });
+      orthogonalityTolerance: 1e-12,
+    });
   } catch (error: unknown) {
     if (
       !(error instanceof Error) ||

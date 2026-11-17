@@ -1,23 +1,29 @@
-import type { IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewOutline, IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanGlutealParent, IAutoMovieHumanMassSource, IAutoMovieHumanSiteViewPart, IAutoMovieConstructionView } from "@automovie/interface";
-
-
-
-
-
-import { AutoMovieConstructionViews, AutoMovieIllinois, AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieSolidVector, AutoMovieViewOutline, AutoMovieViewParameter } from "@automovie/engine";
-
-
+import {
+  AutoMovieConstructionViews,
+  AutoMovieIllinois,
+  AutoMovieLoftSectionNative,
+  AutoMovieLoftViewRead,
+  AutoMovieLoftViewSource,
+  AutoMovieSolidVector,
+  AutoMovieViewOutline,
+  AutoMovieViewParameter,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionView,
+  IAutoMovieHumanGlutealParent,
+  IAutoMovieHumanMassSource,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView";
 
-
 /** Preserve an actual supported mass source, or prepend only an inward extension while retaining all its old scalar functions and both jets. */
 export namespace AutoMovieHumanMassSource {
-  
-  
-
-  
-
   /**
    * Locate the lower guide's actual exit from the same composite parent.
    * @evidence contracts/common.md#principled-implementation Reads the actual signed guide and axis, then the consumed whole-parent chord at each point; the exiting boundary supplies the host face.
@@ -230,7 +236,9 @@ export namespace AutoMovieHumanMassSource {
     const rootShape: ReturnType<typeof AutoMovieLoftSectionNative.point> =
       AutoMovieLoftSectionNative.point(values);
     const rootFrame: ReturnType<typeof original.axis.at> = original.axis.at(0);
-    const originalContact: (phi: number) => IAutoMovieHumanMassSource.IContact | string = (
+    const originalContact: (
+      phi: number,
+    ) => IAutoMovieHumanMassSource.IContact | string = (
       phi: number,
     ): IAutoMovieHumanMassSource.IContact | string => {
       if (!Number.isFinite(phi)) return "Mass contact needs a finite phase";
@@ -245,10 +253,11 @@ export namespace AutoMovieHumanMassSource {
       const chords: IAutoMovieHumanGlutealParent.IChord[] | string =
         connection.parent.chord(point[1], point[2]);
       if (typeof chords === "string") return chords;
-      const chord: IAutoMovieHumanGlutealParent.IChord | undefined = chords.find(
-        (candidate: IAutoMovieHumanGlutealParent.IChord): boolean =>
-          point[0] > candidate.back.x && point[0] < candidate.front.x,
-      );
+      const chord: IAutoMovieHumanGlutealParent.IChord | undefined =
+        chords.find(
+          (candidate: IAutoMovieHumanGlutealParent.IChord): boolean =>
+            point[0] > candidate.back.x && point[0] < candidate.front.x,
+        );
       return chord === undefined
         ? "Original mass root leaves the actual parent"
         : { point, chord };
@@ -267,9 +276,8 @@ export namespace AutoMovieHumanMassSource {
       oldOrigin[0] < connection.rootInterval[1]
     ) {
       for (let k: number = 0; k < 64; k++) {
-        const contact: IAutoMovieHumanMassSource.IContact | string = originalContact(
-          (2 * Math.PI * k) / 64,
-        );
+        const contact: IAutoMovieHumanMassSource.IContact | string =
+          originalContact((2 * Math.PI * k) / 64);
         if (typeof contact === "string") throw new Error(contact);
       }
       return {

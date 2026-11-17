@@ -1,6 +1,6 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieFormationLayout } from "../../../production/IAutoMovieFormationLayout";
 import type { IAutoMovieMotionHumanActionContext } from "../law/IAutoMovieMotionHumanActionContext";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * A formation as data: blocks of the interface's layout union, in member

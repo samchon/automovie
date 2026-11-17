@@ -1,10 +1,13 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Vector3,
   closestPointsBetweenSegments,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { createHumanBody } from "../../body/createHumanBody";

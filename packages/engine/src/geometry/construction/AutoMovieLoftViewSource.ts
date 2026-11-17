@@ -1,4 +1,12 @@
-import type { IAutoMovieViewPart, IAutoMovieLoftViewSourceFullness, AutoMovieLoftViewSourceOutlines, AutoMovieLoftViewSourceSplit, IAutoMovieLoftViewSource, IAutoMovieLoftViewSourceCap, IAutoMovieViewOutline } from "@automovie/interface";
+import type {
+  AutoMovieLoftViewSourceOutlines,
+  AutoMovieLoftViewSourceSplit,
+  IAutoMovieLoftViewSource,
+  IAutoMovieLoftViewSourceCap,
+  IAutoMovieLoftViewSourceFullness,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 
@@ -11,7 +19,6 @@ import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftViewSource {
-
   /**
    * Prepare direct shoulder/top ownership; null explicitly leaves generic girth unchanged.
    *
@@ -23,7 +30,9 @@ export namespace AutoMovieLoftViewSource {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each admitted scalar spline is retained once for subsequent station reads.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns copied scalar preparations and cap metadata; inputs and temporary arrays are not globally retained.
    */
-  export function create(part: IAutoMovieLoftViewSource.IInput): IAutoMovieLoftViewSource.IResult | null {
+  export function create(
+    part: IAutoMovieLoftViewSource.IInput,
+  ): IAutoMovieLoftViewSource.IResult | null {
     if (part.fullness.kind === "girth") return null;
     const diagnostics: IAutoMovieViewOutline.IFailure[] = [];
     const first: number = part.stations[0] ?? NaN;
@@ -95,29 +104,96 @@ export namespace AutoMovieLoftViewSource {
       );
       // A touch offset and a split's point are chart coordinates of the section like the extents, so at a pole they close in the same pole
       // parameter and every coordinate of a cap section falls together; an angle or a shoulder is no length and keeps its own parameter.
-      const touch: AutoMovieLoftViewSourceOutlines | null = fullness.touch === undefined ? null : group(fullness.touch, ends, "touch", diagnostics);
-      const admit = (split: IAutoMovieViewPart.ISplit, name: string): AutoMovieLoftViewSourceSplit | null => {
-        const parts: (IAutoMovieViewOutline.IOutline | null)[] = [curve(split.u, ends, `${name} u`, diagnostics), curve(split.v, ends, `${name} v`, diagnostics), curve(split.angle, {}, `${name} angle`, diagnostics), curve(split.shoulder, {}, `${name} shoulder`, diagnostics)];
-        return parts.some((p: IAutoMovieViewOutline.IOutline | null): boolean => p === null) ? null : [parts[0]!, parts[1]!, parts[2]!, parts[3]!];
+      const touch: AutoMovieLoftViewSourceOutlines | null =
+        fullness.touch === undefined
+          ? null
+          : group(fullness.touch, ends, "touch", diagnostics);
+      const admit = (
+        split: IAutoMovieViewPart.ISplit,
+        name: string,
+      ): AutoMovieLoftViewSourceSplit | null => {
+        const parts: (IAutoMovieViewOutline.IOutline | null)[] = [
+          curve(split.u, ends, `${name} u`, diagnostics),
+          curve(split.v, ends, `${name} v`, diagnostics),
+          curve(split.angle, {}, `${name} angle`, diagnostics),
+          curve(split.shoulder, {}, `${name} shoulder`, diagnostics),
+        ];
+        return parts.some(
+          (p: IAutoMovieViewOutline.IOutline | null): boolean => p === null,
+        )
+          ? null
+          : [parts[0]!, parts[1]!, parts[2]!, parts[3]!];
       };
-      const splits: (AutoMovieLoftViewSourceSplit | null)[] | null = fullness.splits === undefined ? null : fullness.splits.map((split: IAutoMovieViewPart.ISplit, q: number): AutoMovieLoftViewSourceSplit | null => admit(split, `split ${q}`));
-      const pieces: (AutoMovieLoftViewSourceSplit | null)[][] | null = fullness.pieces === undefined ? null : fullness.pieces.map((list: IAutoMovieViewPart.ISplit[], q: number): (AutoMovieLoftViewSourceSplit | null)[] => list.map((split: IAutoMovieViewPart.ISplit, j: number): AutoMovieLoftViewSourceSplit | null => admit(split, `quarter ${q} point ${j}`)));
-      const both: boolean = fullness.splits !== undefined && fullness.pieces !== undefined;
-      if (both) diagnostics.push({ contract: "outline", detail: "A top fullness declares both one split per quarter and a split list per quarter; it declares one of them." });
+      const splits: (AutoMovieLoftViewSourceSplit | null)[] | null =
+        fullness.splits === undefined
+          ? null
+          : fullness.splits.map(
+              (
+                split: IAutoMovieViewPart.ISplit,
+                q: number,
+              ): AutoMovieLoftViewSourceSplit | null =>
+                admit(split, `split ${q}`),
+            );
+      const pieces: (AutoMovieLoftViewSourceSplit | null)[][] | null =
+        fullness.pieces === undefined
+          ? null
+          : fullness.pieces.map(
+              (
+                list: IAutoMovieViewPart.ISplit[],
+                q: number,
+              ): (AutoMovieLoftViewSourceSplit | null)[] =>
+                list.map(
+                  (
+                    split: IAutoMovieViewPart.ISplit,
+                    j: number,
+                  ): AutoMovieLoftViewSourceSplit | null =>
+                    admit(split, `quarter ${q} point ${j}`),
+                ),
+            );
+      const both: boolean =
+        fullness.splits !== undefined && fullness.pieces !== undefined;
+      if (both)
+        diagnostics.push({
+          contract: "outline",
+          detail:
+            "A top fullness declares both one split per quarter and a split list per quarter; it declares one of them.",
+        });
       const failed: boolean =
         both ||
         shoulders === null ||
         (fullness.touch !== undefined && touch === null) ||
-        (splits !== null && splits.some((s: AutoMovieLoftViewSourceSplit | null): boolean => s === null)) ||
-        (pieces !== null && (pieces.length !== 4 || pieces.some((list: (AutoMovieLoftViewSourceSplit | null)[]): boolean => list.some((s: AutoMovieLoftViewSourceSplit | null): boolean => s === null))));
+        (splits !== null &&
+          splits.some(
+            (s: AutoMovieLoftViewSourceSplit | null): boolean => s === null,
+          )) ||
+        (pieces !== null &&
+          (pieces.length !== 4 ||
+            pieces.some(
+              (list: (AutoMovieLoftViewSourceSplit | null)[]): boolean =>
+                list.some(
+                  (s: AutoMovieLoftViewSourceSplit | null): boolean =>
+                    s === null,
+                ),
+            )));
       admitted = failed
         ? null
         : {
             kind: "top",
             shoulders: shoulders!,
             touch,
-            splits: splits === null ? null : [splits[0]!, splits[1]!, splits[2]!, splits[3]!],
-            pieces: pieces === null ? null : [pieces[0] as AutoMovieLoftViewSourceSplit[], pieces[1] as AutoMovieLoftViewSourceSplit[], pieces[2] as AutoMovieLoftViewSourceSplit[], pieces[3] as AutoMovieLoftViewSourceSplit[]],
+            splits:
+              splits === null
+                ? null
+                : [splits[0]!, splits[1]!, splits[2]!, splits[3]!],
+            pieces:
+              pieces === null
+                ? null
+                : [
+                    pieces[0] as AutoMovieLoftViewSourceSplit[],
+                    pieces[1] as AutoMovieLoftViewSourceSplit[],
+                    pieces[2] as AutoMovieLoftViewSourceSplit[],
+                    pieces[3] as AutoMovieLoftViewSourceSplit[],
+                  ],
           };
     } else {
       const owner: IAutoMovieViewOutline.IOutline | null = curve(
@@ -183,8 +259,12 @@ function curve(
   name: string,
   diagnostics: IAutoMovieViewOutline.IFailure[],
 ): IAutoMovieViewOutline.IOutline | null {
-  const result: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
-    AutoMovieViewOutline.create(outline, ends);
+  const result:
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+    outline,
+    ends,
+  );
   if ("detail" in result) {
     diagnostics.push({
       contract: result.contract,

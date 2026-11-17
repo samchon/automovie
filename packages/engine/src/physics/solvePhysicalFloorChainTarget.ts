@@ -1,5 +1,9 @@
-import type { IAutoMoviePhysicalProfile, IAutoMovieSolvePhysicalFloorChainTarget, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMovieSolvePhysicalArticulationTargets,
+  IAutoMovieSolvePhysicalFloorChainTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalSupportPoint } from "./physicalSupportPoint";
@@ -20,7 +24,9 @@ import { solvePhysicalArticulationTargets } from "./solvePhysicalArticulationTar
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 11 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function solvePhysicalFloorChainTarget(input: IAutoMovieSolvePhysicalFloorChainTarget.IInput): IAutoMovieSolvePhysicalFloorChainTarget.IResult {
+export function solvePhysicalFloorChainTarget(
+  input: IAutoMovieSolvePhysicalFloorChainTarget.IInput,
+): IAutoMovieSolvePhysicalArticulationTargets.IResult {
   if (
     !Number.isSafeInteger(input.iterations) ||
     input.iterations < 1 ||
@@ -60,13 +66,16 @@ export function solvePhysicalFloorChainTarget(input: IAutoMovieSolvePhysicalFloo
     measure,
     linearize: (
       poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
-    ): ((probe: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>) => number[]) => {
+    ): ((
+      probe: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+    ) => number[]) => {
       const residual: number[] = measure(poses);
       const inequality: boolean =
         input.endpointHeight !== undefined || !!input.floorPoints?.length;
       const active: boolean = inequality && residual.at(-1)! < 0;
-      return (probe: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>): number[] =>
-        measure(probe, inequality ? active : undefined);
+      return (
+        probe: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+      ): number[] => measure(probe, inequality ? active : undefined);
     },
   });
 
@@ -81,9 +90,11 @@ export function solvePhysicalFloorChainTarget(input: IAutoMovieSolvePhysicalFloo
     );
     const heights: number[] = input.contacts.flatMap(
       (bone: string): number[] => {
-        const segment: IAutoMoviePhysicalProfile.ISegment | undefined = input.profile.segments.find(
-          (candidate: IAutoMoviePhysicalProfile.ISegment): boolean => candidate.bone === bone,
-        );
+        const segment: IAutoMoviePhysicalProfile.ISegment | undefined =
+          input.profile.segments.find(
+            (candidate: IAutoMoviePhysicalProfile.ISegment): boolean =>
+              candidate.bone === bone,
+          );
         if (!segment || !poses[bone])
           throw new Error(`Missing floor-chain patch ${bone}`);
         return segment.shapes.map(

@@ -1,9 +1,9 @@
-import type { IAutoMovieCaptureFramePlan, IAutoMovieCaptureFramePlanProps, IAutoMovieCaptureTime, IAutoMovieCaptureWindow } from "@automovie/interface";
-
-
-
-
-
+import type {
+  IAutoMovieCaptureFramePlan,
+  IAutoMovieCaptureFramePlanProps,
+  IAutoMovieCaptureTime,
+  IAutoMovieCaptureWindow,
+} from "@automovie/interface";
 
 /** Distance in frames within which a written second counts as lying on a frame, for float error in `seconds × fps`. */
 const ON_GRID: number = 1e-6;
@@ -28,7 +28,9 @@ const ON_GRID: number = 1e-6;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its request.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one map of the planned instants, bounded by the samples plus `2 × window + 1` per event and cut.
  */
-export function planAutoMovieCaptureFrames(props: IAutoMovieCaptureFramePlanProps): IAutoMovieCaptureFramePlan {
+export function planAutoMovieCaptureFrames(
+  props: IAutoMovieCaptureFramePlanProps,
+): IAutoMovieCaptureFramePlan {
   const { durationSeconds, fps, sampling, window } = props;
   if (!(Number.isFinite(fps) && fps > 0))
     throw new Error(`A capture's frame rate ${fps} is not positive`);

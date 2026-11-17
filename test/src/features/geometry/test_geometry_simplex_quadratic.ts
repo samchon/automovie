@@ -1,5 +1,8 @@
+import {
+  minimizeAutoMovieSimplexQuadratic,
+  solveAutoMovieQuadraticProgram,
+} from "@automovie/engine";
 import type { IAutoMovieSimplexAtom } from "@automovie/interface";
-import { minimizeAutoMovieSimplexQuadratic, solveAutoMovieQuadraticProgram } from "@automovie/engine";
 import {
   measureRecoveryFeasibleArithmetic,
   solveRecoveryFeasibleDirection,

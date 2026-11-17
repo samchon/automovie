@@ -1,5 +1,10 @@
-import { type IAutoMovieValidateSoftBodyDomain, type IAutoMovieViolationCollector, IAutoMovieSoftCollider, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieSoftCollider,
+  type IAutoMovieValidateSoftBodyDomain,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { SOFT_MAX_COLLIDERS } from "./constants/SOFT_MAX_COLLIDERS";
@@ -27,7 +32,11 @@ import { validateSoftVector as vector } from "./validateSoftVector";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One shortest structural-edge scan supplies the travel measure, and canonical primitive admission helpers replace duplicate rules; mutable rest arrays and references are rescanned rather than cached.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The collector and reference sets belong to the call; returned findings can retain authored offending values, while no integrated states, actor poses or host resources are retained.
  */
-export const validateSoftBodyDomain: (props: IAutoMovieValidateSoftBodyDomain.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateSoftBodyDomain.IProps): IAutoMovieValidation => {
+export const validateSoftBodyDomain: (
+  props: IAutoMovieValidateSoftBodyDomain.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateSoftBodyDomain.IProps,
+): IAutoMovieValidation => {
   const { domain }: typeof props = props;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";

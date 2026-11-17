@@ -1,5 +1,5 @@
-import type { IAutoMovieRenderResult } from "./IAutoMovieRenderResult.js";
 import type { IAutoMovieRenderSpec } from "../cinematics/IAutoMovieRenderSpec.js";
+import type { IAutoMovieRenderResult } from "./IAutoMovieRenderResult.js";
 
 /**
  * JSON-friendly render artifact returned to an agent or host.

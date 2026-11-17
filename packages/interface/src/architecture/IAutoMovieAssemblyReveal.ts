@@ -1,5 +1,3 @@
-
-
 /**
  * What a build-up does to an opening cut through its host.
  *

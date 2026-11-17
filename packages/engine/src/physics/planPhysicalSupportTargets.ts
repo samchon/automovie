@@ -1,4 +1,9 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePlanPhysicalSupportTargets, IAutoMovieSolvePhysicalChainTarget } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePlanPhysicalSupportTargets,
+  IAutoMovieSolvePhysicalChainTarget,
+} from "@automovie/interface";
+
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { physicalSupportRootDrop } from "./physicalSupportRootDrop";
 import { solvePhysicalChainTarget } from "./solvePhysicalChainTarget";
@@ -16,19 +21,25 @@ import { solvePhysicalChainTarget } from "./solvePhysicalChainTarget";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 7 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function planPhysicalSupportTargets(input: IAutoMoviePlanPhysicalSupportTargets.IInput): IAutoMoviePlanPhysicalSupportTargets.IResult {
+export function planPhysicalSupportTargets(
+  input: IAutoMoviePlanPhysicalSupportTargets.IInput,
+): IAutoMoviePlanPhysicalSupportTargets.IResult {
   const rootDrop: number = physicalSupportRootDrop(input);
-  let targets: Record<string, IAutoMoviePhysicalProfile.ITransform> = Object.fromEntries(
-    Object.entries(input.targets).map(
-      ([bone, pose]: [string, IAutoMoviePhysicalProfile.ITransform]): [string, IAutoMoviePhysicalProfile.ITransform] => [
-        bone,
-        {
-          position: { ...pose.position, y: pose.position.y - rootDrop },
-          rotation: { ...pose.rotation },
-        },
-      ],
-    ),
-  );
+  let targets: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+    Object.fromEntries(
+      Object.entries(input.targets).map(
+        ([bone, pose]: [string, IAutoMoviePhysicalProfile.ITransform]): [
+          string,
+          IAutoMoviePhysicalProfile.ITransform,
+        ] => [
+          bone,
+          {
+            position: { ...pose.position, y: pose.position.y - rootDrop },
+            rotation: { ...pose.rotation },
+          },
+        ],
+      ),
+    );
   const residuals: Record<string, number> = {};
   for (const limb of input.pattern.limbs) {
     const result: IAutoMovieSolvePhysicalChainTarget.IResult =

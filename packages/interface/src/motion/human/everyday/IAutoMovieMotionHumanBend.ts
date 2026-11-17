@@ -1,9 +1,9 @@
+import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
-import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
-import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * Bending down to bring a hand to a low point (the floor, a low shelf, a

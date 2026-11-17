@@ -1,5 +1,8 @@
-import { type IAutoMovieProductionFilmFrameForShotTime, IAutoMovieFilmTimelineSegment, IAutoMovieProductionFrameRate } from "@automovie/interface";
-
+import {
+  IAutoMovieFilmTimelineSegment,
+  type IAutoMovieProductionFilmFrameForShotTime,
+  IAutoMovieProductionFrameRate,
+} from "@automovie/interface";
 
 import { productionFrameBoundaryToSeconds } from "../film/productionFrameBoundaryToSeconds";
 import { estimateProductionFilmFrame } from "./estimateProductionFilmFrame";
@@ -27,7 +30,9 @@ import { productionFilmEffectTimelineFrameRate } from "./productionFilmEffectTim
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure query per call; a caller asking many times on one timeline repeats only the rate resolution and segment scan, which no shared index currently amortizes.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates one small candidate array per call and keeps no reference to the timeline after returning.
  */
-export const productionFilmFrameForShotTime = (props: IAutoMovieProductionFilmFrameForShotTime.IProps): number | null => {
+export const productionFilmFrameForShotTime = (
+  props: IAutoMovieProductionFilmFrameForShotTime.IProps,
+): number | null => {
   const frameRate: IAutoMovieProductionFrameRate =
     productionFilmEffectTimelineFrameRate(props.timeline);
   if (Number.isFinite(props.time) === false || props.time < 0) return null;

@@ -1,5 +1,7 @@
-import type { IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -22,10 +24,11 @@ export function physicalJointPoint(
 ): IAutoMovieVector3 {
   const pose: IAutoMoviePhysicalProfile.ITransform | undefined = targets[bone];
   if (!pose) throw new Error(`Physical joint point missing segment ${bone}`);
-  const joint: IAutoMoviePhysicalProfile.IJoint | undefined = profile.joints.find(
-    (candidate: (typeof profile.joints)[number]): boolean =>
-      candidate.child === bone,
-  );
+  const joint: IAutoMoviePhysicalProfile.IJoint | undefined =
+    profile.joints.find(
+      (candidate: (typeof profile.joints)[number]): boolean =>
+        candidate.child === bone,
+    );
   return joint
     ? Vector3.add(
         pose.position,

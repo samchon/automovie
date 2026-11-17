@@ -1,5 +1,7 @@
-import type { IAutoMovieViolationCollector, IAutoMovieAffordance } from "@automovie/interface";
-
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { AffordanceArticulation } from "./AffordanceArticulation";
 import { affordanceFollowedTravel } from "./affordanceFollowedTravel";

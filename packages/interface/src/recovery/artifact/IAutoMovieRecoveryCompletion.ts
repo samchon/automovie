@@ -8,19 +8,15 @@
  */
 
 export interface IAutoMovieRecoveryCompletion {
- 
- /** Whether the generating attempt reached its terminal point. */
+  /** Whether the generating attempt reached its terminal point. */
   attemptComplete: boolean;
 
- 
- /** Whether all declared processing completed. */
+  /** Whether all declared processing completed. */
   processingComplete: boolean;
 
- 
- /** Whether every admitted retained domain was generated. */
+  /** Whether every admitted retained domain was generated. */
   retainedDomainComplete: boolean;
 
- 
- /** Actual retained triangle population. */
+  /** Actual retained triangle population. */
   generatedTriangles: number;
 }

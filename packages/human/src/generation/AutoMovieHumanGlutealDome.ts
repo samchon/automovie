@@ -1,9 +1,9 @@
-import type { IAutoMovieHumanGlutealDome, IAutoMovieHumanTrunkFeature } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieHumanGlutealDome,
+  IAutoMovieHumanTrunkFeature,
+} from "@automovie/interface";
 
 import { AutoMovieHumanTrunkFeatureProfile } from "./AutoMovieHumanTrunkFeatureProfile";
-
 
 /**
  * The gluteal mass: the profile swept over its footprint in the gluteal
@@ -31,27 +31,37 @@ export namespace AutoMovieHumanGlutealDome {
   /** The footprint's outer share of the half width. Conventional, flagged. */
   export const OUTER: number = 0.95;
 
-  
-
   /**
    * The dome as a feature.
    *
    * @param input The frame, footprint data and projection.
    * @returns The gluteal mass as a height field.
    */
-  export function create(input: IAutoMovieHumanGlutealDome.IInput): IAutoMovieHumanTrunkFeature {
+  export function create(
+    input: IAutoMovieHumanGlutealDome.IInput,
+  ): IAutoMovieHumanTrunkFeature {
     const half: number = ((OUTER - MEDIAL) / 2) * input.width;
 
     // The footprint's centre stands outward of the apex by the shares' difference;
     // the frame's lateral axis points toward the midline on the back wall.
-    const centre: number = ((OUTER + MEDIAL) / 2 - LATERAL) * input.width * input.frame.lateral[2];
+    const centre: number =
+      ((OUTER + MEDIAL) / 2 - LATERAL) * input.width * input.frame.lateral[2];
     const lower: number = Math.max(1, input.lower);
     const upper: number = Math.max(1, input.upper);
 
     return {
       frame: input.frame,
       height: (u: number, v: number): number =>
-        input.projection * AutoMovieHumanTrunkFeatureProfile.bump(AutoMovieHumanTrunkFeatureProfile.rho(u - centre, v, half, lower, upper)),
+        input.projection *
+        AutoMovieHumanTrunkFeatureProfile.bump(
+          AutoMovieHumanTrunkFeatureProfile.rho(
+            u - centre,
+            v,
+            half,
+            lower,
+            upper,
+          ),
+        ),
       reach: { u: [centre - half, centre + half], v: [-lower, upper] },
       apex: [centre, 0],
     };

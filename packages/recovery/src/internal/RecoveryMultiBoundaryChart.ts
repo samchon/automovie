@@ -1,7 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryMultiBoundaryChart, IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryMultiBoundaryChart,
+  IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation,
+} from "@automovie/interface";
 
 import { analyzeRecoveryMultiBoundarySurface } from "./analyzeRecoveryMultiBoundarySurface";
 
@@ -48,7 +49,8 @@ export function RecoveryMultiBoundaryChart(
       (key: string): boolean => typeof key !== "string" || !key.length,
     ) ||
     input.verticesMm.some(
-      (p: Readonly<AutoMovieVector3Tuple>): boolean => p.length !== 3 || !p.every(Number.isFinite),
+      (p: Readonly<AutoMovieVector3Tuple>): boolean =>
+        p.length !== 3 || !p.every(Number.isFinite),
     )
   )
     fail("finite positions and unique nonempty source keys are required");
@@ -257,7 +259,9 @@ export function RecoveryMultiBoundaryChart(
       ),
   );
   const verticesMm: Readonly<AutoMovieVector3Tuple>[] = input.verticesMm.map(
-      (p: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> => [...p],
+      (p: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> => [
+        ...p,
+      ],
     ),
     vertexKeys: string[] = [...input.vertexKeys],
     fanKeys: string[] = [];
@@ -360,5 +364,6 @@ export function RecoveryMultiBoundaryChart(
     boundaryCycle,
     cutEdges: cut.size,
     duplicatedFanVertices,
-    sourceAreaDifferenceMm2 };
+    sourceAreaDifferenceMm2,
+  };
 }

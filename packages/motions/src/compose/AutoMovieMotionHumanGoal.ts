@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanGoal, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanGoal,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+} from "@automovie/interface";
 
 /**
  * Limb goals between two goals: the one owner of how an arm or a leg leaves
@@ -118,12 +122,17 @@ export namespace AutoMovieMotionHumanGoal {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
-  export function drive(props: IAutoMovieMotionHumanGoal.IToward): IAutoMovieMotionHumanPrimitive {
+  export function drive(
+    props: IAutoMovieMotionHumanGoal.IToward,
+  ): IAutoMovieMotionHumanPrimitive {
     return {
       channels: [props.limb],
       from: props.from,
       to: props.to,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => ({
         ...posture,
         limbs: {
           ...posture.limbs,

@@ -1,6 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HumanChain, HumanFrame, HumanPerformance, HumanRefusal, HumanSignature, seated } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFrame,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+  seated,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -35,7 +49,10 @@ export function test_human_motion_base_crossed_legs(): void {
       yaw: 0,
       depth: 0.45,
     };
-    const perform = (seconds: number, rises: boolean): IAutoMovieMotionHumanPerformance => {
+    const perform = (
+      seconds: number,
+      rises: boolean,
+    ): IAutoMovieMotionHumanPerformance => {
       const sitting: IAutoMovieMotionHumanChain = HumanChain.subject("a").sit({
         seat: chair,
         legs: "crossed",
@@ -84,8 +101,10 @@ export function test_human_motion_base_crossed_legs(): void {
       );
       continue;
     }
-    const sitting: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[0]!;
-    const rising: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+    const sitting: IAutoMovieMotionHumanSegment.ISegment =
+      performance.segments("a")[0]!;
+    const rising: IAutoMovieMotionHumanSegment.ISegment =
+      performance.segments("a")[1]!;
     const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",

@@ -1,17 +1,19 @@
-import type { AutoMovieVector3Tuple, IAutoMovieBicubicAtlasGeometry, IAutoMovieCurve64, IAutoMovieRecoveryChartEndpoint, IAutoMovieRecoveryChartPatchBudgetFailure, IAutoMovieRecoveryChartSourcePiece, IAutoMovieRecoveryEventChartInput, IAutoMovieRecoveryEventCompilationPolicy, IAutoMovieRecoveryEventCurveArc, IAutoMovieRecoveryEventCurvePiece, IAutoMovieRecoveryEventDomainCompilation } from "@automovie/interface";
-
 import { AutoMovieBernstein64 as B } from "@automovie/engine";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieBicubicAtlasGeometry,
+  IAutoMovieCurve64,
+  IAutoMovieRecoveryChartEndpoint,
+  IAutoMovieRecoveryChartPatchBudgetFailure,
+  IAutoMovieRecoveryChartSourcePiece,
+  IAutoMovieRecoveryEventChartInput,
+  IAutoMovieRecoveryEventCompilationPolicy,
+  IAutoMovieRecoveryEventCurveArc,
+  IAutoMovieRecoveryEventCurvePiece,
+  IAutoMovieRecoveryEventDomainCompilation,
+} from "@automovie/interface";
 
 import { AutoMovieRecoveryEventCurve as E } from "../observation/AutoMovieRecoveryEventCurve";
-
-
-
-
-
-
-
-
 
 /**
  * Compile declared cubic sides into a piecewise bicubic Coons coefficient atlas.
@@ -50,14 +52,18 @@ export function compileAutoMovieRecoveryEventDomain(
     bottom,
     top,
     left,
-    right }: IAutoMovieRecoveryEventChartInput["chart"] = input.chart;
+    right,
+  }: IAutoMovieRecoveryEventChartInput["chart"] = input.chart;
   const u: number[] = [...new Set([...E.knots(bottom), ...E.knots(top)])].sort(
     (a: number, b: number): number => a - b,
   );
   const v: number[] = [...new Set([...E.knots(left), ...E.knots(right)])].sort(
     (a: number, b: number): number => a - b,
   );
-  const corners: [Readonly<AutoMovieVector3Tuple>, Readonly<AutoMovieVector3Tuple>][] = [
+  const corners: [
+    Readonly<AutoMovieVector3Tuple>,
+    Readonly<AutoMovieVector3Tuple>,
+  ][] = [
     [E.controls(bottom.pieces[0]!)[0], E.controls(left.pieces[0]!)[0]],
     [E.controls(bottom.pieces.at(-1)!)[3], E.controls(right.pieces[0]!)[0]],
     [E.controls(top.pieces[0]!)[0], E.controls(left.pieces.at(-1)!)[3]],
@@ -86,20 +92,29 @@ export function compileAutoMovieRecoveryEventDomain(
       unqualifiedPatches: [],
       diagnostics: [
         "Boundary curves retain separate observation provenance. Coons interiors and abstract annular correspondence have no original-surface fidelity or embedding certificate.",
-      ] } };
+      ],
+    },
+  };
   const authorities: Map<string, [number, number, number, number]> = new Map();
-  const curves: Map<string, readonly Readonly<AutoMovieVector3Tuple>[]> = new Map();
+  const curves: Map<string, readonly Readonly<AutoMovieVector3Tuple>[]> =
+    new Map();
   const endpoints: Map<string, IAutoMovieRecoveryChartEndpoint> = new Map();
   const sourcePieces: IAutoMovieRecoveryChartSourcePiece[] = [];
   let maximumConstructedSharedEndpointDifferenceMm: number = 0;
-  const add: (p: Readonly<AutoMovieVector3Tuple>) => number = (p: Readonly<AutoMovieVector3Tuple>): number => {
+  const add: (p: Readonly<AutoMovieVector3Tuple>) => number = (
+    p: Readonly<AutoMovieVector3Tuple>,
+  ): number => {
     if (!p.every(Number.isFinite))
       throw new Error("A Coons coefficient must remain finite");
     const id: number = recipe.controls.length;
     recipe.controls.push({ x: p[0] * 0.001, y: p[1] * 0.001, z: p[2] * 0.001 });
     return id;
   };
-  const mix: (a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>, t: number) => Readonly<AutoMovieVector3Tuple> = (
+  const mix: (
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+    t: number,
+  ) => Readonly<AutoMovieVector3Tuple> = (
     a: Readonly<AutoMovieVector3Tuple>,
     b: Readonly<AutoMovieVector3Tuple>,
     t: number,
@@ -131,14 +146,21 @@ export function compileAutoMovieRecoveryEventDomain(
     cache.set(key, p);
     return p;
   };
-  const derivedControls: Map<IAutoMovieRecoveryEventCurvePiece, IAutoMovieCurve64.Span> =
-    new Map();
-  const coefficients: (p: IAutoMovieRecoveryEventCurvePiece) => IAutoMovieCurve64.Span = (
+  const derivedControls: Map<
+    IAutoMovieRecoveryEventCurvePiece,
+    IAutoMovieCurve64.Span
+  > = new Map();
+  const coefficients: (
+    p: IAutoMovieRecoveryEventCurvePiece,
+  ) => IAutoMovieCurve64.Span = (
     p: IAutoMovieRecoveryEventCurvePiece,
   ): IAutoMovieCurve64.Span => {
     const previous: IAutoMovieCurve64.Span | undefined = derivedControls.get(p);
     if (previous) return previous;
-    const net: IAutoMovieCurve64.Span = E.controls(p, policy.nativeParentBindings);
+    const net: IAutoMovieCurve64.Span = E.controls(
+      p,
+      policy.nativeParentBindings,
+    );
     derivedControls.set(p, net);
     return net;
   };
@@ -158,26 +180,28 @@ export function compileAutoMovieRecoveryEventDomain(
     reverse: boolean = false,
   ): number[] => {
     if (!authorities.has(key)) {
-      const ids: number[] = net.map((point: Readonly<AutoMovieVector3Tuple>, i: number): number => {
-        if (i !== 0 && i !== 3) return add(point);
-        const name: string = names[i === 0 ? 0 : 1];
-        if (!endpoints.has(name))
-          endpoints.set(name, { position: point, id: add(point) });
-        const owner: IAutoMovieRecoveryChartEndpoint = endpoints.get(name)!;
-        maximumConstructedSharedEndpointDifferenceMm = Math.max(
-          maximumConstructedSharedEndpointDifferenceMm,
-          Math.hypot(
-            owner.position[0] - point[0],
-            owner.position[1] - point[1],
-            owner.position[2] - point[2],
-          ),
-        );
-        if (!E.same(owner.position, point))
-          throw new Error(
-            `Distinct endpoint values claim one chart endpoint authority: ${name}`,
+      const ids: number[] = net.map(
+        (point: Readonly<AutoMovieVector3Tuple>, i: number): number => {
+          if (i !== 0 && i !== 3) return add(point);
+          const name: string = names[i === 0 ? 0 : 1];
+          if (!endpoints.has(name))
+            endpoints.set(name, { position: point, id: add(point) });
+          const owner: IAutoMovieRecoveryChartEndpoint = endpoints.get(name)!;
+          maximumConstructedSharedEndpointDifferenceMm = Math.max(
+            maximumConstructedSharedEndpointDifferenceMm,
+            Math.hypot(
+              owner.position[0] - point[0],
+              owner.position[1] - point[1],
+              owner.position[2] - point[2],
+            ),
           );
-        return owner.id;
-      });
+          if (!E.same(owner.position, point))
+            throw new Error(
+              `Distinct endpoint values claim one chart endpoint authority: ${name}`,
+            );
+          return owner.id;
+        },
+      );
       const tuple: [number, number, number, number] = [
         ids[0]!,
         ids[1]!,
@@ -202,7 +226,8 @@ export function compileAutoMovieRecoveryEventDomain(
       authority: key,
       start: reverse ? 1 : 0,
       end: reverse ? 0 : 1,
-      normalFan: patch });
+      normalFan: patch,
+    });
     return reverse
       ? [...authorities.get(key)!].reverse()
       : authorities.get(key)!;
@@ -277,9 +302,21 @@ export function compileAutoMovieRecoveryEventDomain(
               : policy.nativeParentBindings && y === 3
                 ? v[j + 1]!
                 : v[j]! + ((v[j + 1]! - v[j]!) * y) / 3;
-          const bu: Readonly<AutoMovieVector3Tuple> = mix(coefficients(b)[x]!, coefficients(t)[x]!, V),
-            lr: Readonly<AutoMovieVector3Tuple> = mix(coefficients(l)[y]!, coefficients(r)[y]!, U),
-            corner: Readonly<AutoMovieVector3Tuple> = mix(mix(c00, c10, U), mix(c01, c11, U), V);
+          const bu: Readonly<AutoMovieVector3Tuple> = mix(
+              coefficients(b)[x]!,
+              coefficients(t)[x]!,
+              V,
+            ),
+            lr: Readonly<AutoMovieVector3Tuple> = mix(
+              coefficients(l)[y]!,
+              coefficients(r)[y]!,
+              U,
+            ),
+            corner: Readonly<AutoMovieVector3Tuple> = mix(
+              mix(c00, c10, U),
+              mix(c01, c11, U),
+              V,
+            );
           let point: Readonly<AutoMovieVector3Tuple> = [
             bu[0] + lr[0] - corner[0],
             bu[1] + lr[1] - corner[1],
@@ -293,11 +330,17 @@ export function compileAutoMovieRecoveryEventDomain(
           net.push(point);
         }
       const id: string = `${input.id}.u${i}.v${j}`,
-        patch: IAutoMovieBicubicAtlasGeometry["patches"][number] = { id, controlIds: net.map(add) };
+        patch: IAutoMovieBicubicAtlasGeometry["patches"][number] = {
+          id,
+          controlIds: net.map(add),
+        };
       recipe.patches.push(patch);
       const edge: (side: 0 | 1 | 2 | 3) => Readonly<AutoMovieVector3Tuple>[] = (
         side: 0 | 1 | 2 | 3,
-      ): Readonly<AutoMovieVector3Tuple>[] => slots[side]!.map((slot: number): Readonly<AutoMovieVector3Tuple> => net[slot]!);
+      ): Readonly<AutoMovieVector3Tuple>[] =>
+        slots[side]!.map(
+          (slot: number): Readonly<AutoMovieVector3Tuple> => net[slot]!,
+        );
       const names: [string, string][] = [
         [pointName(i, j), pointName(i + 1, j)],
         [pointName(i + 1, j), pointName(i + 1, j + 1)],
@@ -339,10 +382,12 @@ export function compileAutoMovieRecoveryEventDomain(
       sourcePieces.push({
         patch: id,
         chart: [u[i]!, u[i + 1]!, v[j]!, v[j + 1]!],
-        boundaryCoefficientSources: [b.source, r.source, t.source, l.source] });
+        boundaryCoefficientSources: [b.source, r.source, t.source, l.source],
+      });
     }
   recipe.sourceFit!.unqualifiedPatches = recipe.patches.map(
-    (patch: IAutoMovieBicubicAtlasGeometry["patches"][number]): string => patch.id,
+    (patch: IAutoMovieBicubicAtlasGeometry["patches"][number]): string =>
+      patch.id,
   );
   if (input.winding === -1) {
     for (const patch of recipe.patches)
@@ -363,5 +408,6 @@ export function compileAutoMovieRecoveryEventDomain(
     sourcePieces,
     u,
     v,
-    maximumConstructedSharedEndpointDifferenceMm };
+    maximumConstructedSharedEndpointDifferenceMm,
+  };
 }

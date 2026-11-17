@@ -1,7 +1,25 @@
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieSeededChainFit, IAutoMovieSwivelNear, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Quaternion,
+  Vector3,
+  fitSeededChainToTarget,
+  resolvePose,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelNear,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, fitSeededChainToTarget, resolvePose } from "@automovie/engine";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmMirror } from "./HumanArmMirror";
@@ -214,18 +232,24 @@ export namespace HumanLimbFit {
       );
       return { ...image, pose: HumanLimbMirror.pose(image.pose) };
     }
-    const goal: IAutoMovieMotionHumanPosture.IGoal = world(body, pose, limb, attached);
+    const goal: IAutoMovieMotionHumanPosture.IGoal = world(
+      body,
+      pose,
+      limb,
+      attached,
+    );
     // An arm's forearm stays clear of the trunk, the thighs and an arm fitted
     // before it as the pose being fitted places them (`HumanArmClearance`),
     // whatever the hint or the hand's turn prefer.
     const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
-    const trunk: IAutoMovieMotionHumanColliders.IPlaced[] | null = limb.endsWith("Arm")
-      ? HumanArmClearance.obstacles(
-          body,
-          poseBones(body, pose),
-          placed.filter((arm: "left" | "right"): boolean => arm !== side),
-        )
-      : null;
+    const trunk: IAutoMovieMotionHumanColliders.IPlaced[] | null =
+      limb.endsWith("Arm")
+        ? HumanArmClearance.obstacles(
+            body,
+            poseBones(body, pose),
+            placed.filter((arm: "left" | "right"): boolean => arm !== side),
+          )
+        : null;
     const clear: IObstruction | undefined =
       trunk === null
         ? undefined
@@ -376,7 +400,9 @@ export namespace HumanLimbFit {
    * @param goal The goal.
    * @returns Its mirror image.
    */
-  export function reflected(goal: IAutoMovieMotionHumanPosture.IGoal): IAutoMovieMotionHumanPosture.IGoal {
+  export function reflected(
+    goal: IAutoMovieMotionHumanPosture.IGoal,
+  ): IAutoMovieMotionHumanPosture.IGoal {
     return HumanLimbMirror.goal(goal);
   }
   /** How far a re-aimed end joint may still move between two fits of a limb with a contact, metres (provisional: a fiftieth of a millimetre, far inside every contact verdict). */

@@ -1,6 +1,8 @@
-import type { IAutoMovieFramingGoal, IAutoMovieResolveFraming, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieFramingGoal,
+  IAutoMovieResolveFraming,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * A camera pose meeting a framing goal from the subjects' actual bounding

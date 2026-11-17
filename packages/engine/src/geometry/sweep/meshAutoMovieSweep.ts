@@ -1,6 +1,16 @@
-import { type IAutoMovieMeshTarget, type IAutoMovieProfilePoint, type IAutoMovieRegionRing, type IAutoMovieRegionTriangulation, type IAutoMovieSweep, type IAutoMovieSweepFrame, type IAutoMovieSweepSection, type IAutoMovieSweepSurface, type IAutoMovieMeshSweep, IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  IAutoMovieMesh,
+  type IAutoMovieMeshSweep,
+  type IAutoMovieMeshTarget,
+  type IAutoMovieProfilePoint,
+  type IAutoMovieRegionRing,
+  type IAutoMovieRegionTriangulation,
+  type IAutoMovieSweep,
+  type IAutoMovieSweepFrame,
+  type IAutoMovieSweepSection,
+  type IAutoMovieSweepSurface,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
 import { canonicalRegion } from "../canonicalRegion";
@@ -58,7 +68,9 @@ const COLUMNS: number = 32;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one mesh whose buffers the caller owns.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the compiled sweep and ring layouts are released on return and the buffers transferred to the mesh.
  */
-export const meshAutoMovieSweep: (props: IAutoMovieMeshSweep.IProps) => IAutoMovieMesh = (props: IAutoMovieMeshSweep.IProps): IAutoMovieMesh => {
+export const meshAutoMovieSweep: (
+  props: IAutoMovieMeshSweep.IProps,
+) => IAutoMovieMesh = (props: IAutoMovieMeshSweep.IProps): IAutoMovieMesh => {
   const surface: IAutoMovieSweepSurface = compileAutoMovieSweep(props.sweep);
   const spine: IAutoMovieVector3[] = props.sweep.spine.points;
   const rows: number[] =

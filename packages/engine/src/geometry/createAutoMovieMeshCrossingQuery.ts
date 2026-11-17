@@ -1,6 +1,11 @@
-import type { IAutoMovieMeshCrossing, IAutoMovieMeshCrossingOptions, IAutoMovieMeshCrossingQuery, IAutoMovieMeshQueryHierarchy, IAutoMovieMeshCrossingGeometry, IAutoMovieMesh } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshCrossing,
+  IAutoMovieMeshCrossingGeometry,
+  IAutoMovieMeshCrossingOptions,
+  IAutoMovieMeshCrossingQuery,
+  IAutoMovieMeshQueryHierarchy,
+} from "@automovie/interface";
 
 import { AutoMovieMeshCrossingGeometry as Geometry } from "./AutoMovieMeshCrossingGeometry";
 import { collectAutoMovieSpatialQueryCandidates } from "./collectAutoMovieSpatialQueryCandidates";

@@ -1,5 +1,4 @@
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
-
 import { transportAutoMovieRecoveryObservationChart as transport } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
@@ -25,7 +24,11 @@ export function test_geometry_recovery_observation_transport(): void {
     a: Readonly<AutoMovieVector3Tuple>,
     b: Readonly<AutoMovieVector3Tuple>,
     tolerance: number,
-  ) => boolean = (a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>, tolerance: number): boolean =>
+  ) => boolean = (
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+    tolerance: number,
+  ): boolean =>
     a.every((value: number, i: number): boolean =>
       nclose(value, b[i]!, tolerance),
     );
@@ -166,8 +169,9 @@ export function test_geometry_recovery_observation_transport(): void {
   );
   TestValidator.predicate(
     "named positions survive reversal",
-    reversed.row.pointsMm.every((point: Readonly<AutoMovieVector3Tuple>, i: number): boolean =>
-      closeVector(point, expected[i]!, 1e-14),
+    reversed.row.pointsMm.every(
+      (point: Readonly<AutoMovieVector3Tuple>, i: number): boolean =>
+        closeVector(point, expected[i]!, 1e-14),
     ),
   );
   TestValidator.equals(
@@ -267,11 +271,15 @@ export function test_geometry_recovery_observation_transport(): void {
   TestValidator.predicate(
     "returned positions do not alias caller observations",
     reversed.row.pointsMm.every(
-      (point: Readonly<AutoMovieVector3Tuple>): boolean => !current.pointsMm.includes(point),
+      (point: Readonly<AutoMovieVector3Tuple>): boolean =>
+        !current.pointsMm.includes(point),
     ),
   );
   const nonfinite: Readonly<AutoMovieVector3Tuple>[] = current.pointsMm.map(
-    (point: Readonly<AutoMovieVector3Tuple>, i: number): Readonly<AutoMovieVector3Tuple> =>
+    (
+      point: Readonly<AutoMovieVector3Tuple>,
+      i: number,
+    ): Readonly<AutoMovieVector3Tuple> =>
       i === 0 ? [Number.NaN, point[1], point[2]] : [...point],
   );
   TestValidator.error("nonfinite physical data is malformed", (): void => {

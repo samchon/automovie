@@ -1,21 +1,21 @@
-import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
-import type { IAutoMovieActionSynthesizer } from "../motion/perform/IAutoMovieActionSynthesizer";
-import type { IAutoMovieActionTarget } from "../harness/IAutoMovieActionTarget";
-import type { IAutoMovieBeatEndState } from "../harness/IAutoMovieBeatEndState";
 import type { IAutoMovieBlocking } from "../authoring/IAutoMovieBlocking";
+import type { IAutoMoviePerformance } from "../authoring/IAutoMoviePerformance";
 import type { IAutoMovieCameraClearanceRuntime } from "../cinematics/IAutoMovieCameraClearanceRuntime";
 import type { IAutoMovieClip } from "../core/IAutoMovieClip";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieActionTarget } from "../harness/IAutoMovieActionTarget";
+import type { IAutoMovieBeatEndState } from "../harness/IAutoMovieBeatEndState";
+import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
+import type { IAutoMovieScript } from "../harness/IAutoMovieScript";
+import type { IAutoMovieModel } from "../model/IAutoMovieModel";
+import type { IAutoMovieActionSynthesizer } from "../motion/perform/IAutoMovieActionSynthesizer";
+import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
+import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
 import type { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
-import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
-import type { IAutoMovieModel } from "../model/IAutoMovieModel";
-import type { IAutoMoviePerformance } from "../authoring/IAutoMoviePerformance";
-import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
-import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
-import type { IAutoMovieScript } from "../harness/IAutoMovieScript";
-import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
-import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * The inputs of {@link performShot}: the script, the staged world and the
@@ -43,8 +43,8 @@ export interface IAutoMoviePerformShotProps {
   performance: IAutoMoviePerformance;
 
   /**
-     * Synchronous action/actor synthesizer. performShot memoizes each action object and actor pair, including null, and passes previous through; null contributes no motion. Exceptions propagate and input actions must remain stable.
-     */
+   * Synchronous action/actor synthesizer. performShot memoizes each action object and actor pair, including null, and passes previous through; null contributes no motion. Exceptions propagate and input actions must remain stable.
+   */
   synthesize: IAutoMovieActionSynthesizer;
 
   /**
@@ -92,15 +92,16 @@ export interface IAutoMoviePerformShotProps {
    * with a non-positive side, a wide subject is fitted to a square frame,
    * which stands back far enough for any raster of that height.
    */
-  frameFormat?: { 
+  frameFormat?: {
     /**
      * Delivery width in pixels used only through width/height. A side that is not greater than zero selects the square-frame fallback; finite positive dimensions are the caller's premise.
      */
-    width: number; 
+    width: number;
     /**
      * Delivery height in pixels used as the aspect-ratio denominator; the same non-positive-side fallback applies.
      */
-    height: number };
+    height: number;
+  };
 
   /**
    * Actor-registry membership; omitted, a bone target's actor is not checked

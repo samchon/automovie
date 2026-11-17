@@ -1,5 +1,4 @@
 import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
-
 import * as THREE from "three";
 
 /**

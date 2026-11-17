@@ -1,5 +1,5 @@
-import type { AutoMovieImpactKind } from "./AutoMovieImpactKind";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieImpactKind } from "./AutoMovieImpactKind";
 
 /**
  * resolveImpact's normal impulse advice: normalized a-to-b direction, nonnegative closing speed, impulse delivered to b, both post-impact velocities and a qualitative outcome. Separating-contact velocity values may be borrowed inputs.

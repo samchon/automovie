@@ -1,8 +1,9 @@
-import type { AutoMovieHumanSide, IAutoMovieHumanArmSources, IAutoMovieHumanLegSources, IAutoMovieHumanLimbSources } from "@automovie/interface";
-
-
-
-
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanArmSources,
+  IAutoMovieHumanLegSources,
+  IAutoMovieHumanLimbSources,
+} from "@automovie/interface";
 
 import { AutoMovieHumanArmSources } from "./arm/AutoMovieHumanArmSources";
 import { AutoMovieHumanFootInterim } from "./foot/AutoMovieHumanFootInterim";
@@ -10,25 +11,27 @@ import { AutoMovieHumanLegSources } from "./leg/AutoMovieHumanLegSources";
 
 /** Invocation-owned independent limb factories, shared by selected originals and later tree assembly. */
 export namespace AutoMovieHumanLimbSources {
-  
-
-  
-
   /** Enumerate authored source names without preparing a rest pose, curve, constraint or tree. */
   export function names(): string[] {
-    return (["left", "right"] as const).flatMap((side: AutoMovieHumanSide): string[] => [
-      "leg." + side,
-      "arm." + side,
-      "foot." + side,
-      ...AutoMovieHumanArmSources.names(side),
-      ...AutoMovieHumanFootInterim.names(side),
-    ]);
+    return (["left", "right"] as const).flatMap(
+      (side: AutoMovieHumanSide): string[] => [
+        "leg." + side,
+        "arm." + side,
+        "foot." + side,
+        ...AutoMovieHumanArmSources.names(side),
+        ...AutoMovieHumanFootInterim.names(side),
+      ],
+    );
   }
 
   /** Retain successful actual family owners in this invocation, with failures still visible. */
-  export function create(input: IAutoMovieHumanLimbSources.IInput): IAutoMovieHumanLimbSources.IOutput {
-    const arms: Map<AutoMovieHumanSide, IAutoMovieHumanArmSources.IOutput> = new Map();
-    const legs: Map<AutoMovieHumanSide, IAutoMovieHumanLegSources.IOutput> = new Map();
+  export function create(
+    input: IAutoMovieHumanLimbSources.IInput,
+  ): IAutoMovieHumanLimbSources.IOutput {
+    const arms: Map<AutoMovieHumanSide, IAutoMovieHumanArmSources.IOutput> =
+      new Map();
+    const legs: Map<AutoMovieHumanSide, IAutoMovieHumanLegSources.IOutput> =
+      new Map();
     return {
       arm(side: AutoMovieHumanSide): IAutoMovieHumanArmSources.IOutput {
         const previous: IAutoMovieHumanArmSources.IOutput | undefined =
@@ -66,5 +69,3 @@ export namespace AutoMovieHumanLimbSources {
     };
   }
 }
-
-

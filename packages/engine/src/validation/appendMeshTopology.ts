@@ -1,5 +1,8 @@
-import { type IAutoMovieResolvedPhysicalVertices, type IAutoMovieViolationCollector, IAutoMovieMesh } from "@automovie/interface";
-
+import {
+  IAutoMovieMesh,
+  type IAutoMovieResolvedPhysicalVertices,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
@@ -27,9 +30,7 @@ export const appendMeshTopology: (
   collector: IAutoMovieViolationCollector,
   expectClosed: boolean,
 ): void => {
-  let physical:
-    | IAutoMovieResolvedPhysicalVertices
-    | undefined;
+  let physical: IAutoMovieResolvedPhysicalVertices | undefined;
   if (mesh.physicalVertices !== undefined) {
     try {
       physical = resolveAutoMovieMeshPhysicalVertices(mesh);

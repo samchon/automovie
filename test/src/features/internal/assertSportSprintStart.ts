@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, AutoMovieHumanoidBone, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanChain, HumanPerformance } from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -76,8 +81,9 @@ export function assertSportSprintStart(complaints: string[]): void {
       );
       continue;
     }
-    const placed: ReturnType<IAutoMovieMotionHumanPerformance["segments"]>[number] =
-      built.segments("a")[0]!;
+    const placed: ReturnType<
+      IAutoMovieMotionHumanPerformance["segments"]
+    >[number] = built.segments("a")[0]!;
     const set: number =
       placed.start +
       (placed.plan.events.find(
@@ -88,7 +94,8 @@ export function assertSportSprintStart(complaints: string[]): void {
       complaints.push(`${name} sprint start: no set event`);
       continue;
     }
-    const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> = built.bones("a", set);
+    const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
+      built.bones("a", set);
     const at: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (
       bone: AutoMovieHumanoidBone,
     ): IAutoMovieVector3 => bones.get(bone)!.worldPosition;

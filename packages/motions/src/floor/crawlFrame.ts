@@ -1,6 +1,11 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -176,7 +181,9 @@ export namespace crawlFrame {
     toward: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
     share: number,
   ): IAutoMovieMotionHumanPosture {
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...posture.joints,
+    };
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const side of ["left", "right"] as const) {
       const from: IAutoMovieMotionHumanArmAngles.IAngles = held[side];
@@ -187,7 +194,10 @@ export namespace crawlFrame {
         [`${side}Hand`, "hand"],
       ] as const)
         joints[bone] = blendHumanJoint(body, bone, from[key], to[key], share);
-      const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "flat");
+      const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+        side,
+        "flat",
+      );
       const was: IAutoMovieMotionHumanPosture["joints"] = {};
       for (const bone of Object.keys(flat) as AutoMovieHumanoidBone[]) {
         const held: readonly [number, number, number] | undefined =

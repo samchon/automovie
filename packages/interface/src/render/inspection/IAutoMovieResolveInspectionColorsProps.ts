@@ -14,11 +14,12 @@ export interface IAutoMovieResolveInspectionColorsProps {
   marks: readonly IAutoMovieMark[];
 
   /** Colours the picture uses for something other than a kind, each with what uses it. */
-  reserved: readonly { 
-/** Human-readable identity owning this reserved picture color. */
-use: string; 
-/** Packed sRGB RGB integer assigned to the reservation or matching mark kind. */
-color: number }[];
+  reserved: readonly {
+    /** Human-readable identity owning this reserved picture color. */
+    use: string;
+    /** Packed sRGB RGB integer assigned to the reservation or matching mark kind. */
+    color: number;
+  }[];
 
   /** Colours the request gives kinds for this picture, later entries winning. */
   recolor: readonly IAutoMovieInspectionRequest.IColor[];

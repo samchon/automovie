@@ -1,10 +1,14 @@
-import type { IAutoMovieAuditOutcome, IAutoMovieMeasureContact, IAutoMoviePreparePhysicalGeometry, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   preparePhysicalGeometry as Geometry,
   auditAutoMovieOutcome,
   measureAutoMovieContact,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieAuditOutcome,
+  IAutoMovieMeasureContact,
+  IAutoMoviePreparePhysicalGeometry,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -25,7 +29,10 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 export async function test_composition_contact(): Promise<void> {
   const queries: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
   const profile: P = PhysicalFixtures.sphere(0.1);
-  const side = (subject: string, x: number): IAutoMovieMeasureContact.ISide => ({
+  const side = (
+    subject: string,
+    x: number,
+  ): IAutoMovieMeasureContact.ISide => ({
     subject,
     region: subject === "a" ? "hand" : "head",
     profile,

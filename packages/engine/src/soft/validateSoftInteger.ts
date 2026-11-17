@@ -1,4 +1,5 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
+
 /**
  * Append a type violation for a value outside a safe-integer interval.
  *

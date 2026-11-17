@@ -1,6 +1,9 @@
-import type { IAutoMoviePrimitiveShape, IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
 import { ArchetypeMass } from "@automovie/archetypes";
-
+import type {
+  IAutoMovieModelPart,
+  IAutoMoviePrimitiveShape,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

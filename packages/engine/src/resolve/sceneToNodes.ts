@@ -1,5 +1,13 @@
-import { type IAutoMovieSceneToNodes, AutoMovieNodeKind, IAutoMovieModel, IAutoMovieNode, IAutoMoviePropArticulation, IAutoMoviePropSpec, IAutoMovieScene, IAutoMovieTransform } from "@automovie/interface";
-
+import {
+  AutoMovieNodeKind,
+  IAutoMovieModel,
+  IAutoMovieNode,
+  IAutoMoviePropArticulation,
+  IAutoMoviePropSpec,
+  IAutoMovieScene,
+  type IAutoMovieSceneToNodes,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
 import { lowerSkeletonNodes } from "./lowerSkeletonNodes";
 import { placementNodePrefix } from "./placementNodePrefix";
@@ -15,7 +23,11 @@ import { placementNodePrefix } from "./placementNodePrefix";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work All lowering uses shared naming; mutable scene/model records prevent retaining a graph solely by scene id.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns node wrappers/array and source transforms remain borrowed; partial arrays release on failure without native graph handles or tasks.
  */
-export const sceneToNodes: (props: IAutoMovieSceneToNodes.IProps) => IAutoMovieNode[] = (props: IAutoMovieSceneToNodes.IProps): IAutoMovieNode[] => {
+export const sceneToNodes: (
+  props: IAutoMovieSceneToNodes.IProps,
+) => IAutoMovieNode[] = (
+  props: IAutoMovieSceneToNodes.IProps,
+): IAutoMovieNode[] => {
   const {
     scene,
     models,

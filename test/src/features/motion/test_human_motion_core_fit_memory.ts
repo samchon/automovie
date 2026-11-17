@@ -1,7 +1,17 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieResolvedBone, AutoMovieHumanoidBone } from "@automovie/interface";
-
-
-import { HUMAN_LEXICON, HumanChain, HumanPerformance, resolveHumanPosture, seated } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanPerformance,
+  resolveHumanPosture,
+  seated,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -88,13 +98,18 @@ export function test_human_motion_core_fit_memory(): void {
       (): IAutoMovieMotionHumanPerformance.IInput["composition"] =>
         HumanChain.subject("a")
           .walk({ to: { x: 0, y: 0, z: 2 } })
-          .over((o: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => o.gesture({ kind: "wave" }))
-          .node,
+          .over(
+            (o: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+              o.gesture({ kind: "wave" }),
+          ).node,
     ],
   ];
 
   // Every bone's world position and rotation, as text that differs when any number does.
-  const shown = (performance: IAutoMovieMotionHumanPerformance, t: number): string =>
+  const shown = (
+    performance: IAutoMovieMotionHumanPerformance,
+    t: number,
+  ): string =>
     JSON.stringify(
       [...performance.bones("a", t).entries()].map(
         ([bone, at]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): [

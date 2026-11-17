@@ -1,6 +1,25 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionCoupling, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedCoupling, IAutoMovieMotionHumanCarriedCouplingFit, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionMeeting, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionCoupling,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanCarriedCoupling,
+  IAutoMovieMotionHumanCarriedCouplingFit,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionMeeting,
+  IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { Quaternion, Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -84,7 +103,12 @@ export namespace HumanCarriedCoupling {
 
   /** The carry the second helper takes beside each carry that has one: a supported walk's other side. */
   export const PAIRED: Readonly<
-    Partial<Record<IAutoMovieMotionHumanCarried.Carry, IAutoMovieMotionHumanCarried.Carry>>
+    Partial<
+      Record<
+        IAutoMovieMotionHumanCarried.Carry,
+        IAutoMovieMotionHumanCarried.Carry
+      >
+    >
   > = {
     supported: "supportedLeft",
   };
@@ -136,7 +160,12 @@ export namespace HumanCarriedCoupling {
    */
   export function kind(
     carry: IAutoMovieMotionHumanCarried.Carry,
-    rows: Readonly<Record<IAutoMovieMotionHumanCarried.Carry, IAutoMovieMotionHumanCarried.IRow>>,
+    rows: Readonly<
+      Record<
+        IAutoMovieMotionHumanCarried.Carry,
+        IAutoMovieMotionHumanCarried.IRow
+      >
+    >,
     extra: number = 0,
     paired: boolean = false,
   ): IAutoMovieMotionMeeting.IKind {
@@ -218,13 +247,14 @@ export namespace HumanCarriedCoupling {
       });
     // A lone bearer's stance and the borne legs are fitted so its arms
     // reach the holds; a second helper keeps both bearers upright.
-    const fit: IAutoMovieMotionHumanCarriedCouplingFit.IFit = HumanCarriedCouplingFit.fit(
-      bearer,
-      borne,
-      row,
-      HOLDS[carry],
-      second === undefined,
-    );
+    const fit: IAutoMovieMotionHumanCarriedCouplingFit.IFit =
+      HumanCarriedCouplingFit.fit(
+        bearer,
+        borne,
+        row,
+        HOLDS[carry],
+        second === undefined,
+      );
     const theirs: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanCarriedCouplingPose.stood(bearer, fit.stance);
     // The key frame is the bone the resting region rides on, so the borne
@@ -234,7 +264,10 @@ export namespace HumanCarriedCoupling {
       row.theirs,
     );
     const anchored: IAutoMovieResolvedBone = theirs.get(anchor)!;
-    const keyed: IAutoMovieMotionHumanPosture = HumanCarriedCouplingPose.key(row, fit.legs);
+    const keyed: IAutoMovieMotionHumanPosture = HumanCarriedCouplingPose.key(
+      row,
+      fit.legs,
+    );
     const root: IAutoMovieVector3 = fit.place({ x: 0, y: 0, z: 0 });
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(borne, keyed);
@@ -428,7 +461,12 @@ export namespace HumanCarriedCoupling {
         rightUpperLeg: "rightUpperLeg",
         leftLowerLeg: "leftLowerLeg",
         rightLowerLeg: "rightLowerLeg",
-      } as Partial<Record<AutoMovieHumanoidBone, IAutoMovieMotionHumanContactWindow["part"]>>
+      } as Partial<
+        Record<
+          AutoMovieHumanoidBone,
+          IAutoMovieMotionHumanContactWindow["part"]
+        >
+      >
     )[bone];
     return limb ?? (bone === "hips" ? "seat" : "back");
   };

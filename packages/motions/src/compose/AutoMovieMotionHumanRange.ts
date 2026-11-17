@@ -1,6 +1,12 @@
-import type { AutoMovieHumanoidBone, IAutoMovieAngleRange, IAutoMovieJointConstraint, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanRange } from "@automovie/interface";
-
 import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieAngleRange,
+  IAutoMovieJointConstraint,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanRange,
+} from "@automovie/interface";
+
 import { HumanBound } from "../law/HumanBound";
 import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
 
@@ -35,7 +41,6 @@ import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Levels and motions are closed unions; the ranges are the engine's and are not copied here.
  */
 export namespace AutoMovieMotionHumanRange {
-
   /** The levels of {@link Level}, as data. */
   export const LEVEL_NAMES = [
     "slight",
@@ -50,7 +55,9 @@ export namespace AutoMovieMotionHumanRange {
    * amplitudes and the reaction sizes that were converted onto them, listed
    * in the campaign's pull request).
    */
-  export const LEVELS: Readonly<Record<IAutoMovieMotionHumanRange.Level, number>> = {
+  export const LEVELS: Readonly<
+    Record<IAutoMovieMotionHumanRange.Level, number>
+  > = {
     slight: 0.1,
     light: 0.25,
     half: 0.5,
@@ -83,10 +90,16 @@ export namespace AutoMovieMotionHumanRange {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function share(amount: IAutoMovieMotionHumanRange.Level | IAutoMovieMotionHumanRange.IScaled): number {
+  export function share(
+    amount:
+      | IAutoMovieMotionHumanRange.Level
+      | IAutoMovieMotionHumanRange.IScaled,
+  ): number {
     if (typeof amount === "string") return LEVELS[amount];
     if (!(amount.scale >= 0.5 && amount.scale <= 1.5)) {
-      const names: IAutoMovieMotionHumanRange.Level[] = Object.keys(LEVELS) as IAutoMovieMotionHumanRange.Level[];
+      const names: IAutoMovieMotionHumanRange.Level[] = Object.keys(
+        LEVELS,
+      ) as IAutoMovieMotionHumanRange.Level[];
       const next: IAutoMovieMotionHumanRange.Level | undefined =
         names[names.indexOf(amount.level) + (amount.scale > 1 ? 1 : -1)];
       throw new Error(

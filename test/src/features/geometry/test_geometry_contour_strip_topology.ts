@@ -1,5 +1,5 @@
-import type { IAutoMovieContourLoft64 } from "@automovie/interface";
 import { tessellateAutoMovieContourStrip64 } from "@automovie/engine";
+import type { IAutoMovieContourLoft64 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { contourStripOracle as O } from "../internal/contourStripOracle.ts";

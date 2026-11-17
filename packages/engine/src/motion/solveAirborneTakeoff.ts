@@ -1,5 +1,10 @@
-import type { AutoMovieVector3Tuple, IAutoMovieIntegrateAirborneRotation, IAutoMovieSolveAirborneTakeoff, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMovieQuaternion,
+  IAutoMovieSolveAirborneTakeoff,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVector";
 import { Quaternion } from "../math/Quaternion";
@@ -87,8 +92,8 @@ export function solveAirborneTakeoff(
     local: readonly number[],
     target: readonly number[],
   ): IEvaluation => {
-    const turned: IAutoMovieIntegrateAirborneRotation.IFlight = integrateAirborneRotation(
-      {
+    const turned: IAutoMovieIntegrateAirborneRotation.IFlight =
+      integrateAirborneRotation({
         history: props.history,
         t0: props.t0,
         t1: props.t1,
@@ -101,17 +106,17 @@ export function solveAirborneTakeoff(
         h: props.h,
         tolerance: props.integration,
         variations: directions,
-      },
-    );
+      });
     // The body seen in the frame's axes, `q F`, so the take-off reads zero.
-    const end: IAutoMovieSolveAirborneTakeoff.IAngles = solveAirborneTakeoff.unwrapped(
-      {
-        ...turned,
-        orientation: (t: number): IAutoMovieQuaternion =>
-          Quaternion.multiply(turned.orientation(t), axes),
-      },
-      frame,
-    );
+    const end: IAutoMovieSolveAirborneTakeoff.IAngles =
+      solveAirborneTakeoff.unwrapped(
+        {
+          ...turned,
+          orientation: (t: number): IAutoMovieQuaternion =>
+            Quaternion.multiply(turned.orientation(t), axes),
+        },
+        frame,
+      );
     const columns: number[][] = turned
       .variations(props.t1)
       .map((eta: IAutoMovieVector3): number[] => {
@@ -356,7 +361,10 @@ export namespace solveAirborneTakeoff {
     const instants: number = Math.ceil((flight.t1 - flight.t0) / step) + 1;
     for (let k: number = 0; k < instants; k++) {
       const t: number = k === instants - 1 ? flight.t1 : flight.t0 + k * step;
-      const a: IAutoMovieSolveAirborneTakeoff.IAngles = angles(frame, flight.orientation(t));
+      const a: IAutoMovieSolveAirborneTakeoff.IAngles = angles(
+        frame,
+        flight.orientation(t),
+      );
       somersault = near(a.somersault, somersault);
       twist = near(a.twist, twist);
       tilt = a.tilt;

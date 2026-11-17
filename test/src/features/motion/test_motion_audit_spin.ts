@@ -1,7 +1,13 @@
-import type { IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanAuditSpin, IAutoMovieResolvedBone, AutoMovieHumanoidBone } from "@automovie/interface";
-
-
-import { AutoMovieMotionHumanAuditContinuity, AutoMovieMotionHumanAuditSpin } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditSpin,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAuditContinuity,
+  AutoMovieMotionHumanAuditSpin,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,5 +1,11 @@
-import { type IAutoMovieViolationCollector, IAutoMovieBuiltPopulation, IAutoMovieExplicitInstanceTransform, IAutoMovieInstanceSetDesign, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieBuiltPopulation,
+  IAutoMovieExplicitInstanceTransform,
+  IAutoMovieInstanceSetDesign,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 /** Largest deviation from unit norm a stated slot rotation may carry. */
 const UNIT_QUATERNION_EPSILON: number = 1e-6;

@@ -1,13 +1,14 @@
-import type { IAutoMovieHumanBodyMeasures, IAutoMovieHumanReferenceOutlineTypes, IAutoMovieHumanTrunkBuild, IAutoMovieHumanTrunkSolution, IAutoMovieHumanTrunkViewLaws } from "@automovie/interface";
-
-
-
-
+import type {
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanReferenceOutlineTypes,
+  IAutoMovieHumanTrunkBuild,
+  IAutoMovieHumanTrunkSolution,
+  IAutoMovieHumanTrunkViewLaws,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSex } from "../../typings/AutoMovieHumanSex";
 import { AutoMovieHumanGlutealDome } from "../AutoMovieHumanGlutealDome";
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
-
 
 /**
  * The trunk masses' laws: the left breast and gluteal mass, their footprints

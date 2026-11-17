@@ -1,5 +1,9 @@
-import type { AutoMovieSurfaceTier, IAutoMovieSurfaceCage, IAutoMovieSurfaceNetwork } from "@automovie/interface";
 import { sampleAutoMovieSurfaceNetwork } from "@automovie/engine";
+import type {
+  AutoMovieSurfaceTier,
+  IAutoMovieSurfaceCage,
+  IAutoMovieSurfaceNetwork,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { sweepBranchedBody } from "../internal/sweepBranchedBody";

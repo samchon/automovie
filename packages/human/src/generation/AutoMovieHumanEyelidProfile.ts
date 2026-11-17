@@ -1,6 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanEyelid, IAutoMovieHumanEyelidProfile } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanEyelid,
+  IAutoMovieHumanEyelidProfile,
+} from "@automovie/interface";
 
 import { AutoMovieHumanEyeGlobe } from "./AutoMovieHumanEyeGlobe";
 import { AutoMovieHumanEyelid } from "./AutoMovieHumanEyelid";
@@ -152,7 +154,8 @@ export namespace AutoMovieHumanEyelidProfile {
     const tuckRho: number = s.rho;
     const tuckX: number =
       (1 - into) *
-        (AutoMovieHumanEyeGlobe.anterior(Math.min(s.rho, 0.95 * radial)) - TUCK) +
+        (AutoMovieHumanEyeGlobe.anterior(Math.min(s.rho, 0.95 * radial)) -
+          TUCK) +
       into * -TUCK;
     const lost = (u: number): AutoMovieVector3Tuple => {
       const q: number = Math.min(1, Math.max(0, (u - edgeU) / span));

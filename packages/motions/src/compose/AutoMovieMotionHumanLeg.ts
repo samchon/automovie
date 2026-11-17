@@ -1,6 +1,15 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanLeg, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanLeg,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFoot } from "../posture/HumanFoot";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 
@@ -22,7 +31,6 @@ import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `HumanFoot.IPlacement` and the posture's goal type; no action name and no fixed body size appears.
  */
 export namespace AutoMovieMotionHumanLeg {
-
   /**
    * A foot on its way from one placement to another: the ankle on the
    * straight line between them raised by `4 c s (1 - s)`, a parabola that
@@ -111,13 +119,18 @@ export namespace AutoMovieMotionHumanLeg {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `goal`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
-  export function place(props: IAutoMovieMotionHumanLeg.IPlace): IAutoMovieMotionHumanPrimitive {
+  export function place(
+    props: IAutoMovieMotionHumanLeg.IPlace,
+  ): IAutoMovieMotionHumanPrimitive {
     const limb: "leftLeg" | "rightLeg" = `${props.side}Leg`;
     return {
       channels: [limb],
       from: props.from,
       to: props.to,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => ({
         ...posture,
         limbs: {
           ...posture.limbs,
@@ -204,7 +217,10 @@ export namespace AutoMovieMotionHumanLeg {
       side,
       from: clock.at(window[0]),
       to: clock.at(window[1]),
-      placement: (_: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanFoot.IPlacement =>
+      placement: (
+        _: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanFoot.IPlacement =>
         arc(from, to, clearance, clock.progress(window[0], window[1], seconds)),
       planted: (seconds: number): boolean =>
         clock.linear(window[0], window[1], seconds) >= 1,

@@ -1,14 +1,17 @@
+import { DeerCohorts } from "./DeerCohorts";
 import type { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedBodyProfile } from "./QuadrupedBodyProfile";
 
 /**
- * A coarse male Boso sika body with its actual species' skeletal controls.
+ * A coarse adult Boso sika body with separately sampled same-sex skeletal controls.
  *
  * Ochiai and Asada 1995, Chiba 3(2):223-232, Tables 1/3, reports October
- * body means for males age 4+ (mass n = 25, other dimensions n = 27):
+ * body means for males age 4+ (mass n = 25, other dimensions n = 27) and
+ * females age 2+ (mass n = 46, other dimensions n = 51):
  * http://www.chiba-muse.or.jp/NATURAL/cms/wp-content/uploads/2024/01/journal_03-2_11ochiai.pdf .
  * Their 1997 Chiba 4(2):159-172, Tables 3/7, reports different Boso specimens:
- * skull n = 25 and actual limb bones n = 6, male age 5+:
+ * males age 5+ (skull n = 25, limbs n = 6) and females age 5+
+ * (skull n = 60, limbs n = 7):
  * http://www.chiba-muse.or.jp/NATURAL/cms/wp-content/uploads/2024/01/journal_04-2_12ochiai.pdf .
  * These share a species and geographic population, not paired individuals,
  * age cutoffs or sample dates. Ratios of the two studies' means define a
@@ -19,10 +22,11 @@ import { QuadrupedBodyProfile } from "./QuadrupedBodyProfile";
  * the cleaned skull; using them for a coarse capsule does not recover soft
  * tissue. The producer owns antlers and any authored tack separately.
  *
- * @param withersHeight Admitted instance height in metres for lateral inset scaling.
+ * @param withersHeight Admitted instance height in metres; only undefined defaults to its selected reference, while null is invalid.
+ * @param cohort Whole adult sex/age reference, male by default; no juvenile transfer is supported.
  * @returns Fresh coarse controls, with unknown segment mass fractions and foot material absent.
  * @throws {RangeError} For a nonpositive or nonfinite instance height.
- * @evidence contracts/development/common.md#meaningful-documentation Names both population samples, true-bone versus tape measures, SI normalization and every unmeasured construction parameter; no visual or ROM result is implied.
+ * @evidence contracts/development/common.md#meaningful-documentation Names both sex/age-specific body and skeletal samples, true-bone versus tape measures, SI normalization and every unmeasured construction parameter; no visual or ROM result is implied.
  * @evidence contracts/development/implementation.md#principled-implementation Normalize actual bone means by the separate population height reference, retaining that provisional premise. Source body/girth/skull dimensions size the coarse landmarks, and straight-axis projections preserve authored neck/tail lengths.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the two source records and supply their explicit normalization to QuadrupedBodyProfile's common geometry mapping; the producer separately adds species-identifying parts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No red-deer, horse or human anatomy is silently substituted for this small sika population; unsupported digit lengths, soft-tissue shape and standing pose remain named estimates and no marginal SD is used as independent trait variation.
@@ -31,10 +35,15 @@ import { QuadrupedBodyProfile } from "./QuadrupedBodyProfile";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the result. No query or resource is retained; omitted segment shares leave the builder's coarse uniform-density allocation explicit.
  */
 export function DeerBody(
-  withersHeight: number = DeerBody.MEASURES.withers,
+  withersHeight?: number,
+  cohort: DeerBody.Cohort = DeerCohorts.DEFAULT,
 ): QuadrupedBody.IBody {
-  const m: typeof DeerBody.MEASURES = DeerBody.MEASURES;
-  const bone: typeof DeerBody.SKELETON = DeerBody.SKELETON;
+  const m: Readonly<DeerCohorts.IMeasures> | undefined =
+    DeerBody.REFERENCES[cohort];
+  const bone: Readonly<DeerCohorts.ISkeleton> | undefined =
+    DeerBody.SKELETONS[cohort];
+  if (m === undefined || bone === undefined)
+    throw new RangeError(`Unknown adult Boso sika reference ${cohort}`);
   const c: typeof DeerBody.CONSTRUCTION = DeerBody.CONSTRUCTION;
   return QuadrupedBodyProfile({
     measures: {
@@ -60,7 +69,7 @@ export function DeerBody(
       c.distalLength * m.withers,
     ],
     construction: c,
-    withersHeight,
+    withersHeight: withersHeight === undefined ? m.withers : withersHeight,
     colors: { coat: "#96613e", tail: "#dad2bb" },
   });
 }
@@ -74,40 +83,29 @@ export function DeerBody(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No inferred withers height is mislabeled an independent measurement, no unknown anatomy or physical coefficient is invented and no published marginal spread becomes a fitted individual relationship.
  */
 export namespace DeerBody {
-  /** Ochiai/Asada 1995 Table 3, male age 4+, metres and kilograms; mass n = 25, other measures n = 27. */
-  export const MEASURES: Readonly<{
-    /** Shoulder height from ground, not an osteometric height estimate. */
-    withers: number;
+  /** The two complete adult external references; juveniles remain unsupported. */
+  export type Cohort = DeerCohorts.Name;
 
-    /** Chest circumference. */
-    girth: number;
+  /** Explicit choices and the authored equal-choice seeded palette, not population frequencies. */
+  export const COHORTS: readonly Cohort[] = DeerCohorts.NAMES;
 
-    /** Fig1C shoulder-to-rump straight body measure; not head-and-body length. */
-    body: number;
+  /** Previous male4+ body reference retained by canonical construction. */
+  export const MEASURES: Readonly<DeerCohorts.IMeasures> =
+    DeerCohorts.MEASURES[DeerCohorts.DEFAULT];
 
-    /** Actual weighed body mass of the reference population, not a scaling law. */
-    mass: number;
-  }> = { withers: 0.836, girth: 0.92, body: 0.882, mass: 60.4 };
+  /** Both sex/age body means from 1995 Table3; mass/tape counts differ. */
+  export const REFERENCES: Readonly<
+    Record<Cohort, Readonly<DeerCohorts.IMeasures>>
+  > = DeerCohorts.MEASURES;
 
-  /** Ochiai/Asada 1997 Tables 3/7, male age 5+, metres; actual skull n = 25, limb bones n = 6. */
-  export const SKELETON: Readonly<{
-    /** Humerus, radius and metacarpus maximum bone lengths. */
-    fore: readonly [number, number, number];
+  /** Previous male5+ bone/skull controls, not a paired male4+ individual. */
+  export const SKELETON: Readonly<DeerCohorts.ISkeleton> =
+    DeerCohorts.SKELETONS[DeerCohorts.DEFAULT];
 
-    /** Femur, tibia and metatarsus maximum bone lengths. */
-    hind: readonly [number, number, number];
-
-    /** Greatest cranium length. */
-    head: number;
-
-    /** Greatest breadth across parietal processes. */
-    headWidth: number;
-  }> = {
-    fore: [0.1995, 0.198, 0.1873],
-    hind: [0.2396, 0.278, 0.2143],
-    head: 0.2669,
-    headWidth: 0.1219,
-  };
+  /** Same-sex, separate age5+ skeletal samples from 1997 Tables3/7. */
+  export const SKELETONS: Readonly<
+    Record<Cohort, Readonly<DeerCohorts.ISkeleton>>
+  > = DeerCohorts.SKELETONS;
 
   /** Authored construction parameters for an unmeasured standing soft-tissue proxy; coat colors are authored too. */
   export const CONSTRUCTION: Readonly<

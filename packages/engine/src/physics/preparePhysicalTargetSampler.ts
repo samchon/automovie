@@ -1,5 +1,8 @@
-import type { IAutoMoviePhysicalProfile, IAutoMovieSamplePhysicalTarget, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMovieSamplePhysicalTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -37,10 +40,8 @@ export function preparePhysicalTargetSampler(
       };
       displacement = Vector3.subtract(last.position, first.position);
       velocity = Vector3.scale(displacement, rate);
-      const delta: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-        last.rotation,
-        Quaternion.inverse(first.rotation),
-      );
+      const delta: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+        Quaternion.multiply(last.rotation, Quaternion.inverse(first.rotation));
       const sign: number = delta.w < 0 ? -1 : 1;
       const norm: number = Math.hypot(delta.x, delta.y, delta.z);
       const scale: number =

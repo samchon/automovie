@@ -1,4 +1,9 @@
-import type { AutoMovieVector2Tuple, IAutoMovieConicFieldJet, IAutoMovieViewChain } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieConicFieldJet,
+  IAutoMovieViewChain,
+} from "@automovie/interface";
+
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 
 /**
@@ -61,7 +66,6 @@ import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No arc is replaced by a line or default shoulder when its premise fails, no G2 is claimed, and a join's second phase derivatives are never presented as two-sided.
  */
 export namespace AutoMovieViewChain {
-
   /**
    * Prepare a chain's arcs.
    *
@@ -76,25 +80,48 @@ export namespace AutoMovieViewChain {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure preparation coordinates no requests.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns its arcs; retains nothing.
    */
-  export function of(input: IAutoMovieViewChain.IInput): IAutoMovieViewChain.ISection {
+  export function of(
+    input: IAutoMovieViewChain.IInput,
+  ): IAutoMovieViewChain.ISection {
     const K: number = input.points.length;
-    const fail = (fault: string): IAutoMovieViewChain.ISection => ({ input, arcs: [], joins: [], fault });
-    if (K < 3 || input.tangents.length !== K || input.shoulders.length !== K) return fail(`a chain needs at least 3 points with one tangent and shoulder each (${K}, ${input.tangents.length}, ${input.shoulders.length})`);
+    const fail = (fault: string): IAutoMovieViewChain.ISection => ({
+      input,
+      arcs: [],
+      joins: [],
+      fault,
+    });
+    if (K < 3 || input.tangents.length !== K || input.shoulders.length !== K)
+      return fail(
+        `a chain needs at least 3 points with one tangent and shoulder each (${K}, ${input.tangents.length}, ${input.shoulders.length})`,
+      );
     for (let j: number = 0; j < K; ++j) {
-      if (![...input.points[j]!, ...input.tangents[j]!, input.shoulders[j]!].every(Number.isFinite)) return fail(`point ${j}: a value is not finite`);
-      if (!(Math.hypot(...input.points[j]!) > 0)) return fail(`point ${j} stands on the course point`);
-      if (!(Math.hypot(...input.tangents[j]!) > 0)) return fail(`point ${j}: its tangent is zero`);
-      if (!(input.shoulders[j]! > 0 && input.shoulders[j]! < 1)) return fail(`arc ${j}: shoulder ${input.shoulders[j]} outside (0, 1)`);
+      if (
+        ![
+          ...input.points[j]!,
+          ...input.tangents[j]!,
+          input.shoulders[j]!,
+        ].every(Number.isFinite)
+      )
+        return fail(`point ${j}: a value is not finite`);
+      if (!(Math.hypot(...input.points[j]!) > 0))
+        return fail(`point ${j} stands on the course point`);
+      if (!(Math.hypot(...input.tangents[j]!) > 0))
+        return fail(`point ${j}: its tangent is zero`);
+      if (!(input.shoulders[j]! > 0 && input.shoulders[j]! < 1))
+        return fail(`arc ${j}: shoulder ${input.shoulders[j]} outside (0, 1)`);
     }
 
     // Phases unwrapped from the first point; each must advance and the whole stay within one turn.
-    const phases: number[] = [Math.atan2(input.points[0]![1], input.points[0]![0])];
+    const phases: number[] = [
+      Math.atan2(input.points[0]![1], input.points[0]![0]),
+    ];
     for (let j: number = 1; j < K; ++j) {
       let phi: number = Math.atan2(input.points[j]![1], input.points[j]![0]);
       while (phi <= phases[j - 1]!) phi += 2 * Math.PI;
       phases.push(phi);
     }
-    if (!(phases[K - 1]! - phases[0]! < 2 * Math.PI)) return fail("the points' phases do not advance within one turn");
+    if (!(phases[K - 1]! - phases[0]! < 2 * Math.PI))
+      return fail("the points' phases do not advance within one turn");
     const arcs: IAutoMovieViewChain.IArc[] = [];
     for (let j: number = 0; j < K; ++j) {
       const k: number = (j + 1) % K;
@@ -109,7 +136,10 @@ export namespace AutoMovieViewChain {
       const d: AutoMovieVector2Tuple = [P2[0] - P0[0], P2[1] - P0[1]];
       const a: number = cross(d, T2) / den;
       const b: number = cross(T0, d) / den;
-      if (!(a > 0 && b > 0)) return fail(`arc ${j}: the tangent lines meet ${a > 0 ? "behind the end" : "behind the start"} (a ${a.toExponential(3)}, b ${b.toExponential(3)}), so no positive-weight arc joins them`);
+      if (!(a > 0 && b > 0))
+        return fail(
+          `arc ${j}: the tangent lines meet ${a > 0 ? "behind the end" : "behind the start"} (a ${a.toExponential(3)}, b ${b.toExponential(3)}), so no positive-weight arc joins them`,
+        );
       const A: AutoMovieVector2Tuple = [P0[0] + a * T0[0], P0[1] + a * T0[1]];
       const w: number = input.shoulders[j]! / (1 - input.shoulders[j]!);
 
@@ -120,17 +150,45 @@ export namespace AutoMovieViewChain {
       const qa: number = w * c0 - c1 + w * c2;
       const qb: number = c1 - 2 * w * c0;
       const vertex: number = qa > 0 ? -qb / (2 * qa) : NaN;
-      const least: number = Math.min(w * c0, w * c2, vertex > 0 && vertex < 1 ? w * c0 + qb * vertex + qa * vertex * vertex : Infinity);
-      if (!(least > 0)) return fail(`arc ${j}: its phase does not advance over the whole arc (N x N' reaches ${least.toExponential(3)}); the section is not star-shaped about the course point there`);
+      const least: number = Math.min(
+        w * c0,
+        w * c2,
+        vertex > 0 && vertex < 1
+          ? w * c0 + qb * vertex + qa * vertex * vertex
+          : Infinity,
+      );
+      if (!(least > 0))
+        return fail(
+          `arc ${j}: its phase does not advance over the whole arc (N x N' reaches ${least.toExponential(3)}); the section is not star-shaped about the course point there`,
+        );
 
       // Signed end curvatures of the rational quadratic with weights 1, w, 1.
       const e0: AutoMovieVector2Tuple = [A[0] - P0[0], A[1] - P0[1]];
       const e1: AutoMovieVector2Tuple = [P2[0] - A[0], P2[1] - A[1]];
       const turn: number = cross(e0, e1);
       const end: number = k === 0 ? phases[0]! + 2 * Math.PI : phases[k]!;
-      arcs.push({ start: P0, control: A, end: P2, weight: w, span: [phases[j]!, end], curvature: [turn / (2 * w * w * Math.hypot(...e0) ** 3), turn / (2 * w * w * Math.hypot(...e1) ** 3)] });
+      arcs.push({
+        start: P0,
+        control: A,
+        end: P2,
+        weight: w,
+        span: [phases[j]!, end],
+        curvature: [
+          turn / (2 * w * w * Math.hypot(...e0) ** 3),
+          turn / (2 * w * w * Math.hypot(...e1) ** 3),
+        ],
+      });
     }
-    const joins: IAutoMovieViewChain.IJoin[] = arcs.map((arc: IAutoMovieViewChain.IArc, j: number): IAutoMovieViewChain.IJoin => ({ phase: phases[j]!, before: arcs[(j + K - 1) % K]!.curvature[1], after: arc.curvature[0] }));
+    const joins: IAutoMovieViewChain.IJoin[] = arcs.map(
+      (
+        arc: IAutoMovieViewChain.IArc,
+        j: number,
+      ): IAutoMovieViewChain.IJoin => ({
+        phase: phases[j]!,
+        before: arcs[(j + K - 1) % K]!.curvature[1],
+        after: arc.curvature[0],
+      }),
+    );
     return { input, arcs, joins, fault: null };
   }
 
@@ -148,11 +206,23 @@ export namespace AutoMovieViewChain {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure projection coordinates no requests.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh arrays; retains nothing.
    */
-  export function primal(input: IAutoMovieViewChain.IFieldInput): IAutoMovieViewChain.IInput {
+  export function primal(
+    input: IAutoMovieViewChain.IFieldInput,
+  ): IAutoMovieViewChain.IInput {
     return {
-      points: input.points.map((p: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet]): AutoMovieVector2Tuple => [p[0][0], p[1][0]]),
-      tangents: input.tangents.map((t: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet]): AutoMovieVector2Tuple => [t[0][0], t[1][0]]),
-      shoulders: input.shoulders.map((s: IAutoMovieConicFieldJet.IJet): number => s[0]),
+      points: input.points.map(
+        (
+          p: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet],
+        ): AutoMovieVector2Tuple => [p[0][0], p[1][0]],
+      ),
+      tangents: input.tangents.map(
+        (
+          t: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet],
+        ): AutoMovieVector2Tuple => [t[0][0], t[1][0]],
+      ),
+      shoulders: input.shoulders.map(
+        (s: IAutoMovieConicFieldJet.IJet): number => s[0],
+      ),
     };
   }
 
@@ -171,7 +241,10 @@ export namespace AutoMovieViewChain {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading coordinates no requests.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function read(section: IAutoMovieViewChain.ISection, phi: number): IAutoMovieViewChain.IRead | null {
+  export function read(
+    section: IAutoMovieViewChain.ISection,
+    phi: number,
+  ): IAutoMovieViewChain.IRead | null {
     if (section.fault !== null || !Number.isFinite(phi)) return null;
     const arcs: IAutoMovieViewChain.IArc[] = section.arcs;
     const first: number = arcs[0]!.span[0];
@@ -243,7 +316,10 @@ export namespace AutoMovieViewChain {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading coordinates no requests.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function radius(section: IAutoMovieViewChain.ISection, phi: number): number {
+  export function radius(
+    section: IAutoMovieViewChain.ISection,
+    phi: number,
+  ): number {
     const at: IAutoMovieViewChain.IRead | null = read(section, phi);
     return at === null ? NaN : Math.hypot(...at.point);
   }
@@ -262,23 +338,61 @@ export namespace AutoMovieViewChain {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned closure reuses the numeric chain and the station-only control point and weight jets across phases.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains the numeric chain and K arcs' station jets until released.
    */
-  export function jets(input: IAutoMovieViewChain.IFieldInput): ((phi: number) => IAutoMovieViewChain.IReading | null) | string {
-    const ops: IAutoMovieConicFieldJet.IAlgebra<IAutoMovieConicFieldJet.IJet> = AutoMovieConicFieldJet.AD;
+  export function jets(
+    input: IAutoMovieViewChain.IFieldInput,
+  ): ((phi: number) => IAutoMovieViewChain.IReading | null) | string {
+    const ops: IAutoMovieConicFieldJet.IAlgebra<IAutoMovieConicFieldJet.IJet> =
+      AutoMovieConicFieldJet.AD;
     const section: IAutoMovieViewChain.ISection = of(primal(input));
     if (section.fault !== null) return section.fault;
     const K: number = input.points.length;
 
     // Station-only jets of every arc: its ends, its control point and its weight.
-    const crossJ = (a: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet], b: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet]): IAutoMovieConicFieldJet.IJet => ops.subtract(ops.multiply(a[0], b[1]), ops.multiply(a[1], b[0]));
-    const pieces: { P0: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet]; A: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet]; P2: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet]; w: IAutoMovieConicFieldJet.IJet }[] = section.arcs.map((_: IAutoMovieViewChain.IArc, j: number): { P0: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet]; A: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet]; P2: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet]; w: IAutoMovieConicFieldJet.IJet } => {
-      const k: number = (j + 1) % K;
-      const [P0, T0, P2, T2] = [input.points[j]!, input.tangents[j]!, input.points[k]!, input.tangents[k]!];
-      const d: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet] = [ops.subtract(P2[0], P0[0]), ops.subtract(P2[1], P0[1])];
-      const a: IAutoMovieConicFieldJet.IJet = ops.divide(crossJ(d, T2), crossJ(T0, T2));
-      const A: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet] = [ops.add(P0[0], ops.multiply(a, T0[0])), ops.add(P0[1], ops.multiply(a, T0[1]))];
-      const w: IAutoMovieConicFieldJet.IJet = ops.divide(input.shoulders[j]!, ops.subtract(ops.constant(1), input.shoulders[j]!));
-      return { P0, A, P2, w };
-    });
+    const crossJ = (
+      a: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet],
+      b: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet],
+    ): IAutoMovieConicFieldJet.IJet =>
+      ops.subtract(ops.multiply(a[0], b[1]), ops.multiply(a[1], b[0]));
+    const pieces: {
+      P0: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet];
+      A: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet];
+      P2: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet];
+      w: IAutoMovieConicFieldJet.IJet;
+    }[] = section.arcs.map(
+      (
+        _: IAutoMovieViewChain.IArc,
+        j: number,
+      ): {
+        P0: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet];
+        A: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet];
+        P2: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet];
+        w: IAutoMovieConicFieldJet.IJet;
+      } => {
+        const k: number = (j + 1) % K;
+        const [P0, T0, P2, T2] = [
+          input.points[j]!,
+          input.tangents[j]!,
+          input.points[k]!,
+          input.tangents[k]!,
+        ];
+        const d: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet] =
+          [ops.subtract(P2[0], P0[0]), ops.subtract(P2[1], P0[1])];
+        const a: IAutoMovieConicFieldJet.IJet = ops.divide(
+          crossJ(d, T2),
+          crossJ(T0, T2),
+        );
+        const A: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet] =
+          [
+            ops.add(P0[0], ops.multiply(a, T0[0])),
+            ops.add(P0[1], ops.multiply(a, T0[1])),
+          ];
+        const w: IAutoMovieConicFieldJet.IJet = ops.divide(
+          input.shoulders[j]!,
+          ops.subtract(ops.constant(1), input.shoulders[j]!),
+        );
+        return { P0, A, P2, w };
+      },
+    );
     return (phi: number): IAutoMovieViewChain.IReading | null => {
       const at: IAutoMovieViewChain.IRead | null = read(section, phi);
       if (at === null) return null;
@@ -288,13 +402,29 @@ export namespace AutoMovieViewChain {
       const t: IAutoMovieConicFieldJet.IJet = [at.t, 0, 1, 0, 0, 0];
       const u: IAutoMovieConicFieldJet.IJet = ops.subtract(ops.constant(1), t);
       const b0: IAutoMovieConicFieldJet.IJet = ops.multiply(u, u);
-      const b1: IAutoMovieConicFieldJet.IJet = ops.multiply(ops.constant(2), ops.multiply(w, ops.multiply(u, t)));
+      const b1: IAutoMovieConicFieldJet.IJet = ops.multiply(
+        ops.constant(2),
+        ops.multiply(w, ops.multiply(u, t)),
+      );
       const b2: IAutoMovieConicFieldJet.IJet = ops.multiply(t, t);
       const den: IAutoMovieConicFieldJet.IJet = ops.add(ops.add(b0, b1), b2);
-      const B: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet] = [0, 1].map((c: number): IAutoMovieConicFieldJet.IJet => ops.divide(ops.add(ops.add(ops.multiply(b0, P0[c]!), ops.multiply(b1, A[c]!)), ops.multiply(b2, P2[c]!)), den)) as [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet];
+      const B: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet] = [
+        0, 1,
+      ].map(
+        (c: number): IAutoMovieConicFieldJet.IJet =>
+          ops.divide(
+            ops.add(
+              ops.add(ops.multiply(b0, P0[c]!), ops.multiply(b1, A[c]!)),
+              ops.multiply(b2, P2[c]!),
+            ),
+            den,
+          ),
+      ) as [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet];
 
       // R = |B| and Phi = atan2(B), as (s, t) jets.
-      const R: IAutoMovieConicFieldJet.IJet = ops.sqrt(ops.add(ops.multiply(B[0], B[0]), ops.multiply(B[1], B[1])));
+      const R: IAutoMovieConicFieldJet.IJet = ops.sqrt(
+        ops.add(ops.multiply(B[0], B[0]), ops.multiply(B[1], B[1])),
+      );
       const Phi: IAutoMovieConicFieldJet.IJet = phase(B);
 
       // Invert t(s, phi) and compose R(s, t(s, phi)).
@@ -305,7 +435,18 @@ export namespace AutoMovieViewChain {
       const tpp: number = -Phi[5] * tp * tp * tp;
       const tsp: number = -(Phi[4] + Phi[5] * ts) * tp * tp;
       const tss: number = -(Phi[3] + 2 * Phi[4] * ts + Phi[5] * ts * ts) / pt;
-      return { point: at.point, radial: [R[0], R[1] + R[2] * ts, R[2] * tp, R[3] + 2 * R[4] * ts + R[5] * ts * ts + R[2] * tss, (R[4] + R[5] * ts) * tp + R[2] * tsp, R[5] * tp * tp + R[2] * tpp], sided: at.sided };
+      return {
+        point: at.point,
+        radial: [
+          R[0],
+          R[1] + R[2] * ts,
+          R[2] * tp,
+          R[3] + 2 * R[4] * ts + R[5] * ts * ts + R[2] * tss,
+          (R[4] + R[5] * ts) * tp + R[2] * tsp,
+          R[5] * tp * tp + R[2] * tpp,
+        ],
+        sided: at.sided,
+      };
     };
   }
 
@@ -324,25 +465,42 @@ export namespace AutoMovieViewChain {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading coordinates no requests.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function evaluate(arc: IAutoMovieViewChain.IArc, t: number): AutoMovieVector2Tuple {
+  export function evaluate(
+    arc: IAutoMovieViewChain.IArc,
+    t: number,
+  ): AutoMovieVector2Tuple {
     const s: number = 1 - t;
     const b0: number = s * s;
     const b1: number = 2 * arc.weight * s * t;
     const b2: number = t * t;
     const den: number = b0 + b1 + b2;
-    return [(b0 * arc.start[0] + b1 * arc.control[0] + b2 * arc.end[0]) / den, (b0 * arc.start[1] + b1 * arc.control[1] + b2 * arc.end[1]) / den];
+    return [
+      (b0 * arc.start[0] + b1 * arc.control[0] + b2 * arc.end[0]) / den,
+      (b0 * arc.start[1] + b1 * arc.control[1] + b2 * arc.end[1]) / den,
+    ];
   }
 
   /** atan2 of a point jet as a jet: first partials `B x B_i / |B|^2`, second partials by the quotient rule. */
-  function phase(B: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet]): IAutoMovieConicFieldJet.IJet {
+  function phase(
+    B: [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet],
+  ): IAutoMovieConicFieldJet.IJet {
     const [x, y] = B;
     const q: number = x[0] * x[0] + y[0] * y[0];
     const first = (i: number): number => (x[0] * y[i]! - y[0] * x[i]!) / q;
     const qd = (i: number): number => 2 * (x[0] * x[i]! + y[0] * y[i]!);
 
     // d/dj (x y_i - y x_i) = x_j y_i + x y_ij - y_j x_i - y x_ij.
-    const second = (i: number, j: number, ij: number): number => (x[j]! * y[i]! + x[0] * y[ij]! - y[j]! * x[i]! - y[0] * x[ij]!) / q - ((x[0] * y[i]! - y[0] * x[i]!) * qd(j)) / (q * q);
-    return [Math.atan2(y[0], x[0]), first(1), first(2), second(1, 1, 3), second(1, 2, 4), second(2, 2, 5)];
+    const second = (i: number, j: number, ij: number): number =>
+      (x[j]! * y[i]! + x[0] * y[ij]! - y[j]! * x[i]! - y[0] * x[ij]!) / q -
+      ((x[0] * y[i]! - y[0] * x[i]!) * qd(j)) / (q * q);
+    return [
+      Math.atan2(y[0], x[0]),
+      first(1),
+      first(2),
+      second(1, 1, 3),
+      second(1, 2, 4),
+      second(2, 2, 5),
+    ];
   }
 
   /** a x b, the z component. */

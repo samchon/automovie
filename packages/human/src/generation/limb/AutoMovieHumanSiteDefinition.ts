@@ -1,17 +1,18 @@
-import type { IAutoMovieViewPart, IAutoMovieHumanSiteControls, IAutoMovieHumanSiteViewPart } from "@automovie/interface";
-
-
-
-
+import type {
+  IAutoMovieHumanSiteControls,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView";
 import { AutoMovieHumanSiteControls } from "./AutoMovieHumanSiteControls";
 
-
 /** Publish a part from its shared original scalar controls; preparation and contact acquisition remain separate. */
 export namespace AutoMovieHumanSiteDefinition {
   /** Preserve ordinary source definition while both consumers can explicitly share its preceding mathematical controls. */
-  export function of(input: IAutoMovieHumanSiteViewPart.IInput): IAutoMovieHumanSiteViewPart.IDefinition {
+  export function of(
+    input: IAutoMovieHumanSiteViewPart.IInput,
+  ): IAutoMovieHumanSiteViewPart.IDefinition {
     return publish(AutoMovieHumanSiteControls.prepare(input));
   }
 

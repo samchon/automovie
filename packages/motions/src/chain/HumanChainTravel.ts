@@ -1,15 +1,16 @@
-import type { IAutoMovieMotionHumanApproach, IAutoMovieMotionHumanCarry, IAutoMovieMotionHumanClimbLadder, IAutoMovieMotionHumanClimbStairs, IAutoMovieMotionHumanCrawl, IAutoMovieMotionHumanJump, IAutoMovieMotionHumanPushPull, IAutoMovieMotionHumanRun, IAutoMovieMotionHumanStand, IAutoMovieMotionHumanStepOver, IAutoMovieMotionHumanWalkParams } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
-
+import type {
+  IAutoMovieMotionHumanApproach,
+  IAutoMovieMotionHumanCarry,
+  IAutoMovieMotionHumanClimbLadder,
+  IAutoMovieMotionHumanClimbStairs,
+  IAutoMovieMotionHumanCrawl,
+  IAutoMovieMotionHumanJump,
+  IAutoMovieMotionHumanPushPull,
+  IAutoMovieMotionHumanRun,
+  IAutoMovieMotionHumanStand,
+  IAutoMovieMotionHumanStepOver,
+  IAutoMovieMotionHumanWalkParams,
+} from "@automovie/interface";
 
 import { HumanChainCore } from "./HumanChainCore";
 
@@ -31,7 +32,10 @@ export class HumanChainTravel extends HumanChainCore {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public stand(params: IAutoMovieMotionHumanStand.IParams = {}, anchor?: string): this {
+  public stand(
+    params: IAutoMovieMotionHumanStand.IParams = {},
+    anchor?: string,
+  ): this {
     return this.act("stand", params, anchor);
   }
 
@@ -64,7 +68,10 @@ export class HumanChainTravel extends HumanChainCore {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public jump(params: IAutoMovieMotionHumanJump.IParams, anchor?: string): this {
+  public jump(
+    params: IAutoMovieMotionHumanJump.IParams,
+    anchor?: string,
+  ): this {
     return this.act("jump", params, anchor);
   }
 
@@ -75,7 +82,10 @@ export class HumanChainTravel extends HumanChainCore {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public approach(params: IAutoMovieMotionHumanApproach.IParams, anchor?: string): this {
+  public approach(
+    params: IAutoMovieMotionHumanApproach.IParams,
+    anchor?: string,
+  ): this {
     return this.act("approach", params, anchor);
   }
 
@@ -87,7 +97,10 @@ export class HumanChainTravel extends HumanChainCore {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public carry(params: IAutoMovieMotionHumanCarry.IParams, anchor?: string): this {
+  public carry(
+    params: IAutoMovieMotionHumanCarry.IParams,
+    anchor?: string,
+  ): this {
     return this.act("carry", params, anchor);
   }
 
@@ -99,7 +112,10 @@ export class HumanChainTravel extends HumanChainCore {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public pushPull(params: IAutoMovieMotionHumanPushPull.IParams, anchor?: string): this {
+  public pushPull(
+    params: IAutoMovieMotionHumanPushPull.IParams,
+    anchor?: string,
+  ): this {
     return this.act("pushPull", params, anchor);
   }
 
@@ -110,7 +126,10 @@ export class HumanChainTravel extends HumanChainCore {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public climbStairs(params: IAutoMovieMotionHumanClimbStairs.IParams, anchor?: string): this {
+  public climbStairs(
+    params: IAutoMovieMotionHumanClimbStairs.IParams,
+    anchor?: string,
+  ): this {
     return this.act("climbStairs", params, anchor);
   }
 
@@ -121,7 +140,10 @@ export class HumanChainTravel extends HumanChainCore {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public stepOver(params: IAutoMovieMotionHumanStepOver.IParams, anchor?: string): this {
+  public stepOver(
+    params: IAutoMovieMotionHumanStepOver.IParams,
+    anchor?: string,
+  ): this {
     return this.act("stepOver", params, anchor);
   }
 
@@ -134,7 +156,10 @@ export class HumanChainTravel extends HumanChainCore {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public crawl(params: IAutoMovieMotionHumanCrawl.IParams = {}, anchor?: string): this {
+  public crawl(
+    params: IAutoMovieMotionHumanCrawl.IParams = {},
+    anchor?: string,
+  ): this {
     return this.act("crawl", params, anchor);
   }
 
@@ -145,7 +170,10 @@ export class HumanChainTravel extends HumanChainCore {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public climbLadder(params: IAutoMovieMotionHumanClimbLadder.IParams, anchor?: string): this {
+  public climbLadder(
+    params: IAutoMovieMotionHumanClimbLadder.IParams,
+    anchor?: string,
+  ): this {
     return this.act("climbLadder", params, anchor);
   }
 }

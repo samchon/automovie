@@ -6,8 +6,6 @@ import type { IAutoMovieHumanPolarSection } from "@automovie/interface";
  * becomes the same radial function as the limb's own sections.
  */
 export namespace AutoMovieHumanPolarSection {
-  
-
   /** Area centroid and equivalent radius of a closed polygon `[x, z]`. */
   export function measure(
     polygon: IAutoMovieHumanPolarSection.MeasurePolygon,
@@ -79,7 +77,10 @@ export namespace AutoMovieHumanPolarSection {
     const half = (list: [number, number][]): [number, number][] => {
       const out: [number, number][] = [];
       for (const p of list) {
-        while (out.length >= 2 && turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0)
+        while (
+          out.length >= 2 &&
+          turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
+        )
           out.pop();
         out.push(p);
       }

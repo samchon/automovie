@@ -1,5 +1,3 @@
-
-
 /**
  * Explicit storage, iteration and scalar-visit limits for simplex minimization.
  *

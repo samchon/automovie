@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryCameraTracksLinkageOperation, IAutoMovieRecoveryImageFeaturesExtractionOperation } from "../../index";
+import type {
+  IAutoMovieRecoveryCameraTracksLinkageOperation,
+  IAutoMovieRecoveryImageFeaturesExtractionOperation,
+} from "../../index";
 
 /** Once-observed bounded image-set features and both directed pair populations.
  *
@@ -8,15 +11,12 @@ import type { IAutoMovieRecoveryCameraTracksLinkageOperation, IAutoMovieRecovery
  * @evidence contracts/development/common.md#meaningful-documentation Members define transient descriptors, unordered pair order and actual directed comparison count.
  */
 export interface IAutoMovieRecoveryCameraSetObservation {
- 
- /** Source-order features, including transient numerical descriptors. */
+  /** Source-order features, including transient numerical descriptors. */
   features: ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[];
 
- 
- /** One forward/reverse record for each unordered image pair. */
+  /** One forward/reverse record for each unordered image pair. */
   pairs: Parameters<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation>[1][number][];
 
- 
- /** Actual total oriented descriptor pairs compared. */
+  /** Actual total oriented descriptor pairs compared. */
   descriptorComparisons: number;
 }

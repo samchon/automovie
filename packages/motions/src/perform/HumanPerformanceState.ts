@@ -1,6 +1,25 @@
-import type { IAutoMovieCheckLegality, IAutoMovieComposition, IAutoMovieIntent, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBlast, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanObstacle, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanPerformer, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSkill, IAutoMovieMotionMeeting, IAutoMovieMotionTarget, IAutoMovieResolveSchedule, IAutoMovieSchedule } from "@automovie/interface";
-
 import { checkAutoMovieLegality } from "@automovie/engine";
+import type {
+  IAutoMovieCheckLegality,
+  IAutoMovieComposition,
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBlast,
+  IAutoMovieMotionHumanForce,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanObstacle,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPerformer,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSkill,
+  IAutoMovieMotionMeeting,
+  IAutoMovieMotionTarget,
+  IAutoMovieResolveSchedule,
+  IAutoMovieSchedule,
+} from "@automovie/interface";
 
 import { HUMAN_ACTIONS } from "../actions/HUMAN_ACTIONS";
 import { stand } from "../actions/stand";
@@ -57,8 +76,10 @@ export class HumanPerformanceState {
   >;
 
   /** The spans in which each prop is held or worn, by the prop: who holds it in which hand or wears it on which bone, from when to when and at which offset from the hand or the bone; found once the performance is placed. */
-  public readonly gripCache: Map<string, IAutoMovieMotionHumanPerformanceState.IGrip[]> =
-    new Map();
+  public readonly gripCache: Map<
+    string,
+    IAutoMovieMotionHumanPerformanceState.IGrip[]
+  > = new Map();
 
   /** The meetings of the mutual actions, by their kind, start and performers: the performer who computed each and the meeting every role reads. */
   public readonly meetings: Map<
@@ -111,10 +132,12 @@ export class HumanPerformanceState {
    */
   public constructor(input: IAutoMovieMotionHumanPerformance.IInput) {
     this.props = new Map(
-      (input.props ?? []).map((p: IAutoMovieMotionHumanProp): [string, IAutoMovieMotionHumanProp] => [
-        p.subject,
-        p,
-      ]),
+      (input.props ?? []).map(
+        (p: IAutoMovieMotionHumanProp): [string, IAutoMovieMotionHumanProp] => [
+          p.subject,
+          p,
+        ],
+      ),
     );
     this.performers = [...input.performers];
     this.cues = input.cues ?? {};
@@ -173,7 +196,9 @@ export class HumanPerformanceState {
         // A windowed layer waits until the schedule gives its instants.
         layers: (input.layers?.[performer.subject] ?? []).flatMap(
           (
-            layer: IAutoMovieMotionHumanLayer | IAutoMovieMotionHumanLayer.IScheduled,
+            layer:
+              | IAutoMovieMotionHumanLayer
+              | IAutoMovieMotionHumanLayer.IScheduled,
           ): IAutoMovieMotionHumanSegment.ILayered[] =>
             "apply" in layer
               ? [{ layer, from: -Infinity, to: Infinity, fade: 0 }]
@@ -188,11 +213,8 @@ export class HumanPerformanceState {
             : { attributes: performer.attributes }),
           action: () => undefined,
           aim: (target: IAutoMovieMotionTarget, seconds: number) => {
-            const posture: IAutoMovieMotionHumanPosture = HumanPerformanceRead.posture(
-              this,
-              performer.subject,
-              seconds,
-            );
+            const posture: IAutoMovieMotionHumanPosture =
+              HumanPerformanceRead.posture(this, performer.subject, seconds);
             return HumanPerformanceAim.aim(
               this,
               target,
@@ -284,12 +306,14 @@ export class HumanPerformanceState {
     // The schedule gives every instant, so the windowed layers take their
     // places among the others, in the order given.
     for (const [subject, layers] of Object.entries(input.layers ?? {})) {
-      const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
-        this,
-        subject,
-      );
+      const person: IAutoMovieMotionHumanSegment.IPerson =
+        HumanPerformanceRead.person(this, subject);
       person.layers = layers.map(
-        (layer: IAutoMovieMotionHumanLayer | IAutoMovieMotionHumanLayer.IScheduled): IAutoMovieMotionHumanSegment.ILayered =>
+        (
+          layer:
+            | IAutoMovieMotionHumanLayer
+            | IAutoMovieMotionHumanLayer.IScheduled,
+        ): IAutoMovieMotionHumanSegment.ILayered =>
           "apply" in layer
             ? { layer, from: -Infinity, to: Infinity, fade: 0 }
             : HumanPerformanceLayers.window(this, person, layer),
@@ -312,13 +336,14 @@ export class HumanPerformanceState {
     for (const person of this.people.values()) HumanSegment.settle(person);
     this.resolving = false;
     for (const entry of this.schedule.entries) {
-      const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
-        this,
-        entry.subject,
-      );
+      const person: IAutoMovieMotionHumanSegment.IPerson =
+        HumanPerformanceRead.person(this, entry.subject);
       const segment: IAutoMovieMotionHumanSegment.ISegment | undefined = (
         this.riding.has(entry.index) ? person.overlays : person.segments
-      ).find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.entry === entry.index);
+      ).find(
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+          s.entry === entry.index,
+      );
       if (segment !== undefined)
         segment.end = this.clipped.get(entry.index) ?? entry.end;
     }
@@ -368,15 +393,19 @@ export namespace HumanPerformanceState {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Every performance of an equal input in the process reads one resolution, a website session's reread take as much as a test's.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most `KEEP` resolutions are kept; the least recently read is released first.
    */
-  export function of(input: IAutoMovieMotionHumanPerformance.IInput): IAutoMovieMotionHumanPerformanceState {
+  export function of(
+    input: IAutoMovieMotionHumanPerformance.IInput,
+  ): IAutoMovieMotionHumanPerformanceState {
     const key: string = HumanPerformanceKey.of(input);
-    const kept: IAutoMovieMotionHumanPerformanceState | undefined = KEPT.get(key);
+    const kept: IAutoMovieMotionHumanPerformanceState | undefined =
+      KEPT.get(key);
     if (kept !== undefined) {
       KEPT.delete(key);
       KEPT.set(key, kept);
       return kept;
     }
-    const state: IAutoMovieMotionHumanPerformanceState = new HumanPerformanceState(input);
+    const state: IAutoMovieMotionHumanPerformanceState =
+      new HumanPerformanceState(input);
     KEPT.set(key, state);
     if (KEPT.size > KEEP) KEPT.delete(KEPT.keys().next().value!);
     return state;

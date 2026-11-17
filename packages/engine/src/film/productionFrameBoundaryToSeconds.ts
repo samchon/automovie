@@ -1,5 +1,7 @@
-import type { IAutoMovieProductionFrameBoundaryToSeconds, IAutoMovieProductionFrameRate } from "@automovie/interface";
-
+import type {
+  IAutoMovieProductionFrameBoundaryToSeconds,
+  IAutoMovieProductionFrameRate,
+} from "@automovie/interface";
 
 import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
 
@@ -20,7 +22,9 @@ import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call maps one boundary independently and retains no mapping history; callers own reuse of a reduced rate or repeated boundary reads when their traversal needs it.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates the reduced rate record and retains nothing.
  */
-export function productionFrameBoundaryToSeconds(props: IAutoMovieProductionFrameBoundaryToSeconds.IProps): number {
+export function productionFrameBoundaryToSeconds(
+  props: IAutoMovieProductionFrameBoundaryToSeconds.IProps,
+): number {
   if (Number.isSafeInteger(props.frame) === false || props.frame < 0)
     throw new Error(
       `Production frame boundary ${props.frame} must be a nonnegative safe integer.`,

@@ -1,5 +1,3 @@
-
-
 /**
  * A relief: a feature written as a height over its base chain's surface,
  * such as the nose over the face or a breast over the thorax.

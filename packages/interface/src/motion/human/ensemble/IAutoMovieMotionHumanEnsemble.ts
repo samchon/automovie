@@ -1,9 +1,9 @@
-import type { IAutoMovieMotionHumanAttribute } from "./IAutoMovieMotionHumanAttribute";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
+import type { IAutoMovieProficiency } from "../skill/IAutoMovieProficiency";
+import type { IAutoMovieMotionHumanAttribute } from "./IAutoMovieMotionHumanAttribute";
 import type { IAutoMovieMotionHumanEnsemblePreset } from "./IAutoMovieMotionHumanEnsemblePreset";
 import type { IAutoMovieMotionHumanFormation } from "./IAutoMovieMotionHumanFormation";
-import type { IAutoMovieProficiency } from "../skill/IAutoMovieProficiency";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * A group of people written once: its members are performers of the

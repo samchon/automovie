@@ -1,6 +1,15 @@
-import { type IAutoMovieResolvedCamera, type IAutoMovieReviewVisualRead, IAutoMovieCamera, IAutoMovieInteractionEvent, IAutoMovieMotion, IAutoMovieReviewNote, IAutoMovieSceneNode, IAutoMovieShot, IAutoMovieShotPerformance, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  IAutoMovieCamera,
+  IAutoMovieInteractionEvent,
+  IAutoMovieMotion,
+  type IAutoMovieResolvedCamera,
+  IAutoMovieReviewNote,
+  type IAutoMovieReviewVisualRead,
+  IAutoMovieSceneNode,
+  IAutoMovieShot,
+  IAutoMovieShotPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { roundToThousandths } from "../math/roundToThousandths";
@@ -45,7 +54,9 @@ const DEFAULT_SILHOUETTE_RADIUS: number = 0.35;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares camera placements and performer roots on the fixed clock between frame and silhouette metrics, so pair comparisons do not resample roots. Contact checks sample the target at each event's own time independently; an event can coincide with the fixed clock, but that repeated sample is not reused here.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The camera and root tables, O(T + P · T) vectors, live for one call and are released on return; the returned notes are fresh records owned by the caller.
  */
-export function reviewVisualRead(props: IAutoMovieReviewVisualRead.IProps): IAutoMovieReviewNote[] {
+export function reviewVisualRead(
+  props: IAutoMovieReviewVisualRead.IProps,
+): IAutoMovieReviewNote[] {
   const motionById: Map<string, IAutoMovieMotion> = new Map(
     props.motions.map(
       (motion: IAutoMovieMotion): [string, IAutoMovieMotion] => [

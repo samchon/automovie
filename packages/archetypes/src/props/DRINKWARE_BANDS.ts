@@ -1,5 +1,5 @@
-import type { IAutoMovieHandAnthropometry } from "@automovie/interface";
 import { AutoMovieHandAnthropometry } from "@automovie/engine";
+import type { IAutoMovieHandAnthropometry } from "@automovie/interface";
 
 import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import type { createDrinkware } from "./createDrinkware";

@@ -4,14 +4,14 @@ import type { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 export namespace IAutoMovieSampleParameterSweep {
   /**
    * Register a fixed-cell Cartesian section average for parameter correspondence.
-   * 
+   *
    * Parameter correspondence pairs the curve parameter, so an off-axis, concave
    * section or an authored origin cannot be reconstructed from a polar radius.
    * The tensor trapezoid first averages the unscaled two-dimensional shape over
    * v, then its scaled points over u, in the centre frame just as the radial
    * writer does. The u-dependent scale belongs inside that second average.
    * Direction-correspondence radius averaging remains with rigAutoMovieSweep.
-   * 
+   *
    * Each signed coordinate is normalized by its largest magnitude before the
    * weighted sum. This avoids overflow in the sum and preserves an ordinary
    * positive subnormal constant. A genuine cancelling mean may be the origin;

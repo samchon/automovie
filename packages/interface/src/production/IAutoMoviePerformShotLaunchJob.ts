@@ -1,5 +1,5 @@
-import type { IAutoMovieLaunchAction } from "../harness/IAutoMovieLaunchAction";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieLaunchAction } from "../harness/IAutoMovieLaunchAction";
 
 /**
  * One gated `launch` action, ready for its flight to be solved.

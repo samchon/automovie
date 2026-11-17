@@ -1,8 +1,9 @@
-import type { AutoMovieQuaternionTuple, AutoMovieVector3Tuple, IAutoMovieHumanChainRings, IAutoMovieHumanNeutralBody } from "@automovie/interface";
-
-
-
-
+import type {
+  AutoMovieQuaternionTuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanChainRings,
+  IAutoMovieHumanNeutralBody,
+} from "@automovie/interface";
 
 import { AutoMovieHumanNeutralTurn as Turn } from "./AutoMovieHumanNeutralTurn";
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
@@ -41,25 +42,48 @@ export namespace AutoMovieHumanNeutralThumbCmc {
     side: "left" | "right",
     hand: AutoMovieQuaternionTuple,
   ): AutoMovieVector3Tuple {
-    const index: AutoMovieVector3Tuple = Math3D.unit(body.between(`${side}Hand`, `${side}IndexProximal`));
-    const bind: AutoMovieVector3Tuple = body.direction(`${side}ThumbMetacarpal`);
-    const thumb: IAutoMovieHumanChainRings | undefined = rings.find((r: IAutoMovieHumanChainRings): boolean => r.chain === `thumb.${side}`);
-    const palm: IAutoMovieHumanChainRings | undefined = rings.find((r: IAutoMovieHumanChainRings): boolean => r.chain === `hand.${side}.1`);
-    if (thumb === undefined || palm === undefined) return Math3D.unit(Math3D.rotate(hand, index));
+    const index: AutoMovieVector3Tuple = Math3D.unit(
+      body.between(`${side}Hand`, `${side}IndexProximal`),
+    );
+    const bind: AutoMovieVector3Tuple = body.direction(
+      `${side}ThumbMetacarpal`,
+    );
+    const thumb: IAutoMovieHumanChainRings | undefined = rings.find(
+      (r: IAutoMovieHumanChainRings): boolean => r.chain === `thumb.${side}`,
+    );
+    const palm: IAutoMovieHumanChainRings | undefined = rings.find(
+      (r: IAutoMovieHumanChainRings): boolean => r.chain === `hand.${side}.1`,
+    );
+    if (thumb === undefined || palm === undefined)
+      return Math3D.unit(Math3D.rotate(hand, index));
 
     // The thumb's skin past its root ring, in the bind.
-    const joint: AutoMovieVector3Tuple = body.byBone.get(`${side}ThumbMetacarpal`)!.position;
+    const joint: AutoMovieVector3Tuple = body.byBone.get(
+      `${side}ThumbMetacarpal`,
+    )!.position;
     const rows: AutoMovieVector3Tuple[][] = ringsOf(thumb);
-    const depth: number[] = rows.map((r: AutoMovieVector3Tuple[]): number => Turn.length(centroid(r), joint));
+    const depth: number[] = rows.map((r: AutoMovieVector3Tuple[]): number =>
+      Turn.length(centroid(r), joint),
+    );
     const root: number = depth.indexOf(Math.min(...depth));
-    const skin: AutoMovieVector3Tuple[] = rows.filter((_: AutoMovieVector3Tuple[], k: number): boolean => k !== root).flat();
+    const skin: AutoMovieVector3Tuple[] = rows
+      .filter((_: AutoMovieVector3Tuple[], k: number): boolean => k !== root)
+      .flat();
     const hull: ISlab[] = slabs(ringsOf(palm));
 
     // The nearest share to the index line at which the turned skin stays out.
     for (let share: number = 1; share > 0; share -= STEP) {
-      const along: AutoMovieVector3Tuple = Math3D.unit(Math3D.add(Math3D.times(bind, 1 - share), Math3D.times(index, share)));
+      const along: AutoMovieVector3Tuple = Math3D.unit(
+        Math3D.add(Math3D.times(bind, 1 - share), Math3D.times(index, share)),
+      );
       const turn: AutoMovieQuaternionTuple = Turn.arc(bind, along);
-      const clear: boolean = skin.every((p: AutoMovieVector3Tuple): boolean => !inside(hull, Math3D.add(joint, Math3D.rotate(turn, Math3D.sub(p, joint)))));
+      const clear: boolean = skin.every(
+        (p: AutoMovieVector3Tuple): boolean =>
+          !inside(
+            hull,
+            Math3D.add(joint, Math3D.rotate(turn, Math3D.sub(p, joint))),
+          ),
+      );
       if (clear) return Math3D.unit(Math3D.rotate(hand, along));
     }
     return Math3D.unit(Math3D.rotate(hand, bind));
@@ -84,19 +108,35 @@ export namespace AutoMovieHumanNeutralThumbCmc {
   }
 
   /** A chain's rings as point lists. */
-  function ringsOf(chain: IAutoMovieHumanChainRings): AutoMovieVector3Tuple[][] {
+  function ringsOf(
+    chain: IAutoMovieHumanChainRings,
+  ): AutoMovieVector3Tuple[][] {
     const n: number = chain.phases;
     return chain.stations.map((_: number, k: number): AutoMovieVector3Tuple[] =>
-      Array.from({ length: n }, (__: unknown, m: number): AutoMovieVector3Tuple => {
-        const i: number = 3 * (k * n + m);
-        return [chain.points[i]!, chain.points[i + 1]!, chain.points[i + 2]!];
-      }),
+      Array.from(
+        { length: n },
+        (__: unknown, m: number): AutoMovieVector3Tuple => {
+          const i: number = 3 * (k * n + m);
+          return [chain.points[i]!, chain.points[i + 1]!, chain.points[i + 2]!];
+        },
+      ),
     );
   }
 
   /** The mean of points. */
-  function centroid(points: readonly AutoMovieVector3Tuple[]): AutoMovieVector3Tuple {
-    return Math3D.times(points.reduce((s: AutoMovieVector3Tuple, p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => Math3D.add(s, p), [0, 0, 0]), 1 / points.length);
+  function centroid(
+    points: readonly AutoMovieVector3Tuple[],
+  ): AutoMovieVector3Tuple {
+    return Math3D.times(
+      points.reduce(
+        (
+          s: AutoMovieVector3Tuple,
+          p: AutoMovieVector3Tuple,
+        ): AutoMovieVector3Tuple => Math3D.add(s, p),
+        [0, 0, 0],
+      ),
+      1 / points.length,
+    );
   }
 
   /**
@@ -134,10 +174,13 @@ export namespace AutoMovieHumanNeutralThumbCmc {
     const centres: AutoMovieVector3Tuple[] = rings.map(centroid);
     return rings.map((ring: AutoMovieVector3Tuple[], k: number): ISlab => {
       const a: AutoMovieVector3Tuple = centres[Math.max(0, k - 1)]!;
-      const b: AutoMovieVector3Tuple = centres[Math.min(rings.length - 1, k + 1)]!;
+      const b: AutoMovieVector3Tuple =
+        centres[Math.min(rings.length - 1, k + 1)]!;
       const normal: AutoMovieVector3Tuple = Math3D.unit(Math3D.sub(b, a));
       const centre: AutoMovieVector3Tuple = centres[k]!;
-      const e1: AutoMovieVector3Tuple = Math3D.unit(Turn.perpendicular(Math3D.sub(ring[0]!, centre), normal));
+      const e1: AutoMovieVector3Tuple = Math3D.unit(
+        Turn.perpendicular(Math3D.sub(ring[0]!, centre), normal),
+      );
       const e2: AutoMovieVector3Tuple = Turn.cross(normal, e1);
       return {
         centre,
@@ -145,7 +188,10 @@ export namespace AutoMovieHumanNeutralThumbCmc {
         half: Turn.length(a, b) / (k === 0 || k === rings.length - 1 ? 2 : 4),
         e1,
         e2,
-        outline: ring.map((q: AutoMovieVector3Tuple): [number, number] => [Turn.dot(Math3D.sub(q, centre), e1), Turn.dot(Math3D.sub(q, centre), e2)]),
+        outline: ring.map((q: AutoMovieVector3Tuple): [number, number] => [
+          Turn.dot(Math3D.sub(q, centre), e1),
+          Turn.dot(Math3D.sub(q, centre), e2),
+        ]),
       };
     });
   }
@@ -159,7 +205,9 @@ export namespace AutoMovieHumanNeutralThumbCmc {
     let best: ISlab | null = null;
     let least: number = Infinity;
     for (const slab of hull) {
-      const offset: number = Math.abs(Turn.dot(Math3D.sub(p, slab.centre), slab.normal));
+      const offset: number = Math.abs(
+        Turn.dot(Math3D.sub(p, slab.centre), slab.normal),
+      );
       if (offset <= slab.half && offset < least) {
         least = offset;
         best = slab;
@@ -175,7 +223,11 @@ export namespace AutoMovieHumanNeutralThumbCmc {
     let crossings: number = 0;
     outline.forEach((a: [number, number], i: number): void => {
       const b: [number, number] = outline[(i + 1) % outline.length]!;
-      if (a[1] > y !== b[1] > y && x < a[0] + ((y - a[1]) * (b[0] - a[0])) / (b[1] - a[1])) crossings++;
+      if (
+        a[1] > y !== b[1] > y &&
+        x < a[0] + ((y - a[1]) * (b[0] - a[0])) / (b[1] - a[1])
+      )
+        crossings++;
     });
     return crossings % 2 === 1;
   }

@@ -1,6 +1,6 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionHumanStrikingBlade } from "../striking/IAutoMovieMotionHumanStrikingBlade";
 import type { IAutoMovieMotionHumanStrikingHeld } from "../striking/IAutoMovieMotionHumanStrikingHeld";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * How a presented weapon is held, read once per plan: the weapon as the

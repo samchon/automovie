@@ -1,7 +1,21 @@
-import type { IAutoMovieComposition, IAutoMovieMotionHumanAudit, IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditMotion as IAutoMovieMotionHumanAuditMotionType, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
-import { AutoMovieMotionHumanAudit, HumanPerformance, IAutoMovieMotionHumanAuditMotion } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanAudit,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanAuditMotion as IAutoMovieMotionHumanAuditMotionType,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAudit,
+  AutoMovieMotionHumanAuditMotion,
+  HumanPerformance,
+} from "@automovie/motions";
 
 /**
  * The shared steps of the action-law tests: a performance of people standing
@@ -131,7 +145,7 @@ export namespace motionHumanLaw {
     bone: AutoMovieHumanoidBone,
     rate: number = 24,
   ): IAutoMovieMotionHumanAuditMeasure {
-    const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
+    const times: number[] = AutoMovieMotionHumanAuditMotion.grid(
       0,
       film.duration,
       rate,

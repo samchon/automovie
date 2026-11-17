@@ -1,6 +1,20 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp } from "@automovie/interface";
 import { createBag } from "@automovie/archetypes";
-import { HUMAN_LEXICON, HumanChain, HumanMutual, HumanObject, HumanPerformance, HumanRefusal, seated } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanMutual,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  seated,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -47,9 +61,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_core_entry_scenes(): void {
   const man: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const woman: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
-  const laws: IAutoMovieMotionHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] =
+    Object.values(HUMAN_LEXICON).flat();
   const outcome = (
-    composition: { node: IAutoMovieMotionHumanPerformance.IInput["composition"] },
+    composition: {
+      node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+    },
     partner: boolean = false,
     props: IAutoMovieMotionHumanPerformance.IInput["props"] = [],
   ): string => {

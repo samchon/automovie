@@ -1,7 +1,18 @@
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanResolveHumanPosture, IAutoMovieMotionHumanTurnHumanPosture, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieSeededChainFit, IAutoMovieSwivelNear, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import { Quaternion, Transform, clampPose } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMovieMotionHumanTurnHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelNear,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanDigitFit } from "./HumanDigitFit";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbPair } from "./HumanLimbPair";
@@ -109,7 +120,8 @@ export namespace resolveHumanPosture {
     );
     // A whole-body rotation turns the root and the world goals before any fit
     // (`turnHumanPosture`), so the limbs are fitted on the turned body.
-    const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(posture);
+    const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
+      turnHumanPosture(posture);
     posture = { ...posture, limbs: turned.limbs };
 
     // The set joints are clamped first and the limbs fitted last, so the clamp
@@ -122,7 +134,12 @@ export namespace resolveHumanPosture {
       },
       body.skeleton,
     );
-    const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = refit(body, pose, posture.limbs, near);
+    const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = refit(
+      body,
+      pose,
+      posture.limbs,
+      near,
+    );
     // The digits reach from the hands the arms placed (`HumanDigitFit`).
     return {
       ...fitted,
@@ -157,7 +174,8 @@ export namespace resolveHumanPosture {
     near: IAutoMovieMotionHumanResolveHumanPosture.INear = {},
   ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
     const seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"] = {};
-    const values: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["values"] = {};
+    const values: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["values"] =
+      {};
     // An arm with no goal hangs or rests where its joints put it, so its own
     // colliders keep its room from the first fit on.
     const placed: ("left" | "right")[] = (["left", "right"] as const).filter(
@@ -165,7 +183,10 @@ export namespace resolveHumanPosture {
     );
     // Two arms with goals, neither riding the other, are one coupled problem
     // (`HumanLimbPair`), fitted when the first of them is reached.
-    const arms: Record<"left" | "right", IAutoMovieMotionHumanPosture.IGoal | undefined> = {
+    const arms: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanPosture.IGoal | undefined
+    > = {
       left: limbs.leftArm,
       right: limbs.rightArm,
     };
@@ -405,7 +426,9 @@ export namespace resolveHumanPosture {
   }
 
   /** The order to fit a posture's limbs in ({@link orderHumanLimbs}). */
-  export function order(limbs: IAutoMovieMotionHumanPosture["limbs"]): IAutoMovieMotionHumanPosture.Limb[] {
+  export function order(
+    limbs: IAutoMovieMotionHumanPosture["limbs"],
+  ): IAutoMovieMotionHumanPosture.Limb[] {
     return orderHumanLimbs(limbs);
   }
 

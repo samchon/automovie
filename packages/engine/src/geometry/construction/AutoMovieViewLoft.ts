@@ -1,4 +1,18 @@
-import type { IAutoMovieLoftChain, IAutoMovieSolidSurface, IAutoMovieViewPart, IAutoMovieConstructionOutlineParameter, IAutoMovieLoftContract, IAutoMovieLoftFrame, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMoviePolarSector, IAutoMovieViewChain, IAutoMovieViewLoft, IAutoMovieViewLoftInputsInputs, IAutoMovieViewSection } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftContract,
+  IAutoMovieLoftFrame,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMoviePolarSector,
+  IAutoMovieSolidSurface,
+  IAutoMovieViewChain,
+  IAutoMovieViewLoft,
+  IAutoMovieViewLoftInputsInputs,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 import { AutoMovieLoftCapSource } from "./AutoMovieLoftCapSource";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
@@ -61,7 +75,6 @@ interface Row {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A rejected source keeps its diagnostic, never publishes a replacement shape, and a split chain declares only the continuity of its joins.
  */
 export namespace AutoMovieViewLoft {
-
   /**
    * Loft a part from its views.
    *
@@ -87,14 +100,15 @@ export namespace AutoMovieViewLoft {
       diagnostics.push({ producer, level: 2, contract, detail });
     };
     /** A failed admission retains diagnostics without publishing partial final geometry. */
-    const empty: () => IAutoMovieViewLoft.IResult = (): IAutoMovieViewLoft.IResult => ({
-      chain: null,
-      surface: null,
-      sections: [],
-      chains: [],
-      diagnostics,
-      continuity: CONTINUITY,
-    });
+    const empty: () => IAutoMovieViewLoft.IResult =
+      (): IAutoMovieViewLoft.IResult => ({
+        chain: null,
+        surface: null,
+        sections: [],
+        chains: [],
+        diagnostics,
+        continuity: CONTINUITY,
+      });
 
     // Inputs: stations, the order and every curve's knots.
     if (
@@ -147,7 +161,7 @@ export namespace AutoMovieViewLoft {
     }
     const direct: IAutoMovieLoftViewSource.ISource | null =
       admitted?.source ?? null;
-    const inputs: (IAutoMovieViewLoftInputsInputs | null) =
+    const inputs: IAutoMovieViewLoftInputsInputs | null =
       AutoMovieViewLoftInputs(part, direct, report);
     if (inputs === null) return empty();
     const { lateral, medial, ahead, behind, owner, shoulders } = inputs;
@@ -161,20 +175,46 @@ export namespace AutoMovieViewLoft {
       ["side negative", part.side.negative],
     ];
     if (fullness.kind === "top") {
-      required.push(...fullness.shoulders.map((outline: IAutoMovieViewPart.IOutline, q: number): [string, IAutoMovieViewPart.IOutline] => [`top shoulder ${q}`, outline]));
+      required.push(
+        ...fullness.shoulders.map(
+          (
+            outline: IAutoMovieViewPart.IOutline,
+            q: number,
+          ): [string, IAutoMovieViewPart.IOutline] => [
+            `top shoulder ${q}`,
+            outline,
+          ],
+        ),
+      );
       if (fullness.touch !== undefined)
-        required.push(...fullness.touch.map((outline: IAutoMovieViewPart.IOutline, q: number): [string, IAutoMovieViewPart.IOutline] => [`touch ${q}`, outline]));
+        required.push(
+          ...fullness.touch.map(
+            (
+              outline: IAutoMovieViewPart.IOutline,
+              q: number,
+            ): [string, IAutoMovieViewPart.IOutline] => [`touch ${q}`, outline],
+          ),
+        );
       if (fullness.splits !== undefined)
         required.push(
-          ...fullness.splits.flatMap((split: IAutoMovieViewPart.ISplit, q: number): [string, IAutoMovieViewPart.IOutline][] => [
-            [`split ${q} u`, split.u],
-            [`split ${q} v`, split.v],
-            [`split ${q} angle`, split.angle],
-            [`split ${q} shoulder`, split.shoulder],
-          ]),
+          ...fullness.splits.flatMap(
+            (
+              split: IAutoMovieViewPart.ISplit,
+              q: number,
+            ): [string, IAutoMovieViewPart.IOutline][] => [
+              [`split ${q} u`, split.u],
+              [`split ${q} v`, split.v],
+              [`split ${q} angle`, split.angle],
+              [`split ${q} shoulder`, split.shoulder],
+            ],
+          ),
         );
     } else {
-      required.push(fullness.kind === "girth" ? ["girth", fullness.girth] : ["shoulder", fullness.shoulder]);
+      required.push(
+        fullness.kind === "girth"
+          ? ["girth", fullness.girth]
+          : ["shoulder", fullness.shoulder],
+      );
       if (fullness.departures !== undefined)
         required.push(
           ...fullness.departures.map(
@@ -317,7 +357,9 @@ export namespace AutoMovieViewLoft {
       // A declared touch/split source: the station's own conic chain.
       if (
         actual !== null &&
-        (actual.touch !== undefined || actual.splits !== undefined || actual.pieces !== undefined)
+        (actual.touch !== undefined ||
+          actual.splits !== undefined ||
+          actual.pieces !== undefined)
       ) {
         const prepared: IAutoMovieViewChain.ISection | string =
           AutoMovieLoftSectionNative.chain(actual);
@@ -333,12 +375,13 @@ export namespace AutoMovieViewLoft {
       // The quarters' fullness from its owner.
       let section: IAutoMovieViewSection.ISection | null;
       if (fullness.kind === "girth") {
-        const solved: IAutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
-          `${producer} ${at}`,
-          box,
-          owner(s),
-          shoulders(s),
-        );
+        const solved: IAutoMovieViewSection.ISolved =
+          AutoMovieViewSection.solve(
+            `${producer} ${at}`,
+            box,
+            owner(s),
+            shoulders(s),
+          );
         diagnostics.push(...solved.diagnostics);
         section =
           solved.section !== null && cap(s) > 0
@@ -426,7 +469,11 @@ export namespace AutoMovieViewLoft {
           return [r * Math.cos(phi), r * Math.sin(phi)];
         },
       );
-      if (!points.every((p: [number, number]): boolean => p.every(Number.isFinite))) {
+      if (
+        !points.every((p: [number, number]): boolean =>
+          p.every(Number.isFinite),
+        )
+      ) {
         report(
           "view chain",
           `station ${row.station} mm: a compatibility row sample has no finite radius`,
@@ -492,8 +539,20 @@ export namespace AutoMovieViewLoft {
     // Declared ring phases ride on it the same way; a list that is not `samples` phases strictly increasing within one turn is refused.
     if (part.phases !== undefined) {
       const phases: number[] = part.phases;
-      if (!(phases.length === part.samples && phases.every((p: number, k: number): boolean => Number.isFinite(p) && (k === 0 || p > phases[k - 1]!)) && phases[phases.length - 1]! - phases[0]! < 2 * Math.PI)) {
-        report("ring phases", "the declared ring phases are not `samples` finite phases strictly increasing within one turn");
+      if (
+        !(
+          phases.length === part.samples &&
+          phases.every(
+            (p: number, k: number): boolean =>
+              Number.isFinite(p) && (k === 0 || p > phases[k - 1]!),
+          ) &&
+          phases[phases.length - 1]! - phases[0]! < 2 * Math.PI
+        )
+      ) {
+        report(
+          "ring phases",
+          "the declared ring phases are not `samples` finite phases strictly increasing within one turn",
+        );
         return { ...empty(), sections, chains };
       }
       chain = { ...chain, phases: [...phases] };
@@ -511,7 +570,8 @@ export namespace AutoMovieViewLoft {
       sections,
       chains,
       diagnostics,
-      continuity: chains.length === 0 ? CONTINUITY : { phase: "C1", station: "C1" },
+      continuity:
+        chains.length === 0 ? CONTINUITY : { phase: "C1", station: "C1" },
     };
   }
 }

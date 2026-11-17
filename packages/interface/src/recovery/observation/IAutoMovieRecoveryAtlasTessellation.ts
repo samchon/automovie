@@ -6,19 +6,15 @@
  * @evidence contracts/development/common.md#meaningful-documentation States physical tolerance, count budgets and optional unresolved-cell choices.
  */
 export interface IAutoMovieRecoveryAtlasTessellation {
- 
- /** Physical tessellation tolerance, millimetres. */
+  /** Physical tessellation tolerance, millimetres. */
   toleranceMm: number;
 
- 
- /** Maximum tessellation cell population. */
+  /** Maximum tessellation cell population. */
   maxCells: number;
 
- 
- /** Maximum emitted vertex population. */
+  /** Maximum emitted vertex population. */
   maxVertices: number;
 
- 
- /** Explicit handling of cells unresolved within budget; omission delegates to the existing tessellator policy. */
+  /** Explicit handling of cells unresolved within budget; omission delegates to the existing tessellator policy. */
   cellBudgetPolicy?: "retain-coarse" | "omit-unresolved";
 }

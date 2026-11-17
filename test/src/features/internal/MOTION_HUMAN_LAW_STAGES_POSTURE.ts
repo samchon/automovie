@@ -1,7 +1,11 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanProp, IAutoMovieQuaternion } from "@automovie/interface";
 import { createKeyboard } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 import { HumanObject, seated } from "@automovie/motions";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
@@ -48,7 +52,10 @@ const seat = (a: IAutoMovieMotionHumanBody): object => ({
 });
 
 /** Sitting down on the chair for half a second. */
-const sitting = (a: IAutoMovieMotionHumanBody, params: object = {}): IAutoMovieMotionHumanChain =>
+const sitting = (
+  a: IAutoMovieMotionHumanBody,
+  params: object = {},
+): IAutoMovieMotionHumanChain =>
   S.chain().act("sit", { seat: seat(a), seconds: 0.5, ...params });
 
 /**

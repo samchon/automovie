@@ -1,5 +1,7 @@
-import type { IAutoMovieSurfaceNetwork, IAutoMovieSweep } from "@automovie/interface";
-
+import type {
+  IAutoMovieSurfaceNetwork,
+  IAutoMovieSweep,
+} from "@automovie/interface";
 
 /** Rows along the tube by tier, even, so its middle is a row at every tier. */
 const ROWS: IAutoMovieSurfaceNetwork.ICounts = {

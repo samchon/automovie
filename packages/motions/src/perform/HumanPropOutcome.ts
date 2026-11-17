@@ -1,6 +1,16 @@
-import type { IAutoMovieBody, IAutoMovieBodyContact, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropFlight, IAutoMovieMotionHumanPropOutcome, IAutoMoviePhysicalProfile, IAutoMovieProjectile, IAutoMovieProjectileContinue, IAutoMovieProjectileState, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, projectileContinue } from "@automovie/engine";
+import type {
+  IAutoMovieBody,
+  IAutoMovieBodyContact,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropFlight,
+  IAutoMovieMotionHumanPropOutcome,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieProjectile,
+  IAutoMovieProjectileContinue,
+  IAutoMovieProjectileState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
@@ -42,7 +52,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every coefficient is the model body's; an absent datum withholds its outcome, never stands in as zero.
  */
 export namespace HumanPropOutcome {
-
   /**
    * The quadratic drag a prop's body declares (`IAutoMovieBody.drag`), with
    * its mass; none when it declares none.
@@ -156,7 +165,9 @@ export namespace HumanPropOutcome {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each continuation segment is constructed once and retained for later sampling; the engine owns optional drag-flight integration reuse, and this loop installs no callback or cross-flight cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned legs retain only their segments and contacts; local projectile and meeting references are released on return or refusal, and no host task is started.
    */
-  export function legs(props: IAutoMovieMotionHumanPropOutcome.ILegsProps): IAutoMovieMotionHumanPropOutcome.ILeg[] {
+  export function legs(
+    props: IAutoMovieMotionHumanPropOutcome.ILegsProps,
+  ): IAutoMovieMotionHumanPropOutcome.ILeg[] {
     if (!Number.isFinite(props.horizon) || props.horizon < 0)
       throw new HumanRefusal({
         kind: "parameter",
@@ -264,7 +275,10 @@ export namespace HumanPropOutcome {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Samples the retained segment without rebuilding contact sweeps or its outcome.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Acquires no task or resource and retains neither leg nor returned state.
    */
-  export function at(leg: IAutoMovieMotionHumanPropOutcome.ILeg, seconds: number): IAutoMovieProjectileState {
+  export function at(
+    leg: IAutoMovieMotionHumanPropOutcome.ILeg,
+    seconds: number,
+  ): IAutoMovieProjectileState {
     return projectileContinue.at(leg.segment, seconds);
   }
 

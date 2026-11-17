@@ -1,5 +1,10 @@
-import type { AutoMovieVector3Tuple, IAutoMovieSolidBlend, IAutoMovieSolidRibbon } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidRibbon,
+} from "@automovie/interface";
+
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
+
 const { combine } = AutoMovieSolidVector;
 
 /**
@@ -27,7 +32,6 @@ const { combine } = AutoMovieSolidVector;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidBlend {
-
   /**
    * The column at a share of the cross parameter.
    *
@@ -45,7 +49,11 @@ export namespace AutoMovieSolidBlend {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads one basis for the same w across all coordinate sums; independent calls, including Join's separate fold reads, repeat this work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates call-local weights and sums, returning three fresh vectors without retaining either input ribbon.
    */
-  export function jet(start: IAutoMovieSolidRibbon.IRibbon, end: IAutoMovieSolidRibbon.IRibbon, w: number): IAutoMovieSolidBlend.IJet {
+  export function jet(
+    start: IAutoMovieSolidRibbon.IRibbon,
+    end: IAutoMovieSolidRibbon.IRibbon,
+    w: number,
+  ): IAutoMovieSolidRibbon.IRibbon {
     const h: number[][] = basis(w);
     const at = (k: number): AutoMovieVector3Tuple =>
       combine([

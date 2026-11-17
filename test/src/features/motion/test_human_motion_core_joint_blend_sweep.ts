@@ -1,4 +1,3 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieSwingTwistRange, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieQuaternion } from "@automovie/interface";
 import {
   DEFAULT_HUMANOID_ROM,
   HUMANOID_JOINT_AXES,
@@ -8,7 +7,13 @@ import {
   skeletonJointAxes,
   swingTwistRange,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieJointAxes,
+  IAutoMovieJointConstraint,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieQuaternion,
+  IAutoMovieSwingTwistRange,
+} from "@automovie/interface";
 import { blendHumanJoint } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

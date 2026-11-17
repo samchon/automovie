@@ -1,6 +1,9 @@
-import type { IAutoMovieMark, IAutoMoviePhysicsCache, IAutoMovieContactReceipt, IAutoMoviePhysicalProfile } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMovieMark,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicsCache,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
 /**

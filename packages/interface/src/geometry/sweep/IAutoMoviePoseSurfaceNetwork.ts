@@ -1,14 +1,13 @@
-import type { AutoMovieHumanoidBone } from "../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieResolvedBone } from "../../pose/IAutoMovieResolvedBone";
 import type { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
-import type { IAutoMovieSweepBinding } from "./IAutoMovieSweepBinding";
+import type { IAutoMovieSurfaceNetworkBindings } from "./IAutoMovieSurfaceNetworkBindings";
 
 /** Name-based rigid and sweep bindings for posing an entire rest network. */
 export namespace IAutoMoviePoseSurfaceNetwork {
   /**
    * Pose a whole surface network: re-sweep its bound sweeps and carry its free
    * points with their bones, keeping every patch, count and name.
-   * 
+   *
    * Each bound sweep is posed by `poseAutoMovieSweep`. A free node, a curve's
    * through points, direction and normal, and a ring's pinned positions move rigidly
    * with the bone named for them; nodes on a sweep follow that sweep by
@@ -26,16 +25,7 @@ export namespace IAutoMoviePoseSurfaceNetwork {
     /** Rest network, only read. The returned posed record preserves patch topology and shares unchanged components with this input. */
     network: IAutoMovieSurfaceNetwork;
     /** Name-based bone assignments. Empty tables leave all components at rest; unknown sweep, node, curve or ring names throw before posing those components. */
-    bindings: {
-      /** Existing sweep names to spine/station bone assignments passed to poseAutoMovieSweep. Unlisted sweeps retain the original sweep object. */
-      sweeps?: Record<string, IAutoMovieSweepBinding>;
-      /** Existing free point-node names to rigid-motion bones; nodes attached to a sweep follow that sweep instead. */
-      nodes?: Record<string, AutoMovieHumanoidBone>;
-      /** Existing curve names to bones transporting free through points, normals and directions. Unlisted curves share their unchanged rest declaration. */
-      curves?: Record<string, AutoMovieHumanoidBone>;
-      /** Existing ring names to bones transporting pinned positions; unlisted ring pins remain at rest. */
-      rings?: Record<string, AutoMovieHumanoidBone>;
-    };
+    bindings: IAutoMovieSurfaceNetworkBindings;
     /** Resolved bones at rest in the network's frame, paired by bone identity with posed to establish each rigid motion. */
     rest: readonly IAutoMovieResolvedBone[];
     /** Corresponding resolved bones in the requested pose. A bone actually used to transport geometry must exist in both lists; bindings on sweep-attached nodes or rings without positions do not request rigid motion. */

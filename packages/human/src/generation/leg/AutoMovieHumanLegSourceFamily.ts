@@ -1,18 +1,16 @@
-import type { IAutoMovieViewPart, IAutoMovieHumanFootSource, IAutoMovieHumanLegSourceFamily, IAutoMovieHumanLegWalk, IAutoMovieHumanSiteRegionControls, IAutoMovieHumanSiteViewPart, IAutoMovieHumanWalkPart } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
+import type {
+  IAutoMovieHumanFootSource,
+  IAutoMovieHumanLegSourceFamily,
+  IAutoMovieHumanLegWalk,
+  IAutoMovieHumanSiteRegionControls,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanWalkPart,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanFootSource } from "../foot/AutoMovieHumanFootSource";
 import { AutoMovieHumanSiteRegionControls } from "../limb/AutoMovieHumanSiteRegionControls";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
-
 import { AutoMovieHumanLegRegion } from "./AutoMovieHumanLegRegion";
 import { AutoMovieHumanLegWalk } from "./AutoMovieHumanLegWalk";
 
@@ -28,12 +26,6 @@ import { AutoMovieHumanLegWalk } from "./AutoMovieHumanLegWalk";
  * @evidence contracts/performance.md#bound-retention-and-release-resources One body context owns a base, latest coupled definition and one ankle owner; replaced contexts share no result.
  */
 export namespace AutoMovieHumanLegSourceFamily {
-  
-
-  
-
-  
-
   /**
    * Own the lazy base and explicit completion without a global registry.
    *
@@ -45,7 +37,9 @@ export namespace AutoMovieHumanLegSourceFamily {
    * @evidence contracts/performance.md#reuse-equivalent-work The final reparent and ankle owner share the base's same distal authority; a new family is required for a changed source epoch.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Keeps only the base, latest trial and one ankle owner for this context; no earlier trial list or process survives it.
    */
-  export function create(input: IAutoMovieHumanLegSourceFamily.IInput): IAutoMovieHumanLegSourceFamily.IOutput {
+  export function create(
+    input: IAutoMovieHumanLegSourceFamily.IInput,
+  ): IAutoMovieHumanLegSourceFamily.IOutput {
     let initial: IAutoMovieHumanLegWalk.IDefinition | undefined;
     let coupled: IAutoMovieHumanLegWalk.IDefinition | undefined;
     let ankle: IAutoMovieHumanLegSourceFamily.IAnkle | undefined;

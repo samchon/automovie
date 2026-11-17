@@ -1,5 +1,11 @@
-import { type IAutoMovieSurfaceNetwork, type IAutoMovieSweep, type IAutoMovieSweepBinding, type IAutoMoviePoseSurfaceNetwork, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMoviePoseSurfaceNetwork,
+  type IAutoMovieSurfaceNetwork,
+  type IAutoMovieSweep,
+  type IAutoMovieSweepBinding,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../../math/Quaternion";
 import { createAutoMovieBoneMotion } from "./createAutoMovieBoneMotion";
@@ -33,7 +39,11 @@ import { poseAutoMovieSweep } from "./poseAutoMovieSweep";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call poses one network once; bone rotations are cached by the shared motion lookup.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned network is a new record whose untouched parts are shared with the input.
  */
-export const poseAutoMovieSurfaceNetwork: (props: IAutoMoviePoseSurfaceNetwork.IProps) => IAutoMovieSurfaceNetwork = (props: IAutoMoviePoseSurfaceNetwork.IProps): IAutoMovieSurfaceNetwork => {
+export const poseAutoMovieSurfaceNetwork: (
+  props: IAutoMoviePoseSurfaceNetwork.IProps,
+) => IAutoMovieSurfaceNetwork = (
+  props: IAutoMoviePoseSurfaceNetwork.IProps,
+): IAutoMovieSurfaceNetwork => {
   const { network, bindings } = props;
   const motion = createAutoMovieBoneMotion({
     rest: props.rest,

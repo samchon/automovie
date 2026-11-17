@@ -1,14 +1,14 @@
-import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
-import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
-import type { IAutoMovieHumanoidSurfaces } from "../../../pose/IAutoMovieHumanoidSurfaces";
-import type { IAutoMovieMotionEvent } from "../../IAutoMovieMotionEvent";
-import type { IAutoMovieMotionHumanBase } from "./IAutoMovieMotionHumanBase";
-import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
-import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
-import type { IAutoMovieProjectile } from "../../../physics/IAutoMovieProjectile";
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieProjectile } from "../../../physics/IAutoMovieProjectile";
+import type { IAutoMovieHumanoidSurfaces } from "../../../pose/IAutoMovieHumanoidSurfaces";
+import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieMotionEvent } from "../../IAutoMovieMotionEvent";
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
+import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
+import type { IAutoMovieMotionHumanBase } from "./IAutoMovieMotionHumanBase";
+import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
 
 /**
  * One planned instance of an action: its duration in seconds, its named

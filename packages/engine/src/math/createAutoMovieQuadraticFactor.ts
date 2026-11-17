@@ -1,4 +1,7 @@
-import type { IAutoMovieQuadraticConicProgram, IAutoMovieCreateQuadraticFactor } from "@automovie/interface";
+import type {
+  IAutoMovieCreateQuadraticFactor,
+  IAutoMovieQuadraticConicProgram,
+} from "@automovie/interface";
 
 import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
 import { orderAutoMovieQuadraticMatrix } from "./orderAutoMovieQuadraticMatrix";

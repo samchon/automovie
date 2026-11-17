@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanGestureStroke, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanGestureStroke,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { gestureStrokeTables } from "../../everyday/gestureStrokeTables";
@@ -33,8 +37,9 @@ export function everydayGestureCases(
   const out: IMotionCaptureCase[] = [];
   const within = everydayVerdicts.within;
   const { figure, event, angle } = everydayCaseKit;
-  const one = (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
-    everydayCaseKit.one(c, chain);
+  const one = (
+    chain: IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance => everydayCaseKit.one(c, chain);
   const goal: IAutoMovieVector3 = { x: 1.5, y: 2.2, z: 3 };
   const kinds: IAutoMovieMotionHumanGestureStroke.Kind[] = [
     "wave",

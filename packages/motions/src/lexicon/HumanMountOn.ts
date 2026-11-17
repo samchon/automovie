@@ -1,6 +1,15 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSeated, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
@@ -16,7 +25,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
 
 /** Where the pelvis is at an instant of getting on: the root, the heading, the pelvis pitch and the set joints. */
-type Frame = Pick<IAutoMovieMotionHumanPosture, "root" | "yaw" | "pitch" | "joints">;
+type Frame = Pick<
+  IAutoMovieMotionHumanPosture,
+  "root" | "yaw" | "pitch" | "joints"
+>;
 
 /**
  * Getting onto a high seat, or a seat sat astride, from standing beside or
@@ -136,7 +148,8 @@ export namespace HumanMountOn {
     const duration: number = climb + hold;
     const contact: number = 0.8 * climb;
     const hop: number = settled ? 0 : HumanMount.HOP * m.thigh;
-    const upright: IAutoMovieMotionHumanPosture["joints"] = standUpright.of(body).joints;
+    const upright: IAutoMovieMotionHumanPosture["joints"] =
+      standUpright.of(body).joints;
 
     // The pelvis crosses to a saddle late, after the far leg has left the floor; it backs onto a stool from the start.
     const crossing: readonly [number, number] = astride
@@ -177,8 +190,10 @@ export namespace HumanMountOn {
           was[2] + a[2] * settle,
         ];
       }
-      const tilt: { pitch: number; joints: IAutoMovieMotionHumanPosture["joints"] } =
-        HumanTrunk.incline(joints, lean);
+      const tilt: {
+        pitch: number;
+        joints: IAutoMovieMotionHumanPosture["joints"];
+      } = HumanTrunk.incline(joints, lean);
       const yaw: number = yaw0 + turn * across;
       return {
         root: seated.root(body, socket, { yaw, pitch: tilt.pitch, roll: 0 }),

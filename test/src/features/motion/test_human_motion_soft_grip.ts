@@ -1,6 +1,19 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieSoftBodyBoundarySample, IAutoMovieAffordance, IAutoMovieSoftBodyDomain, IAutoMovieVector3 } from "@automovie/interface";
-import { Quaternion, Transform, Vector3, simulateSoftBodyCore, simulateSoftBodyWithBoundaries } from "@automovie/engine";
-
+import {
+  Quaternion,
+  Transform,
+  Vector3,
+  simulateSoftBodyCore,
+  simulateSoftBodyWithBoundaries,
+} from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieSoftBodyBoundarySample,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanChain, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

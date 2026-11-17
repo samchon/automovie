@@ -1,4 +1,5 @@
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
+
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
 type V3 = AutoMovieVector3Tuple;

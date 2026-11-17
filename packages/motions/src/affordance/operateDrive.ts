@@ -1,6 +1,18 @@
-import type { AutoMovieAffordanceKind, IAutoMovieAffordance, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanOperate, IAutoMovieMotionHumanOperateDrive, IAutoMovieMotionHumanProp, IAutoMovieMotionTarget, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { AffordanceArticulation, Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieAffordanceKind,
+  IAutoMovieAffordance,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanOperate,
+  IAutoMovieMotionHumanOperateDrive,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionTarget,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
@@ -83,7 +95,9 @@ export namespace operateDrive {
     kind: Exclude<IAutoMovieMotionHumanOperate.Mechanism["kind"], "insert">,
   ): IAutoMovieMotionHumanOperateDrive.IPart | undefined {
     if (at.kind !== "prop") return undefined;
-    const held: IAutoMovieMotionHumanActionContext.IProp = context.prop(at.subject);
+    const held: IAutoMovieMotionHumanActionContext.IProp = context.prop(
+      at.subject,
+    );
     const articulate = held.prop.articulate;
     if (articulate === undefined) return undefined;
     const contact: IAutoMovieAffordance | undefined = (
@@ -142,7 +156,9 @@ export namespace operateDrive {
       (a: IAutoMovieAffordance): boolean =>
         a.id === articulation && a.kind === "hinge",
     );
-    const line: IAutoMovieMotionHumanOperateDrive.ILine | undefined = ((): IAutoMovieMotionHumanOperateDrive.ILine | undefined => {
+    const line: IAutoMovieMotionHumanOperateDrive.ILine | undefined = (():
+      | IAutoMovieMotionHumanOperateDrive.ILine
+      | undefined => {
       if (hinge === undefined) return undefined;
       const pin: IAutoMovieAffordance = articulate(before).affordances.find(
         (a: IAutoMovieAffordance): boolean => a.id === articulation,
@@ -162,7 +178,11 @@ export namespace operateDrive {
     // One posed prop per progress read last: a stroke reads the same
     // progress for the hand's point and its turn.
     let last:
-      | { progress: number; seconds: number | undefined; place: IAutoMovieMotionHumanOperateDrive.IPlace }
+      | {
+          progress: number;
+          seconds: number | undefined;
+          place: IAutoMovieMotionHumanOperateDrive.IPlace;
+        }
       | undefined;
     return {
       prop: at.subject,
@@ -171,7 +191,10 @@ export namespace operateDrive {
       base,
       amount,
       ...(line === undefined ? {} : { line }),
-      place: (progress: number, seconds?: number): IAutoMovieMotionHumanOperateDrive.IPlace => {
+      place: (
+        progress: number,
+        seconds?: number,
+      ): IAutoMovieMotionHumanOperateDrive.IPlace => {
         if (
           last !== undefined &&
           last.progress === progress &&
@@ -241,7 +264,10 @@ export namespace operateDrive {
    * @param point The point.
    * @returns The radius.
    */
-  export function radius(line: IAutoMovieMotionHumanOperateDrive.IHinge, point: IAutoMovieVector3): number {
+  export function radius(
+    line: IAutoMovieMotionHumanOperateDrive.IHinge,
+    point: IAutoMovieVector3,
+  ): number {
     return line.axis === undefined
       ? Vector3.length(
           Vector3.subtract({ ...point, y: 0 }, { ...line.point, y: 0 }),

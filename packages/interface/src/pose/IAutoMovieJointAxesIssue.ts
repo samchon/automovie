@@ -1,5 +1,3 @@
-
-
 /**
  * One defect in a declared joint-axis basis, located at the field that holds
  * it.

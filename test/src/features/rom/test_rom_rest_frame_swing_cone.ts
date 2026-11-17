@@ -1,6 +1,14 @@
-import { type IAutoMovieRestFrame, type IAutoMovieViolationCollector, IAutoMovieJointConstraint } from "@automovie/interface";
-import { ViolationCollector, clampJointRom, restRelativeConstraint, validateJointRom } from "@automovie/engine";
-
+import {
+  ViolationCollector,
+  clampJointRom,
+  restRelativeConstraint,
+  validateJointRom,
+} from "@automovie/engine";
+import {
+  IAutoMovieJointConstraint,
+  type IAutoMovieRestFrame,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint } from "../internal/fixtures";

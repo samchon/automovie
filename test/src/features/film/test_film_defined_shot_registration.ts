@@ -1,6 +1,10 @@
-import { type IAutoMovieAuthoringDiagnostic, type IAutoMovieCompiledDefinedShot, type IAutoMovieEngineShotRuntime, IAutoMovieDefinedShot } from "@automovie/interface";
 import { compileDefinedShot, defineShot } from "@automovie/engine";
-
+import {
+  type IAutoMovieAuthoringDiagnostic,
+  type IAutoMovieCompiledDefinedShot,
+  IAutoMovieDefinedShot,
+  type IAutoMovieEngineShotRuntime,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";
@@ -11,12 +15,13 @@ import { namedFacts } from "../internal/predicates";
  * Every case here fails before the runtime is read -- registration, a throwing
  * boundary, a throwing builder -- so the shape only has to exist.
  */
-const runtime: () => IAutoMovieEngineShotRuntime = (): IAutoMovieEngineShotRuntime =>
-  ({
-    frameFormat: { width: 1920, height: 1080 },
-    skeleton: (): null => null,
-    synthesize: (): null => null,
-  }) as unknown as IAutoMovieEngineShotRuntime;
+const runtime: () => IAutoMovieEngineShotRuntime =
+  (): IAutoMovieEngineShotRuntime =>
+    ({
+      frameFormat: { width: 1920, height: 1080 },
+      skeleton: (): null => null,
+      synthesize: (): null => null,
+    }) as unknown as IAutoMovieEngineShotRuntime;
 
 /** A registration the boundary accepts, so a case breaks one field only. */
 const registered: (

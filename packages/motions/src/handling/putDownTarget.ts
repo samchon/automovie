@@ -1,6 +1,11 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPutDown, IAutoMoviePose } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPutDown,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
@@ -40,7 +45,8 @@ export namespace putDownTarget {
     >,
     pose: IAutoMoviePose,
   ): IAutoMovieMotionHumanProp.IFrame | undefined {
-    const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] = context.params.onto;
+    const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] =
+      context.params.onto;
     if (onto === undefined) {
       const on: IAutoMovieMotionHumanPutDown.IParams["on"] = context.params.on;
       if (on === undefined) return undefined;
@@ -51,7 +57,8 @@ export namespace putDownTarget {
     }
 
     const socket = (prop: string, id: string): IAutoMovieAffordance => {
-      const record: IAutoMovieMotionHumanActionContext.IProp = context.prop(prop);
+      const record: IAutoMovieMotionHumanActionContext.IProp =
+        context.prop(prop);
       const contacts: readonly IAutoMovieAffordance[] =
         record.prop.articulate === undefined
           ? (record.prop.affordances ?? [])
@@ -75,22 +82,21 @@ export namespace putDownTarget {
       return found;
     };
     const receiver: IAutoMovieAffordance = socket(onto.prop, onto.point);
-    const destination: IAutoMovieMotionHumanProp.IFrame = HumanPropFrame.compose(
-      context.prop(onto.prop).frame(context.start),
-      {
+    const destination: IAutoMovieMotionHumanProp.IFrame =
+      HumanPropFrame.compose(context.prop(onto.prop).frame(context.start), {
         position: receiver.frame.translation,
         rotation: receiver.frame.rotation,
-      },
-    );
+      });
     if (onto.via === undefined) return destination;
 
     const source: IAutoMovieAffordance = socket(context.params.prop, onto.via);
-    const rotation: IAutoMovieMotionHumanProp.IFrame["rotation"] = Quaternion.normalize(
-      Quaternion.multiply(
-        destination.rotation,
-        Quaternion.inverse(source.frame.rotation),
-      ),
-    );
+    const rotation: IAutoMovieMotionHumanProp.IFrame["rotation"] =
+      Quaternion.normalize(
+        Quaternion.multiply(
+          destination.rotation,
+          Quaternion.inverse(source.frame.rotation),
+        ),
+      );
     return {
       position: Vector3.subtract(
         destination.position,

@@ -1,5 +1,8 @@
-import { type IAutoMoviePointSubjectBox, IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMoviePointSubjectBox,
+  IAutoMovieSubjectBox,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The box one staged point occupies, given the vertical extent of what stands there.

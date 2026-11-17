@@ -1,5 +1,9 @@
-import { type IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieSkeleton } from "@automovie/interface";
-
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieSkeleton,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 /**
  * Require one connected root and resolvable acyclic ancestry using declared names, parent edges and traversal.

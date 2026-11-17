@@ -1,4 +1,10 @@
-import type { IAutoMovieCaptureCell, IAutoMovieCaptureDrawing, IAutoMovieCapturePlan, IAutoMovieCapturePlanRequest, IAutoMovieCaptureRecord } from "@automovie/interface";
+import type {
+  IAutoMovieCaptureCell,
+  IAutoMovieCaptureDrawing,
+  IAutoMovieCapturePlan,
+  IAutoMovieCapturePlanRequest,
+  IAutoMovieCaptureRecord,
+} from "@automovie/interface";
 import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
@@ -238,8 +244,7 @@ export class AutoMovieCaptureHost {
         plan,
         draw: (
           cell: IAutoMovieCaptureCell,
-        ): Promise<IAutoMovieCaptureDrawing> =>
-          session.drawing(cell, plan),
+        ): Promise<IAutoMovieCaptureDrawing> => session.drawing(cell, plan),
         folder,
         revision: readAutoMovieRevision(this.root),
         match: "cell",

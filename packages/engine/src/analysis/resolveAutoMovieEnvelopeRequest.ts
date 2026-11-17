@@ -1,4 +1,9 @@
-import { type IAutoMovieEnvelopeRequest, IAutoMovieConstraintViolation, IAutoMovieEnvironmentInstant, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  type IAutoMovieEnvelopeRequest,
+  IAutoMovieEnvironmentInstant,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieEnvironmentInstant } from "./autoMovieEnvironmentInstant";

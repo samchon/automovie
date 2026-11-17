@@ -1,6 +1,10 @@
-import type { IAutoMovieCrowdAgent, IAutoMovieIntegrateMotionTrajectory, IAutoMovieSolveHalfPlaneProgram, IAutoMovieSteerCrowd, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieCrowdAgent,
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieSolveHalfPlaneProgram,
+  IAutoMovieSteerCrowd,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { solveAutoMovieHalfPlaneProgram } from "../math/solveAutoMovieHalfPlaneProgram";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
@@ -220,8 +224,10 @@ export function steerAutoMovieCrowd(
   for (const i of order) x0.push(agents[i]!.at.x, agents[i]!.at.z, 0, 0);
   const trajectory: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
     integrateMotionTrajectory({
-      f: (t: number, x: readonly number[]): IAutoMovieIntegrateMotionTrajectory.IRate =>
-        f(t, x),
+      f: (
+        t: number,
+        x: readonly number[],
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => f(t, x),
       x0,
       t0: props.from,
       t1: props.to,

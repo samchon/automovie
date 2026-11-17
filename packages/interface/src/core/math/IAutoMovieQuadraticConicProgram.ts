@@ -1,5 +1,3 @@
-
-
 /**
  * Call-owned standard form min x'Px/2+q'x, Ax+s=b, with zero slacks before
  * `equalities` and nonnegative slacks afterwards. P is diagonal. Scaling means

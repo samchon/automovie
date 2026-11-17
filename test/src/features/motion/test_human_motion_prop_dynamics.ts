@@ -1,5 +1,8 @@
-import type { IAutoMovieIntegrateMotionTrajectory, IAutoMovieMotionHumanPropDynamics } from "@automovie/interface";
 import { AutoMovieGravity } from "@automovie/engine";
+import type {
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieMotionHumanPropDynamics,
+} from "@automovie/interface";
 import { HumanPropDynamics } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -60,25 +63,22 @@ export function test_human_motion_prop_dynamics(): void {
   const threshold: number = 0.5 * 40 * g;
 
   // 1. The static threshold.
-  const under: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
-    crate(40, (): number => 0.99 * threshold),
-  );
+  const under: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
+    HumanPropDynamics.slide(crate(40, (): number => 0.99 * threshold));
   if (under.at(2).x[0] !== 0)
     findings.push(
       `a push under the threshold moves the crate ${under.at(2).x[0]} m`,
     );
-  const over: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
-    crate(40, (): number => 1.01 * threshold),
-  );
+  const over: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
+    HumanPropDynamics.slide(crate(40, (): number => 1.01 * threshold));
   if (!(over.at(2).x[0]! > 0))
     findings.push("a push over the threshold leaves the crate");
 
   // 2. Newton under kinetic friction.
   const F: number = 300;
   const a: number = (F - 0.4 * 40 * g) / 40;
-  const pushed: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
-    crate(40, (): number => F),
-  );
+  const pushed: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
+    HumanPropDynamics.slide(crate(40, (): number => F));
   for (const t of [0.5, 1, 2]) {
     const [x, v] = pushed.at(t).x;
     if (Math.abs(v! - a * t) > 0.01 * a * t)
@@ -91,13 +91,13 @@ export function test_human_motion_prop_dynamics(): void {
 
   // 3. Mass halves the acceleration; a ramp starts it at its crossing.
   const net: number = 100;
-  const light: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
-    crate(40, (): number => net + 0.4 * 40 * g),
-  );
-  const heavy: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide({
-    ...crate(80, (): number => net + 0.4 * 80 * g),
-    friction: 0.4,
-  });
+  const light: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
+    HumanPropDynamics.slide(crate(40, (): number => net + 0.4 * 40 * g));
+  const heavy: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
+    HumanPropDynamics.slide({
+      ...crate(80, (): number => net + 0.4 * 80 * g),
+      friction: 0.4,
+    });
   if (
     Math.abs(heavy.at(1).x[1]! - light.at(1).x[1]! / 2) >
     0.01 * light.at(1).x[1]!
@@ -105,9 +105,8 @@ export function test_human_motion_prop_dynamics(): void {
     findings.push(
       `twice the mass reaches ${heavy.at(1).x[1]} for ${light.at(1).x[1]}`,
     );
-  const ramp: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
-    crate(40, (t: number): number => 300 * t),
-  );
+  const ramp: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
+    HumanPropDynamics.slide(crate(40, (t: number): number => 300 * t));
   const crossing: number = threshold / 300;
   const before: number = ramp.at(crossing - 1 / 60).x[0]!;
   const after: number = ramp.at(crossing + 2 / 60).x[0]!;
@@ -138,12 +137,8 @@ export function test_human_motion_prop_dynamics(): void {
   }
 
   // 5. A door.
-  const door: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanPropDynamics.hinge(
-    6,
-    (): number => 3,
-    0,
-    2,
-  );
+  const door: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
+    HumanPropDynamics.hinge(6, (): number => 3, 0, 2);
   for (const t of [0.5, 1, 2]) {
     const [angle, speed] = door.at(t).x;
     if (Math.abs(angle! - (3 * t * t) / 12) > 1e-6)
@@ -155,12 +150,13 @@ export function test_human_motion_prop_dynamics(): void {
         `the door at ${t} s turns at ${speed} rad/s, expected ${(3 * t) / 6}`,
       );
   }
-  const swung: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanPropDynamics.hinge(
-    6,
-    (t: number): number => 3 * Math.cos(Math.PI * t),
-    0,
-    2,
-  );
+  const swung: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
+    HumanPropDynamics.hinge(
+      6,
+      (t: number): number => 3 * Math.cos(Math.PI * t),
+      0,
+      2,
+    );
   for (const t of [0.5, 1, 1.5, 2]) {
     const expected: number =
       ((3 / 6) * (1 - Math.cos(Math.PI * t))) / (Math.PI * Math.PI);

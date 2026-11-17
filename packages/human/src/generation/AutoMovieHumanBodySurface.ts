@@ -1,13 +1,14 @@
-import type { IAutoMovieLoftChain, IAutoMovieHumanApertureSpan, IAutoMovieHumanBodyApertures, IAutoMovieHumanBodyCalibration, IAutoMovieHumanBodySurface, IAutoMovieHumanConstructionPath, IAutoMovieHumanSurfaceContext } from "@automovie/interface";
-
-
-
-
-
-
+import type {
+  IAutoMovieHumanApertureSpan,
+  IAutoMovieHumanBodyApertures,
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBodySurface,
+  IAutoMovieHumanConstructionPath,
+  IAutoMovieHumanSurfaceContext,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-
 import { AutoMovieHumanApertureSpan } from "./AutoMovieHumanApertureSpan";
 import { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
 import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
@@ -18,7 +19,6 @@ import { AutoMovieHumanBodySurfaceOpening } from "./AutoMovieHumanBodySurfaceOpe
 import { AutoMovieHumanBodySurfacePoles } from "./AutoMovieHumanBodySurfacePoles";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 import { AutoMovieHumanBodySurfaceSolids } from "./AutoMovieHumanBodySurfaceSolids";
-
 
 const { ringBlend, surfaceNormals } = AutoMovieHumanBodySurfaceNormals;
 const { contact, held, WEBS } = AutoMovieHumanBodySurfaceContact;
@@ -40,8 +40,6 @@ const { domed } = AutoMovieHumanBodySurfacePoles;
  * Triangle groups are named `<chain>/<k>` by their principal interval.
  */
 export namespace AutoMovieHumanBodySurface {
-  
-
   /** Chord tolerance of the station bisection in mm. */
   const TOLERANCE: number = 0.5;
 
@@ -84,10 +82,7 @@ export namespace AutoMovieHumanBodySurface {
       details,
       indices: new Map(
         calibration.chains.map(
-          (c: IAutoMovieLoftChain, i: number): [string, number] => [
-            c.name,
-            i,
-          ],
+          (c: IAutoMovieLoftChain, i: number): [string, number] => [c.name, i],
         ),
       ),
       coordinates: [],
@@ -100,7 +95,11 @@ export namespace AutoMovieHumanBodySurface {
       const list = context.roots.get(appendage.base) ?? [];
       list.push({
         appendage,
-        loop: AutoMovieHumanBodyRoots.polygon(appendage.root, LOOP, appendage.winding),
+        loop: AutoMovieHumanBodyRoots.polygon(
+          appendage.root,
+          LOOP,
+          appendage.winding,
+        ),
       });
       context.roots.set(appendage.base, list);
     }
@@ -109,17 +108,24 @@ export namespace AutoMovieHumanBodySurface {
     // (`AutoMovieHumanApertureSpan`); an eye's along its lid band's outer
     // edge, one rim point per lid sample, which the lid band's columns start
     // from. The openings stay listed for the rows refined near them.
-    const spans: [IAutoMovieHumanBodyApertures.IPrepared, IAutoMovieHumanApertureSpan.ISpan][] = [];
+    const spans: [
+      IAutoMovieHumanBodyApertures.IPrepared,
+      IAutoMovieHumanApertureSpan.ISpan,
+    ][] = [];
     for (const opening of context.apertures) {
-      const span: IAutoMovieHumanApertureSpan.ISpan | string = AutoMovieHumanApertureSpan.of(
-        opening,
-        opening.aperture.base !== undefined && context.chains.has(opening.aperture.base)
-          ? [chain(context, opening.aperture.base)]
-          : calibration.chains,
-        calibration.events,
-      );
+      const span: IAutoMovieHumanApertureSpan.ISpan | string =
+        AutoMovieHumanApertureSpan.of(
+          opening,
+          opening.aperture.base !== undefined &&
+            context.chains.has(opening.aperture.base)
+            ? [chain(context, opening.aperture.base)]
+            : calibration.chains,
+          calibration.events,
+        );
       if (typeof span === "string")
-        throw new Error(`Opening ${opening.aperture.name} lies on no chain or pair of chains sharing a ring: ${span}`);
+        throw new Error(
+          `Opening ${opening.aperture.name} lies on no chain or pair of chains sharing a ring: ${span}`,
+        );
       if (opening.lid !== null && span.points.length !== opening.edge.length)
         throw new Error(
           `Opening ${opening.aperture.name}: ${opening.edge.length - span.points.length} of ${opening.edge.length} lid band edge points have no foot on the skin`,
@@ -130,7 +136,10 @@ export namespace AutoMovieHumanBodySurface {
         list.push({
           opening,
           loop,
-          span: span.chains.length > 1 ? AutoMovieHumanApertureSpan.key(opening.aperture.name) : undefined,
+          span:
+            span.chains.length > 1
+              ? AutoMovieHumanApertureSpan.key(opening.aperture.name)
+              : undefined,
         });
         context.roots.set(name, list);
       }
@@ -141,19 +150,31 @@ export namespace AutoMovieHumanBodySurface {
 
     // 3. Every chain between its two boundaries; bases leave their root
     // loops open.
-    const solids: Set<string> = AutoMovieHumanBodySurfaceSolids.names(calibration);
-    for (const target of calibration.chains) if (!solids.has(target.name)) loft(context, target);
+    const solids: Set<string> =
+      AutoMovieHumanBodySurfaceSolids.names(calibration);
+    for (const target of calibration.chains)
+      if (!solids.has(target.name)) loft(context, target);
 
     // 3a. The solids: every chain a merge names, drawn as trimmed faces and
     // blends with their rails shared.
-    calibration.diagnostics?.push(...AutoMovieHumanBodySurfaceSolids.draw(context, calibration));
+    calibration.diagnostics?.push(
+      ...AutoMovieHumanBodySurfaceSolids.draw(context, calibration),
+    );
 
     // 3b. Every appendage joined to its base through its strip, and every
     // opening on a base closed from its trim loop.
-    for (const appendage of calibration.appendages ?? []) join(context, appendage);
+    for (const appendage of calibration.appendages ?? [])
+      join(context, appendage);
     const construction: IAutoMovieHumanConstructionPath[] = [];
     for (const [opening, span] of spans)
-      construction.push(...AutoMovieHumanBodySurfaceOpening.open(context, opening, span, calibration.events));
+      construction.push(
+        ...AutoMovieHumanBodySurfaceOpening.open(
+          context,
+          opening,
+          span,
+          calibration.events,
+        ),
+      );
     construction.push(...(WEBS.get(context.mesh) ?? []));
 
     const faces: number[] = AutoMovieHumanLoftMesh.normals(context.mesh);

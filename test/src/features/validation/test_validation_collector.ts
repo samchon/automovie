@@ -1,6 +1,9 @@
-import { type IAutoMovieViolationCollector, IAutoMovieConstraintViolation, IAutoMovieValidation } from "@automovie/interface";
 import { ViolationCollector } from "@automovie/engine";
-
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

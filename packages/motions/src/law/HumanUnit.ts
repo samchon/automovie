@@ -1,5 +1,5 @@
-import type { tags } from "typia";
 import type { AutoMovieMotionHumanUnit } from "@automovie/interface";
+import type { tags } from "typia";
 
 /**
  * The unit a bounded number of an action's parameters is stated in, carried

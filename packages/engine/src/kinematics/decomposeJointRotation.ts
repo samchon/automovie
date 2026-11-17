@@ -1,4 +1,10 @@
-import { type IAutoMovieJointRotationDomain, type IAutoMovieResolvedJointAngles, type IAutoMovieRestFrame, IAutoMovieJointAxes, IAutoMovieQuaternion } from "@automovie/interface";
+import {
+  IAutoMovieJointAxes,
+  type IAutoMovieJointRotationDomain,
+  IAutoMovieQuaternion,
+  type IAutoMovieResolvedJointAngles,
+  type IAutoMovieRestFrame,
+} from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { decomposeJointRotationOnBasis } from "./decomposeJointRotationOnBasis";

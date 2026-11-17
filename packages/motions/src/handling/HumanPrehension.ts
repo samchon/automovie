@@ -1,6 +1,18 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanPrehension, IAutoMovieMotionHumanSkill, IAutoMovieQuaternion, IAutoMovieRandom, IAutoMovieSuperposeMinimumJerk, IAutoMovieVector3 } from "@automovie/interface";
-
-import { Quaternion, Vector3, minimumJerk, superposeMinimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  minimumJerk,
+  superposeMinimumJerk,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanPrehension,
+  IAutoMovieMotionHumanSkill,
+  IAutoMovieQuaternion,
+  IAutoMovieRandom,
+  IAutoMovieSuperposeMinimumJerk,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanSkill } from "../skill/HumanSkill";

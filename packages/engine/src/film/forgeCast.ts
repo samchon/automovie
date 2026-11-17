@@ -1,6 +1,13 @@
-import { type IAutoMovieForgedCast, type IAutoMovieViolationCollector, IAutoMovieCastMember, IAutoMovieForgeEntry, IAutoMovieForgePlan, IAutoMovieModel, IAutoMovieScript, IAutoMovieValidation } from "@automovie/interface";
-
-
+import {
+  IAutoMovieCastMember,
+  IAutoMovieForgeEntry,
+  IAutoMovieForgePlan,
+  type IAutoMovieForgedCast,
+  IAutoMovieModel,
+  IAutoMovieScript,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { validateModel } from "../validation/validateModel";

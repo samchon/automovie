@@ -1,5 +1,3 @@
-
-
 /**
  * A spine compiled into buffers that can be rewritten and recompiled in
  * place, from `transportAutoMovieSweepSpine`.

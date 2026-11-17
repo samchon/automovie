@@ -1,6 +1,18 @@
-import { type IAutoMovieRenderTargetDrift, IAutoMovieRenderReport, IAutoMovieRenderTarget, IAutoMovieRenderTargetAsset, IAutoMovieRenderTargetSettings } from "@automovie/interface";
-import { autoMovieRenderDigest, autoMovieRenderTargetAssets, autoMovieRenderTargetSummary, compareAutoMovieRenderIds, compareAutoMovieRenderTarget, sealAutoMovieRenderTarget } from "@automovie/engine";
-
+import {
+  autoMovieRenderDigest,
+  autoMovieRenderTargetAssets,
+  autoMovieRenderTargetSummary,
+  compareAutoMovieRenderIds,
+  compareAutoMovieRenderTarget,
+  sealAutoMovieRenderTarget,
+} from "@automovie/engine";
+import {
+  IAutoMovieRenderReport,
+  IAutoMovieRenderTarget,
+  IAutoMovieRenderTargetAsset,
+  type IAutoMovieRenderTargetDrift,
+  IAutoMovieRenderTargetSettings,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 

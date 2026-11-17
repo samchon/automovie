@@ -1,7 +1,6 @@
 import type { AutoMovieVector2Tuple } from "../geometry/AutoMovieVector2Tuple";
 import type { IAutoMovieLoftSectionPhase } from "./IAutoMovieLoftSectionPhase";
 
-
 /**
  * Cartesian readings of a prepared native section in its two-dimensional chart.
  *
@@ -16,13 +15,12 @@ import type { IAutoMovieLoftSectionPhase } from "./IAutoMovieLoftSectionPhase";
  * AutoMovieLoftAdmissionError for rejected geometry. Exceptions from supplied
  * getters propagate unchanged. The interface adds no validator or fallback.
  *
- * @evidence contracts/development/design.md#principled-representation Phase fixes station while Jet adds station and mixed partials, so an operation never obtains unavailable station derivatives merely by requesting a point.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Native section preparation publishes the same Phase, Jet and two-method curve capability consumed by loft source adapters and Human section readers.
+ * @evidence contracts/development/design.md#principled-representation The point and phase methods both fix physical station; requesting either does not obtain unavailable station derivatives.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Native preparation publishes this two-method curve capability while its phase and jet results use the shared section contracts consumed by loft source adapters and Human readers.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A G1 join retains its sided second derivative and failed source admission remains a failure; this contract does not assert a globally C2 section.
  * @evidence contracts/development/common.md#meaningful-documentation Defines local coordinates, independent parameters, derivative units, result ownership, preparation lifetime and the numerical admission owner.
  */
 export namespace IAutoMovieLoftSectionNative {
-
   /**
    * Reusable point and phase readers over one owned numeric station preparation.
    *

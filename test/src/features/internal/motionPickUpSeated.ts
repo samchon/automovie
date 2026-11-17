@@ -1,8 +1,28 @@
-import type { IAutoMovieMotionHumanAudit, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieMotionHumanVerdicts, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
-
-import { AutoMovieMotionHumanAudit, HumanChain, HumanHand, HumanObject, HumanPerformance, HumanRefusal, HumanSignature, HumanVerdicts, seated } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanAudit,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieMotionHumanVerdicts,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAudit,
+  HumanChain,
+  HumanHand,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+  HumanVerdicts,
+  seated,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -63,7 +83,9 @@ export function motionPickUpSeated(
     yaw: 0,
     depth: 0.45,
   };
-  const perform = (at: IAutoMovieVector3 | null): IAutoMovieMotionHumanPerformance => {
+  const perform = (
+    at: IAutoMovieVector3 | null,
+  ): IAutoMovieMotionHumanPerformance => {
     const sitting: IAutoMovieMotionHumanChain = HumanChain.subject("a").sit({
       seat: chair,
       seconds: 0.5,
@@ -132,7 +154,10 @@ export function motionPickUpSeated(
     );
     const pick: IAutoMovieMotionHumanSegment.ISegment = film
       .segments("a")
-      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "pickUp")!;
+      .find(
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+          s.name === "pickUp",
+      )!;
     const grasp: number =
       pick.start +
       (pick.plan.events.find((e): boolean => e.name === "gripClosed")?.share ??
@@ -140,10 +165,14 @@ export function motionPickUpSeated(
         pick.plan.duration;
     if (which === "verdicts") {
       // 6. The whole shipped verdicts over the pick up.
-      const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(film, 24, {
-        from: pick.start,
-        to: pick.end,
-      });
+      const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
+        film,
+        24,
+        {
+          from: pick.start,
+          to: pick.end,
+        },
+      );
       if (!report.clean)
         complaints.push(
           `${name}: the shipped verdicts over the pick up: ${HumanVerdicts.describe(report)}`,

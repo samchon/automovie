@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanBase } from "../law/IAutoMovieMotionHumanBase";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
+import type { IAutoMovieMotionHumanBase } from "../law/IAutoMovieMotionHumanBase";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieMotionHumanExerciseKey } from "./IAutoMovieMotionHumanExerciseKey";
 

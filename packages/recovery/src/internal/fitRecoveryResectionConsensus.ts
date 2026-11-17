@@ -1,10 +1,12 @@
-import type { IAutoMovieRecoveryMapPointProjectionOperation, IAutoMovieRecoveryMapPose, IAutoMovieRecoveryResectionConsensusFittingOperation, IAutoMovieRecoveryResectionDesignTrace, IAutoMovieRecoveryResectionRefinementOperation, IAutoMovieRecoveryResectionScore, IAutoMovieRecoveryResectionTrace } from "@automovie/interface";
-
-
-
-
-
-
+import type {
+  IAutoMovieRecoveryMapPointProjectionOperation,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoveryResectionConsensusFittingOperation,
+  IAutoMovieRecoveryResectionDesignTrace,
+  IAutoMovieRecoveryResectionRefinementOperation,
+  IAutoMovieRecoveryResectionScore,
+  IAutoMovieRecoveryResectionTrace,
+} from "@automovie/interface";
 
 import { fitRecoveryResectionDesign } from "./fitRecoveryResectionDesign";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
@@ -82,7 +84,8 @@ export function fitRecoveryResectionConsensus(
     finalRefits: number = 0,
     required: number = Infinity;
   let stable: boolean = false;
-  let refinement: ReturnType<IAutoMovieRecoveryResectionRefinementOperation.Operation> | null = null;
+  let refinement: ReturnType<IAutoMovieRecoveryResectionRefinementOperation.Operation> | null =
+    null;
   while (
     points.length >= 6 &&
     trials < budget.maxResectionTrials &&
@@ -130,13 +133,15 @@ export function fitRecoveryResectionConsensus(
         refinement: null,
         afterPose: null,
         after: null,
-        stable: null });
+        stable: null,
+      });
       continue;
     }
     let measured: ReturnType<typeof score> = score(candidate);
     const beforePose: IAutoMovieRecoveryMapPose = candidate;
     const before: IAutoMovieRecoveryResectionScore = measured;
-    let local: ReturnType<IAutoMovieRecoveryResectionRefinementOperation.Operation> | null = null;
+    let local: ReturnType<IAutoMovieRecoveryResectionRefinementOperation.Operation> | null =
+      null;
     let localError: string | null = null;
     let refinementAttempted: boolean = false;
     if (
@@ -190,7 +195,8 @@ export function fitRecoveryResectionConsensus(
       refinement: local,
       afterPose: candidate,
       after: measured,
-      stable: null });
+      stable: null,
+    });
     if (
       measured.indices.length > best.indices.length ||
       (measured.indices.length === best.indices.length &&
@@ -212,7 +218,8 @@ export function fitRecoveryResectionConsensus(
     const beforePose: IAutoMovieRecoveryMapPose = pose;
     const before: IAutoMovieRecoveryResectionScore = best;
     let finalError: string | null = null;
-    let finalFit: ReturnType<IAutoMovieRecoveryResectionRefinementOperation.Operation> | null = null;
+    let finalFit: ReturnType<IAutoMovieRecoveryResectionRefinementOperation.Operation> | null =
+      null;
     try {
       finalFit = refineRecoveryResection(
         pose,
@@ -245,7 +252,8 @@ export function fitRecoveryResectionConsensus(
         refinement: null,
         afterPose: null,
         after: null,
-        stable: null });
+        stable: null,
+      });
       break;
     }
     refinement = finalFit!;
@@ -263,7 +271,8 @@ export function fitRecoveryResectionConsensus(
         refinement,
         afterPose: null,
         after: null,
-        stable: null });
+        stable: null,
+      });
       break;
     }
     const next: ReturnType<typeof score> = score(refinement.pose);
@@ -286,7 +295,8 @@ export function fitRecoveryResectionConsensus(
       refinement,
       afterPose: pose,
       after: best,
-      stable });
+      stable,
+    });
     if (stable) break;
   }
   required = requiredRecoveryCameraTrials(
@@ -319,5 +329,6 @@ export function fitRecoveryResectionConsensus(
     finalRefits,
     stable,
     refusalReasons,
-    refinement };
+    refinement,
+  };
 }

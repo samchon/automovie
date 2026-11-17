@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryFeasibleJointOptions, IAutoMovieRecoveryFeasibleReportCapacity } from "../../index";
+import type {
+  IAutoMovieRecoveryFeasibleJointOptions,
+  IAutoMovieRecoveryFeasibleReportCapacity,
+} from "../../index";
 
 /** One direct checkpoint's owned method and matching reporting capacity.
  *
@@ -8,11 +11,9 @@ import type { IAutoMovieRecoveryFeasibleJointOptions, IAutoMovieRecoveryFeasible
  * @evidence contracts/development/common.md#meaningful-documentation Both records have checkpoint lifetime and serve every closure pass without rereading caller options.
  */
 export interface IAutoMovieRecoveryCheckpointReporting {
- 
- /** Fixed owned method, including the independent nested direction budget. */
+  /** Fixed owned method, including the independent nested direction budget. */
   feasible: IAutoMovieRecoveryFeasibleJointOptions;
 
- 
- /** Scope derived from that same owned request before any checkpoint callback. */
+  /** Scope derived from that same owned request before any checkpoint callback. */
   reporting: IAutoMovieRecoveryFeasibleReportCapacity;
 }

@@ -1,6 +1,10 @@
-import { type IAutoMovieActorContext, type IAutoMovieResumeActorSynthesisRuntime, IAutoMovieBeatEndActorState, IAutoMovieBeatEndState, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  type IAutoMovieActorContext,
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndState,
+  type IAutoMovieResumeActorSynthesisRuntime,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 const resumeActorContext: (
   context: IAutoMovieActorContext,

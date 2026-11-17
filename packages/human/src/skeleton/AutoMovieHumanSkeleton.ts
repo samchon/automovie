@@ -1,18 +1,18 @@
-import type { IAutoMovieHumanBodyCalibration, IAutoMovieHumanFootSurface, IAutoMovieHumanJointCentres, IAutoMovieHumanNeckSurface, IAutoMovieHumanNeutral, IAutoMovieHumanParameters, IAutoMovieHumanPreparedKinematics, IAutoMovieHumanSkeleton } from "@automovie/interface";
-
-
-
-
-
-
-
+import type {
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanFootSurface,
+  IAutoMovieHumanJointCentres,
+  IAutoMovieHumanNeckSurface,
+  IAutoMovieHumanNeutral,
+  IAutoMovieHumanParameters,
+  IAutoMovieHumanPreparedKinematics,
+  IAutoMovieHumanSkeleton,
+} from "@automovie/interface";
 
 import { AutoMovieHumanBodyAnatomy } from "../generation/AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyLaw } from "../generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanFootSurface } from "../generation/AutoMovieHumanFootSurface";
 import { AutoMovieHumanNeckSurface } from "../generation/AutoMovieHumanNeckSurface";
-
-
 import { AutoMovieHumanBindingInputs } from "./AutoMovieHumanBindingInputs";
 import { AutoMovieHumanJointCentres } from "./AutoMovieHumanJointCentres";
 import { AutoMovieHumanNeutral } from "./AutoMovieHumanNeutral";
@@ -49,14 +49,6 @@ import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMa
  * {@link AutoMovieHumanRig}.
  */
 export namespace AutoMovieHumanSkeleton {
-  
-
-  
-
-  
-
-  
-
   /**
    * Derive the skeleton and pose it by `params.pose`.
    *
@@ -70,12 +62,6 @@ export namespace AutoMovieHumanSkeleton {
   ): IAutoMovieHumanSkeleton.IOutput {
     return prepare(params)(params.pose ?? {}, clamp);
   }
-
-  
-
-  
-
-  
 
   /**
    * Prepare one fixed body's joints, clinical axes and mm-to-metre scales once.
@@ -134,14 +120,12 @@ export namespace AutoMovieHumanSkeleton {
       }),
     );
     const joints: IAutoMovieHumanJointCentres.IJoint[] = neutral.joints;
-    const kinematics: IAutoMovieHumanPreparedKinematics.IPrepared = Kinematics.prepare(
-      joints,
-      neutral,
-      scale,
-      mmScale,
-    );
+    const kinematics: IAutoMovieHumanPreparedKinematics.IPrepared =
+      Kinematics.prepare(joints, neutral, scale, mmScale);
     const rest: IAutoMovieHumanSkeleton.IBone[] = bind.map(
-      (joint: IAutoMovieHumanJointCentres.IJoint): IAutoMovieHumanSkeleton.IBone => ({
+      (
+        joint: IAutoMovieHumanJointCentres.IJoint,
+      ): IAutoMovieHumanSkeleton.IBone => ({
         bone: joint.bone,
         parent: joint.parent,
         position: Math3D.times(joint.position, scale),
@@ -154,10 +138,15 @@ export namespace AutoMovieHumanSkeleton {
       input: NonNullable<IAutoMovieHumanParameters["pose"]> = {},
       clamp: boolean = true,
     ): IAutoMovieHumanSkeleton.IOutput => {
-      const output: IAutoMovieHumanSkeleton.IProjection = kinematics.evaluate(input, clamp);
+      const output: IAutoMovieHumanSkeleton.IProjection = kinematics.evaluate(
+        input,
+        clamp,
+      );
       return {
         bones: rest.map(
-          (bone: IAutoMovieHumanSkeleton.IBone): IAutoMovieHumanSkeleton.IBone => ({
+          (
+            bone: IAutoMovieHumanSkeleton.IBone,
+          ): IAutoMovieHumanSkeleton.IBone => ({
             ...bone,
             position: [...bone.position],
             tip: bone.tip === null ? null : [...bone.tip],
@@ -171,12 +160,16 @@ export namespace AutoMovieHumanSkeleton {
         ...(footSurface === undefined ? {} : { footSurface }),
       };
     };
-    evaluate.project = (names: readonly string[]): IAutoMovieHumanSkeleton.ProjectionEvaluator => {
-      const selection: IAutoMovieHumanPreparedKinematics.ISelection = kinematics.select(names);
+    evaluate.project = (
+      names: readonly string[],
+    ): IAutoMovieHumanSkeleton.ProjectionEvaluator => {
+      const selection: IAutoMovieHumanPreparedKinematics.ISelection =
+        kinematics.select(names);
       return (
         input: NonNullable<IAutoMovieHumanParameters["pose"]> = {},
         clamp: boolean = true,
-      ): IAutoMovieHumanSkeleton.IProjection => kinematics.evaluate(input, clamp, selection);
+      ): IAutoMovieHumanSkeleton.IProjection =>
+        kinematics.evaluate(input, clamp, selection);
     };
     return evaluate;
   }

@@ -1,8 +1,5 @@
-import type { IAutoMovieImportedNodeBoneMapping } from "../IAutoMovieImportedNodeBoneMapping";
 import type { IAutoMovieSkeleton } from "../../skeleton/IAutoMovieSkeleton";
-
-
-
+import type { IAutoMovieImportedNodeBoneMapping } from "../IAutoMovieImportedNodeBoneMapping";
 
 /**
  * Inputs copied after adoption's mapped-basis and retarget-field checks. Source conversion and source-target compatibility remain later host obligations; this record performs neither. Current adoption tests inspect the copied handoff, and no production conversion reader is wired.

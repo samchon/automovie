@@ -3,7 +3,9 @@ import type { IAutoMovieMotionHumanActionLaw } from "@automovie/interface";
 import { HUMAN_LEXICON_FAMILIES } from "./HUMAN_LEXICON_FAMILIES";
 
 /** The registered laws a namespace holds: its members that plan. */
-const rows = (space: object): readonly IAutoMovieMotionHumanActionLaw<never>[] =>
+const rows = (
+  space: object,
+): readonly IAutoMovieMotionHumanActionLaw<never>[] =>
   Object.values(space).filter(
     (value: unknown): value is IAutoMovieMotionHumanActionLaw<never> =>
       typeof value === "object" && value !== null && "plan" in value,

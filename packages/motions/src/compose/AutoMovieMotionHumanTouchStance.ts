@@ -1,6 +1,15 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanLeanInto, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanRange, IAutoMovieMotionHumanReach, IAutoMovieMotionHumanTouchStance, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanLeanInto,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanRange,
+  IAutoMovieMotionHumanReach,
+  IAutoMovieMotionHumanTouchStance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanLeanInto } from "./AutoMovieMotionHumanLeanInto";
 import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
@@ -51,7 +60,9 @@ export namespace AutoMovieMotionHumanTouchStance {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanRise`, `AutoMovieMotionHumanLeanInto`, `AutoMovieMotionHumanReach.check` and `resolveHumanPosture.lower`; a stance that does not rise returns the lean's own primitive.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closes over the props, the heel angle and the lean.
    */
-  export function solve(props: IAutoMovieMotionHumanTouchStance.IProps): IAutoMovieMotionHumanTouchStance.IStance {
+  export function solve(
+    props: IAutoMovieMotionHumanTouchStance.IProps,
+  ): IAutoMovieMotionHumanTouchStance.IStance {
     const { body, standing, feet } = props;
     const shoulder: "leftShoulder" | "rightShoulder" = `${props.side}Shoulder`;
 
@@ -131,7 +142,10 @@ export namespace AutoMovieMotionHumanTouchStance {
     const leaning: boolean = [0, 0.5, 1].some(
       (progress: number): boolean => lean.pitch(risen, progress) > 0,
     );
-    const tipped: IAutoMovieMotionHumanPosture = lean.tip(risen, lean.pitch(risen, 0));
+    const tipped: IAutoMovieMotionHumanPosture = lean.tip(
+      risen,
+      lean.pitch(risen, 0),
+    );
     const reached: IAutoMovieMotionHumanPosture = leaning
       ? { ...tipped, root: resolveHumanPosture.lower(body, tipped).root }
       : risen;
@@ -153,9 +167,16 @@ export namespace AutoMovieMotionHumanTouchStance {
             channels: raise > 0 || leaning ? ["root", "trunk"] : ["trunk"],
             from: 0,
             to: clock.duration,
-            write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+            write: (
+              posture: IAutoMovieMotionHumanPosture,
+              seconds: number,
+            ): IAutoMovieMotionHumanPosture => {
               const k: number = share(seconds);
-              const up: IAutoMovieMotionHumanPosture = moved(posture, girdle * k, raise * k);
+              const up: IAutoMovieMotionHumanPosture = moved(
+                posture,
+                girdle * k,
+                raise * k,
+              );
 
               // The lean is read at the full rise, so its angle does not
               // change with the share of the rise shown.
@@ -179,7 +200,9 @@ export namespace AutoMovieMotionHumanTouchStance {
 
               // The planted legs reach their raised feet from the root the
               // rise and the lean leave.
-              const goal = (side: "left" | "right"): IAutoMovieMotionHumanPosture.IGoal =>
+              const goal = (
+                side: "left" | "right",
+              ): IAutoMovieMotionHumanPosture.IGoal =>
                 AutoMovieMotionHumanLeg.goal(
                   body,
                   leaned,

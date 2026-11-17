@@ -1,4 +1,10 @@
-import type { IAutoMovieConicArcField, IAutoMovieConicFieldJet, IAutoMovieViewConic, IAutoMovieViewSectionField } from "@automovie/interface";
+import type {
+  IAutoMovieConicArcField,
+  IAutoMovieConicFieldJet,
+  IAutoMovieViewConic,
+  IAutoMovieViewSectionField,
+} from "@automovie/interface";
+
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import { AutoMovieConicPreparation } from "./AutoMovieConicPreparation";
 import { AutoMovieViewConic } from "./AutoMovieViewConic";
@@ -19,7 +25,6 @@ import { AutoMovieViewSectionReading } from "./AutoMovieViewSectionReading";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieViewSectionField {
-
   /**
    * Prepare original positive extents and effective shoulders at one station.
    *
@@ -41,7 +46,8 @@ export namespace AutoMovieViewSectionField {
       extents.length !== 4 ||
       shoulders.length !== 4 ||
       !extents.every(
-        (jet: IAutoMovieViewSectionField.IStationJet): boolean => stationJet(jet) && jet[0] > 0,
+        (jet: IAutoMovieViewSectionField.IStationJet): boolean =>
+          stationJet(jet) && jet[0] > 0,
       ) ||
       !shoulders.every(
         (jet: IAutoMovieViewSectionField.IStationJet): boolean =>
@@ -53,8 +59,12 @@ export namespace AutoMovieViewSectionField {
       );
     const ops: IAutoMovieConicFieldJet.IAlgebra<IAutoMovieConicFieldJet.IJet> =
       AutoMovieConicFieldJet.AD;
-    const e: IAutoMovieConicFieldJet.IJet[] = extents.map(AutoMovieConicFieldJet.fromStation);
-    const r: IAutoMovieConicFieldJet.IJet[] = shoulders.map(AutoMovieConicFieldJet.fromStation);
+    const e: IAutoMovieConicFieldJet.IJet[] = extents.map(
+      AutoMovieConicFieldJet.fromStation,
+    );
+    const r: IAutoMovieConicFieldJet.IJet[] = shoulders.map(
+      AutoMovieConicFieldJet.fromStation,
+    );
     const source: IAutoMovieViewConic.ICurve<IAutoMovieConicFieldJet.IJet> =
       AutoMovieConicPreparation.source(e, r);
     if (source.failure !== null) return failure(source.failure);
@@ -76,7 +86,10 @@ export namespace AutoMovieViewSectionField {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses numeric phase jets and log curvature from the same descriptor; no AD occurs inside inverse iterations.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh six-number tuple or named failure and stores no query state.
    */
-  export function read(prepared: IAutoMovieViewSectionField.IPrepared, phi: number): IAutoMovieViewSectionField.IRadialJet | IAutoMovieConicArcField.IFailure {
+  export function read(
+    prepared: IAutoMovieViewSectionField.IPrepared,
+    phi: number,
+  ): IAutoMovieViewSectionField.IRadialJet | IAutoMovieConicArcField.IFailure {
     const fault: string | null = AutoMovieViewSectionReading.validate(prepared);
     if (fault !== null) return failure(fault);
     if (!Number.isFinite(phi))

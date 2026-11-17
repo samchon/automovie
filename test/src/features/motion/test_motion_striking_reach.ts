@@ -1,6 +1,8 @@
-import type { IAutoMovieMotionHumanStrikingReach, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
-
+import type {
+  IAutoMovieMotionHumanStrikingReach,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { StrikingReach } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -106,11 +108,12 @@ export function test_motion_striking_reach(): void {
       j.along < 0.3 &&
       Math.abs(len(j.point, j.middle) - j.along) < 1e-9,
   );
-  const rigid: IAutoMovieMotionHumanStrikingReach.ISolution = StrikingReach.chain({
-    ...base,
-    point: close,
-    slide: false,
-  });
+  const rigid: IAutoMovieMotionHumanStrikingReach.ISolution =
+    StrikingReach.chain({
+      ...base,
+      point: close,
+      slide: false,
+    });
   TestValidator.predicate(
     "jammed rigid flexes past the band",
     rigid.status === "jammed" &&
@@ -120,14 +123,15 @@ export function test_motion_striking_reach(): void {
   );
 
   const k: number = 1.3;
-  const scaled: IAutoMovieMotionHumanStrikingReach.ISolution = StrikingReach.chain({
-    ...base,
-    root: Vector3.scale(root, k),
-    point: Vector3.scale(at30, k),
-    upper: 0.45 * k,
-    along: 0.3 * k,
-    lower: 0.42 * k,
-  });
+  const scaled: IAutoMovieMotionHumanStrikingReach.ISolution =
+    StrikingReach.chain({
+      ...base,
+      root: Vector3.scale(root, k),
+      point: Vector3.scale(at30, k),
+      upper: 0.45 * k,
+      along: 0.3 * k,
+      lower: 0.42 * k,
+    });
   TestValidator.predicate(
     "stature scaling",
     near(scaled.middle, Vector3.scale(r.middle, k), 1e-9) &&
@@ -138,11 +142,12 @@ export function test_motion_striking_reach(): void {
     y: v.y,
     z: v.z,
   });
-  const mirrored: IAutoMovieMotionHumanStrikingReach.ISolution = StrikingReach.chain({
-    ...base,
-    root: mirror(root),
-    point: mirror(at30),
-  });
+  const mirrored: IAutoMovieMotionHumanStrikingReach.ISolution =
+    StrikingReach.chain({
+      ...base,
+      root: mirror(root),
+      point: mirror(at30),
+    });
   TestValidator.predicate(
     "mirror",
     near(mirrored.middle, mirror(r.middle), 1e-9) &&

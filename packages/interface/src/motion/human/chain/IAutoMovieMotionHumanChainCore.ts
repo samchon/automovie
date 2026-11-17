@@ -1,7 +1,7 @@
-import type { AutoMovieMotionHumanActionName } from "../AutoMovieMotionHumanActionName";
 import type { IAutoMovieChain } from "../../composition/IAutoMovieChain";
 import type { IAutoMovieComposition } from "../../composition/IAutoMovieComposition";
 import type { IAutoMovieIntent } from "../../composition/IAutoMovieIntent";
+import type { AutoMovieMotionHumanActionName } from "../AutoMovieMotionHumanActionName";
 import type { IAutoMovieMotionHumanActionParams } from "../IAutoMovieMotionHumanActionParams";
 import type { IAutoMovieMotionHumanHitTrack } from "../perform/IAutoMovieMotionHumanHitTrack";
 import type { IAutoMovieMotionHumanResponse } from "../skill/IAutoMovieMotionHumanResponse";

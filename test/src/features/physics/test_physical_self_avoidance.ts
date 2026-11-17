@@ -1,4 +1,3 @@
-import type { IAutoMoviePreparePhysicalGeometry, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   preparePhysicalGeometry as Geometry,
   Quaternion,
@@ -7,7 +6,10 @@ import {
   planPhysicalContactTargets,
   setPhysicalTargetJointRotation,
 } from "@automovie/engine";
-
+import type {
+  IAutoMoviePreparePhysicalGeometry,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";

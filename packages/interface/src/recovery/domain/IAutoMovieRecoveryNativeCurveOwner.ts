@@ -6,16 +6,13 @@
  * @evidence contracts/development/common.md#meaningful-documentation Members state physical units, field ordering and coefficient-index meaning.
  */
 export interface IAutoMovieRecoveryNativeCurveOwner {
- 
- /** Native cubic authority identity. */
+  /** Native cubic authority identity. */
   id: string;
 
- 
- /** Ordered complete cubic owner indices in the recipe. */
+  /** Ordered complete cubic owner indices in the recipe. */
   controlIds: [number, number, number, number];
 
- 
- /** Original ordered cubic control net, millimetres. */
+  /** Original ordered cubic control net, millimetres. */
   net: readonly [
     readonly [number, number, number],
     readonly [number, number, number],

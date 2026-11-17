@@ -1,4 +1,9 @@
-import type { IAutoMovieMeshRayCaster, IAutoMovieMeshRayHit, IAutoMovieMeshRayQueryOptions, IAutoMovieMesh } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshRayCaster,
+  IAutoMovieMeshRayHit,
+  IAutoMovieMeshRayQueryOptions,
+} from "@automovie/interface";
 
 import { triangleIndicesOf } from "./triangleIndicesOf";
 

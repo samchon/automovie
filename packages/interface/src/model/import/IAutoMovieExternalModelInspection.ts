@@ -1,6 +1,5 @@
-import type { AutoMovieHumanoidBone } from "../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieExternalMotionInspection } from "../../motion/import/IAutoMovieExternalMotionInspection";
-
+import type { AutoMovieHumanoidBone } from "../../skeleton/AutoMovieHumanoidBone";
 import type { AutoMovieExternalModelIngestProfile } from "./AutoMovieExternalModelIngestProfile";
 import type { IAutoMovieExternalModelResource } from "./IAutoMovieExternalModelResource";
 

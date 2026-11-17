@@ -1,4 +1,5 @@
 import type { IAutoMovieSolidCycle } from "@automovie/interface";
+
 /**
  * A trim cycle of a face in its own chart: the closed boundary of the face's
  * kept region, a sequence of shared vertices with their charts on this face
@@ -22,7 +23,6 @@ import type { IAutoMovieSolidCycle } from "@automovie/interface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidCycle {
-
   /**
    * Whether a chart point lies on a cycle's kept side or on the cycle.
    *
@@ -81,8 +81,9 @@ export namespace AutoMovieSolidCycle {
             ...(curve === undefined
               ? {}
               : {
-                  on: cycle.chart.map((a: [number, number], k: number): boolean =>
-                    on(curve, a, cycle.chart[(k + 1) % cycle.chart.length]!),
+                  on: cycle.chart.map(
+                    (a: [number, number], k: number): boolean =>
+                      on(curve, a, cycle.chart[(k + 1) % cycle.chart.length]!),
                   ),
                 }),
           };
@@ -92,7 +93,10 @@ export namespace AutoMovieSolidCycle {
 
   /** Cycle-invariant values; coordinates and kind are owned unchanged by the caller. */
   interface IPrepared {
-    /** Lowest and highest unwrapped v of a hole or an island (`span`). */ span?: [number, number];
+    /** Lowest and highest unwrapped v of a hole or an island (`span`). */ span?: [
+      number,
+      number,
+    ];
     /** Original winding endpoint and its integer turn relative to the segment start. */ ends?: [
       number,
       number,
@@ -131,7 +135,9 @@ export namespace AutoMovieSolidCycle {
    * apart in phase leaves one wider than a period, where a point near either end has two images within the span and only one of them lies
    * inside (f1's ear: an island 6.6 rad wide about 5.6, a triangle at 8.9 read at its image 2.6 and found outside).
    */
-  function span(cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">): [number, number] {
+  function span(
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
+  ): [number, number] {
     let low: number = Infinity;
     let high: number = -Infinity;
     // Each point's coordinates are read once, `u` then `v`, as `centre` reads them.
@@ -145,7 +151,11 @@ export namespace AutoMovieSolidCycle {
   }
 
   /** Crossing parity of the ray from `(u, w)` toward lower `u` against a hole's or an island's polygon, `w` already on the polygon's branch. */
-  function crossed(cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">, u: number, w: number): boolean {
+  function crossed(
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
+    u: number,
+    w: number,
+  ): boolean {
     const n: number = cycle.chart.length;
     let inside: boolean = false;
     for (let k: number = 0; k < n; k++) {
@@ -301,7 +311,11 @@ export namespace AutoMovieSolidCycle {
     period: number | undefined,
   ): IAutoMovieSolidCycle.IFoot {
     const n: number = cycle.chart.length;
-    let best: IAutoMovieSolidCycle.IFoot = { segment: 0, share: 0, distance: Infinity };
+    let best: IAutoMovieSolidCycle.IFoot = {
+      segment: 0,
+      share: 0,
+      distance: Infinity,
+    };
     for (let k: number = 0; k < n; k++) {
       const a: [number, number] = cycle.chart[k]!;
       const b: [number, number] = cycle.chart[(k + 1) % n]!;
@@ -332,7 +346,9 @@ export namespace AutoMovieSolidCycle {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Live kept calls recompute this mean, while prepare retains the same value only for unchanged cycle kind/chart/period dependencies.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh two-number tuple and retains neither the chart nor any prior centre globally.
    */
-  export function centre(cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">): [number, number] {
+  export function centre(
+    cycle: Pick<IAutoMovieSolidCycle.ICycle, "chart">,
+  ): [number, number] {
     let u: number = 0;
     let v: number = 0;
     for (const p of cycle.chart) {

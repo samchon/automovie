@@ -1,4 +1,14 @@
-import type { IAutoMovieSolidSurface, AutoMovieVector2Tuple, AutoMovieVector3Tuple, IAutoMovieGridSolidMeshGrid, IAutoMovieGridSolidMeshSample, IAutoMovieSolidMesh, IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshLoop, IAutoMovieSolidMeshPlan } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieGridSolidMeshGrid,
+  IAutoMovieGridSolidMeshSample,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshLoop,
+  IAutoMovieSolidMeshPlan,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
@@ -7,6 +17,7 @@ import { AutoMovieSolidMeshConstraints } from "./AutoMovieSolidMeshConstraints";
 import { AutoMovieSolidMeshLoop } from "./AutoMovieSolidMeshLoop";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { domainAutoMovieSolidMesh } from "./domainAutoMovieSolidMesh";
+
 /** Existing vector lengths and analytic chart-cross arithmetic. */
 const { cross, norm, sub }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 
@@ -135,7 +146,10 @@ export function gridAutoMovieSolidMesh(
     const key: number = i * phases.length + column;
     const previous: number | undefined = reserved.get(key);
     if (previous !== undefined) return previous;
-    const point: Readonly<AutoMovieVector2Tuple> = [stations[i]!, phases[column]!];
+    const point: Readonly<AutoMovieVector2Tuple> = [
+      stations[i]!,
+      phases[column]!,
+    ];
     const authority: number | undefined = authorities.get(
       coordinateKey(point[0], point[1]),
     );
@@ -152,15 +166,39 @@ export function gridAutoMovieSolidMesh(
   // their centroids, `J = (sum dX dC^T)(sum dC dC^T)^-1`, read as the shear and scale of `J^T J` over its first entry.
   const point = (id: number): readonly number[] | undefined =>
     id < base
-      ? [mesh.positions[3 * id]!, mesh.positions[3 * id + 1]!, mesh.positions[3 * id + 2]!]
+      ? [
+          mesh.positions[3 * id]!,
+          mesh.positions[3 * id + 1]!,
+          mesh.positions[3 * id + 2]!,
+        ]
       : samples.get(id)?.point;
-  const local = (ids: readonly number[], charts: readonly Readonly<AutoMovieVector2Tuple>[]): [number, number] => {
+  const local = (
+    ids: readonly number[],
+    charts: readonly Readonly<AutoMovieVector2Tuple>[],
+  ): [number, number] => {
     const skins: (readonly number[] | undefined)[] = ids.map(point);
-    if (skins.some((x: readonly number[] | undefined): boolean => x === undefined)) return [0, metric];
+    if (
+      skins.some((x: readonly number[] | undefined): boolean => x === undefined)
+    )
+      return [0, metric];
     const n: number = charts.length;
-    const cu: number = charts.reduce((s: number, c: Readonly<AutoMovieVector2Tuple>): number => s + c[0], 0) / n;
-    const cv: number = charts.reduce((s: number, c: Readonly<AutoMovieVector2Tuple>): number => s + c[1], 0) / n;
-    const mean: number[] = [0, 1, 2].map((a: number): number => skins.reduce((s: number, x: readonly number[] | undefined): number => s + x![a]!, 0) / n);
+    const cu: number =
+      charts.reduce(
+        (s: number, c: Readonly<AutoMovieVector2Tuple>): number => s + c[0],
+        0,
+      ) / n;
+    const cv: number =
+      charts.reduce(
+        (s: number, c: Readonly<AutoMovieVector2Tuple>): number => s + c[1],
+        0,
+      ) / n;
+    const mean: number[] = [0, 1, 2].map(
+      (a: number): number =>
+        skins.reduce(
+          (s: number, x: readonly number[] | undefined): number => s + x![a]!,
+          0,
+        ) / n,
+    );
     let suu: number = 0;
     let suv: number = 0;
     let svv: number = 0;
@@ -180,8 +218,12 @@ export function gridAutoMovieSolidMesh(
     });
     const det: number = suu * svv - suv * suv;
     if (!(det > 0)) return [0, metric];
-    const su: number[] = [0, 1, 2].map((a: number): number => (xu[a]! * svv - xv[a]! * suv) / det);
-    const sv: number[] = [0, 1, 2].map((a: number): number => (xv[a]! * suu - xu[a]! * suv) / det);
+    const su: number[] = [0, 1, 2].map(
+      (a: number): number => (xu[a]! * svv - xv[a]! * suv) / det,
+    );
+    const sv: number[] = [0, 1, 2].map(
+      (a: number): number => (xv[a]! * suu - xu[a]! * suv) / det,
+    );
     const e: number = su[0]! ** 2 + su[1]! ** 2 + su[2]! ** 2;
     const f: number = su[0]! * sv[0]! + su[1]! * sv[1]! + su[2]! * sv[2]!;
     const g: number = sv[0]! ** 2 + sv[1]! ** 2 + sv[2]! ** 2;
@@ -234,7 +276,16 @@ export function gridAutoMovieSolidMesh(
     (): boolean[] => new Array<boolean>(columns).fill(false),
   );
   const full: IAutoMovieSolidMeshPlan.ITriangle[] = [];
-  const cuts: { a: number; b: number; c: number; d: number; wrap: number; choice: "first" | "other" | "tie"; first: number; other: number }[] = [];
+  const cuts: {
+    a: number;
+    b: number;
+    c: number;
+    d: number;
+    wrap: number;
+    choice: "first" | "other" | "tie";
+    first: number;
+    other: number;
+  }[] = [];
   const boundary: Map<string, IAutoMovieSolidMeshConstraints.ISegment> =
     new Map();
 
@@ -301,9 +352,31 @@ export function gridAutoMovieSolidMesh(
       // line ran across the face (f1's upper lip).
       // A cell neither of whose splits is clearly flatter takes the diagonal its face's other such cells take, decided once for the face
       // below (`DIAGONAL`), so the rule reads the geometry alone and a chart and its mirror image cut mirror-image cells.
-      const [pa, pb, pc, pd]: AutoMovieVector3Tuple[] = [jets[i]![j]!.p, jets[i + 1]![j]!.p, jets[i + 1]![next]!.p, jets[i]![next]!.p];
-      const [first, other]: number[] = [bend(pa, pb, pc, pd), bend(pb, pc, pd, pa)];
-      cuts.push({ a, b, c, d, wrap, choice: other < BEND * first ? "other" : first < BEND * other ? "first" : "tie", first: norm(sub(pc, pa)), other: norm(sub(pd, pb)) });
+      const [pa, pb, pc, pd]: AutoMovieVector3Tuple[] = [
+        jets[i]![j]!.p,
+        jets[i + 1]![j]!.p,
+        jets[i + 1]![next]!.p,
+        jets[i]![next]!.p,
+      ];
+      const [first, other]: number[] = [
+        bend(pa, pb, pc, pd),
+        bend(pb, pc, pd, pa),
+      ];
+      cuts.push({
+        a,
+        b,
+        c,
+        d,
+        wrap,
+        choice:
+          other < BEND * first
+            ? "other"
+            : first < BEND * other
+              ? "first"
+              : "tie",
+        first: norm(sub(pc, pa)),
+        other: norm(sub(pd, pb)),
+      });
       for (const edge of [
         { a, b, turn: 0 },
         { a: b, b: c, turn: wrap },
@@ -322,12 +395,23 @@ export function gridAutoMovieSolidMesh(
   // The face's undecided cells all take the diagonal family that is the shorter in sum over them (`DIAGONAL`). The sums are compared
   // relatively: on a face whose two families are equally long (a prism's or a cylinder's cells) they differ only by rounding, which
   // changes with the face's size, so an exact comparison cut the same face differently at two scales.
-  const ties: { first: number; other: number }[] = cuts.filter((cut: (typeof cuts)[number]): boolean => cut.choice === "tie");
+  const ties: { first: number; other: number }[] = cuts.filter(
+    (cut: (typeof cuts)[number]): boolean => cut.choice === "tie",
+  );
   const sums: { first: number; other: number } = {
-    first: ties.reduce((sum: number, cut: { first: number; other: number }): number => sum + cut.first, 0),
-    other: ties.reduce((sum: number, cut: { first: number; other: number }): number => sum + cut.other, 0),
+    first: ties.reduce(
+      (sum: number, cut: { first: number; other: number }): number =>
+        sum + cut.first,
+      0,
+    ),
+    other: ties.reduce(
+      (sum: number, cut: { first: number; other: number }): number =>
+        sum + cut.other,
+      0,
+    ),
   };
-  const tie: "first" | "other" = sums.other < sums.first * (1 - DIAGONAL_ROUNDING) ? "other" : "first";
+  const tie: "first" | "other" =
+    sums.other < sums.first * (1 - DIAGONAL_ROUNDING) ? "other" : "first";
   for (const cut of cuts)
     if ((cut.choice === "tie" ? tie : cut.choice) === "other")
       full.push(
@@ -452,14 +536,23 @@ const DIAGONAL_ROUNDING: number = 1e-9;
  * cut into along its diagonal `p`..`r`, radians, from `(p, q, r)` and
  * `(p, r, s)`; 0 for a planar or degenerate quadrilateral.
  */
-function bend(p: AutoMovieVector3Tuple, q: AutoMovieVector3Tuple, r: AutoMovieVector3Tuple, s: AutoMovieVector3Tuple): number {
-  const minus = (x: AutoMovieVector3Tuple, y: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [x[0] - y[0], x[1] - y[1], x[2] - y[2]];
+function bend(
+  p: AutoMovieVector3Tuple,
+  q: AutoMovieVector3Tuple,
+  r: AutoMovieVector3Tuple,
+  s: AutoMovieVector3Tuple,
+): number {
+  const minus = (
+    x: AutoMovieVector3Tuple,
+    y: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple => [x[0] - y[0], x[1] - y[1], x[2] - y[2]];
   const n1: AutoMovieVector3Tuple = cross(minus(q, p), minus(r, p));
   const n2: AutoMovieVector3Tuple = cross(minus(r, p), minus(s, p));
   const l1: number = norm(n1);
   const l2: number = norm(n2);
   if (!(l1 > 0 && l2 > 0)) return 0;
-  const cosine: number = (n1[0] * n2[0] + n1[1] * n2[1] + n1[2] * n2[2]) / (l1 * l2);
+  const cosine: number =
+    (n1[0] * n2[0] + n1[1] * n2[1] + n1[2] * n2[2]) / (l1 * l2);
   return Math.acos(Math.max(-1, Math.min(1, cosine)));
 }
 
@@ -467,7 +560,14 @@ function bend(p: AutoMovieVector3Tuple, q: AutoMovieVector3Tuple, r: AutoMovieVe
 function copy(
   jet: IAutoMovieSolidSurface.IJet,
 ): IAutoMovieSolidSurface.IJet | string {
-  const vectors: AutoMovieVector3Tuple[] = [jet.p, jet.u, jet.v, jet.uu, jet.uv, jet.vv];
+  const vectors: AutoMovieVector3Tuple[] = [
+    jet.p,
+    jet.u,
+    jet.v,
+    jet.uu,
+    jet.uv,
+    jet.vv,
+  ];
   if (
     !vectors.every(
       (value: AutoMovieVector3Tuple): boolean =>
@@ -476,7 +576,11 @@ function copy(
   )
     return "face source jet must contain finite three-component vectors";
   const values: AutoMovieVector3Tuple[] = vectors.map(
-    (value: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [value[0], value[1], value[2]],
+    (value: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
+      value[0],
+      value[1],
+      value[2],
+    ],
   );
   const length: number = norm(cross(values[1]!, values[2]!));
   if (!(Number.isFinite(length) && length > 0))

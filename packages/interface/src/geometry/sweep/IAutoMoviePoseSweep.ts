@@ -9,7 +9,7 @@ export namespace IAutoMoviePoseSweep {
    * they ride and rebuild the surface from them, sweep-based deformation after
    * Hyun, Yoon, Chang, Seong, Kim and Juttler (2005, "Sweep-based human
    * deformation", The Visual Computer 21(8-10):542-550).
-   * 
+   *
    * Each spine point moves rigidly with its bone, and the spine's starting
    * direction and any declared end tangents turn with the first or last
    * point's bone. Each station's rest plane, its
@@ -22,7 +22,7 @@ export namespace IAutoMoviePoseSweep {
    * one joint, and sections at a bent joint stay across the tube rather than
    * collapsing into it. Sections, guides, scale and features are kept as they
    * are, so the surface keeps its shape in each section plane.
-   * 
+   *
    * With `preserveVolume`, the sections of stations on two bones are scaled
    * together by one factor until the posed volume, by
    * `measureAutoMovieSweepVolume`, equals the rest volume: the scale profile

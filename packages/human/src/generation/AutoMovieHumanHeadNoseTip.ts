@@ -1,8 +1,9 @@
-import type { IAutoMovieHumanHeadNoseFrame, IAutoMovieHumanHeadPrior } from "@automovie/interface";
-
+import type {
+  IAutoMovieHumanHeadNoseFrame,
+  IAutoMovieHumanHeadPrior,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
-
 
 /**
  * The nasal tip as a relief window centred on the pronasale in the nose's

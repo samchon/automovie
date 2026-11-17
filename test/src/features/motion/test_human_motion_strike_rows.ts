@@ -99,8 +99,14 @@ export function test_human_motion_strike_rows(): void {
       HumanStrike.teep as IAutoMovieMotionHumanActionLaw<never>,
       { technique: "push", leg: "rear" },
     ],
-    [HumanStrike.leadKnee as IAutoMovieMotionHumanActionLaw<never>, { leg: "lead" }],
-    [HumanStrike.rearKnee as IAutoMovieMotionHumanActionLaw<never>, { leg: "rear" }],
+    [
+      HumanStrike.leadKnee as IAutoMovieMotionHumanActionLaw<never>,
+      { leg: "lead" },
+    ],
+    [
+      HumanStrike.rearKnee as IAutoMovieMotionHumanActionLaw<never>,
+      { leg: "rear" },
+    ],
   ];
   for (const [law, expected] of table)
     TestValidator.equals(
@@ -113,8 +119,14 @@ export function test_human_motion_strike_rows(): void {
   const kinds: [IAutoMovieMotionHumanActionLaw<never>, string][] = [
     [HumanDefence.cover as IAutoMovieMotionHumanActionLaw<never>, "cover"],
     [HumanDefence.parry as IAutoMovieMotionHumanActionLaw<never>, "parry"],
-    [HumanDefence.elbowBlock as IAutoMovieMotionHumanActionLaw<never>, "elbowBlock"],
-    [HumanDefence.highBlock as IAutoMovieMotionHumanActionLaw<never>, "highBlock"],
+    [
+      HumanDefence.elbowBlock as IAutoMovieMotionHumanActionLaw<never>,
+      "elbowBlock",
+    ],
+    [
+      HumanDefence.highBlock as IAutoMovieMotionHumanActionLaw<never>,
+      "highBlock",
+    ],
     [HumanDefence.checkKick as IAutoMovieMotionHumanActionLaw<never>, "check"],
     [HumanDefence.slip as IAutoMovieMotionHumanActionLaw<never>, "slip"],
     [HumanDefence.roll as IAutoMovieMotionHumanActionLaw<never>, "roll"],
@@ -131,8 +143,11 @@ export function test_human_motion_strike_rows(): void {
   const at = { kind: "person", subject: "b", region: "chin" };
   TestValidator.equals(
     "a strike row passes the given target through",
-    (fixed(HumanStrike.jab as IAutoMovieMotionHumanActionLaw<never>, { at }) as { at: object })
-      .at,
+    (
+      fixed(HumanStrike.jab as IAutoMovieMotionHumanActionLaw<never>, {
+        at,
+      }) as { at: object }
+    ).at,
     at,
   );
 }

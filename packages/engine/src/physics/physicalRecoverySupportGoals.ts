@@ -1,5 +1,9 @@
-import type { IAutoMovieAdvancePhysicalBalance, IAutoMoviePhysicalSimulationInput, IAutoMovieFootfallPattern, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieAdvancePhysicalBalance,
+  IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { physicalSupportPoint } from "./physicalSupportPoint";

@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanKickGeometry, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieSuperposeMinimumJerk, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanKickGeometry,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieSuperposeMinimumJerk,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * A kick following a target that moves: one whole plan per goal, superposed.
@@ -93,9 +98,8 @@ export namespace KickPlans {
   export function create(props: IProps): IPlans {
     const plans: IPlan[] = [props.first];
     const started = (clock: number): IStarted[] => {
-      const units: readonly IAutoMovieSuperposeMinimumJerk.IUnit[] = props.units(
-        props.t0 + clock,
-      );
+      const units: readonly IAutoMovieSuperposeMinimumJerk.IUnit[] =
+        props.units(props.t0 + clock);
       for (let k: number = plans.length; k <= units.length; k++) {
         const previous: IPlan = plans[k - 1]!;
         const moved: IAutoMovieVector3 = units[k - 1]!.displacement;
@@ -118,12 +122,19 @@ export namespace KickPlans {
     return {
       shown: (turning: number): IAutoMovieMotionHumanKickGeometry.ICarriage =>
         started(turning).reduce(
-          (c: IAutoMovieMotionHumanKickGeometry.ICarriage, s: IStarted): IAutoMovieMotionHumanKickGeometry.ICarriage => ({
-            turn: c.turn + s.weight * (s.to.carriage.turn - s.from.carriage.turn),
-            lean: c.lean + s.weight * (s.to.carriage.lean - s.from.carriage.lean),
+          (
+            c: IAutoMovieMotionHumanKickGeometry.ICarriage,
+            s: IStarted,
+          ): IAutoMovieMotionHumanKickGeometry.ICarriage => ({
+            turn:
+              c.turn + s.weight * (s.to.carriage.turn - s.from.carriage.turn),
+            lean:
+              c.lean + s.weight * (s.to.carriage.lean - s.from.carriage.lean),
             pitch:
-              c.pitch + s.weight * (s.to.carriage.pitch - s.from.carriage.pitch),
-            step: c.step + s.weight * (s.to.carriage.step - s.from.carriage.step),
+              c.pitch +
+              s.weight * (s.to.carriage.pitch - s.from.carriage.pitch),
+            step:
+              c.step + s.weight * (s.to.carriage.step - s.from.carriage.step),
           }),
           props.first.carriage,
         ),
@@ -132,11 +143,19 @@ export namespace KickPlans {
         base: IAutoMovieMotionHumanPosture,
         shift: IAutoMovieVector3,
       ): IAutoMovieMotionHumanKickGeometry.ILeg => {
-        let out: IAutoMovieMotionHumanKickGeometry.ILeg = props.first.leg(clock, base, shift);
+        let out: IAutoMovieMotionHumanKickGeometry.ILeg = props.first.leg(
+          clock,
+          base,
+          shift,
+        );
         let before: IAutoMovieMotionHumanKickGeometry.ILeg = out;
         for (const s of started(clock)) {
           if (s.to === s.from) continue;
-          const after: IAutoMovieMotionHumanKickGeometry.ILeg = s.to.leg(clock, base, shift);
+          const after: IAutoMovieMotionHumanKickGeometry.ILeg = s.to.leg(
+            clock,
+            base,
+            shift,
+          );
 
           // The foot's rotation moves by the same share of the turn that
           // carries one plan's foot onto the next.
@@ -158,7 +177,10 @@ export namespace KickPlans {
             ),
             hint: Vector3.add(
               out.hint,
-              Vector3.scale(Vector3.subtract(after.hint, before.hint), s.weight),
+              Vector3.scale(
+                Vector3.subtract(after.hint, before.hint),
+                s.weight,
+              ),
             ),
             rotation: Quaternion.normalize(
               Quaternion.multiply(turned, out.rotation),

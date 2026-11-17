@@ -1,5 +1,8 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftSectionSource } from "@automovie/interface";
 import { AutoMovieLoftSectionSource as Source } from "@automovie/engine";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSectionSource,
+} from "@automovie/interface";
 
 /** Numeric groups whose emitted rows and independent snapshots must remain finite, dense and width-compatible. */
 type Field = "coefficients" | "slopes" | "curvatures";
@@ -40,12 +43,15 @@ export function ConstructionBindingDense(base: IAutoMovieLoftChain): void {
       }
       const aliased: IAutoMovieLoftChain = copy(base);
       const aliasRow: number[] = rows(aliased, index, field)[0];
-      const aliasBinding: NonNullable<IAutoMovieLoftChain["nativeSource"]>["rows"][number] =
-        aliased.nativeSource!.rows.find(
-          (
-            record: NonNullable<IAutoMovieLoftChain["nativeSource"]>["rows"][number],
-          ): boolean => record.station === aliased.layers[index]!.y,
-        )!;
+      const aliasBinding: NonNullable<
+        IAutoMovieLoftChain["nativeSource"]
+      >["rows"][number] = aliased.nativeSource!.rows.find(
+        (
+          record: NonNullable<
+            IAutoMovieLoftChain["nativeSource"]
+          >["rows"][number],
+        ): boolean => record.station === aliased.layers[index]!.y,
+      )!;
       const aliasKey: "value" | "slope" | "curvature" =
         field === "coefficients"
           ? "value"
@@ -74,7 +80,9 @@ function copy(base: IAutoMovieLoftChain): IAutoMovieLoftChain {
     ...base,
     nativeSource: structuredClone(base.nativeSource),
     layers: base.layers.map(
-      (row: IAutoMovieLoftChain["layers"][number]): IAutoMovieLoftChain["layers"][number] => ({
+      (
+        row: IAutoMovieLoftChain["layers"][number],
+      ): IAutoMovieLoftChain["layers"][number] => ({
         ...row,
         coefficients: [...row.coefficients],
         slopes: [...row.slopes],
@@ -87,13 +95,18 @@ function copy(base: IAutoMovieLoftChain): IAutoMovieLoftChain {
 }
 
 /** Select original numeric rows only; an absent fixture is a failure, never a fabricated zero row. */
-function rows(chain: IAutoMovieLoftChain, index: number, field: Field): [number[], number[]] {
+function rows(
+  chain: IAutoMovieLoftChain,
+  index: number,
+  field: Field,
+): [number[], number[]] {
   const layer: IAutoMovieLoftChain["layers"][number] = chain.layers[index]!;
   const binding:
     | NonNullable<IAutoMovieLoftChain["nativeSource"]>["rows"][number]
     | undefined = chain.nativeSource?.rows.find(
-    (row: NonNullable<IAutoMovieLoftChain["nativeSource"]>["rows"][number]): boolean =>
-      row.station === layer.y,
+    (
+      row: NonNullable<IAutoMovieLoftChain["nativeSource"]>["rows"][number],
+    ): boolean => row.station === layer.y,
   );
   const left: number[] | undefined = layer[field];
   const right: number[] | null | undefined =
@@ -138,7 +151,10 @@ function endpoints(base: IAutoMovieLoftChain): void {
   };
   for (const both of [false, true]) {
     const layer: IAutoMovieLoftChain["layers"][number] = copy(base).layers[0]!;
-    const source: IAutoMovieLoftSectionSource.IEndpoint = Source.bind(layer, field);
+    const source: IAutoMovieLoftSectionSource.IEndpoint = Source.bind(
+      layer,
+      field,
+    );
     if (source.field.kind !== "native" || source.snapshot.kind !== "native")
       throw new Error("Wrong family fixture");
     if (!Reflect.deleteProperty(source.field.inputs.extents[0], 1))

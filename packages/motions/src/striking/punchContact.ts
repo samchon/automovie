@@ -1,6 +1,24 @@
-import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPunch, IAutoMovieMotionHumanStrikingAim, IAutoMovieMotionHumanStrikingReach, IAutoMovieMotionTarget, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieSuperposeMinimumJerk, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Vector3,
+  resolvePose,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPunch,
+  IAutoMovieMotionHumanStrikingAim,
+  IAutoMovieMotionHumanStrikingReach,
+  IAutoMovieMotionTarget,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSuperposeMinimumJerk,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, resolvePose } from "@automovie/engine";
 import { StrikingAim } from "./StrikingAim";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
@@ -36,7 +54,10 @@ import { punchReach } from "./punchReach";
 export namespace punchContact {
   /** Elbow flexion band at contact by technique, degrees (IBA drawings read; hook and uppercut near a right angle). */
   export const FLEXION: Readonly<
-    Record<IAutoMovieMotionHumanPunch.IParams["technique"], readonly [number, number]>
+    Record<
+      IAutoMovieMotionHumanPunch.IParams["technique"],
+      readonly [number, number]
+    >
   > = {
     straight: [5, 25],
     hook: [70, 100],
@@ -168,9 +189,8 @@ export namespace punchContact {
     const at: IAutoMovieMotionTarget = p.at;
     const aim = (seconds: number): IAutoMovieVector3 => {
       if (tangent !== undefined && at.kind === "person") {
-        const other: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(
-          at.subject,
-        );
+        const other: IAutoMovieMotionHumanActionContext.IPerformer =
+          context.performer(at.subject);
         return StrikingBody.region(
           other.body,
           other.bones(seconds),
@@ -255,17 +275,18 @@ export namespace punchContact {
       distance: Vector3.length(Vector3.subtract(first, lowered)),
       seconds: delivery,
     });
-    const tracker: IAutoMovieMotionHumanStrikingAim.ITracker = StrikingAim.track(
-      aim,
-      {
-        launch: t0 - StrikingTarget.LOOK,
-        impact: t0 + delivery,
-        latency: StrikingSkill.CORRECTION_LATENCY,
-        step: 1 / 24,
-        shortest: 0.04,
-      },
-      offset,
-    );
+    const tracker: IAutoMovieMotionHumanStrikingAim.ITracker =
+      StrikingAim.track(
+        aim,
+        {
+          launch: t0 - StrikingTarget.LOOK,
+          impact: t0 + delivery,
+          latency: StrikingSkill.CORRECTION_LATENCY,
+          step: 1 / 24,
+          shortest: 0.04,
+        },
+        offset,
+      );
 
     // Reach: the step along the line that brings the wrist the fist needs
     // within the arm's comfortable reach, then the arm's goals at contact.
@@ -367,16 +388,17 @@ export namespace punchContact {
         lowered,
         Vector3.scale(line, carried * advance),
       );
-      const solved: IAutoMovieMotionHumanStrikingReach.ISolution = StrikingReach.chain({
-        root: shoulder,
-        point: wristAt,
-        upper: m.upperArm,
-        along: m.forearm,
-        lower: m.forearm,
-        bend,
-        flexion: band,
-        slide: false,
-      });
+      const solved: IAutoMovieMotionHumanStrikingReach.ISolution =
+        StrikingReach.chain({
+          root: shoulder,
+          point: wristAt,
+          upper: m.upperArm,
+          along: m.forearm,
+          lower: m.forearm,
+          bend,
+          flexion: band,
+          slide: false,
+        });
       return {
         advance,
         shoulder,
@@ -394,24 +416,26 @@ export namespace punchContact {
       let goal: IAutoMovieVector3 = tracker.planned;
       tracker
         .units(seconds)
-        .forEach((unit: IAutoMovieSuperposeMinimumJerk.IUnit, index: number): void => {
-          goal = Vector3.add(goal, unit.displacement);
-          let now: punchReach.IReach | undefined = reaches[index + 1];
-          if (now === undefined) {
-            now = reach(goal, launched.advance);
-            reaches[index + 1] = now;
-          }
-          const before: punchReach.IReach = reaches[index]!;
-          out.push({
-            start: unit.start,
-            duration: unit.duration,
-            advance: now.advance - before.advance,
-            end: Vector3.subtract(now.solved.end, before.solved.end),
-            hint: Vector3.subtract(now.hint, before.hint),
-            reach: now,
-            moved: !punchReach.same(now, before),
-          });
-        });
+        .forEach(
+          (unit: IAutoMovieSuperposeMinimumJerk.IUnit, index: number): void => {
+            goal = Vector3.add(goal, unit.displacement);
+            let now: punchReach.IReach | undefined = reaches[index + 1];
+            if (now === undefined) {
+              now = reach(goal, launched.advance);
+              reaches[index + 1] = now;
+            }
+            const before: punchReach.IReach = reaches[index]!;
+            out.push({
+              start: unit.start,
+              duration: unit.duration,
+              advance: now.advance - before.advance,
+              end: Vector3.subtract(now.solved.end, before.solved.end),
+              hint: Vector3.subtract(now.hint, before.hint),
+              reach: now,
+              moved: !punchReach.same(now, before),
+            });
+          },
+        );
       return out;
     };
 

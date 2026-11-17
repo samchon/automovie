@@ -1,6 +1,20 @@
-import type { IAutoMovieCurve64, IAutoMovieLocalHermiteStream64, IAutoMovieRecoveryLocalBinding, IAutoMovieRecoveryLocalResult, IAutoMovieRecoveryLocalRunReport, IAutoMovieRecoveryOpenContinuation, IAutoMovieRecoveryTensorFamiliesInput } from "@automovie/interface";
 import { tessellateAutoMovieLocalHermite64 as T } from "@automovie/engine";
-import { describeRecoveryOpenRun, normalizeRecoveryCourse, prepareRecoveryLocalContinuation, realizeAutoMovieRecoveryAnalyticDomains, reconstructRecovery } from "@automovie/recovery";
+import type {
+  IAutoMovieCurve64,
+  IAutoMovieLocalHermiteStream64,
+  IAutoMovieRecoveryLocalBinding,
+  IAutoMovieRecoveryLocalResult,
+  IAutoMovieRecoveryLocalRunReport,
+  IAutoMovieRecoveryOpenContinuation,
+  IAutoMovieRecoveryTensorFamiliesInput,
+} from "@automovie/interface";
+import {
+  describeRecoveryOpenRun,
+  normalizeRecoveryCourse,
+  prepareRecoveryLocalContinuation,
+  realizeAutoMovieRecoveryAnalyticDomains,
+  reconstructRecovery,
+} from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import path from "node:path";
 
@@ -298,7 +312,13 @@ export function reconstructAutoMovieRecoveryLocal(
           elapsedMs: performance.now() - started,
         }),
       );
-    let iterator: Generator<IAutoMovieLocalHermiteStream64.Chunk, IAutoMovieLocalHermiteStream64.Summary, void> | undefined;
+    let iterator:
+      | Generator<
+          IAutoMovieLocalHermiteStream64.Chunk,
+          IAutoMovieLocalHermiteStream64.Summary,
+          void
+        >
+      | undefined;
     let outputOperation: boolean = false;
     try {
       const courses: IAutoMovieCurve64.Cubic[] = nodes.map(
@@ -321,7 +341,10 @@ export function reconstructAutoMovieRecoveryLocal(
         maxVerticesPerChunk: 32_768,
         vertexOffset: spool.counts.vertices,
       });
-      let result: IteratorResult<IAutoMovieLocalHermiteStream64.Chunk, IAutoMovieLocalHermiteStream64.Summary> = iterator.next();
+      let result: IteratorResult<
+        IAutoMovieLocalHermiteStream64.Chunk,
+        IAutoMovieLocalHermiteStream64.Summary
+      > = iterator.next();
       while (!result.done) {
         const chunk: IAutoMovieLocalHermiteStream64.Chunk = result.value;
         outputOperation = true;

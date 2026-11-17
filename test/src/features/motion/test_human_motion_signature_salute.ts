@@ -1,6 +1,19 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieMotionHumanTouch, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HumanActionRow, HumanChain, HumanPerformance, HumanSignature, touch } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanActionRow,
+  HumanChain,
+  HumanPerformance,
+  HumanSignature,
+  touch,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -34,7 +47,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_signature_salute(): void {
   const salute: IAutoMovieMotionHumanActionLaw<
-    Omit<IAutoMovieMotionHumanTouch.IParams, "target" | "with" | "kind" | "side" | "elbow">
+    Omit<
+      IAutoMovieMotionHumanTouch.IParams,
+      "target" | "with" | "kind" | "side" | "elbow"
+    >
   > = HumanActionRow.of("salute", touch, {
     target: { kind: "self", region: "templeRight" },
     with: "forefinger",
@@ -64,7 +80,8 @@ export function test_human_motion_signature_salute(): void {
       laws: [salute],
       composition: HumanChain.extend({ salute }).subject("a").salute().node,
     });
-    const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[0]!;
+    const placed: IAutoMovieMotionHumanSegment.ISegment =
+      performance.segments("a")[0]!;
     const instant = (event: string): number =>
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === event)?.share ?? 0) *

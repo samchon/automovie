@@ -1,4 +1,10 @@
-import type { IAutoMovieConstructionProfileSource, AutoMovieVector2Tuple, AutoMovieVector3Tuple, IAutoMovieMeshExtract, IAutoMovieNaturalSpline } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionProfileSource,
+  IAutoMovieMeshExtract,
+  IAutoMovieNaturalSpline,
+} from "@automovie/interface";
 
 import { AutoMovieNaturalSpline } from "../construction/AutoMovieNaturalSpline";
 
@@ -23,7 +29,6 @@ import { AutoMovieNaturalSpline } from "../construction/AutoMovieNaturalSpline";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieMeshExtract {
-
   /**
    * The exact plane sections of a mesh at stations along one frame axis: each
    * triangle edge crossing the plane `dot(p - origin, axis) = station` gives
@@ -71,7 +76,10 @@ export namespace AutoMovieMeshExtract {
     for (let v: number = 0; v < height.length; ++v)
       height[v] = dot(sub(at(mesh, v), frame.origin), n);
     const r2: number = Math.SQRT1_2;
-    const directions: [keyof NonNullable<IAutoMovieMeshExtract.ISection["extremes"]>, AutoMovieVector3Tuple][] = [
+    const directions: [
+      keyof NonNullable<IAutoMovieMeshExtract.ISection["extremes"]>,
+      AutoMovieVector3Tuple,
+    ][] = [
       ["+a", a],
       ["-a", scale(a, -1)],
       ["+b", b],
@@ -81,106 +89,120 @@ export namespace AutoMovieMeshExtract {
       ["-a+b", scale(sub(b, a), r2)],
       ["-a-b", scale(add(a, b), -r2)],
     ];
-    const sections: IAutoMovieMeshExtract.ISection[] = stations.map((station: number): IAutoMovieMeshExtract.ISection => {
-      // Crossing points by the edge they lie on, and each triangle's segment between two edges.
-      const point: Map<string, AutoMovieVector3Tuple> = new Map();
-      const segments: [string, string][] = [];
-      // A vertex on the plane counts as above it (simulation of simplicity).
-      const above: (v: number) => boolean = (v: number): boolean =>
-        height[v]! - station >= 0;
-      for (let t: number = 0; t < count; ++t) {
-        const ids: number[] = [
-          mesh.indices[3 * t]!,
-          mesh.indices[3 * t + 1]!,
-          mesh.indices[3 * t + 2]!,
-        ];
-        const nodes: string[] = [];
-        for (let k: number = 0; k < 3; ++k) {
-          const i: number = ids[k]!;
-          const j: number = ids[(k + 1) % 3]!;
-          if (above(i) === above(j)) continue;
-          const key: string = i < j ? `${i},${j}` : `${j},${i}`;
-          if (!point.has(key)) {
-            const di: number = height[i]! - station;
-            const dj: number = height[j]! - station;
-            const p: AutoMovieVector3Tuple = at(mesh, i);
-            const q: AutoMovieVector3Tuple = at(mesh, j);
-            const w: number = di / (di - dj);
-            point.set(key, [
-              p[0] + w * (q[0] - p[0]),
-              p[1] + w * (q[1] - p[1]),
-              p[2] + w * (q[2] - p[2]),
-            ]);
+    const sections: IAutoMovieMeshExtract.ISection[] = stations.map(
+      (station: number): IAutoMovieMeshExtract.ISection => {
+        // Crossing points by the edge they lie on, and each triangle's segment between two edges.
+        const point: Map<string, AutoMovieVector3Tuple> = new Map();
+        const segments: [string, string][] = [];
+        // A vertex on the plane counts as above it (simulation of simplicity).
+        const above: (v: number) => boolean = (v: number): boolean =>
+          height[v]! - station >= 0;
+        for (let t: number = 0; t < count; ++t) {
+          const ids: number[] = [
+            mesh.indices[3 * t]!,
+            mesh.indices[3 * t + 1]!,
+            mesh.indices[3 * t + 2]!,
+          ];
+          const nodes: string[] = [];
+          for (let k: number = 0; k < 3; ++k) {
+            const i: number = ids[k]!;
+            const j: number = ids[(k + 1) % 3]!;
+            if (above(i) === above(j)) continue;
+            const key: string = i < j ? `${i},${j}` : `${j},${i}`;
+            if (!point.has(key)) {
+              const di: number = height[i]! - station;
+              const dj: number = height[j]! - station;
+              const p: AutoMovieVector3Tuple = at(mesh, i);
+              const q: AutoMovieVector3Tuple = at(mesh, j);
+              const w: number = di / (di - dj);
+              point.set(key, [
+                p[0] + w * (q[0] - p[0]),
+                p[1] + w * (q[1] - p[1]),
+                p[2] + w * (q[2] - p[2]),
+              ]);
+            }
+            nodes.push(key);
           }
-          nodes.push(key);
+          // Under the perturbation a triangle crosses on zero or two edges. The
+          // segment runs along n x N (N the triangle's winding normal), so on a
+          // consistently wound closed surface every piece of the cut turns the
+          // same way round the solid and its ends meet tail to head.
+          if (nodes.length === 2) {
+            const winding: AutoMovieVector3Tuple = cross(
+              sub(at(mesh, ids[1]!), at(mesh, ids[0]!)),
+              sub(at(mesh, ids[2]!), at(mesh, ids[0]!)),
+            );
+            const along: number = dot(
+              sub(point.get(nodes[1]!)!, point.get(nodes[0]!)!),
+              cross(n, winding),
+            );
+            segments.push(
+              along >= 0 ? [nodes[0]!, nodes[1]!] : [nodes[1]!, nodes[0]!],
+            );
+          }
         }
-        // Under the perturbation a triangle crosses on zero or two edges. The
-        // segment runs along n x N (N the triangle's winding normal), so on a
-        // consistently wound closed surface every piece of the cut turns the
-        // same way round the solid and its ends meet tail to head.
-        if (nodes.length === 2) {
-          const winding: AutoMovieVector3Tuple = cross(
-            sub(at(mesh, ids[1]!), at(mesh, ids[0]!)),
-            sub(at(mesh, ids[2]!), at(mesh, ids[0]!)),
-          );
-          const along: number = dot(
-            sub(point.get(nodes[1]!)!, point.get(nodes[0]!)!),
-            cross(n, winding),
-          );
-          segments.push(
-            along >= 0 ? [nodes[0]!, nodes[1]!] : [nodes[1]!, nodes[0]!],
-          );
+        if (point.size === 0)
+          return {
+            station,
+            count: 0,
+            loops: [],
+            outer: [],
+            extremes: null,
+            flags: [],
+          };
+        const centre: AutoMovieVector3Tuple = add(
+          frame.origin,
+          scale(n, station),
+        );
+        const extremes: Partial<
+          NonNullable<IAutoMovieMeshExtract.ISection["extremes"]>
+        > = {};
+        for (const [name, d] of directions) {
+          let best: IAutoMovieMeshExtract.IExtreme | null = null;
+          for (const p of point.values()) {
+            const reach: number = dot(sub(p, centre), d);
+            if (best === null || reach > best.reach) best = { point: p, reach };
+          }
+          extremes[name] = best!;
         }
-      }
-      if (point.size === 0)
+        const { loops, dangling } = chain(
+          segments,
+          (key: string): [number, number] => {
+            const p: AutoMovieVector3Tuple = sub(point.get(key)!, centre);
+            return [dot(p, a), dot(p, b)];
+          },
+        );
+        const broken: number = loops.filter(
+          (l: IAutoMovieMeshExtract.ILoop): boolean => !l.closed,
+        ).length;
+        const envelope: {
+          outer: IAutoMovieMeshExtract.ILoop[];
+          gaps: string[];
+          unclosed: number;
+        } = enclose(loops, bridge);
+        const flags: string[] =
+          dangling === 0
+            ? []
+            : [
+                `open: ${dangling} dangling crossings in ${broken} broken chains`,
+              ];
+        flags.push(...envelope.gaps);
+        if (envelope.unclosed !== 0)
+          flags.push(
+            `unclosed: ${envelope.unclosed} chains left open past the ${bridge} mm bridge`,
+          );
         return {
           station,
-          count: 0,
-          loops: [],
-          outer: [],
-          extremes: null,
-          flags: [],
+          count: point.size,
+          loops,
+          outer: envelope.outer,
+          extremes: extremes as NonNullable<
+            IAutoMovieMeshExtract.ISection["extremes"]
+          >,
+          flags,
         };
-      const centre: AutoMovieVector3Tuple = add(frame.origin, scale(n, station));
-      const extremes: Partial<NonNullable<IAutoMovieMeshExtract.ISection["extremes"]>> = {};
-      for (const [name, d] of directions) {
-        let best: IAutoMovieMeshExtract.IExtreme | null = null;
-        for (const p of point.values()) {
-          const reach: number = dot(sub(p, centre), d);
-          if (best === null || reach > best.reach) best = { point: p, reach };
-        }
-        extremes[name] = best!;
-      }
-      const { loops, dangling } = chain(
-        segments,
-        (key: string): [number, number] => {
-          const p: AutoMovieVector3Tuple = sub(point.get(key)!, centre);
-          return [dot(p, a), dot(p, b)];
-        },
-      );
-      const broken: number = loops.filter(
-        (l: IAutoMovieMeshExtract.ILoop): boolean => !l.closed,
-      ).length;
-      const envelope: { outer: IAutoMovieMeshExtract.ILoop[]; gaps: string[]; unclosed: number } =
-        enclose(loops, bridge);
-      const flags: string[] =
-        dangling === 0
-          ? []
-          : [`open: ${dangling} dangling crossings in ${broken} broken chains`];
-      flags.push(...envelope.gaps);
-      if (envelope.unclosed !== 0)
-        flags.push(
-          `unclosed: ${envelope.unclosed} chains left open past the ${bridge} mm bridge`,
-        );
-      return {
-        station,
-        count: point.size,
-        loops,
-        outer: envelope.outer,
-        extremes: extremes as NonNullable<IAutoMovieMeshExtract.ISection["extremes"]>,
-        flags,
-      };
-    });
+      },
+    );
     for (let i: number = 1; i + 1 < sections.length; ++i) {
       const [p, c, q] = [
         sections[i - 1]!.extremes,
@@ -281,13 +303,22 @@ export namespace AutoMovieMeshExtract {
   function enclose(
     pieces: readonly IAutoMovieMeshExtract.ILoop[],
     bridge: number,
-  ): { outer: IAutoMovieMeshExtract.ILoop[]; gaps: string[]; unclosed: number } {
+  ): {
+    outer: IAutoMovieMeshExtract.ILoop[];
+    gaps: string[];
+    unclosed: number;
+  } {
     const closed: [number, number][][] = pieces
       .filter((l: IAutoMovieMeshExtract.ILoop): boolean => l.closed)
       .map((l: IAutoMovieMeshExtract.ILoop): [number, number][] => l.points);
     const open: [number, number][][] = pieces
-      .filter((l: IAutoMovieMeshExtract.ILoop): boolean => !l.closed && l.points.length >= 1)
-      .map((l: IAutoMovieMeshExtract.ILoop): [number, number][] => l.points.slice());
+      .filter(
+        (l: IAutoMovieMeshExtract.ILoop): boolean =>
+          !l.closed && l.points.length >= 1,
+      )
+      .map((l: IAutoMovieMeshExtract.ILoop): [number, number][] =>
+        l.points.slice(),
+      );
     const gaps: string[] = [];
     const distance: (
       p: readonly [number, number],
@@ -741,7 +772,9 @@ export namespace AutoMovieMeshExtract {
         throw new Error(
           "Profile loops must be in strictly increasing station order",
         );
-    const xs: number[] = stations.map((s: IAutoMovieMeshExtract.IStationLoop): number => s.station);
+    const xs: number[] = stations.map(
+      (s: IAutoMovieMeshExtract.IStationLoop): number => s.station,
+    );
     // Cardinal natural splines: weight i is 1 at station i and 0 at the others.
     const cardinal: IAutoMovieNaturalSpline.ISpline[] = xs.map(
       (_: number, i: number): IAutoMovieNaturalSpline.ISpline =>
@@ -787,10 +820,8 @@ export namespace AutoMovieMeshExtract {
       domain: [xs[0]!, xs.at(-1)!],
       clock: [0, 1],
       period: 1,
-      point: (
-        station: number,
-        clock: number,
-      ): AutoMovieVector2Tuple => sum(station, clock).p,
+      point: (station: number, clock: number): AutoMovieVector2Tuple =>
+        sum(station, clock).p,
       phase: (
         station: number,
         clock: number,
@@ -843,23 +874,21 @@ export namespace AutoMovieMeshExtract {
       ) < 0
     )
       // Reversed travel: the parameter runs back from the loop's length and the tangents flip.
-      knots = knots
-        .reverse()
-        .map(
-          (x: {
-            t: number;
-            point: [number, number];
-            tangent: [number, number];
-          }): {
-            t: number;
-            point: [number, number];
-            tangent: [number, number];
-          } => ({
-            t: loop.length - x.t,
-            point: x.point,
-            tangent: [-x.tangent[0], -x.tangent[1]],
-          }),
-        );
+      knots = knots.reverse().map(
+        (x: {
+          t: number;
+          point: [number, number];
+          tangent: [number, number];
+        }): {
+          t: number;
+          point: [number, number];
+          tangent: [number, number];
+        } => ({
+          t: loop.length - x.t,
+          point: x.point,
+          tangent: [-x.tangent[0], -x.tangent[1]],
+        }),
+      );
     let first: number = 0;
     for (let i: number = 1; i < k; ++i)
       if (knots[i]!.point[0] > knots[first]!.point[0]) first = i;
@@ -1386,7 +1415,10 @@ export namespace AutoMovieMeshExtract {
     return out;
   }
 
-  function at(mesh: IAutoMovieMeshExtract.IMesh, v: number): AutoMovieVector3Tuple {
+  function at(
+    mesh: IAutoMovieMeshExtract.IMesh,
+    v: number,
+  ): AutoMovieVector3Tuple {
     return [
       mesh.positions[3 * v]!,
       mesh.positions[3 * v + 1]!,
@@ -1394,11 +1426,17 @@ export namespace AutoMovieMeshExtract {
     ];
   }
 
-  function add(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  function add(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
-  function sub(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  function sub(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
@@ -1406,7 +1444,10 @@ export namespace AutoMovieMeshExtract {
     return [a[0] * k, a[1] * k, a[2] * k];
   }
 
-  function cross(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  function cross(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],

@@ -1,7 +1,22 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSignature, IAutoMovieMotionHumanVerdicts, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
 import { createLadder } from "@automovie/archetypes";
-
-import { AutoMovieMotionManner, HumanChain, HumanObject, HumanPerformance, HumanSignature, HumanVerdicts } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieMotionHumanVerdicts,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionManner,
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanSignature,
+  HumanVerdicts,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -183,11 +198,10 @@ export function test_human_motion_recompose_travel(): void {
       try {
         const performance: IAutoMovieMotionHumanPerformance = run();
         if (!judged) return performance;
-        const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(performance);
+        const report: IAutoMovieMotionHumanVerdicts.IReport =
+          HumanVerdicts.of(performance);
         if (!report.clean)
-          findings.push(
-            `${name}: ${label}: ${HumanVerdicts.describe(report)}`,
-          );
+          findings.push(`${name}: ${label}: ${HumanVerdicts.describe(report)}`);
         return performance;
       } catch (error) {
         findings.push(
@@ -211,7 +225,9 @@ export function test_human_motion_recompose_travel(): void {
       | "crawl"
       | "climbLadder";
     interface IAct {
-      chain: (manner?: IAutoMovieMotionManner.IManner) => IAutoMovieMotionHumanChain;
+      chain: (
+        manner?: IAutoMovieMotionManner.IManner,
+      ) => IAutoMovieMotionHumanChain;
       props: () => IAutoMovieMotionHumanProp[];
       duo: boolean;
     }
@@ -342,7 +358,8 @@ export function test_human_motion_recompose_travel(): void {
     }
 
     // 2. An overlay on both arms.
-    const clap = (u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => u.gesture({ kind: "clap" });
+    const clap = (u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+      u.gesture({ kind: "clap" });
     for (const [cell, law] of (["stand", "walk", "run"] as const).entries()) {
       if (!covers(cell + 1)) continue;
       const p: IAutoMovieMotionHumanPerformance | undefined = play(
@@ -379,12 +396,18 @@ export function test_human_motion_recompose_travel(): void {
         undefined,
         false,
       );
-      const wearily: IAutoMovieMotionHumanPerformance | undefined = play(law, "weary", weary);
+      const wearily: IAutoMovieMotionHumanPerformance | undefined = play(
+        law,
+        "weary",
+        weary,
+      );
       const neutral: number = length(plainly);
       const slow: number = length(wearily);
       if (law === "jump") {
         // The flight is gravity's: a manner leaves it as it is.
-        const flight = (p: IAutoMovieMotionHumanPerformance | undefined): number => {
+        const flight = (
+          p: IAutoMovieMotionHumanPerformance | undefined,
+        ): number => {
           const plan = p?.segments("a")[0]?.plan;
           const at = (event: string): number =>
             (plan?.events.find((e): boolean => e.name === event)?.share ??
@@ -418,12 +441,21 @@ export function test_human_motion_recompose_travel(): void {
       gait: IAutoMovieMotionHumanSignature.IGait;
     }
     const steady = (p: IAutoMovieMotionHumanPerformance): ISteady => {
-      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(p, "a", body, 0);
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+        p,
+        "a",
+        body,
+        0,
+      );
       const from: number = 0.25 * p.duration;
       const to: number = 0.85 * p.duration;
       const at = (t: number): IAutoMovieVector3 =>
         HumanSignature.joint(reader, t, "hips");
-      const gait: IAutoMovieMotionHumanSignature.IGait = HumanSignature.gait(reader, from, to);
+      const gait: IAutoMovieMotionHumanSignature.IGait = HumanSignature.gait(
+        reader,
+        from,
+        to,
+      );
       const strikes: number[] = gait.strikes.map(
         (s: { seconds: number }): number => at(s.seconds).z,
       );
@@ -445,16 +477,21 @@ export function test_human_motion_recompose_travel(): void {
       m?: IAutoMovieMotionManner.IManner,
       seed?: string,
     ): IAutoMovieMotionHumanPerformance | undefined =>
-      attempt(`a ${to} m walk${m === undefined ? "" : " in a manner"}`, () =>
-        perform(
-          a().walk({ to: { x: 0, y: 0, z: to }, ...manner(m) }),
-          [],
-          seed === undefined ? {} : { seed },
-        ),
+      attempt(
+        `a ${to} m walk${m === undefined ? "" : " in a manner"}`,
+        () =>
+          perform(
+            a().walk({ to: { x: 0, y: 0, z: to }, ...manner(m) }),
+            [],
+            seed === undefined ? {} : { seed },
+          ),
         false,
       );
     const plain: IAutoMovieMotionHumanPerformance | undefined = walked(6);
-    const tired: IAutoMovieMotionHumanPerformance | undefined = walked(6, weary);
+    const tired: IAutoMovieMotionHumanPerformance | undefined = walked(
+      6,
+      weary,
+    );
     if (plain !== undefined && tired !== undefined) {
       const free: ISteady = steady(plain);
       const slow: ISteady = steady(tired);
@@ -474,8 +511,10 @@ export function test_human_motion_recompose_travel(): void {
         );
       let previous: number = free.gait.duty;
       for (const pace of ["jog", "run", "sprint"] as const) {
-        const p: IAutoMovieMotionHumanPerformance | undefined = attempt(`a ${pace}`, () =>
-          perform(a().run({ to: { x: 0, y: 0, z: 10 }, pace })), false,
+        const p: IAutoMovieMotionHumanPerformance | undefined = attempt(
+          `a ${pace}`,
+          () => perform(a().run({ to: { x: 0, y: 0, z: 10 }, pace })),
+          false,
         );
         if (p === undefined) continue;
         const duty: number = steady(p).gait.duty;
@@ -492,19 +531,14 @@ export function test_human_motion_recompose_travel(): void {
 
       // 12. The centre of mass as an inverted pendulum.
       {
-        const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-          plain,
-          "a",
-          body,
-          0,
-        );
+        const reader: IAutoMovieMotionHumanSignature.IReader =
+          HumanSignature.of(plain, "a", body, 0);
         const from: number = 0.25 * plain.duration;
         const to: number = 0.85 * plain.duration;
         const heights: number[] = HumanSignature.times(from, to, 120).map(
           (t: number): number => HumanSignature.centre(reader, t).y,
         );
-        const excursion: number =
-          Math.max(...heights) - Math.min(...heights);
+        const excursion: number = Math.max(...heights) - Math.min(...heights);
         if (!(excursion >= 0.04 && excursion <= 0.05))
           findings.push(
             `${name}: the steady walk's centre of mass rises and falls ${(excursion * 100).toFixed(2)} cm, the 4 to 5 cm walk.ts states expected`,
@@ -538,10 +572,12 @@ export function test_human_motion_recompose_travel(): void {
       const again: IAutoMovieMotionHumanPerformance | undefined = walked(6);
       if (again !== undefined)
         for (let t: number = 0; t <= plain.duration; t += 0.1) {
-          const p: IAutoMovieVector3 = plain.bones("a", t).get("rightFoot")!
-            .worldPosition;
-          const q: IAutoMovieVector3 = again.bones("a", t).get("rightFoot")!
-            .worldPosition;
+          const p: IAutoMovieVector3 = plain
+            .bones("a", t)
+            .get("rightFoot")!.worldPosition;
+          const q: IAutoMovieVector3 = again
+            .bones("a", t)
+            .get("rightFoot")!.worldPosition;
           if (p.x !== q.x || p.y !== q.y || p.z !== q.z) {
             findings.push(
               `${name}: the walk performed again with its seed differs at ${t.toFixed(1)} s`,
@@ -549,7 +585,11 @@ export function test_human_motion_recompose_travel(): void {
             break;
           }
         }
-      const other: IAutoMovieMotionHumanPerformance | undefined = walked(6, undefined, "other");
+      const other: IAutoMovieMotionHumanPerformance | undefined = walked(
+        6,
+        undefined,
+        "other",
+      );
       if (other !== undefined && other.duration === plain.duration)
         findings.push(
           `${name}: the walk with another seed lasts exactly as long, ${plain.duration} s, a different stride timing expected`,
@@ -566,10 +606,12 @@ export function test_human_motion_recompose_travel(): void {
         );
       else
         for (let t: number = 0; t <= none.duration; t += 0.1) {
-          const p: IAutoMovieVector3 = none.bones("a", t).get("leftHand")!
-            .worldPosition;
-          const q: IAutoMovieVector3 = empty.bones("a", t).get("leftHand")!
-            .worldPosition;
+          const p: IAutoMovieVector3 = none
+            .bones("a", t)
+            .get("leftHand")!.worldPosition;
+          const q: IAutoMovieVector3 = empty
+            .bones("a", t)
+            .get("leftHand")!.worldPosition;
           if (Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z) !== 0) {
             findings.push(
               `${name}: a walk with an empty manner differs from one without at ${t.toFixed(1)} s`,
@@ -591,18 +633,19 @@ export function test_human_motion_recompose_travel(): void {
       ] as const
     ).entries())
       for (const m of [undefined, weary])
-        if (covers(cell)) attempt(
-          `a ${variant.how} carry${"side" in variant ? ` on the ${variant.side}` : ""}${m === undefined ? "" : ", weary"}`,
-          () =>
-            perform(
-              a().carry({
-                to: { x: 0, y: 0, z: 2.5 },
-                load: 0.15,
-                ...variant,
-                ...manner(m),
-              }),
-            ),
-        );
+        if (covers(cell))
+          attempt(
+            `a ${variant.how} carry${"side" in variant ? ` on the ${variant.side}` : ""}${m === undefined ? "" : ", weary"}`,
+            () =>
+              perform(
+                a().carry({
+                  to: { x: 0, y: 0, z: 2.5 },
+                  load: 0.15,
+                  ...variant,
+                  ...manner(m),
+                }),
+              ),
+          );
 
     // 6. A coupled partner: the gap a manner keeps.
     const gap = (
@@ -650,8 +693,8 @@ export function test_human_motion_recompose_travel(): void {
     // 8. Stride-time variability.
     const long: IAutoMovieMotionHumanPerformance | undefined = walked(12);
     if (long !== undefined) {
-      const strikes: IAutoMovieMotionHumanSignature.IGait["strikes"] = steady(long).gait
-        .strikes;
+      const strikes: IAutoMovieMotionHumanSignature.IGait["strikes"] =
+        steady(long).gait.strikes;
       for (const side of ["left", "right"] as const) {
         const own: number[] = strikes
           .filter((s): boolean => s.side === side)
@@ -692,11 +735,8 @@ export function test_human_motion_recompose_travel(): void {
         body,
         0,
       );
-      const strikes: number = HumanSignature.gait(
-        reader,
-        0,
-        short.duration,
-      ).strikes.length;
+      const strikes: number = HumanSignature.gait(reader, 0, short.duration)
+        .strikes.length;
       if (!(strikes >= 2))
         findings.push(
           `${name}: a 0.4 m walk strikes ${strikes} times, at least two steps expected (#3211)`,
@@ -767,9 +807,5 @@ export function test_human_motion_recompose_travel(): void {
         );
     }
   }
-  TestValidator.equals(
-    "the travel laws composed on the grammar",
-    findings,
-    [],
-  );
+  TestValidator.equals("the travel laws composed on the grammar", findings, []);
 }

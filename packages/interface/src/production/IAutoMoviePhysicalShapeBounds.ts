@@ -13,13 +13,14 @@ export namespace IAutoMoviePhysicalShapeBounds {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The box is a broad geometric extent, not proof of collision or support. Empty malformed hull input can produce infinite corners rather than a missing-result sentinel.
    * @evidence contracts/development/common.md#meaningful-documentation World-axis bounds of an already admitted physical shape placement. min/max are scene-world metres after composing body and local shape poses. Unit rotations, valid dimensions and nonempty finite hulls are admission premises; physicalShapeBounds does not validate them again.
    */
-  export type IResult = { 
+  export type IResult = {
     /**
      * New minimum world corner in metres, exact for the represented sphere, capsule, oriented box or hull under admitted transforms.
      */
-    min: IAutoMovieVector3; 
+    min: IAutoMovieVector3;
     /**
      * New maximum world corner in metres. Finite ordered components depend on admitted shapes and representable composed arithmetic; the caller owns both returned vectors.
      */
-    max: IAutoMovieVector3 };
+    max: IAutoMovieVector3;
+  };
 }

@@ -1,4 +1,10 @@
-import type { IAutoMovieLocalHermiteStream64, AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple, IAutoMovieLocalHermiteField64, IAutoMoviePlanLocalHermite64 } from "@automovie/interface";
+import type {
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieVector3Tuple,
+  IAutoMovieLocalHermiteField64,
+  IAutoMovieLocalHermiteStream64,
+  IAutoMoviePlanLocalHermite64,
+} from "@automovie/interface";
 
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
 import { AutoMovieBernsteinGrid64 as G } from "./AutoMovieBernsteinGrid64";
@@ -53,13 +59,25 @@ type FaceRange = IAutoMovieLocalHermiteStream64.Chunk["faceRanges"][number];
  */
 export function* tessellateAutoMovieLocalHermite64(
   input: IAutoMovieLocalHermiteStream64.Input,
-): Generator<IAutoMovieLocalHermiteStream64.Chunk, IAutoMovieLocalHermiteStream64.Summary, void> {
+): Generator<
+  IAutoMovieLocalHermiteStream64.Chunk,
+  IAutoMovieLocalHermiteStream64.Summary,
+  void
+> {
   const prepared: IAutoMoviePlanLocalHermite64.IResult =
     planAutoMovieLocalHermite64(input);
   const field: IAutoMovieLocalHermiteField64.Prepared = prepared.field;
   const plan: (interval: number) => Plan = prepared.plan;
-  const norm: (p: AutoMovieVector3Tuple) => number = (p: AutoMovieVector3Tuple): number => Math.hypot(...p);
-  const cross: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
+  const norm: (p: AutoMovieVector3Tuple) => number = (
+    p: AutoMovieVector3Tuple,
+  ): number => Math.hypot(...p);
+  const cross: (
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ) => AutoMovieVector3Tuple = (
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple => [
     a[1] * b[2] - a[2] * b[1],
     a[2] * b[0] - a[0] * b[2],
     a[0] * b[1] - a[1] * b[0],
@@ -98,18 +116,19 @@ export function* tessellateAutoMovieLocalHermite64(
       ]),
     ].sort((a: number, b: number): number => a - b);
     const outgoing: Map<number, Vertex> = new Map();
-    const fresh: () => IAutoMovieLocalHermiteStream64.Chunk = (): IAutoMovieLocalHermiteStream64.Chunk => ({
-      interval: j,
-      vertexStart: nextIndex,
-      positions: [],
-      normals: [],
-      physicalVertexIds: [],
-      indices: [],
-      construction: [],
-      diagnostics: [],
-      counts: zeros(),
-      faceRanges: [],
-    });
+    const fresh: () => IAutoMovieLocalHermiteStream64.Chunk =
+      (): IAutoMovieLocalHermiteStream64.Chunk => ({
+        interval: j,
+        vertexStart: nextIndex,
+        positions: [],
+        normals: [],
+        physicalVertexIds: [],
+        indices: [],
+        construction: [],
+        diagnostics: [],
+        counts: zeros(),
+        faceRanges: [],
+      });
     let chunk: IAutoMovieLocalHermiteStream64.Chunk = fresh();
     const qualify: () => void = (): void => {
       chunk.diagnostics.push(
@@ -233,7 +252,10 @@ export function* tessellateAutoMovieLocalHermite64(
           (t === 0 ? incoming.get(u) : t === 1 ? outgoing.get(u) : undefined);
         if (existing) return existing;
         const value: IAutoMovieLocalHermiteField64.Jet = jet(u, t),
-          n: AutoMovieVector3Tuple = cross(value.coursePartial, value.stationPartial),
+          n: AutoMovieVector3Tuple = cross(
+            value.coursePartial,
+            value.stationPartial,
+          ),
           length: number = norm(n);
         if (!value.position.every(Number.isFinite))
           throw new Error("Nonfinite emitted field position");
@@ -363,7 +385,10 @@ export function* tessellateAutoMovieLocalHermite64(
             .sort(
               ([a]: [number, Vertex], [b]: [number, Vertex]): number => a - b,
             )
-            .map(([, v]: [number, Vertex]): AutoMovieVector3Tuple => V.clone(v.position)),
+            .map(
+              ([, v]: [number, Vertex]): AutoMovieVector3Tuple =>
+                V.clone(v.position),
+            ),
         });
       qualify();
       yield chunk;

@@ -1,8 +1,26 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { createHorse, rideHorse } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
-
-import { HumanChain, HumanFoot, HumanFrame, HumanObject, HumanPerformance, HumanRefusal, HumanRide, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFoot,
+  HumanFrame,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanRide,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -55,7 +73,8 @@ export function test_human_motion_ride_rising(): void {
   );
   const known: Map<number, IAutoMovieMotionHumanProp.IFrame> = new Map();
   const placed = (seconds: number): IAutoMovieMotionHumanProp.IFrame => {
-    const kept: IAutoMovieMotionHumanProp.IFrame | undefined = known.get(seconds);
+    const kept: IAutoMovieMotionHumanProp.IFrame | undefined =
+      known.get(seconds);
     if (kept !== undefined) return kept;
     const placement: IAutoMovieTransform = trotting.at(
       Math.max(0, seconds - WAIT),
@@ -67,7 +86,10 @@ export function test_human_motion_ride_rising(): void {
     known.set(seconds, frame);
     return frame;
   };
-  const saddle: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(horse, placed(0));
+  const saddle: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+    horse,
+    placed(0),
+  );
 
   // Where one of the horse's contacts is in the world at a film second: the saddle and the stirrups ride its trunk.
   const part = (id: string, seconds: number): IAutoMovieTransform =>
@@ -80,7 +102,9 @@ export function test_human_motion_ride_rising(): void {
   const strides: readonly number[] = trotting.instants
     .filter((i: { label: string }): boolean => i.label === "leftForeOn")
     .map((i: { seconds: number }): number => WAIT + i.seconds);
-  const perform = (seat: IAutoMovieMotionHumanSeated.ISeat): IAutoMovieMotionHumanPerformance =>
+  const perform = (
+    seat: IAutoMovieMotionHumanSeated.ISeat,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "rising",
       laws: [HumanRide.ride],
@@ -117,7 +141,8 @@ export function test_human_motion_ride_rising(): void {
     });
 
   // 4. Nothing to stand in.
-  const { footrests: _stirrups, ...bare }: IAutoMovieMotionHumanSeated.ISeat = saddle;
+  const { footrests: _stirrups, ...bare }: IAutoMovieMotionHumanSeated.ISeat =
+    saddle;
   let thrown: unknown = null;
   try {
     perform(bare);
@@ -145,7 +170,8 @@ export function test_human_motion_ride_rising(): void {
     );
   }
   if (performance !== null) {
-    const ride: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+    const ride: IAutoMovieMotionHumanSegment.ISegment =
+      performance.segments("a")[1]!;
     const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",
@@ -167,7 +193,8 @@ export function test_human_motion_ride_rising(): void {
     const ball = (side: "left" | "right", t: number): IAutoMovieVector3 =>
       local(
         HumanFoot.sockets(body, HumanSignature.bones(reader, t), side).find(
-          (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === "ball",
+          (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
+            s.socket === "ball",
         )!.point,
         `${side}Stirrup`,
         t,

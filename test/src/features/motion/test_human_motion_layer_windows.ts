@@ -1,6 +1,19 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRefusal, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HumanAffect, HumanBreath, HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanAffect,
+  HumanBreath,
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -50,7 +63,10 @@ export function test_human_motion_layer_windows(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   const perform = (
-    layers: readonly (IAutoMovieMotionHumanLayer | IAutoMovieMotionHumanLayer.IScheduled)[],
+    layers: readonly (
+      | IAutoMovieMotionHumanLayer
+      | IAutoMovieMotionHumanLayer.IScheduled
+    )[],
   ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "layer",
@@ -78,10 +94,8 @@ export function test_human_motion_layer_windows(): void {
     other: IAutoMovieMotionHumanPerformance,
     seconds: number,
   ): number => {
-    const there: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> = other.bones(
-      "a",
-      seconds,
-    );
+    const there: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
+      other.bones("a", seconds);
     let far: number = 0;
     for (const [bone, resolved] of one.bones("a", seconds)) {
       const p: IAutoMovieVector3 = resolved.worldPosition;
@@ -103,7 +117,9 @@ export function test_human_motion_layer_windows(): void {
   const mm = (metres: number): string => `${(metres * 1000).toFixed(2)} mm`;
 
   const bare: IAutoMovieMotionHumanPerformance = perform([]);
-  const whole: IAutoMovieMotionHumanPerformance = perform([HumanBreath.layer({ rate: 20 })]);
+  const whole: IAutoMovieMotionHumanPerformance = perform([
+    HumanBreath.layer({ rate: 20 }),
+  ]);
   const windowed = (): IAutoMovieMotionHumanPerformance =>
     perform([{ layer: HumanBreath.layer({ rate: 20 }), from: 2, to: 4 }]);
   const breathing: IAutoMovieMotionHumanPerformance = windowed();
@@ -140,7 +156,9 @@ export function test_human_motion_layer_windows(): void {
   const sighing: IAutoMovieMotionHumanPerformance = perform([
     {
       from: { of: "bye", event: "strokeEnd" },
-      layer: (window: IAutoMovieMotionHumanLayer.IWindow): IAutoMovieMotionHumanLayer =>
+      layer: (
+        window: IAutoMovieMotionHumanLayer.IWindow,
+      ): IAutoMovieMotionHumanLayer =>
         HumanAffect.layer([{ kind: "sigh", at: window.from }]),
     },
   ]);
@@ -188,8 +206,9 @@ export function test_human_motion_layer_windows(): void {
     );
 
   // 6. What cannot be scheduled.
-  const still: IAutoMovieMotionHumanLayer["apply"] = (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture =>
-    posture;
+  const still: IAutoMovieMotionHumanLayer["apply"] = (
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture => posture;
   for (const [label, layer, kind, mentions] of [
     [
       "a layer writing a planted leg",

@@ -1,6 +1,9 @@
-import type { IAutoMovieViewPart, IAutoMovieNaturalSpline, IAutoMovieViewHermite, IAutoMovieConstructionOutlineRange } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieConstructionOutlineRange,
+  IAutoMovieNaturalSpline,
+  IAutoMovieViewHermite,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE";
 import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
@@ -14,7 +17,6 @@ import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieViewHermite {
-
   /**
    * Admit requested normalized source jets and an optional sufficient scalar hull bound.
    *
@@ -177,7 +179,10 @@ export namespace AutoMovieViewHermite {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads already prepared coefficients and endpoint jets.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no query state.
    */
-  export function value(curve: IAutoMovieViewHermite.ICurve, x: number): number {
+  export function value(
+    curve: IAutoMovieViewHermite.ICurve,
+    x: number,
+  ): number {
     const last: number = curve.xs.length - 1;
     if (x <= curve.xs[0]!)
       return curve.ys[0]! + (x - curve.xs[0]!) * curve.first[0]!;
@@ -204,7 +209,10 @@ export namespace AutoMovieViewHermite {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the prepared shared jets and coefficients.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one pair and retains no query state.
    */
-  export function derivative(curve: IAutoMovieViewHermite.ICurve, x: number): [number, number] {
+  export function derivative(
+    curve: IAutoMovieViewHermite.ICurve,
+    x: number,
+  ): [number, number] {
     const last: number = curve.xs.length - 1;
     if (x < curve.xs[0]!) return [curve.first[0]!, 0];
     if (x > curve.xs[last]!) return [curve.first[last]!, 0];
@@ -233,7 +241,10 @@ export namespace AutoMovieViewHermite {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the same span, normalized coordinate and coefficients for value and both derivatives within this query; no generic algebra callbacks or cross-input cache are involved.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh three-number tuple and retains no input, cursor or query state.
    */
-  export function read(curve: IAutoMovieViewHermite.ICurve, x: number): [number, number, number] {
+  export function read(
+    curve: IAutoMovieViewHermite.ICurve,
+    x: number,
+  ): [number, number, number] {
     const last: number = curve.xs.length - 1;
     if (x <= curve.xs[0]!)
       return [

@@ -1,4 +1,12 @@
-import type { IAutoMovieGridSolidMeshGrid, IAutoMovieOpenSolidMeshResult, IAutoMovieSolidCycle, IAutoMovieSolidMesh, IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshPlan } from "@automovie/interface";
+import type {
+  IAutoMovieGridSolidMeshGrid,
+  IAutoMovieOpenSolidMeshResult,
+  IAutoMovieSolidCycle,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshPlan,
+} from "@automovie/interface";
+
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidMeshPlan } from "./AutoMovieSolidMeshPlan";
 import { AutoMovieSolidMeshWrite } from "./AutoMovieSolidMeshWrite";
@@ -27,7 +35,7 @@ export function faceAutoMovieSolidMesh(
   mesh: IAutoMovieSolidMesh.IMesh,
   input: IAutoMovieSolidMesh.IFace,
 ): IAutoMovieSolidMesh.IOpen[] {
-  const prepared: (IAutoMovieGridSolidMeshGrid | null | string) =
+  const prepared: IAutoMovieGridSolidMeshGrid | null | string =
     gridAutoMovieSolidMesh(mesh, input);
   if (prepared === null) return [];
   if (typeof prepared === "string") return refuse(input, prepared);
@@ -116,17 +124,16 @@ export function faceAutoMovieSolidMesh(
       projected.set(pair, turn);
     }
   }
-  const opened: (IAutoMovieOpenSolidMeshResult | string) =
-    openAutoMovieSolidMesh(
-      prepared.chart,
-      triangles,
-      plan.constraints,
-      prepared.trim.length,
-      prepared.domain.length,
-      input.stations[0]!,
-      input.stations[input.stations.length - 1]!,
-      input.surface.period,
-    );
+  const opened: IAutoMovieOpenSolidMeshResult | string = openAutoMovieSolidMesh(
+    prepared.chart,
+    triangles,
+    plan.constraints,
+    prepared.trim.length,
+    prepared.domain.length,
+    input.stations[0]!,
+    input.stations[input.stations.length - 1]!,
+    input.surface.period,
+  );
   if (typeof opened === "string") return refuse(input, opened);
   if (opened.partial) {
     if (input.onFailure === undefined)
@@ -252,7 +259,12 @@ const LEDGERS: WeakMap<IAutoMovieSolidMesh.IMesh, ILedger> = new WeakMap();
 function incidence(mesh: IAutoMovieSolidMesh.IMesh): ILedger {
   let ledger: ILedger | undefined = LEDGERS.get(mesh);
   if (ledger === undefined) {
-    ledger = { seen: [], occupied: new Set(), pairs: new Map(), directed: new Map() };
+    ledger = {
+      seen: [],
+      occupied: new Set(),
+      pairs: new Map(),
+      directed: new Map(),
+    };
     LEDGERS.set(mesh, ledger);
   }
   const { seen, occupied, pairs, directed }: ILedger = ledger;
@@ -286,7 +298,8 @@ function incidence(mesh: IAutoMovieSolidMesh.IMesh): ILedger {
       const key: string = `${a}/${b}`;
       directed.set(key, (directed.get(key) ?? 0) + 1);
     }
-  for (let index: number = same; index < mesh.indices.length; index++) seen.push(mesh.indices[index]!);
+  for (let index: number = same; index < mesh.indices.length; index++)
+    seen.push(mesh.indices[index]!);
   return ledger;
 }
 

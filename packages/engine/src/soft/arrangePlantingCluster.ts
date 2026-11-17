@@ -63,11 +63,7 @@ export const arrangePlantingCluster: (
         continue;
       placed = true;
       if (occupied !== null) {
-        const [cx, cz]: [number, number] = cell(
-          cluster.minSpacing,
-          x,
-          z,
-        );
+        const [cx, cz]: [number, number] = cell(cluster.minSpacing, x, z);
         const key: string = `${cx},${cz}`;
         const bucket: { x: number; z: number }[] | undefined =
           occupied.get(key);

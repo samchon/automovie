@@ -1,11 +1,18 @@
-import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMoviePhysicalProfile, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Quaternion,
   Vector3,
   physicalHullFaces,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { HumanColliderCorners } from "../posture/HumanColliderCorners";
@@ -129,58 +136,63 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
           bone.bone,
         ]);
     }
-    const rest: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
-      body,
-      poseBones(body, { skeleton: body.skeleton.id, root: null, joints: [] }),
-    );
-    const parts: IPart[] = rest.map((p: IAutoMovieMotionHumanColliders.IPlaced): IPart => {
-      const probes: IAutoMovieVector3[] = [];
-      for (const shape of p.shapes)
-        for (const corner of HumanColliderCorners(shape))
-          probes.push(
-            Vector3.add(
-              shape.transform.position,
-              Quaternion.rotateVector(shape.transform.rotation, corner),
-            ),
-          );
-      const surface: number = probes.length;
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(p.pose.rotation);
-      const joint: IAutoMovieVector3 = body.rest.get(p.bone)!;
-      for (const child of children.get(p.bone) ?? [])
-        for (const share of [0.25, 0.5, 0.75])
-          probes.push(
-            Quaternion.rotateVector(
-              inverse,
-              Vector3.subtract(
-                Vector3.add(
-                  joint,
-                  Vector3.scale(
-                    Vector3.subtract(body.rest.get(child)!, joint),
-                    share,
-                  ),
-                ),
-                p.pose.position,
+    const rest: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanColliders.placed(
+        body,
+        poseBones(body, { skeleton: body.skeleton.id, root: null, joints: [] }),
+      );
+    const parts: IPart[] = rest.map(
+      (p: IAutoMovieMotionHumanColliders.IPlaced): IPart => {
+        const probes: IAutoMovieVector3[] = [];
+        for (const shape of p.shapes)
+          for (const corner of HumanColliderCorners(shape))
+            probes.push(
+              Vector3.add(
+                shape.transform.position,
+                Quaternion.rotateVector(shape.transform.rotation, corner),
               ),
-            ),
-          );
-      let centre: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-      for (const probe of probes)
-        centre = Vector3.add(centre, Vector3.scale(probe, 1 / probes.length));
-      let radius: number = 0;
-      for (const probe of probes)
-        radius = Math.max(
-          radius,
-          Vector3.length(Vector3.subtract(probe, centre)),
+            );
+        const surface: number = probes.length;
+        const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+          p.pose.rotation,
         );
-      return {
-        bone: p.bone,
-        shapes: p.shapes,
-        probes,
-        surface,
-        centre,
-        radius,
-      };
-    });
+        const joint: IAutoMovieVector3 = body.rest.get(p.bone)!;
+        for (const child of children.get(p.bone) ?? [])
+          for (const share of [0.25, 0.5, 0.75])
+            probes.push(
+              Quaternion.rotateVector(
+                inverse,
+                Vector3.subtract(
+                  Vector3.add(
+                    joint,
+                    Vector3.scale(
+                      Vector3.subtract(body.rest.get(child)!, joint),
+                      share,
+                    ),
+                  ),
+                  p.pose.position,
+                ),
+              ),
+            );
+        let centre: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+        for (const probe of probes)
+          centre = Vector3.add(centre, Vector3.scale(probe, 1 / probes.length));
+        let radius: number = 0;
+        for (const probe of probes)
+          radius = Math.max(
+            radius,
+            Vector3.length(Vector3.subtract(probe, centre)),
+          );
+        return {
+          bone: p.bone,
+          shapes: p.shapes,
+          probes,
+          surface,
+          centre,
+          radius,
+        };
+      },
+    );
     // The nearest ancestor of a bone that carries a collider: the joint its
     // collider meets, skipping bones (a clavicle) that have none.
     const collided: ReadonlySet<AutoMovieHumanoidBone> = new Set(
@@ -202,13 +214,17 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
           group(a.bone) === group(b.bone),
       ),
     );
-    const stance: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
-      body,
-      poseBones(
+    const stance: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanColliders.placed(
         body,
-        resolveHumanPosture(body, stand.posture(body, { x: 0, y: 0, z: 0 }, 0)),
-      ),
-    );
+        poseBones(
+          body,
+          resolveHumanPosture(
+            body,
+            stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
+          ),
+        ),
+      );
     const built: IModel = { parts, related, rest, stance, baseline: new Map() };
     MODELS.set(body, built);
     return built;
@@ -274,7 +290,8 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     // is outside the shape, which then adds no depth.
     const balls: { centre: IAutoMovieVector3; radius: number }[] = b.shapes.map(
       (shape: IAutoMoviePhysicalProfile.IShape) => {
-        const ball: IAutoMovieMotionHumanColliders.IBall = HumanColliders.bound(shape);
+        const ball: IAutoMovieMotionHumanColliders.IBall =
+          HumanColliders.bound(shape);
         return {
           centre: Vector3.add(
             shape.transform.position,
@@ -433,8 +450,10 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
 }
 
 /** The models of live bodies. */
-const MODELS: WeakMap<IAutoMovieMotionHumanBody, AutoMovieMotionHumanAuditTangleModel.IModel> =
-  new WeakMap();
+const MODELS: WeakMap<
+  IAutoMovieMotionHumanBody,
+  AutoMovieMotionHumanAuditTangleModel.IModel
+> = new WeakMap();
 
 /** The fingers' part of a bone name. */
 const DIGIT: RegExp = /(Thumb|Index|Middle|Ring|Little)/u;

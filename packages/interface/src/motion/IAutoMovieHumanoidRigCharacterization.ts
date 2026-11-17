@@ -1,6 +1,6 @@
+import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
-import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 
 /**
  * A normalized humanoid rig characterized for motion retargeting: the semantic

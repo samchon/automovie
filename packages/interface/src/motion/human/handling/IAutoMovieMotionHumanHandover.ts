@@ -1,11 +1,11 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
-import type { IAutoMovieMotionHumanGrasp } from "./IAutoMovieMotionHumanGrasp";
+import type { IAutoMovieMotionHumanProp } from "../perform/IAutoMovieMotionHumanProp";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
-import type { IAutoMovieMotionHumanProp } from "../perform/IAutoMovieMotionHumanProp";
-import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanGrasp } from "./IAutoMovieMotionHumanGrasp";
 
 /**
  * The shared plan of one object passing from a giver's hand to a receiver's:

@@ -1,14 +1,14 @@
+import type { IAutoMovieMotionHumanDance } from "../exercise/IAutoMovieMotionHumanDance";
+import type { IAutoMovieMotionHumanExercise } from "../exercise/IAutoMovieMotionHumanExercise";
+import type { IAutoMovieMotionHumanStretch } from "../exercise/IAutoMovieMotionHumanStretch";
 import type { IAutoMovieMotionHumanAthletics } from "../sport/IAutoMovieMotionHumanAthletics";
 import type { IAutoMovieMotionHumanBallSport } from "../sport/IAutoMovieMotionHumanBallSport";
 import type { IAutoMovieMotionHumanBaseball } from "../sport/IAutoMovieMotionHumanBaseball";
-import type { IAutoMovieMotionHumanChainMutual } from "./IAutoMovieMotionHumanChainMutual";
-import type { IAutoMovieMotionHumanDance } from "../exercise/IAutoMovieMotionHumanDance";
-import type { IAutoMovieMotionHumanExercise } from "../exercise/IAutoMovieMotionHumanExercise";
 import type { IAutoMovieMotionHumanGymnastics } from "../sport/IAutoMovieMotionHumanGymnastics";
 import type { IAutoMovieMotionHumanMartialArt } from "../sport/IAutoMovieMotionHumanMartialArt";
 import type { IAutoMovieMotionHumanRacket } from "../sport/IAutoMovieMotionHumanRacket";
-import type { IAutoMovieMotionHumanStretch } from "../exercise/IAutoMovieMotionHumanStretch";
 import type { IAutoMovieMotionHumanSwim } from "../sport/IAutoMovieMotionHumanSwim";
+import type { IAutoMovieMotionHumanChainMutual } from "./IAutoMovieMotionHumanChainMutual";
 
 /**
  * The chain methods of exercise, dance and sport: the bodyweight exercises,

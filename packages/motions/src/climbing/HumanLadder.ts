@@ -1,6 +1,11 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanLadder, IAutoMovieMotionHumanProp, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanLadder,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -43,7 +48,8 @@ export namespace HumanLadder {
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     subject: string,
   ): IAutoMovieMotionHumanLadder.ILadder {
-    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(subject);
+    const read: IAutoMovieMotionHumanActionContext.IProp =
+      context.prop(subject);
     if (read.prop.fixed !== true)
       throw new HumanRefusal({
         kind: "affordance",

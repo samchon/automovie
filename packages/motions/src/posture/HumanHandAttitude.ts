@@ -1,6 +1,26 @@
-import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Quaternion,
+  Vector3,
+  clampJointToSkeleton,
+  decomposeJointRotation,
+  getConstraint,
+  skeletonJointAxes,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, clampJointToSkeleton, decomposeJointRotation, getConstraint, skeletonJointAxes } from "@automovie/engine";
 import { poseBones } from "./poseBones";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 

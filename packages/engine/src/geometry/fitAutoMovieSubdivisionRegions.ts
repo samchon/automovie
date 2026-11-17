@@ -1,4 +1,9 @@
-import type { IAutoMovieSubdivisionCage, IAutoMovieFitSubdivisionDomain, IAutoMovieFitSubdivisionRegions, IAutoMovieSubdivisionLevel } from "@automovie/interface";
+import type {
+  IAutoMovieFitSubdivisionDomain,
+  IAutoMovieFitSubdivisionRegions,
+  IAutoMovieSubdivisionCage,
+  IAutoMovieSubdivisionLevel,
+} from "@automovie/interface";
 
 import { admitSubdivisionCage } from "./admitSubdivisionCage";
 import { fitAutoMovieSubdivisionDomain } from "./fitAutoMovieSubdivisionDomain";
@@ -30,7 +35,9 @@ import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Global topology, UV refinement and face adjacency are computed once and shared by all regions. Local solves share three coordinate systems internally and no completed model is cached against mutable caller input.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Processes one crop at a time; temporary crop and solve arrays are released after their deltas are composed. The returned level owns one globally refined cage and result residuals, with no module retention.
  */
-export function fitAutoMovieSubdivisionRegions(props: IAutoMovieFitSubdivisionRegions.IProps): IAutoMovieFitSubdivisionRegions.IResult {
+export function fitAutoMovieSubdivisionRegions(
+  props: IAutoMovieFitSubdivisionRegions.IProps,
+): IAutoMovieFitSubdivisionRegions.IResult {
   const requested: number = props.levels ?? 2;
   if (!Number.isSafeInteger(requested) || requested < 2 || requested > 6)
     throw new Error("fitted subdivision levels must be an integer from 2 to 6");

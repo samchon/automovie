@@ -1,5 +1,12 @@
-import type { IAutoMovieRecoveryArtifact, IAutoMovieRecoveryArtifactInput, IAutoMovieRecoveryOpenContinuation } from "@automovie/interface";
-import { describeRecoveryNamedDomains, readRecoveryMetadata as read } from "@automovie/recovery";
+import type {
+  IAutoMovieRecoveryArtifact,
+  IAutoMovieRecoveryArtifactInput,
+  IAutoMovieRecoveryOpenContinuation,
+} from "@automovie/interface";
+import {
+  describeRecoveryNamedDomains,
+  readRecoveryMetadata as read,
+} from "@automovie/recovery";
 import path from "node:path";
 
 /**

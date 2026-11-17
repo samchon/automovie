@@ -1,6 +1,19 @@
-import type { IAutoMovieConstructionNode, IAutoMovieConstructionProfileSource, IAutoMovieConstructionRealization, IAutoMoviePreparedConstructionProfile, IAutoMovieSolidBody, IAutoMovieSolidMesh, IAutoMovieSolidSurface, IAutoMovieConstructionProfile } from "@automovie/interface";
-import { AutoMovieConstructionProfileBody, AutoMovieSolidBody, AutoMovieSolidMesh, realizeAutoMovieConstruction } from "@automovie/engine";
-
+import {
+  AutoMovieConstructionProfileBody,
+  AutoMovieSolidBody,
+  AutoMovieSolidMesh,
+  realizeAutoMovieConstruction,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionProfile,
+  IAutoMovieConstructionProfileSource,
+  IAutoMovieConstructionRealization,
+  IAutoMoviePreparedConstructionProfile,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionNativeContinuation as Native } from "../../internal/construction/ConstructionNativeContinuation";
@@ -80,7 +93,8 @@ function realize(
 /** Exact polyhedral geometry supplies per-face area and native shared-edge oracles. */
 function prism(failures: string[]): void {
   const source: IAutoMovieConstructionProfileSource = Made.prism();
-  const result: IAutoMovieConstructionRealization.IRealization = realize(source);
+  const result: IAutoMovieConstructionRealization.IRealization =
+    realize(source);
   clean(result, failures);
   if (
     result.chains.length !== 0 ||
@@ -145,7 +159,8 @@ function prism(failures: string[]): void {
         "Neighboring original faces lost their actual common boundary.",
       );
   }
-  const prepared: IAutoMoviePreparedConstructionProfile.IPrepared = result.profiles![0]!;
+  const prepared: IAutoMoviePreparedConstructionProfile.IPrepared =
+    result.profiles![0]!;
   const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
     "actual atlas",
     [],
@@ -246,7 +261,8 @@ function cone(count: number, direction: 1 | -1, failures: string[]): void {
     )
   )
     failures.push("Regular top was capped or actual bottom tip omitted.");
-  const profile: IAutoMoviePreparedConstructionProfile.IPrepared = result.profiles![0]!;
+  const profile: IAutoMoviePreparedConstructionProfile.IPrepared =
+    result.profiles![0]!;
   const original: IAutoMovieSolidSurface = profile.originals.get("piece.0")!;
   const piece: IAutoMovieConstructionProfile.IPiece =
     profile.definition.loops[0]!.pieces[0]!;

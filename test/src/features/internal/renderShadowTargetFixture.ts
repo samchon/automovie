@@ -1,6 +1,5 @@
 import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
 
-
 /** Declare the fixed fixture sun's native 512-pixel PCF color/depth attachments. */
 export const renderShadowTargetFixture = (): IAutoMovieRenderTextureTarget => ({
   owner: "fixture-sun-map",

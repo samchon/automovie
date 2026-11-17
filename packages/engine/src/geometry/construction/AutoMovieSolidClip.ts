@@ -1,4 +1,12 @@
-import type { IAutoMovieSolidSurface, IAutoMovieSolidBlendChain, IAutoMovieSolidBody, IAutoMovieSolidClip, IAutoMovieSolidCycle, IAutoMovieSolidJoin, IAutoMovieSolidRail } from "@automovie/interface";
+import type {
+  IAutoMovieSolidBlendChain,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidClip,
+  IAutoMovieSolidCycle,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidRail,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
@@ -31,7 +39,6 @@ import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidClip {
-
   /** Maximum crossing halvings; a null rail may end the search earlier once the bracket is at most a millionth of a column. */
   export const BISECTIONS: number = 40;
 
@@ -166,7 +173,13 @@ export namespace AutoMovieSolidClip {
             high!.hostPoint[1] - low!.hostPoint[1],
             high!.hostPoint[2] - low!.hostPoint[2],
           );
-          const off: [number, number] = seam(body, faces[k]!, next, low!, high!);
+          const off: [number, number] = seam(
+            body,
+            faces[k]!,
+            next,
+            low!,
+            high!,
+          );
           if (
             index[low!.hostFace] === faces[k] &&
             index[high!.hostFace] === next &&
@@ -245,13 +258,18 @@ export namespace AutoMovieSolidClip {
     ) {
       body.faces[first]!.cycles.push({
         kind,
-        vertices: rail.map((r: IAutoMovieSolidClip.IRailPoint): number => r.vertex),
+        vertices: rail.map(
+          (r: IAutoMovieSolidClip.IRailPoint): number => r.vertex,
+        ),
         chart: rail.map(
-          (r: IAutoMovieSolidClip.IRailPoint): [number, number] => r.chart.get(first)!,
+          (r: IAutoMovieSolidClip.IRailPoint): [number, number] =>
+            r.chart.get(first)!,
         ),
         neighbours: rail.map(
-          (r: IAutoMovieSolidClip.IRailPoint, k: number): IAutoMovieSolidCycle.INeighbour =>
-            along(r, rail[(k + 1) % n]!),
+          (
+            r: IAutoMovieSolidClip.IRailPoint,
+            k: number,
+          ): IAutoMovieSolidCycle.INeighbour => along(r, rail[(k + 1) % n]!),
         ),
       });
       return null;
@@ -279,13 +297,18 @@ export namespace AutoMovieSolidClip {
       const face: number | undefined = entry.faces.find(
         (f: number): boolean =>
           exit.faces.includes(f) &&
-          run.slice(1, -1).every((p: IAutoMovieSolidClip.IRailPoint): boolean => p.faces[0] === f),
+          run
+            .slice(1, -1)
+            .every(
+              (p: IAutoMovieSolidClip.IRailPoint): boolean => p.faces[0] === f,
+            ),
       );
       if (face === undefined)
         return `the rail's run from phase ${entry.phase} to ${exit.phase} lies on no one face`;
       const failed: string | null = clip(body, face, run, along);
       if (failed === ACROSS) {
-        const first: IAutoMovieSolidClip.IRailPoint[] | undefined = pending.get(face);
+        const first: IAutoMovieSolidClip.IRailPoint[] | undefined =
+          pending.get(face);
         if (first === undefined) pending.set(face, run);
         else {
           pending.delete(face);
@@ -322,38 +345,91 @@ export namespace AutoMovieSolidClip {
     const period: number | undefined = f.surface.period;
 
     // The shared segment nearest the first end, in the first face's chart.
-    let best: { a: [number, number]; b: [number, number]; neighbour: IAutoMovieSolidCycle.INeighbour; distance: number } | null = null;
+    let best: {
+      a: [number, number];
+      b: [number, number];
+      neighbour: IAutoMovieSolidCycle.INeighbour;
+      distance: number;
+    } | null = null;
     for (const cycle of f.cycles)
       for (let k: number = 0; k < cycle.neighbours.length; k++) {
         const neighbour: IAutoMovieSolidCycle.INeighbour = cycle.neighbours[k]!;
         if (neighbour.face !== next) continue;
         const a: [number, number] = cycle.chart[k]!;
-        const raw: [number, number] = cycle.chart[(k + 1) % cycle.chart.length]!;
-        const b: [number, number] = [raw[0], AutoMovieSolidCycle.shift(raw[1], a[1], period)];
+        const raw: [number, number] =
+          cycle.chart[(k + 1) % cycle.chart.length]!;
+        const b: [number, number] = [
+          raw[0],
+          AutoMovieSolidCycle.shift(raw[1], a[1], period),
+        ];
         const w: number = AutoMovieSolidCycle.shift(at[1], a[1], period);
-        const distance: number = Math.hypot(...nearest(a, b, [at[0], w]).map((x: number, i: number): number => x - [at[0], w][i]!));
-        if (best === null || distance < best.distance) best = { a, b, neighbour, distance };
+        const distance: number = Math.hypot(
+          ...nearest(a, b, [at[0], w]).map(
+            (x: number, i: number): number => x - [at[0], w][i]!,
+          ),
+        );
+        if (best === null || distance < best.distance)
+          best = { a, b, neighbour, distance };
       }
     if (best === null) return [Infinity, 0];
 
     // The chord between the segment's two vertices, the first face's reading of its middle and the second face's.
     const { a, b, neighbour: n } = best;
-    const read = (surface: IAutoMovieSolidSurface, c: [number, number]): [number, number, number] | null => {
-      const jet: IAutoMovieSolidSurface.IJet | null = AutoMovieSolidDomain.jet(surface, c[0], c[1]);
+    const read = (
+      surface: IAutoMovieSolidSurface,
+      c: [number, number],
+    ): [number, number, number] | null => {
+      const jet: IAutoMovieSolidSurface.IJet | null = AutoMovieSolidDomain.jet(
+        surface,
+        c[0],
+        c[1],
+      );
       return jet === null ? null : [jet.p[0], jet.p[1], jet.p[2]];
     };
-    const ends: ([number, number, number] | null)[] = [read(f.surface, a), read(f.surface, b), read(f.surface, [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]), read(g.surface, [(n.from[0] + n.to[0]) / 2, (n.from[1] + n.to[1]) / 2])];
-    if (ends.some((p: [number, number, number] | null): boolean => p === null)) return [Infinity, 0];
+    const ends: ([number, number, number] | null)[] = [
+      read(f.surface, a),
+      read(f.surface, b),
+      read(f.surface, [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]),
+      read(g.surface, [(n.from[0] + n.to[0]) / 2, (n.from[1] + n.to[1]) / 2]),
+    ];
+    if (ends.some((p: [number, number, number] | null): boolean => p === null))
+      return [Infinity, 0];
     const [p, q, here, there] = ends as [number, number, number][];
-    const off = (x: readonly number[]): number => Math.hypot(...nearest(p!, q!, x).map((y: number, i: number): number => y - x[i]!));
-    return [Math.max(off(low.hostPoint), off(high.hostPoint)), Math.max(off(here!), off(there!))];
+    const off = (x: readonly number[]): number =>
+      Math.hypot(
+        ...nearest(p!, q!, x).map((y: number, i: number): number => y - x[i]!),
+      );
+    return [
+      Math.max(off(low.hostPoint), off(high.hostPoint)),
+      Math.max(off(here!), off(there!)),
+    ];
   }
 
   /** The point of the segment from `a` to `b` nearest `x`, in any dimension. */
-  function nearest(a: readonly number[], b: readonly number[], x: readonly number[]): number[] {
+  function nearest(
+    a: readonly number[],
+    b: readonly number[],
+    x: readonly number[],
+  ): number[] {
     const d: number[] = b.map((y: number, i: number): number => y - a[i]!);
-    const dd: number = d.reduce((sum: number, y: number): number => sum + y * y, 0);
-    const t: number = dd > 0 ? Math.min(1, Math.max(0, d.reduce((sum: number, y: number, i: number): number => sum + y * (x[i]! - a[i]!), 0) / dd)) : 0;
+    const dd: number = d.reduce(
+      (sum: number, y: number): number => sum + y * y,
+      0,
+    );
+    const t: number =
+      dd > 0
+        ? Math.min(
+            1,
+            Math.max(
+              0,
+              d.reduce(
+                (sum: number, y: number, i: number): number =>
+                  sum + y * (x[i]! - a[i]!),
+                0,
+              ) / dd,
+            ),
+          )
+        : 0;
     return a.map((y: number, i: number): number => y + t * d[i]!);
   }
 
@@ -395,17 +471,26 @@ export namespace AutoMovieSolidClip {
     // A crossing found off its trim by no more than the rounding of its chart point is moved onto the trim: the bisection that placed it
     // reads the next face's surface, and a crossing left 7e-15 off the station line of f1's ear band, where the concha's cut crosses
     // the band's end, stood one unit in the last place inside the band and fenced a sliver no triangulation could open.
-    if (foot.share > 0 && foot.share < 1 && foot.distance <= SNAP * (1 + Math.abs(c[0]) + Math.abs(c[1]))) {
+    if (
+      foot.share > 0 &&
+      foot.share < 1 &&
+      foot.distance <= SNAP * (1 + Math.abs(c[0]) + Math.abs(c[1]))
+    ) {
       const a: [number, number] = cycle.chart[foot.segment]!;
-      const b: [number, number] = cycle.chart[(foot.segment + 1) % cycle.chart.length]!;
+      const b: [number, number] =
+        cycle.chart[(foot.segment + 1) % cycle.chart.length]!;
       const bv: number = AutoMovieSolidCycle.shift(b[1], a[1], period);
-      const snapped: [number, number] = [a[0] === b[0] ? a[0] : a[0] + foot.share * (b[0] - a[0]), a[1] === bv ? a[1] : a[1] + foot.share * (bv - a[1])];
+      const snapped: [number, number] = [
+        a[0] === b[0] ? a[0] : a[0] + foot.share * (b[0] - a[0]),
+        a[1] === bv ? a[1] : a[1] + foot.share * (bv - a[1]),
+      ];
       c[0] = snapped[0];
       c[1] = AutoMovieSolidCycle.shift(snapped[1], c[1], period);
       p.chart.set(face, [c[0], c[1]]);
     }
     const other: number = p.faces.find((x: number): boolean => x !== face)!;
-    const old: IAutoMovieSolidCycle.INeighbour = cycle.neighbours[foot.segment]!;
+    const old: IAutoMovieSolidCycle.INeighbour =
+      cycle.neighbours[foot.segment]!;
     const there: [number, number] =
       old.face === other
         ? p.chart.get(other)!
@@ -442,13 +527,35 @@ export namespace AutoMovieSolidClip {
     face: number,
     first: IAutoMovieSolidClip.IRailPoint[],
     second: IAutoMovieSolidClip.IRailPoint[],
-    along: (a: IAutoMovieSolidClip.IRailPoint, b: IAutoMovieSolidClip.IRailPoint) => IAutoMovieSolidCycle.INeighbour,
+    along: (
+      a: IAutoMovieSolidClip.IRailPoint,
+      b: IAutoMovieSolidClip.IRailPoint,
+    ) => IAutoMovieSolidCycle.INeighbour,
   ): string | null {
     const f: IAutoMovieSolidBody.IFace = body.faces[face]!;
     const period: number | undefined = f.surface.period;
-    const [e1, x1, e2, x2]: IAutoMovieSolidClip.IRailPoint[] = [first[0]!, first[first.length - 1]!, second[0]!, second[second.length - 1]!];
-    const placed: ([IAutoMovieSolidCycle.ICycle, number] | null)[] = [e1, x1, e2, x2].map((p: IAutoMovieSolidClip.IRailPoint): [IAutoMovieSolidCycle.ICycle, number] | null => place(body, face, p));
-    if (placed.some((p: [IAutoMovieSolidCycle.ICycle, number] | null): boolean => p === null))
+    const [e1, x1, e2, x2]: IAutoMovieSolidClip.IRailPoint[] = [
+      first[0]!,
+      first[first.length - 1]!,
+      second[0]!,
+      second[second.length - 1]!,
+    ];
+    const placed: ([IAutoMovieSolidCycle.ICycle, number] | null)[] = [
+      e1,
+      x1,
+      e2,
+      x2,
+    ].map(
+      (
+        p: IAutoMovieSolidClip.IRailPoint,
+      ): [IAutoMovieSolidCycle.ICycle, number] | null => place(body, face, p),
+    );
+    if (
+      placed.some(
+        (p: [IAutoMovieSolidCycle.ICycle, number] | null): boolean =>
+          p === null,
+      )
+    )
       return `face ${f.surface.name} has no trim for the rail to cross`;
     const a: IAutoMovieSolidCycle.ICycle = placed[0]![0];
     const b: IAutoMovieSolidCycle.ICycle = placed[1]![0];
@@ -458,16 +565,31 @@ export namespace AutoMovieSolidClip {
     // order (`step` 1) or against it (-1). The band's two rims run the same way
     // round, so one of the two arcs is walked against its trim's order, or the
     // new cycle would wind once round the period.
-    const arc = (cycle: IAutoMovieSolidCycle.ICycle, from: IAutoMovieSolidClip.IRailPoint, to: IAutoMovieSolidClip.IRailPoint, step: 1 | -1): number[] => {
+    const arc = (
+      cycle: IAutoMovieSolidCycle.ICycle,
+      from: IAutoMovieSolidClip.IRailPoint,
+      to: IAutoMovieSolidClip.IRailPoint,
+      step: 1 | -1,
+    ): number[] => {
       const m: number = cycle.vertices.length;
       const out: number[] = [];
-      for (let k: number = cycle.vertices.indexOf(from.vertex); ; k = (k + step + m) % m) {
+      for (
+        let k: number = cycle.vertices.indexOf(from.vertex);
+        ;
+        k = (k + step + m) % m
+      ) {
         out.push(k);
         if (cycle.vertices[k] === to.vertex) break;
       }
       return out;
     };
-    const reverse = (n: IAutoMovieSolidCycle.INeighbour): IAutoMovieSolidCycle.INeighbour => ({ face: n.face, from: n.to, to: n.from });
+    const reverse = (
+      n: IAutoMovieSolidCycle.INeighbour,
+    ): IAutoMovieSolidCycle.INeighbour => ({
+      face: n.face,
+      from: n.to,
+      to: n.from,
+    });
 
     // One closed cycle: the arc of `p`, then the run `r`, the arc of `q`, then the run `s`, each run starting where its arc ends.
     const build = (
@@ -481,14 +603,25 @@ export namespace AutoMovieSolidClip {
       const vertices: number[] = [];
       const chart: [number, number][] = [];
       const neighbours: IAutoMovieSolidCycle.INeighbour[] = [];
-      for (const [cycle, positions, run] of [[p, pArc, r], [q, qArc, s]] as [IAutoMovieSolidCycle.ICycle, number[], IAutoMovieSolidClip.IRailPoint[]][]) {
+      for (const [cycle, positions, run] of [
+        [p, pArc, r],
+        [q, qArc, s],
+      ] as [
+        IAutoMovieSolidCycle.ICycle,
+        number[],
+        IAutoMovieSolidClip.IRailPoint[],
+      ][]) {
         const m: number = cycle.vertices.length;
         positions.forEach((k: number, i: number): void => {
           vertices.push(cycle.vertices[k]!);
           chart.push(cycle.chart[k]!);
           if (i + 1 < positions.length) {
             const next: number = positions[i + 1]!;
-            neighbours.push(next === (k + 1) % m ? cycle.neighbours[k]! : reverse(cycle.neighbours[next]!));
+            neighbours.push(
+              next === (k + 1) % m
+                ? cycle.neighbours[k]!
+                : reverse(cycle.neighbours[next]!),
+            );
           }
         });
         for (let i: number = 0; i + 1 < run.length; i++) {
@@ -500,33 +633,76 @@ export namespace AutoMovieSolidClip {
         }
       }
       for (let k: number = 1; k < chart.length; k++)
-        chart[k] = [chart[k]![0], AutoMovieSolidCycle.shift(chart[k]![1], chart[k - 1]![1], period)];
+        chart[k] = [
+          chart[k]![0],
+          AutoMovieSolidCycle.shift(chart[k]![1], chart[k - 1]![1], period),
+        ];
       return { kind: "island", vertices, chart, neighbours };
     };
     // Of the arc directions on the second trim, the one whose cycle closes without winding round the period.
-    const unwound = (make: (step: 1 | -1) => IAutoMovieSolidCycle.ICycle): IAutoMovieSolidCycle.ICycle => {
-      const turn = (k: IAutoMovieSolidCycle.ICycle): number => (period === undefined ? 0 : Math.abs(k.chart[k.chart.length - 1]![1] - k.chart[0]![1]));
+    const unwound = (
+      make: (step: 1 | -1) => IAutoMovieSolidCycle.ICycle,
+    ): IAutoMovieSolidCycle.ICycle => {
+      const turn = (k: IAutoMovieSolidCycle.ICycle): number =>
+        period === undefined
+          ? 0
+          : Math.abs(k.chart[k.chart.length - 1]![1] - k.chart[0]![1]);
       const [plus, minus]: IAutoMovieSolidCycle.ICycle[] = [make(1), make(-1)];
       return turn(plus) <= turn(minus) ? plus : minus;
     };
-    const one: IAutoMovieSolidCycle.ICycle = unwound((step: 1 | -1): IAutoMovieSolidCycle.ICycle => build(a, arc(a, x2, e1, 1), first, b, arc(b, x1, e2, step), second));
-    const two: IAutoMovieSolidCycle.ICycle = unwound((step: 1 | -1): IAutoMovieSolidCycle.ICycle => build(a, arc(a, e1, x2, 1), [...second].reverse(), b, arc(b, e2, x1, step), [...first].reverse()));
+    const one: IAutoMovieSolidCycle.ICycle = unwound(
+      (step: 1 | -1): IAutoMovieSolidCycle.ICycle =>
+        build(a, arc(a, x2, e1, 1), first, b, arc(b, x1, e2, step), second),
+    );
+    const two: IAutoMovieSolidCycle.ICycle = unwound(
+      (step: 1 | -1): IAutoMovieSolidCycle.ICycle =>
+        build(
+          a,
+          arc(a, e1, x2, 1),
+          [...second].reverse(),
+          b,
+          arc(b, e2, x1, step),
+          [...first].reverse(),
+        ),
+    );
 
     // The candidate that keeps the side past the rail, probed as `clip` does.
     const inner: IAutoMovieSolidClip.IRailPoint[] = first.slice(1, -1);
-    const probe: IAutoMovieSolidClip.IRailPoint | undefined = inner[Math.floor(inner.length / 2)];
+    const probe: IAutoMovieSolidClip.IRailPoint | undefined =
+      inner[Math.floor(inner.length / 2)];
     let chosen: IAutoMovieSolidCycle.ICycle = one;
     if (probe !== undefined && probe.across !== undefined) {
-      const at = (p: IAutoMovieSolidClip.IRailPoint): number[] => body.mesh.positions.slice(3 * p.vertex, 3 * p.vertex + 3);
-      const gap = (u: IAutoMovieSolidClip.IRailPoint, v: IAutoMovieSolidClip.IRailPoint): number => Math.hypot(...[0, 1, 2].map((i: number): number => at(u)[i]! - at(v)[i]!));
+      const at = (p: IAutoMovieSolidClip.IRailPoint): number[] =>
+        body.mesh.positions.slice(3 * p.vertex, 3 * p.vertex + 3);
+      const gap = (
+        u: IAutoMovieSolidClip.IRailPoint,
+        v: IAutoMovieSolidClip.IRailPoint,
+      ): number =>
+        Math.hypot(
+          ...[0, 1, 2].map((i: number): number => at(u)[i]! - at(v)[i]!),
+        );
       const index: number = first.indexOf(probe);
-      const side: number = SIDE * Math.min(gap(probe, first[index - 1]!), gap(probe, first[index + 1]!));
+      const side: number =
+        SIDE *
+        Math.min(gap(probe, first[index - 1]!), gap(probe, first[index + 1]!));
       const c: [number, number] = probe.chart.get(face)!;
       const e: [number, number] = probe.across;
       const keeps = (k: IAutoMovieSolidCycle.ICycle): boolean =>
-        AutoMovieSolidCycle.kept(k, c[0] + side * e[0], c[1] + side * e[1], period) && !AutoMovieSolidCycle.kept(k, c[0] - side * e[0], c[1] - side * e[1], period);
+        AutoMovieSolidCycle.kept(
+          k,
+          c[0] + side * e[0],
+          c[1] + side * e[1],
+          period,
+        ) &&
+        !AutoMovieSolidCycle.kept(
+          k,
+          c[0] - side * e[0],
+          c[1] - side * e[1],
+          period,
+        );
       if (keeps(two) && !keeps(one)) chosen = two;
-      else if (!keeps(one)) return `neither side of the rail's two runs across face ${f.surface.name} keeps the face past the rail`;
+      else if (!keeps(one))
+        return `neither side of the rail's two runs across face ${f.surface.name} keeps the face past the rail`;
     }
     f.cycles.splice(f.cycles.indexOf(a), 1, chosen);
     f.cycles.splice(f.cycles.indexOf(b), 1);
@@ -538,7 +714,10 @@ export namespace AutoMovieSolidClip {
     body: IAutoMovieSolidBody.IBody,
     face: number,
     run: IAutoMovieSolidClip.IRailPoint[],
-    along: (a: IAutoMovieSolidClip.IRailPoint, b: IAutoMovieSolidClip.IRailPoint) => IAutoMovieSolidCycle.INeighbour,
+    along: (
+      a: IAutoMovieSolidClip.IRailPoint,
+      b: IAutoMovieSolidClip.IRailPoint,
+    ) => IAutoMovieSolidCycle.INeighbour,
   ): string | null {
     const f: IAutoMovieSolidBody.IFace = body.faces[face]!;
     const period: number | undefined = f.surface.period;
@@ -546,8 +725,16 @@ export namespace AutoMovieSolidClip {
     const exit: IAutoMovieSolidClip.IRailPoint = run[run.length - 1]!;
 
     // Both crossings into the cycle they lie on.
-    const inPlace: [IAutoMovieSolidCycle.ICycle, number] | null = place(body, face, entry);
-    const outPlace: [IAutoMovieSolidCycle.ICycle, number] | null = place(body, face, exit);
+    const inPlace: [IAutoMovieSolidCycle.ICycle, number] | null = place(
+      body,
+      face,
+      entry,
+    );
+    const outPlace: [IAutoMovieSolidCycle.ICycle, number] | null = place(
+      body,
+      face,
+      exit,
+    );
     if (inPlace === null || outPlace === null)
       return `face ${f.surface.name} has no trim for the rail to cross`;
     // A run that joins two trims cuts nothing off by itself; `trim` pairs it with the next such run.
@@ -627,12 +814,16 @@ export namespace AutoMovieSolidClip {
     );
 
     // The candidate that keeps the side past the rail and removes the side before it.
-    const probe: IAutoMovieSolidClip.IRailPoint | undefined = inner[Math.floor(inner.length / 2)];
+    const probe: IAutoMovieSolidClip.IRailPoint | undefined =
+      inner[Math.floor(inner.length / 2)];
     let chosen: IAutoMovieSolidCycle.ICycle = one;
     if (probe !== undefined && probe.across !== undefined) {
       const at = (p: IAutoMovieSolidClip.IRailPoint): number[] =>
         body.mesh.positions.slice(3 * p.vertex, 3 * p.vertex + 3);
-      const gap = (a: IAutoMovieSolidClip.IRailPoint, b: IAutoMovieSolidClip.IRailPoint): number =>
+      const gap = (
+        a: IAutoMovieSolidClip.IRailPoint,
+        b: IAutoMovieSolidClip.IRailPoint,
+      ): number =>
         Math.hypot(
           ...[0, 1, 2].map((i: number): number => at(a)[i]! - at(b)[i]!),
         );
@@ -662,7 +853,11 @@ export namespace AutoMovieSolidClip {
       // cut under a port's band runs over the host's skin below the port's hole: one candidate is the hole widened by the cut, the
       // other the cut alone, which would give the face back the hole's whole inside. A cut only takes more of a face away, so the one
       // that removes everything the trim removed is kept.
-      else if (keeps(two) && lost(cycle, two, period) < lost(cycle, one, period)) chosen = two;
+      else if (
+        keeps(two) &&
+        lost(cycle, two, period) < lost(cycle, one, period)
+      )
+        chosen = two;
     }
     f.cycles.splice(f.cycles.indexOf(cycle), 1, chosen);
     return null;
@@ -672,22 +867,41 @@ export namespace AutoMovieSolidClip {
    * How many points the trim `old` removes the candidate would keep: one point beside the middle of each of the trim's segments, on the
    * side the trim removes, a quarter of the segment's chart length off it. A candidate that removes at least what the trim did keeps none.
    */
-  function lost(old: IAutoMovieSolidCycle.ICycle, candidate: IAutoMovieSolidCycle.ICycle, period: number | undefined): number {
+  function lost(
+    old: IAutoMovieSolidCycle.ICycle,
+    candidate: IAutoMovieSolidCycle.ICycle,
+    period: number | undefined,
+  ): number {
     let count: number = 0;
     const n: number = old.chart.length;
     for (let k: number = 0; k < n; k++) {
       const a: [number, number] = old.chart[k]!;
       const raw: [number, number] = old.chart[(k + 1) % n]!;
-      const b: [number, number] = [raw[0], AutoMovieSolidCycle.shift(raw[1], a[1], period)];
+      const b: [number, number] = [
+        raw[0],
+        AutoMovieSolidCycle.shift(raw[1], a[1], period),
+      ];
       const middle: [number, number] = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
-      const off: [number, number] = [-SIDE * (b[1] - a[1]), SIDE * (b[0] - a[0])];
+      const off: [number, number] = [
+        -SIDE * (b[1] - a[1]),
+        SIDE * (b[0] - a[0]),
+      ];
       if (!(Math.hypot(off[0], off[1]) > 0)) continue;
       const plus: [number, number] = [middle[0] + off[0], middle[1] + off[1]];
       const minus: [number, number] = [middle[0] - off[0], middle[1] - off[1]];
-      const keepsPlus: boolean = AutoMovieSolidCycle.kept(old, plus[0], plus[1], period);
-      if (keepsPlus === AutoMovieSolidCycle.kept(old, minus[0], minus[1], period)) continue;
+      const keepsPlus: boolean = AutoMovieSolidCycle.kept(
+        old,
+        plus[0],
+        plus[1],
+        period,
+      );
+      if (
+        keepsPlus === AutoMovieSolidCycle.kept(old, minus[0], minus[1], period)
+      )
+        continue;
       const removed: [number, number] = keepsPlus ? minus : plus;
-      if (AutoMovieSolidCycle.kept(candidate, removed[0], removed[1], period)) count++;
+      if (AutoMovieSolidCycle.kept(candidate, removed[0], removed[1], period))
+        count++;
     }
     return count;
   }

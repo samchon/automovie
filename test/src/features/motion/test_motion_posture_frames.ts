@@ -1,7 +1,26 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion } from "@automovie/engine";
-
-import { HumanFoot, HumanFrame, hipJoints, humanRig, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Quaternion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanFoot,
+  HumanFrame,
+  hipJoints,
+  humanRig,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -176,7 +195,11 @@ export function test_motion_posture_frames(): void {
     pose,
   );
   for (const side of ["left", "right"] as const) {
-    const sockets: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(body, bones, side);
+    const sockets: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
+      body,
+      bones,
+      side,
+    );
     complaints.equals(
       `${side}: the sockets in order`,
       sockets.map((s) => s.socket),

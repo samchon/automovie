@@ -1,5 +1,8 @@
-import { type IAutoMovieMeshTopologyValidationProps, type IAutoMovieViolationCollector, IAutoMovieValidation } from "@automovie/interface";
-
+import {
+  type IAutoMovieMeshTopologyValidationProps,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
 import { appendMeshTopology } from "./appendMeshTopology";

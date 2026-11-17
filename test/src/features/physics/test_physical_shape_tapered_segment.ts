@@ -1,6 +1,9 @@
-import type { IAutoMoviePhysicalShapeNearest, IAutoMovieVector3, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { Quaternion, physicalShapeNearest } from "@automovie/engine";
-
+import type {
+  IAutoMoviePhysicalShapeNearest,
+  IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

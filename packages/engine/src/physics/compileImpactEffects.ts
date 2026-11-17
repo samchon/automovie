@@ -1,5 +1,9 @@
-import type { IAutoMovieCompileImpactEffects, IAutoMovieCompiledEffect, IAutoMovieContactReceipt, IAutoMovieEffectRecipe } from "@automovie/interface";
-
+import type {
+  IAutoMovieCompileImpactEffects,
+  IAutoMovieCompiledEffect,
+  IAutoMovieContactReceipt,
+  IAutoMovieEffectRecipe,
+} from "@automovie/interface";
 
 import { materializeCompiledEffects } from "../effectRuntime/materializeCompiledEffects";
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
@@ -21,7 +25,9 @@ import { samplePhysicalContactEvents } from "./samplePhysicalContactEvents";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 23 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function compileImpactEffects(input: IAutoMovieCompileImpactEffects.IInput): IAutoMovieCompiledEffect[] {
+export function compileImpactEffects(
+  input: IAutoMovieCompileImpactEffects.IInput,
+): IAutoMovieCompiledEffect[] {
   if (
     !(input.endSeconds > 0) ||
     !(input.fixedStepSeconds > 0) ||

@@ -1,5 +1,3 @@
-
-
 /**
  * One homogeneous quadratic iterate or Newton direction. Iterates have positive
  * tau/kappa and positive inequality s/z; equality s is zero and z is free.

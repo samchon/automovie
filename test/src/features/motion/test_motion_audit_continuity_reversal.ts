@@ -1,5 +1,8 @@
-import type { IAutoMovieMotionHumanAuditContinuity, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditContinuity,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanAuditContinuity } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -66,7 +69,9 @@ export function test_motion_audit_continuity_reversal(): void {
     (t: number): number =>
       Math.abs(t - frame) < half ? height : 0;
 
-  const full: IAutoMovieMotionHumanAuditContinuity.IResult = lifted(spike(0.08));
+  const full: IAutoMovieMotionHumanAuditContinuity.IResult = lifted(
+    spike(0.08),
+  );
   TestValidator.predicate(
     "a one-frame spike is its own height",
     Math.abs(full.reversal.value - 0.08) <= 1e-9 &&

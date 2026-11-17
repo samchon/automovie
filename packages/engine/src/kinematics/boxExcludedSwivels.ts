@@ -1,6 +1,13 @@
-import { type IAutoMovieAxisFrame, type IAutoMovieBoxExcludedSwivels, type IAutoMovieSwivelArcs, IAutoMovieAngleRange, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  IAutoMovieAngleRange,
+  type IAutoMovieAxisFrame,
+  type IAutoMovieBoxExcludedSwivels,
+  IAutoMovieJointAxes,
+  IAutoMovieJointConstraint,
+  IAutoMovieQuaternion,
+  type IAutoMovieSwivelArcs,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -57,7 +64,9 @@ import { swivelArcs } from "./swivelArcs";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The fit, the arcs, their union and its test are `swivelArcs`'s, shared with a point's bounds; the arcs are built once per rotation and read by every test of its sweep.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the two merged arc lists in the returned test only.
  */
-export function boxExcludedSwivels(props: IAutoMovieBoxExcludedSwivels.IProps): (low: number, high: number) => boolean {
+export function boxExcludedSwivels(
+  props: IAutoMovieBoxExcludedSwivels.IProps,
+): (low: number, high: number) => boolean {
   const constraint: IAutoMovieJointConstraint | null = props.constraint;
   if (constraint === null) return (): boolean => false;
   if (constraint.swingTwist !== undefined && constraint.swingTwist !== null)
@@ -133,10 +142,8 @@ export function boxExcludedSwivels(props: IAutoMovieBoxExcludedSwivels.IProps): 
           rig(range, props.frame?.[axis]),
           alternate,
         )) {
-          const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(
-            bound,
-            MARGIN,
-          );
+          const arc: IAutoMovieSwivelArcs.IArc | "all" | null =
+            swivelArcs.above(bound, MARGIN);
           if (arc === "all") return "all";
           if (arc !== null) arcs.push(arc);
         }
@@ -166,7 +173,11 @@ type Axis = "flexion" | "abduction" | "twist";
 /** How an axis is read: the middle angle's sine, or an outer angle's vector and the sign its rest-relative angle takes. */
 type IRead =
   | { sine: IAutoMovieSwivelArcs.ISinusoid }
-  | { y: IAutoMovieSwivelArcs.ISinusoid; x: IAutoMovieSwivelArcs.ISinusoid; turn: 1 | -1 };
+  | {
+      y: IAutoMovieSwivelArcs.ISinusoid;
+      x: IAutoMovieSwivelArcs.ISinusoid;
+      turn: 1 | -1;
+    };
 
 /** A clinical interval as rest-relative degrees, ordered (the inverse of `toClinicalAngle`). */
 function rig(

@@ -1,4 +1,3 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanRefusal, IAutoMovieMotionHumanSignature, IAutoMovieResolveCenterOfMass, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieGravity,
   Vector3,
@@ -6,8 +5,24 @@ import {
   resolveAutoMovieCenterOfMass,
   resolveAutoMovieMomentum,
 } from "@automovie/engine";
-
-import { HumanChain, HumanFoot, HumanForceExchange, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFoot,
+  HumanForceExchange,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -390,10 +405,11 @@ export function test_human_motion_force_exchange(): void {
         kuzushi < release &&
         release <= land,
     );
-    const bearing: IAutoMovieMotionHumanContactWindow | undefined = plan.contacts.find(
-      (w: IAutoMovieMotionHumanContactWindow): boolean =>
-        w.support.kind === "person" && w.support.subject === "a",
-    );
+    const bearing: IAutoMovieMotionHumanContactWindow | undefined =
+      plan.contacts.find(
+        (w: IAutoMovieMotionHumanContactWindow): boolean =>
+          w.support.kind === "person" && w.support.subject === "a",
+      );
     all.check(
       `the throw's bearing window on the thrower ends at share ${bearing?.to ?? "none"}, the release's ${release === null ? "none" : ((release - response.start) / plan.duration).toFixed(4)} expected`,
       bearing !== undefined &&

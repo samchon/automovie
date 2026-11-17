@@ -1,6 +1,13 @@
-import type { IAutoMovieGeometryQuery, IAutoMovieCompiledShotSource, IAutoMovieFilmTimeline, IAutoMovieFilmTimelineSegment, IAutoMovieProductionDesign, IAutoMovieSceneNode, IAutoMovieShotContract } from "@automovie/interface";
 import { measureAutoMovieGeometry } from "@automovie/engine";
-
+import type {
+  IAutoMovieCompiledShotSource,
+  IAutoMovieFilmTimeline,
+  IAutoMovieFilmTimelineSegment,
+  IAutoMovieGeometryQuery,
+  IAutoMovieProductionDesign,
+  IAutoMovieSceneNode,
+  IAutoMovieShotContract,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/createModel";

@@ -1,5 +1,11 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieAffordance, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -118,7 +124,10 @@ export function test_human_motion_core_prop_point(): void {
   };
   const turning: IAutoMovieMotionHumanPerformance = film(true);
   const fixed: IAutoMovieMotionHumanPerformance = film(false);
-  const rows = (of: IAutoMovieMotionHumanPerformance, point: string): number[][] =>
+  const rows = (
+    of: IAutoMovieMotionHumanPerformance,
+    point: string,
+  ): number[][] =>
     [0, 0.25, 0.5].map((seconds: number): number[] =>
       aimed(of, point, seconds),
     );

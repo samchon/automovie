@@ -1,4 +1,7 @@
-import type { AutoMovieRecoveryCurveFormat, IAutoMovieRecoveryOptions } from "../../index";
+import type {
+  AutoMovieRecoveryCurveFormat,
+  IAutoMovieRecoveryOptions,
+} from "../../index";
 
 /**
  * Observation options with an explicitly selected saved cubic basis. The selector is required so the result's generic basis matches the runtime input.
@@ -12,7 +15,6 @@ import type { AutoMovieRecoveryCurveFormat, IAutoMovieRecoveryOptions } from "..
 export interface IAutoMovieRecoveryObservationOptions<
   Format extends AutoMovieRecoveryCurveFormat,
 > extends IAutoMovieRecoveryOptions {
- 
- /** Required saved cubic basis, also carried by the observation result type. */
+  /** Required saved cubic basis, also carried by the observation result type. */
   curveFormat: Format;
 }

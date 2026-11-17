@@ -1,4 +1,18 @@
-import type { AutoMovieMotionHumanActionName, AutoMovieMotionHumanChannel, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarry, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanActionName,
+  AutoMovieMotionHumanChannel,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarry,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { walk } from "../actions/walk";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -83,12 +97,13 @@ export namespace carry {
   };
 
   /** Trunk lean per unit of the load's mass share by way of carrying, degrees (provisional). */
-  export const LEAN: Readonly<Record<IAutoMovieMotionHumanCarry.How, number>> = {
-    oneHand: 30,
-    twoHands: 25,
-    hip: 30,
-    push: 40,
-  };
+  export const LEAN: Readonly<Record<IAutoMovieMotionHumanCarry.How, number>> =
+    {
+      oneHand: 30,
+      twoHands: 25,
+      hip: 30,
+      push: 40,
+    };
 
   /** Seconds over which the hold and the lean grow in (provisional). */
   export const RAMP: number = 0.4;
@@ -201,7 +216,10 @@ export namespace carry {
       channels: ["trunk"],
       from: 0,
       to: duration,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
         const add = lean(ramp(seconds));
         const sum = (
           held: readonly [number, number, number] | undefined,
@@ -231,7 +249,10 @@ export namespace carry {
           channels: [`${side}Arm`, `${side}Hand`],
           from: 0,
           to: duration,
-          write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+          write: (
+            posture: IAutoMovieMotionHumanPosture,
+            seconds: number,
+          ): IAutoMovieMotionHumanPosture => {
             const s: number = ramp(seconds);
             return {
               ...posture,
@@ -257,7 +278,9 @@ export namespace carry {
           to: duration,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
           weight: ramp,
-          goal: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture.IGoal => {
+          goal: (
+            posture: IAutoMovieMotionHumanPosture,
+          ): IAutoMovieMotionHumanPosture.IGoal => {
             const at = place(body, posture, how, side, loaded)!;
             return AutoMovieMotionHumanArm.goal(
               body,
@@ -287,7 +310,9 @@ export namespace carry {
       yields: [
         "head",
         ...free.flatMap(
-          (side: IAutoMovieMotionHumanHand.Side): AutoMovieMotionHumanChannel.Claim[] => [
+          (
+            side: IAutoMovieMotionHumanHand.Side,
+          ): AutoMovieMotionHumanChannel.Claim[] => [
             `${side}Arm`,
             `${side}Hand`,
           ],

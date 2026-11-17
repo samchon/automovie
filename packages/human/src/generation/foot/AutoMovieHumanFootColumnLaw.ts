@@ -17,8 +17,6 @@ import type { IAutoMovieHumanFootColumnLaw } from "@automovie/interface";
  * station, and its place is as smooth as the column.
  */
 export namespace AutoMovieHumanFootColumnLaw {
-  
-
   /**
    * A column's plan law from its knots.
    *
@@ -26,7 +24,11 @@ export namespace AutoMovieHumanFootColumnLaw {
    * @param along The knots' places along the foot.
    * @param across The knots' places across the foot.
    */
-  export function plan(heights: readonly number[], along: readonly number[], across: readonly number[]): IAutoMovieHumanFootColumnLaw.IPlan {
+  export function plan(
+    heights: readonly number[],
+    along: readonly number[],
+    across: readonly number[],
+  ): IAutoMovieHumanFootColumnLaw.IPlan {
     return { along: fit(heights, along), across: fit(heights, across) };
   }
 
@@ -38,10 +40,15 @@ export namespace AutoMovieHumanFootColumnLaw {
    * @param values The knots' values at those heights.
    * @returns The law at a height.
    */
-  export function fit(heights: readonly number[], values: readonly number[]): IAutoMovieHumanFootColumnLaw.FitResult {
+  export function fit(
+    heights: readonly number[],
+    values: readonly number[],
+  ): IAutoMovieHumanFootColumnLaw.FitResult {
     const n: number = heights.length;
-    const mean: number = heights.reduce((s: number, h: number): number => s + h, 0) / n;
-    const level: number = values.reduce((s: number, v: number): number => s + v, 0) / n;
+    const mean: number =
+      heights.reduce((s: number, h: number): number => s + h, 0) / n;
+    const level: number =
+      values.reduce((s: number, v: number): number => s + v, 0) / n;
     if (n === 1) return (): number => level;
 
     // Normal equations about the mean height, which keeps them well
@@ -55,16 +62,28 @@ export namespace AutoMovieHumanFootColumnLaw {
     });
     const slope: number = s[2]! > 0 ? t[1]! / s[2]! : 0;
     const det: number =
-      s[0]! * (s[2]! * s[4]! - s[3]! * s[3]!) - s[1]! * (s[1]! * s[4]! - s[3]! * s[2]!) + s[2]! * (s[1]! * s[3]! - s[2]! * s[2]!);
-    if (n === 2 || !(Math.abs(det) > SINGULAR * s[0]! * s[2]! * s[4]!)) return (h: number): number => level + slope * (h - mean);
+      s[0]! * (s[2]! * s[4]! - s[3]! * s[3]!) -
+      s[1]! * (s[1]! * s[4]! - s[3]! * s[2]!) +
+      s[2]! * (s[1]! * s[3]! - s[2]! * s[2]!);
+    if (n === 2 || !(Math.abs(det) > SINGULAR * s[0]! * s[2]! * s[4]!))
+      return (h: number): number => level + slope * (h - mean);
 
     // Cramer's rule for the three coefficients.
     const c0: number =
-      (t[0]! * (s[2]! * s[4]! - s[3]! * s[3]!) - s[1]! * (t[1]! * s[4]! - s[3]! * t[2]!) + s[2]! * (t[1]! * s[3]! - s[2]! * t[2]!)) / det;
+      (t[0]! * (s[2]! * s[4]! - s[3]! * s[3]!) -
+        s[1]! * (t[1]! * s[4]! - s[3]! * t[2]!) +
+        s[2]! * (t[1]! * s[3]! - s[2]! * t[2]!)) /
+      det;
     const c1: number =
-      (s[0]! * (t[1]! * s[4]! - s[3]! * t[2]!) - t[0]! * (s[1]! * s[4]! - s[3]! * s[2]!) + s[2]! * (s[1]! * t[2]! - t[1]! * s[2]!)) / det;
+      (s[0]! * (t[1]! * s[4]! - s[3]! * t[2]!) -
+        t[0]! * (s[1]! * s[4]! - s[3]! * s[2]!) +
+        s[2]! * (s[1]! * t[2]! - t[1]! * s[2]!)) /
+      det;
     const c2: number =
-      (s[0]! * (s[2]! * t[2]! - t[1]! * s[3]!) - s[1]! * (s[1]! * t[2]! - t[1]! * s[2]!) + t[0]! * (s[1]! * s[3]! - s[2]! * s[2]!)) / det;
+      (s[0]! * (s[2]! * t[2]! - t[1]! * s[3]!) -
+        s[1]! * (s[1]! * t[2]! - t[1]! * s[2]!) +
+        t[0]! * (s[1]! * s[3]! - s[2]! * s[2]!)) /
+      det;
 
     return (h: number): number => {
       const x: number = h - mean;

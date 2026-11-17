@@ -1,4 +1,13 @@
-import type { IAutoMovieAlgebra, IAutoMovieConicArc, IAutoMovieConicArcField, IAutoMovieConicFieldJet, IAutoMovieConicHermite, IAutoMovieConicHermiteField, IAutoMoviePolarSector } from "@automovie/interface";
+import type {
+  IAutoMovieAlgebra,
+  IAutoMovieConicArc,
+  IAutoMovieConicArcField,
+  IAutoMovieConicFieldJet,
+  IAutoMovieConicHermite,
+  IAutoMovieConicHermiteField,
+  IAutoMoviePolarSector,
+} from "@automovie/interface";
+
 import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 
@@ -11,7 +20,6 @@ import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConicHermiteField {
-
   /**
    * Stable logarithm of a positive sum with a primal scaling gauge.
    *
@@ -23,7 +31,10 @@ export namespace AutoMovieConicHermiteField {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One maximum normalizes every term.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar without retaining its array.
    */
-  export function logSum<T>(ops: IAutoMovieAlgebra<T>, values: readonly T[]): T {
+  export function logSum<T>(
+    ops: IAutoMovieAlgebra<T>,
+    values: readonly T[],
+  ): T {
     if (values.length === 0) return ops.constant(-Infinity);
     const largest: number = Math.max(
       ...values.map((value: T): number => ops.value(value)),
@@ -195,23 +206,16 @@ export namespace AutoMovieConicHermiteField {
           "A G2 source reading requires the selected finite interior log-odds clock.",
       };
 
-    const ops: IAutoMovieAlgebra<IAutoMovieConicFieldJet.IJet> = AutoMovieConicFieldJet.AD;
+    const ops: IAutoMovieAlgebra<IAutoMovieConicFieldJet.IJet> =
+      AutoMovieConicFieldJet.AD;
     const weights: IAutoMovieConicFieldJet.IJet[] = patch.weights.map(
-      (weight: IAutoMovieConicFieldJet.IJet): IAutoMovieConicFieldJet.IJet => ops.log(weight),
+      (weight: IAutoMovieConicFieldJet.IJet): IAutoMovieConicFieldJet.IJet =>
+        ops.log(weight),
     );
-    const reading: IAutoMovieConicHermiteField.IProjective<IAutoMovieConicFieldJet.IJet> = projective(
-      ops,
-      patch,
-      weights,
-      ray.clock,
-      ray.position,
-    );
-    const tangent: IAutoMovieConicHermiteField.IDirection<IAutoMovieConicFieldJet.IJet> = direction(
-      ops,
-      patch,
-      reading,
-      ray.position,
-    );
+    const reading: IAutoMovieConicHermiteField.IProjective<IAutoMovieConicFieldJet.IJet> =
+      projective(ops, patch, weights, ray.clock, ray.position);
+    const tangent: IAutoMovieConicHermiteField.IDirection<IAutoMovieConicFieldJet.IJet> =
+      direction(ops, patch, reading, ray.position);
     return AutoMovieConicArcField.finish(
       AutoMovieConicArcField.orient(
         ops,
@@ -239,12 +243,8 @@ export namespace AutoMovieConicHermiteField {
     clock: number | null,
     position: "first" | "interior" | "last",
   ): IAutoMovieConicArc.IRay | null {
-    const directionValue: IAutoMovieConicHermiteField.IDirection<number> = direction(
-      AutoMovieConicFieldJet.NUMBER,
-      patch,
-      reading,
-      position,
-    );
+    const directionValue: IAutoMovieConicHermiteField.IDirection<number> =
+      direction(AutoMovieConicFieldJet.NUMBER, patch, reading, position);
     let logCurvature: number;
     if (position === "first") logCurvature = Math.log(patch.curvature);
     else if (position === "last")

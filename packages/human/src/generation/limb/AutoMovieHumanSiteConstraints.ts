@@ -1,12 +1,11 @@
-import type { IAutoMovieViewSection, IAutoMovieHumanSiteConstraints } from "@automovie/interface";
-
-
 import { AutoMovieViewSection } from "@automovie/engine";
+import type {
+  IAutoMovieHumanSiteConstraints,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 /** Call-owned independent site constraints, shared before adjoining scalar laws are published. */
 export namespace AutoMovieHumanSiteConstraints {
-  
-
   /** Prepare an invocation-local owner bounded by the actual named measurement sites. */
   export function create(): IAutoMovieHumanSiteConstraints.IOwner {
     const sites: Map<string, IRecord> = new Map();
@@ -25,11 +24,8 @@ export namespace AutoMovieHumanSiteConstraints {
           )
         )
           return previous.result;
-        const result: IAutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
-          name,
-          { extents },
-          girth,
-        );
+        const result: IAutoMovieViewSection.ISolved =
+          AutoMovieViewSection.solve(name, { extents }, girth);
         sites.set(name, { extents: [...extents], girth, result });
         return result;
       },

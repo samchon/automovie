@@ -1,10 +1,12 @@
-import type { IAutoMovieBicubicAtlasTessellation64, IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
 import {
   admitAutoMovieBicubicAtlas,
   realizeAutoMovieBicubicAtlas64,
   tessellateAutoMovieBicubicAtlas64,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieBicubicAtlasGeometry,
+  IAutoMovieBicubicAtlasTessellation64,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createBicubicPlaneRecipe } from "../internal/createBicubicPlaneRecipe";

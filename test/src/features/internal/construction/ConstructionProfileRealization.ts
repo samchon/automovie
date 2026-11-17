@@ -1,6 +1,22 @@
-import type { IAutoMovieConstructionNode, IAutoMovieConstructionProfileBody, IAutoMovieConstructionProfileSource, IAutoMoviePreparedConstructionProfile, IAutoMovieSolidBody, IAutoMovieSolidMesh, IAutoMovieSolidSurface, IAutoMovieConstructionJoin, IAutoMovieConstructionProfile } from "@automovie/interface";
-import { AutoMovieConstructionProfile, AutoMovieConstructionProfileBody, AutoMovieConstructionProfileSkin, AutoMovieSolidBody, AutoMovieSolidMesh, AutoMovieViewAxis } from "@automovie/engine";
-
+import {
+  AutoMovieConstructionProfile,
+  AutoMovieConstructionProfileBody,
+  AutoMovieConstructionProfileSkin,
+  AutoMovieSolidBody,
+  AutoMovieSolidMesh,
+  AutoMovieViewAxis,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionJoin,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionProfile,
+  IAutoMovieConstructionProfileBody,
+  IAutoMovieConstructionProfileSource,
+  IAutoMoviePreparedConstructionProfile,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 /**
  * Exact original L-prism and cone function owners for actual profile realization.

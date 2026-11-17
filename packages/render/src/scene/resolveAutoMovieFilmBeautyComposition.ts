@@ -1,8 +1,7 @@
-import type { IAutoMovieFilmBeautyComposition, IAutoMovieFilmBeautyLayer } from "@automovie/interface";
-
-
-
-
+import type {
+  IAutoMovieFilmBeautyComposition,
+  IAutoMovieFilmBeautyLayer,
+} from "@automovie/interface";
 
 /**
  * Resolve a builder-sampled beauty layer list into one explicit compositor.

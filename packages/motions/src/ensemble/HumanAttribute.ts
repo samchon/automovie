@@ -1,6 +1,9 @@
-import type { IAutoMovieMotionHumanAttribute, IAutoMovieMotionHumanAttributeEffects, IAutoMovieRandom } from "@automovie/interface";
-
 import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanAttribute,
+  IAutoMovieMotionHumanAttributeEffects,
+  IAutoMovieRandom,
+} from "@automovie/interface";
 
 import { HumanSkill } from "../skill/HumanSkill";
 
@@ -23,9 +26,12 @@ import { HumanSkill } from "../skill/HumanSkill";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No ordinal counter is consumed: each draw has its own key.
  */
 export namespace HumanAttribute {
-
   /** Every attribute name, as data. */
-  export const NAMES: readonly IAutoMovieMotionHumanAttribute.Name[] = ["discipline", "fatigue", "morale"];
+  export const NAMES: readonly IAutoMovieMotionHumanAttribute.Name[] = [
+    "discipline",
+    "fatigue",
+    "morale",
+  ];
 
   /**
    * The stream of one member's quantity: keyed by the chain seed, the

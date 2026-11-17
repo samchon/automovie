@@ -1,11 +1,23 @@
-import type { AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple, IAutoMovieCompactCurveApproximation, IAutoMovieConicApproximation, IAutoMovieCurve64 } from "@automovie/interface";
 import { AutoMovieBernstein64 as B } from "@automovie/engine";
-
+import type {
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieVector3Tuple,
+  IAutoMovieCompactCurveApproximation,
+  IAutoMovieConicApproximation,
+  IAutoMovieCurve64,
+} from "@automovie/interface";
 
 /** Physical cubic adapters and coefficient-based error admission for the whole ruled experiment. */
 export namespace RuledCompactCurve {
   /** A supported planar chart or an explicit reason to keep the original representation. */
-  export type Prepared = { accepted: true; source: IAutoMovieCompactCurveApproximation.ICurve; planeMm: number; period: number } | { accepted: false; reason: string };
+  export type Prepared =
+    | {
+        accepted: true;
+        source: IAutoMovieCompactCurveApproximation.ICurve;
+        planeMm: number;
+        period: number;
+      }
+    | { accepted: false; reason: string };
   /** Conservative real-arithmetic convex-hull estimate, with binary64 qualification. */
   export interface Bound {
     /** Whether every polynomial overlap's upper estimate is within the additional tolerance. */
@@ -25,24 +37,47 @@ export namespace RuledCompactCurve {
     const prefix: number[] = [0];
     const jets: AutoMovieBernsteinPolynomial64[][] = [];
     const plane: number | undefined = curve.spans[0]?.[0][1];
-    if (plane === undefined || !Number.isFinite(plane)) return { accepted: false, reason: "nonfinite-or-empty-source" };
-    const allowance: number = 128 * Number.EPSILON * Math.max(1, Math.abs(plane));
+    if (plane === undefined || !Number.isFinite(plane))
+      return { accepted: false, reason: "nonfinite-or-empty-source" };
+    const allowance: number =
+      128 * Number.EPSILON * Math.max(1, Math.abs(plane));
     for (const [i, span] of curve.spans.entries()) {
       const width: number = curve.phaseIntervals[i]!;
       const next: number = prefix.at(-1)! + width;
-      if (!(width > 0 && Number.isFinite(next) && next > prefix.at(-1)!)) return { accepted: false, reason: "unresolved-source-phase" };
-      if (span.some((p: Readonly<AutoMovieVector3Tuple>): boolean => !p.every(Number.isFinite) || Math.abs(p[1] - plane) > allowance)) return { accepted: false, reason: "nonplanar-source" };
-      const levels: AutoMovieBernsteinPolynomial64[] = [span.map((p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [p[0], p[1], p[2]])];
-      for (let order: number = 1; order <= 3; ++order) levels.push(B.tangent(levels.at(-1)!, 1 / width));
+      if (!(width > 0 && Number.isFinite(next) && next > prefix.at(-1)!))
+        return { accepted: false, reason: "unresolved-source-phase" };
+      if (
+        span.some(
+          (p: Readonly<AutoMovieVector3Tuple>): boolean =>
+            !p.every(Number.isFinite) || Math.abs(p[1] - plane) > allowance,
+        )
+      )
+        return { accepted: false, reason: "nonplanar-source" };
+      const levels: AutoMovieBernsteinPolynomial64[] = [
+        span.map(
+          (p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [
+            p[0],
+            p[1],
+            p[2],
+          ],
+        ),
+      ];
+      for (let order: number = 1; order <= 3; ++order)
+        levels.push(B.tangent(levels.at(-1)!, 1 / width));
       jets.push(levels);
       prefix.push(next);
     }
     const breaks: number[] = [];
 
     /** A first nonzero Taylor jet owns the geometric tangent without replacing any actual derivative callback. */
-    const tangent = (span: number, end: boolean): IAutoMovieConicApproximation.Point | null => {
+    const tangent = (
+      span: number,
+      end: boolean,
+    ): IAutoMovieConicApproximation.Point | null => {
       for (let order: number = 1; order <= 3; ++order) {
-        const p: AutoMovieVector3Tuple = end ? jets[span]![order]!.at(-1)! : jets[span]![order]![0]!;
+        const p: AutoMovieVector3Tuple = end
+          ? jets[span]![order]!.at(-1)!
+          : jets[span]![order]![0]!;
         if (Math.hypot(p[0], p[2]) > 0) {
           const sign: number = end && order % 2 === 0 ? -1 : 1;
           return [sign * p[0], sign * p[2]];
@@ -56,47 +91,101 @@ export namespace RuledCompactCurve {
       const next: number = j % curve.spans.length;
       const a: Readonly<AutoMovieVector3Tuple> = curve.spans[i]![3];
       const b: Readonly<AutoMovieVector3Tuple> = curve.spans[next]![0];
-      if (a.some((value: number, axis: number): boolean => value !== b[axis])) return { accepted: false, reason: "original-position-gap" };
+      if (a.some((value: number, axis: number): boolean => value !== b[axis]))
+        return { accepted: false, reason: "original-position-gap" };
       const left: IAutoMovieConicApproximation.Point | null = tangent(i, true);
-      const right: IAutoMovieConicApproximation.Point | null = tangent(next, false);
-      const angle: number = left === null || right === null ? Infinity : Math.atan2(Math.abs(left[0] * right[1] - left[1] * right[0]), left[0] * right[0] + left[1] * right[1]);
-      if (j < curve.spans.length && angle > 1e-5 * Math.PI / 180) breaks.push(prefix[j]!);
+      const right: IAutoMovieConicApproximation.Point | null = tangent(
+        next,
+        false,
+      );
+      const angle: number =
+        left === null || right === null
+          ? Infinity
+          : Math.atan2(
+              Math.abs(left[0] * right[1] - left[1] * right[0]),
+              left[0] * right[0] + left[1] * right[1],
+            );
+      if (j < curve.spans.length && angle > (1e-5 * Math.PI) / 180)
+        breaks.push(prefix[j]!);
     }
     const period: number = prefix.at(-1)!;
 
     /** Binary lookup selects the requested incident source polynomial exactly at a stored phase boundary. */
-    const query = (t: number, order: 0 | 1 | 2 | 3 | 4 | 5, side?: "left" | "right"): IAutoMovieConicApproximation.Point => {
+    const query = (
+      t: number,
+      order: 0 | 1 | 2 | 3 | 4 | 5,
+      side?: "left" | "right",
+    ): IAutoMovieConicApproximation.Point => {
       if (order > 3) return [0, 0];
       let lo: number = 0;
       let hi: number = curve.spans.length - 1;
       while (lo < hi) {
         const middle: number = (lo + hi) >>> 1;
-        if (t > prefix[middle + 1]! || t === prefix[middle + 1]! && side !== "left") lo = middle + 1;
+        if (
+          t > prefix[middle + 1]! ||
+          (t === prefix[middle + 1]! && side !== "left")
+        )
+          lo = middle + 1;
         else hi = middle;
       }
-      const p: AutoMovieVector3Tuple = B.value(jets[lo]![order]!, (t - prefix[lo]!) / curve.phaseIntervals[lo]!);
+      const p: AutoMovieVector3Tuple = B.value(
+        jets[lo]![order]!,
+        (t - prefix[lo]!) / curve.phaseIntervals[lo]!,
+      );
       return [p[0], p[2]];
     };
-    return { accepted: true, planeMm: plane, period, source: { domain: [0, period], knots: prefix.slice(1, -1), breaks, closed: curve.closed,
-      evaluate: (t: number): IAutoMovieConicApproximation.Point => query(t, 0), derivative: (t: number, order: 1 | 2 | 3 | 4 | 5, side?: "left" | "right"): IAutoMovieConicApproximation.Point => query(t, order, side) } };
+    return {
+      accepted: true,
+      planeMm: plane,
+      period,
+      source: {
+        domain: [0, period],
+        knots: prefix.slice(1, -1),
+        breaks,
+        closed: curve.closed,
+        evaluate: (t: number): IAutoMovieConicApproximation.Point =>
+          query(t, 0),
+        derivative: (
+          t: number,
+          order: 1 | 2 | 3 | 4 | 5,
+          side?: "left" | "right",
+        ): IAutoMovieConicApproximation.Point => query(t, order, side),
+      },
+    };
   }
 
   /** Materialize true degree-three output while proving every new phase prefix, including the original total, is exactly representable. */
-  export function materialize(original: IAutoMovieCurve64.Cubic, prepared: Prepared & { accepted: true }, result: IAutoMovieCompactCurveApproximation.IResult): IAutoMovieCurve64.Cubic | null {
+  export function materialize(
+    original: IAutoMovieCurve64.Cubic,
+    prepared: Prepared & { accepted: true },
+    result: IAutoMovieCompactCurveApproximation.IResult,
+  ): IAutoMovieCurve64.Cubic | null {
     if (result.status !== "complete") return null;
     const spans: IAutoMovieCurve64.Span[] = [];
     const widths: number[] = [];
     let prefix: number = 0;
     for (const piece of result.pieces) {
-      if (piece.kind !== "polynomial" || piece.degree !== 3 || piece.controls.length !== 4 || piece.domain[0] !== prefix) return null;
+      if (
+        piece.kind !== "polynomial" ||
+        piece.degree !== 3 ||
+        piece.controls.length !== 4 ||
+        piece.domain[0] !== prefix
+      )
+        return null;
       const width: number = piece.domain[1] - prefix;
       if (!(width > 0) || prefix + width !== piece.domain[1]) return null;
-      const point = (at: number): Readonly<AutoMovieVector3Tuple> => [piece.controls[at]![0], prepared.planeMm, piece.controls[at]![1]];
+      const point = (at: number): Readonly<AutoMovieVector3Tuple> => [
+        piece.controls[at]![0],
+        prepared.planeMm,
+        piece.controls[at]![1],
+      ];
       spans.push([point(0), point(1), point(2), point(3)]);
       widths.push(width);
       prefix += width;
     }
-    return prefix !== prepared.period ? null : { ...original, spans, phaseIntervals: widths };
+    return prefix !== prepared.period
+      ? null
+      : { ...original, spans, phaseIntervals: widths };
   }
 
   /**
@@ -105,36 +194,112 @@ export namespace RuledCompactCurve {
    * convex hull bounds vector norm; subdivisions tighten it without missing
    * interior extrema. Binary64 operations are not outward-rounded certificates.
    */
-  export function bound(original: IAutoMovieCurve64.Cubic, candidate: IAutoMovieCurve64.Cubic, toleranceMm: number, alive: () => boolean): Bound {
+  export function bound(
+    original: IAutoMovieCurve64.Cubic,
+    candidate: IAutoMovieCurve64.Cubic,
+    toleranceMm: number,
+    alive: () => boolean,
+  ): Bound {
     const prefixes = (curve: IAutoMovieCurve64.Cubic): number[] => {
       const values: number[] = [0];
-      for (const width of curve.phaseIntervals) values.push(values.at(-1)! + width);
+      for (const width of curve.phaseIntervals)
+        values.push(values.at(-1)! + width);
       return values;
     };
     const a: number[] = prefixes(original);
     const b: number[] = prefixes(candidate);
-    const result: Bound = { accepted: true, upperMm: 0, observedMm: 0, visits: 0, reason: "" };
-    if (a.at(-1) !== b.at(-1)) return { ...result, accepted: false, reason: "physical-phase-period-changed" };
+    const result: Bound = {
+      accepted: true,
+      upperMm: 0,
+      observedMm: 0,
+      visits: 0,
+      reason: "",
+    };
+    if (a.at(-1) !== b.at(-1))
+      return {
+        ...result,
+        accepted: false,
+        reason: "physical-phase-period-changed",
+      };
     let i: number = 0;
     let j: number = 0;
     while (i < original.spans.length && j < candidate.spans.length) {
       const start: number = Math.max(a[i]!, b[j]!);
       const end: number = Math.min(a[i + 1]!, b[j + 1]!);
       if (end > start) {
-        const old: AutoMovieBernsteinPolynomial64 = B.restrict(original.spans[i]!.map((p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [p[0], p[1], p[2]]), (start - a[i]!) / original.phaseIntervals[i]!, (end - a[i]!) / original.phaseIntervals[i]!);
-        const next: AutoMovieBernsteinPolynomial64 = B.restrict(candidate.spans[j]!.map((p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [p[0], p[1], p[2]]), (start - b[j]!) / candidate.phaseIntervals[j]!, (end - b[j]!) / candidate.phaseIntervals[j]!);
-        const difference: AutoMovieBernsteinPolynomial64 = old.map((p: AutoMovieVector3Tuple, k: number): AutoMovieVector3Tuple => [p[0] - next[k]![0], p[1] - next[k]![1], p[2] - next[k]![2]]);
-        const pending: { controls: AutoMovieBernsteinPolynomial64; depth: number }[] = [{ controls: difference, depth: 0 }];
+        const old: AutoMovieBernsteinPolynomial64 = B.restrict(
+          original.spans[i]!.map(
+            (p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [
+              p[0],
+              p[1],
+              p[2],
+            ],
+          ),
+          (start - a[i]!) / original.phaseIntervals[i]!,
+          (end - a[i]!) / original.phaseIntervals[i]!,
+        );
+        const next: AutoMovieBernsteinPolynomial64 = B.restrict(
+          candidate.spans[j]!.map(
+            (p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [
+              p[0],
+              p[1],
+              p[2],
+            ],
+          ),
+          (start - b[j]!) / candidate.phaseIntervals[j]!,
+          (end - b[j]!) / candidate.phaseIntervals[j]!,
+        );
+        const difference: AutoMovieBernsteinPolynomial64 = old.map(
+          (p: AutoMovieVector3Tuple, k: number): AutoMovieVector3Tuple => [
+            p[0] - next[k]![0],
+            p[1] - next[k]![1],
+            p[2] - next[k]![2],
+          ],
+        );
+        const pending: {
+          controls: AutoMovieBernsteinPolynomial64;
+          depth: number;
+        }[] = [{ controls: difference, depth: 0 }];
         while (pending.length !== 0) {
-          if (!alive() || ++result.visits > 65536) return { ...result, accepted: false, reason: "bound-work-budget" };
-          const item: { controls: AutoMovieBernsteinPolynomial64; depth: number } = pending.pop()!;
-          const upper: number = Math.max(...item.controls.map((p: AutoMovieVector3Tuple): number => Math.hypot(...p)));
-          const observed: number = Math.max(Math.hypot(...item.controls[0]!), Math.hypot(...item.controls.at(-1)!), Math.hypot(...B.value(item.controls, 0.5)));
+          if (!alive() || ++result.visits > 65536)
+            return { ...result, accepted: false, reason: "bound-work-budget" };
+          const item: {
+            controls: AutoMovieBernsteinPolynomial64;
+            depth: number;
+          } = pending.pop()!;
+          const upper: number = Math.max(
+            ...item.controls.map((p: AutoMovieVector3Tuple): number =>
+              Math.hypot(...p),
+            ),
+          );
+          const observed: number = Math.max(
+            Math.hypot(...item.controls[0]!),
+            Math.hypot(...item.controls.at(-1)!),
+            Math.hypot(...B.value(item.controls, 0.5)),
+          );
           result.observedMm = Math.max(result.observedMm, observed);
-          if (upper <= toleranceMm) { result.upperMm = Math.max(result.upperMm, upper); continue; }
-          if (observed > toleranceMm || item.depth >= 24) return { ...result, accepted: false, upperMm: Math.max(result.upperMm, upper), reason: observed > toleranceMm ? "additional-error-exceeds-budget" : "unresolved-convex-hull-bound" };
-          const halves: [AutoMovieBernsteinPolynomial64, AutoMovieBernsteinPolynomial64] = B.split(item.controls, 0.5);
-          pending.push({ controls: halves[1], depth: item.depth + 1 }, { controls: halves[0], depth: item.depth + 1 });
+          if (upper <= toleranceMm) {
+            result.upperMm = Math.max(result.upperMm, upper);
+            continue;
+          }
+          if (observed > toleranceMm || item.depth >= 24)
+            return {
+              ...result,
+              accepted: false,
+              upperMm: Math.max(result.upperMm, upper),
+              reason:
+                observed > toleranceMm
+                  ? "additional-error-exceeds-budget"
+                  : "unresolved-convex-hull-bound",
+            };
+          const halves: [
+            AutoMovieBernsteinPolynomial64,
+            AutoMovieBernsteinPolynomial64,
+          ] = B.split(item.controls, 0.5);
+          pending.push(
+            { controls: halves[1], depth: item.depth + 1 },
+            { controls: halves[0], depth: item.depth + 1 },
+          );
         }
       }
       if (a[i + 1]! <= b[j + 1]!) ++i;

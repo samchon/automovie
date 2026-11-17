@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanGraspUse } from "./IAutoMovieMotionHumanGraspUse";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { IAutoMovieMotionHumanGraspUse } from "./IAutoMovieMotionHumanGraspUse";
 
 /**
  * Reaching for a prop's grip, grasping it and lifting it clear.

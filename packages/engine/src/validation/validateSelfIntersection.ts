@@ -1,6 +1,15 @@
-import { type IAutoMovieCapsuleProxyPair, type IAutoMovieResolvedBone, type IAutoMovieSkeletonTopology, type IAutoMovieValidateSelfIntersection, type IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieCapsuleProxy, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieCapsuleProxy,
+  type IAutoMovieCapsuleProxyPair,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieSkeletonTopology,
+  type IAutoMovieValidateSelfIntersection,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { indexSkeletonTopology, resolvePose } from "../kinematics";
 import { segmentSegmentDistance } from "../math/segmentSegmentDistance";
@@ -23,7 +32,11 @@ const DEFAULT_SAMPLE_RATE: number = 24;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Skeleton topology/reachability are reused; pair endpoints share the same canonical capsule admission.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sample-local resolved maps release; returned diagnostics grow with failures and no native collision world persists.
  */
-export const validateSelfIntersection: (props: IAutoMovieValidateSelfIntersection.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateSelfIntersection.IProps): IAutoMovieValidation => {
+export const validateSelfIntersection: (
+  props: IAutoMovieValidateSelfIntersection.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateSelfIntersection.IProps,
+): IAutoMovieValidation => {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const suppressed: boolean = props.physicsIntent !== undefined;
   const sampleRate: number =

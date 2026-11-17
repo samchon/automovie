@@ -1,5 +1,12 @@
-import { type IAutoMovieValidateEnvironmentContext, type IAutoMovieViolationCollector, IAutoMovieContextOccluder, IAutoMovieEnvironmentContext, IAutoMovieEnvironmentInstant, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieContextOccluder,
+  IAutoMovieEnvironmentContext,
+  IAutoMovieEnvironmentInstant,
+  type IAutoMovieValidateEnvironmentContext,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "../validation/ViolationCollector";
@@ -40,7 +47,11 @@ const AXIS_EPSILON: number = 1e-12;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Nothing is memoized across calls: each daylight and envelope study and each production build validates the context it is handed, with its own `reserved` set, and a cache keyed on a mutable caller object could not prove the context unchanged.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The collector, the reserved, instant and occluder sets live only for the call; the returned validation holds the violations, which may reference fragments of the context, and is owned by the caller.
  */
-export const validateAutoMovieEnvironmentContext: (props: IAutoMovieValidateEnvironmentContext.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateEnvironmentContext.IProps): IAutoMovieValidation => {
+export const validateAutoMovieEnvironmentContext: (
+  props: IAutoMovieValidateEnvironmentContext.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateEnvironmentContext.IProps,
+): IAutoMovieValidation => {
   const context: IAutoMovieEnvironmentContext = props.context;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";

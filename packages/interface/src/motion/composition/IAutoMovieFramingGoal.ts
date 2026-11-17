@@ -1,5 +1,3 @@
-
-
 /**
  * What a camera must show, by subjects rather than coordinates: the named
  * subjects fill a share of the frame height, seen from a bearing and an

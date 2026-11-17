@@ -1,14 +1,15 @@
-import type { IAutoMovieHumanWebColumns, IAutoMovieHumanWebCrests, IAutoMovieHumanWebInput, IAutoMovieHumanWebResult, IAutoMovieHumanWebSurface } from "@automovie/interface";
-
-
-
-
+import type {
+  IAutoMovieHumanWebColumns,
+  IAutoMovieHumanWebCrests,
+  IAutoMovieHumanWebInput,
+  IAutoMovieHumanWebResult,
+  IAutoMovieHumanWebSurface,
+} from "@automovie/interface";
 
 import { AutoMovieHumanWebColumns } from "./web/AutoMovieHumanWebColumns";
 import { AutoMovieHumanWebCrest } from "./web/AutoMovieHumanWebCrest";
 import { AutoMovieHumanWebMesh } from "./web/AutoMovieHumanWebMesh";
 import { AutoMovieHumanWebSurface } from "./web/AutoMovieHumanWebSurface";
-
 
 /**
  * The skin between a parent's ring and children that start apart from it: the
@@ -57,21 +58,23 @@ import { AutoMovieHumanWebSurface } from "./web/AutoMovieHumanWebSurface";
  * edges of 4 mm across a 2.5 mm saddle.
  */
 export namespace AutoMovieHumanBodyWeb {
-  
-
-  
-
-  
-
   /**
    * Build the skin from the parent's ring to its children's sections: the
    * webs the ring parts at, every child's columns, the surface's laws, then
    * the mesh.
    */
-  export function build(input: IAutoMovieHumanWebInput): IAutoMovieHumanWebResult {
+  export function build(
+    input: IAutoMovieHumanWebInput,
+  ): IAutoMovieHumanWebResult {
     const crests: IAutoMovieHumanWebCrests = AutoMovieHumanWebCrest.of(input);
-    const columns: IAutoMovieHumanWebColumns = AutoMovieHumanWebColumns.of(input, crests);
-    const surface: IAutoMovieHumanWebSurface = AutoMovieHumanWebSurface.of(columns.rows, columns.crestRow);
+    const columns: IAutoMovieHumanWebColumns = AutoMovieHumanWebColumns.of(
+      input,
+      crests,
+    );
+    const surface: IAutoMovieHumanWebSurface = AutoMovieHumanWebSurface.of(
+      columns.rows,
+      columns.crestRow,
+    );
 
     return AutoMovieHumanWebMesh.of(input, crests, columns, surface);
   }

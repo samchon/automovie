@@ -1,14 +1,14 @@
 import type { IAutoMovieBuiltEnvironment } from "../architecture/IAutoMovieBuiltEnvironment";
+import type { IAutoMovieModel } from "../model/IAutoMovieModel";
 import type { IAutoMovieCompiledEffect } from "../production/IAutoMovieCompiledEffect";
 import type { IAutoMovieCompiledFormation } from "../production/IAutoMovieCompiledFormation";
 import type { IAutoMovieCompiledInstanceSet } from "../production/IAutoMovieCompiledInstanceSet";
-import type { IAutoMovieModel } from "../model/IAutoMovieModel";
+import type { IAutoMovieScene } from "../scene/IAutoMovieScene";
 import type { IAutoMovieRenderPlanting } from "./IAutoMovieRenderPlanting";
 import type { IAutoMovieRenderSoftPanel } from "./IAutoMovieRenderSoftPanel";
 import type { IAutoMovieRenderTextureResidency } from "./IAutoMovieRenderTextureResidency";
 import type { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
 import type { IAutoMovieRenderWaterBody } from "./IAutoMovieRenderWaterBody";
-import type { IAutoMovieScene } from "../scene/IAutoMovieScene";
 
 /**
  * Everything one drawn frame is made of, in one record.

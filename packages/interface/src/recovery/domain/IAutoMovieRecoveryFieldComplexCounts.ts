@@ -8,23 +8,18 @@
  */
 
 export interface IAutoMovieRecoveryFieldComplexCounts {
- 
- /** Number of supplied chart declarations. */
+  /** Number of supplied chart declarations. */
   requestedCharts: number;
 
- 
- /** Number of retained compiled charts. */
+  /** Number of retained compiled charts. */
   compiledCharts: number;
 
- 
- /** Number of retained tensor patches. */
+  /** Number of retained tensor patches. */
   patches: number;
 
- 
- /** Number of retained named boundary authorities. */
+  /** Number of retained named boundary authorities. */
   sharedCubicAuthorities: number;
 
- 
- /** Number of compacted final recipe controls. */
+  /** Number of compacted final recipe controls. */
   controls: number;
 }

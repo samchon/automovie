@@ -1,6 +1,9 @@
-import type { IAutoMovieViolationCollector, IAutoMovieConstraintViolation, IAutoMovieValidation } from "@automovie/interface";
 import { ViolationCollector, toValidation, violation } from "@automovie/engine";
-
+import type {
+  IAutoMovieConstraintViolation,
+  IAutoMovieValidation,
+  IAutoMovieViolationCollector,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, validationHasWarningCount } from "../internal/predicates";

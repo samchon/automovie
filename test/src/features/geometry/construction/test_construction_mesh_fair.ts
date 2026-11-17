@@ -1,5 +1,5 @@
-import type { IAutoMovieSolidMesh } from "@automovie/interface";
 import { fairAutoMovieSolidMesh } from "@automovie/engine";
+import type { IAutoMovieSolidMesh } from "@automovie/interface";
 
 /**
  * The sharpest dihedral a G1 fill may keep where it meets the flat flanks round its rim, degrees: between the thin-plate fill's 8.8 and a
@@ -48,80 +48,185 @@ export function test_construction_mesh_fair(): void {
   const failures: string[] = [];
 
   // Scenario 1.
-  const dented: Sheet = grid(20, (x: number, y: number): number => (Math.hypot(x, y) < 2 ? -1 : 0));
+  const dented: Sheet = grid(20, (x: number, y: number): number =>
+    Math.hypot(x, y) < 2 ? -1 : 0,
+  );
   const middle: number = 20 * 41 + 20;
   const before: number[] = dented.positions.slice();
   fair(dented, [{ vertices: [middle], radius: 4 }]);
-  const flatness: number = Math.max(...range(dented.positions.length / 3).map((v: number): number => Math.abs(dented.positions[3 * v + 2]!)));
-  if (!(flatness < 1e-9)) failures.push(`dented plane: a vertex stands ${flatness} mm off the plane after the fill`);
-  const outside: number = range(dented.positions.length / 3).filter((v: number): boolean => Math.hypot(before[3 * v]!, before[3 * v + 1]!) > 4 * Math.SQRT2 && [0, 1, 2].some((a: number): boolean => dented.positions[3 * v + a] !== before[3 * v + a])).length;
-  if (outside !== 0) failures.push(`dented plane: ${outside} vertices beyond the disc moved`);
+  const flatness: number = Math.max(
+    ...range(dented.positions.length / 3).map((v: number): number =>
+      Math.abs(dented.positions[3 * v + 2]!),
+    ),
+  );
+  if (!(flatness < 1e-9))
+    failures.push(
+      `dented plane: a vertex stands ${flatness} mm off the plane after the fill`,
+    );
+  const outside: number = range(dented.positions.length / 3).filter(
+    (v: number): boolean =>
+      Math.hypot(before[3 * v]!, before[3 * v + 1]!) > 4 * Math.SQRT2 &&
+      [0, 1, 2].some(
+        (a: number): boolean =>
+          dented.positions[3 * v + a] !== before[3 * v + a],
+      ),
+  ).length;
+  if (outside !== 0)
+    failures.push(`dented plane: ${outside} vertices beyond the disc moved`);
 
   // Scenario 2.
   const slope: number = Math.tan(Math.PI / 6);
-  const folded: Sheet = grid(20, (x: number, y: number): number => -slope * Math.abs(x) - (x === 0 && Math.abs(y) < 3 ? 1.5 : 0));
+  const folded: Sheet = grid(
+    20,
+    (x: number, y: number): number =>
+      -slope * Math.abs(x) - (x === 0 && Math.abs(y) < 3 ? 1.5 : 0),
+  );
   const fold: number = (2 * Math.atan(slope) * 180) / Math.PI;
   const centre = (p: number[]): boolean => Math.hypot(p[0]!, p[1]!) < 2.5;
-  const flank = (p: number[]): boolean => Math.abs(p[0]!) > 1.5 && Math.hypot(p[0]!, p[1]!) > 3.5 && Math.hypot(p[0]!, p[1]!) < 6.5;
+  const flank = (p: number[]): boolean =>
+    Math.abs(p[0]!) > 1.5 &&
+    Math.hypot(p[0]!, p[1]!) > 3.5 &&
+    Math.hypot(p[0]!, p[1]!) < 6.5;
   const rough: number = sharpest(folded, centre);
   fair(folded, [{ vertices: [middle], radius: 5 }]);
   const smooth: number = sharpest(folded, centre);
   const rim: number = sharpest(folded, flank);
-  if (!(rough > fold)) failures.push(`folded plane: the pleat's sharpest dihedral ${rough} degrees is not above the fold's ${fold}, so the case does not test a pleat`);
-  if (!(smooth < fold / 2)) failures.push(`folded plane: the fill's sharpest dihedral about the middle is ${smooth} degrees, not under half the fold's ${fold}`);
-  if (!(rim < RIM_DEGREES)) failures.push(`folded plane: the fill meets the flat flanks round its rim at ${rim} degrees, not under ${RIM_DEGREES}`);
+  if (!(rough > fold))
+    failures.push(
+      `folded plane: the pleat's sharpest dihedral ${rough} degrees is not above the fold's ${fold}, so the case does not test a pleat`,
+    );
+  if (!(smooth < fold / 2))
+    failures.push(
+      `folded plane: the fill's sharpest dihedral about the middle is ${smooth} degrees, not under half the fold's ${fold}`,
+    );
+  if (!(rim < RIM_DEGREES))
+    failures.push(
+      `folded plane: the fill meets the flat flanks round its rim at ${rim} degrees, not under ${RIM_DEGREES}`,
+    );
 
   // Scenario 3.
-  const seamed: Sheet = split(grid(20, (x: number, y: number): number => (Math.hypot(x, y) < 2 ? -1 : 0)));
+  const seamed: Sheet = split(
+    grid(20, (x: number, y: number): number => (Math.hypot(x, y) < 2 ? -1 : 0)),
+  );
   fair(seamed, [{ vertices: [middle], radius: 4 }]);
   const copies: number = 41 * 41;
   let opened: number = 0;
   let differs: number = 0;
   for (let k: number = 0; k < 41; ++k) {
     const [v, w] = [20 * 41 + k, copies + k];
-    if ([0, 1, 2].some((a: number): boolean => seamed.positions[3 * v + a] !== seamed.positions[3 * w + a])) ++opened;
+    if (
+      [0, 1, 2].some(
+        (a: number): boolean =>
+          seamed.positions[3 * v + a] !== seamed.positions[3 * w + a],
+      )
+    )
+      ++opened;
   }
-  for (let v: number = 0; v < copies; ++v) if ([0, 1, 2].some((a: number): boolean => Math.abs(seamed.positions[3 * v + a]! - dented.positions[3 * v + a]!) > 1e-9)) ++differs;
-  if (opened !== 0) failures.push(`seam: ${opened} of 41 seam vertices took two positions`);
-  if (differs !== 0) failures.push(`seam: ${differs} vertices differ from the single face's fill`);
+  for (let v: number = 0; v < copies; ++v)
+    if (
+      [0, 1, 2].some(
+        (a: number): boolean =>
+          Math.abs(
+            seamed.positions[3 * v + a]! - dented.positions[3 * v + a]!,
+          ) > 1e-9,
+      )
+    )
+      ++differs;
+  if (opened !== 0)
+    failures.push(`seam: ${opened} of 41 seam vertices took two positions`);
+  if (differs !== 0)
+    failures.push(
+      `seam: ${differs} vertices differ from the single face's fill`,
+    );
 
   // Scenario 4.
-  const upper: Sheet = grid(20, (x: number, y: number): number => (Math.hypot(x, y) < 2 ? -1 : 0));
-  const lower: Sheet = grid(20, (x: number, y: number): number => (Math.hypot(x, y) < 2 ? -2 : -1));
-  const pair: Sheet = { positions: [...upper.positions, ...lower.positions], indices: [...upper.indices, ...lower.indices.map((i: number): number => i + copies)] };
+  const upper: Sheet = grid(20, (x: number, y: number): number =>
+    Math.hypot(x, y) < 2 ? -1 : 0,
+  );
+  const lower: Sheet = grid(20, (x: number, y: number): number =>
+    Math.hypot(x, y) < 2 ? -2 : -1,
+  );
+  const pair: Sheet = {
+    positions: [...upper.positions, ...lower.positions],
+    indices: [
+      ...upper.indices,
+      ...lower.indices.map((i: number): number => i + copies),
+    ],
+  };
   const kept: number[] = pair.positions.slice(3 * copies);
   fair(pair, [{ vertices: [middle], radius: 4 }]);
-  const moved: number = range(copies).filter((v: number): boolean => [0, 1, 2].some((a: number): boolean => pair.positions[3 * (copies + v) + a] !== kept[3 * v + a])).length;
-  if (moved !== 0) failures.push(`gap: ${moved} vertices of the unconnected sheet moved`);
+  const moved: number = range(copies).filter((v: number): boolean =>
+    [0, 1, 2].some(
+      (a: number): boolean =>
+        pair.positions[3 * (copies + v) + a] !== kept[3 * v + a],
+    ),
+  ).length;
+  if (moved !== 0)
+    failures.push(`gap: ${moved} vertices of the unconnected sheet moved`);
 
   // Scenario 5.
-  for (const disc of [{ vertices: [copies], radius: 4 }, { vertices: [], radius: 4 }, { vertices: [middle], radius: 0 }, { vertices: [middle], radius: Number.NaN }]) {
+  for (const disc of [
+    { vertices: [copies], radius: 4 },
+    { vertices: [], radius: 4 },
+    { vertices: [middle], radius: 0 },
+    { vertices: [middle], radius: Number.NaN },
+  ]) {
     let thrown: boolean = false;
     try {
-      fair(grid(20, (): number => 0), [disc]);
+      fair(
+        grid(20, (): number => 0),
+        [disc],
+      );
     } catch {
       thrown = true;
     }
-    if (!thrown) failures.push(`premise: the disc ${JSON.stringify(disc)} was not refused`);
+    if (!thrown)
+      failures.push(
+        `premise: the disc ${JSON.stringify(disc)} was not refused`,
+      );
   }
 
   // Scenario 6.
-  const grooved: Sheet = grid(20, (x: number, y: number): number => (x === 0 && Math.abs(y) <= 6 ? -1 : 0));
-  fair(grooved, [{ vertices: range(13).map((k: number): number => 20 * 41 + 14 + k), radius: 3 }]);
-  const groove: number = Math.max(...range(grooved.positions.length / 3).map((v: number): number => Math.abs(grooved.positions[3 * v + 2]!)));
-  if (!(groove < 1e-9)) failures.push(`groove: a vertex stands ${groove} mm off the plane after the band's fill`);
-  if (failures.length > 0) throw new Error(`${failures.length} fairing failures:\n${failures.join("\n")}`);
+  const grooved: Sheet = grid(20, (x: number, y: number): number =>
+    x === 0 && Math.abs(y) <= 6 ? -1 : 0,
+  );
+  fair(grooved, [
+    {
+      vertices: range(13).map((k: number): number => 20 * 41 + 14 + k),
+      radius: 3,
+    },
+  ]);
+  const groove: number = Math.max(
+    ...range(grooved.positions.length / 3).map((v: number): number =>
+      Math.abs(grooved.positions[3 * v + 2]!),
+    ),
+  );
+  if (!(groove < 1e-9))
+    failures.push(
+      `groove: a vertex stands ${groove} mm off the plane after the band's fill`,
+    );
+  if (failures.length > 0)
+    throw new Error(
+      `${failures.length} fairing failures:\n${failures.join("\n")}`,
+    );
 }
 
 /** A square grid of unit cells from `-half` to `half` in x and y, heights `z(x, y)`, each cell cut along its first diagonal. */
 function grid(half: number, z: (x: number, y: number) => number): Sheet {
   const side: number = 2 * half + 1;
   const positions: number[] = [];
-  for (let i: number = 0; i < side; ++i) for (let j: number = 0; j < side; ++j) positions.push(i - half, j - half, z(i - half, j - half));
+  for (let i: number = 0; i < side; ++i)
+    for (let j: number = 0; j < side; ++j)
+      positions.push(i - half, j - half, z(i - half, j - half));
   const indices: number[] = [];
   for (let i: number = 0; i + 1 < side; ++i)
     for (let j: number = 0; j + 1 < side; ++j) {
-      const [a, b, c, d] = [i * side + j, (i + 1) * side + j, (i + 1) * side + j + 1, i * side + j + 1];
+      const [a, b, c, d] = [
+        i * side + j,
+        (i + 1) * side + j,
+        (i + 1) * side + j + 1,
+        i * side + j + 1,
+      ];
       indices.push(a, b, c, a, c, d);
     }
   return { positions, indices };
@@ -132,18 +237,33 @@ function split(sheet: Sheet): Sheet {
   const side: number = 41;
   const copies: number = side * side;
   const positions: number[] = [...sheet.positions];
-  for (let k: number = 0; k < side; ++k) positions.push(...sheet.positions.slice(3 * (20 * side + k), 3 * (20 * side + k) + 3));
-  const indices: number[] = sheet.indices.map((v: number, n: number): number => {
-    const t: number = n - (n % 3);
-    const right: boolean = [0, 1, 2].every((k: number): boolean => Math.floor(sheet.indices[t + k]! / side) >= 20);
-    return right && Math.floor(v / side) === 20 ? copies + (v % side) : v;
-  });
+  for (let k: number = 0; k < side; ++k)
+    positions.push(
+      ...sheet.positions.slice(3 * (20 * side + k), 3 * (20 * side + k) + 3),
+    );
+  const indices: number[] = sheet.indices.map(
+    (v: number, n: number): number => {
+      const t: number = n - (n % 3);
+      const right: boolean = [0, 1, 2].every(
+        (k: number): boolean => Math.floor(sheet.indices[t + k]! / side) >= 20,
+      );
+      return right && Math.floor(v / side) === 20 ? copies + (v % side) : v;
+    },
+  );
   return { positions, indices };
 }
 
 /** Run the fill on a sheet as a mesh with no owners. */
-function fair(sheet: Sheet, discs: { vertices: number[]; radius: number }[]): void {
-  const mesh: IAutoMovieSolidMesh.IMesh = { positions: sheet.positions, indices: sheet.indices, coordinates: [], owners: [] };
+function fair(
+  sheet: Sheet,
+  discs: { vertices: number[]; radius: number }[],
+): void {
+  const mesh: IAutoMovieSolidMesh.IMesh = {
+    positions: sheet.positions,
+    indices: sheet.indices,
+    coordinates: [],
+    owners: [],
+  };
   fairAutoMovieSolidMesh(mesh, discs);
 }
 
@@ -151,10 +271,16 @@ function fair(sheet: Sheet, discs: { vertices: number[]; radius: number }[]): vo
 function sharpest(sheet: Sheet, where: (p: number[]) => boolean): number {
   const at = (v: number): number[] => sheet.positions.slice(3 * v, 3 * v + 3);
   const normal = (t: number): number[] => {
-    const [a, b, c] = [0, 1, 2].map((k: number): number[] => at(sheet.indices[t + k]!)) as [number[], number[], number[]];
+    const [a, b, c] = [0, 1, 2].map((k: number): number[] =>
+      at(sheet.indices[t + k]!),
+    ) as [number[], number[], number[]];
     const u: number[] = [b[0]! - a[0]!, b[1]! - a[1]!, b[2]! - a[2]!];
     const w: number[] = [c[0]! - a[0]!, c[1]! - a[1]!, c[2]! - a[2]!];
-    const n: number[] = [u[1]! * w[2]! - u[2]! * w[1]!, u[2]! * w[0]! - u[0]! * w[2]!, u[0]! * w[1]! - u[1]! * w[0]!];
+    const n: number[] = [
+      u[1]! * w[2]! - u[2]! * w[1]!,
+      u[2]! * w[0]! - u[0]! * w[2]!,
+      u[0]! * w[1]! - u[1]! * w[0]!,
+    ];
     const l: number = Math.hypot(n[0]!, n[1]!, n[2]!);
     return n.map((x: number): number => x / l);
   };
@@ -169,9 +295,22 @@ function sharpest(sheet: Sheet, where: (p: number[]) => boolean): number {
   for (const [key, ts] of edges) {
     if (ts.length !== 2) continue;
     const [a, b] = key.split("_").map(Number) as [number, number];
-    if (!where([0, 1, 2].map((k: number): number => (at(a)[k]! + at(b)[k]!) / 2))) continue;
+    if (
+      !where([0, 1, 2].map((k: number): number => (at(a)[k]! + at(b)[k]!) / 2))
+    )
+      continue;
     const [n, m] = [normal(ts[0]!), normal(ts[1]!)] as [number[], number[]];
-    worst = Math.max(worst, (Math.acos(Math.max(-1, Math.min(1, n[0]! * m[0]! + n[1]! * m[1]! + n[2]! * m[2]!))) * 180) / Math.PI);
+    worst = Math.max(
+      worst,
+      (Math.acos(
+        Math.max(
+          -1,
+          Math.min(1, n[0]! * m[0]! + n[1]! * m[1]! + n[2]! * m[2]!),
+        ),
+      ) *
+        180) /
+        Math.PI,
+    );
   }
   return worst;
 }

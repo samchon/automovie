@@ -1,4 +1,14 @@
-import type { AutoMovieVector3Tuple, IAutoMovieAxisDirection, IAutoMovieConstructionOutlineParameter, IAutoMovieLoftFrame, IAutoMovieNaturalSpline, IAutoMovieViewAxis, IAutoMovieViewAxisJet, IAutoMovieViewJointedCourse } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieAxisDirection,
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieLoftFrame,
+  IAutoMovieNaturalSpline,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+  IAutoMovieViewJointedCourse,
+} from "@automovie/interface";
+
 import { AutoMovieAxisDirection } from "./AutoMovieAxisDirection";
 import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
@@ -15,7 +25,10 @@ function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
 }
 
 /** Unit projection in an admitted tangent's normal plane, with shared scale-safe numeric ownership. */
-function projectUnitDirection(a: AutoMovieVector3Tuple, tangent: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+function projectUnitDirection(
+  a: AutoMovieVector3Tuple,
+  tangent: AutoMovieVector3Tuple,
+): AutoMovieVector3Tuple {
   const projected: IAutoMovieAxisDirection.IProjection =
     AutoMovieAxisDirection.project(a, tangent);
   return AutoMovieAxisDirection.unit(projected.vector, projected.normalNorm);
@@ -48,7 +61,6 @@ function projectUnitDirection(a: AutoMovieVector3Tuple, tangent: AutoMovieVector
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieViewAxis {
-
   /**
    * A straight axis: the plane at station 0 moved along its normal `v x u`.
    *
@@ -65,7 +77,11 @@ export namespace AutoMovieViewAxis {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Computes the normal once for all queries.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The immutable input vectors live with the axis; returned vectors are fresh.
    */
-  export function straight(origin: AutoMovieVector3Tuple, u: AutoMovieVector3Tuple, v: AutoMovieVector3Tuple): IAutoMovieViewAxis.IAxis {
+  export function straight(
+    origin: AutoMovieVector3Tuple,
+    u: AutoMovieVector3Tuple,
+    v: AutoMovieVector3Tuple,
+  ): IAutoMovieViewAxis.IAxis {
     const w: AutoMovieVector3Tuple = cross(v, u);
     const at: (station: number) => IAutoMovieLoftFrame.IFrame = (
       station: number,
@@ -258,18 +274,20 @@ export namespace AutoMovieViewAxis {
     const c: IAutoMovieViewJointedCourse.ICourse | string =
       AutoMovieViewJointedCourse.prepare(centres, halves);
     if (typeof c === "string") return c;
-    return c.lengths.map((length: number, i: number): IAutoMovieViewAxis.IRun => {
-      const before: number = i >= 1 ? c.turns[i - 1]!.setback : 0;
-      const after: number = i < c.turns.length ? c.turns[i]!.setback : 0;
-      const start: number =
-        i === 0 ? 0 : c.turns[i - 1]!.start + 2 * c.turns[i - 1]!.half;
-      return {
-        from: before,
-        to: length - after,
-        start,
-        end: start + length - before - after,
-      };
-    });
+    return c.lengths.map(
+      (length: number, i: number): IAutoMovieViewAxis.IRun => {
+        const before: number = i >= 1 ? c.turns[i - 1]!.setback : 0;
+        const after: number = i < c.turns.length ? c.turns[i]!.setback : 0;
+        const start: number =
+          i === 0 ? 0 : c.turns[i - 1]!.start + 2 * c.turns[i - 1]!.half;
+        return {
+          from: before,
+          to: length - after,
+          start,
+          end: start + length - before - after,
+        };
+      },
+    );
   }
 
   /**
@@ -297,7 +315,9 @@ export namespace AutoMovieViewAxis {
     u: AutoMovieVector3Tuple,
     step: number,
   ): IAutoMovieViewAxis.IAxis {
-    const stations: number[] = knots.map((k: IAutoMovieViewAxis.IAxisKnot): number => k.station);
+    const stations: number[] = knots.map(
+      (k: IAutoMovieViewAxis.IAxisKnot): number => k.station,
+    );
     const splines: IAutoMovieNaturalSpline.ISpline[] = [0, 1, 2].map(
       (c: number): IAutoMovieNaturalSpline.ISpline =>
         AutoMovieNaturalSpline.create(
@@ -305,11 +325,15 @@ export namespace AutoMovieViewAxis {
           knots.map((k: IAutoMovieViewAxis.IAxisKnot): number => k.point[c]!),
         ),
     );
-    const point: (s: number) => AutoMovieVector3Tuple = (s: number): AutoMovieVector3Tuple =>
+    const point: (s: number) => AutoMovieVector3Tuple = (
+      s: number,
+    ): AutoMovieVector3Tuple =>
       splines.map((p: IAutoMovieNaturalSpline.ISpline): number =>
         AutoMovieNaturalSpline.evaluate(p, s),
       ) as AutoMovieVector3Tuple;
-    const tangent: (s: number) => AutoMovieVector3Tuple = (s: number): AutoMovieVector3Tuple =>
+    const tangent: (s: number) => AutoMovieVector3Tuple = (
+      s: number,
+    ): AutoMovieVector3Tuple =>
       unit(
         splines.map(
           (p: IAutoMovieNaturalSpline.ISpline): number =>
@@ -324,7 +348,11 @@ export namespace AutoMovieViewAxis {
 
     // Double reflection from (s, r) to s + h: reflect by the chord, then by
     // the difference of the reflected tangent and the new one.
-    const reflect: (s: number, r: AutoMovieVector3Tuple, h: number) => AutoMovieVector3Tuple = (
+    const reflect: (
+      s: number,
+      r: AutoMovieVector3Tuple,
+      h: number,
+    ) => AutoMovieVector3Tuple = (
       s: number,
       r: AutoMovieVector3Tuple,
       h: number,
@@ -337,8 +365,16 @@ export namespace AutoMovieViewAxis {
       const c1: number = dot(v1, v1);
       if (c1 === 0 && v1.every((value: number): boolean => value === 0))
         return r;
-      const rL: AutoMovieVector3Tuple = AutoMovieAxisDirection.reflect(r, v1, c1);
-      const tL: AutoMovieVector3Tuple = AutoMovieAxisDirection.reflect(t, v1, c1);
+      const rL: AutoMovieVector3Tuple = AutoMovieAxisDirection.reflect(
+        r,
+        v1,
+        c1,
+      );
+      const tL: AutoMovieVector3Tuple = AutoMovieAxisDirection.reflect(
+        t,
+        v1,
+        c1,
+      );
       const v2: AutoMovieVector3Tuple = sub(t1, tL);
       const c2: number = dot(v2, v2);
       return AutoMovieAxisDirection.reflect(rL, v2, c2);
@@ -375,7 +411,9 @@ export namespace AutoMovieViewAxis {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure vector reading coordinates no requests.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh triple and retains nothing.
    */
-  export function normal(frame: IAutoMovieLoftFrame.IFrame): AutoMovieVector3Tuple {
+  export function normal(
+    frame: IAutoMovieLoftFrame.IFrame,
+  ): AutoMovieVector3Tuple {
     return cross(frame.v, frame.u);
   }
 }

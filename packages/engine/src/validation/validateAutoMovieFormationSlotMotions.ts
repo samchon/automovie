@@ -1,5 +1,12 @@
-import { type IAutoMovieValidateFormationSlotMotions, IAutoMovieCompiledFormation, IAutoMovieCompiledFormationHero, IAutoMovieDiagnostic, IAutoMovieFormationSlotMotion, IAutoMovieShotContract, IAutoMovieShotParticipant } from "@automovie/interface";
-
+import {
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledFormationHero,
+  IAutoMovieDiagnostic,
+  IAutoMovieFormationSlotMotion,
+  IAutoMovieShotContract,
+  IAutoMovieShotParticipant,
+  type IAutoMovieValidateFormationSlotMotions,
+} from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { engineDiagnostic } from "./engineDiagnostic";

@@ -1,6 +1,20 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionCoupling, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedCouplingPose, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
-import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionCoupling,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanCarriedCouplingPose,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
@@ -110,10 +124,16 @@ export namespace HumanCarriedCouplingPose {
     body: IAutoMovieMotionHumanBody,
     coupling: IAutoMovieMotionCoupling,
     row: IAutoMovieMotionHumanCarried.IRow,
-    bearers: Readonly<Record<string, IAutoMovieMotionHumanCarriedCouplingPose.IBearer>>,
+    bearers: Readonly<
+      Record<string, IAutoMovieMotionHumanCarriedCouplingPose.IBearer>
+    >,
   ): IAutoMovieMotionHumanPosture {
-    const of = (role: string): IAutoMovieMotionHumanCarriedCouplingPose.IBearer => {
-      const found: IAutoMovieMotionHumanCarriedCouplingPose.IBearer | undefined = bearers[role];
+    const of = (
+      role: string,
+    ): IAutoMovieMotionHumanCarriedCouplingPose.IBearer => {
+      const found:
+        | IAutoMovieMotionHumanCarriedCouplingPose.IBearer
+        | undefined = bearers[role];
       if (found === undefined)
         throw new HumanRefusal({
           kind: "participant",
@@ -213,7 +233,9 @@ export namespace HumanCarriedCouplingPose {
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(borne, keyed);
     const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(keyed);
-    const at = (palm: AutoMovieHumanoidRegion): IAutoMovieMotionHumanCarriedCouplingPose.IHold | null => {
+    const at = (
+      palm: AutoMovieHumanoidRegion,
+    ): IAutoMovieMotionHumanCarriedCouplingPose.IHold | null => {
       const contact: IAutoMovieMotionCoupling.IContact | undefined =
         coupling.contacts.find(
           (c: IAutoMovieMotionCoupling.IContact): boolean =>

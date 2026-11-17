@@ -1,6 +1,20 @@
-import type { AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanWalkFoot, IAutoMovieMotionHumanWalkGait, IAutoMovieMotionHumanWalkParams, IAutoMovieMotionHumanWalkSteps, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
-
 import { AutoMovieGravity, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanWalkFoot,
+  IAutoMovieMotionHumanWalkGait,
+  IAutoMovieMotionHumanWalkParams,
+  IAutoMovieMotionHumanWalkSteps,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
@@ -88,7 +102,8 @@ export namespace walk {
   export const name: AutoMovieMotionHumanActionName = "walk";
 
   /** Cancel table (`walkCuts`). */
-  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = walkCuts;
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
+    walkCuts;
 
   /** What a gait lets an overlay take: the arms it would swing, the hands and the head. */
   export const yields: IAutoMovieMotionHumanActionLaw["yields"] = [
@@ -100,8 +115,9 @@ export namespace walk {
   ];
 
   /** Froude number of each pace (Alexander 1984; Bohannon 1997 speeds at a 0.93 m hip). */
-  export const FROUDE: Readonly<Record<NonNullable<IAutoMovieMotionHumanWalkParams["pace"]>, number>> =
-    { slow: 0.12, normal: 0.2, fast: 0.32 };
+  export const FROUDE: Readonly<
+    Record<NonNullable<IAutoMovieMotionHumanWalkParams["pace"]>, number>
+  > = { slow: 0.12, normal: 0.2, fast: 0.32 };
 
   /**
    * The walking gait of a Froude number: a step of `1.2 l Fr^0.25`, at most
@@ -160,12 +176,15 @@ export namespace walk {
    * @returns The plan.
    */
   export function locomote(
-    given: IAutoMovieMotionHumanActionContext<Omit<IAutoMovieMotionHumanWalkParams, "pace">>,
+    given: IAutoMovieMotionHumanActionContext<
+      Omit<IAutoMovieMotionHumanWalkParams, "pace">
+    >,
     gait: IAutoMovieMotionHumanWalkGait,
   ): IAutoMovieMotionHumanActionPlan {
     // A station is a way read from its slot; without one the context is as given.
-    const context: IAutoMovieMotionHumanActionContext<Omit<IAutoMovieMotionHumanWalkParams, "pace">> =
-      walkStation.resolve(given);
+    const context: IAutoMovieMotionHumanActionContext<
+      Omit<IAutoMovieMotionHumanWalkParams, "pace">
+    > = walkStation.resolve(given);
     const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
     const l: number = m.hipHeight;
@@ -233,7 +252,10 @@ export namespace walk {
       walkWindows.of(body, steps, pelvis);
     // A foot as its schedule alone has it, before any pelvis is settled.
     const scheduled = (side: "left" | "right", t: number): walkFoot.IEnd => {
-      const foot: IAutoMovieMotionHumanWalkFoot.IScheduled = steps.foot(side, t);
+      const foot: IAutoMovieMotionHumanWalkFoot.IScheduled = steps.foot(
+        side,
+        t,
+      );
       return {
         ankle: foot.placement.ankle,
         rotation: foot.placement.rotation,
@@ -361,7 +383,10 @@ export namespace walk {
       settled: walkReach.IGround;
       reached: Record<"left" | "right", walkFoot.IEnd>;
     } => {
-      const feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> = {
+      const feet: Record<
+        "left" | "right",
+        IAutoMovieMotionHumanWalkFoot.IScheduled
+      > = {
         left: steps.foot("left", t),
         right: steps.foot("right", t),
       };

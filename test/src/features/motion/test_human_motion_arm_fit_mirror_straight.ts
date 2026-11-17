@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion } from "@automovie/interface";
-
-import { AutoMovieMotionHumanArm, resolveHumanPosture } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanArm,
+  resolveHumanPosture,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";

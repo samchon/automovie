@@ -1,6 +1,5 @@
 import type { IAutoMovieRenderSubject } from "@automovie/interface";
 
-
 import {
   buildingFixture,
   instanceSetFixture,

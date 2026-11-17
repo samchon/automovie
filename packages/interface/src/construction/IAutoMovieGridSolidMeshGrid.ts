@@ -59,5 +59,8 @@ export interface IAutoMovieGridSolidMeshGrid {
    * the band's columns converge within one cell, took the wrong diagonal and
    * folded 63 degrees. Points with no skin point yet read the face's mean.
    */
-  local: (ids: readonly number[], charts: readonly Readonly<AutoMovieVector2Tuple>[]) => [number, number];
+  local: (
+    ids: readonly number[],
+    charts: readonly Readonly<AutoMovieVector2Tuple>[],
+  ) => [number, number];
 }

@@ -1,6 +1,12 @@
-import type { IAutoMovieCurve64, IAutoMovieRecoveryHermiteCurve, IAutoMovieRecoveryHermiteSpan } from "@automovie/interface";
-
-import { convertAutoMovieRecoveryCurves, reconstructAutoMovieRecoveryModel } from "@automovie/recovery";
+import type {
+  IAutoMovieCurve64,
+  IAutoMovieRecoveryHermiteCurve,
+  IAutoMovieRecoveryHermiteSpan,
+} from "@automovie/interface";
+import {
+  convertAutoMovieRecoveryCurves,
+  reconstructAutoMovieRecoveryModel,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

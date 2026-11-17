@@ -1,10 +1,20 @@
-import type { AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanArmWrestle, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Vector3,
   minimumJerk,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmWrestle,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
@@ -150,7 +160,10 @@ export namespace armWrestle {
     };
 
     // The lean that puts the shoulder an upper arm from the elbow.
-    const leaned = (pitch: number, posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture =>
+    const leaned = (
+      pitch: number,
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanPosture =>
       gestureBow.bowed(body, posture, pitch, 0);
 
     // A posture with the arm asked onto the wrist's place at a turn, the
@@ -159,7 +172,10 @@ export namespace armWrestle {
     // cannot give both (`resolveHumanPosture`: it searches bend planes when
     // the hinted one misses), and the elbow on the table is the contact the
     // contest is about, so the hand turns as the arm leaves it.
-    const armed = (posture: IAutoMovieMotionHumanPosture, degrees: number): IAutoMovieMotionHumanPosture => ({
+    const armed = (
+      posture: IAutoMovieMotionHumanPosture,
+      degrees: number,
+    ): IAutoMovieMotionHumanPosture => ({
       ...posture,
       limbs: {
         ...posture.limbs,
@@ -208,7 +224,8 @@ export namespace armWrestle {
       posture: IAutoMovieMotionHumanPosture,
       degrees: number,
       envelope: number,
-    ): IAutoMovieMotionHumanPosture => armed(leaned(lean * envelope, posture), degrees);
+    ): IAutoMovieMotionHumanPosture =>
+      armed(leaned(lean * envelope, posture), degrees);
     // The pin stops at this arm's own range: past it the arm leaves the
     // elbow's place for its other solution, which only a force would do. The
     // place is read whole, its height and its position on the top: an arm
@@ -288,10 +305,8 @@ export namespace armWrestle {
     const pin: number = turn + 0.4;
     const relax: number = pin + 0.5;
     const duration: number = relax + arrive;
-    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      duration,
-    );
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, duration);
     const begin: IAutoMovieMotionHumanArmAngles.IAngles =
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
 
@@ -340,7 +355,11 @@ export namespace armWrestle {
             : t <= pin
               ? minimumJerk((t - turn) / (pin - turn)).s
               : 1;
-        const posed: IAutoMovieMotionHumanPosture = set(base.posture(t), degrees, envelope);
+        const posed: IAutoMovieMotionHumanPosture = set(
+          base.posture(t),
+          degrees,
+          envelope,
+        );
         return AutoMovieMotionHumanArm.carry(
           body,
           bend > 0

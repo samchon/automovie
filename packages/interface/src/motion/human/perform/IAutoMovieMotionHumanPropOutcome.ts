@@ -1,8 +1,8 @@
 import type { IAutoMovieHit } from "../../../physics/IAutoMovieHit";
-import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
-import type { IAutoMovieMotionHumanPropFlight } from "./IAutoMovieMotionHumanPropFlight";
 import type { IAutoMovieProjectile } from "../../../physics/IAutoMovieProjectile";
 import type { IAutoMovieProjectileContinue } from "../../../physics/IAutoMovieProjectileContinue";
+import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
+import type { IAutoMovieMotionHumanPropFlight } from "./IAutoMovieMotionHumanPropFlight";
 
 /**
  * How a prop's flight goes on after a contact (#3479), from its model body's

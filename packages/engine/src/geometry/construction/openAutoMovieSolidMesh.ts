@@ -1,4 +1,11 @@
-import type { IAutoMovieOpenSolidMeshResult, IAutoMovieSolidMesh, IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshIncidence, IAutoMovieSolidMeshPlan } from "@automovie/interface";
+import type {
+  IAutoMovieOpenSolidMeshResult,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshIncidence,
+  IAutoMovieSolidMeshPlan,
+} from "@automovie/interface";
+
 import { AutoMovieSolidMeshIncidence } from "./AutoMovieSolidMeshIncidence";
 
 /** A directed boundary occurrence in an explicit native cover. */

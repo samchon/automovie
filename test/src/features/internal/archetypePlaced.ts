@@ -1,7 +1,10 @@
-import type { IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieVector3 } from "@automovie/interface";
 import type { Archetype } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
+import type {
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 
 import { archetypeExtent } from "./archetypeExtent";
@@ -52,7 +55,10 @@ export function archetypePlaced(
     ];
   }
   rows.forEach((row: archetypePlaced.IRow, index: number): void => {
-    const placed: IAutoMovieMotionHumanProp.IFrame = performance.prop(row.name, 1);
+    const placed: IAutoMovieMotionHumanProp.IFrame = performance.prop(
+      row.name,
+      1,
+    );
     const at: IAutoMovieVector3 = { x: 3 * index, y: row.on ?? 0, z: 0 };
 
     // 1. Where it was put.

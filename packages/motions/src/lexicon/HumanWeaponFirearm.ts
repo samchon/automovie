@@ -1,4 +1,8 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanLexiconParams, IAutoMovieMotionHumanWeaponPresent } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+  IAutoMovieMotionHumanWeaponPresent,
+} from "@automovie/interface";
 
 import { pickUp } from "../handling/pickUp";
 import { putDown } from "../handling/putDown";
@@ -39,7 +43,6 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No law is copied: present and fire are `HumanWeaponPresent`'s plans under the names films already compose.
  */
 export namespace HumanWeaponFirearm {
-
   /** The widest presenting angle off the heading, degrees (`HumanWeaponPresent.TURN`). */
   export const TURN: number = HumanWeaponPresent.TURN;
 
@@ -53,24 +56,30 @@ export namespace HumanWeaponFirearm {
   export const BLADED: number = HumanWeaponPresent.BLADED;
 
   /** Present a firearm: `HumanWeaponPresent.present` under its firearm name. */
-  export const present: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWeaponPresent.IPresent> = {
-    ...HumanWeaponPresent.present,
-    name: "presentFirearm",
-  };
+  export const present: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWeaponPresent.IPresent> =
+    {
+      ...HumanWeaponPresent.present,
+      name: "presentFirearm",
+    };
 
   /** Fire one shot: `HumanWeaponPresent.fire` under its firearm name. */
-  export const fire: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWeaponPresent.IWield> = {
-    ...HumanWeaponPresent.fire,
-    name: "fireFirearm",
-  };
+  export const fire: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWeaponPresent.IWield> =
+    {
+      ...HumanWeaponPresent.fire,
+      name: "fireFirearm",
+    };
 
   /** Draw: take the holstered firearm by its grip, the bore continuing the forearm, and lift it clear. The composition gives the firearm (`prop`). */
-  export const draw: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["weaponFirearm"]["draw"]> = HumanActionRow.of("drawFirearm", pickUp, {
+  export const draw: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["weaponFirearm"]["draw"]
+  > = HumanActionRow.of("drawFirearm", pickUp, {
     handle: "grip",
     lift: 0.15,
     use: { tip: "muzzle", line: "forearm" },
   });
 
   /** Holster: put the firearm back where the composition says its holster holds it (`prop` and `at`). */
-  export const holster: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["weaponFirearm"]["holster"]> = HumanActionRow.of("holsterFirearm", putDown, {});
+  export const holster: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["weaponFirearm"]["holster"]
+  > = HumanActionRow.of("holsterFirearm", putDown, {});
 }

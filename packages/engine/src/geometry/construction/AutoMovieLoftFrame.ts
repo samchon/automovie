@@ -1,4 +1,5 @@
 import type { IAutoMovieLoftFrame } from "@automovie/interface";
+
 /**
  * Section planes of a chain: where each harmonic section lies in the world.
  *
@@ -49,7 +50,6 @@ import type { IAutoMovieLoftFrame } from "@automovie/interface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftFrame {
-
   /**
    * Horizontal frame at a world height in mm: the default of an unframed layer.
    *

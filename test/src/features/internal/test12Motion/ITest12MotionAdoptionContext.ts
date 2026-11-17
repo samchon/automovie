@@ -1,6 +1,9 @@
-import type { IAutoMovieExternalMotionAdoptionDecision, IAutoMovieExternalMotionNativeDecision, IAutoMovieExternalMotionRetargetDecision, IAutoMovieSkeleton } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieExternalMotionAdoptionDecision,
+  IAutoMovieExternalMotionNativeDecision,
+  IAutoMovieExternalMotionRetargetDecision,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 
 import { test12MotionInspect } from "./test12MotionInspect";
 

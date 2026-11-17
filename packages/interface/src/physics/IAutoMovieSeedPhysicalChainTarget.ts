@@ -1,5 +1,5 @@
-import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 
 /** Data and callback contracts shared by the SeedPhysicalChainTarget operations. */
 export namespace IAutoMovieSeedPhysicalChainTarget {

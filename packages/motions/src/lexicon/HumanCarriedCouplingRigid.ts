@@ -1,6 +1,16 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedCouplingFit, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3, fitRigidMeshTransform } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanCarriedCouplingFit,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
@@ -49,7 +59,10 @@ export namespace HumanCarriedCouplingRigid {
     legs: readonly [number, number, number],
     stance: { incline: number; depth: number },
   ): IAutoMovieMotionHumanCarriedCouplingFit.IFit {
-    const keyed: IAutoMovieMotionHumanPosture = HumanCarriedCouplingPose.key(row, legs);
+    const keyed: IAutoMovieMotionHumanPosture = HumanCarriedCouplingPose.key(
+      row,
+      legs,
+    );
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(borne, keyed);
     const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
@@ -66,7 +79,8 @@ export namespace HumanCarriedCouplingRigid {
     const to: IAutoMovieVector3[] = [];
     (["left", "right"] as const).forEach(
       (side: "left" | "right", index: number): void => {
-        const hold: IAutoMovieMotionHumanCarried.IHold | null = row.holds[index] ?? null;
+        const hold: IAutoMovieMotionHumanCarried.IHold | null =
+          row.holds[index] ?? null;
         const region0: AutoMovieHumanoidRegion | null = held[index] ?? null;
         if (hold === null || region0 === null) return;
         const target: IAutoMovieVector3 = Vector3.add(

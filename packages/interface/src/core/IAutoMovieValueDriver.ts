@@ -1,5 +1,6 @@
 import type { IAutoMovieCopyDriver } from "./IAutoMovieCopyDriver";
 import type { IAutoMovieDrivenDriver } from "./IAutoMovieDrivenDriver";
+
 /**
  * A value-space dependency driver evaluated before world-space scene constraints.
  *
@@ -10,4 +11,6 @@ import type { IAutoMovieDrivenDriver } from "./IAutoMovieDrivenDriver";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Duplicate producers remain dependencies, and ordering failure is a cycle refusal rather than an arbitrary winning driver.
  * @evidence contracts/development/common.md#meaningful-documentation Defines consumed/produced channel ownership, self-input policy, deterministic order and borrowed output records.
  */
-export type IAutoMovieValueDriver = IAutoMovieCopyDriver | IAutoMovieDrivenDriver;
+export type IAutoMovieValueDriver =
+  | IAutoMovieCopyDriver
+  | IAutoMovieDrivenDriver;

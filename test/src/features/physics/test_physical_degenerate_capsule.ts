@@ -1,9 +1,12 @@
-import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   AutoMoviePhysicalSimulation as Simulation,
   preparePhysicalGeometry,
 } from "@automovie/engine";
-
+import type {
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -58,10 +61,8 @@ export async function test_physical_degenerate_capsule(): Promise<void> {
       );
       if (!contact) findings.push(`missing analytic penetration at x=${x}`);
       else measured.push(contact.separation);
-      const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
-        [PhysicalFixtures.body("probe", profile, 2)],
-        2,
-      );
+      const input: IAutoMoviePhysicalSimulationInput.IInput =
+        PhysicalFixtures.input([PhysicalFixtures.body("probe", profile, 2)], 2);
       Object.assign(input, { floor: 0, gravity: { x: 0, y: -9.81, z: 0 } });
       runs.push(await Simulation.compute(input));
     }

@@ -1,16 +1,15 @@
-import type { IAutoMovieLoftChain, IAutoMovieHumanBodyCalibration, IAutoMovieHumanLoftMesh, IAutoMovieHumanSurfaceBoundary, IAutoMovieHumanSurfaceContext } from "@automovie/interface";
-
-
-
-
-
 import { AutoMovieLoftChain } from "@automovie/engine";
+import type {
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanLoftMesh,
+  IAutoMovieHumanSurfaceBoundary,
+  IAutoMovieHumanSurfaceContext,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
-
-
 
 const { endHeight, capHeight }: typeof AutoMovieHumanBodySurfaceRead =
   AutoMovieHumanBodySurfaceRead;
@@ -457,9 +456,8 @@ export namespace AutoMovieHumanBodySurfacePoles {
     target: IAutoMovieLoftChain,
     end: "bottom" | "top",
   ): IAutoMovieHumanSurfaceBoundary {
-    const resolved: IAutoMovieHumanSurfaceBoundary | undefined = context.boundaries.get(
-      target.name + ":" + end,
-    );
+    const resolved: IAutoMovieHumanSurfaceBoundary | undefined =
+      context.boundaries.get(target.name + ":" + end);
     if (resolved !== undefined) return resolved;
     for (const roots of context.roots.values())
       if (

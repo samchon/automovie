@@ -1,6 +1,11 @@
-import type { IAutoMovieResolvedBone, IAutoMovieCombinePhysicalMassProperties, IAutoMovieResolveCenterOfMass, IAutoMovieResolveMomentum, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieCombinePhysicalMassProperties,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolveMomentum,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -75,49 +80,51 @@ export function resolveAutoMovieMomentum(
 
   // Orbital plus spin momentum of each segment at the interval's middle.
   let angular: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  a.forEach((p0: IAutoMovieCombinePhysicalMassProperties.IPart, i: number): void => {
-    const p1: IAutoMovieCombinePhysicalMassProperties.IPart = b[i]!;
-    const middle: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(p0.centerOfMass, p1.centerOfMass),
-      0.5,
-    );
-    const v: IAutoMovieVector3 = Vector3.scale(
-      Vector3.subtract(p1.centerOfMass, p0.centerOfMass),
-      1 / seconds,
-    );
-    const w: IAutoMovieVector3 = Vector3.scale(
-      samplePoseVelocity.rotationVector(
-        Quaternion.multiply(
-          p1.inertiaRotation,
-          Quaternion.inverse(p0.inertiaRotation),
-        ),
-      ),
-      1 / seconds,
-    );
-    const spin: number[][] = physicalInertiaTensor(
-      [
-        {
-          ...p0,
-          inertiaRotation: Quaternion.slerp(
-            p0.inertiaRotation,
+  a.forEach(
+    (p0: IAutoMovieCombinePhysicalMassProperties.IPart, i: number): void => {
+      const p1: IAutoMovieCombinePhysicalMassProperties.IPart = b[i]!;
+      const middle: IAutoMovieVector3 = Vector3.scale(
+        Vector3.add(p0.centerOfMass, p1.centerOfMass),
+        0.5,
+      );
+      const v: IAutoMovieVector3 = Vector3.scale(
+        Vector3.subtract(p1.centerOfMass, p0.centerOfMass),
+        1 / seconds,
+      );
+      const w: IAutoMovieVector3 = Vector3.scale(
+        samplePoseVelocity.rotationVector(
+          Quaternion.multiply(
             p1.inertiaRotation,
-            0.5,
+            Quaternion.inverse(p0.inertiaRotation),
           ),
-        },
-      ],
-      p0.centerOfMass,
-    );
-    angular = Vector3.add(
-      angular,
-      Vector3.add(
-        Vector3.scale(
-          Vector3.cross(Vector3.subtract(middle, centre), v),
-          p0.mass,
         ),
-        resolveAutoMovieMomentum.apply(spin, w),
-      ),
-    );
-  });
+        1 / seconds,
+      );
+      const spin: number[][] = physicalInertiaTensor(
+        [
+          {
+            ...p0,
+            inertiaRotation: Quaternion.slerp(
+              p0.inertiaRotation,
+              p1.inertiaRotation,
+              0.5,
+            ),
+          },
+        ],
+        p0.centerOfMass,
+      );
+      angular = Vector3.add(
+        angular,
+        Vector3.add(
+          Vector3.scale(
+            Vector3.cross(Vector3.subtract(middle, centre), v),
+            p0.mass,
+          ),
+          resolveAutoMovieMomentum.apply(spin, w),
+        ),
+      );
+    },
+  );
   return {
     centre,
     velocity,
@@ -136,7 +143,6 @@ export function resolveAutoMovieMomentum(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The tensor sum is `physicalInertiaTensor`'s, the diagonalization `physicalPrincipalAxes`'s and the centre `resolveAutoMovieCenterOfMass.place`'s, imported rather than copied.
  */
 export namespace resolveAutoMovieMomentum {
-
   /**
    * The composite inertia tensor of a posed body about its whole-body centre
    * of mass, in the bones' frame: each segment's principal tensor turned by

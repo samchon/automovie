@@ -1,9 +1,11 @@
-import type { IAutoMoviePreparePhysicalGeometry, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   preparePhysicalGeometry as Geometry,
   Quaternion,
 } from "@automovie/engine";
-
+import type {
+  IAutoMoviePreparePhysicalGeometry,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
@@ -42,12 +44,9 @@ export async function test_physical_geometry_boundary(): Promise<void> {
     pose: { position: { x, y: 0, z: 0 }, rotation },
   });
   for (const prediction of [0, 1e-9]) {
-    const contact: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> = geometry.contact(
-      make(sphere, 0),
-      make(sphere, 0.2),
-      0,
-      prediction,
-    );
+    const contact: ReturnType<
+      IAutoMoviePreparePhysicalGeometry.IQueries["contact"]
+    > = geometry.contact(make(sphere, 0), make(sphere, 0.2), 0, prediction);
     TestValidator.predicate(
       "original tangent has an actual zero-distance native witness",
       contact !== null &&
@@ -74,13 +73,15 @@ export async function test_physical_geometry_boundary(): Promise<void> {
       0,
       Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
     );
-    const second: IAutoMoviePreparePhysicalGeometry.ICollider = make(shape, 0.2, first.pose.rotation);
-    const input: string = JSON.stringify({ first, second });
-    const tangent: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> = geometry.contact(
-      first,
-      second,
-      0,
+    const second: IAutoMoviePreparePhysicalGeometry.ICollider = make(
+      shape,
+      0.2,
+      first.pose.rotation,
     );
+    const input: string = JSON.stringify({ first, second });
+    const tangent: ReturnType<
+      IAutoMoviePreparePhysicalGeometry.IQueries["contact"]
+    > = geometry.contact(first, second, 0);
     TestValidator.predicate(
       `${shape.kind} offset tangent retains a geometric witness`,
       tangent !== null &&
@@ -89,8 +90,9 @@ export async function test_physical_geometry_boundary(): Promise<void> {
     );
     second.pose.position.x = 0.2001;
     assert.equal(geometry.contact(first, second, 0), null);
-    const predicted: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =
-      geometry.contact(first, second, 0, 0.001);
+    const predicted: ReturnType<
+      IAutoMoviePreparePhysicalGeometry.IQueries["contact"]
+    > = geometry.contact(first, second, 0, 0.001);
     TestValidator.predicate(
       `${shape.kind} explicit prediction retains positive native distance honestly`,
       predicted !== null &&

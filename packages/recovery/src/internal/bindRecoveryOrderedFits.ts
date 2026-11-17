@@ -1,11 +1,16 @@
-import type { IAutoMoviePolylineFit, IAutoMovieCurve64, IAutoMovieMeshPlaneIntersection, IAutoMovieMeshSectionOrientation, IAutoMoviePlaneFrameConstruction, IAutoMovieRecoveryHermiteCurve, IAutoMovieRecoveryMeshIncidencePreparationOperation, IAutoMovieRecoveryOrderedLineage, IAutoMovieRecoverySectionObservationOperation } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieCurve64,
+  IAutoMovieMeshPlaneIntersection,
+  IAutoMovieMeshSectionOrientation,
+  IAutoMoviePlaneFrameConstruction,
+  IAutoMoviePolylineFit,
+  IAutoMovieRecoveryHermiteCurve,
+  IAutoMovieRecoveryMeshIncidencePreparationOperation,
+  IAutoMovieRecoveryOrderedLineage,
+  IAutoMovieRecoverySectionObservationOperation,
+} from "@automovie/interface";
 
 import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecoveryCurves";
-
-
-
 import { planeFrame } from "./mesh-observations/planeFrame";
 import { sourceOrientation } from "./mesh-observations/sourceOrientation";
 import { observeRecoverySection } from "./observeRecoverySection";
@@ -42,18 +47,16 @@ export function bindRecoveryOrderedFits(
     throw new Error("Ordered cut artifact belongs to another source selection");
   const prepared: ReturnType<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation> =
     prepareRecoveryMeshIncidence(input, input.verticesMm);
-  const frame: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> = planeFrame(
-    [0, 0, 0],
-    input.axis,
-    input.reference,
-  );
+  const frame: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> =
+    planeFrame([0, 0, 0], input.axis, input.reference);
   if (
     JSON.stringify(cuts.frame) !==
     JSON.stringify({
       originMm: frame.origin,
       n: frame.n,
       u: frame.u,
-      v: frame.v })
+      v: frame.v,
+    })
   )
     throw new Error("Ordered cut artifact has a different physical frame");
   const orientations: Map<
@@ -71,11 +74,14 @@ export function bindRecoveryOrderedFits(
       > = {
         coordinateMm: target.coordinateMm,
         contourIndex: target.contourIndex,
-        observationIdentity: target.observationIdentity };
+        observationIdentity: target.observationIdentity,
+      };
       const completedStages: NonNullable<
         IAutoMovieRecoveryOrderedLineage.Binding["completedStages"]
       > = [];
-      let replayFitQualification: Omit<IAutoMoviePolylineFit, "curve"> | undefined;
+      let replayFitQualification:
+        | Omit<IAutoMoviePolylineFit, "curve">
+        | undefined;
       try {
         const key: string = JSON.stringify([
           target.coordinateMm,
@@ -143,8 +149,8 @@ export function bindRecoveryOrderedFits(
         const sign: 1 | -1 = target.policy.sourceOrientationSign;
         if (!orientations.has(sign))
           orientations.set(sign, sourceOrientation(prepared.mesh, sign));
- 
-       /** Current section callback record, not evidence of historical parameters.
+
+        /** Current section callback record, not evidence of historical parameters.
          *
          */
         type Trace = Parameters<
@@ -159,7 +165,8 @@ export function bindRecoveryOrderedFits(
             frame.n[0] * target.coordinateMm,
             frame.n[1] * target.coordinateMm,
             frame.n[2] * target.coordinateMm,
-          ] };
+          ],
+        };
         // The private fitter borrows mutable tuples; own these copies without changing source metadata or casting away readonly.
         const points: IAutoMovieMeshPlaneIntersection[] = raw.points.map(
           (
@@ -168,7 +175,8 @@ export function bindRecoveryOrderedFits(
             p: [p.p[0], p.p[1], p.p[2]],
             a: p.a,
             b: p.b,
-            t: p.t }),
+            t: p.t,
+          }),
         );
         const observed: ReturnType<IAutoMovieRecoverySectionObservationOperation.Operation> =
           observeRecoverySection({
@@ -182,14 +190,19 @@ export function bindRecoveryOrderedFits(
             name: "saved-fit-trace",
             onAcceptedFit: (trace: Trace): void => {
               traces.push(trace);
-            } });
+            },
+          });
         const fitted: IAutoMovieCurve64.Cubic | undefined =
           observed.section.loops[0]?.curve ?? observed.report.open[0]?.curve;
         if (fitted !== undefined) {
           const openFit: (typeof observed.report.open)[number] | undefined =
             observed.report.open[0];
-          if (observed.section.loops[0] === undefined && openFit !== undefined) {
-            const { curve: _curve, ...quality }: IAutoMoviePolylineFit = openFit;
+          if (
+            observed.section.loops[0] === undefined &&
+            openFit !== undefined
+          ) {
+            const { curve: _curve, ...quality }: IAutoMoviePolylineFit =
+              openFit;
             replayFitQualification = quality;
           } else replayFitQualification = observed.report.fits[0];
           completedStages.push("replay-fit");
@@ -199,11 +212,12 @@ export function bindRecoveryOrderedFits(
             observed.report.diagnostics.join("; ") ||
               "Replay did not emit one accepted trace",
           );
-        const converted: IAutoMovieCurve64.Cubic | IAutoMovieRecoveryHermiteCurve =
-          convertAutoMovieRecoveryCurves(
-            fitted,
-            target.curve.type === "cubicHermite" ? "hermite" : "bezier",
-          );
+        const converted:
+          | IAutoMovieCurve64.Cubic
+          | IAutoMovieRecoveryHermiteCurve = convertAutoMovieRecoveryCurves(
+          fitted,
+          target.curve.type === "cubicHermite" ? "hermite" : "bezier",
+        );
         if (geometry(converted) !== geometry(target.curve))
           throw new Error(
             "Replay coefficients, basis, degree or physical h differ from the saved curve; no phase map emitted",
@@ -251,7 +265,8 @@ export function bindRecoveryOrderedFits(
               localParameter: parameter,
               fittedPhaseMm:
                 starts[span.span]! +
-                target.curve.phaseIntervals[span.span]! * parameter });
+                target.curve.phaseIntervals[span.span]! * parameter,
+            });
           }
         }
         completedStages.push("accepted-sample-map");
@@ -271,7 +286,8 @@ export function bindRecoveryOrderedFits(
             start: [...s.start],
             end: [...s.end],
             startDerivative: [...s.startDerivative],
-            endDerivative: [...s.endDerivative] }),
+            endDerivative: [...s.endDerivative],
+          }),
         );
         completedStages.push("saved-endpoint-jets");
         return {
@@ -284,7 +300,8 @@ export function bindRecoveryOrderedFits(
           historicalAcceptedTraceVerified: false,
           reversed: trace.reversed,
           samples,
-          endpointJets };
+          endpointJets,
+        };
       } catch (failure: unknown) {
         return {
           ...base,
@@ -297,7 +314,8 @@ export function bindRecoveryOrderedFits(
             : { replayFitQualification }),
           ...(completedStages.includes("replay-fit")
             ? { historicalAcceptedTraceVerified: false as const }
-            : {}) };
+            : {}),
+        };
       }
     },
   );
@@ -309,12 +327,15 @@ export function bindRecoveryOrderedFits(
  * JSON equality treats signed zero alike and is not binary-buffer equality.
  *
  */
-function geometry(curve: IAutoMovieCurve64.Cubic | IAutoMovieRecoveryHermiteCurve): string {
+function geometry(
+  curve: IAutoMovieCurve64.Cubic | IAutoMovieRecoveryHermiteCurve,
+): string {
   return JSON.stringify({
     type: curve.type,
     closed: curve.closed,
     unit: curve.unit,
     phaseUnit: curve.phaseUnit,
     phaseIntervals: curve.phaseIntervals,
-    spans: curve.spans });
+    spans: curve.spans,
+  });
 }

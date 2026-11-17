@@ -1,4 +1,9 @@
-import type { AutoMovieVector2Tuple, IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshPlan } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshPlan,
+} from "@automovie/interface";
+
 import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
 
 /** A containing triangle and the point's cover occurrence within it. */
@@ -139,11 +144,16 @@ function locate(
       period === undefined ? [0] : [nearest - 1, nearest, nearest + 1];
     let contained: boolean = false;
     for (const lift of images) {
-      const lifted: Readonly<AutoMovieVector2Tuple> = [point[0], point[1] + lift * (period ?? 0)];
+      const lifted: Readonly<AutoMovieVector2Tuple> = [
+        point[0],
+        point[1] + lift * (period ?? 0),
+      ];
       if (
         !Number.isSafeInteger(lift) ||
         !lifted.every(Number.isFinite) ||
-        !chart.every((corner: Readonly<AutoMovieVector2Tuple>): boolean => corner.every(Number.isFinite))
+        !chart.every((corner: Readonly<AutoMovieVector2Tuple>): boolean =>
+          corner.every(Number.isFinite),
+        )
       )
         return "interior point cover is not representable";
       const signs: [number, number, number] = [
@@ -314,8 +324,14 @@ function admitted(
 ): boolean {
   const a: Readonly<AutoMovieVector2Tuple> = vertices.get(edge.a)!;
   const b: Readonly<AutoMovieVector2Tuple> = vertices.get(edge.b)!;
-  const visibleA: Readonly<AutoMovieVector2Tuple> = [a[0], a[1] + edge.first * (period ?? 0)];
-  const visibleB: Readonly<AutoMovieVector2Tuple> = [b[0], b[1] + edge.last * (period ?? 0)];
+  const visibleA: Readonly<AutoMovieVector2Tuple> = [
+    a[0],
+    a[1] + edge.first * (period ?? 0),
+  ];
+  const visibleB: Readonly<AutoMovieVector2Tuple> = [
+    b[0],
+    b[1] + edge.last * (period ?? 0),
+  ];
   if (
     ![...visibleA, ...visibleB].every(Number.isFinite) ||
     orientAutoMovieSolidChart(visibleA, visibleB, point) <= 0
@@ -326,7 +342,11 @@ function admitted(
     [b[0], b[1] + (edge.last - edge.first) * (period ?? 0)],
     [point[0], point[1] - edge.first * (period ?? 0)],
   ];
-  if (!points.every((value: Readonly<AutoMovieVector2Tuple>): boolean => value.every(Number.isFinite)))
+  if (
+    !points.every((value: Readonly<AutoMovieVector2Tuple>): boolean =>
+      value.every(Number.isFinite),
+    )
+  )
     return false;
   const span: number =
     Math.max(points[0]![1], points[1]![1], points[2]![1]) -

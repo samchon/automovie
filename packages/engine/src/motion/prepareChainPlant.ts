@@ -1,5 +1,14 @@
-import { type IAutoMovieResolvedBone, type IAutoMovieSkeletonTopology, type IAutoMovieFitChainToTargetProps, type IAutoMoviePreparedChainPlant, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion } from "@automovie/interface";
-
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  type IAutoMovieFitChainToTargetProps,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  type IAutoMoviePreparedChainPlant,
+  IAutoMovieQuaternion,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieSkeletonTopology,
+} from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
@@ -41,13 +50,14 @@ export const prepareChainPlant: (
         j.bone !== chain.upper && j.bone !== chain.lower,
     ),
   };
-  const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = resolveBoneMap(
-    props.skeleton,
-    zeroed,
-    props.topology,
-    props.jointAxes,
-    props.restFrames,
-  );
+  const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    resolveBoneMap(
+      props.skeleton,
+      zeroed,
+      props.topology,
+      props.jointAxes,
+      props.restFrames,
+    );
   const upper: IAutoMovieResolvedBone | undefined = map.get(chain.upper);
   const lower: IAutoMovieResolvedBone | undefined = map.get(chain.lower);
   const effector: IAutoMovieResolvedBone | undefined = map.get(chain.effector);

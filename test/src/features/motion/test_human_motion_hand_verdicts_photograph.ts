@@ -1,6 +1,21 @@
-import type { IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionHumanAuditContinuity, HumanChain, HumanHabit, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAuditContinuity,
+  HumanChain,
+  HumanHabit,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -45,7 +60,8 @@ export function test_human_motion_hand_verdicts_photograph(): void {
   const complaints: string[] = [];
 
   // 1. The hands at the camera's two sides.
-  const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+  const placed: IAutoMovieMotionHumanSegment.ISegment =
+    performance.segments("a")[1]!;
   const instant = (event: string): number =>
     placed.start +
     (placed.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
@@ -106,7 +122,10 @@ export function test_human_motion_hand_verdicts_photograph(): void {
         .join(", ")}; around it ${[-1, 0, 1]
         .map((k: number): string => {
           const at: number = jump.seconds + k / 48;
-          const posture: IAutoMovieMotionHumanPosture = performance.posture("a", at);
+          const posture: IAutoMovieMotionHumanPosture = performance.posture(
+            "a",
+            at,
+          );
           const shown = performance
             .pose("a", at)
             .joints.find((j): boolean => j.bone === jump.where);

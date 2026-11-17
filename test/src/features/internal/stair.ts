@@ -1,6 +1,9 @@
-import type { IAutoMovieMeshAssembly, IAutoMovieMeshPart, IAutoMovieMesh } from "@automovie/interface";
 import { mergeAutoMovieMeshParts } from "@automovie/engine";
-
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshAssembly,
+  IAutoMovieMeshPart,
+} from "@automovie/interface";
 
 import { slab } from "./slab";
 import { yaw } from "./yaw";

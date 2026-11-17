@@ -6,35 +6,27 @@
  * @evidence contracts/development/common.md#meaningful-documentation Widths count physical coordinates, retained counts logical scalar slots, and work fields count prepaid visits; adaptive selects original-design agreement only.
  */
 export interface IAutoMovieRecoveryFeasibleMapWork {
- 
- /** Original fixed-population observation count. */
+  /** Original fixed-population observation count. */
   observations: number;
 
- 
- /** Camera coordinates after the seven-freedom gauge. */
+  /** Camera coordinates after the seven-freedom gauge. */
   cameraWidth: number;
 
- 
- /** Camera and landmark physical coordinate count. */
+  /** Camera and landmark physical coordinate count. */
   width: number;
 
- 
- /** Whether selected-u objective agreement is enabled. */
+  /** Whether selected-u objective agreement is enabled. */
   adaptive: boolean;
 
- 
- /** Visits charged before each adaptive agreement reaction. */
+  /** Visits charged before each adaptive agreement reaction. */
   agreementWork: number;
 
- 
- /** Base numerical arrays plus64 simultaneous current-radius chart slots. */
+  /** Base numerical arrays plus64 simultaneous current-radius chart slots. */
   retained: number;
 
- 
- /** Visits charged before each complete actual evaluation. */
+  /** Visits charged before each complete actual evaluation. */
   evaluationWork: number;
 
- 
- /** Visits charged before each model, including512 fixed chart differential visits. */
+  /** Visits charged before each model, including512 fixed chart differential visits. */
   modelWork: number;
 }

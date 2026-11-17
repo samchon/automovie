@@ -1,5 +1,8 @@
-import type { IAutoMovieContourLoft64, IAutoMovieCurve64 } from "@automovie/interface";
 import { tessellateAutoMovieContourLoft64 } from "@automovie/engine";
+import type {
+  IAutoMovieContourLoft64,
+  IAutoMovieCurve64,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
@@ -20,10 +23,13 @@ export function assertContourLoftMalformedCurves(
   admissionSections: IAutoMovieContourLoft64.ISection[],
   complete: IAutoMovieContourLoft64.IInterval[],
 ): void {
-  const originalCurve: IAutoMovieCurve64.Cubic = admissionSections[0].loops[1].curve;
+  const originalCurve: IAutoMovieCurve64.Cubic =
+    admissionSections[0].loops[1].curve;
 
   /** Replace only caller-owned first-point data; untouched spans remain the same mathematical fixture. */
-  const firstPointCurve: (point: O.V) => IAutoMovieCurve64.Cubic = (point: O.V): IAutoMovieCurve64.Cubic => ({
+  const firstPointCurve: (point: O.V) => IAutoMovieCurve64.Cubic = (
+    point: O.V,
+  ): IAutoMovieCurve64.Cubic => ({
     ...originalCurve,
     spans: originalCurve.spans.map(
       (span: IAutoMovieCurve64.Span, i: number): IAutoMovieCurve64.Span =>
@@ -123,12 +129,13 @@ export function assertContourLoftMalformedCurves(
       },
       ...admissionSections.slice(1),
     ];
-    const retained: IAutoMovieContourLoft64.IResult = tessellateAutoMovieContourLoft64({
-      sections: changed,
-      intervals: complete,
-      events: [],
-      chordToleranceMm: 0.25,
-    });
+    const retained: IAutoMovieContourLoft64.IResult =
+      tessellateAutoMovieContourLoft64({
+        sections: changed,
+        intervals: complete,
+        events: [],
+        chordToleranceMm: 0.25,
+      });
     TestValidator.equals(
       `${scenario.name} keeps independent strip geometry`,
       intervalTriangles(retained),
@@ -137,17 +144,21 @@ export function assertContourLoftMalformedCurves(
     TestValidator.predicate(
       `${scenario.name} has an explicit local source diagnostic`,
       retained.unresolved.some(
-        (record: IAutoMovieContourLoft64.IResult["unresolved"][number]): boolean =>
+        (
+          record: IAutoMovieContourLoft64.IResult["unresolved"][number],
+        ): boolean =>
           nclose(record.beforeMm, 0, 0) &&
           nclose(record.afterMm, 2, 0) &&
           record.reason?.toLowerCase().includes("curve") === true,
       ),
     );
-    const diagnostic: IAutoMovieContourLoft64.IResult["construction"][number] | undefined =
-      retained.construction.find(
-        (record: IAutoMovieContourLoft64.IResult["construction"][number]): boolean =>
-          record.id === invalidCurveId,
-      );
+    const diagnostic:
+      | IAutoMovieContourLoft64.IResult["construction"][number]
+      | undefined = retained.construction.find(
+      (
+        record: IAutoMovieContourLoft64.IResult["construction"][number],
+      ): boolean => record.id === invalidCurveId,
+    );
     TestValidator.predicate(
       `${scenario.name} retains only an actual interpretable diagnostic endpoint`,
       diagnostic !== undefined &&
@@ -162,7 +173,9 @@ export function assertContourLoftMalformedCurves(
       retained.mesh.positions.every(Number.isFinite) &&
         retained.mesh.normals!.every(Number.isFinite) &&
         retained.construction.every(
-          (record: IAutoMovieContourLoft64.IResult["construction"][number]): boolean =>
+          (
+            record: IAutoMovieContourLoft64.IResult["construction"][number],
+          ): boolean =>
             record.points.every(
               (point: O.V): boolean =>
                 point.length === 3 &&
@@ -178,8 +191,9 @@ export function assertContourLoftMalformedCurves(
         {
           ...retained,
           construction: retained.construction.filter(
-            (record: IAutoMovieContourLoft64.IResult["construction"][number]): boolean =>
-              record.id !== invalidCurveId,
+            (
+              record: IAutoMovieContourLoft64.IResult["construction"][number],
+            ): boolean => record.id !== invalidCurveId,
           ),
         },
         admissionSections,

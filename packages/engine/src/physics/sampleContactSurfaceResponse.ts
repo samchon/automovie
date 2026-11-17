@@ -1,5 +1,7 @@
-import type { IAutoMovieSampleContactSurfaceResponse, IAutoMovieContactReceipt } from "@automovie/interface";
-
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMovieSampleContactSurfaceResponse,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { samplePhysicalContactEvents } from "./samplePhysicalContactEvents";
@@ -19,7 +21,9 @@ import { samplePhysicalContactEvents } from "./samplePhysicalContactEvents";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function sampleContactSurfaceResponse(input: IAutoMovieSampleContactSurfaceResponse.IInput): number {
+export function sampleContactSurfaceResponse(
+  input: IAutoMovieSampleContactSurfaceResponse.IInput,
+): number {
   if (
     !Number.isFinite(input.seconds) ||
     input.seconds < 0 ||

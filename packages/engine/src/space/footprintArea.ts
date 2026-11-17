@@ -1,4 +1,8 @@
-import type { IAutoMovieFootprint, IAutoMovieFootprintRing } from "@automovie/interface";
+import type {
+  IAutoMovieFootprint,
+  IAutoMovieFootprintRing,
+} from "@automovie/interface";
+
 /**
  * Plan area of the region, in square metres: the outer ring less its holes.
  *

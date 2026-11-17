@@ -1,5 +1,5 @@
-import type { IAutoMovieStagedSet } from "@automovie/interface";
 import { stageScene } from "@automovie/engine";
+import type { IAutoMovieStagedSet } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeScriptWrite, makeStagingWrite } from "../internal/filmFixtures";

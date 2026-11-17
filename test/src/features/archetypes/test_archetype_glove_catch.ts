@@ -1,8 +1,26 @@
-import type { IAutoMovieComposition, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCatchObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { createBall, createGlove } from "@automovie/archetypes";
-import { Quaternion, Vector3, quaternionFromAutoMovieBasis } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanRefusal, catchObject } from "@automovie/motions";
+import {
+  Quaternion,
+  Vector3,
+  quaternionFromAutoMovieBasis,
+} from "@automovie/engine";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCatchObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  catchObject,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -120,10 +138,15 @@ export function test_archetype_glove_catch(): void {
       const local: number = act.plan.contact ?? Number.NaN;
       return {
         at: act.start + local,
-        centre: (act.plan as IAutoMovieMotionHumanCatchObject.IPlan).object(local),
+        centre: (act.plan as IAutoMovieMotionHumanCatchObject.IPlan).object(
+          local,
+        ),
       };
     };
-    const palm = (film: IAutoMovieMotionHumanPerformance, seconds: number): number => {
+    const palm = (
+      film: IAutoMovieMotionHumanPerformance,
+      seconds: number,
+    ): number => {
       const hand: IAutoMovieVector3 = film
         .bones("b", seconds)
         .get("leftHand")!.worldPosition;
@@ -135,7 +158,10 @@ export function test_archetype_glove_catch(): void {
     try {
       gloved = perform("left", true);
       const meet: { at: number; centre: IAutoMovieVector3 } = contact(gloved);
-      const frame: IAutoMovieMotionHumanProp.IFrame = gloved.prop("glove", meet.at);
+      const frame: IAutoMovieMotionHumanProp.IFrame = gloved.prop(
+        "glove",
+        meet.at,
+      );
       const pocket: IAutoMovieVector3 = Vector3.add(
         frame.position,
         Quaternion.rotateVector(

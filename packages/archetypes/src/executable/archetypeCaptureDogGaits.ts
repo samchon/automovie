@@ -49,6 +49,7 @@ export function archetypeCaptureDogGaits(): Readonly<
         },
         gait,
       ),
+      dog,
     );
   return subjects;
 }

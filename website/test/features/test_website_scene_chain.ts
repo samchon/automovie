@@ -1,7 +1,8 @@
-import type { IAutoMovieComposition, IAutoMovieMotionHumanProp } from "@automovie/interface";
 import * as archetypes from "@automovie/archetypes";
-
-
+import type {
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanProp,
+} from "@automovie/interface";
 import * as motions from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 import ts from "typescript";
@@ -214,9 +215,8 @@ function input(
     findings.push(`${id}: the laws are given where the playground gives none`);
 
   // The props, against those the playground builds.
-  const expected: IAutoMovieMotionHumanProp[] | undefined = PlaygroundObjects.props(
-    composition.objects ?? [],
-  );
+  const expected: IAutoMovieMotionHumanProp[] | undefined =
+    PlaygroundObjects.props(composition.objects ?? []);
   if ((given.props === undefined) !== (expected === undefined)) {
     findings.push(`${id}: the props are given where the playground gives none`);
     return findings;
@@ -224,8 +224,12 @@ function input(
   const made: IAutoMovieMotionHumanProp[] = given.props ?? [];
   const wanted: IAutoMovieMotionHumanProp[] = expected ?? [];
   if (
-    JSON.stringify(made.map((p: IAutoMovieMotionHumanProp): string => p.subject)) !==
-    JSON.stringify(wanted.map((p: IAutoMovieMotionHumanProp): string => p.subject))
+    JSON.stringify(
+      made.map((p: IAutoMovieMotionHumanProp): string => p.subject),
+    ) !==
+    JSON.stringify(
+      wanted.map((p: IAutoMovieMotionHumanProp): string => p.subject),
+    )
   ) {
     findings.push(`${id}: the props' subjects differ`);
     return findings;

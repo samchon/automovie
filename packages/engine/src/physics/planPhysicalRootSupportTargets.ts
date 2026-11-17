@@ -1,4 +1,9 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMoviePlanPhysicalRootSupportTargets, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePlanPhysicalRootSupportTargets,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { planPhysicalSupportTargets } from "./planPhysicalSupportTargets";
@@ -15,9 +20,12 @@ import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 3 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function planPhysicalRootSupportTargets(input: IAutoMoviePlanPhysicalRootSupportTargets.IInput): Record<string, IAutoMoviePhysicalProfile.ITransform> {
-  const policy: NonNullable<IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]> =
-    input.body.supportTracking!;
+export function planPhysicalRootSupportTargets(
+  input: IAutoMoviePlanPhysicalRootSupportTargets.IInput,
+): Record<string, IAutoMoviePhysicalProfile.ITransform> {
+  const policy: NonNullable<
+    IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
+  > = input.body.supportTracking!;
   const limbs: typeof policy.pattern.limbs = policy.pattern.limbs.filter(
     (limb: (typeof policy.pattern.limbs)[number]): boolean =>
       limb.chain.length >= 2 &&
@@ -26,11 +34,8 @@ export function planPhysicalRootSupportTargets(input: IAutoMoviePlanPhysicalRoot
       ),
   );
   if (!limbs.length || (policy.iterations ?? 24) === 0) return input.targets;
-  const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> = rebasePhysicalTargets(
-    input.targets,
-    input.root.bone,
-    input.root.pose,
-  );
+  const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+    rebasePhysicalTargets(input.targets, input.root.bone, input.root.pose);
   const goals: Record<string, IAutoMovieVector3> = Object.fromEntries(
     limbs.map((limb: (typeof limbs)[number]): [string, IAutoMovieVector3] => [
       limb.bone,

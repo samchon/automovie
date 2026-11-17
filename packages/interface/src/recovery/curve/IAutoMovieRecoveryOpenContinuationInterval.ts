@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryOpenCurveGroup, IAutoMovieRecoveryOpenCurvePair } from "../../index";
+import type {
+  IAutoMovieRecoveryOpenCurveGroup,
+  IAutoMovieRecoveryOpenCurvePair,
+} from "../../index";
 
 /** Open-curve incidence between two adjacent published section reports.
  *
@@ -8,19 +11,15 @@ import type { IAutoMovieRecoveryOpenCurveGroup, IAutoMovieRecoveryOpenCurvePair 
  * @evidence contracts/development/common.md#meaningful-documentation Fields distinguish section and curve ordinals, retained orientation and physical sampling policy.
  */
 export interface IAutoMovieRecoveryOpenContinuationInterval {
- 
- /** Preceding section ordinal in the saved publication. */
+  /** Preceding section ordinal in the saved publication. */
   beforeSection: number;
 
- 
- /** Following adjacent section ordinal in the saved publication. */
+  /** Following adjacent section ordinal in the saved publication. */
   afterSection: number;
 
- 
- /** Qualified ordinary open-curve pairs using local curve ordinals. */
+  /** Qualified ordinary open-curve pairs using local curve ordinals. */
   pairs: IAutoMovieRecoveryOpenCurvePair[];
 
- 
- /** Unsupported or unrepresented curve components. */
+  /** Unsupported or unrepresented curve components. */
   unresolved: IAutoMovieRecoveryOpenCurveGroup[];
 }

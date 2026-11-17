@@ -8,16 +8,16 @@ export namespace IAutoMovieCreateDynamicActorPoseClip {
   export type IProps = {
     /** Caller-selected output motion identity. */
     id: string;
-  
+
     /** Skeleton id shared by every callback pose. */
     skeleton: string;
-  
+
     /** Finite strictly positive clip span in seconds. */
     duration: number;
-  
+
     /** Resolve an admitted clinical pose at local seconds; null refuses the complete bake and thrown errors propagate. */
     poseAt: (time: number) => IAutoMoviePose | null;
-  
+
     /** Additional finite in-span seconds that must be sampled exactly; duplicates collapse with the regular grid. */
     landmarks?: readonly number[];
   };

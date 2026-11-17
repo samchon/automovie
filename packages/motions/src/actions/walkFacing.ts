@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanWalkFacing, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanWalkFacing,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * How much of its speed and step a walk keeps when the body does not face
@@ -14,7 +19,6 @@ import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoM
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No length is typed: the side step is the body's own foot separation.
  */
 export namespace walkFacing {
-
   /** The share of the forward walking speed a backward walk keeps: the ratio of the backward to the forward walk-to-run transition speeds of the same young adults, 1.58 +/- 0.16 against 1.99 +/- 0.20 m/s (Hreljac et al. 2005, J Sports Sci Med 4:446, 12 adults on a treadmill); cadence is the same either way (Laufer 2005, J Gerontol A 60:627, 30 young adults on a walkway), so the stride carries the ratio. */
   export const BACKWARD: number = 1.58 / 1.99;
 

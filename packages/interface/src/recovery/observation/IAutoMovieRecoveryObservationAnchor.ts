@@ -6,19 +6,15 @@
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes incoming and current zero-based indices from dimensionless phase.
  */
 export interface IAutoMovieRecoveryObservationAnchor {
- 
- /** Identity appearing exactly once in each input cycle. */
+  /** Identity appearing exactly once in each input cycle. */
   id: string;
 
- 
- /** Zero-based point ordinal in the incoming cycle. */
+  /** Zero-based point ordinal in the incoming cycle. */
   previousIndex: number;
 
- 
- /** Retained incoming canonical phase in [0, 1). */
+  /** Retained incoming canonical phase in [0, 1). */
   phase: number;
 
- 
- /** Zero-based point ordinal in the original current cycle, before transport ordering. */
+  /** Zero-based point ordinal in the original current cycle, before transport ordering. */
   currentIndex: number;
 }

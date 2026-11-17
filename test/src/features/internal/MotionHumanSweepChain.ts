@@ -1,5 +1,7 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieComposition } from "@automovie/interface";
-
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieComposition,
+} from "@automovie/interface";
 import { HumanChain } from "@automovie/motions";
 
 /**

@@ -1,6 +1,6 @@
+import type { IAutoMovieMesh } from "../../model/IAutoMovieMesh";
 import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
 import type { IAutoMovieCanonicalBoundaryPhase64 } from "./IAutoMovieCanonicalBoundaryPhase64";
-import type { IAutoMovieMesh } from "../../model/IAutoMovieMesh";
 
 /** Data and callback contracts shared by the TessellateParametricAtlas64 operations. */
 export namespace IAutoMovieTessellateParametricAtlas64 {
@@ -40,14 +40,15 @@ export namespace IAutoMovieTessellateParametricAtlas64 {
         u: number,
         v: number,
       ) => {
-      /** Cartesian chart point in millimetres; boundary publication uses the declared boundary owner's agreeing position. */
-      point: AutoMovieVector3Tuple;
-      /** First chart partial per unit u, in millimetres, used with dv to derive the analytic normal. */
-      du: AutoMovieVector3Tuple;
-      /** First chart partial per unit v, in millimetres, with orientation fixed by du cross dv. */
-      dv: AutoMovieVector3Tuple;
-      /** Optional authored analytic limiting direction at a zero chart cross product; finite nonzero directions are normalized, counted separately and do not certify a unique continuous limit. */
-      normalLimit?: AutoMovieVector3Tuple };
+        /** Cartesian chart point in millimetres; boundary publication uses the declared boundary owner's agreeing position. */
+        point: AutoMovieVector3Tuple;
+        /** First chart partial per unit u, in millimetres, used with dv to derive the analytic normal. */
+        du: AutoMovieVector3Tuple;
+        /** First chart partial per unit v, in millimetres, with orientation fixed by du cross dv. */
+        dv: AutoMovieVector3Tuple;
+        /** Optional authored analytic limiting direction at a zero chart cross product; finite nonzero directions are normalized, counted separately and do not certify a unique continuous limit. */
+        normalLimit?: AutoMovieVector3Tuple;
+      };
       /** Exactly four declared boundaries in bottom, right, top, left order; each uses its increasing local chart coordinate. */
       edges: readonly {
         /** Nonblank boundary authority identity used to union exact phase requests across all incident restrictions. */

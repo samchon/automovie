@@ -1,5 +1,9 @@
-import type { IAutoMoviePolarSector, IAutoMovieViewPart, IAutoMovieViewSection } from "@automovie/interface";
 import { AutoMovieViewSection } from "@automovie/engine";
+import type {
+  IAutoMoviePolarSector,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 import { ConstructionConicOracle } from "../../../internal/construction/ConstructionConicOracle";
 import { ConstructionViewOracle } from "../../../internal/construction/ConstructionViewOracle";

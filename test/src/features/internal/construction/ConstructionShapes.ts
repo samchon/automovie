@@ -1,5 +1,12 @@
-import type { IAutoMovieConstructionNode, IAutoMovieConstructionParameter, IAutoMovieConstructionWidth, IAutoMovieConstructionKnot, IAutoMovieConstructionOutline, IAutoMovieConstructionView, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieConstructionKnot,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionOutline,
+  IAutoMovieConstructionParameter,
+  IAutoMovieConstructionView,
+  IAutoMovieConstructionWidth,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Analytic solids written as construction trees, for the construction

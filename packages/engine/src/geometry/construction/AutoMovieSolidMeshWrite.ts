@@ -1,4 +1,8 @@
-import type { IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieSolidMesh } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
@@ -123,7 +127,9 @@ export namespace AutoMovieSolidMeshWrite {
     mesh: Pick<IAutoMovieSolidMesh.IMesh, "positions">,
     triangle: readonly [number, number, number],
   ): AutoMovieVector3Tuple {
-    const point: (index: number) => AutoMovieVector3Tuple = (index: number): AutoMovieVector3Tuple => [
+    const point: (index: number) => AutoMovieVector3Tuple = (
+      index: number,
+    ): AutoMovieVector3Tuple => [
       mesh.positions[3 * index]!,
       mesh.positions[3 * index + 1]!,
       mesh.positions[3 * index + 2]!,

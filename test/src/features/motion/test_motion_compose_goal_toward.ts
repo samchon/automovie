@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanGoal, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionHumanGoal, AutoMovieMotionHumanResolve } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanGoal,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanGoal,
+  AutoMovieMotionHumanResolve,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";

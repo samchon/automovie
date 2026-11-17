@@ -1,13 +1,16 @@
-import type { AutoMovieRecoveryOperator, IAutoMovieRecoveryCameraSceneAdmissionOperation, IAutoMovieRecoveryCameraSceneEstimate, IAutoMovieRecoveryCameraSetObservationOperation, IAutoMovieRecoveryOptions, IAutoMovieRecoveryResult, IAutoMovieRecoveryCameraSceneInput } from "@automovie/interface";
-
+import type {
+  AutoMovieRecoveryOperator,
+  IAutoMovieRecoveryCameraSceneAdmissionOperation,
+  IAutoMovieRecoveryCameraSceneEstimate,
+  IAutoMovieRecoveryCameraSceneInput,
+  IAutoMovieRecoveryCameraSetObservationOperation,
+  IAutoMovieRecoveryOptions,
+  IAutoMovieRecoveryResult,
+} from "@automovie/interface";
 
 import { admitRecoveryCameraScene } from "../internal/admitRecoveryCameraScene";
 import { createRecoveryCameraScene } from "../internal/createRecoveryCameraScene";
 import { observeRecoveryCameraSet } from "../internal/observeRecoveryCameraSet";
-
-
-
-
 
 /**
  * Estimate one bounded sparse component from fixed calibrated RGB images.
@@ -53,7 +56,8 @@ export function estimateAutoMovieRecoveryCameraScene(
       ) ||
       (options.onProgress !== undefined &&
         typeof options.onProgress !== "function") ||
-      (options.cancelled !== undefined && typeof options.cancelled !== "function")
+      (options.cancelled !== undefined &&
+        typeof options.cancelled !== "function")
     )
       throw new Error(
         "invalid-camera-scene-options: only cancellation callback and synchronous progress supported",
@@ -64,7 +68,9 @@ export function estimateAutoMovieRecoveryCameraScene(
       callback = true;
       const requested: boolean | undefined = probe?.();
       if (probe !== undefined && typeof requested !== "boolean")
-        throw new Error("Cancellation callback must return a boolean synchronously");
+        throw new Error(
+          "Cancellation callback must return a boolean synchronously",
+        );
       callback = false;
       return requested === true;
     };
@@ -83,8 +89,11 @@ export function estimateAutoMovieRecoveryCameraScene(
           camera: {
             ...view.camera,
             focalPx: [...view.camera.focalPx],
-            principalPointPx: [...view.camera.principalPointPx] } }),
-      ) };
+            principalPointPx: [...view.camera.principalPointPx],
+          },
+        }),
+      ),
+    };
     admitted = true;
     const checkpoint: (
       phase: string,
@@ -132,16 +141,19 @@ export function estimateAutoMovieRecoveryCameraScene(
         `Conditional sparse component: ${value.registeredViews.length}/${stable.views.length} images; ${value.stopReason}`,
         "Supplied intrinsics and rigidity remain assertions; physical scale, material/landmark truth, unseen geometry and an editable surface remain unobserved",
         "Global conflicts are withheld before seed geometry; failed camera/point/observation transactions preserve the last qualified checkpoint",
-      ] };
+      ],
+    };
   } catch (error: unknown) {
     if (error === cancellation && !callback)
       return {
         operator,
         status: "cancelled",
-        diagnostics: [cancellation.message] };
+        diagnostics: [cancellation.message],
+      };
     return {
       operator,
       status: admitted || callback ? "failed" : "refused",
-      diagnostics: [error instanceof Error ? error.message : String(error)] };
+      diagnostics: [error instanceof Error ? error.message : String(error)],
+    };
   }
 }

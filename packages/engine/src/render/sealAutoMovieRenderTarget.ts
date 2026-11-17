@@ -1,5 +1,10 @@
-import { type IAutoMovieSealRenderTarget, IAutoMovieRenderTarget, IAutoMovieRenderTargetAsset, IAutoMovieRenderTargetRenderer, IAutoMovieRenderTargetSettings } from "@automovie/interface";
-
+import {
+  IAutoMovieRenderTarget,
+  IAutoMovieRenderTargetAsset,
+  IAutoMovieRenderTargetRenderer,
+  IAutoMovieRenderTargetSettings,
+  type IAutoMovieSealRenderTarget,
+} from "@automovie/interface";
 
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 import { autoMovieRenderDigest } from "./autoMovieRenderDigest";
@@ -27,7 +32,11 @@ import { normalizeAutoMovieShadowFilter } from "./normalizeAutoMovieShadowFilter
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Normalization, digest syntax and hash owners are shared; each seal rechecks current fields because mutable renderer/assets cannot be cached by object identity.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The target wrapper/settings/ordered array transfer to the caller while renderer and asset records remain borrowed; no file bytes, GPU handle or sealing task is retained.
  */
-export const sealAutoMovieRenderTarget: (props: IAutoMovieSealRenderTarget.IProps) => IAutoMovieRenderTarget = (props: IAutoMovieSealRenderTarget.IProps): IAutoMovieRenderTarget => {
+export const sealAutoMovieRenderTarget: (
+  props: IAutoMovieSealRenderTarget.IProps,
+) => IAutoMovieRenderTarget = (
+  props: IAutoMovieSealRenderTarget.IProps,
+): IAutoMovieRenderTarget => {
   const {
     renderer,
   }: {

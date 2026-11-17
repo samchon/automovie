@@ -1,5 +1,3 @@
-
-
 /**
  * One run projected onto XZ for serviceNetworkSchematic; y below means world Z.
  * New mutable point records and the array are caller-owned; the report does not
@@ -26,7 +24,7 @@ export interface IAutoMovieServiceSchematicEdge {
     x: number;
 
     /** World Z coordinate in metres; this plan ordinate is not world height. */
-    y: number
+    y: number;
   }>;
 
   /** Developed length of the **unprojected** centre line, in metres. */

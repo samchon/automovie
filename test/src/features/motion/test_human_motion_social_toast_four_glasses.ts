@@ -1,8 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanSocial } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanSocial,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -121,13 +133,17 @@ export function test_human_motion_social_toast_four_glasses(): void {
   // 2, 3. Every rim at the point, every glass upright.
   const lip: IAutoMovieVector3 = glass.affordance("lip").frame.translation;
   for (const [subject, role] of cast) {
-    const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments(subject)[1]!;
+    const placed: IAutoMovieMotionHumanSegment.ISegment =
+      performance.segments(subject)[1]!;
     const meet: number =
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === "meet")?.share ??
         NaN) *
         placed.plan.duration;
-    const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop(`glass-${subject}`, meet);
+    const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop(
+      `glass-${subject}`,
+      meet,
+    );
     const axis: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
       x: 0,
       y: 1,

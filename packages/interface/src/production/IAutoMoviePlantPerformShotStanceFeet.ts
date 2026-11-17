@@ -1,8 +1,8 @@
-import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieBeatEndState } from "../harness/IAutoMovieBeatEndState";
-import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieMotion } from "../motion/IAutoMovieMotion";
 import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 

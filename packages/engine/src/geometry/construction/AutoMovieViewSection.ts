@@ -1,4 +1,10 @@
-import type { IAutoMovieCurveLengthMeasurement64, IAutoMoviePolarSector, IAutoMovieQuarters, IAutoMovieViewSection, IAutoMovieViewSectionRange } from "@automovie/interface";
+import type {
+  IAutoMovieCurveLengthMeasurement64,
+  IAutoMoviePolarSector,
+  IAutoMovieQuarters,
+  IAutoMovieViewSection,
+  IAutoMovieViewSectionRange,
+} from "@automovie/interface";
 
 import { AutoMovieConicArc } from "./AutoMovieConicArc";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
@@ -62,7 +68,10 @@ export namespace AutoMovieViewSection {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the prepared source for every measure.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned section owns its source/observations; scratch is released.
    */
-  export function of(box: IAutoMovieViewSection.IBox, shoulders: IAutoMovieQuarters<number>): IAutoMovieViewSection.ISection {
+  export function of(
+    box: IAutoMovieViewSection.IBox,
+    shoulders: IAutoMovieQuarters<number>,
+  ): IAutoMovieViewSection.ISection {
     const section: IAutoMovieViewSection.ISection = bare(box, shoulders);
     const e: IAutoMovieQuarters<number> = box.extents;
     section.diagonals = [0, 1, 2, 3].map(
@@ -87,7 +96,10 @@ export namespace AutoMovieViewSection {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One prepared source serves all later validity/value/girth consumers.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns all returned conic/observation records; no global cache.
    */
-  export function bare(box: IAutoMovieViewSection.IBox, shoulders: IAutoMovieQuarters<number>): IAutoMovieViewSection.ISection {
+  export function bare(
+    box: IAutoMovieViewSection.IBox,
+    shoulders: IAutoMovieQuarters<number>,
+  ): IAutoMovieViewSection.ISection {
     return observations(AutoMovieViewSectionConic.prepare(box, shoulders));
   }
 
@@ -214,7 +226,9 @@ export namespace AutoMovieViewSection {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared quarters serve every diagnostic read.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one string or null with no retained query state.
    */
-  export function fault(section: IAutoMovieViewSection.ISection): string | null {
+  export function fault(
+    section: IAutoMovieViewSection.ISection,
+  ): string | null {
     return AutoMovieViewSectionConic.fault(section);
   }
 
@@ -261,7 +275,8 @@ export namespace AutoMovieViewSection {
     if (family.accepted !== undefined)
       return { section: completed(family.accepted.source), diagnostics: [] };
     let local: boolean = family.range !== null;
-    let reach: IAutoMovieViewSection.IRange | null = family.range ?? range(box, departures);
+    let reach: IAutoMovieViewSection.IRange | null =
+      family.range ?? range(box, departures);
 
     // Only an admitted local solve may retry through the unchanged complete
     // reach path; original callback exceptions are never caught or replaced.
@@ -315,7 +330,8 @@ export namespace AutoMovieViewSection {
           ? "no finite bracketed shoulder estimate"
           : AutoMovieViewSectionConic.fault(value);
       const residual: number = value === null ? NaN : value.girth - girth;
-      const section: IAutoMovieViewSection.ISection | null = value === null ? null : completed(value);
+      const section: IAutoMovieViewSection.ISection | null =
+        value === null ? null : completed(value);
       const refused: boolean =
         localRefusal ||
         failure !== null ||

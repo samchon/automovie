@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
+import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 
 /**
  * Kicking the ball prop lying beside the support foot with the instep, from

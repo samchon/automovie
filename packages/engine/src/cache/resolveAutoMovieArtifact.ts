@@ -1,4 +1,8 @@
-import type { IAutoMovieArtifactResolution, IAutoMovieArtifactStore } from "@automovie/interface";
+import type {
+  IAutoMovieArtifactResolution,
+  IAutoMovieArtifactStore,
+} from "@automovie/interface";
+
 /**
  * Read one keyed artifact, or compute and store it: the read-or-compute step
  * every stage cache shares.

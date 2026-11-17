@@ -1,5 +1,8 @@
-import type { IAutoMovieMotionHumanAuditRange, IAutoMovieJointPose, IAutoMoviePose } from "@automovie/interface";
-
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanAuditRange,
+  IAutoMoviePose,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanAuditRange } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

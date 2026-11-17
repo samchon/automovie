@@ -1,6 +1,19 @@
-import type { IAutoMovieMotionClipBridge, IAutoMovieResolvedBone, IAutoMovieRestFrame, AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMovieMotion, IAutoMovieSkeleton } from "@automovie/interface";
-import { Matrix4, motionToClip, resolveFrame, resolvePose, sampleMotion } from "@automovie/engine";
-
+import {
+  Matrix4,
+  motionToClip,
+  resolveFrame,
+  resolvePose,
+  sampleMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointAxes,
+  IAutoMovieMotion,
+  IAutoMovieMotionClipBridge,
+  IAutoMovieResolvedBone,
+  IAutoMovieRestFrame,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 
 import { qclose } from "./qclose";
 import { vclose } from "./vclose";

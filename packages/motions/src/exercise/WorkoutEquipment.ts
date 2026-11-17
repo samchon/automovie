@@ -1,4 +1,12 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanExerciseKey, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanWorkoutEquipment, IAutoMovieMotionHumanWorkoutKind, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanWorkoutEquipment,
+  IAutoMovieMotionHumanWorkoutKind,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { knockdown } from "../reaction/knockdown";
@@ -53,8 +61,10 @@ export namespace WorkoutEquipment {
   export const STEP: number = 120;
 
   /** The support's height above the floor. */
-  const high = (body: IAutoMovieMotionHumanBody, support: number | undefined): number =>
-    support ?? DEFAULT * body.measure.stature;
+  const high = (
+    body: IAutoMovieMotionHumanBody,
+    support: number | undefined,
+  ): number => support ?? DEFAULT * body.measure.stature;
 
   /** A straight body on its hands and toes at a pitch, the arms hanging to the hands. */
   const prone =
@@ -85,7 +95,9 @@ export namespace WorkoutEquipment {
   export const DROP: number = 30;
 
   /** The body lying flat on its back, its root at the origin, heading along `+Z`. */
-  const flat = (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanPosture =>
+  const flat = (
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanPosture =>
     ExerciseKey.posed(ExerciseKey.from(body, { pitch: -90 }, {}), 0);
 
   /** How high the back's joint is above what the back lies on. */
@@ -205,17 +217,26 @@ export namespace WorkoutEquipment {
   };
 
   /** The exercises. */
-  export const KINDS: Readonly<Record<IAutoMovieMotionHumanWorkoutEquipment.Name, IAutoMovieMotionHumanWorkoutKind>> = {
+  export const KINDS: Readonly<
+    Record<
+      IAutoMovieMotionHumanWorkoutEquipment.Name,
+      IAutoMovieMotionHumanWorkoutKind
+    >
+  > = {
     /** A step-up: the right foot on the box, the body raised over it until that leg is straight, and lowered. */
     stepUp: {
       base: "standing",
       anchor: "bar",
       pin: ["rightFoot"],
-      rise: (body: IAutoMovieMotionHumanBody): number => body.measure.ankleHeight,
+      rise: (body: IAutoMovieMotionHumanBody): number =>
+        body.measure.ankleHeight,
       supports: [{ part: "rightFoot", kind: "plant" }],
       enter: 1,
       reps: 5,
-      route: (body: IAutoMovieMotionHumanBody, support?: number): IAutoMovieMotionHumanWorkoutKind.IStep[] => {
+      route: (
+        body: IAutoMovieMotionHumanBody,
+        support?: number,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => {
         // The hip and knee that lift the foot by the box's height over an
         // upright shank, the other leg straight to the floor: past a level
         // thigh the knee rises above the hip, up to `STEP` degrees.
@@ -275,7 +296,10 @@ export namespace WorkoutEquipment {
       ],
       enter: 1.5,
       reps: 5,
-      route: (body: IAutoMovieMotionHumanBody, support?: number): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      route: (
+        body: IAutoMovieMotionHumanBody,
+        support?: number,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
           WorkoutFloor.pitched(
             body,
@@ -306,7 +330,8 @@ export namespace WorkoutEquipment {
       base: "leaning",
       anchor: "bar",
       pin: ["leftToes", "rightToes"],
-      rise: (body: IAutoMovieMotionHumanBody): number => body.measure.ankleHeight / 4,
+      rise: (body: IAutoMovieMotionHumanBody): number =>
+        body.measure.ankleHeight / 4,
       hands: true,
       supports: [
         { part: "leftHand", kind: "plant" },
@@ -316,7 +341,10 @@ export namespace WorkoutEquipment {
       ],
       enter: 1.5,
       reps: 5,
-      route: (body: IAutoMovieMotionHumanBody, support?: number): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      route: (
+        body: IAutoMovieMotionHumanBody,
+        support?: number,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
           WorkoutFloor.pitched(
             body,
@@ -355,8 +383,14 @@ export namespace WorkoutEquipment {
       ],
       enter: 2.4,
       reps: 5,
-      route: (body: IAutoMovieMotionHumanBody, support?: number): IAutoMovieMotionHumanWorkoutKind.IStep[] => {
-        const keys: IAutoMovieMotionHumanExerciseKey.IKey[] = thrust(body, support);
+      route: (
+        body: IAutoMovieMotionHumanBody,
+        support?: number,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => {
+        const keys: IAutoMovieMotionHumanExerciseKey.IKey[] = thrust(
+          body,
+          support,
+        );
         return [
           WorkoutKind.step(keys[0]!, 1, "lower", "down"),
           WorkoutKind.step(keys[1]!, 1, "thrust", "lockout", 0.5),

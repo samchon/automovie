@@ -1,5 +1,11 @@
-import type { IAutoMovieCapturePlanRequest, IAutoMovieCaptureRecord } from "@automovie/interface";
-import { parseAutoMovieCapturePlanRequest, readAutoMovieCaptureArguments } from "@automovie/render";
+import type {
+  IAutoMovieCapturePlanRequest,
+  IAutoMovieCaptureRecord,
+} from "@automovie/interface";
+import {
+  parseAutoMovieCapturePlanRequest,
+  readAutoMovieCaptureArguments,
+} from "@automovie/render";
 import {
   AutoMovieCaptureHost,
   loadAutoMovieProductionModule,
@@ -8,8 +14,8 @@ import {
 } from "automovie";
 import path from "node:path";
 
-import type { IMotionCaptureCase } from "./IMotionCaptureCase";
 import { markMotionCaptureCase } from "../capture/markMotionCaptureCase";
+import type { IMotionCaptureCase } from "./IMotionCaptureCase";
 import type { IMotionCaptureProps } from "./IMotionCaptureProps";
 import { buildMotionCaptureCases } from "./buildMotionCaptureCases";
 import { MOTION_CAPTURE_CASES } from "./cases/MOTION_CAPTURE_CASES";
@@ -51,7 +57,9 @@ const RASTER: { width: number; height: number } = { width: 720, height: 720 };
  */
 export async function motionCapture(): Promise<void> {
   const options: Map<string, string> = readAutoMovieCaptureArguments(
-    process.argv.slice(2).filter((argument: string): boolean => argument !== "--"),
+    process.argv
+      .slice(2)
+      .filter((argument: string): boolean => argument !== "--"),
   );
   const take: (key: string) => string | null = (key: string): string | null => {
     const value: string | undefined = options.get(key);
@@ -68,7 +76,8 @@ export async function motionCapture(): Promise<void> {
   if (names.length === 0)
     throw new Error("Name cases with --case a,b or list them with --list");
   for (const key of ["subject", "at"])
-    if (options.has(key)) throw new Error(`--${key} is the case's own; omit it`);
+    if (options.has(key))
+      throw new Error(`--${key} is the case's own; omit it`);
   const only: RegExp | null = ((text: string | null): RegExp | null =>
     text === null ? null : new RegExp(text))(take("only"));
   const verdicts: boolean = take("verdicts") !== null;
@@ -82,7 +91,10 @@ export async function motionCapture(): Promise<void> {
     .join(";");
 
   // Names are checked now, so a bad name costs no browser; each case is built as the loop reaches it and dropped after.
-  const cases: Iterable<IMotionCaptureCase> = buildMotionCaptureCases(names, only);
+  const cases: Iterable<IMotionCaptureCase> = buildMotionCaptureCases(
+    names,
+    only,
+  );
 
   let failed: number = 0;
   if (verdicts) {
@@ -92,7 +104,10 @@ export async function motionCapture(): Promise<void> {
   }
   // FFmpeg is found before the page is built, so a missing encoder costs no drawing.
   const ffmpeg: string | null = video
-    ? resolveAutoMovieFfmpeg({ env: process.env, load: (id: string): unknown => loadAutoMovieProductionModule(ROOT, id) })
+    ? resolveAutoMovieFfmpeg({
+        env: process.env,
+        load: (id: string): unknown => loadAutoMovieProductionModule(ROOT, id),
+      })
     : null;
   const host: AutoMovieCaptureHost = await AutoMovieCaptureHost.open({
     root: ROOT,
@@ -102,18 +117,29 @@ export async function motionCapture(): Promise<void> {
   });
   try {
     for (const capture of cases) {
-      const props: IMotionCaptureProps = planMotionCaptureProps(capture, RASTER);
+      const props: IMotionCaptureProps = planMotionCaptureProps(
+        capture,
+        RASTER,
+      );
       const marked: boolean = markMotionCaptureCase(props).length !== 0;
 
-      const request: IAutoMovieCapturePlanRequest = parseAutoMovieCapturePlanRequest(
-        new Map<string, string>([
-          ...options,
-          ["subject", capture.name],
-          ["at", props.instants.map((instant: { seconds: number }): number => instant.seconds).join(",")],
-          ["views", views],
-          ...(options.has("marks") || !marked ? [] : [["marks", "case"] as [string, string]]),
-        ]),
-      );
+      const request: IAutoMovieCapturePlanRequest =
+        parseAutoMovieCapturePlanRequest(
+          new Map<string, string>([
+            ...options,
+            ["subject", capture.name],
+            [
+              "at",
+              props.instants
+                .map((instant: { seconds: number }): number => instant.seconds)
+                .join(","),
+            ],
+            ["views", views],
+            ...(options.has("marks") || !marked
+              ? []
+              : [["marks", "case"] as [string, string]]),
+          ]),
+        );
 
       // A case the host refuses, such as a page that cannot describe it, fails alone and the next case still draws.
       let record: Extract<IAutoMovieCaptureRecord, { state: "complete" }>;
@@ -126,7 +152,8 @@ export async function motionCapture(): Promise<void> {
             case: capture.name,
             times: capture.times,
             performers: capture.performers.map(
-              (p: IMotionCaptureCase.IPerformer): string => `${p.id}:${p.body.skeleton.id}`,
+              (p: IMotionCaptureCase.IPerformer): string =>
+                `${p.id}:${p.body.skeleton.id}`,
             ),
             verdicts: capture.verdicts ?? [],
             metrics: capture.metrics ?? {},
@@ -146,19 +173,21 @@ export async function motionCapture(): Promise<void> {
         `${capture.name}: ${record.rows.length - undrawn.length} of ${record.rows.length} cells drawn in ${path.join(ROOT, "media", "capture", capture.name)}`,
       );
       for (const row of undrawn)
-        if (row.state === "failed") console.log(`  not drawn ${row.name}: ${row.cause}`);
+        if (row.state === "failed")
+          console.log(`  not drawn ${row.name}: ${row.cause}`);
       failed += report(capture) + undrawn.length;
 
       // The case's whole clock as a video, drawn by the same page.
       if (ffmpeg !== null) {
-        const written: Awaited<ReturnType<typeof renderAutoMovieVideo>> = await renderAutoMovieVideo({
-          host,
-          root: ROOT,
-          subject: capture.name,
-          props,
-          out: path.join(ROOT, "media", "video", capture.name),
-          ffmpeg,
-        });
+        const written: Awaited<ReturnType<typeof renderAutoMovieVideo>> =
+          await renderAutoMovieVideo({
+            host,
+            root: ROOT,
+            subject: capture.name,
+            props,
+            out: path.join(ROOT, "media", "video", capture.name),
+            ffmpeg,
+          });
         console.log(`  video ${written.video}: ${written.frames} frames`);
       }
     }
@@ -174,7 +203,8 @@ function report(capture: IMotionCaptureCase): number {
   console.log(`${capture.name}: ${capture.times.length} instants`);
   for (const v of verdicts)
     console.log(`  ${v.passed ? "pass" : "FAIL"} ${v.name}: ${v.detail}`);
-  return verdicts.filter((v: IMotionCaptureCase.IVerdict): boolean => !v.passed).length;
+  return verdicts.filter((v: IMotionCaptureCase.IVerdict): boolean => !v.passed)
+    .length;
 }
 
 void motionCapture().catch((error: unknown): void => {

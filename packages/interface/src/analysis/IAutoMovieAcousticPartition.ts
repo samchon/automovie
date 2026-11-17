@@ -1,5 +1,3 @@
-
-
 /**
  * One partition sound passes through on its way out of the room.
  *

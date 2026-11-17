@@ -1,4 +1,11 @@
-import type { IAutoMovieConicArc, IAutoMovieConicFieldJet, IAutoMovieConicHermite, IAutoMovieConicHermiteField, IAutoMoviePolarSector } from "@automovie/interface";
+import type {
+  IAutoMovieConicArc,
+  IAutoMovieConicFieldJet,
+  IAutoMovieConicHermite,
+  IAutoMovieConicHermiteField,
+  IAutoMoviePolarSector,
+} from "@automovie/interface";
+
 import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import { AutoMovieConicHermiteField } from "./AutoMovieConicHermiteField";
@@ -40,7 +47,6 @@ interface Located {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConicHermite {
-
   /**
    * Prepare a convex G2 end approximation or an explicit finite-arithmetic failure.
    *
@@ -217,7 +223,10 @@ export namespace AutoMovieConicHermite {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One query owns its inverse without a cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains no query data.
    */
-  export function value(patch: IAutoMovieConicHermite.IPatch, angle: number): number {
+  export function value(
+    patch: IAutoMovieConicHermite.IPatch,
+    angle: number,
+  ): number {
     const selected: Located | null = locateReading(patch, angle);
     if (selected === null) return NaN;
     const value: number =
@@ -228,7 +237,10 @@ export namespace AutoMovieConicHermite {
   }
 
   /** The original inverse, including its exact endpoint and residual policy. */
-  function locateReading(patch: IAutoMovieConicHermite.IPatch, angle: number): Located | null {
+  function locateReading(
+    patch: IAutoMovieConicHermite.IPatch,
+    angle: number,
+  ): Located | null {
     if (!(Number.isFinite(angle) && angle >= 0 && angle <= patch.angle))
       return null;
 

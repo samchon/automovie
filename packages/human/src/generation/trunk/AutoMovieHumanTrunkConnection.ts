@@ -1,38 +1,61 @@
-import type { IAutoMovieLoftContract, IAutoMovieLoftFrame, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanHeadNeckCurves, IAutoMovieHumanSiteViewPart, IAutoMovieHumanTrunkConnection } from "@automovie/interface";
-
-
-
-
-import { AutoMovieConstructionViews, AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieViewOutline, AutoMovieViewParameter, AutoMovieViewSection } from "@automovie/engine";
+import {
+  AutoMovieConstructionViews,
+  AutoMovieLoftSectionNative,
+  AutoMovieLoftViewRead,
+  AutoMovieLoftViewSource,
+  AutoMovieViewOutline,
+  AutoMovieViewParameter,
+  AutoMovieViewSection,
+} from "@automovie/engine";
+import type {
+  IAutoMovieHumanHeadNeckCurves,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanTrunkConnection,
+  IAutoMovieLoftContract,
+  IAutoMovieLoftFrame,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
-
 
 /** A physical-station scalar value and its available first two derivatives. */
 type Scalar = readonly [number, number, number];
 
 /** Transfer the canonical regular neck family into the trunk's original sources, before either loft or tree publication. */
 export namespace AutoMovieHumanTrunkConnection {
-  
-
-  
-
-  
-
   /** Direct normal-cylinder boundary, including the valid zero-height plane case; no lower radius or interval is invented. */
-  export function normal(definition: IAutoMovieHumanHeadNeckCurves.IDefinition): IAutoMovieHumanTrunkConnection.IDefinition {
+  export function normal(
+    definition: IAutoMovieHumanHeadNeckCurves.IDefinition,
+  ): IAutoMovieHumanTrunkConnection.IDefinition {
     const y: number = definition.band[1];
-    const x: number = definition.planeOrigin[0] + definition.slope * (y - definition.planeOrigin[1]);
+    const x: number =
+      definition.planeOrigin[0] +
+      definition.slope * (y - definition.planeOrigin[1]);
     return {
-      boundary: { y,
+      boundary: {
+        y,
         frame: { origin: [x, y, 0], u: [1, 0, 0], v: [0, 0, 1] },
-        frameSlopes: { origin: [definition.slope, 1, 0], u: [0, 0, 0], v: [0, 0, 0] },
+        frameSlopes: {
+          origin: [definition.slope, 1, 0],
+          u: [0, 0, 0],
+          v: [0, 0, 0],
+        },
         frameCurvatures: { origin: [0, 0, 0], u: [0, 0, 0], v: [0, 0, 0] },
       },
-      field: { kind: "native", inputs: {
-        extents: definition.extents.map((value: number): Scalar => [value, 0, 0]),
-        shoulders: definition.extents.map((): Scalar => [AutoMovieViewSection.ELLIPSE, 0, 0]),
-      } },
+      field: {
+        kind: "native",
+        inputs: {
+          extents: definition.extents.map(
+            (value: number): Scalar => [value, 0, 0],
+          ),
+          shoulders: definition.extents.map(
+            (): Scalar => [AutoMovieViewSection.ELLIPSE, 0, 0],
+          ),
+        },
+      },
     };
   }
 
@@ -114,7 +137,8 @@ export namespace AutoMovieHumanTrunkConnection {
     if (definition.part === null || definition.view === null) return definition;
     try {
       const original: IAutoMovieViewPart = definition.part;
-      const view: NonNullable<IAutoMovieHumanSiteViewPart.IDefinition["view"]> = definition.view;
+      const view: NonNullable<IAutoMovieHumanSiteViewPart.IDefinition["view"]> =
+        definition.view;
       const at: number = connection.boundary.y;
       if (
         view.axis.type !== "parallel" ||
@@ -138,7 +162,8 @@ export namespace AutoMovieHumanTrunkConnection {
         ends.bottom = original.stations[0]!;
       if (original.pole === "top" || original.pole === "both")
         ends.top = original.stations.at(-1)!;
-      const inputs: IAutoMovieHumanTrunkConnection.IConnection["field"]["inputs"] = connection.field.inputs;
+      const inputs: IAutoMovieHumanTrunkConnection.IConnection["field"]["inputs"] =
+        connection.field.inputs;
       const edge: (
         outline: IAutoMovieViewPart.IOutline,
         q: number,

@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionHumanCrawl, IAutoMovieMotionHumanLieDown, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
-
 import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanCrawl,
+  IAutoMovieMotionHumanLieDown,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
@@ -46,11 +50,12 @@ export function floorCases(
 
     for (const position of ["supine", "prone", "lateralLeft"] as const) {
       const params: IAutoMovieMotionHumanLieDown.IParams = { position };
-      const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
-        "floor",
-        [{ subject: "a", body: who.body }],
-        HumanChain.subject("a").act("lieDown", params),
-      );
+      const performance: IAutoMovieMotionHumanPerformance =
+        FamilyCaseKit.perform(
+          "floor",
+          [{ subject: "a", body: who.body }],
+          HumanChain.subject("a").act("lieDown", params),
+        );
       const settled: number = FamilyCaseKit.event(performance, "settled");
       let deepest: number = Infinity;
       for (let t: number = 0; t <= performance.duration + 1e-9; t += 1 / 24)
@@ -88,11 +93,12 @@ export function floorCases(
 
     {
       const params: IAutoMovieMotionHumanCrawl.IParams = { cycles: 3 };
-      const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
-        "floor",
-        [{ subject: "a", body: who.body }],
-        HumanChain.subject("a").act("crawl", params),
-      );
+      const performance: IAutoMovieMotionHumanPerformance =
+        FamilyCaseKit.perform(
+          "floor",
+          [{ subject: "a", body: who.body }],
+          HumanChain.subject("a").act("crawl", params),
+        );
       const segment = performance.segments("a")[0]!;
       const at = (share: number): number =>
         segment.start + share * segment.plan.duration;

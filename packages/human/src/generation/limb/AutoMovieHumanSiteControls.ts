@@ -1,19 +1,21 @@
-import type { IAutoMovieLoftContract, IAutoMovieLoftViewSource, IAutoMovieViewAxis, IAutoMovieViewPart, IAutoMovieViewSection, IAutoMovieHumanSiteConstraints, IAutoMovieHumanSiteControls, IAutoMovieHumanSiteViewPart } from "@automovie/interface";
-
-
-
-
-import { AutoMovieConstructionViews, AutoMovieLoftViewSource, AutoMovieViewSection } from "@automovie/engine";
-
+import {
+  AutoMovieConstructionViews,
+  AutoMovieLoftViewSource,
+  AutoMovieViewSection,
+} from "@automovie/engine";
+import type {
+  IAutoMovieHumanSiteConstraints,
+  IAutoMovieHumanSiteControls,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieLoftContract,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewAxis,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 /** Common generating scalar controls and local native field, before either adjoining original is published. */
 export namespace AutoMovieHumanSiteControls {
-  
-
-  
-
-  
-
   /**
    * Resolve original scalar controls directly from anatomical/site input.
    * Global natural interpolation requires its whole original knot set; that
@@ -28,7 +30,10 @@ export namespace AutoMovieHumanSiteControls {
   ): IAutoMovieHumanSiteControls.IOutput {
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
     const producer: string = `view.${input.name}`;
-    const fail: (contract: string, detail: string) => IAutoMovieHumanSiteControls.IOutput = (
+    const fail: (
+      contract: string,
+      detail: string,
+    ) => IAutoMovieHumanSiteControls.IOutput = (
       contract: string,
       detail: string,
     ): IAutoMovieHumanSiteControls.IOutput => {
@@ -122,7 +127,10 @@ export namespace AutoMovieHumanSiteControls {
       shoulders.push(solved.section.shoulders[0]);
     }
     const shoulderKnots: IAutoMovieViewPart.IKnot[] = sites.map(
-      (site: IAutoMovieHumanSiteViewPart.ISite, k: number): IAutoMovieViewPart.IKnot => ({
+      (
+        site: IAutoMovieHumanSiteViewPart.ISite,
+        k: number,
+      ): IAutoMovieViewPart.IKnot => ({
         site: site.site,
         station: site.station,
         value: shoulders[k]!,

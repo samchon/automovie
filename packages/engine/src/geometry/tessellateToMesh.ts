@@ -1,4 +1,8 @@
-import { type IAutoMoviePrimitiveShape, type IAutoMovieTessellation, IAutoMovieMesh } from "@automovie/interface";
+import {
+  IAutoMovieMesh,
+  type IAutoMoviePrimitiveShape,
+  type IAutoMovieTessellation,
+} from "@automovie/interface";
 
 import { tessellate } from "./tessellate";
 

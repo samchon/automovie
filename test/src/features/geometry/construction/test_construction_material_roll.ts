@@ -1,6 +1,13 @@
-import type { IAutoMovieLoftFrame, IAutoMovieViewAxis, IAutoMovieConstructionJointedAxis } from "@automovie/interface";
-import { AutoMovieConstructionViews, AutoMovieViewAxis, rollAutoMovieViewAxis } from "@automovie/engine";
-
+import {
+  AutoMovieConstructionViews,
+  AutoMovieViewAxis,
+  rollAutoMovieViewAxis,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionJointedAxis,
+  IAutoMovieLoftFrame,
+  IAutoMovieViewAxis,
+} from "@automovie/interface";
 
 /**
  * A requested material roll changes only the in-plane basis, with C2 endpoint joins.
@@ -84,7 +91,9 @@ export function test_construction_material_roll(): void {
 
       // A one-sided value test at both endpoints distinguishes a linear angle ramp from a zero-jet C2 transition.
       for (const t of [0.001, 0.0005]) {
-        const begin: IAutoMovieLoftFrame.IFrame = axis.at((20 + 30 * t) * scale);
+        const begin: IAutoMovieLoftFrame.IFrame = axis.at(
+          (20 + 30 * t) * scale,
+        );
         const end: IAutoMovieLoftFrame.IFrame = axis.at((50 - 30 * t) * scale);
         const limit: number =
           11 * Math.abs(angle) * t ** 3 + 64 * Number.EPSILON;
@@ -216,14 +225,15 @@ export function test_construction_material_roll(): void {
       2,
       target,
     );
-    const initial: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
-      [
-        [0, 0, 0],
-        [0, 10, 0],
-      ],
-      [],
-      target,
-    );
+    const initial: IAutoMovieViewAxis.IAxis | string =
+      AutoMovieViewAxis.jointed(
+        [
+          [0, 0, 0],
+          [0, 10, 0],
+        ],
+        [],
+        target,
+      );
     if (
       typeof refused !== "string" ||
       !refused.includes("relative normal projection") ||
@@ -257,14 +267,15 @@ export function test_construction_material_roll(): void {
         [Math.cos(angle), 0, Math.sin(angle)],
         2e-12,
       );
-    const initial: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
-      [
-        [0, 0, 0],
-        [0, 10, 0],
-      ],
-      [],
-      target,
-    );
+    const initial: IAutoMovieViewAxis.IAxis | string =
+      AutoMovieViewAxis.jointed(
+        [
+          [0, 0, 0],
+          [0, 10, 0],
+        ],
+        [],
+        target,
+      );
     if (typeof initial === "string")
       failures.push(`conditioned initial direction ${magnitude}: ${initial}`);
     else
@@ -395,14 +406,15 @@ export function test_construction_material_roll(): void {
     failures.push(
       "raw projection preservation bypassed the jointed conditioning policy",
     );
-  const shortAxis: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
-    [
-      [0, 0, 0],
-      [Number.MIN_VALUE, Number.MIN_VALUE, 0],
-    ],
-    [],
-    [0, 0, 1],
-  );
+  const shortAxis: IAutoMovieViewAxis.IAxis | string =
+    AutoMovieViewAxis.jointed(
+      [
+        [0, 0, 0],
+        [Number.MIN_VALUE, Number.MIN_VALUE, 0],
+      ],
+      [],
+      [0, 0, 1],
+    );
   if (typeof shortAxis === "string")
     failures.push(`finite minimum-subnormal separation: ${shortAxis}`);
   else
@@ -413,15 +425,16 @@ export function test_construction_material_roll(): void {
       [Math.SQRT1_2, Math.SQRT1_2, 0],
       2e-12,
     );
-  const faintTurn: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
-    [
-      [0, 0, 0],
-      [1, 0, 0],
-      [2, Number.MIN_VALUE, 0],
-    ],
-    [0.1],
-    [0, 0, 1],
-  );
+  const faintTurn: IAutoMovieViewAxis.IAxis | string =
+    AutoMovieViewAxis.jointed(
+      [
+        [0, 0, 0],
+        [1, 0, 0],
+        [2, Number.MIN_VALUE, 0],
+      ],
+      [0.1],
+      [0, 0, 1],
+    );
   if (typeof faintTurn === "string")
     failures.push(`retained minimum-subnormal turn: ${faintTurn}`);
   else {

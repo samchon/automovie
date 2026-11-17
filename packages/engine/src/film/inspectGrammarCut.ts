@@ -1,6 +1,13 @@
-import { type IAutoMovieGrammarCameraObservation, type IAutoMovieGrammarDiagnostic, type IAutoMovieGrammarSubjectObservation, type IAutoMovieNormalizedGrammarShot, type AutoMovieInspectGrammarCutFraming, type IAutoMovieInspectGrammarCut, type IAutoMovieProjectToNdc, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  type AutoMovieInspectGrammarCutFraming,
+  type IAutoMovieGrammarCameraObservation,
+  type IAutoMovieGrammarDiagnostic,
+  type IAutoMovieGrammarSubjectObservation,
+  type IAutoMovieInspectGrammarCut,
+  type IAutoMovieNormalizedGrammarShot,
+  type IAutoMovieProjectToNdc,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { roundToThousandths } from "../math/roundToThousandths";
@@ -41,7 +48,10 @@ export function inspectGrammarCut(
 ): void {
   inspectAxis(diagnostics, previous, incoming);
   inspectEyeline(diagnostics, previous, incoming);
-  const incomingSize: AutoMovieInspectGrammarCutFraming = sizeOf(incoming, "start");
+  const incomingSize: AutoMovieInspectGrammarCutFraming = sizeOf(
+    incoming,
+    "start",
+  );
   // Each shot is the incoming side of exactly one cut, so a displacement
   // finding filed here is the only re-establishing finding it can carry.
   let reestablished: boolean = false;
@@ -54,7 +64,10 @@ export function inspectGrammarCut(
       previous.subjectById.get(subjectId)!;
     const arriving: IAutoMovieGrammarSubjectObservation =
       incoming.subjectById.get(subjectId)!;
-    const previousSize: AutoMovieInspectGrammarCutFraming = sizeOf(previous, "end");
+    const previousSize: AutoMovieInspectGrammarCutFraming = sizeOf(
+      previous,
+      "end",
+    );
     const cutAngle: number = cameraBearingAngleDegrees(
       outgoing.end,
       arriving.start,

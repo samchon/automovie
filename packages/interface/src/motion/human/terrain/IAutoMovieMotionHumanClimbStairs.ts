@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanClimbStairsFlight } from "./IAutoMovieMotionHumanClimbStairsFlight";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanClimbStairsFlight } from "./IAutoMovieMotionHumanClimbStairsFlight";
 
 /**
  * Climbing a flight of stairs up or down from standing before its first

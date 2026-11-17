@@ -1,4 +1,7 @@
-import { type IAutoMovieSectionPlane, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieSectionPlane,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { autoMovieSectionPlaneDistance } from "./autoMovieSectionPlaneDistance";
 

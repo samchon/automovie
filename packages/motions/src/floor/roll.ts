@@ -1,6 +1,16 @@
-import type { AutoMovieHumanoidBone, AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRoll, IAutoMovieVector3 } from "@automovie/interface";
-
 import { minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRoll,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
@@ -131,18 +141,25 @@ export namespace roll {
       }
       return out;
     };
-    const posed = (share: number, turn: number): IAutoMovieMotionHumanPosture => ({
+    const posed = (
+      share: number,
+      turn: number,
+    ): IAutoMovieMotionHumanPosture => ({
       ...entry,
       root: { x: 0, y: 0, z: 0 },
       pitch: entry.pitch + sign * turn,
       joints: joints(share),
       limbs: {},
     });
-    const centres = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3[] =>
+    const centres = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieVector3[] =>
       [...poseBones(body, resolveHumanPosture(body, posture)).values()].map(
         (b) => b.worldPosition,
       );
-    const ankleMid = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 => {
+    const ankleMid = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieVector3 => {
       const bones = poseBones(body, resolveHumanPosture(body, posture));
       const l: IAutoMovieVector3 = bones.get("leftFoot")!.worldPosition;
       const r: IAutoMovieVector3 = bones.get("rightFoot")!.worldPosition;
@@ -150,7 +167,10 @@ export namespace roll {
     };
 
     // The crouch: the ankles kept where they stood.
-    const crouched = (share: number, at: IAutoMovieVector3): IAutoMovieMotionHumanPosture => {
+    const crouched = (
+      share: number,
+      at: IAutoMovieVector3,
+    ): IAutoMovieMotionHumanPosture => {
       const posture: IAutoMovieMotionHumanPosture = posed(share, 0);
       const local: IAutoMovieVector3 = ankleMid(posture);
       return {
@@ -204,7 +224,9 @@ export namespace roll {
     const share = (seconds: number): number => seconds / duration;
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       ...(["leftFoot", "rightFoot"] as const).flatMap(
-        (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow[] => [
+        (
+          part: "leftFoot" | "rightFoot",
+        ): IAutoMovieMotionHumanContactWindow[] => [
           {
             part,
             kind: "plant",

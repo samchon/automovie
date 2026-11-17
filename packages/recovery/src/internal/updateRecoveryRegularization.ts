@@ -1,6 +1,5 @@
 import type { IAutoMovieRecoveryRegularizationUpdate } from "@automovie/interface";
 
-
 /**
  * React to one selected increment using its undamped computed agreement.
  * The multiplier is the unclamped reciprocal accepted-radius rule from Ceres
@@ -37,7 +36,8 @@ export function updateRecoveryRegularization(
         ? predictedDecrease
         : null,
     ratio: null,
-    factor: null };
+    factor: null,
+  };
   if (
     !(
       result.actualDecrease !== null &&

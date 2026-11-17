@@ -1,5 +1,13 @@
-import type { IAutoMovieLoftViewRead, IAutoMovieViewConic, IAutoMovieViewSectionField } from "@automovie/interface";
-import { AutoMovieLoftSectionNative, AutoMovieViewConic, AutoMovieViewSectionField } from "@automovie/engine";
+import {
+  AutoMovieLoftSectionNative,
+  AutoMovieViewConic,
+  AutoMovieViewSectionField,
+} from "@automovie/engine";
+import type {
+  IAutoMovieLoftViewRead,
+  IAutoMovieViewConic,
+  IAutoMovieViewSectionField,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import type { Profiler } from "node:inspector";
 import { Session } from "node:inspector/promises";

@@ -8,11 +8,9 @@ import type { IAutoMovieRecoveryEventCurveSource } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation The native curve retains millimetre coefficients and original phase width; width uses the enclosing chart unit.
  */
 export interface IAutoMovieRecoveryEventCurvePiece {
- 
- /** Positive phase interval width. */
+  /** Positive phase interval width. */
   width: number;
 
- 
- /** Original native coefficient authority. */
+  /** Original native coefficient authority. */
   source: IAutoMovieRecoveryEventCurveSource;
 }

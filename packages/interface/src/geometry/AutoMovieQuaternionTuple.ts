@@ -17,4 +17,9 @@
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No default identity, automatic normalization, fixed bone or implicit frame conversion is promised.
  * @evidence contracts/development/common.md#meaningful-documentation States component order, norm and sign semantics, field-owned frames, mutability and caller validation responsibility.
  */
-export type AutoMovieQuaternionTuple = [x: number, y: number, z: number, w: number];
+export type AutoMovieQuaternionTuple = [
+  x: number,
+  y: number,
+  z: number,
+  w: number,
+];

@@ -1,6 +1,19 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformanceAim, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformanceAim,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import { HumanPerception } from "../law/HumanPerception";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
@@ -52,10 +65,8 @@ export namespace HumanPerformanceAim {
             seconds,
             frame,
           );
-        const other: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
-          self,
-          target.subject,
-        );
+        const other: IAutoMovieMotionHumanSegment.IPerson =
+          HumanPerformanceRead.person(self, target.subject);
         const region = other.performer.body.surfaces.regions[target.region];
         if (region === undefined)
           throw new HumanRefusal({
@@ -93,7 +104,9 @@ export namespace HumanPerformanceAim {
         return { point: placed.point, normal: placed.normal };
       }
       case "prop": {
-        const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(target.subject);
+        const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(
+          target.subject,
+        );
         // A part an act has moved is where the prop's state poses it.
         const local =
           prop === undefined

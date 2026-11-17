@@ -1,4 +1,5 @@
 import type { IAutoMovieRecoveryScalarProfilesFittingOperation } from "@automovie/interface";
+
 /**
  * Fit co-charted scalar profiles in one clamped uniform cubic B-spline space.
  * Unpivoted Householder QR acts on the original design and all right-hand sides;
@@ -216,7 +217,8 @@ export function fitRecoveryScalarProfiles(
         index === 0 ? lower * 0.001 : result.at(-1)!.interval[1],
         (lower + length * end) * 0.001,
       ],
-      profiles: controls });
+      profiles: controls,
+    });
   }
   return { spans: result, rankRatio: minimum / maximum };
 }

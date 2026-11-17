@@ -1,4 +1,11 @@
-import type { IAutoMovieConicArcField, IAutoMovieConicFieldJet, IAutoMovieConicHermite, IAutoMovieViewConic, IAutoMovieViewSectionField } from "@automovie/interface";
+import type {
+  IAutoMovieConicArcField,
+  IAutoMovieConicFieldJet,
+  IAutoMovieConicHermite,
+  IAutoMovieViewConic,
+  IAutoMovieViewSectionField,
+} from "@automovie/interface";
+
 import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
 import { AutoMovieConicHermiteField } from "./AutoMovieConicHermiteField";
 
@@ -146,7 +153,9 @@ export namespace AutoMovieViewSectionReading {
       );
     const quarter: IAutoMovieViewConic.IQuarter<Source> =
       prepared.source.quarters[ray.quarter]!;
-    let reading: IAutoMovieConicArcField.IReading | IAutoMovieConicArcField.IFailure;
+    let reading:
+      | IAutoMovieConicArcField.IReading
+      | IAutoMovieConicArcField.IFailure;
     if (ray.kind === "conic")
       reading = AutoMovieConicArcField.read(
         quarter.extents,

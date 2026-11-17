@@ -1,5 +1,11 @@
-import type { IAutoMovieAdvancePhysicalBalance, IAutoMoviePhysicalContactSupportRows, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMovieFootfallPattern, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieAdvancePhysicalBalance,
+  IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalContactSupportRows,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { physicalRecoverySupportGoals } from "./physicalRecoverySupportGoals";
@@ -81,15 +87,19 @@ export function physicalContactSupportGoals(
         : Math.abs(
             Math.min(
               ...body.profile.segments
-                .filter((segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
-                  contacts.includes(segment.bone),
+                .filter(
+                  (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+                    contacts.includes(segment.bone),
                 )
-                .flatMap((segment: IAutoMoviePhysicalProfile.ISegment): number[] =>
-                  segment.shapes.map(
-                    (shape: IAutoMoviePhysicalProfile.IShape): number =>
-                      physicalShapeBounds(target.segments[segment.bone]!, shape)
-                        .min.y + shift.y,
-                  ),
+                .flatMap(
+                  (segment: IAutoMoviePhysicalProfile.ISegment): number[] =>
+                    segment.shapes.map(
+                      (shape: IAutoMoviePhysicalProfile.IShape): number =>
+                        physicalShapeBounds(
+                          target.segments[segment.bone]!,
+                          shape,
+                        ).min.y + shift.y,
+                    ),
                 ),
             ) - floor,
           );

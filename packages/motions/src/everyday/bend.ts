@@ -1,6 +1,17 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBend, IAutoMovieMotionHumanBendLower, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBendLower,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanBound } from "../law/HumanBound";
@@ -104,19 +115,15 @@ export namespace bend {
       context.params.toward,
       context.start,
     ).point;
-    const requested: IAutoMovieMotionHumanBend.Strategy = context.params.strategy ?? "auto";
+    const requested: IAutoMovieMotionHumanBend.Strategy =
+      context.params.strategy ?? "auto";
     const probe: IAutoMovieMotionHumanActionPlan = stand.plan(
       { ...context, params: { seconds: 1 } },
       side,
     );
     const upright: IAutoMovieMotionHumanPosture = probe.posture(0);
-    const { strategy, lean, pitch }: IAutoMovieMotionHumanBendLower.ISolved = bend.lowering(
-      body,
-      upright,
-      target,
-      side,
-      requested,
-    );
+    const { strategy, lean, pitch }: IAutoMovieMotionHumanBendLower.ISolved =
+      bend.lowering(body, upright, target, side, requested);
 
     // Fitts's time for the hand's travel, scaled by skill.
     const hand: IAutoMovieVector3 = HumanHand.frame(
@@ -189,7 +196,8 @@ export namespace bend {
         // The free palm braces on its own thigh just above the knee, as people
         // support the trunk in one-handed lifting (Kingma, Faber and van Dieen
         // 2016, J Biomech 49:881), moving there from where it hangs.
-        const free: IAutoMovieMotionHumanHand.Side = side === "left" ? "right" : "left";
+        const free: IAutoMovieMotionHumanHand.Side =
+          side === "left" ? "right" : "left";
         const thigh = hanging.get(`${free}UpperLeg`)!;
         const kneeAt: IAutoMovieVector3 = hanging.get(
           `${free}LowerLeg`,
@@ -290,7 +298,11 @@ export namespace bend {
     strategy: IAutoMovieMotionHumanBend.Strategy,
     reach?: number,
   ): IAutoMovieMotionHumanBendLower.ISolved {
-    const chosen: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto"> = choose(body, target, strategy);
+    const chosen: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto"> = choose(
+      body,
+      target,
+      strategy,
+    );
     try {
       return bendLower.solve(body, upright, target, side, chosen, reach);
     } catch (error) {

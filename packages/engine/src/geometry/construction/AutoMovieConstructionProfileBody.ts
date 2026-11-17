@@ -1,4 +1,11 @@
-import type { IAutoMovieSolidSurface, IAutoMovieConstructionProfileBody, IAutoMovieConstructionProfileGrid, IAutoMoviePreparedConstructionProfile, IAutoMovieSolidBody, IAutoMovieSolidMesh } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionProfileBody,
+  IAutoMovieConstructionProfileGrid,
+  IAutoMoviePreparedConstructionProfile,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieConstructionProfileGrid } from "./AutoMovieConstructionProfileGrid";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
@@ -18,7 +25,6 @@ import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConstructionProfileBody {
-
   /**
    * Append prepared original faces; the realizing leaf owns rollback on any failure.
    *

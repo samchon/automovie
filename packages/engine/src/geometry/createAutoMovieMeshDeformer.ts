@@ -1,4 +1,11 @@
-import type { IAutoMovieJacobianCofactor, IAutoMovieMeshDeformationInfluence, IAutoMovieMesh, IAutoMovieMeshDeformationField, IAutoMovieMeshPhysicalSource, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieJacobianCofactor,
+  IAutoMovieMesh,
+  IAutoMovieMeshDeformationField,
+  IAutoMovieMeshDeformationInfluence,
+  IAutoMovieMeshPhysicalSource,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { cofactorAutoMovieJacobian } from "../math/cofactorAutoMovieJacobian";

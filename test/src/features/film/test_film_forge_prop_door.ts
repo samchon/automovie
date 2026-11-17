@@ -1,6 +1,11 @@
-import { type IAutoMovieForgedProp, type IAutoMovieResolveOutput, type IAutoMovieResolveViolation, IAutoMovieClip, IAutoMoviePropArticulation } from "@automovie/interface";
 import { forgeProp, resolveFrame } from "@automovie/engine";
-
+import {
+  IAutoMovieClip,
+  type IAutoMovieForgedProp,
+  IAutoMoviePropArticulation,
+  type IAutoMovieResolveOutput,
+  type IAutoMovieResolveViolation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";

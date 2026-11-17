@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 
@@ -90,7 +95,9 @@ export namespace HumanMount {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function span(body: IAutoMovieMotionHumanBody): readonly [number, number] {
+  export function span(
+    body: IAutoMovieMotionHumanBody,
+  ): readonly [number, number] {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     return [
       Math.sqrt(
@@ -147,7 +154,10 @@ export namespace HumanMount {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function held(entry: IAutoMovieMotionHumanEntryState, side: "left" | "right"): IFoot {
+  export function held(
+    entry: IAutoMovieMotionHumanEntryState,
+    side: "left" | "right",
+  ): IFoot {
     const limb: IAutoMovieMotionHumanPosture.IGoal | undefined =
       entry.posture.limbs[`${side}Leg`];
     const ankle: IAutoMovieVector3 = entry.feet[side].ankle;

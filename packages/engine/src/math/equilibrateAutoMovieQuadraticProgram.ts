@@ -1,4 +1,5 @@
 import type { IAutoMovieQuadraticConicProgram } from "@automovie/interface";
+
 /**
  * Apply ten bounded Ruiz diagonal equilibration passes to owned conic arrays.
  * The change x=D*xhat, z=E*zhat/c is invertible; it alters neither the authored

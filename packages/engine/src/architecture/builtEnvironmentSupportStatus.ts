@@ -1,5 +1,16 @@
-import { type IAutoMovieBuiltPlacementBody, type IAutoMovieFootprint, type IAutoMoviePropSupportFace, type IAutoMovieBuiltEnvironmentSupportStatus, type IAutoMovieBuiltPlacementSupportLocator, AutoMovieBuiltPlacementBasis, IAutoMovieBuiltEnvironment, IAutoMovieBuiltPlacementBounds, IAutoMovieBuiltSupportResult, IAutoMovieBuiltSurface, IAutoMovieSubjectBox } from "@automovie/interface";
-
+import {
+  AutoMovieBuiltPlacementBasis,
+  IAutoMovieBuiltEnvironment,
+  type IAutoMovieBuiltEnvironmentSupportStatus,
+  type IAutoMovieBuiltPlacementBody,
+  IAutoMovieBuiltPlacementBounds,
+  type IAutoMovieBuiltPlacementSupportLocator,
+  IAutoMovieBuiltSupportResult,
+  IAutoMovieBuiltSurface,
+  type IAutoMovieFootprint,
+  type IAutoMoviePropSupportFace,
+  IAutoMovieSubjectBox,
+} from "@automovie/interface";
 
 import { propSupportGap } from "../film/propSupportGap";
 import { footprintConvexPieces } from "../space/footprintConvexPieces";
@@ -47,7 +58,11 @@ interface IResolvedSupport {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Judges one authored relation per call and retains no staging. Subject and support element resolutions each stage independently; `builtEnvironmentSupportSweep` shares staging for its separate nearest-bounds classification and does not replace authored relation checks.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the resolved boxes and face only for the call; the caller owns the returned verdict.
  */
-export const builtEnvironmentSupportStatus: (props: IAutoMovieBuiltEnvironmentSupportStatus.IProps) => IAutoMovieBuiltSupportResult = (props: IAutoMovieBuiltEnvironmentSupportStatus.IProps): IAutoMovieBuiltSupportResult => {
+export const builtEnvironmentSupportStatus: (
+  props: IAutoMovieBuiltEnvironmentSupportStatus.IProps,
+) => IAutoMovieBuiltSupportResult = (
+  props: IAutoMovieBuiltEnvironmentSupportStatus.IProps,
+): IAutoMovieBuiltSupportResult => {
   const tolerance: number =
     props.query.tolerance ?? AUTOMOVIE_SUPPORT_TOLERANCE;
   if (!Number.isFinite(tolerance) || tolerance < 0)

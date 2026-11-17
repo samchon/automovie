@@ -1,4 +1,9 @@
-import type { IAutoMovieByteDigest, IAutoMovieFileReceipt, IAutoMovieRecoveryCompletion, IAutoMovieRecoveryModelCounts } from "../../index";
+import type {
+  IAutoMovieByteDigest,
+  IAutoMovieFileReceipt,
+  IAutoMovieRecoveryCompletion,
+  IAutoMovieRecoveryModelCounts,
+} from "../../index";
 
 /**
  * Final local reconstruction and independently useful partial publication receipts.
@@ -10,23 +15,18 @@ import type { IAutoMovieByteDigest, IAutoMovieFileReceipt, IAutoMovieRecoveryCom
  */
 
 export interface IAutoMovieRecoveryLocalResult extends IAutoMovieByteDigest {
- 
- /** Actual emitted base and retained-open populations. */
+  /** Actual emitted base and retained-open populations. */
   counts: IAutoMovieRecoveryModelCounts;
 
- 
- /** Processing and retained-domain qualifications. */
+  /** Processing and retained-domain qualifications. */
   completion: IAutoMovieRecoveryCompletion;
 
- 
- /** Optional repeated standalone open-prefix publications. */
+  /** Optional repeated standalone open-prefix publications. */
   checkpoints: IAutoMovieFileReceipt[];
 
- 
- /** Always-published analytic and retained-closed base. */
+  /** Always-published analytic and retained-closed base. */
   baseCheckpoint: IAutoMovieFileReceipt;
 
- 
- /** Last closed seven-channel journal record. */
+  /** Last closed seven-channel journal record. */
   frontier: IAutoMovieFileReceipt;
 }

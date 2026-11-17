@@ -1,5 +1,10 @@
-import type { IAutoMovieProjectile, IAutoMovieProjectileState, IAutoMovieClip, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieClip,
+  IAutoMovieProjectile,
+  IAutoMovieProjectileState,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { aimRotation } from "../kinematics/aimRotation";
 import { projectileAt } from "./projectileAt";

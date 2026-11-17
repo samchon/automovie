@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryMapMetric, IAutoMovieRecoveryMapMetricScales } from "../../index";
+import type {
+  IAutoMovieRecoveryMapMetric,
+  IAutoMovieRecoveryMapMetricScales,
+} from "../../index";
 
 /** Original-rank-qualified raw arrowhead metric without an LS answer.
  *
@@ -8,15 +11,12 @@ import type { IAutoMovieRecoveryMapMetric, IAutoMovieRecoveryMapMetricScales } f
  * @evidence contracts/development/common.md#meaningful-documentation Members separate current damped action from original undamped qualification.
  */
 export interface IAutoMovieRecoveryMapMetricFit extends IAutoMovieRecoveryMapMetricScales {
- 
- /** Current raw damped metric with original physical global column scales. */
+  /** Current raw damped metric with original physical global column scales. */
   metric: IAutoMovieRecoveryMapMetric;
 
- 
- /** Independently qualified original reduced-camera singular ratio. */
+  /** Independently qualified original reduced-camera singular ratio. */
   cameraDesignRatio: number;
 
- 
- /** Minimum original point-design singular ratio. */
+  /** Minimum original point-design singular ratio. */
   minimumPointDesignRatio: number;
 }

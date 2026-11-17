@@ -1,6 +1,9 @@
-import type { IAutoMovieMotionHumanArmGeometry, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * A probe's travel between two waypoints of an arm's trajectory, read
@@ -44,7 +47,10 @@ export namespace HumanArmTrajectoryTravel {
     p: IAutoMovieVector3,
     q: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    const local = (frame: IAutoMovieMotionHumanArmGeometry.IFrame, x: IAutoMovieVector3): IAutoMovieVector3 =>
+    const local = (
+      frame: IAutoMovieMotionHumanArmGeometry.IFrame,
+      x: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         Quaternion.inverse(frame.parent.rotation),
         Vector3.subtract(x, frame.parent.position),
@@ -73,7 +79,10 @@ export namespace HumanArmTrajectoryTravel {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function with nothing to cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function back(from: IAutoMovieMotionHumanArmGeometry.IFrame, to: IAutoMovieMotionHumanArmGeometry.IFrame): IAutoMovieQuaternion {
+  export function back(
+    from: IAutoMovieMotionHumanArmGeometry.IFrame,
+    to: IAutoMovieMotionHumanArmGeometry.IFrame,
+  ): IAutoMovieQuaternion {
     return Quaternion.multiply(
       from.parent.rotation,
       Quaternion.inverse(to.parent.rotation),

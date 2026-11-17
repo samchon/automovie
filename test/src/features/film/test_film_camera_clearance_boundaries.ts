@@ -1,11 +1,18 @@
-import { type IAutoMovieViolationCollector, IAutoMovieCamera, IAutoMovieCameraClearanceFinding, IAutoMovieCameraClearanceReport, IAutoMovieConstraintViolation, IAutoMovieSubjectBox, IAutoMovieTransform } from "@automovie/interface";
 import {
   ViolationCollector,
   compileCameraClearanceReports,
   evaluateCameraClearance,
   stageScene,
 } from "@automovie/engine";
-
+import {
+  IAutoMovieCamera,
+  IAutoMovieCameraClearanceFinding,
+  IAutoMovieCameraClearanceReport,
+  IAutoMovieConstraintViolation,
+  IAutoMovieSubjectBox,
+  IAutoMovieTransform,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createFilmClearanceStage } from "../internal/createFilmClearanceStage";

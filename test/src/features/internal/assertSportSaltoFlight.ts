@@ -1,7 +1,11 @@
-import type { IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionEvent, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-
-
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Read an admitted salto from its displayed root: its complete somersaults
@@ -26,7 +30,9 @@ export function assertSportSaltoFlight(
   turns: number,
 ): string[] {
   const findings: string[] = [];
-  const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments(subject).at(-1)!;
+  const segment: IAutoMovieMotionHumanSegment.ISegment = performance
+    .segments(subject)
+    .at(-1)!;
   const at = (name: string): number =>
     segment.start +
     segment.plan.events.find(

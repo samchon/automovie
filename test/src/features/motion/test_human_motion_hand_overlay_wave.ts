@@ -1,6 +1,17 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HumanChain, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -38,7 +49,9 @@ export function test_human_motion_hand_overlay_wave(): void {
   const complaints: string[] = [];
   for (const name of ["f-small", "m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const perform = (composition: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
+    const perform = (
+      composition: IAutoMovieMotionHumanChain,
+    ): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "wave",
         performers: [
@@ -59,7 +72,10 @@ export function test_human_motion_hand_overlay_wave(): void {
     let waved: IAutoMovieMotionHumanPerformance;
     try {
       waved = perform(
-        walk().over((u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => u.gesture({ kind: "wave" })),
+        walk().over(
+          (u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+            u.gesture({ kind: "wave" }),
+        ),
       );
     } catch (error) {
       complaints.push(
@@ -193,7 +209,10 @@ export function test_human_motion_hand_overlay_wave(): void {
     let thrown: unknown = null;
     try {
       perform(
-        walk().over((u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => u.gesture({ kind: "bow" })),
+        walk().over(
+          (u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+            u.gesture({ kind: "bow" }),
+        ),
       );
     } catch (error) {
       thrown = error;

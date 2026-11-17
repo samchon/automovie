@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
-
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
@@ -23,7 +22,10 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  */
 export const AutoMovieHumanF1Nostril: IAutoMovieHumanConicLoft.IFamily = {
   name: "nostril",
-  centres: [AutoMovieHumanF1Joints.nostrilRoot, AutoMovieHumanF1Joints.nostrilTip],
+  centres: [
+    AutoMovieHumanF1Joints.nostrilRoot,
+    AutoMovieHumanF1Joints.nostrilTip,
+  ],
   halves: [],
   up: AutoMovieHumanF1Placement.direction("nostril.up"),
   layout: AutoMovieHumanConicSection.limb(0),
@@ -56,5 +58,5 @@ export const AutoMovieHumanF1Nostril: IAutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The part closes in a point at `tip`, a station placed by anatomy; its cap starts at `from`.
-  tips: [null, {from: 13, tip: 16}],
+  tips: [null, { from: 13, tip: 16 }],
 };

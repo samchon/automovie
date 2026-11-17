@@ -1,11 +1,13 @@
-import type { IAutoMovieContourLoft64, IAutoMovieRecoveryAtlasGeneration, IAutoMovieRecoveryTensorFamiliesInput, IAutoMovieRecoveryTensorRealization, IAutoMovieModel } from "@automovie/interface";
 import { realizeAutoMovieBicubicAtlas64 as realize } from "@automovie/engine";
-
+import type {
+  IAutoMovieContourLoft64,
+  IAutoMovieModel,
+  IAutoMovieRecoveryAtlasGeneration,
+  IAutoMovieRecoveryTensorFamiliesInput,
+  IAutoMovieRecoveryTensorRealization,
+} from "@automovie/interface";
 
 import { readRecoveryMetadata as read } from "../internal/readRecoveryMetadata";
-
-
-
 
 /**
  * Admit ordinary-family ownership and generate saved analytic tensors through the engine.
@@ -32,8 +34,12 @@ export function realizeAutoMovieRecoveryTensorFamilies(
       parts: [],
       construction: [],
       replacements: new Map(),
-      reports: [] };
-  const curves: Map<string, IAutoMovieContourLoft64.ISection["loops"][number]["curve"]> = new Map();
+      reports: [],
+    };
+  const curves: Map<
+    string,
+    IAutoMovieContourLoft64.ISection["loops"][number]["curve"]
+  > = new Map();
   for (const section of bundle.loft.sections)
     for (const loop of section.loops) {
       const name: unknown = read(loop, ["curve", "name"]);
@@ -66,7 +72,9 @@ export function realizeAutoMovieRecoveryTensorFamilies(
     );
     let previous: { interval: number; after: number } | undefined;
     for (const address of family.replacedGroups) {
-      const group: IAutoMovieContourLoft64.IInterval["groups"][number] | undefined =
+      const group:
+        | IAutoMovieContourLoft64.IInterval["groups"][number]
+        | undefined =
         bundle.loft.intervals?.[address.interval]?.groups[address.group];
       const key: string = `${address.interval}:${address.group}`;
       if (
@@ -83,7 +91,8 @@ export function realizeAutoMovieRecoveryTensorFamilies(
       replacements.set(key, family.id);
     }
     for (const address of ordered) {
-      const interval: IAutoMovieContourLoft64.IInterval = bundle.loft.intervals![address.interval]!;
+      const interval: IAutoMovieContourLoft64.IInterval =
+        bundle.loft.intervals![address.interval]!;
       const group: IAutoMovieContourLoft64.IInterval["groups"][number] =
         interval.groups[address.group]!;
       if (
@@ -143,8 +152,9 @@ export function realizeAutoMovieRecoveryTensorFamilies(
         "Tensor boundary bindings must name the actual first and last delegated curves",
       );
     for (const boundary of family.boundaries) {
-      const curve: IAutoMovieContourLoft64.ISection["loops"][number]["curve"] | undefined =
-        curves.get(boundary.curveName);
+      const curve:
+        | IAutoMovieContourLoft64.ISection["loops"][number]["curve"]
+        | undefined = curves.get(boundary.curveName);
       if (
         !curve ||
         !curve.closed ||
@@ -197,7 +207,8 @@ export function realizeAutoMovieRecoveryTensorFamilies(
         geometry: { type: "mesh", mesh: generated.mesh },
         material: null,
         attachedBone: null,
-        transform: null });
+        transform: null,
+      });
     reports.push({
       id: family.id,
       delegatedGroups: family.replacedGroups.map(
@@ -205,7 +216,8 @@ export function realizeAutoMovieRecoveryTensorFamilies(
           address: (typeof family.replacedGroups)[number],
         ): { interval: number; group: number } => ({
           interval: address.interval,
-          group: address.group }),
+          group: address.group,
+        }),
       ),
       endCurves: family.boundaries.map(
         (boundary: (typeof family.boundaries)[number]): string =>
@@ -215,7 +227,8 @@ export function realizeAutoMovieRecoveryTensorFamilies(
       approximationQualified: generated.approximationQualified,
       counts: generated.counts,
       primitiveRanges: generated.primitiveRanges,
-      diagnostics: generated.diagnostics });
+      diagnostics: generated.diagnostics,
+    });
     const lines: Set<string> = new Set();
     for (const patch of family.geometry.patches)
       for (let direction: number = 0; direction < 2; direction++)
@@ -234,7 +247,8 @@ export function realizeAutoMovieRecoveryTensorFamilies(
               const p: (typeof family.geometry.controls)[number] =
                 family.geometry.controls[id]!;
               return [p.x, p.y, p.z];
-            }) });
+            }),
+          });
         }
   }
   return { parts, construction, replacements, reports };

@@ -108,11 +108,12 @@ export namespace IAutoMovieCaptureRecord {
     threshold: number;
 
     /** Every detected cut: the second its new scene starts and its score. */
-    cuts: { 
-/** Video-local second of the first frame after the detected cut. */
-seconds: number; 
-/** FFmpeg scdet change score on its 0 to 100 scale. */
-score: number }[];
+    cuts: {
+      /** Video-local second of the first frame after the detected cut. */
+      seconds: number;
+      /** FFmpeg scdet change score on its 0 to 100 scale. */
+      score: number;
+    }[];
   }
 
   /**

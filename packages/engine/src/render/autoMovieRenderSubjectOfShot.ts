@@ -1,5 +1,7 @@
-import type { IAutoMovieRenderSubject, IAutoMovieRenderSubjectOfShot } from "@automovie/interface";
-
+import type {
+  IAutoMovieRenderSubject,
+  IAutoMovieRenderSubjectOfShot,
+} from "@automovie/interface";
 
 /**
  * Read a compiled shot as a render subject.
@@ -17,7 +19,11 @@ import type { IAutoMovieRenderSubject, IAutoMovieRenderSubjectOfShot } from "@au
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Canonical compiled conversion shares this field projection; result references intentionally track input arrays, so caching would not create an immutable subject snapshot.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned subject owns its wrapper and defaults while input arrays remain caller-owned; no domain solver, texture handle or task is retained.
  */
-export const autoMovieRenderSubjectOfShot: (props: IAutoMovieRenderSubjectOfShot.IProps) => IAutoMovieRenderSubject = (props: IAutoMovieRenderSubjectOfShot.IProps): IAutoMovieRenderSubject => ({
+export const autoMovieRenderSubjectOfShot: (
+  props: IAutoMovieRenderSubjectOfShot.IProps,
+) => IAutoMovieRenderSubject = (
+  props: IAutoMovieRenderSubjectOfShot.IProps,
+): IAutoMovieRenderSubject => ({
   scene: props.compiled.scene,
   models: props.compiled.models,
   environments: props.compiled.builtEnvironments ?? [],

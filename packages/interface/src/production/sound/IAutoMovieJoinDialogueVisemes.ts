@@ -1,6 +1,6 @@
-import type { IAutoMovieDialogueSpeakerBinding } from "./IAutoMovieDialogueSpeakerBinding";
 import type { IAutoMovieProductionDialogueLine } from "../IAutoMovieProductionDialogueLine";
 import type { IAutoMovieProductionViseme } from "../IAutoMovieProductionViseme";
+import type { IAutoMovieDialogueSpeakerBinding } from "./IAutoMovieDialogueSpeakerBinding";
 
 /** Data and callback contracts shared by the JoinDialogueVisemes operations. */
 export namespace IAutoMovieJoinDialogueVisemes {

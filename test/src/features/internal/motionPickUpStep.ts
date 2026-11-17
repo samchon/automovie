@@ -1,8 +1,23 @@
-import type { IAutoMovieMotionHumanAudit, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
-
-import { AutoMovieMotionHumanAudit, HumanChain, HumanHand, HumanObject, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanAudit,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAudit,
+  HumanChain,
+  HumanHand,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -46,7 +61,9 @@ export function motionPickUpStep(name: motionHumanBody.Name): void {
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",
   });
-  const perform = (at: IAutoMovieVector3 | null): IAutoMovieMotionHumanPerformance =>
+  const perform = (
+    at: IAutoMovieVector3 | null,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "step",
       props:
@@ -99,7 +116,9 @@ export function motionPickUpStep(name: motionHumanBody.Name): void {
       complaints.push(
         `${name}: the glass ends ${(lifted * 1000).toFixed(0)} mm above where it stood, at least 50 expected`,
       );
-    const plants = (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow[] =>
+    const plants = (
+      part: "leftFoot" | "rightFoot",
+    ): IAutoMovieMotionHumanContactWindow[] =>
       pick.plan.contacts.filter(
         (c: IAutoMovieMotionHumanContactWindow): boolean =>
           c.part === part && c.kind === "plant",

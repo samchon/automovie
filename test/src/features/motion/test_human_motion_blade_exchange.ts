@@ -1,8 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
 import { createSword } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanBlade, HumanChain, HumanObject, HumanPerformance, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanBlade,
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -83,7 +95,10 @@ export function test_human_motion_blade_exchange(): void {
       b: motionHumanBody(names[1]),
     };
     const label: string = `${names[0]} attacking ${names[1]}`;
-    const stand = (subject: "a" | "b", blade: string): IAutoMovieMotionHumanChain =>
+    const stand = (
+      subject: "a" | "b",
+      blade: string,
+    ): IAutoMovieMotionHumanChain =>
       HumanChain.subject(subject)
         .stand({ seconds: 0.3 })
         .pickUp({
@@ -142,11 +157,20 @@ export function test_human_motion_blade_exchange(): void {
             }),
         ).node,
     });
-    const named = (subject: string, name: string): IAutoMovieMotionHumanSegment.ISegment =>
+    const named = (
+      subject: string,
+      name: string,
+    ): IAutoMovieMotionHumanSegment.ISegment =>
       film
         .segments(subject)
-        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === name)!;
-    const instant = (segment: IAutoMovieMotionHumanSegment.ISegment, event: string): number =>
+        .find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+            s.name === name,
+        )!;
+    const instant = (
+      segment: IAutoMovieMotionHumanSegment.ISegment,
+      event: string,
+    ): number =>
       segment.start +
       (segment.plan.events.find((e): boolean => e.name === event)?.share ??
         Number.NaN) *
@@ -155,7 +179,10 @@ export function test_human_motion_blade_exchange(): void {
       subject: "a" | "b",
       seconds: number,
     ): readonly [IAutoMovieVector3, IAutoMovieVector3] => {
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(`sword-${subject}`, seconds);
+      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
+        `sword-${subject}`,
+        seconds,
+      );
       return [frame.position, placed(frame, tip)];
     };
     const region = (
@@ -197,7 +224,10 @@ export function test_human_motion_blade_exchange(): void {
       );
 
     // 4. The riposte finds the attacker.
-    const riposte: IAutoMovieMotionHumanSegment.ISegment = named("b", "riposte");
+    const riposte: IAutoMovieMotionHumanSegment.ISegment = named(
+      "b",
+      "riposte",
+    );
     const struck: number = riposte.start + (riposte.plan.contact ?? Number.NaN);
     const missed: number = apart(
       blade("b", struck)[1],

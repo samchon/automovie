@@ -1,5 +1,19 @@
-import { type IAutoMovieBodyCollisionResult, type IAutoMovieClosestSegmentPoints, type IAutoMovieCollisionActor, type IAutoMovieCollisionResponse, type IAutoMovieResolvedBone, type IAutoMovieSkeletonTopology, type IAutoMovieDetectBodyCollision, type IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieBody, IAutoMovieBone, IAutoMovieCapsuleProxy, IAutoMovieInteractionEvent, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBody,
+  type IAutoMovieBodyCollisionResult,
+  IAutoMovieBone,
+  IAutoMovieCapsuleProxy,
+  type IAutoMovieClosestSegmentPoints,
+  type IAutoMovieCollisionActor,
+  type IAutoMovieCollisionResponse,
+  type IAutoMovieDetectBodyCollision,
+  IAutoMovieInteractionEvent,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieSkeletonTopology,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { resolvePose } from "../kinematics/resolvePose";
@@ -43,7 +57,11 @@ interface IPenetration {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each actor pose resolves once per frame and its map serves all capsule pairs; one retained penetration list supplies events, warnings and deepest response without a cross-call motion cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local pose maps and penetration rows are discarded; fresh events, validation and response transfer to the caller without retaining sampled poses or owning a physics/render task.
  */
-export const detectBodyCollision: (props: IAutoMovieDetectBodyCollision.IProps) => IAutoMovieBodyCollisionResult = (props: IAutoMovieDetectBodyCollision.IProps): IAutoMovieBodyCollisionResult => {
+export const detectBodyCollision: (
+  props: IAutoMovieDetectBodyCollision.IProps,
+) => IAutoMovieBodyCollisionResult = (
+  props: IAutoMovieDetectBodyCollision.IProps,
+): IAutoMovieBodyCollisionResult => {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const path: string = props.path ?? "$input";
   const sampleRate: number =

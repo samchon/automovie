@@ -1,4 +1,5 @@
 import type { IAutoMovieMonotone } from "@automovie/interface";
+
 /**
  * The Fritsch-Carlson monotone cubic on caller-owned arrays: slopes computed
  * in place and evaluation without allocation, so a profile whose values

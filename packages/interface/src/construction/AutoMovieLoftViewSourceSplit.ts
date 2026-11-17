@@ -1,4 +1,5 @@
 import type { IAutoMovieViewOutline } from "./IAutoMovieViewOutline";
+
 /**
  * Prepared scalar outlines for one split's [u, v, tangent angle, following shoulder].
  *

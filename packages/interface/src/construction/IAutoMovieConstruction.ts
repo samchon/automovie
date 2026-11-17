@@ -1,5 +1,5 @@
-import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
 import type { IAutoMovieConstructionFill } from "./IAutoMovieConstructionFill";
+import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
 
 /**
  * A solid built by construction: parts drawn from their orthographic views, joined into groups by merges and cut by diffs and trims, recursively, down to the smallest part a form needs (a figure's trunk, limbs, digits, nose and lids; a vase's body, handle and spout).

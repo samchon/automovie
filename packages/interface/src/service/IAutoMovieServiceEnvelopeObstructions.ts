@@ -5,7 +5,7 @@ import type { IAutoMovieServiceNetwork } from "./IAutoMovieServiceNetwork";
 export namespace IAutoMovieServiceEnvelopeObstructions {
   /**
    * World box queried against translated service maintenance envelopes.
-   * 
+   *
    * This is the seam a prop, a piece of furniture or a second discipline is
    * compared through: hand it any axis-aligned world box — a staged prop's
    * occupancy bound, for instance — and it names the equipment that could no

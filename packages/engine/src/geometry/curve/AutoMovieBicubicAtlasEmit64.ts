@@ -1,4 +1,14 @@
-import type { AutoMovieBernsteinGrid64, AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple, IAutoMovieBicubicAtlas64, IAutoMovieBicubicAtlasPlan64, IAutoMovieBicubicAtlasRegistry64, IAutoMovieBicubicAtlasTessellation64, IAutoMovieCanonicalBoundaryPhase64 } from "@automovie/interface";
+import type {
+  AutoMovieBernsteinGrid64,
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieVector3Tuple,
+  IAutoMovieBicubicAtlas64,
+  IAutoMovieBicubicAtlasPlan64,
+  IAutoMovieBicubicAtlasRegistry64,
+  IAutoMovieBicubicAtlasTessellation64,
+  IAutoMovieCanonicalBoundaryPhase64,
+} from "@automovie/interface";
+
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
 import { AutoMovieBernsteinGrid64 as G } from "./AutoMovieBernsteinGrid64";
 import { AutoMovieBicubicAtlasVertex64 } from "./AutoMovieBicubicAtlasVertex64";
@@ -35,13 +45,13 @@ export function* AutoMovieBicubicAtlasEmit64(
   registered: IAutoMovieBicubicAtlasRegistry64.IResult,
   SIDES: readonly (readonly number[])[],
   CORNERS: readonly (readonly [number, number, number])[],
-): Generator<IAutoMovieBicubicAtlasTessellation64.Chunk, IAutoMovieBicubicAtlasTessellation64.Summary, void> {
-  const {
-    plans,
-    boundary,
-    norm,
-    cross,
-  }: IAutoMovieBicubicAtlasPlan64.IResult = prepared;
+): Generator<
+  IAutoMovieBicubicAtlasTessellation64.Chunk,
+  IAutoMovieBicubicAtlasTessellation64.Summary,
+  void
+> {
+  const { plans, boundary, norm, cross }: IAutoMovieBicubicAtlasPlan64.IResult =
+    prepared;
   const { root }: typeof boundary = boundary;
   const {
     corners,
@@ -56,15 +66,26 @@ export function* AutoMovieBicubicAtlasEmit64(
     p: number,
     u: number,
     v: number,
-  ) => { position: AutoMovieVector3Tuple; normal: AutoMovieVector3Tuple; regular: boolean } = (
+  ) => {
+    position: AutoMovieVector3Tuple;
+    normal: AutoMovieVector3Tuple;
+    regular: boolean;
+  } = (
     p: number,
     u: number,
     v: number,
-  ): { position: AutoMovieVector3Tuple; normal: AutoMovieVector3Tuple; regular: boolean } => {
+  ): {
+    position: AutoMovieVector3Tuple;
+    normal: AutoMovieVector3Tuple;
+    regular: boolean;
+  } => {
     const grid: AutoMovieBernsteinGrid64 = plans[p]!.grid,
       poly: AutoMovieBernsteinPolynomial64 = G.gridValue(grid, v),
       du: AutoMovieVector3Tuple = B.value(B.tangent(poly), u),
-      dv: AutoMovieVector3Tuple = B.value(G.gridValue(G.gridTangent(grid), v), u),
+      dv: AutoMovieVector3Tuple = B.value(
+        G.gridValue(G.gridTangent(grid), v),
+        u,
+      ),
       n: AutoMovieVector3Tuple = cross(du, dv),
       length: number = norm(n);
     const regular: boolean = Number.isFinite(length) && length > 0;
@@ -100,38 +121,45 @@ export function* AutoMovieBicubicAtlasEmit64(
   for (let p: number = 0; p < plans.length; p++) {
     const plan: Plan = plans[p]!,
       patch: Patch = input.patches[p]!;
-    const fresh: () => IAutoMovieBicubicAtlasTessellation64.Chunk = (): IAutoMovieBicubicAtlasTessellation64.Chunk => ({
-      patch: patch.id,
-      vertexStart: cursor.nextIndex,
-      positions: [],
-      normals: [],
-      physicalVertexIds: [],
-      indices: [],
-      ...(input.retainTriangleParameters ? { triangleParameters: [] } : {}),
-      ...(input.retainPatchCoefficients && plan.grid.length === 4
-        ? {
-            patchCoefficients: plan.grid.map(
-              (row: AutoMovieBernsteinPolynomial64): [number, number, number][] =>
-                row.map((point: AutoMovieVector3Tuple): [number, number, number] => [
-                  point[0],
-                  point[1],
-                  point[2],
-                ]),
-            ),
-          }
-        : {}),
-      faceRanges: [],
-      diagnostics: [],
-      counts: {
-        cells: 0,
-        retainedCoarseCells: 0,
-        vertices: 0,
-        triangles: 0,
-        omittedZeroAreaTriangles: 0,
-        unresolvedVertexNormals: 0,
-        maxErrorBoundMm: 0,
-      },
-    });
+    const fresh: () => IAutoMovieBicubicAtlasTessellation64.Chunk =
+      (): IAutoMovieBicubicAtlasTessellation64.Chunk => ({
+        patch: patch.id,
+        vertexStart: cursor.nextIndex,
+        positions: [],
+        normals: [],
+        physicalVertexIds: [],
+        indices: [],
+        ...(input.retainTriangleParameters ? { triangleParameters: [] } : {}),
+        ...(input.retainPatchCoefficients && plan.grid.length === 4
+          ? {
+              patchCoefficients: plan.grid.map(
+                (
+                  row: AutoMovieBernsteinPolynomial64,
+                ): [number, number, number][] =>
+                  row.map(
+                    (
+                      point: AutoMovieVector3Tuple,
+                    ): [number, number, number] => [
+                      point[0],
+                      point[1],
+                      point[2],
+                    ],
+                  ),
+              ),
+            }
+          : {}),
+        faceRanges: [],
+        diagnostics: [],
+        counts: {
+          cells: 0,
+          retainedCoarseCells: 0,
+          vertices: 0,
+          triangles: 0,
+          omittedZeroAreaTriangles: 0,
+          unresolvedVertexNormals: 0,
+          maxErrorBoundMm: 0,
+        },
+      });
     let chunk: IAutoMovieBicubicAtlasTessellation64.Chunk = fresh();
     const qualify: () => void = (): void => {
       chunk.diagnostics.push(

@@ -1,4 +1,10 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanEffort, IAutoMovieMotionManner, IAutoMovieRandom } from "@automovie/interface";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanEffort,
+  IAutoMovieMotionManner,
+  IAutoMovieRandom,
+} from "@automovie/interface";
 
 import { HumanEffort } from "../everyday/HumanEffort";
 import { HumanBound } from "../law/HumanBound";
@@ -22,7 +28,6 @@ import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The modifiers are plain factors and shares with neutral values, not flags; a goal on a solid place is outside what a manner reaches, by the phrases' contact rule rather than by a switch here.
  */
 export namespace AutoMovieMotionManner {
-
   /** The modifiers of the absent manner. */
   export const NEUTRAL: IAutoMovieMotionManner.IModifiers = {
     tempo: 1,
@@ -83,7 +88,8 @@ export namespace AutoMovieMotionManner {
     HumanBound.above("manner.pace", pace, 0);
     HumanBound.within("manner.proficiency", proficiency, 0, 1);
     HumanBound.within("manner.variation", variation, 0, 1);
-    const effort: IAutoMovieMotionHumanEffort.IModifiers = HumanEffort.modifiers(manner.effort);
+    const effort: IAutoMovieMotionHumanEffort.IModifiers =
+      HumanEffort.modifiers(manner.effort);
     const offset = (
       bounds: readonly [number, number],
       index: number,
@@ -125,7 +131,10 @@ export namespace AutoMovieMotionManner {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "skill" | "random" | "tempo">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "skill" | "random" | "tempo"
+    >,
     manner: IAutoMovieMotionManner.IManner | undefined,
   ): IAutoMovieMotionManner.IModifiers {
     const own: IAutoMovieMotionManner.IModifiers =
@@ -206,7 +215,9 @@ export namespace AutoMovieMotionManner {
    * and proud ones larger in direction, Montepare, Goldstein and Clausen 1987,
    * J Nonverbal Behav 11:33; the magnitudes here are not from it).
    */
-  export const PRESETS: Readonly<Record<IAutoMovieMotionManner.Preset, IAutoMovieMotionManner.IManner>> = {
+  export const PRESETS: Readonly<
+    Record<IAutoMovieMotionManner.Preset, IAutoMovieMotionManner.IManner>
+  > = {
     punch: { effort: HumanEffort.ACTIONS.punch },
     dab: { effort: HumanEffort.ACTIONS.dab },
     press: { effort: HumanEffort.ACTIONS.press },

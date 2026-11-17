@@ -1,5 +1,16 @@
-import { type IAutoMovieFootLeg, type IAutoMovieFootPlant, type IAutoMoviePlantedFeet, type IAutoMovieSkeletonTopology, type IAutoMovieMotionSample, type IAutoMoviePinStanceTargets, type IAutoMoviePlantStanceFeet, type IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieKeyframe, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieFootLeg,
+  type IAutoMovieFootPlant,
+  IAutoMovieKeyframe,
+  type IAutoMovieMotionSample,
+  type IAutoMoviePinStanceTargets,
+  type IAutoMoviePlantStanceFeet,
+  type IAutoMoviePlantedFeet,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieSkeletonTopology,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { groundFunction } from "../space/groundFunction";
@@ -40,8 +51,12 @@ const DEFAULT_LEGS: readonly IAutoMovieFootLeg[] = HUMANOID_LEG_CHAINS.map(
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Completed sampled poses/FK maps feed run detection directly; one topology and each run's fixed target are reused while changing parent poses still need per-frame chain preparation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned dense frames and plants belong to the caller; sample/FK/target arrays are call-local, bounded by frame/leg/bone populations, and no renderer/native handles or continuing tasks are retained.
  */
-export const plantStanceFeet: (props: IAutoMoviePlantStanceFeet.IProps) => IAutoMoviePlantedFeet = (props: IAutoMoviePlantStanceFeet.IProps): IAutoMoviePlantedFeet => {
-  const groundAt: ((x: number, z: number) => number) = groundFunction(
+export const plantStanceFeet: (
+  props: IAutoMoviePlantStanceFeet.IProps,
+) => IAutoMoviePlantedFeet = (
+  props: IAutoMoviePlantStanceFeet.IProps,
+): IAutoMoviePlantedFeet => {
+  const groundAt: (x: number, z: number) => number = groundFunction(
     props.groundY ?? DEFAULT_GROUND_Y,
   );
   const tolerance: number = props.tolerance ?? DEFAULT_TOLERANCE;
@@ -61,21 +76,21 @@ export const plantStanceFeet: (props: IAutoMoviePlantStanceFeet.IProps) => IAuto
   );
   const times: number[] = sampleTimes(props.motion.duration, sampleRate);
   const poses: IAutoMovieMotionSample[] = times.map(
-    (time: number): IAutoMovieMotionSample =>
-      sampleMotion(props.motion, time),
+    (time: number): IAutoMovieMotionSample => sampleMotion(props.motion, time),
   );
-  const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>[] = poses.map(
-    (
-      sampled: IAutoMovieMotionSample,
-    ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-      resolveBoneMap(
-        props.skeleton,
-        sampled.pose,
-        topology,
-        props.jointAxes,
-        props.restFrames,
-      ),
-  );
+  const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>[] =
+    poses.map(
+      (
+        sampled: IAutoMovieMotionSample,
+      ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+        resolveBoneMap(
+          props.skeleton,
+          sampled.pose,
+          topology,
+          props.jointAxes,
+          props.restFrames,
+        ),
+    );
 
   // A stance run per leg pinned to its start contact; per-frame solve targets.
   const { plants, targets }: IAutoMoviePinStanceTargets.IResult =

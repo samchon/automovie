@@ -1,9 +1,9 @@
-import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
-import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
+import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieMotionHumanFoot } from "../posture/IAutoMovieMotionHumanFoot";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
 import type { IAutoMovieMotionHumanLeg } from "./IAutoMovieMotionHumanLeg";
 import type { IAutoMovieMotionManner } from "./IAutoMovieMotionManner";
 

@@ -1,6 +1,14 @@
-import type { IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanArmGeometry, IAutoMovieMotionHumanArmPlanned, IAutoMovieMotionHumanArmTrajectory, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanArmTrajectory,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanArmDifferential } from "../posture/HumanArmDifferential";
 import { HumanArmGeometry } from "../posture/HumanArmGeometry";
 import { HumanArmTrajectoryContext } from "../posture/HumanArmTrajectoryContext";
@@ -60,10 +68,8 @@ export namespace AutoMovieMotionHumanArmFollow {
     plan: IAutoMovieMotionHumanArmTrajectory.Trajectory,
     before: (seconds: number) => IAutoMovieMotionHumanPosture,
   ): (seconds: number) => IAutoMovieMotionHumanArmClearance.IArm {
-    const setup: IAutoMovieMotionHumanArmGeometry.ISetup = HumanArmGeometry.prepare(
-      body,
-      carry.side,
-    );
+    const setup: IAutoMovieMotionHumanArmGeometry.ISetup =
+      HumanArmGeometry.prepare(body, carry.side);
     const zero: number[] = new Array(HumanArmGeometry.DIMENSIONS).fill(0);
     const corrections: number[][] = [zero];
     let settled: boolean = false;
@@ -113,8 +119,11 @@ export namespace AutoMovieMotionHumanArmFollow {
           ],
           arms: [{ side: carry.side, rest: carry.rest, sites: [undefined] }],
         });
-      const frame: IAutoMovieMotionHumanArmGeometry.IFrame = context.frames[0]![0]!;
-      const placed = (q: readonly number[]): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+      const frame: IAutoMovieMotionHumanArmGeometry.IFrame =
+        context.frames[0]![0]!;
+      const placed = (
+        q: readonly number[],
+      ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
         HumanArmGeometry.placed(setup, frame, q, false);
       const contact = (
         p: IAutoMovieMotionHumanArmGeometry.IPlaced,

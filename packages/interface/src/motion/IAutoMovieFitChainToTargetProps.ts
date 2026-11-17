@@ -1,13 +1,13 @@
-import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
-import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
-import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
-import type { IAutoMoviePose } from "../pose/IAutoMoviePose";
 import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMoviePose } from "../pose/IAutoMoviePose";
 import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
-import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieSkeletonTopology } from "../pose/IAutoMovieSkeletonTopology";
 import type { IAutoMovieSwivelNear } from "../pose/IAutoMovieSwivelNear";
-import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
+import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
+import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
 
 /**
  * Actual rig, target and shared semantic frames for a bounded contact fit.

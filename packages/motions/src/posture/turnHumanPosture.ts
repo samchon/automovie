@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTurnHumanPosture, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTurnHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
@@ -33,7 +38,8 @@ export function turnHumanPosture(
   posture: IAutoMovieMotionHumanPosture,
 ): IAutoMovieMotionHumanTurnHumanPosture.ITurned {
   const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
-  const rotation: IAutoMovieMotionHumanPosture.IRotation | undefined = posture.rotation;
+  const rotation: IAutoMovieMotionHumanPosture.IRotation | undefined =
+    posture.rotation;
   if (rotation === undefined)
     return { position: posture.root, rotation: heading, limbs: posture.limbs };
   const turn: IAutoMovieQuaternion = Quaternion.normalize(rotation.turn);

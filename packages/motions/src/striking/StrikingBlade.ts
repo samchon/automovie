@@ -1,6 +1,17 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingAdvance, IAutoMovieMotionHumanStrikingBlade, IAutoMovieMotionHumanStrikingHeld, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingAdvance,
+  IAutoMovieMotionHumanStrikingBlade,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
@@ -37,7 +48,6 @@ import { StrikingSupport } from "./StrikingSupport";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No tool kind and no technique is named here; lengths are shares of the body's measure.
  */
 export namespace StrikingBlade {
-
   /**
    * The holding arm's shoulder on the body as it stands at an instant of an
    * advance, for a caller that measures its reach.
@@ -133,8 +143,12 @@ export namespace StrikingBlade {
     const { tool, clock }: IAutoMovieMotionHumanStrikingBlade.IStroke = stroke;
     const body: IAutoMovieMotionHumanBody = context.body;
     const duration: number = clock.duration;
-    const other: IAutoMovieMotionHumanHand.Side = tool.side === "left" ? "right" : "left";
-    const base: IAutoMovieMotionHumanActionPlan = StrikingAdvance.base(context, stroke);
+    const other: IAutoMovieMotionHumanHand.Side =
+      tool.side === "left" ? "right" : "left";
+    const base: IAutoMovieMotionHumanActionPlan = StrikingAdvance.base(
+      context,
+      stroke,
+    );
 
     // The hand as displayed at the entry, kept relative to the root so it
     // travels with an advance.
@@ -159,7 +173,9 @@ export namespace StrikingBlade {
       stroke.stay
         ? clock.progress("start", "ready", seconds)
         : clock.envelope(["start", "ready"], ["relax", "end"], seconds);
-    const shoulderOf = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
+    const shoulderOf = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieVector3 =>
       HumanTrunk.resolve(body, posture).get(`${tool.side}UpperArm`)!
         .worldPosition;
 
@@ -230,7 +246,9 @@ export namespace StrikingBlade {
     // swapped the arm's configuration by itself.
     let anchored: IAutoMovieMotionHumanPosture.IReference | undefined;
     let hint: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    const carried = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 => {
+    const carried = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieVector3 => {
       reference();
       const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
         body,
@@ -266,10 +284,8 @@ export namespace StrikingBlade {
         anchored = entered.reference;
         return anchored;
       }
-      const decisive: IAutoMovieMotionHumanStrikingHeld.IHandFrame = stroke.path(
-        stroke.stop,
-        clock.at("stroke"),
-      );
+      const decisive: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+        stroke.path(stroke.stop, clock.at("stroke"));
       const stood: IAutoMovieMotionHumanPosture = StrikingSupport.posture(
         body,
         turned(base.posture(clock.at("stroke")), stroke.turn ?? 0),
@@ -328,7 +344,10 @@ export namespace StrikingBlade {
           base.posture(t),
           (stroke.turn ?? 0) * present(t),
         );
-        const at: IAutoMovieMotionHumanStrikingHeld.IHandFrame = frame(posture, t);
+        const at: IAutoMovieMotionHumanStrikingHeld.IHandFrame = frame(
+          posture,
+          t,
+        );
         const first: IAutoMovieMotionHumanPosture.IGoal = StrikingHeld.goal(
           context,
           tool,

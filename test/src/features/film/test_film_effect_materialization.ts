@@ -1,6 +1,16 @@
-import { type IAutoMovieFilmEffectCurrentIdentity, type IAutoMovieShotEffectFilmInterval, IAutoMovieCompiledFilmEffect, IAutoMovieFilmTimeline, IAutoMovieProductionFrameRate, IAutoMovieWorldDesign, IAutoMovieWorldEffectZone } from "@automovie/interface";
-import { materializeProductionFilmEffects, verifyProductionFilmEffectPopulation } from "@automovie/engine";
-
+import {
+  materializeProductionFilmEffects,
+  verifyProductionFilmEffectPopulation,
+} from "@automovie/engine";
+import {
+  IAutoMovieCompiledFilmEffect,
+  type IAutoMovieFilmEffectCurrentIdentity,
+  IAutoMovieFilmTimeline,
+  IAutoMovieProductionFrameRate,
+  type IAutoMovieShotEffectFilmInterval,
+  IAutoMovieWorldDesign,
+  IAutoMovieWorldEffectZone,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";

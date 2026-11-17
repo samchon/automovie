@@ -1,5 +1,3 @@
-
-
 /**
  * The files a capture reads and writes, injected by its host so the capture core reaches no file system itself.
  *
@@ -35,9 +33,13 @@ export interface IAutoMovieCaptureStorage {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
    */
-  mkdir(path: string, options: { 
-/** Create any missing parent directories as well as the destination. */
-recursive: true }): Promise<unknown>;
+  mkdir(
+    path: string,
+    options: {
+      /** Create any missing parent directories as well as the destination. */
+      recursive: true;
+    },
+  ): Promise<unknown>;
 
   /**
    * The bytes of a file. Rejects when the file does not exist.
@@ -76,7 +78,11 @@ recursive: true }): Promise<unknown>;
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
    */
-  rm(path: string, options: { 
-/** Treat an absent file as successful deletion; other storage errors still reject. */
-force: true }): Promise<void>;
+  rm(
+    path: string,
+    options: {
+      /** Treat an absent file as successful deletion; other storage errors still reject. */
+      force: true;
+    },
+  ): Promise<void>;
 }

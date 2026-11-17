@@ -1,6 +1,16 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingHeld, IAutoMovieMotionHumanWorkoutLoad, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionHumanWorkoutLoad,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
@@ -57,7 +67,6 @@ import { StrikingHeld } from "../striking/StrikingHeld";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The prop must already be held, by the grammar's own pick-up; the law grasps nothing itself.
  */
 export namespace WorkoutLoad {
-
   /**
    * The load of a workout.
    *
@@ -76,13 +85,17 @@ export namespace WorkoutLoad {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The record closes over the tool read at plan time.
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "subject">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop" | "subject"
+    >,
     load: IAutoMovieMotionHumanWorkoutLoad.IParams,
     midfoot: boolean = false,
   ): IAutoMovieMotionHumanWorkoutLoad.ILoad {
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const side: IAutoMovieMotionHumanHand.Side = load.hand ?? "right";
-    const other: IAutoMovieMotionHumanHand.Side = side === "right" ? "left" : "right";
+    const other: IAutoMovieMotionHumanHand.Side =
+      side === "right" ? "left" : "right";
 
     // The holding hand keeps the fingers it closed on the prop: a key
     // writes every joint, the fingers among them.
@@ -97,7 +110,9 @@ export namespace WorkoutLoad {
       const held: ReturnType<typeof AutoMovieMotionHumanHeld.of> =
         AutoMovieMotionHumanHeld.of(context, side, load.prop);
       return {
-        apply: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => ({
+        apply: (
+          posture: IAutoMovieMotionHumanPosture,
+        ): IAutoMovieMotionHumanPosture => ({
           ...posture,
           joints: { ...posture.joints, ...closed },
         }),
@@ -106,10 +121,18 @@ export namespace WorkoutLoad {
         hands: [side],
       };
     }
-    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(context, side, load.prop, {
-      tip: load.other,
-    });
-    const own: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(context, side);
+    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
+      context,
+      side,
+      load.prop,
+      {
+        tip: load.other,
+      },
+    );
+    const own: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
+      context,
+      side,
+    );
 
     // The bar's line in the hand: from the handle the hand took to the
     // other one, both read in the hand's frame.
@@ -121,7 +144,10 @@ export namespace WorkoutLoad {
             StrikingHeld.of(context, side, load.prop, { tip: load.handle }).tip,
           ),
     );
-    const bare: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(context, other);
+    const bare: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
+      context,
+      other,
+    );
 
     // The middle of the feet the entry stands on, over which a lift's bar
     // travels.
@@ -162,7 +188,9 @@ export namespace WorkoutLoad {
       contacts: StrikingHeld.grips(tool),
       holds: StrikingHeld.holds(context, tool),
       hands: [side, other],
-      apply: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => {
+      apply: (
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieMotionHumanPosture => {
         const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
           StrikingBody.trunk(body, posture);
         // The bar runs level to the performer's other side from the hand,

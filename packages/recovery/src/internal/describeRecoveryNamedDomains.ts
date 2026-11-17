@@ -1,8 +1,9 @@
-import type { IAutoMovieRecoveryDomainLedger, IAutoMovieRecoveryNamedDomainsDescriptionOperation } from "@automovie/interface";
-
+import type {
+  IAutoMovieRecoveryDomainLedger,
+  IAutoMovieRecoveryNamedDomainsDescriptionOperation,
+} from "@automovie/interface";
 
 import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
-
 
 /**
  * Bind planned named domains only to unique actual reports with the same identity.
@@ -111,7 +112,8 @@ export function describeRecoveryNamedDomains(
               part: name,
               firstTriangle,
               triangleCount,
-              patch: typeof patch === "string" ? patch : null });
+              patch: typeof patch === "string" ? patch : null,
+            });
         }
       if (admitted === true) {
         const addresses: unknown =
@@ -156,7 +158,8 @@ export function describeRecoveryNamedDomains(
         admitted,
         delegatedTo: null,
         emitted,
-        diagnostics: local });
+        diagnostics: local,
+      });
     }
     for (const [ordinal, report] of reports.entries())
       if (!bound.has(ordinal)) {

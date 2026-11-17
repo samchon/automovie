@@ -1,6 +1,21 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanDance, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanLean, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionManner, IAutoMovieResolveSchedule, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanDance,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanLean,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionManner,
+  IAutoMovieResolveSchedule,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
@@ -160,7 +175,10 @@ export namespace dance {
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       { x: 0, y: 0, z: 1 },
     );
-    const stance: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
+    const stance: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = {
       left: {
         ankle: context.entry.feet.left.ankle,
         rotation: context.entry.feet.left.rotation,
@@ -179,13 +197,17 @@ export namespace dance {
       channels: ["root"],
       from: 0,
       to: duration,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => ({
         ...posture,
         root: Vector3.add(posture.root, offset(seconds)),
       }),
     });
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
-    let contacts: IAutoMovieMotionHumanContactWindow[] = AutoMovieMotionHumanBase.plants();
+    let contacts: IAutoMovieMotionHumanContactWindow[] =
+      AutoMovieMotionHumanBase.plants();
 
     switch (p.kind) {
       case "bounce": {
@@ -369,8 +391,10 @@ export namespace dance {
               side: foot,
               from: 0,
               to: duration,
-              placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement =>
-                placed(foot, s),
+              placement: (
+                _: IAutoMovieMotionHumanPosture,
+                s: number,
+              ): IAutoMovieMotionHumanFoot.IPlacement => placed(foot, s),
               planted: (s: number): boolean => planted(foot, s),
             }),
           );

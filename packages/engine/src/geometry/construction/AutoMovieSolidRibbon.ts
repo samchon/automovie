@@ -1,6 +1,10 @@
-import type { IAutoMovieSolidSurface, IAutoMovieSolidRibbon } from "@automovie/interface";
+import type {
+  IAutoMovieSolidRibbon,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
+
 const { combine } = AutoMovieSolidVector;
 
 /**
@@ -31,7 +35,6 @@ const { combine } = AutoMovieSolidVector;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidRibbon {
-
   /**
    * The ribbon at one rail point.
    *

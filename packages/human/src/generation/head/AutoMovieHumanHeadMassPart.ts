@@ -1,15 +1,22 @@
-import type { IAutoMovieLoftFrame, IAutoMovieViewCurves, IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieViewSection, AutoMovieVector3Tuple, IAutoMovieHumanHeadLandmarks, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadMassPart } from "@automovie/interface";
-
-
-
-
-
-import { AutoMovieViewCurves, AutoMovieViewOutline, AutoMovieViewSection } from "@automovie/engine";
+import {
+  AutoMovieViewCurves,
+  AutoMovieViewOutline,
+  AutoMovieViewSection,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanHeadLandmarks,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadMassPart,
+  IAutoMovieLoftFrame,
+  IAutoMovieViewCurves,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import { AutoMovieHumanHeadVault } from "../AutoMovieHumanHeadVault";
-
-
 import { AutoMovieHumanHeadMassProfile } from "./AutoMovieHumanHeadMassProfile";
 import { AutoMovieHumanHeadMassSource } from "./AutoMovieHumanHeadMassSource";
 
@@ -159,7 +166,9 @@ export namespace AutoMovieHumanHeadMassPart {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work No prepared source is constructed.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one fresh two-number diagnostic.
    */
-  export function cervical(plan: IAutoMovieHumanHeadLayout): IAutoMovieHumanHeadMassPart.CervicalResult {
+  export function cervical(
+    plan: IAutoMovieHumanHeadLayout,
+  ): IAutoMovieHumanHeadMassPart.CervicalResult {
     const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
     const dx: number = m.subnasale[0] - m.pogonion[0];
     const dy: number = m.subnasale[1] - m.pogonion[1];

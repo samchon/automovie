@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionTarget } from "@automovie/interface";
-
 import { physicalShapeBounds } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionTarget,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { HumanPerformance } from "../../perform/HumanPerformance";
@@ -276,7 +280,11 @@ function touching(
     ],
     composition: a.with(b).node,
   });
-  const extent = (body: IAutoMovieMotionHumanBody, subject: string, sign: 1 | -1): number => {
+  const extent = (
+    body: IAutoMovieMotionHumanBody,
+    subject: string,
+    sign: 1 | -1,
+  ): number => {
     const seconds: number = performance.segments(subject).at(-1)!.end;
     let most: number = -Infinity;
     for (const { pose, shapes } of HumanColliders.placed(

@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanAudit, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanBody, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAudit,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanAudit } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -177,11 +182,8 @@ export function test_human_motion_audit_run(): void {
   );
   TestValidator.equals("a tighter limit", checks(only(0.059)), ["slip"]);
 
-  const fast: IAutoMovieMotionHumanAudit.IReport = AutoMovieMotionHumanAudit.run(
-    film(40, 0, 0.25),
-    "a",
-    body,
-    {
+  const fast: IAutoMovieMotionHumanAudit.IReport =
+    AutoMovieMotionHumanAudit.run(film(40, 0, 0.25), "a", body, {
       limits: {
         tangle: null,
         floor: null,
@@ -191,8 +193,7 @@ export function test_human_motion_audit_run(): void {
         reversal: null,
         balance: null,
       },
-    },
-  );
+    });
   TestValidator.predicate(
     "a speed finding is described in metres per second",
     checks(fast).length === 1 &&

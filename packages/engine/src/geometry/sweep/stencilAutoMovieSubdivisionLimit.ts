@@ -1,4 +1,5 @@
 import type { IAutoMovieSubdivisionStencil } from "@automovie/interface";
+
 /**
  * Build the Catmull-Clark limit stencil of every vertex of a quad cage.
  *

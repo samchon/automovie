@@ -9,19 +9,15 @@ import type { IAutoMovieBicubicAtlasGeometry } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation States generated-coordinate units, report opacity, coverage limitations and private-ledger ownership.
  */
 export interface IAutoMovieRecoveryAtlasObservation {
- 
- /** Generated coefficient geometry in the engine's metre-based atlas contract. */
+  /** Generated coefficient geometry in the engine's metre-based atlas contract. */
   geometry: IAutoMovieBicubicAtlasGeometry;
 
- 
- /** Existing opaque per-chart fitting and qualification reports. */
+  /** Existing opaque per-chart fitting and qualification reports. */
   charts: object[];
 
- 
- /** Existing opaque selected-domain and whole-input coverage accounting. */
+  /** Existing opaque selected-domain and whole-input coverage accounting. */
   coverage: object;
 
- 
- /** Existing private source-observation ledger, kept separate from generation coefficients. */
+  /** Existing private source-observation ledger, kept separate from generation coefficients. */
   privateLedger: object[];
 }

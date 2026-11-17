@@ -1,9 +1,9 @@
-import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
-import type { IAutoMoviePerformShotProps } from "./IAutoMoviePerformShotProps";
 import type { IAutoMoviePerformance } from "../authoring/IAutoMoviePerformance";
-import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
+import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
+import type { IAutoMoviePerformShotProps } from "./IAutoMoviePerformShotProps";
+import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 
 /**
  * The staged world and lookups `performShot` builds once and every one of its

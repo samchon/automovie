@@ -1,6 +1,9 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * A posture part of the way from one to another: the weight of an additive

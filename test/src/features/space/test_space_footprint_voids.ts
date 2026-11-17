@@ -1,6 +1,25 @@
-import { type IAutoMovieFootprint, IAutoMovieBuiltEnvironment, IAutoMovieSpace, IAutoMovieSurface, IAutoMovieVector3 } from "@automovie/interface";
-import { autoMoviePlanarRegionFailure, footprintArea, footprintContains, footprintConvexPieces, footprintInteriorPoint, footprintRing, footprintRingPlacement, heightAt, isWalkable, spaceGround, supportContactsFor, surfaceContains, surfaceFootprint } from "@automovie/engine";
-
+import {
+  autoMoviePlanarRegionFailure,
+  footprintArea,
+  footprintContains,
+  footprintConvexPieces,
+  footprintInteriorPoint,
+  footprintRing,
+  footprintRingPlacement,
+  heightAt,
+  isWalkable,
+  spaceGround,
+  supportContactsFor,
+  surfaceContains,
+  surfaceFootprint,
+} from "@automovie/engine";
+import {
+  IAutoMovieBuiltEnvironment,
+  type IAutoMovieFootprint,
+  IAutoMovieSpace,
+  IAutoMovieSurface,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertFootprintVoidGeometry } from "../internal/assertFootprintVoidGeometry";

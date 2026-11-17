@@ -1,7 +1,11 @@
-import type { IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanStrikingHeld, IAutoMovieVector3 } from "@automovie/interface";
 import { createBow } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
+import type {
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanRefusal, StrikingHeld } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

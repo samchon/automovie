@@ -1,6 +1,6 @@
-import type { IAutoMovieMotionHumanExercise } from "../exercise/IAutoMovieMotionHumanExercise";
 import type { IAutoMovieMotionHumanRun } from "../actions/IAutoMovieMotionHumanRun";
 import type { IAutoMovieMotionHumanStand } from "../actions/IAutoMovieMotionHumanStand";
+import type { IAutoMovieMotionHumanExercise } from "../exercise/IAutoMovieMotionHumanExercise";
 import type { IAutoMovieMotionHumanWorkout } from "../exercise/IAutoMovieMotionHumanWorkout";
 
 /**

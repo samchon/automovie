@@ -1,5 +1,3 @@
-
-
 /**
  * Cost and quality tier of one render job over a shared builder-owned edit.
  *

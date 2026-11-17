@@ -1,7 +1,27 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPerturb, IAutoMovieMotionHumanSegment, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieGravity, resolveAutoMovieCenterOfMass } from "@automovie/engine";
-
-import { AutoMovieMotionHumanTiming, HumanChain, HumanPerformance, HumanRefusal, stagger } from "@automovie/motions";
+import {
+  AutoMovieGravity,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanForce,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerturb,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanTiming,
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+  stagger,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -105,7 +125,10 @@ export function test_human_motion_perturb(): void {
     const w0: number = resolveAutoMovieCenterOfMass.frequency(
       resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
     );
-    const centre = (p: IAutoMovieMotionHumanPerformance, t: number): IAutoMovieVector3 =>
+    const centre = (
+      p: IAutoMovieMotionHumanPerformance,
+      t: number,
+    ): IAutoMovieVector3 =>
       resolveAutoMovieCenterOfMass.place(model, p.bones("a", t));
 
     for (const [way, d] of Object.entries(directions)) {
@@ -128,7 +151,8 @@ export function test_human_motion_perturb(): void {
           );
           continue;
         }
-        const segment: IAutoMovieMotionHumanSegment.ISegment = p.segments("a")[1]!;
+        const segment: IAutoMovieMotionHumanSegment.ISegment =
+          p.segments("a")[1]!;
         const events: string[] = names(segment.plan);
 
         // 1. The plan placed is the outcome's.
@@ -230,7 +254,8 @@ export function test_human_motion_perturb(): void {
           // 4. No faster than free fall.
           const seat: IAutoMovieMotionHumanContactWindow | undefined =
             segment.plan.contacts.find(
-              (w: IAutoMovieMotionHumanContactWindow): boolean => w.part === "seat",
+              (w: IAutoMovieMotionHumanContactWindow): boolean =>
+                w.part === "seat",
             );
           if (seat === undefined)
             findings.push(`${label}: the fall declares no seat contact`);

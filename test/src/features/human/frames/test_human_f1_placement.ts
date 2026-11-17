@@ -1,5 +1,18 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanConicLoft, IAutoMovieHumanF1, IAutoMovieHumanF1Placement, IAutoMovieHumanSegmentFrame } from "@automovie/interface";
-import { AutoMovieHumanConicLoft, AutoMovieHumanF1, AutoMovieHumanF1Joints as J, AutoMovieHumanF1Placement as P, AutoMovieHumanF1Placing as T, AutoMovieHumanSegmentFrame as F } from "@automovie/human";
+import {
+  AutoMovieHumanConicLoft,
+  AutoMovieHumanF1,
+  AutoMovieHumanSegmentFrame as F,
+  AutoMovieHumanF1Joints as J,
+  AutoMovieHumanF1Placement as P,
+  AutoMovieHumanF1Placing as T,
+} from "@automovie/human";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1,
+  IAutoMovieHumanF1Placement,
+  IAutoMovieHumanSegmentFrame,
+} from "@automovie/interface";
 
 /**
  * f1's re-based placing: the stored local tables return the traced figure at the reference pose, and a joint's rotation moves what
@@ -37,118 +50,401 @@ import { AutoMovieHumanConicLoft, AutoMovieHumanF1, AutoMovieHumanF1Joints as J,
 export function test_human_f1_placement(): void {
   const failures: string[] = [];
   const stature: number = 1700;
-  const near = (label: string, a: readonly number[], b: readonly number[], limit: number): void => {
-    const error: number = Math.max(...a.map((x: number, i: number): number => Math.abs(x - b[i]!)));
-    if (!(error <= limit) || a.length !== b.length) failures.push(`${label}: ${JSON.stringify(a)} against ${JSON.stringify(b)} (error ${error})`);
+  const near = (
+    label: string,
+    a: readonly number[],
+    b: readonly number[],
+    limit: number,
+  ): void => {
+    const error: number = Math.max(
+      ...a.map((x: number, i: number): number => Math.abs(x - b[i]!)),
+    );
+    if (!(error <= limit) || a.length !== b.length)
+      failures.push(
+        `${label}: ${JSON.stringify(a)} against ${JSON.stringify(b)} (error ${error})`,
+      );
   };
 
   // 1: a made chain with a closed-form answer.
-  const quarter: IAutoMovieHumanSegmentFrame.M3 = [[0, -1, 0], [1, 0, 0], [0, 0, 1]];
+  const quarter: IAutoMovieHumanSegmentFrame.M3 = [
+    [0, -1, 0],
+    [1, 0, 0],
+    [0, 0, 1],
+  ];
   const made: IAutoMovieHumanSegmentFrame.IJoint[] = [
     { name: "root", parent: null, offset: [1, 2, 3], rotation: quarter },
     { name: "child", parent: "root", offset: [0, 10, 0], rotation: quarter },
   ];
-  const turned: IAutoMovieHumanSegmentFrame.IFrame = F.world(made, (): undefined => undefined).get("child")!;
+  const turned: IAutoMovieHumanSegmentFrame.IFrame = F.world(
+    made,
+    (): undefined => undefined,
+  ).get("child")!;
   near("made datum", F.toWorld(turned, [0, 5, 0]), [-9, -3, 3], 1e-12);
-  near("made direction", F.toWorldDirection(turned, [1, 0, 0]), [-1, 0, 0], 1e-12);
-  const straight: IAutoMovieHumanSegmentFrame.IFrame = F.world(made, (name: string): IAutoMovieHumanSegmentFrame.M3 | undefined => (name === "child" ? F.IDENTITY : undefined)).get("child")!;
-  near("made datum at zero", F.toWorld(straight, [0, 5, 0]), [-14, 2, 3], 1e-12);
+  near(
+    "made direction",
+    F.toWorldDirection(turned, [1, 0, 0]),
+    [-1, 0, 0],
+    1e-12,
+  );
+  const straight: IAutoMovieHumanSegmentFrame.IFrame = F.world(
+    made,
+    (name: string): IAutoMovieHumanSegmentFrame.M3 | undefined =>
+      name === "child" ? F.IDENTITY : undefined,
+  ).get("child")!;
+  near(
+    "made datum at zero",
+    F.toWorld(straight, [0, 5, 0]),
+    [-14, 2, 3],
+    1e-12,
+  );
 
   // 2: the reference pose returns step 1's stored world values.
   const points: [string, AutoMovieVector3Tuple][] = [
-    ["upperarm", [-16.33, 1353.22, 142.22]], ["hand", [140.73, 993.53, 427.22]], ["index3", [247.22, 907.85, 464.42]], ["thumbPad", [249.23, 931.95, 420.01]],
-    ["calf", [16.32, 466.85, 117.13]], ["littletoe2", [131.85, 12.21, 201.42]], ["bigtoePad", [199.3, 12.53, 150.53]], ["footBall", [133, 20, 157]],
-    ["axisFloor", [0, 780, 0]], ["axisCrown", [0, 1705, 0]], ["armpit", [-25, 1276, 151]], ["armTurn", [-12, 1300, 203]],
-    ["helix.3", [6.56, 1598.26, 88.17]], ["plate.4", [7.5, 1605, 87]], ["antihelix.0", [6.2, 1559.8, 76.9]], ["conchaTip", [16.5, 1563, 54]],
-    ["noseTip", [140, 1556, 0]], ["nostrilRoot", [127.1, 1540.4, 7.7]], ["breastRoot", [97.4, 1258.41, 65.14]], ["breastTip", [134.64, 1261.94, 71.8]],
-    ["axilla.2", [-45, 1269.5, 151]], ["vault.1", [-1, 1276, 148.5]], ["breastFan", [99, 1245, 110]],
-    ["epicondyleMedial", [-2.48, 1114.56, 271.09]], ["styloidRadial", [163.58, 1001.55, 408.85]], ["femoralEpicondyleLateral", [5.64, 469.11, 160.68]],
-    ["pternion", [-45.89, 21.09, 133.97]], ["suprasternale", [43.15, 1415.5, 0]], ["nasion", [115.74, 1598.5, 0]], ["metacarpalBase", [161.12, 976.78, 438.87]], ["tragion", [21.55, 1563, 73.44]],
+    ["upperarm", [-16.33, 1353.22, 142.22]],
+    ["hand", [140.73, 993.53, 427.22]],
+    ["index3", [247.22, 907.85, 464.42]],
+    ["thumbPad", [249.23, 931.95, 420.01]],
+    ["calf", [16.32, 466.85, 117.13]],
+    ["littletoe2", [131.85, 12.21, 201.42]],
+    ["bigtoePad", [199.3, 12.53, 150.53]],
+    ["footBall", [133, 20, 157]],
+    ["axisFloor", [0, 780, 0]],
+    ["axisCrown", [0, 1705, 0]],
+    ["armpit", [-25, 1276, 151]],
+    ["armTurn", [-12, 1300, 203]],
+    ["helix.3", [6.56, 1598.26, 88.17]],
+    ["plate.4", [7.5, 1605, 87]],
+    ["antihelix.0", [6.2, 1559.8, 76.9]],
+    ["conchaTip", [16.5, 1563, 54]],
+    ["noseTip", [140, 1556, 0]],
+    ["nostrilRoot", [127.1, 1540.4, 7.7]],
+    ["breastRoot", [97.4, 1258.41, 65.14]],
+    ["breastTip", [134.64, 1261.94, 71.8]],
+    ["axilla.2", [-45, 1269.5, 151]],
+    ["vault.1", [-1, 1276, 148.5]],
+    ["breastFan", [99, 1245, 110]],
+    ["epicondyleMedial", [-2.48, 1114.56, 271.09]],
+    ["styloidRadial", [163.58, 1001.55, 408.85]],
+    ["femoralEpicondyleLateral", [5.64, 469.11, 160.68]],
+    ["pternion", [-45.89, 21.09, 133.97]],
+    ["suprasternale", [43.15, 1415.5, 0]],
+    ["nasion", [115.74, 1598.5, 0]],
+    ["metacarpalBase", [161.12, 976.78, 438.87]],
+    ["tragion", [21.55, 1563, 73.44]],
   ];
-  for (const [name, world] of points) near("reference " + name, P.point(name), world, 1e-12 * stature);
-  near("reference helix polyline", [P.points("helix").length, ...P.points("helix")[3]!], [11, 6.56, 1598.26, 88.17], 1e-12 * stature);
+  for (const [name, world] of points)
+    near("reference " + name, P.point(name), world, 1e-12 * stature);
+  near(
+    "reference helix polyline",
+    [P.points("helix").length, ...P.points("helix")[3]!],
+    [11, 6.56, 1598.26, 88.17],
+    1e-12 * stature,
+  );
   const directions: [string, AutoMovieVector3Tuple][] = [
-    ["trunk.up", [1, 0, 0]], ["arm.up", [0.9998, -0.0212, 0]], ["leg.up", [1, 0, 0]], ["plate.up", [0, 0, 1]], ["finger.thumb.up", [0, 1, 0]], ["toe.big.up", [0, 1, 0]], ["breast.up", [0, 1, 0]],
-    ["arm.hollow.1.axis", [-0.04203, 0.55821, 0.82864]], ["arm.fore.turn", [0.012288723763944992, -0.6332953114506825, -0.77381266192977]], ["leg.sole.axis", [0, 1, 0]],
-    ["trunk.chin.axis", [-0.70711, 0.70711, 0]], ["trunk.crotch.twin.turn", [-0.9128, 0, -0.4085]], ["nose.side.axis", [0, -1, 0]], ["leg.fan.up", [0, -1, 0]],
+    ["trunk.up", [1, 0, 0]],
+    ["arm.up", [0.9998, -0.0212, 0]],
+    ["leg.up", [1, 0, 0]],
+    ["plate.up", [0, 0, 1]],
+    ["finger.thumb.up", [0, 1, 0]],
+    ["toe.big.up", [0, 1, 0]],
+    ["breast.up", [0, 1, 0]],
+    ["arm.hollow.1.axis", [-0.04203, 0.55821, 0.82864]],
+    [
+      "arm.fore.turn",
+      [0.012288723763944992, -0.6332953114506825, -0.77381266192977],
+    ],
+    ["leg.sole.axis", [0, 1, 0]],
+    ["trunk.chin.axis", [-0.70711, 0.70711, 0]],
+    ["trunk.crotch.twin.turn", [-0.9128, 0, -0.4085]],
+    ["nose.side.axis", [0, -1, 0]],
+    ["leg.fan.up", [0, -1, 0]],
   ];
-  for (const [name, world] of directions) near("reference " + name, P.direction(name), world, 1e-12);
+  for (const [name, world] of directions)
+    near("reference " + name, P.direction(name), world, 1e-12);
 
   // 3: each course end is its rule's point.
-  near("handEnd rule", J.handEnd, J.toward(J.middle1, [[J.index1, J.index2], [J.middle1, J.middle2], [J.ring1, J.ring2], [J.pinky1, J.pinky2]], 40), 1e-12 * stature);
-  near("footEnd rule", J.footEnd, J.toward(J.footBall, [[J.bigtoe1, J.bigtoe2], [J.indextoe1, J.indextoe2], [J.middletoe1, J.middletoe2], [J.ringtoe1, J.ringtoe2], [J.littletoe1, J.littletoe2]], 40), 1e-12 * stature);
-  near("indexEnd rule", J.indexEnd, J.beyond(J.index3, J.indexPad, 4), 1e-12 * stature);
-  near("thumbEnd rule", J.thumbEnd, J.beyond(J.thumb3, J.thumbPad, 4), 1e-12 * stature);
-  near("bigtoeEnd rule", J.bigtoeEnd, J.beyond(J.bigtoe2, J.bigtoePad, 4), 1e-12 * stature);
-  near("littletoeEnd rule", J.littletoeEnd, J.beyond(J.littletoe2, J.littletoePad, 4), 1e-12 * stature);
+  near(
+    "handEnd rule",
+    J.handEnd,
+    J.toward(
+      J.middle1,
+      [
+        [J.index1, J.index2],
+        [J.middle1, J.middle2],
+        [J.ring1, J.ring2],
+        [J.pinky1, J.pinky2],
+      ],
+      40,
+    ),
+    1e-12 * stature,
+  );
+  near(
+    "footEnd rule",
+    J.footEnd,
+    J.toward(
+      J.footBall,
+      [
+        [J.bigtoe1, J.bigtoe2],
+        [J.indextoe1, J.indextoe2],
+        [J.middletoe1, J.middletoe2],
+        [J.ringtoe1, J.ringtoe2],
+        [J.littletoe1, J.littletoe2],
+      ],
+      40,
+    ),
+    1e-12 * stature,
+  );
+  near(
+    "indexEnd rule",
+    J.indexEnd,
+    J.beyond(J.index3, J.indexPad, 4),
+    1e-12 * stature,
+  );
+  near(
+    "thumbEnd rule",
+    J.thumbEnd,
+    J.beyond(J.thumb3, J.thumbPad, 4),
+    1e-12 * stature,
+  );
+  near(
+    "bigtoeEnd rule",
+    J.bigtoeEnd,
+    J.beyond(J.bigtoe2, J.bigtoePad, 4),
+    1e-12 * stature,
+  );
+  near(
+    "littletoeEnd rule",
+    J.littletoeEnd,
+    J.beyond(J.littletoe2, J.littletoePad, 4),
+    1e-12 * stature,
+  );
 
   // 4: a parent's rotation moves its children exactly and nothing else.
-  const chain: Map<string, IAutoMovieHumanSegmentFrame.IJoint> = new Map(T.CHAIN.map((joint: IAutoMovieHumanSegmentFrame.IJoint): [string, IAutoMovieHumanSegmentFrame.IJoint] => [joint.name, joint]));
+  const chain: Map<string, IAutoMovieHumanSegmentFrame.IJoint> = new Map(
+    T.CHAIN.map(
+      (
+        joint: IAutoMovieHumanSegmentFrame.IJoint,
+      ): [string, IAutoMovieHumanSegmentFrame.IJoint] => [joint.name, joint],
+    ),
+  );
   const under = (segment: string, ancestor: string): boolean => {
-    for (let at: string | null = segment; at !== null; at = chain.get(at)!.parent) if (at === ancestor) return true;
+    for (
+      let at: string | null = segment;
+      at !== null;
+      at = chain.get(at)!.parent
+    )
+      if (at === ancestor) return true;
     return false;
   };
-  const posed: Record<string, IAutoMovieHumanSegmentFrame.M3> = { forearm: F.multiply(F.about(2, 0.7), F.about(0, -0.4)), femur: F.multiply(F.about(0, 0.3), F.about(1, 0.5)) };
-  const pose: IAutoMovieHumanF1Placement.IPose = (name: string): IAutoMovieHumanSegmentFrame.M3 | undefined => posed[name];
+  const posed: Record<string, IAutoMovieHumanSegmentFrame.M3> = {
+    forearm: F.multiply(F.about(2, 0.7), F.about(0, -0.4)),
+    femur: F.multiply(F.about(0, 0.3), F.about(1, 0.5)),
+  };
+  const pose: IAutoMovieHumanF1Placement.IPose = (
+    name: string,
+  ): IAutoMovieHumanSegmentFrame.M3 | undefined => posed[name];
   const frames: IAutoMovieHumanF1Placement.IFrames = P.frames(pose);
   // The rigid motion of everything past a turned joint: about the joint's centre by Q = A_p R' R^T A_p^T, A_p the parent's reference axes.
-  const motion = (joint: string): ((p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple) & { turn: (d: AutoMovieVector3Tuple) => AutoMovieVector3Tuple } => {
-    const parent: IAutoMovieHumanSegmentFrame.M3 = F.matrix(P.frame(chain.get(joint)!.parent!));
-    const q: IAutoMovieHumanSegmentFrame.M3 = F.multiply(F.multiply(parent, F.multiply(posed[joint]!, F.transpose(chain.get(joint)!.rotation))), F.transpose(parent));
+  const motion = (
+    joint: string,
+  ): ((p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple) & {
+    turn: (d: AutoMovieVector3Tuple) => AutoMovieVector3Tuple;
+  } => {
+    const parent: IAutoMovieHumanSegmentFrame.M3 = F.matrix(
+      P.frame(chain.get(joint)!.parent!),
+    );
+    const q: IAutoMovieHumanSegmentFrame.M3 = F.multiply(
+      F.multiply(
+        parent,
+        F.multiply(posed[joint]!, F.transpose(chain.get(joint)!.rotation)),
+      ),
+      F.transpose(parent),
+    );
     const centre: AutoMovieVector3Tuple = P.frame(joint).origin;
-    return Object.assign((p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => F.add(centre, F.multiplyVector(q, F.sub(p, centre))), { turn: (d: AutoMovieVector3Tuple): AutoMovieVector3Tuple => F.multiplyVector(q, d) });
+    return Object.assign(
+      (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple =>
+        F.add(centre, F.multiplyVector(q, F.sub(p, centre))),
+      {
+        turn: (d: AutoMovieVector3Tuple): AutoMovieVector3Tuple =>
+          F.multiplyVector(q, d),
+      },
+    );
   };
-  const [elbow, hip]: (((p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple) & { turn: (d: AutoMovieVector3Tuple) => AutoMovieVector3Tuple })[] = [motion("forearm"), motion("femur")];
+  const [elbow, hip]: (((p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple) & {
+    turn: (d: AutoMovieVector3Tuple) => AutoMovieVector3Tuple;
+  })[] = [motion("forearm"), motion("femur")];
   let moved: number = 0;
   for (const [name, placed] of Object.entries(T.POINTS)) {
     const reference: AutoMovieVector3Tuple = P.point(name);
     const got: AutoMovieVector3Tuple = P.point(name, frames);
-    if (under(placed.frame, "forearm")) near("posed " + name, got, elbow!(reference), 1e-12 * stature);
-    else if (under(placed.frame, "femur")) near("posed " + name, got, hip!(reference), 1e-12 * stature);
+    if (under(placed.frame, "forearm"))
+      near("posed " + name, got, elbow!(reference), 1e-12 * stature);
+    else if (under(placed.frame, "femur"))
+      near("posed " + name, got, hip!(reference), 1e-12 * stature);
     else near("unmoved " + name, got, reference, 0);
     if (under(placed.frame, "forearm") || under(placed.frame, "femur")) ++moved;
-    near("local " + name, F.toLocal(P.frame(placed.frame, frames), got), placed.local, 1e-12 * stature);
+    near(
+      "local " + name,
+      F.toLocal(P.frame(placed.frame, frames), got),
+      placed.local,
+      1e-12 * stature,
+    );
   }
-  near("points past the elbow or the hip", [moved > 40 ? 1 : 0, moved < Object.keys(T.POINTS).length - 40 ? 1 : 0], [1, 1], 0);
-  near("the elbow's turn moves the wrist", [Math.hypot(...F.sub(P.point("hand", frames), P.point("hand"))) > 100 ? 1 : 0], [1], 0);
+  near(
+    "points past the elbow or the hip",
+    [moved > 40 ? 1 : 0, moved < Object.keys(T.POINTS).length - 40 ? 1 : 0],
+    [1, 1],
+    0,
+  );
+  near(
+    "the elbow's turn moves the wrist",
+    [
+      Math.hypot(...F.sub(P.point("hand", frames), P.point("hand"))) > 100
+        ? 1
+        : 0,
+    ],
+    [1],
+    0,
+  );
 
   // 5: the reference assembly is the stored modules, and no section table is copied.
   const reference: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
-  const modules: Map<string, IAutoMovieHumanConicLoft.IFamily> = new Map([...AutoMovieHumanF1.FAMILIES, ...AutoMovieHumanF1.CUTTERS].map((member: { family: IAutoMovieHumanConicLoft.IFamily }): [string, IAutoMovieHumanConicLoft.IFamily] => [member.family.name, member.family]));
+  const modules: Map<string, IAutoMovieHumanConicLoft.IFamily> = new Map(
+    [...AutoMovieHumanF1.FAMILIES, ...AutoMovieHumanF1.CUTTERS].map(
+      (member: {
+        family: IAutoMovieHumanConicLoft.IFamily;
+      }): [string, IAutoMovieHumanConicLoft.IFamily] => [
+        member.family.name,
+        member.family,
+      ],
+    ),
+  );
   near("assembled families", [reference.families.length], [modules.size], 0);
   for (const family of reference.families) {
-    const source: IAutoMovieHumanConicLoft.IFamily | undefined = modules.get(family.name);
+    const source: IAutoMovieHumanConicLoft.IFamily | undefined = modules.get(
+      family.name,
+    );
     if (source === undefined) {
       failures.push(`assembled ${family.name}: not a stored family`);
       continue;
     }
-    near(family.name + " centres", family.centres.flat(), source.centres.flat(), 0);
+    near(
+      family.name + " centres",
+      family.centres.flat(),
+      source.centres.flat(),
+      0,
+    );
     near(family.name + " up", family.up, source.up, 0);
-    if (family.knots !== source.knots || family.values !== source.values || family.layout !== source.layout || family.halves !== source.halves) failures.push(`${family.name}: its section table is not the module's own`);
-    (family.reliefs ?? []).forEach((relief: NonNullable<IAutoMovieHumanConicLoft.IFamily["reliefs"]>[number], i: number): void => {
-      const stored: NonNullable<IAutoMovieHumanConicLoft.IFamily["reliefs"]>[number] = source.reliefs![i]!;
-      near(relief.name + " axis", relief.axis, stored.axis, 0);
-      near(relief.name + " turn", relief.turn ?? [], stored.turn ?? [], 0);
-      if (relief.heights !== stored.heights || relief.stations !== stored.stations || relief.phases !== stored.phases) failures.push(`${relief.name}: its window or net is not the module's own`);
-    });
+    if (
+      family.knots !== source.knots ||
+      family.values !== source.values ||
+      family.layout !== source.layout ||
+      family.halves !== source.halves
+    )
+      failures.push(
+        `${family.name}: its section table is not the module's own`,
+      );
+    (family.reliefs ?? []).forEach(
+      (
+        relief: NonNullable<
+          IAutoMovieHumanConicLoft.IFamily["reliefs"]
+        >[number],
+        i: number,
+      ): void => {
+        const stored: NonNullable<
+          IAutoMovieHumanConicLoft.IFamily["reliefs"]
+        >[number] = source.reliefs![i]!;
+        near(relief.name + " axis", relief.axis, stored.axis, 0);
+        near(relief.name + " turn", relief.turn ?? [], stored.turn ?? [], 0);
+        if (
+          relief.heights !== stored.heights ||
+          relief.stations !== stored.stations ||
+          relief.phases !== stored.phases
+        )
+          failures.push(
+            `${relief.name}: its window or net is not the module's own`,
+          );
+      },
+    );
   }
 
   // 6: the assembly at the pose of scenario 4.
-  const assembled: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble(pose);
-  const finger = (assembly: IAutoMovieHumanF1.IAssembly): IAutoMovieHumanConicLoft.IFamily => assembly.digits.find((digit: IAutoMovieHumanF1.IDigit): boolean => digit.family.name === "finger.index")!.family;
-  near("posed finger course", finger(assembled).centres.flat(), finger(reference).centres.flatMap((p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => elbow!(p)), 1e-12 * stature);
-  near("posed finger up", finger(assembled).up, elbow!.turn(finger(reference).up), 1e-12);
-  const fore = (assembly: IAutoMovieHumanF1.IAssembly): AutoMovieVector3Tuple => assembly.body.arm.reliefs!.find((relief: { name: string }): boolean => relief.name === "arm.fore")!.axis;
-  near("posed forearm relief axis", fore(assembled), elbow!.turn(fore(reference)), 1e-12);
-  near("posed leg course", assembled.body.leg.centres.slice(1).flat(), reference.body.leg.centres.slice(1).flatMap((p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => hip!(p)), 1e-12 * stature);
-  near("posed leg up", assembled.body.leg.up, hip!.turn(reference.body.leg.up), 1e-12);
-  near("unmoved trunk course", assembled.body.trunk.centres.flat(), reference.body.trunk.centres.flat(), 0);
-  near("unmoved breast course", assembled.body.breast.centres.flat(), reference.body.breast.centres.flat(), 0);
-  near("unmoved shoulder course", assembled.body.arm.centres.slice(0, 2).flat(), reference.body.arm.centres.slice(0, 2).flat(), 0);
-  if (assembled.body.arm.values !== reference.body.arm.values || assembled.body.arm.layout !== reference.body.arm.layout) failures.push("the posed arm's section values are not the module's own");
+  const assembled: IAutoMovieHumanF1.IAssembly =
+    AutoMovieHumanF1.assemble(pose);
+  const finger = (
+    assembly: IAutoMovieHumanF1.IAssembly,
+  ): IAutoMovieHumanConicLoft.IFamily =>
+    assembly.digits.find(
+      (digit: IAutoMovieHumanF1.IDigit): boolean =>
+        digit.family.name === "finger.index",
+    )!.family;
+  near(
+    "posed finger course",
+    finger(assembled).centres.flat(),
+    finger(reference).centres.flatMap(
+      (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => elbow!(p),
+    ),
+    1e-12 * stature,
+  );
+  near(
+    "posed finger up",
+    finger(assembled).up,
+    elbow!.turn(finger(reference).up),
+    1e-12,
+  );
+  const fore = (assembly: IAutoMovieHumanF1.IAssembly): AutoMovieVector3Tuple =>
+    assembly.body.arm.reliefs!.find(
+      (relief: { name: string }): boolean => relief.name === "arm.fore",
+    )!.axis;
+  near(
+    "posed forearm relief axis",
+    fore(assembled),
+    elbow!.turn(fore(reference)),
+    1e-12,
+  );
+  near(
+    "posed leg course",
+    assembled.body.leg.centres.slice(1).flat(),
+    reference.body.leg.centres
+      .slice(1)
+      .flatMap((p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => hip!(p)),
+    1e-12 * stature,
+  );
+  near(
+    "posed leg up",
+    assembled.body.leg.up,
+    hip!.turn(reference.body.leg.up),
+    1e-12,
+  );
+  near(
+    "unmoved trunk course",
+    assembled.body.trunk.centres.flat(),
+    reference.body.trunk.centres.flat(),
+    0,
+  );
+  near(
+    "unmoved breast course",
+    assembled.body.breast.centres.flat(),
+    reference.body.breast.centres.flat(),
+    0,
+  );
+  near(
+    "unmoved shoulder course",
+    assembled.body.arm.centres.slice(0, 2).flat(),
+    reference.body.arm.centres.slice(0, 2).flat(),
+    0,
+  );
+  if (
+    assembled.body.arm.values !== reference.body.arm.values ||
+    assembled.body.arm.layout !== reference.body.arm.layout
+  )
+    failures.push("the posed arm's section values are not the module's own");
   let refused: boolean = false;
   try {
-    P.place({ ...reference.body.arm, centres: reference.body.arm.centres.slice(1) });
+    P.place({
+      ...reference.body.arm,
+      centres: reference.body.arm.centres.slice(1),
+    });
   } catch {
     refused = true;
   }
@@ -156,10 +452,30 @@ export function test_human_f1_placement(): void {
 
   // 7: the twin is the reflection of the placed side.
   const flip = (p: readonly number[]): number[] => [p[0]!, p[1]!, -p[2]!];
-  for (const [name, placed] of Object.entries(T.POINTS)) near("twin " + name, F.toWorld(F.mirror(P.frame(placed.frame, frames)), flip(placed.local) as AutoMovieVector3Tuple), flip(P.point(name, frames)), 1e-12 * stature);
-  const twin: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanConicLoft.mirror(assembled.body.arm, "arm.mirror");
-  near("twin course", twin.centres.flat(), assembled.body.arm.centres.flatMap(flip), 0);
+  for (const [name, placed] of Object.entries(T.POINTS))
+    near(
+      "twin " + name,
+      F.toWorld(
+        F.mirror(P.frame(placed.frame, frames)),
+        flip(placed.local) as AutoMovieVector3Tuple,
+      ),
+      flip(P.point(name, frames)),
+      1e-12 * stature,
+    );
+  const twin: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanConicLoft.mirror(
+    assembled.body.arm,
+    "arm.mirror",
+  );
+  near(
+    "twin course",
+    twin.centres.flat(),
+    assembled.body.arm.centres.flatMap(flip),
+    0,
+  );
   near("twin up", twin.up, flip(assembled.body.arm.up), 0);
 
-  if (failures.length > 0) throw new Error(`f1 placement: ${failures.length} finding(s):\n${failures.join("\n")}`);
+  if (failures.length > 0)
+    throw new Error(
+      `f1 placement: ${failures.length} finding(s):\n${failures.join("\n")}`,
+    );
 }

@@ -29,13 +29,14 @@ export interface IAutoMovieRasterComparison {
    * Smallest box holding every changed pixel, in inclusive pixel coordinates
    * from the top-left corner, or null when no pixel changed.
    */
-  bounds: { 
-/** Inclusive leftmost changed pixel column, from zero. */
-left: number; 
-/** Inclusive topmost changed pixel row, from zero. */
-top: number; 
-/** Inclusive rightmost changed pixel column. */
-right: number; 
-/** Inclusive bottommost changed pixel row. */
-bottom: number } | null;
+  bounds: {
+    /** Inclusive leftmost changed pixel column, from zero. */
+    left: number;
+    /** Inclusive topmost changed pixel row, from zero. */
+    top: number;
+    /** Inclusive rightmost changed pixel column. */
+    right: number;
+    /** Inclusive bottommost changed pixel row. */
+    bottom: number;
+  } | null;
 }

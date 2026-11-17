@@ -1,5 +1,3 @@
-
-
 /**
  * The index range one assembly member occupies in a merged mesh, the material
  * group that lets one draw call still say which triangles belong to which

@@ -1,11 +1,13 @@
-import type { IAutoMovieRecoveryResectionDesign, IAutoMovieRecoveryResectionDesignTrace, IAutoMovieRecoveryCameraMapBudget, IAutoMovieRecoveryCameraMapPolicy } from "@automovie/interface";
 import {
   AutoMovieMatrix3,
-  decomposeAutoMovieSingularMatrix } from "@automovie/engine";
-
-
-
-
+  decomposeAutoMovieSingularMatrix,
+} from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryCameraMapBudget,
+  IAutoMovieRecoveryCameraMapPolicy,
+  IAutoMovieRecoveryResectionDesign,
+  IAutoMovieRecoveryResectionDesignTrace,
+} from "@automovie/interface";
 
 /**
  * Initialize a calibrated nonplanar resection from at least six 3D/pixel pairs.
@@ -48,7 +50,8 @@ export function fitRecoveryResectionDesign(
   const options: Parameters<typeof decomposeAutoMovieSingularMatrix>[1] = {
     maxEntries: budget.maxLinearEntries,
     maxSweeps: budget.maxSingularSweeps,
-    orthogonalityTolerance: 1e-12 };
+    orthogonalityTolerance: 1e-12,
+  };
   if (trace) trace.stage = "normalization";
   const centroid: number[] = [0, 0, 0];
   const rays: [number, number][] = pixels.map(
@@ -249,7 +252,8 @@ export function fitRecoveryResectionDesign(
     if ([...rotation, ...translation].every(Number.isFinite))
       trace.projectedPose = {
         rotation: rotation.slice(),
-        translation: [...translation] };
+        translation: [...translation],
+      };
   }
   if (
     !(scale > 0) ||
@@ -264,5 +268,6 @@ export function fitRecoveryResectionDesign(
     pose: { rotation, translation },
     designRatio,
     nullRatio,
-    projectionError };
+    projectionError,
+  };
 }

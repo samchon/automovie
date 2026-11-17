@@ -5,14 +5,14 @@ import type { IAutoMovieServiceNetwork } from "./IAutoMovieServiceNetwork";
 export namespace IAutoMovieValidateWetZones {
   /**
    * Typed wet-zone declarations checked against building boundaries and service drain nodes.
-   * 
+   *
    * This is the half of building services a frame is worst at showing. A tiled
    * room with a gully in it renders identically whether the membrane reaches the
    * walls or stops at the screed, whether the floor falls toward the gully or
    * away from it, and whether the sleeve carrying a pipe through the tanking was
    * made good. Those are the facts a leak is found in, so they are stated and
    * checked here rather than inferred from a look.
-   * 
+   *
    * The zone owns no geometry of its own on purpose. Its extent is the
    * architecture's logical space, its membrane is that space's own boundaries,
    * and its drains are the service network's nodes, so a zone can disagree with

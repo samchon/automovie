@@ -1,4 +1,5 @@
 import type { IAutoMovieLoftViewRead } from "./IAutoMovieLoftViewRead";
+
 /**
  * Complete endpoint generating data after orientation into the receiving station/phase chart.
  *
@@ -11,11 +12,12 @@ import type { IAutoMovieLoftViewRead } from "./IAutoMovieLoftViewRead";
  */
 export type IAutoMovieLoftSectionSourceFamily =
   | {
-  /** Selects the complete native scalar family already oriented into the receiving layer's station/phase chart. */
-  kind: "native";
+      /** Selects the complete native scalar family already oriented into the receiving layer's station/phase chart. */
+      kind: "native";
 
-  /** Four extent and four shoulder jets in cyclic +u,+v,-u,-v order, each [value, first physical-station derivative, second physical-station derivative]. Extent units are mm, mm/mm, 1/mm; shoulder units are unitless, 1/mm, 1/mm². bind requires dense finite triples, positive extent values and shoulder values strictly between zero and one. These triples are scalar jets, not spatial vectors. */
-  inputs: IAutoMovieLoftViewRead.IJets }
+      /** Four extent and four shoulder jets in cyclic +u,+v,-u,-v order, each [value, first physical-station derivative, second physical-station derivative]. Extent units are mm, mm/mm, 1/mm; shoulder units are unitless, 1/mm, 1/mm². bind requires dense finite triples, positive extent values and shoulder values strictly between zero and one. These triples are scalar jets, not spatial vectors. */
+      inputs: IAutoMovieLoftViewRead.IJets;
+    }
   | {
       /** Selects a complete periodic spline family already oriented into the receiving layer's station/phase chart. */
       kind: "basis";

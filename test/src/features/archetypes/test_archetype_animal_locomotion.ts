@@ -36,13 +36,14 @@ interface ICase {
   table: QuadrupedGait.ITable;
 }
 
-/** Compare declared carried contacts/equipment with the actual head's independently observed rigid displacement. */
+/** Compare real equipment with its chosen head or trunk's independently observed rigid displacement. */
 function carried<Id extends string, D extends string>(
   animal: Archetype<Id, D | QuadrupedBody.Dimension>,
   speed: number,
   contacts: readonly Id[],
   parts: readonly string[],
   findings: string[],
+  carrier: "head" | "trunk" = "head",
 ): void {
   const table: QuadrupedGait.ITable = QuadrupedLocomotion.admit(
     createQuadruped.species(animal).table,
@@ -52,10 +53,10 @@ function carried<Id extends string, D extends string>(
     rideQuadruped<Id, D>(animal, fixture.course(speed), "walk", table);
   const sample: ReturnType<typeof ride.at> = ride.at(1.137);
   const rest: IAutoMovieTransform = animal.parts.find(
-    (part: IAutoMovieModelPart): boolean => part.id === "head",
+    (part: IAutoMovieModelPart): boolean => part.id === carrier,
   )!.transform!;
   const posed: IAutoMovieTransform = sample.archetype.parts.find(
-    (part: IAutoMovieModelPart): boolean => part.id === "head",
+    (part: IAutoMovieModelPart): boolean => part.id === carrier,
   )!.transform!;
   const change: IAutoMovieQuaternion = Quaternion.multiply(posed.rotation, {
     x: -rest.rotation.x,
@@ -63,9 +64,21 @@ function carried<Id extends string, D extends string>(
     z: -rest.rotation.z,
     w: rest.rotation.w,
   });
-  if (Math.abs(change.w) >= 1 - 1e-8)
+  const headBefore: IAutoMovieTransform = animal.parts.find(
+    (part: IAutoMovieModelPart): boolean => part.id === "head",
+  )!.transform!;
+  const headAfter: IAutoMovieTransform = sample.archetype.parts.find(
+    (part: IAutoMovieModelPart): boolean => part.id === "head",
+  )!.transform!;
+  const nod: IAutoMovieQuaternion = Quaternion.multiply(
+    headAfter.rotation,
+    Quaternion.inverse(headBefore.rotation),
+  );
+  if (Math.abs(nod.w) >= 1 - 1e-8)
     findings.push(`${animal.archetype}: the authored nonzero nod was lost`);
-  const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+  const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 =>
     Vector3.add(
       posed.translation,
       Quaternion.rotateVector(
@@ -86,7 +99,7 @@ function carried<Id extends string, D extends string>(
     );
     fixture.near(
       findings,
-      `${animal.archetype}/${id} head-carried point`,
+      `${animal.archetype}/${id} ${carrier}-carried point`,
       Vector3.length(
         Vector3.subtract(actual.translation, expected.translation),
       ),
@@ -95,7 +108,7 @@ function carried<Id extends string, D extends string>(
     );
     fixture.near(
       findings,
-      `${animal.archetype}/${id} head-carried rotation`,
+      `${animal.archetype}/${id} ${carrier}-carried rotation`,
       Vector3.length(
         Vector3.subtract(
           Quaternion.rotateVector(actual.rotation, { x: 0, y: 1, z: 0 }),
@@ -132,7 +145,7 @@ function carried<Id extends string, D extends string>(
     )!;
     fixture.near(
       findings,
-      `${animal.archetype}/${id} shares head carriage`,
+      `${animal.archetype}/${id} shares ${carrier} carriage`,
       Vector3.length(
         Vector3.subtract(
           actual.transform!.translation,
@@ -148,17 +161,23 @@ function carried<Id extends string, D extends string>(
 /**
  * Actual camel/deer consumers run authored faster cycles through the common ride.
  *
- * Scenarios cover pace at 3 m/s with a 1 s cycle, trot at 2 m/s with a 0.6 s
- * cycle, rotary gallop at 4 m/s with a 0.5 s cycle, both leads and all four feet.
- * A second pace independently shortens hind support from 0.45 to 0.35 s;
- * a two-row authored interval is also ridden at its independent midpoint.
+ * Scenarios:
+ * 1. Pace at 3 m/s has a 1 s cycle, trot at 2 m/s a 0.6 s cycle and rotary
+ *    gallop at 4 m/s a 0.5 s cycle, on both leads and with all four feet.
+ * 2. A second pace independently shortens hind support from 0.45 to 0.35 s;
+ *    a two-row authored interval is ridden at its independent midpoint.
+ * 3. Distal joints remain planted while complete actual terminal solids touch
+ *    ground, then their entire soles clear it during their own swing intervals.
+ * 4. A separately authored nod carries real head equipment and contacts; pack
+ *    bearings and their frame links share the actual trunk displacement.
+ *
  * These are authored prototype clocks and construction phases, not empirical
  * dromedary/sika timing or proof of anatomical ROM, skin contact or dynamics.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists actual consumers, authored SI clocks, lead/phase cases, separate support durations, physical endpoint assertions and unverified biological fidelity.
- * @evidence contracts/development/testing.md#behavioral-verification Calls real factories and the four-argument shared ride, reads actual published landings and transformed lower-bar endpoints, and detects wrong periods, diagonal/lateral confusion, rotary lead errors, sliding support or missing swing.
- * @evidence contracts/development/testing.md#independent-expectations Caller literals supply periods and stance seconds. The specified pace pairs same-side feet, trot pairs diagonals and the authored rotary order is LH→RH→RF→LF with opposite leading sides; right-lead fractions are stated independently. A planted point remains fixed within the existing 1 mm contact contract and a swinging endpoint clears that bound.
- * @evidence contracts/development/testing.md#distinguishing-cases Three faster gaits, two leads, four actual feet, distinct fore/hind release times and nonzero world translation/yaw distinguish correct physical timing from metadata alone; malformed inputs and mutation isolation have separate test files.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists actual consumers, authored SI clocks, lead/phase cases, separate support durations, endpoint no-slip versus complete-solid floor assertions and unverified biological fidelity.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls real factories and the four-argument shared ride, reads actual published landings, transformed lower-bar endpoints and exact terminal cylinder/capsule supports, detecting wrong clocks/order, sliding support, buried rims or missing complete-solid swing clearance. Actual head/trunk transforms independently predict equipment and bearing carriage.
+ * @evidence contracts/development/testing.md#independent-expectations Caller literals supply periods and stance seconds. The specified pace pairs same-side feet, trot pairs diagonals and the authored rotary order is LH→RH→RF→LF with opposite leading sides; right-lead fractions are stated independently. A planted endpoint remains fixed within the existing 1 mm contract. The complete primitive's analytic support touches floor zero in stance and clears it in swing at that same bound; its distal cap centre is not the sole.
+ * @evidence contracts/development/testing.md#distinguishing-cases Three faster gaits, two leads, four actual feet, distinct fore/hind release times and nonzero world translation/yaw distinguish correct physical timing from metadata alone; new yoke and pack bearing paths distinguish head and trunk ownership; malformed inputs and mutation isolation have separate test files.
  * @evidence contracts/development/testing.md#execution-ownership This exported synchronous unit owns finite in-memory models and six-second plans; it launches no renderer, host, compiler or external process and changes no registry or method.
  */
 export function test_archetype_animal_locomotion(): void {
@@ -297,14 +316,26 @@ export function test_archetype_animal_locomotion(): void {
           0,
           1e-3,
         );
-        fixture.near(findings, `${label} ${limb} ground`, early.y, 0, 1e-3);
-        fixture.near(findings, `${label} ${limb} late ground`, late.y, 0, 1e-3);
-        const swing: IAutoMovieVector3 = fixture.foot(
+        fixture.near(
+          findings,
+          `${label} ${limb} whole solid ground`,
+          fixture.sole(ride, limb, landing.seconds + 0.173 * stance),
+          0,
+          1e-3,
+        );
+        fixture.near(
+          findings,
+          `${label} ${limb} late whole solid ground`,
+          fixture.sole(ride, limb, landing.seconds + 0.811 * stance),
+          0,
+          1e-3,
+        );
+        const swing: number = fixture.sole(
           ride,
           limb,
           landing.seconds + stance + (item.clock.stride - stance) / 2,
         );
-        if (!(swing.y > 1e-3))
+        if (!(swing > 1e-3))
           findings.push(
             `${label}: ${limb} did not clear the floor after its own support`,
           );
@@ -312,13 +343,13 @@ export function test_archetype_animal_locomotion(): void {
           item.clock.hindStance !== item.clock.foreStance &&
           limb.endsWith("Hind")
         ) {
-          const released: IAutoMovieVector3 = fixture.foot(
+          const released: number = fixture.sole(
             ride,
             limb,
             landing.seconds +
               (item.clock.foreStance + item.clock.hindStance) / 2,
           );
-          if (!(released.y > 1e-3))
+          if (!(released > 1e-3))
             findings.push(`${label}: ${limb} retained the longer fore stance`);
         }
       }
@@ -349,6 +380,37 @@ export function test_archetype_animal_locomotion(): void {
     ["lead"],
     ["collar", "lead"],
     findings,
+  );
+  carried(
+    createCamel(
+      {
+        ...createCamel.REFERENCE,
+        tempo: 0,
+        equipment: {
+          pack: {
+            length: 0.45,
+            width: 0.2,
+            thickness: 0.06,
+            railRadius: 0.02,
+            clearance: 0.01,
+            hook: { radius: 0.008, opening: 0.1, depth: 0.05 },
+          },
+        },
+      },
+      73,
+    ),
+    1.08,
+    ["leftLoad", "rightLoad"],
+    [
+      "pack-left-bearing",
+      "pack-left-bearing-link--1",
+      "pack-left-bearing-link-1",
+      "pack-right-bearing",
+      "pack-right-bearing-link--1",
+      "pack-right-bearing-link-1",
+    ],
+    findings,
+    "trunk",
   );
   const bare: ReturnType<typeof createOx> = createOx(
     { ...createOx.REFERENCE, tempo: 0, lead },
@@ -385,6 +447,8 @@ export function test_archetype_animal_locomotion(): void {
       "collar",
       "lead",
       "yoke-beam",
+      "yoke-bearing",
+      "yoke-bearing-link",
       "yoke-hitch-link",
       "yoke-hitch-base",
       "yoke-hitch-upright--1",

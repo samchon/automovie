@@ -1,6 +1,12 @@
-import type { IAutoMovieMeshCrossing, IAutoMovieModelCrossing, IAutoMovieMeasureModelCrossings, IAutoMovieMesh, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieMeasureModelCrossings,
+  IAutoMovieMesh,
+  IAutoMovieMeshCrossing,
+  IAutoMovieModel,
+  IAutoMovieModelCrossing,
+  IAutoMovieModelPart,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { autoMovieModelPartMatrices } from "../autoMovieModelPartMatrices";
 import { transformAutoMovieDrawingPoint } from "../drawing/transformAutoMovieDrawingPoint";

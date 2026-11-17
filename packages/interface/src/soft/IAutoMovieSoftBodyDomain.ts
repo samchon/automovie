@@ -73,7 +73,7 @@ export interface IAutoMovieSoftBodyDomain {
   /**
    * Whether the author is asking for contact of the body with itself.
    *
-   * On a cord, a one-wide lattice with `contact` declared, the solver keeps every two segments that share no particle apart by twice the cord's radius, with friction (a coil, a knot). Cloth on cloth is not evaluated: furnishing lowering reports the request as unsupported and returns the rest configuration, and a sheet with `contact` that asks for it is refused.
+   * On a cord, a one-wide lattice with `contact` declared, the solver projects detected nonadjacent segment penetrations toward twice the cord's radius and applies friction. The ordered discrete pass skips coincident closest points and does not rebuild its grid after each correction, so it does not guarantee pair separation or prevent tunnelling. Cloth on cloth is not evaluated: furnishing lowering reports the request as unsupported and returns the rest configuration, and a sheet with `contact` that asks for it is refused.
    */
   selfCollision: boolean;
 

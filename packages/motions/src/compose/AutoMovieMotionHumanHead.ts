@@ -1,4 +1,8 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanPrimitive } from "@automovie/interface";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanPrimitive,
+} from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanJoints } from "./AutoMovieMotionHumanJoints";

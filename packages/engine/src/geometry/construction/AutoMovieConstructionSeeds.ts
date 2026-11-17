@@ -1,4 +1,10 @@
-import type { IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieConstructionSeed, IAutoMovieSolidFoot, IAutoMovieSolidIntersection } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionSeed,
+  IAutoMovieSolidFoot,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";

@@ -1,4 +1,5 @@
 import type { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
+
 /**
  * Borrowed cubic generating boundary and its declared signed winding at one saved
  * physical section. Preparation preserves the curve reference and winding; later

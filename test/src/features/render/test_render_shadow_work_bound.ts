@@ -1,6 +1,17 @@
-import type { IAutoMovieRenderSubject, IAutoMovieLight, IAutoMovieModel, IAutoMovieRenderInventory, IAutoMovieRenderOwnerCost, IAutoMovieScene, IAutoMovieSceneEnvironment, IAutoMovieTransform } from "@automovie/interface";
-import { deriveAutoMovieSemanticMask, measureAutoMovieRenderInventory } from "@automovie/engine";
-
+import {
+  deriveAutoMovieSemanticMask,
+  measureAutoMovieRenderInventory,
+} from "@automovie/engine";
+import type {
+  IAutoMovieLight,
+  IAutoMovieModel,
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderOwnerCost,
+  IAutoMovieRenderSubject,
+  IAutoMovieScene,
+  IAutoMovieSceneEnvironment,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { BOX_TRIANGLES, boxModel } from "../internal/renderFixtures";

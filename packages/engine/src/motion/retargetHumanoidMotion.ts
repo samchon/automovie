@@ -1,6 +1,20 @@
-import { type IAutoMovieHumanoidRetargetProps, type IAutoMovieHumanoidRetargetResult, type IAutoMovieHumanoidRigCharacterization, type IAutoMovieRestFrame, type IAutoMovieResolvedBone, type IAutoMovieValidation, type IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieConstraintViolation, IAutoMovieJointAxes, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieProfileBinding, IAutoMovieSkeleton } from "@automovie/interface";
-
-
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieConstraintViolation,
+  type IAutoMovieHumanoidRetargetProps,
+  type IAutoMovieHumanoidRetargetResult,
+  type IAutoMovieHumanoidRigCharacterization,
+  IAutoMovieJointAxes,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieProfileBinding,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieRestFrame,
+  IAutoMovieSkeleton,
+  type IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { resolvePose } from "../kinematics/resolvePose";

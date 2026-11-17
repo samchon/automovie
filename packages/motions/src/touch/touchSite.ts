@@ -1,6 +1,11 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanTouchSite, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanTouchSite,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanVariationDraw } from "../compose/AutoMovieMotionHumanVariationDraw";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -22,7 +27,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No region is named and no body is special-cased; a negative radius is refused.
  */
 export namespace touchSite {
-
   /**
    * Fix a site for one plan.
    *
@@ -42,7 +46,10 @@ export namespace touchSite {
   export function of(
     context: Pick<IAutoMovieMotionHumanActionContext, "series">,
     site: IAutoMovieMotionHumanTouchSite.ISite,
-  ): (frame: IAutoMovieMotionHumanTouchSite.IFrame, shoulder: IAutoMovieVector3) => IAutoMovieMotionHumanTouchSite.IFrame {
+  ): (
+    frame: IAutoMovieMotionHumanTouchSite.IFrame,
+    shoulder: IAutoMovieVector3,
+  ) => IAutoMovieMotionHumanTouchSite.IFrame {
     if ("draw" in site) HumanBound.least("site.draw", site.draw, 0, "m");
     if ("rule" in site) HumanBound.least("site.within", site.within, 0, "m");
     const drawn: [number, number] =
@@ -52,7 +59,10 @@ export namespace touchSite {
             2,
           ) as [number, number])
         : [0, 0];
-    return (frame: IAutoMovieMotionHumanTouchSite.IFrame, shoulder: IAutoMovieVector3): IAutoMovieMotionHumanTouchSite.IFrame => {
+    return (
+      frame: IAutoMovieMotionHumanTouchSite.IFrame,
+      shoulder: IAutoMovieVector3,
+    ): IAutoMovieMotionHumanTouchSite.IFrame => {
       const n: IAutoMovieVector3 = frame.normal;
       const lay = (v: IAutoMovieVector3): IAutoMovieVector3 =>
         Vector3.subtract(v, Vector3.scale(n, Vector3.dot(v, n)));
@@ -113,7 +123,8 @@ export namespace touchSite {
     share: number,
   ): (seconds: number) => IAutoMovieVector3 {
     HumanBound.within("site.along", share, -0.5, 0.5);
-    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(subject);
+    const read: IAutoMovieMotionHumanActionContext.IProp =
+      context.prop(subject);
     const found: IAutoMovieAffordance | undefined = (
       read.prop.affordances ?? []
     ).find((affordance: IAutoMovieAffordance): boolean => affordance.id === id);

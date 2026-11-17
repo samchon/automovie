@@ -1,4 +1,10 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanWalkGait, IAutoMovieMotionHumanWalkParams } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanWalkGait,
+  IAutoMovieMotionHumanWalkParams,
+} from "@automovie/interface";
 
 import { HUMAN_ATTRIBUTE_EFFECTS } from "../ensemble/HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "../ensemble/HumanAttribute";
@@ -37,7 +43,9 @@ import { walkTempo } from "./walkTempo";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned plan holds its warps for as long as it is held.
  */
 export function walkClock(
-  context: IAutoMovieMotionHumanActionContext<Omit<IAutoMovieMotionHumanWalkParams, "pace">>,
+  context: IAutoMovieMotionHumanActionContext<
+    Omit<IAutoMovieMotionHumanWalkParams, "pace">
+  >,
   planned: IAutoMovieMotionHumanActionPlan,
   gait: IAutoMovieMotionHumanWalkGait,
 ): IAutoMovieMotionHumanActionPlan {
@@ -66,7 +74,8 @@ export function walkClock(
         );
 
   // A gait that draws its own tempo keeps its station by matching the slot's speed; a cadenced one keeps its count.
-  const station: IAutoMovieMotionHumanFormation.IStation | undefined = context.params.station;
+  const station: IAutoMovieMotionHumanFormation.IStation | undefined =
+    context.params.station;
   return station === undefined || gait.called === true
     ? tempo
     : walkStation(
@@ -96,7 +105,10 @@ export namespace walkClock {
    * @param gait The gait.
    * @returns The factor.
    */
-  export function weary(context: IAutoMovieMotionHumanActionContext, gait: IAutoMovieMotionHumanWalkGait): number {
+  export function weary(
+    context: IAutoMovieMotionHumanActionContext,
+    gait: IAutoMovieMotionHumanWalkGait,
+  ): number {
     return gait.called === true
       ? 1
       : HumanAttribute.effect(

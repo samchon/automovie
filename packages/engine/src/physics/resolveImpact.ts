@@ -1,6 +1,9 @@
-import { type AutoMovieImpactKind, type IAutoMovieImpact, type IAutoMovieImpactBodyState, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  type AutoMovieImpactKind,
+  type IAutoMovieImpact,
+  type IAutoMovieImpactBodyState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 

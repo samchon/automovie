@@ -1,6 +1,9 @@
-import type { IAutoMovieMotionHumanStrikingAim, IAutoMovieSuperposeMinimumJerk, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanStrikingAim,
+  IAutoMovieSuperposeMinimumJerk,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * How a strike follows its target: the goal planned at the launch from where
@@ -33,7 +36,6 @@ import { Vector3 } from "@automovie/engine";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's minimum-jerk unit and the interface vector.
  */
 export namespace StrikingAim {
-
   /**
    * The observation seconds of a strike: from the launch, one per step, up to
    * the last one whose correction still lasts its shortest duration.
@@ -50,7 +52,9 @@ export namespace StrikingAim {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function observations(timing: IAutoMovieMotionHumanStrikingAim.ITiming): number[] {
+  export function observations(
+    timing: IAutoMovieMotionHumanStrikingAim.ITiming,
+  ): number[] {
     if (!(timing.impact > timing.launch))
       throw new Error("A strike's contact comes after its launch");
     const last: number = timing.impact - timing.latency - timing.shortest;

@@ -1,4 +1,7 @@
-import { type IAutoMovieFootprint, IAutoMovieSurface } from "@automovie/interface";
+import {
+  type IAutoMovieFootprint,
+  IAutoMovieSurface,
+} from "@automovie/interface";
 
 import { footprintRing } from "./footprintRing";
 

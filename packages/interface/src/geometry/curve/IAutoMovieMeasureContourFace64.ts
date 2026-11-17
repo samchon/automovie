@@ -1,5 +1,3 @@
-
-
 /**
  * Independent source-space and published-space triangle degeneracy measurements.
  *

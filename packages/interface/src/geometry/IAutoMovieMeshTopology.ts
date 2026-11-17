@@ -1,5 +1,3 @@
-
-
 /**
  * What a mesh's triangle topology actually is, measured by
  * `inspectAutoMovieMeshTopology` rather than assumed.

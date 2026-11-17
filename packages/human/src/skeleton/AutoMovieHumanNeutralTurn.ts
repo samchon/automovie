@@ -1,8 +1,9 @@
-import type { AutoMovieQuaternionTuple, AutoMovieVector3Tuple, IAutoMovieHumanJointCentres, IAutoMovieHumanNeutralBody } from "@automovie/interface";
-
-
-
-
+import type {
+  AutoMovieQuaternionTuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanJointCentres,
+  IAutoMovieHumanNeutralBody,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
 
@@ -51,12 +52,18 @@ export namespace AutoMovieHumanNeutralTurn {
   }
 
   /** Dot product. */
-  export function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
+  export function dot(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
   /** Cross product a x b. */
-  export function cross(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  export function cross(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],
@@ -65,7 +72,10 @@ export namespace AutoMovieHumanNeutralTurn {
   }
 
   /** Distance between two points. */
-  export function length(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
+  export function length(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): number {
     return Math.hypot(...Math3D.sub(a, b));
   }
 
@@ -136,7 +146,9 @@ export namespace AutoMovieHumanNeutralTurn {
     const carried: AutoMovieVector3Tuple = Math3D.unit(
       perpendicular(Math3D.rotate(first, side), to),
     );
-    const wanted: AutoMovieVector3Tuple = Math3D.unit(perpendicular(toSide, to));
+    const wanted: AutoMovieVector3Tuple = Math3D.unit(
+      perpendicular(toSide, to),
+    );
     const angle: number = Math.atan2(
       dot(cross(carried, wanted), to),
       dot(carried, wanted),

@@ -1,5 +1,3 @@
-
-
 /**
  * Named text values a capture request is read from: a page address, a command line, or a component's props written as text.
  *

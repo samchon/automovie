@@ -1,15 +1,15 @@
-import type { IAutoMovieMotionHumanChainPosture } from "./IAutoMovieMotionHumanChainPosture";
+import type { IAutoMovieMotionHumanOperate } from "../affordance/IAutoMovieMotionHumanOperate";
+import type { IAutoMovieMotionHumanHandToFace } from "../daily/IAutoMovieMotionHumanHandToFace";
 import type { IAutoMovieMotionHumanDress } from "../dressing/IAutoMovieMotionHumanDress";
 import type { IAutoMovieMotionHumanGesture } from "../everyday/IAutoMovieMotionHumanGesture";
-import type { IAutoMovieMotionHumanHandToFace } from "../daily/IAutoMovieMotionHumanHandToFace";
 import type { IAutoMovieMotionHumanLook } from "../everyday/IAutoMovieMotionHumanLook";
-import type { IAutoMovieMotionHumanOperate } from "../affordance/IAutoMovieMotionHumanOperate";
 import type { IAutoMovieMotionHumanRest } from "../everyday/IAutoMovieMotionHumanRest";
-import type { IAutoMovieMotionHumanSelfAction } from "../touch/IAutoMovieMotionHumanSelfAction";
-import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";
 import type { IAutoMovieMotionHumanTypeText } from "../everyday/IAutoMovieMotionHumanTypeText";
 import type { IAutoMovieMotionHumanUseTool } from "../tasks/IAutoMovieMotionHumanUseTool";
 import type { IAutoMovieMotionHumanWipe } from "../tasks/IAutoMovieMotionHumanWipe";
+import type { IAutoMovieMotionHumanSelfAction } from "../touch/IAutoMovieMotionHumanSelfAction";
+import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";
+import type { IAutoMovieMotionHumanChainPosture } from "./IAutoMovieMotionHumanChainPosture";
 
 /**
  * The chain methods of the hands, the head and the eyes on the body's own

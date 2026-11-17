@@ -1,5 +1,3 @@
-
-
 /**
  * A ring's evaluated limit point and two dominant tangent directions.
  *
@@ -38,7 +36,7 @@ export namespace IAutoMovieSubdivisionRingEigenbasis {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller supplies an admitted ring with stable sharpness; fixed 512-step iteration has no independent convergence certificate and limitSubdivisionRing validates the resulting normal.
    * @evidence contracts/development/common.md#meaningful-documentation A ring's evaluated limit point and two dominant tangent directions. The result contains spatial xyz vectors in the ring's local metre frame, not eigenvector coefficients; tangents have arbitrary mask scale and are not unit normals.
    */
-  export type IResult = { 
+  export type IResult = {
     /**
      * New xyz point obtained by applying the dominant affine eigenmask to the input ring, in the ring's local metre frame.
      */
@@ -47,5 +45,6 @@ export namespace IAutoMovieSubdivisionRingEigenbasis {
     /**
      * Two new xyz vectors from zero-sum tangent masks, in local metre coordinates with arbitrary scale and sign; the limit-ring consumer crosses and orients them before normalization.
      */
-    tangents: number[][] };
+    tangents: number[][];
+  };
 }

@@ -1,16 +1,16 @@
 import type { IAutoMovieMotionHumanBrace } from "../everyday/IAutoMovieMotionHumanBrace";
-import type { IAutoMovieMotionHumanChainManual } from "./IAutoMovieMotionHumanChainManual";
 import type { IAutoMovieMotionHumanClinch } from "../grappling/IAutoMovieMotionHumanClinch";
-import type { IAutoMovieMotionHumanDefend } from "../striking/IAutoMovieMotionHumanDefend";
 import type { IAutoMovieMotionHumanFlinch } from "../reaction/IAutoMovieMotionHumanFlinch";
+import type { IAutoMovieMotionHumanKnockdown } from "../reaction/IAutoMovieMotionHumanKnockdown";
+import type { IAutoMovieMotionHumanPerturb } from "../reaction/IAutoMovieMotionHumanPerturb";
+import type { IAutoMovieMotionHumanStagger } from "../reaction/IAutoMovieMotionHumanStagger";
+import type { IAutoMovieMotionHumanDefend } from "../striking/IAutoMovieMotionHumanDefend";
 import type { IAutoMovieMotionHumanGuard } from "../striking/IAutoMovieMotionHumanGuard";
 import type { IAutoMovieMotionHumanKick } from "../striking/IAutoMovieMotionHumanKick";
 import type { IAutoMovieMotionHumanKnee } from "../striking/IAutoMovieMotionHumanKnee";
-import type { IAutoMovieMotionHumanKnockdown } from "../reaction/IAutoMovieMotionHumanKnockdown";
-import type { IAutoMovieMotionHumanPerturb } from "../reaction/IAutoMovieMotionHumanPerturb";
 import type { IAutoMovieMotionHumanPunch } from "../striking/IAutoMovieMotionHumanPunch";
-import type { IAutoMovieMotionHumanStagger } from "../reaction/IAutoMovieMotionHumanStagger";
 import type { IAutoMovieMotionHumanStep } from "../striking/IAutoMovieMotionHumanStep";
+import type { IAutoMovieMotionHumanChainManual } from "./IAutoMovieMotionHumanChainManual";
 
 /**
  * The chain methods of a fight and of what a force does to a body: the

@@ -1,8 +1,8 @@
+import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieAffordance } from "../../../model/IAutoMovieAffordance";
 import type { IAutoMovieMotionHumanProp } from "../perform/IAutoMovieMotionHumanProp";
 import type { IAutoMovieMotionHumanTouchEffector } from "./IAutoMovieMotionHumanTouchEffector";
-import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * The prop a hand holds as an action enters, in that hand's own frame: the

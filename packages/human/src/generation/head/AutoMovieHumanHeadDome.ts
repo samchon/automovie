@@ -1,9 +1,10 @@
-import type { IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanHeadDome, IAutoMovieHumanHeadDomeHost } from "@automovie/interface";
-
-
-
-
 import { AutoMovieViewAxis } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanHeadDome,
+  IAutoMovieHumanHeadDomeHost,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadDomeHost } from "./AutoMovieHumanHeadDomeHost";
 
@@ -32,12 +33,6 @@ import { AutoMovieHumanHeadDomeHost } from "./AutoMovieHumanHeadDomeHost";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned view owns bounded arrays and outline closures. No cache, figure, task or handle is retained globally.
  */
 export namespace AutoMovieHumanHeadDome {
-  
-
-  
-
-  
-
   /**
    * Attempt the actual caller once and optionally collect every sibling outcome.
    *
@@ -96,8 +91,6 @@ export namespace AutoMovieHumanHeadDome {
       return null;
     }
   }
-
-  
 
   /**
    * Layers of the sunk stem under the base.

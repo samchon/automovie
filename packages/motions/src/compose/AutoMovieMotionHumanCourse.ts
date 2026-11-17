@@ -1,10 +1,13 @@
-import type { IAutoMovieMotionHumanCourse, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Quaternion,
   Vector3,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanCourse,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanBalance } from "../everyday/HumanBalance";
 
 /**
@@ -53,7 +56,9 @@ export namespace AutoMovieMotionHumanCourse {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each knot starts from the previous knot's place moved by the centre's step, so two corrections suffice.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned closure holds one number per knot.
    */
-  export function solve(props: IAutoMovieMotionHumanCourse.IProps): (seconds: number) => number {
+  export function solve(
+    props: IAutoMovieMotionHumanCourse.IProps,
+  ): (seconds: number) => number {
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, props.yaw),
       { x: 0, y: 0, z: 1 },

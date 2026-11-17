@@ -1,5 +1,3 @@
-
-
 /**
  * One construction curve of a lofted chain, sampled as a polyline in metres by `sampleAutoMovieConstructionCurves`, so an inspection can draw the lines a form was built from over its skin.
  *
@@ -33,14 +31,14 @@ export interface IAutoMovieConstructionCurve {
 /** Data and callback contracts shared by the ConstructionCurve operations. */
 export namespace IAutoMovieConstructionCurve {
   /**
-     * The construction lines `sampleAutoMovieConstructionCurves` tells apart.
-     *
-     * `section` is a closed ring at one principal layer station, `guide` an open rail along the stations at one of the four quarter phases, and `axis` the open line through the centroids of the sampled rings.
-     *
-     * @evidence contracts/development/design.md#principled-representation A closed union of the three roles a lofted chain's construction lines play, so a consumer's switch over it is exhaustive and no other string can be written.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Owned with `IAutoMovieConstructionCurve`; the producer writes each literal and the viewer's inspection instrument maps each to a colour and a legend entry.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts The quarter of a guide and the layer of a section stay in the curve's `id` instead of multiplying the union into one literal per quarter.
-     * @evidence contracts/development/common.md#meaningful-documentation Defines each literal by the curve it names and says which is closed.
-     */
-    export type Kind = "section" | "guide" | "axis";
+   * The construction lines `sampleAutoMovieConstructionCurves` tells apart.
+   *
+   * `section` is a closed ring at one principal layer station, `guide` an open rail along the stations at one of the four quarter phases, and `axis` the open line through the centroids of the sampled rings.
+   *
+   * @evidence contracts/development/design.md#principled-representation A closed union of the three roles a lofted chain's construction lines play, so a consumer's switch over it is exhaustive and no other string can be written.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned with `IAutoMovieConstructionCurve`; the producer writes each literal and the viewer's inspection instrument maps each to a colour and a legend entry.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The quarter of a guide and the layer of a section stay in the curve's `id` instead of multiplying the union into one literal per quarter.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines each literal by the curve it names and says which is closed.
+   */
+  export type Kind = "section" | "guide" | "axis";
 }

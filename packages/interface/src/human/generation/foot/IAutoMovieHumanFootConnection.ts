@@ -1,6 +1,6 @@
-import type { AutoMovieScalarJet2 } from "../../../geometry/AutoMovieScalarJet2";
 import type { IAutoMovieLoftFrame } from "../../../construction/IAutoMovieLoftFrame";
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
+import type { AutoMovieScalarJet2 } from "../../../geometry/AutoMovieScalarJet2";
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanFootSource } from "./IAutoMovieHumanFootSource";
 

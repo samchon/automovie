@@ -1,6 +1,10 @@
-import type { IAutoMovieSampledChannel, IAutoMovieChannel, IAutoMovieDriver, IAutoMovieNode } from "@automovie/interface";
 import { resolveDrivers } from "@automovie/engine";
-
+import type {
+  IAutoMovieChannel,
+  IAutoMovieDriver,
+  IAutoMovieNode,
+  IAutoMovieSampledChannel,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createCopyDriver as copy } from "./createCopyDriver";

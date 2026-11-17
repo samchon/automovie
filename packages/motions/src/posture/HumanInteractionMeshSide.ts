@@ -1,6 +1,9 @@
-import type { IAutoMovieMotionHumanQuadraticProgram, IAutoMovieTetrahedralizeDelaunay, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, tetrahedralizeAutoMovieDelaunay } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanQuadraticProgram,
+  IAutoMovieTetrahedralizeDelaunay,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The sides an interaction mesh records (`HumanInteractionMesh`): each

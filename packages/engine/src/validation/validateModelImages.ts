@@ -1,4 +1,7 @@
-import type { IAutoMovieTextureImageFacts, IAutoMovieViolationCollector } from "@automovie/interface";
+import type {
+  IAutoMovieTextureImageFacts,
+  IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { collectNonEmptyId } from "./collectNonEmptyId";
 import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "./constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";

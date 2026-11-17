@@ -1,7 +1,19 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanPerformance, HumanSignature, HumanSportThrow } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanSignature,
+  HumanSportThrow,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -77,7 +89,10 @@ export function test_human_motion_sport_cartwheel(): void {
     );
     const wheel: IAutoMovieMotionHumanSegment.ISegment = film
       .segments("a")
-      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "cartwheelLeft")!;
+      .find(
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+          s.name === "cartwheelLeft",
+      )!;
     const at = (share: number): number =>
       wheel.start + share * wheel.plan.duration;
     const joint = (
@@ -110,9 +125,11 @@ export function test_human_motion_sport_cartwheel(): void {
         );
 
     // 2. A bearing hand stays where it came down.
-    const hands: IAutoMovieMotionHumanContactWindow[] = wheel.plan.contacts.filter(
-      (window: IAutoMovieMotionHumanContactWindow): boolean => window.part.endsWith("Hand"),
-    );
+    const hands: IAutoMovieMotionHumanContactWindow[] =
+      wheel.plan.contacts.filter(
+        (window: IAutoMovieMotionHumanContactWindow): boolean =>
+          window.part.endsWith("Hand"),
+      );
     if (hands.length !== 2)
       complaints.push(
         `${name}: ${hands.length} hand supports are declared, one for each hand expected`,

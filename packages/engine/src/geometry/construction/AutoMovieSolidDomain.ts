@@ -1,4 +1,5 @@
 import type { IAutoMovieSolidSurface } from "@automovie/interface";
+
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 
 /**

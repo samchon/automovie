@@ -1,7 +1,8 @@
-import type { IAutoMovieArcLengthJet, IAutoMovieHumanSeam, IAutoMovieHumanSeamConstruction } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieArcLengthJet,
+  IAutoMovieHumanSeam,
+  IAutoMovieHumanSeamConstruction,
+} from "@automovie/interface";
 
 /**
  * The shared joining mathematics of divided parts: how an owner publishes a
@@ -31,10 +32,6 @@ import type { IAutoMovieArcLengthJet, IAutoMovieHumanSeam, IAutoMovieHumanSeamCo
  * Vectors are plain arrays of any dimension unless a function says 3.
  */
 export namespace AutoMovieHumanSeam {
-  
-
-  
-
   /**
    * Unit tangent and curvature vector of a curve from its first and second
    * derivatives in any parameter: `T = d1 / |d1|` and
@@ -102,7 +99,9 @@ export namespace AutoMovieHumanSeam {
   ): IAutoMovieHumanSeamConstruction.AdoptResult {
     // A negative speed would run the neighbour back into the owner.
     if (!(lambda >= 0))
-      throw new Error(`A copied jet needs a speed of at least 0, not ${lambda}`);
+      throw new Error(
+        `A copied jet needs a speed of at least 0, not ${lambda}`,
+      );
     const first: number[] = scale(jet.tangent, lambda);
     const bend: number[] = scale(jet.curvature, lambda * lambda);
     return [
@@ -171,7 +170,10 @@ export namespace AutoMovieHumanSeam {
     along: IAutoMovieHumanSeamConstruction.SquareAlong,
   ): IAutoMovieHumanSeamConstruction.SquareResult {
     const [E, F, G] = metric;
-    const inner = (a: readonly [number, number], b: readonly [number, number]): number =>
+    const inner = (
+      a: readonly [number, number],
+      b: readonly [number, number],
+    ): number =>
       E * a[0] * b[0] + F * (a[0] * b[1] + a[1] * b[0]) + G * a[1] * b[1];
     const length: number = inner(along, along);
     const beta: number = length > 0 ? -inner(cross, along) / length : 0;
@@ -261,7 +263,9 @@ export namespace AutoMovieHumanSeam {
     if (continuity !== "G0" && reading.angle > tolerance.angle)
       out.push(`angle ${reading.angle} rad > ${tolerance.angle} rad`);
     if (continuity === "G2" && reading.curvature > tolerance.curvature)
-      out.push(`curvature jump ${reading.curvature} /mm > ${tolerance.curvature} /mm`);
+      out.push(
+        `curvature jump ${reading.curvature} /mm > ${tolerance.curvature} /mm`,
+      );
     return out;
   }
 
@@ -274,7 +278,9 @@ export namespace AutoMovieHumanSeam {
    *
    * @param scale Length of the piece, mm.
    */
-  export function exact(scale: number): IAutoMovieHumanSeamConstruction.ITolerance {
+  export function exact(
+    scale: number,
+  ): IAutoMovieHumanSeamConstruction.ITolerance {
     return { gap: 1e-9 * scale, angle: 1e-9, curvature: 1e-9 / scale };
   }
 
@@ -378,13 +384,18 @@ function normalOf(jet: IAutoMovieHumanSeam.ISurfaceJet): number[] {
  * Normal curvature of a surface jet in the unit tangent direction across its
  * seam, `w = (across - (across . T) T) / |...|`, read against normal n.
  */
-function across(jet: IAutoMovieHumanSeam.ISurfaceJet, n: readonly number[]): number {
+function across(
+  jet: IAutoMovieHumanSeam.ISurfaceJet,
+  n: readonly number[],
+): number {
   const speed: number = norm(jet.along) || 1;
   const T: number[] = scale(jet.along, 1 / speed);
   const lean: number = dot(jet.across, T);
-  const q: number[] = jet.across.map((v: number, k: number): number => v - lean * T[k]!);
+  const q: number[] = jet.across.map(
+    (v: number, k: number): number => v - lean * T[k]!,
+  );
   const b: number = 1 / (norm(q) || 1);
-  const a: number = -lean * b / speed;
+  const a: number = (-lean * b) / speed;
   return (
     a * a * dot(jet.alongSecond, n) +
     2 * a * b * dot(jet.twist, n) +
@@ -396,7 +407,13 @@ function across(jet: IAutoMovieHumanSeam.ISurfaceJet, n: readonly number[]): num
 function angle(a: readonly number[], b: readonly number[]): number {
   const u: number[] = scale(a, 1 / (norm(a) || 1));
   const v: number[] = scale(b, 1 / (norm(b) || 1));
-  return 2 * Math.atan2(norm(sub(u, v)), norm(u.map((x: number, k: number): number => x + v[k]!)));
+  return (
+    2 *
+    Math.atan2(
+      norm(sub(u, v)),
+      norm(u.map((x: number, k: number): number => x + v[k]!)),
+    )
+  );
 }
 
 /** Dot product, summed from the first term in index order. */

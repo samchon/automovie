@@ -1,7 +1,29 @@
-import type { IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanManipulate, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
-import { Quaternion, Transform, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-
-import { HumanChain, HumanManipulate, HumanPerformance, manipulate, typeText } from "@automovie/motions";
+import {
+  Quaternion,
+  Transform,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanManipulate,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanManipulate,
+  HumanPerformance,
+  manipulate,
+  typeText,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -172,10 +194,7 @@ export function test_human_motion_manipulate(): void {
     // turn only puts its typist's side toward him.
     [...text].forEach((letter: string, i: number): void => {
       const [side, digit] = chart(letter);
-      const key: IAutoMovieVector3 = Vector3.add(
-        at,
-        typeText.key(letter).at,
-      );
+      const key: IAutoMovieVector3 = Vector3.add(at, typeText.key(letter).at);
       const target: IAutoMovieVector3 = { ...key, y: key.y - typeText.TRAVEL };
       const bones = typed.bones("a", times[i]!);
       const tip: IAutoMovieVector3 = tipOf(bones, side, digit);
@@ -304,7 +323,11 @@ export function test_human_motion_manipulate(): void {
         y: -0.002,
         z: 0,
       });
-      const tip: IAutoMovieVector3 = tipOf(dialled.bones("a", t), "right", "index");
+      const tip: IAutoMovieVector3 = tipOf(
+        dialled.bones("a", t),
+        "right",
+        "index",
+      );
       const miss: number = Vector3.length(Vector3.subtract(tip, site));
       if (!(miss <= CONTACT))
         complaints.push(
@@ -329,10 +352,7 @@ export function test_human_motion_manipulate(): void {
     // turn only puts its typist's side toward him.
     presses(two).forEach((t: number, i: number): void => {
       const k = typeText.key("hi"[i]!);
-      const key: IAutoMovieVector3 = Vector3.add(
-        at,
-        k.at,
-      );
+      const key: IAutoMovieVector3 = Vector3.add(at, k.at);
       const tip: IAutoMovieVector3 = tipOf(two.bones("a", t), k.side, "index");
       const miss: number = Vector3.length(
         Vector3.subtract(tip, { ...key, y: key.y - typeText.TRAVEL }),
@@ -349,7 +369,10 @@ export function test_human_motion_manipulate(): void {
   }
 
   // 7. Refusals.
-  const refused = (contacts: IAutoMovieMotionHumanManipulate.IContact[], fragment: string): void => {
+  const refused = (
+    contacts: IAutoMovieMotionHumanManipulate.IContact[],
+    fragment: string,
+  ): void => {
     try {
       perform(
         HumanChain.subject("a").registered("manipulate", {

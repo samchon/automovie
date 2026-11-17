@@ -1,4 +1,5 @@
 import type { IAutoMovieApplySoftBodyFriction } from "@automovie/interface";
+
 /**
  * Apply Coulomb friction to one particle a collider has just pushed out, in
  * place: the position-based friction of Macklin, Müller, Chentanez and Kim
@@ -26,7 +27,9 @@ import type { IAutoMovieApplySoftBodyFriction } from "@automovie/interface";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse; the push is the projection's own.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Writes only the caller's predicted triple.
  */
-export const applySoftBodyFriction: (props: IAutoMovieApplySoftBodyFriction.IProps) => void = (props: IAutoMovieApplySoftBodyFriction.IProps): void => {
+export const applySoftBodyFriction: (
+  props: IAutoMovieApplySoftBodyFriction.IProps,
+) => void = (props: IAutoMovieApplySoftBodyFriction.IProps): void => {
   if (props.friction === 0) return;
   const base: number = props.particle * 3;
   const push: number[] = [0, 1, 2].map(

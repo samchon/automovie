@@ -1,6 +1,19 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieMotionHumanTouchSite, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionHumanTouchEffector, HumanChain, HumanPerformance, HumanSignature, HumanSocial, touch } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieMotionHumanTouchSite,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanTouchEffector,
+  HumanChain,
+  HumanPerformance,
+  HumanSignature,
+  HumanSocial,
+  touch,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -58,31 +71,33 @@ export function test_human_motion_hand_sites(): void {
     params: object,
   ): IRead | null => {
     try {
-      const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-        seed,
-        laws: [HumanSocial.comfort],
-        performers: [
-          {
-            subject: "a",
-            body,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-          {
-            subject: "b",
-            body,
-            at: { x: 0, y: 0, z: 0.6 },
-            yaw: 180,
-            proficiency: { level: "trained" },
-          },
-        ],
-        composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3 })
-          .registered("comfort", params)
-          .with(HumanChain.subject("b").stand({ seconds: 5 })).node,
-      });
-      const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+      const performance: IAutoMovieMotionHumanPerformance =
+        new HumanPerformance({
+          seed,
+          laws: [HumanSocial.comfort],
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+            {
+              subject: "b",
+              body,
+              at: { x: 0, y: 0, z: 0.6 },
+              yaw: 180,
+              proficiency: { level: "trained" },
+            },
+          ],
+          composition: HumanChain.subject("a")
+            .stand({ seconds: 0.3 })
+            .registered("comfort", params)
+            .with(HumanChain.subject("b").stand({ seconds: 5 })).node,
+        });
+      const placed: IAutoMovieMotionHumanSegment.ISegment =
+        performance.segments("a")[1]!;
       const instant = (event: string): number =>
         placed.start +
         (placed.plan.events.find((e): boolean => e.name === event)?.share ??

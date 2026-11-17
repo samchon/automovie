@@ -1,4 +1,5 @@
 import type { IAutoMovieSweepSurface } from "@automovie/interface";
+
 /** Spine samples of the midpoint rule. */
 const STEPS: number = 400;
 

@@ -1,7 +1,7 @@
-import type { IAutoMovieRecoverySqpTightening, IAutoMovieSimplexAtom } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieRecoverySqpTightening,
+  IAutoMovieSimplexAtom,
+} from "@automovie/interface";
 
 /**
  * Price strict inward margin against the current mixed direction's descent.
@@ -39,7 +39,8 @@ export function chooseRecoverySqpTightening(
     value: null,
     descent: null,
     multiplierPrice: null,
-    reason: "tightening-unresolved" };
+    reason: "tightening-unresolved",
+  };
   const objective: IAutoMovieSimplexAtom = rows[0]!;
   if (objective.indices.length !== objective.values.length)
     throw new Error("camera-sqp: admitted physical objective required");

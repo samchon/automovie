@@ -1,6 +1,22 @@
-import { type IAutoMovieMotionSample, type IAutoMovieResolvedBone, AutoMovieExpressionPreset, AutoMovieHumanoidBone, IAutoMovieBlendshapeChannel, IAutoMovieBone, IAutoMovieExpression, IAutoMovieJointPose, IAutoMovieLookAt, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-import { Quaternion, resolveLookAt, resolvePose, validatePose } from "@automovie/engine";
-
+import {
+  Quaternion,
+  resolveLookAt,
+  resolvePose,
+  validatePose,
+} from "@automovie/engine";
+import {
+  AutoMovieExpressionPreset,
+  AutoMovieHumanoidBone,
+  IAutoMovieBlendshapeChannel,
+  IAutoMovieBone,
+  IAutoMovieExpression,
+  IAutoMovieJointPose,
+  IAutoMovieLookAt,
+  type IAutoMovieMotionSample,
+  type IAutoMovieResolvedBone,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint, makePose } from "../internal/fixtures";

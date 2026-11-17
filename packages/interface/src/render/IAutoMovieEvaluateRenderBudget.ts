@@ -8,10 +8,10 @@ export namespace IAutoMovieEvaluateRenderBudget {
   /**
    * Check one inventory against one declared budget and produce the bounded
    * report.
-   * 
+   *
    * The report answers for every metric, always, with one of five outcomes. Four
    * of them are not "pass":
-   * 
+   *
    * - `within`: measured, budgeted, at or below the limit;
    * - `over`: measured, budgeted, above the limit, with the dominant owners and the
    *   exact way back;
@@ -19,15 +19,15 @@ export namespace IAutoMovieEvaluateRenderBudget {
    *   agreed what large means;
    * - `unsupported`: no analysis exists for what the design declares;
    * - `not-run`: the analysis exists but its input was not supplied.
-   * 
+   *
    * The last two make the whole report `incomplete`. That is the point of them:
    * an artifact whose fluid cost was never computed has not been cleared for
    * fluid cost, and a report that said `within` would be the exact false
    * capability claim this evidence exists to prevent.
-   * 
+   *
    * A budget limit that is negative, fractional or non-finite is an authoring
    * mistake and throws, rather than becoming a budget that can never be met.
-   * 
+   *
    * An `over` finding names somewhere the author can actually go. The limit is
    * compared against the inventory's own total, frame passes and all, but the
    * dominant-owner ranking is over the owners that hold their own cost; the

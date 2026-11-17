@@ -18,13 +18,14 @@ export namespace IAutoMovieComputeModelRestExtent {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The nullable box distinguishes unmeasurable geometry from a valid degenerate extent; external asset bytes and animated deformation are outside this measurement.
    * @evidence contracts/development/common.md#meaningful-documentation Nullable model-frame rest bounds used by camera subject measurement. Bounds use model metres after part placement and attached-bone rest placement; null denotes no measured Y extent. Geometry/skeleton admission is delegated to their engine owners.
    */
-  export type IResult = { 
+  export type IResult = {
     /**
      * New componentwise minimum of measured vertices in model metres. For admitted finite geometry each component is at most max; the measurement does not independently sanitize malformed coordinates.
      */
-    min: IAutoMovieVector3; 
+    min: IAutoMovieVector3;
     /**
      * New componentwise maximum in the same model frame. Both vectors belong to the returned box and do not alias model vertices.
      */
-    max: IAutoMovieVector3 } | null;
+    max: IAutoMovieVector3;
+  } | null;
 }

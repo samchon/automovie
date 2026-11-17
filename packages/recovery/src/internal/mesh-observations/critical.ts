@@ -1,6 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieMeshCriticalPoints, IAutoMovieMeshCriticalVertex } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieMeshCriticalPoints,
+  IAutoMovieMeshCriticalVertex,
+} from "@automovie/interface";
 
 import { dot } from "./dot";
 import { norm } from "./norm";
@@ -29,8 +31,7 @@ export function critical(
   skin: Parameters<IAutoMovieMeshCriticalPoints.Operation>[0],
   axis: Parameters<IAutoMovieMeshCriticalPoints.Operation>[1] = [0, 1, 0],
   scalarHeights?: Parameters<IAutoMovieMeshCriticalPoints.Operation>[2],
-  policy:
-    Parameters<IAutoMovieMeshCriticalPoints.Operation>[3] = "legacy-link-cycle-v1",
+  policy: Parameters<IAutoMovieMeshCriticalPoints.Operation>[3] = "legacy-link-cycle-v1",
 ): ReturnType<IAutoMovieMeshCriticalPoints.Operation> {
   if (
     policy !== "legacy-link-cycle-v1" &&
@@ -48,7 +49,9 @@ export function critical(
     throw new Error("PL scalar chart must align with source vertices");
   const heights: readonly number[] =
     scalarHeights ??
-    skin.vertices.map((point: AutoMovieVector3Tuple): number => dot(point, direction));
+    skin.vertices.map((point: AutoMovieVector3Tuple): number =>
+      dot(point, direction),
+    );
   const boundaryPolicy: boolean = policy === "boundary-regular-path-v1";
   const invalidStars: Set<number> = new Set();
   const invalidAliases: Set<number> = new Set();
@@ -239,10 +242,13 @@ export function critical(
         lower,
         upper,
         flat,
-        manifold });
+        manifold,
+      });
   }
   return events.sort(
-    (a: IAutoMovieMeshCriticalVertex, b: IAutoMovieMeshCriticalVertex): number =>
-      a.level - b.level || a.vertex - b.vertex,
+    (
+      a: IAutoMovieMeshCriticalVertex,
+      b: IAutoMovieMeshCriticalVertex,
+    ): number => a.level - b.level || a.vertex - b.vertex,
   );
 }

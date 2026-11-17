@@ -1,5 +1,9 @@
-import type { IAutoMovieMotionHumanAuditContinuity, IAutoMovieMotionHumanAuditMotion, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditContinuity,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanAuditContinuity } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -131,7 +135,10 @@ export function test_motion_audit_continuity_digits(): void {
     read(thumb).jump.value,
     0,
   );
-  const tight: IAutoMovieMotionHumanAuditContinuity.IResult = read(thumb, 0.002);
+  const tight: IAutoMovieMotionHumanAuditContinuity.IResult = read(
+    thumb,
+    0.002,
+  );
   TestValidator.predicate(
     `a 2 mm limit reads the 4 mm snap, got ${show(tight)}`,
     Math.abs(tight.jump.value - 0.004) <= 1e-6 &&

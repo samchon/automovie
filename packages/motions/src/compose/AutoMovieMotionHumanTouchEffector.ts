@@ -1,6 +1,15 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTouchEffector, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
@@ -20,7 +29,6 @@ import { HumanHand } from "../posture/HumanHand";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the hand's surfaces, shapes and alignment; the pad is a collider query, not a shape's radius.
  */
 export namespace AutoMovieMotionHumanTouchEffector {
-
   /** The axes of {@link Axis}, as data. */
   export const AXES = [
     "fingers",
@@ -51,7 +59,10 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function axis(side: IAutoMovieMotionHumanHand.Side, axis: IAutoMovieMotionHumanTouchEffector.Axis): IAutoMovieVector3 {
+  export function axis(
+    side: IAutoMovieMotionHumanHand.Side,
+    axis: IAutoMovieMotionHumanTouchEffector.Axis,
+  ): IAutoMovieVector3 {
     const sign: number = axis.startsWith("-") ? -1 : 1;
     const name: string = axis.replace("-", "");
     const fingers: number = side === "left" ? 1 : -1;
@@ -253,7 +264,10 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * beyond the hand in any shape that holds it.
    */
   export const ADMITS: Readonly<
-    Record<IAutoMovieMotionHumanHand.Surface, readonly IAutoMovieMotionHumanHand.Shape[]>
+    Record<
+      IAutoMovieMotionHumanHand.Surface,
+      readonly IAutoMovieMotionHumanHand.Shape[]
+    >
   > = {
     palm: ["flat"],
     grip: ["fist"],
@@ -290,9 +304,12 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function admit(effector: IAutoMovieMotionHumanTouchEffector.IEffector): void {
+  export function admit(
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+  ): void {
     if (effector.tool !== undefined) return;
-    const admitted: readonly IAutoMovieMotionHumanHand.Shape[] = ADMITS[effector.surface];
+    const admitted: readonly IAutoMovieMotionHumanHand.Shape[] =
+      ADMITS[effector.surface];
     if (admitted.includes(effector.shape)) return;
     throw new HumanRefusal({
       kind: "parameter",

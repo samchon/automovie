@@ -1,7 +1,21 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanRise, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-
-import { AutoMovieMotionHumanRise, HumanFoot, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanRise,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanRise,
+  HumanFoot,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 
 import { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -104,12 +118,8 @@ export function motionComposeRise(name: motionHumanBody.Name): void {
         let last: number = stance[side].ankle.y;
         for (const degrees of [0, 10, 20, 35] as const) {
           const cell: string = `${name}: the ${side} foot raised ${degrees} at a heading of ${yaw}`;
-          const raised: IAutoMovieMotionHumanFoot.IPlacement = AutoMovieMotionHumanRise.foot(
-            body,
-            side,
-            stance[side],
-            degrees,
-          );
+          const raised: IAutoMovieMotionHumanFoot.IPlacement =
+            AutoMovieMotionHumanRise.foot(body, side, stance[side], degrees);
           const moved: number = gap(
             HumanFoot.point(body, side, "mtp", raised),
             joint,
@@ -150,7 +160,10 @@ export function motionComposeRise(name: motionHumanBody.Name): void {
       // 2. The root's lift, and 3. the legs.
       for (const degrees of [0, 10, 20, 35] as const) {
         const cell: string = `${name}: a rise of ${degrees} at a heading of ${yaw}`;
-        const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
+        const feet: Record<
+          "left" | "right",
+          IAutoMovieMotionHumanFoot.IPlacement
+        > = {
           left: AutoMovieMotionHumanRise.foot(
             body,
             "left",

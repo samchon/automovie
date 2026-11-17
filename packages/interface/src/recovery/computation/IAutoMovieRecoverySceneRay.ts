@@ -6,11 +6,9 @@
  * @evidence contracts/development/common.md#meaningful-documentation Members state source order, normalization and coordinate frame.
  */
 export interface IAutoMovieRecoverySceneRay {
- 
- /** Index in the original source array. */
+  /** Index in the original source array. */
   view: number;
 
- 
- /** Three unit direction coefficients in the common world frame. */
+  /** Three unit direction coefficients in the common world frame. */
   unit: number[];
 }

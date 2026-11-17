@@ -1,7 +1,8 @@
-import type { IAutoMovieHumanHandFingerPosture, IAutoMovieHumanHandPosture, IAutoMovieHumanHandThumbPosture } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieHumanHandFingerPosture,
+  IAutoMovieHumanHandPosture,
+  IAutoMovieHumanHandThumbPosture,
+} from "@automovie/interface";
 
 /**
  * The bind's relaxed hand: a pose convention of the captured standing
@@ -60,7 +61,8 @@ export namespace AutoMovieHumanHandPosture {
    * check and not an input.
    */
   export function thumbRest(): IAutoMovieHumanHandPosture.IThumbRestResult {
-    const mean = (v: readonly number[]): number => v.reduce((s: number, x: number): number => s + x, 0) / v.length;
+    const mean = (v: readonly number[]): number =>
+      v.reduce((s: number, x: number): number => s + x, 0) / v.length;
 
     return {
       mcp: (mean(FINGERS.proximal) / RANGE.fingerMcp) * RANGE.thumbMcp,

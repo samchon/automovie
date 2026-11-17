@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanLexiconParams } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+} from "@automovie/interface";
 
 import { dress } from "../dressing/dress";
 import { HumanActionRow } from "../law/HumanActionRow";
@@ -15,10 +18,14 @@ import { HumanActionRow } from "../law/HumanActionRow";
  */
 export namespace HumanDressRows {
   /** `dress` putting on a `hat`. */
-  export const dressHat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperDress"]["dressHat"]> = HumanActionRow.of("dressHat", dress, { item: "hat" });
+  export const dressHat: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperDress"]["dressHat"]
+  > = HumanActionRow.of("dressHat", dress, { item: "hat" });
 
   /** `dress` putting on a `glasses`. */
-  export const dressGlasses: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperDress"]["dressGlasses"]> = HumanActionRow.of("dressGlasses", dress, {
+  export const dressGlasses: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperDress"]["dressGlasses"]
+  > = HumanActionRow.of("dressGlasses", dress, {
     item: "glasses",
   });
 }

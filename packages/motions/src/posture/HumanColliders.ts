@@ -1,6 +1,22 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMoviePhysicalHullFaces, IAutoMoviePhysicalProfile, IAutoMoviePhysicalShapeNearest, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
-import { Quaternion, Vector3, closestPointsBetweenSegments, physicalHullFaces, physicalShapeBounds, physicalShapeNearest, physicalShapeSegmentDistance } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  closestPointsBetweenSegments,
+  physicalHullFaces,
+  physicalShapeBounds,
+  physicalShapeNearest,
+  physicalShapeSegmentDistance,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShapeNearest,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * A posed body's colliders as signed distances: how far a point, or a
@@ -18,7 +34,6 @@ import { Quaternion, Vector3, closestPointsBetweenSegments, physicalHullFaces, p
  * least, so the searches that call this in loops pay for the near shapes only.
  */
 export namespace HumanColliders {
-
   /**
    * Where a segment comes nearest a posed body: the signed distance and the
    * bone of `distanceToSegment`, with the point of that bone's colliders
@@ -39,17 +54,18 @@ export namespace HumanColliders {
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): IAutoMovieMotionHumanColliders.INearestResult {
-    const found: IAutoMovieMotionHumanColliders.IDistance = distanceToSegment(body, bones, a, b);
+    const found: IAutoMovieMotionHumanColliders.IDistance = distanceToSegment(
+      body,
+      bones,
+      a,
+      b,
+    );
     let best: IAutoMoviePhysicalShapeNearest.IResult | undefined;
     for (const { bone, pose, shapes } of placed(body, bones)) {
       if (bone !== found.bone) continue;
       for (const shape of shapes) {
-        const near: IAutoMoviePhysicalShapeNearest.IResult = physicalShapeNearest(
-          pose,
-          shape,
-          a,
-          b,
-        );
+        const near: IAutoMoviePhysicalShapeNearest.IResult =
+          physicalShapeNearest(pose, shape, a, b);
         if (best === undefined || near.distance < best.distance) best = near;
       }
     }
@@ -175,7 +191,11 @@ export namespace HumanColliders {
         from,
         Vector3.scale(along, travelled),
       );
-      const near: IAutoMovieMotionHumanColliders.IDistance = distance(body, bones, point);
+      const near: IAutoMovieMotionHumanColliders.IDistance = distance(
+        body,
+        bones,
+        point,
+      );
       if (near.distance <= CAST_TOLERANCE) {
         const slope = (axis: IAutoMovieVector3): number =>
           distance(body, bones, Vector3.add(point, axis)).distance -
@@ -305,7 +325,9 @@ export namespace HumanColliders {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A hull's centre and radius come from `physicalHullFaces`, which keeps them by its points.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function bound(shape: IAutoMoviePhysicalProfile.IShape): IAutoMovieMotionHumanColliders.IBall {
+  export function bound(
+    shape: IAutoMoviePhysicalProfile.IShape,
+  ): IAutoMovieMotionHumanColliders.IBall {
     const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     if (shape.kind === "sphere")
       return { centre: origin, radius: shape.radius };
@@ -314,7 +336,9 @@ export namespace HumanColliders {
     if (shape.kind === "box")
       return { centre: origin, radius: Vector3.length(shape.halfExtents) };
     if (shape.kind === "hull") {
-      const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(shape.points);
+      const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
+        shape.points,
+      );
       return { centre: hull.centre, radius: hull.radius };
     }
     shape satisfies never;
@@ -339,7 +363,9 @@ export namespace HumanColliders {
     // The rest joints read by the segments' string names, as `placed` reads
     // the posed bones.
     const rests: ReadonlyMap<string, IAutoMovieVector3> = body.rest;
-    const own = (segment: IAutoMoviePhysicalProfile.ISegment): ISided | null => {
+    const own = (
+      segment: IAutoMoviePhysicalProfile.ISegment,
+    ): ISided | null => {
       const rest: IAutoMovieVector3 | undefined = rests.get(segment.bone);
       return rest === undefined
         ? null
@@ -352,12 +378,13 @@ export namespace HumanColliders {
     };
     const out: ISided[] = [];
     for (const segment of body.profile.segments) {
-      const twin: IAutoMoviePhysicalProfile.ISegment | undefined = segment.bone.startsWith("left")
-        ? body.profile.segments.find(
-            (s: IAutoMoviePhysicalProfile.ISegment): boolean =>
-              s.bone === `right${segment.bone.slice(4)}`,
-          )
-        : undefined;
+      const twin: IAutoMoviePhysicalProfile.ISegment | undefined =
+        segment.bone.startsWith("left")
+          ? body.profile.segments.find(
+              (s: IAutoMoviePhysicalProfile.ISegment): boolean =>
+                s.bone === `right${segment.bone.slice(4)}`,
+            )
+          : undefined;
       const read: ISided | null = own(twin ?? segment);
       if (read === null) continue;
       out.push(
@@ -375,7 +402,9 @@ export namespace HumanColliders {
       y: p.y,
       z: p.z,
     });
-    const turn = (q: IAutoMoviePhysicalProfile.ITransform["rotation"]): IAutoMoviePhysicalProfile.ITransform["rotation"] => ({
+    const turn = (
+      q: IAutoMoviePhysicalProfile.ITransform["rotation"],
+    ): IAutoMoviePhysicalProfile.ITransform["rotation"] => ({
       x: q.x,
       y: -q.y,
       z: -q.z,
@@ -385,15 +414,19 @@ export namespace HumanColliders {
       bone: segment.bone,
       offset: point(segment.offset),
       rotation: turn(segment.rotation),
-      shapes: segment.shapes.map((shape: IAutoMoviePhysicalProfile.IShape): IAutoMoviePhysicalProfile.IShape => {
-        const transform: IAutoMoviePhysicalProfile.ITransform = {
-          position: point(shape.transform.position),
-          rotation: turn(shape.transform.rotation),
-        };
-        return shape.kind === "hull"
-          ? { ...shape, transform, points: shape.points.map(point) }
-          : { ...shape, transform };
-      }),
+      shapes: segment.shapes.map(
+        (
+          shape: IAutoMoviePhysicalProfile.IShape,
+        ): IAutoMoviePhysicalProfile.IShape => {
+          const transform: IAutoMoviePhysicalProfile.ITransform = {
+            position: point(shape.transform.position),
+            rotation: turn(shape.transform.rotation),
+          };
+          return shape.kind === "hull"
+            ? { ...shape, transform, points: shape.points.map(point) }
+            : { ...shape, transform };
+        },
+      ),
     };
   }
 }

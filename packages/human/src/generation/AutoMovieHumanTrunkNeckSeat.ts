@@ -1,7 +1,16 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftFrame, IAutoMovieLoftSectionSource, IAutoMovieHumanTrunkNeckSeat } from "@automovie/interface";
-
-
-import { AutoMovieLoftChain, AutoMovieLoftFrameSource, AutoMovieLoftSection, AutoMovieLoftSectionConnect, AutoMovieLoftSectionSource } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  AutoMovieLoftFrameSource,
+  AutoMovieLoftSection,
+  AutoMovieLoftSectionConnect,
+  AutoMovieLoftSectionSource,
+} from "@automovie/engine";
+import type {
+  IAutoMovieHumanTrunkNeckSeat,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionSource,
+} from "@automovie/interface";
 
 /**
  * The neck's internal overlap ring as the remaining old shoulders read it.
@@ -19,10 +28,6 @@ import { AutoMovieLoftChain, AutoMovieLoftFrameSource, AutoMovieLoftSection, Aut
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fixed support records and copied coefficient/lift arrays; the receiving definition borrows frame/source records until it is released, without a new global cache.
  */
 export namespace AutoMovieHumanTrunkNeckSeat {
-  
-
-  
-
   /** Phases the ring is sampled at. */
   const COUNT: number = 512;
 
@@ -35,7 +40,9 @@ export namespace AutoMovieHumanTrunkNeckSeat {
    * @param neck The neck chain, named `head`.
    * @returns Its landmarks and lateral outline.
    */
-  export function read(neck: IAutoMovieLoftChain): IAutoMovieHumanTrunkNeckSeat.ISeat {
+  export function read(
+    neck: IAutoMovieLoftChain,
+  ): IAutoMovieHumanTrunkNeckSeat.ISeat {
     const y: number = neck.layers[0]!.y;
     const ring: [number, number, number][] = ringAt(neck, y);
 
@@ -63,7 +70,10 @@ export namespace AutoMovieHumanTrunkNeckSeat {
    * @param y Height of the ring's bottom, mm.
    * @returns The outline's jet.
    */
-  export function lateral(neck: IAutoMovieLoftChain, y: number): IAutoMovieHumanTrunkNeckSeat.ILateral {
+  export function lateral(
+    neck: IAutoMovieLoftChain,
+    y: number,
+  ): IAutoMovieHumanTrunkNeckSeat.ILateral {
     const extreme: (h: number) => number = (h: number): number =>
       Math.max(
         ...ringAt(neck, h).map((p: [number, number, number]): number => p[2]),

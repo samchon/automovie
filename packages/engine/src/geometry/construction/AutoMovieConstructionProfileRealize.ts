@@ -1,4 +1,11 @@
-import type { IAutoMovieConstructionProfileSource, IAutoMovieConstructionProfileBody, IAutoMovieConstructionProfileRealize, IAutoMovieConstructionState, IAutoMoviePreparedConstructionProfile, IAutoMovieSolidBody } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionProfileBody,
+  IAutoMovieConstructionProfileRealize,
+  IAutoMovieConstructionProfileSource,
+  IAutoMovieConstructionState,
+  IAutoMoviePreparedConstructionProfile,
+  IAutoMovieSolidBody,
+} from "@automovie/interface";
 
 import { AutoMovieConstructionProfile } from "./AutoMovieConstructionProfile";
 import { AutoMovieConstructionProfileBody } from "./AutoMovieConstructionProfileBody";

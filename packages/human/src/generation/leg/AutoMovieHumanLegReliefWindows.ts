@@ -2,7 +2,6 @@ import type { IAutoMovieHumanLegReliefWindow } from "@automovie/interface";
 
 import { AutoMovieHumanLegGirth } from "./AutoMovieHumanLegGirth";
 
-
 /**
  * The leg's thirteen relief windows as one table: each a bump or hollow in
  * its own frame (its own centre on the leg's bone, its own section angle,
@@ -139,16 +138,17 @@ export namespace AutoMovieHumanLegReliefWindows {
    *
    * The medial head is the lower and larger (map.md, 7.2); the belly runs about 170 mm, so a half extent of 1.6 radii, centred on the calf tape's site, where the girth law makes the calf's maximum; it pushes out along its own axis, backward and medial.
    */
-  export const GASTROCNEMIUS_MEDIAL_HEAD: IAutoMovieHumanLegReliefWindow.IWindow = {
-    name: "leg.gastrocnemiusMedialHead",
-    segment: "shank",
-    share: AutoMovieHumanLegGirth.CALF_SITE,
-    angle: 4.2761,
-    halfStation: 1.6,
-    halfAngle: 0.6,
-    height: 0.08,
-    axis: [-0.4226, 0, -0.9063],
-  };
+  export const GASTROCNEMIUS_MEDIAL_HEAD: IAutoMovieHumanLegReliefWindow.IWindow =
+    {
+      name: "leg.gastrocnemiusMedialHead",
+      segment: "shank",
+      share: AutoMovieHumanLegGirth.CALF_SITE,
+      angle: 4.2761,
+      halfStation: 1.6,
+      halfAngle: 0.6,
+      height: 0.08,
+      axis: [-0.4226, 0, -0.9063],
+    };
 
   /**
    * The lateral head of the gastrocnemius as a relief window in its own frame: its own centre on the
@@ -158,16 +158,17 @@ export namespace AutoMovieHumanLegReliefWindows {
    *
    * The lateral head, higher and smaller than the medial (map.md, 7.2); it pushes out along its own axis, backward and lateral.
    */
-  export const GASTROCNEMIUS_LATERAL_HEAD: IAutoMovieHumanLegReliefWindow.IWindow = {
-    name: "leg.gastrocnemiusLateralHead",
-    segment: "shank",
-    share: AutoMovieHumanLegGirth.CALF_SITE - LATERAL_RISE,
-    angle: 2.3562,
-    halfStation: 1.2,
-    halfAngle: 0.5,
-    height: 0.05,
-    axis: [-0.7071, 0, 0.7071],
-  };
+  export const GASTROCNEMIUS_LATERAL_HEAD: IAutoMovieHumanLegReliefWindow.IWindow =
+    {
+      name: "leg.gastrocnemiusLateralHead",
+      segment: "shank",
+      share: AutoMovieHumanLegGirth.CALF_SITE - LATERAL_RISE,
+      angle: 2.3562,
+      halfStation: 1.2,
+      halfAngle: 0.5,
+      height: 0.05,
+      axis: [-0.7071, 0, 0.7071],
+    };
 
   /**
    * The soleus' distal bulge either side of the Achilles tendon as a relief window in its own frame: its own centre on the
@@ -215,16 +216,17 @@ export namespace AutoMovieHumanLegReliefWindows {
    *
    * The vastus medialis' fibres run low on the medial side above the patella (Gray 1918); it pushes anteromedially.
    */
-  export const VASTUS_MEDIALIS_TEARDROP: IAutoMovieHumanLegReliefWindow.IWindow = {
-    name: "leg.vastusMedialisTeardrop",
-    segment: "thigh",
-    share: 0.88,
-    angle: 5.4978,
-    halfStation: 0.8,
-    halfAngle: 0.5,
-    height: 0.04,
-    axis: [0.7071, 0, -0.7071],
-  };
+  export const VASTUS_MEDIALIS_TEARDROP: IAutoMovieHumanLegReliefWindow.IWindow =
+    {
+      name: "leg.vastusMedialisTeardrop",
+      segment: "thigh",
+      share: 0.88,
+      angle: 5.4978,
+      halfStation: 0.8,
+      halfAngle: 0.5,
+      height: 0.04,
+      axis: [0.7071, 0, -0.7071],
+    };
 
   /**
    * The quadriceps' front as a relief window in its own frame: its own centre on

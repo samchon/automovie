@@ -1,4 +1,9 @@
-import type { IAutoMovieValidateMaterialLobes, IAutoMovieViolationCollector, IAutoMovieMaterial, IAutoMovieModelPart } from "@automovie/interface";
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieModelPart,
+  IAutoMovieValidateMaterialLobes,
+  IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { finiteNumber } from "./finiteNumber";
 import { isRecord } from "./isRecord";
@@ -17,7 +22,9 @@ import { validateColor } from "./validateColor";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the collector's interval check and the shared colour validator rather than restating their rules.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the collector and its findings; nothing else is retained.
  */
-export const validateMaterialLobes: (props: IAutoMovieValidateMaterialLobes.IProps) => void = (props: IAutoMovieValidateMaterialLobes.IProps): void => {
+export const validateMaterialLobes: (
+  props: IAutoMovieValidateMaterialLobes.IProps,
+) => void = (props: IAutoMovieValidateMaterialLobes.IProps): void => {
   const {
     material,
     path,

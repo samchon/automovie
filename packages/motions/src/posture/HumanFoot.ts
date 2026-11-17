@@ -1,6 +1,18 @@
-import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import { HumanFootOutline } from "./HumanFootOutline";
 
 /**
@@ -28,9 +40,12 @@ import { HumanFootOutline } from "./HumanFootOutline";
  * lifting them; `heading` is the foot's yaw about +Y in degrees (0 faces +Z).
  */
 export namespace HumanFoot {
-
   /** The sole sockets of {@link Socket}, as data. */
-  export const SOCKETS = ["heel", "ball", "toe"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanFoot.Socket>[];
+  export const SOCKETS = [
+    "heel",
+    "ball",
+    "toe",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanFoot.Socket>[];
 
   /**
    * A foot's three sole sockets on displayed bones, heel first, each placed
@@ -47,17 +62,23 @@ export namespace HumanFoot {
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: "left" | "right",
   ): IAutoMovieMotionHumanFoot.ISocket[] {
-    return (["heel", "ball", "toe"] as const).map((socket: IAutoMovieMotionHumanFoot.Socket): IAutoMovieMotionHumanFoot.ISocket => {
-      const frame =
-        body.surfaces.sockets[`${socket}${side === "left" ? "Left" : "Right"}`];
-      return {
-        socket,
-        point: resolveAutoMovieHumanoidSurfaces.place(
-          frame,
-          bones.get(frame.bone)!,
-        ).point,
-      };
-    });
+    return (["heel", "ball", "toe"] as const).map(
+      (
+        socket: IAutoMovieMotionHumanFoot.Socket,
+      ): IAutoMovieMotionHumanFoot.ISocket => {
+        const frame =
+          body.surfaces.sockets[
+            `${socket}${side === "left" ? "Left" : "Right"}`
+          ];
+        return {
+          socket,
+          point: resolveAutoMovieHumanoidSurfaces.place(
+            frame,
+            bones.get(frame.bone)!,
+          ).point,
+        };
+      },
+    );
   }
 
   /**
@@ -130,7 +151,8 @@ export namespace HumanFoot {
     const ankle: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
     return [
       ...SOCKETS.map(
-        (socket: IAutoMovieMotionHumanFoot.Socket): IAutoMovieVector3 => point(body, side, socket, foot),
+        (socket: IAutoMovieMotionHumanFoot.Socket): IAutoMovieVector3 =>
+          point(body, side, socket, foot),
       ),
       ...outline(body, side).map(
         (frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 =>
@@ -163,7 +185,10 @@ export namespace HumanFoot {
    * @param degrees The turn about +Y, degrees.
    * @returns The turned placement; the same one for no turn.
    */
-  export function turned(foot: IAutoMovieMotionHumanFoot.IPlacement, degrees: number): IAutoMovieMotionHumanFoot.IPlacement {
+  export function turned(
+    foot: IAutoMovieMotionHumanFoot.IPlacement,
+    degrees: number,
+  ): IAutoMovieMotionHumanFoot.IPlacement {
     if (degrees === 0) return foot;
     return {
       ankle: foot.ankle,

@@ -5,7 +5,7 @@ import type { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
 export namespace IAutoMovieSampleSurfaceNetwork {
   /**
    * Sample a surface network into a quad control cage at one tier.
-   * 
+   *
    * This is the rest cage of `rigAutoMovieSurfaceNetwork` without bindings,
    * which states every fill rule, the welding identity, the topology guarantee,
    * the limit fit and which vertices it holds, the UV default and every

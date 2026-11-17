@@ -1,4 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryChartBoundaryNetwork, IAutoMovieRecoveryChartBoundaryNetworkRegistry } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryChartBoundaryNetwork,
+  IAutoMovieRecoveryChartBoundaryNetworkRegistry,
+} from "@automovie/interface";
 
 /**
  * Register immutable boundary ancestry and copied chart observations before augmentation.
@@ -11,7 +15,9 @@ import type { AutoMovieVector3Tuple, IAutoMovieRecoveryChartBoundaryNetwork, IAu
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned maps and copied charts are the single registry shared by augmentation and binding.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-owned maps transfer to the network orchestrator; this phase owns no cache or external handle.
  */
-export function RecoveryChartBoundaryNetworkRegistry(input: Parameters<IAutoMovieRecoveryChartBoundaryNetworkRegistry.Operation>[0]): ReturnType<IAutoMovieRecoveryChartBoundaryNetworkRegistry.Operation> {
+export function RecoveryChartBoundaryNetworkRegistry(
+  input: Parameters<IAutoMovieRecoveryChartBoundaryNetworkRegistry.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartBoundaryNetworkRegistry.Operation> {
   const pair: (a: string, b: string) => string = (
     a: string,
     b: string,
@@ -30,7 +36,11 @@ export function RecoveryChartBoundaryNetworkRegistry(input: Parameters<IAutoMovi
     Array.isArray(p) &&
     p.length === 3 &&
     [0, 1, 2].every((k: number): boolean => Number.isFinite(p[k]));
-  const blend: (a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>, t: number) => Readonly<AutoMovieVector3Tuple> = (
+  const blend: (
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+    t: number,
+  ) => Readonly<AutoMovieVector3Tuple> = (
     a: Readonly<AutoMovieVector3Tuple>,
     b: Readonly<AutoMovieVector3Tuple>,
     t: number,
@@ -39,7 +49,11 @@ export function RecoveryChartBoundaryNetworkRegistry(input: Parameters<IAutoMovi
     a[1] + t * (b[1] - a[1]),
     a[2] + t * (b[2] - a[2]),
   ];
-  const normal: (a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>, c: Readonly<AutoMovieVector3Tuple>) => Readonly<AutoMovieVector3Tuple> = (
+  const normal: (
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+    c: Readonly<AutoMovieVector3Tuple>,
+  ) => Readonly<AutoMovieVector3Tuple> = (
     a: Readonly<AutoMovieVector3Tuple>,
     b: Readonly<AutoMovieVector3Tuple>,
     c: Readonly<AutoMovieVector3Tuple>,
@@ -54,11 +68,15 @@ export function RecoveryChartBoundaryNetworkRegistry(input: Parameters<IAutoMovi
   };
   const cuts: Map<
     string,
-    { endpoints: [string, string]; values: Map<number, IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut> }
+    {
+      endpoints: [string, string];
+      values: Map<number, IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut>;
+    }
   > = new Map();
   const insertionKeys: Map<string, { base: string; fraction: number }> =
     new Map();
-  const declaredPoints: Map<string, Readonly<AutoMovieVector3Tuple>[]> = new Map();
+  const declaredPoints: Map<string, Readonly<AutoMovieVector3Tuple>[]> =
+    new Map();
   for (const chart of input.charts) {
     if (!chart || !Array.isArray(chart.insertions))
       throw new Error(
@@ -108,14 +126,19 @@ export function RecoveryChartBoundaryNetworkRegistry(input: Parameters<IAutoMovi
         .get(cut.key)!
         .push([cut.pointMm[0], cut.pointMm[1], cut.pointMm[2]]);
       if (!cuts.has(base)) cuts.set(base, { endpoints, values: new Map() });
-      const values: Map<number, IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut> = cuts.get(base)!.values;
+      const values: Map<
+        number,
+        IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut
+      > = cuts.get(base)!.values;
       if (!values.has(fraction))
         values.set(fraction, {
           key: cut.key,
           fraction,
           point: [cut.pointMm[0], cut.pointMm[1], cut.pointMm[2]],
-          aliases: new Set() });
-      const entry: IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut = values.get(fraction)!;
+          aliases: new Set(),
+        });
+      const entry: IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut =
+        values.get(fraction)!;
       entry.aliases.add(cut.key);
       if (cut.key < entry.key) entry.key = cut.key;
     }
@@ -123,7 +146,8 @@ export function RecoveryChartBoundaryNetworkRegistry(input: Parameters<IAutoMovi
   const points: Map<string, Readonly<AutoMovieVector3Tuple>> = new Map(),
     names: Set<string> = new Set(),
     breaks: Set<string> = new Set();
-  const charts: ReturnType<IAutoMovieRecoveryChartBoundaryNetwork.Operation>["charts"] = [];
+  const charts: ReturnType<IAutoMovieRecoveryChartBoundaryNetwork.Operation>["charts"] =
+    [];
   for (const chart of input.charts) {
     if (
       typeof chart.name !== "string" ||
@@ -182,7 +206,11 @@ export function RecoveryChartBoundaryNetworkRegistry(input: Parameters<IAutoMovi
       );
     charts.push({
       name: chart.name,
-      verticesMm: chart.verticesMm.map((p: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> => [...p]),
+      verticesMm: chart.verticesMm.map(
+        (
+          p: Readonly<AutoMovieVector3Tuple>,
+        ): Readonly<AutoMovieVector3Tuple> => [...p],
+      ),
       physicalKeys: [...chart.physicalKeys],
       triangles: chart.triangles.map(
         (t: readonly [number, number, number]): [number, number, number] => [
@@ -195,20 +223,29 @@ export function RecoveryChartBoundaryNetworkRegistry(input: Parameters<IAutoMovi
         number[],
         number[],
       ],
-      boundaries: [] });
+      boundaries: [],
+    });
   }
   let maximumPointChange: number = 0;
   const aliases: Map<string, string> = new Map();
-  const orderedCuts: Map<string, IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut[]> = new Map();
+  const orderedCuts: Map<
+    string,
+    IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut[]
+  > = new Map();
   for (const [base, authority] of cuts)
     orderedCuts.set(
       base,
       [...authority.values.values()].sort(
-        (a: IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut, b: IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut): number => a.fraction - b.fraction,
+        (
+          a: IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut,
+          b: IAutoMovieRecoveryChartBoundaryNetworkRegistry.Cut,
+        ): number => a.fraction - b.fraction,
       ),
     );
   for (const [base, { endpoints }] of cuts) {
-    const a: Readonly<AutoMovieVector3Tuple> | undefined = points.get(endpoints[0]),
+    const a: Readonly<AutoMovieVector3Tuple> | undefined = points.get(
+        endpoints[0],
+      ),
       b: Readonly<AutoMovieVector3Tuple> | undefined = points.get(endpoints[1]);
     if (
       !a ||
@@ -230,7 +267,8 @@ export function RecoveryChartBoundaryNetworkRegistry(input: Parameters<IAutoMovi
         throw new Error("A canonical cut point is collapsed or nonfinite");
       for (const key of cut.aliases) {
         aliases.set(key, cut.key);
-        const old: Readonly<AutoMovieVector3Tuple> | undefined = points.get(key);
+        const old: Readonly<AutoMovieVector3Tuple> | undefined =
+          points.get(key);
         if (old)
           maximumPointChange = Math.max(
             maximumPointChange,
@@ -259,8 +297,11 @@ export function RecoveryChartBoundaryNetworkRegistry(input: Parameters<IAutoMovi
         .values.get(ancestry.fraction)!.point;
       if (
         !finite(expected) ||
-        ![expected, canonical].some((point: Readonly<AutoMovieVector3Tuple>): boolean =>
-          point.every((v: number, k: number): boolean => v === cut.pointMm[k]),
+        ![expected, canonical].some(
+          (point: Readonly<AutoMovieVector3Tuple>): boolean =>
+            point.every(
+              (v: number, k: number): boolean => v === cut.pointMm[k],
+            ),
         )
       )
         throw new Error(
@@ -296,5 +337,6 @@ export function RecoveryChartBoundaryNetworkRegistry(input: Parameters<IAutoMovi
     compare,
     finite,
     blend,
-    normal };
+    normal,
+  };
 }

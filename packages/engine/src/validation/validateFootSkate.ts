@@ -1,7 +1,18 @@
-import { type IAutoMovieSkeletonTopology, type IAutoMovieFootContactWindow, type IAutoMovieResolvedBone, type IAutoMovieRestFrame, type IAutoMovieValidateFootSkate, type IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieBone, type IAutoMovieJointAxes, IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
-
-
-
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  type IAutoMovieFootContactWindow,
+  type IAutoMovieJointAxes,
+  IAutoMovieMotion,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieRestFrame,
+  IAutoMovieSkeleton,
+  type IAutoMovieSkeletonTopology,
+  type IAutoMovieValidateFootSkate,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { indexSkeletonTopology, resolvePose } from "../kinematics";
 import { sampleMotion } from "../motion/sampleMotion";
@@ -24,7 +35,11 @@ const DEFAULT_MAX_HORIZONTAL_SPEED: number = 0.02;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Topology/reachability are computed once for the invocation, not again for every window.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sample arrays release per contact; returned warnings grow with violations and retain no playback or solver handle.
  */
-export const validateFootSkate: (props: IAutoMovieValidateFootSkate.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateFootSkate.IProps): IAutoMovieValidation => {
+export const validateFootSkate: (
+  props: IAutoMovieValidateFootSkate.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateFootSkate.IProps,
+): IAutoMovieValidation => {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const suppressed: boolean = props.physicsIntent !== undefined;
   const sampleRate: number = props.sampleRate ?? DEFAULT_SAMPLE_RATE;

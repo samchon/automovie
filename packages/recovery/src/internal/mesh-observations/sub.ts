@@ -1,6 +1,5 @@
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
-
 /**
  * Subtracts vectors expressed in the same frame and units.
  *
@@ -12,8 +11,10 @@ import type { AutoMovieVector3Tuple } from "@automovie/interface";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call depends directly on its arguments; no retained cache or effectful shared work exists.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A new result triple is returned without retaining inputs.
  */
-export const sub: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
-  a[0] - b[0],
-  a[1] - b[1],
-  a[2] - b[2],
-];
+export const sub: (
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+) => AutoMovieVector3Tuple = (
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+): AutoMovieVector3Tuple => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];

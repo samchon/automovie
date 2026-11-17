@@ -1,6 +1,8 @@
-import type { IAutoMovieMotionHumanStrikingAim, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
-
+import type {
+  IAutoMovieMotionHumanStrikingAim,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { StrikingAim } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

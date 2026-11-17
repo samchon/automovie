@@ -1,4 +1,7 @@
-import type { IAutoMovieMeshDefect, IAutoMovieMeasureMeshDefects } from "@automovie/interface";
+import type {
+  IAutoMovieMeasureMeshDefects,
+  IAutoMovieMeshDefect,
+} from "@automovie/interface";
 
 import { MESH_WELD_GRID } from "../constants/MESH_WELD_GRID";
 

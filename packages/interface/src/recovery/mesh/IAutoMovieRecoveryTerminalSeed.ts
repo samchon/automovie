@@ -6,11 +6,9 @@
  * @evidence contracts/development/common.md#meaningful-documentation States increasing-coordinate direction, millimetre plane identity, loop ordinal and the absence of closure authority.
  */
 export interface IAutoMovieRecoveryTerminalSeed {
- 
- /** A plane explicitly present in coordinatesMm, in signed physical millimetres. */
+  /** A plane explicitly present in coordinatesMm, in signed physical millimetres. */
   coordinateMm: number;
 
- 
- /** Zero-based closed-loop ordinal in that plane's actual source observation. */
+  /** Zero-based closed-loop ordinal in that plane's actual source observation. */
   loopIndex: number;
 }

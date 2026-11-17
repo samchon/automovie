@@ -1,9 +1,9 @@
-import type { IAutoMovieMotionHumanGait } from "./IAutoMovieMotionHumanGait";
 import type { IAutoMovieMotionHumanRun } from "../actions/IAutoMovieMotionHumanRun";
+import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
+import type { IAutoMovieMotionHumanGait } from "./IAutoMovieMotionHumanGait";
 import type { IAutoMovieMotionHumanTravelCar } from "./IAutoMovieMotionHumanTravelCar";
 import type { IAutoMovieMotionHumanTravelDoor } from "./IAutoMovieMotionHumanTravelDoor";
 import type { IAutoMovieMotionHumanTravelLeaf } from "./IAutoMovieMotionHumanTravelLeaf";
-import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
 
 /**
  * Open parameters of the gait lexicon family, keyed by each runtime export name.

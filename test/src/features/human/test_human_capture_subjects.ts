@@ -1,5 +1,3 @@
-import type { IAutoMovieHumanF1, IAutoMovieMark } from "@automovie/interface";
-
 import { AutoMovieHumanF1 } from "@automovie/human";
 import {
   HUMAN_CAPTURE_PEOPLE,
@@ -7,6 +5,7 @@ import {
   listHumanCaptureSubjects,
   resolveHumanCaptureSubject,
 } from "@automovie/human/capture";
+import type { IAutoMovieHumanF1, IAutoMovieMark } from "@automovie/interface";
 import {
   type IAutoMovieInspectionHandle,
   type IAutoMovieInspectionPath,

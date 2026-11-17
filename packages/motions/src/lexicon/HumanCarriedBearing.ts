@@ -1,6 +1,20 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionCoupling, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedCouplingPose, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionCoupling,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanCarriedCouplingPose,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
@@ -49,7 +63,8 @@ export namespace HumanCarriedBearing {
     const seconds: number = HumanCarriedBorne.lasting(
       context.params.seconds ?? 2,
     );
-    const carry: IAutoMovieMotionHumanCarried.Carry = context.params.carry ?? "piggyback";
+    const carry: IAutoMovieMotionHumanCarried.Carry =
+      context.params.carry ?? "piggyback";
     const row: IAutoMovieMotionHumanCarried.IRow = HumanCarried.CARRIES[carry];
     const body: IAutoMovieMotionHumanBody = context.body;
     const arm: number = body.measure.upperArm + body.measure.forearm;
@@ -66,7 +81,9 @@ export namespace HumanCarriedBearing {
       beside === undefined
         ? undefined
         : (
-            Object.keys(HumanCarriedCoupling.PAIRED) as IAutoMovieMotionHumanCarried.Carry[]
+            Object.keys(
+              HumanCarriedCoupling.PAIRED,
+            ) as IAutoMovieMotionHumanCarried.Carry[]
           ).find(
             (c: IAutoMovieMotionHumanCarried.Carry): boolean =>
               HumanCarriedCoupling.PAIRED[c] === carry,
@@ -118,7 +135,8 @@ export namespace HumanCarriedBearing {
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     (["left", "right"] as const).forEach(
       (side: "left" | "right", index: number): void => {
-        const hold: IAutoMovieMotionHumanCarried.IHold | null = row.holds[index] ?? null;
+        const hold: IAutoMovieMotionHumanCarried.IHold | null =
+          row.holds[index] ?? null;
         if (hold === null) return;
         primitives.push(
           AutoMovieMotionHumanArm.carried({
@@ -127,7 +145,9 @@ export namespace HumanCarriedBearing {
             from: 0,
             to: seconds,
             rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-            goal: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture.IGoal => {
+            goal: (
+              posture: IAutoMovieMotionHumanPosture,
+            ): IAutoMovieMotionHumanPosture.IGoal => {
               const local: IAutoMovieMotionHumanCarriedCouplingPose.IHold | null =
                 coupled?.places[index] ?? null;
               if (coupled !== null && local !== null) {
@@ -216,10 +236,8 @@ export namespace HumanCarriedBearing {
     // take the body, which rides it and so tips with it. Two helpers keep
     // their stances: the body rides the first, so a tip of either would
     // carry the other's contacts off it.
-    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      seconds,
-    );
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, seconds);
     const tip: { pitch: number; roll: number } =
       coupling === undefined || coupling.bearers !== undefined
         ? { pitch: 0, roll: 0 }
@@ -232,7 +250,10 @@ export namespace HumanCarriedBearing {
       coupling === undefined || coupling.bearers !== undefined
         ? { incline: 0, depth: 0 }
         : coupling.key.stance;
-    const bent = (posture: IAutoMovieMotionHumanPosture, w: number): IAutoMovieMotionHumanPosture =>
+    const bent = (
+      posture: IAutoMovieMotionHumanPosture,
+      w: number,
+    ): IAutoMovieMotionHumanPosture =>
       (stance.incline === 0 && stance.depth === 0) ||
       posture.limbs.leftLeg === undefined ||
       posture.limbs.rightLeg === undefined

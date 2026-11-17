@@ -1,5 +1,10 @@
-import type { IAutoMovieSolveDistalTwist, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
+  IAutoMovieQuaternion,
+  IAutoMovieSolveDistalTwist,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
@@ -54,7 +59,9 @@ import { toRigAngle } from "../rom/toRigAngle";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Composes and decomposes on the caller's normalized bases and reads the rig's own angle maps (`toRigAngle`, `toClinicalAngle`).
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
-export function solveDistalTwist(props: IAutoMovieSolveDistalTwist.IProps): IAutoMovieJointPose {
+export function solveDistalTwist(
+  props: IAutoMovieSolveDistalTwist.IProps,
+): IAutoMovieJointPose {
   // Each joint's clamp, resolved once for the call or handed in by a sweep
   // that resolved it once for all its candidates.
   const clampLower: (joint: IAutoMovieJointPose) => IAutoMovieJointPose =

@@ -1,7 +1,26 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanHandToFaceRows, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanVerdicts, IAutoMovieMotionTarget } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
-
-import { AutoMovieMotionClock, AutoMovieMotionHumanTouch, AutoMovieMotionHumanTouchEffector, AutoMovieMotionHumanTouchForm, AutoMovieMotionHumanTouchLaid, HUMAN_LEXICON, HumanChain, HumanPerformance, HumanVerdicts, poseBones, resolveHumanPosture } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanHandToFaceRows,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanVerdicts,
+  IAutoMovieMotionTarget,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionClock,
+  AutoMovieMotionHumanTouch,
+  AutoMovieMotionHumanTouchEffector,
+  AutoMovieMotionHumanTouchForm,
+  AutoMovieMotionHumanTouchLaid,
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanPerformance,
+  HumanVerdicts,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -27,7 +46,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the bounds, why the row stands alone, what it was and the scenario.
  */
 export function test_human_motion_hand_verdicts_smoke(): void {
-  const laws: IAutoMovieMotionHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] =
+    Object.values(HUMAN_LEXICON).flat();
   const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "verdict",
     laws,
@@ -44,7 +64,10 @@ export function test_human_motion_hand_verdicts_smoke(): void {
       .stand({ seconds: 0.3 })
       .registered("smoke", {}).node,
   });
-  const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(performance, 24);
+  const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
+    performance,
+    24,
+  );
 
   // The touch's arm goal as its stroke builds it each second, rebuilt from
   // the placed action's own context and parameters, with the end the carry
@@ -53,7 +76,9 @@ export function test_human_motion_hand_verdicts_smoke(): void {
     const placed = performance.segments("a")[1]!;
     const context = placed.context as IAutoMovieMotionHumanActionContext<never>;
     const body = context.body;
-    const row = (placed.params as { task: IAutoMovieMotionHumanHandToFaceRows.IRow }).task;
+    const row = (
+      placed.params as { task: IAutoMovieMotionHumanHandToFaceRows.IRow }
+    ).task;
     const effector = row.effector;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const entryBones = poseBones(body, context.entry.pose);
@@ -101,7 +126,10 @@ export function test_human_motion_hand_verdicts_smoke(): void {
       typeof v === "number" ? Math.round(v * 1e4) / 1e4 : v;
     return instants.map((film: number): string => {
       const seconds: number = film - placed.start;
-      const posture: IAutoMovieMotionHumanPosture = performance.posture("a", film);
+      const posture: IAutoMovieMotionHumanPosture = performance.posture(
+        "a",
+        film,
+      );
       const at = place(posture, seconds);
       const normal = Vector3.normalize(at.normal);
       const along = AutoMovieMotionHumanTouchForm.tangent(
@@ -154,11 +182,12 @@ export function test_human_motion_hand_verdicts_smoke(): void {
       : [
           HumanVerdicts.describe(report),
           ...touchGoals([0.84, 0.861, 0.882, 0.903]),
-          ...report.findings.flatMap((f: IAutoMovieMotionHumanVerdicts.IFinding): string[] =>
-            [f.seconds - 1 / 48, f.seconds].map(
-              (seconds: number): string =>
-                `posture at ${seconds.toFixed(3)} s: ${dump(performance.posture("a", seconds))}`,
-            ),
+          ...report.findings.flatMap(
+            (f: IAutoMovieMotionHumanVerdicts.IFinding): string[] =>
+              [f.seconds - 1 / 48, f.seconds].map(
+                (seconds: number): string =>
+                  `posture at ${seconds.toFixed(3)} s: ${dump(performance.posture("a", seconds))}`,
+              ),
           ),
           // The row's phase instants and, around each finding, the
           // offending joint's world path and its own and its parent's angles.
@@ -169,20 +198,21 @@ export function test_human_motion_hand_verdicts_smoke(): void {
                 `${e.name} ${(performance.segments("a")[1]!.start + e.share * performance.segments("a")[1]!.plan.duration).toFixed(3)}`,
             )
             .join(", ")}`,
-          ...report.findings.flatMap((f: IAutoMovieMotionHumanVerdicts.IFinding): string[] =>
-            Array.from({ length: 13 }, (_: unknown, i: number): string => {
-              const seconds: number = f.seconds + (i - 6) / 48;
-              const bones = performance.bones("a", seconds);
-              const bone = bones.get(f.where as "rightLowerArm");
-              const pose = performance.pose("a", seconds);
-              const angles = (name: string): string =>
-                JSON.stringify(
-                  pose.joints.find((j): boolean => j.bone === name) ?? null,
-                  (_k: string, v: unknown): unknown =>
-                    typeof v === "number" ? Math.round(v * 100) / 100 : v,
-                );
-              return `${seconds.toFixed(3)} s ${f.where} at ${bone === undefined ? "?" : `(${bone.worldPosition.x.toFixed(4)}, ${bone.worldPosition.y.toFixed(4)}, ${bone.worldPosition.z.toFixed(4)})`} ${angles("rightUpperArm")} ${angles("rightLowerArm")} ${angles("rightHand")}`;
-            }),
+          ...report.findings.flatMap(
+            (f: IAutoMovieMotionHumanVerdicts.IFinding): string[] =>
+              Array.from({ length: 13 }, (_: unknown, i: number): string => {
+                const seconds: number = f.seconds + (i - 6) / 48;
+                const bones = performance.bones("a", seconds);
+                const bone = bones.get(f.where as "rightLowerArm");
+                const pose = performance.pose("a", seconds);
+                const angles = (name: string): string =>
+                  JSON.stringify(
+                    pose.joints.find((j): boolean => j.bone === name) ?? null,
+                    (_k: string, v: unknown): unknown =>
+                      typeof v === "number" ? Math.round(v * 100) / 100 : v,
+                  );
+                return `${seconds.toFixed(3)} s ${f.where} at ${bone === undefined ? "?" : `(${bone.worldPosition.x.toFixed(4)}, ${bone.worldPosition.y.toFixed(4)}, ${bone.worldPosition.z.toFixed(4)})`} ${angles("rightUpperArm")} ${angles("rightLowerArm")} ${angles("rightHand")}`;
+              }),
           ),
         ].join("\n"),
     "clean",
@@ -200,10 +230,10 @@ function dump(posture: IAutoMovieMotionHumanPosture): string {
       joints: posture.joints,
       limbs: Object.fromEntries(
         Object.entries(posture.limbs).map(
-          ([limb, goal]: [string, IAutoMovieMotionHumanPosture.IGoal | undefined]): [
+          ([limb, goal]: [
             string,
-            object | undefined,
-          ] => [
+            IAutoMovieMotionHumanPosture.IGoal | undefined,
+          ]): [string, object | undefined] => [
             limb,
             goal === undefined ? goal : { ...goal, clear: undefined },
           ],

@@ -1,13 +1,21 @@
-import type { AutoMovieVector3Tuple, IAutoMovieContourSlit64 } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieContourSlit64,
+} from "@automovie/interface";
+
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
 const add: typeof M.add = M.add,
   sub: typeof M.sub = M.sub,
   mul: typeof M.scale = M.scale;
-const dot: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number =>
-  a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-const dist: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number =>
-  Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+const dot: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const dist: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+): number => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 
 /**
  * Continuous closest-segment slit construction for declared contour walks.
@@ -32,7 +40,12 @@ export namespace AutoMovieContourSlit64 {
   export function join(
     a: AutoMovieVector3Tuple[],
     b: AutoMovieVector3Tuple[],
-    inserted: (p: AutoMovieVector3Tuple, a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, t: number) => void,
+    inserted: (
+      p: AutoMovieVector3Tuple,
+      a: AutoMovieVector3Tuple,
+      b: AutoMovieVector3Tuple,
+      t: number,
+    ) => void,
   ): AutoMovieVector3Tuple[] {
     let ai: number = 0,
       bi: number = 0,
@@ -40,8 +53,14 @@ export namespace AutoMovieContourSlit64 {
       tb: number = 0,
       best: number = Infinity;
     const accept = (i: number, j: number, u: number, v: number): void => {
-      const p: AutoMovieVector3Tuple = add(a[i], mul(sub(a[(i + 1) % a.length], a[i]), u));
-      const q: AutoMovieVector3Tuple = add(b[j], mul(sub(b[(j + 1) % b.length], b[j]), v));
+      const p: AutoMovieVector3Tuple = add(
+        a[i],
+        mul(sub(a[(i + 1) % a.length], a[i]), u),
+      );
+      const q: AutoMovieVector3Tuple = add(
+        b[j],
+        mul(sub(b[(j + 1) % b.length], b[j]), v),
+      );
       const d: number = dist(p, q);
       if (d < best) {
         best = d;
@@ -74,14 +93,24 @@ export namespace AutoMovieContourSlit64 {
           if (u >= 0 && u <= 1 && v >= 0 && v <= 1) accept(i, j, u, v);
         }
       }
-    const open = (ring: AutoMovieVector3Tuple[], edge: number, t: number): AutoMovieVector3Tuple[] => {
+    const open = (
+      ring: AutoMovieVector3Tuple[],
+      edge: number,
+      t: number,
+    ): AutoMovieVector3Tuple[] => {
       const next: number = (edge + 1) % ring.length;
       if (t === 0 || t === 1) {
         const start: number = t === 0 ? edge : next;
-        const walk: AutoMovieVector3Tuple[] = [...ring.slice(start), ...ring.slice(0, start)];
+        const walk: AutoMovieVector3Tuple[] = [
+          ...ring.slice(start),
+          ...ring.slice(0, start),
+        ];
         return [...walk, walk[0]];
       }
-      const p: AutoMovieVector3Tuple = add(ring[edge], mul(sub(ring[next], ring[edge]), t));
+      const p: AutoMovieVector3Tuple = add(
+        ring[edge],
+        mul(sub(ring[next], ring[edge]), t),
+      );
       inserted(p, ring[edge], ring[next], t);
       return [p, ...ring.slice(edge + 1), ...ring.slice(0, edge + 1), p];
     };

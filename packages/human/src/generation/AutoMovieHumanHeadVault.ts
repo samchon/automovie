@@ -1,15 +1,15 @@
-import type { IAutoMovieViewOutline, IAutoMovieHumanHeadBackProfile, IAutoMovieHumanHeadLandmarks, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadSection } from "@automovie/interface";
-
-
-
-
-
 import { AutoMovieViewOutline } from "@automovie/engine";
+import type {
+  IAutoMovieHumanHeadBackProfile,
+  IAutoMovieHumanHeadLandmarks,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadSection,
+  IAutoMovieViewOutline,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadBackProfile } from "./AutoMovieHumanHeadBackProfile";
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
 import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
-
 
 /**
  * Retained analytic cranial templates and section-gauge helpers: front and
@@ -34,9 +34,16 @@ export namespace AutoMovieHumanHeadVault {
    * of height and cut a 15 mm cliff along the temple, the groove from the eye
    * to the ear.
    */
-  export function cranialFront(plan: IAutoMovieHumanHeadLayout, y: number): number {
+  export function cranialFront(
+    plan: IAutoMovieHumanHeadLayout,
+    y: number,
+  ): number {
     const g: number = plan.landmarks.glabella[1];
-    return plan.centre + (plan.length / 2) * AutoMovieHumanHeadMath.crownShare(y, g, plan.vertex - g);
+    return (
+      plan.centre +
+      (plan.length / 2) *
+        AutoMovieHumanHeadMath.crownShare(y, g, plan.vertex - g)
+    );
   }
 
   /**
@@ -58,7 +65,9 @@ export namespace AutoMovieHumanHeadVault {
 
     // At the glabella's height the front apex is the glabella and the axis the
     // skull's centre (the neck's lean has left the sections by then).
-    const u: number = (m.frontal[0] - plan.centre) / Math.max(1e-6, m.glabella[0] - plan.centre);
+    const u: number =
+      (m.frontal[0] - plan.centre) /
+      Math.max(1e-6, m.glabella[0] - plan.centre);
     if (!(u > 0 && u < 1)) return 0;
     const v: number = plan.frontalWidth / Math.max(1e-6, plan.breadth / 2);
     const q: number = (1 - u ** plan.vault) ** (1 / plan.vault);
@@ -76,12 +85,26 @@ export namespace AutoMovieHumanHeadVault {
    * @param z Lateral place, mm.
    * @returns The Lame gauge, 1 on the outline.
    */
-  export function gauge(section: IAutoMovieHumanHeadSection, x: number, z: number): number {
+  export function gauge(
+    section: IAutoMovieHumanHeadSection,
+    x: number,
+    z: number,
+  ): number {
     const front: boolean = x >= section.axis;
     const u: number =
-      (x - section.axis) / Math.max(1e-6, front ? section.crown - section.axis : section.axis - section.back);
-    const narrow: number = front ? Math.max(0.2, 1 + section.taper * Math.min(1, u) ** 3) : 1;
-    return AutoMovieHumanHeadMath.lame(u, z / (section.width * narrow), section.powerBack);
+      (x - section.axis) /
+      Math.max(
+        1e-6,
+        front ? section.crown - section.axis : section.axis - section.back,
+      );
+    const narrow: number = front
+      ? Math.max(0.2, 1 + section.taper * Math.min(1, u) ** 3)
+      : 1;
+    return AutoMovieHumanHeadMath.lame(
+      u,
+      z / (section.width * narrow),
+      section.powerBack,
+    );
   }
 
   /**
@@ -90,19 +113,37 @@ export namespace AutoMovieHumanHeadVault {
    * The production caliper closes the actual emitted source's maximum
    * chord, rather than requiring its maximizer to stand at that reference.
    */
-  export function cranialBack(plan: IAutoMovieHumanHeadLayout, y: number): number {
+  export function cranialBack(
+    plan: IAutoMovieHumanHeadLayout,
+    y: number,
+  ): number {
     return plan.centre - AutoMovieHumanHeadBackProfile.at(backProfile(plan), y);
   }
 
   /** The back profile's owners for a person. */
-  export function backProfile(plan: IAutoMovieHumanHeadLayout): IAutoMovieHumanHeadBackProfile.IProfile {
-    let ring: IAutoMovieHumanHeadBackProfile.IProfile["ring"] = { y: plan.neck.backLevel, x: plan.neck.back, slope: plan.neck.backSlope };
+  export function backProfile(
+    plan: IAutoMovieHumanHeadLayout,
+  ): IAutoMovieHumanHeadBackProfile.IProfile {
+    let ring: IAutoMovieHumanHeadBackProfile.IProfile["ring"] = {
+      y: plan.neck.backLevel,
+      x: plan.neck.back,
+      slope: plan.neck.backSlope,
+    };
     if (plan.neck.curves !== undefined) {
       const neck: NonNullable<typeof plan.neck.curves> = plan.neck.curves;
-      const source: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(neck.centre);
-      if ("detail" in source) throw new Error(`Neck posterior origin: ${source.detail}`);
-      const value: number | string = AutoMovieViewOutline.value(source, neck.band[1]);
-      if (typeof value === "string") throw new Error(`Neck posterior origin: ${value}`);
+      const source:
+        | IAutoMovieViewOutline.IOutline
+        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+        neck.centre,
+      );
+      if ("detail" in source)
+        throw new Error(`Neck posterior origin: ${source.detail}`);
+      const value: number | string = AutoMovieViewOutline.value(
+        source,
+        neck.band[1],
+      );
+      if (typeof value === "string")
+        throw new Error(`Neck posterior origin: ${value}`);
       ring = { y: neck.band[1], x: value - neck.extents[2], slope: neck.slope };
     }
     return {
@@ -115,7 +156,10 @@ export namespace AutoMovieHumanHeadVault {
   }
 
   /** The cranium's half-width share at a height, before the neck. */
-  export function cranialWidth(plan: IAutoMovieHumanHeadLayout, y: number): number {
+  export function cranialWidth(
+    plan: IAutoMovieHumanHeadLayout,
+    y: number,
+  ): number {
     const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
     const g: number = m.glabella[1];
     if (y >= g) return AutoMovieHumanHeadMath.crownShare(y, g, plan.vertex - g);
@@ -127,7 +171,11 @@ export namespace AutoMovieHumanHeadVault {
   }
 
   /** The cranium's radius along a ray. */
-  export function cranial(section: IAutoMovieHumanHeadSection, ox: number, theta: number): number {
+  export function cranial(
+    section: IAutoMovieHumanHeadSection,
+    ox: number,
+    theta: number,
+  ): number {
     const c: number = Math.cos(theta);
     const n: number = Math.sin(theta);
     const reach: number =
@@ -151,7 +199,11 @@ export namespace AutoMovieHumanHeadVault {
   export function closing(plan: IAutoMovieHumanHeadLayout): number {
     const g: number = plan.landmarks.glabella[1];
 
-    return vaultPower(plan.length / 2 + cranialBack(plan, g), plan.breadth, plan.tape);
+    return vaultPower(
+      plan.length / 2 + cranialBack(plan, g),
+      plan.breadth,
+      plan.tape,
+    );
   }
 
   /**
@@ -159,7 +211,11 @@ export namespace AutoMovieHumanHeadVault {
    * Bisection stays in [1.6,6]; an unattainable target approaches an end.
    * This does not close the actual conic or the anatomical oblique course.
    */
-  export function vaultPower(length: number, breadth: number, tape: number): number {
+  export function vaultPower(
+    length: number,
+    breadth: number,
+    tape: number,
+  ): number {
     const a: number = length / 2;
     const b: number = breadth / 2;
     const around = (p: number): number => {

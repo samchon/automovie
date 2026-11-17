@@ -1,5 +1,9 @@
-import { type IAutoMovieFootprint, type IAutoMovieFootprintRing, IAutoMoviePlanarPoint, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieFootprint,
+  type IAutoMovieFootprintRing,
+  IAutoMoviePlanarPoint,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { autoMoviePlanarRegionFailure } from "../geometry/autoMoviePlanarRegionFailure";
 import { planarCross } from "../geometry/planarCross";

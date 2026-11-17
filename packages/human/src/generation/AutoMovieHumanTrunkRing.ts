@@ -1,8 +1,9 @@
-import type { IAutoMovieHumanArmRootArc, IAutoMovieHumanTrunkAssembly, IAutoMovieHumanTrunkGuides, IAutoMovieHumanTrunkSection } from "@automovie/interface";
-
-
-
-
+import type {
+  IAutoMovieHumanArmRootArc,
+  IAutoMovieHumanTrunkAssembly,
+  IAutoMovieHumanTrunkGuides,
+  IAutoMovieHumanTrunkSection,
+} from "@automovie/interface";
 
 import { AutoMovieHumanTrunkAssembly } from "./AutoMovieHumanTrunkAssembly";
 import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
@@ -19,13 +20,16 @@ import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
  */
 export namespace AutoMovieHumanTrunkRing {
   /** The left side's guides in knot order, front midline to back midline. */
-  const GUIDES: readonly IAutoMovieHumanTrunkGuides.Guide[] = AutoMovieHumanTrunkGuides.ORDER;
+  const GUIDES: readonly IAutoMovieHumanTrunkGuides.Guide[] =
+    AutoMovieHumanTrunkGuides.ORDER;
 
   /** The left side's sectors, each after the guide of the same index. */
-  const SECTORS: readonly IAutoMovieHumanTrunkGuides.ISector[] = AutoMovieHumanTrunkGuides.SECTORS;
+  const SECTORS: readonly IAutoMovieHumanTrunkGuides.ISector[] =
+    AutoMovieHumanTrunkGuides.SECTORS;
 
   /** Each guide's knot. */
-  const KNOT: Readonly<Record<IAutoMovieHumanTrunkGuides.Guide, number>> = AutoMovieHumanTrunkGuides.KNOT;
+  const KNOT: Readonly<Record<IAutoMovieHumanTrunkGuides.Guide, number>> =
+    AutoMovieHumanTrunkGuides.KNOT;
 
   /**
    * The speed of every guide of the left side, mm per radian.
@@ -34,20 +38,33 @@ export namespace AutoMovieHumanTrunkRing {
    * @param arc The arm's arc, which replaces the two flank sectors; absent, the torso's own flanks.
    * @returns One speed per guide, midline to midline.
    */
-  export function speeds(s: IAutoMovieHumanTrunkSection, arc?: IAutoMovieHumanArmRootArc): number[] {
-    const rates: number[] = SECTORS.map((sector: IAutoMovieHumanTrunkGuides.ISector, i: number): number => {
-      const [a, b]: [number, number] = sector.shares(s);
-      const span: number = AutoMovieHumanTrunkQuadrant.phase(KNOT[GUIDES[i + 1]!] - KNOT[GUIDES[i]!]);
-      const own: number = AutoMovieHumanTrunkQuadrant.arclength(s, sector.side, a, b) / span;
+  export function speeds(
+    s: IAutoMovieHumanTrunkSection,
+    arc?: IAutoMovieHumanArmRootArc,
+  ): number[] {
+    const rates: number[] = SECTORS.map(
+      (sector: IAutoMovieHumanTrunkGuides.ISector, i: number): number => {
+        const [a, b]: [number, number] = sector.shares(s);
+        const span: number = AutoMovieHumanTrunkQuadrant.phase(
+          KNOT[GUIDES[i + 1]!] - KNOT[GUIDES[i]!],
+        );
+        const own: number =
+          AutoMovieHumanTrunkQuadrant.arclength(s, sector.side, a, b) / span;
 
-      // The arc's flank rates carry the torso's by its weight, so at the vault
-      // the folds run at the torso's own speeds.
-      if (arc !== undefined && (i === 2 || i === 3)) return arc.torso * own + (1 - arc.torso) * arc.rates[i - 2]!;
-      return own;
-    });
+        // The arc's flank rates carry the torso's by its weight, so at the vault
+        // the folds run at the torso's own speeds.
+        if (arc !== undefined && (i === 2 || i === 3))
+          return arc.torso * own + (1 - arc.torso) * arc.rates[i - 2]!;
+        return own;
+      },
+    );
 
     const speeds: number[] = GUIDES.map((_: unknown, j: number): number =>
-      j === 0 ? rates[0]! : j === GUIDES.length - 1 ? rates[rates.length - 1]! : (rates[j - 1]! + rates[j]!) / 2,
+      j === 0
+        ? rates[0]!
+        : j === GUIDES.length - 1
+          ? rates[rates.length - 1]!
+          : (rates[j - 1]! + rates[j]!) / 2,
     );
 
     // The arc's lateral guide stands on the arm's ellipse, where no torso
@@ -68,23 +85,40 @@ export namespace AutoMovieHumanTrunkRing {
    * @param arc The arm's arc, which replaces the anterior, lateral and posterior guides and the two flank sectors between them.
    * @returns The 256-control section.
    */
-  export function controls(s: IAutoMovieHumanTrunkSection, arc?: IAutoMovieHumanArmRootArc): number[] {
+  export function controls(
+    s: IAutoMovieHumanTrunkSection,
+    arc?: IAutoMovieHumanArmRootArc,
+  ): number[] {
     const section: IAutoMovieHumanTrunkSection =
-      arc === undefined ? s : { ...s, anterior: arc.anterior, posterior: arc.posterior };
+      arc === undefined
+        ? s
+        : { ...s, anterior: arc.anterior, posterior: arc.posterior };
     const v: number[] = speeds(section, arc);
     const guides: IAutoMovieHumanTrunkAssembly.IGuide[] = GUIDES.map(
-      (g: IAutoMovieHumanTrunkGuides.Guide, j: number): IAutoMovieHumanTrunkAssembly.IGuide => ({
+      (
+        g: IAutoMovieHumanTrunkGuides.Guide,
+        j: number,
+      ): IAutoMovieHumanTrunkAssembly.IGuide => ({
         knot: KNOT[g],
-        jet: arc !== undefined && j >= 2 && j <= 4 ? arc.guides[j - 2]! : AutoMovieHumanTrunkGuides.jet(g, section),
+        jet:
+          arc !== undefined && j >= 2 && j <= 4
+            ? arc.guides[j - 2]!
+            : AutoMovieHumanTrunkGuides.jet(g, section),
         speed: v[j]!,
       }),
     );
     const sectors: IAutoMovieHumanTrunkAssembly.Sector[] = SECTORS.map(
-      (sector: IAutoMovieHumanTrunkGuides.ISector, j: number): IAutoMovieHumanTrunkAssembly.Sector => {
+      (
+        sector: IAutoMovieHumanTrunkGuides.ISector,
+        j: number,
+      ): IAutoMovieHumanTrunkAssembly.Sector => {
         if (arc !== undefined && j === 2) return arc.front([v[j]!, v[j + 1]!]);
         if (arc !== undefined && j === 3) return arc.back([v[j]!, v[j + 1]!]);
 
-        return AutoMovieHumanTrunkGuides.sector(sector, section, [v[j]!, v[j + 1]!]);
+        return AutoMovieHumanTrunkGuides.sector(sector, section, [
+          v[j]!,
+          v[j + 1]!,
+        ]);
       },
     );
 

@@ -1,5 +1,3 @@
-
-
 /**
  * One semi-sharp or sharp cage edge of a subdivision surface.
  *

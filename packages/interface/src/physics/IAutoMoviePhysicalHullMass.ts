@@ -14,16 +14,15 @@ export namespace IAutoMoviePhysicalHullMass {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer rejects a hull spanning no volume. The quaternion maps principal coordinates to the shape frame; these values do not include placement in the world.
    */
   export type IResult = {
-    
     /** Positive hull volume in cubic metres. */
     volume: number;
-    
+
     /** Uniform-solid centroid in the input points' shape-local frame, metres. */
     centerOfMass: IAutoMovieVector3;
-    
+
     /** Centroidal principal moments per unit mass, square metres, with x <= y <= z; multiply by mass for kg m². */
     inertia: IAutoMovieVector3;
-    
+
     /** Unit quaternion rotating the principal inertia frame into the input points' frame. */
     inertiaRotation: IAutoMovieQuaternion;
   };

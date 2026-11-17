@@ -1,5 +1,3 @@
-
-
 /**
  * Population and contact classification for the mesh triangle crossing census
  * `measureAutoMovieMeshCrossings`.

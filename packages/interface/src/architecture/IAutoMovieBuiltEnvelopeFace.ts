@@ -1,5 +1,5 @@
-import type { AutoMovieEnvelopeFaceAspect } from "./AutoMovieEnvelopeFaceAspect";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieEnvelopeFaceAspect } from "./AutoMovieEnvelopeFaceAspect";
 
 /**
  * One exposed separation of a building unit, placed in world space.

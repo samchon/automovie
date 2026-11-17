@@ -1,7 +1,24 @@
-import type { IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
-
-import { AutoMovieMotionHumanArm, HumanArmClearance, HumanChain, HumanObject, HumanPerformance, blendHumanJoint, poseBones, resolveHumanPosture } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanArm,
+  HumanArmClearance,
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  blendHumanJoint,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -81,10 +98,8 @@ export function test_human_motion_core_arm_carry_course(): void {
     );
     return;
   }
-  const held: IAutoMovieMotionHumanArmAngles.IAngles = AutoMovieMotionHumanArm.angles(
-    film.pose("a", 0),
-    "right",
-  );
+  const held: IAutoMovieMotionHumanArmAngles.IAngles =
+    AutoMovieMotionHumanArm.angles(film.pose("a", 0), "right");
   const hanging: IAutoMovieVector3 = film
     .bones("a", 0)
     .get("rightHand")!.worldPosition;

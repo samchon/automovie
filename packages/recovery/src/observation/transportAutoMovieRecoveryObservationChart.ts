@@ -1,15 +1,14 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryObservationAnchor, IAutoMovieRecoveryObservationChart, IAutoMovieRecoveryObservationChartSeed, IAutoMovieRecoveryObservationEntry, IAutoMovieRecoveryObservationProvenance, IAutoMovieRecoveryObservationTangents, IAutoMovieRecoveryObservationTransport, IAutoMovieRecoveryObservationTransportRefused } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryObservationAnchor,
+  IAutoMovieRecoveryObservationChart,
+  IAutoMovieRecoveryObservationChartSeed,
+  IAutoMovieRecoveryObservationEntry,
+  IAutoMovieRecoveryObservationProvenance,
+  IAutoMovieRecoveryObservationTangents,
+  IAutoMovieRecoveryObservationTransport,
+  IAutoMovieRecoveryObservationTransportRefused,
+} from "@automovie/interface";
 
 /**
  * Transport a closed observation chart through uniquely ordered persistent anchors.
@@ -40,25 +39,38 @@ export function transportAutoMovieRecoveryObservationChart(
   ): IAutoMovieRecoveryObservationTransportRefused => ({
     admitted: false,
     diagnostics: [reason],
-    originalCourseRetainedByCaller: true });
-  const sub: (a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>) => Readonly<AutoMovieVector3Tuple> = (
+    originalCourseRetainedByCaller: true,
+  });
+  const sub: (
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+  ) => Readonly<AutoMovieVector3Tuple> = (
     a: Readonly<AutoMovieVector3Tuple>,
     b: Readonly<AutoMovieVector3Tuple>,
   ): Readonly<AutoMovieVector3Tuple> => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-  const norm: (a: Readonly<AutoMovieVector3Tuple>) => number = (a: Readonly<AutoMovieVector3Tuple>): number =>
-    Math.hypot(...a);
-  const unit: (a: Readonly<AutoMovieVector3Tuple>) => Readonly<AutoMovieVector3Tuple> = (a: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> => {
+  const norm: (a: Readonly<AutoMovieVector3Tuple>) => number = (
+    a: Readonly<AutoMovieVector3Tuple>,
+  ): number => Math.hypot(...a);
+  const unit: (
+    a: Readonly<AutoMovieVector3Tuple>,
+  ) => Readonly<AutoMovieVector3Tuple> = (
+    a: Readonly<AutoMovieVector3Tuple>,
+  ): Readonly<AutoMovieVector3Tuple> => {
     const size: number = norm(a);
     if (!(size > 0 && Number.isFinite(size)))
       throw new Error("Unresolved observed tangent");
     return [a[0] / size, a[1] / size, a[2] / size];
   };
-  const negate: (a: Readonly<AutoMovieVector3Tuple>) => Readonly<AutoMovieVector3Tuple> = (a: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> => [
-    -a[0],
-    -a[1],
-    -a[2],
-  ];
-  const mix: (a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>, t: number) => Readonly<AutoMovieVector3Tuple> = (
+  const negate: (
+    a: Readonly<AutoMovieVector3Tuple>,
+  ) => Readonly<AutoMovieVector3Tuple> = (
+    a: Readonly<AutoMovieVector3Tuple>,
+  ): Readonly<AutoMovieVector3Tuple> => [-a[0], -a[1], -a[2]];
+  const mix: (
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+    t: number,
+  ) => Readonly<AutoMovieVector3Tuple> = (
     a: Readonly<AutoMovieVector3Tuple>,
     b: Readonly<AutoMovieVector3Tuple>,
     t: number,
@@ -80,7 +92,9 @@ export function transportAutoMovieRecoveryObservationChart(
     current.anchorIds.length !== n
   )
     throw new Error("Malformed closed observation chart");
-  const finite: (points: readonly Readonly<AutoMovieVector3Tuple>[]) => boolean = (
+  const finite: (
+    points: readonly Readonly<AutoMovieVector3Tuple>[],
+  ) => boolean = (
     points: readonly Readonly<AutoMovieVector3Tuple>[],
   ): boolean =>
     points.every(
@@ -143,7 +157,8 @@ export function transportAutoMovieRecoveryObservationChart(
         id,
         previousIndex: i,
         phase: previousPhase![i]!,
-        currentIndex: cm.get(id)! }),
+        currentIndex: cm.get(id)!,
+      }),
     )
     .sort(
       (
@@ -234,7 +249,10 @@ export function transportAutoMovieRecoveryObservationChart(
   const entries: IAutoMovieRecoveryObservationEntry[] = indices.map(
     (sourceIndex: number, i: number): IAutoMovieRecoveryObservationEntry => {
       const p: Readonly<AutoMovieVector3Tuple> = points[i]!,
-        left: Readonly<AutoMovieVector3Tuple> = sub(p, points[(i + n - 1) % n]!),
+        left: Readonly<AutoMovieVector3Tuple> = sub(
+          p,
+          points[(i + n - 1) % n]!,
+        ),
         right: Readonly<AutoMovieVector3Tuple> = sub(points[(i + 1) % n]!, p);
       const corner: boolean = cornerSet.has(sourceIndex),
         tangent: Readonly<AutoMovieVector3Tuple> | null = corner
@@ -248,8 +266,10 @@ export function transportAutoMovieRecoveryObservationChart(
         schedule: scheduleSet.has(sourceIndex),
         tangents: {
           out: corner ? unit(right) : tangent!,
-          incoming: negate(corner ? unit(left) : tangent!) },
-        provenance: { kind: "observed-point", sourceIndex } };
+          incoming: negate(corner ? unit(left) : tangent!),
+        },
+        provenance: { kind: "observed-point", sourceIndex },
+      };
     },
   );
   let virtualSeam: boolean = false;
@@ -267,7 +287,9 @@ export function transportAutoMovieRecoveryObservationChart(
       return refuse(
         "The inferred seam inverse collapses onto an endpoint in finite arithmetic",
       );
-    const tangent: Readonly<AutoMovieVector3Tuple> = unit(sub(points[(i + 1) % n]!, points[i]!));
+    const tangent: Readonly<AutoMovieVector3Tuple> = unit(
+      sub(points[(i + 1) % n]!, points[i]!),
+    );
     entries.push({
       phase: 0,
       point: mix(points[i]!, points[(i + 1) % n]!, t),
@@ -278,7 +300,9 @@ export function transportAutoMovieRecoveryObservationChart(
       provenance: {
         kind: "observed-PL-interior",
         sourceEdge: [indices[i]!, indices[(i + 1) % n]!],
-        fraction: t } });
+        fraction: t,
+      },
+    });
     virtualSeam = true;
   }
   entries.sort(
@@ -307,9 +331,9 @@ export function transportAutoMovieRecoveryObservationChart(
     row: {
       name: current.name,
       pointsMm: entries.map(
-        (entry: IAutoMovieRecoveryObservationEntry): Readonly<AutoMovieVector3Tuple> => [
-          ...entry.point,
-        ],
+        (
+          entry: IAutoMovieRecoveryObservationEntry,
+        ): Readonly<AutoMovieVector3Tuple> => [...entry.point],
       ),
       anchorIds: entries.map(
         (entry: IAutoMovieRecoveryObservationEntry): string | null =>
@@ -333,7 +357,8 @@ export function transportAutoMovieRecoveryObservationChart(
           entry: IAutoMovieRecoveryObservationEntry,
         ): IAutoMovieRecoveryObservationTangents => entry.tangents,
       ),
-      phase },
+      phase,
+    },
     persistentAnchors: anchors,
     direction,
     virtualSeam,
@@ -349,5 +374,6 @@ export function transportAutoMovieRecoveryObservationChart(
           entry.provenance.kind === "observed-point",
       ).length === n,
     materialCorrespondenceQualified: false,
-    sourceGuideQualified: false };
+    sourceGuideQualified: false,
+  };
 }

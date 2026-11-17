@@ -1,17 +1,20 @@
-import type { IAutoMovieConstructionRealization, IAutoMovieLoftChain, IAutoMovieLoftContract, IAutoMovieViewPart, IAutoMovieConstructionNode, IAutoMovieHumanBodyTree, IAutoMovieHumanMassSource, IAutoMovieHumanSiteViewPart, IAutoMovieConstructionDiagnostic, IAutoMovieConstructionJoin, IAutoMovieConstructionSplit } from "@automovie/interface";
-
-
-
-
-
 import { realizeAutoMovieConstruction } from "@automovie/engine";
-
-
-
+import type {
+  IAutoMovieConstructionDiagnostic,
+  IAutoMovieConstructionJoin,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionRealization,
+  IAutoMovieConstructionSplit,
+  IAutoMovieHumanBodyTree,
+  IAutoMovieHumanMassSource,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftContract,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanConstructionView } from "./limb/AutoMovieHumanConstructionView";
 import { AutoMovieHumanMassSource } from "./limb/AutoMovieHumanMassSource";
-
 
 /**
  * The body's construction tree (#3044, construction step 2; #3047 to #3051)
@@ -31,12 +34,6 @@ import { AutoMovieHumanMassSource } from "./limb/AutoMovieHumanMassSource";
  * which a per-join merge record on one host face cannot.
  */
 export namespace AutoMovieHumanBodyTree {
-  
-
-  
-
-  
-
   /**
    * A fold's join node on a host subtree.
    *

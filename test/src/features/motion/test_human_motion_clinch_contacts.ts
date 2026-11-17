@@ -1,5 +1,14 @@
-import type { IAutoMovieMotionHumanAuditPartner, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditPartner, HumanChain, HumanPerformance, HumanVerdicts } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanAuditPartner,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAuditPartner,
+  HumanChain,
+  HumanPerformance,
+  HumanVerdicts,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";

@@ -1,5 +1,8 @@
-import { type IAutoMovieSampledChannel, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieSampledChannel,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /** Read-only fallback when the object authority writes no scale channel. */
 const UNIT_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };

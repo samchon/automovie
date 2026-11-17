@@ -1,5 +1,13 @@
-import type { IAutoMovieConstructionKnownPortSource, IAutoMoviePreparedConstructionKnownPort, IAutoMovieSolidMesh, IAutoMovieSolidSurface } from "@automovie/interface";
-import { AutoMovieConstructionKnownPort, AutoMovieSolidMesh } from "@automovie/engine";
+import {
+  AutoMovieConstructionKnownPort,
+  AutoMovieSolidMesh,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionKnownPortSource,
+  IAutoMoviePreparedConstructionKnownPort,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionKnownPortCircular as Made } from "../../internal/construction/ConstructionKnownPortCircular";

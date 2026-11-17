@@ -1,5 +1,5 @@
-import type { IAutoMovieImpact } from "./IAutoMovieImpact";
 import type { IAutoMoviePose } from "../pose/IAutoMoviePose";
+import type { IAutoMovieImpact } from "./IAutoMovieImpact";
 import type { IAutoMovieRecoilPush } from "./IAutoMovieRecoilPush";
 
 /**

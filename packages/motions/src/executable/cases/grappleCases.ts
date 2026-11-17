@@ -1,6 +1,9 @@
-import type { AutoMovieHumanoidSocket, IAutoMovieComposition, IAutoMovieMotionHumanPerformance } from "@automovie/interface";
-
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidSocket,
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { clinch } from "../../grappling/clinch";
@@ -46,19 +49,20 @@ export function grappleCases(
           HumanChain.subject("b").act("stand", { seconds: 4 }).node,
         ],
       };
-      const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
-        "grapple",
-        [
-          { subject: "a", body: who.body },
-          {
-            subject: "b",
-            body: who.body,
-            at: { x: 0, y: 0, z: 0.55 },
-            yaw: 180,
-          },
-        ],
-        composition,
-      );
+      const performance: IAutoMovieMotionHumanPerformance =
+        FamilyCaseKit.perform(
+          "grapple",
+          [
+            { subject: "a", body: who.body },
+            {
+              subject: "b",
+              body: who.body,
+              at: { x: 0, y: 0, z: 0.55 },
+              yaw: 180,
+            },
+          ],
+          composition,
+        );
       const segment = performance.segments("a")[0]!;
       const table = clinch.regions(grip, "right");
       let worst: { value: number; where: string } = { value: 0, where: "none" };

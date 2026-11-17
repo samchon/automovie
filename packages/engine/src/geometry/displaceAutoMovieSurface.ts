@@ -1,5 +1,7 @@
-import type { IAutoMovieSubdivisionSurface, IAutoMovieDisplaceSurface } from "@automovie/interface";
-
+import type {
+  IAutoMovieDisplaceSurface,
+  IAutoMovieSubdivisionSurface,
+} from "@automovie/interface";
 
 /**
  * Displace a subdivided surface along its normals by one height per vertex,
@@ -36,7 +38,11 @@ import type { IAutoMovieSubdivisionSurface, IAutoMovieDisplaceSurface } from "@a
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A single pass; the heights, the reusable part across poses, are the caller's.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the result's new arrays are O(V) and owned by the caller.
  */
-export const displaceAutoMovieSurface: (props: IAutoMovieDisplaceSurface.IProps) => IAutoMovieSubdivisionSurface = (props: IAutoMovieDisplaceSurface.IProps): IAutoMovieSubdivisionSurface => {
+export const displaceAutoMovieSurface: (
+  props: IAutoMovieDisplaceSurface.IProps,
+) => IAutoMovieSubdivisionSurface = (
+  props: IAutoMovieDisplaceSurface.IProps,
+): IAutoMovieSubdivisionSurface => {
   const { surface, heights }: typeof props = props;
   const vertices: number = surface.limitPositions.length / 3;
   if (heights.length !== vertices)

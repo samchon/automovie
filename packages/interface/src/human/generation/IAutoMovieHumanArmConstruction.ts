@@ -2,10 +2,8 @@ import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple
 import type { IAutoMovieHumanHandConstruction } from "./hand/IAutoMovieHumanHandConstruction";
 import type { IAutoMovieHumanHandMeasures } from "./hand/IAutoMovieHumanHandMeasures";
 
-
 /** Type contracts exchanged by AutoMovieHumanArmConstruction; runtime evaluation remains in Human. */
 export namespace IAutoMovieHumanArmConstruction {
-
   /** What an arm reads.
    *
    *

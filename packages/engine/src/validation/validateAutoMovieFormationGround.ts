@@ -1,5 +1,15 @@
-import { type IAutoMovieFormationPlacement, type IAutoMovieFormationSlotPlacement, type IAutoMovieSampledFormationMotion, type IAutoMovieValidateFormationGround, IAutoMovieDiagnostic, IAutoMovieFormationMotion, IAutoMovieFormationSlotMotion, IAutoMovieShotContract, IAutoMovieSpace, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieDiagnostic,
+  IAutoMovieFormationMotion,
+  type IAutoMovieFormationPlacement,
+  IAutoMovieFormationSlotMotion,
+  type IAutoMovieFormationSlotPlacement,
+  type IAutoMovieSampledFormationMotion,
+  IAutoMovieShotContract,
+  IAutoMovieSpace,
+  type IAutoMovieValidateFormationGround,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import {
   formationSlotPosition,

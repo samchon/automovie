@@ -6,11 +6,9 @@
  * @evidence contracts/development/common.md#meaningful-documentation States the parent interval and interval-local group indexing scopes.
  */
 export interface IAutoMovieRecoveryDomainAddress {
- 
- /** Original saved longitudinal interval ordinal. */
+  /** Original saved longitudinal interval ordinal. */
   interval: number;
 
- 
- /** Original saved group ordinal within its interval. */
+  /** Original saved group ordinal within its interval. */
   group: number;
 }

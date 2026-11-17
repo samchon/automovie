@@ -1,4 +1,8 @@
-import type { IAutoMovieSamplePhysicalRecoveryGoal, IAutoMovieStepPlanner } from "@automovie/interface";
+import type {
+  IAutoMovieSamplePhysicalRecoveryGoal,
+  IAutoMovieStepPlanner,
+} from "@automovie/interface";
+
 import { AutoMovieStepPlanner as Planner } from "./AutoMovieStepPlanner";
 
 /**
@@ -12,7 +16,9 @@ import { AutoMovieStepPlanner as Planner } from "./AutoMovieStepPlanner";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 3 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function samplePhysicalRecoveryGoal(input: IAutoMovieSamplePhysicalRecoveryGoal.IInput): IAutoMovieSamplePhysicalRecoveryGoal.IResult {
+export function samplePhysicalRecoveryGoal(
+  input: IAutoMovieSamplePhysicalRecoveryGoal.IInput,
+): IAutoMovieSamplePhysicalRecoveryGoal.IResult {
   const duration: number = input.swing.end - input.swing.start;
   const progress: number = Math.max(
     0,

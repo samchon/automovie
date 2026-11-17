@@ -1,5 +1,12 @@
-import type { IAutoMovieRenderTextureResidency, IAutoMovieRenderTextureResident, IAutoMovieRenderTextureSource } from "@automovie/interface";
-import { autoMovieRenderTextureDigest, measureAutoMovieRenderTextureClosure } from "@automovie/engine";
+import {
+  autoMovieRenderTextureDigest,
+  measureAutoMovieRenderTextureClosure,
+} from "@automovie/engine";
+import type {
+  IAutoMovieRenderTextureResidency,
+  IAutoMovieRenderTextureResident,
+  IAutoMovieRenderTextureSource,
+} from "@automovie/interface";
 import {
   AutoMovieTextureCache,
   readAutoMovieTextureSource,

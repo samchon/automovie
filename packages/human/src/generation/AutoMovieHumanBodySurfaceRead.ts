@@ -1,15 +1,18 @@
-import type { IAutoMovieLoftChain, IAutoMovieHumanSurfaceContext } from "@automovie/interface";
-
-
 import { AutoMovieLoftChain } from "@automovie/engine";
+import type {
+  IAutoMovieHumanSurfaceContext,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-
 
 /** The body surface's readers: a chain by name, a ring's vertices, an end's height and the interval and circular arithmetic of phases. */
 export namespace AutoMovieHumanBodySurfaceRead {
   /** Calibration chain by name; a missing chain is a calibration defect. */
-  export function chain(context: IAutoMovieHumanSurfaceContext, name: string): IAutoMovieLoftChain {
+  export function chain(
+    context: IAutoMovieHumanSurfaceContext,
+    name: string,
+  ): IAutoMovieLoftChain {
     const found: IAutoMovieLoftChain | undefined = context.chains.get(name);
     if (found === undefined)
       throw new Error(`Calibration lacks the ${name} chain`);

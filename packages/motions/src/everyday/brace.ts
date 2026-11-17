@@ -1,11 +1,24 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanArmTrajectory, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBrace, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Vector3,
   convexHull2D,
   minimumJerk,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanArmTrajectory,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanBrace,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
@@ -242,24 +255,32 @@ export namespace brace {
         { ...stand.relaxed(body), ...upright },
         lean * s * Math.cos((forward * Math.PI) / 180),
       );
-      const legs: IAutoMovieMotionHumanPosture["limbs"] = stand.legs(body, root, yaw, {
-        left: footAt("left", t).ankle,
-        right: footAt("right", t).ankle,
-      });
+      const legs: IAutoMovieMotionHumanPosture["limbs"] = stand.legs(
+        body,
+        root,
+        yaw,
+        {
+          left: footAt("left", t).ankle,
+          right: footAt("right", t).ankle,
+        },
+      );
       for (const side of ["left", "right"] as const) {
         const limb: "leftLeg" | "rightLeg" =
           side === "left" ? "leftLeg" : "rightLeg";
         if (!footAt(side, t).planted)
           legs[limb] = { ...legs[limb]!, planted: false };
       }
-      const posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(body, {
-        root,
-        yaw,
-        pitch: tilt.pitch,
-        roll: 0,
-        joints: tilt.joints,
-        limbs: legs,
-      });
+      const posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+        body,
+        {
+          root,
+          yaw,
+          pitch: tilt.pitch,
+          roll: 0,
+          joints: tilt.joints,
+          limbs: legs,
+        },
+      );
       return s <= 0
         ? posture
         : {
@@ -316,27 +337,31 @@ export namespace brace {
         }),
       );
     };
-    const entryArms: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles> =
-      {
-        left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
-        right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
-      };
-    const arms: Map<"left" | "right", IAutoMovieMotionHumanArmTrajectory.Trajectory> =
-      gestureHands.planned(
-        body,
-        { start: 0, ready: SET, relax: duration, end: duration },
-        ["left", "right"],
-        entryArms,
-        entryArms,
-        (at: number): gestureHands.IPrior => {
-          const posture: IAutoMovieMotionHumanPosture = bodyAt(at);
-          return {
-            posture,
-            requests: requests(posture),
-            envelope: minimumJerk(Math.min(1, Math.max(0, at) / SET)).s,
-          };
-        },
-      );
+    const entryArms: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanArmAngles.IAngles
+    > = {
+      left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
+      right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
+    };
+    const arms: Map<
+      "left" | "right",
+      IAutoMovieMotionHumanArmTrajectory.Trajectory
+    > = gestureHands.planned(
+      body,
+      { start: 0, ready: SET, relax: duration, end: duration },
+      ["left", "right"],
+      entryArms,
+      entryArms,
+      (at: number): gestureHands.IPrior => {
+        const posture: IAutoMovieMotionHumanPosture = bodyAt(at);
+        return {
+          posture,
+          requests: requests(posture),
+          envelope: minimumJerk(Math.min(1, Math.max(0, at) / SET)).s,
+        };
+      },
+    );
 
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {

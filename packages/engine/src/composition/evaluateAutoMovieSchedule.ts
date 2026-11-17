@@ -1,5 +1,7 @@
-import type { IAutoMovieSchedule, IAutoMovieEvaluateSchedule } from "@automovie/interface";
-
+import type {
+  IAutoMovieEvaluateSchedule,
+  IAutoMovieSchedule,
+} from "@automovie/interface";
 
 /**
  * The schedule at one instant, pure and seekable: the entries active then

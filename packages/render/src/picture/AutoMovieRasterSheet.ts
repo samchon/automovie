@@ -1,7 +1,7 @@
-import type { IAutoMovieCaptureBudget, IAutoMovieRasterImage } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieCaptureBudget,
+  IAutoMovieRasterImage,
+} from "@automovie/interface";
 
 import { stampAutoMovieRasterLabel } from "./stampAutoMovieRasterLabel.js";
 

@@ -1,4 +1,7 @@
-import { type IAutoMovieFormationCadenceSegment, IAutoMovieFormationMotion } from "@automovie/interface";
+import {
+  type IAutoMovieFormationCadenceSegment,
+  IAutoMovieFormationMotion,
+} from "@automovie/interface";
 
 import { ease } from "./motion/ease";
 

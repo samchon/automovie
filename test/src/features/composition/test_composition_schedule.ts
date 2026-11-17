@@ -1,5 +1,25 @@
-import type { IAutoMovieAuditOutcome, IAutoMovieChain, IAutoMovieCheckLegality, IAutoMovieComposition, IAutoMovieEvaluateSchedule, IAutoMovieIntent, IAutoMovieMeasureSchedule, IAutoMovieResolveOutcome, IAutoMovieResolveSchedule, IAutoMovieSchedule } from "@automovie/interface";
-import { AutoMovieChain, AutoMovieComposition, auditAutoMovieOutcome, checkAutoMovieLegality, evaluateAutoMovieSchedule, measureAutoMovieSchedule, resolveAutoMovieOutcome, resolveAutoMovieSchedule } from "@automovie/engine";
+import {
+  AutoMovieChain,
+  AutoMovieComposition,
+  auditAutoMovieOutcome,
+  checkAutoMovieLegality,
+  evaluateAutoMovieSchedule,
+  measureAutoMovieSchedule,
+  resolveAutoMovieOutcome,
+  resolveAutoMovieSchedule,
+} from "@automovie/engine";
+import type {
+  IAutoMovieAuditOutcome,
+  IAutoMovieChain,
+  IAutoMovieCheckLegality,
+  IAutoMovieComposition,
+  IAutoMovieEvaluateSchedule,
+  IAutoMovieIntent,
+  IAutoMovieMeasureSchedule,
+  IAutoMovieResolveOutcome,
+  IAutoMovieResolveSchedule,
+  IAutoMovieSchedule,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /** Intents compose immutably, resolve on the film clock with the production's laws, and are read, judged and measured without rewriting.

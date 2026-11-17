@@ -1,5 +1,7 @@
-import type { IAutoMovieAssertCaptureClockExpected, IAutoMovieAssertCaptureClockHost } from "@automovie/interface";
-
+import type {
+  IAutoMovieAssertCaptureClockExpected,
+  IAutoMovieAssertCaptureClockHost,
+} from "@automovie/interface";
 
 /**
  * Refuse a capture page that is not ready or does not expose the commissioned

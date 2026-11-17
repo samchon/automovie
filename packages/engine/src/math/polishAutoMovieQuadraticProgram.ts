@@ -1,4 +1,11 @@
-import type { IAutoMovieQuadraticPolishingResult, IAutoMovieQuadraticRefinementOptions, IAutoMovieQuadraticRow, IAutoMovieQuadraticWorkingSetStep, IAutoMovieQuadraticRefinementInterval, IAutoMovieSolveQuadraticProgram } from "@automovie/interface";
+import type {
+  IAutoMovieQuadraticPolishingResult,
+  IAutoMovieQuadraticRefinementInterval,
+  IAutoMovieQuadraticRefinementOptions,
+  IAutoMovieQuadraticRow,
+  IAutoMovieQuadraticWorkingSetStep,
+  IAutoMovieSolveQuadraticProgram,
+} from "@automovie/interface";
 
 import { adjacentAutoMovieFloat64 } from "./adjacentAutoMovieFloat64";
 import { solveAutoMovieQuadraticWorkingSetStep } from "./solveAutoMovieQuadraticWorkingSetStep";

@@ -1,7 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieResolveCenterOfMass, IAutoMovieResolveMomentum, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-import { Quaternion, Vector3, resolveAutoMovieCenterOfMass, resolveAutoMovieMomentum, resolvePose } from "@automovie/engine";
-
-
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieCenterOfMass,
+  resolveAutoMovieMomentum,
+  resolvePose,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolveMomentum,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -75,7 +88,10 @@ export function test_engine_body_momentum(): void {
         ],
       ),
     );
-  const posed = (body: IAutoMovieMotionHumanBody, joints: IAutoMovieJointPose[]): Bones =>
+  const posed = (
+    body: IAutoMovieMotionHumanBody,
+    joints: IAutoMovieJointPose[],
+  ): Bones =>
     new Map(
       resolvePose(
         { skeleton: body.skeleton.id, root: null, joints },

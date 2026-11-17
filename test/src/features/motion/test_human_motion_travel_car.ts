@@ -1,8 +1,25 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanObstacle, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { createCar } from "@automovie/archetypes";
-
-
-import { HumanChain, HumanObject, HumanObstacle, HumanPerformance, HumanRefusal, HumanSignature, HumanTravelCar } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanObstacle,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanObstacle,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+  HumanTravelCar,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -37,12 +54,22 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_travel_car(): void {
   const complaints: string[] = [];
   const car: IAutoMovieMotionHumanObject.IModel = createCar({ kind: "sedan" });
-  const where: IAutoMovieMotionHumanObject.Placement = { at: { x: 0, y: 0, z: 0 }, yaw: 0 };
-  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(car, where, "driverSeat");
+  const where: IAutoMovieMotionHumanObject.Placement = {
+    at: { x: 0, y: 0, z: 0 },
+    yaw: 0,
+  };
+  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+    car,
+    where,
+    "driverSeat",
+  );
   const door: IAutoMovieMotionHumanObstacle.IAperture = HumanObstacle.apertures(
     car,
     where,
-  ).find((a: IAutoMovieMotionHumanObstacle.IAperture): boolean => a.id === "driverAperture")!;
+  ).find(
+    (a: IAutoMovieMotionHumanObstacle.IAperture): boolean =>
+      a.id === "driverAperture",
+  )!;
   const depth: number = seat.depth ?? 0.45;
 
   // The level direction out of the door, and the heading facing it.
@@ -105,7 +132,8 @@ export function test_human_motion_travel_car(): void {
       body,
       0,
     );
-    const entry: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[0]!;
+    const entry: IAutoMovieMotionHumanSegment.ISegment =
+      performance.segments("a")[0]!;
 
     // 2. The crown stays under the door's top.
     let highest: { over: number; at: number } = { over: -Infinity, at: 0 };

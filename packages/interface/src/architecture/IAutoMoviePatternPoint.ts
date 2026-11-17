@@ -1,5 +1,3 @@
-
-
 /**
  * One point on the host face, in face-local metres.
  *

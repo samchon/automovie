@@ -1,4 +1,5 @@
 import type { IAutoMoviePatternPoint } from "@automovie/interface";
+
 import { intersectAutoMovieConvexPolygons } from "../geometry/intersectAutoMovieConvexPolygons";
 
 /**

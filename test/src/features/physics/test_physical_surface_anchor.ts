@@ -1,11 +1,13 @@
-import type { IAutoMoviePreparePhysicalGeometry, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   preparePhysicalGeometry as Geometry,
   Quaternion,
   Vector3,
   physicalShapeSurfaceAnchor,
 } from "@automovie/engine";
-
+import type {
+  IAutoMoviePreparePhysicalGeometry,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /** Selected receiver surfaces follow their bone frame and agree with independent native closest-point queries.

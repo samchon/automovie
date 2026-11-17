@@ -1,10 +1,10 @@
-import type { IAutoMovieMotionHumanBend } from "./IAutoMovieMotionHumanBend";
-import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
-import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
-import type { IAutoMovieMotionHumanTarget } from "../compose/IAutoMovieMotionHumanTarget";
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
+import type { IAutoMovieMotionHumanTarget } from "../compose/IAutoMovieMotionHumanTarget";
+import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
+import type { IAutoMovieMotionHumanBend } from "./IAutoMovieMotionHumanBend";
 
 /**
  * The stroke of each gesture: where each hand surface goes, turned which

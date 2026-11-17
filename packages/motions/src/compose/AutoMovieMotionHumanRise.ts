@@ -1,6 +1,13 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanRise, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanRise,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFoot } from "../posture/HumanFoot";
 import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
 
@@ -21,7 +28,6 @@ import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No height is stated: it follows from the foot's own lever.
  */
 export namespace AutoMovieMotionHumanRise {
-
   /**
    * A foot with its heel raised about its toes' joint.
    *
@@ -100,13 +106,18 @@ export namespace AutoMovieMotionHumanRise {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per written second.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over their props.
    */
-  export function legs(props: IAutoMovieMotionHumanRise.ILegsProps): IAutoMovieMotionHumanPrimitive[] {
+  export function legs(
+    props: IAutoMovieMotionHumanRise.ILegsProps,
+  ): IAutoMovieMotionHumanPrimitive[] {
     return (["left", "right"] as const).map(
       (side: "left" | "right"): IAutoMovieMotionHumanPrimitive => ({
         channels: [`${side}Leg`],
         from: props.from,
         to: props.to,
-        write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieMotionHumanPosture => {
           const degrees: number = props.degrees(seconds);
           return {
             ...posture,

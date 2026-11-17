@@ -1,5 +1,14 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanVerdicts } from "@automovie/interface";
-import { HumanChain, HumanPerformance, HumanVerdicts } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanVerdicts,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanVerdicts,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -31,7 +40,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_verdicts_report(): void {
   const a: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const b: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
-  const perform = (gap: number, chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
+  const perform = (
+    gap: number,
+    chain: IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "verdicts",
       performers: [
@@ -74,9 +86,11 @@ export function test_human_motion_verdicts_report(): void {
   const merged: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
     perform(0, HumanChain.subject("a").stand({ seconds: 1 })),
   );
-  const partner: IAutoMovieMotionHumanVerdicts.IFinding | undefined = merged.findings.find(
-    (f: IAutoMovieMotionHumanVerdicts.IFinding): boolean => f.check === "partner",
-  );
+  const partner: IAutoMovieMotionHumanVerdicts.IFinding | undefined =
+    merged.findings.find(
+      (f: IAutoMovieMotionHumanVerdicts.IFinding): boolean =>
+        f.check === "partner",
+    );
   TestValidator.predicate(
     `two bodies on one point are found, got ${HumanVerdicts.describe(merged)}`,
     !merged.clean && partner !== undefined,

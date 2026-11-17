@@ -1,5 +1,10 @@
-import { type IAutoMovieHingedArticulation, type IAutoMovieSwivelNear, type IAutoMovieHingedArmArticulation, type IAutoMovieHingedArmSwivel, IAutoMovieQuaternion } from "@automovie/interface";
-
+import {
+  type IAutoMovieHingedArmArticulation,
+  type IAutoMovieHingedArmSwivel,
+  type IAutoMovieHingedArticulation,
+  IAutoMovieQuaternion,
+  type IAutoMovieSwivelNear,
+} from "@automovie/interface";
 
 import { hingedArmSwivel } from "./hingedArmSwivel";
 
@@ -102,14 +107,19 @@ const OVERSHOOT_ROUNDING: number = 1e-9;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each hinge branch computes its mid direction and aim once for the whole swivel sweep; scores cannot be shared because the caller evaluates distinct shoulder rotations under its own constraints.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps one branch's 360 scored candidates during its sweep and retains nothing after the solve; the caller owns the returned rotations.
  */
-export const hingedArmArticulation: (props: IAutoMovieHingedArmArticulation.IProps) => IAutoMovieHingedArticulation | null = (props: IAutoMovieHingedArmArticulation.IProps): IAutoMovieHingedArticulation | null => {
+export const hingedArmArticulation: (
+  props: IAutoMovieHingedArmArticulation.IProps,
+) => IAutoMovieHingedArticulation | null = (
+  props: IAutoMovieHingedArmArticulation.IProps,
+): IAutoMovieHingedArticulation | null => {
   // The bend branches toward the target, each stopped inside the mid joint's
   // own range (`hingedArmSwivel.branches`): a hinge angle outside the range
   // stops at the nearer limit, so the effector rests on the legal shell along
   // the line to the target, as it does on the geometric shell. Of two
   // branches the one stopping nearer the target is kept; branches inside the
   // range stop nowhere and tie.
-  const found: IAutoMovieHingedArmSwivel.IStop[] | null = hingedArmSwivel.branches(props);
+  const found: IAutoMovieHingedArmSwivel.IStop[] | null =
+    hingedArmSwivel.branches(props);
   if (found === null) return null;
   const stops: IBranch[] = found
     .map(
@@ -133,7 +143,7 @@ export const hingedArmArticulation: (props: IAutoMovieHingedArmArticulation.IPro
   const prober =
     (
       stop: IBranch,
-      posed: (IAutoMovieHingedArmSwivel.IPoseResult),
+      posed: IAutoMovieHingedArmSwivel.IPoseResult,
     ): ((angle: number) => IScored) =>
     (angle: number): IScored => {
       const { upper, lower } = posed(angle);

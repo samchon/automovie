@@ -1,5 +1,21 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftFrame, IAutoMovieSolidBlendChain, IAutoMovieSolidJoin, IAutoMovieSolidSurface, IAutoMovieViewPart } from "@automovie/interface";
-import { AutoMovieLoftChain, AutoMovieLoftFrameSource, AutoMovieLoftJet, AutoMovieSolidBlendChain, AutoMovieSolidChain, AutoMovieSolidMerge, AutoMovieSplineCurve, AutoMovieViewLoft } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  AutoMovieLoftFrameSource,
+  AutoMovieLoftJet,
+  AutoMovieSolidBlendChain,
+  AutoMovieSolidChain,
+  AutoMovieSolidMerge,
+  AutoMovieSplineCurve,
+  AutoMovieViewLoft,
+} from "@automovie/engine";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftFrame,
+  IAutoMovieSolidBlendChain,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidSurface,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { HumanSolidShapes } from "../../internal/HumanSolidShapes";
 import { ConstructionSourceIngress } from "../../internal/construction/ConstructionSourceIngress";

@@ -1,6 +1,13 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryEventChartInput, IAutoMovieRecoveryEventCurveArc } from "@automovie/interface";
 import { realizeAutoMovieBicubicAtlas64 } from "@automovie/engine";
-import { AutoMovieRecoveryEventCurve as E, compileAutoMovieRecoveryEventDomain } from "@automovie/recovery";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryEventChartInput,
+  IAutoMovieRecoveryEventCurveArc,
+} from "@automovie/interface";
+import {
+  AutoMovieRecoveryEventCurve as E,
+  compileAutoMovieRecoveryEventDomain,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

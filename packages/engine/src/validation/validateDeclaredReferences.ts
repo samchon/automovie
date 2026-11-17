@@ -1,4 +1,5 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
+
 /**
  * Report each reference in a list that resolves to no declared id or repeats
  * an earlier one.

@@ -1,6 +1,9 @@
-import type { IAutoMovieRenderSubject, IAutoMovieSemanticMask, IAutoMovieSemanticMaskEntry } from "@automovie/interface";
 import { deriveAutoMovieSemanticMask } from "@automovie/engine";
-
+import type {
+  IAutoMovieRenderSubject,
+  IAutoMovieSemanticMask,
+  IAutoMovieSemanticMaskEntry,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { modelsFixture } from "../internal/renderFixtures";

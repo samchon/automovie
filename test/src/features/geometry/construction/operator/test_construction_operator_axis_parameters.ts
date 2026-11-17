@@ -1,12 +1,20 @@
-import type { IAutoMovieConstructionOutlineParameter, IAutoMovieViewAxis, IAutoMovieViewParallelAxis } from "@automovie/interface";
-import { AutoMovieViewParallelAxis, AutoMovieViewParameter } from "@automovie/engine";
-
+import {
+  AutoMovieViewParallelAxis,
+  AutoMovieViewParameter,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieViewAxis,
+  IAutoMovieViewParallelAxis,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
 
 /** One actual axis value and two selected-coordinate derivatives. */
-type Jet = NonNullable<ReturnType<NonNullable<IAutoMovieViewAxis.IAxis["jet"]>>>;
+type Jet = NonNullable<
+  ReturnType<NonNullable<IAutoMovieViewAxis.IAxis["jet"]>>
+>;
 
 /** A source component triple. */
 type Vec3 = [number, number, number];

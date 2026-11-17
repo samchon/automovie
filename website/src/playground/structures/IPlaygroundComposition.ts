@@ -1,6 +1,5 @@
 import type { IAutoMovieMotionHumanForce } from "@automovie/interface";
 
-
 /**
  * A composition as the playground holds it: plain data that the editor
  * changes, the address carries and the adapter turns into a chain of

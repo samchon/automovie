@@ -1,5 +1,7 @@
-import { type IAutoMovieInheritProductionLighting, IAutoMovieLight } from "@automovie/interface";
-
+import {
+  type IAutoMovieInheritProductionLighting,
+  IAutoMovieLight,
+} from "@automovie/interface";
 
 import { autoMovieStoryTime } from "./autoMovieStoryTime";
 import { resolveProductionLighting } from "./resolveProductionLighting";
@@ -24,7 +26,9 @@ import { resolveProductionLighting } from "./resolveProductionLighting";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call resolves one instant of one production for one shot and coordinates no work across calls; the caller evaluates it once per shot.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The map and set are dropped on return; the caller owns the returned array, bounded by staged lights plus production sources.
  */
-export function inheritProductionLighting(props: IAutoMovieInheritProductionLighting.IProps): IAutoMovieLight[] {
+export function inheritProductionLighting(
+  props: IAutoMovieInheritProductionLighting.IProps,
+): IAutoMovieLight[] {
   const { lighting, pin }: typeof props = props;
   if (lighting === null || pin === null) return [...props.lights];
 

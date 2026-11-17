@@ -1,6 +1,13 @@
-import type { IAutoMovieHit, IAutoMovieProjectile, IAutoMovieProjectileState, IAutoMoviePhysicalShapeNearest, IAutoMovieProjectileFirstContact, IAutoMovieResolveContactEvents, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieHit,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShapeNearest,
+  IAutoMovieProjectile,
+  IAutoMovieProjectileFirstContact,
+  IAutoMovieProjectileState,
+  IAutoMovieResolveContactEvents,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { resolveAutoMovieContactEvents } from "../composition/resolveAutoMovieContactEvents";
 import { Quaternion } from "../math/Quaternion";
@@ -86,7 +93,9 @@ export function projectileFirstContact(
 
   // The resolver's weapon needs an owner no collider is named after.
   const ids: ReadonlySet<string> = new Set(
-    colliders.map((c: IAutoMovieProjectileFirstContact.ICollider): string => c.id),
+    colliders.map(
+      (c: IAutoMovieProjectileFirstContact.ICollider): string => c.id,
+    ),
   );
   let owner: string = "projectile";
   while (ids.has(owner)) owner = `${owner}'`;
@@ -172,7 +181,8 @@ export function projectileFirstContact(
   const first: IAutoMovieResolveContactEvents.IEvent | undefined = events[0];
   if (first === undefined) return null;
   const collider: IAutoMovieProjectileFirstContact.ICollider = colliders.find(
-    (c: IAutoMovieProjectileFirstContact.ICollider): boolean => c.id === first.against,
+    (c: IAutoMovieProjectileFirstContact.ICollider): boolean =>
+      c.id === first.against,
   )!;
   const [a, b] = segment(first.seconds);
   const near: IAutoMovieProjectileFirstContact.INearest = collider.nearest(
@@ -197,7 +207,6 @@ export function projectileFirstContact(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A person's colliders are the caller's reading, never a shape the engine guesses.
  */
 export namespace projectileFirstContact {
-
   /**
    * A fixed plane, solid on the side its normal points away from: the ground.
    *
@@ -220,7 +229,10 @@ export namespace projectileFirstContact {
         contact: IAutoMovieResolveContactEvents.IInitialContact,
       ): IAutoMovieResolveContactEvents.Departure | undefined =>
         projectilePlaneDeparture(id, n, projectile, options, contact),
-      nearest: (a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieProjectileFirstContact.INearest => {
+      nearest: (
+        a: IAutoMovieVector3,
+        b: IAutoMovieVector3,
+      ): IAutoMovieProjectileFirstContact.INearest => {
         const da: number = Vector3.dot(Vector3.subtract(a, point), n);
         const db: number = Vector3.dot(Vector3.subtract(b, point), n);
         const low: IAutoMovieVector3 = da <= db ? a : b;
@@ -255,12 +267,8 @@ export namespace projectileFirstContact {
         b: IAutoMovieVector3,
         seconds: number,
       ): IAutoMovieProjectileFirstContact.INearest => {
-        const near: IAutoMoviePhysicalShapeNearest.IResult = physicalShapeNearest(
-          pose(seconds),
-          shape,
-          a,
-          b,
-        );
+        const near: IAutoMoviePhysicalShapeNearest.IResult =
+          physicalShapeNearest(pose(seconds), shape, a, b);
         return {
           distance: near.distance,
           point: near.point,

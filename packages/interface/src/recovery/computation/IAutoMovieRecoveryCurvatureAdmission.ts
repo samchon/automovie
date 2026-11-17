@@ -6,15 +6,12 @@
  * @evidence contracts/development/common.md#meaningful-documentation Entries are logical scalar slots, while work is prepaid visits. The conservative A reservation remains during generic/auxiliary/terminal work even after unused buffers expire.
  */
 export interface IAutoMovieRecoveryCurvatureAdmission {
- 
- /** Whether optional seed/numerical buffers fit both resident and materialization limits. */
+  /** Whether optional seed/numerical buffers fit both resident and materialization limits. */
   eligible: boolean;
 
- 
- /** Base plus F and, when eligible, the complete S+A reservation. */
+  /** Base plus F and, when eligible, the complete S+A reservation. */
   retainedEntries: number;
 
- 
- /** Full unrefunded work charge for each eligible seeded existing model. */
+  /** Full unrefunded work charge for each eligible seeded existing model. */
   work: number;
 }

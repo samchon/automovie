@@ -1,4 +1,8 @@
-import { type IAutoMovieBoneBuffer, type IAutoMovieResolvedBone, AutoMovieHumanoidBone } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieBoneBuffer,
+  type IAutoMovieResolvedBone,
+} from "@automovie/interface";
 
 import { AutoMovieSweepRotation } from "./AutoMovieSweepRotation";
 

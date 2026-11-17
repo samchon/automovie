@@ -1,4 +1,8 @@
-import type { IAutoMoviePrimitiveShape, IAutoMovieTessellation } from "@automovie/interface";
+import type {
+  IAutoMoviePrimitiveShape,
+  IAutoMovieTessellation,
+} from "@automovie/interface";
+
 import { PRIMITIVE_RADIAL_SEGMENTS } from "./constants/PRIMITIVE_RADIAL_SEGMENTS";
 import { PRIMITIVE_SPHERE_RINGS } from "./constants/PRIMITIVE_SPHERE_RINGS";
 
@@ -30,7 +34,9 @@ import { PRIMITIVE_SPHERE_RINGS } from "./constants/PRIMITIVE_SPHERE_RINGS";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Callers receive mutable fresh buffers, so the tessellator shares no arrays across calls; consumers such as the drawing index own any model-part memoization.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builders retain no cache, handle or task; positions, normals and indices belong to the returned tessellation and temporary face tables are released on return.
  */
-export const tessellate: (shape: IAutoMoviePrimitiveShape) => IAutoMovieTessellation = (
+export const tessellate: (
+  shape: IAutoMoviePrimitiveShape,
+) => IAutoMovieTessellation = (
   shape: IAutoMoviePrimitiveShape,
 ): IAutoMovieTessellation => {
   switch (shape.type) {

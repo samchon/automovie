@@ -1,11 +1,14 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   DEFAULT_HUMANOID_ROM,
   Vector3,
   jointRomOvershoot,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { createHumanBody } from "../../body/createHumanBody";
@@ -57,8 +60,14 @@ export function handshakeCases(): IMotionCaptureCase[] {
   return PAIRS.map(([first, second]): IMotionCaptureCase => {
     const one: humanPolygonMan.IPolygonMan = MotionBodies.population(first);
     const two: humanPolygonMan.IPolygonMan = MotionBodies.population(second);
-    const a: IAutoMovieMotionHumanBody = createHumanBody(one.body.skeleton, one.body.profile);
-    const b: IAutoMovieMotionHumanBody = createHumanBody(two.body.skeleton, two.body.profile);
+    const a: IAutoMovieMotionHumanBody = createHumanBody(
+      one.body.skeleton,
+      one.body.profile,
+    );
+    const b: IAutoMovieMotionHumanBody = createHumanBody(
+      two.body.skeleton,
+      two.body.profile,
+    );
 
     // The partners stand where their offering arms meet.
     const D: number =
@@ -161,7 +170,10 @@ export function handshakeCases(): IMotionCaptureCase[] {
         }
     }
     const meet: number = distance(palm("a", a, clasp), palm("b", b, clasp));
-    const sternum = (subject: string, body: IAutoMovieMotionHumanBody): IAutoMovieVector3 =>
+    const sternum = (
+      subject: string,
+      body: IAutoMovieMotionHumanBody,
+    ): IAutoMovieVector3 =>
       resolveAutoMovieHumanoidSurfaces.place(
         body.surfaces.regions.sternum,
         performance

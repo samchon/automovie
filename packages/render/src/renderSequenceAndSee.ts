@@ -1,7 +1,7 @@
-import type { IAutoMovieSequenceRenderAndSeeRequest, IAutoMovieSequenceRenderAndSeeResult } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieSequenceRenderAndSeeRequest,
+  IAutoMovieSequenceRenderAndSeeResult,
+} from "@automovie/interface";
 
 import { planSequenceRender } from "./planSequenceRender.js";
 import { renderSequenceVideo } from "./renderSequenceVideo.js";

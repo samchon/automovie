@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanExerciseKey, IAutoMovieMotionHumanWorkoutKind, IAutoMovieMotionHumanWorkoutPoses } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanWorkoutKind,
+  IAutoMovieMotionHumanWorkoutPoses,
+} from "@automovie/interface";
 
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
@@ -28,13 +33,18 @@ import { WorkoutStance } from "./WorkoutStance";
  */
 export namespace WorkoutPoses {
   /** A full turn on the left foot's ball with the arms as given at its half. */
-  const turn = (seconds: number, arms: IAutoMovieMotionHumanExerciseKey.ILimb): IAutoMovieMotionHumanWorkoutKind =>
+  const turn = (
+    seconds: number,
+    arms: IAutoMovieMotionHumanExerciseKey.ILimb,
+  ): IAutoMovieMotionHumanWorkoutKind =>
     WorkoutStance.of(
       ["leftToes"],
       [{ part: "leftFoot", kind: "pivot" }],
       0,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(ExerciseKey.standing(body), 0, "reset", "stood"),
         WorkoutKind.step(
           ExerciseKey.from(body, { yaw: 180 }, arms, {}, { hip: 25, knee: 50 }),
@@ -52,7 +62,9 @@ export namespace WorkoutPoses {
     );
 
   /** A karate block's chamber: the fists at the hips, the blocking arm folded across. */
-  const chamber = (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey =>
+  const chamber = (
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanExerciseKey.IKey =>
     ExerciseKey.from(
       body,
       {},
@@ -62,14 +74,21 @@ export namespace WorkoutPoses {
     );
 
   /** The exercises. */
-  export const KINDS: Readonly<Record<IAutoMovieMotionHumanWorkoutPoses.Name, IAutoMovieMotionHumanWorkoutKind>> = {
+  export const KINDS: Readonly<
+    Record<
+      IAutoMovieMotionHumanWorkoutPoses.Name,
+      IAutoMovieMotionHumanWorkoutKind
+    >
+  > = {
     /** A standing calf stretch: the left leg back and straight with its heel down, the hands forward, held 20 s. */
     calfStretch: WorkoutStance.of(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       1.5,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.pose(
           WorkoutStance.stride(
             body,
@@ -91,7 +110,9 @@ export namespace WorkoutPoses {
       WorkoutStance.FEET,
       1.5,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.pose(
           ExerciseKey.from(
             body,
@@ -110,7 +131,9 @@ export namespace WorkoutPoses {
       WorkoutStance.FEET,
       1.5,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.pose(
           ExerciseKey.from(
             body,
@@ -131,7 +154,9 @@ export namespace WorkoutPoses {
       WorkoutStance.FEET,
       0,
       4,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutStance.rest(body, 1),
         WorkoutKind.step(
           WorkoutStance.stride(
@@ -156,7 +181,9 @@ export namespace WorkoutPoses {
       WorkoutStance.FEET,
       2,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.pose(
           WorkoutStance.stride(body, 40, {}, { shoulder: 175, elbow: 3 }),
           0,
@@ -173,7 +200,9 @@ export namespace WorkoutPoses {
       WorkoutStance.FEET,
       2,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.pose(
           ExerciseKey.from(
             body,
@@ -194,7 +223,9 @@ export namespace WorkoutPoses {
       WorkoutStance.FEET,
       2,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.pose(
           ExerciseKey.from(
             body,
@@ -217,7 +248,9 @@ export namespace WorkoutPoses {
       WorkoutStance.FEET,
       0,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutStance.rest(body, 1.5),
         WorkoutKind.step(
           ExerciseKey.from(
@@ -272,7 +305,9 @@ export namespace WorkoutPoses {
       WorkoutStance.FEET,
       1,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.pose(
           WorkoutStance.stride(body, 30, {}, { shoulder: -10, elbow: 90 }),
           0,
@@ -289,7 +324,9 @@ export namespace WorkoutPoses {
       WorkoutStance.FEET,
       0.4,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(chamber(body), 0.3, "chamber", "chambered"),
         WorkoutKind.step(
           ExerciseKey.from(
@@ -313,7 +350,9 @@ export namespace WorkoutPoses {
       WorkoutStance.FEET,
       0.4,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(chamber(body), 0.3, "chamber", "chambered"),
         WorkoutKind.step(
           ExerciseKey.from(
@@ -337,7 +376,9 @@ export namespace WorkoutPoses {
       WorkoutStance.FEET,
       0,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutStance.rest(body, 0.3),
         WorkoutKind.step(
           ExerciseKey.from(
@@ -368,7 +409,9 @@ export namespace WorkoutPoses {
       WorkoutStance.FEET,
       0,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutStance.rest(body, 0.4),
         WorkoutKind.step(
           ExerciseKey.from(
@@ -390,7 +433,9 @@ export namespace WorkoutPoses {
       WorkoutStance.LEFT,
       0,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutStance.rest(body, 0.4),
         WorkoutKind.step(
           ExerciseKey.from(body, {}, { raise: 30 }, {}, { hip: 70, knee: 80 }),
@@ -417,7 +462,9 @@ export namespace WorkoutPoses {
       WorkoutStance.FEET,
       1,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.pose(
           ExerciseKey.from(
             body,

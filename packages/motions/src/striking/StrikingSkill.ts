@@ -1,4 +1,8 @@
-import type { IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanStrikingSkill, IAutoMovieRandom } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanSkill,
+  IAutoMovieMotionHumanStrikingSkill,
+  IAutoMovieRandom,
+} from "@automovie/interface";
 
 import { HumanSkill } from "../skill/HumanSkill";
 
@@ -242,7 +246,9 @@ export namespace StrikingSkill {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function reactionLaw(skill: IAutoMovieMotionHumanSkill.ISkill): IAutoMovieMotionHumanStrikingSkill.IReaction {
+  export function reactionLaw(
+    skill: IAutoMovieMotionHumanSkill.ISkill,
+  ): IAutoMovieMotionHumanStrikingSkill.IReaction {
     return {
       mu: HumanSkill.quantity(skill, "reaction", 0.335, 0.29),
       sigma: HumanSkill.quantity(skill, "reaction", 0.06, 0.04),

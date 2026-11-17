@@ -1,6 +1,5 @@
 import type { IAutoMovieRecoveryMapJointBlock } from "@automovie/interface";
 
-
 /**
  * Apply the current undamped weighted original design to an actual increment.
  * Camera coordinates precede three coordinates for each landmark. The gradient

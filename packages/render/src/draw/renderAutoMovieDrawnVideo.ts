@@ -1,12 +1,12 @@
-import type { IAutoMovieDrawnVideoResult, IAutoMovieRasterImage, IAutoMovieRenderSpec } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieDrawnVideoResult,
+  IAutoMovieRasterImage,
+  IAutoMovieRenderSpec,
+} from "@automovie/interface";
 
 import { planAutoMovieVideoEncoding } from "../delivery/planAutoMovieVideoEncoding.js";
 import { frameName } from "../frameName.js";
 import { frameTimes } from "../frameTimes.js";
-
 import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
 import { hashAutoMovieRasterImage } from "../picture/hashAutoMovieRasterImage.js";
 import type { AutoMovieDrawSession } from "./AutoMovieDrawSession.js";

@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanThrowObjectLaunch, IAutoMovieProjectile, IAutoMovieVector3 } from "@automovie/interface";
-
 import { AutoMovieGravity, projectileAt } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanThrowObjectLaunch,
+  IAutoMovieProjectile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * A thrown object's launch and the drag-free path it flies afterwards. Written
@@ -18,7 +23,6 @@ import { AutoMovieGravity, projectileAt } from "@automovie/engine";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace throwObjectLaunch {
-
   /**
    * The grip window that carries a thrown prop in the throwing hand from the
    * throw's start to its release; none for an empty-handed throw.
@@ -121,7 +125,10 @@ export namespace throwObjectLaunch {
    * @param seconds Seconds after the release.
    * @returns World metres.
    */
-  export function path(launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch, seconds: number): IAutoMovieVector3 {
+  export function path(
+    launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch,
+    seconds: number,
+  ): IAutoMovieVector3 {
     return projectileAt(
       {
         origin: launch.point,

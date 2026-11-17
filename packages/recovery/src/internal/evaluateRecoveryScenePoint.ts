@@ -1,11 +1,11 @@
-import type { IAutoMovieRecoveryMapObservation, IAutoMovieRecoveryMapPointProjectionOperation, IAutoMovieRecoveryMapPose, IAutoMovieRecoveryScenePointEvaluationOperation, IAutoMovieRecoverySceneRay } from "@automovie/interface";
 import { AutoMovieMatrix3 } from "@automovie/engine";
-
-
-
-
-
-
+import type {
+  IAutoMovieRecoveryMapObservation,
+  IAutoMovieRecoveryMapPointProjectionOperation,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoveryScenePointEvaluationOperation,
+  IAutoMovieRecoverySceneRay,
+} from "@automovie/interface";
 
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 
@@ -80,7 +80,8 @@ export function evaluateRecoveryScenePoint(
     }
     directions.push({
       view: observation.viewIndex,
-      unit: ray.map((value: number): number => value / norm) });
+      unit: ray.map((value: number): number => value / norm),
+    });
   }
   let angle: number = -Infinity;
   let supportingViews: [number, number] | null = null;
@@ -126,5 +127,6 @@ export function evaluateRecoveryScenePoint(
         : null,
     minimumDepth: Number.isFinite(minimumDepth) ? minimumDepth : null,
     supportingViews,
-    acuteParallaxDegrees: Number.isFinite(angle) ? angle : null };
+    acuteParallaxDegrees: Number.isFinite(angle) ? angle : null,
+  };
 }

@@ -1,4 +1,8 @@
-import type { IAutoMovieCaptureComparison, IAutoMovieCapturePlanRequest, IAutoMovieCaptureRecord } from "@automovie/interface";
+import type {
+  IAutoMovieCaptureComparison,
+  IAutoMovieCapturePlanRequest,
+  IAutoMovieCaptureRecord,
+} from "@automovie/interface";
 import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
@@ -113,17 +117,13 @@ export async function captureAutoMovie(props: {
   }
 
   // What was written, and what was not drawn.
-  const failed: Extract<
-    IAutoMovieCaptureRecord.Row,
-    { state: "failed" }
-  >[] = record.rows.filter(
-    (
-      row: IAutoMovieCaptureRecord.Row,
-    ): row is Extract<
-      IAutoMovieCaptureRecord.Row,
-      { state: "failed" }
-    > => row.state === "failed",
-  );
+  const failed: Extract<IAutoMovieCaptureRecord.Row, { state: "failed" }>[] =
+    record.rows.filter(
+      (
+        row: IAutoMovieCaptureRecord.Row,
+      ): row is Extract<IAutoMovieCaptureRecord.Row, { state: "failed" }> =>
+        row.state === "failed",
+    );
   const lines: string[] = [
     `capture ${record.subject.name}: ${record.rows.length - failed.length} of ${record.rows.length} cells drawn into ${folder}`,
     `backend ${backend}`,

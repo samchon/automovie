@@ -45,13 +45,14 @@ export namespace IAutoMovieProductionFrameIntervalToGridTicks {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A positive frame interval that collapses to one destination boundary throws; the result therefore has positive tick duration without fabricating a minimum tick.
    * @evidence contracts/development/common.md#meaningful-documentation Half-open film intervals mapped to half-open integer-clock intervals. The source interval is [startFrame, endFrame) and the result [start, end) in destination ticks; both endpoints use one rate and rounding rule. Input endpoints must be nonnegative safe integers with end after start.
    */
-  export type IResult = { 
+  export type IResult = {
     /**
      * Inclusive destination tick, a nonnegative safe integer owned by the returned interval.
      */
-    start: number; 
+    start: number;
     /**
      * Exclusive destination tick, a safe integer strictly greater than start. The duration in ticks is end - start.
      */
-    end: number };
+    end: number;
+  };
 }

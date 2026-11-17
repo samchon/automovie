@@ -1,4 +1,9 @@
-import type { IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieSolidMesh, IAutoMovieSolidMeshLoop } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidMeshLoop,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
@@ -73,7 +78,9 @@ export namespace AutoMovieSolidMeshLoop {
       jet: IAutoMovieSolidSurface.IJet,
       margin: number,
     ): boolean =>
-      loops.every((l: IAutoMovieSolidMesh.ILoop): boolean => keeps(l, u, v, jet, margin, period));
+      loops.every((l: IAutoMovieSolidMesh.ILoop): boolean =>
+        keeps(l, u, v, jet, margin, period),
+      );
     const states: (IState | undefined)[] = new Array<IState | undefined>(
       loops.length,
     );
@@ -86,7 +93,10 @@ export namespace AutoMovieSolidMeshLoop {
           continue;
         }
         if (!("value" in entry)) return raw;
-        states[k] = { input: entry.value as IAutoMovieSolidMesh.ILoop, checked: false };
+        states[k] = {
+          input: entry.value as IAutoMovieSolidMesh.ILoop,
+          checked: false,
+        };
       }
     } catch {
       return raw;
@@ -182,7 +192,8 @@ export namespace AutoMovieSolidMeshLoop {
               Math.abs(AutoMovieSolidCycle.shift(v, box[2], period) - box[2]) -
                 box[3],
             );
-        const shear: number = E > 0 && G > 0 ? Math.abs(F) / Math.sqrt(E * G) : 1;
+        const shear: number =
+          E > 0 && G > 0 ? Math.abs(F) / Math.sqrt(E * G) : 1;
         if (
           (1 - shear) * (E * gapU * gapU + G * gapV * gapV) >
           margin * margin * (1 + 1e-9)
@@ -407,7 +418,10 @@ export namespace AutoMovieSolidMeshLoop {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call rebuilds cumulative lengths; aligned's quarter queries and the later Zip inputs currently repeat those arc reads rather than share a prepared result.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh N-entry parameter array; intermediate positions and the cumulative array are call-local, with no mesh or vertex list retained globally.
    */
-  export function arc(mesh: IAutoMovieSolidMesh.IMesh, ids: readonly number[]): number[] {
+  export function arc(
+    mesh: IAutoMovieSolidMesh.IMesh,
+    ids: readonly number[],
+  ): number[] {
     const p = (v: number): Vec3 => [
       mesh.positions[3 * v]!,
       mesh.positions[3 * v + 1]!,

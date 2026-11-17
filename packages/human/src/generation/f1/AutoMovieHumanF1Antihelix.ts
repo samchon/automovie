@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
-
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
@@ -62,5 +61,8 @@ export const AutoMovieHumanF1Antihelix: IAutoMovieHumanConicLoft.IFamily = {
   ],
 
   // Both ends are buried in the plate.
-  tips: [{ from: 2, tip: 0 }, { from: 33.64, tip: 35.64 }],
+  tips: [
+    { from: 2, tip: 0 },
+    { from: 33.64, tip: 35.64 },
+  ],
 };

@@ -1,5 +1,3 @@
-
-
 /**
  * What plays at one output instant: the live entry's shot at its local time,
  * plus, inside the live entry's incoming transition, the outgoing entry's tail

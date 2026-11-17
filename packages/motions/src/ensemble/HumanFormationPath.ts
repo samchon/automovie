@@ -1,6 +1,9 @@
-import type { IAutoMovieMotionHumanFormation, IAutoMovieSpeedProfile, IAutoMovieVector3 } from "@automovie/interface";
-
 import { speedProfile } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieSpeedProfile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 

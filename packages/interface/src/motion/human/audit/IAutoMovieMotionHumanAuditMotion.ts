@@ -1,6 +1,6 @@
+import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
-import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
 
 /**
  * A motion as the audit reads it: displayed bones at any film second and the

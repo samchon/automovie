@@ -1,6 +1,13 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanClearance, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanStepOver, IAutoMovieVector3 } from "@automovie/interface";
-
 import { minimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanClearance,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanStepOver,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanClearance } from "../compose/AutoMovieMotionHumanClearance";
@@ -30,7 +37,9 @@ export namespace stepOverPath {
    * @returns What the plan's pelvis and postures read: the body, the feet's sides, the heading, the start, the landing, the footprints, the timing and the feet at a second.
    * @throws {HumanRefusal} When the prop declares no edge or depth, or the obstacle is too far, behind, too high or too deep to cross in one step.
    */
-  export function of(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStepOver.IParams>) {
+  export function of(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStepOver.IParams>,
+  ) {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
     const obstacle: HumanObstacle.IObstacle = HumanObstacle.of(
@@ -232,7 +241,10 @@ export namespace stepOverPath {
     > = {
       [lead]: path(lead, 0),
       [trail]: path(trail, -stepOver.PUSH),
-    } as Record<"left" | "right", (u: number) => IAutoMovieMotionHumanFoot.IPlacement>;
+    } as Record<
+      "left" | "right",
+      (u: number) => IAutoMovieMotionHumanFoot.IPlacement
+    >;
     // The trail foot rises on its ball as the pelvis leaves it during the
     // lead swing, the forefoot rocker of a stance foot the body passes over.
     const rising = (t: number): number =>
@@ -244,7 +256,10 @@ export namespace stepOverPath {
     const footAt = (
       side: "left" | "right",
       t: number,
-    ): { placement: IAutoMovieMotionHumanFoot.IPlacement; planted: boolean } => {
+    ): {
+      placement: IAutoMovieMotionHumanFoot.IPlacement;
+      planted: boolean;
+    } => {
       const [a, b] = windows[side];
       if (t <= a)
         return {

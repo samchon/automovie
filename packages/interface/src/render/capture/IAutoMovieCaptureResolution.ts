@@ -1,5 +1,3 @@
-
-
 /**
  * What one pattern of a drawn cell resolved to: the role it plays in the request, the pattern as written, and the paths it matched, so the record shows whether each selection, label, colour and focus matched what was meant.
  *

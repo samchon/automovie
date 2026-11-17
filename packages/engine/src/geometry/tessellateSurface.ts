@@ -1,5 +1,10 @@
-import { type IAutoMovieFootprint, type IAutoMovieTessellation, IAutoMovieHeightRule, IAutoMovieSurface, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieFootprint,
+  IAutoMovieHeightRule,
+  IAutoMovieSurface,
+  type IAutoMovieTessellation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { footprintConvexPieces } from "../space/footprintConvexPieces";
 import { surfaceFootprint } from "../space/surfaceFootprint";

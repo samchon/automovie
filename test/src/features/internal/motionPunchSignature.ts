@@ -1,6 +1,7 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";

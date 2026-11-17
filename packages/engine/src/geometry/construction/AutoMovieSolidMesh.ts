@@ -1,4 +1,8 @@
-import type { IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieSolidMesh } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieSolidMeshTessellate } from "./AutoMovieSolidMeshTessellate";
 import { AutoMovieSolidMeshWrite } from "./AutoMovieSolidMeshWrite";
@@ -13,7 +17,6 @@ import { faceAutoMovieSolidMesh } from "./faceAutoMovieSolidMesh";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidMesh {
-
   /**
    * Allocate an empty, detached mutable mesh.
    *
@@ -40,7 +43,10 @@ export namespace AutoMovieSolidMesh {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Repeated registration of the same name reuses its index.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A new closure persists in the mesh only when the name was absent.
    */
-  export function owner(mesh: IAutoMovieSolidMesh.IMesh, surface: IAutoMovieSolidSurface): number {
+  export function owner(
+    mesh: IAutoMovieSolidMesh.IMesh,
+    surface: IAutoMovieSolidSurface,
+  ): number {
     return AutoMovieSolidMeshWrite.owner(mesh, surface);
   }
 
@@ -55,7 +61,10 @@ export namespace AutoMovieSolidMesh {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Published rail charts set each boundary point once per seam.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Mesh numbers/owners and returned rail indices persist; grid/triangle scratch is local.
    */
-  export function seam(mesh: IAutoMovieSolidMesh.IMesh, input: IAutoMovieSolidMesh.ISeam): IAutoMovieSolidMesh.IJoined {
+  export function seam(
+    mesh: IAutoMovieSolidMesh.IMesh,
+    input: IAutoMovieSolidMesh.ISeam,
+  ): IAutoMovieSolidMesh.IJoined {
     return AutoMovieSolidMeshTessellate.seam(mesh, input);
   }
 
@@ -70,7 +79,10 @@ export namespace AutoMovieSolidMesh {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses copied source jets, split constraints and original shared IDs within the synchronous call.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Scratch/provenance expires after commit/refusal; mesh owners retain surfaces and returned cycles own copied numeric data.
    */
-  export function face(mesh: IAutoMovieSolidMesh.IMesh, input: IAutoMovieSolidMesh.IFace): IAutoMovieSolidMesh.IOpen[] {
+  export function face(
+    mesh: IAutoMovieSolidMesh.IMesh,
+    input: IAutoMovieSolidMesh.IFace,
+  ): IAutoMovieSolidMesh.IOpen[] {
     return faceAutoMovieSolidMesh(mesh, input);
   }
 
@@ -125,7 +137,10 @@ export namespace AutoMovieSolidMesh {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work No replay cache assumes mutable callbacks stayed unchanged.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The three-number slice is local; returned vector ownership follows the source.
    */
-  export function evaluate(mesh: IAutoMovieSolidMesh.IMesh, index: number): AutoMovieVector3Tuple {
+  export function evaluate(
+    mesh: IAutoMovieSolidMesh.IMesh,
+    index: number,
+  ): AutoMovieVector3Tuple {
     const c: number[] = mesh.coordinates.slice(3 * index, 3 * index + 3);
     return mesh.owners[c[0]!]!.point(c[1]!, c[2]!);
   }

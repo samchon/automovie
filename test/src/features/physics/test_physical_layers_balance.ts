@@ -1,6 +1,8 @@
-import type { IAutoMoviePhysicalBalance, IAutoMovieFootfallPattern } from "@automovie/interface";
 import { AutoMoviePhysicalBalance as Balance } from "@automovie/engine";
-
+import type {
+  IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalBalance,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /** Physical balance behavior.
@@ -17,7 +19,9 @@ import { TestValidator } from "@nestia/e2e";
 export function test_physical_layers_balance(): void {
   const pattern: IAutoMovieFootfallPattern = supports(4);
   const contacts: IAutoMoviePhysicalBalance.ISupport[] = pattern.limbs.map(
-    (limb: (typeof pattern.limbs)[number]): IAutoMoviePhysicalBalance.ISupport => ({
+    (
+      limb: (typeof pattern.limbs)[number],
+    ): IAutoMoviePhysicalBalance.ISupport => ({
       bone: limb.bone,
       position: { x: limb.offset.forward, y: 0, z: limb.offset.left },
       points: [{ x: limb.offset.forward, y: 0, z: limb.offset.left }],

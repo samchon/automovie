@@ -1,11 +1,11 @@
 import type { IAutoMovieChain } from "../composition/IAutoMovieChain";
-import type { IAutoMovieMotionHumanActionContext } from "./law/IAutoMovieMotionHumanActionContext";
-import type { IAutoMovieMotionHumanActionLaw } from "./law/IAutoMovieMotionHumanActionLaw";
-import type { IAutoMovieMotionHumanActionPlan } from "./law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanChainCore } from "./chain/IAutoMovieMotionHumanChainCore";
 import type { IAutoMovieMotionHumanChainSport } from "./chain/IAutoMovieMotionHumanChainSport";
 import type { IAutoMovieMotionHumanHandoverAction } from "./handling/IAutoMovieMotionHumanHandoverAction";
 import type { IAutoMovieMotionHumanHandshake } from "./handling/IAutoMovieMotionHumanHandshake";
+import type { IAutoMovieMotionHumanActionContext } from "./law/IAutoMovieMotionHumanActionContext";
+import type { IAutoMovieMotionHumanActionLaw } from "./law/IAutoMovieMotionHumanActionLaw";
+import type { IAutoMovieMotionHumanActionPlan } from "./law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanMutual } from "./law/IAutoMovieMotionHumanMutual";
 
 /**

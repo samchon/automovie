@@ -1,11 +1,9 @@
-import type { IAutoMovieInspectionKind, IAutoMovieListInspectionKindsProps } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieInspectionKind,
+  IAutoMovieListInspectionKindsProps,
+} from "@automovie/interface";
 
 import { AUTO_MOVIE_INSPECTION_KINDS } from "./AUTO_MOVIE_INSPECTION_KINDS.js";
-
-
 
 /**
  * List the mark kinds a request's `marks` patterns may name for a set of supplied marks: what a picture can draw, each with its label and default colour.
@@ -22,7 +20,9 @@ import { AUTO_MOVIE_INSPECTION_KINDS } from "./AUTO_MOVIE_INSPECTION_KINDS.js";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records and keeps nothing.
  */
-export function listAutoMovieInspectionKinds(props: IAutoMovieListInspectionKindsProps): IAutoMovieInspectionKind[] {
+export function listAutoMovieInspectionKinds(
+  props: IAutoMovieListInspectionKindsProps,
+): IAutoMovieInspectionKind[] {
   const kinds: Map<string, IAutoMovieInspectionKind> = new Map<
     string,
     IAutoMovieInspectionKind

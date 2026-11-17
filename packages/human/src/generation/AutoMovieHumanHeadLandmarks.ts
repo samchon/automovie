@@ -1,21 +1,20 @@
-import type { IAutoMovieNaturalSpline, IAutoMovieHumanHeadCompiled, IAutoMovieHumanHeadCorrections, IAutoMovieHumanHeadEyeOpening, IAutoMovieHumanHeadIdentity, IAutoMovieHumanHeadInputs, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadNeck, IAutoMovieHumanHeadPrior } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
 import { AutoMovieNaturalSpline } from "@automovie/engine";
+import type {
+  IAutoMovieHumanHeadCompiled,
+  IAutoMovieHumanHeadCorrections,
+  IAutoMovieHumanHeadEyeOpening,
+  IAutoMovieHumanHeadIdentity,
+  IAutoMovieHumanHeadInputs,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadNeck,
+  IAutoMovieHumanHeadPrior,
+  IAutoMovieNaturalSpline,
+} from "@automovie/interface";
+
 import { AutoMovieHumanSeamUnion } from "../lofting/AutoMovieHumanSeamUnion";
-
-
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
-import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
 import { AutoMovieHumanHeadNose } from "./AutoMovieHumanHeadNose";
-
+import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
 
 /**
  * The head's landmark skeleton. From the neck ring and the public head inputs
@@ -140,7 +139,10 @@ export namespace AutoMovieHumanHeadLandmarks {
     // Close the same two Euclidean chords algebraically. An eight-step
     // fixed point updated n after sn and left n-sn one iteration behind.
     const nasalRiseSquared: number = NH * NH - (snx - nx) ** 2;
-    if (!(nasalRiseSquared > 0)) throw new Error("Head nasal height cannot span its generating sagittal endpoints");
+    if (!(nasalRiseSquared > 0))
+      throw new Error(
+        "Head nasal height cannot span its generating sagittal endpoints",
+      );
     const nasalRise: number = Math.sqrt(nasalRiseSquared);
     const chinShare: number = (1 - Math.SQRT1_2) * p.chin * (1 - p.lip);
     const offset: number = nx - pgx;
@@ -149,9 +151,13 @@ export namespace AutoMovieHumanHeadLandmarks {
     const b: number = 2 * (offset * chinShare + rise * (1 - chinShare));
     const c: number = offset * offset + rise * rise - FH * FH;
     const discriminant: number = b * b - 4 * a * c;
-    if (!(discriminant >= 0)) throw new Error("Head face height cannot span its generating nasion and gnathion");
+    if (!(discriminant >= 0))
+      throw new Error(
+        "Head face height cannot span its generating nasion and gnathion",
+      );
     const root: number = Math.sqrt(discriminant);
-    const lower: number = b >= 0 ? (-2 * c) / (b + root) : (-b + root) / (2 * a);
+    const lower: number =
+      b >= 0 ? (-2 * c) / (b + root) : (-b + root) / (2 * a);
     const sn: number = menton + lower;
     const n: number = sn + nasalRise - fix.subnasale;
     const sto: number = sn - p.lip * (sn - menton);
@@ -164,7 +170,10 @@ export namespace AutoMovieHumanHeadLandmarks {
     // nasal height.
     const bridge: number = p.bridge * NH;
     const apex: number = Math.acos(
-      Math.max(-1, Math.min(1, (NH * NH + NP * NP - bridge * bridge) / (2 * NH * NP))),
+      Math.max(
+        -1,
+        Math.min(1, (NH * NH + NP * NP - bridge * bridge) / (2 * NH * NP)),
+      ),
     );
     const up: number = Math.atan2(n - sn, nx - snx);
     const prn: P2 = [
@@ -176,22 +185,39 @@ export namespace AutoMovieHumanHeadLandmarks {
     // geometric convention supplies no clinical peak-protrusion target.
     const upperLip: number = head.face.mouth.upperVermilionHeight * k;
     const lowerLip: number = head.face.mouth.lowerVermilionHeight * k;
-    if (!(sn > pg)) throw new Error("The lip material direction requires subnasale above pogonion");
-    const line: (y: number) => number = (y: number): number => snx + ((pgx - snx) * (sn - y)) / (sn - pg);
+    if (!(sn > pg))
+      throw new Error(
+        "The lip material direction requires subnasale above pogonion",
+      );
+    const line: (y: number) => number = (y: number): number =>
+      snx + ((pgx - snx) * (sn - y)) / (sn - pg);
     const span: number = Math.hypot(snx - pgx, sn - pg);
     const tangent: P2 = [(snx - pgx) / span, (sn - pg) / span];
     const stoPoint: P2 = [line(sto), sto];
-    const ls: P2 = [stoPoint[0] + upperLip * tangent[0], sto + upperLip * tangent[1]];
-    const li: P2 = [stoPoint[0] - lowerLip * tangent[0], sto - lowerLip * tangent[1]];
-    if (!(li[1] >= pg && ls[1] <= sn)) throw new Error("The public vermilion chords leave the lower and upper lip material spans");
+    const ls: P2 = [
+      stoPoint[0] + upperLip * tangent[0],
+      sto + upperLip * tangent[1],
+    ];
+    const li: P2 = [
+      stoPoint[0] - lowerLip * tangent[0],
+      sto - lowerLip * tangent[1],
+    ];
+    if (!(li[1] >= pg && ls[1] <= sn))
+      throw new Error(
+        "The public vermilion chords leave the lower and upper lip material spans",
+      );
     const turn: number = pg - menton;
-    const contourGn: P2 = [pgx - (1 - Math.SQRT1_2) * turn, menton + (1 - Math.SQRT1_2) * turn];
+    const contourGn: P2 = [
+      pgx - (1 - Math.SQRT1_2) * turn,
+      menton + (1 - Math.SQRT1_2) * turn,
+    ];
 
     // The midline profile: the vault's ellipse about the glabella's height,
     // continued under it by its own curvature, plus a natural spline of the
     // landmarks' departures from it; nothing above the forehead.
     const top: number = vertex - g;
-    const ellipse: (y: number) => number = (y: number): number => centre + (L / 2) * AutoMovieHumanHeadMath.crownShare(y, g, top);
+    const ellipse: (y: number) => number = (y: number): number =>
+      centre + (L / 2) * AutoMovieHumanHeadMath.crownShare(y, g, top);
     const base: (y: number) => number = line;
     // `[height, forward place]` of each landmark of the profile.
     const profileSites: P2[] = [
@@ -208,11 +234,15 @@ export namespace AutoMovieHumanHeadLandmarks {
       [g + 0.7 * top, ellipse(g + 0.7 * top)],
       [vertex, ellipse(vertex)],
     ];
-    const knots: P2[] = profileSites.filter((point: P2, i: number, all: P2[]): boolean => i === 0 || point[0] !== all[i - 1]![0]);
-    const profile: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
-      knots.map((p2: P2): number => p2[0]),
-      knots.map((p2: P2): number => p2[1] - ellipse(p2[0])),
+    const knots: P2[] = profileSites.filter(
+      (point: P2, i: number, all: P2[]): boolean =>
+        i === 0 || point[0] !== all[i - 1]![0],
     );
+    const profile: IAutoMovieNaturalSpline.ISpline =
+      AutoMovieNaturalSpline.create(
+        knots.map((p2: P2): number => p2[0]),
+        knots.map((p2: P2): number => p2[1] - ellipse(p2[0])),
+      );
     const along: (y: number) => number = (y: number): number =>
       ellipse(y) + AutoMovieNaturalSpline.evaluate(profile, y);
 
@@ -231,10 +261,14 @@ export namespace AutoMovieHumanHeadLandmarks {
     const ear: number = centre + prior.ear.forward * k;
     const goX: number = ear + prior.mandible.gonion * k;
     const plane: number =
-      ((prior.mandible.plane[0]! + prior.mandible.plane[1]! * inputs.sex) * Math.PI) / 180;
+      ((prior.mandible.plane[0]! + prior.mandible.plane[1]! * inputs.sex) *
+        Math.PI) /
+      180;
     const gonion: P2 = [goX, menton + (pgx - turn - goX) * Math.tan(plane)];
 
-    const opening: (e: PublicEye) => IAutoMovieHumanHeadEyeOpening = (e: PublicEye): IAutoMovieHumanHeadEyeOpening => {
+    const opening: (e: PublicEye) => IAutoMovieHumanHeadEyeOpening = (
+      e: PublicEye,
+    ): IAutoMovieHumanHeadEyeOpening => {
       const inner: number = (head.face.intercanthalWidth * k) / 2;
       const length: number = e.palpebralFissureLength * k;
       return {
@@ -250,7 +284,9 @@ export namespace AutoMovieHumanHeadLandmarks {
     // The ball and the ridge meet at the tip by a soft maximum, which stands
     // out of the lead by the ridge's share there.
     const ridge: number = AutoMovieNaturalSpline.evaluate(compiled.profile, 0);
-    const tipUnion: number = (ridge ** AutoMovieHumanHeadNose.NOSE + 1) ** (1 / AutoMovieHumanHeadNose.NOSE);
+    const tipUnion: number =
+      (ridge ** AutoMovieHumanHeadNose.NOSE + 1) **
+      (1 / AutoMovieHumanHeadNose.NOSE);
     const plan: IAutoMovieHumanHeadLayout = {
       scale: k,
       sex: inputs.sex,
@@ -273,7 +309,10 @@ export namespace AutoMovieHumanHeadLandmarks {
       frontalWidth: (head.minimumFrontalWidth * k) / 2,
       vault: 2,
       tape: head.circumference * k + fix.tape,
-      reach: Math.sqrt(Math.max(1, L * L - (p.glabella * FH) ** 2)) - L / 2 + fix.occiput,
+      reach:
+        Math.sqrt(Math.max(1, L * L - (p.glabella * FH) ** 2)) -
+        L / 2 +
+        fix.occiput,
       noseWidth: (head.face.nose.width * k) / 2 + fix.ala,
       border: menton + fix.menton,
       noseLead: (fix.lead * Math.max(1, lead)) / tipUnion,
@@ -294,7 +333,8 @@ export namespace AutoMovieHumanHeadLandmarks {
       // The nasolabial angle is the columella's rise plus the right angle less
       // the upper lip's forward lean, from the subnasale to labrale superius.
       columella:
-        ((f.nasolabial[0]! + f.nasolabial[1]! * inputs.sex - 90) * Math.PI) / 180 +
+        ((f.nasolabial[0]! + f.nasolabial[1]! * inputs.sex - 90) * Math.PI) /
+          180 +
         Math.atan2(ls[0] - snx, sn - ls[1]),
       // The nose's base turns into the lip over the nose's own blend width:
       // its height is the protrusion from the subnasale to the pronasale, its
@@ -325,7 +365,11 @@ export namespace AutoMovieHumanHeadLandmarks {
       profile,
     };
     for (const side of ["left", "right"] as const)
-      [plan[side].span, plan[side].place] = canthi(plan[side], prior.face, plan.scale);
+      [plan[side].span, plan[side].place] = canthi(
+        plan[side],
+        prior.face,
+        plan.scale,
+      );
     return plan;
   }
 
@@ -343,13 +387,30 @@ export namespace AutoMovieHumanHeadLandmarks {
    * @evidence contracts/performance.md#reuse-equivalent-work Composer and standalone readers use this same placement operation.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned layout; no generated geometry or global cache is retained.
    */
-  export function atTragion(plan: IAutoMovieHumanHeadLayout, height: number): IAutoMovieHumanHeadLayout {
-    const frame: IAutoMovieHumanHeadPrior.IFrame = AutoMovieHumanHeadPrior.PRIOR.frame;
-    const squared: number = (frame.tragion * plan.length) ** 2 - (frame.base * plan.breadth / 2) ** 2 - (plan.nasion - height) ** 2;
-    if (!(Number.isFinite(height) && squared > 0)) throw new Error("Selected tragion height cannot span the retained t-n norm and base width");
+  export function atTragion(
+    plan: IAutoMovieHumanHeadLayout,
+    height: number,
+  ): IAutoMovieHumanHeadLayout {
+    const frame: IAutoMovieHumanHeadPrior.IFrame =
+      AutoMovieHumanHeadPrior.PRIOR.frame;
+    const squared: number =
+      (frame.tragion * plan.length) ** 2 -
+      ((frame.base * plan.breadth) / 2) ** 2 -
+      (plan.nasion - height) ** 2;
+    if (!(Number.isFinite(height) && squared > 0))
+      throw new Error(
+        "Selected tragion height cannot span the retained t-n norm and base width",
+      );
     const depth: number = Math.sqrt(squared);
     const x: number = plan.landmarks.nasion[0] - depth;
-    return { ...plan, landmarks: { ...plan.landmarks, tragion: [x, height], zygion: [x + frame.arch * depth, plan.landmarks.zygion[1]] } };
+    return {
+      ...plan,
+      landmarks: {
+        ...plan.landmarks,
+        tragion: [x, height],
+        zygion: [x + frame.arch * depth, plan.landmarks.zygion[1]],
+      },
+    };
   }
 }
 
@@ -364,7 +425,11 @@ function canthi(
   face: IAutoMovieHumanHeadPrior.IFace,
   scale: number,
 ): [number, number] {
-  const series: (h: readonly number[], unit: number, t: number) => number = (h: readonly number[], unit: number, t: number): number =>
+  const series: (h: readonly number[], unit: number, t: number) => number = (
+    h: readonly number[],
+    unit: number,
+    t: number,
+  ): number =>
     unit *
     (h[0]! * Math.cos(t) +
       h[1]! * Math.sin(t) +

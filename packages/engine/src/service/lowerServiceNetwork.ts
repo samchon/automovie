@@ -1,5 +1,14 @@
-import { type IAutoMovieProfilePoint, type IAutoMovieSubjectContribution, type IAutoMovieLowerServiceNetwork, IAutoMovieConstraintViolation, IAutoMovieModel, IAutoMovieServiceNetwork, IAutoMovieStageSetPiece, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieConstraintViolation,
+  type IAutoMovieLowerServiceNetwork,
+  IAutoMovieModel,
+  type IAutoMovieProfilePoint,
+  IAutoMovieServiceNetwork,
+  IAutoMovieStageSetPiece,
+  type IAutoMovieSubjectContribution,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { meshAutoMovieSweep } from "../geometry/sweep/meshAutoMovieSweep";
 import { Vector3 } from "../math/Vector3";
@@ -41,7 +50,11 @@ const DEFAULT_SIDES: number = 8;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Both gates run once before the loop, while every run's radius/route needs its own section and sweep; no mutable mesh is cached across networks.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh models, set pieces and mesh buffers transfer to the contribution caller; no GPU object, validator collector or source network reference is retained.
  */
-export const lowerServiceNetwork: (props: IAutoMovieLowerServiceNetwork.IProps) => IAutoMovieSubjectContribution = (props: IAutoMovieLowerServiceNetwork.IProps): IAutoMovieSubjectContribution => {
+export const lowerServiceNetwork: (
+  props: IAutoMovieLowerServiceNetwork.IProps,
+) => IAutoMovieSubjectContribution = (
+  props: IAutoMovieLowerServiceNetwork.IProps,
+): IAutoMovieSubjectContribution => {
   const { network, environment }: typeof props = props;
   const sides: number = props.sides ?? DEFAULT_SIDES;
   if (!Number.isInteger(sides) || sides < 3)

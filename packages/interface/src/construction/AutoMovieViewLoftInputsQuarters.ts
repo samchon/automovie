@@ -1,4 +1,5 @@
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
+
 /**
  * Call-local reader of four dimensionless shoulder shares or departures at a physical station in millimetres. The order follows the four +u/+v/-u/-v quarter intervals. Missing authored departures produce [0,0,0,0]; a failed declared outline reports and yields NaN in its own slot.
  *
@@ -7,4 +8,6 @@ import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The constant-zero absence rule applies only to unstated departures, never to a failed declared source.
  * @evidence contracts/development/common.md#meaningful-documentation Defines units, quarter order, absence semantics, per-slot failure and returned tuple ownership.
  */
-export type AutoMovieViewLoftInputsQuarters = (station: number) => IAutoMovieViewPart.IQuarters<number>;
+export type AutoMovieViewLoftInputsQuarters = (
+  station: number,
+) => IAutoMovieViewPart.IQuarters<number>;

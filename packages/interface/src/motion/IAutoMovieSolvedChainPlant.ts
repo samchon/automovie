@@ -1,10 +1,7 @@
-import type { IAutoMovieChainFitScore } from "./IAutoMovieChainFitScore";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieJointPose } from "../pose/IAutoMovieJointPose";
 import type { IAutoMovieSwivelSeed } from "../pose/IAutoMovieSwivelSeed";
-import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-
-
-
+import type { IAutoMovieChainFitScore } from "./IAutoMovieChainFitScore";
 
 /**
  * Clinical articulation of a two-link target candidate before final clamping.

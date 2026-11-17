@@ -1,5 +1,8 @@
-import { type IAutoMovieResolvePreparedChainEffectorResolvedPreparedEffectorProps, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieQuaternion,
+  type IAutoMovieResolvePreparedChainEffectorResolvedPreparedEffectorProps,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { Quaternion } from "../math/Quaternion";

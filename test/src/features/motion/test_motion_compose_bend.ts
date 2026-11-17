@@ -1,5 +1,7 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanBend } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -71,7 +73,12 @@ export function test_motion_compose_bend(): void {
   TestValidator.predicate(
     "hang is the default and widens by a share",
     at(AutoMovieMotionHumanBend.arm(body, turned, "left"), 0.85, 1.1, 1.68) &&
-      at(AutoMovieMotionHumanBend.hang(body, turned, "left"), 0.85, 1.1, 1.68) &&
+      at(
+        AutoMovieMotionHumanBend.hang(body, turned, "left"),
+        0.85,
+        1.1,
+        1.68,
+      ) &&
       at(
         AutoMovieMotionHumanBend.hang(body, turned, "left", 0.5),
         0.85,

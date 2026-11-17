@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanDrillRegulation } from "./IAutoMovieMotionHumanDrillRegulation";
 import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
+import type { IAutoMovieMotionHumanDrillRegulation } from "./IAutoMovieMotionHumanDrillRegulation";
 
 /**
  * Named ways of going somewhere on foot; the composition gives the

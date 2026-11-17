@@ -1,4 +1,5 @@
 import type { IAutoMovieDrawingRange } from "@automovie/interface";
+
 /**
  * The lowest and highest of a run of numbers, folded in one pass.
  *

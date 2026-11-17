@@ -1,4 +1,5 @@
 import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
@@ -21,21 +22,21 @@ export function setPhysicalTargetJointRotation(
 ): void {
   const parent: IAutoMoviePhysicalProfile.ITransform = targets[joint.parent]!;
   const child: IAutoMoviePhysicalProfile.ITransform = targets[joint.child]!;
-  const frame: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-    parent.rotation,
-    joint.parentFrame.rotation,
-  );
-  const current: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-    Quaternion.inverse(frame),
-    Quaternion.multiply(child.rotation, joint.childFrame.rotation),
-  );
-  const rotation: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
+  const frame: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+    Quaternion.multiply(parent.rotation, joint.parentFrame.rotation);
+  const current: IAutoMoviePhysicalProfile.ITransform["rotation"] =
     Quaternion.multiply(
-      Quaternion.multiply(frame, relative),
-      Quaternion.inverse(current),
-    ),
-    Quaternion.inverse(frame),
-  );
+      Quaternion.inverse(frame),
+      Quaternion.multiply(child.rotation, joint.childFrame.rotation),
+    );
+  const rotation: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+    Quaternion.multiply(
+      Quaternion.multiply(
+        Quaternion.multiply(frame, relative),
+        Quaternion.inverse(current),
+      ),
+      Quaternion.inverse(frame),
+    );
   const pivot: IAutoMoviePhysicalProfile.ITransform["position"] = Vector3.add(
     parent.position,
     Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),

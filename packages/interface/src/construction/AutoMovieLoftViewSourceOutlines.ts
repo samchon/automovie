@@ -1,4 +1,5 @@
 import type { IAutoMovieViewOutline } from "./IAutoMovieViewOutline";
+
 /**
  * Four prepared scalar outlines in the caller's declared cyclic quarter or guide order.
  *

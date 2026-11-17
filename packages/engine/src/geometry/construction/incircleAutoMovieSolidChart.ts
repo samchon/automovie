@@ -1,4 +1,5 @@
 import type { AutoMovieVector2Tuple } from "@automovie/interface";
+
 /** Exact integer significand multiplied by two to exponent. */
 interface Dyadic {
   /** Signed integer significand; zero has no relevant exponent. */

@@ -1,6 +1,22 @@
-import type { IAutoMovieCurlChainUntilContact, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMoviePhysicalProfile, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-import { DEFAULT_HUMANOID_ROM, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, curlChainUntilContact, resolvePose } from "@automovie/engine";
-
+import {
+  DEFAULT_HUMANOID_ROM,
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Quaternion,
+  Vector3,
+  curlChainUntilContact,
+  resolvePose,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieCurlChainUntilContact,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -66,42 +82,44 @@ export function test_motion_handling_curl(): void {
     shape,
     frame: { position: { x: 0, y: 0, z: 0 }, rotation: Quaternion.identity() },
   });
-  const cases: { label: string; collider: IAutoMovieCurlChainUntilContact.ICollider }[] =
-    [
-      {
-        label: "box",
-        collider: below(
-          box({ x: 0.1, y: -0.05, z: 0 }, { x: 0.06, y: 0.02, z: 0.05 }),
-        ),
-      },
-      {
-        label: "sphere",
-        collider: below({
-          id: "s",
-          material: "m",
-          transform: {
-            position: { x: 0.08, y: -0.045, z: 0 },
-            rotation: Quaternion.identity(),
-          },
-          kind: "sphere",
-          radius: 0.03,
-        }),
-      },
-      {
-        label: "capsule",
-        collider: below({
-          id: "c",
-          material: "m",
-          transform: {
-            position: { x: 0.07, y: -0.04, z: 0 },
-            rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
-          },
-          kind: "capsule",
-          radius: 0.02,
-          halfLength: 0.05,
-        }),
-      },
-    ];
+  const cases: {
+    label: string;
+    collider: IAutoMovieCurlChainUntilContact.ICollider;
+  }[] = [
+    {
+      label: "box",
+      collider: below(
+        box({ x: 0.1, y: -0.05, z: 0 }, { x: 0.06, y: 0.02, z: 0.05 }),
+      ),
+    },
+    {
+      label: "sphere",
+      collider: below({
+        id: "s",
+        material: "m",
+        transform: {
+          position: { x: 0.08, y: -0.045, z: 0 },
+          rotation: Quaternion.identity(),
+        },
+        kind: "sphere",
+        radius: 0.03,
+      }),
+    },
+    {
+      label: "capsule",
+      collider: below({
+        id: "c",
+        material: "m",
+        transform: {
+          position: { x: 0.07, y: -0.04, z: 0 },
+          rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+        },
+        kind: "capsule",
+        radius: 0.02,
+        halfLength: 0.05,
+      }),
+    },
+  ];
   for (const { label, collider } of cases) {
     const result: IAutoMovieCurlChainUntilContact.IResult = curl([collider]);
     const least: number = clearance(skeleton, result.pose, collider);
@@ -174,7 +192,9 @@ export function test_motion_handling_curl(): void {
   );
 
   // 6. Determinism and refusals.
-  const again: IAutoMovieCurlChainUntilContact.IResult = curl([cases[0]!.collider]);
+  const again: IAutoMovieCurlChainUntilContact.IResult = curl([
+    cases[0]!.collider,
+  ]);
   TestValidator.predicate(
     "bit-identical",
     JSON.stringify(again.chains) ===

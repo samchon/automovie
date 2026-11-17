@@ -1,12 +1,11 @@
-import type { IAutoMovieHumanBindingInputs, IAutoMovieHumanBodyCalibration, IAutoMovieHumanChainRings, IAutoMovieHumanJointCentres, IAutoMovieHumanNeutral } from "@automovie/interface";
-
-
-
-
-
-
 import { AutoMovieLoftChain } from "@automovie/engine";
-
+import type {
+  IAutoMovieHumanBindingInputs,
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanChainRings,
+  IAutoMovieHumanJointCentres,
+  IAutoMovieHumanNeutral,
+} from "@automovie/interface";
 
 import { AutoMovieHumanCrotchBinding } from "./AutoMovieHumanCrotchBinding";
 import { AutoMovieHumanJointCentres } from "./AutoMovieHumanJointCentres";
@@ -24,8 +23,6 @@ import { AutoMovieHumanNeutral } from "./AutoMovieHumanNeutral";
  * a weight is a function of a place and this record alone.
  */
 export namespace AutoMovieHumanBindingInputs {
-  
-
   /**
    * Phases per ring of a body's skin (convention: 48, 7.5 degrees apart, fine
    * enough to find the widest skin of a section for the resting arm and the
@@ -54,7 +51,10 @@ export namespace AutoMovieHumanBindingInputs {
     // The neutral posture reads anatomy at heights, so it takes the published
     // chains whose stations are heights (`AutoMovieHumanNeutral.LEVEL`), as the
     // skeleton's own neutral does.
-    const neutralRings: IAutoMovieHumanChainRings[] = rings(calibration, AutoMovieHumanNeutral.LEVEL);
+    const neutralRings: IAutoMovieHumanChainRings[] = rings(
+      calibration,
+      AutoMovieHumanNeutral.LEVEL,
+    );
     const neutral: IAutoMovieHumanNeutral.IOutput = AutoMovieHumanNeutral.of(
       calibration,
       (): IAutoMovieHumanNeutral.ISource => ({ rings: neutralRings, joints }),
@@ -112,16 +112,20 @@ export namespace AutoMovieHumanBindingInputs {
         (c: IAutoMovieHumanBodyCalibration["chains"][number]): boolean =>
           names === null || names.test(c.name),
       )
-      .map((chain: IAutoMovieHumanBodyCalibration["chains"][number]): IAutoMovieHumanChainRings => {
-        const stations: number[] = chain.layers.map(
-          (l: { y: number }): number => l.y,
-        );
-        const points: number[] = [];
-        for (const y of stations)
-          for (const p of AutoMovieLoftChain.ring(chain, y, phases))
-            points.push(p[0], p[1], p[2]);
-        return { chain: chain.name, phases: PHASES, stations, points };
-      });
+      .map(
+        (
+          chain: IAutoMovieHumanBodyCalibration["chains"][number],
+        ): IAutoMovieHumanChainRings => {
+          const stations: number[] = chain.layers.map(
+            (l: { y: number }): number => l.y,
+          );
+          const points: number[] = [];
+          for (const y of stations)
+            for (const p of AutoMovieLoftChain.ring(chain, y, phases))
+              points.push(p[0], p[1], p[2]);
+          return { chain: chain.name, phases: PHASES, stations, points };
+        },
+      );
   }
 
   /**
@@ -130,7 +134,9 @@ export namespace AutoMovieHumanBindingInputs {
    * @param inputs The inputs.
    * @returns Every chain's rings at {@link SAMPLE_PHASES} phases, metres, three numbers each.
    */
-  export function samples(inputs: IAutoMovieHumanBindingInputs.IInputs): Float64Array {
+  export function samples(
+    inputs: IAutoMovieHumanBindingInputs.IInputs,
+  ): Float64Array {
     const out: number[] = [];
     const stride: number = PHASES / SAMPLE_PHASES;
     for (const chain of inputs.rings)

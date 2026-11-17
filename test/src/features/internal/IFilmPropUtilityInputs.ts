@@ -1,6 +1,9 @@
-import type { IAutoMoviePropSupportFace, IAutoMovieBuiltEnvironment, IAutoMoviePropBox, IAutoMovieStageSetPiece } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMoviePropBox,
+  IAutoMoviePropSupportFace,
+  IAutoMovieStageSetPiece,
+} from "@automovie/interface";
 
 import type { IFilmPropPatchInput } from "./IFilmPropPatchInput";
 

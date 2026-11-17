@@ -1,5 +1,12 @@
-import { type IAutoMovieValidateFluidDomain, type IAutoMovieViolationCollector, IAutoMovieFluidDomain, IAutoMovieFluidDrain, IAutoMovieFluidSource, IAutoMovieFluidSpray, IAutoMovieValidation } from "@automovie/interface";
-
+import {
+  IAutoMovieFluidDomain,
+  IAutoMovieFluidDrain,
+  IAutoMovieFluidSource,
+  IAutoMovieFluidSpray,
+  type IAutoMovieValidateFluidDomain,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "../validation/ViolationCollector";
@@ -37,7 +44,11 @@ const EDGES: readonly ["xMin", "xMax", "zMin", "zMax"] = [
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A single validation pass per call; nothing is shared across calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the collector and id sets die with the call, and the returned violations, at most a few per declared field, belong to the caller.
  */
-export const validateFluidDomain: (props: IAutoMovieValidateFluidDomain.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateFluidDomain.IProps): IAutoMovieValidation => {
+export const validateFluidDomain: (
+  props: IAutoMovieValidateFluidDomain.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateFluidDomain.IProps,
+): IAutoMovieValidation => {
   const domain: IAutoMovieFluidDomain = props.domain;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";

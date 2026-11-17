@@ -1,5 +1,8 @@
-import type { IAutoMovieAudioMixCue, IAutoMovieAudioMixInput, IAutoMovieAudioMixResult } from "@automovie/interface";
-
+import type {
+  IAutoMovieAudioMixCue,
+  IAutoMovieAudioMixInput,
+  IAutoMovieAudioMixResult,
+} from "@automovie/interface";
 
 /**
  * Sum mono audio sources into one stereo soundtrack, sample-accurately and
@@ -26,7 +29,9 @@ import type { IAutoMovieAudioMixCue, IAutoMovieAudioMixInput, IAutoMovieAudioMix
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 11 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function mixAutoMovieAudioPcm(input: IAutoMovieAudioMixInput): IAutoMovieAudioMixResult {
+export function mixAutoMovieAudioPcm(
+  input: IAutoMovieAudioMixInput,
+): IAutoMovieAudioMixResult {
   const rate: number = input.sampleRate;
   if (
     !Number.isSafeInteger(rate) ||

@@ -1,16 +1,16 @@
-import type { AutoMovieHumanSexPair, IAutoMovieAffineCoefficients, IAutoMovieHumanBodyMeasures, IAutoMovieHumanEar, IAutoMovieHumanEye, IAutoMovieHumanHeadAnatomy, IAutoMovieHumanHeadIdentity, IAutoMovieHumanParameters } from "@automovie/interface";
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieHumanSexPair,
+  IAutoMovieAffineCoefficients,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanEar,
+  IAutoMovieHumanEye,
+  IAutoMovieHumanHeadAnatomy,
+  IAutoMovieHumanHeadIdentity,
+  IAutoMovieHumanParameters,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
-
 
 /**
  * The head's measures, each the person's own or the adult survey default of
@@ -28,69 +28,136 @@ import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
  * carry more than the sex's mean.
  */
 export namespace AutoMovieHumanHeadAnatomy {
-  
-
-  
-
   /**
    * Every head measure of a person, supplied or derived.
    *
    * @param params Public input.
    * @returns The complete head identity, millimetres and the dimensionless index.
    */
-  export function resolve(params: IAutoMovieHumanParameters): IAutoMovieHumanHeadIdentity {
-    const body: IAutoMovieHumanBodyMeasures = AutoMovieHumanBodyAnatomy.resolve(params);
+  export function resolve(
+    params: IAutoMovieHumanParameters,
+  ): IAutoMovieHumanHeadIdentity {
+    const body: IAutoMovieHumanBodyMeasures =
+      AutoMovieHumanBodyAnatomy.resolve(params);
     const k: 0 | 1 = body.sex === AutoMovieHumanSex.Female ? 0 : 1;
     const S: number = body.stature;
     const given: IAutoMovieHumanHeadAnatomy.IInput = params.head ?? {};
     const of = (pair: readonly [number, number]): number => pair[k];
-    const line = (fit: readonly [IAutoMovieAffineCoefficients, IAutoMovieAffineCoefficients]): number => fit[k].a + fit[k].b * S;
+    const line = (
+      fit: readonly [
+        IAutoMovieAffineCoefficients,
+        IAutoMovieAffineCoefficients,
+      ],
+    ): number => fit[k].a + fit[k].b * S;
     const length: number = given.length ?? line(HEAD_LENGTH_ON_STATURE);
-    const eye = (side: Partial<IAutoMovieHumanEye> | undefined): IAutoMovieHumanEye => ({
-      palpebralFissureLength: side?.palpebralFissureLength ?? of(FACE.palpebralFissureLength),
-      palpebralFissureHeight: side?.palpebralFissureHeight ?? of(FACE.palpebralFissureHeight),
+    const eye = (
+      side: Partial<IAutoMovieHumanEye> | undefined,
+    ): IAutoMovieHumanEye => ({
+      palpebralFissureLength:
+        side?.palpebralFissureLength ?? of(FACE.palpebralFissureLength),
+      palpebralFissureHeight:
+        side?.palpebralFissureHeight ?? of(FACE.palpebralFissureHeight),
     });
-    const ear = (side: Partial<IAutoMovieHumanEar> | undefined): IAutoMovieHumanEar => ({
+    const ear = (
+      side: Partial<IAutoMovieHumanEar> | undefined,
+    ): IAutoMovieHumanEar => ({
       length: side?.length ?? of(EAR.length),
       breadth: side?.breadth ?? of(EAR.breadth),
       protrusion: side?.protrusion ?? of(EAR.protrusion),
     });
     return {
       length,
-      cephalicIndex: given.cephalicIndex ?? (100 * line(HEAD_BREADTH_ON_STATURE)) / length,
+      cephalicIndex:
+        given.cephalicIndex ?? (100 * line(HEAD_BREADTH_ON_STATURE)) / length,
       circumference: given.circumference ?? line(HEAD_CIRCUMFERENCE_ON_STATURE),
       height: given.height ?? S / STATURE_OVER_HEAD_HEIGHT,
       faceHeight: given.faceHeight ?? of(FACE.faceHeight),
       faceWidth: given.faceWidth ?? line(FACE_WIDTH_ON_STATURE),
       mandibularWidth: given.mandibularWidth ?? of(FACE.mandibularWidth),
-      minimumFrontalWidth: given.minimumFrontalWidth ?? of(FACE.minimumFrontalWidth),
+      minimumFrontalWidth:
+        given.minimumFrontalWidth ?? of(FACE.minimumFrontalWidth),
       mouthOpening: given.mouthOpening ?? of(FACE.mouthOpening),
-      mandibularLaterotrusion: given.mandibularLaterotrusion ?? of(FACE.mandibularLaterotrusion),
+      mandibularLaterotrusion:
+        given.mandibularLaterotrusion ?? of(FACE.mandibularLaterotrusion),
       // The person's own measured face inputs pass through when given; absent, each reader keeps its documented default law.
-      ...(given.bitragionMentonArc !== undefined ? { bitragionMentonArc: Number(given.bitragionMentonArc) } : {}),
-      ...(given.bitragionSubnasaleArc !== undefined ? { bitragionSubnasaleArc: Number(given.bitragionSubnasaleArc) } : {}),
-      ...(given.submentalInclination !== undefined ? { submentalInclination: Number(given.submentalInclination) } : {}),
-      ...(given.subnasaleAheadOfGlabella !== undefined ? { subnasaleAheadOfGlabella: Number(given.subnasaleAheadOfGlabella) } : {}),
-      ...(given.glabellaAheadOfNasion !== undefined ? { glabellaAheadOfNasion: Number(given.glabellaAheadOfNasion) } : {}),
-      ...(given.glabellaAboveNasion !== undefined ? { glabellaAboveNasion: Number(given.glabellaAboveNasion) } : {}),
-      ...(given.pogonionAheadOfGlabella !== undefined ? { pogonionAheadOfGlabella: Number(given.pogonionAheadOfGlabella) } : {}),
-      ...(given.pogonionAboveMenton !== undefined ? { pogonionAboveMenton: Number(given.pogonionAboveMenton) } : {}),
-      ...(given.tragionNasionDepth !== undefined ? { tragionNasionDepth: Number(given.tragionNasionDepth) } : {}),
-      ...(given.tragionSubnasaleDepth !== undefined ? { tragionSubnasaleDepth: Number(given.tragionSubnasaleDepth) } : {}),
-      ...(given.tragionGnathionDepth !== undefined ? { tragionGnathionDepth: Number(given.tragionGnathionDepth) } : {}),
-      ...(given.upperLipProtrusion !== undefined ? { upperLipProtrusion: Number(given.upperLipProtrusion) } : {}),
-      ...(given.lowerLipProtrusion !== undefined ? { lowerLipProtrusion: Number(given.lowerLipProtrusion) } : {}),
-      ...(given.bitragionBreadth !== undefined ? { bitragionBreadth: Number(given.bitragionBreadth) } : {}),
-      ...(given.nasalBridgeLength !== undefined ? { nasalBridgeLength: Number(given.nasalBridgeLength) } : {}),
-      ...(given.tragionTopOfHead !== undefined ? { tragionTopOfHead: Number(given.tragionTopOfHead) } : {}),
-      ...(given.upperFacialHeight !== undefined ? { upperFacialHeight: Number(given.upperFacialHeight) } : {}),
-      ...(given.upperLipHeight !== undefined ? { upperLipHeight: Number(given.upperLipHeight) } : {}),
-      ...(given.bitragionCoronalArc !== undefined ? { bitragionCoronalArc: Number(given.bitragionCoronalArc) } : {}),
-      ...(given.cervicalArrowApexBehindTragion !== undefined ? { cervicalArrowApexBehindTragion: Number(given.cervicalArrowApexBehindTragion) } : {}),
-      ...(given.cervicalArrowApexBelowTragion !== undefined ? { cervicalArrowApexBelowTragion: Number(given.cervicalArrowApexBelowTragion) } : {}),
+      ...(given.bitragionMentonArc !== undefined
+        ? { bitragionMentonArc: Number(given.bitragionMentonArc) }
+        : {}),
+      ...(given.bitragionSubnasaleArc !== undefined
+        ? { bitragionSubnasaleArc: Number(given.bitragionSubnasaleArc) }
+        : {}),
+      ...(given.submentalInclination !== undefined
+        ? { submentalInclination: Number(given.submentalInclination) }
+        : {}),
+      ...(given.subnasaleAheadOfGlabella !== undefined
+        ? { subnasaleAheadOfGlabella: Number(given.subnasaleAheadOfGlabella) }
+        : {}),
+      ...(given.glabellaAheadOfNasion !== undefined
+        ? { glabellaAheadOfNasion: Number(given.glabellaAheadOfNasion) }
+        : {}),
+      ...(given.glabellaAboveNasion !== undefined
+        ? { glabellaAboveNasion: Number(given.glabellaAboveNasion) }
+        : {}),
+      ...(given.pogonionAheadOfGlabella !== undefined
+        ? { pogonionAheadOfGlabella: Number(given.pogonionAheadOfGlabella) }
+        : {}),
+      ...(given.pogonionAboveMenton !== undefined
+        ? { pogonionAboveMenton: Number(given.pogonionAboveMenton) }
+        : {}),
+      ...(given.tragionNasionDepth !== undefined
+        ? { tragionNasionDepth: Number(given.tragionNasionDepth) }
+        : {}),
+      ...(given.tragionSubnasaleDepth !== undefined
+        ? { tragionSubnasaleDepth: Number(given.tragionSubnasaleDepth) }
+        : {}),
+      ...(given.tragionGnathionDepth !== undefined
+        ? { tragionGnathionDepth: Number(given.tragionGnathionDepth) }
+        : {}),
+      ...(given.upperLipProtrusion !== undefined
+        ? { upperLipProtrusion: Number(given.upperLipProtrusion) }
+        : {}),
+      ...(given.lowerLipProtrusion !== undefined
+        ? { lowerLipProtrusion: Number(given.lowerLipProtrusion) }
+        : {}),
+      ...(given.bitragionBreadth !== undefined
+        ? { bitragionBreadth: Number(given.bitragionBreadth) }
+        : {}),
+      ...(given.nasalBridgeLength !== undefined
+        ? { nasalBridgeLength: Number(given.nasalBridgeLength) }
+        : {}),
+      ...(given.tragionTopOfHead !== undefined
+        ? { tragionTopOfHead: Number(given.tragionTopOfHead) }
+        : {}),
+      ...(given.upperFacialHeight !== undefined
+        ? { upperFacialHeight: Number(given.upperFacialHeight) }
+        : {}),
+      ...(given.upperLipHeight !== undefined
+        ? { upperLipHeight: Number(given.upperLipHeight) }
+        : {}),
+      ...(given.bitragionCoronalArc !== undefined
+        ? { bitragionCoronalArc: Number(given.bitragionCoronalArc) }
+        : {}),
+      ...(given.cervicalArrowApexBehindTragion !== undefined
+        ? {
+            cervicalArrowApexBehindTragion: Number(
+              given.cervicalArrowApexBehindTragion,
+            ),
+          }
+        : {}),
+      ...(given.cervicalArrowApexBelowTragion !== undefined
+        ? {
+            cervicalArrowApexBelowTragion: Number(
+              given.cervicalArrowApexBelowTragion,
+            ),
+          }
+        : {}),
       face: {
-        eyePair: { left: eye(given.face?.eyePair?.left), right: eye(given.face?.eyePair?.right) },
-        intercanthalWidth: given.face?.intercanthalWidth ?? of(FACE.intercanthalWidth),
+        eyePair: {
+          left: eye(given.face?.eyePair?.left),
+          right: eye(given.face?.eyePair?.right),
+        },
+        intercanthalWidth:
+          given.face?.intercanthalWidth ?? of(FACE.intercanthalWidth),
         nose: {
           width: given.face?.nose?.width ?? of(FACE.noseWidth),
           height: given.face?.nose?.height ?? of(FACE.noseHeight),
@@ -98,34 +165,51 @@ export namespace AutoMovieHumanHeadAnatomy {
         },
         mouth: {
           width: given.face?.mouth?.width ?? of(FACE.mouthWidth),
-          upperVermilionHeight: given.face?.mouth?.upperVermilionHeight ?? of(FACE.upperVermilionHeight),
-          lowerVermilionHeight: given.face?.mouth?.lowerVermilionHeight ?? of(FACE.lowerVermilionHeight),
+          upperVermilionHeight:
+            given.face?.mouth?.upperVermilionHeight ??
+            of(FACE.upperVermilionHeight),
+          lowerVermilionHeight:
+            given.face?.mouth?.lowerVermilionHeight ??
+            of(FACE.lowerVermilionHeight),
         },
       },
-      earPair: { left: ear(given.earPair?.left), right: ear(given.earPair?.right) },
+      earPair: {
+        left: ear(given.earPair?.left),
+        right: ear(given.earPair?.right),
+      },
     };
   }
 
   /** Head length g-op on stature, mm; ANSUR II, women then men. */
-  export const HEAD_LENGTH_ON_STATURE: AutoMovieHumanSexPair<IAutoMovieAffineCoefficients> = [
-    { a: 122.19, b: 0.0415 },
-    { a: 133.08, b: 0.0378 },
-  ];
+  export const HEAD_LENGTH_ON_STATURE: AutoMovieHumanSexPair<IAutoMovieAffineCoefficients> =
+    [
+      { a: 122.19, b: 0.0415 },
+      { a: 133.08, b: 0.0378 },
+    ];
 
   /** Head breadth eu-eu on stature, mm; ANSUR II. */
-  export const HEAD_BREADTH_ON_STATURE: readonly [IAutoMovieAffineCoefficients, IAutoMovieAffineCoefficients] = [
+  export const HEAD_BREADTH_ON_STATURE: readonly [
+    IAutoMovieAffineCoefficients,
+    IAutoMovieAffineCoefficients,
+  ] = [
     { a: 127.19, b: 0.0126 },
     { a: 143.69, b: 0.0061 },
   ];
 
   /** Head circumference on stature, mm; ANSUR II. */
-  export const HEAD_CIRCUMFERENCE_ON_STATURE: readonly [IAutoMovieAffineCoefficients, IAutoMovieAffineCoefficients] = [
+  export const HEAD_CIRCUMFERENCE_ON_STATURE: readonly [
+    IAutoMovieAffineCoefficients,
+    IAutoMovieAffineCoefficients,
+  ] = [
     { a: 406.66, b: 0.0948 },
     { a: 433.53, b: 0.0802 },
   ];
 
   /** Bizygomatic breadth zy-zy on stature, mm; ANSUR II. */
-  export const FACE_WIDTH_ON_STATURE: readonly [IAutoMovieAffineCoefficients, IAutoMovieAffineCoefficients] = [
+  export const FACE_WIDTH_ON_STATURE: readonly [
+    IAutoMovieAffineCoefficients,
+    IAutoMovieAffineCoefficients,
+  ] = [
     { a: 107.09, b: 0.0164 },
     { a: 120.01, b: 0.0129 },
   ];
@@ -133,10 +217,10 @@ export namespace AutoMovieHumanHeadAnatomy {
   /** Stature over menton-vertex head height in late adolescence (Snyder et al. 1977, UM-HSRI-77-17). */
   export const STATURE_OVER_HEAD_HEIGHT: number = 8.0;
 
-  
-
   /** Adult means by sex, women then men, mm. */
-  export const FACE: Readonly<Record<IAutoMovieHumanHeadAnatomy.FaceMean, readonly [number, number]>> = {
+  export const FACE: Readonly<
+    Record<IAutoMovieHumanHeadAnatomy.FaceMean, readonly [number, number]>
+  > = {
     /** Morphological face height n-gn; Weinberg 2016: 118.6 (6.1) and 127.2 (6.6). */
     faceHeight: [118.6, 127.2],
 
@@ -181,7 +265,9 @@ export namespace AutoMovieHumanHeadAnatomy {
   };
 
   /** Auricle means by sex, mm; Cho et al. 2025, both sides averaged: length, breadth and protrusion at the tragal level. */
-  export const EAR: Readonly<Record<keyof IAutoMovieHumanEar, readonly [number, number]>> = {
+  export const EAR: Readonly<
+    Record<keyof IAutoMovieHumanEar, readonly [number, number]>
+  > = {
     length: [64.5, 67.0],
     breadth: [27.4, 29.05],
     protrusion: [17.3, 19.5],

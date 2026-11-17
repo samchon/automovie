@@ -1,6 +1,17 @@
-import type { IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSignature } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
-import { HumanCarried, HumanCarriedCoupling, HumanChain, HumanPerformance, HumanSignature, HumanVerdicts } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+} from "@automovie/interface";
+import {
+  HumanCarried,
+  HumanCarriedCoupling,
+  HumanChain,
+  HumanPerformance,
+  HumanSignature,
+  HumanVerdicts,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";

@@ -1,9 +1,10 @@
-import type { IAutoMovieRecoveryMapElimination, IAutoMovieRecoveryMapJointBlock, IAutoMovieRecoveryMapJointPreparation, IAutoMovieRecoveryMapMetricFit, IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface";
-
-
-
-
-
+import type {
+  IAutoMovieRecoveryCameraMapBudget,
+  IAutoMovieRecoveryMapElimination,
+  IAutoMovieRecoveryMapJointBlock,
+  IAutoMovieRecoveryMapJointPreparation,
+  IAutoMovieRecoveryMapMetricFit,
+} from "@automovie/interface";
 
 import { createRecoveryMapMetric } from "./createRecoveryMapMetric";
 import { factorRecoveryMapDesign } from "./factorRecoveryMapDesign";
@@ -53,5 +54,6 @@ export function factorRecoveryMapMetric(
       prepared.pointScales,
       prepared.cameraScales,
       budget,
-    ) };
+    ),
+  };
 }

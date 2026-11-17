@@ -1,5 +1,12 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftSectionConnect, IAutoMovieLoftSectionJet, IAutoMovieLoftSectionLegacy, IAutoMovieLoftSectionPhase, IAutoMovieLoftSectionSource, IAutoMovieViewSectionField } from "@automovie/interface";
-
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSectionConnect,
+  IAutoMovieLoftSectionJet,
+  IAutoMovieLoftSectionLegacy,
+  IAutoMovieLoftSectionPhase,
+  IAutoMovieLoftSectionSource,
+  IAutoMovieViewSectionField,
+} from "@automovie/interface";
 
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftSectionBoundary } from "./AutoMovieLoftSectionBoundary";
@@ -49,11 +56,8 @@ export namespace AutoMovieLoftSection {
       chain.nativeSource !== undefined ||
       chain.sectionSpans !== undefined ||
       chain.layers.some(
-        (
-          layer: IAutoMovieLoftChain.ILayer & {
-            sectionSource?: IAutoMovieLoftSectionSource.IEndpoint;
-          },
-        ): boolean => layer.sectionSource !== undefined,
+        (layer: IAutoMovieLoftChain.ILayer): boolean =>
+          layer.sectionSource !== undefined,
       )
     );
   }
@@ -131,14 +135,17 @@ export namespace AutoMovieLoftSection {
       return AutoMovieLoftSectionNative.phase(
         need(AutoMovieLoftSectionBoundary.values(span.span.law, station)),
       );
-    const mixed: Extract<IAutoMovieLoftSectionConnect.ISpan, { kind: "mixed" }> =
-      span.span;
+    const mixed: Extract<
+      IAutoMovieLoftSectionConnect.ISpan,
+      { kind: "mixed" }
+    > = span.span;
     const w: Weight = weight(mixed, station);
     if (w[0] === 0 && station === mixed.basis.binding.station)
       return familyPhase(mixed.basis.field);
-    const native: (phi: number) => IAutoMovieLoftSectionPhase = AutoMovieLoftSectionNative.phase(
-      need(AutoMovieLoftSectionBoundary.values(mixed.native, station)),
-    );
+    const native: (phi: number) => IAutoMovieLoftSectionPhase =
+      AutoMovieLoftSectionNative.phase(
+        need(AutoMovieLoftSectionBoundary.values(mixed.native, station)),
+      );
     if (w[0] === 1 && (station === mixed.from || station === mixed.to))
       return native;
     const basis: IAutoMovieLoftSectionLegacy.IPrepared = extension(
@@ -181,14 +188,17 @@ export namespace AutoMovieLoftSection {
       return AutoMovieLoftSectionNative.jet(
         need(AutoMovieLoftSectionBoundary.read(selected.span.law, station)),
       );
-    const mixed: Extract<IAutoMovieLoftSectionConnect.ISpan, { kind: "mixed" }> =
-      selected.span;
+    const mixed: Extract<
+      IAutoMovieLoftSectionConnect.ISpan,
+      { kind: "mixed" }
+    > = selected.span;
     const w: Weight = weight(mixed, station);
     if (w[0] === 0 && station === mixed.basis.binding.station)
       return familyJet(mixed.basis.field);
-    const native: (phi: number) => IAutoMovieLoftSectionJet = AutoMovieLoftSectionNative.jet(
-      need(AutoMovieLoftSectionBoundary.read(mixed.native, station)),
-    );
+    const native: (phi: number) => IAutoMovieLoftSectionJet =
+      AutoMovieLoftSectionNative.jet(
+        need(AutoMovieLoftSectionBoundary.read(mixed.native, station)),
+      );
     if (w[0] === 1 && (station === mixed.from || station === mixed.to))
       return native;
     const basis: IAutoMovieLoftSectionLegacy.IPrepared = extension(
@@ -236,7 +246,10 @@ function need<T>(value: T | string): T {
 }
 
 /** Value-only complete endpoint functions need no physical derivative evaluation. */
-function familyPhase(field: Family): (phi: number) => IAutoMovieLoftSectionPhase {
+function familyPhase(
+  field: Family,
+): (phi: number) => IAutoMovieLoftSectionPhase {
+  // Point and derivative readers must keep the same declared native geometry.
   if (field.kind === "native")
     return AutoMovieLoftSectionNative.phase({
       extents: field.inputs.extents.map(
@@ -245,25 +258,42 @@ function familyPhase(field: Family): (phi: number) => IAutoMovieLoftSectionPhase
       shoulders: field.inputs.shoulders.map(
         (row: readonly number[]): number => row[0]!,
       ),
-      ...(field.inputs.touch === undefined ? {} : {
-        touch: field.inputs.touch.map((row: readonly number[]): number => row[0]!),
-      }),
-      ...(field.inputs.splits === undefined ? {} : {
-        splits: field.inputs.splits.map((split: IAutoMovieViewSectionField.IStationJet[]): number[] =>
-          split.map((row: readonly number[]): number => row[0]!)),
-      }),
-      ...(field.inputs.pieces === undefined ? {} : {
-        pieces: field.inputs.pieces.map((pieces: IAutoMovieViewSectionField.IStationJet[][]): number[][] =>
-          pieces.map((split: IAutoMovieViewSectionField.IStationJet[]): number[] =>
-            split.map((row: readonly number[]): number => row[0]!))),
-      }),
+      ...(field.inputs.touch === undefined
+        ? {}
+        : {
+            touch: field.inputs.touch.map(
+              (row: readonly number[]): number => row[0]!,
+            ),
+          }),
+      ...(field.inputs.splits === undefined
+        ? {}
+        : {
+            splits: field.inputs.splits.map(
+              (split: IAutoMovieViewSectionField.IStationJet[]): number[] =>
+                split.map((row: readonly number[]): number => row[0]!),
+            ),
+          }),
+      ...(field.inputs.pieces === undefined
+        ? {}
+        : {
+            pieces: field.inputs.pieces.map(
+              (
+                pieces: IAutoMovieViewSectionField.IStationJet[][],
+              ): number[][] =>
+                pieces.map(
+                  (split: IAutoMovieViewSectionField.IStationJet[]): number[] =>
+                    split.map((row: readonly number[]): number => row[0]!),
+                ),
+            ),
+          }),
     });
   const basis: IAutoMovieLoftSectionLegacy.IPrepared = {
     kind: "value",
     order: field.order,
     rows: [field.rows[0]],
   };
-  return (phi: number): IAutoMovieLoftSectionPhase => AutoMovieLoftSectionLegacy.phase(basis, phi);
+  return (phi: number): IAutoMovieLoftSectionPhase =>
+    AutoMovieLoftSectionLegacy.phase(basis, phi);
 }
 
 /** Exact retained source2 owns an endpoint's complete local jet. */
@@ -275,7 +305,8 @@ function familyJet(field: Family): (phi: number) => IAutoMovieLoftSectionJet {
     order: field.order,
     rows: field.rows,
   };
-  return (phi: number): IAutoMovieLoftSectionJet => AutoMovieLoftSectionLegacy.jet(basis, phi);
+  return (phi: number): IAutoMovieLoftSectionJet =>
+    AutoMovieLoftSectionLegacy.jet(basis, phi);
 }
 
 /** Define the complete legacy field on the receiving span, not beyond its host. */
@@ -318,7 +349,11 @@ function weight(
 }
 
 /** Shared value/phase product rule uses a station-only scalar weight. */
-function phaseProduct(a: IAutoMovieLoftSectionPhase, b: IAutoMovieLoftSectionPhase, w: Weight): IAutoMovieLoftSectionPhase {
+function phaseProduct(
+  a: IAutoMovieLoftSectionPhase,
+  b: IAutoMovieLoftSectionPhase,
+  w: Weight,
+): IAutoMovieLoftSectionPhase {
   const out: IAutoMovieLoftSectionPhase = { p: [0, 0], t: [0, 0], tt: [0, 0] };
   for (const key of ["p", "t", "tt"] as const)
     for (let q: number = 0; q < 2; q++)
@@ -327,7 +362,11 @@ function phaseProduct(a: IAutoMovieLoftSectionPhase, b: IAutoMovieLoftSectionPha
 }
 
 /** The whole-field product closes with total2, without source3/4. */
-function product(a: IAutoMovieLoftSectionJet, b: IAutoMovieLoftSectionJet, w: Weight): IAutoMovieLoftSectionJet {
+function product(
+  a: IAutoMovieLoftSectionJet,
+  b: IAutoMovieLoftSectionJet,
+  w: Weight,
+): IAutoMovieLoftSectionJet {
   const out: IAutoMovieLoftSectionJet = {
     ...phaseProduct(a, b, w),
     s: [0, 0],

@@ -1,6 +1,18 @@
-import { type AutoMovieTextureMediaType, type IAutoMovieSceneEnvironmentUse, type IAutoMovieTextureClosureInput, type IAutoMovieTextureImageFacts, type IAutoMovieViolationCollector, AutoMovieTextureBinding, IAutoMovieAssetProvenance, IAutoMovieAssetUse, IAutoMovieImage, IAutoMovieMaterial, IAutoMovieModel, IAutoMovieTextureReference, IAutoMovieValidation } from "@automovie/interface";
-
-
+import {
+  AutoMovieTextureBinding,
+  type AutoMovieTextureMediaType,
+  IAutoMovieAssetProvenance,
+  IAutoMovieAssetUse,
+  IAutoMovieImage,
+  IAutoMovieMaterial,
+  IAutoMovieModel,
+  type IAutoMovieSceneEnvironmentUse,
+  type IAutoMovieTextureClosureInput,
+  type IAutoMovieTextureImageFacts,
+  IAutoMovieTextureReference,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { ViolationCollector } from "./ViolationCollector";

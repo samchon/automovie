@@ -1,7 +1,7 @@
+import type { IAutoMovieModel } from "../model/IAutoMovieModel";
 import type { IAutoMovieFormationMotion } from "../production/IAutoMovieFormationMotion";
 import type { IAutoMovieFormationPlacement } from "../production/IAutoMovieFormationPlacement";
 import type { IAutoMovieFormationSlotMotion } from "../production/IAutoMovieFormationSlotMotion";
-import type { IAutoMovieModel } from "../model/IAutoMovieModel";
 
 /**
  * Runtime model and cue population used by sampled formation-overlap admission.

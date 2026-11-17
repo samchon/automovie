@@ -1,6 +1,13 @@
-import { type IAutoMovieBuiltPlacementBody, type IAutoMovieBuiltEnvironmentPlacementOverlapSweep, type IAutoMovieBuiltPlacementBodyLocator, IAutoMovieBuiltElement, IAutoMovieBuiltPlacementOverlapPair, IAutoMovieBuiltPlacementOverlapReport, IAutoMovieBuiltPopulation, IAutoMovieSubjectBox } from "@automovie/interface";
-
-
+import {
+  IAutoMovieBuiltElement,
+  type IAutoMovieBuiltEnvironmentPlacementOverlapSweep,
+  type IAutoMovieBuiltPlacementBody,
+  type IAutoMovieBuiltPlacementBodyLocator,
+  IAutoMovieBuiltPlacementOverlapPair,
+  IAutoMovieBuiltPlacementOverlapReport,
+  IAutoMovieBuiltPopulation,
+  IAutoMovieSubjectBox,
+} from "@automovie/interface";
 
 import { propBoundsOverlap } from "../film/propBoundsOverlap";
 import { builtEnvironmentPartBoxes } from "./builtEnvironmentPartBoxes";
@@ -23,7 +30,11 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The part table is built once per call and every body's reported box and solids are read from it, so no element is staged or measured twice; nothing is reused across calls because the record is the caller's and may change.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The part table, body list and active list live for one call; the active list holds at most the resolved body count, and the caller owns the returned report, bounded by the admitted pair count.
  */
-export const builtEnvironmentPlacementOverlapSweep: (props: IAutoMovieBuiltEnvironmentPlacementOverlapSweep.IProps) => IAutoMovieBuiltPlacementOverlapReport = (props: IAutoMovieBuiltEnvironmentPlacementOverlapSweep.IProps): IAutoMovieBuiltPlacementOverlapReport => {
+export const builtEnvironmentPlacementOverlapSweep: (
+  props: IAutoMovieBuiltEnvironmentPlacementOverlapSweep.IProps,
+) => IAutoMovieBuiltPlacementOverlapReport = (
+  props: IAutoMovieBuiltEnvironmentPlacementOverlapSweep.IProps,
+): IAutoMovieBuiltPlacementOverlapReport => {
   const boxes: Map<string, IAutoMovieSubjectBox[]> = builtEnvironmentPartBoxes(
     props.environment,
   );

@@ -119,7 +119,6 @@ export type { IAutoMovieQuarters } from "./IAutoMovieQuarters";
 export type { IAutoMovieSampleConstructionCurves } from "./IAutoMovieSampleConstructionCurves";
 export type { IAutoMovieSeamStation } from "./IAutoMovieSeamStation";
 export type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
-export type { IAutoMovieSolidBlend } from "./IAutoMovieSolidBlend";
 export type { IAutoMovieSolidBlendChain } from "./IAutoMovieSolidBlendChain";
 export type { IAutoMovieSolidBody } from "./IAutoMovieSolidBody";
 export type { IAutoMovieSolidClip } from "./IAutoMovieSolidClip";

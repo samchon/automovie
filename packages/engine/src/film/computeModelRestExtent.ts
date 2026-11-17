@@ -1,5 +1,10 @@
-import { type IAutoMovieComputeModelRestExtent, AutoMovieHumanoidBone, IAutoMovieModel, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieComputeModelRestExtent,
+  IAutoMovieModel,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { realizeAutoMovieGeometry } from "../geometry/realizeAutoMovieGeometry";
 import { Quaternion } from "../math/Quaternion";

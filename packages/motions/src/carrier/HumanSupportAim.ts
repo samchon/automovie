@@ -1,6 +1,12 @@
-import type { IAutoMovieAngleRange, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupportAim, IAutoMovieMotionHumanSupportCarry, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { DEFAULT_HUMANOID_ROM, Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAngleRange,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSupportAim,
+  IAutoMovieMotionHumanSupportCarry,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { instance } from "../ensemble/instance";
@@ -28,7 +34,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The trunk's bound is the range-of-motion table's, never a typed angle; the frames checked are the film's (`instance.RATE`).
  */
 export namespace HumanSupportAim {
-
   /**
    * The correction at a second: the wanted line against the carried one.
    *
@@ -119,7 +124,8 @@ export namespace HumanSupportAim {
     const turn: IAutoMovieQuaternion = Quaternion.multiply(raised, yawed);
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const limb of ["leftArm", "rightArm"] as const) {
-      const goal: IAutoMovieMotionHumanPosture.IGoal | undefined = posture.limbs[limb];
+      const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
+        posture.limbs[limb];
       if (goal === undefined || goal.on !== undefined) continue;
       limbs[limb] = {
         ...goal,
@@ -153,7 +159,8 @@ export namespace HumanSupportAim {
     const frames: number = Math.ceil(duration * instance.RATE);
     for (let k: number = 0; k <= frames; k++) {
       const seconds: number = Math.min(duration, k / instance.RATE);
-      const joints: IAutoMovieMotionHumanPosture["joints"] = posture(seconds).joints;
+      const joints: IAutoMovieMotionHumanPosture["joints"] =
+        posture(seconds).joints;
       for (const bone of ["chest", "spine"] as const) {
         const range: IAutoMovieAngleRange = twist(bone);
         const value: number = joints[bone]?.[2] ?? 0;

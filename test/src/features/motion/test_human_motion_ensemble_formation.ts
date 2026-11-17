@@ -1,7 +1,22 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
 import { ArchetypeCourse } from "@automovie/archetypes";
-
-import { HUMAN_LEXICON, HumanEnsemble, HumanFormation, HumanGait, HumanPerformance, walkStation } from "@automovie/motions";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HumanEnsemble,
+  HumanFormation,
+  HumanGait,
+  HumanPerformance,
+  walkStation,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -104,7 +119,11 @@ export function test_human_motion_ensemble_formation(): void {
     ...still,
     frame: { kind: "fixed", at: { x: 7, y: 0, z: -2 }, heading: 53 },
   };
-  const pairwise = (f: IAutoMovieMotionHumanFormation, i: number, j: number): number => {
+  const pairwise = (
+    f: IAutoMovieMotionHumanFormation,
+    i: number,
+    j: number,
+  ): number => {
     const a: IAutoMovieVector3 = HumanFormation.slot(f, i, 0).at;
     const b: IAutoMovieVector3 = HumanFormation.slot(f, j, 0).at;
     return Math.hypot(a.x - b.x, a.z - b.z);
@@ -197,7 +216,10 @@ export function test_human_motion_ensemble_formation(): void {
     performers: HumanEnsemble.performers(troop),
     composition: HumanEnsemble.chains(
       troop,
-      (m: IAutoMovieMotionHumanEnsemble.IMember, chain: IAutoMovieMotionHumanChain) =>
+      (
+        m: IAutoMovieMotionHumanEnsemble.IMember,
+        chain: IAutoMovieMotionHumanChain,
+      ) =>
         chain.registered("march", {
           to: HumanFormation.slot(path, m.index, end).at,
           station: { formation: path, slot: m.index },
@@ -218,7 +240,9 @@ export function test_human_motion_ensemble_formation(): void {
   if (Math.max(...counts) - Math.min(...counts) > 1)
     findings.push(`the marchers took ${counts.join(", ")} steps`);
   for (const m of troop.members) {
-    const last: IAutoMovieMotionHumanSegment.ISegment = march.segments(m.subject).at(-1)!;
+    const last: IAutoMovieMotionHumanSegment.ISegment = march
+      .segments(m.subject)
+      .at(-1)!;
     const root: IAutoMovieVector3 = march.posture(m.subject, last.end).root;
     const slot: IAutoMovieVector3 = HumanFormation.slot(path, m.index, end).at;
     const off: number = Math.hypot(root.x - slot.x, root.z - slot.z);
@@ -226,7 +250,9 @@ export function test_human_motion_ensemble_formation(): void {
       findings.push(`${m.subject} ends ${off.toFixed(3)} m from its slot`);
 
     // Through the frame's standing start and its gathering of speed, before it turns its corner (where a rigid line's inner file must swing back, which the stepping plan's way does not), the count kept and the place kept by the step's length.
-    const segment: IAutoMovieMotionHumanSegment.ISegment = march.segments(m.subject)[0]!;
+    const segment: IAutoMovieMotionHumanSegment.ISegment = march.segments(
+      m.subject,
+    )[0]!;
     const half: number = 0.5 * HumanGait.MARCH.step * m.body.measure.hipHeight;
     for (const e of segment.plan.events.filter(
       (e: IAutoMovieMotionEvent): boolean => /HeelStrike\d+$/.test(e.name),
@@ -291,7 +317,10 @@ export function test_human_motion_ensemble_formation(): void {
     performers: HumanEnsemble.performers(pair),
     composition: HumanEnsemble.chains(
       pair,
-      (m: IAutoMovieMotionHumanEnsemble.IMember, chain: IAutoMovieMotionHumanChain) =>
+      (
+        m: IAutoMovieMotionHumanEnsemble.IMember,
+        chain: IAutoMovieMotionHumanChain,
+      ) =>
         chain.walk({
           to: HumanFormation.slot(marks, m.index, stop).at,
           station: { formation: marks, slot: m.index },
@@ -299,7 +328,9 @@ export function test_human_motion_ensemble_formation(): void {
     ),
   });
   for (const m of pair.members) {
-    const last: IAutoMovieMotionHumanSegment.ISegment = walking.segments(m.subject).at(-1)!;
+    const last: IAutoMovieMotionHumanSegment.ISegment = walking
+      .segments(m.subject)
+      .at(-1)!;
     const root: IAutoMovieVector3 = walking.posture(m.subject, last.end).root;
     const slot: IAutoMovieVector3 = HumanFormation.slot(
       marks,
@@ -388,14 +419,18 @@ export function test_human_motion_ensemble_formation(): void {
     performers: HumanEnsemble.performers(raw),
     composition: HumanEnsemble.chains(
       raw,
-      (m: IAutoMovieMotionHumanEnsemble.IMember, chain: IAutoMovieMotionHumanChain) =>
+      (
+        m: IAutoMovieMotionHumanEnsemble.IMember,
+        chain: IAutoMovieMotionHumanChain,
+      ) =>
         chain.walk({
           to: HumanFormation.slot(marks, m.index, stop).at,
           station: HumanEnsemble.station(raw, m),
         }),
     ),
   });
-  const walked: IAutoMovieMotionHumanSegment.ISegment = dressed.segments("d.0")[0]!;
+  const walked: IAutoMovieMotionHumanSegment.ISegment =
+    dressed.segments("d.0")[0]!;
   const reach: number = Math.hypot(
     dressed.posture("d.0", walked.end).root.x -
       HumanFormation.slot(marks, 0, stop).at.x,

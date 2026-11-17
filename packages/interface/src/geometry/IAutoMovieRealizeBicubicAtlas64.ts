@@ -1,5 +1,5 @@
-import type { IAutoMovieBicubicAtlasTessellation64 } from "./curve/IAutoMovieBicubicAtlasTessellation64";
 import type { IAutoMovieMesh } from "../model/IAutoMovieMesh";
+import type { IAutoMovieBicubicAtlasTessellation64 } from "./curve/IAutoMovieBicubicAtlasTessellation64";
 
 /** Data and callback contracts shared by the RealizeBicubicAtlas64 operations. */
 export namespace IAutoMovieRealizeBicubicAtlas64 {
@@ -25,11 +25,11 @@ export namespace IAutoMovieRealizeBicubicAtlas64 {
    * retains no coefficient snapshots; invalid retention flags reject before work.
    */
   export type IOptions = {
-      /** Retain actual patch-local triangle-corner parameters for downstream surface consumers; omitted allocates none. */
-      retainTriangleParameters?: boolean;
-      /** Retain actual canonically bound grids for construction and field consumers; omitted allocates none. */
-      retainPatchCoefficients?: boolean;
-    };
+    /** Retain actual patch-local triangle-corner parameters for downstream surface consumers; omitted allocates none. */
+    retainTriangleParameters?: boolean;
+    /** Retain actual canonically bound grids for construction and field consumers; omitted allocates none. */
+    retainPatchCoefficients?: boolean;
+  };
 
   /**
    * Realize the public metre-valued bicubic recipe through its owning engine.
@@ -58,7 +58,9 @@ export namespace IAutoMovieRealizeBicubicAtlas64 {
     /** Requested [u0,v0,u1,v1,u2,v2] per retained triangle, with patch ownership in primitiveRanges. */
     triangleParameters?: number[];
     /** Requested prepared coefficient grids in mm; only patches with retained triangles are included. */
-    patchCoefficients?: NonNullable<IAutoMovieBicubicAtlasTessellation64.Summary["patchCoefficients"]>;
+    patchCoefficients?: NonNullable<
+      IAutoMovieBicubicAtlasTessellation64.Summary["patchCoefficients"]
+    >;
     /** Whether the retained output covers the generator's patch domain without a budget stop or omitted patch; coarse retention may still be complete. */
     complete: boolean;
     /** Whether the terminal generator met its requested binary64 approximation estimate and the result is complete; independent of source-fit and normal qualifications. */

@@ -1,6 +1,9 @@
-import type { IAutoMovieRecoveryMapDesignSolutionOperation, IAutoMovieRecoveryMapPointProjectionOperation, IAutoMovieRecoveryMapPose, IAutoMovieRecoveryResectionRefinementOperation } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieRecoveryMapDesignSolutionOperation,
+  IAutoMovieRecoveryMapPointProjectionOperation,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoveryResectionRefinementOperation,
+} from "@automovie/interface";
 
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 import { solveRecoveryMapDesign } from "./solveRecoveryMapDesign";
@@ -72,7 +75,8 @@ export function refineRecoveryResection(
   };
   let pose: IAutoMovieRecoveryMapPose = {
     rotation: initial.rotation.slice(),
-    translation: [...initial.translation] };
+    translation: [...initial.translation],
+  };
   let current: ReturnType<typeof evaluate> = evaluate(pose);
   if (current === null)
     throw new Error("camera-resection: initial nonpositive landmark depth");
@@ -131,5 +135,6 @@ export function refineRecoveryResection(
     initialCost,
     finalCost: current.cost,
     minimumDesignRatio,
-    termination };
+    termination,
+  };
 }

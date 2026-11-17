@@ -1,4 +1,9 @@
-import type { IAutoMovieSubdivisionCage, IAutoMovieSubdivisionCrease, IAutoMovieSubdivisionLevel, IAutoMovieSubdivisionTopology } from "@automovie/interface";
+import type {
+  IAutoMovieSubdivisionCage,
+  IAutoMovieSubdivisionCrease,
+  IAutoMovieSubdivisionLevel,
+  IAutoMovieSubdivisionTopology,
+} from "@automovie/interface";
 
 import { buildSubdivisionTopology } from "./buildSubdivisionTopology";
 

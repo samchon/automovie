@@ -10,7 +10,6 @@ import type { IAutoMovieFileReceipt } from "../../index";
  */
 
 export interface IAutoMovieRecoveryArchiveInput extends IAutoMovieFileReceipt {
- 
- /** Exclusive output directory owning the final model. */
+  /** Exclusive output directory owning the final model. */
   output: string;
 }

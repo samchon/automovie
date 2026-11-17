@@ -23,12 +23,15 @@ import type { humanPolygonMan } from "./humanPolygonMan";
  */
 const main = (): void => {
   const men: humanPolygonMan.IPolygonMan[] = MotionBodies.SWEEP.map(
-    (name: string): humanPolygonMan.IPolygonMan => MotionBodies.population(name),
+    (name: string): humanPolygonMan.IPolygonMan =>
+      MotionBodies.population(name),
   );
   console.log(
     AutoMovieMotionHumanResolve.table(
       men.map(
-        (man: humanPolygonMan.IPolygonMan): IAutoMovieMotionHumanResolve.IBody => ({
+        (
+          man: humanPolygonMan.IPolygonMan,
+        ): IAutoMovieMotionHumanResolve.IBody => ({
           name: man.id,
           body: man,
         }),

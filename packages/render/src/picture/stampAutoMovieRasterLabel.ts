@@ -1,7 +1,7 @@
-import type { IAutoMovieRasterImage, IAutoMovieRasterPoint } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieRasterImage,
+  IAutoMovieRasterPoint,
+} from "@automovie/interface";
 
 /**
  * Burn a short caption, such as a film second or a mark's label, into a

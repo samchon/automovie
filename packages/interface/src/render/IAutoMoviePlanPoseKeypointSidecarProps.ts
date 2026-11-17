@@ -1,8 +1,8 @@
 import type { IAutoMovieDeliveryCrop } from "../cinematics/IAutoMovieDeliveryCrop.js";
-import type { IAutoMovieMotion } from "../motion/IAutoMovieMotion.js";
-import type { IAutoMovieScene } from "../scene/IAutoMovieScene.js";
 import type { IAutoMovieSequence } from "../cinematics/IAutoMovieSequence.js";
 import type { IAutoMovieShot } from "../cinematics/IAutoMovieShot.js";
+import type { IAutoMovieMotion } from "../motion/IAutoMovieMotion.js";
+import type { IAutoMovieScene } from "../scene/IAutoMovieScene.js";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton.js";
 
 /**

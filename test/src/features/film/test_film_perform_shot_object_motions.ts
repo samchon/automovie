@@ -1,6 +1,10 @@
-import type { IAutoMovieAuthoringDiagnostic, IAutoMovieCompiledDefinedShot, IAutoMovieClip, IAutoMovieNode } from "@automovie/interface";
 import { sceneToNodes } from "@automovie/engine";
-
+import type {
+  IAutoMovieAuthoringDiagnostic,
+  IAutoMovieClip,
+  IAutoMovieCompiledDefinedShot,
+  IAutoMovieNode,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { HINGE } from "../internal/HINGE";

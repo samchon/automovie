@@ -1,8 +1,23 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSignature, IAutoMovieAffordance, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { createBoat, rowBoat } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
-
-import { HumanChain, HumanFrame, HumanObject, HumanPerformance, HumanRide, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFrame,
+  HumanObject,
+  HumanPerformance,
+  HumanRide,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -87,7 +102,11 @@ export function test_human_motion_ride_rowing(): void {
           id as Parameters<typeof ride.frame>[0],
           Math.max(0, seconds - WAIT),
         );
-      const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(boat, placed(0), thwart);
+      const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+        boat,
+        placed(0),
+        thwart,
+      );
       // The rower stands on the boat's floor before sitting, so the thwart
       // is measured from that floor (`seated.floor`), on the swell too.
       const floor: IAutoMovieVector3 = Quaternion.rotateVector(

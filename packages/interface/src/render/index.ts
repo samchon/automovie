@@ -78,7 +78,6 @@ export type { IAutoMovieRenderTargetDrift } from "./IAutoMovieRenderTargetDrift"
 export type { IAutoMovieRenderTargetRenderer } from "./IAutoMovieRenderTargetRenderer";
 export type { IAutoMovieRenderTargetSettings } from "./IAutoMovieRenderTargetSettings";
 export type { IAutoMovieRenderTargetSettingsOfShotProps } from "./IAutoMovieRenderTargetSettingsOfShotProps";
-export type { IAutoMovieRenderTargetSummary } from "./IAutoMovieRenderTargetSummary";
 export type { IAutoMovieRenderTextureCost } from "./IAutoMovieRenderTextureCost";
 export type { IAutoMovieRenderTextureResidency } from "./IAutoMovieRenderTextureResidency";
 export type { IAutoMovieRenderTextureResident } from "./IAutoMovieRenderTextureResident";

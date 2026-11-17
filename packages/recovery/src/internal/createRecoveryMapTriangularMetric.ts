@@ -1,6 +1,7 @@
-import type { IAutoMovieRecoveryMapTriangularMetric, IAutoMovieSimplexAtom } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieRecoveryMapTriangularMetric,
+  IAutoMovieSimplexAtom,
+} from "@automovie/interface";
 
 import { validateRecoveryMapMetricRow } from "./validateRecoveryMapMetricRow";
 import { validateRecoveryMapMetricScales } from "./validateRecoveryMapMetricScales";
@@ -199,5 +200,6 @@ export function createRecoveryMapTriangularMetric(
       if (!physical.every(Number.isFinite))
         throw new Error("camera-feasible: nonrepresentable physical covector");
       return physical;
-    } };
+    },
+  };
 }

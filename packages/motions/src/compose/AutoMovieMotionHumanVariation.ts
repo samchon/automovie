@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanVariation, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanVariation,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
 import { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
@@ -168,7 +172,10 @@ export namespace AutoMovieMotionHumanVariation {
   }
 
   /** The tangent offset of no variation: the region's own point. */
-  export const CENTRE: IAutoMovieMotionHumanVariation.ITangent = { up: 0, out: 0 };
+  export const CENTRE: IAutoMovieMotionHumanVariation.ITangent = {
+    up: 0,
+    out: 0,
+  };
 
   /**
    * A strike point's tangent offset within its region.

@@ -1,4 +1,9 @@
-import type { IAutoMovieLoftWorldJetLocal, AutoMovieVector3Tuple, IAutoMovieLoftWorldJetWorld } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieLoftWorldJetLocal,
+  IAutoMovieLoftWorldJetWorld,
+} from "@automovie/interface";
+
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 
 /**
@@ -19,7 +24,10 @@ import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One product-rule pass supplies all six world vectors from the caller's prepared frame and local reading.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Six fresh output vectors and local frame slices belong to the call; no input is mutated or retained globally.
  */
-export function AutoMovieLoftWorldJet(local: IAutoMovieLoftWorldJetLocal, f: number[][]): IAutoMovieLoftWorldJetWorld {
+export function AutoMovieLoftWorldJet(
+  local: IAutoMovieLoftWorldJetLocal,
+  f: number[][],
+): IAutoMovieLoftWorldJetWorld {
   const [f0, f1, f2] = f as [number[], number[], number[]];
   const o: AutoMovieVector3Tuple[] = [
     [f0[0]!, f0[1]!, f0[2]!],
@@ -78,7 +86,9 @@ export function AutoMovieLoftWorldJet(local: IAutoMovieLoftWorldJetLocal, f: num
     tt: dtt,
   };
   if (
-    !Object.values(out).every((row: AutoMovieVector3Tuple): boolean => row.every(Number.isFinite))
+    !Object.values(out).every((row: AutoMovieVector3Tuple): boolean =>
+      row.every(Number.isFinite),
+    )
   )
     throw new AutoMovieLoftAdmissionError(
       "The actual frame/local product has no finite required world total2.",

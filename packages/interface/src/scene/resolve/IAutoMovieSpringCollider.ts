@@ -1,5 +1,3 @@
-
-
 /**
  * A collision sphere attached to a scene node, for in-frame spring stepping:
  * the sphere rides the node's composed world position each frame.

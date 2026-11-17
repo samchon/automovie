@@ -1,4 +1,3 @@
-import { IAutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditContinuity,
@@ -6,6 +5,8 @@ import type {
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieVector3,
 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
 /**
  * Whether every joint centre of a displayed motion travels a continuous,

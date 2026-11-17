@@ -1,4 +1,3 @@
-
 export * from "./SERVICE_EPSILON";
 export * from "./appendServiceCrossings";
 export * from "./appendServiceInsideSpace";

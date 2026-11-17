@@ -1,6 +1,12 @@
-import type { IAutoMovieCurve64, AutoMovieBernsteinGrid64, AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple, IAutoMovieCurveGrid64, IAutoMoviePchipField64, IAutoMovieMesh } from "@automovie/interface";
-
-
+import type {
+  AutoMovieBernsteinGrid64,
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieCurveGrid64,
+  IAutoMovieMesh,
+  IAutoMoviePchipField64,
+} from "@automovie/interface";
 
 import { AutoMovieBernstein64 as B } from "./AutoMovieBernstein64";
 import { AutoMovieBernsteinGrid64 as G } from "./AutoMovieBernsteinGrid64";
@@ -26,7 +32,9 @@ type SpanFamily = { grids: AutoMovieBernsteinGrid64[] };
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Sorted course sampling retains only the current common-span tensor family, reused across every station sample and guide at that parameter; station PCHIP coefficients are constructed once per visited common span.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary tensor storage is O(S), partition and guide storage O(K+G), and returned mesh/construction storage O(V+S U); no process-wide cache or external handle survives the invocation.
  */
-export function tessellateAutoMovieCurveGrid64(input: IAutoMovieCurveGrid64.Input): IAutoMovieCurveGrid64.Result {
+export function tessellateAutoMovieCurveGrid64(
+  input: IAutoMovieCurveGrid64.Input,
+): IAutoMovieCurveGrid64.Result {
   const courses: readonly IAutoMovieCurve64.Cubic[] = input.courses;
   const stations: readonly number[] = input.stations;
   const periodic: boolean = input.period !== undefined;
@@ -95,7 +103,8 @@ export function tessellateAutoMovieCurveGrid64(input: IAutoMovieCurveGrid64.Inpu
   const nets: AutoMovieBernsteinPolynomial64[][] = courses.map(
     (course: IAutoMovieCurve64.Cubic): AutoMovieBernsteinPolynomial64[] =>
       course.spans.map(
-        (span: IAutoMovieCurve64.Span): AutoMovieBernsteinPolynomial64 => span.map(V.clone),
+        (span: IAutoMovieCurve64.Span): AutoMovieBernsteinPolynomial64 =>
+          span.map(V.clone),
       ),
   );
   const locate: (knots: readonly number[], value: number) => number = (
@@ -114,7 +123,13 @@ export function tessellateAutoMovieCurveGrid64(input: IAutoMovieCurveGrid64.Inpu
   const norm: (p: readonly number[]) => number = (
     p: readonly number[],
   ): number => Math.hypot(p[0]!, p[1]!, p[2]!);
-  const cross: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
+  const cross: (
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ) => AutoMovieVector3Tuple = (
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple => [
     a[1] * b[2] - a[2] * b[1],
     a[2] * b[0] - a[0] * b[2],
     a[0] * b[1] - a[1] * b[0],
@@ -127,8 +142,11 @@ export function tessellateAutoMovieCurveGrid64(input: IAutoMovieCurveGrid64.Inpu
           span
             .slice(1)
             .reduce(
-              (sum: number, p: Readonly<AutoMovieVector3Tuple>, i: number): number =>
-                sum + norm(V.sub(p, span[i]!)),
+              (
+                sum: number,
+                p: Readonly<AutoMovieVector3Tuple>,
+                i: number,
+              ): number => sum + norm(V.sub(p, span[i]!)),
               0,
             ),
         0,
@@ -224,15 +242,16 @@ export function tessellateAutoMovieCurveGrid64(input: IAutoMovieCurveGrid64.Inpu
     stationFirst: { positions: [], coursePartials: [], stationPartials: [] },
     stationLast: { positions: [], coursePartials: [], stationPartials: [] },
   };
-  const lines: IAutoMovieCurveGrid64.Result["construction"]["lines"] = courses.map(
-    (
-      course: IAutoMovieCurve64.Cubic,
-    ): IAutoMovieCurveGrid64.Result["construction"]["lines"][number] => ({
-      id: course.name,
-      closed: false,
-      points: [],
-    }),
-  );
+  const lines: IAutoMovieCurveGrid64.Result["construction"]["lines"] =
+    courses.map(
+      (
+        course: IAutoMovieCurve64.Cubic,
+      ): IAutoMovieCurveGrid64.Result["construction"]["lines"][number] => ({
+        id: course.name,
+        closed: false,
+        points: [],
+      }),
+    );
   let activeSpan: number = -1;
   let family: SpanFamily = { grids: [] };
   let evaluatedSpans: number = 0;
@@ -242,7 +261,10 @@ export function tessellateAutoMovieCurveGrid64(input: IAutoMovieCurveGrid64.Inpu
     const a: number = common[index]!;
     const b: number = common[index + 1]!;
     const controls: AutoMovieBernsteinPolynomial64[] = courses.map(
-      (_course: IAutoMovieCurve64.Cubic, j: number): AutoMovieBernsteinPolynomial64 => {
+      (
+        _course: IAutoMovieCurve64.Cubic,
+        j: number,
+      ): AutoMovieBernsteinPolynomial64 => {
         const k: number = locate(partitions[j]!, a);
         const start: number = partitions[j]![k]!;
         const width: number = partitions[j]![k + 1]! - start;
@@ -253,8 +275,8 @@ export function tessellateAutoMovieCurveGrid64(input: IAutoMovieCurveGrid64.Inpu
         );
       },
     );
-    const values: number[][] = controls.map((poly: AutoMovieBernsteinPolynomial64): number[] =>
-      poly.flat(),
+    const values: number[][] = controls.map(
+      (poly: AutoMovieBernsteinPolynomial64): number[] => poly.flat(),
     );
     const coordinates: number[] = periodic
       ? [-1, 0, 1].flatMap((turn: number): number[] =>
@@ -266,7 +288,10 @@ export function tessellateAutoMovieCurveGrid64(input: IAutoMovieCurveGrid64.Inpu
       periodic ? [...values, ...values, ...values] : values,
     );
     const derivatives: AutoMovieBernsteinPolynomial64[] = controls.map(
-      (_: AutoMovieBernsteinPolynomial64, j: number): AutoMovieBernsteinPolynomial64 =>
+      (
+        _: AutoMovieBernsteinPolynomial64,
+        j: number,
+      ): AutoMovieBernsteinPolynomial64 =>
         Array.from(
           { length: 4 },
           (_unused: unknown, k: number): AutoMovieVector3Tuple =>
@@ -300,10 +325,11 @@ export function tessellateAutoMovieCurveGrid64(input: IAutoMovieCurveGrid64.Inpu
       evaluatedSpans++;
     }
     const t: number = (u - common[span]!) / (common[span + 1]! - common[span]!);
-    const guide: IAutoMovieCurveGrid64.Result["construction"]["lines"][number] | undefined =
-      guides.has(u)
-        ? { id: `${input.name}.guide.${u}`, closed: periodic, points: [] }
-        : undefined;
+    const guide:
+      | IAutoMovieCurveGrid64.Result["construction"]["lines"][number]
+      | undefined = guides.has(u)
+      ? { id: `${input.name}.guide.${u}`, closed: periodic, points: [] }
+      : undefined;
     for (let j: number = 0; j < count; j++)
       lines[j]!.points.push(V.scale(sourceAt(j, u), 0.001));
     for (let r: number = 0; r < rows.length; r++) {
@@ -324,7 +350,10 @@ export function tessellateAutoMovieCurveGrid64(input: IAutoMovieCurveGrid64.Inpu
         r === 0 ||
         (!periodic && r === rows.length - 1)
       ) {
-        const poly: AutoMovieBernsteinPolynomial64 = G.gridValue(family.grids[row.interval]!, row.t);
+        const poly: AutoMovieBernsteinPolynomial64 = G.gridValue(
+          family.grids[row.interval]!,
+          row.t,
+        );
         const du: AutoMovieVector3Tuple = V.scale(
           B.value(B.tangent(poly, 1 / (common[span + 1]! - common[span]!)), t),
           0.001,
@@ -344,7 +373,8 @@ export function tessellateAutoMovieCurveGrid64(input: IAutoMovieCurveGrid64.Inpu
         );
         if (![...du, ...dv].every(Number.isFinite))
           throw new Error("Unresolved tensor boundary derivative");
-        const targets: IAutoMovieCurveGrid64.Result["boundaries"]["courseStart"][] = [];
+        const targets: IAutoMovieCurveGrid64.Result["boundaries"]["courseStart"][] =
+          [];
         if (i === 0) targets.push(boundaries.courseStart);
         if (i === us.length - 1) targets.push(boundaries.courseEnd);
         if (r === 0) targets.push(boundaries.stationFirst);
@@ -366,9 +396,15 @@ export function tessellateAutoMovieCurveGrid64(input: IAutoMovieCurveGrid64.Inpu
     b: number,
     c: number,
   ): void => {
-    const pa: AutoMovieVector3Tuple = V.clone(positions.slice(a * 3, a * 3 + 3));
-    const pb: AutoMovieVector3Tuple = V.clone(positions.slice(b * 3, b * 3 + 3));
-    const pc: AutoMovieVector3Tuple = V.clone(positions.slice(c * 3, c * 3 + 3));
+    const pa: AutoMovieVector3Tuple = V.clone(
+      positions.slice(a * 3, a * 3 + 3),
+    );
+    const pb: AutoMovieVector3Tuple = V.clone(
+      positions.slice(b * 3, b * 3 + 3),
+    );
+    const pc: AutoMovieVector3Tuple = V.clone(
+      positions.slice(c * 3, c * 3 + 3),
+    );
     const n: AutoMovieVector3Tuple = cross(V.sub(pb, pa), V.sub(pc, pa));
     if (!n.every(Number.isFinite))
       throw new Error("Unresolved triangle arithmetic");
@@ -396,7 +432,9 @@ export function tessellateAutoMovieCurveGrid64(input: IAutoMovieCurveGrid64.Inpu
   let isolatedVertices: number = 0;
   let nonfiniteNormalSums: number = 0;
   for (let i: number = 0; i < vertexCount; i++) {
-    const n: AutoMovieVector3Tuple = V.clone(normalSums.slice(i * 3, i * 3 + 3));
+    const n: AutoMovieVector3Tuple = V.clone(
+      normalSums.slice(i * 3, i * 3 + 3),
+    );
     const length: number = norm(n);
     const regular: boolean = Number.isFinite(length) && length > 0;
     if (!regular) {

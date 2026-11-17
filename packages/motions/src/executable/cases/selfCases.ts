@@ -1,6 +1,15 @@
-import type { AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSelfAction, IAutoMovieMotionHumanTouch, IAutoMovieMotionHumanTouchEffector, IAutoMovieMotionHumanTouchForm } from "@automovie/interface";
-
 import { AutoMovieChain } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSelfAction,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionHumanTouchForm,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { createHumanBody } from "../../body/createHumanBody";
@@ -106,8 +115,10 @@ export function selfCases(
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
     for (const [label, params] of rows) {
       const name: string = `self-${label}${suffix}`;
-      const performance: IAutoMovieMotionHumanPerformance | null = attempt(out, name, () =>
-        perform(body, HumanChain.subject("a").act("touch", params)),
+      const performance: IAutoMovieMotionHumanPerformance | null = attempt(
+        out,
+        name,
+        () => perform(body, HumanChain.subject("a").act("touch", params)),
       );
       if (performance === null) continue;
       const kind: IAutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
@@ -130,20 +141,21 @@ export function selfCases(
       const verdicts: IMotionCaptureCase.IVerdict[] = [
         ...everydayVerdicts.standard(performance, "a", body),
       ];
-      const hands: [IAutoMovieMotionHumanHand.Side, AutoMovieHumanoidRegion][] = [
+      const hands: [IAutoMovieMotionHumanHand.Side, AutoMovieHumanoidRegion][] =
         [
-          "right",
-          (params.target as { region: AutoMovieHumanoidRegion }).region,
-        ],
-        ...(params.other === undefined
-          ? []
-          : [
-              [
-                "left",
-                (params.other as { region: AutoMovieHumanoidRegion }).region,
-              ] as [IAutoMovieMotionHumanHand.Side, AutoMovieHumanoidRegion],
-            ]),
-      ];
+          [
+            "right",
+            (params.target as { region: AutoMovieHumanoidRegion }).region,
+          ],
+          ...(params.other === undefined
+            ? []
+            : [
+                [
+                  "left",
+                  (params.other as { region: AutoMovieHumanoidRegion }).region,
+                ] as [IAutoMovieMotionHumanHand.Side, AutoMovieHumanoidRegion],
+              ]),
+        ];
       for (const [side, region] of hands) {
         const pad: number = AutoMovieMotionHumanTouchEffector.pad(
           body,
@@ -244,8 +256,11 @@ export function selfCases(
       "shoulderRoll",
     ] as IAutoMovieMotionHumanSelfAction.Kind[]) {
       const name: string = `self-${kind}${suffix}`;
-      const performance: IAutoMovieMotionHumanPerformance | null = attempt(out, name, () =>
-        perform(body, HumanChain.subject("a").act("selfAction", { kind })),
+      const performance: IAutoMovieMotionHumanPerformance | null = attempt(
+        out,
+        name,
+        () =>
+          perform(body, HumanChain.subject("a").act("selfAction", { kind })),
       );
       if (performance === null) continue;
       const stroke: number = TouchVerdicts.event(performance, "a", "stroke");
@@ -321,7 +336,10 @@ function attempt(
 }
 
 /** A performance of one polygon man standing at the origin heading +Z. */
-function perform(body: IAutoMovieMotionHumanBody, chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance {
+function perform(
+  body: IAutoMovieMotionHumanBody,
+  chain: IAutoMovieMotionHumanChain,
+): IAutoMovieMotionHumanPerformance {
   return new HumanPerformance({
     seed: "self",
     performers: [

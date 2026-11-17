@@ -1,6 +1,13 @@
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieResolvedBone } from "@automovie/interface";
-
 import { bracketedBisection } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanAudit } from "../audit/AutoMovieMotionHumanAudit";
@@ -96,7 +103,9 @@ export namespace HumanArmSwing {
     sides: readonly ("left" | "right")[],
   ): IAutoMovieMotionHumanPosture {
     let pose: IAutoMoviePose = resolveHumanPosture(body, posture);
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...posture.joints,
+    };
     for (const side of sides) {
       if (posture.limbs[`${side}Arm`] !== undefined) continue;
       const read = (
@@ -116,7 +125,10 @@ export namespace HumanArmSwing {
       // The least added abduction that keeps the arm's room within its
       // stance baseline, by bisection: the least moves continuously as the
       // swing does, where a local search could jump between frames.
-      const baseline: IAutoMovieMotionHumanArmClearance.IBaseline = stance(body, side);
+      const baseline: IAutoMovieMotionHumanArmClearance.IBaseline = stance(
+        body,
+        side,
+      );
       const out = (a: number): IAutoMovieMotionHumanArmClearance.IArm => ({
         ...arm,
         upper: [arm.upper[0], arm.upper[1] + a, arm.upper[2]],
@@ -210,7 +222,9 @@ export namespace HumanArmSwing {
     posture: IAutoMovieMotionHumanPosture,
     carried: Readonly<Record<"left" | "right", number>>,
   ): IAutoMovieMotionHumanPosture {
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...posture.joints,
+    };
     for (const side of ["left", "right"] as const) {
       const upper: readonly [number, number, number] | undefined =
         joints[`${side}UpperArm`];
@@ -233,7 +247,8 @@ export namespace HumanArmSwing {
     const known: Partial<
       Record<"left" | "right", IAutoMovieMotionHumanArmClearance.IBaseline>
     > = STANCE.get(body) ?? {};
-    const have: IAutoMovieMotionHumanArmClearance.IBaseline | undefined = known[side];
+    const have: IAutoMovieMotionHumanArmClearance.IBaseline | undefined =
+      known[side];
     if (have !== undefined) return have;
     const pose: IAutoMoviePose = resolveHumanPosture(
       body,
@@ -264,6 +279,8 @@ export namespace HumanArmSwing {
   /** The stance rooms already solved, per live body. */
   const STANCE: WeakMap<
     IAutoMovieMotionHumanBody,
-    Partial<Record<"left" | "right", IAutoMovieMotionHumanArmClearance.IBaseline>>
+    Partial<
+      Record<"left" | "right", IAutoMovieMotionHumanArmClearance.IBaseline>
+    >
   > = new WeakMap();
 }

@@ -1,6 +1,9 @@
-import type { IAutoMovieMotionHumanSkill, IAutoMovieProficiency, IAutoMovieRandom } from "@automovie/interface";
-
 import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanSkill,
+  IAutoMovieProficiency,
+  IAutoMovieRandom,
+} from "@automovie/interface";
 
 /**
  * A performer's skill as numbers laws read: each proficiency axis resolved
@@ -32,7 +35,6 @@ import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
  * another's draws. Skill never raises a range of motion.
  */
 export namespace HumanSkill {
-
   /** The named levels' values. */
   export const LEVELS: Readonly<
     Record<"novice" | "amateur" | "trained" | "elite", number>

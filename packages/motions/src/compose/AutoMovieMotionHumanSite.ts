@@ -1,4 +1,8 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanSite, IAutoMovieRandom } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanSite,
+  IAutoMovieRandom,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
@@ -27,7 +31,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No place is typed per action: the allowed places and the band are the caller's.
  */
 export namespace AutoMovieMotionHumanSite {
-
   /**
    * One allowed place drawn by its weight.
    *
@@ -52,18 +55,24 @@ export namespace AutoMovieMotionHumanSite {
   ): string {
     if (
       sites.length === 0 ||
-      sites.some((s: IAutoMovieMotionHumanSite.IWeighted): boolean => !(s.weight > 0))
+      sites.some(
+        (s: IAutoMovieMotionHumanSite.IWeighted): boolean => !(s.weight > 0),
+      )
     )
       throw new HumanRefusal({
         kind: "parameter",
         axis: "sites",
-        value: sites.map((s: IAutoMovieMotionHumanSite.IWeighted): string => `${s.id}:${s.weight}`),
+        value: sites.map(
+          (s: IAutoMovieMotionHumanSite.IWeighted): string =>
+            `${s.id}:${s.weight}`,
+        ),
         reason:
           "a place is drawn among allowed places, each with a positive weight",
         fix: "give at least one allowed place, each with a positive weight",
       });
     const total: number = sites.reduce(
-      (sum: number, s: IAutoMovieMotionHumanSite.IWeighted): number => sum + s.weight,
+      (sum: number, s: IAutoMovieMotionHumanSite.IWeighted): number =>
+        sum + s.weight,
       0,
     );
     const u: number = random.float(index) * total;
@@ -117,7 +126,11 @@ export namespace AutoMovieMotionHumanSite {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function grasp(band: IAutoMovieMotionHumanSite.IBand, target: number, comfort: number): number {
+  export function grasp(
+    band: IAutoMovieMotionHumanSite.IBand,
+    target: number,
+    comfort: number,
+  ): number {
     if (!(band.low <= band.high))
       throw new HumanRefusal({
         kind: "parameter",

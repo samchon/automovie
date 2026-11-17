@@ -1,4 +1,9 @@
-import type { IAutoMovieCurveLengthMeasurement64, IAutoMovieCurveLengthQuadrature64, IAutoMovieMeasureCurveLength64 } from "@automovie/interface";
+import type {
+  IAutoMovieCurveLengthMeasurement64,
+  IAutoMovieCurveLengthQuadrature64,
+  IAutoMovieMeasureCurveLength64,
+} from "@automovie/interface";
+
 import { AutoMovieCurveLengthQuadrature64 } from "./AutoMovieCurveLengthQuadrature64";
 
 /**

@@ -1,4 +1,5 @@
 import type { IAutoMovieRecoveryChartFitRows } from "@automovie/interface";
+
 /**
  * Stream one position row and its optional two physical-gradient rows.
  * Signed derivative Bernstein weights are linear observations of coefficients,
@@ -16,7 +17,9 @@ import type { IAutoMovieRecoveryChartFitRows } from "@automovie/interface";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Both axis basis values and derivatives are computed once and reused by all rows of the sample. Callers reuse their existing immutable quadrature observations.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The generator retains one sample and one fixed-size row until advancement or closure. Callers consume transient rows without retaining an expanded observation table.
  */
-export function* RecoveryChartFitRows(sample: Parameters<IAutoMovieRecoveryChartFitRows.Operation>[0]): ReturnType<IAutoMovieRecoveryChartFitRows.Operation> {
+export function* RecoveryChartFitRows(
+  sample: Parameters<IAutoMovieRecoveryChartFitRows.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartFitRows.Operation> {
   if (
     ![sample.u, sample.v, ...sample.pointMm].every(Number.isFinite) ||
     sample.u < 0 ||
@@ -53,7 +56,8 @@ export function* RecoveryChartFitRows(sample: Parameters<IAutoMovieRecoveryChart
     mass: position.reduce(
       (sum: number, value: number): number => sum + value,
       0,
-    ) };
+    ),
+  };
   if (sample.physicalJet) {
     if (sample.physicalJet.directions.length !== 2)
       throw new Error(
@@ -87,7 +91,8 @@ export function* RecoveryChartFitRows(sample: Parameters<IAutoMovieRecoveryChart
         mass: coefficients.reduce(
           (sum: number, value: number): number => sum + value,
           0,
-        ) };
+        ),
+      };
     }
   }
 }

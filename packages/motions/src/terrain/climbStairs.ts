@@ -1,6 +1,22 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanClearance, IAutoMovieMotionHumanClimbStairs, IAutoMovieMotionHumanClimbStairsFlight, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
-
 import { minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanClearance,
+  IAutoMovieMotionHumanClimbStairs,
+  IAutoMovieMotionHumanClimbStairsFlight,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
@@ -117,14 +133,21 @@ export namespace climbStairs {
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
     const yaw: number = standing.yaw;
-    const stairs: IAutoMovieMotionHumanClimbStairsFlight.IFlight = flight(body, standing, p);
+    const stairs: IAutoMovieMotionHumanClimbStairsFlight.IFlight = flight(
+      body,
+      standing,
+      p,
+    );
     const sign: number = stairs.direction === "up" ? 1 : -1;
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
 
     // Footprints: the sole on its tread at the standing lateral place.
-    const flat = (side: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => {
-      const goal: IAutoMovieMotionHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
+    const flat = (
+      side: "left" | "right",
+    ): IAutoMovieMotionHumanFoot.IPlacement => {
+      const goal: IAutoMovieMotionHumanPosture.IGoal =
+        standing.limbs[`${side}Leg`]!;
       return {
         ankle: goal.point,
         rotation: goal.rotation ?? HumanFrame.turn(yaw),
@@ -344,7 +367,10 @@ export namespace climbStairs {
     const footAt = (
       side: "left" | "right",
       seconds: number,
-    ): { placement: IAutoMovieMotionHumanFoot.IPlacement; planted: boolean } => {
+    ): {
+      placement: IAutoMovieMotionHumanFoot.IPlacement;
+      planted: boolean;
+    } => {
       const list = prints[side];
       for (let i: number = 1; i < list.length; i++) {
         const j: number = list[i]!.step;
@@ -379,17 +405,21 @@ export namespace climbStairs {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
-        const placed: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.pivot(
-          body,
-          {
-            ...posture,
-            root: rootAt(seconds),
-            yaw,
-            joints: { ...posture.joints, ...inclined.joints },
-          },
-          { pitch: inclined.pitch, roll: 0 },
-        );
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
+        const placed: IAutoMovieMotionHumanPosture =
+          AutoMovieMotionHumanLean.pivot(
+            body,
+            {
+              ...posture,
+              root: rootAt(seconds),
+              yaw,
+              joints: { ...posture.joints, ...inclined.joints },
+            },
+            { pitch: inclined.pitch, roll: 0 },
+          );
         // The root stays where the swinging leg reaches its foot too, so
         // the foot keeps its clearing path.
         const feet = {
@@ -403,7 +433,9 @@ export namespace climbStairs {
         // A swinging foot keeps its ball on the path: where the ankle's
         // range keeps the sole from lying flat (a deep step up), the heel
         // rises about the ball and the forefoot leads onto the tread.
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+          ...posture.limbs,
+        };
         for (const side of ["left", "right"] as const)
           limbs[`${side}Leg`] = {
             ...AutoMovieMotionHumanLeg.goal(

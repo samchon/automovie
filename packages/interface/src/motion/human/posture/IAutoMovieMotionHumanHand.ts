@@ -1,6 +1,6 @@
-import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 
 /**
  * A hand brought to a target: which wrist point and hand rotation put a

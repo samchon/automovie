@@ -1,9 +1,12 @@
-import type { AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple } from "@automovie/interface";
 import {
   AutoMovieBernsteinAlgebra64 as B,
   AutoMovieBernsteinSubdivision64 as S,
   prepareAutoMovieBicubicAtlasBoundary64,
 } from "@automovie/engine";
+import type {
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieVector3Tuple,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -65,10 +68,16 @@ export function test_geometry_bernstein_endpoint_authority(): void {
   }[] = [];
   for (const net of nets)
     for (const t of [0, 1]) {
-      const before: AutoMovieBernsteinPolynomial64 = net.map((p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [...p]);
-      const expected: AutoMovieVector3Tuple = net[t === 0 ? 0 : net.length - 1]!;
+      const before: AutoMovieBernsteinPolynomial64 = net.map(
+        (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [...p],
+      );
+      const expected: AutoMovieVector3Tuple =
+        net[t === 0 ? 0 : net.length - 1]!;
       const result: AutoMovieVector3Tuple = B.value(net, t);
-      const parts: [AutoMovieBernsteinPolynomial64, AutoMovieBernsteinPolynomial64] = S.split(net, t);
+      const parts: [
+        AutoMovieBernsteinPolynomial64,
+        AutoMovieBernsteinPolynomial64,
+      ] = S.split(net, t);
       const scalarParts: [number[], number[]] = S.splitS(
         net.map((p: AutoMovieVector3Tuple): number => p[0]),
         t,
@@ -96,7 +105,8 @@ export function test_geometry_bernstein_endpoint_authority(): void {
           ),
       );
       const restriction: boolean = restricted.every(
-        (p: AutoMovieVector3Tuple, i: number): boolean => equalVector(p, net[i]!),
+        (p: AutoMovieVector3Tuple, i: number): boolean =>
+          equalVector(p, net[i]!),
       );
       const independent: boolean =
         result !== expected &&
@@ -104,7 +114,9 @@ export function test_geometry_bernstein_endpoint_authority(): void {
         parts.every((child: AutoMovieBernsteinPolynomial64): boolean =>
           child.every((p: AutoMovieVector3Tuple): boolean => !net.includes(p)),
         ) &&
-        parts[0].every((p: AutoMovieVector3Tuple): boolean => !parts[1].includes(p));
+        parts[0].every(
+          (p: AutoMovieVector3Tuple): boolean => !parts[1].includes(p),
+        );
       result[0] = 17;
       parts[0][0]![0] = 19;
       parts[1][0]![0] = 23;
@@ -144,7 +156,10 @@ export function test_geometry_bernstein_endpoint_authority(): void {
         B.value(linear, t)[0] > 0 && B.value(linear, t)[0] < 1,
       );
   }
-  const halves: [AutoMovieBernsteinPolynomial64, AutoMovieBernsteinPolynomial64] = S.split(nets[1]!, 0.5);
+  const halves: [
+    AutoMovieBernsteinPolynomial64,
+    AutoMovieBernsteinPolynomial64,
+  ] = S.split(nets[1]!, 0.5);
   TestValidator.predicate(
     "strict interior split shares its exact junction",
     equalVector(halves[0].at(-1)!, halves[1][0]!),
@@ -169,7 +184,11 @@ export function test_geometry_bernstein_endpoint_authority(): void {
 
   const controls: AutoMovieBernsteinPolynomial64 = Array.from(
     { length: 16 },
-    (_: unknown, i: number): AutoMovieVector3Tuple => [(i % 4) / 10, Math.floor(i / 4) / 3, 0],
+    (_: unknown, i: number): AutoMovieVector3Tuple => [
+      (i % 4) / 10,
+      Math.floor(i / 4) / 3,
+      0,
+    ],
   );
   const input: Parameters<typeof prepareAutoMovieBicubicAtlasBoundary64>[0] = {
     topologyDomain: "endpoint-unit",

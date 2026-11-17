@@ -1,5 +1,5 @@
-import type { AutoMovieHumanoidBone } from "../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieResolvedBone } from "../../pose/IAutoMovieResolvedBone";
+import type { AutoMovieHumanoidBone } from "../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
 import type { IAutoMovieSurfaceConstruction } from "./IAutoMovieSurfaceConstruction";
 

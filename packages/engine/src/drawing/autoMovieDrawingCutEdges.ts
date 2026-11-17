@@ -1,5 +1,9 @@
-import { type IAutoMovieDrawingEdge, type IAutoMovieDrawingTriangle, IAutoMovieDrawingFrame, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieDrawingEdge,
+  IAutoMovieDrawingFrame,
+  type IAutoMovieDrawingTriangle,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { autoMovieDrawingPlaneDistance } from "./autoMovieDrawingPlaneDistance";

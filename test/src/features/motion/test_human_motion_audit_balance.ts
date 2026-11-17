@@ -1,7 +1,21 @@
-import type { IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieGravity, resolveAutoMovieCenterOfMass } from "@automovie/engine";
-
-import { AutoMovieMotionHumanAuditBalance, HumanFoot } from "@automovie/motions";
+import {
+  AutoMovieGravity,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAuditBalance,
+  HumanFoot,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditMoved } from "../internal/motionAuditMoved";
@@ -44,7 +58,9 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  */
 export function test_human_motion_audit_balance(): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  const ground: IAutoMovieMotionHumanContactWindow["support"] = { kind: "ground" };
+  const ground: IAutoMovieMotionHumanContactWindow["support"] = {
+    kind: "ground",
+  };
   const plant = (
     part: IAutoMovieMotionHumanContactWindow["part"],
     from: number,

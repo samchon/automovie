@@ -1,8 +1,9 @@
-import type { IAutoMovieHumanArmGirth, IAutoMovieHumanArmPiece } from "@automovie/interface";
-
+import type {
+  IAutoMovieHumanArmGirth,
+  IAutoMovieHumanArmPiece,
+} from "@automovie/interface";
 
 import { AutoMovieHumanMonotoneCubic } from "../../lofting/AutoMovieHumanMonotoneCubic";
-
 
 /**
  * The girth the arm asks for along its walk: the spans' knots laid end to end,
@@ -22,7 +23,9 @@ export namespace AutoMovieHumanArmGirth {
    *
    * @param pieces The spans, proximal to distal.
    */
-  export function knots(pieces: readonly IAutoMovieHumanArmPiece[]): IAutoMovieHumanArmGirth.KnotsResult {
+  export function knots(
+    pieces: readonly IAutoMovieHumanArmPiece[],
+  ): IAutoMovieHumanArmGirth.KnotsResult {
     const out: [number, number][] = [];
 
     for (const piece of pieces)
@@ -30,7 +33,8 @@ export namespace AutoMovieHumanArmGirth {
         const last: [number, number] | undefined = out[out.length - 1];
 
         // The distal span's first knot is the proximal span's last.
-        if (last === undefined || knot[0] - last[0] > MERGE) out.push([knot[0], knot[1]]);
+        if (last === undefined || knot[0] - last[0] > MERGE)
+          out.push([knot[0], knot[1]]);
       }
 
     return out;

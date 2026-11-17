@@ -1,7 +1,7 @@
-import type { AutoMovieOrderedEntry, AutoMovieOrderedScalar } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieOrderedEntry,
+  AutoMovieOrderedScalar,
+} from "@automovie/interface";
 
 /**
  * Compare ordered arrays of scalars, or of arrays of scalars, by value.

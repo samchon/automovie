@@ -1,4 +1,7 @@
-import { type IAutoMovieHullEdge, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieHullEdge,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { closestPointOnSegmentXZ } from "./closestPointOnSegmentXZ";
 

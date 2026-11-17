@@ -15,7 +15,7 @@ export namespace IAutoMovieGenerateSupportCurve64 {
    * X=h*n+h'*t and X'=(h+h'')*t. The support integral is the convex perimeter,
    * not the arclength of a nonconvex source outline. See Antunes and Bogosel,
    * https://arxiv.org/abs/1809.00254 . Coefficients and positions use millimetres.
-   * 
+   *
    * The returned polynomial Hermite curve approximates that analytic equation.
    * Its fourth-derivative remainder and positive-radius lower estimate are
    * numerical evaluations of analytic inequalities, not outward-rounded binary64

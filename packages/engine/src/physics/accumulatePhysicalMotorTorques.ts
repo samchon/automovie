@@ -1,5 +1,7 @@
-import type { IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import type { RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
@@ -43,20 +45,21 @@ export function accumulatePhysicalMotorTorques(input: {
   while (carrier) {
     ancestors.add(carrier);
     carrier = input.profile.joints.find(
-      (joint: IAutoMoviePhysicalProfile.IJoint): boolean => joint.child === carrier,
+      (joint: IAutoMoviePhysicalProfile.IJoint): boolean =>
+        joint.child === carrier,
     )?.parent;
   }
   for (const bone of input.chain) {
     if (!ancestors.has(bone)) continue;
-    const joint: IAutoMoviePhysicalProfile.IJoint | undefined = input.profile.joints.find(
-      (candidate: IAutoMoviePhysicalProfile.IJoint): boolean => candidate.child === bone,
-    );
+    const joint: IAutoMoviePhysicalProfile.IJoint | undefined =
+      input.profile.joints.find(
+        (candidate: IAutoMoviePhysicalProfile.IJoint): boolean =>
+          candidate.child === bone,
+      );
     if (!joint) continue;
     const parent: RigidBody = input.segments.get(joint.parent)!;
-    const frame: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-      parent.rotation(),
-      joint.parentFrame.rotation,
-    );
+    const frame: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+      Quaternion.multiply(parent.rotation(), joint.parentFrame.rotation);
     const pivot: IAutoMovieVector3 = Vector3.add(
       parent.translation(),
       Quaternion.rotateVector(parent.rotation(), joint.parentFrame.position),

@@ -1,6 +1,5 @@
-import type { IAutoMovieHumanTrunkSolve } from "@automovie/interface";
-
 import { AutoMovieStationHermite } from "@automovie/engine";
+import type { IAutoMovieHumanTrunkSolve } from "@automovie/interface";
 
 /**
  * The small numerical rules the trunk's solves share: the bisection of a
@@ -23,7 +22,12 @@ export namespace AutoMovieHumanTrunkSolve {
    * @param sign 1 when the function rises over the interval, -1 when it falls.
    * @returns The argument at which the function crosses zero, or an end of the interval when it does not.
    */
-  export function bisect(lo: number, hi: number, f: IAutoMovieHumanTrunkSolve.BisectF, sign: 1 | -1): number {
+  export function bisect(
+    lo: number,
+    hi: number,
+    f: IAutoMovieHumanTrunkSolve.BisectF,
+    sign: 1 | -1,
+  ): number {
     let a: number = lo;
     let b: number = hi;
 
@@ -74,7 +78,9 @@ export namespace AutoMovieHumanTrunkSolve {
    * @param f The function of z.
    * @returns The function returning `[f, f', f'']`.
    */
-  export function jet(f: IAutoMovieHumanTrunkSolve.JetF): IAutoMovieHumanTrunkSolve.JetResult {
+  export function jet(
+    f: IAutoMovieHumanTrunkSolve.JetF,
+  ): IAutoMovieHumanTrunkSolve.JetResult {
     const h: number = 0.05;
 
     return (z: number): [number, number, number] => {
@@ -85,8 +91,6 @@ export namespace AutoMovieHumanTrunkSolve {
       return [m, (c - a) / (2 * h), (a - 2 * m + c) / (h * h)];
     };
   }
-
-  
 
   /**
    * The quintic Hermite of a function between two ends that carry their
@@ -100,14 +104,30 @@ export namespace AutoMovieHumanTrunkSolve {
    * @param y Position in the interval.
    * @returns The function's jet at `y`.
    */
-  export function quintic(a: IAutoMovieHumanTrunkSolve.IJet, b: IAutoMovieHumanTrunkSolve.IJet, y0: number, y1: number, y: number): IAutoMovieHumanTrunkSolve.IJet {
+  export function quintic(
+    a: IAutoMovieHumanTrunkSolve.IJet,
+    b: IAutoMovieHumanTrunkSolve.IJet,
+    y0: number,
+    y1: number,
+    y: number,
+  ): IAutoMovieHumanTrunkSolve.IJet {
     const H: number = y1 - y0;
     const u: number = (y - y0) / H;
-    const ends: number[] = [a.value, a.slope, a.curvature, b.curvature, b.slope, b.value];
+    const ends: number[] = [
+      a.value,
+      a.slope,
+      a.curvature,
+      b.curvature,
+      b.slope,
+      b.value,
+    ];
     const read = (order: 0 | 1 | 2): number => {
       const w: number[] = AutoMovieStationHermite.weights(u, H, order, true);
 
-      return w.reduce((s: number, weight: number, k: number): number => s + weight * ends[k]!, 0);
+      return w.reduce(
+        (s: number, weight: number, k: number): number => s + weight * ends[k]!,
+        0,
+      );
     };
 
     return { value: read(0), slope: read(1), curvature: read(2) };

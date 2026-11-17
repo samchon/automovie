@@ -1,10 +1,10 @@
-import type { IAutoMovieRecoveryMapElimination, IAutoMovieRecoveryMapJointBlock, IAutoMovieRecoveryMapJointPreparation, IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface";
 import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
-
-
-
-
-
+import type {
+  IAutoMovieRecoveryCameraMapBudget,
+  IAutoMovieRecoveryMapElimination,
+  IAutoMovieRecoveryMapJointBlock,
+  IAutoMovieRecoveryMapJointPreparation,
+} from "@automovie/interface";
 
 /**
  * Prepare original point qualification and one current scaled block design.
@@ -99,7 +99,8 @@ export function prepareRecoveryMapJointBlocks(
       decomposeAutoMovieSingularMatrix(pointRows, {
         maxEntries: budget.maxLinearEntries,
         maxSweeps: budget.maxSingularSweeps,
-        orthogonalityTolerance: 1e-12 });
+        orthogonalityTolerance: 1e-12,
+      });
     const ratio: number =
       factors.singularValues[2]! / factors.singularValues[0]!;
     if (!(ratio >= minimumRatio))
@@ -211,5 +212,6 @@ export function prepareRecoveryMapJointBlocks(
     pointScales,
     minimumPointDesignRatio,
     gradient: measureGradient ? gradient : null,
-    eliminate };
+    eliminate,
+  };
 }

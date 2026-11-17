@@ -1,14 +1,13 @@
-import type { IAutoMovieLoftRelief, AutoMovieVector3Tuple, IAutoMovieHumanFootBody, IAutoMovieHumanFootFrame, IAutoMovieHumanFootMalleolusBump, IAutoMovieHumanFootMalleolusWindow } from "@automovie/interface";
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootBody,
+  IAutoMovieHumanFootFrame,
+  IAutoMovieHumanFootMalleolusBump,
+  IAutoMovieHumanFootMalleolusWindow,
+  IAutoMovieLoftRelief,
+} from "@automovie/interface";
 
 import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
-
-
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 import { AutoMovieHumanFootMalleolusBump } from "./AutoMovieHumanFootMalleolusBump";
 import { AutoMovieHumanFootMalleolusWindow } from "./AutoMovieHumanFootMalleolusWindow";
@@ -45,17 +44,21 @@ export namespace AutoMovieHumanFootMalleolus {
     sign: 1 | -1,
     side: "left" | "right",
   ): IAutoMovieLoftRelief {
-    const m: { height: number; prominence: number; radius: number } = AutoMovieHumanFootPrior.PRIOR.malleoli[which];
-    const place: IAutoMovieHumanFootMalleolusWindow.IPlace = AutoMovieHumanFootMalleolusWindow.of({
-      frame,
-      body,
-      which,
-      height: m.height,
-      radius: m.radius,
-      sign,
-    });
-    const bump: IAutoMovieHumanFootMalleolusBump.IBump = AutoMovieHumanFootMalleolusBump.of(m.prominence);
-    const outward: AutoMovieVector3Tuple = which === "lateral" ? frame.lateral : G.scale(frame.lateral, -1);
+    const m: { height: number; prominence: number; radius: number } =
+      AutoMovieHumanFootPrior.PRIOR.malleoli[which];
+    const place: IAutoMovieHumanFootMalleolusWindow.IPlace =
+      AutoMovieHumanFootMalleolusWindow.of({
+        frame,
+        body,
+        which,
+        height: m.height,
+        radius: m.radius,
+        sign,
+      });
+    const bump: IAutoMovieHumanFootMalleolusBump.IBump =
+      AutoMovieHumanFootMalleolusBump.of(m.prominence);
+    const outward: AutoMovieVector3Tuple =
+      which === "lateral" ? frame.lateral : G.scale(frame.lateral, -1);
     return {
       name: `foot.${side}.malleolus.${which}`,
       stations: place.stations,

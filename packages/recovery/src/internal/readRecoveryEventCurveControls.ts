@@ -1,7 +1,10 @@
-import type { AutoMovieVector3Tuple, AutoMovieBernsteinPolynomial64, IAutoMovieCurve64, IAutoMovieRecoveryEventCurvePiece } from "@automovie/interface";
-
 import { AutoMovieBernstein64 as B } from "@automovie/engine";
-
+import type {
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieRecoveryEventCurvePiece,
+} from "@automovie/interface";
 
 import { readRecoveryEventCurveParent } from "./readRecoveryEventCurveParent";
 
@@ -22,7 +25,9 @@ export function readRecoveryEventCurveControls(
   piece: IAutoMovieRecoveryEventCurvePiece,
   nativeEndpoints: boolean = false,
 ): IAutoMovieCurve64.Span {
-  const parent: IAutoMovieCurve64.Span = readRecoveryEventCurveParent(piece.source);
+  const parent: IAutoMovieCurve64.Span = readRecoveryEventCurveParent(
+    piece.source,
+  );
   const start: number = piece.source.start,
     end: number = piece.source.end;
   if (
@@ -44,7 +49,9 @@ export function readRecoveryEventCurveControls(
     controls = parent;
   else {
     const restricted: AutoMovieBernsteinPolynomial64 = B.restrict(
-      parent.map((p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [...p]),
+      parent.map(
+        (p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [...p],
+      ),
       Math.min(start, end),
       Math.max(start, end),
     );
@@ -54,7 +61,9 @@ export function readRecoveryEventCurveControls(
   }
   if (reverse) controls = [controls[3], controls[2], controls[1], controls[0]];
   if (nativeEndpoints) {
-    const net: AutoMovieBernsteinPolynomial64 = parent.map((p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [...p]);
+    const net: AutoMovieBernsteinPolynomial64 = parent.map(
+      (p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [...p],
+    );
     controls = [
       B.value(net, start),
       controls[1],

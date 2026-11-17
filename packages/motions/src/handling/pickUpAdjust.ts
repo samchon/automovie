@@ -1,6 +1,12 @@
-import type { IAutoMovieAngleRange, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { DEFAULT_HUMANOID_ROM, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieAngleRange,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { walk } from "../actions/walk";
 import { walkReach } from "../actions/walkReach";
@@ -89,7 +95,10 @@ export namespace pickUpAdjust {
           (range(bone).min - held(bone)) / share[bone],
       ),
     );
-    const twist = (posture: IAutoMovieMotionHumanPosture, degrees: number): IAutoMovieMotionHumanPosture => {
+    const twist = (
+      posture: IAutoMovieMotionHumanPosture,
+      degrees: number,
+    ): IAutoMovieMotionHumanPosture => {
       if (degrees === 0) return posture;
       const add = (bone: "chest" | "spine"): [number, number, number] => {
         const at: readonly [number, number, number] = posture.joints[bone] ?? [
@@ -125,8 +134,12 @@ export namespace pickUpAdjust {
     const turn: number = best;
     return {
       posture: twist(stance.posture, turn),
-      at: (s: number): IAutoMovieMotionHumanPosture => twist(stance.at(s), turn * s),
-      lower: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanPosture =>
+      at: (s: number): IAutoMovieMotionHumanPosture =>
+        twist(stance.at(s), turn * s),
+      lower: (
+        posture: IAutoMovieMotionHumanPosture,
+        s: number,
+      ): IAutoMovieMotionHumanPosture =>
         twist(stance.lower(posture, s), turn * s),
     };
   }
@@ -234,7 +247,8 @@ export namespace pickUpAdjust {
         share: number,
       ): IAutoMovieMotionHumanPosture => {
         if (length <= 0 || share <= 0) return posture;
-        const goal: IAutoMovieMotionHumanPosture.IGoal | undefined = posture.limbs[leg];
+        const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
+          posture.limbs[leg];
         if (goal === undefined) return posture;
 
         // The foot's own progress, by the reach's time at this share of the
@@ -324,8 +338,12 @@ export namespace pickUpAdjust {
         length,
         stance: {
           posture: step(stance.posture, length, 1),
-          at: (s: number): IAutoMovieMotionHumanPosture => step(stance.at(s), length, s),
-          lower: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanPosture =>
+          at: (s: number): IAutoMovieMotionHumanPosture =>
+            step(stance.at(s), length, s),
+          lower: (
+            posture: IAutoMovieMotionHumanPosture,
+            s: number,
+          ): IAutoMovieMotionHumanPosture =>
             step(stance.lower(posture, s), length, s),
           step: { side: foot, off: STEPPING[0], on: STEPPING[1] },
         },
@@ -373,7 +391,9 @@ export namespace pickUpAdjust {
       (foot: "left" | "right"): IAutoMovieMotionHumanContactWindow[] => {
         const part: "leftFoot" | "rightFoot" =
           foot === "left" ? "leftFoot" : "rightFoot";
-        const ground: IAutoMovieMotionHumanContactWindow["support"] = { kind: "ground" };
+        const ground: IAutoMovieMotionHumanContactWindow["support"] = {
+          kind: "ground",
+        };
         const step: pickUpPosture.IStance["step"] = stance?.step;
         if (step === undefined || step.side !== foot)
           return [{ part, kind: "plant", from: 0, to: 1, support: ground }];

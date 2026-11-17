@@ -1,14 +1,23 @@
-import { type IAutoMovieGeometryMeasurementInput, type IAutoMovieGeometryActorReader, type IAutoMovieGeometryQuery, type IAutoMoviePose, type IAutoMovieResolvedBone, IAutoMovieGeometryResult, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieGeometryActorReader,
+  type IAutoMovieGeometryMeasurementInput,
+  type IAutoMovieGeometryQuery,
+  IAutoMovieGeometryResult,
+  type IAutoMoviePose,
+  type IAutoMovieResolvedBone,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
 import { HUMANOID_JOINT_AXES } from "./kinematics/constants/HUMANOID_JOINT_AXES";
 import { reachPose } from "./kinematics/reachPose";
 import { resolvePose } from "./kinematics/resolvePose";
 import { Quaternion } from "./math/Quaternion";
+import { Transform } from "./math/Transform";
 import { Vector3 } from "./math/Vector3";
 import { validatePose } from "./validation/validatePose";
-import { Transform } from "./math/Transform";
 
 /**
  * Measure each available arm's rest-chain reach gap in model metres at shot-local seconds; report solved-pose ROM separately and refuse degenerate node scale or absent arm chains.
@@ -58,7 +67,10 @@ export function measureAutoMovieGeometryReach(
   const localTarget: IAutoMovieVector3 | null =
     nodeLocal === null || spatial.poseRoot === null
       ? nodeLocal
-      : toModelPoint(nodeLocal, Transform.of(spatial.poseRoot.translation, spatial.poseRoot.rotation));
+      : toModelPoint(
+          nodeLocal,
+          Transform.of(spatial.poseRoot.translation, spatial.poseRoot.rotation),
+        );
 
   if (localTarget === null)
     throw new Error(
@@ -154,7 +166,7 @@ const measureArmReach: (
     Vector3.subtract(target, upper.worldPosition),
   );
   const gap: number = Math.max(0, targetDistance - upperLength - lowerLength);
-  const pose: (IAutoMoviePose | null) = reachPose(skeleton, side, target);
+  const pose: IAutoMoviePose | null = reachPose(skeleton, side, target);
   return {
     gap,
     reachable: gap <= 1e-6,

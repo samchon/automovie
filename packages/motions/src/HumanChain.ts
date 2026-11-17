@@ -1,11 +1,17 @@
-import type { IAutoMovieChain, IAutoMovieComposition, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanChainCore, IAutoMovieMotionHumanHandoverAction, IAutoMovieMotionHumanHandshake, IAutoMovieMotionHumanMutual } from "@automovie/interface";
-
 import { AutoMovieChain } from "@automovie/engine";
+import type {
+  IAutoMovieChain,
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanChainCore,
+  IAutoMovieMotionHumanHandoverAction,
+  IAutoMovieMotionHumanHandshake,
+  IAutoMovieMotionHumanMutual,
+} from "@automovie/interface";
 
 import { HumanMutual } from "./actions/HumanMutual";
 import { HumanChainSport } from "./chain/HumanChainSport";
-
-
 
 /**
  * The fluent authoring surface of one person's actions: one typed method per
@@ -64,7 +70,9 @@ export class HumanChain extends HumanChainSport {
    * @throws {Error} When a key differs from its law's name, or names something the chain already has.
    */
   public static extend<
-    Laws extends Readonly<Record<string, IAutoMovieMotionHumanActionLaw<never>>>,
+    Laws extends Readonly<
+      Record<string, IAutoMovieMotionHumanActionLaw<never>>
+    >,
   >(laws: Laws): IAutoMovieMotionHumanChain.IExtension<Laws> {
     class Extended extends HumanChain {}
     for (const [key, law] of Object.entries(laws)) {
@@ -80,7 +88,11 @@ export class HumanChain extends HumanChainSport {
       // A method of an object literal, so it reads the chain it is called on.
       const methods: Record<
         string,
-        (this: IAutoMovieMotionHumanChain, params?: object, anchor?: string) => IAutoMovieMotionHumanChain
+        (
+          this: IAutoMovieMotionHumanChain,
+          params?: object,
+          anchor?: string,
+        ) => IAutoMovieMotionHumanChain
       > = {
         [key](
           this: IAutoMovieMotionHumanChain,
@@ -183,11 +195,17 @@ export class HumanChain extends HumanChainSport {
     a: IAutoMovieMotionHumanChain,
     b: IAutoMovieMotionHumanChain,
   ): {
-    handshake(params?: Omit<IAutoMovieMotionHumanHandshake.IParams, "partner">): IAutoMovieChain;
-    handOver(params: Omit<IAutoMovieMotionHumanHandoverAction.IParams, "to">): IAutoMovieChain;
+    handshake(
+      params?: Omit<IAutoMovieMotionHumanHandshake.IParams, "partner">,
+    ): IAutoMovieChain;
+    handOver(
+      params: Omit<IAutoMovieMotionHumanHandoverAction.IParams, "to">,
+    ): IAutoMovieChain;
   } {
     return {
-      handOver: (params: Omit<IAutoMovieMotionHumanHandoverAction.IParams, "to">): IAutoMovieChain =>
+      handOver: (
+        params: Omit<IAutoMovieMotionHumanHandoverAction.IParams, "to">,
+      ): IAutoMovieChain =>
         HumanChain.mutual(
           HumanMutual.handOver,
           { giver: a, receiver: b },

@@ -1,15 +1,15 @@
-import type { IAutoMovieLoftFrame, AutoMovieVector3Tuple, IAutoMovieHumanFootFrame, IAutoMovieHumanFootGuide, IAutoMovieHumanFootWebLine } from "@automovie/interface";
-
-
-
-
-
 import { AutoMovieSeamStation } from "@automovie/engine";
-import { AutoMovieHumanFootFan } from "./AutoMovieHumanFootFan";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootFrame,
+  IAutoMovieHumanFootGuide,
+  IAutoMovieHumanFootWebLine,
+  IAutoMovieLoftFrame,
+} from "@automovie/interface";
 
+import { AutoMovieHumanFootFan } from "./AutoMovieHumanFootFan";
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 import { AutoMovieHumanFootGuideSmoothing } from "./AutoMovieHumanFootGuideSmoothing";
-
 
 /**
  * One guide curve of the body, built from its landmarks' knots: the shared
@@ -28,10 +28,6 @@ import { AutoMovieHumanFootGuideSmoothing } from "./AutoMovieHumanFootGuideSmoot
  * knots, read how) live in its own file.
  */
 export namespace AutoMovieHumanFootGuide {
-  
-
-  
-
   /**
    * World points of knots read in the fan's own planes.
    *
@@ -52,11 +48,17 @@ export namespace AutoMovieHumanFootGuide {
   ): AutoMovieVector3Tuple[] {
     const square: number = line.square / line.end;
 
-    return knots.map((q: IAutoMovieHumanFootGuide.IFanKnot): AutoMovieVector3Tuple => {
-      const w: number = G.smooth((q[0] - square) / (1 - square));
+    return knots.map(
+      (q: IAutoMovieHumanFootGuide.IFanKnot): AutoMovieVector3Tuple => {
+        const w: number = G.smooth((q[0] - square) / (1 - square));
 
-      return frame.at(q[1], q[2], (1 - w) * q[3] * frame.L + w * q[4] * frame.H);
-    });
+        return frame.at(
+          q[1],
+          q[2],
+          (1 - w) * q[3] * frame.L + w * q[4] * frame.H,
+        );
+      },
+    );
   }
 
   /**
@@ -72,14 +74,19 @@ export namespace AutoMovieHumanFootGuide {
     knots: readonly AutoMovieVector3Tuple[],
   ): IAutoMovieHumanFootGuide.IGuide {
     // The last knot stands on the ankle ring.
-    const list: AutoMovieVector3Tuple[] = knots.map((p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [...p]);
+    const list: AutoMovieVector3Tuple[] = knots.map(
+      (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [...p],
+    );
     const top: AutoMovieVector3Tuple = list[list.length - 1]!;
     list[list.length - 1] = [top[0], frame.ring, top[2]];
 
     // Each knot read as its station and its place in that station's plane.
     const read: IKnot[] = list.map((p: AutoMovieVector3Tuple): IKnot => {
       const station: number = AutoMovieHumanFootFan.station(line, p);
-      const f: IAutoMovieLoftFrame.IFrame = AutoMovieHumanFootFan.plane(line, station);
+      const f: IAutoMovieLoftFrame.IFrame = AutoMovieHumanFootFan.plane(
+        line,
+        station,
+      );
       const r: AutoMovieVector3Tuple = G.sub(p, f.origin);
 
       return { station, across: G.dot(r, f.v), up: G.dot(r, f.u) };
@@ -88,7 +95,12 @@ export namespace AutoMovieHumanFootGuide {
     // A knot behind a plane its predecessor already passed would turn the
     // guide back within planes it has crossed; the guide keeps the first.
     const kept: IKnot[] = [];
-    for (const q of read) if (kept.length === 0 || q.station > kept[kept.length - 1]!.station + MIN_GAP) kept.push(q);
+    for (const q of read)
+      if (
+        kept.length === 0 ||
+        q.station > kept[kept.length - 1]!.station + MIN_GAP
+      )
+        kept.push(q);
     const t: number[] = kept.map((q: IKnot): number => q.station);
 
     // The knots' places smoothed to their own scatter, the ends held on the
@@ -98,13 +110,21 @@ export namespace AutoMovieHumanFootGuide {
       kept.map((q: IKnot): number[] => [q.across, q.up]),
     );
     const curvatures: number[][] = AutoMovieSeamStation.curvatures(t, values);
-    const slopes: number[][] = AutoMovieSeamStation.slopes(t, values, curvatures);
+    const slopes: number[][] = AutoMovieSeamStation.slopes(
+      t,
+      values,
+      curvatures,
+    );
 
     return { stations: t, values, slopes, curvatures };
   }
 
   /** A guide's point in the plane at a station. */
-  export function at(g: IAutoMovieHumanFootGuide.IGuide, line: IAutoMovieHumanFootWebLine.IWebLine, station: number): AutoMovieVector3Tuple {
+  export function at(
+    g: IAutoMovieHumanFootGuide.IGuide,
+    line: IAutoMovieHumanFootWebLine.IWebLine,
+    station: number,
+  ): AutoMovieVector3Tuple {
     const t: readonly number[] = g.stations;
     const n: number = t.length;
     let q: [number, number];
@@ -128,19 +148,32 @@ export namespace AutoMovieHumanFootGuide {
         (c: number): number =>
           a * g.values[lo]![c]! +
           b * g.values[hi]![c]! +
-          (((a ** 3 - a) * g.curvatures[lo]![c]! + (b ** 3 - b) * g.curvatures[hi]![c]!) * h * h) / 6,
+          (((a ** 3 - a) * g.curvatures[lo]![c]! +
+            (b ** 3 - b) * g.curvatures[hi]![c]!) *
+            h *
+            h) /
+            6,
       ) as [number, number];
     }
-    const f: IAutoMovieLoftFrame.IFrame = AutoMovieHumanFootFan.plane(line, station);
+    const f: IAutoMovieLoftFrame.IFrame = AutoMovieHumanFootFan.plane(
+      line,
+      station,
+    );
 
     return G.plus(f.origin, G.plus(G.scale(f.v, q[0]), G.scale(f.u, q[1])));
   }
 
   /** A guide beyond its first or last knot: the end's tangent line. */
-  function tangent(g: IAutoMovieHumanFootGuide.IGuide, i: number, station: number): [number, number] {
+  function tangent(
+    g: IAutoMovieHumanFootGuide.IGuide,
+    i: number,
+    station: number,
+  ): [number, number] {
     const d: number = station - g.stations[i]!;
 
-    return [0, 1].map((c: number): number => g.values[i]![c]! + d * g.slopes[i]![c]!) as [number, number];
+    return [0, 1].map(
+      (c: number): number => g.values[i]![c]! + d * g.slopes[i]![c]!,
+    ) as [number, number];
   }
 
   /** A knot as the guide reads it. */

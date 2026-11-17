@@ -1,5 +1,15 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftSectionSource, IAutoMovieViewLoft, IAutoMovieViewPart } from "@automovie/interface";
-import { AutoMovieLoftChain, AutoMovieLoftSectionSource, AutoMovieViewAxis, AutoMovieViewLoft } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  AutoMovieLoftSectionSource,
+  AutoMovieViewAxis,
+  AutoMovieViewLoft,
+} from "@automovie/engine";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSectionSource,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionBindingDense } from "../../internal/construction/ConstructionBindingDense";

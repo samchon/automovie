@@ -1,7 +1,20 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, AutoMovieHumanoidSocket, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  quaternionFromAutoMovieBasis,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  AutoMovieHumanoidSocket,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-
-import { Quaternion, Vector3, quaternionFromAutoMovieBasis, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import { HumanHandDirection } from "./HumanHandDirection";
 import { HumanHandShape } from "./HumanHandShape";
 
@@ -80,9 +93,11 @@ import { HumanHandShape } from "./HumanHandShape";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memo is a WeakMap on the body, bounded by the sides, the ten digit surfaces, the shapes and the curls asked of it, released with the body.
  */
 export namespace HumanHand {
-
   /** The sides of {@link Side}, as data. */
-  export const SIDES = ["left", "right"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHand.Side>[];
+  export const SIDES = [
+    "left",
+    "right",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHand.Side>[];
 
   /** The surfaces of {@link Surface}, as data. */
   export const SURFACES = [
@@ -124,7 +139,9 @@ export namespace HumanHand {
    * @param surface The surface.
    * @returns Whether it is a digit's tip or pad.
    */
-  export function digital(surface: IAutoMovieMotionHumanHand.Surface): surface is IAutoMovieMotionHumanHand.DigitSurface {
+  export function digital(
+    surface: IAutoMovieMotionHumanHand.Surface,
+  ): surface is IAutoMovieMotionHumanHand.DigitSurface {
     return (DIGIT_SURFACES as readonly string[]).includes(surface);
   }
 
@@ -136,14 +153,22 @@ export namespace HumanHand {
    * @param surface The surface.
    * @returns The bone.
    */
-  export function bone(side: IAutoMovieMotionHumanHand.Side, surface: IAutoMovieMotionHumanHand.Surface): AutoMovieHumanoidBone {
+  export function bone(
+    side: IAutoMovieMotionHumanHand.Side,
+    surface: IAutoMovieMotionHumanHand.Surface,
+  ): AutoMovieHumanoidBone {
     if (!digital(surface)) return `${side}Hand`;
     const digit: string = surface.replace(/(Tip|Pad)$/, "");
     return `${side}${digit[0]!.toUpperCase()}${digit.slice(1)}Distal` as AutoMovieHumanoidBone;
   }
 
   /** The hand shapes of {@link Shape}, as data. */
-  export const SHAPES = ["relaxed", "flat", "point", "fist"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHand.Shape>[];
+  export const SHAPES = [
+    "relaxed",
+    "flat",
+    "point",
+    "fist",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHand.Shape>[];
 
   /**
    * The finger joints of a hand shape, clinical degrees.
@@ -281,7 +306,14 @@ export namespace HumanHand {
   }
 
   /** The axes of {@link Axis}, as data. */
-  export const AXES = ["out", "in", "up", "down", "forward", "back"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHand.Axis>[];
+  export const AXES = [
+    "out",
+    "in",
+    "up",
+    "down",
+    "forward",
+    "back",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHand.Axis>[];
 
   /**
    * The world unit vector of a named direction for a hand of a performer
@@ -340,7 +372,12 @@ export namespace HumanHand {
     turn: IAutoMovieQuaternion,
     form: IAutoMovieMotionHumanHand.Shape = "relaxed",
   ): IAutoMovieMotionHumanHand.IWrist {
-    const local: IAutoMovieMotionHumanHand.IFrame = offset(body, side, surface, form);
+    const local: IAutoMovieMotionHumanHand.IFrame = offset(
+      body,
+      side,
+      surface,
+      form,
+    );
     return {
       point: Vector3.subtract(at, Quaternion.rotateVector(turn, local.point)),
       rotation: turn,
@@ -368,7 +405,12 @@ export namespace HumanHand {
     target: IAutoMovieMotionHumanHand.IFrame,
     form: IAutoMovieMotionHumanHand.Shape = "relaxed",
   ): IAutoMovieMotionHumanHand.IWrist {
-    const local: IAutoMovieMotionHumanHand.IFrame = offset(body, side, surface, form);
+    const local: IAutoMovieMotionHumanHand.IFrame = offset(
+      body,
+      side,
+      surface,
+      form,
+    );
     return place(body, side, surface, target.point, align(local, target), form);
   }
 
@@ -395,7 +437,12 @@ export namespace HumanHand {
     form: IAutoMovieMotionHumanHand.Shape = "relaxed",
   ): IAutoMovieMotionHumanHand.IFrame {
     const hand = bones.get(`${side}Hand`)!;
-    const local: IAutoMovieMotionHumanHand.IFrame = offset(body, side, surface, form);
+    const local: IAutoMovieMotionHumanHand.IFrame = offset(
+      body,
+      side,
+      surface,
+      form,
+    );
     const turn = (v: IAutoMovieVector3): IAutoMovieVector3 =>
       Quaternion.rotateVector(hand.worldRotation, v);
     if (!digital(surface))

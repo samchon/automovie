@@ -1,6 +1,13 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBase, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBase,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -143,10 +150,19 @@ export namespace floorEntry {
     entered: IAutoMovieMotionHumanPosture | null,
     at: number,
     weight: (seconds: number) => number,
-    posture: (base: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanPosture,
-  ): (base: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanPosture {
+    posture: (
+      base: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ) => IAutoMovieMotionHumanPosture,
+  ): (
+    base: IAutoMovieMotionHumanPosture,
+    seconds: number,
+  ) => IAutoMovieMotionHumanPosture {
     let arrived: IAutoMovieMotionHumanPosture | undefined;
-    return (base: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+    return (
+      base: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture => {
       const w: number = weight(seconds);
       if (entered === null || w >= 1) return posture(base, seconds);
       arrived ??= GymnasticsFlight.frozen(body, posture(base, at));
@@ -277,7 +293,10 @@ export namespace floorEntry {
       weight,
     );
     const turn: number = ((((to.yaw - from.yaw) % 360) + 540) % 360) - 180;
-    const heading: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> = {
+    const heading: Pick<
+      IAutoMovieMotionHumanPosture,
+      "yaw" | "pitch" | "roll"
+    > = {
       yaw: from.yaw + turn * weight,
       pitch: lerp(from.pitch, to.pitch),
       roll: lerp(from.roll, to.roll),
@@ -346,7 +365,10 @@ export namespace floorEntry {
   }
 
   /** Where a posture's hips joint is: its root plus the hips' rest place turned by its heading. */
-  function hips(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 {
+  function hips(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieVector3 {
     return Vector3.add(
       posture.root,
       Quaternion.rotateVector(

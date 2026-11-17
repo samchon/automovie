@@ -1,7 +1,28 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieSwingTwistRange, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, getConstraint, jointToQuaternion, skeletonJointAxes, swingTwistRange } from "@automovie/engine";
-
-import { HumanTrunk, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Quaternion,
+  getConstraint,
+  jointToQuaternion,
+  skeletonJointAxes,
+  swingTwistRange,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSwingTwistRange,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanTrunk,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -36,7 +57,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_core_arm_readings(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const base: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const base: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
   const frames: readonly (readonly [
     readonly [number, number, number],
     readonly [number, number, number],
@@ -65,7 +90,9 @@ export function test_human_motion_core_arm_readings(): void {
         ?.constraint ?? null,
     )!;
   const complaints: string[] = [];
-  const posture = (frame: (typeof frames)[number]): IAutoMovieMotionHumanPosture => {
+  const posture = (
+    frame: (typeof frames)[number],
+  ): IAutoMovieMotionHumanPosture => {
     const { rightArm: _, ...limbs } = base.limbs;
     void _;
     return {

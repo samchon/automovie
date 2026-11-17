@@ -1,4 +1,9 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanExerciseKey, IAutoMovieMotionHumanWorkoutKind } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanWorkoutKind,
+} from "@automovie/interface";
 
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
@@ -89,7 +94,10 @@ export namespace WorkoutStance {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function rest(body: IAutoMovieMotionHumanBody, seconds: number): IAutoMovieMotionHumanWorkoutKind.IStep {
+  export function rest(
+    body: IAutoMovieMotionHumanBody,
+    seconds: number,
+  ): IAutoMovieMotionHumanWorkoutKind.IStep {
     return WorkoutKind.step(
       ExerciseKey.standing(body),
       seconds,
@@ -141,7 +149,10 @@ export namespace WorkoutStance {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function straight(body: IAutoMovieMotionHumanBody, bent: number): number {
+  export function straight(
+    body: IAutoMovieMotionHumanBody,
+    bent: number,
+  ): number {
     const thigh: number = body.measure.thigh;
     const shank: number = body.measure.shank;
     return (

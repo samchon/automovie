@@ -1,5 +1,3 @@
-
-
 /**
  * Machine-readable film-grammar diagnostic families that `readFilmGrammar`
  * files on an edited sequence.

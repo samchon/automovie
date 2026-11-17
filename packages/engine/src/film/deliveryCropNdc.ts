@@ -1,4 +1,7 @@
-import { type IAutoMovieDeliveryCropNdc, IAutoMovieDeliveryCrop } from "@automovie/interface";
+import {
+  IAutoMovieDeliveryCrop,
+  type IAutoMovieDeliveryCropNdc,
+} from "@automovie/interface";
 
 import { resolveAutoMovieDeliveryCrop } from "./resolveAutoMovieDeliveryCrop";
 

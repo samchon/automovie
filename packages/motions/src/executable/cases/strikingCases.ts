@@ -1,4 +1,11 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanStrikingRecord, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanStrikingRecord,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
@@ -113,7 +120,9 @@ function build(
   const s: strikingScenarios.IScenario = strikingScenarios(A.body, B.body)[
     scenario
   ]!();
-  const perform = (a: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
+  const perform = (
+    a: IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: scenario,
       performers: [
@@ -161,9 +170,8 @@ function build(
         verdicts.push(StrikingEventVerdicts.defence(p.id, g));
       if (g.name !== "punch" && g.name !== "kick" && g.name !== "knee")
         continue;
-      const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined = StrikingRecord.of(
-        g.plan,
-      );
+      const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined =
+        StrikingRecord.of(g.plan);
       const stop: number | undefined = record?.stop(g.end);
       const contact: number = stop ?? StrikingVerdicts.peak(g);
       const limb: StrikingLimb.End = StrikingLimb.end(
@@ -244,7 +252,9 @@ function build(
   if (s.late !== undefined) {
     const late: IAutoMovieMotionHumanChain = s.late;
     verdicts.push(
-      StrikingEventVerdicts.refusal((): IAutoMovieMotionHumanPerformance => perform(late)),
+      StrikingEventVerdicts.refusal(
+        (): IAutoMovieMotionHumanPerformance => perform(late),
+      ),
     );
   }
   times.sort(

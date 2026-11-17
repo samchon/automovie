@@ -1,4 +1,3 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
 import {
   createExerciseBike,
   createExerciseMat,
@@ -10,8 +9,25 @@ import {
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanSignature, HumanSportCarry, HumanSportWorkout, StrikingRoll } from "@automovie/motions";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanSignature,
+  HumanSportCarry,
+  HumanSportWorkout,
+  StrikingRoll,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -81,13 +97,14 @@ export function test_archetype_gym_used(): void {
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
-    const performer: IAutoMovieMotionHumanPerformance.IInput["performers"][number] = {
-      subject: "a",
-      body,
-      at: { x: 0, y: 0, z: 0 },
-      yaw: 0,
-      proficiency: { level: "trained" },
-    };
+    const performer: IAutoMovieMotionHumanPerformance.IInput["performers"][number] =
+      {
+        subject: "a",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      };
     const when = (
       film: IAutoMovieMotionHumanPerformance,
       row: string,
@@ -95,7 +112,9 @@ export function test_archetype_gym_used(): void {
     ): number => {
       const found: IAutoMovieMotionHumanSegment.ISegment = film
         .segments("a")
-        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row)!;
+        .find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
+        )!;
       return (
         found.start +
         (found.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -106,7 +125,9 @@ export function test_archetype_gym_used(): void {
 
     // 1 to 3. Seated and lying on the machines and the mat.
     try {
-      let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({ seconds: 0.3 });
+      let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({
+        seconds: 0.3,
+      });
       for (const [row, , prop, affordance] of supports)
         chain = chain
           .registered(row, { reps: 1, on: { prop, affordance } })

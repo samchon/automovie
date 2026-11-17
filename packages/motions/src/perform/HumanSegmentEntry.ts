@@ -1,6 +1,16 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieSamplePoseVelocity, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, samplePoseVelocity } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSamplePoseVelocity,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanBase } from "../law/HumanBase";
 import { humanRig } from "../posture/humanRig";
@@ -91,7 +101,9 @@ export namespace HumanSegmentEntry {
       Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
       Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     ];
-    const foot = (side: "left" | "right"): IAutoMovieMotionHumanEntryState.IFoot => {
+    const foot = (
+      side: "left" | "right",
+    ): IAutoMovieMotionHumanEntryState.IFoot => {
       const here: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
       const from: IAutoMovieResolvedBone = instant.get(`${side}Foot`)!;
       const a: IAutoMovieResolvedBone = near.get(`${side}Foot`)!;
@@ -168,10 +180,11 @@ export namespace HumanSegmentEntry {
             (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
               h.from <= seconds && seconds < h.until,
           )
-          .map((h: IAutoMovieMotionHumanSegment.IHeld): ["left" | "right", string] => [
-            h.side,
-            h.prop,
-          ]),
+          .map(
+            (
+              h: IAutoMovieMotionHumanSegment.IHeld,
+            ): ["left" | "right", string] => [h.side, h.prop],
+          ),
       ),
       ...(previous === undefined
         ? {}
@@ -209,7 +222,9 @@ export namespace HumanSegmentEntry {
   ): IAutoMovieMotionHumanEntryState.ISupport[] {
     if (previous === undefined)
       return (["leftFoot", "rightFoot"] as const).map(
-        (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanEntryState.ISupport => ({
+        (
+          part: "leftFoot" | "rightFoot",
+        ): IAutoMovieMotionHumanEntryState.ISupport => ({
           part,
           kind: "plant",
           support: { kind: "ground" },
@@ -228,7 +243,9 @@ export namespace HumanSegmentEntry {
           u <= c.to + 1e-9,
       )
       .map(
-        (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanEntryState.ISupport => ({
+        (
+          c: IAutoMovieMotionHumanContactWindow,
+        ): IAutoMovieMotionHumanEntryState.ISupport => ({
           part: c.part,
           kind: c.kind,
           support: c.support,

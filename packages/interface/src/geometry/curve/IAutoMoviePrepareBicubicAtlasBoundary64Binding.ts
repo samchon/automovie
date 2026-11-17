@@ -9,7 +9,9 @@ import type { IAutoMovieBicubicAtlasTessellation64 } from "./IAutoMovieBicubicAt
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Absence of legacy selects the explicit normalFan; its presence keeps inherited legacy sharing separate from explicit normal-fan identity.
  * @evidence contracts/development/common.md#meaningful-documentation States borrowed versus new records and the exact optional marker semantics.
  */
-export type IAutoMoviePrepareBicubicAtlasBoundary64Binding = NonNullable<IAutoMovieBicubicAtlasTessellation64.Input["boundaryBindings"]>[number] & {
+export type IAutoMoviePrepareBicubicAtlasBoundary64Binding = NonNullable<
+  IAutoMovieBicubicAtlasTessellation64.Input["boundaryBindings"]
+>[number] & {
   /** Canonically oriented comma-separated four-control-ID tuple for a transported legacy fan; absent for explicitly authored bindings. */
   legacy?: string;
 };

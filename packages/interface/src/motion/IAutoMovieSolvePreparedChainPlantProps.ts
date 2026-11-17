@@ -1,8 +1,8 @@
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMoviePreparedChainPlant } from "./IAutoMoviePreparedChainPlant";
-import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
-import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * One target and bend-plane choice evaluated against prepared chain geometry.

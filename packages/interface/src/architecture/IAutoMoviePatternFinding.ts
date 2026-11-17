@@ -1,5 +1,3 @@
-
-
 /**
  * One structured defect or unsupported case a pattern run reports.
  *

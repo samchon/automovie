@@ -1,4 +1,5 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
+
 /**
  * Refuse an id field of a performance input that is not a non-blank string.
  *

@@ -51,9 +51,11 @@ export namespace HumanQuadraticProgram {
     state: IAutoMovieMotionHumanQuadraticProgram.IState,
   ): Map<string, number> {
     const out: Map<string, number> = new Map();
-    problem.rows.forEach((row: IAutoMovieMotionHumanQuadraticProgram.IRow, r: number): void => {
-      if (row.key !== undefined) out.set(row.key, state.y[r]!);
-    });
+    problem.rows.forEach(
+      (row: IAutoMovieMotionHumanQuadraticProgram.IRow, r: number): void => {
+        if (row.key !== undefined) out.set(row.key, state.y[r]!);
+      },
+    );
     return out;
   }
 
@@ -100,22 +102,25 @@ export namespace HumanQuadraticProgram {
         y[r] = (c * warm.y[r]!) / e[r]!;
       }
     } else
-      problem.rows.forEach((row: IAutoMovieMotionHumanQuadraticProgram.IRow, r: number): void => {
-        // A solve of new rows starts from the multipliers of the rows they
-        // linearise again (`IRow.key`), the primal at the iterate itself.
-        const known: number | undefined =
-          row.key === undefined || duals === undefined
-            ? undefined
-            : duals.get(row.key);
-        if (known !== undefined) y[r] = (c * known) / e[r]!;
-        z[r] = Math.min(hi[r]!, Math.max(lo[r]!, 0));
-      });
+      problem.rows.forEach(
+        (row: IAutoMovieMotionHumanQuadraticProgram.IRow, r: number): void => {
+          // A solve of new rows starts from the multipliers of the rows they
+          // linearise again (`IRow.key`), the primal at the iterate itself.
+          const known: number | undefined =
+            row.key === undefined || duals === undefined
+              ? undefined
+              : duals.get(row.key);
+          if (known !== undefined) y[r] = (c * known) / e[r]!;
+          z[r] = Math.min(hi[r]!, Math.max(lo[r]!, 0));
+        },
+      );
 
     const rhs: Float64Array = new Float64Array(n);
     const xt: Float64Array = new Float64Array(n);
     const tilde: Float64Array = new Float64Array(m);
     const before: Float64Array = new Float64Array(m);
-    let status: IAutoMovieMotionHumanQuadraticProgram.IState["status"] = "unfinished";
+    let status: IAutoMovieMotionHumanQuadraticProgram.IState["status"] =
+      "unfinished";
     let residual: { primal: number; dual: number } = {
       primal: Infinity,
       dual: Infinity,
@@ -236,7 +241,10 @@ export namespace HumanQuadraticProgram {
    * @param x The variables.
    * @returns The value.
    */
-  export function value(problem: IAutoMovieMotionHumanQuadraticProgram.IProblem, x: Float64Array): number {
+  export function value(
+    problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
+    x: Float64Array,
+  ): number {
     let v: number = 0;
     for (let i: number = 0; i < problem.n; ++i) {
       v += problem.q[i]! * x[i]!;

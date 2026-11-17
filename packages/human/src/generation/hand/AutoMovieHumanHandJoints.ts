@@ -1,20 +1,28 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanHandDigit, IAutoMovieHumanHandFingerPosture, IAutoMovieHumanHandForm, IAutoMovieHumanHandFrame, IAutoMovieHumanHandJoints, IAutoMovieHumanHandMeasures, IAutoMovieHumanHandScales, IAutoMovieHumanHandWrist } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanHandDigit,
+  IAutoMovieHumanHandFingerPosture,
+  IAutoMovieHumanHandForm,
+  IAutoMovieHumanHandFrame,
+  IAutoMovieHumanHandJoints,
+  IAutoMovieHumanHandMeasures,
+  IAutoMovieHumanHandScales,
+  IAutoMovieHumanHandWrist,
+} from "@automovie/interface";
 
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanHandMap } from "./AutoMovieHumanHandMap";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
-
-const { sub, plus, scale, dot, unit, across, cross }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
+const {
+  sub,
+  plus,
+  scale,
+  dot,
+  unit,
+  across,
+  cross,
+}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
 
 /**
@@ -55,9 +63,20 @@ export namespace AutoMovieHumanHandJoints {
    * its station along the hand: the web, the root and the bone are one line,
    * as the posture was read.
    */
-  export function jointsOf(hand: IAutoMovieHumanHandForm, measures: IAutoMovieHumanHandScales, law: IAutoMovieHumanHandWrist): IAutoMovieHumanHandJoints {
-    const roots: AutoMovieVector3Tuple[] = hand.digits.map((d: IAutoMovieHumanHandDigit): AutoMovieVector3Tuple => handPoint(d.centre, measures, law.wrist));
-    const joints: IAutoMovieHumanHandJoints = knuckles(law.crease, measures, roots);
+  export function jointsOf(
+    hand: IAutoMovieHumanHandForm,
+    measures: IAutoMovieHumanHandScales,
+    law: IAutoMovieHumanHandWrist,
+  ): IAutoMovieHumanHandJoints {
+    const roots: AutoMovieVector3Tuple[] = hand.digits.map(
+      (d: IAutoMovieHumanHandDigit): AutoMovieVector3Tuple =>
+        handPoint(d.centre, measures, law.wrist),
+    );
+    const joints: IAutoMovieHumanHandJoints = knuckles(
+      law.crease,
+      measures,
+      roots,
+    );
     const stations: AutoMovieVector3Tuple[] = [...joints.mcps];
     // The frame stands on the knuckles the lines move, so the two settle in
     // turns.
@@ -65,7 +84,9 @@ export namespace AutoMovieHumanHandJoints {
       joints.frame = frameOf(law.crease, joints.mcps);
       for (let i: number = 1; i < joints.mcps.length; i++) {
         const d1: AutoMovieVector3Tuple = proximal(i, joints.frame);
-        const back: number = dot(sub(roots[i]!, stations[i]!), joints.frame.along) / dot(d1, joints.frame.along);
+        const back: number =
+          dot(sub(roots[i]!, stations[i]!), joints.frame.along) /
+          dot(d1, joints.frame.along);
         joints.mcps[i] = sub(roots[i]!, scale(d1, back));
       }
     }
@@ -78,14 +99,23 @@ export namespace AutoMovieHumanHandJoints {
    * along from the wrist centre to knuckle III, across from knuckle V toward
    * II square to it, and palmar square to both.
    */
-  export function frameOf(crease: AutoMovieVector3Tuple, mcps: readonly AutoMovieVector3Tuple[]): IAutoMovieHumanHandFrame {
+  export function frameOf(
+    crease: AutoMovieVector3Tuple,
+    mcps: readonly AutoMovieVector3Tuple[],
+  ): IAutoMovieHumanHandFrame {
     const along: AutoMovieVector3Tuple = unit(sub(mcps[2]!, crease));
-    const across_: AutoMovieVector3Tuple = across(sub(mcps[1]!, mcps[4]!), along);
+    const across_: AutoMovieVector3Tuple = across(
+      sub(mcps[1]!, mcps[4]!),
+      along,
+    );
     const palmar: AutoMovieVector3Tuple = cross(across_, along);
     return {
       along,
       across: across_,
-      palmar: dot(palmar, [...AutoMovieHumanArmPrior.PRIOR.hand.through]) >= 0 ? palmar : scale(palmar, -1),
+      palmar:
+        dot(palmar, [...AutoMovieHumanArmPrior.PRIOR.hand.through]) >= 0
+          ? palmar
+          : scale(palmar, -1),
     };
   }
 
@@ -93,12 +123,24 @@ export namespace AutoMovieHumanHandJoints {
    * A finger's proximal phalanx: turned from the hand's axis across the hand
    * by the posture's spread, then toward the palm by its flexion.
    */
-  export function proximal(index: number, frame: IAutoMovieHumanHandFrame): AutoMovieVector3Tuple {
-    const posture: IAutoMovieHumanHandFingerPosture = AutoMovieHumanArmPrior.PRIOR.hand.posture;
+  export function proximal(
+    index: number,
+    frame: IAutoMovieHumanHandFrame,
+  ): AutoMovieVector3Tuple {
+    const posture: IAutoMovieHumanHandFingerPosture =
+      AutoMovieHumanArmPrior.PRIOR.hand.posture;
     const spread: number = (posture.spread[index - 1]! * Math.PI) / 180;
     const flexion: number = (posture.proximal[index - 1]! * Math.PI) / 180;
-    const level: AutoMovieVector3Tuple = plus(scale(frame.along, Math.cos(spread)), scale(frame.across, Math.sin(spread)));
-    return unit(plus(scale(level, Math.cos(flexion)), scale(frame.palmar, Math.sin(flexion))));
+    const level: AutoMovieVector3Tuple = plus(
+      scale(frame.along, Math.cos(spread)),
+      scale(frame.across, Math.sin(spread)),
+    );
+    return unit(
+      plus(
+        scale(level, Math.cos(flexion)),
+        scale(frame.palmar, Math.sin(flexion)),
+      ),
+    );
   }
 
   /**
@@ -117,24 +159,39 @@ export namespace AutoMovieHumanHandJoints {
    * @param hand Hand and palm lengths from stylion.
    * @param roots Each digit's root at its web, thumb first.
    */
-  export function knuckles(crease: AutoMovieVector3Tuple, hand: IAutoMovieHumanHandMeasures, roots: AutoMovieVector3Tuple[]): IAutoMovieHumanHandJoints {
-    const along: AutoMovieVector3Tuple = [...AutoMovieHumanArmPrior.PRIOR.hand.along];
+  export function knuckles(
+    crease: AutoMovieVector3Tuple,
+    hand: IAutoMovieHumanHandMeasures,
+    roots: AutoMovieVector3Tuple[],
+  ): IAutoMovieHumanHandJoints {
+    const along: AutoMovieVector3Tuple = [
+      ...AutoMovieHumanArmPrior.PRIOR.hand.along,
+    ];
     const centre: AutoMovieVector3Tuple = crease;
-    const reach: number = hand.palm - STYLION - WEB_HEIGHT * (hand.length - hand.palm);
+    const reach: number =
+      hand.palm - STYLION - WEB_HEIGHT * (hand.length - hand.palm);
     const third: number = THIRD_METACARPAL * reach;
     const middle: AutoMovieVector3Tuple = roots[2]!;
     const toward: AutoMovieVector3Tuple = unit(sub(middle, centre));
     const head: AutoMovieVector3Tuple = plus(centre, scale(toward, reach));
     const base: AutoMovieVector3Tuple = sub(head, scale(toward, third));
-    const mcps: AutoMovieVector3Tuple[] = roots.map((root: AutoMovieVector3Tuple, i: number): AutoMovieVector3Tuple => {
-      if (i === 0) return [0, 0, 0];
-      const offset: AutoMovieVector3Tuple = sub(root, middle);
-      const level: AutoMovieVector3Tuple = sub(offset, scale(along, dot(offset, along)));
-      const own: AutoMovieVector3Tuple = plus(base, level);
-      return plus(own, scale(unit(sub(root, own)), METACARPALS[i]! * third));
-    });
+    const mcps: AutoMovieVector3Tuple[] = roots.map(
+      (root: AutoMovieVector3Tuple, i: number): AutoMovieVector3Tuple => {
+        if (i === 0) return [0, 0, 0];
+        const offset: AutoMovieVector3Tuple = sub(root, middle);
+        const level: AutoMovieVector3Tuple = sub(
+          offset,
+          scale(along, dot(offset, along)),
+        );
+        const own: AutoMovieVector3Tuple = plus(base, level);
+        return plus(own, scale(unit(sub(root, own)), METACARPALS[i]! * third));
+      },
+    );
     const cmc: AutoMovieVector3Tuple = scale(plus(crease, roots[0]!), 0.5);
-    mcps[0] = plus(cmc, scale(unit(sub(roots[0]!, cmc)), METACARPALS[0]! * third));
+    mcps[0] = plus(
+      cmc,
+      scale(unit(sub(roots[0]!, cmc)), METACARPALS[0]! * third),
+    );
     return { cmc, mcps };
   }
 }

@@ -1,5 +1,5 @@
-import type { IAutoMovieClip } from "../core/IAutoMovieClip";
 import type { IAutoMovieInteractionEvent } from "../cinematics/IAutoMovieInteractionEvent";
+import type { IAutoMovieClip } from "../core/IAutoMovieClip";
 import type { IAutoMovieValidation } from "./IAutoMovieValidation";
 
 /**

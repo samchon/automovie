@@ -1,4 +1,16 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanKick, IAutoMovieMotionHumanKickGeometry, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingRecord, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanKick,
+  IAutoMovieMotionHumanKickGeometry,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingRecord,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanSkill } from "../skill/HumanSkill";
 import { KickForm } from "./KickForm";
@@ -73,7 +85,9 @@ export namespace kick {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function leg(params: IAutoMovieMotionHumanKick.IParams): "lead" | "rear" {
+  export function leg(
+    params: IAutoMovieMotionHumanKick.IParams,
+  ): "lead" | "rear" {
     return params.leg ?? (params.technique === "round" ? "rear" : "lead");
   }
 
@@ -92,13 +106,17 @@ export namespace kick {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once per committed stop and dropped on settle, when the stop or the target may have changed.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry and its source's, released with the plan.
    */
-  export function plan(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>): IAutoMovieMotionHumanKick.IPlan {
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
+  ): IAutoMovieMotionHumanKick.IPlan {
     const p: IAutoMovieMotionHumanKick.IParams = context.params;
 
     // A redirect continues its source's clock: the kick's own time zero is
     // the source's, and this instance shows it from the cut on.
-    const source: IAutoMovieMotionHumanKickGeometry.ISource | undefined = redirected(context);
-    const timing: IAutoMovieMotionHumanKickGeometry.ITiming = source?.timing ?? measure(context);
+    const source: IAutoMovieMotionHumanKickGeometry.ISource | undefined =
+      redirected(context);
+    const timing: IAutoMovieMotionHumanKickGeometry.ITiming =
+      source?.timing ?? measure(context);
     const t0: number = source?.start ?? context.start;
     const offset: number = context.start - t0;
     const duration: number = timing.duration - offset;
@@ -198,14 +216,17 @@ export namespace kick {
       get contacts(): IAutoMovieMotionHumanContactWindow[] {
         return geometry()
           .contacts.map(
-            (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
+            (
+              c: IAutoMovieMotionHumanContactWindow,
+            ): IAutoMovieMotionHumanContactWindow => ({
               ...c,
               from: share(c.from * timing.duration),
               to: share(c.to * timing.duration),
             }),
           )
           .filter(
-            (c: IAutoMovieMotionHumanContactWindow): boolean => c.to > c.from || c.to === 1,
+            (c: IAutoMovieMotionHumanContactWindow): boolean =>
+              c.to > c.from || c.to === 1,
           );
       },
       // A feint's chamber is the committed kick's, so the contact it
@@ -233,14 +254,17 @@ export namespace kick {
       ...(strikes
         ? {
             weapons: StrikingWeapon.capsules(chain),
-            stop: (found: readonly IAutoMovieMotionHumanActionPlan.IContactEvent[]): void => {
+            stop: (
+              found: readonly IAutoMovieMotionHumanActionPlan.IContactEvent[],
+            ): void => {
               met = StrikingWeapon.first(found);
               fixed = met === null ? null : met.seconds;
               ride = undefined;
             },
           }
         : {}),
-      record: (): IAutoMovieMotionHumanStrikingRecord.IRecord => geometry().record,
+      record: (): IAutoMovieMotionHumanStrikingRecord.IRecord =>
+        geometry().record,
       source: {
         timing,
         geometry,
@@ -252,7 +276,9 @@ export namespace kick {
   }
 
   /** Whether a plan is a kick's, carrying what a redirect continues. */
-  function continues(plan: IAutoMovieMotionHumanActionPlan): plan is IAutoMovieMotionHumanKick.IPlan {
+  function continues(
+    plan: IAutoMovieMotionHumanActionPlan,
+  ): plan is IAutoMovieMotionHumanKick.IPlan {
     return StrikingRecord.carries(plan) && "source" in plan;
   }
 

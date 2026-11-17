@@ -1,6 +1,19 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanKickBall, IAutoMovieMotionHumanPosture, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanKickBall,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { stand } from "../actions/stand";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -184,7 +197,8 @@ export namespace kickBall {
     );
     const duration: number = clock.duration;
     const support: "left" | "right" = side === "left" ? "right" : "left";
-    const stance: IAutoMovieMotionHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
+    const stance: IAutoMovieMotionHumanPosture.IGoal =
+      standing.limbs[`${side}Leg`]!;
     // The body stands under the kick, its sway signed in the kicking side's
     // frame, so a left kick mirrors a right one (`stand.plan`).
     const base: IAutoMovieMotionHumanActionPlan = stand.plan(

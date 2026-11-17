@@ -1,4 +1,5 @@
 import type { IAutoMovieAppendServiceInsideSpace } from "@automovie/interface";
+
 import { propSpaceContainsBounds } from "../film/propSpaceContainsBounds";
 
 /**
@@ -26,7 +27,9 @@ import { propSpaceContainsBounds } from "../film/propSpaceContainsBounds";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The helper consumes the gate's supplied space-id set and one point, retaining no cached membership across moving nodes.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a failed source point is appended to the supplied collector; no cell index, bounds record or environment reference is stored here.
  */
-export const appendServiceInsideSpace: (props: IAutoMovieAppendServiceInsideSpace.IProps) => void = (props: IAutoMovieAppendServiceInsideSpace.IProps): void => {
+export const appendServiceInsideSpace: (
+  props: IAutoMovieAppendServiceInsideSpace.IProps,
+) => void = (props: IAutoMovieAppendServiceInsideSpace.IProps): void => {
   if (!props.spaceIds.has(props.space)) return;
   for (const axis of ["x", "y", "z"] as const)
     if (!Number.isFinite(props.point[axis])) return;

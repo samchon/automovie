@@ -1,5 +1,11 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanTargetGrid } from "@automovie/interface";
-import { AutoMovieMotionHumanTarget, AutoMovieMotionHumanTargetGrid } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanTargetGrid,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanTarget,
+  AutoMovieMotionHumanTargetGrid,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**

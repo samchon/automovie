@@ -1,4 +1,5 @@
 import type { IAutoMovieAffineBoxBound } from "@automovie/interface";
+
 /**
  * Bound one declared affine row over a common independent-coefficient box.
  * Duplicate original IDs first combine in input order using binary64 addition.
@@ -22,7 +23,9 @@ import type { IAutoMovieAffineBoxBound } from "@automovie/interface";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Duplicate terms combine once before all three coordinate bounds, and their exact dyadic weights are reused across coordinates. A single local DataView decodes every binary64 input; no cross-call cache exists.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources maxTerms caps both supplied work and retained unique IDs. Call-local maps, BigInts and the eight-byte decoding buffer expire on return or throw; returned tuples own their numbers and no handles or input arrays are retained.
  */
-export function RecoveryChartReachableBox(input: Parameters<IAutoMovieAffineBoxBound.Operation>[0]): ReturnType<IAutoMovieAffineBoxBound.Operation> {
+export function RecoveryChartReachableBox(
+  input: Parameters<IAutoMovieAffineBoxBound.Operation>[0],
+): ReturnType<IAutoMovieAffineBoxBound.Operation> {
   const finite: (p: readonly number[]) => boolean = (
     p: readonly number[],
   ): boolean => p.length === 3 && p.every(Number.isFinite);
@@ -161,5 +164,6 @@ export function RecoveryChartReachableBox(input: Parameters<IAutoMovieAffineBoxB
     absoluteWeightSum,
     terms: combined.size,
     diagnostic:
-      "Exact dyadic single-row predicate after binary64 duplicate combination; outward endpoint views and approximate distance do not certify joint fit, source support or closest-surface distance." };
+      "Exact dyadic single-row predicate after binary64 duplicate combination; outward endpoint views and approximate distance do not certify joint fit, source support or closest-surface distance.",
+  };
 }

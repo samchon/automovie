@@ -1,6 +1,5 @@
 import type { IAutoMoviePlanViewerFrameTimesRequest } from "@automovie/interface";
 
-
 /**
  * Plan the film seconds whose frames a still capture writes.
  *
@@ -18,7 +17,9 @@ import type { IAutoMoviePlanViewerFrameTimesRequest } from "@automovie/interface
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call plans from its arguments alone; there is no shared work to reuse.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned array is allocated, bounded by the requested range divided by its interval.
  */
-export function planViewerFrameTimes(request: IAutoMoviePlanViewerFrameTimesRequest): number[] {
+export function planViewerFrameTimes(
+  request: IAutoMoviePlanViewerFrameTimesRequest,
+): number[] {
   const fps: number = request.fps;
   const durationSeconds: number = request.durationSeconds;
   if (!Number.isFinite(fps) || fps <= 0)

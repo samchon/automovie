@@ -19,15 +19,21 @@ import type { IAutoMovieMotionHumanPlanMotionCaptureInstants } from "@automovie/
 export function planMotionCaptureInstants(
   times: IAutoMovieMotionHumanPlanMotionCaptureInstants.ITimes,
 ): IAutoMovieMotionHumanPlanMotionCaptureInstants.IResult {
-  const instants: Map<string, { seconds: number; labels: string[] }> = new Map();
+  const instants: Map<string, { seconds: number; labels: string[] }> =
+    new Map();
   for (const time of times) {
     const key: string = time.seconds.toFixed(3);
-    const known: { seconds: number; labels: string[] } | undefined = instants.get(key);
-    if (known === undefined) instants.set(key, { seconds: time.seconds, labels: [time.label] });
+    const known: { seconds: number; labels: string[] } | undefined =
+      instants.get(key);
+    if (known === undefined)
+      instants.set(key, { seconds: time.seconds, labels: [time.label] });
     else if (!known.labels.includes(time.label)) known.labels.push(time.label);
   }
   return [...instants.values()].map(
-    (instant: { seconds: number; labels: string[] }): { seconds: number; label: string } => ({
+    (instant: {
+      seconds: number;
+      labels: string[];
+    }): { seconds: number; label: string } => ({
       seconds: instant.seconds,
       label: instant.labels.join(" / "),
     }),

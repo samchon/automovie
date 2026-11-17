@@ -1,4 +1,3 @@
-
 /**
  * Paired surface-chart coordinates in solver order `[part.u, part.v, host.u, host.v]`.
  *

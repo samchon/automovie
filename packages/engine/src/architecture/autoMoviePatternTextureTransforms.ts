@@ -1,4 +1,10 @@
-import type { IAutoMoviePatternTextureSheet, IAutoMoviePatternPoint, IAutoMoviePatternTextureTransform, IAutoMoviePatternTexturing, IAutoMoviePatternTextureTransforms } from "@automovie/interface";
+import type {
+  IAutoMoviePatternPoint,
+  IAutoMoviePatternTextureSheet,
+  IAutoMoviePatternTextureTransform,
+  IAutoMoviePatternTextureTransforms,
+  IAutoMoviePatternTexturing,
+} from "@automovie/interface";
 
 import { positive } from "../geometry/positive";
 import { Quaternion } from "../math/Quaternion";
@@ -50,7 +56,11 @@ const SHEAR_EPSILON: number = 1e-9;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure map over one run's placements for one sheet; nothing coordinates work across calls, and a caller texturing several materials reuses the same run result.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned transforms and sheared ids, together bounded by the placement count.
  */
-export const autoMoviePatternTextureTransforms: (props: IAutoMoviePatternTextureTransforms.IProps) => IAutoMoviePatternTexturing = (props: IAutoMoviePatternTextureTransforms.IProps): IAutoMoviePatternTexturing => {
+export const autoMoviePatternTextureTransforms: (
+  props: IAutoMoviePatternTextureTransforms.IProps,
+) => IAutoMoviePatternTexturing = (
+  props: IAutoMoviePatternTextureTransforms.IProps,
+): IAutoMoviePatternTexturing => {
   positive(props.tile.u, "pattern texture tile u");
   positive(props.tile.v, "pattern texture tile v");
   const sheet: IAutoMoviePatternTextureSheet = props.sheet;

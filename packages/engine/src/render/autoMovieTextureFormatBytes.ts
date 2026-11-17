@@ -1,4 +1,5 @@
 import type { IAutoMovieRenderTextureSource } from "@automovie/interface";
+
 /**
  * One component-layout owner for source uploads and framebuffer attachments.
  * RG half-float has two two-byte components; RGBA byte/half/float has four

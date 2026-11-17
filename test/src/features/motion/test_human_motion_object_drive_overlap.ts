@@ -1,8 +1,18 @@
-import type { IAutoMovieComposition, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { createStorage } from "@automovie/archetypes";
 import { AutoMovieComposition, Quaternion } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanRefusal } from "@automovie/motions";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -44,7 +54,10 @@ export function test_human_motion_object_drive_overlap(): void {
   const handle = (chest.affordances ?? []).find((a) => a.rides === drawer.id);
   TestValidator.predicate("the drawer has a handle", handle !== undefined);
   if (handle === undefined) return;
-  const placed: IAutoMovieTransform = chest.placed(handle.id as never, placement);
+  const placed: IAutoMovieTransform = chest.placed(
+    handle.id as never,
+    placement,
+  );
   const at: IAutoMovieVector3 = placed.translation;
   // The handle's outward normal, its frame's +Y: the side a person pulls from.
   const out: IAutoMovieVector3 = Quaternion.rotateVector(placed.rotation, {

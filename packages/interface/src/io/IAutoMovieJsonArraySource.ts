@@ -12,15 +12,12 @@
  */
 
 export interface IAutoMovieJsonArraySource {
- 
- /** Path of a generating plain JSON array fragment. */
+  /** Path of a generating plain JSON array fragment. */
   path: string;
 
- 
- /** SHA-256 of its complete immutable bytes. */
+  /** SHA-256 of its complete immutable bytes. */
   sha256: string;
 
- 
- /** Producer-reported array item population. */
+  /** Producer-reported array item population. */
   items: number;
 }

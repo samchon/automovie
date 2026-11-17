@@ -1,4 +1,3 @@
-import type { IAutoMovieMark, IAutoMovieAffordance, IAutoMovieConstraintViolation, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
 import {
   type Archetype,
   ArchetypeArticulation,
@@ -9,7 +8,15 @@ import {
   ArchetypeRefusal,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3, validateModel } from "@automovie/engine";
-
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieConstraintViolation,
+  IAutoMovieMark,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../internal/predicates";

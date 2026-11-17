@@ -1,6 +1,15 @@
-import type { IAutoMovieWearableSoftFrame, IAutoMovieSoftAnchor, IAutoMovieSoftBodyDomain, IAutoMovieValidation } from "@automovie/interface";
-import { simulateAutoMovieWearableSoftBody, simulateSoftBody, simulateSoftBodyWithBoundaries, validateSoftBodyDomain } from "@automovie/engine";
-
+import {
+  simulateAutoMovieWearableSoftBody,
+  simulateSoftBody,
+  simulateSoftBodyWithBoundaries,
+  validateSoftBodyDomain,
+} from "@automovie/engine";
+import type {
+  IAutoMovieSoftAnchor,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieValidation,
+  IAutoMovieWearableSoftFrame,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation, nclose, throwsError } from "../internal/predicates";

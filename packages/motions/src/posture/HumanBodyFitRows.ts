@@ -1,4 +1,10 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanFitGoals, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanBodyFitTypes,
+  IAutoMovieMotionHumanFitGoals,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieMotionHumanQuadraticProgram,
+} from "@automovie/interface";
 
 import { HumanFitBalance } from "./HumanFitBalance";
 import { HumanFitGoals } from "./HumanFitGoals";

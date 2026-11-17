@@ -1,5 +1,7 @@
-import type { IAutoMovieRecoveryAtlasObservationCreases, IAutoMovieRecoveryAtlasObservationState } from "@automovie/interface";
-
+import type {
+  IAutoMovieRecoveryAtlasObservationCreases,
+  IAutoMovieRecoveryAtlasObservationState,
+} from "@automovie/interface";
 
 /**
  * Observe original component crease edges with the existing oriented source normals.
@@ -12,7 +14,9 @@ import type { IAutoMovieRecoveryAtlasObservationCreases, IAutoMovieRecoveryAtlas
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses source normals computed once by the observation orchestrator.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only crease witnesses escape; the edge pairing map is component-local.
  */
-export function RecoveryAtlasObservationCreases(context: Parameters<IAutoMovieRecoveryAtlasObservationCreases.Operation>[0]): ReturnType<IAutoMovieRecoveryAtlasObservationCreases.Operation> {
+export function RecoveryAtlasObservationCreases(
+  context: Parameters<IAutoMovieRecoveryAtlasObservationCreases.Operation>[0],
+): ReturnType<IAutoMovieRecoveryAtlasObservationCreases.Operation> {
   const {
     input,
     observed,
@@ -20,7 +24,8 @@ export function RecoveryAtlasObservationCreases(context: Parameters<IAutoMovieRe
     sourceNormals,
     byRaw,
     mark,
-    reason }: {
+    reason,
+  }: {
     input: IAutoMovieRecoveryAtlasObservationState["Input"];
     observed: IAutoMovieRecoveryAtlasObservationState["Observed"];
     component: IAutoMovieRecoveryAtlasObservationState["Component"];
@@ -80,7 +85,8 @@ export function RecoveryAtlasObservationCreases(context: Parameters<IAutoMovieRe
             to: byRaw.get(occurrence.to)!,
             sourceEdge: occurrence.edge,
             sourceFaces: [previous.face, occurrence.face],
-            angleDegrees });
+            angleDegrees,
+          });
         }
       }
   }

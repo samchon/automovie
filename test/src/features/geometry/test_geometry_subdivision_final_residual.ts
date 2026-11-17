@@ -47,33 +47,49 @@ export function test_geometry_subdivision_final_residual(): void {
   }
   const measured: number = Math.max(...errors);
   const scale: number = (1 - Math.pow(1 - 0.0005, 2001)) / 0.0005;
-  TestValidator.predicate("the capped solution remains finite and unconverged",
-    positions.every(Number.isFinite) && measured > 1e-4);
-  TestValidator.predicate("residual describes returned controls",
-    nclose(residual, measured, 1e-10));
-  TestValidator.predicate("exactly 2,000 updates of the slow eigenmode",
+  TestValidator.predicate(
+    "the capped solution remains finite and unconverged",
+    positions.every(Number.isFinite) && measured > 1e-4,
+  );
+  TestValidator.predicate(
+    "residual describes returned controls",
+    nclose(residual, measured, 1e-10),
+  );
+  TestValidator.predicate(
+    "exactly 2,000 updates of the slow eigenmode",
     positions.every((value: number, index: number): boolean =>
-      nclose(value, scale * targets[index]!, 1e-7)));
-  TestValidator.predicate("borrowed targets remain unchanged",
+      nclose(value, scale * targets[index]!, 1e-7),
+    ),
+  );
+  TestValidator.predicate(
+    "borrowed targets remain unchanged",
     targets.every((value: number, index: number): boolean =>
-      nclose(value, [1, 2, -3, -1, -2, 3][index]!, 0)));
+      nclose(value, [1, 2, -3, -1, -2, 3][index]!, 0),
+    ),
+  );
 
   for (const held of [false, true]) {
     const output: Float64Array = new Float64Array(6);
     const error: number = solveAutoMovieSubdivisionLimit({
-      stencil: held ? stencil : {
-        count: 2,
-        offsets: new Int32Array([0, 1, 2]),
-        indices: new Int32Array([0, 1]),
-        weights: new Float64Array([1, 1]),
-      },
+      stencil: held
+        ? stencil
+        : {
+            count: 2,
+            offsets: new Int32Array([0, 1, 2]),
+            indices: new Int32Array([0, 1]),
+            weights: new Float64Array([1, 1]),
+          },
       targets,
       free: new Uint8Array(held ? [0, 0] : [1, 1]),
       positions: output,
       scratch: new Float64Array(6),
     });
-    TestValidator.predicate(`zero residual for ${held ? "held" : "identity"} controls`,
-      nclose(error, 0, 0) && output.every((value: number, index: number): boolean =>
-        nclose(value, targets[index]!, 0)));
+    TestValidator.predicate(
+      `zero residual for ${held ? "held" : "identity"} controls`,
+      nclose(error, 0, 0) &&
+        output.every((value: number, index: number): boolean =>
+          nclose(value, targets[index]!, 0),
+        ),
+    );
   }
 }

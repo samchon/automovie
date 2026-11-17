@@ -1,8 +1,8 @@
-import type { AutoMovieGuidePass, IAutoMovieGuidePassOutput, IAutoMoviePlanGuidePassOutputsProps } from "@automovie/interface";
-
-
-
-
+import type {
+  AutoMovieGuidePass,
+  IAutoMovieGuidePassOutput,
+  IAutoMoviePlanGuidePassOutputsProps,
+} from "@automovie/interface";
 
 import { guidePassFrameName } from "./guidePassFrameName.js";
 import { guidePassFramePattern } from "./guidePassFramePattern.js";
@@ -21,7 +21,11 @@ import { normalizeGuidePasses } from "./normalizeGuidePasses.js";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call plans one frame directory from its own arguments, and the strings are cheaper to rebuild than to cache.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function retains nothing after returning the plan its caller owns and opens no handle or task.
  */
-export const planGuidePassOutputs: (props: IAutoMoviePlanGuidePassOutputsProps) => IAutoMovieGuidePassOutput[] = (props: IAutoMoviePlanGuidePassOutputsProps): IAutoMovieGuidePassOutput[] => {
+export const planGuidePassOutputs: (
+  props: IAutoMoviePlanGuidePassOutputsProps,
+) => IAutoMovieGuidePassOutput[] = (
+  props: IAutoMoviePlanGuidePassOutputsProps,
+): IAutoMovieGuidePassOutput[] => {
   if (Number.isInteger(props.frameCount) === false || props.frameCount <= 0)
     throw new Error(
       `guide pass frameCount must be a positive integer, but was ${props.frameCount}`,

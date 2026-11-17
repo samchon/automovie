@@ -1,16 +1,15 @@
-import type { IAutoMovieLoftContract, IAutoMovieHumanHandSkinTargets, AutoMovieVector3Tuple, IAutoMovieHumanHandFinger, IAutoMovieHumanHandForm, IAutoMovieHumanHandJoints, IAutoMovieHumanHandMeasures, IAutoMovieHumanHandScales, IAutoMovieHumanHandSolve, IAutoMovieHumanHandWrist } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanHandFinger,
+  IAutoMovieHumanHandForm,
+  IAutoMovieHumanHandJoints,
+  IAutoMovieHumanHandMeasures,
+  IAutoMovieHumanHandScales,
+  IAutoMovieHumanHandSkinTargets,
+  IAutoMovieHumanHandSolve,
+  IAutoMovieHumanHandWrist,
+  IAutoMovieLoftContract,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHandFingers } from "./AutoMovieHumanHandFingers";
 import { AutoMovieHumanHandJoints } from "./AutoMovieHumanHandJoints";
@@ -18,10 +17,20 @@ import { AutoMovieHumanHandMap } from "./AutoMovieHumanHandMap";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
 type Vec3 = AutoMovieVector3Tuple;
-const { sub, plus, scale, dot, unit, cross, hull }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
+const {
+  sub,
+  plus,
+  scale,
+  dot,
+  unit,
+  cross,
+  hull,
+}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
-const { jointsOf, STYLION }: typeof AutoMovieHumanHandJoints = AutoMovieHumanHandJoints;
-const { digitsOf }: typeof AutoMovieHumanHandFingers = AutoMovieHumanHandFingers;
+const { jointsOf, STYLION }: typeof AutoMovieHumanHandJoints =
+  AutoMovieHumanHandJoints;
+const { digitsOf }: typeof AutoMovieHumanHandFingers =
+  AutoMovieHumanHandFingers;
 
 /**
  * The hand's three scales and the wrist's circle, each solved at its measure's
@@ -41,8 +50,6 @@ export namespace AutoMovieHumanHandSolve {
 
   /** The solve's construction level: the hand's landmarks and scales (`construction-levels.md`, level 1). */
   const SOLVE_LEVEL: number = 1;
-
-  
 
   /**
    * Solve the hand's scales and the wrist's circle at their measurement sites
@@ -65,8 +72,10 @@ export namespace AutoMovieHumanHandSolve {
     diagnostics?: IAutoMovieLoftContract.IDiagnostic[],
   ): IAutoMovieHumanHandSolve.ISolved<A> {
     const widest: number = Math.max(
-      ...hand.palmRings.map((r: readonly Vec3[]): number =>
-        Math.max(...r.map((q: Vec3): number => q[1])) - Math.min(...r.map((q: Vec3): number => q[1])),
+      ...hand.palmRings.map(
+        (r: readonly Vec3[]): number =>
+          Math.max(...r.map((q: Vec3): number => q[1])) -
+          Math.min(...r.map((q: Vec3): number => q[1])),
       ),
     );
     const girth0: number = Math.max(
@@ -75,7 +84,8 @@ export namespace AutoMovieHumanHandSolve {
       ),
     );
     const webs: Vec3[] = hand.crests.slice(0, 2);
-    const span: number = Math.max(...webs.map((c: Vec3): number => c[0])) - hand.creaseCentre[0];
+    const span: number =
+      Math.max(...webs.map((c: Vec3): number => c[0])) - hand.creaseCentre[0];
     const measures: IAutoMovieHumanHandScales = {
       ...given,
       along: (given.palm - STYLION) / span,
@@ -86,10 +96,13 @@ export namespace AutoMovieHumanHandSolve {
     let law: A = makeArm(measures);
     let joints: IAutoMovieHumanHandJoints = jointsOf(hand, measures, law);
     for (let round: number = 0; round < SOLVE_ROUNDS; round++) {
-      const map = (q: readonly [number, number, number]): Vec3 => handPoint(q, measures, law.wrist);
+      const map = (q: readonly [number, number, number]): Vec3 =>
+        handPoint(q, measures, law.wrist);
       const axis: Vec3 = unit(sub(joints.mcps[2]!, law.crease));
       const stylion: Vec3 = sub(law.crease, scale(axis, STYLION));
-      const palm: number = Math.max(...webs.map((c: Vec3): number => dot(sub(map(c), stylion), axis)));
+      const palm: number = Math.max(
+        ...webs.map((c: Vec3): number => dot(sub(map(c), stylion), axis)),
+      );
       const section: { breadth: number; girth: number } | null = knuckleSection(
         hand,
         map,
@@ -99,7 +112,10 @@ export namespace AutoMovieHumanHandSolve {
       );
       // The tube's sections face the shoulder, as its walk rises.
       const fore: Vec3 = unit(sub(law.crease, law.elbow));
-      const wrist: number = law.girth(sub(law.crease, scale(fore, STYLION)), scale(fore, -1));
+      const wrist: number = law.girth(
+        sub(law.crease, scale(fore, STYLION)),
+        scale(fore, -1),
+      );
       measures.along *= (given.palm - STYLION) / (palm - STYLION);
 
       // A knuckle plane that misses the palm leaves the breadth and girth
@@ -112,7 +128,8 @@ export namespace AutoMovieHumanHandSolve {
           detail: `fewer than three crossings in round ${round}; breadth and girth scales kept at ${measures.across.toFixed(4)} and ${measures.through.toFixed(4)}`,
         });
       else {
-        measures.across *= (targets?.breadth ?? given.breadth) / section.breadth;
+        measures.across *=
+          (targets?.breadth ?? given.breadth) / section.breadth;
         measures.through *= (targets?.girth ?? circumference) / section.girth;
       }
       measures.wrist *= wristTape / wrist;
@@ -152,10 +169,12 @@ export namespace AutoMovieHumanHandSolve {
     const line: Vec3 = unit(sub(mcps[4]!, mcps[1]!));
     const normal: Vec3 = unit(sub(axis, scale(line, dot(axis, line))));
     const other: Vec3 = cross(normal, line);
-    const rings: Vec3[][] = shape.palmRings.map((ring: readonly Vec3[]): Vec3[] =>
-      ring.map((q: Vec3): Vec3 => map(q)),
+    const rings: Vec3[][] = shape.palmRings.map(
+      (ring: readonly Vec3[]): Vec3[] => ring.map((q: Vec3): Vec3 => map(q)),
     );
-    const count: number = Math.min(...rings.map((ring: Vec3[]): number => ring.length));
+    const count: number = Math.min(
+      ...rings.map((ring: Vec3[]): number => ring.length),
+    );
     const points: [number, number][] = [];
     for (let j: number = 0; j < count; j++)
       for (let k: number = 1; k < rings.length; k++) {
@@ -171,14 +190,27 @@ export namespace AutoMovieHumanHandSolve {
     // The border fingers' roots, the index's and the little finger's: each
     // one's outermost point across the hand, where the web's columns carry
     // the border out to it.
-    for (const [f, outward] of [[fingers[0]!, -1], [fingers[3]!, 1]] as const) {
-      const flat: [number, number][] = f.ring(f.first).map((p: Vec3): [number, number] => {
-        const x: Vec3 = sub(p, middle);
-        return [dot(x, line), dot(x, other)];
-      });
-      points.push(flat.reduce((a: [number, number], b: [number, number]): [number, number] => (b[0] * outward > a[0] * outward ? b : a)));
+    for (const [f, outward] of [
+      [fingers[0]!, -1],
+      [fingers[3]!, 1],
+    ] as const) {
+      const flat: [number, number][] = f
+        .ring(f.first)
+        .map((p: Vec3): [number, number] => {
+          const x: Vec3 = sub(p, middle);
+          return [dot(x, line), dot(x, other)];
+        });
+      points.push(
+        flat.reduce(
+          (a: [number, number], b: [number, number]): [number, number] =>
+            b[0] * outward > a[0] * outward ? b : a,
+        ),
+      );
     }
     const along: number[] = points.map((p: [number, number]): number => p[0]);
-    return { breadth: Math.max(...along) - Math.min(...along), girth: hull(points) };
+    return {
+      breadth: Math.max(...along) - Math.min(...along),
+      girth: hull(points),
+    };
   }
 }

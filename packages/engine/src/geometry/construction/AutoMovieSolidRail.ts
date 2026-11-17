@@ -1,9 +1,16 @@
-import type { AutoMovieVector3Tuple, IAutoMovieSolidAtlas, IAutoMovieSolidIntersection, IAutoMovieSolidRail, IAutoMovieSolidRailSolveAtlasSection, IAutoMovieSolidSurface } from "@automovie/interface";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidRail,
+  IAutoMovieSolidRailSolveAtlasSection,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidRailSolve } from "./AutoMovieSolidRailSolve";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
+
 type IJet = IAutoMovieSolidSurface.IJet;
 const { combine, cross, dot, norm, unit }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
@@ -23,7 +30,6 @@ const { combine, cross, dot, norm, unit }: typeof AutoMovieSolidVector =
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidRail {
-
   /** Newton steps of one offset. */
   export const STEPS: number = 40;
 
@@ -104,9 +110,15 @@ export namespace AutoMovieSolidRail {
       y: curve.y,
       theta: curve.theta,
       hostWidth,
-      ...(typeof partWidth === "number" ? { partWidth } : { partStation: partWidth.station }),
+      ...(typeof partWidth === "number"
+        ? { partWidth }
+        : { partStation: partWidth.station }),
     };
-    const refuse = (premise: string): IAutoMovieSolidRail.IExplanation => ({ rail: null, refusal: premise, quantities });
+    const refuse = (premise: string): IAutoMovieSolidRail.IExplanation => ({
+      rail: null,
+      refusal: premise,
+      quantities,
+    });
     const a: IJet | null = AutoMovieSolidDomain.jet(part, curve.s, curve.phi);
     const surface: IAutoMovieSolidSurface = host.faces[curve.face]!;
     const b: IJet | null = AutoMovieSolidDomain.jet(
@@ -115,11 +127,14 @@ export namespace AutoMovieSolidRail {
       curve.theta,
     );
     if (a === null) return refuse("the part has no jet at the curve point");
-    if (b === null) return refuse("the host face has no jet at the curve point");
+    if (b === null)
+      return refuse("the host face has no jet at the curve point");
     const outA: AutoMovieVector3Tuple | null = unit(cross(a.u, a.v));
     const outB: AutoMovieVector3Tuple | null = unit(cross(b.u, b.v));
-    if (outA === null) return refuse("the part's normal vanishes at the curve point");
-    if (outB === null) return refuse("the host's normal vanishes at the curve point");
+    if (outA === null)
+      return refuse("the part's normal vanishes at the curve point");
+    if (outB === null)
+      return refuse("the host's normal vanishes at the curve point");
     quantities.normals = dot(outA, outB);
     const nA: AutoMovieVector3Tuple = [
       outA[0] * part.orientation,
@@ -141,7 +156,10 @@ export namespace AutoMovieSolidRail {
       const facing: number = dot(a.u, nB);
       quantities.facing = facing;
       quantities.stationSpeed = norm(a.u);
-      if (!(Math.abs(facing) > 0)) return refuse("the part's station line is parallel to the host (facing 0)");
+      if (!(Math.abs(facing) > 0))
+        return refuse(
+          "the part's station line is parallel to the host (facing 0)",
+        );
       const side: number = facing > 0 === (keep === "outside") ? 1 : -1;
       quantities.side = side;
       sigma = side;
@@ -154,15 +172,22 @@ export namespace AutoMovieSolidRail {
           curve.point,
           partWidth,
         );
-        if (lambda === null) return refuse("the part's chord along its station line found no solution");
+        if (lambda === null)
+          return refuse(
+            "the part's chord along its station line found no solution",
+          );
         quantities.lambda = lambda;
         s = curve.s + side * lambda;
       } else {
-        if (!(side * (partWidth.station - curve.s) > 0)) return refuse(`the part's rail station ${partWidth.station} does not lie on its kept side (side ${side}) of the curve point's station ${curve.s}`);
+        if (!(side * (partWidth.station - curve.s) > 0))
+          return refuse(
+            `the part's rail station ${partWidth.station} does not lie on its kept side (side ${side}) of the curve point's station ${curve.s}`,
+          );
         s = partWidth.station;
       }
     } else {
-      if (typeof partWidth !== "number") return refuse("a fixed part station needs the station mode");
+      if (typeof partWidth !== "number")
+        return refuse("a fixed part station needs the station mode");
       const e: [number, number] | null = square(
         a,
         [curve.rate[0], curve.rate[1]],
@@ -171,7 +196,10 @@ export namespace AutoMovieSolidRail {
         quantities,
         "part",
       );
-      if (e === null) return refuse("the part's square direction failed (metric solve, vanishing speed or no side toward the host's normal)");
+      if (e === null)
+        return refuse(
+          "the part's square direction failed (metric solve, vanishing speed or no side toward the host's normal)",
+        );
       quantities.partSquareS = e[0];
       quantities.partSquarePhi = e[1];
       partAcross = e;
@@ -187,7 +215,10 @@ export namespace AutoMovieSolidRail {
         curve.point,
         partWidth,
       );
-      if (lambda === null) return refuse("the part's chord along its square direction found no solution");
+      if (lambda === null)
+        return refuse(
+          "the part's chord along its square direction found no solution",
+        );
       quantities.lambda = lambda;
       const refined: [number, number] | null = section(
         part,
@@ -196,7 +227,8 @@ export namespace AutoMovieSolidRail {
         plane(a, e),
         partWidth,
       );
-      if (refined === null) return refuse("the part's normal-section refinement did not converge");
+      if (refined === null)
+        return refuse("the part's normal-section refinement did not converge");
       s = refined[0];
       phi = refined[1];
     }
@@ -207,7 +239,8 @@ export namespace AutoMovieSolidRail {
     // outside of the part.
     quantities.hostRateY = curve.rate[2];
     quantities.hostRateTheta = curve.rate[3];
-    quantities.hostToward = dot(cross(b.u, b.v), nA) / (norm(cross(b.u, b.v)) || 1);
+    quantities.hostToward =
+      dot(cross(b.u, b.v), nA) / (norm(cross(b.u, b.v)) || 1);
     const across: [number, number] | null = square(
       b,
       [curve.rate[2], curve.rate[3]],
@@ -216,13 +249,19 @@ export namespace AutoMovieSolidRail {
       quantities,
       "host",
     );
-    if (across === null) return refuse("the host's square direction failed (metric solve, vanishing speed or no side toward the part's normal)");
+    if (across === null)
+      return refuse(
+        "the host's square direction failed (metric solve, vanishing speed or no side toward the part's normal)",
+      );
     quantities.acrossY = across[0];
     quantities.acrossTheta = across[1];
-    const report: { reason: string; numbers: Record<string, number> } = { reason: "", numbers: {} };
+    const report: { reason: string; numbers: Record<string, number> } = {
+      reason: "",
+      numbers: {},
+    };
     // The initial chart displacement selects a local branch; every equation
     // is subsequently read on its actual retained face, including neighbours.
-    const settled: (IAutoMovieSolidRailSolveAtlasSection | null) =
+    const settled: IAutoMovieSolidRailSolveAtlasSection | null =
       AutoMovieSolidRailSolve.atlas(
         host,
         curve.face,
@@ -239,9 +278,12 @@ export namespace AutoMovieSolidRail {
         SWITCHES,
         report,
       );
-    for (const [key, value] of Object.entries(report.numbers)) quantities["atlas." + key] = value;
+    for (const [key, value] of Object.entries(report.numbers))
+      quantities["atlas." + key] = value;
     if (settled === null) {
-      return refuse("the host's normal-section solve across the atlas: " + report.reason);
+      return refuse(
+        "the host's normal-section solve across the atlas: " + report.reason,
+      );
     }
     const face: number = settled.face;
     const hostChart: [number, number] = settled.chart;

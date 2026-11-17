@@ -1,8 +1,12 @@
-import type { IAutoMovieMark, IAutoMovieMeshDefect, IAutoMovieInspectionKind, IAutoMovieInspectionLabel, IAutoMovieInspectionLegendEntry, IAutoMovieInspectionRequest, IAutoMovieInspectionView } from "@automovie/interface";
-
-
-
-
+import type {
+  IAutoMovieInspectionKind,
+  IAutoMovieInspectionLabel,
+  IAutoMovieInspectionLegendEntry,
+  IAutoMovieInspectionRequest,
+  IAutoMovieInspectionView,
+  IAutoMovieMark,
+  IAutoMovieMeshDefect,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import type { IAutoMovieSectionRenderer } from "../IAutoMovieSectionRenderer.js";
@@ -13,15 +17,10 @@ import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMov
 import { AUTO_MOVIE_INSPECTION_PALETTE } from "./AUTO_MOVIE_INSPECTION_PALETTE.js";
 import type { IApplyAutoMovieInspectionProps } from "./IApplyAutoMovieInspectionProps.js";
 import type { IAutoMovieInspectionHandle } from "./IAutoMovieInspectionHandle.js";
-
-
-
 import type { IAutoMovieInspectionMarkSet } from "./IAutoMovieInspectionMarkSet.js";
 import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
 import type { IAutoMovieInspectionOverlay } from "./IAutoMovieInspectionOverlay.js";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
-
-
 import { applyAutoMovieInspectionSection } from "./applyAutoMovieInspectionSection.js";
 import { applyAutoMovieInspectionShade } from "./applyAutoMovieInspectionShade.js";
 import { autoMovieInspectionPathOf } from "./autoMovieInspectionPathOf.js";

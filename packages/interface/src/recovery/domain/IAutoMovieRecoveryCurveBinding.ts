@@ -8,15 +8,12 @@
  */
 
 export interface IAutoMovieRecoveryCurveBinding {
- 
- /** Saved coefficient curve identity. */
+  /** Saved coefficient curve identity. */
   curveName: string;
 
- 
- /** Original saved span ordinal within that curve. */
+  /** Original saved span ordinal within that curve. */
   span: number;
 
- 
- /** Canonical atlas authority identity referenced by the supplied recipe. */
+  /** Canonical atlas authority identity referenced by the supplied recipe. */
   authority: string;
 }

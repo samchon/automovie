@@ -1,6 +1,14 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanTargetGrid, IAutoMovieMotionHumanVariation, IAutoMovieMotionHumanVariationPlace, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTargetGrid,
+  IAutoMovieMotionHumanVariation,
+  IAutoMovieMotionHumanVariationPlace,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanSkill } from "../skill/HumanSkill";
 import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid";
 import { AutoMovieMotionHumanVariation } from "./AutoMovieMotionHumanVariation";
@@ -22,7 +30,6 @@ import { AutoMovieMotionHumanVariationDraw } from "./AutoMovieMotionHumanVariati
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The offset is added to the place's own share record, so no second place type or frame enters.
  */
 export namespace AutoMovieMotionHumanVariationPlace {
-
   /**
    * A place of the air with its offset.
    *

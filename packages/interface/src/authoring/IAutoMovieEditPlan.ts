@@ -1,7 +1,5 @@
-import type { IAutoMovieNamedId } from "../core/IAutoMovieNamedId";
 import type { IAutoMovieSequenceEntry } from "../cinematics/IAutoMovieSequenceEntry";
-
-
+import type { IAutoMovieNamedId } from "../core/IAutoMovieNamedId";
 
 /**
  * Coding-agent-owned edit over shot artifacts that were already built.

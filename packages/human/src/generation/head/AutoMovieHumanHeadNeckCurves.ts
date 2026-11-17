@@ -1,8 +1,8 @@
-import type { IAutoMovieViewSection, IAutoMovieHumanHeadNeckCurves } from "@automovie/interface";
-
-
 import { AutoMovieIllinois, AutoMovieViewSection } from "@automovie/engine";
-
+import type {
+  IAutoMovieHumanHeadNeckCurves,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadNeckBase } from "./AutoMovieHumanHeadNeckBase";
 
@@ -20,20 +20,12 @@ import { AutoMovieHumanHeadNeckBase } from "./AutoMovieHumanHeadNeckBase";
  * @evidence contracts/common.md#principled-implementation Declares original shared-jet radius and physical-station origin curves, then measures their actual composed three-dimensional base derivative through the engine's source-length owner.
  * @evidence contracts/common.md#clear-and-simple-design One radius, one origin and one named-height course supply the actual mass author and both measurement readers; no independent neck skin or floating target tape is constructed.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Contains no Human quadrature, fitted cubic, reference measurement, person branch, finite-difference jet or anatomical-site relabelling.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes retained site/pose proxies, the constant template, dependent front point and affine axis from original declarations, numerical observation and unverified final loft/anatomical contact.
+ * @evidence contracts/common.md#meaningful-documentation Distinguishes retained site/pose proxies, the constant template, dependent front point and affine axis from original declarations, numerical observation and unverified final loft/anatomical contact.
  * @evidence contracts/performance.md#efficient-algorithms Normal trials retain their bounded solve. Base selection uses one initial trial, at most128 additional interior samples and64 Illinois steps; every trial measures its own side phase and height partition with bounded engine quadrature, without a convexity or monotonicity assertion.
  * @evidence contracts/performance.md#reuse-equivalent-work Radius knot bases and the common axis precede trials; only identical-radius complete numeric trials are reused. Trial-dependent height, phase and quadrature facts are not reused across radii; the selected measured declaration itself supplies residual admission.
  * @evidence contracts/performance.md#bound-retention-and-release-resources All preparations and trial callbacks are call-owned; the result retains only original numeric declarations and small measurement metadata.
  */
 export namespace AutoMovieHumanHeadNeckCurves {
-  
-
-  
-
-  
-
-  
-
   /**
    * Author a generalized-cylinder band and its named-height base course.
    * Constant radius and affine origin hold as functions, through explicit
@@ -55,22 +47,31 @@ export namespace AutoMovieHumanHeadNeckCurves {
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the admitted normal template, invariant prepared centre and original radius knot bases. Each radius owns its actual side inverse, height and partition; an identical complete trial is reused without claiming cross-radius equivalence.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns caller-owned declarations and scalar metadata; no prepared source or callback is retained globally.
    */
-  export function of(input: IAutoMovieHumanHeadNeckCurves.IInputs, work?: IAutoMovieHumanHeadNeckCurves.IWork): IAutoMovieHumanHeadNeckCurves.IOutput {
+  export function of(
+    input: IAutoMovieHumanHeadNeckCurves.IInputs,
+    work?: IAutoMovieHumanHeadNeckCurves.IWork,
+  ): IAutoMovieHumanHeadNeckCurves.IOutput {
     return close(define(input, work), work);
   }
 
   /** Prepare only the independently determined normal band; lower-radius closure is a separate request. */
-  export function define(input: IAutoMovieHumanHeadNeckCurves.IInputs, work?: IAutoMovieHumanHeadNeckCurves.IWork): IAutoMovieHumanHeadNeckCurves.IDefinition {
+  export function define(
+    input: IAutoMovieHumanHeadNeckCurves.IInputs,
+    work?: IAutoMovieHumanHeadNeckCurves.IWork,
+  ): IAutoMovieHumanHeadNeckCurves.IDefinition {
     const r: number = input.neck.radius;
     const m: number = input.neck.backSlope;
     const h: number = Math.hypot(1, m);
     const yc: number = input.neck.level;
     const back: number =
       input.neck.x + m * (input.base.cervicaleHeight - yc) - input.neck.back;
-    const trials: Map<number, {
-      section: IAutoMovieViewSection.ISection;
-      measured: ReturnType<typeof AutoMovieViewSection.measure>;
-    }> = new Map();
+    const trials: Map<
+      number,
+      {
+        section: IAutoMovieViewSection.ISection;
+        measured: ReturnType<typeof AutoMovieViewSection.measure>;
+      }
+    > = new Map();
     const normal: (
       front: number,
     ) => ReturnType<typeof AutoMovieViewSection.measure> = (
@@ -78,9 +79,13 @@ export namespace AutoMovieHumanHeadNeckCurves {
     ): ReturnType<typeof AutoMovieViewSection.measure> => {
       const previous: ReturnType<typeof trials.get> = trials.get(front);
       if (previous !== undefined) return previous.measured;
-      const source: IAutoMovieViewSection.ISection = section([front, r, back, r], work);
+      const source: IAutoMovieViewSection.ISection = section(
+        [front, r, back, r],
+        work,
+      );
       const started: number = performance.now();
-      const measured: ReturnType<typeof AutoMovieViewSection.measure> = normalLength(source, m);
+      const measured: ReturnType<typeof AutoMovieViewSection.measure> =
+        normalLength(source, m);
       if (work !== undefined) {
         work.normalMetric += performance.now() - started;
         work.normalTrials++;
@@ -121,10 +126,15 @@ export namespace AutoMovieHumanHeadNeckCurves {
       );
     const front: number | null = AutoMovieIllinois.root(
       (candidate: number): number => normal(candidate).lengthMm - normalTarget,
-      frontLo, frontHi, 128 * Number.EPSILON * normalTarget, 64,
+      frontLo,
+      frontHi,
+      128 * Number.EPSILON * normalTarget,
+      64,
     );
     if (front === null || !Number.isFinite(front))
-      throw new Error("Neck normal conic has no selected finite anterior-reach root");
+      throw new Error(
+        "Neck normal conic has no selected finite anterior-reach root",
+      );
     const extents: [number, number, number, number] = [front, r, back, r];
     const normalMeasured: ReturnType<typeof AutoMovieViewSection.measure> =
       normal(front);
@@ -144,17 +154,9 @@ export namespace AutoMovieHumanHeadNeckCurves {
     );
     const x0: number = input.neck.x;
     if (
-      ![
-        r,
-        m,
-        h,
-        yc,
-        lower,
-        upper,
-        x0,
-        input.menton,
-        input.crown,
-      ].every(Number.isFinite) ||
+      ![r, m, h, yc, lower, upper, x0, input.menton, input.crown].every(
+        Number.isFinite,
+      ) ||
       !(
         r > 0 &&
         lower <= upper &&
@@ -173,20 +175,51 @@ export namespace AutoMovieHumanHeadNeckCurves {
       throw new Error("Neck normal conic computed residual failed admission");
 
     return {
-      input, template, bottom: first, band: [lower, upper],
-      planeOrigin: [x0, yc, 0], planeNormal: [m / h, 1 / h, 0],
-      lateral: r, extents, normalMeasured, slope: m,
+      input,
+      template,
+      bottom: first,
+      band: [lower, upper],
+      planeOrigin: [x0, yc, 0],
+      planeNormal: [m / h, 1 / h, 0],
+      lateral: r,
+      extents,
+      normalMeasured,
+      slope: m,
     };
   }
 
   /** Close the unresolved lower-radius family, preserving refusal without replacing the available normal original. */
-  export function close(definition: IAutoMovieHumanHeadNeckCurves.IDefinition, work?: IAutoMovieHumanHeadNeckCurves.IWork): IAutoMovieHumanHeadNeckCurves.IOutput {
-    const { input, template, extents, bottom: first, band: [lower, upper] }: IAutoMovieHumanHeadNeckCurves.IDefinition = definition;
-    if (![first, input.base.girth, input.base.suprasternaleHeight,
-      input.base.cervicaleHeight, input.base.sideNeckPointHeight].every(Number.isFinite) ||
-      !(input.base.girth > 0 && first < lower && input.base.suprasternaleHeight < lower &&
-        input.base.cervicaleHeight >= lower && Math.max(input.base.cervicaleHeight, input.base.sideNeckPointHeight) <= upper))
-      throw new Error("Neck lower family has no compatible finite band with its unchanged named base heights");
+  export function close(
+    definition: IAutoMovieHumanHeadNeckCurves.IDefinition,
+    work?: IAutoMovieHumanHeadNeckCurves.IWork,
+  ): IAutoMovieHumanHeadNeckCurves.IOutput {
+    const {
+      input,
+      template,
+      extents,
+      bottom: first,
+      band: [lower, upper],
+    }: IAutoMovieHumanHeadNeckCurves.IDefinition = definition;
+    if (
+      ![
+        first,
+        input.base.girth,
+        input.base.suprasternaleHeight,
+        input.base.cervicaleHeight,
+        input.base.sideNeckPointHeight,
+      ].every(Number.isFinite) ||
+      !(
+        input.base.girth > 0 &&
+        first < lower &&
+        input.base.suprasternaleHeight < lower &&
+        input.base.cervicaleHeight >= lower &&
+        Math.max(input.base.cervicaleHeight, input.base.sideNeckPointHeight) <=
+          upper
+      )
+    )
+      throw new Error(
+        "Neck lower family has no compatible finite band with its unchanged named base heights",
+      );
     const baseStarted: number = performance.now();
     const base: ReturnType<typeof AutoMovieHumanHeadNeckBase.create> =
       AutoMovieHumanHeadNeckBase.create(
@@ -201,7 +234,10 @@ export namespace AutoMovieHumanHeadNeckCurves {
     if (work !== undefined) work.baseSolve += performance.now() - baseStarted;
     return {
       ...base,
-      baseDatums: { cervicaleOrigin: input.base.cervicaleOrigin, priorCervicaleOrigin: input.base.priorCervicaleOrigin },
+      baseDatums: {
+        cervicaleOrigin: input.base.cervicaleOrigin,
+        priorCervicaleOrigin: input.base.priorCervicaleOrigin,
+      },
       bottom: first,
       band: definition.band,
       planeOrigin: definition.planeOrigin,

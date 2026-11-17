@@ -1,5 +1,7 @@
-import { type IAutoMovieViolationCollector, IAutoMovieSoftBodyDomain } from "@automovie/interface";
-
+import {
+  IAutoMovieSoftBodyDomain,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 /**
  * Report a structural rest edge whose squared displacement vanishes.

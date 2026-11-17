@@ -1,8 +1,5 @@
 import type { IAutoMovieRasterImage } from "@automovie/interface";
 
-
-
-
 /** SHA-256 round constants, FIPS 180-4 section 4.2.2. */
 const K: Uint32Array = Uint32Array.from([
   0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1,

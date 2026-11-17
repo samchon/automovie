@@ -1,9 +1,12 @@
-import type { IAutoMovieRecoveryCameraChartCreationOperation, IAutoMovieRecoveryCameraSceneAdmissionOperation, IAutoMovieRecoveryCameraMapBudget, IAutoMovieRecoveryCameraMapInput } from "@automovie/interface";
-
+import type {
+  IAutoMovieRecoveryCameraChartCreationOperation,
+  IAutoMovieRecoveryCameraMapBudget,
+  IAutoMovieRecoveryCameraMapInput,
+  IAutoMovieRecoveryCameraSceneAdmissionOperation,
+} from "@automovie/interface";
 
 import { admitRecoveryCameraMap } from "./admitRecoveryCameraMap";
 import { admitRecoveryCameraPair } from "./admitRecoveryCameraPair";
-
 
 /**
  * Admit a closed bounded calibrated image set before observing any raster.
@@ -89,12 +92,14 @@ export function admitRecoveryCameraScene(
     maxLocalRefinements: input.budget.maxLocalRefinements,
     maxRefinementIterations: input.budget.maxRefinementIterations,
     maxLinearEntries: input.budget.maxLinearEntries,
-    maxSingularSweeps: input.budget.maxSingularSweeps };
+    maxSingularSweeps: input.budget.maxSingularSweeps,
+  };
   const triad: IAutoMovieRecoveryCameraMapInput = {
     ...input,
     schema: "automovie-recovery-camera-map-input-v1",
     views: input.views.slice(0, 3),
-    budget: mapBudget };
+    budget: mapBudget,
+  };
   const charts: ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>[] =
     admitRecoveryCameraMap(triad);
   const ids: Set<string> = new Set(
@@ -135,7 +140,8 @@ export function admitRecoveryCameraScene(
         cohort: input.cohort,
         views: [input.views[0]!, input.views[index]!],
         policy: input.seedPolicy,
-        budget: { ...input.seedBudget, maxPixels: input.budget.maxPixels } }).charts[1],
+        budget: { ...input.seedBudget, maxPixels: input.budget.maxPixels },
+      }).charts[1],
     );
   return charts;
 }

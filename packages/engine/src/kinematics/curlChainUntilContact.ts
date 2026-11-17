@@ -1,6 +1,12 @@
-import type { IAutoMovieResolvedBone, IAutoMovieCurlChainUntilContact, IAutoMoviePhysicalProfile, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieCurlChainUntilContact,
+  IAutoMovieJointPose,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";

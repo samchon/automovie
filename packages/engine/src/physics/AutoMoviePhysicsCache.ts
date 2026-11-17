@@ -1,5 +1,9 @@
-import type { IAutoMovieAdvancePhysicalBalance, IAutoMoviePhysicsCache, IAutoMovieContactReceipt, IAutoMoviePhysicalControllerCheckpoint } from "@automovie/interface";
-
+import type {
+  IAutoMovieAdvancePhysicalBalance,
+  IAutoMovieContactReceipt,
+  IAutoMoviePhysicalControllerCheckpoint,
+  IAutoMoviePhysicsCache,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -20,7 +24,10 @@ export class AutoMoviePhysicsCache {
   /** Complete world snapshots addressed by step index. */
   public readonly checkpoints: Map<number, Uint8Array> = new Map();
   /** Contact episodes and compliance state are part of a restart checkpoint too. */
-  public readonly controllerCheckpoints: Map<number, IAutoMoviePhysicalControllerCheckpoint> = new Map();
+  public readonly controllerCheckpoints: Map<
+    number,
+    IAutoMoviePhysicalControllerCheckpoint
+  > = new Map();
   /** Causal native ownership changes; return explicitly uses position-based kinematic authority. */
   public readonly ownership: IAutoMoviePhysicsCache.IOwnership[] = [];
   /** Requested/allocated virtual support wrenches at cache instants. These are motor-demand diagnostics; only native contact receipts measure achieved floor force. */
@@ -31,8 +38,10 @@ export class AutoMoviePhysicsCache {
     Record<string, IAutoMovieAdvancePhysicalBalance.IState>
   > = new Map();
   /** Actual recovery requests, exposed to the authored support-plan consumer. */
-  public readonly recovery: Record<string, IAutoMovieAdvancePhysicalBalance.IState> =
-    Object.create(null);
+  public readonly recovery: Record<
+    string,
+    IAutoMovieAdvancePhysicalBalance.IState
+  > = Object.create(null);
   /** Contact episodes, in start-time order. */
   public readonly contacts: IAutoMovieContactReceipt[] = [];
 

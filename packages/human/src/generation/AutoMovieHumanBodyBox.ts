@@ -1,9 +1,8 @@
-import type { IAutoMovieLoftContract, IAutoMovieHumanBodyBox, IAutoMovieHumanBodyMeasures } from "@automovie/interface";
-
-
-
-
-
+import type {
+  IAutoMovieHumanBodyBox,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieLoftContract,
+} from "@automovie/interface";
 
 /**
  * The trunk's three boxes: at the chest, the natural waist and the hip, the
@@ -31,16 +30,32 @@ import type { IAutoMovieLoftContract, IAutoMovieHumanBodyBox, IAutoMovieHumanBod
  * hip breadth's level lies within a few centimetres of the buttock's.
  */
 export namespace AutoMovieHumanBodyBox {
-  
-
   /** The three levels, top down. */
-  export const LEVELS: readonly IAutoMovieHumanBodyBox.Level[] = ["chest", "waist", "hip"];
+  export const LEVELS: readonly IAutoMovieHumanBodyBox.Level[] = [
+    "chest",
+    "waist",
+    "hip",
+  ];
 
   /** Each level's measures, by their `IAutoMovieHumanBodyAnatomy` names. */
-  export const FIELDS: Readonly<Record<IAutoMovieHumanBodyBox.Level, IAutoMovieHumanBodyBox.IFields>> = {
-    chest: { breadth: "chestBreadth", depth: "chestDepth", girth: "chestCircumference" },
-    waist: { breadth: "waistBreadth", depth: "waistDepth", girth: "waistCircumference" },
-    hip: { breadth: "hipBreadth", depth: "buttockDepth", girth: "hipCircumference" },
+  export const FIELDS: Readonly<
+    Record<IAutoMovieHumanBodyBox.Level, IAutoMovieHumanBodyBox.IFields>
+  > = {
+    chest: {
+      breadth: "chestBreadth",
+      depth: "chestDepth",
+      girth: "chestCircumference",
+    },
+    waist: {
+      breadth: "waistBreadth",
+      depth: "waistDepth",
+      girth: "waistCircumference",
+    },
+    hip: {
+      breadth: "hipBreadth",
+      depth: "buttockDepth",
+      girth: "hipCircumference",
+    },
   };
 
   /**
@@ -50,10 +65,6 @@ export namespace AutoMovieHumanBodyBox {
    */
   export const ROUNDING: number = 1e-9;
 
-  
-
-  
-
   /**
    * The range of taut-tape perimeters of a convex section touching all four
    * sides of a box.
@@ -62,7 +73,10 @@ export namespace AutoMovieHumanBodyBox {
    * @param depth Box depth, mm.
    * @returns The rhombus's and the box's perimeters, mm.
    */
-  export function range(breadth: number, depth: number): IAutoMovieHumanBodyBox.RangeResult {
+  export function range(
+    breadth: number,
+    depth: number,
+  ): IAutoMovieHumanBodyBox.RangeResult {
     return [2 * Math.hypot(breadth, depth), 2 * (breadth + depth)];
   }
 
@@ -71,16 +85,29 @@ export namespace AutoMovieHumanBodyBox {
    *
    * @param measures A person's resolved measures.
    */
-  export function of(measures: IAutoMovieHumanBodyMeasures): IAutoMovieHumanBodyBox.IBox[] {
-    return LEVELS.map((level: IAutoMovieHumanBodyBox.Level): IAutoMovieHumanBodyBox.IBox => {
-      const fields: IAutoMovieHumanBodyBox.IFields = FIELDS[level];
-      const breadth: number = measures[fields.breadth];
-      const depth: number = measures[fields.depth];
-      const girth: number = measures[fields.girth];
-      const [rhombus, box] = range(breadth, depth);
-      const tape: number = Math.min(box, Math.max(rhombus, girth));
-      return { level, breadth, depth, girth, rhombus, box, tape, fullness: (tape - rhombus) / (box - rhombus) };
-    });
+  export function of(
+    measures: IAutoMovieHumanBodyMeasures,
+  ): IAutoMovieHumanBodyBox.IBox[] {
+    return LEVELS.map(
+      (level: IAutoMovieHumanBodyBox.Level): IAutoMovieHumanBodyBox.IBox => {
+        const fields: IAutoMovieHumanBodyBox.IFields = FIELDS[level];
+        const breadth: number = measures[fields.breadth];
+        const depth: number = measures[fields.depth];
+        const girth: number = measures[fields.girth];
+        const [rhombus, box] = range(breadth, depth);
+        const tape: number = Math.min(box, Math.max(rhombus, girth));
+        return {
+          level,
+          breadth,
+          depth,
+          girth,
+          rhombus,
+          box,
+          tape,
+          fullness: (tape - rhombus) / (box - rhombus),
+        };
+      },
+    );
   }
 
   /**
@@ -94,11 +121,18 @@ export namespace AutoMovieHumanBodyBox {
    * @param measures A person's resolved measures.
    * @returns The contradictions, producer `human.inputs`, level 1.
    */
-  export function diagnose(measures: IAutoMovieHumanBodyMeasures): IAutoMovieLoftContract.IDiagnostic[] {
+  export function diagnose(
+    measures: IAutoMovieHumanBodyMeasures,
+  ): IAutoMovieLoftContract.IDiagnostic[] {
     return of(measures)
-      .filter((b: IAutoMovieHumanBodyBox.IBox): boolean => !(b.girth >= b.rhombus - ROUNDING && b.girth <= b.box + ROUNDING))
+      .filter(
+        (b: IAutoMovieHumanBodyBox.IBox): boolean =>
+          !(b.girth >= b.rhombus - ROUNDING && b.girth <= b.box + ROUNDING),
+      )
       .map(
-        (b: IAutoMovieHumanBodyBox.IBox): IAutoMovieLoftContract.IDiagnostic => ({
+        (
+          b: IAutoMovieHumanBodyBox.IBox,
+        ): IAutoMovieLoftContract.IDiagnostic => ({
           producer: "human.inputs",
           level: 1,
           contract: `the ${b.level} girth lies inside its breadth and depth's box`,
@@ -147,15 +181,21 @@ export namespace AutoMovieHumanBodyBox {
     const d: number = supplied.depth ?? depth(g);
     if (supplied.girth === undefined) {
       const [rhombus, box] = range(w, d);
-      return { breadth: w, depth: d, girth: Math.min(box, Math.max(rhombus, g)) };
+      return {
+        breadth: w,
+        depth: d,
+        girth: Math.min(box, Math.max(rhombus, g)),
+      };
     }
     if (supplied.breadth === undefined && supplied.depth === undefined) {
       const [rhombus, box] = range(w, d);
       const s: number = Math.min(g / rhombus, Math.max(g / box, 1));
       return { breadth: s * w, depth: s * d, girth: g };
     }
-    if (supplied.breadth === undefined) return { breadth: within(w, g, d), depth: d, girth: g };
-    if (supplied.depth === undefined) return { breadth: w, depth: within(d, g, w), girth: g };
+    if (supplied.breadth === undefined)
+      return { breadth: within(w, g, d), depth: d, girth: g };
+    if (supplied.depth === undefined)
+      return { breadth: w, depth: within(d, g, w), girth: g };
     return { breadth: w, depth: d, girth: g };
   }
 
@@ -171,6 +211,9 @@ export namespace AutoMovieHumanBodyBox {
   function within(value: number, girth: number, other: number): number {
     const half: number = girth / 2;
     if (other > half) return value;
-    return Math.min(Math.sqrt(half * half - other * other), Math.max(half - other, value));
+    return Math.min(
+      Math.sqrt(half * half - other * other),
+      Math.max(half - other, value),
+    );
   }
 }

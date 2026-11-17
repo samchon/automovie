@@ -1,6 +1,8 @@
-import type { IAutoMovieBone, IAutoMovieMotionHumanBody } from "@automovie/interface";
-
 import { getConstraint } from "@automovie/engine";
+import type {
+  IAutoMovieBone,
+  IAutoMovieMotionHumanBody,
+} from "@automovie/interface";
 
 /**
  * How far a torque through the arm bends a trunk that resists it (#3439):
@@ -55,7 +57,10 @@ export namespace HumanForceTrunk {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The range is the engine's `getConstraint` on the body's rig.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function range(body: IAutoMovieMotionHumanBody, side: "left" | "right"): number {
+  export function range(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+  ): number {
     let sum: number = 0;
     for (const bone of ["spine", "chest"] as const) {
       const limits: ReturnType<typeof getConstraint> = getConstraint(
@@ -64,11 +69,12 @@ export namespace HumanForceTrunk {
           (b: IAutoMovieBone): boolean => b.bone === bone,
         )?.constraint ?? null,
       );
-      const abduction: NonNullable<
-        ReturnType<typeof getConstraint>
-      >["abduction"] | null = limits?.abduction ?? null;
+      const abduction:
+        | NonNullable<ReturnType<typeof getConstraint>>["abduction"]
+        | null = limits?.abduction ?? null;
       if (abduction === null || abduction === undefined) continue;
-      sum += side === "left" ? Math.abs(abduction.min) : Math.abs(abduction.max);
+      sum +=
+        side === "left" ? Math.abs(abduction.min) : Math.abs(abduction.max);
     }
     return sum;
   }
@@ -94,8 +100,7 @@ export namespace HumanForceTrunk {
     let left: number = torque;
     for (let q: number = 0; q < LATERAL.length; q++) {
       const holds: number = LATERAL[q]! * quarter;
-      if (left <= holds)
-        return (q + left / holds) / LATERAL.length;
+      if (left <= holds) return (q + left / holds) / LATERAL.length;
       left -= holds;
     }
     return 1;

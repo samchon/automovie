@@ -1,5 +1,3 @@
-
-
 /**
  * Limit positions and face-varying normal indices for an admitted subdivision level.
  *
@@ -35,7 +33,7 @@ export namespace IAutoMovieLimitSubdivisionLevel {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller supplies admitted or refined topology; semi-sharpness is exhausted before limit masks, and undefined or nonfinite limit normals refuse.
    * @evidence contracts/development/common.md#meaningful-documentation Limit positions and face-varying normal indices for an admitted subdivision level. Positions retain local metres; normal triples are unitless and cornerNormals indexes the normal population rather than vertices.
    */
-  export type IResult = { 
+  export type IResult = {
     /**
      * New packed xyz limit positions in local metres, one triple per input topology vertex in unchanged vertex order.
      */
@@ -49,5 +47,6 @@ export namespace IAutoMovieLimitSubdivisionLevel {
     /**
      * One zero-based normal index per input face corner, aligned with topology.faceVertices; crease-separated corners can select different normals at one vertex.
      */
-    cornerNormals: number[] };
+    cornerNormals: number[];
+  };
 }

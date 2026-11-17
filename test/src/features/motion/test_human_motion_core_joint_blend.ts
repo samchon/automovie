@@ -1,4 +1,3 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieBone, IAutoMovieJointAxes, IAutoMovieQuaternion } from "@automovie/interface";
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
@@ -8,7 +7,12 @@ import {
   jointToQuaternion,
   skeletonJointAxes,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieBone,
+  IAutoMovieJointAxes,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 import { blendHumanJoint } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

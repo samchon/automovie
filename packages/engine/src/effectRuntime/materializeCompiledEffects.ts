@@ -1,5 +1,10 @@
-import { type IAutoMovieMaterializeCompiledEffects, IAutoMovieCompiledEffect, IAutoMovieEffectRecipe, IAutoMovieShotEffectCue, IAutoMovieWorldEffectZone } from "@automovie/interface";
-
+import {
+  IAutoMovieCompiledEffect,
+  IAutoMovieEffectRecipe,
+  type IAutoMovieMaterializeCompiledEffects,
+  IAutoMovieShotEffectCue,
+  IAutoMovieWorldEffectZone,
+} from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";

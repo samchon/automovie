@@ -1,7 +1,7 @@
 import type { IAutoMovieBuiltEnvironment } from "../architecture/IAutoMovieBuiltEnvironment";
+import type { IAutoMovieStageSetPiece } from "../authoring/IAutoMovieStageSetPiece";
 import type { IAutoMoviePropRelationTarget } from "../harness/IAutoMoviePropRelationTarget";
 import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
-import type { IAutoMovieStageSetPiece } from "../authoring/IAutoMovieStageSetPiece";
 
 /**
  * Borrowed placement registries used to resolve a relation's rest-world anchor.

@@ -1,6 +1,12 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanAuditReturn, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditReturn,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Whether a body is back where it was: how far the joint centres of one
@@ -26,7 +32,6 @@ import { Quaternion } from "@automovie/engine";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditReturn {
-
   /**
    * Read how far a person at one instant is from themselves at another.
    *

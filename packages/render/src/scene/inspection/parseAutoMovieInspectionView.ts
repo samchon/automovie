@@ -1,9 +1,7 @@
-import type { IAutoMovieInspectionView, IAutoMovieVector3 } from "@automovie/interface";
-
-
-
-
-
+import type {
+  IAutoMovieInspectionView,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /** The accepted forms, quoted in every refusal. */
 const FORMS: string =

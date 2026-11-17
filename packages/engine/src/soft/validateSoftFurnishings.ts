@@ -1,5 +1,13 @@
-import { type IAutoMovieValidateSoftFurnishings, type IAutoMovieViolationCollector, IAutoMovieBuiltElement, IAutoMovieBuiltSpace, IAutoMovieSoftBodyDomain, IAutoMovieSoftFurnishing, IAutoMovieSoftNamedState, IAutoMovieValidation } from "@automovie/interface";
-
+import {
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltSpace,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftFurnishing,
+  IAutoMovieSoftNamedState,
+  type IAutoMovieValidateSoftFurnishings,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
@@ -33,7 +41,11 @@ const FURNISHING_MODES: Set<string> = new Set(["rest", "simulated"]);
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Maps and sets share identity resolution within this pass and held particles reuse the canonical rest owner; no configuration cache is retained across changed domain/state/room records.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh maps, reference sets and held buffers leave scope when the pass ends; the returned violation list alone retains offending inputs/points, without simulation history or viewer handles.
  */
-export const validateSoftFurnishings: (props: IAutoMovieValidateSoftFurnishings.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateSoftFurnishings.IProps): IAutoMovieValidation => {
+export const validateSoftFurnishings: (
+  props: IAutoMovieValidateSoftFurnishings.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateSoftFurnishings.IProps,
+): IAutoMovieValidation => {
   const { environment, furnishings, domains }: typeof props = props;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";

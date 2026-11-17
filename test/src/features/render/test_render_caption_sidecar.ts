@@ -1,5 +1,8 @@
-import { type IAutoMovieCaptionEntry, type IAutoMovieCaptionSidecar, IAutoMovieScript } from "@automovie/interface";
-
+import {
+  type IAutoMovieCaptionEntry,
+  type IAutoMovieCaptionSidecar,
+  IAutoMovieScript,
+} from "@automovie/interface";
 import { planCaptionSidecar, renderCaptionSidecar } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 

@@ -1,6 +1,11 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieComposition, IAutoMovieIntent, IAutoMovieMotionHumanChainCore } from "@automovie/interface";
-
 import { AutoMovieChain, AutoMovieComposition } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieComposition,
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanChainCore,
+} from "@automovie/interface";
+
 import { HumanHitTrack } from "../perform/HumanHitTrack";
 
 /**
@@ -263,8 +268,11 @@ export class HumanChainCore extends AutoMovieChain {
    * @returns The chain.
    */
   protected override derive(node: IAutoMovieComposition): this {
-    const make: new (subject: string, node: IAutoMovieComposition) => this = this
-      .constructor as new (subject: string, node: IAutoMovieComposition) => this;
+    const make: new (subject: string, node: IAutoMovieComposition) => this =
+      this.constructor as new (
+        subject: string,
+        node: IAutoMovieComposition,
+      ) => this;
     return new make(this.subject, node);
   }
 }

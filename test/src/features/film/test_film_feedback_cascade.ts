@@ -1,6 +1,13 @@
-import { type IAutoMovieSupportResult, IAutoMovieConstraintViolation, IAutoMovieScriptNode } from "@automovie/interface";
-import { detectSupportToppling, locateOnBeat, scriptAncestors } from "@automovie/engine";
-
+import {
+  detectSupportToppling,
+  locateOnBeat,
+  scriptAncestors,
+} from "@automovie/engine";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieScriptNode,
+  type IAutoMovieSupportResult,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createScriptTree } from "../internal/createScriptTree";

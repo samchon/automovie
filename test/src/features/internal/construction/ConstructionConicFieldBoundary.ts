@@ -1,5 +1,18 @@
-import type { IAutoMovieConicArc, IAutoMovieConicArcField, IAutoMovieConicFieldJet, IAutoMovieConicHermite, IAutoMovieViewConic, IAutoMovieViewSectionField } from "@automovie/interface";
-import { AutoMovieConicArcField, AutoMovieConicFieldJet, AutoMovieConicHermite, AutoMovieConicHermiteField, AutoMovieViewSectionField } from "@automovie/engine";
+import {
+  AutoMovieConicArcField,
+  AutoMovieConicFieldJet,
+  AutoMovieConicHermite,
+  AutoMovieConicHermiteField,
+  AutoMovieViewSectionField,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConicArc,
+  IAutoMovieConicArcField,
+  IAutoMovieConicFieldJet,
+  IAutoMovieConicHermite,
+  IAutoMovieViewConic,
+  IAutoMovieViewSectionField,
+} from "@automovie/interface";
 
 /** Actual regular-station scalar tuple. */
 type Scalar = IAutoMovieViewSectionField.IStationJet;

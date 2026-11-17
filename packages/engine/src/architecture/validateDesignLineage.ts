@@ -1,5 +1,16 @@
-import { type IAutoMovieValidateDesignLineage, type IAutoMovieViolationCollector, IAutoMovieDesignChange, IAutoMovieDesignDecision, IAutoMovieDesignLifecycle, IAutoMovieDesignLineage, IAutoMovieDesignPhase, IAutoMovieDesignRevision, IAutoMovieDesignSubject, IAutoMovieDesignVariant, IAutoMovieValidation } from "@automovie/interface";
-
+import {
+  IAutoMovieDesignChange,
+  IAutoMovieDesignDecision,
+  IAutoMovieDesignLifecycle,
+  IAutoMovieDesignLineage,
+  IAutoMovieDesignPhase,
+  IAutoMovieDesignRevision,
+  IAutoMovieDesignSubject,
+  IAutoMovieDesignVariant,
+  type IAutoMovieValidateDesignLineage,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { appendGraphCycles } from "../validation/appendGraphCycles";
@@ -55,7 +66,11 @@ import { validateDesignLineageDerived } from "./validateDesignLineageDerived";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A validation of one record per call; every lineage query validates its input once before answering, and nothing here is shared across those calls because the record is the caller's mutable value.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The id sets, the phase and variant indexes and each prerequisite walk are local and released on return, each bounded by its record count; the returned validation holds the findings.
  */
-export const validateDesignLineage: (props: IAutoMovieValidateDesignLineage.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateDesignLineage.IProps): IAutoMovieValidation => {
+export const validateDesignLineage: (
+  props: IAutoMovieValidateDesignLineage.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateDesignLineage.IProps,
+): IAutoMovieValidation => {
   const lineage: IAutoMovieDesignLineage = props.lineage;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";

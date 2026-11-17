@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanInterruptRow } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanInterruptRow,
+} from "@automovie/interface";
 
 /** The cut a standing action makes into a walk: only once both feet are down. */
 const SETTLED: readonly IAutoMovieMotionHumanInterruptRow[] = [

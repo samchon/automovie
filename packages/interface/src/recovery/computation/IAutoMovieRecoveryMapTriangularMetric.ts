@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryMapMetric, IAutoMovieSimplexAtom } from "../../index";
+import type {
+  IAutoMovieRecoveryMapMetric,
+  IAutoMovieSimplexAtom,
+} from "../../index";
 
 /** One fixed arrowhead factor with an explicit pre-return whitening preflight.
  *
@@ -8,8 +11,7 @@ import type { IAutoMovieRecoveryMapMetric, IAutoMovieSimplexAtom } from "../../i
  * @evidence contracts/development/common.md#meaningful-documentation Nullable preflight is finite arithmetic support for one row, not a universal future-vector certificate, independent data rank or intended-Hessian accuracy claim.
  */
 export interface IAutoMovieRecoveryMapTriangularMetric extends IAutoMovieRecoveryMapMetric {
- 
- /** Preflight one fixed inverse-transpose row before choosing the model metric.
+  /** Preflight one fixed inverse-transpose row before choosing the model metric.
    * @evidence contracts/development/implementation.md#principled-implementation Ordered finite original coefficients are scaled by the current original D and solved through the same point/camera transpose factors; only nonrepresentable arithmetic returns null.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Formation owns nullable support before model return; ordinary inverse/transpose actions keep their throwing contract afterward.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Malformed row ownership throws and no partial row, zero direction or late factor substitution becomes support.

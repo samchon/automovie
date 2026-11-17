@@ -1,6 +1,28 @@
-import { type IAutoMovieForgedCast, type IAutoMoviePerformedShot, type IAutoMovieResolvedBone, type IAutoMovieStagedSet, IAutoMovieClip, IAutoMovieModel, type IAutoMovieNode, type IAutoMovieSceneNode, type IAutoMovieScript, type IAutoMovieSkeleton, type IAutoMovieTrack, type IAutoMovieTransform } from "@automovie/interface";
-import { Matrix4, forgeCast, motionToClip, performShot, resolveFrame, resolvePose, sampleMotion, sceneToNodes, stageScene } from "@automovie/engine";
-
+import {
+  Matrix4,
+  forgeCast,
+  motionToClip,
+  performShot,
+  resolveFrame,
+  resolvePose,
+  sampleMotion,
+  sceneToNodes,
+  stageScene,
+} from "@automovie/engine";
+import {
+  IAutoMovieClip,
+  type IAutoMovieForgedCast,
+  IAutoMovieModel,
+  type IAutoMovieNode,
+  type IAutoMoviePerformedShot,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieSceneNode,
+  type IAutoMovieScript,
+  type IAutoMovieSkeleton,
+  type IAutoMovieStagedSet,
+  type IAutoMovieTrack,
+  type IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { bakeTimes } from "../internal/bakeTimes";

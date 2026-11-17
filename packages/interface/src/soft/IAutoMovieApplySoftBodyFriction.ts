@@ -1,5 +1,3 @@
-
-
 /** Working particle data for a position-based contact-friction correction. */
 export namespace IAutoMovieApplySoftBodyFriction {
   /**
@@ -7,7 +5,7 @@ export namespace IAutoMovieApplySoftBodyFriction {
    * place: the position-based friction of Macklin, Müller, Chentanez and Kim
    * 2014 ("Unified particle physics for real-time applications", ACM TOG
    * 33(4):153, section 6.1), with one coefficient for sticking and sliding.
-   * 
+   *
    * The collider's push (the predicted position after contact projection less
    * the one before it) gives the contact normal and the penetration depth d.
    * The particle's travel over the step (its predicted position less its

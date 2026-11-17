@@ -1,5 +1,8 @@
-import type { IAutoMovieSupportLoftPlan64, IAutoMovieEmitSupportLoft64, IAutoMovieMesh } from "@automovie/interface";
-
+import type {
+  IAutoMovieEmitSupportLoft64,
+  IAutoMovieMesh,
+  IAutoMovieSupportLoftPlan64,
+} from "@automovie/interface";
 
 import { AutoMovieBernsteinAlgebra64 as B } from "./curve/AutoMovieBernsteinAlgebra64";
 
@@ -19,7 +22,9 @@ import { AutoMovieBernsteinAlgebra64 as B } from "./curve/AutoMovieBernsteinAlge
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The planner's fixed pair determinant serves every point roundoff bound. One canonical physical position is stored per station/pair-equivalence key and reused across adjoining faces and spans; each incident curve's own evaluation still checks its disagreement with that position. The same evaluated rows supply construction without another fit or mesh scan. Each triangle reads its three integer physical identities once and compares them pairwise instead of allocating an identity array and Set.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Mesh, physical source table, construction and diagnostics transfer to the caller; local point/union maps expire after this synchronous operation, without GPU, I/O or retained worker.
  */
-export function emitAutoMovieSupportLoft64(input: IAutoMovieEmitSupportLoft64.IInput): IAutoMovieEmitSupportLoft64.IResult {
+export function emitAutoMovieSupportLoft64(
+  input: IAutoMovieEmitSupportLoft64.IInput,
+): IAutoMovieEmitSupportLoft64.IResult {
   const plan: IAutoMovieSupportLoftPlan64 = input.plan;
   const mesh: IAutoMovieMesh = {
     positions: [],

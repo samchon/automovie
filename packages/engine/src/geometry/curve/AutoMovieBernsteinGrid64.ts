@@ -1,4 +1,9 @@
-import type { AutoMovieBernsteinGrid64 as BernsteinGrid, AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple } from "@automovie/interface";
+import type {
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieVector3Tuple,
+  AutoMovieBernsteinGrid64 as BernsteinGrid,
+} from "@automovie/interface";
+
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
 
 /**
@@ -53,11 +58,16 @@ export namespace AutoMovieBernsteinGrid64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each returned cross coefficient is evaluated once from its corresponding grid column.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the resulting new polynomial net escapes the temporary columns.
    */
-  export function gridValue(g: BernsteinGrid, t: number): AutoMovieBernsteinPolynomial64 {
+  export function gridValue(
+    g: BernsteinGrid,
+    t: number,
+  ): AutoMovieBernsteinPolynomial64 {
     return g[0]!.map(
       (_: AutoMovieVector3Tuple, i: number): AutoMovieVector3Tuple =>
         B.value(
-          g.map((p: AutoMovieBernsteinPolynomial64): AutoMovieVector3Tuple => p[i]!),
+          g.map(
+            (p: AutoMovieBernsteinPolynomial64): AutoMovieVector3Tuple => p[i]!,
+          ),
           t,
         ),
     );
@@ -73,11 +83,17 @@ export namespace AutoMovieBernsteinGrid64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Differentiated rows remain reusable coefficient nets for later grid evaluations.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The new grid retains no source-row array references.
    */
-  export function gridTangent(g: BernsteinGrid, scale: number = 1): BernsteinGrid {
+  export function gridTangent(
+    g: BernsteinGrid,
+    scale: number = 1,
+  ): BernsteinGrid {
     return g
       .slice(1)
       .map(
-        (p: AutoMovieBernsteinPolynomial64, i: number): AutoMovieBernsteinPolynomial64 =>
+        (
+          p: AutoMovieBernsteinPolynomial64,
+          i: number,
+        ): AutoMovieBernsteinPolynomial64 =>
           B.scale(B.add(p, g[i]!, -1), (g.length - 1) * scale),
       );
   }

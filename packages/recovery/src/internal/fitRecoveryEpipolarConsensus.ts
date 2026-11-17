@@ -1,8 +1,12 @@
-import type { IAutoMovieRecoveryCameraResidualsScoreOperation, IAutoMovieRecoveryEpipolarConsensusFittingOperation, IAutoMovieRecoveryEpipolarErrorsMeasurementOperation, IAutoMovieRecoveryEpipolarMatrixFittingOperation, IAutoMovieRecoveryEpipolarModelRefinementOperation } from "@automovie/interface";
-
+import type {
+  IAutoMovieRecoveryCameraResidualsScoreOperation,
+  IAutoMovieRecoveryEpipolarConsensusFittingOperation,
+  IAutoMovieRecoveryEpipolarErrorsMeasurementOperation,
+  IAutoMovieRecoveryEpipolarMatrixFittingOperation,
+  IAutoMovieRecoveryEpipolarModelRefinementOperation,
+} from "@automovie/interface";
 
 import { calibrateRecoveryEpipolarMatrix } from "./calibrateRecoveryEpipolarMatrix";
-
 import { fitRecoveryEpipolarMatrix } from "./fitRecoveryEpipolarMatrix";
 import { isRecoveryCameraNumericalRefusal } from "./isRecoveryCameraNumericalRefusal";
 import { measureRecoveryEpipolarErrors } from "./measureRecoveryEpipolarErrors";
@@ -40,10 +44,12 @@ export function fitRecoveryEpipolarConsensus(
   if (firstPoints.length !== secondPoints.length || firstPoints.length < 8)
     throw new Error("camera-design: at least eight tentative pairs required");
   let matrix: number[] | null = null;
-  let score: ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation> = {
-    indices: [],
-    medianPx: null,
-    p90Px: null };
+  let score: ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation> =
+    {
+      indices: [],
+      medianPx: null,
+      p90Px: null,
+    };
   let trials: number = 0,
     numericalRefusals: number = 0,
     localRefinements: number = 0;
@@ -204,5 +210,6 @@ export function fitRecoveryEpipolarConsensus(
     localRefinements,
     localRefinementRefusals,
     finalReestimations,
-    finalRefinement };
+    finalRefinement,
+  };
 }

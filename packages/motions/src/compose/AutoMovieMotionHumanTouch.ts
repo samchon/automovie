@@ -1,6 +1,26 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanTouch, IAutoMovieMotionHumanTouchForm, IAutoMovieMotionTarget, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  minimumJerk,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchForm,
+  IAutoMovieMotionTarget,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { Quaternion, Vector3, minimumJerk, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
@@ -42,7 +62,6 @@ import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpr
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the arm carry, the hand shapes, the region frames and the target resolver; no body or action is named.
  */
 export namespace AutoMovieMotionHumanTouch {
-
   /**
    * A region of a target as a frame: a person's region or a prop's point
    * through the context's aim, a trunk or head region of the performer on
@@ -114,7 +133,9 @@ export namespace AutoMovieMotionHumanTouch {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanArm.carried`, `AutoMovieMotionHumanHand.form` and the effector's goal.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over their props and one hint.
    */
-  export function touch(props: IAutoMovieMotionHumanTouch.ITouch): IAutoMovieMotionHumanPrimitive[] {
+  export function touch(
+    props: IAutoMovieMotionHumanTouch.ITouch,
+  ): IAutoMovieMotionHumanPrimitive[] {
     const { body, clock, side } = props;
     const form: IAutoMovieMotionHumanTouchForm.IForm =
       AutoMovieMotionHumanTouchForm.FORMS[props.kind];
@@ -239,7 +260,10 @@ export namespace AutoMovieMotionHumanTouch {
    */
   export function goal(
     props: IAutoMovieMotionHumanTouch.ITouch,
-  ): (posture: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanPosture.IGoal {
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+  ) => IAutoMovieMotionHumanPosture.IGoal {
     HumanBound.whole("count", props.count);
     const { body, clock, side } = props;
     const form: IAutoMovieMotionHumanTouchForm.IForm =
@@ -255,7 +279,10 @@ export namespace AutoMovieMotionHumanTouch {
     const hint: IAutoMovieVector3 = HumanFrame.local(held, props.bend);
     const from: IAutoMovieVector3 | undefined =
       props.from === undefined ? undefined : HumanFrame.local(held, props.from);
-    return (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture.IGoal => {
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture.IGoal => {
       const place = props.region(posture, seconds);
       const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
       const along: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
@@ -291,26 +318,27 @@ export namespace AutoMovieMotionHumanTouch {
         origin: posture.root,
         yaw: posture.yaw,
       };
-      const laid: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanTouchEffector.goal(
-        body,
-        side,
-        props.effector,
-        at,
-        ...AutoMovieMotionHumanTouchLaid.lie(
+      const laid: IAutoMovieMotionHumanPosture.IGoal =
+        AutoMovieMotionHumanTouchEffector.goal(
           body,
-          posture,
           side,
-          props.lay,
-          place.point,
-          normal,
-          along,
-          props.facing,
-          props.elbow,
-          from === undefined ? undefined : HumanFrame.point(frame, from),
-          lean,
-        ),
-        HumanFrame.point(frame, hint),
-      );
+          props.effector,
+          at,
+          ...AutoMovieMotionHumanTouchLaid.lie(
+            body,
+            posture,
+            side,
+            props.lay,
+            place.point,
+            normal,
+            along,
+            props.facing,
+            props.elbow,
+            from === undefined ? undefined : HumanFrame.point(frame, from),
+            lean,
+          ),
+          HumanFrame.point(frame, hint),
+        );
 
       // A held rotation turns with the heading and leans with the vessel.
       const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(

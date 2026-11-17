@@ -1,7 +1,12 @@
-import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieHumanCanonicalBody, IAutoMovieJointPose, IAutoMoviePose } from "@automovie/interface";
-
 import { Transform } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieHumanCanonicalBody,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
@@ -102,7 +107,10 @@ export function galleryCases(): IMotionCaptureCase[] {
           body: b,
           pose: (): IAutoMoviePose => ({
             ...zero(b, {}),
-            root: Transform.of({ x: (i - 1) * 0.8, y: 0, z: 0 }, { x: 0, y: 0, z: 0, w: 1 }),
+            root: Transform.of(
+              { x: (i - 1) * 0.8, y: 0, z: 0 },
+              { x: 0, y: 0, z: 0, w: 1 },
+            ),
           }),
         };
       },

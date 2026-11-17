@@ -18,24 +18,25 @@ export namespace IAutoMovieEvaluateStorySync {
    */
   export type IProps = {
     /** Addressed shot-and-event pairs in their declared order. */
-    events: ReadonlyArray<{ 
-    /**
-     * Shot identity used verbatim for both callbacks; repeated addresses are measured again in their declared positions.
-     */
-    shot: string; 
-    /**
-     * Event identity within the addressed shot, passed to realized without rewriting.
-     */
-    event: string }>;
-  
+    events: ReadonlyArray<{
+      /**
+       * Shot identity used verbatim for both callbacks; repeated addresses are measured again in their declared positions.
+       */
+      shot: string;
+      /**
+       * Event identity within the addressed shot, passed to realized without rewriting.
+       */
+      event: string;
+    }>;
+
     /** Finite non-negative tolerance in story seconds; the caller validates it. */
     toleranceSeconds: number;
-  
+
     /**
      * Synchronous story-clock pin lookup, called once per address after realized even when the realization is unavailable. Null leaves the point unresolved; exceptions propagate and the pin is borrowed only during the call.
      */
     pin: (shot: string) => IAutoMovieShotStoryTime | null;
-  
+
     /**
      * Synchronous event-time lookup in shot-local seconds, called once per listed address. Null or a nonfinite answer leaves the point unresolved; finite negative values are not rejected here. Exceptions propagate.
      */

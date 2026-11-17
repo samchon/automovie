@@ -1,10 +1,10 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieProjectile } from "../../../physics/IAutoMovieProjectile";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 import type { IAutoMovieMotionHumanPropOutcome } from "./IAutoMovieMotionHumanPropOutcome";
 import type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegment";
-import type { IAutoMovieProjectile } from "../../../physics/IAutoMovieProjectile";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * Props that fly: every launch an action publishes (`IAutoMovieMotionHumanActionPlan.launches`)

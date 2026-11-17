@@ -1,6 +1,16 @@
-import { type IAutoMovieLaunchResult, AutoMovieInteractionEventKind, IAutoMovieInteractionEvent, IAutoMovieLaunchAction, IAutoMovieReactAction, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieGravity, compileLaunch, projectileAt } from "@automovie/engine";
-
+import {
+  AutoMovieGravity,
+  compileLaunch,
+  projectileAt,
+} from "@automovie/engine";
+import {
+  AutoMovieInteractionEventKind,
+  IAutoMovieInteractionEvent,
+  IAutoMovieLaunchAction,
+  type IAutoMovieLaunchResult,
+  IAutoMovieReactAction,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {

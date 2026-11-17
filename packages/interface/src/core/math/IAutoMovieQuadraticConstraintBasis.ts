@@ -1,5 +1,3 @@
-
-
 /**
  * An orthogonal factorization of one working set of affine equations
  * `aᵢ · x = boundᵢ`, as `createAutoMovieQuadraticConstraintBasis` returns it.

@@ -1,4 +1,7 @@
-import type { IAutoMovieRasterComparison, IAutoMovieRasterImage } from "@automovie/interface";
+import type {
+  IAutoMovieRasterComparison,
+  IAutoMovieRasterImage,
+} from "@automovie/interface";
 import { compareAutoMovieRasters } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 

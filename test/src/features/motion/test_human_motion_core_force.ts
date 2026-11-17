@@ -1,6 +1,9 @@
-import type { IAutoMovieMotionHumanForce, IAutoMovieInteractionEvent, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
-
+import type {
+  IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanForce,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanForce } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -152,7 +155,12 @@ export function test_human_motion_core_force(): void {
     constant,
     varying,
   ];
-  const inside: IAutoMovieMotionHumanForce.IForce[] = HumanForce.within(forces, "b", 1, 2);
+  const inside: IAutoMovieMotionHumanForce.IForce[] = HumanForce.within(
+    forces,
+    "b",
+    1,
+    2,
+  );
   if (inside.length !== 3)
     findings.push(
       `within [1, 2] for b keeps ${inside.length} of the 3 that touch it`,

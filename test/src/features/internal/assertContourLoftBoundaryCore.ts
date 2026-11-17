@@ -1,5 +1,15 @@
-import type { AutoMovieVector3Tuple, IAutoMovieContourLoft64, IAutoMovieContourLoftCurves64, IAutoMovieCurve64 } from "@automovie/interface";
-import { AutoMovieContourLoftCurves64 as Curves, AutoMovieBernsteinSubdivision64 as S, splitAutoMovieContourLeaf64, tessellateAutoMovieContourLoft64 } from "@automovie/engine";
+import {
+  AutoMovieContourLoftCurves64 as Curves,
+  AutoMovieBernsteinSubdivision64 as S,
+  splitAutoMovieContourLeaf64,
+  tessellateAutoMovieContourLoft64,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieContourLoft64,
+  IAutoMovieContourLoftCurves64,
+  IAutoMovieCurve64,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
@@ -29,7 +39,12 @@ export function assertContourLoftBoundaryCore(): {
     (point: O.V): O.V => [...point],
   );
 
-  const leaf: IAutoMovieContourLoftCurves64.Leaf = { net: coefficients, start: 0, end: 1, depth: 0 };
+  const leaf: IAutoMovieContourLoftCurves64.Leaf = {
+    net: coefficients,
+    start: 0,
+    end: 1,
+    depth: 0,
+  };
 
   const restriction: ReturnType<typeof splitAutoMovieContourLeaf64> =
     splitAutoMovieContourLeaf64(leaf, 0.25, 0.25);
@@ -59,38 +74,40 @@ export function assertContourLoftBoundaryCore(): {
   TestValidator.predicate(
     "new child chords are repartitioned under the unchanged bound",
     childLeaves.length > 2 &&
-      childLeaves.every((child: IAutoMovieContourLoftCurves64.Leaf): boolean => {
-        const net: O.V[] = Curves.controls(child),
-          first: O.V = net[0],
-          last: O.V = net[net.length - 1];
-        const axis: O.V = [
-          last[0] - first[0],
-          last[1] - first[1],
-          last[2] - first[2],
-        ];
-        const squared: number = axis.reduce(
-          (sum: number, x: number): number => sum + x * x,
-          0,
-        );
-        return net.every((point: O.V): boolean => {
-          const projection: number =
-            squared === 0
-              ? 0
-              : point.reduce(
-                  (sum: number, value: number, k: number): number =>
-                    sum + (value - first[k]) * axis[k],
-                  0,
-                ) / squared;
-          const t: number = Math.min(1, Math.max(0, projection));
-          const distance: number = Math.hypot(
-            ...point.map(
-              (value: number, k: number): number =>
-                value - first[k] - t * axis[k],
-            ),
+      childLeaves.every(
+        (child: IAutoMovieContourLoftCurves64.Leaf): boolean => {
+          const net: O.V[] = Curves.controls(child),
+            first: O.V = net[0],
+            last: O.V = net[net.length - 1];
+          const axis: O.V = [
+            last[0] - first[0],
+            last[1] - first[1],
+            last[2] - first[2],
+          ];
+          const squared: number = axis.reduce(
+            (sum: number, x: number): number => sum + x * x,
+            0,
           );
-          return nclose(Math.max(0, distance - 0.25), 0, 0);
-        });
-      }),
+          return net.every((point: O.V): boolean => {
+            const projection: number =
+              squared === 0
+                ? 0
+                : point.reduce(
+                    (sum: number, value: number, k: number): number =>
+                      sum + (value - first[k]) * axis[k],
+                    0,
+                  ) / squared;
+            const t: number = Math.min(1, Math.max(0, projection));
+            const distance: number = Math.hypot(
+              ...point.map(
+                (value: number, k: number): number =>
+                  value - first[k] - t * axis[k],
+              ),
+            );
+            return nclose(Math.max(0, distance - 0.25), 0, 0);
+          });
+        },
+      ),
   );
 
   TestValidator.predicate(
@@ -185,16 +202,25 @@ export function assertContourLoftBoundaryCore(): {
   );
 
   const intervals: IAutoMovieContourLoft64.IInterval[] = sections.slice(1).map(
-    (section: IAutoMovieContourLoft64.ISection, i: number): IAutoMovieContourLoft64.IInterval => ({
+    (
+      section: IAutoMovieContourLoft64.ISection,
+      i: number,
+    ): IAutoMovieContourLoft64.IInterval => ({
       beforeMm: sections[i].coordinateMm,
       afterMm: section.coordinateMm,
       groups: [{ before: [0], after: [0], supported: true, reason: null }],
     }),
   );
 
-  const input: IAutoMovieContourLoft64 = { sections, events: [], intervals, chordToleranceMm: 0.25 };
+  const input: IAutoMovieContourLoft64 = {
+    sections,
+    events: [],
+    intervals,
+    chordToleranceMm: 0.25,
+  };
 
-  const result: IAutoMovieContourLoft64.IResult = tessellateAutoMovieContourLoft64(input);
+  const result: IAutoMovieContourLoft64.IResult =
+    tessellateAutoMovieContourLoft64(input);
 
   TestValidator.equals(
     "ordinary supported intervals resolve",
@@ -213,7 +239,8 @@ export function assertContourLoftBoundaryCore(): {
     aligned(result, sections),
   );
 
-  const middle: IAutoMovieContourLoft64.IResult["construction"][number] = result.construction[1];
+  const middle: IAutoMovieContourLoft64.IResult["construction"][number] =
+    result.construction[1];
 
   const indices: number[] = middle.points.map((point: O.V): number => {
     const candidates: number[] = [];
@@ -258,12 +285,21 @@ export function assertContourLoftBoundaryCore(): {
           (span: IAutoMovieCurve64.Span): IAutoMovieCurve64.Span[] => {
             const halves: [O.V[], O.V[]] = S.split(
               span.map(
-                (point: Readonly<AutoMovieVector3Tuple>): O.V => [point[0], point[1], point[2]],
+                (point: Readonly<AutoMovieVector3Tuple>): O.V => [
+                  point[0],
+                  point[1],
+                  point[2],
+                ],
               ),
               0.5,
             );
             return halves.map(
-              (net: O.V[]): IAutoMovieCurve64.Span => [net[0], net[1], net[2], net[3]],
+              (net: O.V[]): IAutoMovieCurve64.Span => [
+                net[0],
+                net[1],
+                net[2],
+                net[3],
+              ],
             );
           },
         );
@@ -284,11 +320,12 @@ export function assertContourLoftBoundaryCore(): {
         };
       },
     );
-    const prism: IAutoMovieContourLoft64.IResult = tessellateAutoMovieContourLoft64({
-      sections: prismSections,
-      events: [],
-      chordToleranceMm: 0.25,
-    });
+    const prism: IAutoMovieContourLoft64.IResult =
+      tessellateAutoMovieContourLoft64({
+        sections: prismSections,
+        events: [],
+        chordToleranceMm: 0.25,
+      });
     const triangles: O.Triangle[] = [];
     for (let i: number = 0; i < prism.mesh.indices!.length; i += 3)
       triangles.push(
@@ -333,50 +370,51 @@ export function assertContourLoftBoundaryCore(): {
         ],
       },
     ];
-    const composition: IAutoMovieContourLoft64.IResult = tessellateAutoMovieContourLoft64({
-      sections: compositionSections,
-      events: [
-        {
-          name: "split",
-          coordinateMm: 1,
-          beforeMm: 0,
-          afterMm: 2,
-          before: [0],
-          after: [0, 1],
-          kind: "saddle",
-          regular: true,
-          terminal: null,
-        },
-        {
-          name: "merge",
-          coordinateMm: 3,
-          beforeMm: 2,
-          afterMm: 4,
-          before: [0, 1],
-          after: [0],
-          kind: "saddle",
-          regular: true,
-          terminal: null,
-        },
-      ],
-      intervals: [
-        {
-          beforeMm: 0,
-          afterMm: 2,
-          groups: [
-            { before: [0], after: [0, 1], supported: true, reason: null },
-          ],
-        },
-        {
-          beforeMm: 2,
-          afterMm: 4,
-          groups: [
-            { before: [0, 1], after: [0], supported: true, reason: null },
-          ],
-        },
-      ],
-      chordToleranceMm: 0.25,
-    });
+    const composition: IAutoMovieContourLoft64.IResult =
+      tessellateAutoMovieContourLoft64({
+        sections: compositionSections,
+        events: [
+          {
+            name: "split",
+            coordinateMm: 1,
+            beforeMm: 0,
+            afterMm: 2,
+            before: [0],
+            after: [0, 1],
+            kind: "saddle",
+            regular: true,
+            terminal: null,
+          },
+          {
+            name: "merge",
+            coordinateMm: 3,
+            beforeMm: 2,
+            afterMm: 4,
+            before: [0, 1],
+            after: [0],
+            kind: "saddle",
+            regular: true,
+            terminal: null,
+          },
+        ],
+        intervals: [
+          {
+            beforeMm: 0,
+            afterMm: 2,
+            groups: [
+              { before: [0], after: [0, 1], supported: true, reason: null },
+            ],
+          },
+          {
+            beforeMm: 2,
+            afterMm: 4,
+            groups: [
+              { before: [0, 1], after: [0], supported: true, reason: null },
+            ],
+          },
+        ],
+        chordToleranceMm: 0.25,
+      });
     const compositionEdges: ReturnType<typeof edges> = edges(composition);
     let bankEdges: number = 0,
       badBankEdges: number = 0;
@@ -431,7 +469,9 @@ export function assertContourLoftBoundaryCore(): {
         overfull,
         stripsQualified: composition.stripObservations?.map(
           (
-            record: NonNullable<IAutoMovieContourLoft64.IResult["stripObservations"]>[number],
+            record: NonNullable<
+              IAutoMovieContourLoft64.IResult["stripObservations"]
+            >[number],
           ): boolean => record.qualified,
         ),
       }),

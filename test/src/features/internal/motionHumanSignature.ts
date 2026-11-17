@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanSignature } from "@automovie/motions";
 
 import { MOTION_HUMAN_LAW_STAGES } from "./MOTION_HUMAN_LAW_STAGES";
@@ -119,7 +124,9 @@ export namespace motionHumanSignature {
   }
 
   /** `a` of a staged row as the package's signature reader. */
-  export function reader(staged: IStaged): IAutoMovieMotionHumanSignature.IReader {
+  export function reader(
+    staged: IStaged,
+  ): IAutoMovieMotionHumanSignature.IReader {
     return HumanSignature.of(staged.film, "a", staged.body, staged.yaw);
   }
 

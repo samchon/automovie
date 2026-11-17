@@ -1,5 +1,15 @@
-import { type IAutoMovieValidateWetZones, type IAutoMovieViolationCollector, AutoMovieWetGrade, IAutoMovieBuiltBoundary, IAutoMovieBuiltSpace, IAutoMovieServiceNode, IAutoMovieServicePort, IAutoMovieServiceSystem, IAutoMovieValidation, IAutoMovieWetZone } from "@automovie/interface";
-
+import {
+  AutoMovieWetGrade,
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltSpace,
+  IAutoMovieServiceNode,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSystem,
+  type IAutoMovieValidateWetZones,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+  IAutoMovieWetZone,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 
@@ -50,7 +60,11 @@ const WASTE_MEDIUM: string = "waste-water";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Boundary, node, system and first-grade lookups serve every zone check in one call; no previous build's mutable declaration results are cached.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Collector and lookup maps are call-local; returned validation owns its findings while source geometry and service records remain unchanged and unretained by this gate.
  */
-export const validateWetZones: (props: IAutoMovieValidateWetZones.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateWetZones.IProps): IAutoMovieValidation => {
+export const validateWetZones: (
+  props: IAutoMovieValidateWetZones.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateWetZones.IProps,
+): IAutoMovieValidation => {
   const { network, environment }: typeof props = props;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";

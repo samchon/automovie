@@ -1,5 +1,9 @@
-import { type IAutoMovieWallOpening, type IAutoMovieBuildWall, type IAutoMovieTessellation, IAutoMovieMesh } from "@automovie/interface";
-
+import {
+  type IAutoMovieBuildWall,
+  IAutoMovieMesh,
+  type IAutoMovieTessellation,
+  type IAutoMovieWallOpening,
+} from "@automovie/interface";
 
 import { finitePoint } from "./finitePoint";
 import { positive } from "./positive";
@@ -27,7 +31,9 @@ import { positive } from "./positive";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One mesh per wall description; a caller placing identical walls can keep the returned mesh.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns new position, normal and index arrays bounded by six quads per standing cell; the id set, cut lists and standing flags are released on return.
  */
-export const buildAutoMovieWall: (props: IAutoMovieBuildWall.IProps) => IAutoMovieMesh = (props: IAutoMovieBuildWall.IProps): IAutoMovieMesh => {
+export const buildAutoMovieWall: (
+  props: IAutoMovieBuildWall.IProps,
+) => IAutoMovieMesh = (props: IAutoMovieBuildWall.IProps): IAutoMovieMesh => {
   positive(props.width, "wall width");
   positive(props.height, "wall height");
   positive(props.depth, "wall depth");
@@ -116,7 +122,11 @@ export const buildAutoMovieWall: (props: IAutoMovieBuildWall.IProps) => IAutoMov
   const halfWidth: number = props.width / 2;
   const halfHeight: number = props.height / 2;
   const halfDepth: number = props.depth / 2;
-  const target: IAutoMovieTessellation = { positions: [], normals: [], indices: [] };
+  const target: IAutoMovieTessellation = {
+    positions: [],
+    normals: [],
+    indices: [],
+  };
   for (let x: number = 0; x < columns; ++x)
     for (let y: number = 0; y < rows; ++y) {
       if (stands(x, y) === false) continue;

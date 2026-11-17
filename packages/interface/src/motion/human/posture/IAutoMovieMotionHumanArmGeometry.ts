@@ -1,12 +1,12 @@
+import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieSwingTwistRange } from "../../../pose/IAutoMovieSwingTwistRange";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieBone } from "../../../skeleton/IAutoMovieBone";
 import type { IAutoMovieJointAxes } from "../../../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieJointConstraint } from "../../../skeleton/IAutoMovieJointConstraint";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionHumanColliders } from "./IAutoMovieMotionHumanColliders";
-import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
-import type { IAutoMovieSwingTwistRange } from "../../../pose/IAutoMovieSwingTwistRange";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * An arm's joint-space coordinates and what they place: the shoulder's

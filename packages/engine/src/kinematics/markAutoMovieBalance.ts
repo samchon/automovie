@@ -1,5 +1,8 @@
-import type { IAutoMovieMark, IAutoMovieMarkBalance, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieMark,
+  IAutoMovieMarkBalance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { convexHull2D } from "../math/convexHull2D";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
@@ -29,7 +32,9 @@ import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure conversion of one instant.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh marks and keeps nothing.
  */
-export function markAutoMovieBalance(props: IAutoMovieMarkBalance.IProps): IAutoMovieMark[] {
+export function markAutoMovieBalance(
+  props: IAutoMovieMarkBalance.IProps,
+): IAutoMovieMark[] {
   if (props.support.length === 0)
     throw new Error("markAutoMovieBalance: there is no support point");
   const hull: IAutoMovieVector3[] = convexHull2D(props.support);

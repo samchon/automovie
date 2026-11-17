@@ -1,6 +1,15 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanTargetGrid, IAutoMovieMotionHumanVariation, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSkill,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTargetGrid,
+  IAutoMovieMotionHumanVariation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { createHumanBody } from "../../body/createHumanBody";
@@ -99,7 +108,10 @@ const PLACES: Readonly<
 /** Build one body's case. */
 function build(name: string, who: string): IMotionCaptureCase {
   const man: humanPolygonMan.IPolygonMan = MotionBodies.population(who);
-  const body: IAutoMovieMotionHumanBody = createHumanBody(man.body.skeleton, man.body.profile);
+  const body: IAutoMovieMotionHumanBody = createHumanBody(
+    man.body.skeleton,
+    man.body.profile,
+  );
   const partner: string =
     who === "m-tall" ? "f-small" : who === "f-small" ? "m-tall" : "m-average";
   const other: humanPolygonMan.IPolygonMan = MotionBodies.population(partner);
@@ -228,14 +240,21 @@ function gestures(
   body: IAutoMovieMotionHumanBody,
   kind: "wave" | "stopPalm",
   manner: { variation: number; proficiency: number } | undefined,
-): { performance: IAutoMovieMotionHumanPerformance; repeats: IRepeat[]; middles: number[] } {
+): {
+  performance: IAutoMovieMotionHumanPerformance;
+  repeats: IRepeat[];
+  middles: number[];
+} {
   let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a");
   for (let i: number = 0; i < VariationSeries.REPEATS; i++)
     chain = chain.gesture({
       kind,
       ...(manner === undefined ? {} : { manner }),
     });
-  const performance: IAutoMovieMotionHumanPerformance = VariationSeries.perform(body, chain);
+  const performance: IAutoMovieMotionHumanPerformance = VariationSeries.perform(
+    body,
+    chain,
+  );
   const middles: number[] = [];
   const repeats: IRepeat[] = performance
     .segments("a")
@@ -300,7 +319,10 @@ function reached(
       y: shoulder.y - body.measure.upperArm - body.measure.forearm,
     }),
   );
-  const skill: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve({ p: 0 }, "variation");
+  const skill: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
+    { p: 0 },
+    "variation",
+  );
   const source: IAutoMovieMotionHumanVariation.ISource | undefined =
     AutoMovieMotionHumanVariation.of(
       {

@@ -6,11 +6,9 @@
  * @evidence contracts/development/common.md#meaningful-documentation States millimetres, order and the requirement that both planes occur in coordinatesMm.
  */
 export interface IAutoMovieRecoverySlabPair {
- 
- /** Lower physical coordinate, millimetres along the normalized section axis. */
+  /** Lower physical coordinate, millimetres along the normalized section axis. */
   beforeMm: number;
 
- 
- /** Upper physical coordinate, strictly greater than beforeMm, also explicitly requested. */
+  /** Upper physical coordinate, strictly greater than beforeMm, also explicitly requested. */
   afterMm: number;
 }

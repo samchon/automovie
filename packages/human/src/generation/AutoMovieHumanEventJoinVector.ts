@@ -5,8 +5,6 @@ import type { AutoMovieVector3Tuple } from "@automovie/interface";
  * millimetres, and the clamped smoothstep its fades use.
  */
 export namespace AutoMovieHumanEventJoinVector {
-  
-
   /** Smoothstep on [0, 1], clamped. */
   export function smooth(x: number): number {
     const t: number = Math.min(1, Math.max(0, x));
@@ -14,27 +12,42 @@ export namespace AutoMovieHumanEventJoinVector {
   }
 
   /** Difference. */
-  export function sub(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  export function sub(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
   /** Sum. */
-  export function add(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  export function add(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
   /** Scalar multiple. */
-  export function scale(a: AutoMovieVector3Tuple, s: number): AutoMovieVector3Tuple {
+  export function scale(
+    a: AutoMovieVector3Tuple,
+    s: number,
+  ): AutoMovieVector3Tuple {
     return [a[0] * s, a[1] * s, a[2] * s];
   }
 
   /** Dot product. */
-  export function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
+  export function dot(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
   /** Cross product. */
-  export function cross(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  export function cross(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],

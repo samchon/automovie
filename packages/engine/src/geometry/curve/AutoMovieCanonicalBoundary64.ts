@@ -1,4 +1,8 @@
-import type { IAutoMovieCanonicalBoundary64, IAutoMovieCanonicalBoundaryPhase64 } from "@automovie/interface";
+import type {
+  IAutoMovieCanonicalBoundary64,
+  IAutoMovieCanonicalBoundaryPhase64,
+} from "@automovie/interface";
+
 /**
  * Exact normalized boundary phases and atomic interval incidence in binary64.
  * Phase keys preserve the exact dyadic affine combination before display rounding.
@@ -11,7 +15,6 @@ import type { IAutoMovieCanonicalBoundary64, IAutoMovieCanonicalBoundaryPhase64 
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieCanonicalBoundary64 {
-
   /**
    * An integer times a power of two, normalized to an odd numerator or zero.
    * This private pair represents binary64 inputs and their affine products

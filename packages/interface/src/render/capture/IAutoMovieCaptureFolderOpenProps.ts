@@ -9,15 +9,15 @@ import type { IAutoMovieCaptureStorage } from "./IAutoMovieCaptureStorage.js";
  * @evidence contracts/development/common.md#meaningful-documentation Storage and round identities used to prepare one capture folder. The prose and members document how AutoMovieCaptureFolder.open interprets and admits these values.
  */
 export interface IAutoMovieCaptureFolderOpenProps {
-    /** Where files are read and written. */
-    storage: IAutoMovieCaptureStorage;
+  /** Where files are read and written. */
+  storage: IAutoMovieCaptureStorage;
 
-    /** The capture's root folder. */
-    root: string;
+  /** The capture's root folder. */
+  root: string;
 
-    /** Round the capture is kept as, or null for the root. */
-    round: string | null;
+  /** Round the capture is kept as, or null for the root. */
+  round: string | null;
 
-    /** Earlier round compared against, or null. */
-    compare: string | null;
-  }
+  /** Earlier round compared against, or null. */
+  compare: string | null;
+}

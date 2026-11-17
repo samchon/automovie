@@ -1,6 +1,24 @@
-import { type IAutoMovieCameraClearanceRuntime, type IAutoMovieResolvedCamera, type IAutoMovieSampledChannel, type IAutoMovieCameraClearanceEvaluation, type IAutoMovieCompileCameraClearanceReports, type IAutoMovieViolationCollector, IAutoMovieCamera, IAutoMovieCameraClearanceReport, IAutoMovieClip, IAutoMovieModel, IAutoMovieMotion, IAutoMovieScene, IAutoMovieShot, IAutoMovieShotCoverage, IAutoMovieSubjectBox, IAutoMovieTrack, IAutoMovieTransform, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  IAutoMovieCamera,
+  type IAutoMovieCameraClearanceEvaluation,
+  IAutoMovieCameraClearanceReport,
+  type IAutoMovieCameraClearanceRuntime,
+  IAutoMovieClip,
+  type IAutoMovieCompileCameraClearanceReports,
+  IAutoMovieModel,
+  IAutoMovieMotion,
+  type IAutoMovieResolvedCamera,
+  type IAutoMovieSampledChannel,
+  IAutoMovieScene,
+  IAutoMovieShot,
+  IAutoMovieShotCoverage,
+  IAutoMovieSubjectBox,
+  IAutoMovieTrack,
+  IAutoMovieTransform,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { sampleMotion } from "../motion/sampleMotion";
 import { channelKey } from "../resolve/channelKey";
@@ -63,7 +81,9 @@ interface ITake {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Obstacle states depend only on the shot-local instant, the staged nodes and the shot's motions, which every take shares, so they are cached by exact instant across takes; the actor and object part of the clock is built once per call, and models are measured once per node rather than per take.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The obstacle-state cache and measured obstacles are locals released when the call returns, bounded by distinct instants across takes times staged nodes; returned reports are owned by the caller and hold only their sample times and findings, not the cached boxes.
  */
-export function compileCameraClearanceReports(props: IAutoMovieCompileCameraClearanceReports.IProps): IAutoMovieCameraClearanceReport[] | undefined {
+export function compileCameraClearanceReports(
+  props: IAutoMovieCompileCameraClearanceReports.IProps,
+): IAutoMovieCameraClearanceReport[] | undefined {
   const baseline: number = props.out.items.length;
   function refused(): boolean {
     return props.out.items.length > baseline;

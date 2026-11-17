@@ -1,10 +1,14 @@
-import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMovieVector3, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   Quaternion,
   AutoMoviePhysicalSimulation as Simulation,
   Vector3,
 } from "@automovie/engine";
-
+import type {
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -36,25 +40,26 @@ export async function test_physical_internal_actuation(): Promise<void> {
       profile,
       duration,
     );
-    const pattern: NonNullable<IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]>["pattern"] =
-      {
-        id: "four-internal-carriers",
-        minimumSupports: 1,
-        limbs: [0, 1, 2, 3].map(
-          (
-            index: number,
-          ): NonNullable<
-            IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
-          >["pattern"]["limbs"][number] => ({
-            bone: "support-" + index,
-            chain: ["upper-" + index, "lower-" + index, "support-" + index],
-            phase: index / 4,
-            duty: 0.5,
-            offset: { forward: 0, left: 0 },
-            stride: [{ speed: 0, length: 0.5 }],
-          }),
-        ),
-      };
+    const pattern: NonNullable<
+      IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
+    >["pattern"] = {
+      id: "four-internal-carriers",
+      minimumSupports: 1,
+      limbs: [0, 1, 2, 3].map(
+        (
+          index: number,
+        ): NonNullable<
+          IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
+        >["pattern"]["limbs"][number] => ({
+          bone: "support-" + index,
+          chain: ["upper-" + index, "lower-" + index, "support-" + index],
+          phase: index / 4,
+          duty: 0.5,
+          offset: { forward: 0, left: 0 },
+          stride: [{ speed: 0, length: 0.5 }],
+        }),
+      ),
+    };
     Object.assign(body, {
       actuation: "internal",
       compensateGravity: true,
@@ -96,7 +101,8 @@ export async function test_physical_internal_actuation(): Promise<void> {
         pose.rotation = Quaternion.multiply(rotation, pose.rotation);
       }
     }
-    const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], duration);
+    const input: IAutoMoviePhysicalSimulationInput.IInput =
+      PhysicalFixtures.input([body], duration);
     input.gravity.y = gravity;
     input.substeps = 4;
     const run: IAutoMoviePhysicalSimulation = await Simulation.compute(input);

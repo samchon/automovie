@@ -1,4 +1,6 @@
-import type { IAutoMovieModel, IAutoMovieRecoveryConstructionLine, IAutoMovieRecoverySupportRealizationMetrics } from "../../index";
+import type { IAutoMovieModel } from "../../model/IAutoMovieModel";
+import type { IAutoMovieConstructionPolyline } from "../../render/IAutoMovieConstructionPolyline";
+import type { IAutoMovieRecoverySupportRealizationMetrics } from "./IAutoMovieRecoverySupportRealizationMetrics";
 
 /** Source-free convex-support model, construction and numerical generation diagnostics.
  *
@@ -8,15 +10,12 @@ import type { IAutoMovieModel, IAutoMovieRecoveryConstructionLine, IAutoMovieRec
  * @evidence contracts/development/common.md#meaningful-documentation States model metre units, shared construction authority and the scope of generation metrics.
  */
 export interface IAutoMovieRecoverySupportRealization {
- 
- /** Source-free generated model, in model metres. */
+  /** Source-free generated model, in model metres. */
   model: IAutoMovieModel;
 
- 
- /** Lines evaluated from the same generating coefficients. */
-  construction: IAutoMovieRecoveryConstructionLine[];
+  /** Lines evaluated from the same generating coefficients. */
+  construction: IAutoMovieConstructionPolyline.IMutable[];
 
- 
- /** Actual numerical generation counts and qualifications. */
+  /** Actual numerical generation counts and qualifications. */
   generation: IAutoMovieRecoverySupportRealizationMetrics;
 }

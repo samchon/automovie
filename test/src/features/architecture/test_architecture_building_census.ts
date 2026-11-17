@@ -1,6 +1,10 @@
-import type { IAutoMovieBuildingObservationCensus, IAutoMovieBuiltEnvelopeCorner, IAutoMovieBuiltEnvelopeFace, IAutoMovieBuiltEnvironment } from "@automovie/interface";
 import { builtEnvironmentBuildingCensus } from "@automovie/engine";
-
+import type {
+  IAutoMovieBuildingObservationCensus,
+  IAutoMovieBuiltEnvelopeCorner,
+  IAutoMovieBuiltEnvelopeFace,
+  IAutoMovieBuiltEnvironment,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {

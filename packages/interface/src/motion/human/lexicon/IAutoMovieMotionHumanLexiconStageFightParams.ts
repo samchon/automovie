@@ -1,7 +1,7 @@
-import type { IAutoMovieMotionHumanClinch } from "../grappling/IAutoMovieMotionHumanClinch";
 import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHumanCrouch";
-import type { IAutoMovieMotionHumanGive } from "../reaction/IAutoMovieMotionHumanGive";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
+import type { IAutoMovieMotionHumanClinch } from "../grappling/IAutoMovieMotionHumanClinch";
+import type { IAutoMovieMotionHumanGive } from "../reaction/IAutoMovieMotionHumanGive";
 import type { IAutoMovieMotionHumanStagger } from "../reaction/IAutoMovieMotionHumanStagger";
 import type { IAutoMovieMotionHumanStep } from "../striking/IAutoMovieMotionHumanStep";
 import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";

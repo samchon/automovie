@@ -16,7 +16,6 @@ import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdiv
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieBernstein64 {
-
   /** Binomial coefficient for admitted integer indices 0<=k<=n; preserves the algebra owner's multiplicative order. */
   export const choose: typeof A.choose = A.choose;
 

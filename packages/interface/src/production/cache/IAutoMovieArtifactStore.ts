@@ -1,5 +1,3 @@
-
-
 /**
  * Durable storage for stage artifacts addressed by `composeAutoMovieArtifactKey`.
  *
@@ -87,15 +85,15 @@ export namespace IAutoMovieArtifactStore {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The byte payload and recorded digest remain separate so corruption can be detected; neither a file path nor a transport handle enters the contract.
    * @evidence contracts/development/common.md#meaningful-documentation Storage entry carried between the artifact resolver and host storage adapters. An entry couples artifact bytes with the digest recorded at write time; resolveAutoMovieArtifact recomputes that digest before reuse and removes mismatches.
    */
-    export interface IEntry {
-      /**
+  export interface IEntry {
+    /**
      * Artifact bytes owned by the reader after read. During write the caller keeps them stable until the promise settles; the store must preserve the written generation independently of later caller mutation.
      */
-      bytes: Uint8Array;
-  
-      /**
+    bytes: Uint8Array;
+
+    /**
      * Recorded lowercase sha256: content digest. The resolver compares it with a fresh digest of bytes; read does not itself certify that they match.
      */
-      digest: string;
-    }
+    digest: string;
+  }
 }

@@ -8,20 +8,16 @@ import type { IAutoMovieSimplexAtom } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Members distinguish whitened covectors, physical tangent covectors and inverse metric action.
  */
 export interface IAutoMovieRecoveryFeasibleModel {
- 
- /** Objective gradient first, then all hard constraints, in common metric coordinates. */
+  /** Objective gradient first, then all hard constraints, in common metric coordinates. */
   rows: readonly IAutoMovieSimplexAtom[];
 
- 
- /** Same ordered rows in original physical tangent coordinates. */
+  /** Same ordered rows in original physical tangent coordinates. */
   physicalRows: readonly IAutoMovieSimplexAtom[];
 
- 
- /** Full physical tangent dimension, including cameras and all points. */
+  /** Full physical tangent dimension, including cameras and all points. */
   width: number;
 
- 
- /** Convert a metric step to increments in the same physical tangent chart.
+  /** Convert a metric step to increments in the same physical tangent chart.
    * @evidence contracts/development/implementation.md#principled-implementation The inverse of the current square, rank-qualified metric restores the coordinates used by physical derivatives and actual retraction.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The model owns this action so the controller need not know camera/point ordering or factor storage.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Coordinate conversion cannot change observations, gauge, nonlinear gates or parameter dimension.
@@ -32,8 +28,7 @@ export interface IAutoMovieRecoveryFeasibleModel {
    */
   fromMetric: (step: readonly number[]) => number[];
 
- 
- /** Push a metric covector into the original physical tangent units.
+  /** Push a metric covector into the original physical tangent units.
    * @evidence contracts/development/implementation.md#principled-implementation The inverse-transpose of fromMetric maps quadratic stationarity back without forming a normal matrix.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Optional acceleration uses this current factor action; the baseline direction needs no additional action.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing support cannot be replaced by an identity action or a damped data-rank claim.

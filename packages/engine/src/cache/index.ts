@@ -1,4 +1,3 @@
-
 export * from "./composeAutoMovieArtifactKey";
 export * from "./decodeAutoMovieArtifactJson";
 export * from "./encodeAutoMovieArtifactJson";

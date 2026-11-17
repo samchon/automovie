@@ -1,5 +1,8 @@
-import { type IAutoMovieCreateDynamicActorJabClip, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
-
+import {
+  type IAutoMovieCreateDynamicActorJabClip,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
 import { ease } from "../motion/ease";
 import { actorWeightedArmPose } from "./actorWeightedArmPose";
@@ -16,7 +19,11 @@ import { createDynamicActorPoseClip } from "./createDynamicActorPoseClip";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The peak is deduplicated before target sampling, and each solved pose feeds one scalar envelope application with no cross-action cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The invocation owns partial samples until success, null or throw; the caller owns a successful clip and no live target callback is retained.
  */
-export const createDynamicActorJabClip: (props: IAutoMovieCreateDynamicActorJabClip.IProps) => IAutoMovieMotion | null = (props: IAutoMovieCreateDynamicActorJabClip.IProps): IAutoMovieMotion | null => {
+export const createDynamicActorJabClip: (
+  props: IAutoMovieCreateDynamicActorJabClip.IProps,
+) => IAutoMovieMotion | null = (
+  props: IAutoMovieCreateDynamicActorJabClip.IProps,
+): IAutoMovieMotion | null => {
   const peakAt: number = props.duration * 0.4;
   return createDynamicActorPoseClip({
     ...props,

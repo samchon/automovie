@@ -1,5 +1,3 @@
-
-
 /**
  * The artifact `resolveAutoMovieArtifact` returns, and how it was obtained.
  *

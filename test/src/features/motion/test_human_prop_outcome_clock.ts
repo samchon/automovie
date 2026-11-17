@@ -1,5 +1,10 @@
-import type { IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropOutcome, IAutoMovieProjectile, IAutoMovieProjectileFirstContact } from "@automovie/interface";
 import { projectileAt, projectileFirstContact } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropOutcome,
+  IAutoMovieProjectile,
+  IAutoMovieProjectileFirstContact,
+} from "@automovie/interface";
 import { HumanPropOutcome, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -175,11 +180,12 @@ export function test_human_prop_outcome_clock(): void {
   sweeps = 0;
   settlements = 0;
   const floor: Input = input(0, 2);
-  const ground: IAutoMovieProjectileFirstContact.ICollider = projectileFirstContact.plane(
-    "floor",
-    { x: 0, y: 0, z: 0 },
-    { x: 0, y: 1, z: 0 },
-  );
+  const ground: IAutoMovieProjectileFirstContact.ICollider =
+    projectileFirstContact.plane(
+      "floor",
+      { x: 0, y: 0, z: 0 },
+      { x: 0, y: 1, z: 0 },
+    );
   const initial: ReturnType<typeof projectileFirstContact> =
     projectileFirstContact(
       projectile,
@@ -201,7 +207,9 @@ export function test_human_prop_outcome_clock(): void {
       collider: ground.id,
       struck: { kind: "ground" },
     };
-  floor.meet = (p: IAutoMovieProjectile): IAutoMovieMotionHumanPropOutcome.IMeeting | null => {
+  floor.meet = (
+    p: IAutoMovieProjectile,
+  ): IAutoMovieMotionHumanPropOutcome.IMeeting | null => {
     sweeps++;
     if (sweeps > 1)
       throw new Error("departing floor contact repeated without refusal");
@@ -223,7 +231,8 @@ export function test_human_prop_outcome_clock(): void {
   const valid: Input = input(0.25, 2);
   valid.meet = (): IAutoMovieMotionHumanPropOutcome.IMeeting | null =>
     ++sweeps === 1 ? meeting(0.5, 0.25, -1) : null;
-  const legs: IAutoMovieMotionHumanPropOutcome.ILeg[] = HumanPropOutcome.legs(valid);
+  const legs: IAutoMovieMotionHumanPropOutcome.ILeg[] =
+    HumanPropOutcome.legs(valid);
   if (
     legs.length !== 2 ||
     !nclose(legs[0]?.from ?? NaN, 0.25, 0) ||

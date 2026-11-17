@@ -1,4 +1,12 @@
-import { type IAutoMovieResolvedBone, type IAutoMovieRestFrame, type IAutoMovieSkeletonTopology, AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointAxes,
+  IAutoMoviePose,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieRestFrame,
+  IAutoMovieSkeleton,
+  type IAutoMovieSkeletonTopology,
+} from "@automovie/interface";
 
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { resolvePose } from "../kinematics/resolvePose";

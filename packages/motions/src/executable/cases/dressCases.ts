@@ -1,6 +1,20 @@
-import type { AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieMotionHumanDress, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
-import { Quaternion, Transform, Vector3, quaternionFromAutoMovieBasis, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Quaternion,
+  Transform,
+  Vector3,
+  quaternionFromAutoMovieBasis,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanDress,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { AutoMovieMotionHumanAuditSkin } from "../../audit/AutoMovieMotionHumanAuditSkin";
@@ -53,27 +67,31 @@ export function dressCases(
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
     const r: number = who.body.measure.headRadius;
     for (const item of ["hat", "glasses"] as const) {
-      const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
-        "dress",
-        [{ subject: "a", body: who.body }],
-        HumanChain.subject("a")
-          .pickUp({
-            prop: "item",
-            handle: "hold",
-            hand: "right",
-            use: {
-              tip: "wear",
-              line: "worn",
-              at: { region: dress.WORN[item] },
-              round: item === "hat",
-            },
-          })
-          .act("dress", { item, prop: "item", hand: "right" }),
-        [wearable(item, { x: -0.2, y: who.body.measure.hipHeight, z: 0.35 })],
-      );
+      const performance: IAutoMovieMotionHumanPerformance =
+        FamilyCaseKit.perform(
+          "dress",
+          [{ subject: "a", body: who.body }],
+          HumanChain.subject("a")
+            .pickUp({
+              prop: "item",
+              handle: "hold",
+              hand: "right",
+              use: {
+                tip: "wear",
+                line: "worn",
+                at: { region: dress.WORN[item] },
+                round: item === "hat",
+              },
+            })
+            .act("dress", { item, prop: "item", hand: "right" }),
+          [wearable(item, { x: -0.2, y: who.body.measure.hipHeight, z: 0.35 })],
+        );
       const act: IAutoMovieMotionHumanSegment.ISegment = performance
         .segments("a")
-        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "dress")!;
+        .find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+            s.name === "dress",
+        )!;
       const stroke: number =
         act.start +
         act.plan.events.find((e): boolean => e.name === "stroke")!.share *
@@ -121,7 +139,10 @@ export function dressCases(
       };
       const bones = performance.bones("a", stroke);
       const region = who.body.surfaces.regions[dress.WORN[item]];
-      const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop("item", stroke);
+      const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop(
+        "item",
+        stroke,
+      );
       const steadied: number = Vector3.length(
         Vector3.subtract(surface(bones, "left"), want(bones, "left")),
       );
@@ -205,17 +226,25 @@ export function dressCases(
 }
 
 /** The wear sockets of the two items, in their own frames, as `createWearable` declares them. */
-const WEAR: Readonly<Record<IAutoMovieMotionHumanDress.Item, IAutoMovieAffordance["frame"]>> = {
-  hat: Transform.of({ x: 0, y: 0.11, z: 0 }, quaternionFromAutoMovieBasis(
+const WEAR: Readonly<
+  Record<IAutoMovieMotionHumanDress.Item, IAutoMovieAffordance["frame"]>
+> = {
+  hat: Transform.of(
+    { x: 0, y: 0.11, z: 0 },
+    quaternionFromAutoMovieBasis(
       { x: 0, y: 0, z: 1 },
       { x: 0, y: -1, z: 0 },
       { x: 1, y: 0, z: 0 },
-    )),
-  glasses: Transform.of({ x: 0, y: 0.016, z: -0.002 }, quaternionFromAutoMovieBasis(
+    ),
+  ),
+  glasses: Transform.of(
+    { x: 0, y: 0.016, z: -0.002 },
+    quaternionFromAutoMovieBasis(
       { x: 1, y: 0, z: 0 },
       { x: 0, y: 0, z: -1 },
       { x: 0, y: 1, z: 0 },
-    )),
+    ),
+  ),
 };
 
 /**
@@ -237,13 +266,18 @@ const WEAR: Readonly<Record<IAutoMovieMotionHumanDress.Item, IAutoMovieAffordanc
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
-function wearable(item: IAutoMovieMotionHumanDress.Item, at: IAutoMovieVector3): IAutoMovieMotionHumanProp {
+function wearable(
+  item: IAutoMovieMotionHumanDress.Item,
+  at: IAutoMovieVector3,
+): IAutoMovieMotionHumanProp {
   const hat: boolean = item === "hat";
   const hold: IAutoMovieAffordance = {
     id: "hold",
     kind: "handle",
     symmetry: "none",
-    frame: Transform.of(hat ? { x: -0.13, y: 0.002, z: 0 } : { x: 0, y: 0.02, z: 0 }, hat
+    frame: Transform.of(
+      hat ? { x: -0.13, y: 0.002, z: 0 } : { x: 0, y: 0.02, z: 0 },
+      hat
         ? quaternionFromAutoMovieBasis(
             { x: 0, y: 0, z: 1 },
             { x: 0, y: 1, z: 0 },
@@ -253,7 +287,8 @@ function wearable(item: IAutoMovieMotionHumanDress.Item, at: IAutoMovieVector3):
             { x: 1, y: 0, z: 0 },
             { x: 0, y: 0, z: 1 },
             { x: 0, y: -1, z: 0 },
-          )),
+          ),
+    ),
     extent: null,
     grip: "precision",
     aperture: 0.004,

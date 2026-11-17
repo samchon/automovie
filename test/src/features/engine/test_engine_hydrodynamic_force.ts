@@ -1,10 +1,13 @@
-import type { IAutoMovieResolveHydrodynamicForce, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieGravity,
   Vector3,
   resolveHydrodynamicForce,
 } from "@automovie/engine";
-
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMovieResolveHydrodynamicForce,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

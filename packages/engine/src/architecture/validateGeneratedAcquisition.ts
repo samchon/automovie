@@ -1,5 +1,9 @@
-import { type IAutoMovieValidateGeneratedAcquisition, type IAutoMovieViolationCollector, IAutoMovieGeneratedAcquisition, IAutoMovieValidation } from "@automovie/interface";
-
+import {
+  IAutoMovieGeneratedAcquisition,
+  type IAutoMovieValidateGeneratedAcquisition,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
@@ -25,7 +29,11 @@ import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PAT
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One supplied generation record is checked per call; this gate retains no shared result and makes no equivalence assumption about mutable records.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Builds only the returned validation from a local collector, a bounded number of findings per field and one per input path; nothing else outlives the call.
  */
-export const validateGeneratedAcquisition: (props: IAutoMovieValidateGeneratedAcquisition.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateGeneratedAcquisition.IProps): IAutoMovieValidation => {
+export const validateGeneratedAcquisition: (
+  props: IAutoMovieValidateGeneratedAcquisition.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateGeneratedAcquisition.IProps,
+): IAutoMovieValidation => {
   const acquisition: IAutoMovieGeneratedAcquisition = props.acquisition;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";

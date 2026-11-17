@@ -1,4 +1,7 @@
-import { type IAutoMovieViolationCollector, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
 

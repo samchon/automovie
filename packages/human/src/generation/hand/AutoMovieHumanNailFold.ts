@@ -2,7 +2,6 @@ import type { IAutoMovieHumanNailPlate } from "@automovie/interface";
 
 import { AutoMovieHumanHandWindow } from "./AutoMovieHumanHandWindow";
 
-
 const { bump }: typeof AutoMovieHumanHandWindow = AutoMovieHumanHandWindow;
 
 /**
@@ -45,14 +44,21 @@ export namespace AutoMovieHumanNailFold {
    * @param u Along the plate, 0 at the root and 1 at the free edge; the fold continues past 1 and fades.
    * @param v Across the plate, -1 to 1 over the plate itself.
    */
-  export function height(size: IAutoMovieHumanNailPlate.ISize, u: number, v: number): number {
+  export function height(
+    size: IAutoMovieHumanNailPlate.ISize,
+    u: number,
+    v: number,
+  ): number {
     const behind: number = size.length * Math.max(0, -u);
     const beside: number = (size.width / 2) * Math.max(0, Math.abs(v) - 1);
     const d: number = Math.hypot(behind, beside);
     if (d <= 0 || d >= BAND) return 0;
 
     // Past the free edge the sides' fold fades out along the line.
-    const fade: number = u <= 1 ? 1 : bump(((u - 1) * size.length) / BAND).value;
-    return HEIGHT_SHARE * size.width * bump((d - BAND / 2) / (BAND / 2)).value * fade;
+    const fade: number =
+      u <= 1 ? 1 : bump(((u - 1) * size.length) / BAND).value;
+    return (
+      HEIGHT_SHARE * size.width * bump((d - BAND / 2) / (BAND / 2)).value * fade
+    );
   }
 }

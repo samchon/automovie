@@ -1,4 +1,11 @@
-import { type IAutoMovieViolationCollector, IAutoMovieAnalysisMetric, IAutoMovieAnalysisOutcome, IAutoMovieAnalysisRun, IAutoMovieAnalysisSample, IAutoMovieAnalysisWarning } from "@automovie/interface";
+import {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisOutcome,
+  IAutoMovieAnalysisRun,
+  IAutoMovieAnalysisSample,
+  IAutoMovieAnalysisWarning,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 import { autoMovieAnalysisTargetMet } from "./autoMovieAnalysisTargetMet";

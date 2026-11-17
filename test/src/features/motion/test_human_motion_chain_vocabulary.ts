@@ -1,5 +1,10 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieComposition, IAutoMovieMotionHumanActionParams, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanChainCore } from "@automovie/interface";
-
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanActionParams,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanChainCore,
+} from "@automovie/interface";
 import { HUMAN_ACTIONS, HumanChain } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -12,7 +17,10 @@ type Mistyped = {
     params: infer Params,
     anchor?: string,
   ) => IAutoMovieMotionHumanChain
-    ? Same<NonNullable<Params>, IAutoMovieMotionHumanActionParams[Name]> extends true
+    ? Same<
+        NonNullable<Params>,
+        IAutoMovieMotionHumanActionParams[Name]
+      > extends true
       ? never
       : Name
     : Name;
@@ -51,7 +59,9 @@ export function test_human_motion_chain_vocabulary(): void {
   const names: AutoMovieMotionHumanActionName[] = Object.keys(
     HUMAN_ACTIONS,
   ) as AutoMovieMotionHumanActionName[];
-  const appended = (chain: IAutoMovieMotionHumanChain): IAutoMovieComposition | undefined =>
+  const appended = (
+    chain: IAutoMovieMotionHumanChain,
+  ): IAutoMovieComposition | undefined =>
     chain.node.kind === "sequence" ? chain.node.parts.at(-1) : chain.node;
 
   // 1. One method per action, each appending its own action.
@@ -63,7 +73,11 @@ export function test_human_motion_chain_vocabulary(): void {
     );
     const params: object = { marker: name };
     const chain: IAutoMovieMotionHumanChain = (
-      method as (this: IAutoMovieMotionHumanChain, params: object, anchor: string) => IAutoMovieMotionHumanChain
+      method as (
+        this: IAutoMovieMotionHumanChain,
+        params: object,
+        anchor: string,
+      ) => IAutoMovieMotionHumanChain
     ).call(HumanChain.subject("a"), params, `anchor-${name}`);
     const last: IAutoMovieComposition | undefined = appended(chain);
     TestValidator.predicate(
@@ -129,10 +143,12 @@ export function test_human_motion_chain_vocabulary(): void {
   >
     ? false
     : true = true;
-  const required: [] extends IAutoMovieMotionHumanChainCore.Arguments<"walk"> ? false : true =
-    true;
-  const optional: [] extends IAutoMovieMotionHumanChainCore.Arguments<"stand"> ? true : false =
-    true;
+  const required: [] extends IAutoMovieMotionHumanChainCore.Arguments<"walk">
+    ? false
+    : true = true;
+  const optional: [] extends IAutoMovieMotionHumanChainCore.Arguments<"stand">
+    ? true
+    : false = true;
   TestValidator.predicate(
     "the type pins hold",
     mistyped && selected && undeclared && unknownRow && required && optional,

@@ -1,7 +1,25 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPushPull, IAutoMovieMotionHumanRefusal, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-import { Quaternion, ROM_TOLERANCE, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-
-import { HumanChain, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import {
+  Quaternion,
+  ROM_TOLERANCE,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPushPull,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -67,13 +85,14 @@ export function test_human_motion_haul_push_pull(): void {
       height: number;
       ahead: number;
     }[] = [
-      ...(["push", "pull"] as const).flatMap((way: IAutoMovieMotionHumanPushPull.Way) =>
-        Object.entries(heights).map(([label, height]) => ({
-          way,
-          label,
-          height,
-          ahead: 0.6 * arm,
-        })),
+      ...(["push", "pull"] as const).flatMap(
+        (way: IAutoMovieMotionHumanPushPull.Way) =>
+          Object.entries(heights).map(([label, height]) => ({
+            way,
+            label,
+            height,
+            ahead: 0.6 * arm,
+          })),
       ),
       {
         way: "drag",
@@ -92,16 +111,15 @@ export function test_human_motion_haul_push_pull(): void {
           z: way === "pull" ? -2 : 3,
         };
         const prop: IAutoMovieMotionHumanProp = crate(ahead, height);
-        const built: IAutoMovieMotionHumanPerformance | string | IAutoMovieMotionHumanRefusal = perform(
-          body,
-          prop,
-          {
-            prop: "crate",
-            way,
-            to,
-            load,
-          },
-        );
+        const built:
+          | IAutoMovieMotionHumanPerformance
+          | string
+          | IAutoMovieMotionHumanRefusal = perform(body, prop, {
+          prop: "crate",
+          way,
+          to,
+          load,
+        });
         if (!(built instanceof HumanPerformance)) {
           complaints.push(`${tag}: expected to plan, got ${String(built)}`);
           continue;
@@ -157,17 +175,16 @@ export function test_human_motion_haul_push_pull(): void {
       for (const way of ["push", "pull"] as const) {
         const tag: string = `${name} ${way} at the ${label} not moving`;
         const prop: IAutoMovieMotionHumanProp = crate(0.6 * arm, height);
-        const built: IAutoMovieMotionHumanPerformance | string | IAutoMovieMotionHumanRefusal = perform(
-          body,
-          prop,
-          {
-            prop: "crate",
-            way,
-            moves: false,
-            seconds: 2,
-            load: "heavy",
-          },
-        );
+        const built:
+          | IAutoMovieMotionHumanPerformance
+          | string
+          | IAutoMovieMotionHumanRefusal = perform(body, prop, {
+          prop: "crate",
+          way,
+          moves: false,
+          seconds: 2,
+          load: "heavy",
+        });
         if (!(built instanceof HumanPerformance)) {
           complaints.push(`${tag}: expected to plan, got ${String(built)}`);
           continue;
@@ -191,7 +208,10 @@ export function test_human_motion_haul_push_pull(): void {
       kind: IAutoMovieMotionHumanRefusal.Kind,
       axis: string,
     ): void => {
-      const built: IAutoMovieMotionHumanPerformance | string | IAutoMovieMotionHumanRefusal = perform(
+      const built:
+        | IAutoMovieMotionHumanPerformance
+        | string
+        | IAutoMovieMotionHumanRefusal = perform(
         body,
         crate(0.6 * arm, heights.elbow),
         params,
@@ -337,7 +357,10 @@ function readHaul(
     seconds: number,
     side: "left" | "right",
   ): IAutoMovieVector3 => {
-    const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop("crate", seconds);
+    const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop(
+      "crate",
+      seconds,
+    );
     return Vector3.add(
       frame.position,
       Quaternion.rotateVector(
@@ -354,12 +377,13 @@ function readHaul(
   const first: Partial<Record<"left" | "right", IAutoMovieVector3>> = {};
   const start: number = gripped + 0.05;
   for (let seconds: number = start; seconds <= placed.end; seconds += 0.25) {
-    const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop("crate", seconds);
-    lowest = Math.min(lowest, frame.position.y - prop.frame.position.y);
-    const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> = performance.bones(
-      "a",
+    const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop(
+      "crate",
       seconds,
     );
+    lowest = Math.min(lowest, frame.position.y - prop.frame.position.y);
+    const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
+      performance.bones("a", seconds);
     for (const side of ["left", "right"] as const) {
       const handle: IAutoMovieVector3 = Vector3.add(
         frame.position,

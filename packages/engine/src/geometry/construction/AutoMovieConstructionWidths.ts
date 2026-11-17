@@ -1,4 +1,11 @@
-import type { IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieConstructionWidth, IAutoMovieConstructionWidths, IAutoMovieSolidIntersection, IAutoMovieSolidJoin } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionWidth,
+  IAutoMovieConstructionWidths,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
@@ -18,7 +25,6 @@ const { cross, dot, norm, scale } = AutoMovieSolidVector;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConstructionWidths {
-
   /**
    * Whether a width is read from the traced curve.
    *
@@ -159,7 +165,10 @@ export namespace AutoMovieConstructionWidths {
    * @param p The point.
    * @returns The angle, radians in `[0, pi]`.
    */
-  function turn(curve: IAutoMovieConstructionWidths.ITraced, p: IAutoMovieSolidIntersection.IPoint): number {
+  function turn(
+    curve: IAutoMovieConstructionWidths.ITraced,
+    p: IAutoMovieSolidIntersection.IPoint,
+  ): number {
     const face: IAutoMovieSolidSurface = curve.host.faces[p.face]!;
     const h: IAutoMovieSolidSurface.IJet = face.jet(p.y, p.theta);
     const q: IAutoMovieSolidSurface.IJet = curve.part.jet(p.s, p.phi);

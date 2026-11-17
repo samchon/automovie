@@ -1,21 +1,20 @@
-import type { IAutoMovieNaturalSpline, AutoMovieHumanSexPair, IAutoMovieHumanBodyMeasures, IAutoMovieHumanLegMassPrior, IAutoMovieHumanLegWalk } from "@automovie/interface";
-
-
-
-
-
 import { AutoMovieNaturalSpline } from "@automovie/engine";
+import type {
+  AutoMovieHumanSexPair,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanLegMassPrior,
+  IAutoMovieHumanLegWalk,
+  IAutoMovieNaturalSpline,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSex } from "../../typings/AutoMovieHumanSex";
 import { AutoMovieHumanLegSectionProportion } from "../AutoMovieHumanLegSectionProportion";
 import { AutoMovieHumanLegSites } from "../AutoMovieHumanLegSites";
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import { AutoMovieHumanSuprapatella } from "../AutoMovieHumanSuprapatella";
-
 import { AutoMovieHumanLegBones } from "./AutoMovieHumanLegBones";
 import { AutoMovieHumanLegGirth } from "./AutoMovieHumanLegGirth";
 import { AutoMovieHumanLegMassPrior } from "./AutoMovieHumanLegMassPrior";
-
 
 /**
  * A leg's site laws bound for a person (#3048), in calibration millimetres,

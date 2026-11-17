@@ -1,6 +1,24 @@
-import type { IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanResolveHumanPosture, IAutoMovieMotionHumanSegment, IAutoMoviePose, IAutoMoviePoseRig, IAutoMovieRandom, IAutoMovieResolvedBone, IAutoMovieSamplePoseVelocity, IAutoMovieSeededChainFit, IAutoMovieSwivelNear, IAutoMovieSwivelSeed } from "@automovie/interface";
+import {
+  clampPose,
+  inertializePose,
+  minimumJerk,
+  samplePoseVelocity,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMoviePose,
+  IAutoMoviePoseRig,
+  IAutoMovieRandom,
+  IAutoMovieResolvedBone,
+  IAutoMovieSamplePoseVelocity,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelNear,
+  IAutoMovieSwivelSeed,
+} from "@automovie/interface";
 
-import { clampPose, inertializePose, minimumJerk, samplePoseVelocity } from "@automovie/engine";
 import { humanRig } from "../posture/humanRig";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { poseBones } from "../posture/poseBones";
@@ -185,10 +203,8 @@ export namespace HumanSegmentPose {
     // A carried hand no overlay drives keeps its goal as a planted one, so
     // the transition's offset below never moves what it holds. A hand an
     // overlay drives is that overlay's, faded in and out by `overlaid`.
-    const active: IAutoMovieMotionHumanSegment.IOverlay[] = HumanSegmentOverlay.running(
-      person,
-      seconds,
-    );
+    const active: IAutoMovieMotionHumanSegment.IOverlay[] =
+      HumanSegmentOverlay.running(person, seconds);
     const kept: IAutoMovieMotionHumanSegment.IHeld[] = carried.filter(
       (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
         !active.some((o: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
@@ -282,17 +298,18 @@ export namespace HumanSegmentPose {
     const plants: IAutoMovieMotionHumanPosture["limbs"] = Object.fromEntries(
       Object.entries(posture.limbs).filter(([, goal]) => goal.planted === true),
     );
-    const planted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.refit(
-      body,
-      pose,
-      plants,
-      Object.fromEntries(
-        resolveHumanPosture.order(plants).flatMap((limb) => {
-          const continued = nearby(near, `planted:${limb}`);
-          return continued === undefined ? [] : [[limb, continued]];
-        }),
-      ),
-    );
+    const planted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
+      resolveHumanPosture.refit(
+        body,
+        pose,
+        plants,
+        Object.fromEntries(
+          resolveHumanPosture.order(plants).flatMap((limb) => {
+            const continued = nearby(near, `planted:${limb}`);
+            return continued === undefined ? [] : [[limb, continued]];
+          }),
+        ),
+      );
     for (const [limb, seed] of Object.entries(planted.seeds))
       seeds.set(`planted:${limb}`, seed ?? null);
     return { pose: planted.pose, seeds };
@@ -473,7 +490,9 @@ export namespace HumanSegmentPose {
   }
 
   /** The standing pose before a person's first action. */
-  export function initial(person: IAutoMovieMotionHumanSegment.IPerson): IAutoMoviePose {
+  export function initial(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+  ): IAutoMoviePose {
     return resolveHumanPosture(person.performer.body, person.initial);
   }
 }

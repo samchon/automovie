@@ -1,5 +1,13 @@
-import { type IAutoMovieViolationCollector, IAutoMovieBuiltPopulation, IAutoMovieConstraintViolation, IAutoMovieExplicitInstanceTransform, IAutoMovieInstanceSetDesign, IAutoMovieQuaternion, IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieBuiltPopulation,
+  IAutoMovieConstraintViolation,
+  IAutoMovieExplicitInstanceTransform,
+  IAutoMovieInstanceSetDesign,
+  IAutoMovieQuaternion,
+  IAutoMovieSubjectBox,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";

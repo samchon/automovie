@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import { isPhysicalNativeNumber } from "./isPhysicalNativeNumber";
 
 /**
@@ -12,7 +13,9 @@ import { isPhysicalNativeNumber } from "./isPhysicalNativeNumber";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function physicalNativeVector(value: IAutoMovieVector3): IAutoMovieVector3 {
+export function physicalNativeVector(
+  value: IAutoMovieVector3,
+): IAutoMovieVector3 {
   if (![value.x, value.y, value.z].every(isPhysicalNativeNumber))
     throw new Error("Derived native vector exceeds finite f32 range");
   return value;

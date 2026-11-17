@@ -1,7 +1,10 @@
-import type { IAutoMovieMotionHumanArmGeometry, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
@@ -255,9 +258,15 @@ export namespace HumanArmTrajectoryModel {
     x: readonly (readonly number[])[][],
   ): IEvaluation {
     const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[][] = x.map(
-      (arm: readonly (readonly number[])[], a: number): IAutoMovieMotionHumanArmGeometry.IPlaced[] =>
+      (
+        arm: readonly (readonly number[])[],
+        a: number,
+      ): IAutoMovieMotionHumanArmGeometry.IPlaced[] =>
         arm.map(
-          (v: readonly number[], k: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+          (
+            v: readonly number[],
+            k: number,
+          ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
             G.placed(c.setups[a]!, c.frames[a]![k]!, v),
         ),
     );

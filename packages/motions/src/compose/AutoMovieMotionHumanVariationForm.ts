@@ -1,4 +1,8 @@
-import type { IAutoMovieMotionHumanBend, IAutoMovieMotionHumanVariation, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanVariation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";

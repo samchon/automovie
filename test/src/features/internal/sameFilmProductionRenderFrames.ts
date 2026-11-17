@@ -1,6 +1,5 @@
 import type { IAutoMovieProductionRenderFrame } from "@automovie/interface";
 
-
 import { nclose } from "./nclose";
 import { sameFilmProductionRenderLayers } from "./sameFilmProductionRenderLayers";
 

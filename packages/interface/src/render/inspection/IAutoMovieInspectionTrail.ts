@@ -1,5 +1,3 @@
-
-
 /**
  * Where one scene object's origin was at each sampled second, as `sampleAutoMovieInspectionTrails` reads it.
  *

@@ -1,5 +1,17 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanAuditTangle, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanVerdicts } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditTangle, HUMAN_LEXICON, HumanChain, HumanPerformance, HumanVerdicts } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanAuditTangle,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanVerdicts,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAuditTangle,
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanPerformance,
+  HumanVerdicts,
+} from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
 
@@ -32,7 +44,8 @@ export function motionRowVerdicts(
   name: motionHumanBody.Name,
   half: 1 | 2,
 ): string {
-  const laws: IAutoMovieMotionHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] =
+    Object.values(HUMAN_LEXICON).flat();
   const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "verdict",

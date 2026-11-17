@@ -1,6 +1,19 @@
-import { type IAutoMovieActionSynthesizer, type IAutoMoviePerformedShot, type IAutoMovieStagedSet, AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieCameraAction, IAutoMovieConstraintViolation, IAutoMovieExpression, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
 import { compareCodeUnits, performShot, stageScene } from "@automovie/engine";
-
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieActionCall,
+  type IAutoMovieActionSynthesizer,
+  IAutoMovieCameraAction,
+  IAutoMovieConstraintViolation,
+  IAutoMovieExpression,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  type IAutoMoviePerformedShot,
+  IAutoMoviePose,
+  type IAutoMovieStagedSet,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {

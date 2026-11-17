@@ -1,4 +1,5 @@
 import type { IAutoMovieSweepRotation } from "@automovie/interface";
+
 import { QUATERNION_NLERP_DOT_THRESHOLD } from "../../math/constants/QUATERNION_NLERP_DOT_THRESHOLD";
 
 /**

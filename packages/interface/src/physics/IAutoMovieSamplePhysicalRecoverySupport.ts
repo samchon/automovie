@@ -12,11 +12,11 @@ export namespace IAutoMovieSamplePhysicalRecoverySupport {
    * @evidence contracts/development/design.md#minimal-and-owned-surface samplePhysicalRecoverySupport returns a new offset vector, choosing the latest retained endpoint offset or the adopted root offset after an authored handoff.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Absent state yields inactive and zero offset. A future completed landing cannot modify an earlier sample; active does not assert actual floor contact.
    */
-  export type IResult = { 
-  
-  /** True while the latest started recovery step remains unresolved at the requested second; this is controller ownership, not observed support contact. */
-  active: boolean; 
-  
-  /** New world displacement in metres from the latest causally eligible landing; uses root displacement after endpoint handoff and zero when no landing exists. */
-  offset: IAutoMovieVector3 };
+  export type IResult = {
+    /** True while the latest started recovery step remains unresolved at the requested second; this is controller ownership, not observed support contact. */
+    active: boolean;
+
+    /** New world displacement in metres from the latest causally eligible landing; uses root displacement after endpoint handoff and zero when no landing exists. */
+    offset: IAutoMovieVector3;
+  };
 }

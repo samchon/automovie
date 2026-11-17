@@ -1,7 +1,11 @@
-import type { IAutoMovieRecoveryEpipolarMatrixFittingOperation, IAutoMovieRecoveryImagePointsNormalizationOperation } from "@automovie/interface";
 import {
   AutoMovieMatrix3,
-  decomposeAutoMovieSingularMatrix } from "@automovie/engine";
+  decomposeAutoMovieSingularMatrix,
+} from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryEpipolarMatrixFittingOperation,
+  IAutoMovieRecoveryImagePointsNormalizationOperation,
+} from "@automovie/interface";
 
 import { normalizeRecoveryImagePoints } from "./normalizeRecoveryImagePoints";
 
@@ -50,7 +54,8 @@ export function fitRecoveryEpipolarMatrix(
   const options: Parameters<typeof decomposeAutoMovieSingularMatrix>[1] = {
     maxEntries: Math.max(81, 9 * rows.length),
     maxSweeps,
-    orthogonalityTolerance: 1e-12 };
+    orthogonalityTolerance: 1e-12,
+  };
   const decomposition: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
     decomposeAutoMovieSingularMatrix(rows, options);
   const ratio: number =
@@ -88,5 +93,6 @@ export function fitRecoveryEpipolarMatrix(
   const sign: number = matrix[anchor]! < 0 ? -1 : 1;
   return {
     matrix: matrix.map((value: number): number => (sign * value) / norm),
-    designSingularRatio: ratio };
+    designSingularRatio: ratio,
+  };
 }

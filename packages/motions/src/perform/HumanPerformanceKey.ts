@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPerformer } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformer,
+} from "@automovie/interface";
 
 /**
  * A performance input's structural key: two inputs share a key exactly when

@@ -1,6 +1,17 @@
-import type { IAutoMovieHit, IAutoMovieProjectile, IAutoMovieProjectileContinue, IAutoMovieProjectileFirstContact, IAutoMovieResolveContactEvents, IAutoMovieVector3 } from "@automovie/interface";
-import { projectileAt, projectileContinue, projectileFirstContact, resolveAutoMovieContactEvents } from "@automovie/engine";
-
+import {
+  projectileAt,
+  projectileContinue,
+  projectileFirstContact,
+  resolveAutoMovieContactEvents,
+} from "@automovie/engine";
+import type {
+  IAutoMovieHit,
+  IAutoMovieProjectile,
+  IAutoMovieProjectileContinue,
+  IAutoMovieProjectileFirstContact,
+  IAutoMovieResolveContactEvents,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -42,11 +53,8 @@ import { nclose } from "../internal/nclose";
 export function test_physics_projectile_departure(): void {
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const ground: IAutoMovieProjectileFirstContact.ICollider = projectileFirstContact.plane(
-    "ground",
-    zero,
-    up,
-  );
+  const ground: IAutoMovieProjectileFirstContact.ICollider =
+    projectileFirstContact.plane("ground", zero, up);
   const outgoing: IAutoMovieProjectile = {
     origin: zero,
     velocity: up,
@@ -179,11 +187,8 @@ export function test_physics_projectile_departure(): void {
   });
 
   observe("other initial collider", (): void => {
-    const wall: IAutoMovieProjectileFirstContact.ICollider = projectileFirstContact.plane(
-      "wall",
-      zero,
-      { x: 1, y: 0, z: 0 },
-    );
+    const wall: IAutoMovieProjectileFirstContact.ICollider =
+      projectileFirstContact.plane("wall", zero, { x: 1, y: 0, z: 0 });
     for (const colliders of [
       [ground, wall],
       [wall, ground],
@@ -202,11 +207,12 @@ export function test_physics_projectile_departure(): void {
   });
 
   observe("other earlier collider", (): void => {
-    const wall: IAutoMovieProjectileFirstContact.ICollider = projectileFirstContact.plane(
-      "wall",
-      { x: 0.25, y: 0, z: 0 },
-      { x: -1, y: 0, z: 0 },
-    );
+    const wall: IAutoMovieProjectileFirstContact.ICollider =
+      projectileFirstContact.plane(
+        "wall",
+        { x: 0.25, y: 0, z: 0 },
+        { x: -1, y: 0, z: 0 },
+      );
     for (const colliders of [
       [ground, wall],
       [wall, ground],
@@ -243,11 +249,15 @@ export function test_physics_projectile_departure(): void {
       first !== null && nclose(first.time, Math.sqrt(2), 1e-5),
     );
     if (first === null) return;
-    const next: IAutoMovieProjectileContinue.Segment = projectileContinue(drop, first, {
-      kind: "bounce",
-      restitution: 0.5,
-      friction: 0,
-    });
+    const next: IAutoMovieProjectileContinue.Segment = projectileContinue(
+      drop,
+      first,
+      {
+        kind: "bounce",
+        restitution: 0.5,
+        friction: 0,
+      },
+    );
     check("the resolved impact produces flight", next.kind === "flight");
     if (next.kind !== "flight") return;
     const state: IAutoMovieVector3 = projectileAt(drop, first.time).position;

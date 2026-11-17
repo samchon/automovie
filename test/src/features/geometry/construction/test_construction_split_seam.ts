@@ -1,6 +1,14 @@
-import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieConstructionSplitSeam, IAutoMovieSolidSurface, IAutoMovieConstructionSplit } from "@automovie/interface";
-import { AutoMovieConstructionSplitSeam, realizeAutoMovieConstruction } from "@automovie/engine";
-
+import {
+  AutoMovieConstructionSplitSeam,
+  realizeAutoMovieConstruction,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionRealization,
+  IAutoMovieConstructionSplit,
+  IAutoMovieConstructionSplitSeam,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
@@ -451,28 +459,67 @@ export function test_construction_split_seam(): void {
       `proof: the straight chord's fork reads ${crease} deg, not a crease`,
     );
   // 9. A seam that runs out along the host before it turns across the end.
-  const outKnots: [number, number][] = [[0, 0.004], [0.006, 0.007], knots[1]!, knots[2]!];
+  const outKnots: [number, number][] = [
+    [0, 0.004],
+    [0.006, 0.007],
+    knots[1]!,
+    knots[2]!,
+  ];
   try {
-    const lengthwise: IAutoMovieConstructionSplit = split({ knots: outKnots, corner });
-    const out: IAutoMovieConstructionRealization.IRealization = realize({ ...lengthwise, children: lengthwise.children.map((c: IAutoMovieConstructionSplit.IChild): IAutoMovieConstructionSplit.IChild => ({ ...c, correspondence: "length" })) as IAutoMovieConstructionSplit["children"] }, true);
-    if (out.diagnostics.length !== 0) failures.push(`run-out seam: ${ConstructionRead.diagnostics(out)}`);
-    if (out.body.faces.filter((f: { chain: string }): boolean => f.chain.startsWith("band.")).length !== 2) failures.push("run-out seam: not two bands");
-    const ran: IAutoMovieConstructionSplitSeam.ISeam | string = AutoMovieConstructionSplitSeam.create({
-      host: ConstructionRead.surface(out, "trunk"),
-      station: 30,
-      into: 1,
-      seam: [0, Math.PI],
-      normal: [0, 0, -1],
-      knots: outKnots.map(([a, d]: [number, number]): [number, number] => [a * 1000, d * 1000]),
+    const lengthwise: IAutoMovieConstructionSplit = split({
+      knots: outKnots,
+      corner,
     });
+    const out: IAutoMovieConstructionRealization.IRealization = realize(
+      {
+        ...lengthwise,
+        children: lengthwise.children.map(
+          (
+            c: IAutoMovieConstructionSplit.IChild,
+          ): IAutoMovieConstructionSplit.IChild => ({
+            ...c,
+            correspondence: "length",
+          }),
+        ) as IAutoMovieConstructionSplit["children"],
+      },
+      true,
+    );
+    if (out.diagnostics.length !== 0)
+      failures.push(`run-out seam: ${ConstructionRead.diagnostics(out)}`);
+    if (
+      out.body.faces.filter((f: { chain: string }): boolean =>
+        f.chain.startsWith("band."),
+      ).length !== 2
+    )
+      failures.push("run-out seam: not two bands");
+    const ran: IAutoMovieConstructionSplitSeam.ISeam | string =
+      AutoMovieConstructionSplitSeam.create({
+        host: ConstructionRead.surface(out, "trunk"),
+        station: 30,
+        into: 1,
+        seam: [0, Math.PI],
+        normal: [0, 0, -1],
+        knots: outKnots.map(([a, d]: [number, number]): [number, number] => [
+          a * 1000,
+          d * 1000,
+        ]),
+      });
     if (typeof ran === "string") failures.push(`run-out seam refused: ${ran}`);
     else {
       // The plane is y = 0: `along` is R - x, the depth -(z + 30).
       let nearest: number = Infinity;
-      for (let i: number = 0; i <= 4000; ++i) nearest = Math.min(nearest, len(sub(ran.at(i / 4000).point, [R, 0, -34])));
+      for (let i: number = 0; i <= 4000; ++i)
+        nearest = Math.min(
+          nearest,
+          len(sub(ran.at(i / 4000).point, [R, 0, -34])),
+        );
       const early: readonly number[] = ran.at(3 / ran.length).point;
-      if (!(nearest <= 0.01)) failures.push(`run-out seam: misses its first knot by ${nearest} mm`);
-      if (!(R - early[0]! < 1 && -(early[2]! + 30) > 2.5)) failures.push(`run-out seam: 3 mm along its length it stands ${R - early[0]!} mm along the chord and ${-(early[2]! + 30)} mm out`);
+      if (!(nearest <= 0.01))
+        failures.push(`run-out seam: misses its first knot by ${nearest} mm`);
+      if (!(R - early[0]! < 1 && -(early[2]! + 30) > 2.5))
+        failures.push(
+          `run-out seam: 3 mm along its length it stands ${R - early[0]!} mm along the chord and ${-(early[2]! + 30)} mm out`,
+        );
     }
   } catch (error: unknown) {
     failures.push(`run-out seam refused: ${String(error)}`);

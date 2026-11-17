@@ -1,16 +1,17 @@
-import type { IAutoMovieMotionHumanBrace, IAutoMovieMotionHumanClinch, IAutoMovieMotionHumanDefend, IAutoMovieMotionHumanFlinch, IAutoMovieMotionHumanGuard, IAutoMovieMotionHumanKick, IAutoMovieMotionHumanKnee, IAutoMovieMotionHumanKnockdown, IAutoMovieMotionHumanPerturb, IAutoMovieMotionHumanPunch, IAutoMovieMotionHumanStagger, IAutoMovieMotionHumanStep } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
-
-
+import type {
+  IAutoMovieMotionHumanBrace,
+  IAutoMovieMotionHumanClinch,
+  IAutoMovieMotionHumanDefend,
+  IAutoMovieMotionHumanFlinch,
+  IAutoMovieMotionHumanGuard,
+  IAutoMovieMotionHumanKick,
+  IAutoMovieMotionHumanKnee,
+  IAutoMovieMotionHumanKnockdown,
+  IAutoMovieMotionHumanPerturb,
+  IAutoMovieMotionHumanPunch,
+  IAutoMovieMotionHumanStagger,
+  IAutoMovieMotionHumanStep,
+} from "@automovie/interface";
 
 import { HumanChainManual } from "./HumanChainManual";
 
@@ -32,7 +33,10 @@ export class HumanChainStriking extends HumanChainManual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public guard(params: IAutoMovieMotionHumanGuard.IParams = {}, anchor?: string): this {
+  public guard(
+    params: IAutoMovieMotionHumanGuard.IParams = {},
+    anchor?: string,
+  ): this {
     return this.act("guard", params, anchor);
   }
 
@@ -43,7 +47,10 @@ export class HumanChainStriking extends HumanChainManual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public step(params: IAutoMovieMotionHumanStep.IParams, anchor?: string): this {
+  public step(
+    params: IAutoMovieMotionHumanStep.IParams,
+    anchor?: string,
+  ): this {
     return this.act("step", params, anchor);
   }
 
@@ -54,7 +61,10 @@ export class HumanChainStriking extends HumanChainManual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public punch(params: IAutoMovieMotionHumanPunch.IParams, anchor?: string): this {
+  public punch(
+    params: IAutoMovieMotionHumanPunch.IParams,
+    anchor?: string,
+  ): this {
     return this.act("punch", params, anchor);
   }
 
@@ -66,7 +76,10 @@ export class HumanChainStriking extends HumanChainManual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public kick(params: IAutoMovieMotionHumanKick.IParams, anchor?: string): this {
+  public kick(
+    params: IAutoMovieMotionHumanKick.IParams,
+    anchor?: string,
+  ): this {
     return this.act("kick", params, anchor);
   }
 
@@ -77,7 +90,10 @@ export class HumanChainStriking extends HumanChainManual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public knee(params: IAutoMovieMotionHumanKnee.IParams, anchor?: string): this {
+  public knee(
+    params: IAutoMovieMotionHumanKnee.IParams,
+    anchor?: string,
+  ): this {
     return this.act("knee", params, anchor);
   }
 
@@ -89,7 +105,10 @@ export class HumanChainStriking extends HumanChainManual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public clinch(params: IAutoMovieMotionHumanClinch.IParams, anchor?: string): this {
+  public clinch(
+    params: IAutoMovieMotionHumanClinch.IParams,
+    anchor?: string,
+  ): this {
     return this.act("clinch", params, anchor);
   }
 
@@ -101,7 +120,10 @@ export class HumanChainStriking extends HumanChainManual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public defend(params: IAutoMovieMotionHumanDefend.IParams, anchor?: string): this {
+  public defend(
+    params: IAutoMovieMotionHumanDefend.IParams,
+    anchor?: string,
+  ): this {
     return this.act("defend", params, anchor);
   }
 
@@ -112,7 +134,10 @@ export class HumanChainStriking extends HumanChainManual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public brace(params: IAutoMovieMotionHumanBrace.IParams = {}, anchor?: string): this {
+  public brace(
+    params: IAutoMovieMotionHumanBrace.IParams = {},
+    anchor?: string,
+  ): this {
     return this.act("brace", params, anchor);
   }
 
@@ -123,7 +148,10 @@ export class HumanChainStriking extends HumanChainManual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public flinch(params: IAutoMovieMotionHumanFlinch.IParams = {}, anchor?: string): this {
+  public flinch(
+    params: IAutoMovieMotionHumanFlinch.IParams = {},
+    anchor?: string,
+  ): this {
     return this.act("flinch", params, anchor);
   }
 
@@ -134,7 +162,10 @@ export class HumanChainStriking extends HumanChainManual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public stagger(params: IAutoMovieMotionHumanStagger.IParams, anchor?: string): this {
+  public stagger(
+    params: IAutoMovieMotionHumanStagger.IParams,
+    anchor?: string,
+  ): this {
     return this.act("stagger", params, anchor);
   }
 
@@ -145,7 +176,10 @@ export class HumanChainStriking extends HumanChainManual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public knockdown(params: IAutoMovieMotionHumanKnockdown.IParams = {}, anchor?: string): this {
+  public knockdown(
+    params: IAutoMovieMotionHumanKnockdown.IParams = {},
+    anchor?: string,
+  ): this {
     return this.act("knockdown", params, anchor);
   }
 
@@ -157,7 +191,10 @@ export class HumanChainStriking extends HumanChainManual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public perturb(params: IAutoMovieMotionHumanPerturb.IParams = {}, anchor?: string): this {
+  public perturb(
+    params: IAutoMovieMotionHumanPerturb.IParams = {},
+    anchor?: string,
+  ): this {
     return this.act("perturb", params, anchor);
   }
 }

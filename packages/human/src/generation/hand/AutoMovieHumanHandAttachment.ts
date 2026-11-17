@@ -1,18 +1,18 @@
-import type { IAutoMovieViewPart, IAutoMovieViewSection, AutoMovieVector3Tuple, IAutoMovieHumanArmWalk, IAutoMovieHumanDigitWalk, IAutoMovieHumanHandAttachment, IAutoMovieHumanHandParent, IAutoMovieHumanSiteViewPart } from "@automovie/interface";
-
-
-
-
-
-
-
 import { AutoMovieIllinois, AutoMovieViewSection } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanArmWalk,
+  IAutoMovieHumanDigitWalk,
+  IAutoMovieHumanHandAttachment,
+  IAutoMovieHumanHandParent,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
-
-import { AutoMovieHumanHandVector as V } from "./AutoMovieHumanHandVector";
-import { AutoMovieHumanHandParentRead } from "./AutoMovieHumanHandParentRead";
 import { AutoMovieHumanHandParent } from "./AutoMovieHumanHandParent";
-
+import { AutoMovieHumanHandParentRead } from "./AutoMovieHumanHandParentRead";
+import { AutoMovieHumanHandVector as V } from "./AutoMovieHumanHandVector";
 
 /** Selected skin datum and the original joint's separate coordinate availability. */
 interface Placement {
@@ -36,23 +36,17 @@ interface Placement {
  * attachment record. The measured PIP breadth remains this digit's width.
  */
 export namespace AutoMovieHumanHandAttachment {
-  
-
-  
-
-  
-
-  
-
-  
-
   /** Explicit legacy fixture/part adapter; production calls fromControls before publishing its arm. */
-  export function prepare(definition: IAutoMovieHumanSiteViewPart.IDefinition): IAutoMovieHumanHandParent.IOutput {
+  export function prepare(
+    definition: IAutoMovieHumanSiteViewPart.IDefinition,
+  ): IAutoMovieHumanHandParent.IOutput {
     return AutoMovieHumanHandParent.prepare(definition);
   }
 
   /** Consume the same generating scalar/frame owner directly, without acquiring a completed arm. */
-  export function fromControls(prepared: IAutoMovieHumanArmWalk.IPrepared): IAutoMovieHumanHandParent.IOutput {
+  export function fromControls(
+    prepared: IAutoMovieHumanArmWalk.IPrepared,
+  ): IAutoMovieHumanHandParent.IOutput {
     return AutoMovieHumanHandParent.fromControls(prepared);
   }
 
@@ -70,7 +64,10 @@ export namespace AutoMovieHumanHandAttachment {
     const length: number = V.norm(V.sub(first, joint));
     if (!(length > 0))
       throw new Error(`The ${input.name} first bone has no direction`);
-    const tangent: AutoMovieVector3Tuple = V.scale(V.sub(first, joint), 1 / length);
+    const tangent: AutoMovieVector3Tuple = V.scale(
+      V.sub(first, joint),
+      1 / length,
+    );
     const { root, section, jointSection }: Placement = inside(
       parent,
       joint,
@@ -83,33 +80,35 @@ export namespace AutoMovieHumanHandAttachment {
     if (!(V.norm(u) > 0))
       throw new Error(`No actual dorsal frame for ${input.name}`);
     const v: AutoMovieVector3Tuple = V.cross(u, tangent);
-    const dorsalChord: IAutoMovieHumanHandAttachment.IConnection["dorsalChord"] = {
-      lower: edge(parent, root, V.scale(u, -1), section, -1),
-      upper: edge(parent, root, u, section, 1),
-    };
+    const dorsalChord: IAutoMovieHumanHandAttachment.IConnection["dorsalChord"] =
+      {
+        lower: edge(parent, root, V.scale(u, -1), section, -1),
+        upper: edge(parent, root, u, section, 1),
+      };
     const lower: number = dorsalChord.lower.ordinate;
     const upper: number = dorsalChord.upper.ordinate;
     if (!(lower < 0 && upper > 0))
       throw new Error(
         `The ${input.name} parent chord does not hold its dorsal axis`,
       );
-    const quarterRays: IAutoMovieHumanHandAttachment.IConnection["quarterRays"] = [0, 1, 2, 3].map(
-      (q: number): IAutoMovieHumanHandAttachment.IEdge => {
+    const quarterRays: IAutoMovieHumanHandAttachment.IConnection["quarterRays"] =
+      [0, 1, 2, 3].map((q: number): IAutoMovieHumanHandAttachment.IEdge => {
         const phi: number = ((q + 0.5) * Math.PI) / 2;
         const direction: AutoMovieVector3Tuple = V.plus(
           V.scale(u, Math.cos(phi)),
           V.scale(v, Math.sin(phi)),
         );
         return edge(parent, root, direction, section, 1);
+      }) as IAutoMovieHumanHandAttachment.IConnection["quarterRays"];
+    const phases: IAutoMovieHumanHandAttachment.Quarters = quarterRays.map(
+      (ray: IAutoMovieHumanHandAttachment.IEdge): number => {
+        const angle: number = Math.atan2(
+          ray.inside.local[1],
+          ray.inside.local[0],
+        );
+        return angle < 0 ? angle + 2 * Math.PI : angle;
       },
-    ) as IAutoMovieHumanHandAttachment.IConnection["quarterRays"];
-    const phases: IAutoMovieHumanHandAttachment.Quarters = quarterRays.map((ray: IAutoMovieHumanHandAttachment.IEdge): number => {
-      const angle: number = Math.atan2(
-        ray.inside.local[1],
-        ray.inside.local[0],
-      );
-      return angle < 0 ? angle + 2 * Math.PI : angle;
-    }) as IAutoMovieHumanHandAttachment.Quarters;
+    ) as IAutoMovieHumanHandAttachment.Quarters;
     const quarters: [number, number, number, number] = phases.map(
       (phase: number): number => Math.floor(phase / (Math.PI / 2)) % 4,
     ) as [number, number, number, number];
@@ -122,7 +121,11 @@ export namespace AutoMovieHumanHandAttachment {
       section,
       dorsalChord.lower.inside,
       dorsalChord.upper.inside,
-      ...quarterRays.map((ray: IAutoMovieHumanHandAttachment.IEdge): IAutoMovieHumanHandAttachment.ISection => ray.inside),
+      ...quarterRays.map(
+        (
+          ray: IAutoMovieHumanHandAttachment.IEdge,
+        ): IAutoMovieHumanHandAttachment.ISection => ray.inside,
+      ),
     ].every(
       (reading: IAutoMovieHumanHandAttachment.ISection): boolean =>
         typeof reading.jets !== "string" && reading.axisJet !== null,
@@ -168,7 +171,8 @@ export namespace AutoMovieHumanHandAttachment {
           dorsalChord.upper.inside.station,
         ],
         quarterStations: quarterRays.map(
-          (ray: IAutoMovieHumanHandAttachment.IEdge): number => ray.inside.station,
+          (ray: IAutoMovieHumanHandAttachment.IEdge): number =>
+            ray.inside.station,
         ) as IAutoMovieHumanHandAttachment.Quarters,
         first: 0,
         second: 0,
@@ -181,14 +185,15 @@ export namespace AutoMovieHumanHandAttachment {
       centres: [root, ...input.centres.slice(1)],
       attachment,
       law: (site: string): IAutoMovieHumanDigitWalk.ISiteLaw =>
-        site === "base"
-          ? attachment.proximal
-          : input.law(site),
+        site === "base" ? attachment.proximal : input.law(site),
     };
   }
 
   /** Read the actual normal plane on straight or curved source spans, never global height. */
-  export function locate(parent: IAutoMovieHumanHandParent.IOutput, point: AutoMovieVector3Tuple): IAutoMovieHumanHandAttachment.ISection | null {
+  export function locate(
+    parent: IAutoMovieHumanHandParent.IOutput,
+    point: AutoMovieVector3Tuple,
+  ): IAutoMovieHumanHandAttachment.ISection | null {
     return AutoMovieHumanHandParentRead.locate(parent, point);
   }
 }
@@ -197,7 +202,8 @@ export namespace AutoMovieHumanHandAttachment {
 function chord(
   section: IAutoMovieHumanHandAttachment.ISection,
 ): [number, number] {
-  const shape: IAutoMovieViewSection.ISection = AutoMovieHumanHandParentRead.section(section.values);
+  const shape: IAutoMovieViewSection.ISection =
+    AutoMovieHumanHandParentRead.section(section.values);
   const across: number = section.local[0];
   if (
     !(
@@ -334,7 +340,10 @@ function inside(
   let chosen: IAutoMovieHumanHandAttachment.ISection | null = null;
   let margin: number = 0;
   for (let index: number = 1; index <= 64; index++) {
-    const point: AutoMovieVector3Tuple = V.plus(joint, V.scale(tangent, (-length * index) / 64));
+    const point: AutoMovieVector3Tuple = V.plus(
+      joint,
+      V.scale(tangent, (-length * index) / 64),
+    );
     const section: IAutoMovieHumanHandAttachment.ISection | null =
       AutoMovieHumanHandAttachment.locate(parent, point);
     if (section !== null && section.margin > margin) {

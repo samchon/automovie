@@ -1,5 +1,8 @@
-import { type IAutoMovieViolationCollector, IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieAffordance,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { convexHull2D } from "../math/convexHull2D";
 import { collectNonEmptyId } from "./collectNonEmptyId";

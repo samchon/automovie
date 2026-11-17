@@ -1,5 +1,13 @@
-import type { IAutoMovieResolvedJointAngles, IAutoMovieRestFrame, IAutoMovieFitChainToTargetProps, IAutoMoviePreparedChainPlant, AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMovieQuaternion } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieFitChainToTargetProps,
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
+  IAutoMoviePreparedChainPlant,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedJointAngles,
+  IAutoMovieRestFrame,
+} from "@automovie/interface";
 
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
@@ -37,7 +45,7 @@ import { solveDistalTwist } from "./solveDistalTwist";
  */
 export function fitHingedRotationError(
   props: IAutoMovieFitChainToTargetProps,
-  prepared: NonNullable<(IAutoMoviePreparedChainPlant | null)>,
+  prepared: NonNullable<IAutoMoviePreparedChainPlant | null>,
   axes: IAutoMovieJointAxes,
   rotation: IAutoMovieQuaternion,
 ): (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => number {

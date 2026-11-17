@@ -1,6 +1,9 @@
-import type { IAutoMovieMotionAudit, IAutoMoviePhysicsCache, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { AutoMovieMotionAudit as Audit } from "@automovie/engine";
-
+import type {
+  IAutoMovieMotionAudit,
+  IAutoMoviePhysicsCache,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -62,7 +65,8 @@ export async function test_physical_compression_audit(): Promise<void> {
     });
     findings.push(
       result.findings.filter(
-        (finding: IAutoMovieMotionAudit.IFinding): boolean => finding.kind === "floor",
+        (finding: IAutoMovieMotionAudit.IFinding): boolean =>
+          finding.kind === "floor",
       ).length,
     );
   }
@@ -200,7 +204,8 @@ export async function test_physical_compression_audit(): Promise<void> {
     });
     pairFindings.push(
       result.findings.filter(
-        (finding: IAutoMovieMotionAudit.IFinding): boolean => finding.kind === "overlap",
+        (finding: IAutoMovieMotionAudit.IFinding): boolean =>
+          finding.kind === "overlap",
       ).length,
     );
   }

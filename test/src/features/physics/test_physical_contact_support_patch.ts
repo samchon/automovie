@@ -1,6 +1,13 @@
-import type { IAutoMovieLinearizePhysicalTargetRows, IAutoMoviePhysicalContactSupportRows, IAutoMoviePreparePhysicalGeometry, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-import { preparePhysicalGeometry as Geometry, physicalContactSupportRows } from "@automovie/engine";
-
+import {
+  preparePhysicalGeometry as Geometry,
+  physicalContactSupportRows,
+} from "@automovie/engine";
+import type {
+  IAutoMovieLinearizePhysicalTargetRows,
+  IAutoMoviePhysicalContactSupportRows,
+  IAutoMoviePreparePhysicalGeometry,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
@@ -37,13 +44,14 @@ export async function test_physical_contact_support_patch(): Promise<void> {
     },
   };
   const before: string = JSON.stringify({ profile, support, targets });
-  const rows: IAutoMovieLinearizePhysicalTargetRows.IRows[] = physicalContactSupportRows({
-    profile,
-    supports: [support],
-    body: "primitive",
-    geometry,
-    floor: -10,
-  });
+  const rows: IAutoMovieLinearizePhysicalTargetRows.IRows[] =
+    physicalContactSupportRows({
+      profile,
+      supports: [support],
+      body: "primitive",
+      geometry,
+      floor: -10,
+    });
   const initial: number[] = rows[1]!.measure(targets);
   TestValidator.predicate(
     "touching endpoint and explicit patch have zero residuals",

@@ -1,4 +1,8 @@
-import type { IAutoMovieSingularDecomposition, IAutoMovieSolvePhysicalTargetStep } from "@automovie/interface";
+import type {
+  IAutoMovieSingularDecomposition,
+  IAutoMovieSolvePhysicalTargetStep,
+} from "@automovie/interface";
+
 import { decomposeAutoMovieSingularMatrix } from "../math/decomposeAutoMovieSingularMatrix";
 import { physicalSingularBudget } from "./physicalSingularBudget";
 
@@ -17,7 +21,9 @@ import { physicalSingularBudget } from "./physicalSingularBudget";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function solvePhysicalTargetStep(input: IAutoMovieSolvePhysicalTargetStep.IInput): number[] {
+export function solvePhysicalTargetStep(
+  input: IAutoMovieSolvePhysicalTargetStep.IInput,
+): number[] {
   if (
     !input.errors.length ||
     input.columns.length !== input.coordinates.length ||

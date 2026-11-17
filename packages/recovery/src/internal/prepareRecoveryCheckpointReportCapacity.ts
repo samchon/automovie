@@ -1,9 +1,10 @@
-import type { IAutoMovieRecoveryCheckpointReporting, IAutoMovieRecoveryFeasibleJointOptions, IAutoMovieRecoveryMapPose, IAutoMovieRecoverySceneWork, IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
-
-
-
-
-
+import type {
+  IAutoMovieRecoveryCameraSceneBudget,
+  IAutoMovieRecoveryCheckpointReporting,
+  IAutoMovieRecoveryFeasibleJointOptions,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoverySceneWork,
+} from "@automovie/interface";
 
 import { isRecoveryMapIdentityGauge } from "./isRecoveryMapIdentityGauge";
 import { prepareRecoveryFeasibleReportCapacity } from "./prepareRecoveryFeasibleReportCapacity";
@@ -35,16 +36,19 @@ export function prepareRecoveryCheckpointReportCapacity(
     directionBudget: {
       maxIterations: options.directionBudget.maxIterations,
       maxEntries: options.directionBudget.maxEntries,
-      maxWork: options.directionBudget.maxWork },
+      maxWork: options.directionBudget.maxWork,
+    },
     maxResidentLinearEntries: options.maxResidentLinearEntries,
     sqpAcceleration: options.sqpAcceleration,
     adaptiveRegularization: options.adaptiveRegularization,
-    laggedLagrangianMetric: options.laggedLagrangianMetric };
+    laggedLagrangianMetric: options.laggedLagrangianMetric,
+  };
   return {
     feasible,
     reporting: prepareRecoveryFeasibleReportCapacity(
       budget.maxResidentLinearEntries,
       feasible.maxResidentLinearEntries,
       0,
-    ) };
+    ),
+  };
 }

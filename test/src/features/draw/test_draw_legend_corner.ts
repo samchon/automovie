@@ -1,4 +1,7 @@
-import type { IAutoMovieCaptureDrawing, IAutoMovieRasterImage } from "@automovie/interface";
+import type {
+  IAutoMovieCaptureDrawing,
+  IAutoMovieRasterImage,
+} from "@automovie/interface";
 import { stampAutoMovieDrawLegend } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 

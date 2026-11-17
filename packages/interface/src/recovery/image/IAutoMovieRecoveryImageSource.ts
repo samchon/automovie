@@ -6,11 +6,9 @@
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes capture identity from the SHA-256 of its encoded image bytes.
  */
 export interface IAutoMovieRecoveryImageSource {
- 
- /** Fixed capture identity from the observation artifact. */
+  /** Fixed capture identity from the observation artifact. */
   id: string;
 
- 
- /** Recorded SHA-256 of the original encoded image bytes. */
+  /** Recorded SHA-256 of the original encoded image bytes. */
   sha256: string;
 }

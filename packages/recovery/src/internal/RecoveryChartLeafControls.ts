@@ -1,6 +1,5 @@
 import type { IAutoMovieRecoveryChartLeafControls } from "@automovie/interface";
 
-
 /**
  * Couple a complete axis-aligned unit-square leaf partition with C0 bicubics.
  * axis 0 edges increase in u; axis 1 edges increase in v. Patch sides are
@@ -139,7 +138,8 @@ export function RecoveryChartLeafControls(
           axis: group.axis,
           line: group.line,
           start: interval.start,
-          end: interval.end });
+          end: interval.end,
+        });
       interval.master = `${lineKey}:${stack.length ? stack[0]![0] : key}`;
       stack.push(entry);
       for (const use of interval.uses)
@@ -207,7 +207,8 @@ export function RecoveryChartLeafControls(
   for (const leaf of input.leaves)
     for (const u of [leaf.bounds[0], leaf.bounds[1]])
       for (const v of [leaf.bounds[2], leaf.bounds[3]]) corner(u, v);
-  const edges: ReturnType<IAutoMovieRecoveryChartLeafControls.Operation>["edges"] = [];
+  const edges: ReturnType<IAutoMovieRecoveryChartLeafControls.Operation>["edges"] =
+    [];
   const masterEdges: Map<string, (typeof edges)[number]> = new Map();
   const relationMap: Map<number, { id: number; weight: number }[]> = new Map();
   const register: (
@@ -305,7 +306,8 @@ export function RecoveryChartLeafControls(
         allocate(`handle:${master.key}:1`),
         allocate(`handle:${master.key}:2`),
         b,
-      ] };
+      ],
+    };
     edges.push(edge);
     masterEdges.set(master.key, edge);
     if (master.line === 0 || master.line === 1)
@@ -319,7 +321,8 @@ export function RecoveryChartLeafControls(
         const value: { control: number; u: number; v: number } = {
           control: edge.controlIds[k]!,
           u: master.axis === 0 ? varying : master.line,
-          v: master.axis === 0 ? master.line : varying };
+          v: master.axis === 0 ? master.line : varying,
+        };
         const previous: typeof value | undefined = boundaryMap.get(
           value.control,
         );
@@ -363,7 +366,8 @@ export function RecoveryChartLeafControls(
       intervalBindings.set(fullKey, {
         edge: edge.id,
         start: normalized[0]!,
-        end: normalized[1]! });
+        end: normalized[1]!,
+      });
       if (fullKey === interval.master) {
         intervalControls.set(fullKey, edge.controlIds);
         continue;
@@ -402,8 +406,10 @@ export function RecoveryChartLeafControls(
         register(target[k]!, matrix[k]!, edge.controlIds);
       intervalControls.set(fullKey, target);
     }
-  const patches: ReturnType<IAutoMovieRecoveryChartLeafControls.Operation>["patches"] = [],
-    bindings: ReturnType<IAutoMovieRecoveryChartLeafControls.Operation>["bindings"] = [];
+  const patches: ReturnType<IAutoMovieRecoveryChartLeafControls.Operation>["patches"] =
+      [],
+    bindings: ReturnType<IAutoMovieRecoveryChartLeafControls.Operation>["bindings"] =
+      [];
   const sideSlots: readonly (readonly number[])[] = [
     [0, 1, 2, 3],
     [3, 7, 11, 15],
@@ -471,5 +477,6 @@ export function RecoveryChartLeafControls(
     ),
     edges,
     bindings,
-    boundary: [...boundaryMap.values()] };
+    boundary: [...boundaryMap.values()],
+  };
 }

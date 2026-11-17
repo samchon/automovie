@@ -1,6 +1,7 @@
 import type { AutoMovieLoftViewSourceOutlines } from "./AutoMovieLoftViewSourceOutlines";
 import type { AutoMovieLoftViewSourceSplit } from "./AutoMovieLoftViewSourceSplit";
 import type { IAutoMovieViewOutline } from "./IAutoMovieViewOutline";
+
 /**
  * Prepared direct fullness ownership for an original view-generated section.
  *
@@ -23,17 +24,32 @@ export type IAutoMovieLoftViewSourceFullness =
       departures: AutoMovieLoftViewSourceOutlines | null;
     }
   | {
-  /** Selects four independently authored top-view shoulder laws and optional contact/split coordinates. */
-  kind: "top";
+      /** Selects four independently authored top-view shoulder laws and optional contact/split coordinates. */
+      kind: "top";
 
-  /** Four prepared dimensionless shoulder-share laws in increasing quarter order; with splits or pieces, each law owns the quarter's first conic piece. */
-  shoulders: AutoMovieLoftViewSourceOutlines;
+      /** Four prepared dimensionless shoulder-share laws in increasing quarter order; with splits or pieces, each law owns the quarter's first conic piece. */
+      shoulders: AutoMovieLoftViewSourceOutlines;
 
-  /** Prepared guide contact offsets in chart millimetres, in +u/+v/-u/-v guide order; null retains each guide's axis-line convention. */
-  touch: AutoMovieLoftViewSourceOutlines | null;
+      /** Prepared guide contact offsets in chart millimetres, in +u/+v/-u/-v guide order; null retains each guide's axis-line convention. */
+      touch: AutoMovieLoftViewSourceOutlines | null;
 
-  /** One admitted [u,v,tangent-angle,following-shoulder] preparation per quarter, or null when no single split was declared; cannot coexist with pieces. */
-  splits: readonly [AutoMovieLoftViewSourceSplit, AutoMovieLoftViewSourceSplit, AutoMovieLoftViewSourceSplit, AutoMovieLoftViewSourceSplit] | null;
+      /** One admitted [u,v,tangent-angle,following-shoulder] preparation per quarter, or null when no single split was declared; cannot coexist with pieces. */
+      splits:
+        | readonly [
+            AutoMovieLoftViewSourceSplit,
+            AutoMovieLoftViewSourceSplit,
+            AutoMovieLoftViewSourceSplit,
+            AutoMovieLoftViewSourceSplit,
+          ]
+        | null;
 
-  /** Ordered admitted split-point preparations per quarter, or null when absent; an empty quarter list means one conic and the four lists preserve authored phase order. */
-  pieces: readonly [readonly AutoMovieLoftViewSourceSplit[], readonly AutoMovieLoftViewSourceSplit[], readonly AutoMovieLoftViewSourceSplit[], readonly AutoMovieLoftViewSourceSplit[]] | null };
+      /** Ordered admitted split-point preparations per quarter, or null when absent; an empty quarter list means one conic and the four lists preserve authored phase order. */
+      pieces:
+        | readonly [
+            readonly AutoMovieLoftViewSourceSplit[],
+            readonly AutoMovieLoftViewSourceSplit[],
+            readonly AutoMovieLoftViewSourceSplit[],
+            readonly AutoMovieLoftViewSourceSplit[],
+          ]
+        | null;
+    };

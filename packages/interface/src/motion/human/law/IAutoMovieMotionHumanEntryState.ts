@@ -1,12 +1,12 @@
+import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
+import type { IAutoMovieSamplePoseVelocity } from "../../IAutoMovieSamplePoseVelocity";
 import type { AutoMovieMotionHumanActionKey } from "../AutoMovieMotionHumanActionKey";
+import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanActionPlan } from "./IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanBase } from "./IAutoMovieMotionHumanBase";
 import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
-import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
-import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
-import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
-import type { IAutoMovieSamplePoseVelocity } from "../../IAutoMovieSamplePoseVelocity";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * The displayed state an action is entered from: the pose and its velocity

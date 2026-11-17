@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanWalkParams } from "./IAutoMovieMotionHumanWalkParams";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanWalkParams } from "./IAutoMovieMotionHumanWalkParams";
 
 /**
  * Running to a floor point, at a jog, a run or a sprint: the walk's

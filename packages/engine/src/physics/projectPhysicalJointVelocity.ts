@@ -1,5 +1,8 @@
-import type { IAutoMoviePhysicalProfile, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 
@@ -57,7 +60,12 @@ export function projectPhysicalJointVelocity(
       1 / denominator,
     );
     for (const coordinate of ["x", "y", "z"] as const)
-      if (!axes.some((free: IAutoMoviePhysicalProfile.IAxis): boolean => free.axis === coordinate))
+      if (
+        !axes.some(
+          (free: IAutoMoviePhysicalProfile.IAxis): boolean =>
+            free.axis === coordinate,
+        )
+      )
         gradient[coordinate] = 0;
     const angle: number = Math.atan2(
       Math.sin(2 * Math.atan2(component, current.w)),

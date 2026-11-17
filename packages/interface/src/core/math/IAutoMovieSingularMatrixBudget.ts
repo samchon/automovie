@@ -1,5 +1,3 @@
-
-
 /**
  * Explicit work and active-column accuracy limits for a small real-matrix SVD.
  *

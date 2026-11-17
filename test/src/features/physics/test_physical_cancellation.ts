@@ -1,5 +1,8 @@
-import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 import { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
+import type {
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+} from "@automovie/interface";
 import assert from "node:assert/strict";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -22,10 +25,11 @@ export async function test_physical_cancellation(): Promise<void> {
   const isReason: (error: unknown) => boolean = (error: unknown): boolean =>
     error === reason;
   for (const kind of ["kinematic", "simulated"] as const) {
-    const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
-      [PhysicalFixtures.body("solid", PhysicalFixtures.sphere(), 0.05)],
-      0.05,
-    );
+    const input: IAutoMoviePhysicalSimulationInput.IInput =
+      PhysicalFixtures.input(
+        [PhysicalFixtures.body("solid", PhysicalFixtures.sphere(), 0.05)],
+        0.05,
+      );
     input.bodies[0]!.mode = { kind };
     input.yieldEvery = 1;
     const pre: AbortController = new AbortController();
@@ -39,7 +43,8 @@ export async function test_physical_cancellation(): Promise<void> {
     setTimeout((): void => {
       timerFired = true;
     }, 0);
-    const complete: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
+    const complete: IAutoMoviePhysicalSimulation =
+      await Simulation.compute(input);
     assert.ok(
       timerFired,
       "declared host yields service the actual timer queue",

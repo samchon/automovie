@@ -1,6 +1,13 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanArmGeometry, IAutoMovieMotionHumanArmTrajectory, IAutoMovieMotionHumanBody, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanArmTrajectory,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmMirror } from "./HumanArmMirror";

@@ -1,10 +1,10 @@
-import type { IAutoMovieRecoverySavedSectionCutsBindingOperation, IAutoMovieRecoverySlabs, IAutoMovieRecoverySourceLineage } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieRecoverySavedSectionCutsBindingOperation,
+  IAutoMovieRecoverySlabs,
+  IAutoMovieRecoverySourceLineage,
+} from "@automovie/interface";
 
 import { collectRecoveryContourFaceSupport } from "./collectRecoveryContourFaceSupport";
-
-
 
 /** Compare a complete saved raw-contour population with one fresh exact cut.
  * Address sets and admitted closure verify contour identity only; curve names
@@ -19,14 +19,16 @@ import { collectRecoveryContourFaceSupport } from "./collectRecoveryContourFaceS
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The same admitted raw cut and incidence maps supply identity checks and exact port lineage without cutting or fitting a second time.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Input source and saved records remain borrowed. Returned lineage copies address arrays and publication metadata; no points, source geometry, saved coefficients or persistent cache transfer.
  */
-export function bindRecoverySavedSectionCuts(input: Parameters<IAutoMovieRecoverySavedSectionCutsBindingOperation.Operation>[0]):
-  ReturnType<IAutoMovieRecoverySavedSectionCutsBindingOperation.Operation> {
+export function bindRecoverySavedSectionCuts(
+  input: Parameters<IAutoMovieRecoverySavedSectionCutsBindingOperation.Operation>[0],
+): ReturnType<IAutoMovieRecoverySavedSectionCutsBindingOperation.Operation> {
   const refuse: (reason: string) => {
     status: "refused";
     diagnostic: string;
   } = (reason: string): { status: "refused"; diagnostic: string } => ({
     status: "refused",
-    diagnostic: `Saved section ${input.saved.coordinateMm}: ${reason}` });
+    diagnostic: `Saved section ${input.saved.coordinateMm}: ${reason}`,
+  });
   if (input.saved.sourceLineage.length !== input.contours.length)
     return refuse("saved and raw contour counts differ");
   const records: Map<number, IAutoMovieRecoverySourceLineage> = new Map();
@@ -99,7 +101,8 @@ export function bindRecoverySavedSectionCuts(input: Parameters<IAutoMovieRecover
     coordinateMm: input.saved.coordinateMm,
     observationIdentity: input.saved.observationIdentity,
     sourceLineage: [],
-    rawContours: [] };
+    rawContours: [],
+  };
   for (const [contourIndex, contour] of input.contours.entries()) {
     input.checkpoint();
     const saved: IAutoMovieRecoverySourceLineage = records.get(contourIndex)!;
@@ -139,12 +142,14 @@ export function bindRecoverySavedSectionCuts(input: Parameters<IAutoMovieRecover
       contourIndex,
       sourceTriangleIds: [...support],
       exactSourceTriangleIds: [...contour.exactSourceTriangleIds],
-      publication: { ...publication } });
+      publication: { ...publication },
+    });
     value.rawContours.push({
       contourIndex,
       closed: contour.closed,
       observationCount: contour.pts.length,
-      savedClosureCompared: publication.kind !== "failed" });
+      savedClosureCompared: publication.kind !== "failed",
+    });
   }
   return { status: "bound", value };
 }

@@ -1,11 +1,11 @@
+import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionHumanFitGoals } from "./IAutoMovieMotionHumanFitGoals";
 import type { IAutoMovieMotionHumanJacobian } from "./IAutoMovieMotionHumanJacobian";
 import type { IAutoMovieMotionHumanPosture } from "./IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanSequentialConvex } from "./IAutoMovieMotionHumanSequentialConvex";
-import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * A whole-body fit: the static posture nearest a preferred one in which

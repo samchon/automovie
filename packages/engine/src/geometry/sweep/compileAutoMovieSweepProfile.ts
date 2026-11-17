@@ -1,4 +1,5 @@
 import type { IAutoMovieSweep } from "@automovie/interface";
+
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 
 /**

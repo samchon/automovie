@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanBend, IAutoMovieMotionHumanBody, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 import { indexSkeletonTopology } from "@automovie/engine";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanBend } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

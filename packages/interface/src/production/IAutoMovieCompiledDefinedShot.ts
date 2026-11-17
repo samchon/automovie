@@ -1,5 +1,5 @@
-import type { IAutoMovieAuthoringDiagnostic } from "./IAutoMovieAuthoringDiagnostic";
 import type { IAutoMovieBeatEndState } from "../harness/IAutoMovieBeatEndState";
+import type { IAutoMovieAuthoringDiagnostic } from "./IAutoMovieAuthoringDiagnostic";
 import type { IAutoMovieCompiledContractRealization } from "./IAutoMovieCompiledContractRealization";
 import type { IAutoMovieShotPhysicsAdvice } from "./IAutoMovieShotPhysicsAdvice";
 import type { IAutoMovieShotSourceOutput } from "./IAutoMovieShotSourceOutput";

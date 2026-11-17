@@ -1,6 +1,15 @@
-import type { IAutoMovieMotionHumanBend, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanVariation, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionHumanBend, AutoMovieMotionHumanVariation, AutoMovieMotionHumanVariationForm, AutoMovieMotionHumanVariationPlace } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanVariation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanBend,
+  AutoMovieMotionHumanVariation,
+  AutoMovieMotionHumanVariationForm,
+  AutoMovieMotionHumanVariationPlace,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { MOTION_VARIATION_BODIES } from "../internal/MOTION_VARIATION_BODIES";

@@ -1,6 +1,14 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance } from "@automovie/interface";
 import { createHandgun } from "@automovie/archetypes";
-import { HumanChain, HumanObject, HumanPerformance, HumanWeaponFirearm } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanWeaponFirearm,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";

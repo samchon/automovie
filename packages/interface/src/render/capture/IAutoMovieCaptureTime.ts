@@ -1,5 +1,3 @@
-
-
 /**
  * One instant a capture draws: a second of the subject, and the frame of its grid when the second is one.
  *

@@ -1,4 +1,8 @@
-import type { IAutoMovieProfilePoint, IAutoMovieRegionTriangulation } from "@automovie/interface";
+import type {
+  IAutoMovieProfilePoint,
+  IAutoMovieRegionTriangulation,
+} from "@automovie/interface";
+
 import { canonicalRegion } from "./canonicalRegion";
 import { trianglesOf } from "./trianglesOf";
 

@@ -1,4 +1,7 @@
-import type { AutoMovieMotionHumanChannel as AutoMovieMotionHumanChannelType, IAutoMovieMotionHumanBody } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanChannel as AutoMovieMotionHumanChannelType,
+  IAutoMovieMotionHumanBody,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanChannel } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";

@@ -1,6 +1,8 @@
-import type { IAutoMovieHumanLegGirth, IAutoMovieHumanLegProfile, IAutoMovieHumanLegStations } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieHumanLegGirth,
+  IAutoMovieHumanLegProfile,
+  IAutoMovieHumanLegStations,
+} from "@automovie/interface";
 
 import { AutoMovieHumanMonotoneCubic } from "../../lofting/AutoMovieHumanMonotoneCubic";
 import { AutoMovieHumanLegProfile } from "./AutoMovieHumanLegProfile";
@@ -22,10 +24,6 @@ import { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
  * maximum (thigh) at each landmark row, their medians over f1, f2, m1 and m2.
  */
 export namespace AutoMovieHumanLegGirth {
-  
-
-  
-
   /** Mid-patella under the knee centre, world mm: the median of the references (f1 38, f2 34, m1 36, m2 36). */
   export const MID_PATELLA: number = 36;
 
@@ -51,7 +49,9 @@ export namespace AutoMovieHumanLegGirth {
    * on the references (0.335 to 0.345 of the shank). The gastrocnemius
    * bellies stand there, since they are what makes the calf's maximum.
    */
-  export const CALF_SITE: number = SHANK.find((row: readonly [number, number]): boolean => row[1] === 1)![0];
+  export const CALF_SITE: number = SHANK.find(
+    (row: readonly [number, number]): boolean => row[1] === 1,
+  )![0];
 
   /**
    * Thigh rows, `[share of the thigh, girth over the thigh tape]`: the same
@@ -84,7 +84,10 @@ export namespace AutoMovieHumanLegGirth {
    * @param table Rows `[share, ratio]` by increasing share.
    * @param share The share read.
    */
-  export function ratioAt(table: IAutoMovieHumanLegGirth.RatioAtTable, share: number): number {
+  export function ratioAt(
+    table: IAutoMovieHumanLegGirth.RatioAtTable,
+    share: number,
+  ): number {
     if (share <= table[0]![0]) return table[0]![1];
     for (let i: number = 1; i < table.length; i++) {
       const [s0, r0]: readonly [number, number] = table[i - 1]!;
@@ -103,9 +106,21 @@ export namespace AutoMovieHumanLegGirth {
    * @returns The station, mm.
    */
   export function tapeStation(input: IAutoMovieHumanLegGirth.IInput): number {
-    const share: number = AutoMovieHumanLegStations.heightAt(input.bones, "thigh", THIGH_SITE);
-    const next: number = AutoMovieHumanLegStations.heightAt(input.bones, "thigh", THIGH[1]![0]);
-    return input.site !== undefined && Number.isFinite(input.site) && input.site > next ? input.site : share;
+    const share: number = AutoMovieHumanLegStations.heightAt(
+      input.bones,
+      "thigh",
+      THIGH_SITE,
+    );
+    const next: number = AutoMovieHumanLegStations.heightAt(
+      input.bones,
+      "thigh",
+      THIGH[1]![0],
+    );
+    return input.site !== undefined &&
+      Number.isFinite(input.site) &&
+      input.site > next
+      ? input.site
+      : share;
   }
 
   /**
@@ -114,36 +129,56 @@ export namespace AutoMovieHumanLegGirth {
    * @param input The tapes, the joints and the scale.
    * @returns The girth the section asks for at a station, mm, held at the end knots past them.
    */
-  export function of(input: IAutoMovieHumanLegGirth.IInput): IAutoMovieHumanLegGirth.OfResult {
+  export function of(
+    input: IAutoMovieHumanLegGirth.IInput,
+  ): IAutoMovieHumanLegGirth.OfResult {
     const tapes: IAutoMovieHumanLegGirth.ITapes = input.tapes;
     const bones: IAutoMovieHumanLegStations.IBones = input.bones;
     const thighSite: number = ratioAt(THIGH, THIGH_SITE);
     const knots: [number, number][] = [
-      ...[...SHANK].reverse().map(([share, ratio]: readonly [number, number]): [number, number] => [
-        AutoMovieHumanLegStations.heightAt(bones, "shank", share),
-        ratio * tapes.calf,
-      ]),
+      ...[...SHANK]
+        .reverse()
+        .map(([share, ratio]: readonly [number, number]): [number, number] => [
+          AutoMovieHumanLegStations.heightAt(bones, "shank", share),
+          ratio * tapes.calf,
+        ]),
       [bones.knee - MID_PATELLA * input.scale, tapes.knee],
-      ...[...THIGH].reverse().map(([share, ratio]: readonly [number, number]): [number, number] => [
-        share === THIGH_SITE ? tapeStation(input) : AutoMovieHumanLegStations.heightAt(bones, "thigh", share),
-        (ratio / thighSite) * tapes.thigh,
-      ]),
+      ...[...THIGH]
+        .reverse()
+        .map(([share, ratio]: readonly [number, number]): [number, number] => [
+          share === THIGH_SITE
+            ? tapeStation(input)
+            : AutoMovieHumanLegStations.heightAt(bones, "thigh", share),
+          (ratio / thighSite) * tapes.thigh,
+        ]),
     ];
 
     // Heights must rise strictly through the knots: shank rows, the knee site, thigh rows.
     for (let i: number = 1; i < knots.length; i++)
-      if (!(knots[i]![0] > knots[i - 1]![0])) throw new Error("The girth law's sites are not in order along the leg");
+      if (!(knots[i]![0] > knots[i - 1]![0]))
+        throw new Error("The girth law's sites are not in order along the leg");
 
     // The rings are the law's first and last knots, by the table's ring rule.
-    const end: (e: IAutoMovieHumanLegProfile.IEnd | undefined) => IAutoMovieHumanLegProfile.IKnot | undefined = (
+    const end: (
+      e: IAutoMovieHumanLegProfile.IEnd | undefined,
+    ) => IAutoMovieHumanLegProfile.IKnot | undefined = (
       e: IAutoMovieHumanLegProfile.IEnd | undefined,
     ): IAutoMovieHumanLegProfile.IKnot | undefined =>
       e === undefined ? undefined : { at: e.at, value: e.values[0]! };
     const joined: [number, number][] = AutoMovieHumanLegProfile.joined(
-      knots.map(([at, value]: [number, number]): IAutoMovieHumanLegProfile.IKnot => ({ at, value })),
+      knots.map(
+        ([at, value]: [number, number]): IAutoMovieHumanLegProfile.IKnot => ({
+          at,
+          value,
+        }),
+      ),
       end(input.ends?.bottom),
       end(input.ends?.top),
-    ).map((k: IAutoMovieHumanLegProfile.IKnot): [number, number] => [k.at, k.value]);
-    return (s: number): number => AutoMovieHumanMonotoneCubic.interpolate(joined, s);
+    ).map((k: IAutoMovieHumanLegProfile.IKnot): [number, number] => [
+      k.at,
+      k.value,
+    ]);
+    return (s: number): number =>
+      AutoMovieHumanMonotoneCubic.interpolate(joined, s);
   }
 }

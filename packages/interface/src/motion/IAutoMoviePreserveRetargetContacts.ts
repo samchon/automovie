@@ -1,10 +1,10 @@
+import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
-import type { IAutoMovieMotion } from "./IAutoMovieMotion";
-import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
-import type { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
+import type { IAutoMovieMotion } from "./IAutoMovieMotion";
+import type { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps";
 
 /** Data and callback contracts shared by the PreserveRetargetContacts operations. */
 export namespace IAutoMoviePreserveRetargetContacts {
@@ -14,37 +14,45 @@ export namespace IAutoMoviePreserveRetargetContacts {
   export type IProps = {
     /** Rig the clip was authored on. */
     source: IAutoMovieSkeleton;
-  
+
     /** Rig the clip now plays on. */
     target: IAutoMovieSkeleton;
-  
+
     /** The authored clip, read for source-space contact detection. */
     sourceMotion: IAutoMovieMotion;
-  
+
     /** The root-scaled clip this pass corrects. */
     retargeted: IAutoMovieMotion;
-  
+
     /** Root translation multiplier the contacts are mapped through. */
     rootScale: number;
-  
+
     /** Lowest world Y of the source rest pose; the default ground plane. */
     sourceFloor: number;
-  
+
     /** Source clinical axes. */
-    sourceJointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-  
+    sourceJointAxes: Partial<
+      Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
+    >;
+
     /** Source clinical rest frames. */
-    sourceRestFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-  
+    sourceRestFrames: Partial<
+      Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
+    >;
+
     /** Target clinical axes. */
-    targetJointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-  
+    targetJointAxes: Partial<
+      Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
+    >;
+
     /** Target clinical rest frames. */
-    targetRestFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-  
+    targetRestFrames: Partial<
+      Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
+    >;
+
     /** Caller policy; omitted means humanoid legs and no hand contact. */
     contacts: IAutoMovieRetargetContactProps | undefined;
-  
+
     /** Sink the residual-slide warnings are reported on. */
     collector: IAutoMovieViolationCollector;
   };

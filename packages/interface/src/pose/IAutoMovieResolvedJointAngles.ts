@@ -1,5 +1,3 @@
-
-
 /**
  * Three fully resolved angular coordinates of one joint, in degrees.
  *

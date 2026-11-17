@@ -1,21 +1,23 @@
-import type { IAutoMovieNativeCoordinate, IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieViewSection, IAutoMovieHumanHeadNeckBaseTrial, IAutoMovieHumanHeadNeckCurves, IAutoMovieHumanHeadNeckScalars } from "@automovie/interface";
-
-
-
-
-import { AutoMovieNativeCoordinate, AutoMovieViewOutline, AutoMovieViewSection, measureAutoMovieCurveLength64 } from "@automovie/engine";
-
+import {
+  AutoMovieNativeCoordinate,
+  AutoMovieViewOutline,
+  AutoMovieViewSection,
+  measureAutoMovieCurveLength64,
+} from "@automovie/engine";
+import type {
+  IAutoMovieHumanHeadNeckBaseTrial,
+  IAutoMovieHumanHeadNeckCurves,
+  IAutoMovieHumanHeadNeckScalars,
+  IAutoMovieNativeCoordinate,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadNeckScalars } from "./AutoMovieHumanHeadNeckScalars";
 
 /** A complete radius-dependent original neck trial, before any emitted curve or loft. */
 export namespace AutoMovieHumanHeadNeckBaseTrial {
-  
-
-  
-
-  
-
   /**
    * Reuse only identical binary64 theta readings of this immutable template.
    * Fixed native-piece intervals use the engine's unchanged K/2K nodes;
@@ -28,7 +30,10 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
     template: IAutoMovieViewSection.ISection,
     work?: IAutoMovieHumanHeadNeckCurves.IWork,
   ): IAutoMovieHumanHeadNeckBaseTrial.IPolar {
-    const readings: Map<number, IAutoMovieHumanHeadNeckBaseTrial.IPolarReading> = new Map();
+    const readings: Map<
+      number,
+      IAutoMovieHumanHeadNeckBaseTrial.IPolarReading
+    > = new Map();
     const boundaries: Set<number> = new Set([0, 2 * Math.PI]);
     for (const [q, arc] of template.conics.quarters.entries()) {
       const first: number = (q * Math.PI) / 2;
@@ -40,10 +45,13 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
     }
     return {
       boundaries: [...boundaries].sort((a: number, b: number): number => a - b),
-      at(theta: number, fixedPartition: boolean): IAutoMovieHumanHeadNeckBaseTrial.IPolarReading {
-        const previous: IAutoMovieHumanHeadNeckBaseTrial.IPolarReading | undefined = fixedPartition
-          ? readings.get(theta)
-          : undefined;
+      at(
+        theta: number,
+        fixedPartition: boolean,
+      ): IAutoMovieHumanHeadNeckBaseTrial.IPolarReading {
+        const previous:
+          | IAutoMovieHumanHeadNeckBaseTrial.IPolarReading
+          | undefined = fixedPartition ? readings.get(theta) : undefined;
         if (previous !== undefined) {
           if (work !== undefined) work.baseNativeReused++;
           return previous;
@@ -125,8 +133,10 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
       );
     const height: IAutoMovieViewPart.IOutline =
       AutoMovieHumanHeadNeckScalars.height(input, located.phase);
-    const preparedHeight: IAutoMovieViewOutline.IOutline = prepareScalar(height);
-    const native: IAutoMovieHumanHeadNeckBaseTrial.IPolar = sharedPolar ?? prepareNative(template, work);
+    const preparedHeight: IAutoMovieViewOutline.IOutline =
+      prepareScalar(height);
+    const native: IAutoMovieHumanHeadNeckBaseTrial.IPolar =
+      sharedPolar ?? prepareNative(template, work);
 
     // Only actual rational-piece joins belong to the source partition.
     // The template's observation knots refine inspection/native quadrature;
@@ -195,11 +205,10 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
                   y.value,
                 );
                 const theta: number = (2 * Math.PI * s) / family.clock;
-                const polar: IAutoMovieHumanHeadNeckBaseTrial.IPolarReading = native.at(
-                  theta,
-                  fixed.has(partition[i]!) && fixed.has(end),
-                );
-                const jet: IAutoMovieHumanHeadNeckBaseTrial.IPolarReading["jet"] = polar.jet;
+                const polar: IAutoMovieHumanHeadNeckBaseTrial.IPolarReading =
+                  native.at(theta, fixed.has(partition[i]!) && fixed.has(end));
+                const jet: IAutoMovieHumanHeadNeckBaseTrial.IPolarReading["jet"] =
+                  polar.jet;
                 const u: number = jet[0] * polar.cos;
                 const v: number = jet[0] * polar.sin;
                 const du: number = jet[1] * polar.cos - jet[0] * polar.sin;

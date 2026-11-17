@@ -6,11 +6,9 @@
  * @evidence contracts/development/common.md#meaningful-documentation Defines the discriminator and zero-based original current-point address.
  */
 export interface IAutoMovieRecoveryObservedPoint {
- 
- /** The output point is one original current-cycle observation. */
+  /** The output point is one original current-cycle observation. */
   kind: "observed-point";
 
- 
- /** Zero-based ordinal in the current input point array. */
+  /** Zero-based ordinal in the current input point array. */
   sourceIndex: number;
 }

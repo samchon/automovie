@@ -284,16 +284,4 @@ export namespace IAutoMovieHumanF1Frames {
      */
     tragion: AutoMovieVector3Tuple;
   };
-
-  /** The pose argument of AutoMovieHumanF1Frames.world. The frames for a pose given as one rotation per joint by segment name; a joint the pose leaves undefined keeps its reference rotation.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The frames for a pose given as one rotation per joint by segment name; a joint the pose leaves undefined keeps its reference rotation.
-   * @evidence contracts/development/design.md#principled-representation The frames for a pose given as one rotation per joint by segment name; a joint the pose leaves undefined keeps its reference rotation. The callable takes name and returns IAutoMovieHumanSegmentFrame.M3 | undefined.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanF1Frames.WorldPose is the canonical exchange used by AutoMovieHumanF1Frames.world.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanF1Frames.world for the frames for a pose given as one rotation per joint by segment name; a joint the pose leaves undefined keeps its reference rotation.
-   */
-  export type WorldPose = (
-    name: string,
-  ) => IAutoMovieHumanSegmentFrame.M3 | undefined;
 }

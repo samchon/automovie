@@ -13,5 +13,4 @@
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The declarations allocate and retain no runtime object or handle.
  */
 
-
 export {};

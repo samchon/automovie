@@ -1,7 +1,8 @@
-import type { IAutoMovieMotionHumanStrikingReach, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanStrikingReach,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The goal maths of bringing a weapon surface onto a target point: where a
@@ -74,7 +75,9 @@ export namespace StrikingReach {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function chain(input: IAutoMovieMotionHumanStrikingReach.IChain): IAutoMovieMotionHumanStrikingReach.ISolution {
+  export function chain(
+    input: IAutoMovieMotionHumanStrikingReach.IChain,
+  ): IAutoMovieMotionHumanStrikingReach.ISolution {
     const { root, upper, lower } = input;
     let along: number = input.along;
     const toward: IAutoMovieVector3 = Vector3.subtract(input.point, root);
@@ -93,7 +96,8 @@ export namespace StrikingReach {
     const longest: number = reach(upper, along, least);
     const shortest: number = reach(upper, along, most);
 
-    let status: IAutoMovieMotionHumanStrikingReach.ISolution["status"] = "reached";
+    let status: IAutoMovieMotionHumanStrikingReach.ISolution["status"] =
+      "reached";
     let span: number = distance;
     let gap: number = 0;
     if (distance > longest) {

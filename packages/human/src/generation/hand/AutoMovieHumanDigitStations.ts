@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanDigitProfile } from "@automovie/interface";
 
-
 /**
  * Where along a digit's centre line its sections stand.
  *
@@ -70,10 +69,14 @@ export namespace AutoMovieHumanDigitStations {
     // and inside every relief window to a share of its half width.
     let s: number = first;
     while (s < last) {
-      const near: boolean = joints.some((j: number): boolean => Math.abs(s - j) <= JOINT_WINDOW);
+      const near: boolean = joints.some(
+        (j: number): boolean => Math.abs(s - j) <= JOINT_WINDOW,
+      );
       const fine: number = windows.reduce(
         (step: number, w: IAutoMovieHumanDigitProfile.IWindow): number =>
-          Math.abs(s - w.at) <= w.half + step ? Math.min(step, w.half / RESOLVE) : step,
+          Math.abs(s - w.at) <= w.half + step
+            ? Math.min(step, w.half / RESOLVE)
+            : step,
         near ? JOINT_STEP : STEP,
       );
       s += fine;
@@ -82,6 +85,8 @@ export namespace AutoMovieHumanDigitStations {
     for (const back of TIP_RINGS) out.push(cap - back);
 
     // A ring closer than a tenth of a millimetre to its neighbour adds nothing.
-    return out.filter((x: number, i: number): boolean => i === 0 || x > out[i - 1]! + 0.1);
+    return out.filter(
+      (x: number, i: number): boolean => i === 0 || x > out[i - 1]! + 0.1,
+    );
   }
 }

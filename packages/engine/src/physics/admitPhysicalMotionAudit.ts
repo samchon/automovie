@@ -1,4 +1,9 @@
-import type { IAutoMovieMeasurePhysicalMotionConstraint, IAutoMovieMotionAudit, IAutoMovieMotionGeometry, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMeasurePhysicalMotionConstraint,
+  IAutoMovieMotionAudit,
+  IAutoMovieMotionGeometry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { admitMotionGeometry } from "./admitMotionGeometry";
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
@@ -16,7 +21,9 @@ import { validatePhysicalProfile } from "./validatePhysicalProfile";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 21 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function admitPhysicalMotionAudit(input: IAutoMovieMotionAudit.IInput): void {
+export function admitPhysicalMotionAudit(
+  input: IAutoMovieMotionAudit.IInput,
+): void {
   const point: (value: IAutoMovieVector3) => boolean = (
     value: IAutoMovieVector3,
   ): boolean => !!value && [value.x, value.y, value.z].every(scalar);
@@ -60,9 +67,8 @@ export function admitPhysicalMotionAudit(input: IAutoMovieMotionAudit.IInput): v
     if (body.geometry !== undefined) admitMotionGeometry(body.geometry);
     const carriers: Set<string> = new Set(
       motionAuditGeometry(body).segments.map(
-        (
-          segment: IAutoMovieMotionGeometry["segments"][number],
-        ): string => segment.bone,
+        (segment: IAutoMovieMotionGeometry["segments"][number]): string =>
+          segment.bone,
       ),
     );
     const bones: Set<string> = new Set(carriers);

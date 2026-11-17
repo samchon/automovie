@@ -1,5 +1,9 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanSite, IAutoMovieRandom } from "@automovie/interface";
 import { createAutoMovieRandom } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanSite,
+  IAutoMovieRandom,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanSite, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

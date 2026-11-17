@@ -1,6 +1,8 @@
-import { type IAutoMovieTessellation, IAutoMovieSurface } from "@automovie/interface";
 import { surfaceHeightAt, tessellateSurface } from "@automovie/engine";
-
+import {
+  IAutoMovieSurface,
+  type IAutoMovieTessellation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";

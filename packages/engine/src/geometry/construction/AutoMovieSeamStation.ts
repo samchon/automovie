@@ -1,4 +1,9 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftContract, IAutoMovieLoftFrame, IAutoMovieSeamStation } from "@automovie/interface";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftContract,
+  IAutoMovieLoftFrame,
+  IAutoMovieSeamStation,
+} from "@automovie/interface";
 
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";

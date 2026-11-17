@@ -1,4 +1,10 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicsCache, IAutoMoviePreparePhysicalGeometry } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicsCache,
+  IAutoMoviePreparePhysicalGeometry,
+} from "@automovie/interface";
+
 import { bindPhysicalKinematicFrame } from "./bindPhysicalKinematicFrame";
 import { createPhysicalKinematicFrame } from "./createPhysicalKinematicFrame";
 import { preparePhysicalGeometry } from "./preparePhysicalGeometry";
@@ -22,12 +28,14 @@ export async function computePhysicalKinematicFrames(
   progress?: (completed: number, total: number) => void,
 ): Promise<void> {
   const count: number = Math.round(input.duration * input.rate);
-  const profiles: Record<string, IAutoMoviePhysicalProfile> = Object.fromEntries(
-    input.bodies.map((body: IAutoMoviePhysicalSimulationInput.IBody): [string, IAutoMoviePhysicalProfile] => [
-      body.id,
-      body.profile,
-    ]),
-  );
+  const profiles: Record<string, IAutoMoviePhysicalProfile> =
+    Object.fromEntries(
+      input.bodies.map(
+        (
+          body: IAutoMoviePhysicalSimulationInput.IBody,
+        ): [string, IAutoMoviePhysicalProfile] => [body.id, body.profile],
+      ),
+    );
   for (const body of input.bodies)
     for (const segment of body.profile.segments)
       cache.ownership.push({
@@ -50,7 +58,10 @@ export async function computePhysicalKinematicFrames(
     : undefined;
   for (let step: number = 0; step <= count; step++) {
     signal?.throwIfAborted();
-    const frame: IAutoMoviePhysicsCache.IFrame = createPhysicalKinematicFrame(input, step);
+    const frame: IAutoMoviePhysicsCache.IFrame = createPhysicalKinematicFrame(
+      input,
+      step,
+    );
     cache.frames.push(
       geometry
         ? bindPhysicalKinematicFrame(

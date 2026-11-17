@@ -1,5 +1,5 @@
-import type { IAutoMovieBuiltPlacementBodyLocator } from "./IAutoMovieBuiltPlacementBodyLocator";
 import type { IAutoMovieBuiltFloatingBody } from "./IAutoMovieBuiltFloatingBody";
+import type { IAutoMovieBuiltPlacementBodyLocator } from "./IAutoMovieBuiltPlacementBodyLocator";
 
 /**
  * What one whole-building support sweep measured, not only what it found.

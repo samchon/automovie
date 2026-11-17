@@ -1,6 +1,16 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment } from "@automovie/interface";
 import { physicalShapeBounds } from "@automovie/engine";
-import { AutoMovieMotionHumanAudit, HumanChain, HumanColliders, HumanPerformance, HumanVerdicts } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAudit,
+  HumanChain,
+  HumanColliders,
+  HumanPerformance,
+  HumanVerdicts,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -35,19 +45,20 @@ export function test_human_motion_floor_crawl_down(): void {
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     for (const kind of ["knees", "bear"] as const) {
-      const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-        seed: "crawl-down",
-        performers: [
-          {
-            subject: "a",
-            body,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-        ],
-        composition: HumanChain.subject("a").crawl({ kind, cycles: 1 }).node,
-      });
+      const performance: IAutoMovieMotionHumanPerformance =
+        new HumanPerformance({
+          seed: "crawl-down",
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
+          composition: HumanChain.subject("a").crawl({ kind, cycles: 1 }).node,
+        });
       const [crawl]: readonly IAutoMovieMotionHumanSegment.ISegment[] =
         performance.segments("a");
       const down: number =

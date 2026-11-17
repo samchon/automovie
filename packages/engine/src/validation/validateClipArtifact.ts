@@ -1,4 +1,8 @@
-import { type IAutoMovieClipChannelGate, type IAutoMovieClipShapeFault, IAutoMovieConstraintViolation } from "@automovie/interface";
+import {
+  type IAutoMovieClipChannelGate,
+  type IAutoMovieClipShapeFault,
+  IAutoMovieConstraintViolation,
+} from "@automovie/interface";
 
 import { asArray } from "./asArray";
 import { clipLoopFault } from "./clipLoopFault";

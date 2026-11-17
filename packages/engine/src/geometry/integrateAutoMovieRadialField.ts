@@ -1,4 +1,5 @@
 import type { IAutoMovieIntegrateRadialField } from "@automovie/interface";
+
 /**
  * Integrate a strongest-site equal-radius compact radial field over a convex planar domain.
  *
@@ -14,7 +15,9 @@ import type { IAutoMovieIntegrateRadialField } from "@automovie/interface";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure operation coordinates no persistent requests; caller-owned prepared site lists may be reused without changing the integral.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Working cell polygons and quadrature closures are call-local; the caller owns only the returned scalar/gradient record.
  */
-export function integrateAutoMovieRadialField(props: IAutoMovieIntegrateRadialField.IProps): IAutoMovieIntegrateRadialField.IOutput {
+export function integrateAutoMovieRadialField(
+  props: IAutoMovieIntegrateRadialField.IProps,
+): IAutoMovieIntegrateRadialField.IOutput {
   if (
     !Number.isFinite(props.radius) ||
     props.radius <= 0 ||

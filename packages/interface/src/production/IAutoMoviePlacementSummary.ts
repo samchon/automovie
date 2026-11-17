@@ -1,5 +1,5 @@
-import type { IAutoMovieFormationBounds } from "./IAutoMovieFormationBounds";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieFormationBounds } from "./IAutoMovieFormationBounds";
 
 /**
  * Extrema and ordered running mean of world-space placement points in metres.

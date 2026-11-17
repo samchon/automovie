@@ -1,4 +1,9 @@
-import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieCurveLengthMeasurement64, IAutoMovieCurveLengthQuadrature64 } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieCurveLengthMeasurement64,
+  IAutoMovieCurveLengthQuadrature64,
+} from "@automovie/interface";
 
 import { AutoMovieCurveLengthQuadrature64 } from "./AutoMovieCurveLengthQuadrature64";
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
@@ -34,12 +39,18 @@ export function measureAutoMovieCubicCurveLength64(
       curve.spans.map(
         (
           p: IAutoMovieCurve64.Span,
-        ): [readonly {
-      /** Original finite closed parameter interval, admitted by the caller. */
-      domain: readonly [number, number];
-      /** Original world derivative in mm per interval-parameter unit. */
-      derivative: (parameter: number) => readonly [number, number, number];
-    }[], number, boolean][0][number] => ({
+        ): [
+          readonly {
+            /** Original finite closed parameter interval, admitted by the caller. */
+            domain: readonly [number, number];
+            /** Original world derivative in mm per interval-parameter unit. */
+            derivative: (
+              parameter: number,
+            ) => readonly [number, number, number];
+          }[],
+          number,
+          boolean,
+        ][0][number] => ({
           domain: [0, 1],
           derivative: (t: number): Readonly<AutoMovieVector3Tuple> => {
             const s: number = 1 - t;

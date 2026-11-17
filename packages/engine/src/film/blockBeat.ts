@@ -1,6 +1,18 @@
-import { type IAutoMovieBlockedBeat, type IAutoMovieStagedSet, type IAutoMovieViolationCollector, IAutoMovieBeat, IAutoMovieBeatEndActorState, IAutoMovieBeatEndState, IAutoMovieBlocking, IAutoMovieBlockingActor, IAutoMovieBlockingCoverage, IAutoMovieCamera, IAutoMovieSceneNode, IAutoMovieScript, IAutoMovieTimingAnchor } from "@automovie/interface";
-
-
+import {
+  IAutoMovieBeat,
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndState,
+  type IAutoMovieBlockedBeat,
+  IAutoMovieBlocking,
+  IAutoMovieBlockingActor,
+  IAutoMovieBlockingCoverage,
+  IAutoMovieCamera,
+  IAutoMovieSceneNode,
+  IAutoMovieScript,
+  type IAutoMovieStagedSet,
+  IAutoMovieTimingAnchor,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";

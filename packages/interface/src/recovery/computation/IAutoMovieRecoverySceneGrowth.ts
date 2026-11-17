@@ -8,15 +8,12 @@ import type { IAutoMovieRecoveryMapLandmark } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Members distinguish total proposed population from newly added points and observations.
  */
 export interface IAutoMovieRecoverySceneGrowth {
- 
- /** Complete detached proposed landmark population. */
+  /** Complete detached proposed landmark population. */
   landmarks: IAutoMovieRecoveryMapLandmark[];
 
- 
- /** Strict count increase in proposed points. */
+  /** Strict count increase in proposed points. */
   addedLandmarks: number;
 
- 
- /** Strict count increase in retained measurements, including new-point observations. */
+  /** Strict count increase in retained measurements, including new-point observations. */
   addedObservations: number;
 }

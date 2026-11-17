@@ -1,10 +1,19 @@
-import type { IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
 import {
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanHand, HumanVerdicts } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -58,13 +67,15 @@ export function test_human_motion_recompose_upper_phrase(): void {
   const held: readonly string[] = motionUpperPhrase.HELD;
   const end: IAutoMovieVector3 = motionUpperPhrase.END;
   const perform: typeof motionUpperPhrase.perform = motionUpperPhrase.perform;
-  const touches: Record<string, [AutoMovieHumanoidRegion, IAutoMovieMotionHumanHand.Surface]> =
-    {
-      handOnHip: ["hipRight", "palm"],
-      chinOnFist: ["chin", "fist"],
-      pressOn: ["chestRight", "palm"],
-      holdOn: ["upperArmLeft", "palm"],
-    };
+  const touches: Record<
+    string,
+    [AutoMovieHumanoidRegion, IAutoMovieMotionHumanHand.Surface]
+  > = {
+    handOnHip: ["hipRight", "palm"],
+    chinOnFist: ["chin", "fist"],
+    pressOn: ["chestRight", "palm"],
+    holdOn: ["upperArmLeft", "palm"],
+  };
   for (const name of motionHumanBody.EXTREMES) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const reach: number =
@@ -90,7 +101,9 @@ export function test_human_motion_recompose_upper_phrase(): void {
           params,
           held.includes(row.name),
         );
-        const s: IAutoMovieMotionHumanSegment.ISegment = p.segments("a").at(-1)!;
+        const s: IAutoMovieMotionHumanSegment.ISegment = p
+          .segments("a")
+          .at(-1)!;
         if (s.name !== row.name) {
           complaints.push(`${name} ${row.name}: placed as ${s.name}`);
           continue;
@@ -115,8 +128,9 @@ export function test_human_motion_recompose_upper_phrase(): void {
           complaints.push(
             `${name} ${row.name}: the phrase's instants are missing or out of order`,
           );
-        const touch: [AutoMovieHumanoidRegion, IAutoMovieMotionHumanHand.Surface] | undefined =
-          touches[row.name];
+        const touch:
+          | [AutoMovieHumanoidRegion, IAutoMovieMotionHumanHand.Surface]
+          | undefined = touches[row.name];
         if (touch !== undefined) {
           const t: number = at("stroke");
           const bones = p.bones("a", t);

@@ -1,4 +1,13 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanGaze, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanLexiconParams, IAutoMovieMotionHumanPursuit, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanGaze,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanLexiconParams,
+  IAutoMovieMotionHumanPursuit,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { run } from "../actions/run";
 import { HumanGaze } from "../everyday/HumanGaze";
@@ -33,28 +42,36 @@ import { HumanRefusal } from "../law/HumanRefusal";
  */
 export namespace HumanPursuit {
   /** Come up behind a person at the social distance, as a follower closes the gap. */
-  export const follow: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["pursuit"]["follow"]> = HumanActionRow.of("follow", approach, {
+  export const follow: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["pursuit"]["follow"]
+  > = HumanActionRow.of("follow", approach, {
     side: "behind",
     at: "social",
     track: "pace",
   });
 
   /** Come to a person's left side at the personal distance, as an escort takes station. */
-  export const escort: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["pursuit"]["escort"]> = HumanActionRow.of("escort", approach, {
+  export const escort: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["pursuit"]["escort"]
+  > = HumanActionRow.of("escort", approach, {
     side: "left",
     at: "personal",
     track: "pace",
   });
 
   /** Close on a person fast, to arm's length, as a chase ends. */
-  export const chase: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["pursuit"]["chase"]> = HumanActionRow.of("chase", approach, {
+  export const chase: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["pursuit"]["chase"]
+  > = HumanActionRow.of("chase", approach, {
     pace: "fast",
     at: "handing",
     track: true,
   });
 
   /** Step up face to face, as a confrontation begins. */
-  export const confront: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["pursuit"]["confront"]> = HumanActionRow.of("confront", approach, {
+  export const confront: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["pursuit"]["confront"]
+  > = HumanActionRow.of("confront", approach, {
     side: "front",
     at: "faceToFace",
   });
@@ -74,59 +91,62 @@ export namespace HumanPursuit {
    * far as both go straight (Fajen and Warren 2007 describe the curved
    * approach of real interceptions).
    */
-  export const intercept: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPursuit.IIntercept> = {
-    name: "intercept",
-    family: run.name,
-    interrupts: run.interrupts,
-    yields: run.yields,
-    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPursuit.IIntercept>): IAutoMovieMotionHumanActionPlan => {
-      const leader: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(
-        context.params.target,
-      );
-      const gap: number =
-        HumanProxemics.gap(
-          "handing",
-          context.body.measure,
-          leader.body.measure,
-        ) + approach.chest(context.body);
-      const here: IAutoMovieVector3 = context.entry.posture.root;
-      const runTo = (seconds: number): IAutoMovieMotionHumanActionPlan => {
-        const there: IAutoMovieVector3 = leader.root(seconds).position;
-        const far: number = Math.hypot(there.x - here.x, there.z - here.z);
-        const short: number = Math.max(0, far - gap) / Math.max(far, 1e-9);
-        return run.plan({
-          ...context,
-          params: {
-            to: {
-              x: here.x + (there.x - here.x) * short,
-              y: 0,
-              z: here.z + (there.z - here.z) * short,
+  export const intercept: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPursuit.IIntercept> =
+    {
+      name: "intercept",
+      family: run.name,
+      interrupts: run.interrupts,
+      yields: run.yields,
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPursuit.IIntercept>,
+      ): IAutoMovieMotionHumanActionPlan => {
+        const leader: IAutoMovieMotionHumanActionContext.IPerformer =
+          context.performer(context.params.target);
+        const gap: number =
+          HumanProxemics.gap(
+            "handing",
+            context.body.measure,
+            leader.body.measure,
+          ) + approach.chest(context.body);
+        const here: IAutoMovieVector3 = context.entry.posture.root;
+        const runTo = (seconds: number): IAutoMovieMotionHumanActionPlan => {
+          const there: IAutoMovieVector3 = leader.root(seconds).position;
+          const far: number = Math.hypot(there.x - here.x, there.z - here.z);
+          const short: number = Math.max(0, far - gap) / Math.max(far, 1e-9);
+          return run.plan({
+            ...context,
+            params: {
+              to: {
+                x: here.x + (there.x - here.x) * short,
+                y: 0,
+                z: here.z + (there.z - here.z) * short,
+              },
+              face:
+                (Math.atan2(there.x - here.x, there.z - here.z) * 180) /
+                Math.PI,
+              ...(context.params.pace === undefined
+                ? {}
+                : { pace: context.params.pace }),
             },
-            face:
-              (Math.atan2(there.x - here.x, there.z - here.z) * 180) / Math.PI,
-            ...(context.params.pace === undefined
-              ? {}
-              : { pace: context.params.pace }),
-          },
+          });
+        };
+        let meets: number = context.start;
+        let planned: IAutoMovieMotionHumanActionPlan = runTo(meets);
+        for (let tries: number = 0; tries < 8; ++tries) {
+          const next: number = context.start + planned.duration;
+          if (Math.abs(next - meets) < 1 / 24) return planned;
+          meets = next;
+          planned = runTo(meets);
+        }
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "pace",
+          value: context.params.pace ?? "run",
+          reason: `this pace does not close on ${context.params.target}: after eight estimates the meeting is still moving, last at ${(meets - context.start).toFixed(2)} s`,
+          fix: "choose a faster pace, start nearer, or head off a slower person",
         });
-      };
-      let meets: number = context.start;
-      let planned: IAutoMovieMotionHumanActionPlan = runTo(meets);
-      for (let tries: number = 0; tries < 8; ++tries) {
-        const next: number = context.start + planned.duration;
-        if (Math.abs(next - meets) < 1 / 24) return planned;
-        meets = next;
-        planned = runTo(meets);
-      }
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "pace",
-        value: context.params.pace ?? "run",
-        reason: `this pace does not close on ${context.params.target}: after eight estimates the meeting is still moving, last at ${(meets - context.start).toFixed(2)} s`,
-        fix: "choose a faster pace, start nearer, or head off a slower person",
-      });
-    },
-  };
+      },
+    };
 
   /** Seconds one glance back at a pursuer lasts before the eyes return ahead (provisional: no study of fleeing gaze was read). */
   export const GLANCE: number = 0.6;
@@ -152,7 +172,10 @@ export namespace HumanPursuit {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanGaze.layer`; nothing to cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the layer returned.
    */
-  export function glances(at: string, seconds: readonly number[]): IAutoMovieMotionHumanLayer {
+  export function glances(
+    at: string,
+    seconds: readonly number[],
+  ): IAutoMovieMotionHumanLayer {
     return HumanGaze.layer(
       seconds.map(
         (from: number): IAutoMovieMotionHumanGaze.ILayer => ({
@@ -250,7 +273,9 @@ export namespace HumanPursuit {
       (_: unknown, index: number): IAutoMovieMotionHumanLayer.IScheduled => ({
         from: { of: `${name}${index}` },
         to: { of: `${name}${index}`, event: "end" },
-        layer: (window: IAutoMovieMotionHumanLayer.IWindow): IAutoMovieMotionHumanLayer =>
+        layer: (
+          window: IAutoMovieMotionHumanLayer.IWindow,
+        ): IAutoMovieMotionHumanLayer =>
           HumanGaze.layer(
             [
               {
@@ -280,42 +305,45 @@ export namespace HumanPursuit {
    * the performer stands, on the line from the person through the
    * performer. Glances back are a look performed over it.
    */
-  export const flee: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPursuit.IFlee> = {
-    name: "flee",
-    family: run.name,
-    interrupts: run.interrupts,
-    yields: run.yields,
-    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPursuit.IFlee>): IAutoMovieMotionHumanActionPlan => {
-      const metres: number =
-        context.params.metres ?? FLIGHT * context.body.measure.hipHeight;
-      HumanBound.above("metres", metres, 0, "m");
-      const threat: IAutoMovieVector3 = context.aim(
-        { kind: "person", subject: context.params.from, region: "sternum" },
-        context.start,
-      ).point;
-      const here: IAutoMovieVector3 = context.entry.posture.root;
-      const away: number = Math.hypot(here.x - threat.x, here.z - threat.z);
-      if (away < 1e-6)
-        throw new HumanRefusal({
-          kind: "parameter",
-          axis: "from",
-          value: context.params.from,
-          reason: `the performer stands where ${context.params.from} does, so no direction leads away`,
-          fix: "flee from a person who stands somewhere else",
-        });
-      return run.plan({
-        ...context,
-        params: {
-          to: {
-            x: here.x + ((here.x - threat.x) / away) * metres,
-            y: 0,
-            z: here.z + ((here.z - threat.z) / away) * metres,
+  export const flee: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPursuit.IFlee> =
+    {
+      name: "flee",
+      family: run.name,
+      interrupts: run.interrupts,
+      yields: run.yields,
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPursuit.IFlee>,
+      ): IAutoMovieMotionHumanActionPlan => {
+        const metres: number =
+          context.params.metres ?? FLIGHT * context.body.measure.hipHeight;
+        HumanBound.above("metres", metres, 0, "m");
+        const threat: IAutoMovieVector3 = context.aim(
+          { kind: "person", subject: context.params.from, region: "sternum" },
+          context.start,
+        ).point;
+        const here: IAutoMovieVector3 = context.entry.posture.root;
+        const away: number = Math.hypot(here.x - threat.x, here.z - threat.z);
+        if (away < 1e-6)
+          throw new HumanRefusal({
+            kind: "parameter",
+            axis: "from",
+            value: context.params.from,
+            reason: `the performer stands where ${context.params.from} does, so no direction leads away`,
+            fix: "flee from a person who stands somewhere else",
+          });
+        return run.plan({
+          ...context,
+          params: {
+            to: {
+              x: here.x + ((here.x - threat.x) / away) * metres,
+              y: 0,
+              z: here.z + ((here.z - threat.z) / away) * metres,
+            },
+            ...(context.params.pace === undefined
+              ? {}
+              : { pace: context.params.pace }),
           },
-          ...(context.params.pace === undefined
-            ? {}
-            : { pace: context.params.pace }),
-        },
-      });
-    },
-  };
+        });
+      },
+    };
 }

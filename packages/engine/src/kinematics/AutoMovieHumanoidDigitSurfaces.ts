@@ -1,5 +1,12 @@
-import type { IAutoMovieHumanoidSurfaceRays, IAutoMovieHumanoidSurfaceReader, IAutoMovieHumanoidSurfaces, IAutoMoviePhysicalProfile, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaceRays,
+  IAutoMovieHumanoidSurfaceReader,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 
@@ -36,14 +43,9 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record and retains nothing.
  */
 export function AutoMovieHumanoidDigitSurfaces(
-  rays: Pick<
-    IAutoMovieHumanoidSurfaceReader,
-    "at" | "local" | "surface"
-  >,
+  rays: Pick<IAutoMovieHumanoidSurfaceReader, "at" | "local" | "surface">,
   profile: IAutoMoviePhysicalProfile,
-): Partial<
-  Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces.IFrame>
-> {
+): Partial<Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces.IFrame>> {
   const out: Partial<
     Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces.IFrame>
   > = {};

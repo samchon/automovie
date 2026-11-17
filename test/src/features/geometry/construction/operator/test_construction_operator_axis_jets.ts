@@ -1,11 +1,21 @@
-import type { IAutoMovieLoftFrame, IAutoMovieViewAxis, IAutoMovieViewParallelAxis } from "@automovie/interface";
-import { AutoMovieConstructionViews, AutoMovieViewAxis, AutoMovieViewParallelAxis } from "@automovie/engine";
+import {
+  AutoMovieConstructionViews,
+  AutoMovieViewAxis,
+  AutoMovieViewParallelAxis,
+} from "@automovie/engine";
+import type {
+  IAutoMovieLoftFrame,
+  IAutoMovieViewAxis,
+  IAutoMovieViewParallelAxis,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
 
 /** A frame jet returned by an actual analytic axis. */
-type Jet = NonNullable<ReturnType<NonNullable<IAutoMovieViewAxis.IAxis["jet"]>>>;
+type Jet = NonNullable<
+  ReturnType<NonNullable<IAutoMovieViewAxis.IAxis["jet"]>>
+>;
 
 /** A scalar's value and first two station derivatives. */
 type Dual = [number, number, number];

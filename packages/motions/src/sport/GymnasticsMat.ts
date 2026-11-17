@@ -1,7 +1,14 @@
-import type { IAutoMovieResolveCenterOfMass, AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGymnasticsMat, IAutoMovieMotionHumanLieDown, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import { carriedRate, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGymnasticsMat,
+  IAutoMovieMotionHumanLieDown,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { lieDown } from "../floor/lieDown";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "./GymnasticsFlight";
@@ -48,7 +55,9 @@ export namespace GymnasticsMat {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned function closes over its inputs.
    */
-  export function lie(props: IAutoMovieMotionHumanGymnasticsMat.ILieProps): (seconds: number) => IAutoMovieMotionHumanPosture {
+  export function lie(
+    props: IAutoMovieMotionHumanGymnasticsMat.ILieProps,
+  ): (seconds: number) => IAutoMovieMotionHumanPosture {
     const body: IAutoMovieMotionHumanBody = props.body;
     const model: IAutoMovieResolveCenterOfMass.IModel = props.model;
     const from: IAutoMovieMotionHumanPosture = props.from;

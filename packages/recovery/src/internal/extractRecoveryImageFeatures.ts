@@ -1,6 +1,5 @@
 import type { IAutoMovieRecoveryImageFeaturesExtractionOperation } from "@automovie/interface";
 
-
 import { filterRecoveryImageGaussian } from "./filterRecoveryImageGaussian";
 
 /**
@@ -186,7 +185,8 @@ export function extractRecoveryImageFeatures(
           response: value,
           level,
           angle,
-          radiusSquared: Infinity });
+          radiusSquared: Infinity,
+        });
       }
     }
     if (level + 1 < budget.maxPyramidLevels) {
@@ -227,7 +227,8 @@ export function extractRecoveryImageFeatures(
       a.x - b.x,
   );
   const selected: typeof candidates = candidates.slice(0, budget.maxFeatures);
-  const points: ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>["points"] = [];
+  const points: ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>["points"] =
+    [];
   let zeroDescriptors: number = 0;
   let invalidSupportDescriptors: number = 0;
   for (const candidate of selected) {
@@ -310,7 +311,8 @@ export function extractRecoveryImageFeatures(
       scale: 2 ** candidate.level,
       orientationRadians: candidate.angle,
       response: candidate.response,
-      descriptor });
+      descriptor,
+    });
   }
   return {
     points,
@@ -318,5 +320,6 @@ export function extractRecoveryImageFeatures(
     validCandidates: candidates.length,
     selectedBeforeDescriptor: selected.length,
     zeroDescriptors,
-    invalidSupportDescriptors };
+    invalidSupportDescriptors,
+  };
 }

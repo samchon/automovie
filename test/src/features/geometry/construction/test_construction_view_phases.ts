@@ -1,5 +1,12 @@
-import type { IAutoMovieConstructionRealization, IAutoMovieViewPart } from "@automovie/interface";
-import { AutoMovieViewAxis, AutoMovieViewSection, realizeAutoMovieConstruction } from "@automovie/engine";
+import {
+  AutoMovieViewAxis,
+  AutoMovieViewSection,
+  realizeAutoMovieConstruction,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionRealization,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -18,44 +25,91 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_construction_view_phases(): void {
   const failures: string[] = [];
-  const uniform: number[] = Array.from({ length: 16 }, (_: unknown, k: number): number => (2 * Math.PI * k) / 16);
+  const uniform: number[] = Array.from(
+    { length: 16 },
+    (_: unknown, k: number): number => (2 * Math.PI * k) / 16,
+  );
   // Ten phases within 0.6 rad either side of 0, six over the rest of the turn.
   const clustered: number[] = [
     ...Array.from({ length: 6 }, (_: unknown, k: number): number => 0.1 * k),
-    ...Array.from({ length: 6 }, (_: unknown, k: number): number => 0.6 + ((2 * Math.PI - 1.2) * (k + 0.5)) / 6),
-    ...Array.from({ length: 4 }, (_: unknown, k: number): number => 2 * Math.PI - 0.4 + 0.1 * k),
+    ...Array.from(
+      { length: 6 },
+      (_: unknown, k: number): number =>
+        0.6 + ((2 * Math.PI - 1.2) * (k + 0.5)) / 6,
+    ),
+    ...Array.from(
+      { length: 4 },
+      (_: unknown, k: number): number => 2 * Math.PI - 0.4 + 0.1 * k,
+    ),
   ];
-  const cases: { name: string; phases: number[] | undefined; expected: number[] | null }[] = [
+  const cases: {
+    name: string;
+    phases: number[] | undefined;
+    expected: number[] | null;
+  }[] = [
     { name: "uniform", phases: undefined, expected: uniform },
     { name: "clustered", phases: clustered, expected: clustered },
     { name: "decreasing", phases: [...clustered].reverse(), expected: null },
     { name: "short", phases: clustered.slice(1), expected: null },
   ];
   for (const { name, phases, expected } of cases) {
-    const part: IAutoMovieViewPart = { ...tube(name), ...(phases === undefined ? {} : { phases }) };
-    const realized: IAutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction(
-      { name: "phase-tree", root: { type: "source", name: part.name, source: part.name } },
-      { chord: 1e-3, sources: new Map([[part.name, part]]) },
-    );
+    const part: IAutoMovieViewPart = {
+      ...tube(name),
+      ...(phases === undefined ? {} : { phases }),
+    };
+    const realized: IAutoMovieConstructionRealization.IRealization =
+      realizeAutoMovieConstruction(
+        {
+          name: "phase-tree",
+          root: { type: "source", name: part.name, source: part.name },
+        },
+        { chord: 1e-3, sources: new Map([[part.name, part]]) },
+      );
     if (expected === null) {
-      if (!realized.diagnostics.some((d: { detail: string }): boolean => d.detail.includes("ring phases")))
-        failures.push(`${name}: the loft did not refuse the declared phases (${JSON.stringify(realized.diagnostics)})`);
+      if (
+        !realized.diagnostics.some((d: { detail: string }): boolean =>
+          d.detail.includes("ring phases"),
+        )
+      )
+        failures.push(
+          `${name}: the loft did not refuse the declared phases (${JSON.stringify(realized.diagnostics)})`,
+        );
       continue;
     }
-    if (realized.diagnostics.length !== 0) failures.push(`${name}: ${JSON.stringify(realized.diagnostics)}`);
+    if (realized.diagnostics.length !== 0)
+      failures.push(`${name}: ${JSON.stringify(realized.diagnostics)}`);
     // Every vertex's chart phase, reduced to one turn and rounded to 1e-9: the tube is the tree's one face.
-    if (realized.mesh.owners.length !== 1) failures.push(`${name}: the skin has ${realized.mesh.owners.length} faces, not the tube's one`);
+    if (realized.mesh.owners.length !== 1)
+      failures.push(
+        `${name}: the skin has ${realized.mesh.owners.length} faces, not the tube's one`,
+      );
     const seen: Set<string> = new Set();
     for (let v: number = 0; v * 3 < realized.mesh.coordinates.length; ++v) {
       const phi: number = realized.mesh.coordinates[v * 3 + 2]!;
-      seen.add((((phi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)).toFixed(9));
+      seen.add(
+        (((phi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)).toFixed(9),
+      );
     }
-    const want: Set<string> = new Set(expected.map((phi: number): string => (((phi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)).toFixed(9)));
-    const missing: string[] = [...want].filter((p: string): boolean => !seen.has(p));
-    const extra: string[] = [...seen].filter((p: string): boolean => !want.has(p));
-    if (missing.length !== 0 || extra.length !== 0) failures.push(`${name}: the face's vertices miss phases ${missing.join(" ")} and stand at others ${extra.join(" ")}`);
+    const want: Set<string> = new Set(
+      expected.map((phi: number): string =>
+        (((phi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)).toFixed(9),
+      ),
+    );
+    const missing: string[] = [...want].filter(
+      (p: string): boolean => !seen.has(p),
+    );
+    const extra: string[] = [...seen].filter(
+      (p: string): boolean => !want.has(p),
+    );
+    if (missing.length !== 0 || extra.length !== 0)
+      failures.push(
+        `${name}: the face's vertices miss phases ${missing.join(" ")} and stand at others ${extra.join(" ")}`,
+      );
   }
-  TestValidator.predicate(failures.join("\n"), (): boolean => failures.length === 0);
+  TestValidator.predicate(
+    failures.join("\n"),
+    (): boolean => failures.length === 0,
+  );
 }
 
 /** A 20 mm tube on the horizontal course, open at both ends, 16 phases round. */

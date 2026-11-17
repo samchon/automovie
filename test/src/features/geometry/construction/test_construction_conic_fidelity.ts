@@ -1,5 +1,8 @@
-import type { IAutoMoviePolarSector, IAutoMovieViewSection } from "@automovie/interface";
 import { AutoMovieViewSection } from "@automovie/engine";
+import type {
+  IAutoMoviePolarSector,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,5 +1,3 @@
-
-
 /**
  * An opaque sRGB picture as the raster tools exchange it: a frame the draw-only
  * function returned, a contact sheet, a difference image or a file a host decoded.

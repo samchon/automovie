@@ -1,5 +1,3 @@
-
-
 /**
  * One shot image participating in a film-global output frame.
  *

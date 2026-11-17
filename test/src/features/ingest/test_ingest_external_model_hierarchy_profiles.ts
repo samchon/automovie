@@ -1,5 +1,8 @@
-import type { AutoMovieExternalModelIngestProfile, IAutoMovieExternalModelInspection, IAutoMovieExternalMotionNodeInspection } from "@automovie/interface";
-
+import type {
+  AutoMovieExternalModelIngestProfile,
+  IAutoMovieExternalModelInspection,
+  IAutoMovieExternalMotionNodeInspection,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -70,9 +73,8 @@ export function test_ingest_external_model_hierarchy_profiles(): void {
         `${profile}: validated parent map reaches normalization`,
         test12ValuesClose(
           parented.motion?.nodes.map(
-            (
-              node: IAutoMovieExternalMotionNodeInspection,
-            ): string | null => node.parent,
+            (node: IAutoMovieExternalMotionNodeInspection): string | null =>
+              node.parent,
           ),
           ["node_1", null],
         ),

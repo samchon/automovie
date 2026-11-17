@@ -1,6 +1,13 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFitGoals, IAutoMovieMotionHumanJacobian, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFitGoals,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanFitBalance } from "./HumanFitBalance";
 import { HumanJacobian } from "./HumanJacobian";
@@ -17,7 +24,6 @@ import { HumanJacobian } from "./HumanJacobian";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No changed joint ranges, proxy bone or action-specific result.
  */
 export namespace HumanFitGoals {
-
   /**
    * The additional quantities of one displayed-body reading.
    *
@@ -63,7 +69,10 @@ export namespace HumanFitGoals {
     )
       throw new Error("A centre-of-mass goal needs finite world coordinates");
     return {
-      angles: angles.map((target: IAutoMovieMotionHumanFitGoals.IAngle): number => angle(bones, target)),
+      angles: angles.map(
+        (target: IAutoMovieMotionHumanFitGoals.IAngle): number =>
+          angle(bones, target),
+      ),
       ...(centre === undefined
         ? {}
         : { centre: HumanFitBalance.centre(body, bones) }),
@@ -109,7 +118,9 @@ export namespace HumanFitGoals {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Rows, merit and residuals share this convention.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function bounds(target: IAutoMovieMotionHumanFitGoals.IAngle): readonly [number, number] {
+  export function bounds(
+    target: IAutoMovieMotionHumanFitGoals.IAngle,
+  ): readonly [number, number] {
     const degrees: readonly [number, number] =
       typeof target.degrees === "number"
         ? [target.degrees, target.degrees]
@@ -159,15 +170,17 @@ export namespace HumanFitGoals {
       Vector3.cross(n, v),
       1 / Vector3.dot(v, v),
     );
-    return motions.map((motion: IAutoMovieMotionHumanJacobian.IMotion): number => {
-      const a: IAutoMovieVector3 = velocity(bones, target.points[0], motion);
-      const b: IAutoMovieVector3 = velocity(bones, target.points[1], motion);
-      const c: IAutoMovieVector3 = velocity(bones, target.points[2], motion);
-      return (
-        Vector3.dot(gu, Vector3.subtract(a, b)) +
-        Vector3.dot(gv, Vector3.subtract(c, b))
-      );
-    });
+    return motions.map(
+      (motion: IAutoMovieMotionHumanJacobian.IMotion): number => {
+        const a: IAutoMovieVector3 = velocity(bones, target.points[0], motion);
+        const b: IAutoMovieVector3 = velocity(bones, target.points[1], motion);
+        const c: IAutoMovieVector3 = velocity(bones, target.points[2], motion);
+        return (
+          Vector3.dot(gu, Vector3.subtract(a, b)) +
+          Vector3.dot(gv, Vector3.subtract(c, b))
+        );
+      },
+    );
   }
 
   /**
@@ -185,7 +198,9 @@ export namespace HumanFitGoals {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The rows, merit and result use this same direction convention.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function directions(target: IAutoMovieMotionHumanFitGoals.ICentre): IAutoMovieVector3[] {
+  export function directions(
+    target: IAutoMovieMotionHumanFitGoals.ICentre,
+  ): IAutoMovieVector3[] {
     return (target.axes ?? (["x", "y", "z"] as const)).map(
       (axis: "x" | "y" | "z" | IAutoMovieVector3): IAutoMovieVector3 => {
         if (typeof axis === "string") {
@@ -231,19 +246,21 @@ export namespace HumanFitGoals {
     ) => void,
     mm: number,
   ): void {
-    step.angles.forEach((target: IAutoMovieMotionHumanFitGoals.IAngle, k: number): void => {
-      const [lo, hi]: readonly [number, number] = bounds(target);
-      equal(
-        `angle:${k}`,
-        (r: HumanBodyFitRows.IReading): number => r.angles[k]!,
-        lo,
-        slopes(step.at.bones, step.motions, target).map(
-          (v: number, i: number): number => v * step.units[i]! * mm,
-        ),
-        target.price ?? step.price,
-        hi,
-      );
-    });
+    step.angles.forEach(
+      (target: IAutoMovieMotionHumanFitGoals.IAngle, k: number): void => {
+        const [lo, hi]: readonly [number, number] = bounds(target);
+        equal(
+          `angle:${k}`,
+          (r: HumanBodyFitRows.IReading): number => r.angles[k]!,
+          lo,
+          slopes(step.at.bones, step.motions, target).map(
+            (v: number, i: number): number => v * step.units[i]! * mm,
+          ),
+          target.price ?? step.price,
+          hi,
+        );
+      },
+    );
     if (step.centre === undefined) return;
     const target: IAutoMovieMotionHumanFitGoals.ICentre = step.centre;
     const columns: IAutoMovieVector3[] = HumanFitBalance.velocities(

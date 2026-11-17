@@ -1,5 +1,14 @@
-import type { IAutoMovieMotionHumanAudit, IAutoMovieMotionHumanAuditDifference, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditDifference, HumanChain, IAutoMovieMotionHumanAuditMotion } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanAudit,
+  IAutoMovieMotionHumanAuditDifference,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAuditDifference,
+  AutoMovieMotionHumanAuditMotion,
+  HumanChain,
+} from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanLaw } from "./motionHumanLaw";
@@ -95,7 +104,7 @@ export function motionHumanLawSolo(
     }
 
     if (row.counted !== undefined) {
-      const values: number[] = IAutoMovieMotionHumanAuditMotion.grid(
+      const values: number[] = AutoMovieMotionHumanAuditMotion.grid(
         0,
         film.duration,
         48,
@@ -162,6 +171,9 @@ export namespace motionHumanLawSolo {
     };
 
     /** The action's own expectations, as complaints. */
-    intent?: (film: motionHumanLaw.IFilm, body: IAutoMovieMotionHumanBody) => string[];
+    intent?: (
+      film: motionHumanLaw.IFilm,
+      body: IAutoMovieMotionHumanBody,
+    ) => string[];
   }
 }

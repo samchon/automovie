@@ -1,10 +1,8 @@
-
-
 /** Data and callback contracts shared by the PhysicalJointEffort operations. */
 export namespace IAutoMoviePhysicalJointEffort {
   /**
    * Effective tracking fraction of one joint motor at one native tick.
-   * 
+   *
    * An explicit per-joint override replaces the body's effort; a joint inside a
    * moving recovery limb takes the balance policy's joint fraction; a joint whose
    * child received a disturbance stays compliant, multiplied by the declared

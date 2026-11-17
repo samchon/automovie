@@ -1,6 +1,9 @@
-import type { IAutoMovieMinimumJerk, IAutoMovieSuperposeMinimumJerk, IAutoMovieVector3 } from "@automovie/interface";
 import { minimumJerk, superposeMinimumJerk } from "@automovie/engine";
-
+import type {
+  IAutoMovieMinimumJerk,
+  IAutoMovieSuperposeMinimumJerk,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

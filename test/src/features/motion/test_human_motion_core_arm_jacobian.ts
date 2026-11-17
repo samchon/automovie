@@ -1,7 +1,16 @@
-import type { IAutoMovieMotionHumanArmJacobian, IAutoMovieMotionHumanBody, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-
-import { HumanArmJacobian, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanArmJacobian,
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanArmJacobian,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";

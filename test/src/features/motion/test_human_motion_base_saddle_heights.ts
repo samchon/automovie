@@ -1,7 +1,23 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
 import { createHorse, createMotorcycle } from "@automovie/archetypes";
-
-import { HumanChain, HumanFoot, HumanFrame, HumanObject, HumanPerformance, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFoot,
+  HumanFrame,
+  HumanObject,
+  HumanPerformance,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -54,11 +70,11 @@ export function test_human_motion_base_saddle_heights(): void {
   const horse: IAutoMovieMotionHumanObject.IModel = createHorse({});
 
   // A saddle with its rests removed is one whose feet must hang.
-  const bare = (model: IAutoMovieMotionHumanObject.IModel): IAutoMovieMotionHumanSeated.ISeat => {
-    const { footrests: _rests, ...seat }: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
-      model,
-      where,
-    );
+  const bare = (
+    model: IAutoMovieMotionHumanObject.IModel,
+  ): IAutoMovieMotionHumanSeated.ISeat => {
+    const { footrests: _rests, ...seat }: IAutoMovieMotionHumanSeated.ISeat =
+      HumanObject.seat(model, where);
     return seat;
   };
   const pairs: readonly (readonly [
@@ -108,8 +124,10 @@ export function test_human_motion_base_saddle_heights(): void {
       body,
       seat.yaw,
     );
-    const [sitting, rising]: readonly (IAutoMovieMotionHumanSegment.ISegment | undefined)[] =
-      performance.segments("a");
+    const [sitting, rising]: readonly (
+      | IAutoMovieMotionHumanSegment.ISegment
+      | undefined
+    )[] = performance.segments("a");
     if (sitting === undefined || rising === undefined) {
       complaints.push(
         `${label}: the sitting or the getting off was not placed`,

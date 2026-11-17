@@ -77,31 +77,31 @@ export interface IAutoMovieSolidSurface {
 /** Data and callback contracts shared by the SolidSurface operations. */
 export namespace IAutoMovieSolidSurface {
   /**
-     * A surface's point and partial derivatives at one chart point. The point
-     * is in world mm; each derivative divides by its named parameter units.
-     *
-     * @evidence contracts/development/design.md#principled-representation The six-vector 2-jet represents a smooth two-parameter map, including one symmetric mixed partial for its curvature calculations.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Named p/u/v/uu/uv/vv fields expose the exact orders consumed by Foot, Intersection and Ribbon without storing sampled neighbourhoods.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts The record asserts derivative meaning but cannot prove finiteness, mixed-partial consistency or a nonzero tangent cross product.
-     * @evidence contracts/development/common.md#meaningful-documentation Identifies world space, derivative units and the producer-specific ownership of the vectors.
-     */
-    export interface IJet {
-      /** Point. */
-      p: AutoMovieVector3Tuple;
-  
-      /** First derivative in `u`. */
-      u: AutoMovieVector3Tuple;
-  
-      /** First derivative in `v`. */
-      v: AutoMovieVector3Tuple;
-  
-      /** Second derivative in `u`. */
-      uu: AutoMovieVector3Tuple;
-  
-      /** Mixed derivative. */
-      uv: AutoMovieVector3Tuple;
-  
-      /** Second derivative in `v`. */
-      vv: AutoMovieVector3Tuple;
-    }
+   * A surface's point and partial derivatives at one chart point. The point
+   * is in world mm; each derivative divides by its named parameter units.
+   *
+   * @evidence contracts/development/design.md#principled-representation The six-vector 2-jet represents a smooth two-parameter map, including one symmetric mixed partial for its curvature calculations.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Named p/u/v/uu/uv/vv fields expose the exact orders consumed by Foot, Intersection and Ribbon without storing sampled neighbourhoods.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record asserts derivative meaning but cannot prove finiteness, mixed-partial consistency or a nonzero tangent cross product.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies world space, derivative units and the producer-specific ownership of the vectors.
+   */
+  export interface IJet {
+    /** Point. */
+    p: AutoMovieVector3Tuple;
+
+    /** First derivative in `u`. */
+    u: AutoMovieVector3Tuple;
+
+    /** First derivative in `v`. */
+    v: AutoMovieVector3Tuple;
+
+    /** Second derivative in `u`. */
+    uu: AutoMovieVector3Tuple;
+
+    /** Mixed derivative. */
+    uv: AutoMovieVector3Tuple;
+
+    /** Second derivative in `v`. */
+    vv: AutoMovieVector3Tuple;
+  }
 }

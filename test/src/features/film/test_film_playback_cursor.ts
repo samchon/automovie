@@ -1,6 +1,16 @@
-import { type IAutoMoviePlaybackEntry, type IAutoMoviePlaybackSample, type IAutoMoviePlaybackTimeline, IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
-import { cutSequence, playbackCursor, resolveFromTimeline, sequenceTimeline } from "@automovie/engine";
-
+import {
+  cutSequence,
+  playbackCursor,
+  resolveFromTimeline,
+  sequenceTimeline,
+} from "@automovie/engine";
+import {
+  type IAutoMoviePlaybackEntry,
+  type IAutoMoviePlaybackSample,
+  type IAutoMoviePlaybackTimeline,
+  IAutoMovieSequence,
+  IAutoMovieShot,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";

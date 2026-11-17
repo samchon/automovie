@@ -1,5 +1,23 @@
-import { type IAutoMovieResolvedCamera, type IAutoMovieSampledChannel, type IAutoMovieSampledFormationMotion, type IAutoMovieDeriveProductionSoundPlan, IAutoMovieAcousticResponseProfile, IAutoMovieCamera, IAutoMovieCompiledFormation, IAutoMovieCompiledInstanceSet, IAutoMovieCompiledShotSource, IAutoMovieFilmTimelineSegment, IAutoMovieFormationBounds, IAutoMovieProductionSoundEvent, IAutoMovieProductionSoundPlan, IAutoMovieSceneNode, IAutoMovieShotContract, IAutoMovieShotEventContract, IAutoMovieSoundPropagationProfile, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieAcousticResponseProfile,
+  IAutoMovieCamera,
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledInstanceSet,
+  IAutoMovieCompiledShotSource,
+  type IAutoMovieDeriveProductionSoundPlan,
+  IAutoMovieFilmTimelineSegment,
+  IAutoMovieFormationBounds,
+  IAutoMovieProductionSoundEvent,
+  IAutoMovieProductionSoundPlan,
+  type IAutoMovieResolvedCamera,
+  type IAutoMovieSampledChannel,
+  type IAutoMovieSampledFormationMotion,
+  IAutoMovieSceneNode,
+  IAutoMovieShotContract,
+  IAutoMovieShotEventContract,
+  IAutoMovieSoundPropagationProfile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { resolveCameraAt } from "../film/resolveCameraAt";
 import { Quaternion } from "../math/Quaternion";
@@ -22,7 +40,11 @@ import { deriveAutoMovieSoundPropagation } from "./deriveAutoMovieSoundPropagati
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Current contract/source maps share identity lookup and one camera/source mass serves each event's pan/attenuation/optional propagation; all object motions are still sampled per resolved event, with no cross-event pose cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns fresh plan arrays and copied profiles, while listener positions may retain static camera translations; local mass parts and sampled channels leave scope, and no audio assets or decoder handles are acquired.
  */
-export const deriveProductionSoundPlan: (props: IAutoMovieDeriveProductionSoundPlan.IProps) => IAutoMovieProductionSoundPlan = (props: IAutoMovieDeriveProductionSoundPlan.IProps): IAutoMovieProductionSoundPlan => {
+export const deriveProductionSoundPlan: (
+  props: IAutoMovieDeriveProductionSoundPlan.IProps,
+) => IAutoMovieProductionSoundPlan = (
+  props: IAutoMovieDeriveProductionSoundPlan.IProps,
+): IAutoMovieProductionSoundPlan => {
   const events: IAutoMovieProductionSoundPlan["events"] = [];
   props.timeline.segments.forEach(
     (segment: IAutoMovieFilmTimelineSegment, segmentIndex: number): void => {

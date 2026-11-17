@@ -1,6 +1,5 @@
 import type { IAutoMovieSimplexAtom } from "@automovie/interface";
 
-
 /**
  * Validate owned sparse physical-row metadata before optional arithmetic.
  *

@@ -1,6 +1,21 @@
-import type { AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBase, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGetUp, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanLieDown, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupport, IAutoMovieMotionManner, IAutoMovieQuaternion } from "@automovie/interface";
-
 import { Quaternion } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBase,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGetUp,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanLieDown,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSupport,
+  IAutoMovieMotionManner,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
+
 import { stand } from "../actions/stand";
 import { support } from "../actions/support";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -60,7 +75,10 @@ export namespace getUp {
   };
 
   /** The patterns of {@link Pattern}, as data. */
-  export const PATTERNS = ["symmetric", "rotation"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanGetUp.Pattern>[];
+  export const PATTERNS = [
+    "symmetric",
+    "rotation",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanGetUp.Pattern>[];
 
   /** The share of the trained young adult's supine-to-stand time a body takes, seconds (Ulbrich et al. 2000: 2.6 s). */
   export const SECONDS: number = 2.6;
@@ -72,10 +90,7 @@ export namespace getUp {
    * kneel on the trailing knee with the leading foot flat ahead; standing.
    */
   export const POSES: Readonly<
-    Record<
-      IAutoMovieMotionHumanGetUp.Stage,
-      IAutoMovieMotionHumanLieDown.IPose
-    >
+    Record<IAutoMovieMotionHumanGetUp.Stage, IAutoMovieMotionHumanLieDown.IPose>
   > = {
     sit: lieDown.POSES.sit,
     squat: keyed(40, { hip: 120, knee: 100, ankle: 20, shoulder: 60 }),
@@ -129,7 +144,10 @@ export namespace getUp {
   };
   /** The routes, each a list of postures with the event of its arrival. */
   export const ROUTES: Readonly<
-    Record<IAutoMovieMotionHumanGetUp.Pattern, readonly (readonly [IAutoMovieMotionHumanGetUp.Stage, string])[]>
+    Record<
+      IAutoMovieMotionHumanGetUp.Pattern,
+      readonly (readonly [IAutoMovieMotionHumanGetUp.Stage, string])[]
+    >
   > = {
     symmetric: [
       ["sit", "seated"],
@@ -198,7 +216,10 @@ export namespace getUp {
 
     // From the back the whole route; from the front it starts past the roll,
     // and from the hands and knees past the hands and knees as well.
-    const route: readonly (readonly [IAutoMovieMotionHumanGetUp.Stage, string])[] =
+    const route: readonly (readonly [
+      IAutoMovieMotionHumanGetUp.Stage,
+      string,
+    ])[] =
       kind !== "lying"
         ? ROUTES.rotation.slice(2)
         : supine
@@ -276,7 +297,9 @@ export namespace getUp {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `stand.posture` and `resolveHumanPosture`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function quiet(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanLieDown.IPose {
+  export function quiet(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanLieDown.IPose {
     return {
       pitch: 0,
       roll: 0,
@@ -312,7 +335,9 @@ export namespace getUp {
   }
 
   /** A posture with its left and right sides exchanged. */
-  function mirrored(pose: IAutoMovieMotionHumanLieDown.IPose): IAutoMovieMotionHumanLieDown.IPose {
+  function mirrored(
+    pose: IAutoMovieMotionHumanLieDown.IPose,
+  ): IAutoMovieMotionHumanLieDown.IPose {
     const joints: IAutoMovieMotionHumanJoints.Angles = {};
     for (const [bone, angles] of Object.entries(pose.joints) as [
       AutoMovieHumanoidBone,

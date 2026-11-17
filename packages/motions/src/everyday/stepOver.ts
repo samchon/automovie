@@ -1,6 +1,15 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStepOver, IAutoMovieVector3 } from "@automovie/interface";
-
 import { minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStepOver,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
@@ -312,12 +321,15 @@ export namespace stepOver {
         > = {};
         for (let round: number = 0; round < 6 && lifted.length > 0; round++) {
           const bones = poseBones(body, resolveHumanPosture(body, posture));
-          const next: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+          const next: IAutoMovieMotionHumanPosture["limbs"] = {
+            ...posture.limbs,
+          };
           let moved: boolean = false;
           for (const side of lifted) {
             const short: number = Math.max(
               ...HumanFoot.sockets(body, bones, side).map(
-                (s: IAutoMovieMotionHumanFoot.ISocket): number => needed(s.point) - s.point.y,
+                (s: IAutoMovieMotionHumanFoot.ISocket): number =>
+                  needed(s.point) - s.point.y,
               ),
             );
             if (short <= 0.002) continue;

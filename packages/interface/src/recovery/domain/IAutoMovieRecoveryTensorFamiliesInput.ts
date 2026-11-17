@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryAnalyticDomainsInput, IAutoMovieRecoveryTensorFamily } from "../../index";
+import type {
+  IAutoMovieRecoveryAnalyticDomainsInput,
+  IAutoMovieRecoveryTensorFamily,
+} from "../../index";
 
 /**
  * Full Bernstein reconstruction input, retaining analytic domains and optional ordinary tensor families. Each owner can report partial realization without substituting source geometry.
@@ -10,7 +13,6 @@ import type { IAutoMovieRecoveryAnalyticDomainsInput, IAutoMovieRecoveryTensorFa
  */
 
 export interface IAutoMovieRecoveryTensorFamiliesInput extends IAutoMovieRecoveryAnalyticDomainsInput {
- 
- /** Optional tensor owners; absence retains the existing curve-only and analytic-domain paths. */
+  /** Optional tensor owners; absence retains the existing curve-only and analytic-domain paths. */
   tensorFamilies?: readonly IAutoMovieRecoveryTensorFamily[];
 }

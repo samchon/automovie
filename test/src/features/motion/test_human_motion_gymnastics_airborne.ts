@@ -1,8 +1,22 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 import { createPlyoBox } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanGymnastics, HumanObject, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanGymnastics,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -100,7 +114,9 @@ export function test_human_motion_gymnastics_airborne(): void {
       );
       const segment: IAutoMovieMotionHumanSegment.ISegment = film
         .segments("a")
-        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row)!;
+        .find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
+        )!;
       const at = (event: string): number =>
         segment.start +
         (segment.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -121,7 +137,8 @@ export function test_human_motion_gymnastics_airborne(): void {
           );
       }
       for (const window of segment.plan.contacts.filter(
-        (w: IAutoMovieMotionHumanContactWindow): boolean => w.part.endsWith("Hand"),
+        (w: IAutoMovieMotionHumanContactWindow): boolean =>
+          w.part.endsWith("Hand"),
       )) {
         const bone: AutoMovieHumanoidBone =
           window.part as AutoMovieHumanoidBone;

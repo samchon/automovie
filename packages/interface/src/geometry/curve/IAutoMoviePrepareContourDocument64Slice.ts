@@ -1,4 +1,5 @@
 import type { IAutoMoviePrepareContourDocument64Observation } from "./IAutoMoviePrepareContourDocument64Observation";
+
 /**
  * One retained saved horizontal cut in a prepared contour document. Preparation
  * creates this record and its loop list while borrowing each cubic declaration.

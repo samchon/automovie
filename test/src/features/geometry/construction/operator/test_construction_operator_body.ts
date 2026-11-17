@@ -1,5 +1,11 @@
-import type { AutoMovieVector3Tuple, IAutoMovieLoftContract, IAutoMovieSolidBody, IAutoMovieSolidMesh, IAutoMovieSolidSurface } from "@automovie/interface";
 import { AutoMovieSolidBody, AutoMovieSolidMesh } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieLoftContract,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { HumanSolidShapes } from "../../../internal/HumanSolidShapes";
 

@@ -12,14 +12,14 @@ export namespace IAutoMovieDrawingCellSection {
   /**
    * Cross-section of one convex cell on the cut plane, as an unrounded page
    * polygon.
-   * 
+   *
    * Each world half-space `normal . p <= offset` becomes the page half-plane
    * `a x + b y <= c` through the frame's origin, right and up axes, and the
    * section is what survives clipping a square of half-extent
    * 10,000 metres by all of them. Reaching this working square, within the
    * drawing epsilon, makes `bounded` false. A large but mathematically bounded
    * section can therefore also fail this test; it is not a proof of global unboundedness.
-   * 
+   *
    * An empty `polygon` with `bounded: true` means the plane misses the cell. A
    * half-space parallel to the page keeps or removes the whole section by which
    * side of it the plane lies on.

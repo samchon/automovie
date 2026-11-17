@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionGeometry, IAutoMoviePhysicalHullFaces, IAutoMoviePhysicalProfile } from "@automovie/interface";
+import type {
+  IAutoMovieMotionGeometry,
+  IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalProfile,
+} from "@automovie/interface";
+
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 import { physicalHullFaces } from "./physicalHullFaces";
 
@@ -52,7 +57,8 @@ export function admitMotionGeometry(geometry: IAutoMovieMotionGeometry): void {
     (geometry.witnesses !== undefined && !Array.isArray(geometry.witnesses))
   )
     throw new Error("Invalid motion geometry population");
-  const materials: Map<string, IAutoMovieMotionGeometry["materials"][number]> = new Map();
+  const materials: Map<string, IAutoMovieMotionGeometry["materials"][number]> =
+    new Map();
   for (const material of geometry.materials) {
     if (
       !material ||
@@ -79,9 +85,9 @@ export function admitMotionGeometry(geometry: IAutoMovieMotionGeometry): void {
     bones.add(segment.bone);
     const ids: Set<string> = new Set();
     for (const shape of segment.shapes) {
-      const material: IAutoMovieMotionGeometry["materials"][number] | undefined = materials.get(
-        shape?.material,
-      );
+      const material:
+        | IAutoMovieMotionGeometry["materials"][number]
+        | undefined = materials.get(shape?.material);
       if (
         !shape ||
         !name(shape.id) ||
@@ -124,7 +130,9 @@ export function admitMotionGeometry(geometry: IAutoMovieMotionGeometry): void {
           )
         )
           throw new Error("Invalid motion geometry hull");
-        const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(shape.points);
+        const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
+          shape.points,
+        );
         // Convex by contract: the points span a volume and none lies inside.
         if (hull.faces.length < 4 || hull.buried > hull.tolerance)
           throw new Error("Invalid motion geometry hull");

@@ -1,6 +1,9 @@
-import type { IAutoMovieMotionAudit, IAutoMoviePhysicsCache, IAutoMovieMotionGeometry as Geometry } from "@automovie/interface";
 import { AutoMovieMotionAudit as Audit } from "@automovie/engine";
-
+import type {
+  IAutoMovieMotionGeometry as Geometry,
+  IAutoMovieMotionAudit,
+  IAutoMoviePhysicsCache,
+} from "@automovie/interface";
 import assert from "node:assert/strict";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -32,7 +35,9 @@ export async function test_physical_motion_geometry(): Promise<void> {
     joints: [],
     witnesses: ["observed-origin"],
   };
-  const state: (x: number) => IAutoMoviePhysicsCache.ISegment = (x: number): IAutoMoviePhysicsCache.ISegment => ({
+  const state: (x: number) => IAutoMoviePhysicsCache.ISegment = (
+    x: number,
+  ): IAutoMoviePhysicsCache.ISegment => ({
     position: { x, y: 1, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
     velocity: { x: 0, y: 0, z: 0 },

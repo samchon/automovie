@@ -1,11 +1,20 @@
-import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSeatedReach, IAutoMovieMotionMeeting, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Quaternion,
   Vector3,
   bracketedBisection,
   getConstraint,
 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSeatedReach,
+  IAutoMovieMotionMeeting,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 
 /**
@@ -113,13 +122,18 @@ export namespace HumanSeatedReach {
     const joints: IAutoMovieMotionHumanSeatedReach.IJoint[] = [
       { bone: "hips", room: Math.max(0, (range("leftUpperLeg") ?? hip) - hip) },
       ...spine.map(
-        (bone: AutoMovieHumanoidBone, k: number): IAutoMovieMotionHumanSeatedReach.IJoint => ({
+        (
+          bone: AutoMovieHumanoidBone,
+          k: number,
+        ): IAutoMovieMotionHumanSeatedReach.IJoint => ({
           bone,
           room: Math.max(0, (range(bone) ?? 0) - flexion(k + 1)),
         }),
       ),
     ];
-    return joints.filter((j: IAutoMovieMotionHumanSeatedReach.IJoint): boolean => j.room > 0);
+    return joints.filter(
+      (j: IAutoMovieMotionHumanSeatedReach.IJoint): boolean => j.room > 0,
+    );
   }
 
   /**
@@ -156,23 +170,26 @@ export namespace HumanSeatedReach {
     };
     let moved: IAutoMovieVector3 = point;
     const pivots: IAutoMovieVector3[] = joints.map(
-      (j: IAutoMovieMotionHumanSeatedReach.IJoint): IAutoMovieVector3 => role.bones.get(j.bone)!.worldPosition,
+      (j: IAutoMovieMotionHumanSeatedReach.IJoint): IAutoMovieVector3 =>
+        role.bones.get(j.bone)!.worldPosition,
     );
-    joints.forEach((j: IAutoMovieMotionHumanSeatedReach.IJoint, k: number): void => {
-      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-        left,
-        share * j.room,
-      );
-      const about: IAutoMovieVector3 = pivots[k]!;
-      const carry = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(
-          about,
-          Quaternion.rotateVector(turn, Vector3.subtract(p, about)),
+    joints.forEach(
+      (j: IAutoMovieMotionHumanSeatedReach.IJoint, k: number): void => {
+        const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+          left,
+          share * j.room,
         );
-      moved = carry(moved);
-      for (let above: number = k + 1; above < pivots.length; above++)
-        pivots[above] = carry(pivots[above]!);
-    });
+        const about: IAutoMovieVector3 = pivots[k]!;
+        const carry = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+          Vector3.add(
+            about,
+            Quaternion.rotateVector(turn, Vector3.subtract(p, about)),
+          );
+        moved = carry(moved);
+        for (let above: number = k + 1; above < pivots.length; above++)
+          pivots[above] = carry(pivots[above]!);
+      },
+    );
     return moved;
   }
 
@@ -203,9 +220,11 @@ export namespace HumanSeatedReach {
     share: number,
   ): IAutoMovieMotionHumanPosture {
     if (joints.length === 0 || share === 0) return posture;
-    const hips: IAutoMovieMotionHumanSeatedReach.IJoint | undefined = joints.find(
-      (j: IAutoMovieMotionHumanSeatedReach.IJoint): boolean => j.bone === "hips",
-    );
+    const hips: IAutoMovieMotionHumanSeatedReach.IJoint | undefined =
+      joints.find(
+        (j: IAutoMovieMotionHumanSeatedReach.IJoint): boolean =>
+          j.bone === "hips",
+      );
     const pitched: IAutoMovieMotionHumanPosture =
       hips === undefined
         ? posture
@@ -213,7 +232,9 @@ export namespace HumanSeatedReach {
             pitch: share * hips.room,
             roll: 0,
           });
-    const flexed: IAutoMovieMotionHumanPosture["joints"] = { ...pitched.joints };
+    const flexed: IAutoMovieMotionHumanPosture["joints"] = {
+      ...pitched.joints,
+    };
     for (const j of joints) {
       if (j.bone === "hips") continue;
       const held: readonly [number, number, number] = flexed[j.bone] ?? [
@@ -246,11 +267,17 @@ export namespace HumanSeatedReach {
     Side extends { shoulder: IAutoMovieVector3 },
     Result = IAutoMovieVector3,
   >(
-    roles: readonly [IAutoMovieMotionMeeting.IRole, IAutoMovieMotionMeeting.IRole],
+    roles: readonly [
+      IAutoMovieMotionMeeting.IRole,
+      IAutoMovieMotionMeeting.IRole,
+    ],
     sides: readonly [Side, Side],
     resolve: (a: Side, b: Side) => Result,
   ): Result {
-    const chains: [IAutoMovieMotionHumanSeatedReach.IJoint[], IAutoMovieMotionHumanSeatedReach.IJoint[]] = [rooms(roles[0]), rooms(roles[1])];
+    const chains: [
+      IAutoMovieMotionHumanSeatedReach.IJoint[],
+      IAutoMovieMotionHumanSeatedReach.IJoint[],
+    ] = [rooms(roles[0]), rooms(roles[1])];
     const leaned = (share: number): [Side, Side] =>
       [0, 1].map(
         (i: number): Side => ({
@@ -344,7 +371,11 @@ export namespace HumanSeatedReach {
           Vector3.length(
             Vector3.subtract(shoulder, role.bones.get("hips")!.worldPosition),
           ) *
-          ((joints.reduce((s: number, j: IAutoMovieMotionHumanSeatedReach.IJoint): number => s + j.room, 0) *
+          ((joints.reduce(
+            (s: number, j: IAutoMovieMotionHumanSeatedReach.IJoint): number =>
+              s + j.room,
+            0,
+          ) *
             Math.PI) /
             180),
       ),

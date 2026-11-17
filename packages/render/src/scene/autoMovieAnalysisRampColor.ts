@@ -1,6 +1,5 @@
 import type { IAutoMovieColor } from "@automovie/interface";
 
-
 /**
  * Map a normalized `[0, 1]` position on the ramp to a colour.
  *
@@ -18,7 +17,11 @@ import type { IAutoMovieColor } from "@automovie/interface";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses a single ramp definition across overlay builds; creates no texture or cache, and inexpensive scalar arithmetic does not warrant cross-request result retention.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or renderer resource; one returned RGB value belongs to the caller and no task or GPU handle is acquired.
  */
-export const autoMovieAnalysisRampColor: (position: number) => Pick<IAutoMovieColor, "r" | "g" | "b"> = (position: number): Pick<IAutoMovieColor, "r" | "g" | "b"> => {
+export const autoMovieAnalysisRampColor: (
+  position: number,
+) => Pick<IAutoMovieColor, "r" | "g" | "b"> = (
+  position: number,
+): Pick<IAutoMovieColor, "r" | "g" | "b"> => {
   const t: number = Math.min(1, Math.max(0, position));
   if (t <= 0.5) {
     const local: number = t * 2;

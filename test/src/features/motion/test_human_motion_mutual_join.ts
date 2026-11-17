@@ -1,6 +1,20 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanHighFive, IAutoMovieMotionHumanMutual, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HumanActionRow, HumanChain, HumanMutual, HumanPerformance, highFive } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanHighFive,
+  IAutoMovieMotionHumanMutual,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanActionRow,
+  HumanChain,
+  HumanMutual,
+  HumanPerformance,
+  highFive,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -49,8 +63,9 @@ export function test_human_motion_mutual_join(): void {
     c: motionHumanBody("m-average"),
   };
   const complaints: string[] = [];
-  const fistBump: IAutoMovieMotionHumanActionLaw<Omit<IAutoMovieMotionHumanHighFive.IParams, "kind">> =
-    HumanActionRow.of("fistBump", highFive, { kind: "fist" });
+  const fistBump: IAutoMovieMotionHumanActionLaw<
+    Omit<IAutoMovieMotionHumanHighFive.IParams, "kind">
+  > = HumanActionRow.of("fistBump", highFive, { kind: "fist" });
   const bump: IAutoMovieMotionHumanMutual<object, "one" | "other"> = {
     name: "fistBump",
     roles: ["one", "other"],
@@ -60,7 +75,9 @@ export function test_human_motion_mutual_join(): void {
     }),
   };
   const perform = (
-    composition: { node: IAutoMovieMotionHumanPerformance.IInput["composition"] },
+    composition: {
+      node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+    },
     cast: readonly string[] = ["a", "b"],
   ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
@@ -83,7 +100,10 @@ export function test_human_motion_mutual_join(): void {
     });
   const chain = (subject: string): IAutoMovieMotionHumanChain =>
     HumanChain.subject(subject).stand({ seconds: 0.3 });
-  const instant = (segment: IAutoMovieMotionHumanSegment.ISegment, event: string): number =>
+  const instant = (
+    segment: IAutoMovieMotionHumanSegment.ISegment,
+    event: string,
+  ): number =>
     segment.start +
     (segment.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       segment.plan.duration;

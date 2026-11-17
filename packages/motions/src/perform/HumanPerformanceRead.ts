@@ -1,4 +1,15 @@
-import type { AutoMovieHumanoidBone, IAutoMovieIntent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanRefusal, IAutoMovieMotionHumanSegment, IAutoMoviePose, IAutoMovieResolvedBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionHumanSegment,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
@@ -48,10 +59,8 @@ export namespace HumanPerformanceRead {
     subject: string,
     seconds: number,
   ): IAutoMovieMotionHumanPosture {
-    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      subject,
-    );
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, subject);
     let active: IAutoMovieMotionHumanSegment.ISegment | undefined;
     for (const s of person.segments)
       if (s.entryTime <= seconds + 1e-12) active = s;
@@ -74,10 +83,8 @@ export namespace HumanPerformanceRead {
     subject: string,
     seconds: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      subject,
-    );
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, subject);
     return poseBones(
       person.performer.body,
       HumanPerformanceRead.pose(self, subject, seconds),
@@ -300,11 +307,10 @@ export namespace HumanPerformanceRead {
     seconds: number,
     axis: string,
   ): IAutoMovieMotionHumanActionContext.IRoot {
-    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      subject,
-    );
-    const last: IAutoMovieMotionHumanSegment.ISegment | undefined = person.segments.at(-1);
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, subject);
+    const last: IAutoMovieMotionHumanSegment.ISegment | undefined =
+      person.segments.at(-1);
     const left: number =
       (self.intended.get(subject)?.length ?? 0) - person.segments.length;
     if (self.resolving && left > 0 && seconds > (last?.end ?? 0) + 1e-9)
@@ -338,7 +344,8 @@ export namespace HumanPerformanceRead {
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
   ): IAutoMovieMotionHumanSegment.IPerson {
-    const person: IAutoMovieMotionHumanSegment.IPerson | undefined = self.people.get(subject);
+    const person: IAutoMovieMotionHumanSegment.IPerson | undefined =
+      self.people.get(subject);
     if (person === undefined)
       throw HumanPerformanceRead.missing("performer", subject, [
         ...self.people.keys(),
@@ -359,7 +366,9 @@ export namespace HumanPerformanceRead {
         [
           ...(self.people.get(intent.subject)?.segments ?? []),
           ...(self.people.get(intent.subject)?.overlays ?? []),
-        ].filter((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.id === id).length + 1,
+        ].filter(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.id === id,
+        ).length + 1,
     };
   }
 

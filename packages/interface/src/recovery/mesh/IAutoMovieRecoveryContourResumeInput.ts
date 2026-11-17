@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryContourResumePolicy, IAutoMovieRecoverySlabsInput } from "../../index";
+import type {
+  IAutoMovieRecoveryContourResumePolicy,
+  IAutoMovieRecoverySlabsInput,
+} from "../../index";
 
 /** Resume explicitly failed source contours without loading saved coefficients.
  * All saved raw populations are rebound before fitting. The caller verifies
@@ -15,15 +18,14 @@ export interface IAutoMovieRecoveryContourResumeInput extends Omit<
   IAutoMovieRecoverySlabsInput,
   "slabPairs"
 > {
- 
- /** One caller-attested original policy for each distinct targeted artifact identity; duplicate and unused policies refuse. */
+  /** One caller-attested original policy for each distinct targeted artifact identity; duplicate and unused policies refuse. */
   fitPolicies: readonly IAutoMovieRecoveryContourResumePolicy[];
 
- 
- /** Nonempty distinct failed raw addresses, in requested patch order. Coordinates use signed millimetres along the normalized frame n; contourIndex is the original raw cutter ordinal, never a saved loop/report or new patch index. */
+  /** Nonempty distinct failed raw addresses, in requested patch order. Coordinates use signed millimetres along the normalized frame n; contourIndex is the original raw cutter ordinal, never a saved loop/report or new patch index. */
   targets: readonly {
- /** Signed section-plane coordinate along the registered unit sweep axis, in millimetres. */
-coordinateMm: number;
- /** Raw contour ordinal within its physical plane, before fitting or rejection. */
-contourIndex: number }[];
+    /** Signed section-plane coordinate along the registered unit sweep axis, in millimetres. */
+    coordinateMm: number;
+    /** Raw contour ordinal within its physical plane, before fitting or rejection. */
+    contourIndex: number;
+  }[];
 }

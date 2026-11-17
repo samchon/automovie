@@ -1,6 +1,22 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, AutoMovieHumanoidSocket, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanHandShape, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  AutoMovieHumanoidSocket,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHandShape,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import { poseBones } from "./poseBones";
 
 /**
@@ -321,7 +337,8 @@ export namespace HumanHandShape {
     surface: IAutoMovieMotionHumanHand.DigitSurface = "indexTip",
   ): IAutoMovieMotionHumanHand.IFrame {
     const key: string = `${side}:${surface}:${form}:${curl}`;
-    let memo: Map<string, IAutoMovieMotionHumanHand.IFrame> | undefined = TIPS.get(body);
+    let memo: Map<string, IAutoMovieMotionHumanHand.IFrame> | undefined =
+      TIPS.get(body);
     if (memo === undefined) {
       memo = new Map();
       TIPS.set(body, memo);
@@ -366,4 +383,7 @@ export namespace HumanHandShape {
 }
 
 /** Digit tip and pad frames by body, keyed by side, surface, shape and curl. */
-const TIPS: WeakMap<IAutoMovieMotionHumanBody, Map<string, IAutoMovieMotionHumanHand.IFrame>> = new WeakMap();
+const TIPS: WeakMap<
+  IAutoMovieMotionHumanBody,
+  Map<string, IAutoMovieMotionHumanHand.IFrame>
+> = new WeakMap();

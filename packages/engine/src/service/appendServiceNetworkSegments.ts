@@ -1,4 +1,10 @@
-import { type IAutoMovieAppendServiceNetworkSegments, IAutoMovieServicePenetration, IAutoMovieServicePort, IAutoMovieServiceSegment, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieAppendServiceNetworkSegments,
+  IAutoMovieServicePenetration,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { SERVICE_EPSILON } from "./SERVICE_EPSILON";
 import { appendServiceCrossings } from "./appendServiceCrossings";
@@ -15,7 +21,9 @@ import { routeDistanceSquared } from "./routeDistanceSquared";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Supplied system/port/id maps serve all segments; one per-segment seen set detects duplicate sleeve citations and the returned set serves later orphan-sleeve checks.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Citation sets and scalar route facts are call-local; the returned used-id set and appended findings belong to the parent gate, without a retained source-network cache.
  */
-export function appendServiceNetworkSegments(props: IAutoMovieAppendServiceNetworkSegments.IProps): Set<string> {
+export function appendServiceNetworkSegments(
+  props: IAutoMovieAppendServiceNetworkSegments.IProps,
+): Set<string> {
   const {
     network,
     environment,

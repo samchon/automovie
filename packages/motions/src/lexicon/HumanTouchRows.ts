@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanLexiconParams } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+} from "@automovie/interface";
 
 import { HumanActionRow } from "../law/HumanActionRow";
 import { touch } from "../touch/touch";
@@ -15,36 +18,52 @@ import { touch } from "../touch/touch";
  */
 export namespace HumanTouchRows {
   /** `touch` of kind `tap`. */
-  export const touchTap: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchTap"]> = HumanActionRow.of("touchTap", touch, { kind: "tap" });
+  export const touchTap: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchTap"]
+  > = HumanActionRow.of("touchTap", touch, { kind: "tap" });
 
   /** `touch` of kind `pat`. */
-  export const touchPat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchPat"]> = HumanActionRow.of("touchPat", touch, { kind: "pat" });
+  export const touchPat: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchPat"]
+  > = HumanActionRow.of("touchPat", touch, { kind: "pat" });
 
   /** `touch` of kind `stroke`. */
-  export const touchStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchStroke"]> = HumanActionRow.of("touchStroke", touch, {
+  export const touchStroke: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchStroke"]
+  > = HumanActionRow.of("touchStroke", touch, {
     kind: "stroke",
   });
 
   /** `touch` of kind `rub`. */
-  export const touchRub: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchRub"]> = HumanActionRow.of("touchRub", touch, { kind: "rub" });
+  export const touchRub: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchRub"]
+  > = HumanActionRow.of("touchRub", touch, { kind: "rub" });
 
   /** `touch` of kind `press`. */
-  export const touchPress: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchPress"]> = HumanActionRow.of("touchPress", touch, {
+  export const touchPress: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchPress"]
+  > = HumanActionRow.of("touchPress", touch, {
     kind: "press",
   });
 
   /** `touch` of kind `squeeze`. */
-  export const touchSqueeze: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchSqueeze"]> = HumanActionRow.of("touchSqueeze", touch, {
+  export const touchSqueeze: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchSqueeze"]
+  > = HumanActionRow.of("touchSqueeze", touch, {
     kind: "squeeze",
   });
 
   /** `touch` of kind `hold`. */
-  export const touchHold: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchHold"]> = HumanActionRow.of("touchHold", touch, {
+  export const touchHold: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchHold"]
+  > = HumanActionRow.of("touchHold", touch, {
     kind: "hold",
   });
 
   /** `touch` of kind `scratch`. */
-  export const touchScratch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchScratch"]> = HumanActionRow.of("touchScratch", touch, {
+  export const touchScratch: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchScratch"]
+  > = HumanActionRow.of("touchScratch", touch, {
     kind: "scratch",
   });
 }

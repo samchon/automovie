@@ -1,5 +1,20 @@
-import type { IAutoMovieLoftJet, IAutoMovieLoftPhaseSource, IAutoMovieViewConic, IAutoMovieViewLoft, IAutoMovieViewPart, IAutoMovieViewSection } from "@automovie/interface";
-import { AutoMovieLoftChain, AutoMovieLoftJet, AutoMovieLoftPhaseSource, AutoMovieSplineCurve, AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieViewSection } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  AutoMovieLoftJet,
+  AutoMovieLoftPhaseSource,
+  AutoMovieSplineCurve,
+  AutoMovieViewAxis,
+  AutoMovieViewLoft,
+  AutoMovieViewSection,
+} from "@automovie/engine";
+import type {
+  IAutoMovieLoftJet,
+  IAutoMovieLoftPhaseSource,
+  IAutoMovieViewConic,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 import { ConstructionLoftSectionAdapters } from "../../internal/construction/ConstructionLoftSectionAdapters";
 import { ConstructionLoftSectionBoundary } from "../../internal/construction/ConstructionLoftSectionBoundary";

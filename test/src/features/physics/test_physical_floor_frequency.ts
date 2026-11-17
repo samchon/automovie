@@ -1,10 +1,13 @@
-import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   AutoMoviePhysicalSimulation as Simulation,
   Vector3,
   bindPhysicalWorld,
 } from "@automovie/engine";
-
+import type {
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
@@ -75,7 +78,8 @@ export async function test_physical_floor_frequency(): Promise<void> {
     );
     for (const target of body.targets)
       target.segments.root!.position.y = extent.y - PENETRATION;
-    const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], 1 / 120);
+    const input: IAutoMoviePhysicalSimulationInput.IInput =
+      PhysicalFixtures.input([body], 1 / 120);
     Object.assign(input, {
       floor: 0,
       contactFrequency: frequency,
@@ -93,7 +97,8 @@ export async function test_physical_floor_frequency(): Promise<void> {
     profile,
     DURATION,
   );
-  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], DURATION);
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([body], DURATION);
   Object.assign(input, {
     floor: 0,
     gravity: { x: 0, y: -9.81, z: 0 },

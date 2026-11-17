@@ -1,5 +1,7 @@
-import type { IAutoMovieAffordanceArticulation, IAutoMovieAffordance } from "@automovie/interface";
-
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieAffordanceArticulation,
+} from "@automovie/interface";
 
 import { affordanceFollowedTravel } from "./affordanceFollowedTravel";
 import { affordanceLeadingTravel } from "./affordanceLeadingTravel";
@@ -126,7 +128,11 @@ export namespace AffordanceArticulation {
     for (const [authored, requested] of Object.entries(state)) {
       if (leader(byId, authored) !== degree) continue;
       if (found) return null;
-      const resolved: IAutoMovieAffordanceArticulation.Input = input(byId, authored, requested);
+      const resolved: IAutoMovieAffordanceArticulation.Input = input(
+        byId,
+        authored,
+        requested,
+      );
       if (!resolved.success) return null;
       found = true;
       value = resolved.travel;

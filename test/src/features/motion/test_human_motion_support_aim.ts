@@ -1,8 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 import { createCart, createHandgun } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanRefusal, HumanSegment, HumanVerdicts, HumanWeaponFirearm } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSegment,
+  HumanVerdicts,
+  HumanWeaponFirearm,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -133,12 +145,14 @@ export function test_human_motion_support_aim(): void {
   };
   const from: number = overlay.start + overlay.plan.duration * 0.5;
   // The hold runs until the overlay begins to fade out (`HumanSegment.FADE`).
-  const to: number =
-    overlay.start + overlay.plan.duration - HumanSegment.FADE;
+  const to: number = overlay.start + overlay.plan.duration - HumanSegment.FADE;
   const first: number = off(from);
   let worst: number = 0;
   for (let k: number = 1; k <= 6; k++)
-    worst = Math.max(worst, Math.abs(off(from + ((to - from) * k) / 6) - first));
+    worst = Math.max(
+      worst,
+      Math.abs(off(from + ((to - from) * k) / 6) - first),
+    );
   TestValidator.predicate(
     `the bore stays on the target across the carry (${worst.toFixed(3)} of ${bound.toFixed(3)} degrees)`,
     worst <= bound,

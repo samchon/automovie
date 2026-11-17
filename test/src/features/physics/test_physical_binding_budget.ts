@@ -1,10 +1,14 @@
-import type { IAutoMoviePhysicalSimulationInput, IAutoMoviePreparePhysicalGeometry, IAutoMoviePhysicalContactBinding as Binding, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   preparePhysicalGeometry as Geometry,
   AutoMoviePhysicalSimulation as Simulation,
   planPhysicalContactTargets,
 } from "@automovie/engine";
-
+import type {
+  IAutoMoviePhysicalContactBinding as Binding,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePreparePhysicalGeometry,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import assert from "node:assert/strict";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -60,13 +64,14 @@ export async function test_physical_binding_budget(): Promise<void> {
         tolerance: 0.0001,
       }),
     );
-  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
-    [
-      PhysicalFixtures.body("assembly", profile, 1 / 120),
-      PhysicalFixtures.body("receiver", receiver, 1 / 120),
-    ],
-    1 / 120,
-  );
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input(
+      [
+        PhysicalFixtures.body("assembly", profile, 1 / 120),
+        PhysicalFixtures.body("receiver", receiver, 1 / 120),
+      ],
+      1 / 120,
+    );
   const source: IAutoMoviePhysicalSimulationInput.IBody = input.bodies[0]!;
   source.targets[0]!.bindings = bindings(17);
   assert.throws((): string => Simulation.identity(input), /budget/);
@@ -109,13 +114,14 @@ export async function test_physical_binding_budget(): Promise<void> {
         id: `${segment.shapes[0]!.id}-${index}`,
       }),
     );
-  const bounded: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
-    [
-      PhysicalFixtures.body("assembly", compound, 1 / 120),
-      PhysicalFixtures.body("receiver", receiver, 1 / 120),
-    ],
-    1 / 120,
-  );
+  const bounded: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input(
+      [
+        PhysicalFixtures.body("assembly", compound, 1 / 120),
+        PhysicalFixtures.body("receiver", receiver, 1 / 120),
+      ],
+      1 / 120,
+    );
   const body: IAutoMoviePhysicalSimulationInput.IBody = bounded.bodies[0]!;
   body.selfAvoidance = { iterations: 1, tolerance: 0.0001 };
   body.maximumBindings = 256;
@@ -200,14 +206,16 @@ export async function test_physical_binding_budget(): Promise<void> {
       }),
     ),
   };
-  const coordinates: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
-    [
-      PhysicalFixtures.body("star", star, 1 / 120),
-      PhysicalFixtures.body("receiver", receiver, 1 / 120),
-    ],
-    1 / 120,
-  );
-  const selected: IAutoMoviePhysicalSimulationInput.IBody = coordinates.bodies[0]!;
+  const coordinates: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input(
+      [
+        PhysicalFixtures.body("star", star, 1 / 120),
+        PhysicalFixtures.body("receiver", receiver, 1 / 120),
+      ],
+      1 / 120,
+    );
+  const selected: IAutoMoviePhysicalSimulationInput.IBody =
+    coordinates.bodies[0]!;
   selected.maximumBindings = 65;
   const independent: Binding[] = leaves.map(
     (segment: P.ISegment, index: number): Binding => ({
@@ -295,10 +303,11 @@ export async function test_physical_binding_budget(): Promise<void> {
         }),
       ),
     };
-    const admitted: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
-      [PhysicalFixtures.body("locked-star", compact, 1 / 120)],
-      1 / 120,
-    );
+    const admitted: IAutoMoviePhysicalSimulationInput.IInput =
+      PhysicalFixtures.input(
+        [PhysicalFixtures.body("locked-star", compact, 1 / 120)],
+        1 / 120,
+      );
     admitted.bodies[0]!.selfAvoidance = { iterations: 1, tolerance: 0.0001 };
 
     // Adjacent root/leaf pairs are excluded: 25 floor rows + 24*23/2 self rows = 301.

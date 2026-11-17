@@ -1,6 +1,13 @@
-import type { IAutoMovieSolvedChainPlant, IAutoMovieFitChainToTargetProps, IAutoMovieHingedArticulation, IAutoMoviePreparedChainPlant, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieFitChainToTargetProps,
+  IAutoMovieHingedArticulation,
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
+  IAutoMoviePreparedChainPlant,
+  IAutoMovieQuaternion,
+  IAutoMovieSolvedChainPlant,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { boxExcludedSwivels } from "../kinematics/boxExcludedSwivels";
 import { clinicalDeviation } from "../kinematics/clinicalDeviation";
@@ -66,7 +73,7 @@ import { fitHingedRotationError } from "./fitHingedRotationError";
  */
 export function fitHingedChainCandidate(
   props: IAutoMovieFitChainToTargetProps,
-  prepared: NonNullable<(IAutoMoviePreparedChainPlant | null)>,
+  prepared: NonNullable<IAutoMoviePreparedChainPlant | null>,
   axes: IAutoMovieJointAxes,
   rotation?: IAutoMovieQuaternion,
 ): IAutoMovieSolvedChainPlant | null {
@@ -233,85 +240,84 @@ export function fitHingedChainCandidate(
         lowerWorld: IAutoMovieQuaternion,
       ) => number)
     | undefined = props.strain;
-  const solved: (IAutoMovieHingedArticulation | null) =
-    hingedArmArticulation({
-      upper: prepared.upper,
-      midOffset: prepared.lowerOffset,
-      midRest: prepared.lowerRotation,
-      endOffset: prepared.effectorOffset,
-      hinge: axes.flexion,
-      target: props.target,
-      ...(range === null ? {} : { range }),
-      // A fit of a nearby target continued from its seed refines that seed
-      // alone (`IAutoMovieSwivelNear`).
-      ...(props.near === undefined ? {} : { near: props.near }),
-      ...(strain === undefined ? {} : { tie: ROM_TOLERANCE }),
-      // The root's box, or its swing-twist range, refuses swivels its
-      // overshoot can only score above zero, so the sweep spares them
-      // (`boxExcludedSwivels`). The range is read in the frame
-      // `jointRomOvershoot` reads it in without a rig.
-      excluded: (
-        upper: (swivel: number) => IAutoMovieQuaternion,
-      ): ((low: number, high: number) => boolean) =>
-        boxExcludedSwivels({
-          basis: upperBasis,
-          frame: props.restFrames?.[props.chain.upper],
-          constraint: prepared.upperDomain.constraint,
-          joint: swingTwistRange.of(props.chain.upper),
-          rotation: upper,
-        }),
-      score: (
-        upper: IAutoMovieQuaternion,
-        lower: IAutoMovieQuaternion,
-      ): {
-        overshoot: number;
-        deviation: number;
-        exact?: () => number;
-        tiebreak?: () => number;
-      } => {
-        const { mid, lowerWorld, effort, overshoot, turned }: IReading =
-          reading(upper, lower);
-        if (strain !== undefined)
-          return {
-            overshoot,
-            deviation: 0,
-            ...(turn === null
-              ? {}
-              : { exact: (): number => turn(upper, lower) }),
-            // A reference pose keeps its side through a stroke, so its turn
-            // decides before the strain; without one the strain decides.
-            tiebreak: (): number =>
-              props.referencePose === undefined
-                ? strain(upper, lower, lowerWorld)
-                : turned,
-          };
-        // The hint's side weighs as the mid joint leaves the line to the
-        // target: a straight limb has no side, and a rounding-sized offset's
-        // direction must not rank swivels.
-        const offset: IAutoMovieVector3 = across(mid);
-        const off: number = Vector3.length(offset);
-        const away: number =
-          side === null || off < 1e-12
-            ? 0
-            : (1 - Vector3.dot(Vector3.scale(offset, 1 / off), side)) *
-              Math.min(1, off / SIDED);
-        // The effector's error is the costly term and is never negative, so
-        // the sum without it, added in the same order, is a lower bound of
-        // the tie-break (rounding is monotone), and the error is computed
-        // only for a comparison the bound cannot decide.
-        if (turn === null)
-          return {
-            overshoot,
-            deviation: 0 + 2 * away + turned + 1e-9 * effort,
-          };
+  const solved: IAutoMovieHingedArticulation | null = hingedArmArticulation({
+    upper: prepared.upper,
+    midOffset: prepared.lowerOffset,
+    midRest: prepared.lowerRotation,
+    endOffset: prepared.effectorOffset,
+    hinge: axes.flexion,
+    target: props.target,
+    ...(range === null ? {} : { range }),
+    // A fit of a nearby target continued from its seed refines that seed
+    // alone (`IAutoMovieSwivelNear`).
+    ...(props.near === undefined ? {} : { near: props.near }),
+    ...(strain === undefined ? {} : { tie: ROM_TOLERANCE }),
+    // The root's box, or its swing-twist range, refuses swivels its
+    // overshoot can only score above zero, so the sweep spares them
+    // (`boxExcludedSwivels`). The range is read in the frame
+    // `jointRomOvershoot` reads it in without a rig.
+    excluded: (
+      upper: (swivel: number) => IAutoMovieQuaternion,
+    ): ((low: number, high: number) => boolean) =>
+      boxExcludedSwivels({
+        basis: upperBasis,
+        frame: props.restFrames?.[props.chain.upper],
+        constraint: prepared.upperDomain.constraint,
+        joint: swingTwistRange.of(props.chain.upper),
+        rotation: upper,
+      }),
+    score: (
+      upper: IAutoMovieQuaternion,
+      lower: IAutoMovieQuaternion,
+    ): {
+      overshoot: number;
+      deviation: number;
+      exact?: () => number;
+      tiebreak?: () => number;
+    } => {
+      const { mid, lowerWorld, effort, overshoot, turned }: IReading = reading(
+        upper,
+        lower,
+      );
+      if (strain !== undefined)
+        return {
+          overshoot,
+          deviation: 0,
+          ...(turn === null ? {} : { exact: (): number => turn(upper, lower) }),
+          // A reference pose keeps its side through a stroke, so its turn
+          // decides before the strain; without one the strain decides.
+          tiebreak: (): number =>
+            props.referencePose === undefined
+              ? strain(upper, lower, lowerWorld)
+              : turned,
+        };
+      // The hint's side weighs as the mid joint leaves the line to the
+      // target: a straight limb has no side, and a rounding-sized offset's
+      // direction must not rank swivels.
+      const offset: IAutoMovieVector3 = across(mid);
+      const off: number = Vector3.length(offset);
+      const away: number =
+        side === null || off < 1e-12
+          ? 0
+          : (1 - Vector3.dot(Vector3.scale(offset, 1 / off), side)) *
+            Math.min(1, off / SIDED);
+      // The effector's error is the costly term and is never negative, so
+      // the sum without it, added in the same order, is a lower bound of
+      // the tie-break (rounding is monotone), and the error is computed
+      // only for a comparison the bound cannot decide.
+      if (turn === null)
         return {
           overshoot,
           deviation: 0 + 2 * away + turned + 1e-9 * effort,
-          exact: (): number =>
-            turn(upper, lower) + 2 * away + turned + 1e-9 * effort,
         };
-      },
-    });
+      return {
+        overshoot,
+        deviation: 0 + 2 * away + turned + 1e-9 * effort,
+        exact: (): number =>
+          turn(upper, lower) + 2 * away + turned + 1e-9 * effort,
+      };
+    },
+  });
   if (solved === null) return null;
   const [upper, lower] = joints(solved.upper, solved.lower);
   return {
@@ -348,7 +354,7 @@ export function fitHingedChainCandidate(
  */
 function hingeRange(
   props: IAutoMovieFitChainToTargetProps,
-  prepared: NonNullable<(IAutoMoviePreparedChainPlant | null)>,
+  prepared: NonNullable<IAutoMoviePreparedChainPlant | null>,
   axes: IAutoMovieJointAxes,
   basis: IAutoMovieJointAxes,
 ): { min: number; max: number } | null {
@@ -405,7 +411,7 @@ function hingeRange(
  */
 function posedSwing(
   props: IAutoMovieFitChainToTargetProps,
-  prepared: NonNullable<(IAutoMoviePreparedChainPlant | null)>,
+  prepared: NonNullable<IAutoMoviePreparedChainPlant | null>,
   axes: IAutoMovieJointAxes,
 ): IAutoMovieVector3 {
   const posed = (bone: IAutoMovieJointPose["bone"]): IAutoMovieJointPose =>

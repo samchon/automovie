@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanManipulate, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanManipulate,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { manipulate } from "./manipulate";
 import { manipulateReach } from "./manipulateReach";
 
@@ -29,13 +35,18 @@ export function manipulateFingering(
   body: IAutoMovieMotionHumanBody,
   contacts: readonly IAutoMovieMotionHumanManipulate.IContactAt[],
   sides: readonly IAutoMovieMotionHumanHand.Side[],
-  rotation: Readonly<Record<IAutoMovieMotionHumanHand.Side, IAutoMovieQuaternion>>,
+  rotation: Readonly<
+    Record<IAutoMovieMotionHumanHand.Side, IAutoMovieQuaternion>
+  >,
 ): IAutoMovieMotionHumanManipulate.Finger[] {
   type Finger = IAutoMovieMotionHumanManipulate.Finger;
   const out: Finger[] = new Array<Finger>(contacts.length);
   for (const side of ["left", "right"] as const) {
     const mine: number[] = contacts
-      .map((_c: IAutoMovieMotionHumanManipulate.IContactAt, i: number): number => i)
+      .map(
+        (_c: IAutoMovieMotionHumanManipulate.IContactAt, i: number): number =>
+          i,
+      )
       .filter((i: number): boolean => sides[i] === side);
     if (mine.length === 0) continue;
     const choices: (i: number) => readonly Finger[] = (

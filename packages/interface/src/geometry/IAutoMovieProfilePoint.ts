@@ -1,5 +1,3 @@
-
-
 /**
  * One point of a code-authored 2D construction profile, in metres.
  *

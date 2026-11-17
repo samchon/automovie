@@ -1,6 +1,20 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanRoot } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-import { AutoMovieMotionClock, AutoMovieMotionHumanHand, AutoMovieMotionHumanJoints, AutoMovieMotionHumanLeg, AutoMovieMotionHumanRoot, HumanFoot, HumanHand } from "@automovie/motions";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanRoot,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionClock,
+  AutoMovieMotionHumanHand,
+  AutoMovieMotionHumanJoints,
+  AutoMovieMotionHumanLeg,
+  AutoMovieMotionHumanRoot,
+  HumanFoot,
+  HumanHand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -54,7 +68,10 @@ export function test_motion_compose_moves(): void {
     point: { x: 0.1, y: -0.05, z: 0.3 },
     yaw: 30,
   };
-  const placed: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanRoot.place(posture, offset);
+  const placed: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanRoot.place(
+    posture,
+    offset,
+  );
   TestValidator.predicate(
     "a root is displaced in its own frame",
     close(placed.root.x, 2.3) &&
@@ -148,8 +165,14 @@ export function test_motion_compose_moves(): void {
     close(got[0], want[0]) &&
     close(got[1], want[1]) &&
     close(got[2], want[2]);
-  const rising: IAutoMovieMotionHumanPosture["joints"] = pulse.write(posture, 0.3).joints;
-  const peaked: IAutoMovieMotionHumanPosture["joints"] = pulse.write(posture, 0.5).joints;
+  const rising: IAutoMovieMotionHumanPosture["joints"] = pulse.write(
+    posture,
+    0.3,
+  ).joints;
+  const peaked: IAutoMovieMotionHumanPosture["joints"] = pulse.write(
+    posture,
+    0.5,
+  ).joints;
   TestValidator.predicate(
     "a pulse adds a share of its angles",
     close(pulse.from, 0.2) &&
@@ -173,8 +196,14 @@ export function test_motion_compose_moves(): void {
   const relaxed = HumanHand.shape("right", "relaxed");
   const closed = HumanHand.shape("right", "fist");
   const bones = Object.keys(closed) as (keyof typeof closed)[];
-  const forming: IAutoMovieMotionHumanPosture["joints"] = fist.write(posture, 0.3).joints;
-  const formed: IAutoMovieMotionHumanPosture["joints"] = fist.write(posture, 0.5).joints;
+  const forming: IAutoMovieMotionHumanPosture["joints"] = fist.write(
+    posture,
+    0.3,
+  ).joints;
+  const formed: IAutoMovieMotionHumanPosture["joints"] = fist.write(
+    posture,
+    0.5,
+  ).joints;
   TestValidator.predicate(
     "a hand forms by the clock's share",
     bones.length > 0 &&

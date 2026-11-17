@@ -1,6 +1,5 @@
 import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
-
 /**
  * Companion types of {@link HumanPosture}.
  *
@@ -10,9 +9,13 @@ import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses interface vectors and quaternions.
  */
 export namespace HumanPosture {
-
   /** The limbs of {@link Limb}, as data. */
-  export const LIMBS = ["leftArm", "rightArm", "leftLeg", "rightLeg"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanPosture.Limb>[];
+  export const LIMBS = [
+    "leftArm",
+    "rightArm",
+    "leftLeg",
+    "rightLeg",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanPosture.Limb>[];
 
   /** The digits of {@link Digit}, as data, the left hand's first, each thumb to little finger. */
   export const DIGITS = [

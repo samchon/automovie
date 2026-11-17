@@ -1,5 +1,7 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanResolve } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -49,8 +51,12 @@ export function test_motion_compose_resolve(): void {
   } as unknown as Pick<IAutoMovieMotionHumanBody, "measure">;
   const near = (got: number, expected: number): boolean =>
     Math.abs(got - expected) <= 1e-9;
-  const at = (got: IAutoMovieVector3, x: number, y: number, z: number): boolean =>
-    near(got.x, x) && near(got.y, y) && near(got.z, z);
+  const at = (
+    got: IAutoMovieVector3,
+    x: number,
+    y: number,
+    z: number,
+  ): boolean => near(got.x, x) && near(got.y, y) && near(got.z, z);
 
   TestValidator.predicate(
     "the named places in metres",
@@ -96,7 +102,8 @@ export function test_motion_compose_resolve(): void {
       0.12,
       -0.3,
       -0.15,
-    ) && near(AutoMovieMotionHumanResolve.bend(body, "hang", 0.2).metres.x, 0.18),
+    ) &&
+      near(AutoMovieMotionHumanResolve.bend(body, "hang", 0.2).metres.x, 0.18),
   );
 
   const amount = AutoMovieMotionHumanResolve.amount("neck", "flexion", "light");

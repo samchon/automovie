@@ -1,6 +1,16 @@
-import { type IAutoMovieModelColumn, type IAutoMoviePrimitiveShape, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieGeometry, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieGeometry,
+  IAutoMovieModel,
+  type IAutoMovieModelColumn,
+  IAutoMovieModelPart,
+  type IAutoMoviePrimitiveShape,
+  IAutoMovieQuaternion,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { PRIMITIVE_RADIAL_SEGMENTS } from "../geometry/constants/PRIMITIVE_RADIAL_SEGMENTS";
 import { PRIMITIVE_SPHERE_RINGS } from "../geometry/constants/PRIMITIVE_SPHERE_RINGS";

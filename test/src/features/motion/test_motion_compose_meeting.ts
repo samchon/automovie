@@ -1,6 +1,13 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionMeeting, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionClock, AutoMovieMotionMeeting, HumanRefusal } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionMeeting,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionClock,
+  AutoMovieMotionMeeting,
+  HumanRefusal,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,5 +1,9 @@
-import { type IAutoMovieViolationCollector, IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace, IAutoMovieConvexSpaceCell } from "@automovie/interface";
-
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieConvexSpaceCell,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { appendGraphCycles } from "../validation/appendGraphCycles";

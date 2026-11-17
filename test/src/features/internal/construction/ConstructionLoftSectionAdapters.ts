@@ -1,5 +1,21 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftJet, IAutoMovieLoftSectionSource, IAutoMovieLoftViewRead, IAutoMovieViewLoft, IAutoMovieViewPart } from "@automovie/interface";
-import { AutoMovieLoftChain, AutoMovieLoftFrame, AutoMovieLoftJet, AutoMovieLoftSectionConnect, AutoMovieLoftSectionSource, AutoMovieSeamStation, AutoMovieSolidChain, AutoMovieViewLoft } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  AutoMovieLoftFrame,
+  AutoMovieLoftJet,
+  AutoMovieLoftSectionConnect,
+  AutoMovieLoftSectionSource,
+  AutoMovieSeamStation,
+  AutoMovieSolidChain,
+  AutoMovieViewLoft,
+} from "@automovie/engine";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftJet,
+  IAutoMovieLoftSectionSource,
+  IAutoMovieLoftViewRead,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /** Source-aware coordinator questions, kept inside the existing final phase unit. */
 export namespace ConstructionLoftSectionAdapters {

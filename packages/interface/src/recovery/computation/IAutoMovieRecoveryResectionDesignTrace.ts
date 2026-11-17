@@ -10,8 +10,7 @@ import type { IAutoMovieRecoveryMapPose } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation States fresh caller ownership, missing-stage meaning, projective sign ambiguity and diagnostic-only coefficients.
  */
 export interface IAutoMovieRecoveryResectionDesignTrace {
- 
- /** Operation about to run, or complete after every existing gate passes. */
+  /** Operation about to run, or complete after every existing gate passes. */
   stage:
     | "admission"
     | "normalization"
@@ -26,31 +25,24 @@ export interface IAutoMovieRecoveryResectionDesignTrace {
     | "pose"
     | "complete";
 
- 
- /** Smallest to largest singular value of centered normalized world points. */
+  /** Smallest to largest singular value of centered normalized world points. */
   spanRatio?: number;
 
- 
- /** Eleventh to largest singular value of the original projective design. */
+  /** Eleventh to largest singular value of the original projective design. */
   designRatio?: number;
 
- 
- /** Twelfth to eleventh singular value of the original projective design. */
+  /** Twelfth to eleventh singular value of the original projective design. */
   nullRatio?: number;
 
- 
- /** Row-major 3-by-4 calibrated projective matrix after undoing both normalizations; homogeneous sign and scale remain arbitrary. */
+  /** Row-major 3-by-4 calibrated projective matrix after undoing both normalizations; homogeneous sign and scale remain arbitrary. */
   projective?: number[];
 
- 
- /** Sign aligning the projective rotation-block determinant to positive. */
+  /** Sign aligning the projective rotation-block determinant to positive. */
   projectiveSign?: number;
 
- 
- /** Relative Frobenius discrepancy from the scaled proper rotation. */
+  /** Relative Frobenius discrepancy from the scaled proper rotation. */
   projectionError?: number;
 
- 
- /** Finite rigid projection before the discrepancy gate; diagnostic even when the attempt refuses. Translation retains the map gauge. */
+  /** Finite rigid projection before the discrepancy gate; diagnostic even when the attempt refuses. Translation retains the map gauge. */
   projectedPose?: IAutoMovieRecoveryMapPose;
 }

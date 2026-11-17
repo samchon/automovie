@@ -1,5 +1,5 @@
-import type { AutoMovieBernsteinGrid64 } from "./AutoMovieBernsteinGrid64";
 import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
+import type { AutoMovieBernsteinGrid64 } from "./AutoMovieBernsteinGrid64";
 import type { IAutoMovieCanonicalBoundaryPhase64 } from "./IAutoMovieCanonicalBoundaryPhase64";
 import type { IAutoMoviePrepareBicubicAtlasBoundary64 } from "./IAutoMoviePrepareBicubicAtlasBoundary64";
 
@@ -114,12 +114,13 @@ export namespace IAutoMovieBicubicAtlas64 {
    * @evidence contracts/development/common.md#meaningful-documentation States grid retention, storage sharing and partial-plan diagnostics.
    */
   export type Plan = {
-  /** Prepared 4-by-4 coefficient grid in millimetres. It is retained even for an omitted patch; a coefficient-conflict plan keeps the initial constructed grid before side overwrite. */
-  grid: AutoMovieBernsteinGrid64;
-  /** Retained adaptive leaves only; a split parent does not coexist with its retained children. */
-  cells: IAutoMovieBicubicAtlas64.Cell[];
-  /** Patch-local admission, budget and approximation limitations retained for terminal reporting. */
-  diagnostics: string[] };
+    /** Prepared 4-by-4 coefficient grid in millimetres. It is retained even for an omitted patch; a coefficient-conflict plan keeps the initial constructed grid before side overwrite. */
+    grid: AutoMovieBernsteinGrid64;
+    /** Retained adaptive leaves only; a split parent does not coexist with its retained children. */
+    cells: IAutoMovieBicubicAtlas64.Cell[];
+    /** Patch-local admission, budget and approximation limitations retained for terminal reporting. */
+    diagnostics: string[];
+  };
 
   /**
    * Admitted or transported side binding owned by canonical boundary preparation.
@@ -130,7 +131,10 @@ export namespace IAutoMovieBicubicAtlas64 {
    * @evidence contracts/development/common.md#meaningful-documentation Identifies the preparation owner and the preserved interval and fan semantics.
    */
   export type Binding =
-    IAutoMoviePrepareBicubicAtlasBoundary64.IResult["bindings"] extends Map<string, infer Value>
+    IAutoMoviePrepareBicubicAtlasBoundary64.IResult["bindings"] extends Map<
+      string,
+      infer Value
+    >
       ? Value
       : never;
 
@@ -166,10 +170,11 @@ export namespace IAutoMovieBicubicAtlas64 {
    * @evidence contracts/development/common.md#meaningful-documentation States global indexing, position frame and shared receipt lifetime.
    */
   export type Vertex = {
-  /** Append-only global render vertex index, including the caller's vertexOffset. */
-  index: number;
-  /** Generated Cartesian position in model metres, retained for shared incidence reuse; no world transform has been applied. */
-  position: AutoMovieVector3Tuple };
+    /** Append-only global render vertex index, including the caller's vertexOffset. */
+    index: number;
+    /** Generated Cartesian position in model metres, retained for shared incidence reuse; no world transform has been applied. */
+    position: AutoMovieVector3Tuple;
+  };
 
   /**
    * Parameter-boundary vertex request, optionally carrying an exact shared phase.
@@ -180,14 +185,15 @@ export namespace IAutoMovieBicubicAtlas64 {
    * @evidence contracts/development/common.md#meaningful-documentation Defines local coordinates, optional exact identity and side inference.
    */
   export type Sample = {
-  /** Normalized coordinate in this patch's u direction, in [0,1]. */
-  u: number;
-  /** Normalized coordinate in this patch's v direction, in [0,1]. */
-  v: number;
-  /** Exact boundary phase when explicitly attached by the emitter; absence permits lookup from the side's phase map, including at patch corners. */
-  phase?: IAutoMovieCanonicalBoundaryPhase64;
-  /** Explicit incident side ordinal 0 through 3; when absent the vertex owner infers touching sides and prefers an explicitly bound one. */
-  side?: number };
+    /** Normalized coordinate in this patch's u direction, in [0,1]. */
+    u: number;
+    /** Normalized coordinate in this patch's v direction, in [0,1]. */
+    v: number;
+    /** Exact boundary phase when explicitly attached by the emitter; absence permits lookup from the side's phase map, including at patch corners. */
+    phase?: IAutoMovieCanonicalBoundaryPhase64;
+    /** Explicit incident side ordinal 0 through 3; when absent the vertex owner infers touching sides and prefers an explicitly bound one. */
+    side?: number;
+  };
 
   /**
    * Per-invocation shared boundary registry with exact requested phases and a legacy
@@ -231,12 +237,13 @@ export namespace IAutoMovieBicubicAtlas64 {
   export type Corner = {
     /** First retained incident patch and its exact unit-corner coordinates, fixed during registry construction. */
     owner: {
-    /** Zero-based input patch ordinal chosen as this corner's deterministic owner. */
-    patch: number;
-    /** Owning patch corner's normalized u coordinate, either 0 or 1. */
-    u: number;
-    /** Owning patch corner's normalized v coordinate, either 0 or 1. */
-    v: number };
+      /** Zero-based input patch ordinal chosen as this corner's deterministic owner. */
+      patch: number;
+      /** Owning patch corner's normalized u coordinate, either 0 or 1. */
+      u: number;
+      /** Owning patch corner's normalized v coordinate, either 0 or 1. */
+      v: number;
+    };
     /** Admitted shared corner coefficient in millimetres, before render-position conversion to metres. */
     position: AutoMovieVector3Tuple;
     /** Last incident input patch ordinal; the registry releases this corner after that patch emits. */

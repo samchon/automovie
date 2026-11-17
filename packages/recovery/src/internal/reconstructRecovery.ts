@@ -1,14 +1,15 @@
-import type { IAutoMovieContourLoft64, IAutoMovieReconstructRecovery, IAutoMovieRecoveryAnalyticRealization, IAutoMovieRecoveryMeshSections, IAutoMovieRecoveryTensorRealization, IAutoMovieModel } from "@automovie/interface";
 import { tessellateAutoMovieContourLoft64 } from "@automovie/engine";
-
+import type {
+  IAutoMovieContourLoft64,
+  IAutoMovieModel,
+  IAutoMovieReconstructRecovery,
+  IAutoMovieRecoveryAnalyticRealization,
+  IAutoMovieRecoveryMeshSections,
+  IAutoMovieRecoveryTensorRealization,
+} from "@automovie/interface";
 
 import { realizeAutoMovieRecoveryAnalyticDomains } from "../reconstruction/realizeAutoMovieRecoveryAnalyticDomains";
 import { realizeAutoMovieRecoveryTensorFamilies } from "../reconstruction/realizeAutoMovieRecoveryTensorFamilies";
-
-
-
-
-
 
 /**
  * Generate saved ordinary tensor families and retained curve-only event or legacy domains.
@@ -60,27 +61,34 @@ export function reconstructRecovery(
     options.analytic ?? realizeAutoMovieRecoveryAnalyticDomains(bundle);
   const replacements: Map<string, string> = new Map(tensor.replacements);
   for (const [key, id] of analytic.closedGroups) replacements.set(key, id);
-  const generated: IAutoMovieContourLoft64.IResult = tessellateAutoMovieContourLoft64({
-    ...bundle.loft,
-    intervals: bundle.loft.intervals.map(
-      (interval: IAutoMovieContourLoft64.IInterval, i: number): IAutoMovieContourLoft64.IInterval => ({
-        ...interval,
-        groups: Array.isArray(interval.groups)
-          ? interval.groups.map(
-              (
-                group: IAutoMovieContourLoft64.IInterval["groups"][number],
-                j: number,
-              ): IAutoMovieContourLoft64.IInterval["groups"][number] =>
-                replacements.has(`${i}:${j}`)
-                  ? {
-                      ...group,
-                      supported: false,
-                      reason: `Saved domain delegated to analytic owner ${replacements.get(`${i}:${j}`)}` }
-                  : group,
-            )
-          : interval.groups }),
-    ),
-    observeWork: options.observeWork ?? false });
+  const generated: IAutoMovieContourLoft64.IResult =
+    tessellateAutoMovieContourLoft64({
+      ...bundle.loft,
+      intervals: bundle.loft.intervals.map(
+        (
+          interval: IAutoMovieContourLoft64.IInterval,
+          i: number,
+        ): IAutoMovieContourLoft64.IInterval => ({
+          ...interval,
+          groups: Array.isArray(interval.groups)
+            ? interval.groups.map(
+                (
+                  group: IAutoMovieContourLoft64.IInterval["groups"][number],
+                  j: number,
+                ): IAutoMovieContourLoft64.IInterval["groups"][number] =>
+                  replacements.has(`${i}:${j}`)
+                    ? {
+                        ...group,
+                        supported: false,
+                        reason: `Saved domain delegated to analytic owner ${replacements.get(`${i}:${j}`)}`,
+                      }
+                    : group,
+              )
+            : interval.groups,
+        }),
+      ),
+      observeWork: options.observeWork ?? false,
+    });
   const model: IAutoMovieModel = {
     id: "recovered-curves",
     name: null,
@@ -89,7 +97,8 @@ export function reconstructRecovery(
     skeleton: null,
     body: null,
     materials: [],
-    asset: null };
+    asset: null,
+  };
   model.parts.push(...tensor.parts, ...analytic.parts);
   const construction: IAutoMovieRecoveryTensorRealization["construction"] = [
     ...generated.construction,
@@ -109,16 +118,20 @@ export function reconstructRecovery(
       geometry: { type: "mesh", mesh: generated.mesh },
       material: null,
       attachedBone: null,
-      transform: null });
+      transform: null,
+    });
   const delegationReasons: Set<string> = new Set(
     [...replacements.values()].map(
       (id: string): string => `Saved domain delegated to analytic owner ${id}`,
     ),
   );
-  const unresolved: IAutoMovieContourLoft64.IResult["unresolved"] = generated.unresolved.filter(
-    (record: IAutoMovieContourLoft64.IResult["unresolved"][number]): boolean =>
-      record.reason === undefined || !delegationReasons.has(record.reason),
-  );
+  const unresolved: IAutoMovieContourLoft64.IResult["unresolved"] =
+    generated.unresolved.filter(
+      (
+        record: IAutoMovieContourLoft64.IResult["unresolved"][number],
+      ): boolean =>
+        record.reason === undefined || !delegationReasons.has(record.reason),
+    );
   return {
     model,
     construction,
@@ -128,5 +141,6 @@ export function reconstructRecovery(
     primitiveRanges: generated.primitiveRanges ?? [],
     interactionObservations: generated.interactionObservations ?? [],
     tensorReports: tensor.reports,
-    analyticReports: analytic.reports };
+    analyticReports: analytic.reports,
+  };
 }

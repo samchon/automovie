@@ -1,6 +1,5 @@
 import type { IAutoMovieRecoveryImageFeaturesMatchingOperation } from "@automovie/interface";
 
-
 /**
  * Compare every admitted descriptor pair once and retain unique mutual matches.
  * The strict Euclidean ratio requires a distinct second feature in the other
@@ -55,7 +54,8 @@ export function matchRecoveryImageFeatures(
       } else if (squared < reverseSecond[j]!) reverseSecond[j] = squared;
     }
   }
-  const matches: ReturnType<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation> = [];
+  const matches: ReturnType<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation> =
+    [];
   for (let i: number = 0; i < first.length; i++) {
     const j: number = forwardIndex[i]!;
     if (
@@ -71,7 +71,8 @@ export function matchRecoveryImageFeatures(
       first: [first[i]!.point[0], first[i]!.point[1]],
       second: [second[j]!.point[0], second[j]!.point[1]],
       squaredDescriptorDistance: forward[i]!,
-      descriptorDistanceRatio: Math.sqrt(forward[i]! / forwardSecond[i]!) });
+      descriptorDistanceRatio: Math.sqrt(forward[i]! / forwardSecond[i]!),
+    });
   }
   return matches;
 }

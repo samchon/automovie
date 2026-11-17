@@ -1,10 +1,10 @@
-import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
-import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
-import type { IAutoMovieMotion } from "./IAutoMovieMotion";
 import type { IAutoMovieProfileBinding } from "../core/IAutoMovieProfileBinding";
 import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
-import type { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
+import type { IAutoMovieMotion } from "./IAutoMovieMotion";
+import type { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps";
 
 /**
  * Input for {@link retargetHumanoidMotion}.

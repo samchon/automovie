@@ -1,6 +1,6 @@
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieFootfallPattern } from "./IAutoMovieFootfallPattern";
 import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
-import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * Balance fit anchored at the actual floating-base pose, with separate root intent.

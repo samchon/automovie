@@ -1,5 +1,3 @@
-
-
 /**
  * Sparse vector and affine coefficient of a simplex quadratic objective.
  *

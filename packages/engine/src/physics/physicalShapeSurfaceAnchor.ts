@@ -1,5 +1,9 @@
-import type { IAutoMoviePhysicalHullFaces, IAutoMoviePhysicalProfile, IAutoMoviePhysicalShapeSurfaceAnchor, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShapeSurfaceAnchor,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -25,10 +29,8 @@ export function physicalShapeSurfaceAnchor(
     pose.rotation,
     Vector3.normalize(normal),
   );
-  const rotation: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-    pose.rotation,
-    shape.transform.rotation,
-  );
+  const rotation: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+    Quaternion.multiply(pose.rotation, shape.transform.rotation);
   const direction: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.inverse(rotation),
     world,
@@ -51,7 +53,9 @@ export function physicalShapeSurfaceAnchor(
   else if (shape.kind === "hull") {
     // The support feature: the mean of the vertices farthest along the
     // direction, a vertex, an edge midpoint or a face's vertex mean.
-    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(shape.points);
+    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
+      shape.points,
+    );
     let reach: number = -Infinity;
     for (const vertex of hull.vertices)
       reach = Math.max(reach, Vector3.dot(vertex, direction));

@@ -1,8 +1,8 @@
-import type { IAutoMovieRecoveryMapDesignSolutionOperation, IAutoMovieRecoveryMapJointPreparation, IAutoMovieRecoveryMapJointStepSolutionOperation } from "@automovie/interface";
-
-
-
-
+import type {
+  IAutoMovieRecoveryMapDesignSolutionOperation,
+  IAutoMovieRecoveryMapJointPreparation,
+  IAutoMovieRecoveryMapJointStepSolutionOperation,
+} from "@automovie/interface";
 
 import { createRecoveryMapMetric } from "./createRecoveryMapMetric";
 import { prepareRecoveryMapJointBlocks } from "./prepareRecoveryMapJointBlocks";
@@ -93,6 +93,8 @@ export function solveRecoveryMapJointStep(
             pointScales,
             cameraScales,
             budget,
-          ) }
-      : {}) };
+          ),
+        }
+      : {}),
+  };
 }

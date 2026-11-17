@@ -1,15 +1,16 @@
-import type { IAutoMovieMotionHumanCatchObject, IAutoMovieMotionHumanHandoverAction, IAutoMovieMotionHumanHandshake, IAutoMovieMotionHumanHighFive, IAutoMovieMotionHumanKickBall, IAutoMovieMotionHumanKiss, IAutoMovieMotionHumanPickUp, IAutoMovieMotionHumanPutDown, IAutoMovieMotionHumanReceive, IAutoMovieMotionHumanRelease, IAutoMovieMotionHumanThrowObjectParams } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
-
+import type {
+  IAutoMovieMotionHumanCatchObject,
+  IAutoMovieMotionHumanHandoverAction,
+  IAutoMovieMotionHumanHandshake,
+  IAutoMovieMotionHumanHighFive,
+  IAutoMovieMotionHumanKickBall,
+  IAutoMovieMotionHumanKiss,
+  IAutoMovieMotionHumanPickUp,
+  IAutoMovieMotionHumanPutDown,
+  IAutoMovieMotionHumanReceive,
+  IAutoMovieMotionHumanRelease,
+  IAutoMovieMotionHumanThrowObjectParams,
+} from "@automovie/interface";
 
 import { HumanChainStriking } from "./HumanChainStriking";
 
@@ -32,7 +33,10 @@ export class HumanChainMutual extends HumanChainStriking {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public handshake(params: IAutoMovieMotionHumanHandshake.IParams, anchor?: string): this {
+  public handshake(
+    params: IAutoMovieMotionHumanHandshake.IParams,
+    anchor?: string,
+  ): this {
     return this.act("handshake", params, anchor);
   }
 
@@ -43,7 +47,10 @@ export class HumanChainMutual extends HumanChainStriking {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public highFive(params: IAutoMovieMotionHumanHighFive.IParams, anchor?: string): this {
+  public highFive(
+    params: IAutoMovieMotionHumanHighFive.IParams,
+    anchor?: string,
+  ): this {
     return this.act("highFive", params, anchor);
   }
 
@@ -55,7 +62,10 @@ export class HumanChainMutual extends HumanChainStriking {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public kiss(params: IAutoMovieMotionHumanKiss.IParams, anchor?: string): this {
+  public kiss(
+    params: IAutoMovieMotionHumanKiss.IParams,
+    anchor?: string,
+  ): this {
     return this.act("kiss", params, anchor);
   }
 
@@ -66,7 +76,10 @@ export class HumanChainMutual extends HumanChainStriking {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public pickUp(params: IAutoMovieMotionHumanPickUp.IParams, anchor?: string): this {
+  public pickUp(
+    params: IAutoMovieMotionHumanPickUp.IParams,
+    anchor?: string,
+  ): this {
     return this.act("pickUp", params, anchor);
   }
 
@@ -77,7 +90,10 @@ export class HumanChainMutual extends HumanChainStriking {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public putDown(params: IAutoMovieMotionHumanPutDown.IParams, anchor?: string): this {
+  public putDown(
+    params: IAutoMovieMotionHumanPutDown.IParams,
+    anchor?: string,
+  ): this {
     return this.act("putDown", params, anchor);
   }
 
@@ -89,7 +105,10 @@ export class HumanChainMutual extends HumanChainStriking {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public handOver(params: IAutoMovieMotionHumanHandoverAction.IParams, anchor?: string): this {
+  public handOver(
+    params: IAutoMovieMotionHumanHandoverAction.IParams,
+    anchor?: string,
+  ): this {
     return this.act("handOver", params, anchor);
   }
 
@@ -101,7 +120,10 @@ export class HumanChainMutual extends HumanChainStriking {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public receive(params: IAutoMovieMotionHumanReceive.IParams, anchor?: string): this {
+  public receive(
+    params: IAutoMovieMotionHumanReceive.IParams,
+    anchor?: string,
+  ): this {
     return this.act("receive", params, anchor);
   }
 
@@ -113,7 +135,10 @@ export class HumanChainMutual extends HumanChainStriking {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public throwObject(params: IAutoMovieMotionHumanThrowObjectParams, anchor?: string): this {
+  public throwObject(
+    params: IAutoMovieMotionHumanThrowObjectParams,
+    anchor?: string,
+  ): this {
     return this.act("throwObject", params, anchor);
   }
 
@@ -125,7 +150,10 @@ export class HumanChainMutual extends HumanChainStriking {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public catchObject(params: IAutoMovieMotionHumanCatchObject.IParams, anchor?: string): this {
+  public catchObject(
+    params: IAutoMovieMotionHumanCatchObject.IParams,
+    anchor?: string,
+  ): this {
     return this.act("catchObject", params, anchor);
   }
 
@@ -137,7 +165,10 @@ export class HumanChainMutual extends HumanChainStriking {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public release(params: IAutoMovieMotionHumanRelease.IParams = {}, anchor?: string): this {
+  public release(
+    params: IAutoMovieMotionHumanRelease.IParams = {},
+    anchor?: string,
+  ): this {
     return this.act("release", params, anchor);
   }
 
@@ -148,7 +179,10 @@ export class HumanChainMutual extends HumanChainStriking {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public kickBall(params: IAutoMovieMotionHumanKickBall.IParams, anchor?: string): this {
+  public kickBall(
+    params: IAutoMovieMotionHumanKickBall.IParams,
+    anchor?: string,
+  ): this {
     return this.act("kickBall", params, anchor);
   }
 }

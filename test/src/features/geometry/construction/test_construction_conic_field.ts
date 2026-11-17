@@ -1,5 +1,16 @@
-import type { IAutoMovieConicArcField, IAutoMovieConicFieldJet, IAutoMovieViewConic, IAutoMovieViewOutline, IAutoMovieViewSectionField } from "@automovie/interface";
-import { AutoMovieConicFieldJet, AutoMovieViewConic, AutoMovieViewOutline, AutoMovieViewSectionField } from "@automovie/engine";
+import {
+  AutoMovieConicFieldJet,
+  AutoMovieViewConic,
+  AutoMovieViewOutline,
+  AutoMovieViewSectionField,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConicArcField,
+  IAutoMovieConicFieldJet,
+  IAutoMovieViewConic,
+  IAutoMovieViewOutline,
+  IAutoMovieViewSectionField,
+} from "@automovie/interface";
 
 import { ConstructionConicFieldBoundary } from "../../internal/construction/ConstructionConicFieldBoundary";
 import { ConstructionConicFieldOracle } from "../../internal/construction/ConstructionConicFieldOracle";
@@ -179,7 +190,10 @@ function radial(
 ): IAutoMovieViewSectionField.IRadialJet {
   const value:
     | IAutoMovieViewSectionField.IRadialJet
-    | IAutoMovieConicArcField.IFailure = AutoMovieViewSectionField.read(at, phi);
+    | IAutoMovieConicArcField.IFailure = AutoMovieViewSectionField.read(
+    at,
+    phi,
+  );
   if ("kind" in value) throw new Error(value.detail);
   return value;
 }
@@ -302,12 +316,13 @@ function ellipses(
   const at: Prepared = prepared([a, b, a, b], [r, r, r, r]);
   const e: number[] = [a[0], b[0], a[0], b[0]];
   const rs: number[] = [r[0], r[0], r[0], r[0]];
-  const numeric: IAutoMovieViewConic.ICurve = AutoMovieViewConic.prepareGeometry(
-    AutoMovieConicFieldJet.NUMBER,
-    e,
-    rs,
-    AutoMovieViewConic.curvatures(AutoMovieConicFieldJet.NUMBER, e, rs),
-  );
+  const numeric: IAutoMovieViewConic.ICurve =
+    AutoMovieViewConic.prepareGeometry(
+      AutoMovieConicFieldJet.NUMBER,
+      e,
+      rs,
+      AutoMovieViewConic.curvatures(AutoMovieConicFieldJet.NUMBER, e, rs),
+    );
   const phases: number[] = [
     0,
     0.13,

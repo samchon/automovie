@@ -1,4 +1,9 @@
-import { type IAutoMovieAppendServiceNetworkNodes, IAutoMovieServiceNode, IAutoMovieServicePort, IAutoMovieServiceSystem } from "@automovie/interface";
+import {
+  type IAutoMovieAppendServiceNetworkNodes,
+  IAutoMovieServiceNode,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSystem,
+} from "@automovie/interface";
 
 import { appendServiceInsideSpace } from "./appendServiceInsideSpace";
 
@@ -33,7 +38,9 @@ const NODE_KINDS: readonly [
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Environment, element, system and first-port maps are shared from the current gate call instead of rebuilt for each node.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The supplied maps and collector own appended facts; temporary scalar and containment arguments release on return without retaining a second graph copy.
  */
-export function appendServiceNetworkNodes(props: IAutoMovieAppendServiceNetworkNodes.IProps): void {
+export function appendServiceNetworkNodes(
+  props: IAutoMovieAppendServiceNetworkNodes.IProps,
+): void {
   const {
     network,
     environment,

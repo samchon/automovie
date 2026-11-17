@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionAudit, IAutoMovieMotionGeometry, IAutoMoviePhysicsCache } from "@automovie/interface";
+import type {
+  IAutoMovieMotionAudit,
+  IAutoMovieMotionGeometry,
+  IAutoMoviePhysicsCache,
+} from "@automovie/interface";
+
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 import { motionAuditGeometry } from "./motionAuditGeometry";
 
@@ -28,13 +33,13 @@ export function admitPhysicalMotionFrame(
   for (const body of bodies)
     for (const bone of [
       ...motionAuditGeometry(body).segments.map(
-        (
-          segment: IAutoMovieMotionGeometry["segments"][number],
-        ): string => segment.bone,
+        (segment: IAutoMovieMotionGeometry["segments"][number]): string =>
+          segment.bone,
       ),
       ...(motionAuditGeometry(body).witnesses ?? []),
     ]) {
-      const state: IAutoMoviePhysicsCache.ISegment | undefined = frame.bodies[body.id]?.[bone];
+      const state: IAutoMoviePhysicsCache.ISegment | undefined =
+        frame.bodies[body.id]?.[bone];
       if (
         !state?.position ||
         !state.rotation ||

@@ -1,3 +1,4 @@
+import { CamelCohorts } from "./CamelCohorts";
 import type { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedBodyProfile } from "./QuadrupedBodyProfile";
 
@@ -19,11 +20,17 @@ import { QuadrupedBodyProfile } from "./QuadrupedBodyProfile";
  * internal joint angles do not determine absolute bar pitches or passive
  * ROM; this profile keeps its authored standing controls separate.
  *
- * @param withersHeight Admitted instance height in metres for lateral inset scaling.
+ * The five morphotype means in Diop Table II retain their complete body vector.
+ * Egyptian limb controls keep the existing ratios to the 1.847 m pooled
+ * reference, uniformly scaled to the selected height as provisional construction.
+ * They are not new measurements of that morphotype's limbs.
+ *
+ * @param withersHeight Admitted instance height in metres; only undefined defaults to the selected reference, while null is invalid.
+ * @param cohort Whole pooled or classified adult-female reference; pooled by default.
  * @returns Fresh coarse body controls; the actual producer owns the separate hump and tack.
  * @throws {RangeError} For nonpositive or nonfinite instance height.
  * @evidence contracts/development/common.md#meaningful-documentation States every measurement path, separate cohort, cross-cohort normalization, unknown anatomical pose and construction-only quantity; no visual verdict or ROM claim is made.
- * @evidence contracts/development/implementation.md#principled-implementation Surface means give reference lengths and circular-section proxies. Trigonometric projections preserve each straight control's length, the withers ball reaches the declared height and the head capsule's axial extent follows the reported head length.
+ * @evidence contracts/development/implementation.md#principled-implementation One selected surface-mean vector gives actual body/neck/head controls. The borrowed Egyptian limb-to-pooled-height ratios are uniformly scaled to its height as an explicit provisional transfer; no group-specific limb measurement is invented. The shared profile preserves the withers apex and complete head extent.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Keep body/limb records distinct and supply their normalized data to QuadrupedBodyProfile's common geometry owner; hump generation remains with the producer.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No horse proportions, mass allocation, hoof material, invented paired allometry or passive limits enter this profile. Source standing angles remain reference data, never disguised as the authored absolute pitches.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar arithmetic and two fixed four-bar arrays; the shared owner's fixed admission scans add no tessellation, fitting, iterative solver or geometry search.
@@ -31,11 +38,16 @@ import { QuadrupedBodyProfile } from "./QuadrupedBodyProfile";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the result and no query or external handle is retained. Omitted mass shares and foot material preserve their explicit unknown status in the shared builder.
  */
 export function CamelBody(
-  withersHeight: number = CamelBody.MEASURES.withers,
+  withersHeight?: number,
+  cohort: CamelBody.Cohort = CamelCohorts.DEFAULT,
 ): QuadrupedBody.IBody {
-  const m: typeof CamelBody.MEASURES = CamelBody.MEASURES;
+  const m: Readonly<CamelCohorts.IMeasures> | undefined =
+    CamelBody.REFERENCES[cohort];
+  if (m === undefined)
+    throw new RangeError(`Unknown dromedary reference ${cohort}`);
   const limb: typeof CamelBody.SEGMENTS = CamelBody.SEGMENTS;
   const c: typeof CamelBody.CONSTRUCTION = CamelBody.CONSTRUCTION;
+  const scale: number = m.withers / CamelBody.MEASURES.withers;
   return QuadrupedBodyProfile({
     measures: {
       withers: m.withers,
@@ -47,10 +59,20 @@ export function CamelBody(
       headDiameter: m.headBreadth,
       tail: c.tailLength * m.withers,
     },
-    fore: [...limb.fore],
-    hind: [...limb.hind],
+    fore: [
+      limb.fore[0] * scale,
+      limb.fore[1] * scale,
+      limb.fore[2] * scale,
+      limb.fore[3] * scale,
+    ],
+    hind: [
+      limb.hind[0] * scale,
+      limb.hind[1] * scale,
+      limb.hind[2] * scale,
+      limb.hind[3] * scale,
+    ],
     construction: c,
-    withersHeight,
+    withersHeight: withersHeight === undefined ? m.withers : withersHeight,
     colors: { coat: "#aa7951", tail: "#664830" },
   });
 }
@@ -64,37 +86,23 @@ export function CamelBody(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No unknown physical property or trait distribution is invented; source table dispersion inconsistencies are not used as probability bands.
  */
 export namespace CamelBody {
-  /** Diop 2020 body means, 131 Mauritanian adult females, metres; no mass or tail measure. */
-  export const MEASURES: Readonly<{
-    /** Ground to withers, excluding the hump. */
-    withers: number;
+  /** Closed whole-reference choices, with the original pooled reference retained. */
+  export type Cohort = CamelCohorts.Name;
 
-    /** Chest circumference excluding the hump. */
-    girth: number;
+  /** Every explicit selectable pooled or classified source reference. */
+  export const COHORTS: readonly Cohort[] = CamelCohorts.NAMES;
 
-    /** Shoulder point to ischial point of pelvis. */
-    body: number;
+  /** Authored equal-choice seed palette; its frequencies are not population estimates. */
+  export const DRAW: readonly Cohort[] = CamelCohorts.DRAW;
 
-    /** Larynx to neck attachment on the brisket. */
-    neck: number;
+  /** Original Diop pooled means for 131 adult females; no mass or tail measure. */
+  export const MEASURES: Readonly<CamelCohorts.IMeasures> =
+    CamelCohorts.MEASURES[CamelCohorts.DEFAULT];
 
-    /** Mid-neck circumference. */
-    neckGirth: number;
-
-    /** Occipital crest to nose tip. */
-    head: number;
-
-    /** Tape path between ears via the occipital crest; used as a coarse diameter proxy. */
-    headBreadth: number;
-  }> = {
-    withers: 1.847,
-    girth: 1.978,
-    body: 1.471,
-    neck: 1.084,
-    neckGirth: 0.656,
-    head: 0.515,
-    headBreadth: 0.215,
-  };
+  /** Whole source vectors; the five morphotype rows come from Table II, p.250. */
+  export const REFERENCES: Readonly<
+    Record<Cohort, Readonly<CamelCohorts.IMeasures>>
+  > = CamelCohorts.MEASURES;
 
   /** Mostafa/Khalil 2018 Table3, normal external conformation means in metres; no paired height. */
   export const SEGMENTS: Readonly<{

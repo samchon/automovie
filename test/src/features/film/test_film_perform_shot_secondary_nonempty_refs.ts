@@ -1,6 +1,14 @@
-import { type IAutoMovieActionSynthesizer, type IAutoMoviePerformedShot, type IAutoMovieStagedSet, IAutoMovieActionCall, IAutoMovieMotion, IAutoMovieSceneNode, IAutoMovieScript, IAutoMovieSkeleton } from "@automovie/interface";
 import { performShot, stageScene } from "@automovie/engine";
-
+import {
+  IAutoMovieActionCall,
+  type IAutoMovieActionSynthesizer,
+  IAutoMovieMotion,
+  type IAutoMoviePerformedShot,
+  IAutoMovieSceneNode,
+  IAutoMovieScript,
+  IAutoMovieSkeleton,
+  type IAutoMovieStagedSet,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {

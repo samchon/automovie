@@ -1,6 +1,13 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanLean, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanLean,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -20,7 +27,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The hip shift is solved by the balance owner on the body and never stated as a constant.
  */
 export namespace AutoMovieMotionHumanLean {
-
   /**
    * The body tilted about its root without a balance shift: the small leans
    * a standing body makes inside its base of support (a recoil, a sway, a
@@ -37,12 +43,17 @@ export namespace AutoMovieMotionHumanLean {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
-  export function tilt(props: IAutoMovieMotionHumanLean.ITilt): IAutoMovieMotionHumanPrimitive {
+  export function tilt(
+    props: IAutoMovieMotionHumanLean.ITilt,
+  ): IAutoMovieMotionHumanPrimitive {
     return {
       channels: ["trunk"],
       from: props.from,
       to: props.to,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
         const more: IAutoMovieMotionHumanLean.IAngles = props.angles(seconds);
         return {
           ...posture,
@@ -114,12 +125,17 @@ export namespace AutoMovieMotionHumanLean {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `pivot`, `HumanFrame.point` and `resolveHumanPosture.lower`, the owner of a planted leg's reach.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
-  export function sway(props: IAutoMovieMotionHumanLean.ISway): IAutoMovieMotionHumanPrimitive {
+  export function sway(
+    props: IAutoMovieMotionHumanLean.ISway,
+  ): IAutoMovieMotionHumanPrimitive {
     return {
       channels: ["root", "trunk"],
       from: props.from,
       to: props.to,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
         const tilted: IAutoMovieMotionHumanPosture = pivot(
           props.body,
           posture,
@@ -133,10 +149,13 @@ export namespace AutoMovieMotionHumanLean {
           ...tilted,
           root: Vector3.add(tilted.root, travel),
         };
-        const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(props.body, {
-          ...moved,
-          limbs: { ...moved.limbs, ...props.legs?.(seconds) },
-        });
+        const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+          props.body,
+          {
+            ...moved,
+            limbs: { ...moved.limbs, ...props.legs?.(seconds) },
+          },
+        );
         return { ...moved, root: lowered.root };
       },
     };
@@ -166,13 +185,19 @@ export namespace AutoMovieMotionHumanLean {
     back: number,
   ): IAutoMovieMotionHumanPosture {
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
+    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+      origin: posture.root,
+      yaw: posture.yaw,
+    };
     const target: IAutoMovieVector3 = HumanFrame.point(frame, {
       x: hips.x,
       y: hips.y,
       z: hips.z - back,
     });
-    const tipped: IAutoMovieMotionHumanPosture = { ...posture, pitch: posture.pitch + pitch };
+    const tipped: IAutoMovieMotionHumanPosture = {
+      ...posture,
+      pitch: posture.pitch + pitch,
+    };
     const offset: IAutoMovieVector3 = Quaternion.rotateVector(
       resolveHumanPosture.heading(tipped),
       hips,
@@ -198,7 +223,9 @@ export namespace AutoMovieMotionHumanLean {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanBalance.shift` and `tip`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive keeps one number beside its props.
    */
-  export function bow(props: IAutoMovieMotionHumanLean.IBow): IAutoMovieMotionHumanPrimitive {
+  export function bow(
+    props: IAutoMovieMotionHumanLean.IBow,
+  ): IAutoMovieMotionHumanPrimitive {
     if (!(props.peak > 0)) throw new Error("A bow's peak pitch is positive");
     const sine = (degrees: number): number =>
       Math.sin((degrees * Math.PI) / 180);
@@ -212,7 +239,10 @@ export namespace AutoMovieMotionHumanLean {
       channels: ["root", "trunk"],
       from: props.from,
       to: props.to,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
         const pitch: number =
           props.peak * Math.min(1, Math.max(0, props.weight(seconds)));
         return tip(props.body, posture, pitch, lean * sine(pitch));

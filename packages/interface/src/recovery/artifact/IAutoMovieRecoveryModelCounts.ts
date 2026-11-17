@@ -8,11 +8,9 @@
  */
 
 export interface IAutoMovieRecoveryModelCounts {
- 
- /** Emitted render vertex population. */
+  /** Emitted render vertex population. */
   vertices: number;
 
- 
- /** Emitted triangle population. */
+  /** Emitted triangle population. */
   triangles: number;
 }

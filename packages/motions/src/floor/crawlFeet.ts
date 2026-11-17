@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { kneelKeys } from "../everyday/kneelKeys";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -63,7 +69,11 @@ export namespace crawlFeet {
     heading: number,
     lift: number,
     share: number,
-  ): { placement: IAutoMovieMotionHumanFoot.IPlacement; toes: number; mtp: IAutoMovieVector3 } {
+  ): {
+    placement: IAutoMovieMotionHumanFoot.IPlacement;
+    toes: number;
+    mtp: IAutoMovieVector3;
+  } {
     const from: number = HumanFoot.heading(standing.rotation);
     const extension: number = Math.min(
       lift,
@@ -135,11 +145,15 @@ export namespace crawlFeet {
     measured: IAutoMovieMotionHumanFrame.IFrame,
     knees: Record<"left" | "right", IAutoMovieVector3>,
     ahead: number,
-  ): { frame: IAutoMovieMotionHumanFrame.IFrame; tucks: Record<"left" | "right", ITuck> } {
+  ): {
+    frame: IAutoMovieMotionHumanFrame.IFrame;
+    tucks: Record<"left" | "right", ITuck>;
+  } {
     const forward: IAutoMovieVector3 = HumanFrame.forward(measured.yaw);
     const sides = ["left", "right"] as const;
     const feet = sides.map((side: "left" | "right") => {
-      const goal: IAutoMovieMotionHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
+      const goal: IAutoMovieMotionHumanPosture.IGoal =
+        standing.limbs[`${side}Leg`]!;
       const placement: IAutoMovieMotionHumanFoot.IPlacement = {
         ankle: goal.point,
         rotation: goal.rotation ?? HumanFrame.turn(measured.yaw),

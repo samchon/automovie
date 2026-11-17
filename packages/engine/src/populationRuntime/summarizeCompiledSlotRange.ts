@@ -1,6 +1,8 @@
-import type { IAutoMovieCreateCompiledSlotSummary, IAutoMoviePlacementSummary, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieCreateCompiledSlotSummary,
+  IAutoMoviePlacementSummary,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { createCompiledSlotSummary } from "./createCompiledSlotSummary";
 

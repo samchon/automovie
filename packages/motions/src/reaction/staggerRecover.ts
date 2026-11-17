@@ -1,9 +1,12 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanWalkStanceCourse, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
-import {
-  AutoMovieMotionHumanTiming,
-} from "../compose/AutoMovieMotionHumanTiming";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanWalkStanceCourse,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
 import { staggerClose } from "./staggerClose";
@@ -183,7 +186,8 @@ export namespace staggerRecover {
     const along: "left" | "right" =
       ankle("left") > ankle("right") ? "left" : "right";
     const sideways: boolean =
-      Math.abs(Vector3.dot(push, across)) > Math.abs(Vector3.dot(push, forward));
+      Math.abs(Vector3.dot(push, across)) >
+      Math.abs(Vector3.dot(push, forward));
     const first: "left" | "right" = sideways
       ? along === "left"
         ? "right"

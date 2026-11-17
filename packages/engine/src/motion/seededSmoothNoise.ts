@@ -1,4 +1,5 @@
 import type { IAutoMovieRandom } from "@automovie/interface";
+
 /**
  * Smooth, seeded, band-limited variation over one window of an action, zero
  * with zero first and second derivatives at both ends.

@@ -1,6 +1,14 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBendLower, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBendLower,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { bendLower } from "../everyday/bendLower";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -194,7 +202,10 @@ export namespace pickUpLift {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function judged(
-    context: IAutoMovieMotionHumanActionContext<{ prop: string; handle: string }>,
+    context: IAutoMovieMotionHumanActionContext<{
+      prop: string;
+      handle: string;
+    }>,
     side: IAutoMovieMotionHumanHand.Side,
     lift: number,
     plan: IAutoMovieMotionHumanActionPlan,

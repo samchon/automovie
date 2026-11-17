@@ -1,8 +1,11 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftRelief, IAutoMovieHumanFootBody, IAutoMovieHumanLimbFrame } from "@automovie/interface";
-
-
-
 import { AutoMovieSeamStation } from "@automovie/engine";
+import type {
+  IAutoMovieHumanFootBody,
+  IAutoMovieHumanLimbFrame,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftRelief,
+} from "@automovie/interface";
+
 import { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
 import { AutoMovieHumanFootBody } from "./AutoMovieHumanFootBody";
 import { AutoMovieHumanFootReflection } from "./AutoMovieHumanFootReflection";
@@ -51,7 +54,15 @@ export namespace AutoMovieHumanFootBodyChain {
     // coefficient, lift and plane component the natural spline through its
     // layers, so the hand-over from the yaw fan to the turn fan at the square
     // plane is a C2 change of plane, not a switch.
-    return AutoMovieSeamStation.continuous({ name, basis: "spline", order, samples: order, rule: "arclength", layers, reliefs });
+    return AutoMovieSeamStation.continuous({
+      name,
+      basis: "spline",
+      order,
+      samples: order,
+      rule: "arclength",
+      layers,
+      reliefs,
+    });
   }
 }
 

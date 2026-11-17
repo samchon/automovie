@@ -1,5 +1,5 @@
-import type { IAutoMovieCaptureResolution } from "../capture/IAutoMovieCaptureResolution.js";
 import type { IAutoMovieCaptureDrawing } from "../capture/IAutoMovieCaptureDrawing.js";
+import type { IAutoMovieCaptureResolution } from "../capture/IAutoMovieCaptureResolution.js";
 import type { IAutoMovieInspectionCamera } from "../inspection/IAutoMovieInspectionCamera.js";
 import type { IAutoMovieInspectionLegendEntry } from "../inspection/IAutoMovieInspectionLegendEntry.js";
 

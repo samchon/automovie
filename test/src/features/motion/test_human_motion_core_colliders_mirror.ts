@@ -1,7 +1,15 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanColliders, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanColliders,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -28,8 +36,11 @@ export function test_human_motion_core_colliders_mirror(): void {
     body,
     resolveHumanPosture(body, stand.posture(body, { x: 0, y: 0, z: 0 }, 0)),
   );
-  const placed: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
-  const world = (s: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieVector3[][] =>
+  const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
+    HumanColliders.placed(body, bones);
+  const world = (
+    s: IAutoMovieMotionHumanColliders.IPlaced,
+  ): IAutoMovieVector3[][] =>
     s.shapes.map((shape) => {
       const at = (p: IAutoMovieVector3): IAutoMovieVector3 =>
         Vector3.add(
@@ -49,9 +60,10 @@ export function test_human_motion_core_colliders_mirror(): void {
   const misses: string[] = [];
   let pairs: number = 0;
   for (const left of placed.filter((s): boolean => s.bone.startsWith("left"))) {
-    const right: IAutoMovieMotionHumanColliders.IPlaced | undefined = placed.find(
-      (s): boolean => s.bone === left.bone.replace("left", "right"),
-    );
+    const right: IAutoMovieMotionHumanColliders.IPlaced | undefined =
+      placed.find(
+        (s): boolean => s.bone === left.bone.replace("left", "right"),
+      );
     if (right === undefined) continue;
     ++pairs;
     const l: IAutoMovieVector3[][] = world(left);

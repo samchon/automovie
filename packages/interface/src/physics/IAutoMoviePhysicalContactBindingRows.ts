@@ -1,7 +1,7 @@
+import type { IAutoMoviePoses } from "../geometry/IAutoMoviePoses";
 import type { IAutoMovieLinearizePhysicalTargetRows } from "./IAutoMovieLinearizePhysicalTargetRows";
 import type { IAutoMoviePhysicalContactBinding } from "./IAutoMoviePhysicalContactBinding";
 import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
-import type { IAutoMoviePoses } from "../geometry/IAutoMoviePoses";
 import type { IAutoMoviePreparePhysicalGeometry } from "./IAutoMoviePreparePhysicalGeometry";
 
 /**

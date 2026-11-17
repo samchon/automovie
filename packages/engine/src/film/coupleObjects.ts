@@ -1,6 +1,20 @@
-import { type IAutoMovieRestFrame, type IAutoMovieStagedSet, type IAutoMovieAttachJob, type IAutoMovieCoupleObjects, type IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieBone, IAutoMovieClip, IAutoMovieInteractionEvent, IAutoMovieJointAxes, IAutoMovieMotion, IAutoMovieSceneNode, IAutoMovieSkeleton, IAutoMovieTransform } from "@automovie/interface";
-
-
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieActionCall,
+  type IAutoMovieAttachJob,
+  IAutoMovieBone,
+  IAutoMovieClip,
+  type IAutoMovieCoupleObjects,
+  IAutoMovieInteractionEvent,
+  IAutoMovieJointAxes,
+  IAutoMovieMotion,
+  type IAutoMovieRestFrame,
+  IAutoMovieSceneNode,
+  IAutoMovieSkeleton,
+  type IAutoMovieStagedSet,
+  IAutoMovieTransform,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { ViolationCollector } from "../validation/ViolationCollector";
@@ -65,7 +79,9 @@ function childrenOf(action: IAutoMovieActionCall): string[] {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each parent's baked clips are stored once and every rider of that parent reads the same clips, so a chain is baked link by link instead of recomposing the whole ancestry per rider; nothing is shared across calls, because each call bakes one shot's couplings.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The graph, order, grouping maps and per-parent clip lists live for one call and are released on return or throw; the returned arrays hold one clip per coupling, the handoff events of each `attachTo`, and one violation per refusal.
  */
-export function coupleObjects(props: IAutoMovieCoupleObjects.IProps): IAutoMovieCoupleObjects.IResult {
+export function coupleObjects(
+  props: IAutoMovieCoupleObjects.IProps,
+): IAutoMovieCoupleObjects.IResult {
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const claimed: Set<string> = new Set(
     props.attachments.flatMap((job: IAutoMovieAttachJob): string[] =>
@@ -194,7 +210,8 @@ function bakeAttachFollows(
   events: IAutoMovieInteractionEvent[],
 ): void {
   const ordered: IAutoMovieAttachJob[] = [...jobs].sort(
-    (a: IAutoMovieAttachJob, b: IAutoMovieAttachJob): number => a.action.start - b.action.start,
+    (a: IAutoMovieAttachJob, b: IAutoMovieAttachJob): number =>
+      a.action.start - b.action.start,
   );
   ordered.forEach((job: IAutoMovieAttachJob, occurrence: number): void => {
     const parent: string = job.action.parent;

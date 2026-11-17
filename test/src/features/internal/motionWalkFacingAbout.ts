@@ -1,6 +1,15 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieMotionHumanVerdicts, IAutoMovieMotionHumanWalkParams, IAutoMovieAngleRange, IAutoMovieVector3 } from "@automovie/interface";
 import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
-
+import type {
+  IAutoMovieAngleRange,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieMotionHumanVerdicts,
+  IAutoMovieMotionHumanWalkParams,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanSignature, HumanVerdicts } from "@automovie/motions";
 
 import type { motionHumanBody } from "./motionHumanBody";
@@ -55,7 +64,9 @@ import type { motionHumanBody } from "./motionHumanBody";
 export function motionWalkFacingAbout(
   name: motionHumanBody.Name,
   body: IAutoMovieMotionHumanBody,
-  perform: (params: IAutoMovieMotionHumanWalkParams) => IAutoMovieMotionHumanPerformance,
+  perform: (
+    params: IAutoMovieMotionHumanWalkParams,
+  ) => IAutoMovieMotionHumanPerformance,
   complaints: string[],
 ): void {
   const at = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
@@ -67,7 +78,10 @@ export function motionWalkFacingAbout(
     hips: (t: number) => IAutoMovieVector3;
     pelvis: (t: number) => number;
   }
-  const read = (params: IAutoMovieMotionHumanWalkParams, label: string): IWalked | null => {
+  const read = (
+    params: IAutoMovieMotionHumanWalkParams,
+    label: string,
+  ): IWalked | null => {
     let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = perform(params);

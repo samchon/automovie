@@ -1,8 +1,8 @@
-import type { IAutoMovieMotionHumanBend } from "../everyday/IAutoMovieMotionHumanBend";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
+import type { IAutoMovieMotionHumanBend } from "../everyday/IAutoMovieMotionHumanBend";
 import type { IAutoMovieMotionHumanTarget } from "./IAutoMovieMotionHumanTarget";
 import type { IAutoMovieMotionHumanTargetGrid } from "./IAutoMovieMotionHumanTargetGrid";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * What an authoring spec is on a body: a place in shares and in metres, an

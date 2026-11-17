@@ -1,6 +1,12 @@
-import type { AutoMovieBuiltinTexturePurpose, IAutoMovieRenderTextureResidency, IAutoMovieRenderTextureResident, IAutoMovieRenderTextureSource, IAutoMovieRenderTextureTarget, IAutoMovieMaterialTextureSlotsMaterialTextureSlot, IAutoMovieMaterial } from "@automovie/interface";
-
-
+import type {
+  AutoMovieBuiltinTexturePurpose,
+  IAutoMovieMaterial,
+  IAutoMovieMaterialTextureSlotsMaterialTextureSlot,
+  IAutoMovieRenderTextureResidency,
+  IAutoMovieRenderTextureResident,
+  IAutoMovieRenderTextureSource,
+  IAutoMovieRenderTextureTarget,
+} from "@automovie/interface";
 
 import { materialTextureSlots } from "../validation/materialTextureSlots";
 import { autoMovieRenderDigest } from "./autoMovieRenderDigest";

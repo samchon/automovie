@@ -1,4 +1,5 @@
 import type { IAutoMovieScheduleError } from "@automovie/interface";
+
 /**
  * A composition the schedule resolver cannot place, with what it could not
  * place as fields: which reference failed, on which intent, and what the

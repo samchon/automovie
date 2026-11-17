@@ -19,45 +19,47 @@ export namespace IAutoMovieMaterializeCompiledEffects {
    * @evidence contracts/development/common.md#meaningful-documentation Owner selection and source data for deterministic effect-stream materialization. The exclusive contract/seedOwner union distinguishes shot-local and film-global seed identity; cue start/end and fixedStepSeconds use seconds on that owner's clock. Numeric admission remains with the shot or film validator.
    */
   export type IProps = {
-      /**
+    /**
      * Borrowed recipe and zone tables. IDs are resolved by maps, with the last duplicate winning here; owner validation must reject ambiguous declarations. Output bounds and recipes are deep copies.
      */
     world: Pick<IAutoMovieWorldDesign, "effectRecipes" | "effectZones">;
-      /**
+    /**
      * Simulation step in seconds on the cue clock, copied into every stream without numeric validation here. The caller supplies a finite positive step; film materialization uses denominator/numerator seconds.
      */
     fixedStepSeconds: number;
-      /**
+    /**
      * Borrowed cues with start-inclusive, end-exclusive seconds. A copied array is sorted by code-unit cue id; empty input produces no streams and unresolved zone/recipe cues are omitted.
      */
     cues: readonly IAutoMovieShotEffectCue[];
-    } & (
-      | { 
-    /**
-     * Shot owner whose id seeds shot-local streams; absent only in the film-owner branch.
-     */
-    contract: IAutoMovieShotContract; 
-    /**
-     * Film seed identity; forbidden in the shot-contract branch. Both strings enter the film seed hash unchanged.
-     */
-    seedOwner?: never }
-      | {
+  } & (
+    | {
+        /**
+         * Shot owner whose id seeds shot-local streams; absent only in the film-owner branch.
+         */
+        contract: IAutoMovieShotContract;
+        /**
+         * Film seed identity; forbidden in the shot-contract branch. Both strings enter the film seed hash unchanged.
+         */
+        seedOwner?: never;
+      }
+    | {
+        /**
+         * Shot owner whose id seeds shot-local streams; absent only in the film-owner branch.
+         */
+        contract?: never;
+        /**
+         * Film seed identity; forbidden in the shot-contract branch. Both strings enter the film seed hash unchanged.
+         */
+        seedOwner: {
           /**
-     * Shot owner whose id seeds shot-local streams; absent only in the film-owner branch.
-     */
-    contract?: never;
+           * Production identity in the film seed domain; identity admission belongs to materializeProductionFilmEffects.
+           */
+          production: string;
           /**
-     * Film seed identity; forbidden in the shot-contract branch. Both strings enter the film seed hash unchanged.
-     */
-    seedOwner: { 
-    /**
-     * Production identity in the film seed domain; identity admission belongs to materializeProductionFilmEffects.
-     */
-    production: string; 
-    /**
-     * Film identity within the production, included in the seed independently of the cue id.
-     */
-    film: string };
-        }
-    );
+           * Film identity within the production, included in the seed independently of the cue id.
+           */
+          film: string;
+        };
+      }
+  );
 }

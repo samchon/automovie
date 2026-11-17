@@ -1,5 +1,3 @@
-
-
 /**
  * Explicit allocation and transformed-cell ceilings for original-row QR.
  *

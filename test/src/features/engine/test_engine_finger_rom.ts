@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanBody, AutoMovieHumanoidBone, IAutoMovieJointConstraint, IAutoMovieJointPose, IAutoMoviePose } from "@automovie/interface";
 import { DEFAULT_HUMANOID_ROM, clampPose } from "@automovie/engine";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointConstraint,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePose,
+} from "@automovie/interface";
 import { HumanHandShape } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

@@ -1,4 +1,9 @@
-import type { IAutoMovieSolvedChainPlant, IAutoMovieTwoBoneArticulation, IAutoMoviePreparedChainPlant, IAutoMovieSolvePreparedChainPlantProps } from "@automovie/interface";
+import type {
+  IAutoMoviePreparedChainPlant,
+  IAutoMovieSolvePreparedChainPlantProps,
+  IAutoMovieSolvedChainPlant,
+  IAutoMovieTwoBoneArticulation,
+} from "@automovie/interface";
 
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";

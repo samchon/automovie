@@ -1,14 +1,16 @@
-import type { IAutoMovieFormationPoseTake, IAutoMovieGait, IAutoMovieKeyframe, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
-
-
 import { autoMovieModelGaits, gaitMotion } from "@automovie/engine";
-
+import type {
+  IAutoMovieFormationPoseTake,
+  IAutoMovieGait,
+  IAutoMovieKeyframe,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import { AUTOMOVIE_FORMATION_CYCLE_SAMPLES } from "./AUTOMOVIE_FORMATION_CYCLE_SAMPLES.js";
 import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
 import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTake.js";
-
 import type { IBakeFormationCycleProps } from "./IBakeFormationCycleProps.js";
 import { applyPose } from "./applyPose.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";

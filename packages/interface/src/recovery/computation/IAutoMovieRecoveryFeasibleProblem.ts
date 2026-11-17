@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryFeasibleModel, IAutoMovieRecoveryUntiltedEstimate } from "../../index";
+import type {
+  IAutoMovieRecoveryFeasibleModel,
+  IAutoMovieRecoveryUntiltedEstimate,
+} from "../../index";
 
 /** Fixed-population recovery objective with an owned retraction and exact gates.
  *
@@ -8,12 +11,10 @@ import type { IAutoMovieRecoveryFeasibleModel, IAutoMovieRecoveryUntiltedEstimat
  * @evidence contracts/development/common.md#meaningful-documentation Members state immutable input, null feasibility, same-population cost and model/work ownership.
  */
 export interface IAutoMovieRecoveryFeasibleProblem<State> {
- 
- /** Feasible initial state, borrowed without mutation. */
+  /** Feasible initial state, borrowed without mutation. */
   initial: State;
 
- 
- /** Evaluate the actual fixed-population objective and all nonlinear gates.
+  /** Evaluate the actual fixed-population objective and all nonlinear gates.
    * @evidence contracts/development/implementation.md#principled-implementation Same-population objective values define actual Armijo descent; any failed full gate returns null.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The problem owns geometric meaning while the controller owns trial selection.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Failed measurements cannot be deleted or converted to zero residuals to produce a cost.
@@ -24,8 +25,7 @@ export interface IAutoMovieRecoveryFeasibleProblem<State> {
    */
   evaluate: (state: State) => number | null;
 
- 
- /** Build the current original-rank-qualified physical and metric model.
+  /** Build the current original-rank-qualified physical and metric model.
    * @evidence contracts/development/implementation.md#principled-implementation The same state supplies objective/hard-constraint derivatives and an independently rank-qualified current metric.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Model construction keeps camera algebra and generic direction selection with their respective owners.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Hard-constraint rows remain unweighted and damping or constraints cannot provide data rank.
@@ -36,8 +36,7 @@ export interface IAutoMovieRecoveryFeasibleProblem<State> {
    */
   linearize: (state: State) => IAutoMovieRecoveryFeasibleModel;
 
- 
- /** Produce a detached actual trial using the current physical tangent step.
+  /** Produce a detached actual trial using the current physical tangent step.
    * @evidence contracts/development/implementation.md#principled-implementation The camera implementation uses SO3, seed-translation sphere and Euclidean updates matching its derivatives; analytic charts use their authored Euclidean coordinates.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The problem supplies its chart while the controller owns step length and actual acceptance.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retraction preserves every observation and cannot replace the initial state or normalize later translation baselines.
@@ -48,8 +47,7 @@ export interface IAutoMovieRecoveryFeasibleProblem<State> {
    */
   retract: (state: State, step: readonly number[]) => State;
 
- 
- /** Measure selected original inequalities at one actual failed full trial.
+  /** Measure selected original inequalities at one actual failed full trial.
    * @evidence contracts/development/implementation.md#principled-implementation Same-order raw g values supply a current-base curvature correction; projection must remain meaningful beyond the pixel gate.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure This optional owner action measures geometry only; working factors, actual trials and normal termination have separate owners.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No clamped residual, deleted selected row, invented depth or trial-pose Jacobian replaces actual original constraints.
@@ -60,12 +58,10 @@ export interface IAutoMovieRecoveryFeasibleProblem<State> {
    */
   constraintValues?: (state: State, rows: readonly number[]) => number[] | null;
 
- 
- /** Explicitly request a charged borrowed untilted estimate on selected updates; true requires accepted. Absence retains the four-argument reaction and no wrapper work. */
+  /** Explicitly request a charged borrowed untilted estimate on selected updates; true requires accepted. Absence retains the four-argument reaction and no wrapper work. */
   requestUntiltedEstimate?: boolean;
 
- 
- /** Notify the owner once about a selected qualified local update.
+  /** Notify the owner once about a selected qualified local update.
    * @evidence contracts/development/implementation.md#principled-implementation The callback receives the unchanged base, exact actual chart increment and same-population old/new costs before the controller changes state; it may prepare only the next existing model.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Optional owner reactions keep objective-specific design and metric policy outside generic trial ordering and normal certification.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Qualified unselected candidates, refusals and initial KKT do not notify. Unexpected errors propagate without committing a substitute baseline or refunding consumed trials.

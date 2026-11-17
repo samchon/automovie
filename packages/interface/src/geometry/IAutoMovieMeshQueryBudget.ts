@@ -1,5 +1,3 @@
-
-
 /**
  * A caller-owned, mutable count of geometry work a bounded query may still
  * spend.

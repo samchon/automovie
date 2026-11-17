@@ -1,6 +1,14 @@
-import type { IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanRoot, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionHumanHand, AutoMovieMotionHumanHead, AutoMovieMotionHumanRoot } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanRoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanHand,
+  AutoMovieMotionHumanHead,
+  AutoMovieMotionHumanRoot,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**

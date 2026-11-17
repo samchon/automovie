@@ -1,20 +1,17 @@
-import type { IAutoMovieHumanSiteViewPart, IAutoMovieHumanTrunkLegs, IAutoMovieHumanTrunkSectionFamily, IAutoMovieHumanTrunkTape, IAutoMovieHumanTrunkViews } from "@automovie/interface";
-
-
-
-
-
+import type {
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanTrunkLegs,
+  IAutoMovieHumanTrunkSectionFamily,
+  IAutoMovieHumanTrunkTape,
+  IAutoMovieHumanTrunkViews,
+} from "@automovie/interface";
 
 import { AutoMovieHumanGlutealParent } from "./AutoMovieHumanGlutealParent";
-
 import { AutoMovieHumanTrunkTape } from "./AutoMovieHumanTrunkTape";
 import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
 
-
 /** Couple the unmeasured proximal legs to each actual trial/final trunk original before reading their common-plane tape cuts. */
 export namespace AutoMovieHumanTrunkLegs {
-  
-
   /** Bind both legs to the actual parent object; the regional factory owns retention and the unchanged measured distal spans. */
   export function pair(
     input: IAutoMovieHumanTrunkLegs.IInput,
@@ -42,25 +39,27 @@ export namespace AutoMovieHumanTrunkLegs {
     shoulder: number,
     sections: ReadonlyMap<string, IAutoMovieHumanTrunkSectionFamily.IPlane>,
   ): NonNullable<IAutoMovieHumanTrunkTape.IInput["parents"]> {
-    const parent: IAutoMovieHumanSiteViewPart.IDefinition = AutoMovieHumanTrunkViewPart.define(
-      {
-        ...input.views,
-        sites: input.views.sites.map(
-          (
-            row: IAutoMovieHumanTrunkViews.ISite,
-          ): IAutoMovieHumanTrunkViews.ISite =>
-            row.site === site.site ? { ...row, fullness: { shoulder } } : row,
-        ),
-      },
-      input.top,
-      sections,
-    );
+    const parent: IAutoMovieHumanSiteViewPart.IDefinition =
+      AutoMovieHumanTrunkViewPart.define(
+        {
+          ...input.views,
+          sites: input.views.sites.map(
+            (
+              row: IAutoMovieHumanTrunkViews.ISite,
+            ): IAutoMovieHumanTrunkViews.ISite =>
+              row.site === site.site ? { ...row, fullness: { shoulder } } : row,
+          ),
+        },
+        input.top,
+        sections,
+      );
     const legs: IAutoMovieHumanTrunkLegs.IInput["legs"] = pair(input, parent);
     return (["left", "right"] as const).map(
       (
         side: "left" | "right",
       ): NonNullable<IAutoMovieHumanTrunkTape.IInput["parents"]>[number] => {
-        const leg: IAutoMovieHumanSiteViewPart.IDefinition | undefined = legs?.[side];
+        const leg: IAutoMovieHumanSiteViewPart.IDefinition | undefined =
+          legs?.[side];
         return AutoMovieHumanTrunkTape.parent(
           leg?.part?.name ?? `leg.${side}`,
           leg?.part === undefined || leg.part === null

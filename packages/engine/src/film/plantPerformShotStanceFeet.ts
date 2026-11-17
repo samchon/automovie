@@ -1,6 +1,17 @@
-import { type IAutoMovieFootPlant, type IAutoMoviePerformedShot, type IAutoMoviePlantedFeet, type IAutoMovieStagedSet, type IAutoMoviePlantPerformShotStanceFeet, IAutoMovieBeatEndActorState, IAutoMovieBeatEndFootPlant, IAutoMovieMotion, IAutoMovieQuaternion, IAutoMovieSceneNode, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndFootPlant,
+  type IAutoMovieFootPlant,
+  IAutoMovieMotion,
+  type IAutoMoviePerformedShot,
+  type IAutoMoviePlantPerformShotStanceFeet,
+  type IAutoMoviePlantedFeet,
+  IAutoMovieQuaternion,
+  IAutoMovieSceneNode,
+  IAutoMovieSkeleton,
+  type IAutoMovieStagedSet,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -29,7 +40,9 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each actor's clip is planted once per call; the prior plants are indexed once by node.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The prior-plant index is dropped on return; planted clips are stored into the caller's `motions`, and the caller owns the returned entries.
  */
-export function plantPerformShotStanceFeet(props: IAutoMoviePlantPerformShotStanceFeet.IProps): IAutoMoviePerformedShot.ISuccess["plants"] {
+export function plantPerformShotStanceFeet(
+  props: IAutoMoviePlantPerformShotStanceFeet.IProps,
+): IAutoMoviePerformedShot.ISuccess["plants"] {
   const plants: IAutoMoviePerformedShot.ISuccess["plants"] = [];
   const previousByNode: Map<string, IAutoMovieBeatEndActorState> = new Map(
     (props.previous?.actors ?? []).map(

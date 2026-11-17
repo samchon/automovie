@@ -34,5 +34,6 @@ export function prepareRecoveryFeasibleReportCapacity(
   return {
     sceneEntries: sceneEntries - reservedEntries,
     fitEntries: Math.min(fitEntries - 512, sceneEntries - reservedEntries),
-    reservedEntries };
+    reservedEntries,
+  };
 }

@@ -1,5 +1,8 @@
-import type { IAutoMovieCompactCurveApproximation, IAutoMovieConicApproximation } from "@automovie/interface";
 import { AutoMovieBernstein64 as B } from "@automovie/engine";
+import type {
+  IAutoMovieCompactCurveApproximation,
+  IAutoMovieConicApproximation,
+} from "@automovie/interface";
 
 import { AutoMovieRecoveryConicApproximation as Conic } from "./AutoMovieRecoveryConicApproximation";
 
@@ -12,9 +15,7 @@ import { AutoMovieRecoveryConicApproximation as Conic } from "./AutoMovieRecover
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No specimen, baked observation, mesh fallback or global-minimum claim is represented.
  */
 export namespace AutoMovieRecoveryCompactApproximation {
-
- 
- /**
+  /**
    * Evaluate only saved coefficients at the piece's own normalized parameter.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States normalized parameter and millimetre output, and does not borrow a source evaluator.
@@ -25,16 +26,28 @@ export namespace AutoMovieRecoveryCompactApproximation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Rational evaluation reuses the existing conic owner; polynomial evaluation reuses engine algebra.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary scalar arrays expire after each pure call; no input or handle is retained.
    */
-  export function evaluate(piece: IAutoMovieCompactCurveApproximation.IPiece, u: number): IAutoMovieConicApproximation.Point {
+  export function evaluate(
+    piece: IAutoMovieCompactCurveApproximation.IPiece,
+    u: number,
+  ): IAutoMovieConicApproximation.Point {
     if (piece.kind === "conic") return Conic.evaluate(piece, u);
     return [
-      B.scalar(piece.controls.map((p: IAutoMovieConicApproximation.Point): number => p[0]), u),
-      B.scalar(piece.controls.map((p: IAutoMovieConicApproximation.Point): number => p[1]), u),
+      B.scalar(
+        piece.controls.map(
+          (p: IAutoMovieConicApproximation.Point): number => p[0],
+        ),
+        u,
+      ),
+      B.scalar(
+        piece.controls.map(
+          (p: IAutoMovieConicApproximation.Point): number => p[1],
+        ),
+        u,
+      ),
     ];
   }
 
- 
- /**
+  /**
    * Count the actual planar numeric representation, including chart metadata.
    * Adjacent equal endpoints are counted once; corners may share position.
    *
@@ -46,13 +59,20 @@ export namespace AutoMovieRecoveryCompactApproximation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Adjacent controls are read once per seam; no sample generation is needed.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The function borrows the immutable coefficient array and retains no data after return.
    */
-  export function storedScalars(pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[]): number {
+  export function storedScalars(
+    pieces: readonly IAutoMovieCompactCurveApproximation.IPiece[],
+  ): number {
     let total: number = 0;
     let previous: IAutoMovieConicApproximation.Point | undefined;
     for (const piece of pieces) {
       total += 2 * piece.controls.length + 3;
       const first: IAutoMovieConicApproximation.Point = piece.controls[0]!;
-      if (previous !== undefined && previous[0] === first[0] && previous[1] === first[1]) total -= 2;
+      if (
+        previous !== undefined &&
+        previous[0] === first[0] &&
+        previous[1] === first[1]
+      )
+        total -= 2;
       previous = piece.controls.at(-1)!;
     }
     return total;

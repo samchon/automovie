@@ -1,5 +1,9 @@
 import type { IAutoMovieRasterImage } from "@automovie/interface";
-import { decodeAutoMovieRasterPng, encodeAutoMovieRasterPng, hashAutoMovieRasterImage } from "@automovie/render";
+import {
+  decodeAutoMovieRasterPng,
+  encodeAutoMovieRasterPng,
+  hashAutoMovieRasterImage,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 

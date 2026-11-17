@@ -1,5 +1,13 @@
-import type { IAutoMovieLinearizePhysicalTargetRows, IAutoMoviePhysicalContactBinding, IAutoMoviePhysicalContactBindingRows, IAutoMoviePhysicalProfile, IAutoMoviePhysicalShapeSurfaceAnchor, IAutoMoviePoses, IAutoMoviePreparePhysicalGeometry, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieLinearizePhysicalTargetRows,
+  IAutoMoviePhysicalContactBinding,
+  IAutoMoviePhysicalContactBindingRows,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShapeSurfaceAnchor,
+  IAutoMoviePoses,
+  IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -19,7 +27,9 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 16 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function physicalContactBindingRows(input: IAutoMoviePhysicalContactBindingRows.IInput): IAutoMoviePhysicalContactBindingRows.IResult {
+export function physicalContactBindingRows(
+  input: IAutoMoviePhysicalContactBindingRows.IInput,
+): IAutoMoviePhysicalContactBindingRows.IResult {
   return input.bindings.map(
     (
       binding: IAutoMoviePhysicalContactBinding,
@@ -37,17 +47,25 @@ export function physicalContactBindingRows(input: IAutoMoviePhysicalContactBindi
         binding.source.bone,
         ...(own ? [binding.target.bone] : []),
       ]);
-      const references: (poses: IAutoMoviePoses) => IAutoMoviePhysicalProfile.ITransform[] = (
+      const references: (
         poses: IAutoMoviePoses,
-      ): IAutoMoviePhysicalProfile.ITransform[] => [poses[binding.source.bone]!, receiverPose(poses)];
+      ) => IAutoMoviePhysicalProfile.ITransform[] = (
+        poses: IAutoMoviePoses,
+      ): IAutoMoviePhysicalProfile.ITransform[] => [
+        poses[binding.source.bone]!,
+        receiverPose(poses),
+      ];
       if (binding.kind === "separate") {
         const contact: (
           poses: IAutoMoviePoses,
         ) => ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =
           memoizePhysicalTransformValue(
             references,
-            (poses: IAutoMoviePoses): ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =>
-              input.geometry.contact(first(poses), second(poses), 0),
+            (
+              poses: IAutoMoviePoses,
+            ): ReturnType<
+              IAutoMoviePreparePhysicalGeometry.IQueries["contact"]
+            > => input.geometry.contact(first(poses), second(poses), 0),
           );
         return {
           id: binding.id,
@@ -57,14 +75,18 @@ export function physicalContactBindingRows(input: IAutoMoviePhysicalContactBindi
             measure: (poses: IAutoMoviePoses): number[] => [
               Math.min(0, contact(poses)?.separation ?? 0) * binding.weight,
             ],
-            linearize: (poses: IAutoMoviePoses): ((probe: IAutoMoviePoses) => number[]) => {
-              const model: ((first: IAutoMoviePhysicalProfile.ITransform, second: IAutoMoviePhysicalProfile.ITransform) => number) =
-                linearizePhysicalSeparation(
-                  input.geometry,
-                  first(poses),
-                  second(poses),
-                  contact(poses),
-                );
+            linearize: (
+              poses: IAutoMoviePoses,
+            ): ((probe: IAutoMoviePoses) => number[]) => {
+              const model: (
+                first: IAutoMoviePhysicalProfile.ITransform,
+                second: IAutoMoviePhysicalProfile.ITransform,
+              ) => number = linearizePhysicalSeparation(
+                input.geometry,
+                first(poses),
+                second(poses),
+                contact(poses),
+              );
               return (probe: IAutoMoviePoses): number[] => [
                 model(probe[binding.source.bone]!, receiverPose(probe)) *
                   binding.weight,
@@ -73,14 +95,17 @@ export function physicalContactBindingRows(input: IAutoMoviePhysicalContactBindi
           },
         };
       }
-      const pose: IAutoMoviePhysicalProfile.ITransform = receiverPose(input.initial);
-      const measured: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =
-        input.geometry.contact(
-          first(input.initial),
-          second(input.initial),
-          0,
-          100,
-        );
+      const pose: IAutoMoviePhysicalProfile.ITransform = receiverPose(
+        input.initial,
+      );
+      const measured: ReturnType<
+        IAutoMoviePreparePhysicalGeometry.IQueries["contact"]
+      > = input.geometry.contact(
+        first(input.initial),
+        second(input.initial),
+        0,
+        100,
+      );
       if (!measured)
         throw new Error("Contact binding exceeds query domain: " + binding.id);
       const anchor: IAutoMoviePhysicalShapeSurfaceAnchor.IResult = binding
@@ -105,41 +130,47 @@ export function physicalContactBindingRows(input: IAutoMoviePhysicalContactBindi
         first(input.initial),
         anchor.point,
       );
-      const measure: (poses: IAutoMoviePoses) => number[] = memoizePhysicalTransformValue(
-        references,
-        (poses: IAutoMoviePoses): number[] => {
-          const target: IAutoMoviePhysicalProfile.ITransform = receiverPose(poses);
-          const endpoint: IAutoMovieVector3 = Vector3.subtract(
-            physicalSupportPoint(target, point),
-            Vector3.scale(
-              Quaternion.rotateVector(target.rotation, normal),
-              binding.compression,
-            ),
-          );
-          const goal: IAutoMovieVector3 = Vector3.add(
-            start,
-            Vector3.scale(Vector3.subtract(endpoint, start), binding.weight),
-          );
-          const difference: IAutoMovieVector3 = Vector3.subtract(
-            input.geometry.project(first(poses), goal),
-            goal,
-          );
-          return [difference.x, difference.y, difference.z];
-        },
-      );
+      const measure: (poses: IAutoMoviePoses) => number[] =
+        memoizePhysicalTransformValue(
+          references,
+          (poses: IAutoMoviePoses): number[] => {
+            const target: IAutoMoviePhysicalProfile.ITransform =
+              receiverPose(poses);
+            const endpoint: IAutoMovieVector3 = Vector3.subtract(
+              physicalSupportPoint(target, point),
+              Vector3.scale(
+                Quaternion.rotateVector(target.rotation, normal),
+                binding.compression,
+              ),
+            );
+            const goal: IAutoMovieVector3 = Vector3.add(
+              start,
+              Vector3.scale(Vector3.subtract(endpoint, start), binding.weight),
+            );
+            const difference: IAutoMovieVector3 = Vector3.subtract(
+              input.geometry.project(first(poses), goal),
+              goal,
+            );
+            return [difference.x, difference.y, difference.z];
+          },
+        );
       return {
         id: binding.id,
         rows: { bones, measure, linearize: (): typeof measure => measure },
       };
 
       /** Same-body references follow the candidate; external receivers remain actual. */
-      function receiverPose(poses: IAutoMoviePoses): IAutoMoviePhysicalProfile.ITransform {
+      function receiverPose(
+        poses: IAutoMoviePoses,
+      ): IAutoMoviePhysicalProfile.ITransform {
         return own
           ? poses[binding.target.bone]!
           : input.actual[binding.target.body]![binding.target.bone]!;
       }
       /** Borrow the actual source collider at the candidate transform. */
-      function first(poses: IAutoMoviePoses): IAutoMoviePreparePhysicalGeometry.ICollider {
+      function first(
+        poses: IAutoMoviePoses,
+      ): IAutoMoviePreparePhysicalGeometry.ICollider {
         return {
           body: input.body,
           bone: binding.source.bone,
@@ -148,7 +179,9 @@ export function physicalContactBindingRows(input: IAutoMoviePhysicalContactBindi
         };
       }
       /** Borrow the same receiver used by both nonlinear and local model rows. */
-      function second(poses: IAutoMoviePoses): IAutoMoviePreparePhysicalGeometry.ICollider {
+      function second(
+        poses: IAutoMoviePoses,
+      ): IAutoMoviePreparePhysicalGeometry.ICollider {
         return {
           body: binding.target.body,
           bone: binding.target.bone,
@@ -166,8 +199,12 @@ function shape(
   selector: { bone: string; shape: string },
 ): IAutoMoviePhysicalProfile.IShape {
   return profile.segments
-    .find((segment: IAutoMoviePhysicalProfile.ISegment): boolean => segment.bone === selector.bone)!
+    .find(
+      (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+        segment.bone === selector.bone,
+    )!
     .shapes.find(
-      (candidate: IAutoMoviePhysicalProfile.IShape): boolean => candidate.id === selector.shape,
+      (candidate: IAutoMoviePhysicalProfile.IShape): boolean =>
+        candidate.id === selector.shape,
     )!;
 }

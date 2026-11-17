@@ -1,6 +1,9 @@
-import type { IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, AutoMovieHumanoidBone } from "@automovie/interface";
 import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 import { HumanFoot } from "@automovie/motions";
 
 import type { motionComplaints } from "./motionComplaints";

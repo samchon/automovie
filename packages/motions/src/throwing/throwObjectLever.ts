@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanThrowObjectLever, IAutoMovieProjectile, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanThrowObjectLever,
+  IAutoMovieProjectile,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { StrikingHeld } from "../striking/StrikingHeld";
@@ -36,7 +42,6 @@ import { throwObjectLaunch } from "./throwObjectLaunch";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No implement's length is stated: it is the held prop's distance from the grip to its named point.
  */
 export namespace throwObjectLever {
-
   /**
    * The lever at the release.
    *
@@ -81,7 +86,10 @@ export namespace throwObjectLever {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned closure.
    */
   export function of(props: {
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "subject">;
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop" | "subject"
+    >;
     side: IAutoMovieMotionHumanHand.Side;
     shoulder: IAutoMovieVector3;
     release: IAutoMovieVector3;
@@ -170,7 +178,10 @@ export namespace throwObjectLever {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function spin(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "subject">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop" | "subject"
+    >,
     side: IAutoMovieMotionHumanHand.Side,
     prop: string,
     lever: ILever,

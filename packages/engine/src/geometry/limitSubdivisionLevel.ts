@@ -1,4 +1,10 @@
-import type { IAutoMovieLimitSubdivisionLevel, IAutoMovieSubdivisionLevel, IAutoMovieSubdivisionRing, IAutoMovieSubdivisionTopology } from "@automovie/interface";
+import type {
+  IAutoMovieLimitSubdivisionLevel,
+  IAutoMovieSubdivisionLevel,
+  IAutoMovieSubdivisionRing,
+  IAutoMovieSubdivisionTopology,
+} from "@automovie/interface";
+
 import { decaySubdivisionSharpness } from "./decaySubdivisionSharpness";
 import { limitSubdivisionRing } from "./limitSubdivisionRing";
 import { refineSubdivisionPoints } from "./refineSubdivisionPoints";

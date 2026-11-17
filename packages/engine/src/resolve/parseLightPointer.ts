@@ -1,4 +1,5 @@
 import type { IAutoMovieLightPointer } from "@automovie/interface";
+
 import { formatLightPointer } from "./formatLightPointer";
 import { isLightProperty } from "./isLightProperty";
 

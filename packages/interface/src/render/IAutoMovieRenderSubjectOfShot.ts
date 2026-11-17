@@ -9,7 +9,7 @@ import type { IAutoMovieRenderWaterBody } from "./IAutoMovieRenderWaterBody";
 export namespace IAutoMovieRenderSubjectOfShot {
   /**
    * Read a compiled shot as a render subject.
-   * 
+   *
    * The canonical compiled-shot adapter uses this field projection and derives
    * the artifact's simulated drawable rows. Other callers must supply those rows
    * explicitly; omitted supplemental arrays become empty. Texture upload and

@@ -1,8 +1,9 @@
-import type { IAutoMovieRecoveryFeasibleJointOptions, IAutoMovieRecoverySceneFeasibleRouting, IAutoMovieRecoverySceneWork, IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
-
-
-
-
+import type {
+  IAutoMovieRecoveryCameraSceneBudget,
+  IAutoMovieRecoveryFeasibleJointOptions,
+  IAutoMovieRecoverySceneFeasibleRouting,
+  IAutoMovieRecoverySceneWork,
+} from "@automovie/interface";
 
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 
@@ -54,16 +55,19 @@ export function prepareRecoverySceneFeasibleRouting(
     maxTriangulations: budget.maxTriangulations,
     maxJointFits: budget.maxJointFits,
     maxLinearWork: budget.maxLinearWork,
-    maxResidentLinearEntries: budget.maxResidentLinearEntries };
+    maxResidentLinearEntries: budget.maxResidentLinearEntries,
+  };
   const feasible: IAutoMovieRecoveryFeasibleJointOptions = {
     directionBudget: {
       maxIterations: options.directionBudget.maxIterations,
       maxEntries: options.directionBudget.maxEntries,
-      maxWork: options.directionBudget.maxWork },
+      maxWork: options.directionBudget.maxWork,
+    },
     maxResidentLinearEntries: options.maxResidentLinearEntries,
     sqpAcceleration: options.sqpAcceleration,
     adaptiveRegularization: options.adaptiveRegularization,
-    laggedLagrangianMetric: options.laggedLagrangianMetric };
+    laggedLagrangianMetric: options.laggedLagrangianMetric,
+  };
   if (
     ![
       feasible.directionBudget.maxIterations,
@@ -92,7 +96,8 @@ export function prepareRecoverySceneFeasibleRouting(
     );
   const execution: IAutoMovieRecoveryCameraSceneBudget = {
     ...declared,
-    maxResidentLinearEntries: declared.maxResidentLinearEntries - 64 };
+    maxResidentLinearEntries: declared.maxResidentLinearEntries - 64,
+  };
   feasible.maxResidentLinearEntries = Math.min(
     feasible.maxResidentLinearEntries,
     execution.maxResidentLinearEntries,

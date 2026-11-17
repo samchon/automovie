@@ -1,5 +1,10 @@
-import type { IAutoMovieAdvancePhysicalBalance, IAutoMovieDecodePhysicalPlayback, IAutoMoviePhysicalPlayback, IAutoMoviePhysicsCache, IAutoMovieContactReceipt } from "@automovie/interface";
-
+import type {
+  IAutoMovieAdvancePhysicalBalance,
+  IAutoMovieContactReceipt,
+  IAutoMovieDecodePhysicalPlayback,
+  IAutoMoviePhysicalPlayback,
+  IAutoMoviePhysicsCache,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -145,7 +150,10 @@ export class AutoMoviePhysicalPlayback {
     const high: number = Math.ceil(step);
     const fraction: number = step - low;
     const view: DataView = new DataView(this.bytes.buffer);
-    const read: (frame: number, index: number) => IAutoMoviePhysicsCache.ISegment = (
+    const read: (
+      frame: number,
+      index: number,
+    ) => IAutoMoviePhysicsCache.ISegment = (
       frame: number,
       index: number,
     ): IAutoMoviePhysicsCache.ISegment => {

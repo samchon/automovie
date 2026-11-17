@@ -1,6 +1,19 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanStagger, IAutoMovieMotionHumanTiming, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanStagger,
+  IAutoMovieMotionHumanTiming,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { walkStanceCourse } from "../actions/walkStanceCourse";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -132,7 +145,8 @@ export namespace stagger {
   };
 
   /** A forward recovery step's landing after the push (`staggerBounds.LANDING`), the step's time `perturb` reads. */
-  export const LANDING: IAutoMovieMotionHumanTiming.Span = staggerBounds.LANDING;
+  export const LANDING: IAutoMovieMotionHumanTiming.Span =
+    staggerBounds.LANDING;
 
   /**
    * Plan a stagger.
@@ -227,9 +241,14 @@ export namespace stagger {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
         const { feet: scheduled, settled, reached } = feet.solve(seconds);
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+          ...posture.limbs,
+        };
         for (const side of ["left", "right"] as const) {
           // The knee points over the foot's own heading.
           const knee: IAutoMovieVector3 = staggerKnots.kneePole(
@@ -270,7 +289,10 @@ export namespace stagger {
     // Both arms abduct from the entry's angles as balance reactions and come
     // down as the body settles, each let out further where it would pass
     // into the body (`HumanArmSwing.of`).
-    const held: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles> = {
+    const held: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanArmAngles.IAngles
+    > = {
       left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
       right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
     };
@@ -289,7 +311,10 @@ export namespace stagger {
       channels: ["leftArm", "rightArm"],
       from: 0,
       to: duration,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
         const more: number = raised(seconds);
         const abducted = (
           side: "left" | "right",
@@ -313,20 +338,21 @@ export namespace stagger {
         );
       },
     };
-    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: {
-        ...AutoMovieMotionHumanBase.still(duration, {
-          root: entry.root,
-          yaw: entry.yaw,
-          pitch: entry.pitch,
-          roll: entry.roll,
-          joints: entry.joints,
-          limbs: {},
-        }),
-      },
-      clock,
-      primitives: [legs, arms],
-    });
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: {
+          ...AutoMovieMotionHumanBase.still(duration, {
+            root: entry.root,
+            yaw: entry.yaw,
+            pitch: entry.pitch,
+            roll: entry.roll,
+            joints: entry.joints,
+            limbs: {},
+          }),
+        },
+        clock,
+        primitives: [legs, arms],
+      });
     return {
       ...composed,
       get contacts(): IAutoMovieMotionHumanContactWindow[] {

@@ -1,5 +1,14 @@
-import { type IAutoMovieFootprint, type IAutoMovieHeightSurface, type IAutoMoviePropSupportFace, IAutoMovieAffordance, IAutoMovieBuiltEnvironment, IAutoMoviePropRelationTarget, IAutoMoviePropSpec, IAutoMovieStageSetPiece, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieAffordance,
+  IAutoMovieBuiltEnvironment,
+  type IAutoMovieFootprint,
+  type IAutoMovieHeightSurface,
+  IAutoMoviePropRelationTarget,
+  IAutoMoviePropSpec,
+  type IAutoMoviePropSupportFace,
+  IAutoMovieStageSetPiece,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Matrix4 } from "../math/Matrix4";
 import { Vector3 } from "../math/Vector3";
@@ -32,7 +41,9 @@ const EDGE_ON_TOLERANCE: number = 1e-9;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Resolves one relation per call and caches nothing; the caller measures the face immediately and drops it.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; a patch face references the authored surface record as its height rule, and a prop face owns a fresh ring and plane rule, both released with the caller's measurement.
  */
-export function propSupportFace(props: IAutoMoviePropSupportFace.IProps): IAutoMoviePropSupportFace | null {
+export function propSupportFace(
+  props: IAutoMoviePropSupportFace.IProps,
+): IAutoMoviePropSupportFace | null {
   const target:
     | IAutoMoviePropRelationTarget.ISurface
     | IAutoMoviePropRelationTarget.IPropAffordance = props.target;

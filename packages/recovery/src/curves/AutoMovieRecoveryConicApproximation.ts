@@ -1,4 +1,5 @@
 import type { IAutoMovieConicApproximation } from "@automovie/interface";
+
 import { findAutoMovieRecoveryCubicCriticalParameters } from "./findAutoMovieRecoveryCubicCriticalParameters";
 
 /**
@@ -13,9 +14,7 @@ import { findAutoMovieRecoveryCubicCriticalParameters } from "./findAutoMovieRec
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No specimen, source artifact, rendering option or optional algorithm-specific state enters this planar contract.
  */
 export namespace AutoMovieRecoveryConicApproximation {
-
- 
- /**
+  /**
    * Observe cubic critical parameters without changing its points or jets.
    * The four planar Bernstein controls define normalized t in [0,1]; the caller
    * maps interior candidates to its source chart and reports unrepresentable
@@ -30,13 +29,17 @@ export namespace AutoMovieRecoveryConicApproximation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The pure wrapper retains no controls, callbacks or external resources.
    */
   export function cubicCriticalParameters(
-    controls: readonly [IAutoMovieConicApproximation.Point, IAutoMovieConicApproximation.Point, IAutoMovieConicApproximation.Point, IAutoMovieConicApproximation.Point],
+    controls: readonly [
+      IAutoMovieConicApproximation.Point,
+      IAutoMovieConicApproximation.Point,
+      IAutoMovieConicApproximation.Point,
+      IAutoMovieConicApproximation.Point,
+    ],
   ): IAutoMovieConicApproximation.ICubicCriticalParameters {
     return findAutoMovieRecoveryCubicCriticalParameters(controls);
   }
 
- 
- /**
+  /**
    * Evaluate positive-weight rational Bernstein coefficients on [0,1].
    *
    * @evidence contracts/development/common.md#meaningful-documentation Gives parameter range and assumes an admitted finite coefficient record.
@@ -47,19 +50,27 @@ export namespace AutoMovieRecoveryConicApproximation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Bernstein factors and denominator are calculated once per evaluation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The pure call retains no input or resources after return.
    */
-  export function evaluate(arc: IAutoMovieConicApproximation.IArc, u: number): IAutoMovieConicApproximation.Point {
+  export function evaluate(
+    arc: IAutoMovieConicApproximation.IArc,
+    u: number,
+  ): IAutoMovieConicApproximation.Point {
     const a: number = (1 - u) ** 2;
     const b: number = 2 * arc.weight * u * (1 - u);
     const c: number = u * u;
     const denominator: number = a + b + c;
     return [
-      (a * arc.controls[0][0] + b * arc.controls[1][0] + c * arc.controls[2][0]) / denominator,
-      (a * arc.controls[0][1] + b * arc.controls[1][1] + c * arc.controls[2][1]) / denominator,
+      (a * arc.controls[0][0] +
+        b * arc.controls[1][0] +
+        c * arc.controls[2][0]) /
+        denominator,
+      (a * arc.controls[0][1] +
+        b * arc.controls[1][1] +
+        c * arc.controls[2][1]) /
+        denominator,
     ];
   }
 
- 
- /**
+  /**
    * Euclidean separation in millimetres between two same-frame points.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the returned physical unit and same-frame premise.
@@ -70,12 +81,14 @@ export namespace AutoMovieRecoveryConicApproximation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each coordinate difference is evaluated once.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No resources or state survive the call.
    */
-  export function distance(a: IAutoMovieConicApproximation.Point, b: IAutoMovieConicApproximation.Point): number {
+  export function distance(
+    a: IAutoMovieConicApproximation.Point,
+    b: IAutoMovieConicApproximation.Point,
+  ): number {
     return Math.hypot(a[0] - b[0], a[1] - b[1]);
   }
 
- 
- /**
+  /**
    * Signed planar determinant, used for orientation and tangent intersection.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the signed determinant and its geometric consumers.
@@ -86,12 +99,14 @@ export namespace AutoMovieRecoveryConicApproximation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work No repeated source work is performed by this arithmetic helper.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The call owns no retained state or external handle.
    */
-  export function cross(a: IAutoMovieConicApproximation.Point, b: IAutoMovieConicApproximation.Point): number {
+  export function cross(
+    a: IAutoMovieConicApproximation.Point,
+    b: IAutoMovieConicApproximation.Point,
+  ): number {
     return a[0] * b[1] - a[1] * b[0];
   }
 
- 
- /**
+  /**
    * Admit a finite source chart and positive explicit numerical budgets.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Lists invalid-domain, boundary and budget effects; callbacks are checked when queried.
@@ -102,16 +117,38 @@ export namespace AutoMovieRecoveryConicApproximation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Callers validate once before fitting their intervals.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No callbacks, source arrays or process resources are retained.
    */
-  export function validate(curve: IAutoMovieConicApproximation.ICurve, options: IAutoMovieConicApproximation.IOptions): string[] {
+  export function validate(
+    curve: IAutoMovieConicApproximation.ICurve,
+    options: IAutoMovieConicApproximation.IOptions,
+  ): string[] {
     const errors: string[] = [];
-    if (!Number.isFinite(curve.domain[0]) || !Number.isFinite(curve.domain[1]) || curve.domain[0] >= curve.domain[1])
+    if (
+      !Number.isFinite(curve.domain[0]) ||
+      !Number.isFinite(curve.domain[1]) ||
+      curve.domain[0] >= curve.domain[1]
+    )
       errors.push("Source domain must be finite and strictly increasing.");
-    if (curve.breaks.some((t: number): boolean => !Number.isFinite(t) || t <= curve.domain[0] || t >= curve.domain[1]))
-      errors.push("Every supplied break must be finite and strictly inside the source domain.");
+    if (
+      curve.breaks.some(
+        (t: number): boolean =>
+          !Number.isFinite(t) || t <= curve.domain[0] || t >= curve.domain[1],
+      )
+    )
+      errors.push(
+        "Every supplied break must be finite and strictly inside the source domain.",
+      );
     if (!Number.isFinite(options.toleranceMm) || options.toleranceMm <= 0)
       errors.push("toleranceMm must be finite and positive.");
-    if (!Number.isSafeInteger(options.maximumArcs) || options.maximumArcs < 1 || !Number.isSafeInteger(options.maximumDepth) || options.maximumDepth < 1 || options.maximumDepth > 52)
-      errors.push("Budgets must be positive safe integers; maximumDepth must not exceed binary64's 52-bit subdivision precision.");
+    if (
+      !Number.isSafeInteger(options.maximumArcs) ||
+      options.maximumArcs < 1 ||
+      !Number.isSafeInteger(options.maximumDepth) ||
+      options.maximumDepth < 1 ||
+      options.maximumDepth > 52
+    )
+      errors.push(
+        "Budgets must be positive safe integers; maximumDepth must not exceed binary64's 52-bit subdivision precision.",
+      );
     return errors;
   }
 }

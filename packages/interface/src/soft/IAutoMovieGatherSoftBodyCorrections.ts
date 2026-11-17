@@ -1,5 +1,3 @@
-
-
 /** Prepared lattice data for one simultaneous distance-constraint gather. */
 export namespace IAutoMovieGatherSoftBodyCorrections {
   /**

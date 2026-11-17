@@ -1,4 +1,5 @@
 import type { IAutoMovieMinimumJerk } from "@automovie/interface";
+
 /**
  * The minimum-jerk normalized profile and its first two derivatives: the
  * share of a point-to-point movement completed at normalized time `u`.

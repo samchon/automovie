@@ -1,7 +1,28 @@
-import type { IAutoMovieResolveCenterOfMass, AutoMovieHumanoidBone, AutoMovieMotionHumanActionKey, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanGymnasticsTakeoff, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanPoleVault, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieGravity,
+  Quaternion,
+  Vector3,
+  minimumJerk,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanGymnasticsTakeoff,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanPoleVault,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-
-import { AutoMovieGravity, Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { WorkoutSupport } from "../exercise/WorkoutSupport";
@@ -106,7 +127,8 @@ export namespace poleVault {
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const p: IAutoMovieMotionHumanPoleVault.IParams = context.params;
-    const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(body);
+    const model: IAutoMovieResolveCenterOfMass.IModel =
+      GymnasticsFlight.model(body);
 
     // The pole in the hand that holds it.
     const side: "left" | "right" =
@@ -150,14 +172,15 @@ export namespace poleVault {
       });
     const ahead: IAutoMovieVector3 = Vector3.scale(run, 1 / speed);
     const rise: number = (ANGLE * Math.PI) / 180;
-    const takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff = GymnasticsTakeoff.of(
-      context,
-      (): IAutoMovieVector3 => ({
-        x: ahead.x * speed * Math.cos(rise),
-        y: speed * Math.sin(rise),
-        z: ahead.z * speed * Math.cos(rise),
-      }),
-    );
+    const takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff =
+      GymnasticsTakeoff.of(
+        context,
+        (): IAutoMovieVector3 => ({
+          x: ahead.x * speed * Math.cos(rise),
+          y: speed * Math.sin(rise),
+          z: ahead.z * speed * Math.cos(rise),
+        }),
+      );
     const off: number = takeoff.seconds;
 
     // The plant: the hand as high as the arm reaches over the shoulder, or
@@ -257,7 +280,10 @@ export namespace poleVault {
     // raised or lowered by that end's height and solved again until the end
     // is on the floor, the hand's turn being nearly the same a few
     // centimetres away.
-    let from: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(body, pushing(off));
+    let from: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(
+      body,
+      pushing(off),
+    );
     let shown: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       resolveHumanPosture(body, from),
@@ -392,16 +418,17 @@ export namespace poleVault {
       });
     const fallen: number = GymnasticsFlight.fall(cr.y, velocity.y, surface)!;
     const down: number = GymnasticsFlight.touchdown(0, fallen, lowest, surface);
-    const landing: (seconds: number) => IAutoMovieMotionHumanPosture = GymnasticsMat.lie({
-      body,
-      model,
-      from: flying(down),
-      velocity: {
-        ...velocity,
-        y: velocity.y - AutoMovieGravity.STANDARD * down,
-      },
-      height: surface,
-    });
+    const landing: (seconds: number) => IAutoMovieMotionHumanPosture =
+      GymnasticsMat.lie({
+        body,
+        model,
+        from: flying(down),
+        velocity: {
+          ...velocity,
+          y: velocity.y - AutoMovieGravity.STANDARD * down,
+        },
+        height: surface,
+      });
 
     const release: number = off + swing;
     const touchdown: number = release + down;

@@ -21,13 +21,13 @@ export namespace IAutoMovieConstructionNativeProfile {
    * @evidence contracts/development/common.md#meaningful-documentation States nonempty admission, copy behavior and dependency-change responsibility.
    */
   export type IIdentity = {
-      /** Original material owner address published on the native profile's region. */
-      material: string;
+    /** Original material owner address published on the native profile's region. */
+    material: string;
 
-      /** Original binding owner address published alongside that material. */
-      binding: string;
+    /** Original binding owner address published alongside that material. */
+    binding: string;
 
-      /** Source, constraint and topology revision tokens copied into the new definition. */
-      revisions: IAutoMovieConstructionProfile["revisions"];
-    };
+    /** Source, constraint and topology revision tokens copied into the new definition. */
+    revisions: IAutoMovieConstructionProfile["revisions"];
+  };
 }

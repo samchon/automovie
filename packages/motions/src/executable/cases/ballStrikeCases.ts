@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionHumanKickBall, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Transform, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanKickBall,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { HumanFoot } from "../../posture/HumanFoot";
@@ -105,7 +109,10 @@ export function ballStrikeCases(
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
-function ball(centre: IAutoMovieVector3, radius: number): IAutoMovieMotionHumanProp {
+function ball(
+  centre: IAutoMovieVector3,
+  radius: number,
+): IAutoMovieMotionHumanProp {
   return {
     subject: "ball",
     frame: { position: centre, rotation: { x: 0, y: 0, z: 0, w: 1 } },

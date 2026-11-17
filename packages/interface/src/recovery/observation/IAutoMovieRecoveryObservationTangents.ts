@@ -1,6 +1,5 @@
 import type { AutoMovieVector3Tuple } from "../../index";
 
-
 /** Unit directions away from one point on either side of an oriented observation cycle.
  *
  * @evidence contracts/development/design.md#principled-representation Separate outgoing and backward incoming directions preserve one-sided corners without implying derivative magnitude.
@@ -9,11 +8,9 @@ import type { AutoMovieVector3Tuple } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation States dimensionless unit directions and the sign of the incoming direction.
  */
 export interface IAutoMovieRecoveryObservationTangents {
- 
- /** Unit direction from the point toward increasing traversal phase. */
+  /** Unit direction from the point toward increasing traversal phase. */
   out: Readonly<AutoMovieVector3Tuple>;
 
- 
- /** Unit direction from the point toward the preceding traversal point, opposite the forward incoming derivative. */
+  /** Unit direction from the point toward the preceding traversal point, opposite the forward incoming derivative. */
   incoming: Readonly<AutoMovieVector3Tuple>;
 }

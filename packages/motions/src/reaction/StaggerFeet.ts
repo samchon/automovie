@@ -1,6 +1,15 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanLegChain, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanWalkFoot, IAutoMovieMotionHumanWalkLegClearance, IAutoMovieMotionHumanWalkStanceCourse, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanLegChain,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanWalkFoot,
+  IAutoMovieMotionHumanWalkLegClearance,
+  IAutoMovieMotionHumanWalkStanceCourse,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { walkFoot } from "../actions/walkFoot";
 import { walkLegClearance } from "../actions/walkLegClearance";
@@ -43,7 +52,10 @@ import type { staggerRecover } from "./staggerRecover";
  */
 export class StaggerFeet {
   /** The feet as the entry stands them. */
-  private readonly entered: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+  private readonly entered: Record<
+    "left" | "right",
+    IAutoMovieMotionHumanFoot.IPlacement
+  >;
 
   /** The share of a swing a foot rises in (`staggerKnots.risingOf`). */
   private readonly rising: number;
@@ -99,10 +111,8 @@ export class StaggerFeet {
     feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>,
   ): walkReach.IGround {
     const entry: IAutoMovieMotionHumanPosture = this.posture;
-    const reading: IAutoMovieMotionHumanWalkStanceCourse.IReading = walkStanceCourse.at(
-      this.course(),
-      seconds,
-    );
+    const reading: IAutoMovieMotionHumanWalkStanceCourse.IReading =
+      walkStanceCourse.at(this.course(), seconds);
     return walkReachHeld.held(
       this.body,
       staggerKnots
@@ -119,7 +129,10 @@ export class StaggerFeet {
   public standing(
     seconds: number,
   ): Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> {
-    const out: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> = {
+    const out: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanWalkFoot.IScheduled
+    > = {
       left: { placement: this.entered.left, toes: 0 },
       right: { placement: this.entered.right, toes: 0 },
     };
@@ -133,8 +146,10 @@ export class StaggerFeet {
   public scheduled(
     seconds: number,
   ): Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> {
-    const out: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> =
-      this.standing(seconds);
+    const out: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanWalkFoot.IScheduled
+    > = this.standing(seconds);
     for (const step of this.recovery.steps) {
       if (seconds <= step.start || seconds >= step.land) continue;
       out[step.side] = this.swungAt(step, seconds, this.bowOf(step));
@@ -152,8 +167,10 @@ export class StaggerFeet {
     settled: walkReach.IGround;
     reached: Record<"left" | "right", walkFoot.IEnd>;
   } {
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> =
-      this.scheduled(seconds);
+    const feet: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanWalkFoot.IScheduled
+    > = this.scheduled(seconds);
     const settled: walkReach.IGround = this.settle(seconds, feet);
     const reached: Record<"left" | "right", walkFoot.IEnd> = {
       ...settled.feet,
@@ -276,14 +293,19 @@ export class StaggerFeet {
     const count: number = Math.ceil(
       (step.land - step.start) * staggerBounds.KNOTS,
     );
-    const instants = Array.from({ length: count - 1 }, (_: unknown, i: number) => {
-      const seconds: number =
-        step.start + ((i + 1) / count) * (step.land - step.start);
-      const feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> =
-        this.standing(seconds);
-      feet[step.side] = this.swungAt(step, seconds, 0);
-      return { seconds, settled: this.settle(seconds, feet) };
-    });
+    const instants = Array.from(
+      { length: count - 1 },
+      (_: unknown, i: number) => {
+        const seconds: number =
+          step.start + ((i + 1) / count) * (step.land - step.start);
+        const feet: Record<
+          "left" | "right",
+          IAutoMovieMotionHumanWalkFoot.IScheduled
+        > = this.standing(seconds);
+        feet[step.side] = this.swungAt(step, seconds, 0);
+        return { seconds, settled: this.settle(seconds, feet) };
+      },
+    );
     // Each leg as the posture's own fit poses it there (`HumanLegChain`),
     // its knee bent toward the hint the posture gives it.
     const legOf = (
@@ -323,9 +345,10 @@ export class StaggerFeet {
       };
     };
     // The standing leg's fit is read once a knot.
-    const standingLegs: IAutoMovieMotionHumanWalkLegClearance.ILeg[] = instants.map(({ settled }) =>
-      legOf(stance, settled, settled.feet[stance]),
-    );
+    const standingLegs: IAutoMovieMotionHumanWalkLegClearance.ILeg[] =
+      instants.map(({ settled }) =>
+        legOf(stance, settled, settled.feet[stance]),
+      );
     const worst = (bow: number): number => {
       let out: number = 0;
       for (const [i, { seconds, settled }] of instants.entries()) {

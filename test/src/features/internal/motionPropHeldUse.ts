@@ -1,8 +1,23 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { createDevice, createDrinkware } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -79,7 +94,10 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
       ],
       composition: composition.node,
     });
-  const instant = (segment: IAutoMovieMotionHumanSegment.ISegment, event: string): number =>
+  const instant = (
+    segment: IAutoMovieMotionHumanSegment.ISegment,
+    event: string,
+  ): number =>
     segment.start +
     (segment.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       segment.plan.duration;
@@ -91,7 +109,10 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
     seconds: number,
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 => {
-    const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop(subject, seconds);
+    const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop(
+      subject,
+      seconds,
+    );
     return Vector3.add(
       frame.position,
       Quaternion.rotateVector(frame.rotation, local),
@@ -99,7 +120,10 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
   };
 
   // 3. The prop's origin in the holding hand's frame, from the grip on.
-  const drift = (performance: IAutoMovieMotionHumanPerformance, subject: string): number => {
+  const drift = (
+    performance: IAutoMovieMotionHumanPerformance,
+    subject: string,
+  ): number => {
     const from: number = instant(performance.segments("a")[0]!, "gripClosed");
     const seat = (seconds: number): IAutoMovieVector3 => {
       const hand: IAutoMovieResolvedBone = performance
@@ -146,13 +170,10 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
           .stand({ seconds: 0.5 }),
       (performance: IAutoMovieMotionHumanPerformance): void => {
         // 1. The rim at the mouth through the hold.
-        const drink: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
-        const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-          performance,
-          "a",
-          body,
-          0,
-        );
+        const drink: IAutoMovieMotionHumanSegment.ISegment =
+          performance.segments("a")[1]!;
+        const reader: IAutoMovieMotionHumanSignature.IReader =
+          HumanSignature.of(performance, "a", body, 0);
         const lip: IAutoMovieVector3 =
           glass.affordance("lip").frame.translation;
         const radius: number = Math.hypot(lip.x, lip.z);
@@ -227,7 +248,10 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
       label === "glass" || name === "m-average",
   ))
     try {
-      const performance: IAutoMovieMotionHumanPerformance = perform(prop, chain());
+      const performance: IAutoMovieMotionHumanPerformance = perform(
+        prop,
+        chain(),
+      );
       read(performance);
       const moved: number = drift(performance, prop.subject);
       if (!(moved <= 0.001))

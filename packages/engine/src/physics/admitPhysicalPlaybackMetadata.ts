@@ -1,5 +1,9 @@
-import type { IAutoMovieContactReceipt, IAutoMoviePhysicalPlayback, IAutoMoviePhysicsCache, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMoviePhysicalPlayback,
+  IAutoMoviePhysicsCache,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 
@@ -14,7 +18,9 @@ import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 45 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function admitPhysicalPlaybackMetadata(header: IAutoMoviePhysicalPlayback.IHeader): void {
+export function admitPhysicalPlaybackMetadata(
+  header: IAutoMoviePhysicalPlayback.IHeader,
+): void {
   const segments: Set<string> = new Set(
     header.segments.map(
       ([body, bone]: (typeof header.segments)[number]): string =>
@@ -58,7 +64,8 @@ export function admitPhysicalPlaybackMetadata(header: IAutoMoviePhysicalPlayback
   const owners: Map<string, IAutoMoviePhysicsCache.IOwnership> = new Map();
   for (const entry of header.ownership) {
     const key: string = JSON.stringify([entry?.body, entry?.bone]);
-    const previous: IAutoMoviePhysicsCache.IOwnership | undefined = owners.get(key);
+    const previous: IAutoMoviePhysicsCache.IOwnership | undefined =
+      owners.get(key);
     if (
       !entry ||
       !segments.has(key) ||

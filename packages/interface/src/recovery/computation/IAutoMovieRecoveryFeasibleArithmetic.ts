@@ -6,15 +6,12 @@
  * @evidence contracts/development/common.md#meaningful-documentation Aggregate uses infinity-norm coordinate units; minimumPrice and gap use the authored QP objective units.
  */
 export interface IAutoMovieRecoveryFeasibleArithmetic {
- 
- /** Infinity-norm error to the exact aggregate of the exactly normalized stored weights. */
+  /** Infinity-norm error to the exact aggregate of the exactly normalized stored weights. */
   aggregate: number;
 
- 
- /** Absolute difference bound for the minimum authored row price. */
+  /** Absolute difference bound for the minimum authored row price. */
   minimumPrice: number;
 
- 
- /** Absolute discrepancy bound between computed and exact normalized-dual gaps. */
+  /** Absolute discrepancy bound between computed and exact normalized-dual gaps. */
   gap: number;
 }

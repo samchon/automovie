@@ -1,6 +1,23 @@
-import { type IAutoMovieActorContext, type IAutoMoviePerformedShot, type IAutoMovieStagedSet, IAutoMovieActionCall, IAutoMovieCameraAction, IAutoMovieConstraintViolation, IAutoMovieGait, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieLocomoteAction, IAutoMovieSceneNode, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-import { makeActorSynthesizer, performShot, stageScene } from "@automovie/engine";
-
+import {
+  makeActorSynthesizer,
+  performShot,
+  stageScene,
+} from "@automovie/engine";
+import {
+  IAutoMovieActionCall,
+  type IAutoMovieActorContext,
+  IAutoMovieCameraAction,
+  IAutoMovieConstraintViolation,
+  IAutoMovieGait,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieLocomoteAction,
+  type IAutoMoviePerformedShot,
+  IAutoMovieSceneNode,
+  IAutoMovieSkeleton,
+  type IAutoMovieStagedSet,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HUMANOID_GAITS } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

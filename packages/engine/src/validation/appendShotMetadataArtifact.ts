@@ -1,5 +1,7 @@
-import { type IAutoMovieAppendShotMetadataArtifact, IAutoMovieConstraintViolation } from "@automovie/interface";
-
+import {
+  type IAutoMovieAppendShotMetadataArtifact,
+  IAutoMovieConstraintViolation,
+} from "@automovie/interface";
 
 import { appendCameraClearanceArtifact } from "./appendCameraClearanceArtifact";
 import { appendCameraIntentArtifact } from "./appendCameraIntentArtifact";

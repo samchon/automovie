@@ -1,4 +1,10 @@
-import type { IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewOutline, IAutoMovieViewSectionField } from "@automovie/interface";
+import type {
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewOutline,
+  IAutoMovieViewSectionField,
+} from "@automovie/interface";
+
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 import { AutoMovieViewSection } from "./AutoMovieViewSection";
 
@@ -23,7 +29,6 @@ interface CapReading {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieLoftViewRead {
-
   /**
    * Read finite scalar values without requesting station derivatives.
    *
@@ -68,11 +73,45 @@ export namespace AutoMovieLoftViewRead {
         throw new Error("The effective source values are not finite.");
       const out: IAutoMovieLoftViewRead.IValues = { extents, shoulders };
       if (source.fullness.kind === "top" && source.fullness.touch !== null)
-        out.touch = source.fullness.touch.map((outline: IAutoMovieViewOutline.IOutline, q: number): number => value(outline, station, `touch ${q}`));
+        out.touch = source.fullness.touch.map(
+          (outline: IAutoMovieViewOutline.IOutline, q: number): number =>
+            value(outline, station, `touch ${q}`),
+        );
       if (source.fullness.kind === "top" && source.fullness.splits !== null)
-        out.splits = source.fullness.splits.map((split: readonly IAutoMovieViewOutline.IOutline[], q: number): number[] => split.map((outline: IAutoMovieViewOutline.IOutline, k: number): number => value(outline, station, `split ${q} ${SPLIT[k]}`)));
+        out.splits = source.fullness.splits.map(
+          (
+            split: readonly IAutoMovieViewOutline.IOutline[],
+            q: number,
+          ): number[] =>
+            split.map(
+              (outline: IAutoMovieViewOutline.IOutline, k: number): number =>
+                value(outline, station, `split ${q} ${SPLIT[k]}`),
+            ),
+        );
       if (source.fullness.kind === "top" && source.fullness.pieces !== null)
-        out.pieces = source.fullness.pieces.map((list: readonly (readonly IAutoMovieViewOutline.IOutline[])[], q: number): number[][] => list.map((split: readonly IAutoMovieViewOutline.IOutline[], j: number): number[] => split.map((outline: IAutoMovieViewOutline.IOutline, k: number): number => value(outline, station, `quarter ${q} point ${j} ${SPLIT[k]}`))));
+        out.pieces = source.fullness.pieces.map(
+          (
+            list: readonly (readonly IAutoMovieViewOutline.IOutline[])[],
+            q: number,
+          ): number[][] =>
+            list.map(
+              (
+                split: readonly IAutoMovieViewOutline.IOutline[],
+                j: number,
+              ): number[] =>
+                split.map(
+                  (
+                    outline: IAutoMovieViewOutline.IOutline,
+                    k: number,
+                  ): number =>
+                    value(
+                      outline,
+                      station,
+                      `quarter ${q} point ${j} ${SPLIT[k]}`,
+                    ),
+                ),
+            ),
+        );
       return out;
     } catch (error: unknown) {
       return fault(station, error);
@@ -96,25 +135,43 @@ export namespace AutoMovieLoftViewRead {
   ): IAutoMovieLoftViewRead.IJets | string {
     try {
       validate(source, station);
-      const extents: IAutoMovieViewSectionField.IStationJet[] = source.extents.map(
-        (outline: IAutoMovieViewOutline.IOutline, q: number): IAutoMovieViewSectionField.IStationJet => {
-          const at: IAutoMovieViewSectionField.IStationJet = jet(outline, station, `extent ${q}`);
-          return q < 2 ? at : [-at[0], -at[1], -at[2]];
-        },
-      );
+      const extents: IAutoMovieViewSectionField.IStationJet[] =
+        source.extents.map(
+          (
+            outline: IAutoMovieViewOutline.IOutline,
+            q: number,
+          ): IAutoMovieViewSectionField.IStationJet => {
+            const at: IAutoMovieViewSectionField.IStationJet = jet(
+              outline,
+              station,
+              `extent ${q}`,
+            );
+            return q < 2 ? at : [-at[0], -at[1], -at[2]];
+          },
+        );
       let shoulders: IAutoMovieViewSectionField.IStationJet[];
       if (source.fullness.kind === "top")
         shoulders = source.fullness.shoulders.map(
-          (outline: IAutoMovieViewOutline.IOutline, q: number): IAutoMovieViewSectionField.IStationJet =>
+          (
+            outline: IAutoMovieViewOutline.IOutline,
+            q: number,
+          ): IAutoMovieViewSectionField.IStationJet =>
             jet(outline, station, `top shoulder ${q}`),
         );
       else {
-        const owner: IAutoMovieViewSectionField.IStationJet = jet(source.fullness.owner, station, "shoulder");
+        const owner: IAutoMovieViewSectionField.IStationJet = jet(
+          source.fullness.owner,
+          station,
+          "shoulder",
+        );
         shoulders =
           source.fullness.departures === null
             ? [owner, owner, owner, owner]
             : source.fullness.departures.map(
-                (outline: IAutoMovieViewOutline.IOutline, q: number): IAutoMovieViewSectionField.IStationJet => {
+                (
+                  outline: IAutoMovieViewOutline.IOutline,
+                  q: number,
+                ): IAutoMovieViewSectionField.IStationJet => {
                   const departure: IAutoMovieViewSectionField.IStationJet = jet(
                     outline,
                     station,
@@ -130,30 +187,79 @@ export namespace AutoMovieLoftViewRead {
       }
       const w: CapReading = cap(source.caps, station);
       if (w.active && !chained(source))
-        shoulders = shoulders.map((r: IAutoMovieViewSectionField.IStationJet): IAutoMovieViewSectionField.IStationJet => {
-          const difference: number = AutoMovieViewSection.ELLIPSE - r[0];
-          return [
-            blend(r[0], w),
-            w.complement * r[1] + w.jet[1] * difference,
-            w.complement * r[2] - 2 * w.jet[1] * r[1] + w.jet[2] * difference,
-          ];
-        });
+        shoulders = shoulders.map(
+          (
+            r: IAutoMovieViewSectionField.IStationJet,
+          ): IAutoMovieViewSectionField.IStationJet => {
+            const difference: number = AutoMovieViewSection.ELLIPSE - r[0];
+            return [
+              blend(r[0], w),
+              w.complement * r[1] + w.jet[1] * difference,
+              w.complement * r[2] - 2 * w.jet[1] * r[1] + w.jet[2] * difference,
+            ];
+          },
+        );
       if (
-        ![...extents, ...shoulders].every((at: IAutoMovieViewSectionField.IStationJet): boolean =>
-          at.every(Number.isFinite),
+        ![...extents, ...shoulders].every(
+          (at: IAutoMovieViewSectionField.IStationJet): boolean =>
+            at.every(Number.isFinite),
         )
       )
         throw new Error("The required effective source2 is not finite.");
       const out: IAutoMovieLoftViewRead.IJets = {
         extents,
-        shoulders: shoulders.map((at: IAutoMovieViewSectionField.IStationJet): IAutoMovieViewSectionField.IStationJet => [...at]),
+        shoulders: shoulders.map(
+          (
+            at: IAutoMovieViewSectionField.IStationJet,
+          ): IAutoMovieViewSectionField.IStationJet => [...at],
+        ),
       };
       if (source.fullness.kind === "top" && source.fullness.touch !== null)
-        out.touch = source.fullness.touch.map((outline: IAutoMovieViewOutline.IOutline, q: number): IAutoMovieViewSectionField.IStationJet => jet(outline, station, `touch ${q}`));
+        out.touch = source.fullness.touch.map(
+          (
+            outline: IAutoMovieViewOutline.IOutline,
+            q: number,
+          ): IAutoMovieViewSectionField.IStationJet =>
+            jet(outline, station, `touch ${q}`),
+        );
       if (source.fullness.kind === "top" && source.fullness.splits !== null)
-        out.splits = source.fullness.splits.map((split: readonly IAutoMovieViewOutline.IOutline[], q: number): IAutoMovieViewSectionField.IStationJet[] => split.map((outline: IAutoMovieViewOutline.IOutline, k: number): IAutoMovieViewSectionField.IStationJet => jet(outline, station, `split ${q} ${SPLIT[k]}`)));
+        out.splits = source.fullness.splits.map(
+          (
+            split: readonly IAutoMovieViewOutline.IOutline[],
+            q: number,
+          ): IAutoMovieViewSectionField.IStationJet[] =>
+            split.map(
+              (
+                outline: IAutoMovieViewOutline.IOutline,
+                k: number,
+              ): IAutoMovieViewSectionField.IStationJet =>
+                jet(outline, station, `split ${q} ${SPLIT[k]}`),
+            ),
+        );
       if (source.fullness.kind === "top" && source.fullness.pieces !== null)
-        out.pieces = source.fullness.pieces.map((list: readonly (readonly IAutoMovieViewOutline.IOutline[])[], q: number): IAutoMovieViewSectionField.IStationJet[][] => list.map((split: readonly IAutoMovieViewOutline.IOutline[], j: number): IAutoMovieViewSectionField.IStationJet[] => split.map((outline: IAutoMovieViewOutline.IOutline, k: number): IAutoMovieViewSectionField.IStationJet => jet(outline, station, `quarter ${q} point ${j} ${SPLIT[k]}`))));
+        out.pieces = source.fullness.pieces.map(
+          (
+            list: readonly (readonly IAutoMovieViewOutline.IOutline[])[],
+            q: number,
+          ): IAutoMovieViewSectionField.IStationJet[][] =>
+            list.map(
+              (
+                split: readonly IAutoMovieViewOutline.IOutline[],
+                j: number,
+              ): IAutoMovieViewSectionField.IStationJet[] =>
+                split.map(
+                  (
+                    outline: IAutoMovieViewOutline.IOutline,
+                    k: number,
+                  ): IAutoMovieViewSectionField.IStationJet =>
+                    jet(
+                      outline,
+                      station,
+                      `quarter ${q} point ${j} ${SPLIT[k]}`,
+                    ),
+                ),
+            ),
+        );
       return out;
     } catch (error: unknown) {
       return fault(station, error);
@@ -169,7 +275,12 @@ export namespace AutoMovieLoftViewRead {
  * together; its curvature at the pole is that of the section's own shape, not an ellipse's.
  */
 function chained(source: IAutoMovieLoftViewSource.ISource): boolean {
-  return source.fullness.kind === "top" && (source.fullness.touch !== null || source.fullness.splits !== null || source.fullness.pieces !== null);
+  return (
+    source.fullness.kind === "top" &&
+    (source.fullness.touch !== null ||
+      source.fullness.splits !== null ||
+      source.fullness.pieces !== null)
+  );
 }
 
 /** The four scalar roles of one split, in its tuple order. */
@@ -183,7 +294,8 @@ function validate(
   // A source is immutable while it is read, so its structure is checked on its first reading alone; every reading still checks its station.
   // Checked on every reading, the structure cost an eighth of a body's realization.
   if (source !== null && typeof source === "object" && VALIDATED.has(source)) {
-    if (!Number.isFinite(station)) throw new Error("The present view source is malformed.");
+    if (!Number.isFinite(station))
+      throw new Error("The present view source is malformed.");
     return;
   }
   structure(source, station);
@@ -228,12 +340,42 @@ function structure(
   // A split-quarter or touch-offset section closes its pole as it stands: the
   // four-quarter cap law blends quarter shoulders toward the ellipse, which
   // names no piece of a split quarter, so `chained` sources skip that blend.
-  if (source.fullness.kind === "top" && (source.fullness.touch !== null || source.fullness.splits !== null || source.fullness.pieces !== null)) {
-    if (source.fullness.touch !== null && source.fullness.touch.length !== 4) throw new Error("The present touch source has no four-guide layout.");
-    if (source.fullness.splits !== null && (source.fullness.splits.length !== 4 || source.fullness.splits.some((split: readonly IAutoMovieViewOutline.IOutline[]): boolean => split.length !== 4)))
-      throw new Error("The present split source has no four-quarter, four-role layout.");
-    if (source.fullness.pieces !== null && (source.fullness.pieces.length !== 4 || source.fullness.pieces.some((list: readonly (readonly IAutoMovieViewOutline.IOutline[])[]): boolean => !Array.isArray(list) || list.some((split: readonly IAutoMovieViewOutline.IOutline[]): boolean => split.length !== 4))))
-      throw new Error("The present split-list source has no four-quarter layout of four-role points.");
+  if (
+    source.fullness.kind === "top" &&
+    (source.fullness.touch !== null ||
+      source.fullness.splits !== null ||
+      source.fullness.pieces !== null)
+  ) {
+    if (source.fullness.touch !== null && source.fullness.touch.length !== 4)
+      throw new Error("The present touch source has no four-guide layout.");
+    if (
+      source.fullness.splits !== null &&
+      (source.fullness.splits.length !== 4 ||
+        source.fullness.splits.some(
+          (split: readonly IAutoMovieViewOutline.IOutline[]): boolean =>
+            split.length !== 4,
+        ))
+    )
+      throw new Error(
+        "The present split source has no four-quarter, four-role layout.",
+      );
+    if (
+      source.fullness.pieces !== null &&
+      (source.fullness.pieces.length !== 4 ||
+        source.fullness.pieces.some(
+          (
+            list: readonly (readonly IAutoMovieViewOutline.IOutline[])[],
+          ): boolean =>
+            !Array.isArray(list) ||
+            list.some(
+              (split: readonly IAutoMovieViewOutline.IOutline[]): boolean =>
+                split.length !== 4,
+            ),
+        ))
+    )
+      throw new Error(
+        "The present split-list source has no four-quarter layout of four-role points.",
+      );
   }
   const poles: Set<number> = new Set();
   for (const entry of source.caps) {

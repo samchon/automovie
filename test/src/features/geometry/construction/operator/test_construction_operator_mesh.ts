@@ -1,5 +1,19 @@
-import type { AutoMovieVector3Tuple, IAutoMovieLoftContract, IAutoMovieSolidBlend, IAutoMovieSolidBlendChain, IAutoMovieSolidJoin, IAutoMovieSolidMesh, IAutoMovieSolidSurface } from "@automovie/interface";
-import { AutoMovieSolidBlend, AutoMovieSolidBlendChain, AutoMovieSolidChain, AutoMovieSolidMerge, AutoMovieSolidMesh } from "@automovie/engine";
+import {
+  AutoMovieSolidBlend,
+  AutoMovieSolidBlendChain,
+  AutoMovieSolidChain,
+  AutoMovieSolidMerge,
+  AutoMovieSolidMesh,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieLoftContract,
+  IAutoMovieSolidBlendChain,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidRibbon,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { HumanSolidShapes } from "../../../internal/HumanSolidShapes";
 
@@ -64,7 +78,7 @@ export function test_construction_operator_mesh(): void {
     )!;
     const phase: number = (2 * Math.PI * k) / count;
     for (const w of [0, 0.3, 0.7, 1]) {
-      const exact: IAutoMovieSolidBlend.IJet = AutoMovieSolidBlend.jet(
+      const exact: IAutoMovieSolidRibbon.IRibbon = AutoMovieSolidBlend.jet(
         c.start,
         c.end,
         w,
@@ -244,7 +258,8 @@ export function test_construction_operator_mesh(): void {
       if (other !== undefined && distance(p, point(other)) <= 1e-9)
         out.push(`duplicate vertices ${other} and ${v} at ${p.join(", ")}`);
       seen.set(key, v);
-      const owner: IAutoMovieSolidMesh.IOwner = m.owners[m.coordinates[3 * v]!]!;
+      const owner: IAutoMovieSolidMesh.IOwner =
+        m.owners[m.coordinates[3 * v]!]!;
       if (owner.name === "floor" && Math.hypot(p[0], p[1]) < 28 - 1e-9)
         out.push(
           `inside the cut: plane vertex ${v} at radius ${Math.hypot(p[0], p[1])}`,

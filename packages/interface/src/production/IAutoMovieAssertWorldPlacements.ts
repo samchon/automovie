@@ -7,11 +7,11 @@ import type { IAutoMovieWorldSurface } from "./IAutoMovieWorldSurface";
 export namespace IAutoMovieAssertWorldPlacements {
   /**
    * Reject material world-layout contradictions before shot construction.
-   * 
+   *
    * Blocks may touch but not overlap; every base must sit on a declared surface;
    * routes must clear block footprints; every landmark must lie on a walkable
    * surface or within its declared radius of a route.
-   * 
+   *
    * Positions are world metres with Y up, and blocks are unrotated boxes. A base
    * sits on a surface when all four footprint corners lie in or on its XZ
    * polygon, by {@link worldSurfaceContains}, at the surface height within
@@ -27,13 +27,13 @@ export namespace IAutoMovieAssertWorldPlacements {
   export type IInput = {
     /** Static world masses, as axis-aligned world boxes. */
     blocks: readonly IAutoMovieWorldBlock[];
-  
+
     /** Terrain and floor surfaces that may support a block or hold a landmark. */
     surfaces: readonly IAutoMovieWorldSurface[];
-  
+
     /** Routes whose segments, widened by half their formation width, must clear every block. */
     routes: readonly IAutoMovieWorldRoute[];
-  
+
     /** Points of interest that must be reachable from walkable ground or a route. */
     landmarks: readonly IAutoMovieWorldLandmark[];
   };

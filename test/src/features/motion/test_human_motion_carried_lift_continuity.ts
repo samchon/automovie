@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, AutoMovieHumanoidBone } from "@automovie/interface";
-
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 import { HumanCarried, HumanChain, HumanPerformance } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -85,7 +89,8 @@ export function test_human_motion_carried_lift_continuity(): void {
         );
         continue;
       }
-      const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("b")[0]!;
+      const placed: IAutoMovieMotionHumanSegment.ISegment =
+        performance.segments("b")[0]!;
       const spans: [number, number][] = [
         [placed.start, placed.start + lift],
         ...(setDown > 0

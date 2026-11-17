@@ -8,27 +8,21 @@ import type { IAutoMovieRecoveryCameraCalibration } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Members state integer-centre dimensions, source hashing responsibility and supplied calibration ownership.
  */
 export interface IAutoMovieRecoveryCameraSource {
- 
- /** Unique acquisition identity in first/second order. */
+  /** Unique acquisition identity in first/second order. */
   id: string;
 
- 
- /** Caller-asserted fixed source-byte hash; Node hosts verify their acquired source inputs. */
+  /** Caller-asserted fixed source-byte hash; Node hosts verify their acquired source inputs. */
   sourceSha256: string;
 
- 
- /** Declared decoding, crop, orientation and correction history for the current chart. */
+  /** Declared decoding, crop, orientation and correction history for the current chart. */
   pixelProvenance: string;
 
- 
- /** Resident integer-centre dimensions in pixels. */
+  /** Resident integer-centre dimensions in pixels. */
   width: number;
 
- 
- /** Resident integer-centre height in pixels. */
+  /** Resident integer-centre height in pixels. */
   height: number;
 
- 
- /** Supplied corrected pinhole intrinsics, including nullable asserted uncertainty. */
+  /** Supplied corrected pinhole intrinsics, including nullable asserted uncertainty. */
   camera: IAutoMovieRecoveryCameraCalibration;
 }

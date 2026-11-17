@@ -1,6 +1,22 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanRange, IAutoMovieMotionHumanStretch, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanRange,
+  IAutoMovieMotionHumanStretch,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -148,7 +164,10 @@ export namespace stretch {
       y: 0,
       z: 0,
     });
-    const stance: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
+    const stance: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = {
       left: {
         ankle: context.entry.feet.left.ankle,
         rotation: context.entry.feet.left.rotation,
@@ -158,10 +177,13 @@ export namespace stretch {
         rotation: context.entry.feet.right.rotation,
       },
     };
-    const rest = (s: "left" | "right"): IAutoMovieMotionHumanArmAngles.IAngles =>
+    const rest = (
+      s: "left" | "right",
+    ): IAutoMovieMotionHumanArmAngles.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, s);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
-    let contacts: IAutoMovieMotionHumanContactWindow[] = AutoMovieMotionHumanBase.plants();
+    let contacts: IAutoMovieMotionHumanContactWindow[] =
+      AutoMovieMotionHumanBase.plants();
     const facing = (
       posture: IAutoMovieMotionHumanPosture,
       local: IAutoMovieVector3,
@@ -186,7 +208,10 @@ export namespace stretch {
       channels: ["root"],
       from: 0,
       to: clock.duration,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => ({
         ...posture,
         root: Vector3.add(
           posture.root,
@@ -205,7 +230,10 @@ export namespace stretch {
         side,
         from: 0,
         to: clock.duration,
-        placement: (_: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanFoot.IPlacement =>
+        placement: (
+          _: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieMotionHumanFoot.IPlacement =>
           AutoMovieMotionHumanLegPhrase.between(
             stance[side],
             placement,
@@ -213,7 +241,9 @@ export namespace stretch {
           ),
         planted: (seconds: number): boolean => weight(seconds) <= 0,
       });
-    const standingOn = (standing: "left" | "right"): IAutoMovieMotionHumanContactWindow[] => [
+    const standingOn = (
+      standing: "left" | "right",
+    ): IAutoMovieMotionHumanContactWindow[] => [
       {
         part: `${standing}Foot`,
         kind: "plant",

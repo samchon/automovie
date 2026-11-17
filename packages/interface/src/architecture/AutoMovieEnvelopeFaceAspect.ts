@@ -1,5 +1,3 @@
-
-
 /**
  * How a bounding envelope face is read from its probe-oriented normal.
  *

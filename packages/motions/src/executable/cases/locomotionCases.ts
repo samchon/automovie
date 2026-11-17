@@ -1,6 +1,15 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanWalkParams, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { AutoMovieGravity, Quaternion } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanWalkParams,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { run } from "../../actions/run";
@@ -67,7 +76,10 @@ export function* locomotionCases(
     const names = [who] as const;
     // The bodies are prepared on the first case the filter keeps.
     let prepared:
-      | { men: humanPolygonMan.IPolygonMan[]; bodies: IAutoMovieMotionHumanBody[] }
+      | {
+          men: humanPolygonMan.IPolygonMan[];
+          bodies: IAutoMovieMotionHumanBody[];
+        }
       | undefined;
     const prepare = (): NonNullable<typeof prepared> => {
       if (prepared === undefined) {
@@ -151,17 +163,20 @@ export function* locomotionCases(
                 });
           chain = chain === undefined ? one : chain.with(one);
         });
-        const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-          seed: "walk",
-          performers: bodies.map((body: IAutoMovieMotionHumanBody, i: number) => ({
-            subject: `w${i}`,
-            body,
-            at: { x: lanes[i]!, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" as const },
-          })),
-          composition: chain!.node,
-        });
+        const performance: IAutoMovieMotionHumanPerformance =
+          new HumanPerformance({
+            seed: "walk",
+            performers: bodies.map(
+              (body: IAutoMovieMotionHumanBody, i: number) => ({
+                subject: `w${i}`,
+                body,
+                at: { x: lanes[i]!, y: 0, z: 0 },
+                yaw: 0,
+                proficiency: { level: "trained" as const },
+              }),
+            ),
+            composition: chain!.node,
+          });
         const end: number = performance.duration;
         const trails: { color: number; points: IAutoMovieVector3[] }[] = [];
         const drift: { at: IAutoMovieVector3; drift: number }[] = [];
@@ -335,11 +350,8 @@ export function* locomotionCases(
                   }
                 }
               }
-              const sole: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
-                body,
-                bones,
-                side,
-              );
+              const sole: IAutoMovieMotionHumanFoot.ISocket[] =
+                HumanFoot.sockets(body, bones, side);
               for (const { socket, point } of sole)
                 if (-point.y > sink.value)
                   sink = {
@@ -347,7 +359,8 @@ export function* locomotionCases(
                     where: `${names[i]} ${side} ${socket} ${phase} t=${t.toFixed(2)}`,
                   };
               // The planted point on the floor during a stance must not move across it.
-              const planted: IAutoMovieMotionHumanFoot.ISocket = FootSlip.contact(sole);
+              const planted: IAutoMovieMotionHumanFoot.ISocket =
+                FootSlip.contact(sole);
               if (n >= 0 && planted.point.y <= 0.01) {
                 const d: number = FootSlip.drift(
                   touched,

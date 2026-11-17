@@ -1,4 +1,8 @@
-import type { IAutoMovieSurfaceCage, IAutoMovieSurfaceCoordinate, IAutoMovieMapSurfaceTier } from "@automovie/interface";
+import type {
+  IAutoMovieMapSurfaceTier,
+  IAutoMovieSurfaceCage,
+  IAutoMovieSurfaceCoordinate,
+} from "@automovie/interface";
 
 import { locateAutoMovieSurfaceCoordinate } from "./locateAutoMovieSurfaceCoordinate";
 
@@ -28,7 +32,11 @@ import { locateAutoMovieSurfaceCoordinate } from "./locateAutoMovieSurfaceCoordi
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure lookup.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
-export const mapAutoMovieSurfaceTier: (props: IAutoMovieMapSurfaceTier.IProps) => IAutoMovieMapSurfaceTier.IResult = (props: IAutoMovieMapSurfaceTier.IProps): IAutoMovieMapSurfaceTier.IResult => {
+export const mapAutoMovieSurfaceTier: (
+  props: IAutoMovieMapSurfaceTier.IProps,
+) => IAutoMovieMapSurfaceTier.IResult = (
+  props: IAutoMovieMapSurfaceTier.IProps,
+): IAutoMovieMapSurfaceTier.IResult => {
   function names(c: IAutoMovieSurfaceCage): string {
     return c.patches
       .map((p: IAutoMovieSurfaceCage.IPatch): string => p.name)

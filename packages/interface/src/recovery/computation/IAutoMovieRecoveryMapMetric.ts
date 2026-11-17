@@ -8,12 +8,10 @@ import type { IAutoMovieSimplexAtom } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Defines physical layout, inverse-transpose covectors and inverse steps.
  */
 export interface IAutoMovieRecoveryMapMetric {
- 
- /** Camera width plus three coordinates for each ordered landmark. */
+  /** Camera width plus three coordinates for each ordered landmark. */
   width: number;
 
- 
- /** Apply inverse-transpose upper-factor action to a physical covector.
+  /** Apply inverse-transpose upper-factor action to a physical covector.
    * @evidence contracts/development/implementation.md#principled-implementation Point-first transpose triangular substitution and the common column scales compute R^-T without a normal matrix or inverse.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One metric closure serves objective and every hard-constraint covector in the same coordinates.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Zero pivots refuse and the damped action supplies no independent data-rank evidence.
@@ -24,8 +22,7 @@ export interface IAutoMovieRecoveryMapMetric {
    */
   whiten: (row: IAutoMovieSimplexAtom) => IAutoMovieSimplexAtom;
 
- 
- /** Apply inverse upper-factor action and restore physical parameter column units.
+  /** Apply inverse upper-factor action and restore physical parameter column units.
    * @evidence contracts/development/implementation.md#principled-implementation Camera back substitution followed by point-block recovery inverts the same ordered metric used for whitening.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The action restores camera-then-point coordinates for the actual retraction owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pivot floor, full inverse or independent later-translation normalization changes the authored step.
@@ -36,8 +33,7 @@ export interface IAutoMovieRecoveryMapMetric {
    */
   unwhiten: (step: readonly number[]) => number[];
 
- 
- /** Multiply by the physical metric factor transpose, in camera-first order.
+  /** Multiply by the physical metric factor transpose, in camera-first order.
    * @evidence contracts/development/implementation.md#principled-implementation Global physical column scales multiply the same point/camera upper-factor transpose used by whitening.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure This inverse-whitening action supports original-unit optional QP stationarity without exposing factor arrays.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No inverse, Gram matrix, second column scaling or singular floor supplies a covector.

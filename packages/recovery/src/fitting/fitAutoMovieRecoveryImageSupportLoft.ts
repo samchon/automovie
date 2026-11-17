@@ -1,17 +1,22 @@
-import type { IAutoMovieRecoveryImageProfileSample, IAutoMovieRecoveryImageSource, IAutoMovieRecoveryImageSupportsPreparationOperation, IAutoMovieRecoveryOptions, IAutoMovieRecoveryResult, IAutoMovieRecoveryScalarProfilesFittingOperation, IAutoMovieRecoverySupportFit, IAutoMovieRecoverySupportFitPolicy, IAutoMovieConvexSupportLoft, IAutoMovieRecoveryImageObservation } from "@automovie/interface";
 import {
   createAutoMovieSupportSectionQuery,
-  realizeAutoMovieConvexSupportLoft } from "@automovie/engine";
-
+  realizeAutoMovieConvexSupportLoft,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConvexSupportLoft,
+  IAutoMovieRecoveryImageObservation,
+  IAutoMovieRecoveryImageProfileSample,
+  IAutoMovieRecoveryImageSource,
+  IAutoMovieRecoveryImageSupportsPreparationOperation,
+  IAutoMovieRecoveryOptions,
+  IAutoMovieRecoveryResult,
+  IAutoMovieRecoveryScalarProfilesFittingOperation,
+  IAutoMovieRecoverySupportFit,
+  IAutoMovieRecoverySupportFitPolicy,
+} from "@automovie/interface";
 
 import { fitRecoveryScalarProfiles } from "../internal/fitRecoveryScalarProfiles";
 import { prepareRecoveryImageSupports } from "../internal/prepareRecoveryImageSupports";
-
-
-
-
-
-
 
 /**
  * Fit compact continuous support profiles from supplied-camera image envelopes.
@@ -45,7 +50,9 @@ export function fitAutoMovieRecoveryImageSupportLoft(
     cancellationCallback = true;
     const requested: boolean | undefined = probe?.();
     if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error("Cancellation callback must return a boolean synchronously");
+      throw new Error(
+        "Cancellation callback must return a boolean synchronously",
+      );
     cancellationCallback = false;
     cancellationRequested = requested === true;
     return cancellationRequested;
@@ -53,15 +60,19 @@ export function fitAutoMovieRecoveryImageSupportLoft(
   try {
     probe = options?.cancelled;
     if (probe !== undefined && typeof probe !== "function")
-      return { operator, status: "refused", diagnostics: ["Cancellation callback must be a function"] };
+      return {
+        operator,
+        status: "refused",
+        diagnostics: ["Cancellation callback must be a function"],
+      };
 
-  if (cancelled())
-    return {
-      operator,
-      status: "cancelled",
-      diagnostics: ["Cancelled before support fitting"] };
-  
-  
+    if (cancelled())
+      return {
+        operator,
+        status: "cancelled",
+        diagnostics: ["Cancelled before support fitting"],
+      };
+
     if (
       !policy ||
       policy.family !== "finite-view-convex-support" ||
@@ -112,7 +123,8 @@ export function fitAutoMovieRecoveryImageSupportLoft(
     const query: ReturnType<typeof createAutoMovieSupportSectionQuery> =
       createAutoMovieSupportSectionQuery({
         normals,
-        minimumDirectionSine: policy.generation.minimumDirectionSine });
+        minimumDirectionSine: policy.generation.minimumDirectionSine,
+      });
     const offsets: number[] = new Array<number>(normals.length);
     const coordinates: Float64Array = new Float64Array(
       normals.length * (normals.length - 1),
@@ -130,7 +142,8 @@ export function fitAutoMovieRecoveryImageSupportLoft(
               (view: (typeof prepared.supports)[number]): number =>
                 -view[row].lowerMm,
             ),
-          ] }),
+          ],
+        }),
       );
     let last: string = "No coefficient space satisfied all observations";
     for (
@@ -142,7 +155,8 @@ export function fitAutoMovieRecoveryImageSupportLoft(
         return {
           operator,
           status: "cancelled",
-          diagnostics: ["Cancelled between support candidates"] };
+          diagnostics: ["Cancelled between support candidates"],
+        };
       const fit: ReturnType<IAutoMovieRecoveryScalarProfilesFittingOperation.Operation> =
         fitRecoveryScalarProfiles(samples, count, policy.minimumSplineRatio);
       const loft: IAutoMovieConvexSupportLoft = {
@@ -152,15 +166,18 @@ export function fitAutoMovieRecoveryImageSupportLoft(
             i: number,
           ): IAutoMovieConvexSupportLoft["planes"][number] => ({
             id: `support.${i}`,
-            normal }),
+            normal,
+          }),
         ),
         spans: fit.spans.map(
           (
             span: (typeof fit.spans)[number],
           ): IAutoMovieConvexSupportLoft["spans"][number] => ({
             interval: span.interval,
-            offsets: span.profiles }),
-        ) };
+            offsets: span.profiles,
+          }),
+        ),
+      };
       let residual: number = 0;
       for (let row: number = 0; row < samples.length; row++) {
         const y: number = samples[row].yMm * 0.001;
@@ -223,12 +240,14 @@ export function fitAutoMovieRecoveryImageSupportLoft(
         realizeAutoMovieConvexSupportLoft({
           ...policy.generation,
           loft,
-          topologyDomain: `support-fit:${observation.objectId}` });
+          topologyDomain: `support-fit:${observation.objectId}`,
+        });
       if (cancelled())
         return {
           operator,
           status: "cancelled",
-          diagnostics: ["Cancelled before support fit transfer"] };
+          diagnostics: ["Cancelled before support fit transfer"],
+        };
       return {
         operator,
         status: "partial",
@@ -250,35 +269,47 @@ export function fitAutoMovieRecoveryImageSupportLoft(
               interior: "unobserved",
               hiddenConcavities: "unobserved",
               cameras: "supplied",
-              enclosure: "not-certified" } },
+              enclosure: "not-certified",
+            },
+          },
           cohort: observation.cohort,
           sources: observation.views.map(
             (
               view: (typeof observation.views)[number],
             ): IAutoMovieRecoveryImageSource => ({
               id: view.id,
-              sha256: view.sourceSha256 }),
+              sha256: view.sourceSha256,
+            }),
           ),
           maximumResidualPx: residual,
           splineRankRatio: fit.rankRatio,
           counts: {
             rows: samples.length,
             spans: count,
-            freeScalars: normals.length * (count + 3) },
+            freeScalars: normals.length * (count + 3),
+          },
           observedIntervalMm: [prepared.lower, prepared.upper],
           generation: {
             events: generated.events,
             intervals: generated.intervals,
             vertices: generated.mesh.positions.length / 3,
-            maximumBoundaryDefectMeters: generated.maximumBoundaryDefectMeters } } };
+            maximumBoundaryDefectMeters: generated.maximumBoundaryDefectMeters,
+          },
+        },
+      };
     }
     throw new Error(`support-fit-budget-exhausted: ${last}`);
   } catch (failure: unknown) {
     return {
       operator,
-      status: cancellationRequested ? "cancelled" : cancellationCallback || callback ? "failed" : "refused",
+      status: cancellationRequested
+        ? "cancelled"
+        : cancellationCallback || callback
+          ? "failed"
+          : "refused",
       diagnostics: [
         failure instanceof Error ? failure.message : String(failure),
-      ] };
+      ],
+    };
   }
 }

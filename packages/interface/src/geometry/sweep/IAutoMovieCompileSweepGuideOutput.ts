@@ -1,5 +1,3 @@
-
-
 /**
  * Wrapped direction and its independently compiled radius profile.
  */

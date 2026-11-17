@@ -1,31 +1,27 @@
-import type { IAutoMovieLoftContract, AutoMovieVector3Tuple, IAutoMovieHumanBodyCalibration, IAutoMovieHumanLegAxis, IAutoMovieHumanLegConstruction, IAutoMovieHumanLegCrotchRoot, IAutoMovieHumanLegProfile, IAutoMovieHumanLegRingRow, IAutoMovieHumanLegSectionLaw, IAutoMovieHumanLegStations, IAutoMovieHumanLegTube } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanLegAxis,
+  IAutoMovieHumanLegConstruction,
+  IAutoMovieHumanLegCrotchRoot,
+  IAutoMovieHumanLegProfile,
+  IAutoMovieHumanLegRingRow,
+  IAutoMovieHumanLegSectionLaw,
+  IAutoMovieHumanLegStations,
+  IAutoMovieHumanLegTube,
+  IAutoMovieLoftContract,
+} from "@automovie/interface";
 
 import { AutoMovieHumanPolarSection } from "../../lofting/AutoMovieHumanPolarSection";
-
-
 import { AutoMovieHumanLegAnkleSeam } from "./AutoMovieHumanLegAnkleSeam";
-
 import { AutoMovieHumanLegCrotchRoot } from "./AutoMovieHumanLegCrotchRoot";
 import { AutoMovieHumanLegGirth } from "./AutoMovieHumanLegGirth";
-import { AutoMovieHumanLegSectionRows } from "./AutoMovieHumanLegSectionRows";
 import { AutoMovieHumanLegProfile } from "./AutoMovieHumanLegProfile";
 import { AutoMovieHumanLegReliefs } from "./AutoMovieHumanLegReliefs";
 import { AutoMovieHumanLegRingRow } from "./AutoMovieHumanLegRingRow";
 import { AutoMovieHumanLegSampling } from "./AutoMovieHumanLegSampling";
-
+import { AutoMovieHumanLegSectionRows } from "./AutoMovieHumanLegSectionRows";
 import { AutoMovieHumanLegTube } from "./AutoMovieHumanLegTube";
-
 
 /**
  * The leg's section law: at every station the tube of
@@ -48,8 +44,6 @@ import { AutoMovieHumanLegTube } from "./AutoMovieHumanLegTube";
  * beside it, so no share of the leg's length enters.
  */
 export namespace AutoMovieHumanLegSectionLaw {
-  
-
   /**
    * One leg's law.
    *
@@ -68,51 +62,133 @@ export namespace AutoMovieHumanLegSectionLaw {
     bones: IAutoMovieHumanLegStations.IBones,
     diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [],
   ): IAutoMovieHumanLegSectionLaw.ILaw {
-    const planar: (ring: readonly AutoMovieVector3Tuple[]) => [number, number][] = (ring: readonly AutoMovieVector3Tuple[]): [number, number][] =>
+    const planar: (
+      ring: readonly AutoMovieVector3Tuple[],
+    ) => [number, number][] = (
+      ring: readonly AutoMovieVector3Tuple[],
+    ): [number, number][] =>
       ring.map((p: AutoMovieVector3Tuple): [number, number] => [p[0], p[2]]);
-    const level: (ring: readonly AutoMovieVector3Tuple[]) => number = (ring: readonly AutoMovieVector3Tuple[]): number => ring.reduce((sum: number, p: AutoMovieVector3Tuple): number => sum + p[1], 0) / ring.length;
+    const level: (ring: readonly AutoMovieVector3Tuple[]) => number = (
+      ring: readonly AutoMovieVector3Tuple[],
+    ): number =>
+      ring.reduce(
+        (sum: number, p: AutoMovieVector3Tuple): number => sum + p[1],
+        0,
+      ) / ring.length;
 
     // The two rings, canonical, and their centroids.
-    const ankleWorld: AutoMovieVector3Tuple[] = AutoMovieHumanLegAnkleSeam.ring(calibration, side).map((p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [p[0], p[1], sign * p[2]]);
-    const crotchWorld: AutoMovieVector3Tuple[] = AutoMovieHumanLegCrotchRoot.ring(calibration, side).map((p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [p[0], p[1], sign * p[2]]);
+    const ankleWorld: AutoMovieVector3Tuple[] = AutoMovieHumanLegAnkleSeam.ring(
+      calibration,
+      side,
+    ).map(
+      (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
+        p[0],
+        p[1],
+        sign * p[2],
+      ],
+    );
+    const crotchWorld: AutoMovieVector3Tuple[] =
+      AutoMovieHumanLegCrotchRoot.ring(calibration, side).map(
+        (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
+          p[0],
+          p[1],
+          sign * p[2],
+        ],
+      );
     const bottom: number = level(ankleWorld);
     const top: number = level(crotchWorld);
-    if (!(top > bottom) || !(inputs.calf > 0) || !(inputs.knee > 0) || !(inputs.thigh > 0)) throw new Error("A leg needs a positive length and positive tapes");
+    if (
+      !(top > bottom) ||
+      !(inputs.calf > 0) ||
+      !(inputs.knee > 0) ||
+      !(inputs.thigh > 0)
+    )
+      throw new Error("A leg needs a positive length and positive tapes");
     const ankle: [number, number][] = planar(ankleWorld);
-    const ankleCentre: [number, number] = AutoMovieHumanPolarSection.measure(ankle).centre;
-    const crotchCentre: [number, number] = AutoMovieHumanPolarSection.measure(planar(crotchWorld)).centre;
+    const ankleCentre: [number, number] =
+      AutoMovieHumanPolarSection.measure(ankle).centre;
+    const crotchCentre: [number, number] = AutoMovieHumanPolarSection.measure(
+      planar(crotchWorld),
+    ).centre;
 
     // The spans from each ring to its first kept landmark row.
-    const rows: readonly IAutoMovieHumanLegProfile.IRow[] = AutoMovieHumanLegSectionRows.GUIDES[0]!.rows;
-    const ankleReach: number = AutoMovieHumanLegProfile.reach(rows, bones, bottom, "bottom");
-    const crotchReach: number = AutoMovieHumanLegProfile.reach(rows, bones, top, "top");
+    const rows: readonly IAutoMovieHumanLegProfile.IRow[] =
+      AutoMovieHumanLegSectionRows.GUIDES[0]!.rows;
+    const ankleReach: number = AutoMovieHumanLegProfile.reach(
+      rows,
+      bones,
+      bottom,
+      "bottom",
+    );
+    const crotchReach: number = AutoMovieHumanLegProfile.reach(
+      rows,
+      bones,
+      top,
+      "top",
+    );
 
     // The rings as rows: the ankle ring about its centroid, and the trunk's
     // rounded loop at depth 0 (the arc closed by the slit) about the arc's.
-    const root: IAutoMovieHumanLegCrotchRoot.IRoot = AutoMovieHumanLegCrotchRoot.of(calibration, side, sign, crotchCentre);
-    const about: (ring: readonly [number, number][], c: readonly [number, number]) => [number, number][] = (
+    const root: IAutoMovieHumanLegCrotchRoot.IRoot =
+      AutoMovieHumanLegCrotchRoot.of(calibration, side, sign, crotchCentre);
+    const about: (
+      ring: readonly [number, number][],
+      c: readonly [number, number],
+    ) => [number, number][] = (
       ring: readonly [number, number][],
       c: readonly [number, number],
     ): [number, number][] =>
-      ring.map((p: [number, number]): [number, number] => [p[0] - c[0], p[1] - c[1]]);
-    const low: IAutoMovieHumanLegRingRow.IRow = AutoMovieHumanLegRingRow.of(about(ankle, ankleCentre));
-    const high: IAutoMovieHumanLegRingRow.IRow = AutoMovieHumanLegRingRow.of(about(planar(root.ring.points), crotchCentre));
+      ring.map((p: [number, number]): [number, number] => [
+        p[0] - c[0],
+        p[1] - c[1],
+      ]);
+    const low: IAutoMovieHumanLegRingRow.IRow = AutoMovieHumanLegRingRow.of(
+      about(ankle, ankleCentre),
+    );
+    const high: IAutoMovieHumanLegRingRow.IRow = AutoMovieHumanLegRingRow.of(
+      about(planar(root.ring.points), crotchCentre),
+    );
 
     // The girth law and the tube, both ending on the rings.
     const girth: (s: number) => number = AutoMovieHumanLegGirth.of({
       tapes: { thigh: inputs.thigh, knee: inputs.knee, calf: inputs.calf },
       bones,
       scale: inputs.scale,
-      ends: { bottom: { at: bottom, values: [low.girth] }, top: { at: top, values: [high.girth] } },
+      ends: {
+        bottom: { at: bottom, values: [low.girth] },
+        top: { at: top, values: [high.girth] },
+      },
       site: inputs.furrow,
     });
-    const tube: (s: number) => IAutoMovieHumanLegTube.ISection = AutoMovieHumanLegTube.of({
-      bones,
+    const tube: (s: number) => IAutoMovieHumanLegTube.ISection =
+      AutoMovieHumanLegTube.of({
+        bones,
+        girth,
+        reliefs: AutoMovieHumanLegReliefs.of(
+          bones,
+          girth,
+          [bottom, top],
+          crotchReach,
+          diagnostics,
+          inputs.furrow,
+        ),
+        ends: {
+          bottom: { at: bottom, shape: low.shape },
+          top: { at: top, shape: high.shape },
+        },
+      });
+    return {
+      bottom,
+      top,
+      ankleWorld,
+      ankleCentre,
+      crotchCentre,
+      ankleReach,
+      crotchReach,
       girth,
-      reliefs: AutoMovieHumanLegReliefs.of(bones, girth, [bottom, top], crotchReach, diagnostics, inputs.furrow),
-      ends: { bottom: { at: bottom, shape: low.shape }, top: { at: top, shape: high.shape } },
-    });
-    return { bottom, top, ankleWorld, ankleCentre, crotchCentre, ankleReach, crotchReach, girth, tube, root };
+      tube,
+      root,
+    };
   }
 
   /**
@@ -121,7 +197,9 @@ export namespace AutoMovieHumanLegSectionLaw {
    * @param section The tube's section at a station.
    */
   export function radii(section: IAutoMovieHumanLegTube.ISection): number[] {
-    return AutoMovieHumanLegSampling.PHASES.map((t: number): number => AutoMovieHumanPolarSection.radius(section.points, [0, 0], t));
+    return AutoMovieHumanLegSampling.PHASES.map((t: number): number =>
+      AutoMovieHumanPolarSection.radius(section.points, [0, 0], t),
+    );
   }
 
   /**
@@ -132,12 +210,22 @@ export namespace AutoMovieHumanLegSectionLaw {
    * @param frame The section plane at the station.
    * @param centre The chart origin's offset from the frame origin, `[along u, along v]` mm.
    */
-  export function points(law: IAutoMovieHumanLegSectionLaw.ILaw, s: number, frame: IAutoMovieHumanLegAxis.IFrame, centre: IAutoMovieHumanLegSectionLaw.PointsCentre): AutoMovieVector3Tuple[] {
+  export function points(
+    law: IAutoMovieHumanLegSectionLaw.ILaw,
+    s: number,
+    frame: IAutoMovieHumanLegAxis.IFrame,
+    centre: IAutoMovieHumanLegSectionLaw.PointsCentre,
+  ): AutoMovieVector3Tuple[] {
     const r: number[] = radii(law.tube(s));
-    return AutoMovieHumanLegSampling.PHASES.map((t: number, m: number): AutoMovieVector3Tuple => {
-      const x: number = centre[0] + r[m]! * Math.cos(t);
-      const z: number = centre[1] + r[m]! * Math.sin(t);
-      return [0, 1, 2].map((c: number): number => frame.origin[c]! + x * frame.u[c]! + z * frame.v[c]!) as AutoMovieVector3Tuple;
-    });
+    return AutoMovieHumanLegSampling.PHASES.map(
+      (t: number, m: number): AutoMovieVector3Tuple => {
+        const x: number = centre[0] + r[m]! * Math.cos(t);
+        const z: number = centre[1] + r[m]! * Math.sin(t);
+        return [0, 1, 2].map(
+          (c: number): number =>
+            frame.origin[c]! + x * frame.u[c]! + z * frame.v[c]!,
+        ) as AutoMovieVector3Tuple;
+      },
+    );
   }
 }

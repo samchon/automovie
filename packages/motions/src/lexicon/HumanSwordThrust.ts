@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanStrikingHeld, IAutoMovieMotionHumanSword, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionHumanSword,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { StrikingBlade } from "../striking/StrikingBlade";
@@ -40,117 +46,123 @@ export namespace HumanSwordThrust {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
    */
-  export const thrust: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSword.IAttack> = {
-    name: "swordThrust",
-    interrupts: HumanSword.follows("stroke"),
-    plan: (
-      context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IAttack>,
-    ): IAutoMovieMotionHumanActionPlan => {
-      const s: IAutoMovieMotionHumanSword.ISetup = HumanSword.setup(context);
-      const a: IAutoMovieMotionHumanSword.IAim = HumanSword.aim(
-        context,
-        s,
-        { out: 0, up: -0.15, forward: 0.85 },
-        s.tool.length,
-      );
+  export const thrust: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSword.IAttack> =
+    {
+      name: "swordThrust",
+      interrupts: HumanSword.follows("stroke"),
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IAttack>,
+      ): IAutoMovieMotionHumanActionPlan => {
+        const s: IAutoMovieMotionHumanSword.ISetup = HumanSword.setup(context);
+        const a: IAutoMovieMotionHumanSword.IAim = HumanSword.aim(
+          context,
+          s,
+          { out: 0, up: -0.15, forward: 0.85 },
+          s.tool.length,
+        );
 
-      // A thrust states no edge, so the blade is turned about its own line
-      // the way the arm holds it with the least strain.
-      const landed: IAutoMovieMotionHumanStrikingHeld.IHandFrame = StrikingRoll.hand(
-        context,
-        s.tool,
-        0,
-        a.target,
-        Vector3.subtract(a.target, a.reach),
-        HumanSword.CONE,
-        a.posture,
-      );
-      if (context.params.target !== undefined)
-        try {
-          StrikingRoll.reachable(
+        // A thrust states no edge, so the blade is turned about its own line
+        // the way the arm holds it with the least strain.
+        const landed: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+          StrikingRoll.hand(
             context,
             s.tool,
-            landed,
             0,
+            a.target,
+            Vector3.subtract(a.target, a.reach),
+            HumanSword.CONE,
             a.posture,
-            HumanSword.FIX,
           );
-        } catch (error) {
-          // A pose the arm cannot hold with the hand folded in against the
-          // shoulder fails for one cause: the target stands inside the
-          // tool's own length, and no turn of the wrist makes room.
-          // The room is what the tool leaves of the line from the shoulder
-          // to the target: where the hand stands before the shoulder with
-          // the tool on that line, behind it when negative.
-          const room: number =
-            Vector3.length(Vector3.subtract(a.target, a.reach)) - s.tool.length;
-          if (!(error instanceof HumanRefusal) || room >= NEAR * s.arm)
-            throw error;
-          throw new HumanRefusal({
-            kind: "reach",
-            axis: "target",
-            value: room,
-            feasible: {
-              kind: "range",
-              minimum: NEAR * s.arm,
-              maximum: HumanSword.REACH * s.arm,
-              unit: "m",
-            },
-            reason: `the target is ${(room + s.tool.length).toFixed(3)} m from the ${s.tool.side} shoulder and the tool is ${s.tool.length.toFixed(2)} m long, so the hand would stand ${room.toFixed(3)} m before its shoulder (behind it when negative), and the arm cannot hold the tool there`,
-            fix: "step back first (a retreat or a void), thrust from farther away, or answer with a cut",
-          });
-        }
+        if (context.params.target !== undefined)
+          try {
+            StrikingRoll.reachable(
+              context,
+              s.tool,
+              landed,
+              0,
+              a.posture,
+              HumanSword.FIX,
+            );
+          } catch (error) {
+            // A pose the arm cannot hold with the hand folded in against the
+            // shoulder fails for one cause: the target stands inside the
+            // tool's own length, and no turn of the wrist makes room.
+            // The room is what the tool leaves of the line from the shoulder
+            // to the target: where the hand stands before the shoulder with
+            // the tool on that line, behind it when negative.
+            const room: number =
+              Vector3.length(Vector3.subtract(a.target, a.reach)) -
+              s.tool.length;
+            if (!(error instanceof HumanRefusal) || room >= NEAR * s.arm)
+              throw error;
+            throw new HumanRefusal({
+              kind: "reach",
+              axis: "target",
+              value: room,
+              feasible: {
+                kind: "range",
+                minimum: NEAR * s.arm,
+                maximum: HumanSword.REACH * s.arm,
+                unit: "m",
+              },
+              reason: `the target is ${(room + s.tool.length).toFixed(3)} m from the ${s.tool.side} shoulder and the tool is ${s.tool.length.toFixed(2)} m long, so the hand would stand ${room.toFixed(3)} m before its shoulder (behind it when negative), and the arm cannot hold the tool there`,
+              fix: "step back first (a retreat or a void), thrust from farther away, or answer with a cut",
+            });
+          }
 
-      // The chamber: the hilt drawn back beside the lower ribs, the point
-      // already on the line to the target.
-      const hilt: IAutoMovieVector3 = Vector3.add(
-        s.shoulder,
-        Vector3.scale(
-          s.world({ out: 0.05, up: -0.45, forward: 0.3 }, a.yaw),
-          s.arm,
-        ),
-      );
+        // The chamber: the hilt drawn back beside the lower ribs, the point
+        // already on the line to the target.
+        const hilt: IAutoMovieVector3 = Vector3.add(
+          s.shoulder,
+          Vector3.scale(
+            s.world({ out: 0.05, up: -0.45, forward: 0.3 }, a.yaw),
+            s.arm,
+          ),
+        );
 
-      // The chamber's turn about the blade is chosen for the chamber itself,
-      // as the landing's is: with the landing's turn carried back, the arm
-      // of a small body could not hold the chamber (the hand 35 degrees off
-      // what was asked, the wrist at its limits) and the fit jumped there.
-      const drawn: IAutoMovieMotionHumanStrikingHeld.IHandFrame = StrikingRoll.hand(
-        context,
-        s.tool,
-        s.tool.length,
-        hilt,
-        Vector3.subtract(a.target, hilt),
-        0,
-        context.entry.posture,
-      );
-      return StrikingBlade.plan(context, {
-        tool: s.tool,
-        clock: HumanSword.timed(
-          context,
-          Vector3.length(
-            Vector3.subtract(a.target, StrikingHeld.point(s.tool, drawn)),
+        // The chamber's turn about the blade is chosen for the chamber itself,
+        // as the landing's is: with the landing's turn carried back, the arm
+        // of a small body could not hold the chamber (the hand 35 degrees off
+        // what was asked, the wrist at its limits) and the fit jumped there.
+        const drawn: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+          StrikingRoll.hand(
+            context,
+            s.tool,
+            s.tool.length,
+            hilt,
+            Vector3.subtract(a.target, hilt),
+            0,
+            context.entry.posture,
+          );
+        return StrikingBlade.plan(context, {
+          tool: s.tool,
+          clock: HumanSword.timed(
+            context,
+            Vector3.length(
+              Vector3.subtract(a.target, StrikingHeld.point(s.tool, drawn)),
+            ),
+            s.skill(HumanSword.SPEED.thrust),
+            0,
+            Vector3.length(Vector3.subtract(a.reach, s.shoulder)),
           ),
-          s.skill(HumanSword.SPEED.thrust),
-          0,
-          Vector3.length(Vector3.subtract(a.reach, s.shoulder)),
-        ),
-        path: (progress: number): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
-          point: Vector3.lerp(drawn.point, landed.point, progress),
-          rotation: Quaternion.slerp(
-            drawn.rotation,
-            landed.rotation,
-            Math.min(1, progress),
-          ),
-        }),
-        back: 0,
-        support: s.support,
-        advance: a.advance,
-        travel: a.travel,
-        line: a.line,
-        stay: false,
-        stop: HumanSword.stopped(context.params),
-      });
-    },
-  };
+          path: (
+            progress: number,
+          ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
+            point: Vector3.lerp(drawn.point, landed.point, progress),
+            rotation: Quaternion.slerp(
+              drawn.rotation,
+              landed.rotation,
+              Math.min(1, progress),
+            ),
+          }),
+          back: 0,
+          support: s.support,
+          advance: a.advance,
+          travel: a.travel,
+          line: a.line,
+          stay: false,
+          stop: HumanSword.stopped(context.params),
+        });
+      },
+    };
 }

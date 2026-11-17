@@ -8,10 +8,10 @@ export namespace IAutoMovieValidateFilmContinuity {
   export type IProps = {
     /** The film's beats, in playback order. */
     beats: readonly IAutoMovieResolveBeatProps[];
-  
+
     /** World-space position drift tolerated (metres); defaults to 0.05. */
     positionTolerance?: number;
-  
+
     /** Facing drift tolerated (degrees); defaults to 5. */
     facingToleranceDeg?: number;
   };

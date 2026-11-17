@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanSegment } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanSegment,
+} from "@automovie/interface";
 import { HumanBreath, HumanChain, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -41,7 +46,10 @@ export function test_human_motion_core_draw_independence(): void {
     b: motionHumanBody("f-small"),
     c: motionHumanBody("f-small"),
   };
-  const waving = (subject: string, anchor: string): IAutoMovieMotionHumanChain =>
+  const waving = (
+    subject: string,
+    anchor: string,
+  ): IAutoMovieMotionHumanChain =>
     HumanChain.subject(subject)
       .stand({ seconds: 0.3 })
       .gesture({ kind: "wave", manner: { variation: 1 } }, anchor);
@@ -53,20 +61,24 @@ export function test_human_motion_core_draw_independence(): void {
     composition: { node: IAutoMovieMotionHumanChain["node"] },
     layers?: Record<string, readonly IAutoMovieMotionHumanLayer[]>,
   ): number[] => {
-    const wave: IAutoMovieMotionHumanSegment.ISegment | undefined = new HumanPerformance({
-      seed,
-      performers: subjects.map((subject: "a" | "b" | "c", index: number) => ({
-        subject,
-        body: bodies[subject],
-        at: { x: index * 1.5, y: 0, z: 0 },
-        yaw: 0,
-        proficiency: { level: "trained" as const },
-      })),
-      ...(layers === undefined ? {} : { layers }),
-      composition: composition.node,
-    })
-      .segments("a")
-      .find((segment: IAutoMovieMotionHumanSegment.ISegment): boolean => segment.id === "w");
+    const wave: IAutoMovieMotionHumanSegment.ISegment | undefined =
+      new HumanPerformance({
+        seed,
+        performers: subjects.map((subject: "a" | "b" | "c", index: number) => ({
+          subject,
+          body: bodies[subject],
+          at: { x: index * 1.5, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" as const },
+        })),
+        ...(layers === undefined ? {} : { layers }),
+        composition: composition.node,
+      })
+        .segments("a")
+        .find(
+          (segment: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+            segment.id === "w",
+        );
     return wave === undefined
       ? []
       : [

@@ -1,6 +1,14 @@
-import type { IAutoMovieDialogueExpressionLayers, IAutoMovieDialogueVisemeCompilation, IAutoMovieExpression, IAutoMovieProductionDialogueLine, IAutoMovieProductionViseme } from "@automovie/interface";
-import { joinAutoMovieDialogueVisemes, sampleAutoMovieDialogueExpression } from "@automovie/engine";
-
+import {
+  joinAutoMovieDialogueVisemes,
+  sampleAutoMovieDialogueExpression,
+} from "@automovie/engine";
+import type {
+  IAutoMovieDialogueExpressionLayers,
+  IAutoMovieDialogueVisemeCompilation,
+  IAutoMovieExpression,
+  IAutoMovieProductionDialogueLine,
+  IAutoMovieProductionViseme,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

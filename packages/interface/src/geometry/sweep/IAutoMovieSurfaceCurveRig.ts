@@ -1,5 +1,3 @@
-
-
 /**
  * A network curve of a surface rig, from `rigAutoMovieSurfaceCurve`,
  * re-evaluated per pose into its own buffers.

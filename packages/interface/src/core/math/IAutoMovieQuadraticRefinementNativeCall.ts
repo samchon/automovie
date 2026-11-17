@@ -1,5 +1,3 @@
-
-
 /**
  * The native solve a refinement started from, as
  * `refineAutoMovieQuadraticProgram` records it.

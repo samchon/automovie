@@ -1,6 +1,19 @@
-import { type IAutoMoviePoseKeypointFrame, type IAutoMoviePoseKeypointSidecar, IAutoMovieDeliveryCrop, IAutoMovieMotion, IAutoMoviePoseKeypoint, IAutoMovieScene, IAutoMovieSequence, IAutoMovieShot, IAutoMovieSkeleton, IAutoMovieTransform } from "@automovie/interface";
-
-import { planPoseKeypointSidecar, renderPoseKeypointSidecar } from "@automovie/render";
+import {
+  IAutoMovieDeliveryCrop,
+  IAutoMovieMotion,
+  IAutoMoviePoseKeypoint,
+  type IAutoMoviePoseKeypointFrame,
+  type IAutoMoviePoseKeypointSidecar,
+  IAutoMovieScene,
+  IAutoMovieSequence,
+  IAutoMovieShot,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+import {
+  planPoseKeypointSidecar,
+  renderPoseKeypointSidecar,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";

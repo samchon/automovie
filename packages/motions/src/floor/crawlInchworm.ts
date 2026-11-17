@@ -1,4 +1,15 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCrawl, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanLieDown, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupport, IAutoMovieMotionManner, IAutoMovieMotionTarget } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCrawl,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanLieDown,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSupport,
+  IAutoMovieMotionManner,
+  IAutoMovieMotionTarget,
+} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { support } from "../actions/support";
@@ -150,7 +161,9 @@ export namespace crawlInchworm {
         }),
       };
     };
-    const contacts = (only?: readonly Limb[]): IAutoMovieMotionHumanSupport.IContact[] =>
+    const contacts = (
+      only?: readonly Limb[],
+    ): IAutoMovieMotionHumanSupport.IContact[] =>
       (only ?? LIMBS).map(
         (limb: Limb): IAutoMovieMotionHumanSupport.IContact => ({
           part: limb,

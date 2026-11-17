@@ -1,6 +1,16 @@
-import type { IAutoMovieLoftChain, IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieConstructionNode, IAutoMovieConstructionSplitBand, IAutoMovieConstructionState, IAutoMovieSolidBody, IAutoMovieSolidCycle, IAutoMovieSolidMesh, IAutoMovieSolidRibbon, IAutoMovieConstructionPort } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionPort,
+  IAutoMovieConstructionSplitBand,
+  IAutoMovieConstructionState,
+  IAutoMovieLoftChain,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidCycle,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidRibbon,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieConstructionSplitBand } from "./AutoMovieConstructionSplitBand";
 import { AutoMovieConstructionState } from "./AutoMovieConstructionState";
@@ -81,7 +91,9 @@ export function AutoMovieConstructionPortRealize(
     const profile: ((psi: number) => number) | undefined =
       node.rails === undefined
         ? undefined
-        : AutoMovieNaturalSpline.periodic(node.rails.map((x: number): number => end + into * x * S));
+        : AutoMovieNaturalSpline.periodic(
+            node.rails.map((x: number): number => end + into * x * S),
+          );
     const railAt: (psi: number) => number = (psi: number): number =>
       profile === undefined ? rail : profile(psi);
     const [first, last]: [number, number] = part.domain ?? [
@@ -91,8 +103,10 @@ export function AutoMovieConstructionPortRealize(
     const reach: number[] =
       node.rails === undefined
         ? [rail]
-        : Array.from({ length: 8 * node.rails.length }, (_: unknown, j: number): number =>
-            railAt((2 * Math.PI * j) / (8 * node.rails!.length)),
+        : Array.from(
+            { length: 8 * node.rails.length },
+            (_: unknown, j: number): number =>
+              railAt((2 * Math.PI * j) / (8 * node.rails!.length)),
           );
     if (!reach.every((s: number): boolean => s > first && s < last))
       return fail(
@@ -173,17 +187,34 @@ export function AutoMovieConstructionPortRealize(
         "the host's tangent plane at the port's clock origin is degenerate",
       );
     const band: IAutoMovieConstructionSplitBand.IStrip | string =
-      AutoMovieConstructionSplitBand.strip(node.band, loop, near, outward, {
-        surface: part,
-        station: rail,
-        into,
-        ...(profile === undefined ? {} : { along: profile }),
-      }, undefined, node.correspondence ?? "angle", node.ribbons ?? "common", (node.profiles ?? []).map(
-        (p: IAutoMovieConstructionPort.IProfile): IAutoMovieConstructionPort.IProfile => ({
-          ...p,
-          knots: p.knots.map(([t, depth]: [number, number]): [number, number] => [t, depth * S]),
-        }),
-      ));
+      AutoMovieConstructionSplitBand.strip(
+        node.band,
+        loop,
+        near,
+        outward,
+        {
+          surface: part,
+          station: rail,
+          into,
+          ...(profile === undefined ? {} : { along: profile }),
+        },
+        undefined,
+        node.correspondence ?? "angle",
+        node.ribbons ?? "common",
+        (node.profiles ?? []).map(
+          (
+            p: IAutoMovieConstructionPort.IProfile,
+          ): IAutoMovieConstructionPort.IProfile => ({
+            ...p,
+            knots: p.knots.map(
+              ([t, depth]: [number, number]): [number, number] => [
+                t,
+                depth * S,
+              ],
+            ),
+          }),
+        ),
+      );
     if (typeof band === "string") return fail(`band ${node.band}: ${band}`);
 
     // Shared vertices: the port curve on the host, the rail on the part.

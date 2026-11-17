@@ -1,6 +1,6 @@
+import type { IAutoMovieInspectionRequest } from "../inspection/IAutoMovieInspectionRequest.js";
 import type { IAutoMovieCaptureSelection } from "./IAutoMovieCaptureSelection.js";
 import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime.js";
-import type { IAutoMovieInspectionRequest } from "../inspection/IAutoMovieInspectionRequest.js";
 
 /**
  * One still of a capture, as data planned before anything is drawn: fixed by its selection, its time, its view and its pass, which is how `.agents/skills/visual-debugging/capture.md` defines a cell.

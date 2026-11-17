@@ -1,5 +1,12 @@
-import { type IAutoMovieShotContractSubjectReader, IAutoMovieCompiledPredicateResult, IAutoMoviePose, IAutoMovieSceneNode, IAutoMovieShotPredicate, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieCompiledPredicateResult,
+  IAutoMoviePose,
+  IAutoMovieSceneNode,
+  type IAutoMovieShotContractSubjectReader,
+  IAutoMovieShotPredicate,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Measure one typed shot-contract predicate in the compiled artifacts at a shot-local second and compare it with its declared value.

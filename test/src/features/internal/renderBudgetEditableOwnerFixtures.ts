@@ -1,6 +1,20 @@
-import type { IAutoMovieRenderSubject, AutoMovieRenderMetric, IAutoMovieModel, IAutoMovieRenderBudget, IAutoMovieRenderInventory, IAutoMovieRenderReport, IAutoMovieRenderTarget, IAutoMovieScene, IAutoMovieTransform } from "@automovie/interface";
-import { deriveAutoMovieSemanticMask, evaluateAutoMovieRenderBudget, measureAutoMovieRenderInventory, sealAutoMovieRenderTarget } from "@automovie/engine";
-
+import {
+  deriveAutoMovieSemanticMask,
+  evaluateAutoMovieRenderBudget,
+  measureAutoMovieRenderInventory,
+  sealAutoMovieRenderTarget,
+} from "@automovie/engine";
+import type {
+  AutoMovieRenderMetric,
+  IAutoMovieModel,
+  IAutoMovieRenderBudget,
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderReport,
+  IAutoMovieRenderSubject,
+  IAutoMovieRenderTarget,
+  IAutoMovieScene,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
 import { boxModel, modelsFixture } from "./renderFixtures";
 

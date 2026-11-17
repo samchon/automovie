@@ -1,4 +1,8 @@
-import type { IAutoMovieSpringParams, IAutoMovieSpringStep } from "@automovie/interface";
+import type {
+  IAutoMovieSpringParams,
+  IAutoMovieSpringStep,
+} from "@automovie/interface";
+
 const assertFinite: (label: string, value: number) => void = (
   label: string,
   value: number,

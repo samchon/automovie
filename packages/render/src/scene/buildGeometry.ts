@@ -1,7 +1,10 @@
-import type { IAutoMovieTessellation, IAutoMovieGeometry, IAutoMovieMesh, IAutoMovieMeshMorphTarget } from "@automovie/interface";
-
 import { realizeAutoMovieBicubicAtlas64, tessellate } from "@automovie/engine";
-
+import type {
+  IAutoMovieGeometry,
+  IAutoMovieMesh,
+  IAutoMovieMeshMorphTarget,
+  IAutoMovieTessellation,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import { AutoMovieGeometryPhysicalVertices } from "./AutoMovieGeometryPhysicalVertices.js";

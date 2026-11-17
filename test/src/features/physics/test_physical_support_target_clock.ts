@@ -1,6 +1,16 @@
-import type { IAutoMovieAdvancePhysicalBalance, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicalProfile as P, IAutoMovieVector3 as V } from "@automovie/interface";
-import { bindPhysicalWorld, physicalSupportPoint, samplePhysicalTarget, trackPhysicalBalanceTargets, trackPhysicalRootSupportTargets } from "@automovie/engine";
-
+import {
+  bindPhysicalWorld,
+  physicalSupportPoint,
+  samplePhysicalTarget,
+  trackPhysicalBalanceTargets,
+  trackPhysicalRootSupportTargets,
+} from "@automovie/engine";
+import type {
+  IAutoMovieAdvancePhysicalBalance,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalProfile as P,
+  IAutoMovieVector3 as V,
+} from "@automovie/interface";
 import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
@@ -27,14 +37,13 @@ import { vclose } from "../internal/vclose";
  */
 export async function test_physical_support_target_clock(): Promise<void> {
   await RAPIER.init();
-  const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalSupportFixtures.body(
-    PhysicalModelFixtures.quadrupod(),
-    1 / 120,
-  );
+  const body: IAutoMoviePhysicalSimulationInput.IBody =
+    PhysicalSupportFixtures.body(PhysicalModelFixtures.quadrupod(), 1 / 120);
   body.balance!.iterations = 32;
   body.balance!.targetTolerance = 1e-5;
-  const pattern: NonNullable<IAutoMoviePhysicalSimulationInput.IBody["balance"]>["pattern"] =
-    body.balance!.pattern;
+  const pattern: NonNullable<
+    IAutoMoviePhysicalSimulationInput.IBody["balance"]
+  >["pattern"] = body.balance!.pattern;
   for (const pose of Object.values(body.targets[1]!.segments))
     pose.position.x += 0.001;
   body.targets[1]!.supportStrength = Object.fromEntries(
@@ -45,7 +54,8 @@ export async function test_physical_support_target_clock(): Promise<void> {
       ],
     ),
   );
-  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], 1 / 120);
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([body], 1 / 120);
   input.substeps = 8;
   input.floor = 0;
   input.internalIterations = 1;
@@ -68,7 +78,11 @@ export async function test_physical_support_target_clock(): Promise<void> {
       { ...carrier.translation(), x: carrier.translation().x + 0.02 },
       true,
     );
-    const state: IAutoMovieAdvancePhysicalBalance.IState = { last: "supported", steps: [], offsets: {} };
+    const state: IAutoMovieAdvancePhysicalBalance.IState = {
+      last: "supported",
+      steps: [],
+      offsets: {},
+    };
     const planted: string[] = pattern.limbs.map(
       (limb: (typeof pattern.limbs)[number]): string => limb.bone,
     );

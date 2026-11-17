@@ -1,7 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanTouchEffector, IAutoMovieMotionHumanTouchSite, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-
-import { AutoMovieMotionHumanTouchEffector, AutoMovieMotionHumanTouchForm, HumanChain, HumanPerformance, HumanSocial, touch } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionHumanTouchSite,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanTouchEffector,
+  AutoMovieMotionHumanTouchForm,
+  HumanChain,
+  HumanPerformance,
+  HumanSocial,
+  touch,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -75,7 +88,8 @@ export function test_human_motion_touch_partner_reach(): void {
         })
         .with(HumanChain.subject("b").stand({ seconds: 5 })).node,
     });
-    const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+    const placed: IAutoMovieMotionHumanSegment.ISegment =
+      performance.segments("a")[1]!;
     const instant = (event: string): number =>
       placed.start +
       (placed.plan.events.find(

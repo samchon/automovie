@@ -1,6 +1,15 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanObstacle, IAutoMovieMotionTarget, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanObstacle,
+  IAutoMovieMotionTarget,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanObstacle } from "../perform/HumanObstacle";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -139,9 +148,8 @@ export namespace StrikingRoom {
     launch: number,
   ): number {
     if (target.kind !== "person") return Infinity;
-    const other: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(
-      target.subject,
-    );
+    const other: IAutoMovieMotionHumanActionContext.IPerformer =
+      context.performer(target.subject);
     return along({
       body: context.body,
       bones,
@@ -172,7 +180,9 @@ export namespace StrikingRoom {
    */
   export function behind(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "obstacles">,
-    feet: Readonly<Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>>,
+    feet: Readonly<
+      Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>
+    >,
     line: IAutoMovieVector3,
   ): number {
     const limit: number = StrikingStance.length(context.body);
@@ -184,15 +194,16 @@ export namespace StrikingRoom {
         "heel",
         feet[side],
       );
-      const block: IAutoMovieMotionHumanObstacle.IBlock | null = HumanObstacle.blocking(
-        context.obstacles(),
-        heel,
-        Vector3.subtract(heel, Vector3.scale(line, limit)),
-        {
-          breadth: context.body.measure.chestBreadth,
-          height: context.body.measure.stature,
-        },
-      );
+      const block: IAutoMovieMotionHumanObstacle.IBlock | null =
+        HumanObstacle.blocking(
+          context.obstacles(),
+          heel,
+          Vector3.subtract(heel, Vector3.scale(line, limit)),
+          {
+            breadth: context.body.measure.chestBreadth,
+            height: context.body.measure.stature,
+          },
+        );
       if (block !== null) room = Math.min(room, block.distance);
     }
     return room;
@@ -258,9 +269,8 @@ export namespace StrikingRoom {
     feint: IFeint,
   ): number {
     if (target.kind !== "person") return feint.declared;
-    const other: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(
-      target.subject,
-    );
+    const other: IAutoMovieMotionHumanActionContext.IPerformer =
+      context.performer(target.subject);
     const theirs: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       other.bones(feint.launch - StrikingTarget.LOOK);
     const guard: number = Math.max(

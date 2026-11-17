@@ -1,6 +1,10 @@
-import type { IAutoMovieHit, IAutoMovieProjectile, IAutoMovieProjectileContinue, IAutoMovieVector3 } from "@automovie/interface";
 import { projectileContinue } from "@automovie/engine";
-
+import type {
+  IAutoMovieHit,
+  IAutoMovieProjectile,
+  IAutoMovieProjectileContinue,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

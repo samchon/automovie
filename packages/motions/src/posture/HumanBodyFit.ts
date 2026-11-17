@@ -1,4 +1,12 @@
-import type { IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanFitGoals, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanQuadraticProgram, IAutoMovieMotionHumanSequentialConvex, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBodyFitTypes,
+  IAutoMovieMotionHumanFitGoals,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanQuadraticProgram,
+  IAutoMovieMotionHumanSequentialConvex,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanBodyFitMerit } from "./HumanBodyFitMerit";
 import { HumanBodyFitRows } from "./HumanBodyFitRows";
@@ -100,7 +108,9 @@ export namespace HumanBodyFit {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function solve(props: IAutoMovieMotionHumanBodyFitTypes.IProps): IAutoMovieMotionHumanPosture {
+  export function solve(
+    props: IAutoMovieMotionHumanBodyFitTypes.IProps,
+  ): IAutoMovieMotionHumanPosture {
     return fit(props).posture;
   }
 
@@ -118,18 +128,27 @@ export namespace HumanBodyFit {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
-  export function fit(props: IAutoMovieMotionHumanBodyFitTypes.IProps): IAutoMovieMotionHumanBodyFitTypes.IResult {
-    const { body, posture }: Pick<IAutoMovieMotionHumanBodyFitTypes.IProps, "body" | "posture"> = props;
+  export function fit(
+    props: IAutoMovieMotionHumanBodyFitTypes.IProps,
+  ): IAutoMovieMotionHumanBodyFitTypes.IResult {
+    const {
+      body,
+      posture,
+    }: Pick<IAutoMovieMotionHumanBodyFitTypes.IProps, "body" | "posture"> =
+      props;
     const variables: readonly IAutoMovieMotionHumanJacobian.IVariable[] =
       props.variables ?? HumanFitVariables.BODY;
-    const targets: readonly IAutoMovieMotionHumanBodyFitTypes.ITarget[] = props.targets ?? [];
-    const angles: readonly IAutoMovieMotionHumanFitGoals.IAngle[] = props.angles ?? [];
+    const targets: readonly IAutoMovieMotionHumanBodyFitTypes.ITarget[] =
+      props.targets ?? [];
+    const angles: readonly IAutoMovieMotionHumanFitGoals.IAngle[] =
+      props.angles ?? [];
     const bearing: readonly RegExp[] = props.bearing ?? [];
     const pairs: HumanFitPairs.IPair[] = HumanFitPairs.of(body);
     const n: number = variables.length;
     const key: Float64Array = HumanFitVariables.vector(variables, posture);
     const units: number[] = variables.map(
-      (v: IAutoMovieMotionHumanJacobian.IVariable): number => HumanFitVariables.unit(v),
+      (v: IAutoMovieMotionHumanJacobian.IVariable): number =>
+        HumanFitVariables.unit(v),
     );
 
     // A step under a variable's resolution share, in the widest region's
@@ -172,7 +191,10 @@ export namespace HumanBodyFit {
       state: IAutoMovieMotionHumanQuadraticProgram.IState;
       rows: IRead[];
     } | null = null;
-    const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<Float64Array, IEvaluation> = {
+    const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<
+      Float64Array,
+      IEvaluation
+    > = {
       evaluate: merit.evaluate,
       feasible: (e: IEvaluation): boolean => merit.holds(e.misses),
       correct: (
@@ -182,17 +204,16 @@ export namespace HumanBodyFit {
       ): Float64Array | null => {
         if (last === null || last.x !== x) return null;
         const l: ILast = last;
-        const shifted: IAutoMovieMotionHumanQuadraticProgram.IRow[] = l.rows.map(
-          (r: IRead): IAutoMovieMotionHumanQuadraticProgram.IRow => {
+        const shifted: IAutoMovieMotionHumanQuadraticProgram.IRow[] =
+          l.rows.map((r: IRead): IAutoMovieMotionHumanQuadraticProgram.IRow => {
             let model: number = 0;
             for (let a: number = 0; a < r.row.index.length; a++)
               model += r.row.coef[a]! * l.moved[r.row.index[a]!]!;
             const miss: number = (r.f(trial.r) - r.f(l.at)) * MM - model;
             return { ...r.row, l: r.row.l - miss, u: r.row.u - miss };
-          },
-        );
-        const state: IAutoMovieMotionHumanQuadraticProgram.IState = HumanQuadraticProgram.solve(
-          {
+          });
+        const state: IAutoMovieMotionHumanQuadraticProgram.IState =
+          HumanQuadraticProgram.solve({
             n,
             band: n - 1,
             p: l.p,
@@ -201,8 +222,7 @@ export namespace HumanBodyFit {
               ...shifted,
               ...HumanFitVariables.bounds(variables, x, l.radius),
             ],
-          },
-        );
+          });
         return moved(x, state.x);
       },
       convexify: (
@@ -275,7 +295,10 @@ export namespace HumanBodyFit {
               p,
               q,
               rows: [
-                ...rows.map((r: IRead): IAutoMovieMotionHumanQuadraticProgram.IRow => r.row),
+                ...rows.map(
+                  (r: IRead): IAutoMovieMotionHumanQuadraticProgram.IRow =>
+                    r.row,
+                ),
                 ...HumanFitVariables.bounds(variables, x, radius),
               ],
             };
@@ -335,43 +358,50 @@ export namespace HumanBodyFit {
         (v: number, i: number): number => v + s[i]! * units[i]!,
       );
 
-    const solved: IAutoMovieMotionHumanSequentialConvex.IResult<Float64Array, IEvaluation> =
-      HumanSequentialConvex.minimise(
-        problem,
-        HumanFitVariables.vector(variables, props.start ?? posture),
-        {
-          schedule: {
-            eta: ACCEPTED,
-            low: POOR,
-            high: GOOD,
-            shrink: 0.5,
-            expand: 2,
-            boundary: true,
-            widest: 1,
-            trust: 1,
-            least,
-            tries: HALVINGS + 1,
-            improved: (merit: number): number => merit * CONVERGED,
-          },
-          penalties: [PRICE],
-          rounds: ROUNDS,
-          steer: true,
+    const solved: IAutoMovieMotionHumanSequentialConvex.IResult<
+      Float64Array,
+      IEvaluation
+    > = HumanSequentialConvex.minimise(
+      problem,
+      HumanFitVariables.vector(variables, props.start ?? posture),
+      {
+        schedule: {
+          eta: ACCEPTED,
+          low: POOR,
+          high: GOOD,
+          shrink: 0.5,
+          expand: 2,
+          boundary: true,
+          widest: 1,
+          trust: 1,
+          least,
+          tries: HALVINGS + 1,
+          improved: (merit: number): number => merit * CONVERGED,
         },
-      );
+        penalties: [PRICE],
+        rounds: ROUNDS,
+        steer: true,
+      },
+    );
     const r: IReading = solved.evaluation.r;
     return {
       posture: HumanFitVariables.written(variables, posture, solved.x),
       residuals: targets.map(
-        (t: IAutoMovieMotionHumanBodyFitTypes.ITarget, k: number): { point: number; turn: number } =>
+        (
+          t: IAutoMovieMotionHumanBodyFitTypes.ITarget,
+          k: number,
+        ): { point: number; turn: number } =>
           HumanBodyFitRows.residual(t, r, k),
       ),
-      angles: angles.map((target: IAutoMovieMotionHumanFitGoals.IAngle, k: number): number => {
-        const [lo, hi]: readonly [number, number] =
-          HumanFitGoals.bounds(target);
-        return (
-          (Math.max(0, lo - r.angles[k]!, r.angles[k]! - hi) * 180) / Math.PI
-        );
-      }),
+      angles: angles.map(
+        (target: IAutoMovieMotionHumanFitGoals.IAngle, k: number): number => {
+          const [lo, hi]: readonly [number, number] =
+            HumanFitGoals.bounds(target);
+          return (
+            (Math.max(0, lo - r.angles[k]!, r.angles[k]! - hi) * 180) / Math.PI
+          );
+        },
+      ),
       centre:
         props.centre === undefined
           ? 0

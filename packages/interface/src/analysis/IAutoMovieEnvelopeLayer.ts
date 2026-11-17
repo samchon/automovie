@@ -1,5 +1,3 @@
-
-
 /**
  * One homogeneous layer of an envelope assembly.
  *

@@ -1,6 +1,23 @@
-import type { IAutoMovieIntent, IAutoMovieMotionEvent, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanRefusal, IAutoMovieMotionHumanResponse, IAutoMovieMotionHumanSegment, IAutoMovieMotionMeeting, IAutoMovieResolveSchedule, IAutoMovieSchedule, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieScheduleError,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+  resolveAutoMovieSchedule,
+} from "@automovie/engine";
+import type {
+  IAutoMovieIntent,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionHumanResponse,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionMeeting,
+  IAutoMovieResolveSchedule,
+  IAutoMovieSchedule,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { AutoMovieScheduleError, Vector3, resolveAutoMovieHumanoidSurfaces, resolveAutoMovieSchedule } from "@automovie/engine";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanResponse } from "../skill/HumanResponse";
 import { HumanSkill } from "../skill/HumanSkill";
@@ -36,10 +53,8 @@ export namespace HumanPerformanceSchedule {
           intent: IAutoMovieIntent,
           context: IAutoMovieResolveSchedule.IContext,
         ): IAutoMovieResolveSchedule.ITiming => {
-          const where: IAutoMovieMotionHumanRefusal.IWhere = HumanPerformanceRead.where(
-            self,
-            intent,
-          );
+          const where: IAutoMovieMotionHumanRefusal.IWhere =
+            HumanPerformanceRead.where(self, intent);
           try {
             return HumanPerformancePlace.place(
               self,
@@ -79,10 +94,8 @@ export namespace HumanPerformanceSchedule {
           target: number,
           context: IAutoMovieResolveSchedule.IAlignment,
         ): number => {
-          const where: IAutoMovieMotionHumanRefusal.IWhere = HumanPerformanceRead.where(
-            self,
-            intent,
-          );
+          const where: IAutoMovieMotionHumanRefusal.IWhere =
+            HumanPerformanceRead.where(self, intent);
           try {
             return HumanPerformanceSchedule.align(
               self,
@@ -125,10 +138,8 @@ export namespace HumanPerformanceSchedule {
     where: IAutoMovieMotionHumanRefusal.IWhere,
   ): number {
     const entries: readonly IAutoMovieSchedule.IEntry[] = context.entries;
-    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      intent.subject,
-    );
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, intent.subject);
     const previous: IAutoMovieMotionHumanSegment.ISegment | undefined =
       intent.parameters?.over === true ? undefined : person.segments.at(-1);
     const floor: number = Math.max(0, previous?.entryTime ?? 0);
@@ -243,10 +254,8 @@ export namespace HumanPerformanceSchedule {
           ? { mean: Number(raw.mean), spread: Number(raw.spread) }
           : undefined;
     if (kind === undefined) return 0;
-    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      intent.subject,
-    );
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, intent.subject);
     const event: string | undefined = context.anchor.event;
     const index: number = context.anchor.index ?? 0;
     const warned: boolean =
@@ -278,14 +287,13 @@ export namespace HumanPerformanceSchedule {
   ): number | undefined {
     const until = intent.until;
     if (until === undefined || !("proximity" in until)) return undefined;
-    const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      intent.subject,
-    );
+    const person: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, intent.subject);
 
     // A proximity cut reads the carrier's reach; an overlay's is not found.
     if (intent.parameters?.over === true) return undefined;
-    const segment: IAutoMovieMotionHumanSegment.ISegment = person.segments.at(-1)!;
+    const segment: IAutoMovieMotionHumanSegment.ISegment =
+      person.segments.at(-1)!;
     const frame =
       person.performer.body.surfaces.regions[until.proximity.effector];
     const gap = (seconds: number): number => {

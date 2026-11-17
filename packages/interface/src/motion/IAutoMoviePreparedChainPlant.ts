@@ -1,8 +1,8 @@
-import type { IAutoMovieJointRotationDomain } from "../pose/IAutoMovieJointRotationDomain";
-import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
 import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
-import type { IAutoMovieResolvedBone } from "../pose/IAutoMovieResolvedBone";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieJointRotationDomain } from "../pose/IAutoMovieJointRotationDomain";
+import type { IAutoMovieResolvedBone } from "../pose/IAutoMovieResolvedBone";
+import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
 
 /**
  * Pose-invariant chain frames and effective clinical domains prepared for one target.

@@ -1,5 +1,5 @@
-import type { IAutoMovieSectionPlane } from "@automovie/interface";
 import { autoMovieSectionPlanesKeepPoint } from "@automovie/engine";
+import type { IAutoMovieSectionPlane } from "@automovie/interface";
 import { applyAutoMovieSectionPlanes } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";

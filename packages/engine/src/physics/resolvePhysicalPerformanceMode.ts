@@ -1,4 +1,5 @@
 import type { IAutoMoviePerformanceMode } from "@automovie/interface";
+
 /**
  * Resolve an explicit scene policy and optional body override without content-name defaults.
  *

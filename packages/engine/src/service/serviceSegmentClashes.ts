@@ -1,5 +1,10 @@
-import { type IAutoMovieServiceClash, IAutoMoviePropBox, IAutoMovieServiceNetwork, IAutoMovieServiceNode, IAutoMovieServiceSegment } from "@automovie/interface";
-
+import {
+  IAutoMoviePropBox,
+  type IAutoMovieServiceClash,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+  IAutoMovieServiceSegment,
+} from "@automovie/interface";
 
 import { propBoundsOverlap } from "../film/propBoundsOverlap";
 import { portOwners } from "./portOwners";

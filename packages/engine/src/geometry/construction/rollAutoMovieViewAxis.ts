@@ -1,4 +1,12 @@
-import type { AutoMovieVector3Tuple, IAutoMovieConstructionOutlineParameter, IAutoMovieLoftFrame, IAutoMovieViewAxis, IAutoMovieViewAxisJet, IAutoMovieViewOutline } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieLoftFrame,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+  IAutoMovieViewOutline,
+} from "@automovie/interface";
+
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 
@@ -64,23 +72,24 @@ export function rollAutoMovieViewAxis(
   const measured: number = Math.atan2(sine, cosine);
   const angle: number = measured === -Math.PI ? Math.PI : measured;
   if (angle === 0) return base;
-  const source: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
-    AutoMovieViewOutline.create({
-      knots: [
-        {
-          site: "material roll start",
-          station: from,
-          value: 0,
-          jet: { first: 0, second: 0 },
-        },
-        {
-          site: "material roll end",
-          station: to,
-          value: angle,
-          jet: { first: 0, second: 0 },
-        },
-      ],
-    });
+  const source:
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+    knots: [
+      {
+        site: "material roll start",
+        station: from,
+        value: 0,
+        jet: { first: 0, second: 0 },
+      },
+      {
+        site: "material roll end",
+        station: to,
+        value: angle,
+        jet: { first: 0, second: 0 },
+      },
+    ],
+  });
   if ("contract" in source)
     return `material roll ${source.contract}: ${source.detail}`;
 

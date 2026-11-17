@@ -1,5 +1,3 @@
-
-
 /**
  * Top-left pixel anchor for a raster label. stampAutoMovieRasterLabel measures x rightward and y downward from the image origin, rounds the anchor and moves the label box back inside the image before clipping oversized content. This pixel coordinate is distinct from a world-space vector.
  *
@@ -8,8 +6,9 @@
  * @evidence contracts/development/design.md#prohibited-design-shortcuts This pixel coordinate is distinct from a world-space vector.
  * @evidence contracts/development/common.md#meaningful-documentation Top-left pixel anchor for a raster label. stampAutoMovieRasterLabel measures x rightward and y downward from the image origin, rounds the anchor and moves the label box back inside the image before clipping oversized content. The prose and members document how stampAutoMovieRasterLabel interprets and admits these values.
  */
-export interface IAutoMovieRasterPoint { 
-/** Pixel coordinate measured rightward from the image's left edge. */
-x: number; 
-/** Pixel coordinate measured downward from the image's top edge. */
-y: number }
+export interface IAutoMovieRasterPoint {
+  /** Pixel coordinate measured rightward from the image's left edge. */
+  x: number;
+  /** Pixel coordinate measured downward from the image's top edge. */
+  y: number;
+}

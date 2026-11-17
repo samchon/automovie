@@ -1,10 +1,7 @@
-import type { IAutoMovieRecoveryCameraTracksLinkageOperation, IAutoMovieRecoveryMapObservation } from "@automovie/interface";
-
-
-
-
-
-
+import type {
+  IAutoMovieRecoveryCameraTracksLinkageOperation,
+  IAutoMovieRecoveryMapObservation,
+} from "@automovie/interface";
 
 /**
  * Link bidirectionally ratio-qualified feature identities across fixed images.
@@ -78,12 +75,14 @@ export function linkRecoveryCameraTracks(
     observations.push({
       viewIndex: view,
       featureIndex,
-      pixel: [...features[view]!.points[featureIndex]!.point] });
+      pixel: [...features[view]!.points[featureIndex]!.point],
+    });
     grouped.set(root, observations);
     if (grouped.size > budget.maxTracks)
       throw new Error("camera-map: linked track budget exhausted");
   }
-  const tracks: ReturnType<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation>["tracks"] = [];
+  const tracks: ReturnType<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation>["tracks"] =
+    [];
   let conflictingComponents: number = 0;
   for (const [id, observations] of grouped) {
     if (
@@ -102,5 +101,6 @@ export function linkRecoveryCameraTracks(
     linkedObservations: linked.size,
     components: grouped.size,
     conflictingComponents,
-    intersectionMatches };
+    intersectionMatches,
+  };
 }

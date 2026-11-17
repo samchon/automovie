@@ -1,6 +1,20 @@
-import type { AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieRecoveryEventChartInput, IAutoMovieRecoveryEventCurveArc, IAutoMovieRecoveryEventCurvePiece } from "@automovie/interface";
-import { AutoMovieBernstein64 as B, realizeAutoMovieBicubicAtlas64 } from "@automovie/engine";
-import { AutoMovieRecoveryEventCurve as E, compileAutoMovieRecoveryNativeNamedChart as compile, prepareAutoMovieRecoveryAnnularChart } from "@automovie/recovery";
+import {
+  AutoMovieBernstein64 as B,
+  realizeAutoMovieBicubicAtlas64,
+} from "@automovie/engine";
+import type {
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieRecoveryEventChartInput,
+  IAutoMovieRecoveryEventCurveArc,
+  IAutoMovieRecoveryEventCurvePiece,
+} from "@automovie/interface";
+import {
+  AutoMovieRecoveryEventCurve as E,
+  compileAutoMovieRecoveryNativeNamedChart as compile,
+  prepareAutoMovieRecoveryAnnularChart,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -24,12 +38,11 @@ export function test_geometry_recovery_native_named_chart(): void {
     maxVertices: 16384,
     toleranceMm: 0.01,
   };
-  const tuple: (points: AutoMovieBernsteinPolynomial64) => IAutoMovieCurve64.Span = (points: AutoMovieBernsteinPolynomial64): IAutoMovieCurve64.Span => [
-    points[0]!,
-    points[1]!,
-    points[2]!,
-    points[3]!,
-  ];
+  const tuple: (
+    points: AutoMovieBernsteinPolynomial64,
+  ) => IAutoMovieCurve64.Span = (
+    points: AutoMovieBernsteinPolynomial64,
+  ): IAutoMovieCurve64.Span => [points[0]!, points[1]!, points[2]!, points[3]!];
   for (const scale of [1, 1 / 256])
     for (const origin of [0, 1000])
       for (const winding of [1, -1] as const) {
@@ -42,7 +55,10 @@ export function test_geometry_recovery_native_named_chart(): void {
               [2 * scale, y, 1.1 * scale],
               [2.7 * scale, y, 0.8 * scale],
             ];
-            const split: [AutoMovieBernsteinPolynomial64, AutoMovieBernsteinPolynomial64] = B.split(net, q);
+            const split: [
+              AutoMovieBernsteinPolynomial64,
+              AutoMovieBernsteinPolynomial64,
+            ] = B.split(net, q);
             return E.fromCurve({
               type: "cubicBezier",
               name: `course${row}`,
@@ -138,7 +154,10 @@ export function test_geometry_recovery_native_named_chart(): void {
       phaseUnit: "normalized",
       phaseIntervals: [1, 1, 1, 1],
       spans: points.map(
-        (point: Readonly<AutoMovieVector3Tuple>, i: number): IAutoMovieCurve64.Span =>
+        (
+          point: Readonly<AutoMovieVector3Tuple>,
+          i: number,
+        ): IAutoMovieCurve64.Span =>
           E.controls(
             E.line(point, points[(i + 1) % 4]!, `${name}-edge${i}`).pieces[0]!,
           ),

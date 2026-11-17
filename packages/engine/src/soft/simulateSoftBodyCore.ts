@@ -1,4 +1,15 @@
-import { type IAutoMovieSoftBodyBoundarySample, type IAutoMovieSoftBodyObserver, type IAutoMovieSoftBodyResolvedAnchor, IAutoMovieSoftAnchor, IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState, IAutoMovieSoftCompliance, IAutoMovieSoftContact, IAutoMovieSoftWind, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieSoftAnchor,
+  type IAutoMovieSoftBodyBoundarySample,
+  IAutoMovieSoftBodyDomain,
+  type IAutoMovieSoftBodyObserver,
+  type IAutoMovieSoftBodyResolvedAnchor,
+  IAutoMovieSoftBodyState,
+  IAutoMovieSoftCompliance,
+  IAutoMovieSoftContact,
+  IAutoMovieSoftWind,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { SOFT_BODY_NEIGHBOURS } from "./SOFT_BODY_NEIGHBOURS";
 import { applySoftBodyFriction } from "./applySoftBodyFriction";

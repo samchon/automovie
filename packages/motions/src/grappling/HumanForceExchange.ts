@@ -1,5 +1,3 @@
-import type { IAutoMovieIntegrateMotionTrajectory, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanForceExchange, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   AutoMovieGravity,
   Vector3,
@@ -7,6 +5,12 @@ import {
   convexHull2D,
   integrateMotionTrajectory,
 } from "@automovie/engine";
+import type {
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieMotionHumanForce,
+  IAutoMovieMotionHumanForceExchange,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The mechanics of a force exchanged through grips (#3439): a pull that
@@ -113,7 +117,9 @@ export namespace HumanForceExchange {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function breaking(props: IAutoMovieMotionHumanForceExchange.IBreakingProps): number {
+  export function breaking(
+    props: IAutoMovieMotionHumanForceExchange.IBreakingProps,
+  ): number {
     const { mass, frequency, edge, seconds } = props;
     if (!(mass > 0 && frequency > 0 && edge > 0 && seconds > 0))
       throw new Error(
@@ -138,7 +144,9 @@ export namespace HumanForceExchange {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function broken(props: IAutoMovieMotionHumanForceExchange.IBrokenProps): number {
+  export function broken(
+    props: IAutoMovieMotionHumanForceExchange.IBrokenProps,
+  ): number {
     const { mass, frequency, edge, force } = props;
     if (!(force > 0)) return Number.POSITIVE_INFINITY;
     return (
@@ -161,7 +169,9 @@ export namespace HumanForceExchange {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function drawn(props: IAutoMovieMotionHumanForceExchange.IDrawnProps): IAutoMovieMotionHumanForceExchange.IDrawnResult {
+  export function drawn(
+    props: IAutoMovieMotionHumanForceExchange.IDrawnProps,
+  ): IAutoMovieMotionHumanForceExchange.IDrawnResult {
     const t: number = Math.max(0, props.seconds);
     const w: number = props.frequency;
     const a: number = props.force / (props.mass * w * w);
@@ -284,11 +294,15 @@ export namespace HumanForceExchange {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function pull(props: IAutoMovieMotionHumanForceExchange.IPullProps): IAutoMovieMotionHumanForce.ISustained[] {
+  export function pull(
+    props: IAutoMovieMotionHumanForceExchange.IPullProps,
+  ): IAutoMovieMotionHumanForce.ISustained[] {
     const each: number =
       props.sites.length === 0 ? 0 : props.force / props.sites.length;
     return props.sites.map(
-      (at: IAutoMovieMotionHumanForce.At): IAutoMovieMotionHumanForce.ISustained => ({
+      (
+        at: IAutoMovieMotionHumanForce.At,
+      ): IAutoMovieMotionHumanForce.ISustained => ({
         kind: "sustained",
         subject: props.subject,
         at,

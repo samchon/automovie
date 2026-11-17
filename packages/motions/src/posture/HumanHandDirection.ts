@@ -1,6 +1,8 @@
-import type { IAutoMovieMotionHumanHand, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanHand,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanFrame } from "./HumanFrame";
 

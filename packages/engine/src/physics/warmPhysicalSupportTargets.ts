@@ -1,4 +1,8 @@
-import type { IAutoMoviePhysicalProfile, IAutoMovieWarmPhysicalSupportTargets } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMovieWarmPhysicalSupportTargets,
+} from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { physicalJointRelativeRotation } from "./physicalJointRelativeRotation";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
@@ -16,24 +20,30 @@ import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function warmPhysicalSupportTargets(input: IAutoMovieWarmPhysicalSupportTargets.IInput): Record<string, IAutoMoviePhysicalProfile.ITransform> {
-  const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> = { ...input.targets };
+export function warmPhysicalSupportTargets(
+  input: IAutoMovieWarmPhysicalSupportTargets.IInput,
+): Record<string, IAutoMoviePhysicalProfile.ITransform> {
+  const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> = {
+    ...input.targets,
+  };
   const owned: Set<string> = new Set();
   for (const segment of input.order) {
-    const joint: IAutoMoviePhysicalProfile.IJoint | undefined = input.joints.get(segment.bone);
+    const joint: IAutoMoviePhysicalProfile.IJoint | undefined =
+      input.joints.get(segment.bone);
     if (!joint || !input.selected.has(segment.bone)) continue;
-    const relative: IAutoMoviePhysicalProfile.ITransform["rotation"] = projectPhysicalJointRotation(
-      joint,
-      Quaternion.multiply(
+    const relative: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+      projectPhysicalJointRotation(
+        joint,
         Quaternion.multiply(
-          physicalJointRelativeRotation(input.targets, joint),
-          Quaternion.inverse(
-            physicalJointRelativeRotation(input.before, joint),
+          Quaternion.multiply(
+            physicalJointRelativeRotation(input.targets, joint),
+            Quaternion.inverse(
+              physicalJointRelativeRotation(input.before, joint),
+            ),
           ),
+          physicalJointRelativeRotation(input.previous, joint),
         ),
-        physicalJointRelativeRotation(input.previous, joint),
-      ),
-    );
+      );
     const descendants: readonly string[] = input.descendants.get(joint.child)!;
     for (const bone of descendants)
       if (!owned.has(bone)) {

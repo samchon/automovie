@@ -1,7 +1,7 @@
-import type { IAutoMovieMotionHumanAttribute } from "../ensemble/IAutoMovieMotionHumanAttribute";
-import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
-import type { IAutoMovieProficiency } from "../skill/IAutoMovieProficiency";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
+import type { IAutoMovieMotionHumanAttribute } from "../ensemble/IAutoMovieMotionHumanAttribute";
+import type { IAutoMovieProficiency } from "../skill/IAutoMovieProficiency";
 
 /**
  * One person in a performance: whose body, where and facing which way they

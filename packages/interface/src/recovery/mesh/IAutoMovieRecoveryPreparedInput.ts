@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryInput, IAutoMovieRecoveryRegistration } from "../../index";
+import type {
+  IAutoMovieRecoveryInput,
+  IAutoMovieRecoveryRegistration,
+} from "../../index";
 
 /** Admitted observation input coupled to its declared registration.
  *
@@ -8,11 +11,9 @@ import type { IAutoMovieRecoveryInput, IAutoMovieRecoveryRegistration } from "..
  * @evidence contracts/development/common.md#meaningful-documentation States that geometry and registration are borrowed and remain stable while observation consumes them.
  */
 export interface IAutoMovieRecoveryPreparedInput {
- 
- /** Observation wrapper borrowing the registered geometry and policy fields; keep arrays stable during observation. */
+  /** Observation wrapper borrowing the registered geometry and policy fields; keep arrays stable during observation. */
   observation: IAutoMovieRecoveryInput;
 
- 
- /** Borrowed frame, evaluated pose and already applied transform; admission performs no coordinate conversion. */
+  /** Borrowed frame, evaluated pose and already applied transform; admission performs no coordinate conversion. */
   registration: IAutoMovieRecoveryRegistration;
 }

@@ -1,6 +1,10 @@
-import { type IAutoMovieRecoilPush, IAutoMovieBone, IAutoMovieSkeleton, IAutoMovieTransform } from "@automovie/interface";
 import { impactRecoil } from "@automovie/engine";
-
+import {
+  IAutoMovieBone,
+  type IAutoMovieRecoilPush,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";

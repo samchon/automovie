@@ -1,6 +1,10 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryDiskChart, IAutoMovieRecoveryFeatureChartCuts, IAutoMovieRecoveryFeatureChartPreparation, IAutoMovieRecoveryMultiBoundaryChart } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryDiskChart,
+  IAutoMovieRecoveryFeatureChartCuts,
+  IAutoMovieRecoveryFeatureChartPreparation,
+  IAutoMovieRecoveryMultiBoundaryChart,
+} from "@automovie/interface";
 
 import { RecoveryDiskChart as D } from "./RecoveryDiskChart";
 import { RecoveryFeatureChartCuts as F } from "./RecoveryFeatureChartCuts";
@@ -27,13 +31,15 @@ export function RecoveryFeatureChartPreparation(
     throw new Error(
       "Feature preparation needs an explicit remaining chart budget",
     );
-  const cut: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation> = F(input),
-    charts: ReturnType<IAutoMovieRecoveryFeatureChartPreparation.Operation>["charts"] = [],
-    unsupported: ReturnType<
-      IAutoMovieRecoveryFeatureChartPreparation.Operation
-    >["unsupported"] = [];
+  const cut: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation> =
+      F(input),
+    charts: ReturnType<IAutoMovieRecoveryFeatureChartPreparation.Operation>["charts"] =
+      [],
+    unsupported: ReturnType<IAutoMovieRecoveryFeatureChartPreparation.Operation>["unsupported"] =
+      [];
   for (let i: number = 0; i < cut.charts.length; i++) {
-    const chart: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation>["charts"][number] = cut.charts[i]!,
+    const chart: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation>["charts"][number] =
+        cut.charts[i]!,
       name: string = `${input.name}.feature.${i}`;
     try {
       if (charts.length >= input.maxCharts)
@@ -55,11 +61,13 @@ export function RecoveryFeatureChartPreparation(
             ],
           ),
         );
-        const disk: ReturnType<IAutoMovieRecoveryMultiBoundaryChart.Operation> = M({
-          verticesMm,
-          triangles,
-          vertexKeys: chart.occurrenceKeys,
-          cycles: chart.cycles });
+        const disk: ReturnType<IAutoMovieRecoveryMultiBoundaryChart.Operation> =
+          M({
+            verticesMm,
+            triangles,
+            vertexKeys: chart.occurrenceKeys,
+            cycles: chart.cycles,
+          });
         verticesMm = disk.verticesMm;
         triangles = disk.triangles;
         physicalKeys = disk.vertexKeys.map(
@@ -74,7 +82,8 @@ export function RecoveryFeatureChartPreparation(
         triangles,
         vertexKeys: physicalKeys,
         boundaryCycle: cycle,
-        cornerDegrees: input.cornerDegrees });
+        cornerDegrees: input.cornerDegrees,
+      });
       charts.push({
         name,
         verticesMm: disk.verticesMm,
@@ -82,12 +91,14 @@ export function RecoveryFeatureChartPreparation(
         physicalKeys: disk.vertexKeys,
         sides: disk.sides,
         insertions: disk.insertedBoundaryVertices,
-        sourceFaces: [...new Set(chart.triangleSourceFaces)] });
+        sourceFaces: [...new Set(chart.triangleSourceFaces)],
+      });
     } catch (failure: unknown) {
       unsupported.push({
         chart: name,
         sourceFaces: [...new Set(chart.triangleSourceFaces)],
-        reason: failure instanceof Error ? failure.message : String(failure) });
+        reason: failure instanceof Error ? failure.message : String(failure),
+      });
     }
   }
   return {
@@ -98,5 +109,6 @@ export function RecoveryFeatureChartPreparation(
     diagnostics: [
       ...cut.diagnostics,
       "Feature arc count refers to the validated pre-quarter cut charts; original bank ordinal paths are not final boundary-network witnesses.",
-    ] };
+    ],
+  };
 }

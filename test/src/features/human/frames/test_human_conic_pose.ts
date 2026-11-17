@@ -1,6 +1,22 @@
-import type { IAutoMovieHumanConicLoft, IAutoMovieHumanConicPose, IAutoMovieHumanF1, IAutoMovieViewAxis, IAutoMovieViewJointedCourse } from "@automovie/interface";
-import { AutoMovieViewAxis, AutoMovieViewJointedCourse } from "@automovie/engine";
-import { AutoMovieHumanConicLoft, AutoMovieHumanConicPose as Q, AutoMovieHumanConicSection, AutoMovieHumanF1, AutoMovieHumanF1Placement as P, AutoMovieHumanF1Placing as T } from "@automovie/human";
+import {
+  AutoMovieViewAxis,
+  AutoMovieViewJointedCourse,
+} from "@automovie/engine";
+import {
+  AutoMovieHumanConicLoft,
+  AutoMovieHumanConicSection,
+  AutoMovieHumanF1,
+  AutoMovieHumanF1Placement as P,
+  AutoMovieHumanConicPose as Q,
+  AutoMovieHumanF1Placing as T,
+} from "@automovie/human";
+import type {
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicPose,
+  IAutoMovieHumanF1,
+  IAutoMovieViewAxis,
+  IAutoMovieViewJointedCourse,
+} from "@automovie/interface";
 
 /**
  * A conic family carried to a pose: its turns keep their set-backs, its stations stay on their bones and its chart takes its joints'
@@ -41,112 +57,351 @@ import { AutoMovieHumanConicLoft, AutoMovieHumanConicPose as Q, AutoMovieHumanCo
 export function test_human_conic_pose(): void {
   type V3 = [number, number, number];
   const failures: string[] = [];
-  const near = (label: string, a: readonly number[], b: readonly number[], limit: number): void => {
-    const error: number = Math.max(...a.map((x: number, i: number): number => Math.abs(x - b[i]!)));
-    if (!(error <= limit) || a.length !== b.length) failures.push(`${label}: ${JSON.stringify(a)} against ${JSON.stringify(b)} (error ${error})`);
+  const near = (
+    label: string,
+    a: readonly number[],
+    b: readonly number[],
+    limit: number,
+  ): void => {
+    const error: number = Math.max(
+      ...a.map((x: number, i: number): number => Math.abs(x - b[i]!)),
+    );
+    if (!(error <= limit) || a.length !== b.length)
+      failures.push(
+        `${label}: ${JSON.stringify(a)} against ${JSON.stringify(b)} (error ${error})`,
+      );
   };
-  const prepared = (centres: V3[], halves: number[]): IAutoMovieViewJointedCourse.ICourse => {
-    const made: IAutoMovieViewJointedCourse.ICourse | string = AutoMovieViewJointedCourse.prepare(centres, halves);
-    if (typeof made === "string") throw new Error("made course refused: " + made);
+  const prepared = (
+    centres: V3[],
+    halves: number[],
+  ): IAutoMovieViewJointedCourse.ICourse => {
+    const made: IAutoMovieViewJointedCourse.ICourse | string =
+      AutoMovieViewJointedCourse.prepare(centres, halves);
+    if (typeof made === "string")
+      throw new Error("made course refused: " + made);
     return made;
   };
-  const bent = (angle: number): V3[] => [[-100, 0, 0], [0, 0, 0], [80 * Math.cos(angle), 80 * Math.sin(angle), 0]];
+  const bent = (angle: number): V3[] => [
+    [-100, 0, 0],
+    [0, 0, 0],
+    [80 * Math.cos(angle), 80 * Math.sin(angle), 0],
+  ];
 
   // 1: the share is the engine's.
   for (const angle of [0.3, 1.2, 2]) {
-    const engine: IAutoMovieViewJointedCourse.ICourse = prepared(bent(angle), [7]);
-    near("share at " + angle, [7 * Q.share(angle)], [engine.turns[0]!.setback], 1e-12);
+    const engine: IAutoMovieViewJointedCourse.ICourse = prepared(
+      bent(angle),
+      [7],
+    );
+    near(
+      "share at " + angle,
+      [7 * Q.share(angle)],
+      [engine.turns[0]!.setback],
+      1e-12,
+    );
     const dated: IAutoMovieHumanConicPose.ICourse = Q.course(bent(angle), [7]);
-    near("course at " + angle, [dated.angles[0]!, dated.setbacks[0]!, dated.starts[0]!], [engine.turns[0]!.angle, engine.turns[0]!.setback, engine.turns[0]!.start], 1e-9);
+    near(
+      "course at " + angle,
+      [dated.angles[0]!, dated.setbacks[0]!, dated.starts[0]!],
+      [
+        engine.turns[0]!.angle,
+        engine.turns[0]!.setback,
+        engine.turns[0]!.start,
+      ],
+      1e-9,
+    );
   }
   near("share at a straight joint", [Q.share(0)], [1], 0);
-  if (!(Q.share(0.3) > 1 && Q.share(1.2) > Q.share(0.3) && Q.share(2) > Q.share(1.2))) failures.push("the share does not grow with the angle");
+  if (
+    !(
+      Q.share(0.3) > 1 &&
+      Q.share(1.2) > Q.share(0.3) &&
+      Q.share(2) > Q.share(1.2)
+    )
+  )
+    failures.push("the share does not grow with the angle");
 
   // 2 to 4: a bend opened and a bend closed.
   const reference: V3[] = bent(0.6);
   const before: IAutoMovieViewJointedCourse.ICourse = prepared(reference, [20]);
-  near("identity map", [Q.map(Q.course(reference, [20]), Q.course(reference, [20])) === null ? 1 : 0], [1], 0);
-  if (Q.halves(reference, [20], reference)[0] !== 20) failures.push("the reference half changed");
+  near(
+    "identity map",
+    [
+      Q.map(Q.course(reference, [20]), Q.course(reference, [20])) === null
+        ? 1
+        : 0,
+    ],
+    [1],
+    0,
+  );
+  if (Q.halves(reference, [20], reference)[0] !== 20)
+    failures.push("the reference half changed");
   for (const angle of [1.5, 0.1]) {
     const posed: V3[] = bent(angle);
     const halves: number[] = Q.halves(reference, [20], posed);
     const after: IAutoMovieViewJointedCourse.ICourse = prepared(posed, halves);
-    near("set-back kept at " + angle, [after.turns[0]!.setback], [before.turns[0]!.setback], 1e-9);
-    if (!(Math.abs(halves[0]! - 20) > 0.1)) failures.push(`the half did not change at ${angle}: ${halves[0]}`);
+    near(
+      "set-back kept at " + angle,
+      [after.turns[0]!.setback],
+      [before.turns[0]!.setback],
+      1e-9,
+    );
+    if (!(Math.abs(halves[0]! - 20) > 0.1))
+      failures.push(`the half did not change at ${angle}: ${halves[0]}`);
 
-    const map: ((station: number) => number) | null = Q.map(Q.course(reference, [20]), Q.course(posed, halves));
+    const map: ((station: number) => number) | null = Q.map(
+      Q.course(reference, [20]),
+      Q.course(posed, halves),
+    );
     if (map === null) {
       failures.push(`no map at ${angle}`);
       continue;
     }
-    const run: IAutoMovieViewAxis.IRun = (AutoMovieViewAxis.runs(reference, [20]) as IAutoMovieViewAxis.IRun[])[1]!;
+    const run: IAutoMovieViewAxis.IRun = (
+      AutoMovieViewAxis.runs(reference, [20]) as IAutoMovieViewAxis.IRun[]
+    )[1]!;
     const station: number = run.start + (50 - run.from);
-    const axis: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed(posed, halves, [0, 0, 1]) as IAutoMovieViewAxis.IAxis;
-    near("far bone at " + angle, axis.at(map(station)).origin, [50 * Math.cos(angle), 50 * Math.sin(angle), 0], 1e-9);
+    const axis: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed(
+      posed,
+      halves,
+      [0, 0, 1],
+    ) as IAutoMovieViewAxis.IAxis;
+    near(
+      "far bone at " + angle,
+      axis.at(map(station)).origin,
+      [50 * Math.cos(angle), 50 * Math.sin(angle), 0],
+      1e-9,
+    );
 
-    const [start, end]: number[] = [before.turns[0]!.start, before.turns[0]!.start + 40];
-    near("first run kept at " + angle, [map(-5), map(0), map(30), map(start!)], [-5, 0, 30, start!], 1e-9);
-    for (const at of [start!, end!]) near("continuous at " + at + " for " + angle, [map(at + 1e-7) - map(at - 1e-7)], [0], 1e-6);
+    const [start, end]: number[] = [
+      before.turns[0]!.start,
+      before.turns[0]!.start + 40,
+    ];
+    near(
+      "first run kept at " + angle,
+      [map(-5), map(0), map(30), map(start!)],
+      [-5, 0, 30, start!],
+      1e-9,
+    );
+    for (const at of [start!, end!])
+      near(
+        "continuous at " + at + " for " + angle,
+        [map(at + 1e-7) - map(at - 1e-7)],
+        [0],
+        1e-6,
+      );
     const shift: number = 2 * (halves[0]! - 20);
-    near("shift past the turn at " + angle, [map(end! + 10) - (end! + 10), map(end! + 60) - (end! + 60)], [shift, shift], 1e-9);
-    const samples: number[] = Array.from({ length: 200 }, (_: unknown, i: number): number => map(-10 + i));
-    if (!samples.every((s: number, i: number): boolean => i === 0 || s > samples[i - 1]!)) failures.push(`the map is not increasing at ${angle}`);
+    near(
+      "shift past the turn at " + angle,
+      [map(end! + 10) - (end! + 10), map(end! + 60) - (end! + 60)],
+      [shift, shift],
+      1e-9,
+    );
+    const samples: number[] = Array.from(
+      { length: 200 },
+      (_: unknown, i: number): number => map(-10 + i),
+    );
+    if (
+      !samples.every(
+        (s: number, i: number): boolean => i === 0 || s > samples[i - 1]!,
+      )
+    )
+      failures.push(`the map is not increasing at ${angle}`);
   }
 
   // 5: a made twist.
-  const straight: V3[] = [[0, 0, 0], [0, -100, 0], [0, -200, 0]];
-  const family: IAutoMovieHumanConicLoft.IFamily = { name: "made", centres: straight, halves: [10], up: [1, 0, 0], layout: AutoMovieHumanConicSection.limb(1), knots: [0, 200], values: [] };
-  const turned = (run: number, d: V3): V3 => (run === 1 ? [Math.cos(0.8) * d[0] + Math.sin(0.8) * d[2], d[1], -Math.sin(0.8) * d[0] + Math.cos(0.8) * d[2]] : d);
-  const roll: IAutoMovieHumanConicLoft.IRoll | undefined = Q.twist(family, family, turned);
+  const straight: V3[] = [
+    [0, 0, 0],
+    [0, -100, 0],
+    [0, -200, 0],
+  ];
+  const family: IAutoMovieHumanConicLoft.IFamily = {
+    name: "made",
+    centres: straight,
+    halves: [10],
+    up: [1, 0, 0],
+    layout: AutoMovieHumanConicSection.limb(1),
+    knots: [0, 200],
+    values: [],
+  };
+  const turned = (run: number, d: V3): V3 =>
+    run === 1
+      ? [
+          Math.cos(0.8) * d[0] + Math.sin(0.8) * d[2],
+          d[1],
+          -Math.sin(0.8) * d[0] + Math.cos(0.8) * d[2],
+        ]
+      : d;
+  const roll: IAutoMovieHumanConicLoft.IRoll | undefined = Q.twist(
+    family,
+    family,
+    turned,
+  );
   if (roll === undefined) failures.push("the twisted course took no roll");
   else {
     const rolled = AutoMovieHumanConicLoft.axis({ ...family, roll });
-    const angle = (s: number): number => Math.atan2(-rolled.at(s).u[2], rolled.at(s).u[0]);
-    near("chart at the twisted end", rolled.at(200).u, [Math.cos(0.8), 0, -Math.sin(0.8)], 1e-9);
+    const angle = (s: number): number =>
+      Math.atan2(-rolled.at(s).u[2], rolled.at(s).u[0]);
+    near(
+      "chart at the twisted end",
+      rolled.at(200).u,
+      [Math.cos(0.8), 0, -Math.sin(0.8)],
+      1e-9,
+    );
     near("roll at the far run's middle", [angle(155)], [0.4], 0.02);
-    near("roll at the far run's quarters", [angle(132.5), angle(177.5)], [0.2, 0.6], 0.02);
-    near("no roll on the first run", [angle(0), angle(50), angle(100)], [0, 0, 0], 0.02);
+    near(
+      "roll at the far run's quarters",
+      [angle(132.5), angle(177.5)],
+      [0.2, 0.6],
+      0.02,
+    );
+    near(
+      "no roll on the first run",
+      [angle(0), angle(50), angle(100)],
+      [0, 0, 0],
+      0.02,
+    );
   }
-  if (Q.twist(family, family, (_: number, d: V3): V3 => d) !== undefined) failures.push("the untwisted course took a roll");
-  const carried = Q.repose(family, straight, [1, 0, 0], (_: number, d: V3): V3 => d);
-  if (carried.station !== null || carried.family.knots !== family.knots || carried.family.halves !== family.halves || carried.family.roll !== undefined) failures.push("a family reposed at its own pose is not its own");
+  if (Q.twist(family, family, (_: number, d: V3): V3 => d) !== undefined)
+    failures.push("the untwisted course took a roll");
+  const carried = Q.repose(
+    family,
+    straight,
+    [1, 0, 0],
+    (_: number, d: V3): V3 => d,
+  );
+  if (
+    carried.station !== null ||
+    carried.family.knots !== family.knots ||
+    carried.family.halves !== family.halves ||
+    carried.family.roll !== undefined
+  )
+    failures.push("a family reposed at its own pose is not its own");
 
   // 6: f1 at the reference pose and the leg at neutral.
   const stored: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
-  for (const placed of stored.families) if ((placed.roll !== undefined) !== (placed.name === "plate")) failures.push(`${placed.name}: a roll at the reference pose`);
-  near("reference stations", [stored.station("arm", 445), stored.station("arm", 32, 10), stored.station("leg", 900)], [445, 10, 900], 0);
-  const neutral: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble(P.NEUTRAL);
-  const [leg, hung]: IAutoMovieHumanConicPose.ICourse[] = [Q.course(stored.body.leg.centres, stored.body.leg.halves), Q.course(neutral.body.leg.centres, neutral.body.leg.halves)];
+  for (const placed of stored.families)
+    if ((placed.roll !== undefined) !== (placed.name === "plate"))
+      failures.push(`${placed.name}: a roll at the reference pose`);
+  near(
+    "reference stations",
+    [
+      stored.station("arm", 445),
+      stored.station("arm", 32, 10),
+      stored.station("leg", 900),
+    ],
+    [445, 10, 900],
+    0,
+  );
+  const neutral: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble(
+    P.NEUTRAL,
+  );
+  const [leg, hung]: IAutoMovieHumanConicPose.ICourse[] = [
+    Q.course(stored.body.leg.centres, stored.body.leg.halves),
+    Q.course(neutral.body.leg.centres, neutral.body.leg.halves),
+  ];
   near("leg bones at neutral", hung!.lengths, leg!.lengths, 1e-9);
   near("leg set-backs at neutral", hung!.setbacks, leg!.setbacks, 1e-9);
-  if (typeof AutoMovieViewJointedCourse.prepare(neutral.body.leg.centres, neutral.body.leg.halves) === "string") failures.push("the engine refuses the neutral leg's course");
+  if (
+    typeof AutoMovieViewJointedCourse.prepare(
+      neutral.body.leg.centres,
+      neutral.body.leg.halves,
+    ) === "string"
+  )
+    failures.push("the engine refuses the neutral leg's course");
 
   // 7: a corner fixed on the parent, the far centre turned with the child about a pivot off the course.
   const pivot: V3 = [10, 25, 0];
   const far: V3 = reference[2]!;
   const [c, s]: number[] = [Math.cos(0.7), Math.sin(0.7)];
-  const swung: V3 = [pivot[0] + c! * (far[0] - pivot[0]) - s! * (far[1] - pivot[1]), pivot[1] + s! * (far[0] - pivot[0]) + c! * (far[1] - pivot[1]), 0];
+  const swung: V3 = [
+    pivot[0] + c! * (far[0] - pivot[0]) - s! * (far[1] - pivot[1]),
+    pivot[1] + s! * (far[0] - pivot[0]) + c! * (far[1] - pivot[1]),
+    0,
+  ];
   const hinged: V3[] = [reference[0]!, reference[1]!, swung];
   const length: number = Math.hypot(swung[0], swung[1]);
   const kept: number[] = Q.halves(reference, [20], hinged);
-  const [stood, hung2]: IAutoMovieHumanConicPose.ICourse[] = [Q.course(reference, [20]), Q.course(hinged, kept)];
+  const [stood, hung2]: IAutoMovieHumanConicPose.ICourse[] = [
+    Q.course(reference, [20]),
+    Q.course(hinged, kept),
+  ];
   const carry: ((station: number) => number) | null = Q.map(stood!, hung2!);
-  if (carry === null || !(Math.abs(length - 80) > 5)) failures.push(`the hinged course did not change length: ${length}`);
+  if (carry === null || !(Math.abs(length - 80) > 5))
+    failures.push(`the hinged course did not change length: ${length}`);
   else {
-    const line: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed(hinged, kept, [0, 0, 1]) as IAutoMovieViewAxis.IAxis;
-    for (const back of [30, 55]) near("child's run " + back + " mm from its centre", line.at(carry(stood!.total - back)).origin, [swung[0] - (back * swung[0]) / length, swung[1] - (back * swung[1]) / length, 0], 1e-9);
-    near("first run kept under the hinge", [carry(0), carry(40), carry(stood!.starts[0]!)], [0, 40, stood!.starts[0]!], 1e-9);
-    near("the turn's span takes the difference", [carry(stood!.starts[0]! + 40) - carry(stood!.starts[0]!)], [2 * kept[0]! + (length - 80)], 1e-9);
+    const line: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed(
+      hinged,
+      kept,
+      [0, 0, 1],
+    ) as IAutoMovieViewAxis.IAxis;
+    for (const back of [30, 55])
+      near(
+        "child's run " + back + " mm from its centre",
+        line.at(carry(stood!.total - back)).origin,
+        [
+          swung[0] - (back * swung[0]) / length,
+          swung[1] - (back * swung[1]) / length,
+          0,
+        ],
+        1e-9,
+      );
+    near(
+      "first run kept under the hinge",
+      [carry(0), carry(40), carry(stood!.starts[0]!)],
+      [0, 40, stood!.starts[0]!],
+      1e-9,
+    );
+    near(
+      "the turn's span takes the difference",
+      [carry(stood!.starts[0]! + 40) - carry(stood!.starts[0]!)],
+      [2 * kept[0]! + (length - 80)],
+      1e-9,
+    );
   }
 
   // 8: the neutral pose sets the articulated joints and nothing else.
-  const named: string[] = [...P.ARTICULATED, ...P.RIGID, "pelvis", "thorax", "head"].sort((a: string, b: string): number => a.localeCompare(b));
-  near("joints and rigid parts are the chain", [named.length, new Set(named).size, named.join() === T.CHAIN.map((joint: { name: string }): string => joint.name).sort((a: string, b: string): number => a.localeCompare(b)).join() ? 1 : 0], [T.CHAIN.length, T.CHAIN.length, 1], 0);
+  const named: string[] = [
+    ...P.ARTICULATED,
+    ...P.RIGID,
+    "pelvis",
+    "thorax",
+    "head",
+  ].sort((a: string, b: string): number => a.localeCompare(b));
+  near(
+    "joints and rigid parts are the chain",
+    [
+      named.length,
+      new Set(named).size,
+      named.join() ===
+      T.CHAIN.map((joint: { name: string }): string => joint.name)
+        .sort((a: string, b: string): number => a.localeCompare(b))
+        .join()
+        ? 1
+        : 0,
+    ],
+    [T.CHAIN.length, T.CHAIN.length, 1],
+    0,
+  );
   for (const joint of T.CHAIN) {
-    const posed: readonly (readonly number[])[] | undefined = P.NEUTRAL(joint.name);
-    if ((posed !== undefined) !== P.ARTICULATED.includes(joint.name)) failures.push(`${joint.name}: neutral ${posed === undefined ? "keeps" : "sets"} its rotation`);
-    if (posed !== undefined) near(joint.name + " neutral rotation", posed.flat(), [1, 0, 0, 0, 1, 0, 0, 0, 1], 0);
+    const posed: readonly (readonly number[])[] | undefined = P.NEUTRAL(
+      joint.name,
+    );
+    if ((posed !== undefined) !== P.ARTICULATED.includes(joint.name))
+      failures.push(
+        `${joint.name}: neutral ${posed === undefined ? "keeps" : "sets"} its rotation`,
+      );
+    if (posed !== undefined)
+      near(
+        joint.name + " neutral rotation",
+        posed.flat(),
+        [1, 0, 0, 0, 1, 0, 0, 0, 1],
+        0,
+      );
   }
 
-  if (failures.length > 0) throw new Error(`conic pose: ${failures.length} finding(s):\n${failures.join("\n")}`);
+  if (failures.length > 0)
+    throw new Error(
+      `conic pose: ${failures.length} finding(s):\n${failures.join("\n")}`,
+    );
 }

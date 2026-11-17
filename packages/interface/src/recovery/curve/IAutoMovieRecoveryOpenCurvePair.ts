@@ -6,15 +6,12 @@
  * @evidence contracts/development/common.md#meaningful-documentation Fields distinguish section and curve ordinals, retained orientation and physical sampling policy.
  */
 export interface IAutoMovieRecoveryOpenCurvePair {
- 
- /** Open-curve ordinal in the preceding section report. */
+  /** Open-curve ordinal in the preceding section report. */
   before: number;
 
- 
- /** Open-curve ordinal in the following section report. */
+  /** Open-curve ordinal in the following section report. */
   after: number;
 
- 
- /** Whether the following curve must be reversed relative to its saved direction. */
+  /** Whether the following curve must be reversed relative to its saved direction. */
   reverseAfter: boolean;
 }

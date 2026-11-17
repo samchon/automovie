@@ -1,13 +1,13 @@
+import type { IAutoMovieMotionHumanSupport } from "../actions/IAutoMovieMotionHumanSupport";
 import type { IAutoMovieMotionHumanBend } from "../everyday/IAutoMovieMotionHumanBend";
-import type { IAutoMovieMotionHumanChainTravel } from "./IAutoMovieMotionHumanChainTravel";
 import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHumanCrouch";
-import type { IAutoMovieMotionHumanGetUp } from "../floor/IAutoMovieMotionHumanGetUp";
 import type { IAutoMovieMotionHumanKneel } from "../everyday/IAutoMovieMotionHumanKneel";
-import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
 import type { IAutoMovieMotionHumanRise } from "../everyday/IAutoMovieMotionHumanRise";
 import type { IAutoMovieMotionHumanShift } from "../everyday/IAutoMovieMotionHumanShift";
 import type { IAutoMovieMotionHumanSit } from "../everyday/IAutoMovieMotionHumanSit";
-import type { IAutoMovieMotionHumanSupport } from "../actions/IAutoMovieMotionHumanSupport";
+import type { IAutoMovieMotionHumanGetUp } from "../floor/IAutoMovieMotionHumanGetUp";
+import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
+import type { IAutoMovieMotionHumanChainTravel } from "./IAutoMovieMotionHumanChainTravel";
 
 /**
  * The chain methods that change what the body rests on or how low it is:

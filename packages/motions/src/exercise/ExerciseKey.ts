@@ -1,6 +1,13 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanExerciseKey, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { StrikingBody } from "../striking/StrikingBody";
@@ -21,7 +28,6 @@ import { StrikingBody } from "../striking/StrikingBody";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No key holds a place in metres; the lift is a share of the stature.
  */
 export namespace ExerciseKey {
-
   /**
    * The key of a body's relaxed standing: its arms hanging as the stand law
    * hangs them (`stand.relaxed`), one record per body so a span can name it.
@@ -37,8 +43,11 @@ export namespace ExerciseKey {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One record per body, kept so the workout's spans compare it by identity.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Held weakly by the body, released with it.
    */
-  export function standing(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey {
-    const cached: IAutoMovieMotionHumanExerciseKey.IKey | undefined = STANDING.get(body);
+  export function standing(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
+    const cached: IAutoMovieMotionHumanExerciseKey.IKey | undefined =
+      STANDING.get(body);
     if (cached !== undefined) return cached;
     const key: IAutoMovieMotionHumanExerciseKey.IKey = {
       pitch: 0,
@@ -81,7 +90,10 @@ export namespace ExerciseKey {
     const rest: IAutoMovieMotionHumanJoints.Angles = standing(body).joints;
     const joints: IAutoMovieMotionHumanJoints.Angles = { ...rest };
     for (const side of ["left", "right"] as const) {
-      const a: IAutoMovieMotionHumanExerciseKey.ILimb = { ...both, ...(side === "left" ? left : right) };
+      const a: IAutoMovieMotionHumanExerciseKey.ILimb = {
+        ...both,
+        ...(side === "left" ? left : right),
+      };
       const arm: readonly [number, number, number] = rest[`${side}UpperArm`]!;
       const elbow: readonly [number, number, number] = rest[`${side}LowerArm`]!;
       joints[`${side}UpperLeg`] = [a.hip ?? 0, a.spread ?? 0, a.turn ?? 0];
@@ -143,7 +155,10 @@ export namespace ExerciseKey {
   ): IAutoMovieMotionHumanExerciseKey.IKey {
     const joints: IAutoMovieMotionHumanJoints.Angles = { ...stand.RELAXED };
     for (const side of ["left", "right"] as const) {
-      const a: IAutoMovieMotionHumanExerciseKey.ILimb = { ...both, ...(side === "left" ? left : right) };
+      const a: IAutoMovieMotionHumanExerciseKey.ILimb = {
+        ...both,
+        ...(side === "left" ? left : right),
+      };
       joints[`${side}UpperLeg`] = [a.hip ?? 0, a.spread ?? 0, a.turn ?? 0];
       joints[`${side}LowerLeg`] = [a.knee ?? 0, 0, 0];
       joints[`${side}Foot`] = [a.ankle ?? 0, 0, 0];
@@ -183,7 +198,11 @@ export namespace ExerciseKey {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function stood(pitch: number, knee: number, shank: number): IAutoMovieMotionHumanExerciseKey.ILimb {
+  export function stood(
+    pitch: number,
+    knee: number,
+    shank: number,
+  ): IAutoMovieMotionHumanExerciseKey.ILimb {
     return { hip: pitch + knee - shank, knee, ankle: shank };
   }
 
@@ -203,7 +222,11 @@ export namespace ExerciseKey {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function blend(a: IAutoMovieMotionHumanExerciseKey.IKey, b: IAutoMovieMotionHumanExerciseKey.IKey, u: number): IAutoMovieMotionHumanExerciseKey.IKey {
+  export function blend(
+    a: IAutoMovieMotionHumanExerciseKey.IKey,
+    b: IAutoMovieMotionHumanExerciseKey.IKey,
+    u: number,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
     const joints: IAutoMovieMotionHumanJoints.Angles = {};
     for (const bone of new Set([
       ...Object.keys(a.joints),
@@ -240,7 +263,9 @@ export namespace ExerciseKey {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function mirror(key: IAutoMovieMotionHumanExerciseKey.IKey): IAutoMovieMotionHumanExerciseKey.IKey {
+  export function mirror(
+    key: IAutoMovieMotionHumanExerciseKey.IKey,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
     const joints: IAutoMovieMotionHumanJoints.Angles = {};
     for (const [bone, angles] of Object.entries(key.joints) as [
       AutoMovieHumanoidBone,
@@ -336,7 +361,10 @@ export namespace ExerciseKey {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function posed(key: IAutoMovieMotionHumanExerciseKey.IKey, yaw: number): IAutoMovieMotionHumanPosture {
+  export function posed(
+    key: IAutoMovieMotionHumanExerciseKey.IKey,
+    yaw: number,
+  ): IAutoMovieMotionHumanPosture {
     return {
       root: { x: 0, y: 0, z: 0 },
       yaw: yaw + key.yaw,
@@ -387,4 +415,7 @@ export namespace ExerciseKey {
 }
 
 /** Each body's relaxed standing key (`ExerciseKey.standing`). */
-const STANDING: WeakMap<IAutoMovieMotionHumanBody, IAutoMovieMotionHumanExerciseKey.IKey> = new WeakMap();
+const STANDING: WeakMap<
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanExerciseKey.IKey
+> = new WeakMap();

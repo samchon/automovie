@@ -1,6 +1,16 @@
-import type { IAutoMovieViewCurves, IAutoMovieViewLoft, IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieConstructionView } from "@automovie/interface";
-import { AutoMovieConstructionViews, AutoMovieViewCurves, AutoMovieViewLoft, AutoMovieViewOutline } from "@automovie/engine";
-
+import {
+  AutoMovieConstructionViews,
+  AutoMovieViewCurves,
+  AutoMovieViewLoft,
+  AutoMovieViewOutline,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionView,
+  IAutoMovieViewCurves,
+  IAutoMovieViewLoft,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -144,11 +154,8 @@ export function test_construction_source_jets(): void {
         (2 + f(section.station / (4 * scale))) * scale,
         scale,
       );
-    const point: IAutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(
-      sources.curves[0]!,
-      part.axis,
-      1.3 * scale,
-    );
+    const point: IAutoMovieViewCurves.IReading | string =
+      AutoMovieViewCurves.at(sources.curves[0]!, part.axis, 1.3 * scale);
     if (typeof point === "string") failures.push(point);
     else
       near(
@@ -355,11 +362,12 @@ export function test_construction_source_jets(): void {
     read(prepare(hullOnly), 0.5).value,
     1,
   );
-  const refused: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
-    AutoMovieViewOutline.create({
-      ...hullOnly,
-      range: { minimum: 0, maximum: 1 },
-    });
+  const refused:
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+    ...hullOnly,
+    range: { minimum: 0, maximum: 1 },
+  });
   if (
     !("detail" in refused) ||
     !refused.detail.includes("sufficient hull refusal")
@@ -493,8 +501,12 @@ function prepare(
   outline: IAutoMovieViewPart.IOutline,
   ends: IAutoMovieViewOutline.IEnds = {},
 ): IAutoMovieViewOutline.IOutline {
-  const result: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
-    AutoMovieViewOutline.create(outline, ends);
+  const result:
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+    outline,
+    ends,
+  );
   if ("detail" in result) throw new Error(result.detail);
   return result;
 }

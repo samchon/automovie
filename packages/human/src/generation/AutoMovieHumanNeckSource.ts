@@ -1,9 +1,10 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanHeadInputs, IAutoMovieHumanHeadNeck, IAutoMovieHumanNeckPrior, IAutoMovieHumanNeckSource } from "@automovie/interface";
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanHeadInputs,
+  IAutoMovieHumanHeadNeck,
+  IAutoMovieHumanNeckPrior,
+  IAutoMovieHumanNeckSource,
+} from "@automovie/interface";
 
 import { AutoMovieHumanNeckPrior } from "./AutoMovieHumanNeckPrior";
 
@@ -26,10 +27,6 @@ import { AutoMovieHumanNeckPrior } from "./AutoMovieHumanNeckPrior";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns four small descriptors and scalar frame data; only the immutable prior persists globally.
  */
 export namespace AutoMovieHumanNeckSource {
-  
-
-  
-
   /**
    * Resolve world inputs into their one calibration-space source definition.
    *
@@ -41,23 +38,65 @@ export namespace AutoMovieHumanNeckSource {
    * @evidence contracts/performance.md#reuse-equivalent-work One returned record supplies both consumers in the production definition.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Descriptor arrays are caller-owned and retain only immutable prior rows; no global body or source cache is added.
    */
-  export function of(inputs: Pick<IAutoMovieHumanHeadInputs, "neck" | "neckBase" | "sex">, scale: number): IAutoMovieHumanNeckSource.IOutput {
-    if (!(Number.isFinite(scale) && scale > 0 && inputs.neck > 0 && inputs.neckBase.girth > 0)) throw new Error("A neck source needs positive tapes and a positive finite calibration scale");
-    const prior: IAutoMovieHumanNeckPrior.IPrior = AutoMovieHumanNeckPrior.PRIOR;
+  export function of(
+    inputs: Pick<IAutoMovieHumanHeadInputs, "neck" | "neckBase" | "sex">,
+    scale: number,
+  ): IAutoMovieHumanNeckSource.IOutput {
+    if (
+      !(
+        Number.isFinite(scale) &&
+        scale > 0 &&
+        inputs.neck > 0 &&
+        inputs.neckBase.girth > 0
+      )
+    )
+      throw new Error(
+        "A neck source needs positive tapes and a positive finite calibration scale",
+      );
+    const prior: IAutoMovieHumanNeckPrior.IPrior =
+      AutoMovieHumanNeckPrior.PRIOR;
     const last: number = prior.rings.length - 1;
-    const logs: (k: number) => number = (k: number): number => (1 - k / last) * Math.log(inputs.neckBase.girth) + (k / last) * Math.log(inputs.neck);
-    const size: (s: IAutoMovieHumanNeckPrior.ISize, k: number) => number = (s: IAutoMovieHumanNeckPrior.ISize, k: number): number => scale * Math.exp(s.level[k]! + s.sex[k]! * inputs.sex + s.gain[k]! * logs(k));
+    const logs: (k: number) => number = (k: number): number =>
+      (1 - k / last) * Math.log(inputs.neckBase.girth) +
+      (k / last) * Math.log(inputs.neck);
+    const size: (s: IAutoMovieHumanNeckPrior.ISize, k: number) => number = (
+      s: IAutoMovieHumanNeckPrior.ISize,
+      k: number,
+    ): number =>
+      scale *
+      Math.exp(s.level[k]! + s.sex[k]! * inputs.sex + s.gain[k]! * logs(k));
     const aspect: number = size(prior.depth, last) / size(prior.width, last);
-    const meanTop: number = inputs.neckBase.cervicaleHeight * scale - scale * even(prior.rings[last]!.y, Math.PI);
-    const rows: IAutoMovieHumanNeckSource.IRow[] = prior.rings.map((ring: IAutoMovieHumanNeckPrior.IRing, k: number): IAutoMovieHumanNeckSource.IRow => {
-      const width: number = scale * Math.exp(logs(k)) / perimeter(ring, aspect, prior.order);
-      return { ring, origin: [(prior.place.level[k]! + prior.place.sex[k]! * inputs.sex) * scale, meanTop + prior.drop[k]! * scale, 0], width, depth: aspect * width, scale };
-    });
+    const meanTop: number =
+      inputs.neckBase.cervicaleHeight * scale -
+      scale * even(prior.rings[last]!.y, Math.PI);
+    const rows: IAutoMovieHumanNeckSource.IRow[] = prior.rings.map(
+      (
+        ring: IAutoMovieHumanNeckPrior.IRing,
+        k: number,
+      ): IAutoMovieHumanNeckSource.IRow => {
+        const width: number =
+          (scale * Math.exp(logs(k))) / perimeter(ring, aspect, prior.order);
+        return {
+          ring,
+          origin: [
+            (prior.place.level[k]! + prior.place.sex[k]! * inputs.sex) * scale,
+            meanTop + prior.drop[k]! * scale,
+            0,
+          ],
+          width,
+          depth: aspect * width,
+          scale,
+        };
+      },
+    );
     const top: IAutoMovieHumanNeckSource.IRow = rows[last]!;
     const priorPosterior: [number, number, number] = point(top, Math.PI);
     const previous: [number, number, number] = point(rows[last - 1]!, Math.PI);
     const dy: number = priorPosterior[1] - previous[1];
-    if (dy === 0 || !Number.isFinite(dy)) throw new Error("The neck's authored posterior endpoint has no finite height secant");
+    if (dy === 0 || !Number.isFinite(dy))
+      throw new Error(
+        "The neck's authored posterior endpoint has no finite height secant",
+      );
     const cervicaleX: number = inputs.neckBase.cervicaleOrigin * scale;
     const translationX: number = cervicaleX - priorPosterior[0];
     if (![cervicaleX, translationX].every(Number.isFinite))
@@ -72,11 +111,27 @@ export namespace AutoMovieHumanNeckSource {
     const centre: [number, number, number] = mean(top);
     const posterior: [number, number, number] = point(top, Math.PI);
     const registration: NonNullable<IAutoMovieHumanHeadNeck["registration"]> = {
-      priorCervicaleX: priorPosterior[0], cervicaleX, mappedCervicaleX: posterior[0], translationX,
+      priorCervicaleX: priorPosterior[0],
+      cervicaleX,
+      mappedCervicaleX: posterior[0],
+      translationX,
     };
     return {
-      rows, scale, order: prior.order, samples: prior.samples, bottom: mean(rows[0]!), registration,
-      head: { level: centre[1], x: centre[0], radius: inputs.neck * scale / (2 * Math.PI), back: posterior[0], backLevel: posterior[1], backSlope: (priorPosterior[0] - previous[0]) / dy, registration },
+      rows,
+      scale,
+      order: prior.order,
+      samples: prior.samples,
+      bottom: mean(rows[0]!),
+      registration,
+      head: {
+        level: centre[1],
+        x: centre[0],
+        radius: (inputs.neck * scale) / (2 * Math.PI),
+        back: posterior[0],
+        backLevel: posterior[1],
+        backSlope: (priorPosterior[0] - previous[0]) / dy,
+        registration,
+      },
     };
   }
 
@@ -91,22 +146,40 @@ export namespace AutoMovieHumanNeckSource {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work One synchronous point read coordinates no requests or cache.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one owned tuple without retaining source data.
    */
-  export function point(row: IAutoMovieHumanNeckSource.IRow, phase: number): AutoMovieVector3Tuple {
-    return [row.origin[0] + row.depth * even(row.ring.x, phase), row.origin[1] + row.scale * even(row.ring.y, phase), row.origin[2] + row.width * odd(row.ring.z, phase)];
+  export function point(
+    row: IAutoMovieHumanNeckSource.IRow,
+    phase: number,
+  ): AutoMovieVector3Tuple {
+    return [
+      row.origin[0] + row.depth * even(row.ring.x, phase),
+      row.origin[1] + row.scale * even(row.ring.y, phase),
+      row.origin[2] + row.width * odd(row.ring.z, phase),
+    ];
   }
 
   /** Exact full-period mean of the authored harmonics, calibration mm. */
   function mean(row: IAutoMovieHumanNeckSource.IRow): [number, number, number] {
-    return [row.origin[0] + row.depth * row.ring.x[0]!, row.origin[1] + row.scale * row.ring.y[0]!, row.origin[2]];
+    return [
+      row.origin[0] + row.depth * row.ring.x[0]!,
+      row.origin[1] + row.scale * row.ring.y[0]!,
+      row.origin[2],
+    ];
   }
 
   /** Retained XZ polygon normalization; it is not the nonplanar row's 3D length. */
-  function perimeter(ring: IAutoMovieHumanNeckPrior.IRing, aspect: number, order: number): number {
+  function perimeter(
+    ring: IAutoMovieHumanNeckPrior.IRing,
+    aspect: number,
+    order: number,
+  ): number {
     let sum: number = 0;
     let previous: [number, number] = [aspect * even(ring.x, 0), odd(ring.z, 0)];
     for (let j: number = 1; j <= order; j++) {
-      const phase: number = 2 * Math.PI * j / order;
-      const next: [number, number] = [aspect * even(ring.x, phase), odd(ring.z, phase)];
+      const phase: number = (2 * Math.PI * j) / order;
+      const next: [number, number] = [
+        aspect * even(ring.x, phase),
+        odd(ring.z, phase),
+      ];
       sum += Math.hypot(next[0] - previous[0], next[1] - previous[1]);
       previous = next;
     }
@@ -115,11 +188,19 @@ export namespace AutoMovieHumanNeckSource {
 
   /** Original cosine series including its mean term. */
   function even(values: readonly number[], phase: number): number {
-    return values.reduce((sum: number, value: number, k: number): number => sum + value * Math.cos(k * phase), 0);
+    return values.reduce(
+      (sum: number, value: number, k: number): number =>
+        sum + value * Math.cos(k * phase),
+      0,
+    );
   }
 
   /** Original sine series, whose full-period mean is zero. */
   function odd(values: readonly number[], phase: number): number {
-    return values.reduce((sum: number, value: number, k: number): number => sum + value * Math.sin((k + 1) * phase), 0);
+    return values.reduce(
+      (sum: number, value: number, k: number): number =>
+        sum + value * Math.sin((k + 1) * phase),
+      0,
+    );
   }
 }

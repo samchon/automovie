@@ -1,4 +1,8 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanFoot, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
@@ -52,7 +56,10 @@ export namespace staggerLimit {
       push.x,
       push.z,
       ...[feet.left, feet.right].flatMap(
-        (f: IAutoMovieMotionHumanFoot.IPlacement): number[] => [f.ankle.x, f.ankle.z],
+        (f: IAutoMovieMotionHumanFoot.IPlacement): number[] => [
+          f.ankle.x,
+          f.ankle.z,
+        ],
       ),
     ]
       .map((v: number): string => v.toFixed(4))
@@ -86,7 +93,11 @@ export namespace staggerLimit {
     let found: number = whole(bound) ? bound : bisect(0, bound, whole);
     for (;;) {
       let refused: number = -1;
-      for (let i: number = 1; i * staggerBounds.RESOLUTION <= staggerBounds.VERIFIED + 1e-9; i++) {
+      for (
+        let i: number = 1;
+        i * staggerBounds.RESOLUTION <= staggerBounds.VERIFIED + 1e-9;
+        i++
+      ) {
         const speed: number = found - i * staggerBounds.RESOLUTION;
         if (speed <= 0) break;
         if (!whole(speed)) {

@@ -1,5 +1,17 @@
 import type { IAutoMovieMotionHumanActionLaw } from "@automovie/interface";
-import { HumanArchery, HumanBoltAction, HumanGunDrill, HumanMusketDrill, HumanRevolver, HumanThrownWeapon, HumanWeaponFirearm, HumanWeaponPresent, operate, release, throwObject } from "@automovie/motions";
+import {
+  HumanArchery,
+  HumanBoltAction,
+  HumanGunDrill,
+  HumanMusketDrill,
+  HumanRevolver,
+  HumanThrownWeapon,
+  HumanWeaponFirearm,
+  HumanWeaponPresent,
+  operate,
+  release,
+  throwObject,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -42,12 +54,13 @@ export function test_human_motion_launcher_rows(): void {
     HumanRevolver,
     HumanThrownWeapon,
   };
-  const rows: IAutoMovieMotionHumanActionLaw<never>[] = Object.values(lexicons).flatMap(
-    (lexicon: object): IAutoMovieMotionHumanActionLaw<never>[] =>
-      Object.values(lexicon).filter(
-        (value: unknown): value is IAutoMovieMotionHumanActionLaw<never> =>
-          typeof value === "object" && value !== null && "plan" in value,
-      ),
+  const rows: IAutoMovieMotionHumanActionLaw<never>[] = Object.values(
+    lexicons,
+  ).flatMap((lexicon: object): IAutoMovieMotionHumanActionLaw<never>[] =>
+    Object.values(lexicon).filter(
+      (value: unknown): value is IAutoMovieMotionHumanActionLaw<never> =>
+        typeof value === "object" && value !== null && "plan" in value,
+    ),
   );
   const shipped: ReadonlySet<string> = new Set([
     "operate",
@@ -104,13 +117,16 @@ export function test_human_motion_launcher_rows(): void {
     );
 
   // 4. Families of named rows.
-  const family = (law: IAutoMovieMotionHumanActionLaw<never>): string | undefined =>
-    law.family;
+  const family = (
+    law: IAutoMovieMotionHumanActionLaw<never>,
+  ): string | undefined => law.family;
   TestValidator.predicate(
     "loose and dropMagazine are releases",
-    family(HumanArchery.loose as IAutoMovieMotionHumanActionLaw<never>) === release.name &&
-      family(HumanBoltAction.dropMagazine as IAutoMovieMotionHumanActionLaw<never>) ===
-        release.name,
+    family(HumanArchery.loose as IAutoMovieMotionHumanActionLaw<never>) ===
+      release.name &&
+      family(
+        HumanBoltAction.dropMagazine as IAutoMovieMotionHumanActionLaw<never>,
+      ) === release.name,
   );
   TestValidator.predicate(
     "the drawing, spanning, ramming, cocking, bolt and lanyard rows operate",
@@ -121,12 +137,16 @@ export function test_human_motion_launcher_rows(): void {
       HumanRevolver.cock,
       HumanBoltAction.drawBolt,
       HumanGunDrill.pullLanyard,
-    ].every((law) => family(law as IAutoMovieMotionHumanActionLaw<never>) === operate.name),
+    ].every(
+      (law) =>
+        family(law as IAutoMovieMotionHumanActionLaw<never>) === operate.name,
+    ),
   );
   TestValidator.predicate(
     "hurlBottle throws",
-    family(HumanThrownWeapon.hurlBottle as IAutoMovieMotionHumanActionLaw<never>) ===
-      throwObject.name,
+    family(
+      HumanThrownWeapon.hurlBottle as IAutoMovieMotionHumanActionLaw<never>,
+    ) === throwObject.name,
   );
 
   // 5. The firearm's names over the launcher's plans.

@@ -1,6 +1,20 @@
-import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieLoftChain, IAutoMovieLoftJet, IAutoMovieViewPart, IAutoMovieConstructionJoin, IAutoMovieConstructionSource, IAutoMovieConstructionView } from "@automovie/interface";
-import { AutoMovieConstructionViews, AutoMovieLoftChain, AutoMovieLoftJet, AutoMovieViewLoft, realizeAutoMovieConstruction } from "@automovie/engine";
-
+import {
+  AutoMovieConstructionViews,
+  AutoMovieLoftChain,
+  AutoMovieLoftJet,
+  AutoMovieViewLoft,
+  realizeAutoMovieConstruction,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionJoin,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionRealization,
+  IAutoMovieConstructionSource,
+  IAutoMovieConstructionView,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftJet,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";

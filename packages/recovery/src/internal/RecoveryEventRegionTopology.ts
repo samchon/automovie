@@ -1,9 +1,19 @@
-import type { IAutoMovieRecoveryEventRegion, IAutoMovieRecoveryEventRegionCells, IAutoMovieRecoveryEventRegionSource, IAutoMovieRecoveryEventRegionTopology } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryEventRegion,
+  IAutoMovieRecoveryEventRegionCells,
+  IAutoMovieRecoveryEventRegionSource,
+  IAutoMovieRecoveryEventRegionTopology,
+} from "@automovie/interface";
 
-
-type Node = ReturnType<ReturnType<IAutoMovieRecoveryEventRegion.Operation>>["nodes"][number];
-type Cell = ReturnType<ReturnType<IAutoMovieRecoveryEventRegion.Operation>>["cells"][number];
-type Component = ReturnType<ReturnType<IAutoMovieRecoveryEventRegion.Operation>>["components"][number];
+type Node = ReturnType<
+  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
+>["nodes"][number];
+type Cell = ReturnType<
+  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
+>["cells"][number];
+type Component = ReturnType<
+  ReturnType<IAutoMovieRecoveryEventRegion.Operation>
+>["components"][number];
 
 /**
  * Observe component incidence, orientation parity, links and boundary cycles in one query.
@@ -25,14 +35,16 @@ export function RecoveryEventRegionTopology(
     address,
     pair,
     sourceEdges,
-    collapsed }: ReturnType<IAutoMovieRecoveryEventRegionSource.Operation> = prepared;
+    collapsed,
+  }: ReturnType<IAutoMovieRecoveryEventRegionSource.Operation> = prepared;
   const {
     result,
     lower,
     upper,
     nodeMap,
     cellNodes,
-    issue }: ReturnType<IAutoMovieRecoveryEventRegionCells.Operation> = work;
+    issue,
+  }: ReturnType<IAutoMovieRecoveryEventRegionCells.Operation> = work;
   const parent: number[] = result.cells.map((_: Cell, i: number): number => i);
   const rank: Uint8Array = new Uint8Array(parent.length);
   const root: (id: number) => number = (id: number): number => {
@@ -53,8 +65,12 @@ export function RecoveryEventRegionTopology(
     parent[v] = u;
     if (rank[u] === rank[v]) rank[u]++;
   };
-  const edges: Map<string, IAutoMovieRecoveryEventRegionTopology.Occurrence[]> = new Map(),
-    cellOccurrences: Map<number, IAutoMovieRecoveryEventRegionTopology.Occurrence[]> = new Map();
+  const edges: Map<string, IAutoMovieRecoveryEventRegionTopology.Occurrence[]> =
+      new Map(),
+    cellOccurrences: Map<
+      number,
+      IAutoMovieRecoveryEventRegionTopology.Occurrence[]
+    > = new Map();
   for (const cell of result.cells) {
     if (cell.dimension !== 2) continue;
     const nodes: Node[] = cellNodes.get(cell.id)!;
@@ -81,7 +97,8 @@ export function RecoveryEventRegionTopology(
         edge,
         side,
         physicalBoundary: sourceEdges.get(edge) === 1,
-        component: -1 };
+        component: -1,
+      };
       result.occurrences.push(occurrence);
       if (!edges.has(edge)) edges.set(edge, []);
       edges.get(edge)!.push(occurrence);
@@ -111,10 +128,12 @@ export function RecoveryEventRegionTopology(
             orientable: null,
             inputOrientationConsistent: true,
             boundaryCycles: 0,
-            genus: null },
+            genus: null,
+          },
           cycles: [],
           unresolvedBoundary: [],
-          issueIds: [] };
+          issueIds: [],
+        };
         components.set(r, component);
         result.components.push(component);
       }
@@ -123,7 +142,10 @@ export function RecoveryEventRegionTopology(
       component.cells.push(cell.id);
       component.faces.push(cell.face);
     }
-  const componentOccurrences: Map<number, IAutoMovieRecoveryEventRegionTopology.Occurrence[]> = new Map();
+  const componentOccurrences: Map<
+    number,
+    IAutoMovieRecoveryEventRegionTopology.Occurrence[]
+  > = new Map();
   for (const occurrence of result.occurrences) {
     occurrence.component = result.cells[occurrence.cell].component!;
     if (!componentOccurrences.has(occurrence.component))
@@ -135,8 +157,12 @@ export function RecoveryEventRegionTopology(
   const vertexComponents: Map<string, Set<number>> = new Map(),
     vertexCells: Map<string, Set<number>> = new Map();
   for (const component of result.components) {
-    const uses: IAutoMovieRecoveryEventRegionTopology.Occurrence[] = componentOccurrences.get(component.id) ?? [];
-    const byEdge: Map<string, IAutoMovieRecoveryEventRegionTopology.Occurrence[]> = new Map(),
+    const uses: IAutoMovieRecoveryEventRegionTopology.Occurrence[] =
+      componentOccurrences.get(component.id) ?? [];
+    const byEdge: Map<
+        string,
+        IAutoMovieRecoveryEventRegionTopology.Occurrence[]
+      > = new Map(),
       vertices: Set<string> = new Set();
     for (const use of uses) {
       if (!byEdge.has(use.edge)) byEdge.set(use.edge, []);
@@ -173,15 +199,27 @@ export function RecoveryEventRegionTopology(
       if ((sourceEdges.get(rows[0].edge) ?? 0) > 2)
         issue(
           "nonmanifold-source-edge",
-          rows.map((r: IAutoMovieRecoveryEventRegionTopology.Occurrence): number => r.cell),
-          rows.map((r: IAutoMovieRecoveryEventRegionTopology.Occurrence): string => r.id),
+          rows.map(
+            (r: IAutoMovieRecoveryEventRegionTopology.Occurrence): number =>
+              r.cell,
+          ),
+          rows.map(
+            (r: IAutoMovieRecoveryEventRegionTopology.Occurrence): string =>
+              r.id,
+          ),
         );
       if (rows.length > 2) {
         manifold = false;
         issue(
           "nonmanifold-edge-incidence",
-          rows.map((r: IAutoMovieRecoveryEventRegionTopology.Occurrence): number => r.cell),
-          rows.map((r: IAutoMovieRecoveryEventRegionTopology.Occurrence): string => r.id),
+          rows.map(
+            (r: IAutoMovieRecoveryEventRegionTopology.Occurrence): number =>
+              r.cell,
+          ),
+          rows.map(
+            (r: IAutoMovieRecoveryEventRegionTopology.Occurrence): string =>
+              r.id,
+          ),
         );
       }
       if (rows.length === 2) {
@@ -214,20 +252,24 @@ export function RecoveryEventRegionTopology(
         }
       }
     const boundaryVertices: Set<string> = new Set(
-      boundary.flatMap((row: IAutoMovieRecoveryEventRegionTopology.Occurrence): string[] => [
-        incidence(row.from),
-        incidence(row.to),
-      ]),
+      boundary.flatMap(
+        (row: IAutoMovieRecoveryEventRegionTopology.Occurrence): string[] => [
+          incidence(row.from),
+          incidence(row.to),
+        ],
+      ),
     );
     const links: Map<string, { a: string; b: string }[]> = new Map();
     for (const cell of component.cells) {
-      const rows: IAutoMovieRecoveryEventRegionTopology.Occurrence[] = cellOccurrences.get(cell) ?? [];
+      const rows: IAutoMovieRecoveryEventRegionTopology.Occurrence[] =
+        cellOccurrences.get(cell) ?? [];
       for (let i: number = 0; i < rows.length; i++) {
         const id: string = incidence(rows[i].from);
         if (!links.has(id)) links.set(id, []);
         links.get(id)!.push({
           a: rows[(i + rows.length - 1) % rows.length].edge,
-          b: rows[i].edge });
+          b: rows[i].edge,
+        });
       }
     }
     for (const [vertex, rows] of links) {
@@ -265,7 +307,10 @@ export function RecoveryEventRegionTopology(
         );
       }
     }
-    const boundaryAt: Map<string, IAutoMovieRecoveryEventRegionTopology.Occurrence[]> = new Map();
+    const boundaryAt: Map<
+      string,
+      IAutoMovieRecoveryEventRegionTopology.Occurrence[]
+    > = new Map();
     for (const row of boundary)
       for (const id of [incidence(row.from), incidence(row.to)]) {
         if (!boundaryAt.has(id)) boundaryAt.set(id, []);
@@ -274,7 +319,9 @@ export function RecoveryEventRegionTopology(
     const visited: Set<string> = new Set();
     for (const first of boundary)
       if (!visited.has(first.id)) {
-        const queue: IAutoMovieRecoveryEventRegionTopology.Occurrence[] = [first],
+        const queue: IAutoMovieRecoveryEventRegionTopology.Occurrence[] = [
+            first,
+          ],
           members: Set<string> = new Set([first.id]),
           expanded: Set<string> = new Set();
         for (let i: number = 0; i < queue.length; i++)
@@ -301,19 +348,29 @@ export function RecoveryEventRegionTopology(
           )
         ) {
           component.unresolvedBoundary.push(
-            ...queue.map((r: IAutoMovieRecoveryEventRegionTopology.Occurrence): string => r.id),
+            ...queue.map(
+              (r: IAutoMovieRecoveryEventRegionTopology.Occurrence): string =>
+                r.id,
+            ),
           );
           issue(
             "boundary-is-not-a-simple-cycle",
-            queue.map((r: IAutoMovieRecoveryEventRegionTopology.Occurrence): number => r.cell),
-            queue.map((r: IAutoMovieRecoveryEventRegionTopology.Occurrence): string => r.id),
+            queue.map(
+              (r: IAutoMovieRecoveryEventRegionTopology.Occurrence): number =>
+                r.cell,
+            ),
+            queue.map(
+              (r: IAutoMovieRecoveryEventRegionTopology.Occurrence): string =>
+                r.id,
+            ),
           );
           continue;
         }
         const cycle: Component["cycles"][number] = {
           occurrences: [],
           nodes: [],
-          orientation: manifold && orientable ? "coherent" : "unqualified" };
+          orientation: manifold && orientable ? "coherent" : "unqualified",
+        };
         let row: IAutoMovieRecoveryEventRegionTopology.Occurrence = first,
           at: string = incidence(
             orientable && flips.get(first.cell) ? first.to : first.from,
@@ -325,7 +382,11 @@ export function RecoveryEventRegionTopology(
           at = incidence(direction === 1 ? row.to : row.from);
           row = boundaryAt
             .get(at)!
-            .find((candidate: IAutoMovieRecoveryEventRegionTopology.Occurrence): boolean => candidate.id !== row.id)!;
+            .find(
+              (
+                candidate: IAutoMovieRecoveryEventRegionTopology.Occurrence,
+              ): boolean => candidate.id !== row.id,
+            )!;
         } while (row.id !== first.id);
         component.cycles.push(cycle);
       }
@@ -347,7 +408,8 @@ export function RecoveryEventRegionTopology(
       inputOrientationConsistent: component.topology.inputOrientationConsistent,
       boundaryCycles: component.cycles.length,
       genus:
-        genus !== null && Number.isInteger(genus) && genus >= 0 ? genus : null };
+        genus !== null && Number.isInteger(genus) && genus >= 0 ? genus : null,
+    };
     for (const cell of component.cells)
       result.cells[cell].orientationFlip =
         manifold && orientable ? flips.get(cell)! : null;

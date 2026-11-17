@@ -1,6 +1,14 @@
-import type { AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanKuzushi, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanKuzushi,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { HumanBound } from "../law/HumanBound";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -70,10 +78,8 @@ export namespace kuzushi {
     const hold: number = p.hold ?? 1;
     HumanBound.least("hold", hold, 0, "s");
     const duration: number = 2 * TIP + hold;
-    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      duration,
-    );
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, duration);
 
     // The pivot: the ankles' midpoint, in the world and in the rest body.
     const feet = context.entry.feet;
@@ -85,7 +91,10 @@ export namespace kuzushi {
       Vector3.add(body.rest.get("leftFoot")!, body.rest.get("rightFoot")!),
       0.5,
     );
-    const tipped = (posture: IAutoMovieMotionHumanPosture, pitch: number): IAutoMovieMotionHumanPosture => {
+    const tipped = (
+      posture: IAutoMovieMotionHumanPosture,
+      pitch: number,
+    ): IAutoMovieMotionHumanPosture => {
       const turned: IAutoMovieMotionHumanPosture = {
         ...posture,
         pitch: posture.pitch + pitch,

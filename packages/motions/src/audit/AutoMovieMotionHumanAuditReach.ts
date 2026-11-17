@@ -1,4 +1,4 @@
-import { IAutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
+import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditMeasure,
@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
 /**
  * Whether a body part gets where its action says and points as its action
@@ -29,7 +29,7 @@ import { Quaternion } from "@automovie/engine";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Two readings over one shared span walk.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both ends of the span are read, and a missing bone or a direction of no length is an error, not a skip.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the span's instants.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid is `IAutoMovieMotionHumanAuditMotion.grid`, the axis is turned by the engine's `Quaternion.rotateVector`.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid is `AutoMovieMotionHumanAuditMotion.grid`, the axis is turned by the engine's `Quaternion.rotateVector`.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditReach {

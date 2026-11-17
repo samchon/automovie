@@ -1,6 +1,18 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionCoupling, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionCoupling,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
@@ -51,7 +63,8 @@ export namespace HumanCarriedBorne {
         reason: "a person is carried by someone else",
         fix: "name the carrier",
       });
-    const carry: IAutoMovieMotionHumanCarried.Carry = context.params.carry ?? "piggyback";
+    const carry: IAutoMovieMotionHumanCarried.Carry =
+      context.params.carry ?? "piggyback";
     const row: IAutoMovieMotionHumanCarried.IRow = HumanCarried.CARRIES[carry];
     const body: IAutoMovieMotionHumanBody = context.body;
     const carrier: IAutoMovieMotionHumanActionContext.IPerformer | undefined =
@@ -171,8 +184,9 @@ export namespace HumanCarriedBorne {
                 }),
           });
         }
-        const theirs: ReturnType<IAutoMovieMotionHumanActionContext.IPerformer["bones"]> =
-          carrier.bones(context.start + Math.min(seconds, Math.max(0, at)));
+        const theirs: ReturnType<
+          IAutoMovieMotionHumanActionContext.IPerformer["bones"]
+        > = carrier.bones(context.start + Math.min(seconds, Math.max(0, at)));
         const hips: IAutoMovieResolvedBone | undefined = theirs.get("hips");
         const turned: IAutoMovieMotionHumanPosture = {
           root: { x: 0, y: 0, z: 0 },

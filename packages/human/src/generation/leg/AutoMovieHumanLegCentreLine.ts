@@ -1,8 +1,10 @@
-import type { IAutoMovieNaturalSpline, IAutoMovieHumanLegAxis, IAutoMovieHumanLegCentreLine } from "@automovie/interface";
-
-
-
 import { AutoMovieNaturalSpline } from "@automovie/engine";
+import type {
+  IAutoMovieHumanLegAxis,
+  IAutoMovieHumanLegCentreLine,
+  IAutoMovieNaturalSpline,
+} from "@automovie/interface";
+
 import { AutoMovieHumanLegAxis } from "./AutoMovieHumanLegAxis";
 
 /**
@@ -23,20 +25,29 @@ import { AutoMovieHumanLegAxis } from "./AutoMovieHumanLegAxis";
  * leg, meets each ring's centroid exactly and crosses the knee on its joint.
  */
 export namespace AutoMovieHumanLegCentreLine {
-  
-
-  
-
   /**
    * The centre line.
    *
    * @param input The frames and the three places.
    * @returns The chart origin's offset from the frame origin at a station, `[along u, along v]` mm.
    */
-  export function of(input: IAutoMovieHumanLegCentreLine.IInput): IAutoMovieHumanLegCentreLine.OfResult {
-    const offset: (a: IAutoMovieHumanLegCentreLine.IAnchor) => [number, number] = (a: IAutoMovieHumanLegCentreLine.IAnchor): [number, number] => {
-      const f: IAutoMovieHumanLegAxis.IFrame = AutoMovieHumanLegAxis.frameAt(input.frames, a.at);
-      const d: number[] = [a.point[0] - f.origin[0], 0, a.point[1] - f.origin[2]];
+  export function of(
+    input: IAutoMovieHumanLegCentreLine.IInput,
+  ): IAutoMovieHumanLegCentreLine.OfResult {
+    const offset: (
+      a: IAutoMovieHumanLegCentreLine.IAnchor,
+    ) => [number, number] = (
+      a: IAutoMovieHumanLegCentreLine.IAnchor,
+    ): [number, number] => {
+      const f: IAutoMovieHumanLegAxis.IFrame = AutoMovieHumanLegAxis.frameAt(
+        input.frames,
+        a.at,
+      );
+      const d: number[] = [
+        a.point[0] - f.origin[0],
+        0,
+        a.point[1] - f.origin[2],
+      ];
       return [d[0]! * f.u[0] + d[2]! * f.u[2], d[0]! * f.v[0] + d[2]! * f.v[2]];
     };
     const low: [number, number] = offset(input.ankle);
@@ -47,15 +58,29 @@ export namespace AutoMovieHumanLegCentreLine {
     // three places alone.
     const forward: { at: number; offset: number }[] = [
       { at: input.ankle.at, offset: low[0] },
-      ...input.mass.filter((m: { at: number; offset: number }): boolean => m.at > input.ankle.at && m.at < input.crotch.at),
+      ...input.mass.filter(
+        (m: { at: number; offset: number }): boolean =>
+          m.at > input.ankle.at && m.at < input.crotch.at,
+      ),
       { at: input.knee, offset: 0 },
       { at: input.crotch.at, offset: high[0] },
-    ].sort((a: { at: number; offset: number }, b: { at: number; offset: number }): number => a.at - b.at);
+    ].sort(
+      (
+        a: { at: number; offset: number },
+        b: { at: number; offset: number },
+      ): number => a.at - b.at,
+    );
     const u: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
       forward.map((m: { at: number; offset: number }): number => m.at),
       forward.map((m: { at: number; offset: number }): number => m.offset),
     );
-    const v: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create([input.ankle.at, input.knee, input.crotch.at], [low[1], 0, high[1]]);
-    return (s: number): [number, number] => [AutoMovieNaturalSpline.evaluate(u, s), AutoMovieNaturalSpline.evaluate(v, s)];
+    const v: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+      [input.ankle.at, input.knee, input.crotch.at],
+      [low[1], 0, high[1]],
+    );
+    return (s: number): [number, number] => [
+      AutoMovieNaturalSpline.evaluate(u, s),
+      AutoMovieNaturalSpline.evaluate(v, s),
+    ];
   }
 }

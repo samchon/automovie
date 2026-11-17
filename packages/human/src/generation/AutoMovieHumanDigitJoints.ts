@@ -1,7 +1,8 @@
-import type { IAutoMovieHandAnthropometry, AutoMovieHumanSex as AutoMovieHumanSexType } from "@automovie/interface";
-
-
 import { AutoMovieHandAnthropometry } from "@automovie/engine";
+import type {
+  AutoMovieHumanSex as AutoMovieHumanSexType,
+  IAutoMovieHandAnthropometry,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 
@@ -24,8 +25,6 @@ import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
  * Limits: the table's own, stated where it is held.
  */
 export namespace AutoMovieHumanDigitJoints {
-  
-
   /**
    * A digit's joint, scaled to the person's hand.
    *
@@ -35,10 +34,17 @@ export namespace AutoMovieHumanDigitJoints {
    * @param joint 1, the joint nearest the tip, or 2, the next.
    * @returns The joint's breadth and girth, mm.
    */
-  export function at(sex: AutoMovieHumanSexType, handLength: number, digit: 1 | 2 | 3 | 4 | 5, joint: 1 | 2): IAutoMovieHandAnthropometry.IJoint {
+  export function at(
+    sex: AutoMovieHumanSexType,
+    handLength: number,
+    digit: 1 | 2 | 3 | 4 | 5,
+    joint: 1 | 2,
+  ): IAutoMovieHandAnthropometry.IJoint {
     const k: 0 | 1 = sex === AutoMovieHumanSex.Female ? 0 : 1;
-    const scale: number = handLength / AutoMovieHandAnthropometry.HAND_LENGTH[k];
-    const read: IAutoMovieHandAnthropometry.IJoint = AutoMovieHandAnthropometry.JOINTS[k][digit - 1]![joint - 1]!;
+    const scale: number =
+      handLength / AutoMovieHandAnthropometry.HAND_LENGTH[k];
+    const read: IAutoMovieHandAnthropometry.IJoint =
+      AutoMovieHandAnthropometry.JOINTS[k][digit - 1]![joint - 1]!;
     return { breadth: scale * read.breadth, girth: scale * read.girth };
   }
 }

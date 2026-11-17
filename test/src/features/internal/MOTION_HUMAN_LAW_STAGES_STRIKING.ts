@@ -1,6 +1,5 @@
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 
-
 import type { MotionHumanSweepChain } from "./MotionHumanSweepChain";
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
@@ -26,8 +25,10 @@ const arm = (body: IAutoMovieMotionHumanBody): number =>
 const punching = (a: IAutoMovieMotionHumanBody): number => 1.3 * arm(a);
 
 /** The kicking range of the striking captures: 0.9 of the shorter leg. */
-const kicking = (a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody): number =>
-  0.9 * Math.min(a.measure.hipHeight, b.measure.hipHeight);
+const kicking = (
+  a: IAutoMovieMotionHumanBody,
+  b: IAutoMovieMotionHumanBody,
+): number => 0.9 * Math.min(a.measure.hipHeight, b.measure.hipHeight);
 
 /**
  * The stages of the fighting laws: the guard, the fighting step, the punch,

@@ -1,5 +1,3 @@
-
-
 /**
  * Face-local opening-void hull dimensions used by drawings and schedules.
  *
@@ -12,7 +10,7 @@ export namespace IAutoMovieOpeningExtent {
   /**
    * The width and height of an opening's void, in its host face's metres, on
    * the drawing grid.
-   * 
+   *
    * Taken from the engine's own bounding hull of the outline rather than a
    * second arithmetic: `builtBoundaryWallCut` hands that hull to the mesh kernel
    * as the rectangle it cuts, and validation holds the void inside its face by

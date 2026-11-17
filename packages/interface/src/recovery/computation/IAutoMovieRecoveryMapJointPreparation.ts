@@ -8,28 +8,22 @@ import type { IAutoMovieRecoveryMapElimination } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Fields define global physical column scales, point qualification and the call-local elimination action.
  */
 export interface IAutoMovieRecoveryMapJointPreparation {
- 
- /** Number of admitted gauge-fixed camera coordinates. */
+  /** Number of admitted gauge-fixed camera coordinates. */
   cameraWidth: number;
 
- 
- /** Positive original global camera-column norms. */
+  /** Positive original global camera-column norms. */
   cameraScales: number[];
 
- 
- /** Positive three-column norms for each original point block. */
+  /** Positive three-column norms for each original point block. */
   pointScales: number[][];
 
- 
- /** Minimum independently qualified undamped point singular ratio. */
+  /** Minimum independently qualified undamped point singular ratio. */
   minimumPointDesignRatio: number;
 
- 
- /** Scaled original gradient maximum when requested; null means uncomputed. */
+  /** Scaled original gradient maximum when requested; null means uncomputed. */
   gradient: number | null;
 
- 
- /** Eliminate the admitted blocks with zero or the caller's valid damping.
+  /** Eliminate the admitted blocks with zero or the caller's valid damping.
    * @evidence contracts/development/implementation.md#principled-implementation Givens rotations eliminate point coordinates from the same globally scaled original rows, optionally augmented by sqrt(damping) point/camera identity rows.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call-local action supplies independent original-rank rows and the separate damped operation without a second scale definition.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No normal matrix, floor, dropped residual or damping-derived data rank replaces orthogonal elimination.

@@ -1,5 +1,3 @@
-
-
 /**
  * The usable section of a connector at one point of its route.
  *

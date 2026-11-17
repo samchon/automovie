@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanWalkFacing } from "../actions/IAutoMovieMotionHumanWalkFacing";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanWalkFacing } from "../actions/IAutoMovieMotionHumanWalkFacing";
 
 /**
  * A pushed load's handles held in both hands through a walk: a sled push.

@@ -1,5 +1,12 @@
-import type { AutoMovieSolidChartVector4, AutoMovieVector3Tuple, IAutoMovieSolidAtlas, IAutoMovieSolidIntersection, IAutoMovieSolidIntersectionWalk, IAutoMovieSolidSurface, IAutoMovieSolidTraceLaw } from "@automovie/interface";
-
+import type {
+  AutoMovieSolidChartVector4,
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidIntersectionWalk,
+  IAutoMovieSolidSurface,
+  IAutoMovieSolidTraceLaw,
+} from "@automovie/interface";
 
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidTraceLaw } from "./AutoMovieSolidTraceLaw";
@@ -25,7 +32,6 @@ const { add, cross, dot, norm, scale, sub }: typeof AutoMovieSolidVector =
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidIntersectionWalk {
-
   /**
    * Walk the loop from the seed by pseudo-arclength continuation, once to
    * measure its polygonal length and once in equal chords, then make the
@@ -203,7 +209,9 @@ export namespace AutoMovieSolidIntersectionWalk {
      * curve walked either way, and a point where the two surfaces nearly touch can be passed from one side when it loses the walk from the
      * other: an ear's mirrored hollow lost its walk at the point its twin passes, the twin walking it the other way round.
      */
-    const around: (sense: 1 | -1) => number | string = (sense: 1 | -1): number | string => {
+    const around: (sense: 1 | -1) => number | string = (
+      sense: 1 | -1,
+    ): number | string => {
       let h: number = stride;
 
       /** Current accepted point of the first length walk. */
@@ -220,7 +228,8 @@ export namespace AutoMovieSolidIntersectionWalk {
       for (let k: number = 0; k < walkSteps * count; k++) {
         /** Displacement from the current point back toward its start. */
         const ahead: Vec3 = sub(start.point, p.point);
-        if (k > 2 && norm(ahead) <= h && dot(ahead, T) > 0) return length + norm(ahead);
+        if (k > 2 && norm(ahead) <= h && dot(ahead, T) > 0)
+          return length + norm(ahead);
 
         /** Candidate retained through the original failed-halving loop. */
         let next: IPoint | null = null;
@@ -301,9 +310,13 @@ export namespace AutoMovieSolidIntersectionWalk {
           for (
             let halving: number = 0;
             left > 1e-9 * chord && halving < AutoMovieSolidTraceSolve.HALVINGS;
-
           ) {
-            const part: IPoint | null = step(from, heading, Math.min(h, left), last);
+            const part: IPoint | null = step(
+              from,
+              heading,
+              Math.min(h, left),
+              last,
+            );
             if (part === null) {
               h /= 2;
               halving++;
@@ -364,7 +377,8 @@ export namespace AutoMovieSolidIntersectionWalk {
       [c0, p0, g0, c1] = [c1, p1, g1, c2];
     }
     // Walked against `T0`, the points are read back in its order from the seed, so the parameter still increases along `n_part x n_host`.
-    const ordered: Vec3[] = sense === 1 ? p0 : [p0[0]!, ...p0.slice(1).reverse()];
+    const ordered: Vec3[] =
+      sense === 1 ? p0 : [p0[0]!, ...p0.slice(1).reverse()];
     return {
       law: AutoMovieSolidTraceLaw.arc(ordered),
       x: [start.s, start.phi, start.y, start.theta],

@@ -1,6 +1,16 @@
-import type { IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropFlight, IAutoMovieMotionHumanPropOutcome, IAutoMovieProjectile, IAutoMovieProjectileState, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { AutoMovieGravity, projectileAt } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropFlight,
+  IAutoMovieMotionHumanPropOutcome,
+  IAutoMovieProjectile,
+  IAutoMovieProjectileState,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropFrame } from "./HumanPropFrame";
 import { HumanPropOutcome } from "./HumanPropOutcome";
@@ -40,7 +50,6 @@ import { HumanPropSweep } from "./HumanPropSweep";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The flight is the engine's, never a second closed form; the sweep is the engine's one resolver.
  */
 export namespace HumanPropFlight {
-
   /**
    * A prop's flights in film order, found once the performance is placed.
    *
@@ -60,9 +69,11 @@ export namespace HumanPropFlight {
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
   ): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
-    const kept: readonly IAutoMovieMotionHumanPropFlight.IFlight[] | undefined = KEPT.get(self)?.get(subject);
+    const kept: readonly IAutoMovieMotionHumanPropFlight.IFlight[] | undefined =
+      KEPT.get(self)?.get(subject);
     if (kept !== undefined) return kept;
-    const building: IAutoMovieMotionHumanPropFlight.IFlight[] | undefined = BUILDING.get(self)?.get(subject);
+    const building: IAutoMovieMotionHumanPropFlight.IFlight[] | undefined =
+      BUILDING.get(self)?.get(subject);
     if (building !== undefined) return building;
     const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(subject);
     if (prop === undefined) return [];
@@ -90,7 +101,8 @@ export namespace HumanPropFlight {
     launches.sort((a, b): number => a.seconds - b.seconds);
     if (launches.length === 0) return [];
     const out: IAutoMovieMotionHumanPropFlight.IFlight[] = [];
-    const map: Map<string, IAutoMovieMotionHumanPropFlight.IFlight[]> = BUILDING.get(self) ?? new Map();
+    const map: Map<string, IAutoMovieMotionHumanPropFlight.IFlight[]> =
+      BUILDING.get(self) ?? new Map();
     map.set(subject, out);
     BUILDING.set(self, map);
     try {
@@ -100,7 +112,10 @@ export namespace HumanPropFlight {
       map.delete(subject);
     }
     if (!self.resolving) {
-      const done: Map<string, readonly IAutoMovieMotionHumanPropFlight.IFlight[]> = KEPT.get(self) ?? new Map();
+      const done: Map<
+        string,
+        readonly IAutoMovieMotionHumanPropFlight.IFlight[]
+      > = KEPT.get(self) ?? new Map();
       done.set(subject, out);
       KEPT.set(self, done);
     }
@@ -235,17 +250,23 @@ export namespace HumanPropFlight {
       m: IAutoMovieMotionHumanPropOutcome.IMeeting,
       p: IAutoMovieProjectile,
       base: number,
-    ): IAutoMovieMotionHumanPropFlight.IContact => contactOf(self, prop, m, p, seconds + base);
-    const first: IAutoMovieMotionHumanPropOutcome.IMeeting | null = meet(projectile, 0);
-    if (first === null) return flight;
-    const legs: IAutoMovieMotionHumanPropOutcome.ILeg[] = HumanPropOutcome.legs({
-      prop,
+    ): IAutoMovieMotionHumanPropFlight.IContact =>
+      contactOf(self, prop, m, p, seconds + base);
+    const first: IAutoMovieMotionHumanPropOutcome.IMeeting | null = meet(
       projectile,
-      meeting: first,
-      horizon,
-      meet,
-      settle,
-    });
+      0,
+    );
+    if (first === null) return flight;
+    const legs: IAutoMovieMotionHumanPropOutcome.ILeg[] = HumanPropOutcome.legs(
+      {
+        prop,
+        projectile,
+        meeting: first,
+        horizon,
+        meet,
+        settle,
+      },
+    );
     return {
       ...flight,
       end: seconds + first.hit.time,

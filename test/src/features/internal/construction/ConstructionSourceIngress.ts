@@ -1,6 +1,10 @@
-import type { IAutoMovieConstructionOutlineParameter, IAutoMovieLoftFrame, IAutoMovieLoftJet, IAutoMovieViewAxis, IAutoMovieViewPart } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieLoftFrame,
+  IAutoMovieLoftJet,
+  IAutoMovieViewAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { ConstructionConicFieldOracle } from "./ConstructionConicFieldOracle";
 

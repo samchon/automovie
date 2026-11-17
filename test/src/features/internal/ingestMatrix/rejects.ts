@@ -1,6 +1,5 @@
 import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 
-
 import { throwsError } from "../predicates";
 import { humanoidResolver } from "./humanoidResolver";
 import { inspect } from "./inspect";

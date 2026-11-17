@@ -1,6 +1,14 @@
-import type { IAutoMovieMotionHumanArmPhrase, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanArmPhrase,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmMove } from "./AutoMovieMotionHumanArmMove";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
@@ -18,7 +26,6 @@ import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every phrase delegates its movement to `AutoMovieMotionHumanArmMove.move`; a manner never moves a goal on a solid place, which `extended` keeps in one place.
  */
 export namespace AutoMovieMotionHumanArmPhrase {
-
   /**
    * A target with its point scaled about another point by the phrase's
    * extent; unchanged when the phrase states a contact, since a manner never
@@ -58,7 +65,10 @@ export namespace AutoMovieMotionHumanArmPhrase {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function bearing(
-    props: Pick<IAutoMovieMotionHumanArmPhrase.IPhrase, "clock" | "side" | "contact">,
+    props: Pick<
+      IAutoMovieMotionHumanArmPhrase.IPhrase,
+      "clock" | "side" | "contact"
+    >,
     from: string,
     to: string,
   ): IAutoMovieMotionHumanContactWindow[] {
@@ -312,16 +322,27 @@ export namespace AutoMovieMotionHumanArmPhrase {
     side: IAutoMovieMotionHumanHand.Side,
     from: number,
     to: number,
-    angles: (posture: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanArmPhrase.ISwing,
+    angles: (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ) => IAutoMovieMotionHumanArmPhrase.ISwing,
   ): IAutoMovieMotionHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
     return {
       channels: [limb],
       from,
       to,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
-        const swung: IAutoMovieMotionHumanArmPhrase.ISwing = angles(posture, seconds);
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
+        const swung: IAutoMovieMotionHumanArmPhrase.ISwing = angles(
+          posture,
+          seconds,
+        );
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+          ...posture.limbs,
+        };
         delete limbs[limb];
         return {
           ...posture,

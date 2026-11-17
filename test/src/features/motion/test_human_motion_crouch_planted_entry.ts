@@ -1,7 +1,19 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
-import { HumanChain, HumanDrill, HumanFloorFall, HumanPerformance, HumanSportGym, HumanVerdicts } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanDrill,
+  HumanFloorFall,
+  HumanPerformance,
+  HumanSportGym,
+  HumanVerdicts,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -46,7 +58,9 @@ export function test_human_motion_crouch_planted_entry(): void {
   for (const name of ["f-small", "m-large"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const perform = (
-      composition: { node: IAutoMovieMotionHumanPerformance.IInput["composition"] },
+      composition: {
+        node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+      },
       label: string,
     ): IAutoMovieMotionHumanPerformance | undefined => {
       try {
@@ -95,7 +109,10 @@ export function test_human_motion_crouch_planted_entry(): void {
         (Math.hypot(u[0]!, u[1]!, u[2]!) * Math.hypot(v[0]!, v[1]!, v[2]!));
       return 180 - (Math.acos(Math.max(-1, Math.min(1, cos))) * 180) / Math.PI;
     };
-    const instant = (placed: IAutoMovieMotionHumanSegment.ISegment, event: string): number =>
+    const instant = (
+      placed: IAutoMovieMotionHumanSegment.ISegment,
+      event: string,
+    ): number =>
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === event)?.share ??
         NaN) *
@@ -121,7 +138,8 @@ export function test_human_motion_crouch_planted_entry(): void {
       "calfRaise then squats",
     );
     if (squatting !== undefined) {
-      const squat: IAutoMovieMotionHumanSegment.ISegment = squatting.segments("a")[1]!;
+      const squat: IAutoMovieMotionHumanSegment.ISegment =
+        squatting.segments("a")[1]!;
       const bottom: number = instant(squat, "bottom1");
       for (const side of ["left", "right"] as const) {
         const flexion: number = knee(squatting, bottom, side);
@@ -174,7 +192,8 @@ export function test_human_motion_crouch_planted_entry(): void {
       "stand then goalkeeperDiveLeft",
     );
     if (diving !== undefined) {
-      const dive: IAutoMovieMotionHumanSegment.ISegment = diving.segments("a")[1]!;
+      const dive: IAutoMovieMotionHumanSegment.ISegment =
+        diving.segments("a")[1]!;
       const takeOff: number = instant(dive, "takeOff");
       for (const side of ["left", "right"] as const) {
         const bent: number =

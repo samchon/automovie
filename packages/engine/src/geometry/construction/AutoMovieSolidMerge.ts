@@ -1,4 +1,5 @@
 import type { IAutoMovieSolidJoin } from "@automovie/interface";
+
 import { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
 
 /**

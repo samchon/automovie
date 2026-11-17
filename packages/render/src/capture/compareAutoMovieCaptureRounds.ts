@@ -1,17 +1,16 @@
-import type { IAutoMovieCaptureComparison, IAutoMovieCaptureComparisonProps, IAutoMovieCaptureLayout, IAutoMovieCaptureRecord, IAutoMovieRasterComparison, IAutoMovieRasterImage } from "@automovie/interface";
-
+import type {
+  IAutoMovieCaptureComparison,
+  IAutoMovieCaptureComparisonProps,
+  IAutoMovieCaptureLayout,
+  IAutoMovieCaptureRecord,
+  IAutoMovieRasterComparison,
+  IAutoMovieRasterImage,
+} from "@automovie/interface";
 
 import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
-
-
 import { compareAutoMovieRasters } from "../picture/compareAutoMovieRasters.js";
 import { decodeAutoMovieRasterPng } from "../picture/decodeAutoMovieRasterPng.js";
 import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
-
-
-
-
-
 import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
 import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
 
@@ -30,7 +29,9 @@ import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each pair is read and measured once.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One pair of decoded stills, one difference image and the comparison sheet being filled are held at a time.
  */
-export async function compareAutoMovieCaptureRounds(props: IAutoMovieCaptureComparisonProps): Promise<IAutoMovieCaptureComparison> {
+export async function compareAutoMovieCaptureRounds(
+  props: IAutoMovieCaptureComparisonProps,
+): Promise<IAutoMovieCaptureComparison> {
   const { folder, match } = props;
   const earlier: Extract<
     IAutoMovieCaptureRecord,

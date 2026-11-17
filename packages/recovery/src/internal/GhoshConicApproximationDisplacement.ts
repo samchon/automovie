@@ -1,4 +1,5 @@
 import type { IAutoMovieGhoshConicApproximationDisplacement } from "@automovie/interface";
+
 /**
  * Intersect a Euclidean unit normal with a compactified bitangent conic family.
  * The barycentric point and normal use the endpoint tangent triangle; normal

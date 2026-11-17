@@ -1,5 +1,12 @@
-import type { IAutoMovieLoftCapRead, IAutoMovieLoftCapSource, IAutoMovieLoftChain, IAutoMovieLoftFrame, IAutoMovieLoftPhaseReading, IAutoMovieLoftSectionPhase, IAutoMovieLoftViewRead } from "@automovie/interface";
-
+import type {
+  IAutoMovieLoftCapRead,
+  IAutoMovieLoftCapSource,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftFrame,
+  IAutoMovieLoftPhaseReading,
+  IAutoMovieLoftSectionPhase,
+  IAutoMovieLoftViewRead,
+} from "@automovie/interface";
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftCapSource } from "./AutoMovieLoftCapSource";

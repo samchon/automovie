@@ -1,4 +1,8 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanLexiconParams, IAutoMovieMotionHumanSupport } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+  IAutoMovieMotionHumanSupport,
+} from "@automovie/interface";
 
 import { support } from "../actions/support";
 import { getUp } from "../floor/getUp";
@@ -70,7 +74,9 @@ const SEATED: IAutoMovieMotionHumanSupport.IStance["prefer"] = {
  */
 export namespace HumanSupportRows {
   /** Scramble up onto a ledge: the palms on its top, a knee up onto its edge, the other foot up, standing on it. */
-  export const scramble: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["support"]["scramble"]> = HumanActionRow.of("scramble", support, {
+  export const scramble: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["support"]["scramble"]
+  > = HumanActionRow.of("scramble", support, {
     stances: [
       { contacts: [...FEET, on("leftHand", 0.5), on("rightHand", 0.5)] },
       {
@@ -97,7 +103,9 @@ export namespace HumanSupportRows {
   });
 
   /** Slide off a table's edge: seated upright on it with the hands beside the seat, the feet down to the floor, standing. */
-  export const slideOff: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["support"]["slideOff"]> = HumanActionRow.of("slideOff", support, {
+  export const slideOff: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["support"]["slideOff"]
+  > = HumanActionRow.of("slideOff", support, {
     stances: [
       {
         contacts: [

@@ -1,4 +1,8 @@
-import { type IAutoMovieViolationCollector, IAutoMovieBuildingUnit, IAutoMovieBuiltEnvironment } from "@automovie/interface";
+import {
+  IAutoMovieBuildingUnit,
+  IAutoMovieBuiltEnvironment,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 

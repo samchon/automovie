@@ -19,10 +19,11 @@ export namespace IAutoMovieSolveBoundedDisplacement {
     upper: readonly number[];
     /** All affine contact conditions, borrowed without mutation; an empty set returns the exact zero travel optimum after admission. */
     constraints: readonly {
-    /** Original affine interval row over travel coordinates; all coefficients and bounds pass the shared quadratic admission. */
-    row: IAutoMovieQuadraticRow;
-    /** Map identity used to add one worst unsatisfied row per group each round; no integer or geometry meaning is inferred from this number. */
-    group: number }[];
+      /** Original affine interval row over travel coordinates; all coefficients and bounds pass the shared quadratic admission. */
+      row: IAutoMovieQuadraticRow;
+      /** Map identity used to add one worst unsatisfied row per group each round; no integer or geometry meaning is inferred from this number. */
+      group: number;
+    }[];
     /** Finite positive absolute maximum row-bound violation accepted on the returned vector, in the supplied rows' numerical units. */
     tolerance: number;
     /** Positive safe-integer limit on restricted solves; an unresolved problem at that count throws instead of returning partial travel. */

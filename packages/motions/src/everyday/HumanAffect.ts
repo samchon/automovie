@@ -1,6 +1,10 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanAffect, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPosture } from "@automovie/interface";
-
 import { minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAffect,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
 
@@ -47,9 +51,10 @@ import { HumanBound } from "../law/HumanBound";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No shortcut present: no consumer or body is special-cased, and the layer type is the shared `IHumanLayer`.
  */
 export namespace HumanAffect {
-
   /** Each display's own length, seconds. */
-  export const LENGTH: Readonly<Record<IAutoMovieMotionHumanAffect.Kind, number>> = {
+  export const LENGTH: Readonly<
+    Record<IAutoMovieMotionHumanAffect.Kind, number>
+  > = {
     laugh: 1.5,
     sigh: 3.5,
     yawn: 6,
@@ -180,15 +185,22 @@ export namespace HumanAffect {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Postures are evaluated independently; nothing is cached between seconds.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer retains only the caller's display list for its lifetime and allocates one joint record per posture.
    */
-  export function layer(displays: readonly IAutoMovieMotionHumanAffect.IDisplay[]): IAutoMovieMotionHumanLayer {
+  export function layer(
+    displays: readonly IAutoMovieMotionHumanAffect.IDisplay[],
+  ): IAutoMovieMotionHumanLayer {
     return {
       name: "affect",
 
       // The jaw and the head, and the spine, the chest and the shoulder
       // girdles: every display's pulse is on those joints.
       channels: ["head", "trunk"],
-      apply: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
-        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+      apply: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
+        const joints: IAutoMovieMotionHumanPosture["joints"] = {
+          ...posture.joints,
+        };
         for (const d of displays) {
           const length: number = d.seconds ?? LENGTH[d.kind];
           for (const [bone, a] of Object.entries(

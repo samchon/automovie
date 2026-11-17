@@ -1,5 +1,3 @@
-
-
 /**
  * How a bounded body stands to a set of section planes, as
  * `classifyAutoMovieSectionPlaneBox` reports it for an axis-aligned box.

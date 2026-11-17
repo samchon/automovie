@@ -1,11 +1,12 @@
-import type { IAutoMovieRecoveryFeasibleJointOptions, IAutoMovieRecoveryFeasibleMapReporting, IAutoMovieRecoveryFeasibleMapWork, IAutoMovieRecoveryFeasibleReportCapacity, IAutoMovieRecoveryMapLandmark, IAutoMovieRecoveryMapPose, IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface";
-
-
-
-
-
-
-
+import type {
+  IAutoMovieRecoveryCameraMapBudget,
+  IAutoMovieRecoveryFeasibleJointOptions,
+  IAutoMovieRecoveryFeasibleMapReporting,
+  IAutoMovieRecoveryFeasibleMapWork,
+  IAutoMovieRecoveryFeasibleReportCapacity,
+  IAutoMovieRecoveryMapLandmark,
+  IAutoMovieRecoveryMapPose,
+} from "@automovie/interface";
 
 import { RecoveryFeasibleCapacityError } from "./RecoveryFeasibleCapacityError";
 import { prepareRecoveryFeasibleMapWork } from "./prepareRecoveryFeasibleMapWork";

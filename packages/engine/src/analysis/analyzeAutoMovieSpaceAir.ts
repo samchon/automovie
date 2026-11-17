@@ -1,5 +1,11 @@
-import { type IAutoMovieSpaceAirRequest, type IAutoMovieAnalyzeSpaceAir, IAutoMovieAnalysisMetric, IAutoMovieAnalysisMetricGap, IAutoMovieAnalysisRun, IAutoMovieAnalysisWarning } from "@automovie/interface";
-
+import {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisMetricGap,
+  IAutoMovieAnalysisRun,
+  IAutoMovieAnalysisWarning,
+  type IAutoMovieAnalyzeSpaceAir,
+  type IAutoMovieSpaceAirRequest,
+} from "@automovie/interface";
 
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
@@ -40,7 +46,11 @@ import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKe
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One request yields one run; nothing it computes serves another request or phase.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Builds five metrics, a warning list and one settings string for the sealed run and retains nothing after returning it.
  */
-export const analyzeAutoMovieSpaceAir: (props: IAutoMovieAnalyzeSpaceAir.IProps) => IAutoMovieAnalysisRun = (props: IAutoMovieAnalyzeSpaceAir.IProps): IAutoMovieAnalysisRun => {
+export const analyzeAutoMovieSpaceAir: (
+  props: IAutoMovieAnalyzeSpaceAir.IProps,
+) => IAutoMovieAnalysisRun = (
+  props: IAutoMovieAnalyzeSpaceAir.IProps,
+): IAutoMovieAnalysisRun => {
   const request: IAutoMovieSpaceAirRequest = props.request;
   validateAirRequest(request);
   const warnings: IAutoMovieAnalysisWarning[] = [];

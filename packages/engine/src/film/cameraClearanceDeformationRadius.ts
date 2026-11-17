@@ -1,5 +1,8 @@
-import { type IAutoMovieCameraClearanceDeformationRadius, IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieCameraClearanceDeformationRadius,
+  IAutoMovieModel,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * A pose-independent radius about a model's origin that contains its supplied portable part geometry in any pose of its rig, in model-space metres. External bytes and renderer-only deformation are outside this bound.

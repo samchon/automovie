@@ -1,5 +1,7 @@
-import { type IAutoMovieClassifyLocomoteGroundDisplacement, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieClassifyLocomoteGroundDisplacement,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { LOCOMOTE_GROUND_EPSILON } from "./constants/LOCOMOTE_GROUND_EPSILON";
 

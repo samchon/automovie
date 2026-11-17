@@ -1,6 +1,15 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanDefend, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanDefend,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingStance } from "./StrikingStance";
@@ -115,9 +124,8 @@ export namespace defendGeometry {
     // where the strike is aimed.
     const aimed = timing.attack.plan.aimed;
     const regionAt = StrikingBody.region(body, own, timing.region, aimed);
-    const attacker: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(
-      timing.attack.subject,
-    );
+    const attacker: IAutoMovieMotionHumanActionContext.IPerformer =
+      context.performer(timing.attack.subject);
     const now = attacker.bones(timing.read);
     const before = attacker.bones(timing.read - 1 / 24);
     const limbs: AutoMovieHumanoidBone[] =
@@ -244,23 +252,29 @@ export namespace defendGeometry {
         const guard = StrikingStance.guard(body, posture, { lead });
 
         // Arms and the checking leg as goals on the defender's own body.
-        const target: Partial<IAutoMovieMotionHumanPosture["limbs"]> = defendGoals.at({
-          body,
-          posture,
-          kind: p.kind,
-          region: timing.region,
-          aimed,
-          sight,
-        });
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs, ...guard };
+        const target: Partial<IAutoMovieMotionHumanPosture["limbs"]> =
+          defendGoals.at({
+            body,
+            posture,
+            kind: p.kind,
+            region: timing.region,
+            aimed,
+            sight,
+          });
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+          ...posture.limbs,
+          ...guard,
+        };
         for (const limb of [
           "leftArm",
           "rightArm",
           "leftLeg",
           "rightLeg",
         ] as const) {
-          const goal: IAutoMovieMotionHumanPosture.IGoal | undefined = target[limb];
-          const from: IAutoMovieMotionHumanPosture.IGoal | undefined = limbs[limb];
+          const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
+            target[limb];
+          const from: IAutoMovieMotionHumanPosture.IGoal | undefined =
+            limbs[limb];
           if (goal === undefined || from === undefined) continue;
           limbs[limb] = {
             point: Vector3.lerp(from.point, goal.point, k),

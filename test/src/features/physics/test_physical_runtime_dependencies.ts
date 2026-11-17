@@ -1,6 +1,22 @@
-import type { IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicalTargetInterval, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-import { PhysicalTargetInterval as Interval, Quaternion, Vector3, bindPhysicalWorld, copyPhysicalTarget, preparePhysicalTargetSampler, readPhysicalScene, samplePhysicalAuthoredTargets, samplePhysicalTarget, setPhysicalTargetJointRotation, solvePhysicalChainTarget, warmPhysicalSupportTargets } from "@automovie/engine";
-
+import {
+  PhysicalTargetInterval as Interval,
+  Quaternion,
+  Vector3,
+  bindPhysicalWorld,
+  copyPhysicalTarget,
+  preparePhysicalTargetSampler,
+  readPhysicalScene,
+  samplePhysicalAuthoredTargets,
+  samplePhysicalTarget,
+  setPhysicalTargetJointRotation,
+  solvePhysicalChainTarget,
+  warmPhysicalSupportTargets,
+} from "@automovie/engine";
+import type {
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalTargetInterval,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
@@ -98,7 +114,8 @@ export async function test_physical_runtime_dependencies(): Promise<void> {
       profile,
       1 / 120,
     );
-    const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], 1 / 120);
+    const input: IAutoMoviePhysicalSimulationInput.IInput =
+      PhysicalFixtures.input([body], 1 / 120);
     const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
       world,
       input,

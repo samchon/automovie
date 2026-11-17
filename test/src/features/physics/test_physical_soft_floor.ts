@@ -1,5 +1,8 @@
-import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 import { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
+import type {
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -19,11 +22,14 @@ export async function test_physical_soft_floor(): Promise<void> {
     PhysicalFixtures.sphere(0.1, 0.001),
     2,
   );
-  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], 2);
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([body], 2);
   input.floor = 0;
   input.gravity.y = -9.81;
-  const baseline: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
-  const edited: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+  const baseline: IAutoMoviePhysicalSimulation =
+    await Simulation.compute(input);
+  const edited: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(input);
   edited.impulses.push({
     step: 180,
     body: "soft",
@@ -31,7 +37,10 @@ export async function test_physical_soft_floor(): Promise<void> {
     point: { x: 0, y: 0.09019, z: 0 },
     impulse: { x: 0.1, y: 0, z: 0 },
   });
-  const resumed: IAutoMoviePhysicalSimulation = await Simulation.compute(edited, baseline);
+  const resumed: IAutoMoviePhysicalSimulation = await Simulation.compute(
+    edited,
+    baseline,
+  );
   const fresh: IAutoMoviePhysicalSimulation = await Simulation.compute(edited);
   const finalHeight: number =
     baseline.cache.at(2).bodies.soft!.root!.position.y;

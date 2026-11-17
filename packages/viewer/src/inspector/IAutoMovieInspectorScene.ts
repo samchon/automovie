@@ -1,4 +1,7 @@
-import type { IAutoMovieCapturePlanRequest, IAutoMovieInspectionLegendEntry } from "@automovie/interface";
+import type {
+  IAutoMovieCapturePlanRequest,
+  IAutoMovieInspectionLegendEntry,
+} from "@automovie/interface";
 import type { IApplyAutoMovieInspectionProps } from "@automovie/render";
 
 /**

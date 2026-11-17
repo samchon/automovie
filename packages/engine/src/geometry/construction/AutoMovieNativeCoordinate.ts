@@ -1,4 +1,8 @@
-import type { IAutoMovieLoftViewRead, IAutoMovieNativeCoordinate } from "@automovie/interface";
+import type {
+  IAutoMovieLoftViewRead,
+  IAutoMovieNativeCoordinate,
+} from "@automovie/interface";
+
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
 
@@ -18,7 +22,6 @@ import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieNativeCoordinate {
-
   /**
    * Solve local x (component0) or z (component1) on a positive/negative other-coordinate half.
    * A residual within32eps*max(1,input extents,target) is the numeric acceptance

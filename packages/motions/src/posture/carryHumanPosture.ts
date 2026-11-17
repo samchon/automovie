@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionHumanCarryHumanPosture, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanCarryHumanPosture,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * A posture carried rigidly by a frame that moved: every world point of it
@@ -46,7 +50,8 @@ export function carryHumanPosture(
   };
   const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
   for (const limb of ["leftLeg", "rightLeg", "leftArm", "rightArm"] as const) {
-    const goal: IAutoMovieMotionHumanPosture.IGoal | undefined = posture.limbs[limb];
+    const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
+      posture.limbs[limb];
     if (goal === undefined) continue;
     limbs[limb] =
       goal.on !== undefined

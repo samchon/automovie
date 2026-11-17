@@ -1,8 +1,19 @@
-import type { IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewAxis, IAutoMovieViewOutline, IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanHeadEarRidge } from "@automovie/interface";
-
-
-
-import { AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieViewOutline, AutoMovieViewSection } from "@automovie/engine";
+import {
+  AutoMovieLoftSectionNative,
+  AutoMovieLoftViewRead,
+  AutoMovieLoftViewSource,
+  AutoMovieViewOutline,
+  AutoMovieViewSection,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanHeadEarRidge,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewAxis,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadEarRidgeAxis } from "./AutoMovieHumanHeadEarRidgeAxis";
 
@@ -23,12 +34,6 @@ import { AutoMovieHumanHeadEarRidgeAxis } from "./AutoMovieHumanHeadEarRidgeAxis
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the view and prepared axis; no figure survives globally.
  */
 export namespace AutoMovieHumanHeadEarRidge {
-  
-
-  
-
-  
-
   /**
    * Draw one closed ridge, calibration mm, capped at both course ends.
    *
@@ -112,12 +117,15 @@ export namespace AutoMovieHumanHeadEarRidge {
         .slice(1)
         .map((s: number, i: number): number => (s + source[i]!) / 2),
     ].sort((a: number, b: number): number => a - b);
-    const port: (i: number) => string | IAutoMovieHumanHeadEarRidge.IPort | undefined = (
+    const port: (
+      i: number,
+    ) => string | IAutoMovieHumanHeadEarRidge.IPort | undefined = (
       i: number,
     ): string | IAutoMovieHumanHeadEarRidge.IPort | undefined =>
       i === 1 ? ports.start : i === points.length - 2 ? ports.end : undefined;
     const site: (i: number) => string = (i: number): string => {
-      const named: string | IAutoMovieHumanHeadEarRidge.IPort | undefined = port(i);
+      const named: string | IAutoMovieHumanHeadEarRidge.IPort | undefined =
+        port(i);
       return typeof named === "object" ? named.site : (named ?? `${name}.${i}`);
     };
     const outline: (
@@ -129,7 +137,8 @@ export namespace AutoMovieHumanHeadEarRidge {
     ): IAutoMovieViewPart.IOutline => ({
       knots: source.map(
         (station: number, i: number): IAutoMovieViewPart.IKnot => {
-          const shared: string | IAutoMovieHumanHeadEarRidge.IPort | undefined = port(i);
+          const shared: string | IAutoMovieHumanHeadEarRidge.IPort | undefined =
+            port(i);
           const sign: number = quarter < 2 ? 1 : -1;
           const jet: IAutoMovieViewPart.IKnot["jet"] =
             typeof shared === "object" && shared.jets !== null
@@ -159,7 +168,9 @@ export namespace AutoMovieHumanHeadEarRidge {
           value,
           ...[ports.start, ports.end]
             .filter(
-              (p: string | IAutoMovieHumanHeadEarRidge.IPort | undefined): p is IAutoMovieHumanHeadEarRidge.IPort =>
+              (
+                p: string | IAutoMovieHumanHeadEarRidge.IPort | undefined,
+              ): p is IAutoMovieHumanHeadEarRidge.IPort =>
                 typeof p === "object",
             )
             .map(
@@ -172,7 +183,9 @@ export namespace AutoMovieHumanHeadEarRidge {
           value,
           ...[ports.start, ports.end]
             .filter(
-              (p: string | IAutoMovieHumanHeadEarRidge.IPort | undefined): p is IAutoMovieHumanHeadEarRidge.IPort =>
+              (
+                p: string | IAutoMovieHumanHeadEarRidge.IPort | undefined,
+              ): p is IAutoMovieHumanHeadEarRidge.IPort =>
                 typeof p === "object",
             )
             .map(
@@ -199,7 +212,10 @@ export namespace AutoMovieHumanHeadEarRidge {
           (quarter: number): IAutoMovieViewPart.IOutline => ({
             knots: source.map(
               (station: number, i: number): IAutoMovieViewPart.IKnot => {
-                const shared: string | IAutoMovieHumanHeadEarRidge.IPort | undefined = port(i);
+                const shared:
+                  | string
+                  | IAutoMovieHumanHeadEarRidge.IPort
+                  | undefined = port(i);
                 const span: number = source.at(-1)! - source[0]!;
                 const jet: IAutoMovieViewPart.IKnot["jet"] =
                   typeof shared === "object" && shared.jets !== null
@@ -273,7 +289,10 @@ export namespace AutoMovieHumanHeadEarRidge {
    * @evidence contracts/performance.md#reuse-equivalent-work The returned complete field and original ridge serve both crura.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The composition owns the port and parent; no registry or global identity cache exists.
    */
-  export function port(owner: IAutoMovieHumanHeadEarRidge.IRidge, site: string): IAutoMovieHumanHeadEarRidge.IPort {
+  export function port(
+    owner: IAutoMovieHumanHeadEarRidge.IRidge,
+    site: string,
+  ): IAutoMovieHumanHeadEarRidge.IPort {
     const knot: IAutoMovieViewPart.IKnot | undefined =
       owner.front.positive.knots.find(
         (k: IAutoMovieViewPart.IKnot): boolean => k.site === site,
@@ -338,7 +357,10 @@ export namespace AutoMovieHumanHeadEarRidge {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The port owns tangent preparation.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one owned vector.
    */
-  function extension(port: IAutoMovieHumanHeadEarRidge.IPort, distance: number): [number, number, number] {
+  function extension(
+    port: IAutoMovieHumanHeadEarRidge.IPort,
+    distance: number,
+  ): [number, number, number] {
     const speed: number = Math.hypot(...port.originJet[0]);
     if (!(speed > 0 && Number.isFinite(speed)))
       throw new Error(`Ear port ${port.site} has no regular original course`);

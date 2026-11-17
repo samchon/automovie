@@ -1,13 +1,25 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSignature, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import {
-  ArchetypeUnits,
   type ArchetypeAssembly,
   type ArchetypeCourse,
   ArchetypeFrame,
   ArchetypeRide,
+  ArchetypeUnits,
 } from "@automovie/archetypes";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanRide, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanRide,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeCarriage } from "../internal/archetypeCarriage";
@@ -45,19 +57,30 @@ export function test_archetype_assembly_ride(): void {
     deceleration: 1,
     at: 3,
   };
-  const ride: ArchetypeRide.IRide<Id, never> = ArchetypeRide.along(carriage, course);
+  const ride: ArchetypeRide.IRide<Id, never> = ArchetypeRide.along(
+    carriage,
+    course,
+  );
 
   // 1. Every member's contacts keep their places on the root.
-  const contacts: readonly (readonly [string, IAutoMovieTransform, IAutoMovieTransform])[] = [
+  const contacts: readonly (readonly [
+    string,
+    IAutoMovieTransform,
+    IAutoMovieTransform,
+  ])[] = [
     ...(["bench1", "bench2", "bench3"] as const).map(
-      (key: "bench1" | "bench2" | "bench3"): [string, IAutoMovieTransform, IAutoMovieTransform] => [
+      (
+        key: "bench1" | "bench2" | "bench3",
+      ): [string, IAutoMovieTransform, IAutoMovieTransform] => [
         `${key}/seat`,
         members[key].placement,
         members[key].archetype.affordance("seat").frame,
       ],
     ),
     ...(["railLeft", "railRight"] as const).map(
-      (key: "railLeft" | "railRight"): [string, IAutoMovieTransform, IAutoMovieTransform] => [
+      (
+        key: "railLeft" | "railRight",
+      ): [string, IAutoMovieTransform, IAutoMovieTransform] => [
         `${key}/bar`,
         members[key].placement,
         members[key].archetype.affordance("bar").frame,
@@ -116,17 +139,31 @@ export function test_archetype_assembly_ride(): void {
       .sit({ seat })
       .registered("ride", { on: "carriage", seconds: ride.duration }).node,
   });
-  const segment: ReturnType<IAutoMovieMotionHumanPerformance["segments"]>[number] =
-    performance.segments("a")[1]!;
-  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(performance, "a", body, 0);
+  const segment: ReturnType<
+    IAutoMovieMotionHumanPerformance["segments"]
+  >[number] = performance.segments("a")[1]!;
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    performance,
+    "a",
+    body,
+    0,
+  );
   const offset = (seconds: number): number => {
     const now: ReturnType<typeof HumanObject.seat> = HumanObject.seat(
       carriage,
       placed(seconds),
       "bench2/seat",
     );
-    const rests: IAutoMovieVector3 = HumanSignature.region(reader, "seat", seconds);
-    return Math.hypot(rests.x - now.at.x, rests.y - now.at.y, rests.z - now.at.z);
+    const rests: IAutoMovieVector3 = HumanSignature.region(
+      reader,
+      "seat",
+      seconds,
+    );
+    return Math.hypot(
+      rests.x - now.at.x,
+      rests.y - now.at.y,
+      rests.z - now.at.z,
+    );
   };
   const first: number = offset(segment.entryTime);
   for (let k: number = 0; k <= 8; k++) {

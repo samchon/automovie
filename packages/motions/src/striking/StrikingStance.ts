@@ -1,6 +1,14 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingStance, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingStance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { StrikingBody } from "./StrikingBody";
@@ -67,7 +75,9 @@ export namespace StrikingStance {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function rear(stance: Pick<IAutoMovieMotionHumanStrikingStance.IStance, "lead">): "left" | "right" {
+  export function rear(
+    stance: Pick<IAutoMovieMotionHumanStrikingStance.IStance, "lead">,
+  ): "left" | "right" {
     return stance.lead === "left" ? "right" : "left";
   }
 
@@ -86,7 +96,9 @@ export namespace StrikingStance {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function heading(stance: IAutoMovieMotionHumanStrikingStance.IStance): number {
+  export function heading(
+    stance: IAutoMovieMotionHumanStrikingStance.IStance,
+  ): number {
     return stance.line + (stance.lead === "left" ? -TURN : TURN);
   }
 
@@ -134,7 +146,10 @@ export namespace StrikingStance {
       yaw: stance.line,
     };
     const half: number = length(body) / 2;
-    const out = {} as Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+    const out = {} as Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    >;
     for (const side of ["left", "right"] as const) {
       const lead: boolean = side === stance.lead;
       const x: number = (side === "left" ? 1 : -1) * body.measure.hipHalfWidth;
@@ -247,7 +262,10 @@ export namespace StrikingStance {
       StrikingBody.region(body, bones, "face").normal,
     );
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const out: Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> = {};
+    const out: Pick<
+      IAutoMovieMotionHumanPosture["limbs"],
+      "leftArm" | "rightArm"
+    > = {};
     for (const side of ["left", "right"] as const) {
       const lead: boolean = side === stance.lead;
       const jaw = StrikingBody.region(
@@ -384,7 +402,10 @@ export namespace StrikingStance {
     feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
     planted: Record<"left" | "right", boolean> = { left: true, right: true },
   ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
-    const out: Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> = {};
+    const out: Pick<
+      IAutoMovieMotionHumanPosture["limbs"],
+      "leftLeg" | "rightLeg"
+    > = {};
     for (const side of ["left", "right"] as const) {
       const foot: IAutoMovieMotionHumanFoot.IPlacement = feet[side];
       const toes: IAutoMovieVector3 = Quaternion.rotateVector(foot.rotation, {

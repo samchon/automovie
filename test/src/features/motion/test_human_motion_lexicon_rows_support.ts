@@ -1,6 +1,17 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionTarget } from "@automovie/interface";
-
-import { HumanChain, HumanPerformance, HumanSupportRows, seated } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionTarget,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanSupportRows,
+  seated,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -76,10 +87,7 @@ export function test_human_motion_lexicon_rows_support(): void {
       try {
         performance = new HumanPerformance({
           seed: "support-rows",
-          laws: [
-            HumanSupportRows.scramble,
-            HumanSupportRows.slideOff,
-          ],
+          laws: [HumanSupportRows.scramble, HumanSupportRows.slideOff],
           performers: [
             {
               subject: "a",
@@ -103,9 +111,13 @@ export function test_human_motion_lexicon_rows_support(): void {
         );
         continue;
       }
-      const placed: IAutoMovieMotionHumanSegment.ISegment | undefined = performance
-        .segments("a")
-        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row);
+      const placed: IAutoMovieMotionHumanSegment.ISegment | undefined =
+        performance
+          .segments("a")
+          .find(
+            (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+              s.name === row,
+          );
       complaints.check(
         `${cell}: placed as ${placed?.name ?? "nothing"}`,
         placed?.name === row,

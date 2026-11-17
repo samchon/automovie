@@ -1,4 +1,3 @@
-import type { IAutoMovieFitPhysicalWholeBodyTarget, IAutoMovieVector3, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   Quaternion,
   Vector3,
@@ -6,7 +5,11 @@ import {
   measurePhysicalJointLimits,
   rerootPhysicalProfile,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieFitPhysicalWholeBodyTarget,
+  IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";

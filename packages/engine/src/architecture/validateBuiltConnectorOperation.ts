@@ -1,4 +1,12 @@
-import { type IAutoMovieValidateBuiltConnectorOperation, type IAutoMovieViolationCollector, IAutoMovieBuiltConnector, IAutoMovieBuiltElement, IAutoMovieCarriageValue, IAutoMovieConnectorCarriage, IAutoMovieConnectorState } from "@automovie/interface";
+import {
+  IAutoMovieBuiltConnector,
+  IAutoMovieBuiltElement,
+  IAutoMovieCarriageValue,
+  IAutoMovieConnectorCarriage,
+  IAutoMovieConnectorState,
+  type IAutoMovieValidateBuiltConnectorOperation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 import { builtConnectorStops } from "./builtConnectorStops";
@@ -42,19 +50,23 @@ const CONNECTOR_DRIVES: readonly IAutoMovieConnectorState["drive"][] = [
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per operated run; the work-wide `driven` table is the state shared across calls, by design.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The subtree, stop set, carriage index and per-state sets are released on return; `driven` grows by at most one entry per carriage and is owned by the caller.
  */
-export const validateBuiltConnectorOperation: (props: IAutoMovieValidateBuiltConnectorOperation.IProps) => void = (props: IAutoMovieValidateBuiltConnectorOperation.IProps): void => {
+export const validateBuiltConnectorOperation: (
+  props: IAutoMovieValidateBuiltConnectorOperation.IProps,
+) => void = (props: IAutoMovieValidateBuiltConnectorOperation.IProps): void => {
   const {
     connector,
     path,
     collector,
-  }: [{
-  connector: IAutoMovieBuiltConnector;
-  path: string;
-  elements: readonly IAutoMovieBuiltElement[];
-  elementIds: ReadonlySet<string>;
-  driven: Map<string, string>;
-  collector: IAutoMovieViolationCollector;
-}][0] = props;
+  }: [
+    {
+      connector: IAutoMovieBuiltConnector;
+      path: string;
+      elements: readonly IAutoMovieBuiltElement[];
+      elementIds: ReadonlySet<string>;
+      driven: Map<string, string>;
+      collector: IAutoMovieViolationCollector;
+    },
+  ][0] = props;
   const operation: IAutoMovieBuiltConnector["operation"] = connector.operation;
   if (operation === undefined) return;
   const base: string = `${path}.operation`;

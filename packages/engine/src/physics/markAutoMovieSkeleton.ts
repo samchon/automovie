@@ -1,5 +1,8 @@
-import type { IAutoMovieMark, IAutoMovieMarkSkeleton, IAutoMoviePhysicsCache } from "@automovie/interface";
-
+import type {
+  IAutoMovieMark,
+  IAutoMovieMarkSkeleton,
+  IAutoMoviePhysicsCache,
+} from "@automovie/interface";
 
 /**
  * Turn articulated bodies at one cached instant into inspection marks: one bone segment per joint, from the parent segment's position to the child's, and one joint point per segment.
@@ -24,7 +27,9 @@ import type { IAutoMovieMark, IAutoMovieMarkSkeleton, IAutoMoviePhysicsCache } f
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure conversion of one instant.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh marks and keeps nothing.
  */
-export function markAutoMovieSkeleton(props: IAutoMovieMarkSkeleton.IProps): IAutoMovieMark[] {
+export function markAutoMovieSkeleton(
+  props: IAutoMovieMarkSkeleton.IProps,
+): IAutoMovieMark[] {
   const marks: IAutoMovieMark[] = [];
   for (const body of props.bodies) {
     const at: (bone: string) => number[] = (bone: string): number[] => {

@@ -1,5 +1,8 @@
-import type { IAutoMovieLoftFrame, IAutoMovieViewAxis } from "@automovie/interface";
 import { AutoMovieViewAxis } from "@automovie/engine";
+import type {
+  IAutoMovieLoftFrame,
+  IAutoMovieViewAxis,
+} from "@automovie/interface";
 
 /**
  * An exact straight joint consumes no turn length or setback, while a nonzero near-straight turn still requires its positive arclength.

@@ -1,4 +1,5 @@
 import type { IAutoMovieSpline } from "@automovie/interface";
+
 /** Tension below which a segment is evaluated as the plain cubic, where the hyperbolic form loses precision. */
 const CUBIC: number = 1e-4;
 

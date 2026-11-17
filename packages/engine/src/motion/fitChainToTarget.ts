@@ -1,4 +1,7 @@
-import type { IAutoMovieFitChainToTargetProps, IAutoMoviePose } from "@automovie/interface";
+import type {
+  IAutoMovieFitChainToTargetProps,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
 import { fitSeededChainToTarget } from "./fitSeededChainToTarget";
 
@@ -17,5 +20,6 @@ import { fitSeededChainToTarget } from "./fitSeededChainToTarget";
  */
 export const fitChainToTarget: (
   props: IAutoMovieFitChainToTargetProps,
-) => IAutoMoviePose = (input: IAutoMovieFitChainToTargetProps): IAutoMoviePose =>
-  fitSeededChainToTarget(input).pose;
+) => IAutoMoviePose = (
+  input: IAutoMovieFitChainToTargetProps,
+): IAutoMoviePose => fitSeededChainToTarget(input).pose;

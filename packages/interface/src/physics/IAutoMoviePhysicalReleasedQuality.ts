@@ -1,10 +1,8 @@
-
-
 /** Data and callback contracts shared by the PhysicalReleasedQuality operations. */
 export namespace IAutoMoviePhysicalReleasedQuality {
   /**
    * Additional native solver budget of one body for its released quality.
-   * 
+   *
    * A released body may declare a higher articulation solver budget than the
    * world's; Rapier adds per-body iterations on top of the world's own, so the
    * addition is the declared total minus the world's count, never negative.
@@ -22,7 +20,7 @@ export namespace IAutoMoviePhysicalReleasedQuality {
 
   /**
    * Additional native solver budget of one body for its released quality.
-   * 
+   *
    * A released body may declare a higher articulation solver budget than the
    * world's; Rapier adds per-body iterations on top of the world's own, so the
    * addition is the declared total minus the world's count, never negative.

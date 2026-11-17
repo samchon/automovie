@@ -1,6 +1,15 @@
-import type { IAutoMovieResolvedBone, IAutoMovieHumanoidSurfaceRays, IAutoMovieHumanoidSurfaceRegions, IAutoMovieHumanoidSurfaces, IAutoMoviePhysicalProfile, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, AutoMovieHumanoidSocket, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  AutoMovieHumanoidSocket,
+  IAutoMovieHumanoidSurfaceRays,
+  IAutoMovieHumanoidSurfaceRegions,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieResolvedBone,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -141,7 +150,8 @@ export function resolveAutoMovieHumanoidSurfaces(
     const ankle: IAutoMovieVector3 = at(bone("Foot")).worldPosition;
     const toes: IAutoMovieVector3 = at(bone("Toes")).worldPosition;
     const jointed: boolean = profile.segments.some(
-      (x: IAutoMoviePhysicalProfile.ISegment): boolean => x.bone === bone("Toes"),
+      (x: IAutoMoviePhysicalProfile.ISegment): boolean =>
+        x.bone === bone("Toes"),
     );
     const front = jointed ? bounds(bone("Toes")) : foot;
     const sole = (z: number): IAutoMovieVector3 => ({
@@ -248,7 +258,6 @@ export function resolveAutoMovieHumanoidSurfaces(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Keys are the interface's closed unions, not strings.
  */
 export namespace resolveAutoMovieHumanoidSurfaces {
-
   /**
    * A surface frame's world point and normal under a posed bone.
    *
@@ -387,7 +396,9 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    * @param frame The frame.
    * @returns The frame, its own mirror image.
    */
-  export function centred(frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieHumanoidSurfaces.IFrame {
+  export function centred(
+    frame: IAutoMovieHumanoidSurfaces.IFrame,
+  ): IAutoMovieHumanoidSurfaces.IFrame {
     const plane = (v: IAutoMovieVector3): IAutoMovieVector3 => ({
       x: 0,
       y: v.y,
@@ -411,7 +422,9 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    * @param frame The frame.
    * @returns Its mirror image.
    */
-  export function mirrored(frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieHumanoidSurfaces.IFrame {
+  export function mirrored(
+    frame: IAutoMovieHumanoidSurfaces.IFrame,
+  ): IAutoMovieHumanoidSurfaces.IFrame {
     const flip = (v: IAutoMovieVector3): IAutoMovieVector3 => ({
       x: -v.x,
       y: v.y,

@@ -1,13 +1,19 @@
-import type { AutoMovieVector3Tuple, IAutoMovieArcLengthJet, IAutoMovieHumanWebCurve } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieArcLengthJet,
+  IAutoMovieHumanWebCurve,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSeam } from "../../lofting/AutoMovieHumanSeam";
-
 import { AutoMovieHumanHandVector } from "../hand/AutoMovieHumanHandVector";
 
-
-const { sub, plus: add, scale, dot, unit }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
+const {
+  sub,
+  plus: add,
+  scale,
+  dot,
+  unit,
+}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 
 /**
  * The two curve readings a web's surface needs: a station curve's jet at a
@@ -34,9 +40,19 @@ export namespace AutoMovieHumanWebCurve {
    * published by arclength. `sense` -1 reads the curve leaving the ring
    * outward (a parent), 1 entering it (a child).
    */
-  export function leaving(on: AutoMovieVector3Tuple, inner: AutoMovieVector3Tuple, deep: AutoMovieVector3Tuple, sense: number): IAutoMovieArcLengthJet {
-    const d1: AutoMovieVector3Tuple = [0, 1, 2].map((k: number): number => (sense * (-3 * on[k]! + 4 * inner[k]! - deep[k]!)) / (2 * H)) as AutoMovieVector3Tuple;
-    const d2: AutoMovieVector3Tuple = [0, 1, 2].map((k: number): number => (on[k]! - 2 * inner[k]! + deep[k]!) / (H * H)) as AutoMovieVector3Tuple;
+  export function leaving(
+    on: AutoMovieVector3Tuple,
+    inner: AutoMovieVector3Tuple,
+    deep: AutoMovieVector3Tuple,
+    sense: number,
+  ): IAutoMovieArcLengthJet {
+    const d1: AutoMovieVector3Tuple = [0, 1, 2].map(
+      (k: number): number =>
+        (sense * (-3 * on[k]! + 4 * inner[k]! - deep[k]!)) / (2 * H),
+    ) as AutoMovieVector3Tuple;
+    const d2: AutoMovieVector3Tuple = [0, 1, 2].map(
+      (k: number): number => (on[k]! - 2 * inner[k]! + deep[k]!) / (H * H),
+    ) as AutoMovieVector3Tuple;
     return AutoMovieHumanSeam.publish(on, d1, d2);
   }
 
@@ -47,19 +63,36 @@ export namespace AutoMovieHumanWebCurve {
    * reaches its first depths at their square root. Past its ends it runs on
    * along its end tangents.
    */
-  export function sampled(curve: IAutoMovieHumanWebCurve.SampledCurve, direction: AutoMovieVector3Tuple): IAutoMovieHumanWebCurve.SampledResult {
-    const samples: AutoMovieVector3Tuple[] = Array.from({ length: LEVEL_SAMPLES + 1 }, (_: unknown, i: number): AutoMovieVector3Tuple => curve(i / LEVEL_SAMPLES));
+  export function sampled(
+    curve: IAutoMovieHumanWebCurve.SampledCurve,
+    direction: AutoMovieVector3Tuple,
+  ): IAutoMovieHumanWebCurve.SampledResult {
+    const samples: AutoMovieVector3Tuple[] = Array.from(
+      { length: LEVEL_SAMPLES + 1 },
+      (_: unknown, i: number): AutoMovieVector3Tuple =>
+        curve(i / LEVEL_SAMPLES),
+    );
     const start: AutoMovieVector3Tuple = samples[0]!;
-    const depth: number[] = samples.map((p: AutoMovieVector3Tuple): number => dot(sub(p, start), direction));
+    const depth: number[] = samples.map((p: AutoMovieVector3Tuple): number =>
+      dot(sub(p, start), direction),
+    );
     // Depth never falls back along a column: hold its running maximum.
-    for (let i: number = 1; i <= LEVEL_SAMPLES; i++) depth[i] = Math.max(depth[i]!, depth[i - 1]!);
+    for (let i: number = 1; i <= LEVEL_SAMPLES; i++)
+      depth[i] = Math.max(depth[i]!, depth[i - 1]!);
     const end: number = depth[LEVEL_SAMPLES]!;
-    const along = (i: number, j: number): AutoMovieVector3Tuple => unit(sub(samples[j]!, samples[i]!));
+    const along = (i: number, j: number): AutoMovieVector3Tuple =>
+      unit(sub(samples[j]!, samples[i]!));
     return (goal: number): AutoMovieVector3Tuple => {
       if (goal <= 0) return start;
       if (goal >= end) {
-        const t: AutoMovieVector3Tuple = along(LEVEL_SAMPLES - 1, LEVEL_SAMPLES);
-        return add(samples[LEVEL_SAMPLES]!, scale(t, (goal - end) / Math.max(0.2, dot(t, direction))));
+        const t: AutoMovieVector3Tuple = along(
+          LEVEL_SAMPLES - 1,
+          LEVEL_SAMPLES,
+        );
+        return add(
+          samples[LEVEL_SAMPLES]!,
+          scale(t, (goal - end) / Math.max(0.2, dot(t, direction))),
+        );
       }
       let lo: number = 0;
       let hi: number = LEVEL_SAMPLES;

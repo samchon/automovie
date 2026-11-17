@@ -1,11 +1,26 @@
-import type { IAutoMovieMotionCoupling, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
 import {
   Quaternion,
   Vector3,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
-
-import { HumanCarried, HumanCarriedCoupling, HumanCarriedCouplingPose, HumanChain, HumanCoupled, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionCoupling,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanCarried,
+  HumanCarriedCoupling,
+  HumanCarriedCouplingPose,
+  HumanChain,
+  HumanCoupled,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -94,13 +109,16 @@ export function test_human_motion_coupled_helpers(): void {
     }
     const segments = film.segments("b");
     const rise = segments[segments.length - 1]!;
-    const grips: IAutoMovieMotionHumanContactWindow[] = rise.plan.contacts.filter(
-      (w: IAutoMovieMotionHumanContactWindow): boolean =>
-        w.support.kind === "person" && w.support.subject === "a",
-    );
-    const feet: IAutoMovieMotionHumanContactWindow[] = rise.plan.contacts.filter(
-      (w: IAutoMovieMotionHumanContactWindow): boolean => w.part.endsWith("Foot"),
-    );
+    const grips: IAutoMovieMotionHumanContactWindow[] =
+      rise.plan.contacts.filter(
+        (w: IAutoMovieMotionHumanContactWindow): boolean =>
+          w.support.kind === "person" && w.support.subject === "a",
+      );
+    const feet: IAutoMovieMotionHumanContactWindow[] =
+      rise.plan.contacts.filter(
+        (w: IAutoMovieMotionHumanContactWindow): boolean =>
+          w.part.endsWith("Foot"),
+      );
     all.check(
       `${cell}: the helped hand grips the helper through the rise and lets go before its end, read ${grips.map((w) => `${w.part} ${w.from.toFixed(3)}-${w.to.toFixed(3)}`).join(", ") || "none"} among the rise's windows ${rise.plan.contacts.map((w) => `${w.part} ${w.kind} on ${w.support.kind} ${w.from.toFixed(3)}-${w.to.toFixed(3)}`).join(", ")}`,
       grips.length > 0 && grips.every((w) => w.from < w.to && w.to < 1),
@@ -202,24 +220,22 @@ export function test_human_motion_coupled_helpers(): void {
       );
       continue;
     }
-    const coupling: IAutoMovieMotionCoupling =
-      HumanCarriedCoupling.couple(
-        bodies.a,
-        bodies.b,
-        HumanCarried.CARRIES.supported,
-        "supported",
-        0,
-        {
-          body: bodies.c,
-          row: HumanCarried.CARRIES.supportedLeft,
-          carry: "supportedLeft",
-        },
-      );
+    const coupling: IAutoMovieMotionCoupling = HumanCarriedCoupling.couple(
+      bodies.a,
+      bodies.b,
+      HumanCarried.CARRIES.supported,
+      "supported",
+      0,
+      {
+        body: bodies.c,
+        row: HumanCarried.CARRIES.supportedLeft,
+        carry: "supportedLeft",
+      },
+    );
     const share = (role: string): number =>
       coupling.contacts
         .filter(
-          (c: IAutoMovieMotionCoupling.IContact): boolean =>
-            c.on.role === role,
+          (c: IAutoMovieMotionCoupling.IContact): boolean => c.on.role === role,
         )
         .reduce(
           (s: number, c: IAutoMovieMotionCoupling.IContact): number =>
@@ -236,7 +252,10 @@ export function test_human_motion_coupled_helpers(): void {
             1,
         ) <= 1e-9,
     );
-    const readers: Record<"a" | "c" | "b", IAutoMovieMotionHumanSignature.IReader> = {
+    const readers: Record<
+      "a" | "c" | "b",
+      IAutoMovieMotionHumanSignature.IReader
+    > = {
       a: HumanSignature.of(film, "a", bodies.a, 0),
       c: HumanSignature.of(film, "c", bodies.c, 0),
       b: HumanSignature.of(film, "b", bodies.b, 0),
@@ -247,8 +266,7 @@ export function test_human_motion_coupled_helpers(): void {
       20,
     ))
       for (const contact of coupling.contacts.filter(
-        (c: IAutoMovieMotionCoupling.IContact): boolean =>
-          c.kind === "bear",
+        (c: IAutoMovieMotionCoupling.IContact): boolean => c.kind === "bear",
       )) {
         const on: IAutoMovieMotionHumanSignature.IReader =
           contact.on.role === HumanCarriedCoupling.SECOND
@@ -333,19 +351,18 @@ function secondAt(
   second: IAutoMovieMotionHumanBody,
   helped: IAutoMovieMotionHumanBody,
 ): IAutoMovieVector3 {
-  const coupling: IAutoMovieMotionCoupling =
-    HumanCarriedCoupling.couple(
-      first,
-      helped,
-      HumanCarried.CARRIES.supported,
-      "supported",
-      0,
-      {
-        body: second,
-        row: HumanCarried.CARRIES.supportedLeft,
-        carry: "supportedLeft",
-      },
-    );
+  const coupling: IAutoMovieMotionCoupling = HumanCarriedCoupling.couple(
+    first,
+    helped,
+    HumanCarried.CARRIES.supported,
+    "supported",
+    0,
+    {
+      body: second,
+      row: HumanCarried.CARRIES.supportedLeft,
+      carry: "supportedLeft",
+    },
+  );
   const frame = coupling.bearers![HumanCarriedCoupling.SECOND]!;
   const anchor = HumanCarriedCouplingPose.stood(first, {
     incline: 0,

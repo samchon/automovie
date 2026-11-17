@@ -1,11 +1,11 @@
 import type { AutoMovieMotionHumanActionKey } from "../AutoMovieMotionHumanActionKey";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
-import type { IAutoMovieMotionHumanActionContext } from "./IAutoMovieMotionHumanActionContext";
-import type { IAutoMovieMotionHumanActionPlan } from "./IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
-import type { IAutoMovieMotionHumanInterruptRow } from "./IAutoMovieMotionHumanInterruptRow";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanStrikingHeld } from "../striking/IAutoMovieMotionHumanStrikingHeld";
+import type { IAutoMovieMotionHumanActionContext } from "./IAutoMovieMotionHumanActionContext";
+import type { IAutoMovieMotionHumanActionPlan } from "./IAutoMovieMotionHumanActionPlan";
+import type { IAutoMovieMotionHumanInterruptRow } from "./IAutoMovieMotionHumanInterruptRow";
 
 /**
  * One human action as a deterministic law: given its context (the body, the

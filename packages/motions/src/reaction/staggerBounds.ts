@@ -1,6 +1,8 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanTiming } from "@automovie/interface";
-
 import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanTiming,
+} from "@automovie/interface";
 
 import { walk } from "../actions/walk";
 import { walkFoot } from "../actions/walkFoot";
@@ -134,7 +136,9 @@ export namespace staggerBounds {
    * @param body The body.
    * @returns Radians per second.
    */
-  export function omega(body: IAutoMovieMotionHumanActionContext["body"]): number {
+  export function omega(
+    body: IAutoMovieMotionHumanActionContext["body"],
+  ): number {
     return resolveAutoMovieCenterOfMass.frequency(
       resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
     );

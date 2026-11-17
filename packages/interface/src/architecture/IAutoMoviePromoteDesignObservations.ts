@@ -5,13 +5,13 @@ export namespace IAutoMoviePromoteDesignObservations {
   /**
    * Ask one reference for metric geometry, and get back what it can honestly
    * give.
-   * 
+   *
    * This gated promotion path refuses by default. A candidate promotes only with a settled frame scale, an `observed` producing analysis, no competing reading or open issue, confidence at the caller's floor and geometric primitives. Other candidates land in `withheld` with the first failing reason; non-observed analyses land in `skipped` with their `unsupported` or `not-run` status. The lower-level point mapper remains separately callable.
-   * 
+   *
    * The result is therefore never a design. It is a proposal the authored
    * building source may accept, reject, or contradict; the source of truth stays
    * the TypeScript that a human and a coding agent wrote.
-   * 
+   *
    * Gates run in a fixed order and the first failing one names the withholding:
    * `unobserved`, `ambiguous-candidate`, `open-issue`, `low-confidence`,
    * `unsupported-geometry` (only line, polyline and region carry an outline),
@@ -24,7 +24,7 @@ export namespace IAutoMoviePromoteDesignObservations {
   export type IProps = {
     /** Observed reference whose candidates are judged; validated before use. */
     reference: IAutoMovieDesignReference;
-  
+
     /**
      * Inclusive confidence floor in `[0, 1]`. Defaults to `1`, so nothing but a
      * certain reading promotes unless the caller consciously lowers the bar.

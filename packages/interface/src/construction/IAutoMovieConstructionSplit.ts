@@ -56,7 +56,11 @@ export interface IAutoMovieConstructionSplit {
   rows: number;
 
   /** The children in the seams' order, one more than the seams. */
-  children: [IAutoMovieConstructionSplit.IChild, IAutoMovieConstructionSplit.IChild, ...IAutoMovieConstructionSplit.IChild[]];
+  children: [
+    IAutoMovieConstructionSplit.IChild,
+    IAutoMovieConstructionSplit.IChild,
+    ...IAutoMovieConstructionSplit.IChild[],
+  ];
 }
 
 /**

@@ -1,6 +1,11 @@
-import type { IAutoMovieHit, IAutoMovieProjectile, IAutoMovieProjectileState, IAutoMovieProjectileContinue, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieHit,
+  IAutoMovieProjectile,
+  IAutoMovieProjectileContinue,
+  IAutoMovieProjectileState,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { projectileAt } from "./projectileAt";
@@ -221,7 +226,6 @@ export function projectileContinue(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every coefficient is the caller's.
  */
 export namespace projectileContinue {
-
   /**
    * A segment's centre and velocity at a second since the original launch:
    * a flight read from its own time zero, a roll's constant deceleration to

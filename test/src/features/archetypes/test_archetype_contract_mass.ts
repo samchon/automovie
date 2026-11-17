@@ -1,4 +1,3 @@
-import type { IAutoMoviePrimitiveShape } from "@automovie/interface";
 import {
   type Archetype,
   ArchetypeBuilder,
@@ -7,7 +6,7 @@ import {
   ArchetypeUnits,
   createClub,
 } from "@automovie/archetypes";
-
+import type { IAutoMoviePrimitiveShape } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../internal/predicates";

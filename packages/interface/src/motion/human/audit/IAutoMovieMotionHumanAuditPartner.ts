@@ -1,6 +1,6 @@
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
+import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
 
 /**
  * How deep two people's bodies pass into one another: the hand that sinks

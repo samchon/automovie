@@ -1,5 +1,3 @@
-
-
 /**
  * A named resolution of a surface network's control cage.
  *

@@ -1,5 +1,5 @@
-import type { IAutoMovieConstructionRealization } from "@automovie/interface";
 import { realizeAutoMovieConstruction } from "@automovie/engine";
+import type { IAutoMovieConstructionRealization } from "@automovie/interface";
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
@@ -148,7 +148,9 @@ function indexContext(
 }
 
 /** Retain existing public boundary and output chart data without another surface evaluation or inferred face ownership. */
-function sourceRecords(result: IAutoMovieConstructionRealization.IRealization): {
+function sourceRecords(
+  result: IAutoMovieConstructionRealization.IRealization,
+): {
   body: IAutoMovieConstructionRealization.IRealization["body"];
   owners: string[];
   coordinates: number[];

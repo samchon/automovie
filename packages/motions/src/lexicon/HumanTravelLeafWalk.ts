@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanWalkFacing, IAutoMovieMotionHumanWalkParams, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanWalkFacing,
+  IAutoMovieMotionHumanWalkParams,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { walk } from "../actions/walk";
 import { walkPaced } from "../actions/walkPaced";

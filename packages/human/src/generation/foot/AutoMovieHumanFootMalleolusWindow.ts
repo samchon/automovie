@@ -1,7 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanFootBody, IAutoMovieHumanFootMalleolusWindow } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootBody,
+  IAutoMovieHumanFootMalleolusWindow,
+} from "@automovie/interface";
 
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 import { AutoMovieHumanFootMalleolusBump } from "./AutoMovieHumanFootMalleolusBump";
@@ -21,12 +22,10 @@ type Vec3 = AutoMovieVector3Tuple;
  * about the border's own phase. The right foot's phases are reversed.
  */
 export namespace AutoMovieHumanFootMalleolusWindow {
-  
-
-  
-
   /** The place of a malleolus's window. */
-  export function of(input: IAutoMovieHumanFootMalleolusWindow.IInput): IAutoMovieHumanFootMalleolusWindow.IPlace {
+  export function of(
+    input: IAutoMovieHumanFootMalleolusWindow.IInput,
+  ): IAutoMovieHumanFootMalleolusWindow.IPlace {
     const body: IAutoMovieHumanFootBody.IBody = input.body;
     const height: number = input.height * input.frame.H;
 
@@ -42,7 +41,10 @@ export namespace AutoMovieHumanFootMalleolusWindow {
 
     // The guide's pace there, to turn the window's reach into stations.
     const at: Vec3 = body.guide(input.which, station);
-    const near: Vec3 = body.guide(input.which, Math.min(body.fan.end, station + 1));
+    const near: Vec3 = body.guide(
+      input.which,
+      Math.min(body.fan.end, station + 1),
+    );
     const perMm: number = 1 / Math.max(1e-3, Math.hypot(...G.sub(near, at)));
 
     // The reach round the section, in phase, from the section's perimeter.
@@ -53,13 +55,20 @@ export namespace AutoMovieHumanFootMalleolusWindow {
       perimeter += Math.hypot(...G.sub(ring[(i + 1) % ring.length]!, p));
     });
     const reach: number = AutoMovieHumanFootMalleolusBump.WINDOW * input.radius;
-    const centre: number = input.which === "lateral" ? section.lateral : section.medial;
+    const centre: number =
+      input.which === "lateral" ? section.lateral : section.medial;
     const half: number = (reach / perimeter) * G.TWO_PI;
-    const left: [number, number] = [G.wrap(centre - half), G.wrap(centre + half)];
+    const left: [number, number] = [
+      G.wrap(centre - half),
+      G.wrap(centre + half),
+    ];
 
     return {
       stations: [station - reach * perMm, station + reach * perMm],
-      phases: input.sign === 1 ? left : [G.wrap(G.TWO_PI - left[1]), G.wrap(G.TWO_PI - left[0])],
+      phases:
+        input.sign === 1
+          ? left
+          : [G.wrap(G.TWO_PI - left[1]), G.wrap(G.TWO_PI - left[0])],
     };
   }
 }

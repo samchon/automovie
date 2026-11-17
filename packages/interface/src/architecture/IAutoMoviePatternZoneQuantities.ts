@@ -1,5 +1,3 @@
-
-
 /**
  * One zone's share of the take-off.
  *

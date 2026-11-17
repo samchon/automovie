@@ -1,5 +1,5 @@
-import type { IAutoMovieViolationCollector } from "@automovie/interface";
 import type { compileCameraClearanceReports } from "@automovie/engine";
+import type { IAutoMovieViolationCollector } from "@automovie/interface";
 
 /** The original clearance reports and addressed diagnostic collector. */
 export interface IFilmCameraClearanceAdapterResult {

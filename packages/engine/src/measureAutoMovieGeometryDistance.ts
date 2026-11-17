@@ -1,5 +1,10 @@
-import { type IAutoMovieGeometryMeasurementInput, type IAutoMovieGeometryActorReader, type IAutoMovieGeometryQuery, IAutoMovieGeometryResult, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieGeometryActorReader,
+  type IAutoMovieGeometryMeasurementInput,
+  type IAutoMovieGeometryQuery,
+  IAutoMovieGeometryResult,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
 import { Vector3 } from "./math/Vector3";

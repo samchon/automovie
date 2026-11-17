@@ -1,10 +1,11 @@
-import type { IAutoMovieLoftChain, IAutoMovieHumanBodyCalibration, IAutoMovieHumanBodySurfaceLoft, IAutoMovieHumanSurfaceBoundary, IAutoMovieHumanSurfaceContext } from "@automovie/interface";
-
-
-
-
-
 import { AutoMovieLoftSection } from "@automovie/engine";
+import type {
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBodySurfaceLoft,
+  IAutoMovieHumanSurfaceBoundary,
+  IAutoMovieHumanSurfaceContext,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanLoftStations } from "../lofting/AutoMovieHumanLoftStations";
@@ -13,7 +14,6 @@ import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
 import { AutoMovieHumanBodySurfacePhases } from "./AutoMovieHumanBodySurfacePhases";
 import { AutoMovieHumanBodySurfacePoles } from "./AutoMovieHumanBodySurfacePoles";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
-
 
 const {
   chain,
@@ -51,10 +51,21 @@ export namespace AutoMovieHumanBodySurfaceLoft {
    * @evidence contracts/performance.md#reuse-equivalent-work Reads the same chain source owner as ring generation, without another body or curve preparation.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Endpoint closures are local to this call; no source cache or mesh is retained globally here.
    */
-  export function loft(context: IAutoMovieHumanSurfaceContext, target: IAutoMovieLoftChain): void {
+  export function loft(
+    context: IAutoMovieHumanSurfaceContext,
+    target: IAutoMovieLoftChain,
+  ): void {
     const phases: number[] = ownPhases(context, target);
-    const bottom: IAutoMovieHumanSurfaceBoundary = boundary(context, target, "bottom");
-    const top: IAutoMovieHumanSurfaceBoundary = boundary(context, target, "top");
+    const bottom: IAutoMovieHumanSurfaceBoundary = boundary(
+      context,
+      target,
+      "bottom",
+    );
+    const top: IAutoMovieHumanSurfaceBoundary = boundary(
+      context,
+      target,
+      "top",
+    );
     // Retained caps use the actual source domain. Event-owned boundaries do
     // not restore a cut-away end, and legacy calibrated domes stay separate.
     const bottomTip: number | null =

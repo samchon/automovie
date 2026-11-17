@@ -1,5 +1,8 @@
-import type { IAutoMovieProjectionIntervals, IAutoMovieTriangleAttachmentContactBound, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieProjectionIntervals,
+  IAutoMovieTriangleAttachmentContactBound,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { adjacentAutoMovieFloat64 as outward } from "../math/adjacentAutoMovieFloat64";

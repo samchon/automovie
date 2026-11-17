@@ -1,22 +1,20 @@
-import type { IAutoMovieLoftFrame, IAutoMovieViewPart, AutoMovieHumanSex as AutoMovieHumanSexType, IAutoMovieHumanBodyCalibration, IAutoMovieHumanHeadComposer, IAutoMovieHumanHeadInputs, IAutoMovieHumanHeadLane, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadPlacement, IAutoMovieHumanHeadPrior, IAutoMovieHumanHermiteCurve, IAutoMovieHumanNeckSource } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieHumanSex as AutoMovieHumanSexType,
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanHeadComposer,
+  IAutoMovieHumanHeadInputs,
+  IAutoMovieHumanHeadLane,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadPlacement,
+  IAutoMovieHumanHeadPrior,
+  IAutoMovieHumanHermiteCurve,
+  IAutoMovieHumanNeckSource,
+  IAutoMovieLoftFrame,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
-
-
 import { AutoMovieHumanHeadAnchors } from "./AutoMovieHumanHeadAnchors";
 import { AutoMovieHumanHeadComposer } from "./AutoMovieHumanHeadComposer";
 import { AutoMovieHumanHeadLayout } from "./AutoMovieHumanHeadLayout";
@@ -47,12 +45,6 @@ import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned tree, source definitions/raw lofts and small records until releasing that definition; profile observation samples remain call-local and no Human global cache retains them.
  */
 export namespace AutoMovieHumanHeadLane {
-  
-
-  
-
-  
-
   /**
    * The head lane of a person.
    *
@@ -75,7 +67,8 @@ export namespace AutoMovieHumanHeadLane {
     neck: IAutoMovieHumanNeckSource.IOutput,
     prepared?: IAutoMovieHumanHeadLane.IPrepared,
   ): IAutoMovieHumanHeadLane.IOutput {
-    const canonical: IAutoMovieHumanHeadLane.IPrepared = prepared ?? prepare(inputs, sex, neck);
+    const canonical: IAutoMovieHumanHeadLane.IPrepared =
+      prepared ?? prepare(inputs, sex, neck);
     const composed: IAutoMovieHumanHeadComposer.IOutput =
       AutoMovieHumanHeadComposer.compose(
         canonical.source.closed().tape.plan,

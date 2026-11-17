@@ -1,6 +1,15 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHand } from "../posture/HumanHand";
@@ -77,7 +86,10 @@ export namespace pushSledStance {
     walk: IAutoMovieMotionHumanActionPlan,
     settle: number,
     feet: IAutoMovieMotionHumanEntryState["feet"],
-    handles: Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanHand.IFrame>,
+    handles: Record<
+      IAutoMovieMotionHumanHand.Side,
+      IAutoMovieMotionHumanHand.IFrame
+    >,
     lean: number,
     incline?: number,
   ): IStance {

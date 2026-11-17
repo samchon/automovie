@@ -1,5 +1,3 @@
-
-
 /** What one instance of a renderer-chosen prototype costs to draw.
  *
  * @evidence contracts/development/design.md#principled-representation Separate exact nonnegative integer vertex and triangle counts for the renderer's actual drawn prototype; count admission belongs to inventory measurement rather than this structural interface.

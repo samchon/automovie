@@ -1,5 +1,3 @@
-
-
 /**
  * Which keyed artifacts of one run are computed, reused or re-verified, as
  * planned by `planAutoMovieArtifacts` before any work starts.

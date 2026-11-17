@@ -1,6 +1,8 @@
-import type { IAutoMovieMotionHumanReaction, IAutoMovieVector3 } from "@automovie/interface";
-
 import { AutoMovieAir, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanReaction,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * What a person reacts to without being touched: a gunshot's or a cannon's

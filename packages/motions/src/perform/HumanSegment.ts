@@ -1,4 +1,14 @@
-import type { AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanInterruptRow, IAutoMovieMotionHumanSegment, IAutoMoviePose, IAutoMovieSchedule } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanInterruptRow,
+  IAutoMovieMotionHumanSegment,
+  IAutoMoviePose,
+  IAutoMovieSchedule,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanSegmentCut } from "./HumanSegmentCut";
@@ -31,7 +41,6 @@ import { HumanSegmentPose } from "./HumanSegmentPose";
  * name and pass straight to their owners.
  */
 export namespace HumanSegment {
-
   /**
    * A weapon's key among its person's stops.
    *
@@ -39,7 +48,10 @@ export namespace HumanSegment {
    * @param id The weapon's id within its plan.
    * @returns The key.
    */
-  export function weapon(segment: IAutoMovieMotionHumanSegment.ISegment, id: string): string {
+  export function weapon(
+    segment: IAutoMovieMotionHumanSegment.ISegment,
+    id: string,
+  ): string {
     return `${segment.index}:${id}`;
   }
 
@@ -56,7 +68,8 @@ export namespace HumanSegment {
   ): boolean {
     return (
       plan.contacts.some(
-        (c: IAutoMovieMotionHumanContactWindow): boolean => c.part === `${side}Hand`,
+        (c: IAutoMovieMotionHumanContactWindow): boolean =>
+          c.part === `${side}Hand`,
       ) || (plan.hands ?? []).includes(side)
     );
   }
@@ -104,7 +117,10 @@ export namespace HumanSegment {
    * @param plan The plan.
    * @returns The share.
    */
-  export function share(at: number | string, plan: IAutoMovieMotionHumanActionPlan): number {
+  export function share(
+    at: number | string,
+    plan: IAutoMovieMotionHumanActionPlan,
+  ): number {
     if (typeof at === "number") return at;
     const event = plan.events.find((e) => e.name === at);
     if (event === undefined)
@@ -147,7 +163,10 @@ export namespace HumanSegment {
    * @param seconds Film seconds.
    * @returns The pose.
    */
-  export function displayed(person: IAutoMovieMotionHumanSegment.IPerson, seconds: number): IAutoMoviePose {
+  export function displayed(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    seconds: number,
+  ): IAutoMoviePose {
     return HumanSegmentPose.displayed(person, seconds);
   }
 

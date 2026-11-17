@@ -1,5 +1,3 @@
-
-
 /**
  * Topology admission for a compiled oriented-distance query.
  *

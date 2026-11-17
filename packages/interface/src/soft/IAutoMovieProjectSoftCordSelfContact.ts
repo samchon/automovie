@@ -1,10 +1,8 @@
-
-
 /** Buffers for one discrete self-contact projection pass over an ordered cord. */
 export namespace IAutoMovieProjectSoftCordSelfContact {
   /**
    * Caller-owned positions for projecting detected overlaps between nonadjacent cord segments, with positional Coulomb friction. Only predicted is changed; no buffer is retained and no validation is performed by this helper. One pass does not guarantee all segments end separated.
-   * 
+   *
    * A cord is a one-wide lattice, its particles in index order along it and
    * segment s joining particles s and s + 1. Each segment is a capsule of the
    * domain's `thickness` (its radius). For two segments, the closest points
@@ -16,7 +14,7 @@ export namespace IAutoMovieProjectSoftCordSelfContact {
    * active one (C < 0) is projected as a position-based constraint with
    * those gradients and the particles' inverse masses (Müller, Heidelberger,
    * Hennix and Ratcliff 2007, "Position based dynamics", section 3.3).
-   * 
+   *
    * Friction is the position-based Coulomb model of Macklin, Müller,
    * Chentanez and Kim 2014 ("Unified particle physics for real-time
    * applications", ACM TOG 33(4):153, section 6.1), with one coefficient for
@@ -24,7 +22,7 @@ export namespace IAutoMovieProjectSoftCordSelfContact {
    * closest points over the step is removed entirely while it is under mu
    * times the penetration depth, and shortened by mu times the depth above
    * it, distributed over the four particles as the normal correction is.
-   * 
+   *
    * Candidate pairs come from a uniform grid whose cell is the longest segment
    * plus two radii, so two segments within two radii of each other have
    * midpoints in neighbouring cells; segments are visited in index order and

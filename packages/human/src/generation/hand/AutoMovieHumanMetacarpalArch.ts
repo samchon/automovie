@@ -26,8 +26,6 @@ export namespace AutoMovieHumanMetacarpalArch {
   /** Dorsal tissue over the bone, mm: a convention (skin, tendon and fascia). */
   export const TISSUE: number = 3;
 
-  
-
   /**
    * The arch's circle radius, mm.
    *
@@ -47,11 +45,22 @@ export namespace AutoMovieHumanMetacarpalArch {
    * @param to Last angle, radians.
    * @param count Points, at least 2.
    */
-  export function arc(input: IAutoMovieHumanMetacarpalArch.IInput, from: number, to: number, count: number): IAutoMovieHumanMetacarpalArch.ArcResult {
+  export function arc(
+    input: IAutoMovieHumanMetacarpalArch.IInput,
+    from: number,
+    to: number,
+    count: number,
+  ): IAutoMovieHumanMetacarpalArch.ArcResult {
     const r: number = radius(input);
-    return Array.from({ length: count }, (_: unknown, k: number): [number, number] => {
-      const a: number = from + ((to - from) * k) / (count - 1);
-      return [input.centre[0] + r * Math.cos(a), input.centre[1] - r * Math.sin(a)];
-    });
+    return Array.from(
+      { length: count },
+      (_: unknown, k: number): [number, number] => {
+        const a: number = from + ((to - from) * k) / (count - 1);
+        return [
+          input.centre[0] + r * Math.cos(a),
+          input.centre[1] - r * Math.sin(a),
+        ];
+      },
+    );
   }
 }

@@ -1,5 +1,8 @@
-import type { IAutoMoviePhysicalProfile, IAutoMovieSolvePhysicalChainTarget, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMovieSolvePhysicalChainTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -23,7 +26,9 @@ import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 18 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function solvePhysicalChainTarget(input: IAutoMovieSolvePhysicalChainTarget.IInput): IAutoMovieSolvePhysicalChainTarget.IResult {
+export function solvePhysicalChainTarget(
+  input: IAutoMovieSolvePhysicalChainTarget.IInput,
+): IAutoMovieSolvePhysicalChainTarget.IResult {
   if (
     !Number.isSafeInteger(input.iterations) ||
     input.iterations < 1 ||
@@ -34,7 +39,9 @@ export function solvePhysicalChainTarget(input: IAutoMovieSolvePhysicalChainTarg
     ![input.goal.x, input.goal.y, input.goal.z].every(Number.isFinite)
   )
     throw new Error("Invalid physical chain target or work budget");
-  const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> = { ...input.targets };
+  const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> = {
+    ...input.targets,
+  };
   const owned: Set<string> = new Set();
   const parents: Map<string, IAutoMoviePhysicalProfile.IJoint> = new Map();
   const children: Map<string, string[]> = new Map();
@@ -46,9 +53,13 @@ export function solvePhysicalChainTarget(input: IAutoMovieSolvePhysicalChainTarg
   }
   const endpoint: string = input.chain.at(-1)!;
   const joints: IAutoMoviePhysicalProfile.IJoint[] = input.chain
-    .map((bone: string): IAutoMoviePhysicalProfile.IJoint | undefined => parents.get(bone))
+    .map((bone: string): IAutoMoviePhysicalProfile.IJoint | undefined =>
+      parents.get(bone),
+    )
     .filter(
-      (joint: IAutoMoviePhysicalProfile.IJoint | undefined): joint is IAutoMoviePhysicalProfile.IJoint => joint !== undefined,
+      (
+        joint: IAutoMoviePhysicalProfile.IJoint | undefined,
+      ): joint is IAutoMoviePhysicalProfile.IJoint => joint !== undefined,
     )
     .reverse();
   const descendants: Map<string, string[]> = new Map(
@@ -78,11 +89,10 @@ export function solvePhysicalChainTarget(input: IAutoMovieSolvePhysicalChainTarg
   ) {
     for (const joint of joints)
       for (const axis of joint.axes) {
-        const parent: IAutoMoviePhysicalProfile.ITransform = targets[joint.parent]!;
-        const frame: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-          parent.rotation,
-          joint.parentFrame.rotation,
-        );
+        const parent: IAutoMoviePhysicalProfile.ITransform =
+          targets[joint.parent]!;
+        const frame: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+          Quaternion.multiply(parent.rotation, joint.parentFrame.rotation);
         const direction: IAutoMovieVector3 = Quaternion.rotateVector(frame, {
           x: axis.axis === "x" ? 1 : 0,
           y: axis.axis === "y" ? 1 : 0,
@@ -122,17 +132,20 @@ export function solvePhysicalChainTarget(input: IAutoMovieSolvePhysicalChainTarg
   return { targets, residual };
 
   /** Apply one admitted angular update to exactly the joint's descendants. */
-  function rotate(joint: IAutoMoviePhysicalProfile.IJoint, axis: IAutoMoviePhysicalProfile.IAxis, request: number): void {
+  function rotate(
+    joint: IAutoMoviePhysicalProfile.IJoint,
+    axis: IAutoMoviePhysicalProfile.IAxis,
+    request: number,
+  ): void {
     const parent: IAutoMoviePhysicalProfile.ITransform = targets[joint.parent]!;
     const child: IAutoMoviePhysicalProfile.ITransform = targets[joint.child]!;
-    const frame: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-      parent.rotation,
-      joint.parentFrame.rotation,
-    );
-    const relative: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-      Quaternion.inverse(frame),
-      Quaternion.multiply(child.rotation, joint.childFrame.rotation),
-    );
+    const frame: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+      Quaternion.multiply(parent.rotation, joint.parentFrame.rotation);
+    const relative: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+      Quaternion.multiply(
+        Quaternion.inverse(frame),
+        Quaternion.multiply(child.rotation, joint.childFrame.rotation),
+      );
     // A rotation about one free axis can create a locked quaternion coordinate
     // or move another free coordinate outside its box. Admit all of them.
     const localAxis: IAutoMovieVector3 = {
@@ -140,14 +153,13 @@ export function solvePhysicalChainTarget(input: IAutoMovieSolvePhysicalChainTarg
       y: axis.axis === "y" ? 1 : 0,
       z: axis.axis === "z" ? 1 : 0,
     };
-    const candidate: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-      Quaternion.fromAxisAngle(localAxis, (request * 180) / Math.PI),
-      relative,
-    );
-    const admitted: IAutoMoviePhysicalProfile.ITransform["rotation"] = projectPhysicalJointRotation(
-      joint,
-      candidate,
-    );
+    const candidate: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+      Quaternion.multiply(
+        Quaternion.fromAxisAngle(localAxis, (request * 180) / Math.PI),
+        relative,
+      );
+    const admitted: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+      projectPhysicalJointRotation(joint, candidate);
     for (const bone of descendants.get(joint.id)!)
       if (!owned.has(bone)) {
         targets[bone] = { ...targets[bone]! };

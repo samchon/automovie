@@ -1,10 +1,12 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryChartLeafFit, IAutoMovieRecoveryChartMap, IAutoMovieRecoveryChartSurface, IAutoMoviePolylineFit } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMoviePolylineFit,
+  IAutoMovieRecoveryChartLeafFit,
+  IAutoMovieRecoveryChartMap,
+  IAutoMovieRecoveryChartSurface,
+} from "@automovie/interface";
 
 import { RecoveryBezierFit as F } from "./RecoveryBezierFit";
-
-
 import { RecoveryChartLeafFit as L } from "./RecoveryChartLeafFit";
 import { RecoveryChartMap as M } from "./RecoveryChartMap";
 
@@ -28,8 +30,7 @@ import { RecoveryChartMap as M } from "./RecoveryChartMap";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Area quadrature, coefficient residual and boundary sharing remain separately qualified; unsupported refinement retains its preceding admitted field.
  */
 export namespace RecoveryChartSurface {
- 
- /**
+  /**
    * Fit one observed orientable disk whose four boundary paths are already identified.
    * Paths include their shared endpoints and contain private vertex ordinals.
    *
@@ -41,7 +42,9 @@ export namespace RecoveryChartSurface {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Accepted boundary coefficients, registrations and the private harmonic map are reused across every refit. New knots restrict the same boundary authority; only interior coefficients are solved again against original observations.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One chart's source arrays and numerical buffers remain live until return; maxPatches bounds the leaf registry and iteration budgets bound solves without dropping observations.
    */
-  export function fit(input: Parameters<IAutoMovieRecoveryChartSurface.Fit>[0]): ReturnType<IAutoMovieRecoveryChartSurface.Fit> {
+  export function fit(
+    input: Parameters<IAutoMovieRecoveryChartSurface.Fit>[0],
+  ): ReturnType<IAutoMovieRecoveryChartSurface.Fit> {
     const curves: IAutoMoviePolylineFit[] = [],
       registrations: number[][] = [],
       partitions: number[][] = [];
@@ -83,7 +86,8 @@ export namespace RecoveryChartSurface {
         continue;
       }
       const points: Readonly<AutoMovieVector3Tuple>[] = ids.map(
-          (id: number): Readonly<AutoMovieVector3Tuple> => input.verticesMm[id]!,
+          (id: number): Readonly<AutoMovieVector3Tuple> =>
+            input.verticesMm[id]!,
         ),
         corners: number[] = [];
       for (let i: number = 1; i + 1 < points.length; i++) {
@@ -117,7 +121,8 @@ export namespace RecoveryChartSurface {
           corners,
           toleranceMm: input.toleranceMm,
           maxSpans: input.maxSpans,
-          parameterization: "chord" },
+          parameterization: "chord",
+        },
         (
           span: number,
           first: number,
@@ -182,7 +187,8 @@ export namespace RecoveryChartSurface {
       triangles: input.triangles,
       fixed: [...fixed.values()],
       tolerance: 1e-10,
-      maxIterations: input.maxIterations });
+      maxIterations: input.maxIterations,
+    });
     if (!map.qualified)
       throw new Error(
         `Unqualified private harmonic chart: ${map.diagnostics.join("; ")}`,
@@ -210,7 +216,8 @@ export namespace RecoveryChartSurface {
       maxIterations: input.maxIterations,
       maxObservationRows: maximumRows,
       maxRefinements: maximumRefinements,
-      physicalGradientLengthMm: input.physicalGradientLengthMm });
+      physicalGradientLengthMm: input.physicalGradientLengthMm,
+    });
     return {
       ...fitted,
       boundary: curves,
@@ -221,7 +228,9 @@ export namespace RecoveryChartSurface {
         ),
         v: [...new Set([...partitions[1]!, ...partitions[3]!])].sort(
           (a: number, b: number): number => a - b,
-        ) },
-      continuity: "C0-only" };
+        ),
+      },
+      continuity: "C0-only",
+    };
   }
 }

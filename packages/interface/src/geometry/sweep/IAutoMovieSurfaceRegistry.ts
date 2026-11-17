@@ -140,37 +140,37 @@ export interface IAutoMovieSurfaceRegistry {
 /** Data and callback contracts shared by the SurfaceRegistry operations. */
 export namespace IAutoMovieSurfaceRegistry {
   /**
-     * One geometric sample and its resolved parameter-space footprint, before any cage control pin.
+   * One geometric sample and its resolved parameter-space footprint, before any cage control pin.
+   *
+   * @evidence contracts/development/design.md#principled-representation The same sweep writer and resolved cell used by the emitted shared sample.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A writer and four scalar reaches; callers bind them once during compilation.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries geometric field data rather than a mutable target-buffer lookup.
+   * @evidence contracts/development/common.md#meaningful-documentation States units, stage and finalization-only delivery.
+   */
+  export interface ISweep {
+    /** Exact registered sweep coordinate along the spine, before identity rounding; probes differentiate at this coordinate. */
+    readonly u: number;
+
+    /** Exact registered angular coordinate in turns, before identity rounding. */
+    readonly v: number;
+
+    /** Spacing below/above along u, then below/above along v, finite and nonnegative; missing sides have been mirrored and wholly unreached axes are zero. */
+    readonly cell: readonly [number, number, number, number];
+
+    /**
+     * Write three geometric coordinates in network-frame metres for the current
+     * pose, before control pins. The caller supplies three writable slots at
+     * the scalar offset at; the output buffer is not retained. The owning rig
+     * refreshes frames and scales before pose or girth evaluation reads this.
      *
-     * @evidence contracts/development/design.md#principled-representation The same sweep writer and resolved cell used by the emitted shared sample.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface A writer and four scalar reaches; callers bind them once during compilation.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries geometric field data rather than a mutable target-buffer lookup.
-     * @evidence contracts/development/common.md#meaningful-documentation States units, stage and finalization-only delivery.
+     * @evidence contracts/development/implementation.md#principled-implementation Applies the compiled resolved-footprint radius quadrature, one to three longitudinal terms, in the sweep frame with the current rig scales; the footprint remains fixed while the pose and girth field refresh their frames and scales.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure A direct geometric writer is shared by the emitted sample and its dependent curve endpoint; neither reads a pin-overwritten target slot or performs a registry lookup per pose.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Writes the actual resolved geometric field before control pinning, not a substituted displayed endpoint or cached value from another pose.
+     * @evidence contracts/development/common.md#meaningful-documentation States the network frame and metre units, output offset and capacity premise, current-pose meaning, pre-pin stage and output-buffer ownership.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Each call accumulates at most three compiled scale terms and writes three coordinates; profile quadrature and coefficients were prepared when sample compiled, with no per-write allocation.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Emitted and dependent samples share the compiled writer, coefficients and rig frame/scale slots. Calls reevaluate those terms rather than claiming one cached coordinate evaluation across changing poses or output buffers.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The writer closure belongs to its sweep rig and retains at most three coefficient/slot entries plus a frame index; it retains no supplied output buffer, and registry compile-only references are cleared after finalization.
      */
-    export interface ISweep {
-      /** Exact registered sweep coordinate along the spine, before identity rounding; probes differentiate at this coordinate. */
-      readonly u: number;
-  
-      /** Exact registered angular coordinate in turns, before identity rounding. */
-      readonly v: number;
-  
-      /** Spacing below/above along u, then below/above along v, finite and nonnegative; missing sides have been mirrored and wholly unreached axes are zero. */
-      readonly cell: readonly [number, number, number, number];
-  
-      /**
-       * Write three geometric coordinates in network-frame metres for the current
-       * pose, before control pins. The caller supplies three writable slots at
-       * the scalar offset at; the output buffer is not retained. The owning rig
-       * refreshes frames and scales before pose or girth evaluation reads this.
-       *
-       * @evidence contracts/development/implementation.md#principled-implementation Applies the compiled resolved-footprint radius quadrature, one to three longitudinal terms, in the sweep frame with the current rig scales; the footprint remains fixed while the pose and girth field refresh their frames and scales.
-       * @evidence contracts/development/implementation.md#clear-and-simple-structure A direct geometric writer is shared by the emitted sample and its dependent curve endpoint; neither reads a pin-overwritten target slot or performs a registry lookup per pose.
-       * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Writes the actual resolved geometric field before control pinning, not a substituted displayed endpoint or cached value from another pose.
-       * @evidence contracts/development/common.md#meaningful-documentation States the network frame and metre units, output offset and capacity premise, current-pose meaning, pre-pin stage and output-buffer ownership.
-       * @evidence contracts/development/implementation.md#efficient-algorithms Each call accumulates at most three compiled scale terms and writes three coordinates; profile quadrature and coefficients were prepared when sample compiled, with no per-write allocation.
-       * @evidence contracts/development/implementation.md#reuse-equivalent-work Emitted and dependent samples share the compiled writer, coefficients and rig frame/scale slots. Calls reevaluate those terms rather than claiming one cached coordinate evaluation across changing poses or output buffers.
-       * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The writer closure belongs to its sweep rig and retains at most three coefficient/slot entries plus a frame index; it retains no supplied output buffer, and registry compile-only references are cleared after finalization.
-       */
-      readonly write: (out: Float64Array, at: number) => void;
-    }
+    readonly write: (out: Float64Array, at: number) => void;
+  }
 }

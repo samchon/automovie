@@ -1,5 +1,8 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalShapeBounds, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShapeBounds,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -24,10 +27,8 @@ export function physicalShapeBounds(
     pose.position,
     Quaternion.rotateVector(pose.rotation, shape.transform.position),
   );
-  const rotation: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-    pose.rotation,
-    shape.transform.rotation,
-  );
+  const rotation: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+    Quaternion.multiply(pose.rotation, shape.transform.rotation);
   let extent: IAutoMovieVector3;
   if (shape.kind === "sphere")
     extent = { x: shape.radius, y: shape.radius, z: shape.radius };

@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanArmGeometry, IAutoMovieMotionHumanQuadraticProgram, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanQuadraticProgram,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanArmTrajectoryJacobians as J } from "./HumanArmTrajectoryJacobians";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
@@ -53,7 +58,11 @@ export namespace HumanArmTrajectoryLimits {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares P.pad and the already located site across the merit, model and configuration check.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns geometric values and retains nothing.
    */
-  export function of(site: M.ISite, at: P.ILocated, own: IAutoMovieMotionHumanArmGeometry.IPlaced): IRead[] {
+  export function of(
+    site: M.ISite,
+    at: P.ILocated,
+    own: IAutoMovieMotionHumanArmGeometry.IPlaced,
+  ): IRead[] {
     if (site.limits === undefined) return [];
     const rotation: IAutoMovieQuaternion | undefined =
       at.rotation ?? site.rotation;
@@ -113,7 +122,10 @@ export namespace HumanArmTrajectoryLimits {
     if (site.limits === undefined) return [];
     const located: P.ILocated = P.located(c, at.placed, a, k, site);
     return of(site, located, at.placed[a]![k]!).flatMap(
-      (limit: IRead, i: number): IAutoMovieMotionHumanQuadraticProgram.IRow[] => {
+      (
+        limit: IRead,
+        i: number,
+      ): IAutoMovieMotionHumanQuadraticProgram.IRow[] => {
         if (limit.distance <= 1e-6) return [];
         const dir: IAutoMovieVector3 = Vector3.scale(
           Vector3.subtract(limit.contact, limit.point),

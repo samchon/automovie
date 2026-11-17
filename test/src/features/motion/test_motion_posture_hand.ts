@@ -1,7 +1,18 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-
-import { HumanHand, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanHand,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -65,8 +76,16 @@ export function test_motion_posture_hand(): void {
   for (const side of ["left", "right"] as const) {
     const sign: number = side === "left" ? 1 : -1;
     // 1. Offsets.
-    const palm: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(body, side, "palm");
-    const wrist: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(body, side, "wrist");
+    const palm: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
+      body,
+      side,
+      "palm",
+    );
+    const wrist: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
+      body,
+      side,
+      "wrist",
+    );
     complaints.check(
       `${side}: the wrist surface is the joint with the palm's normal`,
       near(wrist.point, { x: 0, y: 0, z: 0 }) &&
@@ -147,7 +166,13 @@ export function test_motion_posture_hand(): void {
 
     // 4. Place.
     const at: IAutoMovieVector3 = { x: 0.2 * sign, y: 1.1, z: 0.35 };
-    const placed: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(body, side, "palm", at, r);
+    const placed: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(
+      body,
+      side,
+      "palm",
+      at,
+      r,
+    );
     const p: IAutoMovieVector3 = turn(r, palm.point);
     complaints.check(
       `${side}: place puts the palm on the point`,

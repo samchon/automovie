@@ -1,23 +1,24 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftFrame, AutoMovieVector3Tuple, IAutoMovieHumanArmPrior, IAutoMovieHumanHandDigit, IAutoMovieHumanHandFinger, IAutoMovieHumanLimbFrame } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanArmPrior,
+  IAutoMovieHumanHandDigit,
+  IAutoMovieHumanHandFinger,
+  IAutoMovieHumanLimbFrame,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftFrame,
+} from "@automovie/interface";
 
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
+import { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
 import { AutoMovieHumanDigitStations } from "./AutoMovieHumanDigitStations";
 import { AutoMovieHumanHandSide } from "./AutoMovieHumanHandSide";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-import { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
 
 type Vec3 = AutoMovieVector3Tuple;
-const { sub, norm, unit }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-const { sidedFrame, reflect }: typeof AutoMovieHumanHandSide = AutoMovieHumanHandSide;
+const { sub, norm, unit }: typeof AutoMovieHumanHandVector =
+  AutoMovieHumanHandVector;
+const { sidedFrame, reflect }: typeof AutoMovieHumanHandSide =
+  AutoMovieHumanHandSide;
 
 /**
  * A digit's chain: its sections square to its line and their frames carried
@@ -44,31 +45,46 @@ export namespace AutoMovieHumanHandDigitChain {
     side: "left" | "right",
     sign: 1 | -1,
   ): IAutoMovieLoftChain {
-    const prior: IAutoMovieHumanArmPrior.IHandPrior = AutoMovieHumanArmPrior.PRIOR.hand;
+    const prior: IAutoMovieHumanArmPrior.IHandPrior =
+      AutoMovieHumanArmPrior.PRIOR.hand;
     const source: IAutoMovieHumanArmPrior.IDigit = prior.digits[index]!;
     const at = (s: number): Vec3 => f.line.at(s);
     const normalAt = (s: number): Vec3 =>
       unit(sub(at(Math.max(0, s - STEP)), at(Math.min(f.cap, s + STEP))));
 
     // The reference's section density is a floor: see the stations' rule.
-    const kept: number[] = AutoMovieHumanDigitStations.of(f.first, f.cap, f.line.joints.slice(0, -1), f.windows);
+    const kept: number[] = AutoMovieHumanDigitStations.of(
+      f.first,
+      f.cap,
+      f.line.joints.slice(0, -1),
+      f.windows,
+    );
 
     // The in-plane axis carried from the root toward the tip.
     const root: number = kept[0]!;
     const grid: { s: number; n: Vec3; u: Vec3 }[] = [
       { s: root, n: normalAt(root), u: [...prior.through] },
     ];
-    for (let s: number = root + DIGIT_CARRY; s < f.cap + DIGIT_CARRY; s += DIGIT_CARRY) {
+    for (
+      let s: number = root + DIGIT_CARRY;
+      s < f.cap + DIGIT_CARRY;
+      s += DIGIT_CARRY
+    ) {
       const last = grid[grid.length - 1]!;
       const n: Vec3 = normalAt(Math.min(f.cap, s));
       grid.push({ s, n, u: AutoMovieHumanLimbFrame.carry(last.u, last.n, n) });
     }
     const axisAt = (s: number): Vec3 => {
-      const i: number = Math.min(grid.length - 1, Math.max(0, Math.floor((s - root) / DIGIT_CARRY)));
+      const i: number = Math.min(
+        grid.length - 1,
+        Math.max(0, Math.floor((s - root) / DIGIT_CARRY)),
+      );
       const g = grid[i]!;
       return AutoMovieHumanLimbFrame.carry(g.u, g.n, normalAt(s));
     };
-    const sample = (s: number): { ring: Vec3[]; frame: IAutoMovieLoftFrame.IFrame } => ({
+    const sample = (
+      s: number,
+    ): { ring: Vec3[]; frame: IAutoMovieLoftFrame.IFrame } => ({
       ring: f.ring(s),
       frame: AutoMovieHumanLimbFrame.frame(at(s), normalAt(s), axisAt(s)),
     });
@@ -78,7 +94,10 @@ export namespace AutoMovieHumanHandDigitChain {
     const own = ordered.map(sample);
     const along: number[] = [0];
     for (let k: number = 1; k < own.length; k++)
-      along.push(along[k - 1]! + norm(sub(own[k]!.frame.origin, own[k - 1]!.frame.origin)));
+      along.push(
+        along[k - 1]! +
+          norm(sub(own[k]!.frame.origin, own[k - 1]!.frame.origin)),
+      );
     const layers: IAutoMovieLoftChain.ILayer[] = ordered.map(
       (s: number, k: number): IAutoMovieLoftChain.ILayer => {
         const here = own[k]!;
@@ -90,7 +109,9 @@ export namespace AutoMovieHumanHandDigitChain {
         const at_ = (ds: number): IAutoMovieHumanLimbFrame.ISample => {
           const t = sample(s + ds);
           return {
-            station: along[k]! - Math.sign(ds) * norm(sub(t.frame.origin, here.frame.origin)),
+            station:
+              along[k]! -
+              Math.sign(ds) * norm(sub(t.frame.origin, here.frame.origin)),
             frame: sidedFrame(t.frame, sign),
             ring: reflect(t.ring, sign),
           };

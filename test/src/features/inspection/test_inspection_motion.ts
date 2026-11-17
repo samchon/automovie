@@ -1,7 +1,20 @@
-import type { IAutoMovieInspectionTrail, IAutoMovieMark, IAutoMoviePhysicsCache, IAutoMoviePhysicalProfile } from "@automovie/interface";
-import { markAutoMovieRomOvershoot, markAutoMovieSkeleton } from "@automovie/engine";
-
-import { type IAutoMovieInspectionHandle, applyAutoMovieInspection, markAutoMovieInspectionTrails, planAutoMovieInspectionTrailTimes, sampleAutoMovieInspectionTrails } from "@automovie/render";
+import {
+  markAutoMovieRomOvershoot,
+  markAutoMovieSkeleton,
+} from "@automovie/engine";
+import type {
+  IAutoMovieInspectionTrail,
+  IAutoMovieMark,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicsCache,
+} from "@automovie/interface";
+import {
+  type IAutoMovieInspectionHandle,
+  applyAutoMovieInspection,
+  markAutoMovieInspectionTrails,
+  planAutoMovieInspectionTrailTimes,
+  sampleAutoMovieInspectionTrails,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

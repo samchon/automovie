@@ -1,5 +1,10 @@
-import { type IAutoMovieSealAnalysisRun, type IAutoMovieViolationCollector, IAutoMovieAnalysisRun, IAutoMovieConstraintViolation, IAutoMovieValidation } from "@automovie/interface";
-
+import {
+  IAutoMovieAnalysisRun,
+  IAutoMovieConstraintViolation,
+  type IAutoMovieSealAnalysisRun,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { ViolationCollector } from "../validation/ViolationCollector";
@@ -30,7 +35,11 @@ import { validateAutoMovieAnalysisRunContents } from "./validateAutoMovieAnalysi
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The run digest is computed once and the contents are checked once; the former second hash, which the public validator would spend recomputing a digest this call just wrote from the same draft, is not paid.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The collector is call-local; the caller owns the returned run, retaining header strings, the borrowed solver/outcome objects and the settings/run digest strings. No source settings text or validation session is retained by this function.
  */
-export const sealAutoMovieAnalysisRun: (props: IAutoMovieSealAnalysisRun.IProps) => IAutoMovieAnalysisRun = (props: IAutoMovieSealAnalysisRun.IProps): IAutoMovieAnalysisRun => {
+export const sealAutoMovieAnalysisRun: (
+  props: IAutoMovieSealAnalysisRun.IProps,
+) => IAutoMovieAnalysisRun = (
+  props: IAutoMovieSealAnalysisRun.IProps,
+): IAutoMovieAnalysisRun => {
   const draft: Omit<IAutoMovieAnalysisRun, "digest"> = {
     version: 1,
     protocol: "automovie.analysis-run.v1",

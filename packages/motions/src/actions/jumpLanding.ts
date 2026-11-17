@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanFrame, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -66,8 +71,13 @@ export namespace jumpLanding {
   ): ILanding {
     const m = body.measure;
     const l: number = m.hipHeight;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = { origin: { ...to, y: 0 }, yaw: heading };
-    const footprint = (s: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => ({
+    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+      origin: { ...to, y: 0 },
+      yaw: heading,
+    };
+    const footprint = (
+      s: "left" | "right",
+    ): IAutoMovieMotionHumanFoot.IPlacement => ({
       ankle: HumanFrame.point(frame, {
         x: (s === "left" ? 1 : -1) * Math.abs(body.rest.get(`${s}Foot`)!.x),
         y: m.ankleHeight + rise,

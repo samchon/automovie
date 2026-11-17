@@ -1,7 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryDiskBoundaryPreparationOperation, IAutoMovieRecoveryDiskChart } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryDiskBoundaryPreparationOperation,
+  IAutoMovieRecoveryDiskChart,
+} from "@automovie/interface";
 
 import { prepareRecoveryDiskBoundary } from "./prepareRecoveryDiskBoundary";
 
@@ -48,7 +49,8 @@ export function RecoveryDiskChart(
       (key: string): boolean => typeof key !== "string" || !key.length,
     ) ||
     input.verticesMm.some(
-      (p: Readonly<AutoMovieVector3Tuple>): boolean => p.length !== 3 || !p.every(Number.isFinite),
+      (p: Readonly<AutoMovieVector3Tuple>): boolean =>
+        p.length !== 3 || !p.every(Number.isFinite),
     ) ||
     !(
       input.cornerDegrees > 0 &&
@@ -59,12 +61,16 @@ export function RecoveryDiskChart(
     fail(
       "finite positions, physical keys and a corner threshold in (0,180) are required",
     );
-  const physicalPositions: Map<string, Readonly<AutoMovieVector3Tuple>> = new Map();
-  const admitPhysicalKey: (key: string, point: Readonly<AutoMovieVector3Tuple>) => void = (
+  const physicalPositions: Map<
+    string,
+    Readonly<AutoMovieVector3Tuple>
+  > = new Map();
+  const admitPhysicalKey: (
     key: string,
     point: Readonly<AutoMovieVector3Tuple>,
-  ): void => {
-    const previous: Readonly<AutoMovieVector3Tuple> | undefined = physicalPositions.get(key);
+  ) => void = (key: string, point: Readonly<AutoMovieVector3Tuple>): void => {
+    const previous: Readonly<AutoMovieVector3Tuple> | undefined =
+      physicalPositions.get(key);
     if (
       previous &&
       !previous.every((x: number, k: number): boolean => x === point[k])
@@ -232,15 +238,17 @@ export function RecoveryDiskChart(
     total,
     scaled,
     perimeterMm,
-    quarterMm }: ReturnType<IAutoMovieRecoveryDiskBoundaryPreparationOperation.Operation> =
+    quarterMm,
+  }: ReturnType<IAutoMovieRecoveryDiskBoundaryPreparationOperation.Operation> =
     prepareRecoveryDiskBoundary(input, fail);
   const verticesMm: Readonly<AutoMovieVector3Tuple>[] = input.verticesMm.map(
-      (p: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> => [...p],
+      (p: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> => [
+        ...p,
+      ],
     ),
     vertexKeys: string[] = [...input.vertexKeys];
-  const insertedBoundaryVertices: ReturnType<
-      IAutoMovieRecoveryDiskChart.Operation
-    >["insertedBoundaryVertices"] = [],
+  const insertedBoundaryVertices: ReturnType<IAutoMovieRecoveryDiskChart.Operation>["insertedBoundaryVertices"] =
+      [],
     cuts: Map<string, { id: number; offset: bigint }[]> = new Map();
   const corners: number[] = [cycle[0]!];
   let prefix: bigint = 0n,
@@ -298,7 +306,8 @@ export function RecoveryDiskChart(
       key,
       edgeKeys: [input.vertexKeys[first]!, input.vertexKeys[last]!],
       fractionFromFirst: fraction,
-      pointMm: point });
+      pointMm: point,
+    });
     const word: string = edgeKey(a, b),
       rows: { id: number; offset: bigint }[] = cuts.get(word) ?? [];
     rows.push({ id, offset });
@@ -414,5 +423,7 @@ export function RecoveryDiskChart(
         ? "maximum-qualified-turn-then-key"
         : "minimum-key-without-qualified-turn",
       quarterLengthsMm: [quarterMm, quarterMm, quarterMm, quarterMm],
-      perimeterMm } };
+      perimeterMm,
+    },
+  };
 }

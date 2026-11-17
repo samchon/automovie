@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
 import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
+import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
 
 /**
  * Whether every joint of a displayed motion stays inside its anatomical

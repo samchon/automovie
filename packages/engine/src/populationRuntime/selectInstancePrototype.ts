@@ -1,5 +1,7 @@
-import { type IAutoMovieSelectInstancePrototype, IAutoMovieCompiledInstancePrototype } from "@automovie/interface";
-
+import {
+  IAutoMovieCompiledInstancePrototype,
+  type IAutoMovieSelectInstancePrototype,
+} from "@automovie/interface";
 
 import { seededValue } from "../math/seededValue";
 import { instancePrototypeChoices } from "./instancePrototypeChoices";
@@ -20,6 +22,7 @@ import { instancePrototypeChoices } from "./instancePrototypeChoices";
  * through here, so a diff counts a prototype change exactly where a
  * regenerated member changes prototype. The choice returned is the table's own
  * entry, so a caller holding a compiled table reads that entry's tiers.
+ * An explicitly empty table throws; only an absent table creates the default.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Resolve an explicit prototype id or spend one independently salted seeded sample across positive weights in table order; the final choice receives floating residue. Complete default-first choices and finite representable total weight are upstream premises.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One weighted-choice owner serves instance regeneration and subject diff so both identify the same prototype for an addressed slot.
@@ -57,7 +60,9 @@ export const selectInstancePrototype: <
     | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight">
   )[] = instancePrototypeChoices(instanceSet);
   if (choices.length === 0)
-    throw new Error(`Instance set "${instanceSet.id}" has no prototype choices.`);
+    throw new Error(
+      `Instance set "${instanceSet.id}" has no prototype choices.`,
+    );
   if (explicit !== undefined) {
     const selected:
       | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight">

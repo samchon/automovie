@@ -1,5 +1,7 @@
-import type { IAutoMoviePhysicalHullFaces, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalHullFaces,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { physicalHullFaces } from "./physicalHullFaces";
 
@@ -301,10 +303,11 @@ const deepest = (
 ): number | null => {
   const e: IAutoMovieVector3 = minus(b, a);
   const level: number[] = hull.faces.map(
-    (f: IAutoMoviePhysicalHullFaces.IFace): number => dot(f.normal, a) - f.offset,
+    (f: IAutoMoviePhysicalHullFaces.IFace): number =>
+      dot(f.normal, a) - f.offset,
   );
-  const slope: number[] = hull.faces.map((f: IAutoMoviePhysicalHullFaces.IFace): number =>
-    dot(f.normal, e),
+  const slope: number[] = hull.faces.map(
+    (f: IAutoMoviePhysicalHullFaces.IFace): number => dot(f.normal, e),
   );
   // The plane greatest just after the start: the steepest among equals.
   let current: number = 0;

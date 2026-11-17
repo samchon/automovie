@@ -14,7 +14,6 @@ import type { IAutoMovieByteDigest } from "../index";
  */
 
 export interface IAutoMovieFileReceipt extends IAutoMovieByteDigest {
- 
- /** Published path in the caller's host namespace; readers use that host's resolution base. */
+  /** Published path in the caller's host namespace; readers use that host's resolution base. */
   path: string;
 }

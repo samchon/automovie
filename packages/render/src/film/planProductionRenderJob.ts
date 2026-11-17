@@ -1,16 +1,30 @@
-import type { IAutoMovieProductionRenderFrame, AutoMovieGuidePass, IAutoMovieCompiledFilmEffect, IAutoMoviePlanProductionRenderJobProps, IAutoMovieProductionAudioAssetIdentity, IAutoMovieProductionDeliverable, IAutoMovieProductionDesign, IAutoMovieProductionFrameRate, IAutoMovieProductionRenderChunk, IAutoMovieProductionRenderJobPlan, IAutoMovieProductionRenderTier } from "@automovie/interface";
-
-
-
-import { AutoMovieFilmEffectRuntimeError, autoMovieRenderDigest, canonicalizeAutoMovieJson, compareCodeUnits, equalProductionFrameRates, productionFilmEffectEditFingerprint, productionFrameBoundaryToGridTick, resolveProductionFrameRate, sampleProductionRenderFrame, verifyProductionFilmEffectPopulation } from "@automovie/engine";
-
+import {
+  AutoMovieFilmEffectRuntimeError,
+  autoMovieRenderDigest,
+  canonicalizeAutoMovieJson,
+  compareCodeUnits,
+  equalProductionFrameRates,
+  productionFilmEffectEditFingerprint,
+  productionFrameBoundaryToGridTick,
+  resolveProductionFrameRate,
+  sampleProductionRenderFrame,
+  verifyProductionFilmEffectPopulation,
+} from "@automovie/engine";
+import type {
+  AutoMovieGuidePass,
+  IAutoMovieCompiledFilmEffect,
+  IAutoMoviePlanProductionRenderJobProps,
+  IAutoMovieProductionAudioAssetIdentity,
+  IAutoMovieProductionDeliverable,
+  IAutoMovieProductionDesign,
+  IAutoMovieProductionFrameRate,
+  IAutoMovieProductionRenderChunk,
+  IAutoMovieProductionRenderFrame,
+  IAutoMovieProductionRenderJobPlan,
+  IAutoMovieProductionRenderTier,
+} from "@automovie/interface";
 
 import { canonicalProductionWebVtt } from "../caption/canonicalProductionWebVtt.js";
-
-
-
-
-
 import { assertSingleGuidePass } from "./assertSingleGuidePass.js";
 import { normalizeAudioAssets } from "./normalizeAudioAssets.js";
 import { normalizeRenderTier } from "./normalizeRenderTier.js";
@@ -62,7 +76,11 @@ interface IRange {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each range's frame array and sorted source identities are built once and shared across the moving deliverables of this call. There is no cross-call cache or maintained scheduler consuming these ids to reuse completed encodes; any such effect reuse would require a host's currentness and byte checks.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All F samples are allocated even with no moving deliverable, then become collectable if no range retains them. With moving deliverables the result shares F frame records through D times ceil(F/chunkFrames) chunk records and retains copied audio/effect tracks, asset identities and caption text. Input arrays and output populations have no quota here; local indexes and digest strings become collectable after completion or refusal, with no acquired host handle or task.
  */
-export const planProductionRenderJob: (props: IAutoMoviePlanProductionRenderJobProps) => IAutoMovieProductionRenderJobPlan = (props: IAutoMoviePlanProductionRenderJobProps): IAutoMovieProductionRenderJobPlan => {
+export const planProductionRenderJob: (
+  props: IAutoMoviePlanProductionRenderJobProps,
+) => IAutoMovieProductionRenderJobPlan = (
+  props: IAutoMoviePlanProductionRenderJobProps,
+): IAutoMovieProductionRenderJobPlan => {
   if (
     Number.isSafeInteger(props.chunkFrames) === false ||
     props.chunkFrames <= 0

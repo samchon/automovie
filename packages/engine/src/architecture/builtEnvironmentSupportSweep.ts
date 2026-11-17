@@ -1,5 +1,14 @@
-import { type IAutoMovieBuiltPlacementBody, type IAutoMovieBuiltEnvironmentSupportSweep, type IAutoMovieBuiltPlacementBodyLocator, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieBuiltFloatingBody, IAutoMovieBuiltPopulation, IAutoMovieBuiltSupportSweepReport, IAutoMovieSubjectBox } from "@automovie/interface";
-
+import {
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  type IAutoMovieBuiltEnvironmentSupportSweep,
+  IAutoMovieBuiltFloatingBody,
+  type IAutoMovieBuiltPlacementBody,
+  type IAutoMovieBuiltPlacementBodyLocator,
+  IAutoMovieBuiltPopulation,
+  IAutoMovieBuiltSupportSweepReport,
+  IAutoMovieSubjectBox,
+} from "@automovie/interface";
 
 import { builtEnvironmentPartBoxes } from "./builtEnvironmentPartBoxes";
 import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
@@ -54,7 +63,11 @@ interface ICandidateSolid {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Within one sweep the single staging and part table are shared by every body's resolution instead of restaging the building per body; across calls nothing is cached because the record is the caller's mutable data.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The part table, resolved bodies and sorted candidates live only for the call and grow linearly with the element, population and part counts; the caller owns the returned report.
  */
-export const builtEnvironmentSupportSweep: (props: IAutoMovieBuiltEnvironmentSupportSweep.IProps) => IAutoMovieBuiltSupportSweepReport = (props: IAutoMovieBuiltEnvironmentSupportSweep.IProps): IAutoMovieBuiltSupportSweepReport => {
+export const builtEnvironmentSupportSweep: (
+  props: IAutoMovieBuiltEnvironmentSupportSweep.IProps,
+) => IAutoMovieBuiltSupportSweepReport = (
+  props: IAutoMovieBuiltEnvironmentSupportSweep.IProps,
+): IAutoMovieBuiltSupportSweepReport => {
   const tolerance: number = props.tolerance ?? AUTOMOVIE_SUPPORT_TOLERANCE;
   if (!Number.isFinite(tolerance) || tolerance < 0)
     throw new RangeError(

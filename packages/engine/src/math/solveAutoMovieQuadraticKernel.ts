@@ -1,4 +1,8 @@
-import type { IAutoMovieQuadraticConicProgram, IAutoMovieQuadraticHeap, IAutoMovieSolveQuadraticKernel } from "@automovie/interface";
+import type {
+  IAutoMovieQuadraticConicProgram,
+  IAutoMovieQuadraticHeap,
+  IAutoMovieSolveQuadraticKernel,
+} from "@automovie/interface";
 
 import { createAutoMovieQuadraticConicProgram } from "./createAutoMovieQuadraticConicProgram";
 import { createAutoMovieQuadraticMemory } from "./createAutoMovieQuadraticMemory";
@@ -27,7 +31,9 @@ import { solveAutoMovieQuadraticInterior } from "./solveAutoMovieQuadraticInteri
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Every mutable input receives its own cold state; only one solve's symbolic structure and current factors are reused by the interior owner.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One synchronous workspace borrow ends on success or exception and result arrays copy out; all numerical arrays and factors are call-owned, with no module, native memory, handle or cache retained across calls.
  */
-export function solveAutoMovieQuadraticKernel(input: IAutoMovieSolveQuadraticKernel.IInput): IAutoMovieSolveQuadraticKernel.IResult {
+export function solveAutoMovieQuadraticKernel(
+  input: IAutoMovieSolveQuadraticKernel.IInput,
+): IAutoMovieSolveQuadraticKernel.IResult {
   if (input.diagonal.length === 0)
     return {
       status: -1,
@@ -44,9 +50,7 @@ export function solveAutoMovieQuadraticKernel(input: IAutoMovieSolveQuadraticKer
   equilibrateAutoMovieQuadraticProgram(data);
   return createAutoMovieQuadraticMemory().withWorkspace(
     8 * (data.n + 2 * data.m),
-    (
-      heap: IAutoMovieQuadraticHeap,
-    ): IAutoMovieSolveQuadraticKernel.IResult =>
+    (heap: IAutoMovieQuadraticHeap): IAutoMovieSolveQuadraticKernel.IResult =>
       solveAutoMovieQuadraticInterior(data, heap.floats, input.lower.length),
   );
 }

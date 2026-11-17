@@ -1,4 +1,16 @@
-import type { IAutoMovieRenderPrototypeCost, IAutoMovieRenderSubject, IAutoMovieRenderWaterBody, IAutoMovieMeasureRenderSimulation, AutoMovieRenderMetric, IAutoMovieFluidBudget, IAutoMovieFluidGrid, IAutoMoviePlantingBudget, IAutoMovieRenderAnalysisGap, IAutoMovieRenderOwnerCost, IAutoMovieSoftBodyBudget } from "@automovie/interface";
+import type {
+  AutoMovieRenderMetric,
+  IAutoMovieFluidBudget,
+  IAutoMovieFluidGrid,
+  IAutoMovieMeasureRenderSimulation,
+  IAutoMoviePlantingBudget,
+  IAutoMovieRenderAnalysisGap,
+  IAutoMovieRenderOwnerCost,
+  IAutoMovieRenderPrototypeCost,
+  IAutoMovieRenderSubject,
+  IAutoMovieRenderWaterBody,
+  IAutoMovieSoftBodyBudget,
+} from "@automovie/interface";
 
 /**
  * Add bounded effects, cloth, planting and water to the render inventory.
@@ -10,7 +22,6 @@ import type { IAutoMovieRenderPrototypeCost, IAutoMovieRenderSubject, IAutoMovie
  * final metrics null. A one-cell surface has no quad and creates no visible draw.
  * This phase must precede material closure, geometry memory and frame-wide passes.
  */
-
 
 import { fluidDomainBudget } from "../fluid/fluidDomainBudget";
 import { plantingBudget } from "../soft/plantingBudget";
@@ -33,7 +44,11 @@ import { AUTOMOVIE_UV_BYTES } from "./constants/AUTOMOVIE_UV_BYTES";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each domain budget is read once for its drawable and per-batch prototype storage is counted once, not per instance; no cross-call result cache assumes mutable topology/host prototype facts remain equivalent.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The orchestrator owns callbacks and rows for the synchronous request; this phase returns counts/gap ids and retains no simulation buffers, native geometry or task.
  */
-export const measureRenderSimulation: (props: IAutoMovieMeasureRenderSimulation.IProps) => IAutoMovieMeasureRenderSimulation.IResult = (props: IAutoMovieMeasureRenderSimulation.IProps): IAutoMovieMeasureRenderSimulation.IResult => {
+export const measureRenderSimulation: (
+  props: IAutoMovieMeasureRenderSimulation.IProps,
+) => IAutoMovieMeasureRenderSimulation.IResult = (
+  props: IAutoMovieMeasureRenderSimulation.IProps,
+): IAutoMovieMeasureRenderSimulation.IResult => {
   const {
     subject,
     gaps,

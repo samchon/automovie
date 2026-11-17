@@ -1,6 +1,17 @@
-import type { IAutoMoviePhysicalSimulationInput, IAutoMovieStepPlanner, IAutoMovieFootfallPattern, IAutoMovieVector3, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-import { AutoMovieStepPlanner as Planner, Quaternion, Vector3, physicalSupportPoint, planPhysicalSupportTargets } from "@automovie/engine";
-
+import {
+  AutoMovieStepPlanner as Planner,
+  Quaternion,
+  Vector3,
+  physicalSupportPoint,
+  planPhysicalSupportTargets,
+} from "@automovie/engine";
+import type {
+  IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieStepPlanner,
+  IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 
 import { PhysicalFixtures } from "./PhysicalFixtures";
 
@@ -117,7 +128,9 @@ export namespace PhysicalPerformanceFixtures {
       start: 0,
       end: duration,
       rate: 120,
-      desired: (seconds: number): Record<string, IAutoMovieStepPlanner.IPlacement> =>
+      desired: (
+        seconds: number,
+      ): Record<string, IAutoMovieStepPlanner.IPlacement> =>
         Object.fromEntries(
           pattern.limbs.map(
             (
@@ -150,7 +163,10 @@ export namespace PhysicalPerformanceFixtures {
       pitchLever: 0,
       alternationWindow: 0.5,
     });
-    const body: IAutoMoviePhysicalSimulationInput.IBody = trackedBody(profile, duration);
+    const body: IAutoMoviePhysicalSimulationInput.IBody = trackedBody(
+      profile,
+      duration,
+    );
     body.supportTracking = {
       pattern,
       stiffness: 100 * profile.mass,
@@ -159,7 +175,10 @@ export namespace PhysicalPerformanceFixtures {
       iterations: 0,
     };
     body.targets = body.targets.map(
-      (_: IAutoMoviePhysicalSimulationInput.ITarget, step: number): IAutoMoviePhysicalSimulationInput.ITarget => {
+      (
+        _: IAutoMoviePhysicalSimulationInput.ITarget,
+        step: number,
+      ): IAutoMoviePhysicalSimulationInput.ITarget => {
         const seconds: number = step / 120;
         const targets: Record<string, P.ITransform> = Object.fromEntries(
           Object.entries(original).map(
@@ -222,7 +241,10 @@ export namespace PhysicalPerformanceFixtures {
   }
 
   /** Declare finite physical actuator budgets with no endpoint teleports or fixed root. */
-  export function trackedBody(profile: P, duration: number): IAutoMoviePhysicalSimulationInput.IBody {
+  export function trackedBody(
+    profile: P,
+    duration: number,
+  ): IAutoMoviePhysicalSimulationInput.IBody {
     const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
       profile.id,
       profile,

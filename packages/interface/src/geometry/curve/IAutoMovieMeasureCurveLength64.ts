@@ -1,5 +1,3 @@
-
-
 /** Data and callback contracts shared by the MeasureCurveLength64 operations. */
 export namespace IAutoMovieMeasureCurveLength64 {
   /**
@@ -11,7 +9,7 @@ export namespace IAutoMovieMeasureCurveLength64 {
    * The caller owns the original source, partition, world-frame chain rule and
    * any continuity, closure or anatomical interpretation. Singular/improper
    * endpoint derivatives are unsupported; finite zero speed is permitted.
-   * 
+   *
    * The finer K*2 result and its absolute difference from K are observations,
    * not an error bound or automatic convergence/regularity certificate. Narrow
    * features can escape both rules, and errors of different pieces can cancel.
@@ -19,9 +17,9 @@ export namespace IAutoMovieMeasureCurveLength64 {
    * also require representable widths, quadrature nodes and intermediate sums.
    */
   export type IPieces = readonly {
-      /** Finite increasing bounds in this derivative's own parameter chart. */
-      domain: readonly [number, number];
-      /** Original world derivative in mm per domain-parameter unit. */
-      derivative: (parameter: number) => readonly [number, number, number];
-    }[];
+    /** Finite increasing bounds in this derivative's own parameter chart. */
+    domain: readonly [number, number];
+    /** Original world derivative in mm per domain-parameter unit. */
+    derivative: (parameter: number) => readonly [number, number, number];
+  }[];
 }

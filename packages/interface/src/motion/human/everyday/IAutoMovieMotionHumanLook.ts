@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanGaze } from "./IAutoMovieMotionHumanGaze";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
+import type { IAutoMovieMotionHumanGaze } from "./IAutoMovieMotionHumanGaze";
 
 /**
  * Standing and turning the eyes, head and trunk to a target, either at once

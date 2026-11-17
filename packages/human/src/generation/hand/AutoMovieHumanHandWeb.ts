@@ -1,15 +1,24 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanHandClear, IAutoMovieHumanHandDigit, IAutoMovieHumanHandWeb } from "@automovie/interface";
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanHandClear,
+  IAutoMovieHumanHandDigit,
+  IAutoMovieHumanHandWeb,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHandDigitLaw } from "./AutoMovieHumanHandDigitLaw";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
-
-const { sub, plus, scale, dot, norm, unit, TWO_PI }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-const { linePoint, lineTangent }: typeof AutoMovieHumanHandDigitLaw = AutoMovieHumanHandDigitLaw;
+const {
+  sub,
+  plus,
+  scale,
+  dot,
+  norm,
+  unit,
+  TWO_PI,
+}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
+const { linePoint, lineTangent }: typeof AutoMovieHumanHandDigitLaw =
+  AutoMovieHumanHandDigitLaw;
 
 /**
  * The form's web geometry: each digit's root ring from its arcs of its
@@ -70,18 +79,29 @@ export namespace AutoMovieHumanHandWeb {
     const mean: AutoMovieVector3Tuple = plus(outward(from), outward(to));
     const ea: AutoMovieVector3Tuple = unit(sub(mean, scale(xi, dot(mean, xi))));
     const rho: number = norm(sub(B, A)) / 2;
-    return { point: plus(scale(plus(A, B), 0.5), scale(ea, rho)), margin: rho + CREST_CLEARANCE };
+    return {
+      point: plus(scale(plus(A, B), 0.5), scale(ea, rho)),
+      margin: rho + CREST_CLEARANCE,
+    };
   }
 
   /** A child's arcs of its parent's ring, sampled, each to stand behind its first section. */
-  export function arcPoints(ring: IAutoMovieHumanHandWeb.ArcPointsRing, arcs: IAutoMovieHumanHandWeb.ArcPointsArcs): IAutoMovieHumanHandClear[] {
-    return arcs.flatMap(([from, to]: [number, number]): IAutoMovieHumanHandClear[] => {
-      const span: number = to >= from ? to - from : to + TWO_PI - from;
-      return Array.from({ length: ARC_SAMPLES + 1 }, (_: unknown, i: number): IAutoMovieHumanHandClear => ({
-        point: ring(from + (span * i) / ARC_SAMPLES),
-        margin: ARC_CLEARANCE,
-      }));
-    });
+  export function arcPoints(
+    ring: IAutoMovieHumanHandWeb.ArcPointsRing,
+    arcs: IAutoMovieHumanHandWeb.ArcPointsArcs,
+  ): IAutoMovieHumanHandClear[] {
+    return arcs.flatMap(
+      ([from, to]: [number, number]): IAutoMovieHumanHandClear[] => {
+        const span: number = to >= from ? to - from : to + TWO_PI - from;
+        return Array.from(
+          { length: ARC_SAMPLES + 1 },
+          (_: unknown, i: number): IAutoMovieHumanHandClear => ({
+            point: ring(from + (span * i) / ARC_SAMPLES),
+            margin: ARC_CLEARANCE,
+          }),
+        );
+      },
+    );
   }
 
   /**
@@ -89,11 +109,20 @@ export namespace AutoMovieHumanHandWeb {
    * point it must clear behind it by that point's margin: its arcs of the
    * parent's ring and its webs' crests, so every column of the web descends.
    */
-  export function firstOf(d: IAutoMovieHumanHandDigit, clear: readonly IAutoMovieHumanHandClear[]): number {
+  export function firstOf(
+    d: IAutoMovieHumanHandDigit,
+    clear: readonly IAutoMovieHumanHandClear[],
+  ): number {
     for (let s: number = 0; s < d.cap - 3; s += 0.05) {
       const c: AutoMovieVector3Tuple = linePoint(d, s);
       const t: AutoMovieVector3Tuple = lineTangent(d, s);
-      if (clear.every((x: IAutoMovieHumanHandClear): boolean => dot(sub(x.point, c), t) <= -x.margin)) return s;
+      if (
+        clear.every(
+          (x: IAutoMovieHumanHandClear): boolean =>
+            dot(sub(x.point, c), t) <= -x.margin,
+        )
+      )
+        return s;
     }
     return d.cap - 3;
   }

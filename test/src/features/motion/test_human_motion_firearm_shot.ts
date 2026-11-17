@@ -1,8 +1,25 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionTarget, IAutoMovieResolvedBone, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { createHandgun, createLongGun } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanFirearm, HumanObject, HumanPerformance, HumanRefusal, HumanWeaponFirearm } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionTarget,
+  IAutoMovieResolvedBone,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFirearm,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanWeaponFirearm,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -114,8 +131,13 @@ export function test_human_motion_firearm_shot(): void {
     const named = (row: string): IAutoMovieMotionHumanSegment.ISegment =>
       film
         .segments("a")
-        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row)!;
-    const instant = (segment: IAutoMovieMotionHumanSegment.ISegment, event: string): number =>
+        .find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
+        )!;
+    const instant = (
+      segment: IAutoMovieMotionHumanSegment.ISegment,
+      event: string,
+    ): number =>
       segment.start +
       (segment.plan.events.find((e): boolean => e.name === event)?.share ??
         Number.NaN) *
@@ -123,7 +145,10 @@ export function test_human_motion_firearm_shot(): void {
     const line = (seconds: number): IAutoMovieVector3 =>
       Quaternion.rotateVector(film.prop("pistol", seconds).rotation, bore);
     const off = (seconds: number): number => {
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("pistol", seconds);
+      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
+        "pistol",
+        seconds,
+      );
       return degrees(
         line(seconds),
         Vector3.subtract(
@@ -167,7 +192,10 @@ export function test_human_motion_firearm_shot(): void {
     // 3. The pistol stays in the hand.
     const draw: IAutoMovieMotionHumanSegment.ISegment = named("drawFirearm");
     const held = (seconds: number): IAutoMovieVector3 => {
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("pistol", seconds);
+      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
+        "pistol",
+        seconds,
+      );
       const hand: IAutoMovieResolvedBone = film
         .bones("a", seconds)
         .get("rightHand")!;

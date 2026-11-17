@@ -1,7 +1,29 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanCrowd, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanManoeuvre, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
 import { createLongGun } from "@automovie/archetypes";
-
-import { HUMAN_LEXICON, HumanCrowd, HumanCue, HumanEnsemble, HumanFormation, HumanManoeuvre, HumanMusketDrill, HumanObject, HumanPerformance } from "@automovie/motions";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanCrowd,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanManoeuvre,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HumanCrowd,
+  HumanCue,
+  HumanEnsemble,
+  HumanFormation,
+  HumanManoeuvre,
+  HumanMusketDrill,
+  HumanObject,
+  HumanPerformance,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -124,7 +146,9 @@ export function test_human_motion_scene_line_infantry(): void {
       seed: "infantry",
       laws: [
         ...HUMAN_LEXICON.gait!,
-        ...(Object.values(HumanMusketDrill) as IAutoMovieMotionHumanActionLaw<never>[]),
+        ...(Object.values(
+          HumanMusketDrill,
+        ) as IAutoMovieMotionHumanActionLaw<never>[]),
       ],
       performers: HumanEnsemble.performers(ensemble),
       props: ensemble.members.map(
@@ -141,7 +165,10 @@ export function test_human_motion_scene_line_infantry(): void {
       cues: { drum: HumanCue.beats({ bpm: 76, count: 30, from: 1 }), orders },
       composition: HumanEnsemble.chains(
         ensemble,
-        (m: IAutoMovieMotionHumanEnsemble.IMember, chain: IAutoMovieMotionHumanChain) => {
+        (
+          m: IAutoMovieMotionHumanEnsemble.IMember,
+          chain: IAutoMovieMotionHumanChain,
+        ) => {
           const gun: string = m.prop("musket");
           const marched: IAutoMovieMotionHumanChain = chain
             .registered("shoulderArms", { prop: gun })
@@ -196,7 +223,10 @@ export function test_human_motion_scene_line_infantry(): void {
   const strikes = (scene: IScene, subject: string): number[] => {
     const s: IAutoMovieMotionHumanSegment.ISegment = scene.performance
       .segments(subject)
-      .find((x: IAutoMovieMotionHumanSegment.ISegment): boolean => x.name === "march")!;
+      .find(
+        (x: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+          x.name === "march",
+      )!;
     return s.plan.events
       .filter((e: IAutoMovieMotionEvent): boolean =>
         /^(left|right)HeelStrike\d+$/.test(e.name),
@@ -220,18 +250,19 @@ export function test_human_motion_scene_line_infantry(): void {
   };
   const spread = (scene: IScene): number =>
     sd(
-      scene.ensemble.members.flatMap((m: IAutoMovieMotionHumanEnsemble.IMember): number[] =>
-        strikes(scene, m.subject)
-          .slice(2, -2)
-          .map(
-            (t: number): number =>
-              t -
-              beats.reduce(
-                (best: number, b: number): number =>
-                  Math.abs(b - t) < Math.abs(best - t) ? b : best,
-                beats[0]!,
-              ),
-          ),
+      scene.ensemble.members.flatMap(
+        (m: IAutoMovieMotionHumanEnsemble.IMember): number[] =>
+          strikes(scene, m.subject)
+            .slice(2, -2)
+            .map(
+              (t: number): number =>
+                t -
+                beats.reduce(
+                  (best: number, b: number): number =>
+                    Math.abs(b - t) < Math.abs(best - t) ? b : best,
+                  beats[0]!,
+                ),
+            ),
       ),
     );
 
@@ -281,18 +312,24 @@ export function test_human_motion_scene_line_infantry(): void {
       const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] =
         scene.performance.segments(m.subject);
       const halted: IAutoMovieMotionHumanSegment.ISegment = segments.find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "stand",
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+          s.name === "stand",
       )!;
       if (halted.entryTime < word("halt") + 0.1 - 1e-9)
         findings.push(`${m.subject} halts before the word`);
       // Make ready rides its recover as an overlay; the recover carries the body and answers the word.
-      const ready: IAutoMovieMotionHumanSegment.ISegment | undefined = segments.find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "recover",
-      );
-      const presenting: IAutoMovieMotionHumanSegment.ISegment | undefined = segments.find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "presentMusket",
-      );
-      if (ready === undefined) findings.push(`${m.subject} does not make ready`);
+      const ready: IAutoMovieMotionHumanSegment.ISegment | undefined =
+        segments.find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+            s.name === "recover",
+        );
+      const presenting: IAutoMovieMotionHumanSegment.ISegment | undefined =
+        segments.find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+            s.name === "presentMusket",
+        );
+      if (ready === undefined)
+        findings.push(`${m.subject} does not make ready`);
       else if (ready.entryTime < word("ready") + 0.1 - 1e-9)
         findings.push(`${m.subject} makes ready before the word`);
       else if (
@@ -300,9 +337,11 @@ export function test_human_motion_scene_line_infantry(): void {
         !(ready.entryTime < presenting.entryTime)
       )
         findings.push(`${m.subject} presents before it makes ready`);
-      const fired: IAutoMovieMotionHumanSegment.ISegment | undefined = segments.find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "fireMusket",
-      );
+      const fired: IAutoMovieMotionHumanSegment.ISegment | undefined =
+        segments.find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+            s.name === "fireMusket",
+        );
       if (scene.misfires.includes(m.index)) {
         if (fired !== undefined)
           findings.push(`${m.subject} was picked to misfire and fires`);
@@ -324,7 +363,10 @@ export function test_human_motion_scene_line_infantry(): void {
     );
 
   // 5. Deploy.
-  const block = (lateral: number, depth: number): IAutoMovieMotionHumanFormation.IBlock => ({
+  const block = (
+    lateral: number,
+    depth: number,
+  ): IAutoMovieMotionHumanFormation.IBlock => ({
     layout: {
       kind: "line",
       ranks: 3,
@@ -381,21 +423,25 @@ export function test_human_motion_scene_line_infantry(): void {
   const breakers: IAutoMovieMotionHumanEnsemble.IEnsemble = {
     ...militia.ensemble,
     members: routed.map(
-      (i: number): IAutoMovieMotionHumanEnsemble.IMember => militia.ensemble.members[i]!,
+      (i: number): IAutoMovieMotionHumanEnsemble.IMember =>
+        militia.ensemble.members[i]!,
     ),
   };
-  const flight: IAutoMovieMotionHumanCrowd.IResult = HumanCrowd.steer(breakers, {
-    goals: (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieVector3 => ({
-      x: m.place.at.x,
-      y: 0,
-      z: m.place.at.z - 25,
-    }),
-    gait: "run",
-    start: 13,
-    until: 30,
-    latency: "reaction",
-    flight: true,
-  });
+  const flight: IAutoMovieMotionHumanCrowd.IResult = HumanCrowd.steer(
+    breakers,
+    {
+      goals: (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieVector3 => ({
+        x: m.place.at.x,
+        y: 0,
+        z: m.place.at.z - 25,
+      }),
+      gait: "run",
+      start: 13,
+      until: 30,
+      latency: "reaction",
+      flight: true,
+    },
+  );
   flight.arrivals.forEach((a: number | null, k: number): void => {
     if (a === null)
       findings.push(`rout: ${breakers.members[k]!.subject} never gets away`);
@@ -421,7 +467,9 @@ export function test_human_motion_scene_line_infantry(): void {
       }
     if (crossed) break;
   }
-  const mean = (members: readonly IAutoMovieMotionHumanEnsemble.IMember[]): number =>
+  const mean = (
+    members: readonly IAutoMovieMotionHumanEnsemble.IMember[],
+  ): number =>
     members.reduce(
       (s: number, m: IAutoMovieMotionHumanEnsemble.IMember): number =>
         s + (m.attributes.morale ?? 0.5),

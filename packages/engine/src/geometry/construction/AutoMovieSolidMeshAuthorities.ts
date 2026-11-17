@@ -1,4 +1,9 @@
-import type { AutoMovieVector2Tuple, IAutoMovieSolidMesh, IAutoMovieSolidMeshConstraints } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidMeshConstraints,
+} from "@automovie/interface";
+
 /**
  * Admit authoritative indexed trim and original-domain chart occurrences.
  *
@@ -79,12 +84,8 @@ export namespace AutoMovieSolidMeshAuthorities {
       return "face domain authorities must be an array, or omitted";
     const loops: readonly IAutoMovieSolidMesh.ILoop[] = declared;
     if (loops.length === 0) return [];
-    const segments: IAutoMovieSolidMeshConstraints.ISegment[] | string = collect(
-      mesh,
-      loops,
-      chart,
-      period,
-    );
+    const segments: IAutoMovieSolidMeshConstraints.ISegment[] | string =
+      collect(mesh, loops, chart, period);
     if (typeof segments === "string")
       return "face domain authorities: " + segments;
     const low: number = input.stations[0]!;
@@ -163,7 +164,8 @@ export namespace AutoMovieSolidMeshAuthorities {
           !mesh.positions.slice(3 * id, 3 * id + 3).every(Number.isFinite)
         )
           return "face trim has an unavailable authoritative vertex or nonfinite chart";
-        const known: Readonly<AutoMovieVector2Tuple> | undefined = chart.get(id);
+        const known: Readonly<AutoMovieVector2Tuple> | undefined =
+          chart.get(id);
         if (known === undefined) chart.set(id, [point[0], point[1]]);
         else {
           const turn: number =

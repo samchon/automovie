@@ -1,11 +1,10 @@
-import type { IAutoMovieProductionVideoProfile, IAutoMovieResolveProductionVideoProfileProps } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieProductionVideoProfile,
+  IAutoMovieResolveProductionVideoProfileProps,
+} from "@automovie/interface";
 
 import { AUTOMOVIE_MP4_SRGB_COLOUR } from "./AUTOMOVIE_MP4_SRGB_COLOUR.js";
 import { AUTOMOVIE_MP4_UNITY_MATRIX } from "./AUTOMOVIE_MP4_UNITY_MATRIX.js";
-
 
 /**
  * Resolve an authored raster and exact frame rate to the one H.264-in-MP4
@@ -27,7 +26,11 @@ import { AUTOMOVIE_MP4_UNITY_MATRIX } from "./AUTOMOVIE_MP4_UNITY_MATRIX.js";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one small profile and coordinates no phases or requests whose work could be shared; the shared parts are already module constants.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the copied nine-entry matrix and the profile object are allocated, both owned by the caller from return; the shared color constant lives for the module's lifetime, and no handle or task is opened.
  */
-export const resolveProductionVideoProfile: (props: IAutoMovieResolveProductionVideoProfileProps) => IAutoMovieProductionVideoProfile = (props: IAutoMovieResolveProductionVideoProfileProps): IAutoMovieProductionVideoProfile => ({
+export const resolveProductionVideoProfile: (
+  props: IAutoMovieResolveProductionVideoProfileProps,
+) => IAutoMovieProductionVideoProfile = (
+  props: IAutoMovieResolveProductionVideoProfileProps,
+): IAutoMovieProductionVideoProfile => ({
   width: props.width,
   height: props.height,
   frameRate: props.frameRate,

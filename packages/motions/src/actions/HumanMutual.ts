@@ -1,9 +1,12 @@
-import type { IAutoMovieMotionHumanCatchObject, IAutoMovieMotionHumanHandoverAction, IAutoMovieMotionHumanHandshake, IAutoMovieMotionHumanHighFive, IAutoMovieMotionHumanKiss, IAutoMovieMotionHumanMutual, IAutoMovieMotionHumanThrowObjectParams } from "@automovie/interface";
-
-
-
-
-
+import type {
+  IAutoMovieMotionHumanCatchObject,
+  IAutoMovieMotionHumanHandoverAction,
+  IAutoMovieMotionHumanHandshake,
+  IAutoMovieMotionHumanHighFive,
+  IAutoMovieMotionHumanKiss,
+  IAutoMovieMotionHumanMutual,
+  IAutoMovieMotionHumanThrowObjectParams,
+} from "@automovie/interface";
 
 /**
  * The vocabulary's mutual actions, for `HumanChain.mutual`.

@@ -1,6 +1,27 @@
-import { type IAutoMovieFootprint, type IAutoMoviePropSupportFace, type IAutoMovieTessellation, AutoMovieSurfaceKind, IAutoMovieBuiltEnvironment, IAutoMovieHeightRule, IAutoMovieQuantityFinding, IAutoMovieVector3 } from "@automovie/interface";
-import { builtEnvironmentSpaceFidelity, footprintContains, footprintConvexPieces, footprintRing, footprintRingPlacement, measureAutoMovieQuantities, propSupportFace, propSupportGap, surfaceFootprint, surfaceHeightAt, tessellateSurface, validateSpace } from "@automovie/engine";
-
+import {
+  builtEnvironmentSpaceFidelity,
+  footprintContains,
+  footprintConvexPieces,
+  footprintRing,
+  footprintRingPlacement,
+  measureAutoMovieQuantities,
+  propSupportFace,
+  propSupportGap,
+  surfaceFootprint,
+  surfaceHeightAt,
+  tessellateSurface,
+  validateSpace,
+} from "@automovie/engine";
+import {
+  AutoMovieSurfaceKind,
+  IAutoMovieBuiltEnvironment,
+  type IAutoMovieFootprint,
+  IAutoMovieHeightRule,
+  type IAutoMoviePropSupportFace,
+  IAutoMovieQuantityFinding,
+  type IAutoMovieTessellation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { IFootprintVoidGeometryProps } from "./IFootprintVoidGeometryProps";

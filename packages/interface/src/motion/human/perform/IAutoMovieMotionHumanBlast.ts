@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLayer";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLayer";
 
 /**
  * A blast: a point and an instant from which an impulse reaches every

@@ -1,6 +1,9 @@
-import type { IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropFrame, IAutoMovieQuaternion } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropFrame,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 
 /**
  * Rigid frames of position and rotation, composed and taken relative: a
@@ -94,7 +97,9 @@ export namespace HumanPropFrame {
    * @param bone The bone's world position and rotation.
    * @returns The frame.
    */
-  export function bone(bone: IAutoMovieMotionHumanPropFrame.IBoneBone): IAutoMovieMotionHumanProp.IFrame {
+  export function bone(
+    bone: IAutoMovieMotionHumanPropFrame.IBoneBone,
+  ): IAutoMovieMotionHumanProp.IFrame {
     return { position: bone.worldPosition, rotation: bone.worldRotation };
   }
 }

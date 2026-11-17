@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanGestureStroke, IAutoMovieMotionHumanTiming } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanGestureStroke,
+  IAutoMovieMotionHumanTiming,
+} from "@automovie/interface";
 
 /**
  * The tables every gesture is read from by its kind: its timing and which

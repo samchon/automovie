@@ -1,5 +1,13 @@
-import type { IAutoMoviePoseRig, IAutoMoviePoseJointCodec, IAutoMovieSamplePoseVelocity, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMoviePoseJointCodec,
+  IAutoMoviePoseRig,
+  IAutoMovieQuaternion,
+  IAutoMovieSamplePoseVelocity,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { poseJointCodec } from "../kinematics/poseJointCodec";
 import { Quaternion } from "../math/Quaternion";
@@ -136,7 +144,10 @@ export function inertializePose(
         rs[1] - rt[1],
         rs[2] - rt[2],
       ];
-      if (x.some((k: number): boolean => k !== 0) || v.some((k: number): boolean => k !== 0))
+      if (
+        x.some((k: number): boolean => k !== 0) ||
+        v.some((k: number): boolean => k !== 0)
+      )
         hinged.set(bone, { x, v });
       continue;
     }

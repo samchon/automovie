@@ -1,6 +1,9 @@
-import type { IAutoMovieIntegrateMotionTrajectory, IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3, integrateMotionTrajectory } from "@automovie/engine";
-
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { Archetype } from "./Archetype";
 import { ArchetypeFrame } from "./ArchetypeFrame";

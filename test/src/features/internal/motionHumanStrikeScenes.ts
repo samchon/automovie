@@ -1,7 +1,19 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanStrikingRecord, AutoMovieHumanoidRegion, IAutoMovieJointPose } from "@automovie/interface";
 import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
-
-import { HUMAN_LEXICON, HumanChain, HumanPerformance, HumanRefusal, StrikingRecord } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanStrikingRecord,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+  StrikingRecord,
+} from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanLaw } from "./motionHumanLaw";
@@ -92,9 +104,13 @@ export namespace motionHumanStrikeScenes {
         `${label}: threw ${error instanceof Error ? `${error.name}: ${error.message}` : String(error)}, a plan expected`,
       ];
     }
-    const punch: IAutoMovieMotionHumanSegment.ISegment | undefined = film.performance
-      .segments("a")
-      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "punch");
+    const punch: IAutoMovieMotionHumanSegment.ISegment | undefined =
+      film.performance
+        .segments("a")
+        .find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+            s.name === "punch",
+        );
     const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined =
       punch === undefined ? undefined : StrikingRecord.of(punch.plan);
     if (punch === undefined || record === undefined)
@@ -134,8 +150,12 @@ export namespace motionHumanStrikeScenes {
     one: motionHumanBody.Name,
     other: motionHumanBody.Name,
   ): string[] {
-    const laws: IAutoMovieMotionHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
-    const fighter = (subject: string, opponent: string): IAutoMovieMotionHumanChain =>
+    const laws: IAutoMovieMotionHumanActionLaw<never>[] =
+      Object.values(HUMAN_LEXICON).flat();
+    const fighter = (
+      subject: string,
+      opponent: string,
+    ): IAutoMovieMotionHumanChain =>
       HumanChain.subject(subject)
         .registered("jab", face(opponent, "face"))
         .registered("cross", face(opponent, "face"))

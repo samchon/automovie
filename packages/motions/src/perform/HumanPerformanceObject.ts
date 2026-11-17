@@ -1,6 +1,12 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
-
 import { AffordanceArticulation, Quaternion } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
@@ -198,8 +204,10 @@ export namespace HumanPerformanceObject {
     prop: IAutoMovieMotionHumanProp,
     seconds: number,
   ): IAutoMovieMotionHumanProp.IPosed {
-    const kept: Map<string, { seconds: number; posed: IAutoMovieMotionHumanProp.IPosed }> =
-      POSED.get(self) ?? new Map();
+    const kept: Map<
+      string,
+      { seconds: number; posed: IAutoMovieMotionHumanProp.IPosed }
+    > = POSED.get(self) ?? new Map();
     const last = kept.get(prop.subject);
     if (last !== undefined && last.seconds === seconds && !self.resolving)
       return last.posed;

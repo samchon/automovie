@@ -1,4 +1,7 @@
-import type { IAutoMoviePhysicalSimulationInput, IAutoMovieContactReceipt } from "@automovie/interface";
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMoviePhysicalSimulationInput,
+} from "@automovie/interface";
 
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";

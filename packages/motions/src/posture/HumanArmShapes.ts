@@ -1,11 +1,16 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanArmGeometry, IAutoMovieMotionHumanColliders, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Quaternion,
   Vector3,
   physicalShapeNormal,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanShapeFraming } from "./HumanShapeFraming";
@@ -159,7 +164,10 @@ export namespace HumanArmShapes {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each shape's sphere is `bounded`'s.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function colliders(at: IAutoMovieMotionHumanArmGeometry.IFrame, placed: IAutoMovieMotionHumanArmGeometry.IPlaced): IAutoMovieMotionHumanArmGeometry.IShape[] {
+  export function colliders(
+    at: IAutoMovieMotionHumanArmGeometry.IFrame,
+    placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
+  ): IAutoMovieMotionHumanArmGeometry.IShape[] {
     const out: IAutoMovieMotionHumanArmGeometry.IShape[] = [];
     for (const c of at.colliders) {
       const [o, w]: [IAutoMovieVector3, IAutoMovieQuaternion] =
@@ -234,13 +242,15 @@ export namespace HumanArmShapes {
     reach: number,
   ): number[] {
     const out: number[] = [];
-    at.shapes.forEach((shape: IAutoMovieMotionHumanArmGeometry.IShape, i: number): void => {
-      if (
-        Vector3.length(Vector3.subtract(p, shape.centre)) - shape.radius <
-        reach
-      )
-        out.push(i);
-    });
+    at.shapes.forEach(
+      (shape: IAutoMovieMotionHumanArmGeometry.IShape, i: number): void => {
+        if (
+          Vector3.length(Vector3.subtract(p, shape.centre)) - shape.radius <
+          reach
+        )
+          out.push(i);
+      },
+    );
     return out;
   }
 

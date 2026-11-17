@@ -1,7 +1,21 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSignature, IAutoMovieResolveSchedule, IAutoMovieVector3 } from "@automovie/interface";
-
-
-import { HumanAffect, HumanBreath, HumanChain, HumanCue, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieResolveSchedule,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanAffect,
+  HumanBreath,
+  HumanChain,
+  HumanCue,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -55,7 +69,10 @@ export function test_human_motion_core_layer_instants(): void {
   };
   const perform = (
     composition: { node: IAutoMovieMotionHumanChain["node"] },
-    layers: readonly (IAutoMovieMotionHumanLayer | IAutoMovieMotionHumanLayer.IScheduled)[],
+    layers: readonly (
+      | IAutoMovieMotionHumanLayer
+      | IAutoMovieMotionHumanLayer.IScheduled
+    )[],
   ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "instants",
@@ -130,7 +147,9 @@ export function test_human_motion_core_layer_instants(): void {
   // 3. A layer windowed on a layer's instant.
   const sigh: IAutoMovieMotionHumanLayer.IScheduled = {
     from: { of: "air", event: "offset" },
-    layer: (window: IAutoMovieMotionHumanLayer.IWindow): IAutoMovieMotionHumanLayer =>
+    layer: (
+      window: IAutoMovieMotionHumanLayer.IWindow,
+    ): IAutoMovieMotionHumanLayer =>
       HumanAffect.layer([{ kind: "sigh", at: window.from }]),
   };
   const plain: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(

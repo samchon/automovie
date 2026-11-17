@@ -1,7 +1,18 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanPerformance, HumanSignature, HumanSport } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanSignature,
+  HumanSport,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -82,7 +93,10 @@ export function test_human_motion_sport_box_step(): void {
     );
     const step: IAutoMovieMotionHumanSegment.ISegment = film
       .segments("a")
-      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "boxStep")!;
+      .find(
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+          s.name === "boxStep",
+      )!;
     const ankle = (
       beat: number,
       foot: "left" | "right",

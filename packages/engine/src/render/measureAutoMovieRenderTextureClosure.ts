@@ -1,6 +1,10 @@
-import type { IAutoMovieRenderTextureResident, IAutoMovieRenderTextureSource, IAutoMovieMeasureRenderTextureClosure, IAutoMovieMaterial, IAutoMovieRenderTextureCost } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieMeasureRenderTextureClosure,
+  IAutoMovieRenderTextureCost,
+  IAutoMovieRenderTextureResident,
+  IAutoMovieRenderTextureSource,
+} from "@automovie/interface";
 
 import { materialTextureSlots } from "../validation/materialTextureSlots";
 import { autoMovieTextureBindingStateKey } from "./autoMovieTextureBindingStateKey";
@@ -40,7 +44,9 @@ import { requiredAutoMovieMaterialTexturePurposes } from "./requiredAutoMovieMat
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Equivalent actual Source/upload keys share one raw allocation and equivalent environment Texture objects share derivatives; renderer DFG/scratch are counted once. Asset spelling alone cannot establish equivalence across live scopes.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned costs are facts, not native owners; grouping storage is temporary and the host must remove disposed scopes/targets and release retained scratch on real context release, with no disposer or task held here.
  */
-export function measureAutoMovieRenderTextureClosure(props: IAutoMovieMeasureRenderTextureClosure.IProps): IAutoMovieRenderTextureCost[] {
+export function measureAutoMovieRenderTextureClosure(
+  props: IAutoMovieMeasureRenderTextureClosure.IProps,
+): IAutoMovieRenderTextureCost[] {
   const scopes: IAutoMovieRenderTextureResident[] = [
     {
       owner: props.residency?.owner ?? "current",

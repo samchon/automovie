@@ -1,11 +1,15 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   ANKLE_DORSIFLEXION,
   Vector3,
   minimumJerk,
   smoothMinimum,
 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 
@@ -109,7 +113,10 @@ export namespace walkLeg {
    * @param reach The hip-to-ankle distance, metres.
    * @returns Radians.
    */
-  export function behind(body: IAutoMovieMotionHumanBody, reach: number): number {
+  export function behind(
+    body: IAutoMovieMotionHumanBody,
+    reach: number,
+  ): number {
     const a: number = body.measure.thigh;
     const d: number = Math.min(reach, a + body.measure.shank);
     return Math.acos(

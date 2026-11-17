@@ -1,6 +1,5 @@
 import type { IAutoMovieAuditEncodedPresentationExpected } from "@automovie/interface";
 
-
 /**
  * Check an encoded delivery's probe against its commissioned profile: exactly
  * one H.264 video stream of the raster and integer frame rate and one AAC

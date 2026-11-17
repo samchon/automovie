@@ -1,5 +1,15 @@
-import { type IAutoMovieEvaluateRenderBudget, AutoMovieRenderMetric, IAutoMovieRenderAnalysisGap, IAutoMovieRenderBudget, IAutoMovieRenderContributor, IAutoMovieRenderFinding, IAutoMovieRenderInventory, IAutoMovieRenderReport, IAutoMovieRenderTarget, IAutoMovieSemanticMask } from "@automovie/interface";
-
+import {
+  AutoMovieRenderMetric,
+  type IAutoMovieEvaluateRenderBudget,
+  IAutoMovieRenderAnalysisGap,
+  IAutoMovieRenderBudget,
+  IAutoMovieRenderContributor,
+  IAutoMovieRenderFinding,
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderReport,
+  IAutoMovieRenderTarget,
+  IAutoMovieSemanticMask,
+} from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "./autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
@@ -46,7 +56,11 @@ import { AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS } from "./constants/AUTOMOVIE_
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each metric's one rank supplies contributors, omitted totals and pass recovery together; the mutable inventory/budget prevents identity-only report caching.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the report/findings and borrowed target; rank maps/text are call-local, with no retained scene, resource handle or evaluation task.
  */
-export const evaluateAutoMovieRenderBudget: (props: IAutoMovieEvaluateRenderBudget.IProps) => IAutoMovieRenderReport = (props: IAutoMovieEvaluateRenderBudget.IProps): IAutoMovieRenderReport => {
+export const evaluateAutoMovieRenderBudget: (
+  props: IAutoMovieEvaluateRenderBudget.IProps,
+) => IAutoMovieRenderReport = (
+  props: IAutoMovieEvaluateRenderBudget.IProps,
+): IAutoMovieRenderReport => {
   const {
     inventory,
     budget,

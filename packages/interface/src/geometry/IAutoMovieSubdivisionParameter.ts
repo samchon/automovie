@@ -1,5 +1,3 @@
-
-
 /**
  * Where one subdivided vertex sits on its cage face, so a caller can address a
  * surface point by cage face and local coordinates instead of by output index.

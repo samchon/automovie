@@ -1,7 +1,18 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionManner, IAutoMovieRandom, IAutoMovieVector3 } from "@automovie/interface";
-
-
-import { AutoMovieMotionClock, AutoMovieMotionHumanArm, AutoMovieMotionHumanLegPhrase, AutoMovieMotionManner } from "@automovie/motions";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionManner,
+  IAutoMovieRandom,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionClock,
+  AutoMovieMotionHumanArm,
+  AutoMovieMotionHumanLegPhrase,
+  AutoMovieMotionManner,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,5 +1,9 @@
-import type { IAutoMovieLinearizePhysicalTargetRows, IAutoMoviePhysicalContactSupportRows, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieLinearizePhysicalTargetRows,
+  IAutoMoviePhysicalContactSupportRows,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { linearizePhysicalInterval } from "./linearizePhysicalInterval";
@@ -21,39 +25,48 @@ type Poses = Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 19 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function physicalContactSupportRows(input: IAutoMoviePhysicalContactSupportRows.IInput): IAutoMovieLinearizePhysicalTargetRows.IRows[] {
+export function physicalContactSupportRows(
+  input: IAutoMoviePhysicalContactSupportRows.IInput,
+): IAutoMovieLinearizePhysicalTargetRows.IRows[] {
   const profile: IAutoMoviePhysicalProfile = input.profile;
   if (!Number.isFinite(input.floor))
     throw new Error("Invalid physical contact floor");
-  const floors: IAutoMovieLinearizePhysicalTargetRows.IRows[] = profile.segments.flatMap(
-    (segment: IAutoMoviePhysicalProfile.ISegment): IAutoMovieLinearizePhysicalTargetRows.IRows[] =>
-      segment.shapes.map(
-        (shape: IAutoMoviePhysicalProfile.IShape): IAutoMovieLinearizePhysicalTargetRows.IRows => {
-          const minimum: (poses: Poses) => number =
-            memoizePhysicalTransformValue(
-              (poses: Poses): IAutoMoviePhysicalProfile.ITransform[] => [poses[segment.bone]!],
-              (poses: Poses): number =>
-                input.geometry.minimumY({
-                  body: input.body,
-                  bone: segment.bone,
-                  shape,
-                  pose: poses[segment.bone]!,
-                }),
-            );
-          return {
-            bones: new Set([segment.bone]),
-            measure: (poses: Poses): number[] => [
-              Math.min(0, minimum(poses) - input.floor),
-            ],
-            linearize: (poses: Poses): ((probe: Poses) => number[]) => {
-              const model: (value: number) => number[] =
-                linearizePhysicalInterval(minimum(poses), input.floor);
-              return (probe: Poses): number[] => model(minimum(probe));
-            },
-          };
-        },
-      ),
-  );
+  const floors: IAutoMovieLinearizePhysicalTargetRows.IRows[] =
+    profile.segments.flatMap(
+      (
+        segment: IAutoMoviePhysicalProfile.ISegment,
+      ): IAutoMovieLinearizePhysicalTargetRows.IRows[] =>
+        segment.shapes.map(
+          (
+            shape: IAutoMoviePhysicalProfile.IShape,
+          ): IAutoMovieLinearizePhysicalTargetRows.IRows => {
+            const minimum: (poses: Poses) => number =
+              memoizePhysicalTransformValue(
+                (poses: Poses): IAutoMoviePhysicalProfile.ITransform[] => [
+                  poses[segment.bone]!,
+                ],
+                (poses: Poses): number =>
+                  input.geometry.minimumY({
+                    body: input.body,
+                    bone: segment.bone,
+                    shape,
+                    pose: poses[segment.bone]!,
+                  }),
+              );
+            return {
+              bones: new Set([segment.bone]),
+              measure: (poses: Poses): number[] => [
+                Math.min(0, minimum(poses) - input.floor),
+              ],
+              linearize: (poses: Poses): ((probe: Poses) => number[]) => {
+                const model: (value: number) => number[] =
+                  linearizePhysicalInterval(minimum(poses), input.floor);
+                return (probe: Poses): number[] => model(minimum(probe));
+              },
+            };
+          },
+        ),
+    );
   return [
     ...floors,
     ...input.supports.map(
@@ -65,7 +78,8 @@ export function physicalContactSupportRows(input: IAutoMoviePhysicalContactSuppo
           support.patch;
         if (
           !profile.segments.some(
-            (segment: IAutoMoviePhysicalProfile.ISegment): boolean => segment.bone === support.bone,
+            (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+              segment.bone === support.bone,
           ) ||
           !finite(support.point) ||
           (support.localPoint !== undefined && !finite(support.localPoint)) ||
@@ -97,23 +111,28 @@ export function physicalContactSupportRows(input: IAutoMoviePhysicalContactSuppo
         )
           throw new Error("Invalid physical contact support patch");
         for (const bone of patch?.contacts ?? []) names.add(bone);
-        const carriers: IAutoMoviePhysicalProfile.ISegment[] = profile.segments.filter(
-          (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
-            patch?.contacts.includes(segment.bone) ?? false,
-        );
+        const carriers: IAutoMoviePhysicalProfile.ISegment[] =
+          profile.segments.filter(
+            (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+              patch?.contacts.includes(segment.bone) ?? false,
+          );
         const minimum: (poses: Poses) => number = (poses: Poses): number =>
           Math.min(
-            ...carriers.flatMap((segment: IAutoMoviePhysicalProfile.ISegment): number[] =>
-              segment.shapes.map(
-                (shape: IAutoMoviePhysicalProfile.IShape): number =>
-                  physicalShapeBounds(poses[segment.bone]!, shape).min.y,
-              ),
+            ...carriers.flatMap(
+              (segment: IAutoMoviePhysicalProfile.ISegment): number[] =>
+                segment.shapes.map(
+                  (shape: IAutoMoviePhysicalProfile.IShape): number =>
+                    physicalShapeBounds(poses[segment.bone]!, shape).min.y,
+                ),
             ),
           );
         const measure: (poses: Poses) => number[] =
           memoizePhysicalTransformValue(
             (poses: Poses): IAutoMoviePhysicalProfile.ITransform[] =>
-              [...names].map((bone: string): IAutoMoviePhysicalProfile.ITransform => poses[bone]!),
+              [...names].map(
+                (bone: string): IAutoMoviePhysicalProfile.ITransform =>
+                  poses[bone]!,
+              ),
             (poses: Poses): number[] => {
               const difference: IAutoMovieVector3 = Vector3.subtract(
                 physicalSupportPoint(poses[support.bone]!, support.localPoint),

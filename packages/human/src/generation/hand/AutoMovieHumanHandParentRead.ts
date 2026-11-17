@@ -1,32 +1,42 @@
-import type { IAutoMovieLoftViewRead, IAutoMovieViewPart, IAutoMovieViewSection, AutoMovieVector3Tuple, IAutoMovieHumanHandAttachment, IAutoMovieHumanHandParent } from "@automovie/interface";
-
-
-
-
-import { AutoMovieIllinois, AutoMovieLoftViewRead, AutoMovieViewAxis, AutoMovieViewSection } from "@automovie/engine";
-
+import {
+  AutoMovieIllinois,
+  AutoMovieLoftViewRead,
+  AutoMovieViewAxis,
+  AutoMovieViewSection,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanHandAttachment,
+  IAutoMovieHumanHandParent,
+  IAutoMovieLoftViewRead,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHandVector as V } from "./AutoMovieHumanHandVector";
-
 
 /** The same actual parent-frame result used by the attachment owner. */
 type Frame = ReturnType<IAutoMovieViewPart["axis"]["at"]>;
 /** Four original support/fullness values in material order. */
 type Quarters = [number, number, number, number];
 
-
 /** Original parent-coordinate and native-section reads shared by hand attachments. */
 export namespace AutoMovieHumanHandParentRead {
   /** Solve actual normal-plane roots and preserve whole scalar/frame jets or explicit coordinate absence. */
-  export function locate(parent: IAutoMovieHumanHandParent.IOutput, point: AutoMovieVector3Tuple): IAutoMovieHumanHandAttachment.ISection | null {
+  export function locate(
+    parent: IAutoMovieHumanHandParent.IOutput,
+    point: AutoMovieVector3Tuple,
+  ): IAutoMovieHumanHandAttachment.ISection | null {
     const roots: number[] = [];
     const residual: (station: number) => number = (station: number): number => {
       const frame: Frame = parent.part.axis.at(station);
       return V.dot(V.sub(point, frame.origin), AutoMovieViewAxis.normal(frame));
     };
     for (let index: number = 1; index < parent.stations.length; index++) {
-      const before: IAutoMovieHumanHandParent.IOutput["stations"][number] = parent.stations[index - 1]!;
-      const after: IAutoMovieHumanHandParent.IOutput["stations"][number] = parent.stations[index]!;
+      const before: IAutoMovieHumanHandParent.IOutput["stations"][number] =
+        parent.stations[index - 1]!;
+      const after: IAutoMovieHumanHandParent.IOutput["stations"][number] =
+        parent.stations[index]!;
       const a: number = V.dot(V.sub(point, before.frame.origin), before.normal);
       const b: number = V.dot(V.sub(point, after.frame.origin), after.normal);
       if (a === 0) roots.push(before.station);

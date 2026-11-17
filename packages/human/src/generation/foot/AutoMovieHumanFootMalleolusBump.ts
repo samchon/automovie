@@ -17,20 +17,22 @@ export namespace AutoMovieHumanFootMalleolusBump {
   /** A window's half reach, in malleolus radii. Convention. */
   export const WINDOW: number = 1.6;
 
-  
-
   /**
    * The net of a bump of a stated prominence.
    *
    * @param prominence The bump's greatest height, mm.
    */
-  export function of(prominence: number): IAutoMovieHumanFootMalleolusBump.IBump {
+  export function of(
+    prominence: number,
+  ): IAutoMovieHumanFootMalleolusBump.IBump {
     const gain: number = prominence / PEAK;
 
     return {
       rows: PROFILE.length,
       columns: PROFILE.length,
-      heights: PROFILE.flatMap((r: number): number[] => PROFILE.map((c: number): number => gain * r * c)),
+      heights: PROFILE.flatMap((r: number): number[] =>
+        PROFILE.map((c: number): number => gain * r * c),
+      ),
     };
   }
 }

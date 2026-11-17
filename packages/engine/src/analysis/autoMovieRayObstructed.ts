@@ -1,4 +1,7 @@
-import type { IAutoMovieAnalysisSolid, IAutoMovieRayObstruction } from "@automovie/interface";
+import type {
+  IAutoMovieAnalysisSolid,
+  IAutoMovieRayObstruction,
+} from "@automovie/interface";
 
 import { autoMovieSolidBlocks } from "./autoMovieSolidBlocks";
 
@@ -18,7 +21,9 @@ import { autoMovieSolidBlocks } from "./autoMovieSolidBlocks";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call answers one ray; rays differ in origin or direction, so no answer is equivalent to another's.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the only allocation is one short-lived props object per solid tested, released when the test returns.
  */
-export const autoMovieRayObstructed: (props: IAutoMovieRayObstruction.IProps) => boolean = (props: IAutoMovieRayObstruction.IProps): boolean =>
+export const autoMovieRayObstructed: (
+  props: IAutoMovieRayObstruction.IProps,
+) => boolean = (props: IAutoMovieRayObstruction.IProps): boolean =>
   props.solids.some((solid: IAutoMovieAnalysisSolid): boolean =>
     autoMovieSolidBlocks({
       origin: props.origin,

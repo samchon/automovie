@@ -1,6 +1,19 @@
-import type { IAutoMovieViewAxis, IAutoMovieViewCurves, IAutoMovieViewLoft, IAutoMovieViewParallelAxis, IAutoMovieViewPart, IAutoMovieConstructionKnot, IAutoMovieConstructionOutline, IAutoMovieConstructionParallelAxis } from "@automovie/interface";
-import { AutoMovieConstructionViews, AutoMovieViewCurves, AutoMovieViewLoft, AutoMovieViewParallelAxis } from "@automovie/engine";
-
+import {
+  AutoMovieConstructionViews,
+  AutoMovieViewCurves,
+  AutoMovieViewLoft,
+  AutoMovieViewParallelAxis,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionKnot,
+  IAutoMovieConstructionOutline,
+  IAutoMovieConstructionParallelAxis,
+  IAutoMovieViewAxis,
+  IAutoMovieViewCurves,
+  IAutoMovieViewLoft,
+  IAutoMovieViewParallelAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

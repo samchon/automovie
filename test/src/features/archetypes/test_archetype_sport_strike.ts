@@ -1,8 +1,19 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
 import { createBall, createRacket } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanSportSwing, HumanSportThrow } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanSportSwing,
+  HumanSportThrow,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -43,22 +54,28 @@ export function test_archetype_sport_strike(): void {
   const radius: number = football.affordance("grip").aperture! / 2;
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
-  const contact = (film: IAutoMovieMotionHumanPerformance, row: string): number => {
+  const contact = (
+    film: IAutoMovieMotionHumanPerformance,
+    row: string,
+  ): number => {
     const act: IAutoMovieMotionHumanSegment.ISegment = film
       .segments("a")
-      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row)!;
+      .find(
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
+      )!;
     return act.start + (act.plan.contact ?? Number.NaN);
   };
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
-    const performer: IAutoMovieMotionHumanPerformance.IInput["performers"][number] = {
-      subject: "a",
-      body,
-      at: { x: 0, y: 0, z: 0 },
-      yaw: 0,
-      proficiency: { level: "trained" },
-    };
+    const performer: IAutoMovieMotionHumanPerformance.IInput["performers"][number] =
+      {
+        subject: "a",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      };
 
     // 1. The forehand.
     try {

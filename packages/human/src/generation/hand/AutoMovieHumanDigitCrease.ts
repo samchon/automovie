@@ -28,8 +28,6 @@ export namespace AutoMovieHumanDigitCrease {
   /** Half width of the groove along the line as a share of the nearest joint radius: a convention. */
   export const WIDTH_SHARE: number = 0.2;
 
-  
-
   /**
    * The creases' arc lengths along a finger from its joints, by Bridgman's
    * rule.
@@ -37,7 +35,9 @@ export namespace AutoMovieHumanDigitCrease {
    * @param joints Arc lengths of the finger's MCP, PIP and DIP along its line, mm.
    * @returns The four creases' arc lengths, distal first.
    */
-  export function loci(joints: IAutoMovieHumanDigitCrease.LociJoints): IAutoMovieHumanDigitCrease.LociResult {
+  export function loci(
+    joints: IAutoMovieHumanDigitCrease.LociJoints,
+  ): IAutoMovieHumanDigitCrease.LociResult {
     const [mcp, pip, dip] = joints;
     return [dip - 0.15 * (dip - pip), pip, (pip + mcp) / 2, mcp];
   }
@@ -49,7 +49,14 @@ export namespace AutoMovieHumanDigitCrease {
    * @param input The crease.
    * @param s Arc length along the line, mm.
    */
-  export function depth(input: IAutoMovieHumanDigitCrease.IInput, s: number): number {
-    return DEPTH_SHARE * input.palmar * bump((s - input.at) / (WIDTH_SHARE * input.radius)).value;
+  export function depth(
+    input: IAutoMovieHumanDigitCrease.IInput,
+    s: number,
+  ): number {
+    return (
+      DEPTH_SHARE *
+      input.palmar *
+      bump((s - input.at) / (WIDTH_SHARE * input.radius)).value
+    );
   }
 }

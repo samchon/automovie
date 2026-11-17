@@ -1,6 +1,5 @@
 import type { AutoMovieVector3Tuple } from "../index";
 
-
 /** Explicitly ordered physical observations for one named polynomial approximation.
  * The caller establishes feature correspondence, order, closure and corners before fitting.
  * RecoveryBezierFit.fit checks finite coordinates, at least two open or three
@@ -14,31 +13,24 @@ import type { AutoMovieVector3Tuple } from "../index";
  * @evidence contracts/development/common.md#meaningful-documentation Members state ordering, millimetre units, physical phase, finite budgets and supported parameterization.
  */
 export interface IAutoMoviePolylineFitInput {
- 
- /** Stable semantic name retained by the fitted curve. */
+  /** Stable semantic name retained by the fitted curve. */
   name: string;
 
- 
- /** Borrowed ordered finite millimetre triples; closed paths omit the repeated endpoint. */
+  /** Borrowed ordered finite millimetre triples; closed paths omit the repeated endpoint. */
   pointsMm: readonly Readonly<AutoMovieVector3Tuple>[];
 
- 
- /** True only when the caller has established a closing last-to-first edge. */
+  /** True only when the caller has established a closing last-to-first edge. */
   closed: boolean;
 
- 
- /** Observation indices with declared independent one-sided tangents. */
+  /** Observation indices with declared independent one-sided tangents. */
   corners: readonly number[];
 
- 
- /** Positive full-polyline approximation tolerance, millimetres. */
+  /** Positive full-polyline approximation tolerance, millimetres. */
   toleranceMm: number;
 
- 
- /** Positive safe-integer output-span budget; exhaustion throws from the fitter without a coefficient result. */
+  /** Positive safe-integer output-span budget; exhaustion throws from the fitter without a coefficient result. */
   maxSpans: number;
 
- 
- /** Initial fitting weights; saved span widths remain physical arclength in millimetres. */
+  /** Initial fitting weights; saved span widths remain physical arclength in millimetres. */
   parameterization: "chord" | "centripetal";
 }

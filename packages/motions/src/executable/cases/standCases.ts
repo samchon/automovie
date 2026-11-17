@@ -1,6 +1,13 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { createHumanBody } from "../../body/createHumanBody";
@@ -46,7 +53,9 @@ export function standCases(
   );
   let chain: IAutoMovieMotionHumanChain | undefined;
   names.forEach((_, i: number): void => {
-    const one: IAutoMovieMotionHumanChain = HumanChain.subject(`s${i}`).stand({ seconds: 2 });
+    const one: IAutoMovieMotionHumanChain = HumanChain.subject(`s${i}`).stand({
+      seconds: 2,
+    });
     chain = chain === undefined ? one : chain.with(one);
   });
   const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({

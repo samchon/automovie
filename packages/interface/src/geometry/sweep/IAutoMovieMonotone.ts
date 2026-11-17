@@ -1,10 +1,8 @@
-
-
 /** Data and callback contracts shared by the Monotone operations. */
 export namespace IAutoMovieMonotone {
   /**
    * Write the slope at each of `n` knots.
-   * 
+   *
    * Each interior slope starts as the mean of its two secants, or zero where
    * they differ in sign or either is zero; a segment whose slope ratios leave
    * the circle of radius 3 has both scaled back onto it; an open curve's end

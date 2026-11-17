@@ -1,6 +1,13 @@
-import type { IAutoMovieSubjectContribution, IAutoMovieSubjectGroup, IAutoMovieShotBuildContext } from "@automovie/interface";
-import { AutoMovieSubject, AutoMovieSubjectGroup, mergeAutoMovieSubjectContributions } from "@automovie/engine";
-
+import {
+  AutoMovieSubject,
+  AutoMovieSubjectGroup,
+  mergeAutoMovieSubjectContributions,
+} from "@automovie/engine";
+import type {
+  IAutoMovieShotBuildContext,
+  IAutoMovieSubjectContribution,
+  IAutoMovieSubjectGroup,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";

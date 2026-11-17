@@ -1,6 +1,14 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanLegPhrase, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanLegPhrase,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFoot } from "../posture/HumanFoot";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
@@ -17,7 +25,6 @@ import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `HumanFoot.IPlacement`, the clock and the leg's movement; no action name appears.
  */
 export namespace AutoMovieMotionHumanLegPhrase {
-
   /**
    * A placement scaled about another by the phrase's extent; unchanged when
    * the phrase states a contact, since a manner never moves a goal on a solid
@@ -51,7 +58,10 @@ export namespace AutoMovieMotionHumanLegPhrase {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function bearing(
-    props: Pick<IAutoMovieMotionHumanLegPhrase.IPhrase, "clock" | "side" | "contact">,
+    props: Pick<
+      IAutoMovieMotionHumanLegPhrase.IPhrase,
+      "clock" | "side" | "contact"
+    >,
     from: string,
     to: string,
   ): IAutoMovieMotionHumanContactWindow[] {
@@ -110,7 +120,10 @@ export namespace AutoMovieMotionHumanLegPhrase {
    * from a chamber.
    */
   const cleared = (
-    props: Pick<IAutoMovieMotionHumanLegPhrase.IPhrase, "body" | "side" | "stance">,
+    props: Pick<
+      IAutoMovieMotionHumanLegPhrase.IPhrase,
+      "body" | "side" | "stance"
+    >,
     placement: IAutoMovieMotionHumanFoot.IPlacement,
   ): IAutoMovieMotionHumanFoot.IPlacement => {
     const lowest = (foot: IAutoMovieMotionHumanFoot.IPlacement): number =>
@@ -261,7 +274,10 @@ export namespace AutoMovieMotionHumanLegPhrase {
         from: 0,
         to: clock.duration,
         placement: (posture: IAutoMovieMotionHumanPosture, seconds: number) => {
-          const chamber: IAutoMovieMotionHumanFoot.IPlacement = props.chamber(posture, seconds);
+          const chamber: IAutoMovieMotionHumanFoot.IPlacement = props.chamber(
+            posture,
+            seconds,
+          );
           const p: number = AutoMovieMotionClock.through(
             clock,
             ["strokeStart", "stroke", "strokeEnd"],

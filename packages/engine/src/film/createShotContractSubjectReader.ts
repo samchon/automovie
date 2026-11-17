@@ -1,6 +1,20 @@
-import { type IAutoMovieSampledChannel, type IAutoMovieRealizeShotContractProps, type IAutoMovieShotContractSubjectReader, IAutoMovieCompiledFormation, IAutoMovieModel, IAutoMovieMotion, IAutoMoviePose, IAutoMovieSceneNode, IAutoMovieShotPerformance, IAutoMovieShotSpatialSelector, IAutoMovieSkeleton, IAutoMovieSubjectBox, IAutoMovieTransform, IAutoMovieVector3, IAutoMovieWorldLandmark } from "@automovie/interface";
-
-
+import {
+  IAutoMovieCompiledFormation,
+  IAutoMovieModel,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  type IAutoMovieRealizeShotContractProps,
+  type IAutoMovieSampledChannel,
+  IAutoMovieSceneNode,
+  type IAutoMovieShotContractSubjectReader,
+  IAutoMovieShotPerformance,
+  IAutoMovieShotSpatialSelector,
+  IAutoMovieSkeleton,
+  IAutoMovieSubjectBox,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+  IAutoMovieWorldLandmark,
+} from "@automovie/interface";
 
 import { sampleMotion } from "../motion/sampleMotion";
 import { channelKey } from "../resolve/channelKey";
@@ -45,7 +59,8 @@ const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 export function createShotContractSubjectReader(
   props: IAutoMovieRealizeShotContractProps,
 ): IAutoMovieShotContractSubjectReader {
-  const compiled: IAutoMovieRealizeShotContractProps["compiled"] = props.compiled;
+  const compiled: IAutoMovieRealizeShotContractProps["compiled"] =
+    props.compiled;
   const nodes: ReadonlyMap<string, IAutoMovieSceneNode> = indexFirst(
     compiled.scene.nodes,
     (node: IAutoMovieSceneNode): string => node.id,

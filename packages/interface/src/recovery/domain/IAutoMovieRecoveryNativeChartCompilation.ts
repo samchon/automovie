@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryEndpointControlOwner, IAutoMovieRecoveryEventDomainCompilation } from "../../index";
+import type {
+  IAutoMovieRecoveryEndpointControlOwner,
+  IAutoMovieRecoveryEventDomainCompilation,
+} from "../../index";
 
 /** Successful chart compilation retaining complete native parents and endpoint owners.
  *
@@ -8,15 +11,12 @@ import type { IAutoMovieRecoveryEndpointControlOwner, IAutoMovieRecoveryEventDom
  * @evidence contracts/development/common.md#meaningful-documentation Members identify endpoint indices, the existing representation literal and final chart direction.
  */
 export interface IAutoMovieRecoveryNativeChartCompilation extends IAutoMovieRecoveryEventDomainCompilation {
- 
- /** Declared endpoint names bound to compacted recipe control indices. */
+  /** Declared endpoint names bound to compacted recipe control indices. */
   endpointControlOwners: IAutoMovieRecoveryEndpointControlOwner[];
 
- 
- /** Existing complete-parent and local partial-interval representation. */
+  /** Existing complete-parent and local partial-interval representation. */
   representation: "native-parent-local-partial-bindings-v1";
 
- 
- /** Final U direction after applying the input winding. */
+  /** Final U direction after applying the input winding. */
   chartDirectionU: 1 | -1;
 }

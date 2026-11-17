@@ -1,4 +1,9 @@
-import type { IAutoMovieRecoveryImageFitCounts, IAutoMovieRecoveryImageSource, IAutoMovieRecoverySupportGeneration, IAutoMovieRecoverySupportLoft } from "../../index";
+import type {
+  IAutoMovieRecoveryImageFitCounts,
+  IAutoMovieRecoveryImageSource,
+  IAutoMovieRecoverySupportGeneration,
+  IAutoMovieRecoverySupportLoft,
+} from "../../index";
 
 /** Fit evidence kept outside compact support-coefficient generation authority.
  * Pixel residuals include the implied intersection's support, not only each
@@ -11,35 +16,27 @@ import type { IAutoMovieRecoveryImageFitCounts, IAutoMovieRecoveryImageSource, I
  * @evidence contracts/development/common.md#meaningful-documentation States residual scope, cohort separation, free-scalar count, numerical event qualification and explicit unknown physical regions.
  */
 export interface IAutoMovieRecoverySupportFit {
- 
- /** Independently generative coefficients and edit/coverage metadata. */
+  /** Independently generative coefficients and edit/coverage metadata. */
   recipe: IAutoMovieRecoverySupportLoft;
 
- 
- /** Analytic, photographic and inconsistent-input evidence remain distinct. */
+  /** Analytic, photographic and inconsistent-input evidence remain distinct. */
   cohort: "analytic" | "photograph" | "inconsistent-stress";
 
- 
- /** Every training source identity; camera charts remain in the observation artifact. */
+  /** Every training source identity; camera charts remain in the observation artifact. */
   sources: IAutoMovieRecoveryImageSource[];
 
- 
- /** Maximum pixel residual of fitted offsets or their implied polygon supports. */
+  /** Maximum pixel residual of fitted offsets or their implied polygon supports. */
   maximumResidualPx: number;
 
- 
- /** Selected unpivoted Householder diagonal ratio; not a certified condition. */
+  /** Selected unpivoted Householder diagonal ratio; not a certified condition. */
   splineRankRatio: number;
 
- 
- /** Corresponding rows, longitudinal spans and fitted scalar spline coefficients. */
+  /** Corresponding rows, longitudinal spans and fitted scalar spline coefficients. */
   counts: IAutoMovieRecoveryImageFitCounts;
 
- 
- /** Common measured row-centre interval, in millimetres. */
+  /** Common measured row-centre interval, in millimetres. */
   observedIntervalMm: [number, number];
 
- 
- /** Actual selected engine event/interval/mesh counts and numerical boundary defect. */
+  /** Actual selected engine event/interval/mesh counts and numerical boundary defect. */
   generation: IAutoMovieRecoverySupportGeneration;
 }

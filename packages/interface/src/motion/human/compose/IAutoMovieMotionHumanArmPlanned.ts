@@ -1,7 +1,7 @@
-import type { IAutoMovieMotionHumanArmAngles } from "./IAutoMovieMotionHumanArmAngles";
-import type { IAutoMovieMotionHumanArmCarry } from "./IAutoMovieMotionHumanArmCarry";
 import type { IAutoMovieMotionHumanArmTrajectory } from "../posture/IAutoMovieMotionHumanArmTrajectory";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { IAutoMovieMotionHumanArmAngles } from "./IAutoMovieMotionHumanArmAngles";
+import type { IAutoMovieMotionHumanArmCarry } from "./IAutoMovieMotionHumanArmCarry";
 
 /**
  * An arm's whole action planned as one trajectory (`HumanArmTrajectory`):

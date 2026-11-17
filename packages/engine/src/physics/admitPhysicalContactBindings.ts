@@ -1,5 +1,10 @@
-import type { IAutoMoviePhysicalContactBinding, IAutoMoviePhysicalPointBound, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMovieFootfallPattern } from "@automovie/interface";
-
+import type {
+  IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalContactBinding,
+  IAutoMoviePhysicalPointBound,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSimulationInput,
+} from "@automovie/interface";
 
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 import { admitPhysicalPointBounds } from "./admitPhysicalPointBounds";
@@ -34,31 +39,43 @@ export function admitPhysicalContactBindings(
   const ids: Set<string> = new Set();
   for (const binding of bindings ?? []) {
     if (!binding) throw new Error(body.id + ": invalid contact binding");
-    const receiver: IAutoMoviePhysicalSimulationInput.IBody | undefined = input.bodies.find(
-      (candidate: IAutoMoviePhysicalSimulationInput.IBody): boolean =>
-        candidate.id === binding.target?.body,
-    );
-    const source: IAutoMoviePhysicalProfile.IShape | undefined = body.profile.segments
-      .find(
-        (segment: IAutoMoviePhysicalProfile.ISegment): boolean => segment.bone === binding.source?.bone,
-      )
-      ?.shapes.find(
-        (shape: IAutoMoviePhysicalProfile.IShape): boolean => shape.id === binding.source.shape,
+    const receiver: IAutoMoviePhysicalSimulationInput.IBody | undefined =
+      input.bodies.find(
+        (candidate: IAutoMoviePhysicalSimulationInput.IBody): boolean =>
+          candidate.id === binding.target?.body,
       );
-    const target: IAutoMoviePhysicalProfile.IShape | undefined = receiver?.profile.segments
-      .find(
-        (segment: IAutoMoviePhysicalProfile.ISegment): boolean => segment.bone === binding.target.bone,
-      )
-      ?.shapes.find(
-        (shape: IAutoMoviePhysicalProfile.IShape): boolean => shape.id === binding.target.shape,
-      );
-    const allowance: (profile: IAutoMoviePhysicalProfile, shape: IAutoMoviePhysicalProfile.IShape | undefined) => number = (
+    const source: IAutoMoviePhysicalProfile.IShape | undefined =
+      body.profile.segments
+        .find(
+          (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+            segment.bone === binding.source?.bone,
+        )
+        ?.shapes.find(
+          (shape: IAutoMoviePhysicalProfile.IShape): boolean =>
+            shape.id === binding.source.shape,
+        );
+    const target: IAutoMoviePhysicalProfile.IShape | undefined =
+      receiver?.profile.segments
+        .find(
+          (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+            segment.bone === binding.target.bone,
+        )
+        ?.shapes.find(
+          (shape: IAutoMoviePhysicalProfile.IShape): boolean =>
+            shape.id === binding.target.shape,
+        );
+    const allowance: (
+      profile: IAutoMoviePhysicalProfile,
+      shape: IAutoMoviePhysicalProfile.IShape | undefined,
+    ) => number = (
       profile: IAutoMoviePhysicalProfile,
       shape: IAutoMoviePhysicalProfile.IShape | undefined,
     ): number => {
-      const material: IAutoMoviePhysicalProfile.IMaterial | undefined = profile.materials.find(
-        (item: IAutoMoviePhysicalProfile.IMaterial): boolean => item.id === shape?.material,
-      );
+      const material: IAutoMoviePhysicalProfile.IMaterial | undefined =
+        profile.materials.find(
+          (item: IAutoMoviePhysicalProfile.IMaterial): boolean =>
+            item.id === shape?.material,
+        );
       return material && material.compliance > 0
         ? (material.maximumCompression ?? 0)
         : 0;
@@ -114,12 +131,14 @@ export function admitPhysicalContactBindings(
     )
       throw new Error(body.id + ": invalid contact binding surface normal");
   }
-  const profiles: Record<string, IAutoMoviePhysicalProfile> = Object.fromEntries(
-    input.bodies.map((item: IAutoMoviePhysicalSimulationInput.IBody): [string, IAutoMoviePhysicalProfile] => [
-      item.id,
-      item.profile,
-    ]),
-  );
+  const profiles: Record<string, IAutoMoviePhysicalProfile> =
+    Object.fromEntries(
+      input.bodies.map(
+        (
+          item: IAutoMoviePhysicalSimulationInput.IBody,
+        ): [string, IAutoMoviePhysicalProfile] => [item.id, item.profile],
+      ),
+    );
   admitPhysicalPointBounds(profiles, body.id, pointBounds ?? [], ids);
   const shapes: string[] = body.profile.segments.flatMap(
     (segment: IAutoMoviePhysicalProfile.ISegment): string[] =>
@@ -194,23 +213,34 @@ export function admitPhysicalContactBindings(
     throw new Error(body.id + ": contact target residual budget exceeded");
   const bones: Set<string> = new Set(
     body.selfAvoidance
-      ? body.profile.joints.map((joint: IAutoMoviePhysicalProfile.IJoint): string => joint.child)
+      ? body.profile.joints.map(
+          (joint: IAutoMoviePhysicalProfile.IJoint): string => joint.child,
+        )
       : [
           ...(bindings ?? [])
-            .filter((binding: IAutoMoviePhysicalContactBinding): boolean => binding.weight > 0)
-            .flatMap((binding: IAutoMoviePhysicalContactBinding): string[] => binding.chain),
+            .filter(
+              (binding: IAutoMoviePhysicalContactBinding): boolean =>
+                binding.weight > 0,
+            )
+            .flatMap(
+              (binding: IAutoMoviePhysicalContactBinding): string[] =>
+                binding.chain,
+            ),
           ...(pointBounds ?? []).flatMap(
             (bound: IAutoMoviePhysicalPointBound): string[] => bound.chain,
           ),
         ],
   );
   const coordinates: number = body.profile.joints
-    .filter((joint: IAutoMoviePhysicalProfile.IJoint): boolean => bones.has(joint.child))
+    .filter((joint: IAutoMoviePhysicalProfile.IJoint): boolean =>
+      bones.has(joint.child),
+    )
     .reduce(
       (sum: number, joint: IAutoMoviePhysicalProfile.IJoint): number =>
         sum +
         joint.axes.filter(
-          (axis: IAutoMoviePhysicalProfile.IAxis): boolean => axis.maximum > axis.minimum,
+          (axis: IAutoMoviePhysicalProfile.IAxis): boolean =>
+            axis.maximum > axis.minimum,
         ).length,
       0,
     );

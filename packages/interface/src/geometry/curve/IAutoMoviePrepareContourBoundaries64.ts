@@ -40,16 +40,19 @@ export namespace IAutoMoviePrepareContourBoundaries64 {
      * Initially unsupported groups are skipped. A later slit failure may set
      * group.unsupported while leaving its earlier interaction entry present.
      */
-    interactions: Map<G, {
-      /** Both section sides qualified on the latest pass; arithmetic failure sets false. */
-      qualified: boolean;
-      /**
-       * Deduplicated, pass-prefixed contact/separation history across successful
-       * passes. A caught arithmetic failure replaces it with that failure's
-       * message. Nonempty trace alone does not imply failed qualification.
-       */
-      diagnostics: string[];
-    }>;
+    interactions: Map<
+      G,
+      {
+        /** Both section sides qualified on the latest pass; arithmetic failure sets false. */
+        qualified: boolean;
+        /**
+         * Deduplicated, pass-prefixed contact/separation history across successful
+         * passes. A caught arithmetic failure replaces it with that failure's
+         * message. Nonempty trace alone does not imply failed qualification.
+         */
+        diagnostics: string[];
+      }
+    >;
     /**
      * Per-pass observations for section sides containing multiple selected
      * rings, with physical millimetre endpoints and local group/side addresses.
@@ -57,6 +60,8 @@ export namespace IAutoMoviePrepareContourBoundaries64 {
      * unless observeWork was requested. A caught failure can leave work
      * observation incomplete, which its interaction diagnostic states.
      */
-    observations: NonNullable<IAutoMovieContourLoft64.IResult["interactionObservations"]>;
+    observations: NonNullable<
+      IAutoMovieContourLoft64.IResult["interactionObservations"]
+    >;
   };
 }

@@ -1,4 +1,5 @@
 import type { IAutoMoviePhysicsCache } from "@automovie/interface";
+
 /**
  * Resolve the last causal native authority change for one segment. Live caches and solver-free archives share this exact arbitrary-time selection; no authored clock reconstructs contact activation or return completion.
  *

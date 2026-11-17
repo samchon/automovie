@@ -1,4 +1,8 @@
-import type { IAutoMovieQuadraticConstraintBasis, IAutoMovieQuadraticRow } from "@automovie/interface";
+import type {
+  IAutoMovieQuadraticConstraintBasis,
+  IAutoMovieQuadraticRow,
+} from "@automovie/interface";
+
 /**
  * Factor a working transpose by column-pivoted Householder QR, without A*A'.
  * Only structural identities reduce rows: a nonzero free a*x_j=0 fixes x_j=0,

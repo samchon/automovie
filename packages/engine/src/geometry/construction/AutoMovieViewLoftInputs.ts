@@ -1,4 +1,11 @@
-import type { IAutoMovieViewPart, AutoMovieViewLoftInputsQuarters, AutoMovieViewLoftInputsScalar, IAutoMovieLoftViewSource, IAutoMovieViewLoftInputsInputs, IAutoMovieViewOutline } from "@automovie/interface";
+import type {
+  AutoMovieViewLoftInputsQuarters,
+  AutoMovieViewLoftInputsScalar,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewLoftInputsInputs,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 
@@ -93,10 +100,17 @@ export function AutoMovieViewLoftInputs(
     if (outlines === undefined)
       return (): IAutoMovieViewPart.IQuarters<number> => [0, 0, 0, 0];
     const readers: (AutoMovieViewLoftInputsScalar | null)[] = outlines.map(
-      (outline: IAutoMovieViewPart.IOutline, q: number): AutoMovieViewLoftInputsScalar | null =>
-        curve(`${name} ${q}`, outline),
+      (
+        outline: IAutoMovieViewPart.IOutline,
+        q: number,
+      ): AutoMovieViewLoftInputsScalar | null => curve(`${name} ${q}`, outline),
     );
-    if (readers.some((reader: AutoMovieViewLoftInputsScalar | null): boolean => reader === null))
+    if (
+      readers.some(
+        (reader: AutoMovieViewLoftInputsScalar | null): boolean =>
+          reader === null,
+      )
+    )
       return null;
     return (station: number): IAutoMovieViewPart.IQuarters<number> =>
       readers.map((reader: AutoMovieViewLoftInputsScalar | null): number =>
@@ -113,7 +127,11 @@ export function AutoMovieViewLoftInputs(
     part.front.negative,
     true,
   );
-  const ahead: AutoMovieViewLoftInputsScalar | null = curve("side positive", part.side.positive, true);
+  const ahead: AutoMovieViewLoftInputsScalar | null = curve(
+    "side positive",
+    part.side.positive,
+    true,
+  );
   const behind: AutoMovieViewLoftInputsScalar | null = curve(
     "side negative",
     part.side.negative,

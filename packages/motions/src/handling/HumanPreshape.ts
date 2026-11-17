@@ -1,4 +1,10 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPreshape } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPreshape,
+} from "@automovie/interface";
 
 import { HumanHand } from "../posture/HumanHand";
 import { HumanGrip } from "./HumanGrip";
@@ -42,7 +48,10 @@ export namespace HumanPreshape {
     width: number,
   ): IAutoMovieMotionHumanPreshape.IOpenResult {
     const want: number = HumanPrehension.aperture(width);
-    const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "flat");
+    const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      "flat",
+    );
     const blend = (w: number): IAutoMovieMotionHumanPosture["joints"] => {
       const out: IAutoMovieMotionHumanPosture["joints"] = {};
       for (const bone of new Set([

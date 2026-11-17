@@ -1,4 +1,4 @@
-import { IAutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
+import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditMeasure,
@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import { HumanFoot } from "../posture/HumanFoot";
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditStatics";
 
 /**

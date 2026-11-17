@@ -1,6 +1,14 @@
-import { type IAutoMovieResolvedJointAngles, type IAutoMovieJointAxes, type IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-import { Quaternion, decomposeJointRotation, jointToQuaternion } from "@automovie/engine";
-
+import {
+  Quaternion,
+  decomposeJointRotation,
+  jointToQuaternion,
+} from "@automovie/engine";
+import {
+  type IAutoMovieJointAxes,
+  type IAutoMovieQuaternion,
+  type IAutoMovieResolvedJointAngles,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/namedFacts";

@@ -1,4 +1,3 @@
-import type { IAutoMoviePrimitiveShape, IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
 import {
   ArchetypeCourse,
   ArchetypeFrame,
@@ -10,9 +9,14 @@ import {
   rideHorse,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
+import type {
+  IAutoMovieModelPart,
+  IAutoMoviePrimitiveShape,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { animalTerminalSole } from "../internal/animalTerminalSole";
 import { archetypeExtent } from "../internal/archetypeExtent";
 
 /** The horse's species, whose gait table the expectations read. */
@@ -104,6 +108,20 @@ function hoof(
   );
 }
 
+/** The lowest complete terminal surface, not its elevated distal cap centre. */
+function sole(
+  ride: ReturnType<typeof rideHorse>,
+  limb: QuadrupedBody.Limb,
+  seconds: number,
+): number {
+  const sample: ReturnType<typeof ride.at> = ride.at(seconds);
+  const part: IAutoMovieModelPart = sample.archetype.parts.find(
+    (candidate: IAutoMovieModelPart): boolean =>
+      candidate.id === QuadrupedBody.BONES[limb][3],
+  )!;
+  return animalTerminalSole(part, sample.placement);
+}
+
 /** How many hooves stand still on the ground over the four milliseconds after a second: a planted hoof does not move, and any other travels with or ahead of the body. */
 function planted(ride: ReturnType<typeof rideHorse>, seconds: number): number {
   return QuadrupedBody.LIMBS.filter(
@@ -122,17 +140,17 @@ function planted(ride: ReturnType<typeof rideHorse>, seconds: number): number {
  * 2. Over 200 seeds, each horse's stride time at its own scaled 4 m/s trot, divided by its factor, stays within one standard deviation (36 ms) of the paper's 0.569 s, and the seeds span more than one standard deviation.
  * 3. Footfall order within a stride: at the walk left fore, right hind, right fore, left hind a quarter of a stride apart, which is the lateral sequence left hind, left fore, right hind, right fore; at the trot the diagonal pairs land together, left fore with right hind; at the left canter right hind, then left hind with right fore, then left fore.
  * 4. Duty factor falls as speed rises in the walk and in the trot.
- * 5. A planted hoof holds the ground: through the stance of a 1.5 m/s walk and of a 4 m/s trot at steady speed, the left fore and the right hind hoof stay within 10 mm of where they landed and within 10 mm of the ground; no hoof ever goes more than 10 mm below the ground.
+ * 5. A planted hoof holds the ground: through the stance of a 1.5 m/s walk and of a 4 m/s trot at steady speed, the left fore and the right hind distal joints stay within 10 mm of where they landed and their complete actual terminal soles stay within 10 mm of the ground; no terminal solid ever goes more than 10 mm below the ground. A sloped cylinder's distal cap centre is not its lowest surface.
  * 6. The limbs stay whole through the stride: at eight phases each bone's lower end meets the next bone's upper end within a tenth of a millimetre.
  * 7. A speed no row of the gait's table covers (a 5 m/s walk) is refused with the measured range.
- * 8. Over a whole 30 m walk that gathers speed from rest at 0.5 m/s squared and brakes to a halt at the same rate, every stance of every hoof holds its place in the world: from just after each landing through four fifths of the least share of a stride a hoof is planted for, the hoof joint moves less than a millimetre along the path. At the steady walk each hoof is more than 10 mm above the ground at the middle of its swing.
+ * 8. Over a whole 30 m walk that gathers speed from rest at 0.5 m/s squared and brakes to a halt at the same rate, every stance of every hoof holds its place in the world: from just after each landing through four fifths of the least share of a stride a hoof is planted for, the hoof joint moves less than a millimetre along the path. At the steady walk each complete terminal solid is more than 10 mm above the ground at the middle of its swing.
  * 9. At a steady gallop every stride has an instant with no hoof still on the ground, the suspension; the steady walk has none.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Rides a produced horse along a straight course and reads the ride's landing instants and the posed model's bone ends in the world; a stride of the wrong period, hooves landing out of order, a planted hoof that slides or sinks while the horse holds, gathers or loses speed, a swinging hoof dragged along the ground, a gallop without suspension, or a limb whose bones come apart is caught.
+ * @evidence contracts/development/testing.md#behavioral-verification Rides a produced horse along a straight course and reads landing instants, actual bone ends and exact world support of each complete terminal primitive; a wrong period, order, sliding or sinking support, dragged swing, missing suspension or disconnected limb is caught. Ground assertions distinguish an elevated distal cap centre from the actual solid sole.
  * @evidence contracts/development/testing.md#independent-expectations Stride times, their standard deviations and the footfall orders are Robilliard, Pfau and Wilson 2007, J Exp Biol 210:187, Tables 1 to 4, scaled to the produced horse by dynamic similarity at equal Froude number (Alexander and Jayes 1983; Alexander 1984): speeds and times by the square root of its withers height over the 1.38 m of Icelandic horses (Jensen et al. 2019), worked here from the height measured on the model (the 5 m/s canter row reads 0.496 plus or minus 0.024 s; the 0.47 s quoted in #3373 is the gallop's row). The ride is deterministic, so the scaled stride is held to floating tolerance, not to the paper's spread. A planted hoof not moving is what planted means; the millimetre is the ride's own statement that a planted hoof stays where it landed at any speed, and the 10 mm the campaign's contact tolerance (#3358). The least stance share is the duty factor at the fastest speed the walk reaches, since the duty factor falls with speed. A gallop is the gait with a suspension, and a walk never has fewer than two hooves down. Bones meeting at their joints is rigidity.
  * @evidence contracts/development/testing.md#distinguishing-cases Three gaits for order, two for the planted hoof at steady speed, a whole course with both speed ramps for the planted hoof at changing speed, both ends of the trot's speed range for timing, a gait with a suspension against one without; the gallop's hind-to-fore lag and the walk's quarter-stride lag within a side, which the paper does not give as numbers, are the model's stated estimates and are not asserted. The timing's tempo and height refusals belong to `test_archetype_contract_refusal`.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the nine scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists nine scenarios and distinguishes joint endpoints used for closure/no-slip from complete primitive surfaces used for ground contact and swing clearance. Cylinder support is abs(axisY)*height/2+radius*hypot(axisX,axisZ), capsule support abs(axisY)*height/2+radius, both subtracted from the actual world centre without increasing the existing tolerances.
  */
 export function test_archetype_ride_horse(): void {
   const findings: string[] = [];
@@ -147,7 +165,9 @@ export function test_archetype_ride_horse(): void {
     ["canter", 5, 0.496],
   ];
   for (const [gait, speed, stride] of rows)
-    if (Math.abs(QuadrupedGait.timing(HORSE, gait, speed).stride - stride) > 1e-9)
+    if (
+      Math.abs(QuadrupedGait.timing(HORSE, gait, speed).stride - stride) > 1e-9
+    )
       findings.push(`${gait} at ${speed} m/s is not the paper's ${stride} s`);
 
   // 1. Stride times of this horse, at the speeds of equal Froude number, scaled by the square root of the height ratio.
@@ -197,17 +217,19 @@ export function test_archetype_ride_horse(): void {
     const fore: number[] = landings(ride, "leftFore");
     const start: number = fore[1]!;
     const stride: number = fore[2]! - fore[1]!;
-    return QuadrupedBody.LIMBS.map((limb: QuadrupedBody.Limb): [string, number] => [
-      limb,
-      Math.round(
-        ((landings(ride, limb).find(
-          (t: number): boolean => t >= start - 1e-6,
-        )! -
-          start) /
-          stride) *
-          100,
-      ) % 100,
-    ])
+    return QuadrupedBody.LIMBS.map(
+      (limb: QuadrupedBody.Limb): [string, number] => [
+        limb,
+        Math.round(
+          ((landings(ride, limb).find(
+            (t: number): boolean => t >= start - 1e-6,
+          )! -
+            start) /
+            stride) *
+            100,
+        ) % 100,
+      ],
+    )
       .sort((a: [string, number], b: [string, number]): number => a[1] - b[1])
       .map((entry: [string, number]): string => `${entry[0]}@${entry[1]}`)
       .join(" ");
@@ -230,8 +252,14 @@ export function test_archetype_ride_horse(): void {
 
   // 4. Duty factor falls with speed.
   if (
-    !(QuadrupedGait.timing(HORSE, "walk", 1).duty > QuadrupedGait.timing(HORSE, "walk", 3).duty) ||
-    !(QuadrupedGait.timing(HORSE, "trot", 2).duty > QuadrupedGait.timing(HORSE, "trot", 6.5).duty)
+    !(
+      QuadrupedGait.timing(HORSE, "walk", 1).duty >
+      QuadrupedGait.timing(HORSE, "walk", 3).duty
+    ) ||
+    !(
+      QuadrupedGait.timing(HORSE, "trot", 2).duty >
+      QuadrupedGait.timing(HORSE, "trot", 6.5).duty
+    )
   )
     findings.push("duty factor does not fall with speed");
 
@@ -245,7 +273,11 @@ export function test_archetype_ride_horse(): void {
       course(speed),
       gait,
     );
-    const timing: QuadrupedGait.ITiming = QuadrupedGait.timing(HORSE, gait, speed);
+    const timing: QuadrupedGait.ITiming = QuadrupedGait.timing(
+      HORSE,
+      gait,
+      speed,
+    );
     for (const limb of ["leftFore", "rightHind"] as const) {
       const on: number = landings(ride, limb)[1]!;
       const landed: IAutoMovieVector3 = hoof(
@@ -254,14 +286,13 @@ export function test_archetype_ride_horse(): void {
         on + 0.02 * timing.stride,
       );
       for (let k: number = 1; k <= 8; k++) {
-        const at: IAutoMovieVector3 = hoof(
-          ride,
-          limb,
-          on + (0.02 + (0.9 * k) / 8) * timing.duty * timing.stride,
-        );
-        if (Math.abs(at.z - landed.z) > 0.01 || Math.abs(at.y) > 0.01)
+        const seconds: number =
+          on + (0.02 + (0.9 * k) / 8) * timing.duty * timing.stride;
+        const at: IAutoMovieVector3 = hoof(ride, limb, seconds);
+        const gap: number = sole(ride, limb, seconds);
+        if (Math.abs(at.z - landed.z) > 0.01 || Math.abs(gap) > 0.01)
           findings.push(
-            `${gait}: ${limb} hoof moved ${at.z - landed.z} m along and stands ${at.y} m high in stance`,
+            `${gait}: ${limb} hoof moved ${at.z - landed.z} m along and its whole solid stands ${gap} m above ground in stance`,
           );
       }
     }
@@ -271,7 +302,7 @@ export function test_archetype_ride_horse(): void {
       const sample: ReturnType<typeof ride.at> = ride.at(seconds);
       for (const limb of QuadrupedBody.LIMBS) {
         const chain: readonly string[] = QuadrupedBody.BONES[limb];
-        if (hoof(ride, limb, seconds).y < -0.01)
+        if (sole(ride, limb, seconds) < -0.01)
           findings.push(
             `${gait}: ${limb} hoof under the ground at phase ${k}/8`,
           );
@@ -310,7 +341,13 @@ export function test_archetype_ride_horse(): void {
     course(1.5, 30, 0.5),
     "walk",
   );
-  const share: number = QuadrupedGait.timing(HORSE, "walk", 1.5, 0, withers).duty;
+  const share: number = QuadrupedGait.timing(
+    HORSE,
+    "walk",
+    1.5,
+    0,
+    withers,
+  ).duty;
   for (const limb of QuadrupedBody.LIMBS) {
     const on: number[] = footfalls(walk, limb);
     let worst: number = 0;
@@ -335,11 +372,11 @@ export function test_archetype_ride_horse(): void {
 
     // Mid-swing at the steady walk: halfway between this stance's lift-off and the next landing.
     const level: number[] = landings(walk, limb);
-    const lifted: number = hoof(
+    const lifted: number = sole(
       walk,
       limb,
       level[1]! + (share + (1 - share) / 2) * (level[2]! - level[1]!),
-    ).y;
+    );
     if (!(lifted > 0.01))
       findings.push(
         `walk: the ${limb} hoof is ${lifted} m above the ground at the middle of its swing`,

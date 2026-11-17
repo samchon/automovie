@@ -1,7 +1,20 @@
-import type { IAutoMovieMotionHumanArmPlanned, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
 import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-
-import { AutoMovieMotionHumanArm, AutoMovieMotionHumanTarget, HumanHand, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanArm,
+  AutoMovieMotionHumanTarget,
+  HumanHand,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -60,7 +73,11 @@ export function test_human_motion_core_carry_continuity(): void {
 
   // 2. A hanging hand carried onto the thigh.
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const quiet: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const quiet: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
   const side: IAutoMovieMotionHumanHand.Side = "right";
   const bones = poseBones(body, resolveHumanPosture(body, quiet));
   const region = body.surfaces.regions.thighOuterRight;

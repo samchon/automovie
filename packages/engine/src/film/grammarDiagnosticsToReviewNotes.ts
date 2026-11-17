@@ -1,6 +1,8 @@
-import { type IAutoMovieGrammarDiagnostic, type IAutoMovieGrammarDiagnosticsToReviewNotes, IAutoMovieReviewNote } from "@automovie/interface";
-
-
+import {
+  type IAutoMovieGrammarDiagnostic,
+  type IAutoMovieGrammarDiagnosticsToReviewNotes,
+  IAutoMovieReviewNote,
+} from "@automovie/interface";
 
 /**
  * File film-grammar findings as visual review notes on one beat.
@@ -17,7 +19,9 @@ import { type IAutoMovieGrammarDiagnostic, type IAutoMovieGrammarDiagnosticsToRe
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure mapping of one list that coordinates no work across calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned notes, one per diagnostic.
  */
-export function grammarDiagnosticsToReviewNotes(props: IAutoMovieGrammarDiagnosticsToReviewNotes.IProps): IAutoMovieReviewNote[] {
+export function grammarDiagnosticsToReviewNotes(
+  props: IAutoMovieGrammarDiagnosticsToReviewNotes.IProps,
+): IAutoMovieReviewNote[] {
   return props.diagnostics.map(
     (diagnostic: IAutoMovieGrammarDiagnostic): IAutoMovieReviewNote => ({
       beat: props.beat,

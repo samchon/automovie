@@ -1,5 +1,3 @@
-
-
 /**
  * How a retarget treats the contacts the source clip made.
  *

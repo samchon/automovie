@@ -3,30 +3,30 @@ import type { IAutoMovieVector3 } from "../../geometry/IAutoMovieVector3";
 /** Data and callback contracts shared by the ResolveMutualGoal operations. */
 export namespace IAutoMovieResolveMutualGoal {
   /** One person's acting arm. */
-    export interface ISide {
-      /** The acting shoulder joint, world metres. */
-      shoulder: IAutoMovieVector3;
-  
-      /** Comfortable shoulder-to-contact distance, metres; positive. */
-      reach: number;
-  
-      /** Full shoulder-to-contact reach with the elbow straight, metres; at least `reach`. */
-      limit: number;
-    }
+  export interface ISide {
+    /** The acting shoulder joint, world metres. */
+    shoulder: IAutoMovieVector3;
+
+    /** Comfortable shoulder-to-contact distance, metres; positive. */
+    reach: number;
+
+    /** Full shoulder-to-contact reach with the elbow straight, metres; at least `reach`. */
+    limit: number;
+  }
 
   /** The meeting. */
-    export interface IGoal {
-      /** Where the hands meet, world metres. */
-      point: IAutoMovieVector3;
-  
-      /** Each shoulder's distance to it, metres: `a` first. */
-      distance: [number, number];
-    }
+  export interface IGoal {
+    /** Where the hands meet, world metres. */
+    point: IAutoMovieVector3;
+
+    /** Each shoulder's distance to it, metres: `a` first. */
+    distance: [number, number];
+  }
 
   /**
    * The point where two people's hands meet when both reach for it: a
    * handshake's clasp, a handover's exchange, a high five.
-   * 
+   *
    * Neither person's goal is the other's hand, which moves; both aim at one
    * shared point both can reach comfortably, the way joint-action studies find
    * people converge on it. Each person has a comfortable reach, the
@@ -47,7 +47,7 @@ export namespace IAutoMovieResolveMutualGoal {
    * of the clasp point of partners of unequal stature or arm length was
    * located; it replaces a horizontal division with a mean height that left
    * the taller partner's arm straight at the end of its reach.
-   * 
+   *
    * Shoulders farther apart than the two comfortable reaches leave no such
    * point, so both arms extend by one common factor of their comfortable
    * reaches and the hands meet on the line between the shoulders; shoulders
@@ -58,7 +58,7 @@ export namespace IAutoMovieResolveMutualGoal {
    * (by bisection along the horizontal line between the shoulders, on which
    * one distance grows as the other shrinks), and the height is moved to the
    * nearest one inside the band both straight arms reach there.
-   * 
+   *
    * A meeting is refused, not stretched, when it lies beyond a straight arm:
    * the error gives both limits and the widest horizontal shoulder gap the
    * pair can close, so the author moves the people instead of receiving an arm

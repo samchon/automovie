@@ -1,6 +1,15 @@
-import { type AutoMovieBuiltinTexturePurpose, type IAutoMovieRenderTextureResidency, type IAutoMovieRenderTextureResident, IAutoMovieMaterial, IAutoMovieMaterialOverlay, IAutoMovieRenderTextureCost } from "@automovie/interface";
-import { measureAutoMovieRenderTextureClosure, requiredAutoMovieMaterialTexturePurposes } from "@automovie/engine";
-
+import {
+  measureAutoMovieRenderTextureClosure,
+  requiredAutoMovieMaterialTexturePurposes,
+} from "@automovie/engine";
+import {
+  type AutoMovieBuiltinTexturePurpose,
+  IAutoMovieMaterial,
+  IAutoMovieMaterialOverlay,
+  IAutoMovieRenderTextureCost,
+  type IAutoMovieRenderTextureResidency,
+  type IAutoMovieRenderTextureResident,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { material } from "../internal/renderFixtures";

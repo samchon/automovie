@@ -1,5 +1,7 @@
-import { type IAutoMovieDeriveSoundPropagation, IAutoMovieProductionSoundEvent } from "@automovie/interface";
-
+import {
+  type IAutoMovieDeriveSoundPropagation,
+  IAutoMovieProductionSoundEvent,
+} from "@automovie/interface";
 
 /**
  * Derive distance gain, one film-clock arrival and the selected segment/spectral outcome.
@@ -12,14 +14,18 @@ import { type IAutoMovieDeriveSoundPropagation, IAutoMovieProductionSoundEvent }
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One computed arrival and distance feed the returned receipt consumed by the mix; changed profile or clock inputs require a new derivation rather than a retained stateful propagation cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The result transfers to the caller by value; the profile/request is not retained and no acoustic device, host handle or scheduled arrival task is acquired.
  */
-export const deriveAutoMovieSoundPropagation: (props: IAutoMovieDeriveSoundPropagation.IProps) => {
+export const deriveAutoMovieSoundPropagation: (
+  props: IAutoMovieDeriveSoundPropagation.IProps,
+) => {
   profile: string;
   arrivalFrame: number;
   arrivalTimeSeconds: number;
   distanceGain: number;
   highFrequencyGain: number | null;
   boundary: "inside-segment" | "carried-across-cut" | "trimmed-at-segment";
-} = (props: IAutoMovieDeriveSoundPropagation.IProps): NonNullable<IAutoMovieProductionSoundEvent["propagation"]> => {
+} = (
+  props: IAutoMovieDeriveSoundPropagation.IProps,
+): NonNullable<IAutoMovieProductionSoundEvent["propagation"]> => {
   assertFiniteNonnegative(props.distanceMeters, "sound propagation distance");
   assertInteger(props.emissionFrame, "sound propagation emission frame", 0);
   assertInteger(

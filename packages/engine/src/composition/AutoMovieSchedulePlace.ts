@@ -1,5 +1,13 @@
-import type { IAutoMovieIntent, IAutoMovieSchedule, IAutoMovieComposition, IAutoMovieResolveSchedule, IAutoMovieScheduleCut, IAutoMovieScheduleError, IAutoMovieScheduleWalk, IAutoMovieMotionEvent } from "@automovie/interface";
-
+import type {
+  IAutoMovieComposition,
+  IAutoMovieIntent,
+  IAutoMovieMotionEvent,
+  IAutoMovieResolveSchedule,
+  IAutoMovieSchedule,
+  IAutoMovieScheduleCut,
+  IAutoMovieScheduleError,
+  IAutoMovieScheduleWalk,
+} from "@automovie/interface";
 
 import { AutoMovieScheduleCut } from "./AutoMovieScheduleCut";
 import { AutoMovieScheduleError } from "./AutoMovieScheduleError";
@@ -47,10 +55,11 @@ export namespace AutoMovieSchedulePlace {
       intent,
       context,
     );
-    const who: Pick<IAutoMovieScheduleError.IProps, "subject" | "capability"> = {
-      subject: intent.subject,
-      capability: intent.capability,
-    };
+    const who: Pick<IAutoMovieScheduleError.IProps, "subject" | "capability"> =
+      {
+        subject: intent.subject,
+        capability: intent.capability,
+      };
     if (!(timing.duration >= 0) || !Number.isFinite(timing.duration))
       throw new AutoMovieScheduleError(
         `Invalid duration of ${intent.subject}.${intent.capability}`,

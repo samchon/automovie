@@ -1,4 +1,10 @@
-import type { IAutoMoviePhysicalBalanceReference, IAutoMoviePhysicalProfile, IAutoMoviePhysicalTargetInterval, IAutoMovieSamplePhysicalTarget } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalBalanceReference,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalTargetInterval,
+  IAutoMovieSamplePhysicalTarget,
+} from "@automovie/interface";
+
 import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
@@ -17,9 +23,11 @@ import { samplePhysicalTarget } from "./samplePhysicalTarget";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function physicalBalanceReference(input: IAutoMoviePhysicalBalanceReference.IInput):
-  IAutoMoviePhysicalBalanceReference.IResult {
-  const previous: IAutoMoviePhysicalTargetInterval.IPlan | undefined = input.previous;
+export function physicalBalanceReference(
+  input: IAutoMoviePhysicalBalanceReference.IInput,
+): IAutoMoviePhysicalBalanceReference.IResult {
+  const previous: IAutoMoviePhysicalTargetInterval.IPlan | undefined =
+    input.previous;
   if (previous?.step === input.step - 1)
     return {
       completed: previous.targets,
@@ -41,7 +49,9 @@ export function physicalBalanceReference(input: IAutoMoviePhysicalBalanceReferen
     ),
     before: Object.fromEntries(
       input.body.profile.segments.map(
-        (segment: IAutoMoviePhysicalProfile.ISegment): [string, IAutoMoviePhysicalProfile.ITransform] => [
+        (
+          segment: IAutoMoviePhysicalProfile.ISegment,
+        ): [string, IAutoMoviePhysicalProfile.ITransform] => [
           segment.bone,
           samplePhysicalTarget(
             input.body.targets[input.step - 1]!.segments[segment.bone]!,

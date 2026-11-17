@@ -1,5 +1,3 @@
-
-
 /**
  * Shared slab-group view used by source interaction refinement and slit preparation.
  * The same group object keys the preparation result's interaction map.

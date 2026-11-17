@@ -1,11 +1,16 @@
-import type { IAutoMovieBuiltPlacementSupportLocator, IAutoMovieBuiltEnvironment, IAutoMovieBuiltPlacementBounds, IAutoMovieBuiltPlacementOverlapResult, IAutoMovieBuiltSupportResult } from "@automovie/interface";
 import {
   builtEnvironmentPlacementBounds,
   builtEnvironmentPlacementOverlap,
   builtEnvironmentSupportStatus,
   validateBuiltEnvironment,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltPlacementBounds,
+  IAutoMovieBuiltPlacementOverlapResult,
+  IAutoMovieBuiltPlacementSupportLocator,
+  IAutoMovieBuiltSupportResult,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { builtPlacementTestBody as body } from "../internal/builtPlacementTestBody";

@@ -1,5 +1,7 @@
-import { type IAutoMovieOpeningArc, IAutoMovieOpeningProfile } from "@automovie/interface";
-
+import {
+  type IAutoMovieOpeningArc,
+  IAutoMovieOpeningProfile,
+} from "@automovie/interface";
 
 import { polygonDoubleArea } from "../architecture/polygonDoubleArea";
 import { autoMovieOpeningArc } from "./autoMovieOpeningArc";

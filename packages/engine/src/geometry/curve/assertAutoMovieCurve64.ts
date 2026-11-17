@@ -1,4 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieCurve64 } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+} from "@automovie/interface";
+
 /**
  * Reject malformed coefficient fields before evaluation or publication. Successful admission establishes finite dense represented data and a resolvable phase partition; it does not prove regularity, continuity, nonintersection or visibility.
  *
@@ -13,7 +17,9 @@ import type { AutoMovieVector3Tuple, IAutoMovieCurve64 } from "@automovie/interf
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Caller coefficients can be mutable, so no cross-call admitted-object cache is retained.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only scalar locals and helper closures are allocated for one call; the input is neither cloned nor retained.
  */
-export function assertAutoMovieCurve64(curve: IAutoMovieCurve64.Primitive): void {
+export function assertAutoMovieCurve64(
+  curve: IAutoMovieCurve64.Primitive,
+): void {
   const dense: (
     a: unknown,
     count?: number,
@@ -68,7 +74,10 @@ export function assertAutoMovieCurve64(curve: IAutoMovieCurve64.Primitive): void
       curve.radiusV <= 0
     )
       throw new Error("Invalid analytic oval");
-    const dot: (a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>) => number = (
+    const dot: (
+      a: Readonly<AutoMovieVector3Tuple>,
+      b: Readonly<AutoMovieVector3Tuple>,
+    ) => number = (
       a: Readonly<AutoMovieVector3Tuple>,
       b: Readonly<AutoMovieVector3Tuple>,
     ): number =>

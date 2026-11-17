@@ -1,7 +1,30 @@
-import type { IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidRegion, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-import { Quaternion, Vector3, physicalShapeSegmentDistance, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-
-import { AutoMovieMotionHumanChannel, HumanChain, HumanColliders, HumanGrip, HumanPerformance, HumanVerdicts, poseBones, resolveHumanPosture } from "@automovie/motions";
+import {
+  Quaternion,
+  Vector3,
+  physicalShapeSegmentDistance,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanChannel,
+  HumanChain,
+  HumanColliders,
+  HumanGrip,
+  HumanPerformance,
+  HumanVerdicts,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -196,7 +219,9 @@ export function test_human_motion_core_digits(): void {
     joints: { rightIndexProximal: [50, 0, 0], rightThumbProximal: [50, 0, 0] },
     digits: { rightThumb: { point: { x: 0, y: 1, z: 0 }, surface: "pad" } },
   };
-  const merged: IAutoMovieMotionHumanPosture = C.merge(under, written, ["rightThumb"]);
+  const merged: IAutoMovieMotionHumanPosture = C.merge(under, written, [
+    "rightThumb",
+  ]);
   if (
     !(
       merged.joints.rightThumbProximal?.[0] === 50 &&
@@ -215,29 +240,38 @@ export function test_human_motion_core_digits(): void {
   // give, for each place a hand rests against the thigh or hip.
   for (const place of ["pocket", "hip", "side"] as const)
     try {
-      const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-        seed: "digits",
-        performers: [
-          {
-            subject: "a",
-            body,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-        ],
-        composition: HumanChain.subject("a").rest({ right: place, seconds: 1 })
-          .node,
-      });
+      const performance: IAutoMovieMotionHumanPerformance =
+        new HumanPerformance({
+          seed: "digits",
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
+          composition: HumanChain.subject("a").rest({
+            right: place,
+            seconds: 1,
+          }).node,
+        });
       const bones = performance.bones("a", performance.duration - 0.05);
-      const others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
-        body,
-        bones,
-      ).filter(
-        (p: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
-          !/^right(Hand|Thumb|Index|Middle|Ring|Little|LowerArm)/.test(p.bone),
-      );
-      for (const digit of ["Thumb", "Index", "Middle", "Ring", "Little"] as const) {
+      const others: readonly IAutoMovieMotionHumanColliders.IPlaced[] =
+        HumanColliders.placed(body, bones).filter(
+          (p: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+            !/^right(Hand|Thumb|Index|Middle|Ring|Little|LowerArm)/.test(
+              p.bone,
+            ),
+        );
+      for (const digit of [
+        "Thumb",
+        "Index",
+        "Middle",
+        "Ring",
+        "Little",
+      ] as const) {
         const chain = HumanGrip.chain(body, "right", digit);
         const points: IAutoMovieVector3[] = chain.bones.map(
           (b) => bones.get(b)!.worldPosition,

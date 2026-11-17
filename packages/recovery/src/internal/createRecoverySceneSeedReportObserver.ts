@@ -1,9 +1,7 @@
-import type { IAutoMovieRecoveryMapJointFit, IAutoMovieRecoverySceneSeedReportObserverCreationOperation } from "@automovie/interface";
-
-
-
-
-
+import type {
+  IAutoMovieRecoveryMapJointFit,
+  IAutoMovieRecoverySceneSeedReportObserverCreationOperation,
+} from "@automovie/interface";
 
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 

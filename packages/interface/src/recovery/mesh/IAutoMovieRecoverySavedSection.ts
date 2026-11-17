@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoverySections, IAutoMovieRecoverySourceLineage } from "../../index";
+import type {
+  IAutoMovieRecoverySections,
+  IAutoMovieRecoverySourceLineage,
+} from "../../index";
 
 /** Caller-bound publication identities for one previously observed physical cut.
  * Coefficients are deliberately absent. The caller verifies the source bytes,
@@ -14,31 +17,24 @@ import type { IAutoMovieRecoverySections, IAutoMovieRecoverySourceLineage } from
  * @evidence contracts/development/common.md#meaningful-documentation Documents millimetre coordinates, immutable original source ordinals, caller hash/registration/selection responsibilities, complete contour coverage and the limits of raw-cut verification.
  */
 export interface IAutoMovieRecoverySavedSection {
- 
- /** Signed millimetres along the saved frame's normalized n from its origin. */
+  /** Signed millimetres along the saved frame's normalized n from its origin. */
   coordinateMm: number;
 
- 
- /** Opaque original-byte identity already verified by the caller, typically SHA-256. */
+  /** Opaque original-byte identity already verified by the caller, typically SHA-256. */
   sourceIdentity: string;
 
- 
- /** Caller-verified selection and registration identity, including original triangle ordering. */
+  /** Caller-verified selection and registration identity, including original triangle ordering. */
   sourceSelectionIdentity: string;
 
- 
- /** Caller-verified byte identity of the saved artifact containing these publications. */
+  /** Caller-verified byte identity of the saved artifact containing these publications. */
   observationIdentity: string;
 
- 
- /** Original zero-origin normalized physical frame, compared componentwise without snapping. */
+  /** Original zero-origin normalized physical frame, compared componentwise without snapping. */
   frame: IAutoMovieRecoverySections["frame"];
 
- 
- /** Original exact-position alias policy; changing it changes source contour incidence. */
+  /** Original exact-position alias policy; changing it changes source contour incidence. */
   exactCoordinateAliases: boolean;
 
- 
- /** Every original raw contour, including failed and degenerate publications. Ordinals and broad face sets are required; optional saved exact sets are also compared with the recut. */
+  /** Every original raw contour, including failed and degenerate publications. Ordinals and broad face sets are required; optional saved exact sets are also compared with the recut. */
   sourceLineage: readonly IAutoMovieRecoverySourceLineage[];
 }

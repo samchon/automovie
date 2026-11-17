@@ -44,14 +44,20 @@ export function test_recovery_conics_ghosh(): void {
       evaluate(t: number): IAutoMovieConicApproximation.Point {
         return [rx * Math.cos(t), direction * ry * Math.sin(t)];
       },
-      derivative(t: number, order: 1 | 2 | 3 | 4 | 5): IAutoMovieConicApproximation.Point {
+      derivative(
+        t: number,
+        order: 1 | 2 | 3 | 4 | 5,
+      ): IAutoMovieConicApproximation.Point {
         return [
           rx * Math.cos(t + (order * Math.PI) / 2),
           direction * ry * Math.sin(t + (order * Math.PI) / 2),
         ];
       },
     };
-    const result: IAutoMovieConicApproximation.IResult = approximate(ellipse, options);
+    const result: IAutoMovieConicApproximation.IResult = approximate(
+      ellipse,
+      options,
+    );
     TestValidator.equals("ellipse admitted", result.status, "complete");
     TestValidator.equals("ellipse one bitangent conic", result.arcs.length, 1);
     const arc: IAutoMovieConicApproximation.IArc = result.arcs[0]!;
@@ -81,12 +87,18 @@ export function test_recovery_conics_ghosh(): void {
     evaluate(t: number): IAutoMovieConicApproximation.Point {
       return [t, Math.exp(t)];
     },
-    derivative(t: number, order: 1 | 2 | 3 | 4 | 5): IAutoMovieConicApproximation.Point {
+    derivative(
+      t: number,
+      order: 1 | 2 | 3 | 4 | 5,
+    ): IAutoMovieConicApproximation.Point {
       return [order === 1 ? 1 : 0, Math.exp(t)];
     },
   };
   const before: string = JSON.stringify(exponential.breaks);
-  const fit: IAutoMovieConicApproximation.IResult = approximate(exponential, options);
+  const fit: IAutoMovieConicApproximation.IResult = approximate(
+    exponential,
+    options,
+  );
   TestValidator.equals("affine spiral admitted", fit.status, "complete");
   TestValidator.equals(
     "deterministic coefficients",
@@ -101,7 +113,8 @@ export function test_recovery_conics_ghosh(): void {
   TestValidator.predicate(
     "preserved hard source break",
     fit.arcs.every(
-      (arc: IAutoMovieConicApproximation.IArc): boolean => !(arc.domain[0] < 0.3 && arc.domain[1] > 0.3),
+      (arc: IAutoMovieConicApproximation.IArc): boolean =>
+        !(arc.domain[0] < 0.3 && arc.domain[1] > 0.3),
     ),
   );
   for (const arc of fit.arcs) {
@@ -134,7 +147,10 @@ export function test_recovery_conics_ghosh(): void {
     evaluate(t: number): IAutoMovieConicApproximation.Point {
       return [t, t ** 3];
     },
-    derivative(t: number, order: 1 | 2 | 3 | 4 | 5): IAutoMovieConicApproximation.Point {
+    derivative(
+      t: number,
+      order: 1 | 2 | 3 | 4 | 5,
+    ): IAutoMovieConicApproximation.Point {
       return order === 1
         ? [1, 3 * t * t]
         : order === 2
@@ -176,11 +192,17 @@ export function test_recovery_conics_ghosh(): void {
     evaluate(t: number): IAutoMovieConicApproximation.Point {
       return [3 * t, 4 * t];
     },
-    derivative(_t: number, order: 1 | 2 | 3 | 4 | 5): IAutoMovieConicApproximation.Point {
+    derivative(
+      _t: number,
+      order: 1 | 2 | 3 | 4 | 5,
+    ): IAutoMovieConicApproximation.Point {
       return order === 1 ? [3, 4] : [0, 0];
     },
   };
-  const line: IAutoMovieConicApproximation.IResult = approximate(straight, options);
+  const line: IAutoMovieConicApproximation.IResult = approximate(
+    straight,
+    options,
+  );
   TestValidator.equals("line extension admitted", line.status, "complete");
   TestValidator.predicate(
     "line extension is explicit",
@@ -194,11 +216,17 @@ export function test_recovery_conics_ghosh(): void {
       evaluate(t: number): IAutoMovieConicApproximation.Point {
         return [scale * (30 + 3 * t), scale * (-40 + 4 * t)];
       },
-      derivative(_t: number, order: 1 | 2 | 3 | 4 | 5): IAutoMovieConicApproximation.Point {
+      derivative(
+        _t: number,
+        order: 1 | 2 | 3 | 4 | 5,
+      ): IAutoMovieConicApproximation.Point {
         return order === 1 ? [3 * scale, 4 * scale] : [0, 0];
       },
     };
-    const transformedResult: IAutoMovieConicApproximation.IResult = approximate(transformed, options);
+    const transformedResult: IAutoMovieConicApproximation.IResult = approximate(
+      transformed,
+      options,
+    );
     TestValidator.equals(
       "scaled and translated line admitted",
       transformedResult.status,
@@ -232,7 +260,10 @@ export function test_recovery_conics_ghosh(): void {
           : [0, 0];
     },
   };
-  const cornerResult: IAutoMovieConicApproximation.IResult = approximate(corner, options);
+  const cornerResult: IAutoMovieConicApproximation.IResult = approximate(
+    corner,
+    options,
+  );
   TestValidator.equals(
     "both incident parabola charts admitted",
     cornerResult.status,
@@ -267,7 +298,10 @@ export function test_recovery_conics_ghosh(): void {
       },
     },
   ]) {
-    const failure: IAutoMovieConicApproximation.IResult = approximate(corrupt, options);
+    const failure: IAutoMovieConicApproximation.IResult = approximate(
+      corrupt,
+      options,
+    );
     TestValidator.equals("corrupt callback refused", failure.status, "refused");
     TestValidator.equals(
       "corrupt callback leaves no coefficients",
@@ -289,13 +323,19 @@ export function test_recovery_conics_ghosh(): void {
       scratch[1] = Math.exp(t);
       return scratch;
     },
-    derivative(t: number, order: 1 | 2 | 3 | 4 | 5): IAutoMovieConicApproximation.Point {
+    derivative(
+      t: number,
+      order: 1 | 2 | 3 | 4 | 5,
+    ): IAutoMovieConicApproximation.Point {
       scratch[0] = order === 1 ? 1 : 0;
       scratch[1] = Math.exp(t);
       return scratch;
     },
   };
-  const copied: IAutoMovieConicApproximation.IResult = approximate(reusable, options);
+  const copied: IAutoMovieConicApproximation.IResult = approximate(
+    reusable,
+    options,
+  );
   TestValidator.equals(
     "scratch source matches ordinary source",
     JSON.stringify(copied.arcs),
@@ -320,7 +360,10 @@ export function test_recovery_conics_ghosh(): void {
       const x: number = t / (0.01 + 0.99 * t);
       return [x, x * x];
     },
-    derivative(t: number, order: 1 | 2 | 3 | 4 | 5): IAutoMovieConicApproximation.Point {
+    derivative(
+      t: number,
+      order: 1 | 2 | 3 | 4 | 5,
+    ): IAutoMovieConicApproximation.Point {
       const d: number = 0.01 + 0.99 * t;
       const x: number = t / d;
       const factorial: readonly number[] = [1, 1, 2, 6, 24, 120];
@@ -344,10 +387,13 @@ export function test_recovery_conics_ghosh(): void {
       return [v[order]!, y];
     },
   };
-  const clusteredResult: IAutoMovieConicApproximation.IResult = approximate(clustered, {
-    ...options,
-    maximumArcs: 8,
-  });
+  const clusteredResult: IAutoMovieConicApproximation.IResult = approximate(
+    clustered,
+    {
+      ...options,
+      maximumArcs: 8,
+    },
+  );
   TestValidator.equals(
     "clustered exact conic admitted",
     clusteredResult.status,

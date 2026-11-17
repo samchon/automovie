@@ -1,6 +1,15 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HUMAN_LEXICON, HumanChain, HumanPerformance, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanPerformance,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -91,7 +100,10 @@ export function test_human_motion_travel_follow_moving(): void {
       complaints.push(
         `${label}: when both have stopped the follower's chest is ${gap.toFixed(3)} m from the leader's back, 1.2 to 2.1 m expected`,
       );
-    const along = (reader: IAutoMovieMotionHumanSignature.IReader, t: number): number =>
+    const along = (
+      reader: IAutoMovieMotionHumanSignature.IReader,
+      t: number,
+    ): number =>
       (HumanSignature.joint(reader, t, "leftUpperLeg").z +
         HumanSignature.joint(reader, t, "rightUpperLeg").z) /
       2;

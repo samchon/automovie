@@ -1,6 +1,8 @@
-import type { AutoMovieBuiltinTexturePurpose, IAutoMovieRequiredMaterialTexturePurposes, IAutoMovieMaterialOverlay } from "@automovie/interface";
-
-
+import type {
+  AutoMovieBuiltinTexturePurpose,
+  IAutoMovieMaterialOverlay,
+  IAutoMovieRequiredMaterialTexturePurposes,
+} from "@automovie/interface";
 
 /**
  * Resolve implicit lookup consumers from the material/light declarations used.
@@ -17,7 +19,9 @@ import type { AutoMovieBuiltinTexturePurpose, IAutoMovieRequiredMaterialTextureP
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One role set deduplicates multiple consumers within the scope; changed materials/lights require fresh derivation and asset identity alone is not reused as proof.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only role strings escape; materials are borrowed and no lookup texture, native handle or asynchronous work is retained.
  */
-export function requiredAutoMovieMaterialTexturePurposes(props: IAutoMovieRequiredMaterialTexturePurposes.IProps): AutoMovieBuiltinTexturePurpose[] {
+export function requiredAutoMovieMaterialTexturePurposes(
+  props: IAutoMovieRequiredMaterialTexturePurposes.IProps,
+): AutoMovieBuiltinTexturePurpose[] {
   const purposes: Set<AutoMovieBuiltinTexturePurpose> =
     new Set<AutoMovieBuiltinTexturePurpose>();
   for (const material of props.materials) {

@@ -1,6 +1,17 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStep, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStep,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanBound } from "../law/HumanBound";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "./StrikingStance";
@@ -163,7 +174,10 @@ export namespace step {
       contacts,
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const placed = {} as Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+        const placed = {} as Record<
+          "left" | "right",
+          IAutoMovieMotionHumanFoot.IPlacement
+        >;
         const down = {} as Record<"left" | "right", boolean>;
         for (const side of ["left", "right"] as const) {
           const g = progress(side, t);

@@ -1,4 +1,9 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicsCache } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicsCache,
+} from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
@@ -27,7 +32,10 @@ export function samplePhysicalTracking(
   const before: number = Math.floor(sample);
   const after: number = Math.ceil(sample);
   const completed: number = before / input.rate;
-  const forecasts: Map<string, IAutoMoviePhysicalSimulationInput.IDiagnostic["saturated"]> = new Map(
+  const forecasts: Map<
+    string,
+    IAutoMoviePhysicalSimulationInput.IDiagnostic["saturated"]
+  > = new Map(
     diagnostics
       .filter(
         (entry: (typeof diagnostics)[number]): boolean =>
@@ -36,29 +44,30 @@ export function samplePhysicalTracking(
       .map(
         (
           entry: IAutoMoviePhysicalSimulationInput.IDiagnostic,
-        ): [string, IAutoMoviePhysicalSimulationInput.IDiagnostic["saturated"]] => [
-          JSON.stringify([entry.body, entry.joint]),
-          entry.saturated,
-        ],
+        ): [
+          string,
+          IAutoMoviePhysicalSimulationInput.IDiagnostic["saturated"],
+        ] => [JSON.stringify([entry.body, entry.joint]), entry.saturated],
       ),
   );
   const result: IAutoMoviePhysicalSimulationInput.IDiagnostic[] = [];
   for (const body of input.bodies) {
-    const goals: Record<string, IAutoMoviePhysicalProfile.ITransform> = Object.fromEntries(
-      body.profile.segments.map(
-        (
-          segment: (typeof body.profile.segments)[number],
-        ): [string, IAutoMoviePhysicalProfile.ITransform] => [
-          segment.bone,
-          samplePhysicalTarget(
-            body.targets[before]!.segments[segment.bone]!,
-            body.targets[after]!.segments[segment.bone]!,
-            sample - before,
-            input.rate,
-          ).pose,
-        ],
-      ),
-    );
+    const goals: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+      Object.fromEntries(
+        body.profile.segments.map(
+          (
+            segment: (typeof body.profile.segments)[number],
+          ): [string, IAutoMoviePhysicalProfile.ITransform] => [
+            segment.bone,
+            samplePhysicalTarget(
+              body.targets[before]!.segments[segment.bone]!,
+              body.targets[after]!.segments[segment.bone]!,
+              sample - before,
+              input.rate,
+            ).pose,
+          ],
+        ),
+      );
     for (const joint of body.profile.joints) {
       const relative: (
         poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
@@ -77,10 +86,11 @@ export function samplePhysicalTracking(
             joint.childFrame.rotation,
           ),
         );
-      const delta: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-        relative(goals),
-        Quaternion.inverse(relative(frame.bodies[body.id]!)),
-      );
+      const delta: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+        Quaternion.multiply(
+          relative(goals),
+          Quaternion.inverse(relative(frame.bodies[body.id]!)),
+        );
       const error: number =
         2 *
         Math.atan2(Math.hypot(delta.x, delta.y, delta.z), Math.abs(delta.w));

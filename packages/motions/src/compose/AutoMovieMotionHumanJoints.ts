@@ -1,4 +1,3 @@
-import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanChannel,
@@ -7,6 +6,8 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 
 /**
  * Joint primitives: clinical angles written on the joints of a channel

@@ -1,6 +1,10 @@
-import { type IAutoMovieRenderSubject, IAutoMovieSceneNode, IAutoMovieSemanticMask, IAutoMovieSemanticMaskEntry } from "@automovie/interface";
 import { deriveAutoMovieSemanticMask } from "@automovie/engine";
-
+import {
+  type IAutoMovieRenderSubject,
+  IAutoMovieSceneNode,
+  IAutoMovieSemanticMask,
+  IAutoMovieSemanticMaskEntry,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createSemanticMaskTestInputs } from "../internal/createSemanticMaskTestInputs";

@@ -1,5 +1,3 @@
-
-
 /**
  * One label of an inspection picture: what it names, its text and the pixel it is anchored at.
  *

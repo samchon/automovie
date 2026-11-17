@@ -1,6 +1,7 @@
-import type { IAutoMovieRenderTextureSource, IAutoMovieSceneEnvironment } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieRenderTextureSource,
+  IAutoMovieSceneEnvironment,
+} from "@automovie/interface";
 import {
   AutoMovieTextureCache,
   applyMaterialOverlays,

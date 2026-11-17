@@ -1,5 +1,5 @@
-import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /**
  * One inclusive run of sampled ground-plus-tolerance contacts and its fixed model-frame solve target. New targets use sampled ground Y; prior-beat opening pins may supply another position. Reach and ROM constraints can leave residual, so the record does not certify exact held contact. Start/end are clip-local seconds, and position is shared with the per-frame targets.

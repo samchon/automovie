@@ -1,5 +1,7 @@
-import type { IAutoMovieMotionHumanProp, IAutoMovieBody } from "@automovie/interface";
-
+import type {
+  IAutoMovieBody,
+  IAutoMovieMotionHumanProp,
+} from "@automovie/interface";
 import { HumanPropOutcome, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,7 +31,10 @@ export function test_human_prop_outcome_restitution(): void {
   const findings: string[] = [];
 
   /** One analytic sphere supplies a radius without constructing a Human. */
-  const prop: (body?: IAutoMovieBody, shaped?: boolean) => IAutoMovieMotionHumanProp = (
+  const prop: (
+    body?: IAutoMovieBody,
+    shaped?: boolean,
+  ) => IAutoMovieMotionHumanProp = (
     body?: IAutoMovieBody,
     shaped: boolean = true,
   ): IAutoMovieMotionHumanProp => ({

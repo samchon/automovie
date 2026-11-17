@@ -1,6 +1,10 @@
-import type { IAutoMovieConstructionOutlineParameter, IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieConstructionOutlineRange } from "@automovie/interface";
 import { AutoMovieViewOutline } from "@automovie/engine";
-
+import type {
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieConstructionOutlineRange,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * Source admission accepts a floating-point excess within the shared relative construction tolerance (5e-3 of the outline's own extent) and still refuses a real excess.
@@ -66,10 +70,8 @@ export function test_construction_source_tolerance(): void {
     ),
   );
   if (pole !== undefined) {
-    const tip: IAutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
-      pole,
-      2,
-    );
+    const tip: IAutoMovieViewOutline.IReading | string =
+      AutoMovieViewOutline.at(pole, 2);
     if (typeof tip === "string" || tip.value !== 0)
       failures.push(
         `pole knot does not read exactly 0: ${typeof tip === "string" ? tip : tip.value}`,
@@ -89,10 +91,8 @@ export function test_construction_source_tolerance(): void {
     ),
   );
   if (angle !== undefined) {
-    const end: IAutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
-      angle,
-      4,
-    );
+    const end: IAutoMovieViewOutline.IReading | string =
+      AutoMovieViewOutline.at(angle, 4);
     const near: IAutoMovieViewOutline.IReading | string =
       AutoMovieViewOutline.at(angle, 4.004);
     if (
@@ -104,10 +104,8 @@ export function test_construction_source_tolerance(): void {
       failures.push(
         `station 4.004 does not read as the endpoint: ${typeof near === "string" ? near : near.value}`,
       );
-    const far: IAutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
-      angle,
-      4.1,
-    );
+    const far: IAutoMovieViewOutline.IReading | string =
+      AutoMovieViewOutline.at(angle, 4.1);
     if (
       typeof far !== "string" ||
       !far.includes("not finite inside the source parameter domain")

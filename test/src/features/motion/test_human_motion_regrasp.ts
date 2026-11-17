@@ -1,7 +1,19 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Transform, Vector3 } from "@automovie/engine";
-
-import { AutoMovieMotionHumanAudit, AutoMovieMotionHumanAuditContinuity as Continuity, HumanChain, HumanPerformance, HumanRegrasp } from "@automovie/motions";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAudit,
+  AutoMovieMotionHumanAuditContinuity as Continuity,
+  HumanChain,
+  HumanPerformance,
+  HumanRegrasp,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHandleShapes } from "../internal/motionHandleShapes";

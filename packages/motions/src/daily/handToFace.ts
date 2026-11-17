@@ -1,6 +1,28 @@
-import type { AutoMovieHumanoidRegion, AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmPlanned, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanHandToFace, IAutoMovieMotionHumanHandToFaceArm, IAutoMovieMotionHumanHandToFaceRows, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanTouch, IAutoMovieMotionHumanTouchEffector, IAutoMovieMotionManner, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidRegion,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHandToFace,
+  IAutoMovieMotionHumanHandToFaceArm,
+  IAutoMovieMotionHumanHandToFaceRows,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionManner,
+  IAutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
@@ -86,7 +108,12 @@ export namespace handToFace {
   export const overlay: boolean = true;
 
   /** The tasks' rows. */
-  export const ROWS: Readonly<Record<IAutoMovieMotionHumanHandToFaceRows.Task, IAutoMovieMotionHumanHandToFaceRows.IRow>> = handToFaceRows.ROWS;
+  export const ROWS: Readonly<
+    Record<
+      IAutoMovieMotionHumanHandToFaceRows.Task,
+      IAutoMovieMotionHumanHandToFaceRows.IRow
+    >
+  > = handToFaceRows.ROWS;
 
   /**
    * The region a row names for a hand: the right hand's region, mirrored for
@@ -135,7 +162,8 @@ export namespace handToFace {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandToFace.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanHandToFace.IParams = context.params;
-    const row: IAutoMovieMotionHumanHandToFaceRows.IRow = typeof p.task === "string" ? ROWS[p.task] : p.task;
+    const row: IAutoMovieMotionHumanHandToFaceRows.IRow =
+      typeof p.task === "string" ? ROWS[p.task] : p.task;
     const body = context.body;
     const count: number = p.count ?? row.count;
     const hold: number =
@@ -163,7 +191,10 @@ export namespace handToFace {
       p.prop === undefined || side !== first
         ? AutoMovieMotionHumanTouchForm.curled(row.effector, row.kind)
         : (held ??= grasped(p.prop));
-    const hands: [IAutoMovieMotionHumanHand.Side, AutoMovieHumanoidRegion | null][] = [
+    const hands: [
+      IAutoMovieMotionHumanHand.Side,
+      AutoMovieHumanoidRegion | null,
+    ][] = [
       [first, row.region === null ? null : mirrored(row.region, first)],
       // A second hand on the held prop takes the place of the row's other.
       ...(row.other === undefined || p.other !== undefined
@@ -176,7 +207,10 @@ export namespace handToFace {
           ]),
     ];
     const region =
-      (side: IAutoMovieMotionHumanHand.Side, name: AutoMovieHumanoidRegion | null) =>
+      (
+        side: IAutoMovieMotionHumanHand.Side,
+        name: AutoMovieHumanoidRegion | null,
+      ) =>
       (posture: IAutoMovieMotionHumanPosture, seconds: number) => {
         if (name === null) return handToFaceSheet.of(context, posture, side);
         const place: Pick<
@@ -222,13 +256,16 @@ export namespace handToFace {
     // the turn added to the entry's own head and neck as the pulse adds it.
     // A drinker's head turns after the vessel arrives, so the vessel must
     // also be held there (`turned`).
-    const turned: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanJoints.add({
-      channels: AutoMovieMotionHumanJoints.channels(turn),
-      from: 0,
-      to: 0,
-      delta: (): IAutoMovieMotionHumanJoints.Angles => turn,
-    }).write(entry, 0);
-    const atFace: IAutoMovieMotionHumanPosture = row.upright === true ? entry : turned;
+    const turned: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanJoints.add(
+      {
+        channels: AutoMovieMotionHumanJoints.channels(turn),
+        from: 0,
+        to: 0,
+        delta: (): IAutoMovieMotionHumanJoints.Angles => turn,
+      },
+    ).write(entry, 0);
+    const atFace: IAutoMovieMotionHumanPosture =
+      row.upright === true ? entry : turned;
 
     // The held prop's effector, on the side of the rim held most upright; a
     // drink leans it at the lips (`AutoMovieMotionHumanTouchDrink`).
@@ -305,7 +342,8 @@ export namespace handToFace {
     const together: IAutoMovieMotionHumanArmPlanned.ITogether | undefined =
       hands.length > 1 ? AutoMovieMotionHumanArmPlanned.together() : undefined;
     for (const [side, name] of hands) {
-      const own: IAutoMovieMotionHumanGrasp.IKey | null = side === first ? kept : null;
+      const own: IAutoMovieMotionHumanGrasp.IKey | null =
+        side === first ? kept : null;
       // How the hand lies at the face, its elbow's hint and its reference.
       const arm: IAutoMovieMotionHumanHandToFaceArm.IArm = handToFaceArm.of({
         body,
@@ -370,12 +408,13 @@ export namespace handToFace {
           }),
         );
     }
-    const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.under(context, clock.duration),
-      clock,
-      primitives,
-      contact: row.at,
-    });
+    const plan: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.under(context, clock.duration),
+        clock,
+        primitives,
+        contact: row.at,
+      });
 
     // With a prop, the hand grips it through the whole task and keeps it after.
     return p.prop === undefined

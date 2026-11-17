@@ -1,18 +1,16 @@
-import type { IAutoMovieViewPart, IAutoMovieHumanHeadDome, IAutoMovieHumanHeadEyeOpening, IAutoMovieHumanHeadFeatures, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadLipContact, IAutoMovieHumanHeadPrior } from "@automovie/interface";
-
-
-
-
-
-
-
 import { AutoMovieViewSection } from "@automovie/engine";
-
+import type {
+  IAutoMovieHumanHeadDome,
+  IAutoMovieHumanHeadEyeOpening,
+  IAutoMovieHumanHeadFeatures,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadLipContact,
+  IAutoMovieHumanHeadPrior,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
-
-
 import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
 import { AutoMovieHumanHeadLipPart } from "./AutoMovieHumanHeadLipPart";
 import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
@@ -45,8 +43,6 @@ import { AutoMovieHumanHeadNosePart } from "./AutoMovieHumanHeadNosePart";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned views and metadata. This namespace holds only scalar constants and functions, with no retained figure, cache or handle.
  */
 export namespace AutoMovieHumanHeadFeatures {
-  
-
   /**
    * Existing nominal inward embedding allowance, calibration mm.
    *
@@ -83,8 +79,6 @@ export namespace AutoMovieHumanHeadFeatures {
     return prepare(plan, mass, attempts).read();
   }
 
-  
-
   /** One factory's actual return or original thrown value, owned by this preparation. */
   type IAttempt =
     | { kind: "returned"; parts: IAutoMovieHumanHeadFeatures.IFeature[] }
@@ -112,33 +106,34 @@ export namespace AutoMovieHumanHeadFeatures {
       };
 
     /** Only this requested source reads the original mass's nasal fall. */
-    const nose: () => IAutoMovieHumanHeadFeatures.IFeature[] = (): IAutoMovieHumanHeadFeatures.IFeature[] => {
-      // The nose's body from its views (`AutoMovieHumanHeadNosePart`), its axis
-      // the inset and twice the face's sagitta under its half width behind the
-      // profile, so its sides lie inside the face where the face turns back.
-      const middle: number = (plan.nasion + plan.tip) / 2;
-      const fall: number =
-        AutoMovieHumanHeadMassPart.frontAt(mass, middle, 0) -
-        AutoMovieHumanHeadMassPart.frontAt(mass, middle, plan.noseWidth);
-      const depth: number = INSET + 2 * fall;
-      return [
-        {
-          part: AutoMovieHumanHeadNosePart.of(plan, depth),
-          join: "merge",
-          seed: [
-            AutoMovieHumanHeadMedianProfile.profileAt(plan, middle),
-            middle,
-            0,
-          ],
-          contact: INSET,
-          size: [plan.noseLead, plan.noseWidth],
-          parent: "head.mass",
-          material: mass,
-          elongated: true,
-          search: { phase: 0, from: 0.5, to: 0 },
-        },
-      ];
-    };
+    const nose: () => IAutoMovieHumanHeadFeatures.IFeature[] =
+      (): IAutoMovieHumanHeadFeatures.IFeature[] => {
+        // The nose's body from its views (`AutoMovieHumanHeadNosePart`), its axis
+        // the inset and twice the face's sagitta under its half width behind the
+        // profile, so its sides lie inside the face where the face turns back.
+        const middle: number = (plan.nasion + plan.tip) / 2;
+        const fall: number =
+          AutoMovieHumanHeadMassPart.frontAt(mass, middle, 0) -
+          AutoMovieHumanHeadMassPart.frontAt(mass, middle, plan.noseWidth);
+        const depth: number = INSET + 2 * fall;
+        return [
+          {
+            part: AutoMovieHumanHeadNosePart.of(plan, depth),
+            join: "merge",
+            seed: [
+              AutoMovieHumanHeadMedianProfile.profileAt(plan, middle),
+              middle,
+              0,
+            ],
+            contact: INSET,
+            size: [plan.noseLead, plan.noseWidth],
+            parent: "head.mass",
+            material: mass,
+            elongated: true,
+            search: { phase: 0, from: 0.5, to: 0 },
+          },
+        ];
+      };
 
     /** Each lip keeps its original source and shares only its contact preparation. */
     const lip: (upper: boolean) => IAutoMovieHumanHeadFeatures.IFeature[] = (
@@ -201,18 +196,29 @@ export namespace AutoMovieHumanHeadFeatures {
         attempts,
       );
     };
-    const builders: readonly (() => IAutoMovieHumanHeadFeatures.IFeature[])[] = [
-      nose,
-      (): IAutoMovieHumanHeadFeatures.IFeature[] => lip(true),
-      (): IAutoMovieHumanHeadFeatures.IFeature[] => lip(false),
-      (): IAutoMovieHumanHeadFeatures.IFeature[] => orbit("left", 1, plan.left),
-      (): IAutoMovieHumanHeadFeatures.IFeature[] => orbit("right", -1, plan.right),
-    ];
-    const factories: ReadonlyMap<string, () => IAutoMovieHumanHeadFeatures.IFeature[]> = new Map(
-      names().map((name: string, i: number): [string, () => IAutoMovieHumanHeadFeatures.IFeature[]] => [
-        name,
-        builders[i]!,
-      ]),
+    const builders: readonly (() => IAutoMovieHumanHeadFeatures.IFeature[])[] =
+      [
+        nose,
+        (): IAutoMovieHumanHeadFeatures.IFeature[] => lip(true),
+        (): IAutoMovieHumanHeadFeatures.IFeature[] => lip(false),
+        (): IAutoMovieHumanHeadFeatures.IFeature[] =>
+          orbit("left", 1, plan.left),
+        (): IAutoMovieHumanHeadFeatures.IFeature[] =>
+          orbit("right", -1, plan.right),
+      ];
+    const factories: ReadonlyMap<
+      string,
+      () => IAutoMovieHumanHeadFeatures.IFeature[]
+    > = new Map(
+      names().map(
+        (
+          name: string,
+          i: number,
+        ): [string, () => IAutoMovieHumanHeadFeatures.IFeature[]] => [
+          name,
+          builders[i]!,
+        ],
+      ),
     );
     const retained: Map<string, IAttempt> = new Map();
     return {
@@ -221,7 +227,10 @@ export namespace AutoMovieHumanHeadFeatures {
         const wanted: Set<string> | null =
           names === undefined ? null : new Set(names);
         return [...factories].flatMap(
-          ([name, make]: [string, () => IAutoMovieHumanHeadFeatures.IFeature[]]): IAutoMovieHumanHeadFeatures.IFeature[] => {
+          ([name, make]: [
+            string,
+            () => IAutoMovieHumanHeadFeatures.IFeature[],
+          ]): IAutoMovieHumanHeadFeatures.IFeature[] => {
             if (wanted !== null && !wanted.has(name)) return [];
             const previous: IAttempt | undefined = retained.get(name);
             if (previous !== undefined) {

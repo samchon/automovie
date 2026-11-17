@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanHand, IAutoMovieMotionHumanManipulateFacing, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanManipulateFacing,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanHand } from "../posture/HumanHand";
 
@@ -30,9 +35,11 @@ export function manipulateFacing(
   side: IAutoMovieMotionHumanHand.Side,
 ): IAutoMovieQuaternion {
   const mine: IAutoMovieMotionHumanManipulateFacing.ISite[] = presses.filter(
-    (p: IAutoMovieMotionHumanManipulateFacing.ISite): boolean => p.side === side,
+    (p: IAutoMovieMotionHumanManipulateFacing.ISite): boolean =>
+      p.side === side,
   );
-  const first: IAutoMovieMotionHumanManipulateFacing.ISite = mine.length > 0 ? mine[0]! : presses[0]!;
+  const first: IAutoMovieMotionHumanManipulateFacing.ISite =
+    mine.length > 0 ? mine[0]! : presses[0]!;
   const toward: IAutoMovieVector3 = Vector3.subtract(first.site, hold.root);
   const along: IAutoMovieVector3 = Vector3.subtract(
     toward,

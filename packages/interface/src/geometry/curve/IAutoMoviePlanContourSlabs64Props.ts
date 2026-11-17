@@ -1,6 +1,6 @@
 import type { IAutoMovieContourLoft64 } from "./IAutoMovieContourLoft64";
-import type { IAutoMoviePreparedContourEvent64 } from "./IAutoMoviePreparedContourEvent64";
 import type { IAutoMoviePlanContourSlabs64Ring } from "./IAutoMoviePlanContourSlabs64Ring";
+import type { IAutoMoviePreparedContourEvent64 } from "./IAutoMoviePreparedContourEvent64";
 
 /**
  * Borrowed saved-section data for contour interval planning. The caller supplies

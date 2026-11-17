@@ -1,7 +1,20 @@
-import type { IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose } from "@automovie/interface";
-
-
-import { AutoMovieMotionHumanAudit, AutoMovieMotionHumanAuditTangle, HumanArmClearance, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAudit,
+  AutoMovieMotionHumanAuditTangle,
+  HumanArmClearance,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -60,7 +73,9 @@ export function test_human_motion_audit_tangle_reference(): void {
     const arm = (
       pose: IAutoMoviePose,
       side: "left" | "right",
-      change: (now: IAutoMovieMotionHumanArmClearance.IArm) => IAutoMovieMotionHumanArmClearance.IArm,
+      change: (
+        now: IAutoMovieMotionHumanArmClearance.IArm,
+      ) => IAutoMovieMotionHumanArmClearance.IArm,
     ): IAutoMoviePose =>
       HumanArmClearance.posed(
         pose,
@@ -108,7 +123,9 @@ export function test_human_motion_audit_tangle_reference(): void {
         { x: 0, y: 0, z: 0 },
         0,
       );
-      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...standing.joints };
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {
+        ...standing.joints,
+      };
       for (const side of ["left", "right"] as const) {
         const now: readonly [number, number, number] = angles(
           stance,

@@ -51,25 +51,31 @@ export function test_physics_projectile_roll_admission(): void {
             },
           );
         } catch (error) {
-          refused = error instanceof RangeError && error.message.includes(field);
+          refused =
+            error instanceof RangeError && error.message.includes(field);
         }
         if (!refused)
-          failures.push(`${field} ${value} under gravity ${gravity} was admitted`);
+          failures.push(
+            `${field} ${value} under gravity ${gravity} was admitted`,
+          );
       }
 
   for (const gravity of [-8, 0, 8])
     for (const radius of [undefined, 0, 0.25]) {
       try {
-        const continued: IAutoMovieProjectileContinue.Segment = projectileContinue(
-          { ...flight, gravity: { x: 0, y: gravity, z: 0 } },
-          hit,
-          {
-            kind: "bounce",
-            restitution: 1,
-            friction: 0,
-            ...(radius === undefined ? {} : { roll: { radius, resistance: 2 } }),
-          },
-        );
+        const continued: IAutoMovieProjectileContinue.Segment =
+          projectileContinue(
+            { ...flight, gravity: { x: 0, y: gravity, z: 0 } },
+            hit,
+            {
+              kind: "bounce",
+              restitution: 1,
+              friction: 0,
+              ...(radius === undefined
+                ? {}
+                : { roll: { radius, resistance: 2 } }),
+            },
+          );
         if (
           continued.kind !== "flight" ||
           !vclose(continued.projectile.velocity, { x: 3, y: 2, z: 0 }, 0)
@@ -82,16 +88,13 @@ export function test_physics_projectile_roll_admission(): void {
 
   for (const resistance of [0, 2]) {
     try {
-      const continued: IAutoMovieProjectileContinue.Segment = projectileContinue(
-        flight,
-        hit,
-        {
+      const continued: IAutoMovieProjectileContinue.Segment =
+        projectileContinue(flight, hit, {
           kind: "bounce",
           restitution: 1,
           friction: 0,
           roll: { radius: 0.5, resistance },
-        },
-      );
+        });
       if (
         continued.kind !== "roll" ||
         !vclose(continued.velocity, { x: 3, y: 0, z: 0 }, 0) ||

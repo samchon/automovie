@@ -1,12 +1,14 @@
-import type { AutoMovieVector3Tuple, AutoMovieRecoveryCurveData, AutoMovieRecoveryCurveFormat, IAutoMovieCurve64, IAutoMovieRecoveryHermiteCurve, IAutoMovieRecoveryHermiteSpan } from "@automovie/interface";
-
 import { AutoMovieCurveMath64 as M } from "@automovie/engine";
+import type {
+  AutoMovieRecoveryCurveData,
+  AutoMovieRecoveryCurveFormat,
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieRecoveryHermiteCurve,
+  IAutoMovieRecoveryHermiteSpan,
+} from "@automovie/interface";
 
 import { rebindRecoveryCurveAuthorities } from "../internal/rebindRecoveryCurveAuthorities";
-
-
-
-
 
 /**
  * Copy a plain saved recovery artifact into the selected cubic coefficient basis.
@@ -90,7 +92,8 @@ export function convertAutoMovieRecoveryCurves<
         value: visit(descriptor.value),
         enumerable: true,
         writable: true,
-        configurable: true });
+        configurable: true,
+      });
     }
     const record: { [key: string]: unknown } = result as {
       [key: string]: unknown;
@@ -123,8 +126,12 @@ export function convertAutoMovieRecoveryCurves<
           "Finite cubic spans and their original positive phase widths are required",
         );
       const curve: IAutoMovieCurve64.Cubic | IAutoMovieRecoveryHermiteCurve =
-        result as unknown as IAutoMovieCurve64.Cubic | IAutoMovieRecoveryHermiteCurve;
-      const vector: (point: unknown) => point is Readonly<AutoMovieVector3Tuple> = (
+        result as unknown as
+          | IAutoMovieCurve64.Cubic
+          | IAutoMovieRecoveryHermiteCurve;
+      const vector: (
+        point: unknown,
+      ) => point is Readonly<AutoMovieVector3Tuple> = (
         point: unknown,
       ): point is Readonly<AutoMovieVector3Tuple> =>
         Array.isArray(point) &&
@@ -133,70 +140,72 @@ export function convertAutoMovieRecoveryCurves<
           (component: unknown): boolean =>
             typeof component === "number" && Number.isFinite(component),
         );
-      const spans: (IAutoMovieCurve64.Span | IAutoMovieRecoveryHermiteSpan)[] = curve.spans.map(
-        (
-          span: IAutoMovieCurve64.Span | IAutoMovieRecoveryHermiteSpan,
-          index: number,
-        ): IAutoMovieCurve64.Span | IAutoMovieRecoveryHermiteSpan => {
-          const width: number = curve.phaseIntervals[index]!;
-          let endpoints: IAutoMovieRecoveryHermiteSpan;
-          if (curve.type === "cubicBezier") {
+      const spans: (IAutoMovieCurve64.Span | IAutoMovieRecoveryHermiteSpan)[] =
+        curve.spans.map(
+          (
+            span: IAutoMovieCurve64.Span | IAutoMovieRecoveryHermiteSpan,
+            index: number,
+          ): IAutoMovieCurve64.Span | IAutoMovieRecoveryHermiteSpan => {
+            const width: number = curve.phaseIntervals[index]!;
+            let endpoints: IAutoMovieRecoveryHermiteSpan;
+            if (curve.type === "cubicBezier") {
+              if (
+                !Array.isArray(span) ||
+                span.length !== 4 ||
+                !span.every(vector)
+              )
+                throw new Error(
+                  "Four finite three-dimensional Bernstein controls are required",
+                );
+              if (format === "bezier") return span as IAutoMovieCurve64.Span;
+              endpoints = M.toHermite(span as IAutoMovieCurve64.Span, width);
+            } else {
+              const saved: IAutoMovieRecoveryHermiteSpan =
+                span as IAutoMovieRecoveryHermiteSpan;
+              if (
+                !saved ||
+                ![
+                  saved.start,
+                  saved.end,
+                  saved.startDerivative,
+                  saved.endDerivative,
+                ].every(vector)
+              )
+                throw new Error(
+                  "Finite Hermite endpoints and derivatives are required",
+                );
+              endpoints = saved;
+            }
             if (
-              !Array.isArray(span) ||
-              span.length !== 4 ||
-              !span.every(vector)
-            )
-              throw new Error(
-                "Four finite three-dimensional Bernstein controls are required",
-              );
-            if (format === "bezier") return span as IAutoMovieCurve64.Span;
-            endpoints = M.toHermite(span as IAutoMovieCurve64.Span, width);
-          } else {
-            const saved: IAutoMovieRecoveryHermiteSpan =
-              span as IAutoMovieRecoveryHermiteSpan;
-            if (
-              !saved ||
               ![
-                saved.start,
-                saved.end,
-                saved.startDerivative,
-                saved.endDerivative,
+                endpoints.start,
+                endpoints.end,
+                endpoints.startDerivative,
+                endpoints.endDerivative,
               ].every(vector)
             )
               throw new Error(
-                "Finite Hermite endpoints and derivatives are required",
+                "Cubic basis conversion exceeds finite binary64 coefficients",
               );
-            endpoints = saved;
-          }
-          if (
-            ![
-              endpoints.start,
-              endpoints.end,
-              endpoints.startDerivative,
-              endpoints.endDerivative,
-            ].every(vector)
-          )
-            throw new Error(
-              "Cubic basis conversion exceeds finite binary64 coefficients",
+            if (format === "hermite") return endpoints;
+            const controls: IAutoMovieCurve64.Span = M.hermite(
+              M.clone(endpoints.start),
+              M.clone(endpoints.end),
+              M.clone(endpoints.startDerivative),
+              M.clone(endpoints.endDerivative),
+              width,
             );
-          if (format === "hermite") return endpoints;
-          const controls: IAutoMovieCurve64.Span = M.hermite(
-            M.clone(endpoints.start),
-            M.clone(endpoints.end),
-            M.clone(endpoints.startDerivative),
-            M.clone(endpoints.endDerivative),
-            width,
-          );
-          if (!controls.every(vector))
-            throw new Error(
-              "Cubic basis conversion exceeds finite binary64 coefficients",
-            );
-          return controls;
-        },
-      );
+            if (!controls.every(vector))
+              throw new Error(
+                "Cubic basis conversion exceeds finite binary64 coefficients",
+              );
+            return controls;
+          },
+        );
       Object.assign(result, {
         type: format === "hermite" ? "cubicHermite" : "cubicBezier",
-        spans });
+        spans,
+      });
     }
     active.delete(value);
     return result;

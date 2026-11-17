@@ -1,10 +1,10 @@
-import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieBody } from "../model/IAutoMovieBody";
-import type { IAutoMovieCapsuleProxy } from "./IAutoMovieCapsuleProxy";
-import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieMotion } from "../motion/IAutoMovieMotion";
 import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
+import type { IAutoMovieCapsuleProxy } from "./IAutoMovieCapsuleProxy";
 
 /**
  * Supply a rig, motion and capsule proxies for sampled inter-body collision inspection.

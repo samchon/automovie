@@ -1,5 +1,5 @@
-import type { IAutoMovieSolidMeshConstraints } from "@automovie/interface";
 import { AutoMovieSolidMeshConstraints } from "@automovie/engine";
+import type { IAutoMovieSolidMeshConstraints } from "@automovie/interface";
 
 /** One existing chart point and its authoritative mesh identity. */
 type Vertex = [number, readonly [number, number]];

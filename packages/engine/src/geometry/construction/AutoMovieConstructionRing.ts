@@ -1,4 +1,9 @@
-import type { IAutoMovieSolidSurface, IAutoMovieConstructionRing, IAutoMovieSolidBody, IAutoMovieSolidCycle } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionRing,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidCycle,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 
@@ -11,7 +16,6 @@ import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieConstructionRing {
-
   /**
    * Add the host-sampled vertices and both faces' cycles to the mutable body.
    * Matching endpoint geometry has already been established by the continuation.
@@ -24,7 +28,10 @@ export namespace AutoMovieConstructionRing {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both faces share exact vertex indices; the owner lookup reuses the existing unique-name surface owner in this admitted body.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body retains C vertices and two O(C) cycle/adjacency records, with a surface closure only if its owner is newly registered; the local order array has call lifetime.
    */
-  export function create(body: IAutoMovieSolidBody.IBody, r: IAutoMovieConstructionRing.IRing): void {
+  export function create(
+    body: IAutoMovieSolidBody.IBody,
+    r: IAutoMovieConstructionRing.IRing,
+  ): void {
     const host: IAutoMovieSolidSurface = body.faces[r.host]!.surface;
     const owner: number = AutoMovieSolidMesh.owner(body.mesh, host);
     const phase = (k: number): number => (2 * Math.PI * k) / r.count;

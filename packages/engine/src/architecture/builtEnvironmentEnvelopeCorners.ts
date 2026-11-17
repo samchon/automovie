@@ -1,4 +1,7 @@
-import { type IAutoMovieBuiltEnvelopeCorner, IAutoMovieBuiltEnvironment } from "@automovie/interface";
+import {
+  type IAutoMovieBuiltEnvelopeCorner,
+  IAutoMovieBuiltEnvironment,
+} from "@automovie/interface";
 
 import { builtEnvelopeFaceCorners } from "./builtEnvelopeFaceCorners";
 import { builtEnvironmentEnvelopeFaces } from "./builtEnvironmentEnvelopeFaces";

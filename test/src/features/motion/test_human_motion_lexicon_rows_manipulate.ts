@@ -1,7 +1,17 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Transform, Vector3 } from "@automovie/engine";
-
-import { HUMAN_LEXICON, HumanChain, HumanPerformance, typeText } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanPerformance,
+  typeText,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -114,21 +124,22 @@ export function test_human_motion_lexicon_rows_manipulate(): void {
     ];
     for (const [row, params] of staged)
       try {
-        const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-          seed: "rows",
-          laws: [...rows],
-          props: [keyboard, pad],
-          performers: [
-            {
-              subject: "a",
-              body,
-              at: { x: 0, y: 0, z: 0 },
-              yaw: 0,
-              proficiency: { level: "trained" },
-            },
-          ],
-          composition: HumanChain.subject("a").registered(row, params).node,
-        });
+        const performance: IAutoMovieMotionHumanPerformance =
+          new HumanPerformance({
+            seed: "rows",
+            laws: [...rows],
+            props: [keyboard, pad],
+            performers: [
+              {
+                subject: "a",
+                body,
+                at: { x: 0, y: 0, z: 0 },
+                yaw: 0,
+                proficiency: { level: "trained" },
+              },
+            ],
+            composition: HumanChain.subject("a").registered(row, params).node,
+          });
         const placed: string | undefined = performance
           .segments("a")
           .at(-1)?.name;

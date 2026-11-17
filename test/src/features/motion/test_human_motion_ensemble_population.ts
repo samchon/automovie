@@ -1,7 +1,24 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPopulation, IAutoMovieMotionHumanSegment, IAutoMovieFormationDesign, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
 import { formationSlotPosition } from "@automovie/engine";
-
-import { HUMAN_LEXICON, HumanEnsemble, HumanFormation, HumanPerformance, HumanPopulation, HumanRefusal } from "@automovie/motions";
+import type {
+  IAutoMovieFormationDesign,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPopulation,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HumanEnsemble,
+  HumanFormation,
+  HumanPerformance,
+  HumanPopulation,
+  HumanRefusal,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -74,7 +91,8 @@ export function test_human_motion_ensemble_population(): void {
       model: "soldier",
     });
     for (const m of e.members.filter(
-      (m: IAutoMovieMotionHumanEnsemble.IMember): boolean => m.detail === "population",
+      (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
+        m.detail === "population",
     )) {
       const engine: IAutoMovieVector3 = formationSlotPosition(design, m.index);
       const own: IAutoMovieVector3 = HumanFormation.slot(f, m.index, 0).at;
@@ -105,13 +123,17 @@ export function test_human_motion_ensemble_population(): void {
     performers: HumanEnsemble.performers(e),
     composition: HumanEnsemble.chains(
       e,
-      (m: IAutoMovieMotionHumanEnsemble.IMember, chain: IAutoMovieMotionHumanChain) =>
+      (
+        m: IAutoMovieMotionHumanEnsemble.IMember,
+        chain: IAutoMovieMotionHumanChain,
+      ) =>
         chain.stand({ seconds: 0.5 }).registered("march", {
           to: { x: m.place.at.x, y: 0, z: m.place.at.z + 6 },
         }),
     ),
   });
-  const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments("p.0")[1]!;
+  const segment: IAutoMovieMotionHumanSegment.ISegment =
+    performance.segments("p.0")[1]!;
   const strikes: { seconds: number; side: string }[] = segment.plan.events
     .filter((ev: IAutoMovieMotionEvent): boolean =>
       /^(left|right)HeelStrike\d+$/.test(ev.name),

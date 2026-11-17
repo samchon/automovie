@@ -1,4 +1,9 @@
-import type { IAutoMovieProfilePoint, IAutoMovieRegionRing, IAutoMovieRegionTriangulation } from "@automovie/interface";
+import type {
+  IAutoMovieProfilePoint,
+  IAutoMovieRegionRing,
+  IAutoMovieRegionTriangulation,
+} from "@automovie/interface";
+
 import { PLANAR_EPSILON } from "./constants/PLANAR_EPSILON";
 import { planarCross } from "./planarCross";
 import { planarSegmentsMeet } from "./planarSegmentsMeet";

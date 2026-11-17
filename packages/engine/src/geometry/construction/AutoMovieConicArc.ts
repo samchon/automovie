@@ -1,4 +1,9 @@
-import type { IAutoMovieConicArc, IAutoMovieConicArcField, IAutoMoviePolarSector } from "@automovie/interface";
+import type {
+  IAutoMovieConicArc,
+  IAutoMovieConicArcField,
+  IAutoMoviePolarSector,
+} from "@automovie/interface";
+
 import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 
@@ -23,7 +28,6 @@ interface Inverse {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConicArc {
-
   /**
    * Endpoint geometric curvature at extent a across extent b.
    *

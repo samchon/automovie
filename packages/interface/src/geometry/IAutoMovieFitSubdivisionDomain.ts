@@ -45,16 +45,16 @@ export namespace IAutoMovieFitSubdivisionDomain {
   export type IProps = {
     /** Initial pre-inverse samples with original control pins applied, metres; indexed UV topology is preserved. */
     cage: IAutoMovieSubdivisionCage;
-  
+
     /** Existing joined controls, metres, packed like cage.positions. */
     controlPositions: readonly number[];
-  
+
     /** Exact original coarse-control constraints; one flag per source vertex. */
     anchors: readonly boolean[];
-  
+
     /** Limit targets in metres; null omits a limit equation, independently of anchors. */
     limitTargets: ReadonlyArray<readonly [number, number, number] | null>;
-  
+
     /** Source face indices permitted to change, with an anchored support collar. */
     regionFaces: ReadonlySet<number>;
   };

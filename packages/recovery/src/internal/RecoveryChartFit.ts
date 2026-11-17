@@ -1,12 +1,14 @@
-import type { IAutoMovieRecoveryChartFit, IAutoMovieRecoveryChartFitPrepare, IAutoMovieRecoveryChartFitSolve, IAutoMovieRecoveryChartFitSystem } from "@automovie/interface";
-
+import type {
+  IAutoMovieRecoveryChartFit,
+  IAutoMovieRecoveryChartFitPrepare,
+  IAutoMovieRecoveryChartFitSolve,
+  IAutoMovieRecoveryChartFitSystem,
+} from "@automovie/interface";
 
 import { RecoveryChartFitPrepare } from "./RecoveryChartFitPrepare";
 import { RecoveryChartFitReport } from "./RecoveryChartFitReport";
-
 import { RecoveryChartFitSolve } from "./RecoveryChartFitSolve";
 import { RecoveryChartFitSystem } from "./RecoveryChartFitSystem";
-
 
 /**
  * Joint Bernstein fitting with fixed shared coefficients and explicit box constraints.
@@ -17,9 +19,7 @@ import { RecoveryChartFitSystem } from "./RecoveryChartFitSystem";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Numerical rank, gradient termination and finite observation residual are independent qualifications; none certifies embedding or continuous source fidelity.
  */
 export namespace RecoveryChartFit {
-
- 
- /**
+  /**
    * Solve one constrained chart with assembled shared-control normal equations.
    * A positive diagonal congruence scales the original symmetric Gram problem and
    * its feasible box. The original projected-gradient mapping, not a transformed
@@ -35,7 +35,9 @@ export namespace RecoveryChartFit {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed contributions, normalized weights, sparse Hessian, right-hand sides and row-sum spectral bound are assembled once and reused by every gradient iteration.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Observation arrays remain caller-owned; sparse normal equations and the bounded dense rank workspace expire on return, while coefficients, scalar diagnostics and one bounded private witness return to the caller. The public observer removes that witness into a separate private sidecar.
    */
-  export function fit(input: IAutoMovieRecoveryChartFit.Input): IAutoMovieRecoveryChartFit.Result {
+  export function fit(
+    input: IAutoMovieRecoveryChartFit.Input,
+  ): IAutoMovieRecoveryChartFit.Result {
     const prepared: ReturnType<IAutoMovieRecoveryChartFitPrepare.Operation> =
       RecoveryChartFitPrepare(input);
     const system: ReturnType<IAutoMovieRecoveryChartFitSystem.Operation> =

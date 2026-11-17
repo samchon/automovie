@@ -1,8 +1,9 @@
-import type { IAutoMovieHumanDigitSection, IAutoMovieHumanDigitSpan } from "@automovie/interface";
-
+import type {
+  IAutoMovieHumanDigitSection,
+  IAutoMovieHumanDigitSpan,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSeam } from "../../lofting/AutoMovieHumanSeam";
-
 
 /**
  * A phalanx's span: how a digit's section shape runs along one bone, in
@@ -30,12 +31,6 @@ import { AutoMovieHumanSeam } from "../../lofting/AutoMovieHumanSeam";
  * references' mesh cuts.
  */
 export namespace AutoMovieHumanDigitSpan {
-  
-
-  
-
-  
-
   /** The four stations' shares: web, PIP, DIP and the tip cap's start: OBSERVED means of f1's four fingers. */
   export const KNOTS: readonly IAutoMovieHumanDigitSpan.IKnot[] = [
     { width: 1.0, palmar: 0.97, dorsal: 0.93 },
@@ -45,7 +40,11 @@ export namespace AutoMovieHumanDigitSpan {
   ];
 
   /** The knot index at each phalanx's start. */
-  const START: Record<IAutoMovieHumanDigitSpan.Phalanx, number> = { proximal: 0, middle: 1, distal: 2 };
+  const START: Record<IAutoMovieHumanDigitSpan.Phalanx, number> = {
+    proximal: 0,
+    middle: 1,
+    distal: 2,
+  };
 
   /**
    * The section shape at a share along a phalanx.
@@ -54,20 +53,40 @@ export namespace AutoMovieHumanDigitSpan {
    * @param phalanx Which bone.
    * @param sigma Share of the way along the phalanx's bone, 0 at its proximal joint and 1 at its distal one.
    */
-  export function shape(input: IAutoMovieHumanDigitSpan.IInput, phalanx: IAutoMovieHumanDigitSpan.Phalanx, sigma: number): IAutoMovieHumanDigitSection.IShape {
+  export function shape(
+    input: IAutoMovieHumanDigitSpan.IInput,
+    phalanx: IAutoMovieHumanDigitSpan.Phalanx,
+    sigma: number,
+  ): IAutoMovieHumanDigitSection.IShape {
     const i: number = START[phalanx];
     const u: number = Math.min(1, Math.max(0, sigma));
     const at = (key: keyof IAutoMovieHumanDigitSpan.IKnot): number => {
       // The four stations around the phalanx, the outer two held at the ends,
       // and the mean slope at each end of the phalanx (a Catmull-Rom).
-      const v: number[] = [-1, 0, 1, 2].map((o: number): number => KNOTS[Math.min(KNOTS.length - 1, Math.max(0, i + o))]![key]);
+      const v: number[] = [-1, 0, 1, 2].map(
+        (o: number): number =>
+          KNOTS[Math.min(KNOTS.length - 1, Math.max(0, i + o))]![key],
+      );
 
-      return AutoMovieHumanSeam.hermite([v[1]!], [(v[2]! - v[0]!) / 2], [v[2]!], [(v[3]! - v[1]!) / 2], u)[0]!;
+      return AutoMovieHumanSeam.hermite(
+        [v[1]!],
+        [(v[2]! - v[0]!) / 2],
+        [v[2]!],
+        [(v[3]! - v[1]!) / 2],
+        u,
+      )[0]!;
     };
     const w: number = input.root * at("width");
     const palmar: number = input.root * at("palmar");
     const dorsal: number = input.root * at("dorsal");
 
-    return { width: w, palmar, dorsal, side: (w * w) / (palmar * dorsal), palmarApex: input.apex, dorsalApex: input.apex };
+    return {
+      width: w,
+      palmar,
+      dorsal,
+      side: (w * w) / (palmar * dorsal),
+      palmarApex: input.apex,
+      dorsalApex: input.apex,
+    };
   }
 }

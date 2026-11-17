@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanStrikingRecord } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanStrikingRecord,
+} from "@automovie/interface";
 
 /**
  * What a planned strike decided, for audits and captures: the landing
@@ -16,8 +19,10 @@ import type { IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanStrikingReco
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the plan type and the reach status union.
  */
 export namespace StrikingRecord {
-
-  const RECORDS: WeakMap<IAutoMovieMotionHumanActionPlan, () => IAutoMovieMotionHumanStrikingRecord.IRecord> = new WeakMap();
+  const RECORDS: WeakMap<
+    IAutoMovieMotionHumanActionPlan,
+    () => IAutoMovieMotionHumanStrikingRecord.IRecord
+  > = new WeakMap();
 
   /**
    * Register a plan's record.
@@ -54,7 +59,9 @@ export namespace StrikingRecord {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Not cached here: the plan's geometry is cached by the plan and may be settled, so each read rebuilds the record from it.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function of(plan: IAutoMovieMotionHumanActionPlan): IAutoMovieMotionHumanStrikingRecord.IRecord | undefined {
+  export function of(
+    plan: IAutoMovieMotionHumanActionPlan,
+  ): IAutoMovieMotionHumanStrikingRecord.IRecord | undefined {
     return carries(plan) ? plan.record() : RECORDS.get(plan)?.();
   }
 
@@ -64,7 +71,9 @@ export namespace StrikingRecord {
    * @param plan A plan.
    * @returns True for a strike's plan.
    */
-  export function carries(plan: IAutoMovieMotionHumanActionPlan): plan is IAutoMovieMotionHumanStrikingRecord.IPlan {
+  export function carries(
+    plan: IAutoMovieMotionHumanActionPlan,
+  ): plan is IAutoMovieMotionHumanStrikingRecord.IPlan {
     return "record" in plan && typeof plan.record === "function";
   }
 }

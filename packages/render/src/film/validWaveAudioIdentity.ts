@@ -1,9 +1,9 @@
-import type { IAutoMovieProductionAudioAssetIdentity, IAutoMovieProductionAudioProcessing, IAutoMovieProductionSoundPlan, IAutoMovieProductionWaveSourceFormat } from "@automovie/interface";
-
-
-
-
-
+import type {
+  IAutoMovieProductionAudioAssetIdentity,
+  IAutoMovieProductionAudioProcessing,
+  IAutoMovieProductionSoundPlan,
+  IAutoMovieProductionWaveSourceFormat,
+} from "@automovie/interface";
 
 import { equalOrderedScalars } from "./equalOrderedScalars.js";
 

@@ -6,11 +6,9 @@
  * @evidence contracts/development/common.md#meaningful-documentation Members state physical units, field ordering and coefficient-index meaning.
  */
 export interface IAutoMovieRecoveryChartEndpoint {
- 
- /** Unscaled endpoint position, millimetres. */
+  /** Unscaled endpoint position, millimetres. */
   position: readonly [number, number, number];
 
- 
- /** Index of the endpoint coefficient in the recipe. */
+  /** Index of the endpoint coefficient in the recipe. */
   id: number;
 }

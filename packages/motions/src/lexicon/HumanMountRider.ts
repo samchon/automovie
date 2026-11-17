@@ -1,6 +1,20 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanMountRider, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMoviePhysicalProfile, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  physicalShapeSegmentDistance,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanMountRider,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { physicalShapeSegmentDistance, Quaternion, Vector3 } from "@automovie/engine";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -195,7 +209,10 @@ export namespace HumanMountRider {
       point = Vector3.lerp(hand.worldPosition, target, s);
       rotation = Quaternion.slerp(hand.worldRotation, turned, s);
     }
-    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      "relaxed",
+    );
     const closing: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const bone of Object.keys(closed) as AutoMovieHumanoidBone[]) {
       const from: readonly [number, number, number] = relaxed[bone] ?? [
@@ -255,7 +272,14 @@ export namespace HumanMountRider {
     shapes: readonly IAutoMoviePhysicalProfile.IShape[],
     frame: IAutoMovieMotionHumanProp.IFrame,
   ): IAutoMovieMotionHumanPosture["joints"] {
-    const arm: IAutoMovieMotionHumanPosture.IGoal = hold(body, side, posture, grip, 1, {}).arm;
+    const arm: IAutoMovieMotionHumanPosture.IGoal = hold(
+      body,
+      side,
+      posture,
+      grip,
+      1,
+      {},
+    ).arm;
 
     // The handle is the collider nearest the held point, as a grasp takes a mug by its handle and not its body: the fingers close on it, not on the leaf or the frame behind it.
     const near = (shape: IAutoMoviePhysicalProfile.IShape): number =>
@@ -310,7 +334,6 @@ export namespace HumanMountRider {
     };
   }
 
-
   /**
    * How far a seated rider leans the trunk forward to reach what the hands
    * hold, the support standing where it does with the rider seated so
@@ -337,6 +360,8 @@ export namespace HumanMountRider {
     const sides: ("left" | "right")[] = (["left", "right"] as const).filter(
       (side: "left" | "right"): boolean => points[side] !== undefined,
     );
-    return sides.length === 0 ? 0 : HumanMountReach.reach(body, seated, sides)(points);
+    return sides.length === 0
+      ? 0
+      : HumanMountReach.reach(body, seated, sides)(points);
   }
 }

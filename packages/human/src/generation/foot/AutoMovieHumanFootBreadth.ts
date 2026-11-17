@@ -1,20 +1,23 @@
-import type { IAutoMovieLoftContract, IAutoMovieLoftFrame, IAutoMovieViewOutline, IAutoMovieViewParallelAxis, IAutoMovieViewPart, IAutoMovieConstructionAxis, AutoMovieVector3Tuple, IAutoMovieHumanFootBreadth, IAutoMovieHumanFootPart, IAutoMovieHumanSiteControls, IAutoMovieHumanSiteViewPart, IAutoMovieHumanToePart, IAutoMovieConstructionKnot, IAutoMovieConstructionOutline } from "@automovie/interface";
-
-
-
-
-
-
-
-
 import { AutoMovieViewOutline } from "@automovie/engine";
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionAxis,
+  IAutoMovieConstructionKnot,
+  IAutoMovieConstructionOutline,
+  IAutoMovieHumanFootBreadth,
+  IAutoMovieHumanFootPart,
+  IAutoMovieHumanSiteControls,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanToePart,
+  IAutoMovieLoftContract,
+  IAutoMovieLoftFrame,
+  IAutoMovieViewOutline,
+  IAutoMovieViewParallelAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanFootPart } from "./AutoMovieHumanFootPart";
 import { AutoMovieHumanToePart } from "./AutoMovieHumanToePart";
-
 
 /**
  * Across support of the actual foot-plus-toe source in its metatarsal region.
@@ -33,11 +36,6 @@ import { AutoMovieHumanToePart } from "./AutoMovieHumanToePart";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only call-owned source preparations and two extreme readings survive; no global cache or realized geometry is retained.
  */
 export namespace AutoMovieHumanFootBreadth {
-
-  
-
-  
-
   /**
    * Read the host and all toes over the same closed foot-along region.
    *
@@ -52,7 +50,9 @@ export namespace AutoMovieHumanFootBreadth {
   export function measure(
     foot: IAutoMovieHumanFootPart.IInput,
     toes: readonly IAutoMovieHumanToePart.IInput[],
-    definition?: IAutoMovieHumanSiteViewPart.IDefinition | IAutoMovieHumanSiteControls.IOutput,
+    definition?:
+      | IAutoMovieHumanSiteViewPart.IDefinition
+      | IAutoMovieHumanSiteControls.IOutput,
   ): IAutoMovieHumanFootBreadth.ISupport | string {
     if (
       foot.metatarsal === undefined ||
@@ -60,26 +60,43 @@ export namespace AutoMovieHumanFootBreadth {
       !(foot.metatarsal.span[1] > foot.metatarsal.span[0])
     )
       return "Metatarsal group breadth needs a finite increasing foot-along region";
-    const declarations: ((IAutoMovieHumanSiteViewPart.IDefinition | IAutoMovieHumanSiteControls.IOutput) & {
+    const declarations: ((
+      | IAutoMovieHumanSiteViewPart.IDefinition
+      | IAutoMovieHumanSiteControls.IOutput
+    ) & {
       origin?: IAutoMovieViewParallelAxis.IOrigin;
     })[] = [definition ?? AutoMovieHumanFootPart.define(foot)];
     for (const toe of toes) {
       declarations.push(AutoMovieHumanToePart.define(toe));
     }
     const sign: number = foot.side === "left" ? 1 : -1;
-    const across: AutoMovieVector3Tuple = [-sign * foot.along[2], 0, sign * foot.along[0]];
+    const across: AutoMovieVector3Tuple = [
+      -sign * foot.along[2],
+      0,
+      sign * foot.along[0],
+    ];
     let minimum: IAutoMovieHumanFootBreadth.IReading | undefined;
     let maximum: IAutoMovieHumanFootBreadth.IReading | undefined;
     for (const declaration of declarations) {
       const common: IAutoMovieHumanSiteControls.IControls | null =
         "controls" in declaration ? declaration.controls : null;
-      const part: Pick<IAutoMovieViewPart, "name" | "axis" | "stations" | "side" | "pole"> | null =
-        "controls" in declaration ? common === null ? null : {
-          name: common.input.name, axis: common.axis, stations: common.scalars.stations,
-          side: common.scalars.side, pole: common.scalars.pole,
-        } : declaration.part;
-      const chart: IAutoMovieConstructionAxis | undefined = "controls" in declaration
-        ? common?.input.axis : declaration.view?.axis;
+      const part: Pick<
+        IAutoMovieViewPart,
+        "name" | "axis" | "stations" | "side" | "pole"
+      > | null =
+        "controls" in declaration
+          ? common === null
+            ? null
+            : {
+                name: common.input.name,
+                axis: common.axis,
+                stations: common.scalars.stations,
+                side: common.scalars.side,
+                pole: common.scalars.pole,
+              }
+          : declaration.part;
+      const chart: IAutoMovieConstructionAxis | undefined =
+        "controls" in declaration ? common?.input.axis : declaration.view?.axis;
       if (part === null || chart === undefined)
         return (
           declaration.diagnostics

@@ -1,20 +1,23 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanArmPrior, IAutoMovieHumanHandDigit, IAutoMovieHumanHandFinger, IAutoMovieHumanHandFrame, IAutoMovieHumanHandJoints, IAutoMovieHumanHandScales, IAutoMovieHumanThumbBones } from "@automovie/interface";
-
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanArmPrior,
+  IAutoMovieHumanHandDigit,
+  IAutoMovieHumanHandFinger,
+  IAutoMovieHumanHandFrame,
+  IAutoMovieHumanHandJoints,
+  IAutoMovieHumanHandScales,
+  IAutoMovieHumanThumbBones,
+} from "@automovie/interface";
 
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanHandDigitBones } from "./AutoMovieHumanHandDigitBones";
 import { AutoMovieHumanHandPosture } from "./AutoMovieHumanHandPosture";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
-
-const { sub, plus, scale, norm, unit, dot }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
-const { onBones }: typeof AutoMovieHumanHandDigitBones = AutoMovieHumanHandDigitBones;
+const { sub, plus, scale, norm, unit, dot }: typeof AutoMovieHumanHandVector =
+  AutoMovieHumanHandVector;
+const { onBones }: typeof AutoMovieHumanHandDigitBones =
+  AutoMovieHumanHandDigitBones;
 
 /**
  * The thumb on its bones, the fingers' structure with the thumb's own
@@ -46,7 +49,8 @@ export namespace AutoMovieHumanThumbBones {
     hand: IAutoMovieHumanHandScales,
     map: IAutoMovieHumanThumbBones.OfMap,
   ): IAutoMovieHumanHandFinger {
-    const prior: IAutoMovieHumanArmPrior.IHandPrior = AutoMovieHumanArmPrior.PRIOR.hand;
+    const prior: IAutoMovieHumanArmPrior.IHandPrior =
+      AutoMovieHumanArmPrior.PRIOR.hand;
     const root: AutoMovieVector3Tuple = map(d.centre);
     const mcp: AutoMovieVector3Tuple = joints.mcps[0]!;
     const frame: IAutoMovieHumanHandFrame = joints.frame!;
@@ -56,22 +60,36 @@ export namespace AutoMovieHumanThumbBones {
     // Each phalanx follows the bone before it, turned toward the palm by its
     // joint's resting flexion (`AutoMovieHumanHandPosture.thumbRest`), as a
     // finger's phalanges follow theirs.
-    const rest: { mcp: number; ip: number } = AutoMovieHumanHandPosture.thumbRest();
+    const rest: { mcp: number; ip: number } =
+      AutoMovieHumanHandPosture.thumbRest();
     const d1: AutoMovieVector3Tuple = bend(metacarpal, frame.palmar, rest.mcp);
     const d2: AutoMovieVector3Tuple = bend(d1, frame.palmar, rest.ip);
     const p1: number = prior.thumbProximal * hand.thumb;
 
-    const out: IAutoMovieHumanHandFinger = onBones(d, root, [
-      { direction: metacarpal, length: lead },
-      { direction: d1, length: p1 },
-      { direction: d2, length: hand.thumb - p1 },
-    ], 0, [lead, lead + p1], hand);
+    const out: IAutoMovieHumanHandFinger = onBones(
+      d,
+      root,
+      [
+        { direction: metacarpal, length: lead },
+        { direction: d1, length: p1 },
+        { direction: d2, length: hand.thumb - p1 },
+      ],
+      0,
+      [lead, lead + p1],
+      hand,
+    );
     return { ...out, external: hand.thumb };
   }
 
   /** A direction turned toward the palm, square to itself, by degrees. */
-  function bend(dir: AutoMovieVector3Tuple, palmar: AutoMovieVector3Tuple, degrees: number): AutoMovieVector3Tuple {
-    const n: AutoMovieVector3Tuple = unit(sub(palmar, scale(dir, dot(palmar, dir))));
+  function bend(
+    dir: AutoMovieVector3Tuple,
+    palmar: AutoMovieVector3Tuple,
+    degrees: number,
+  ): AutoMovieVector3Tuple {
+    const n: AutoMovieVector3Tuple = unit(
+      sub(palmar, scale(dir, dot(palmar, dir))),
+    );
     const r: number = (degrees * Math.PI) / 180;
 
     return unit(plus(scale(dir, Math.cos(r)), scale(n, Math.sin(r))));

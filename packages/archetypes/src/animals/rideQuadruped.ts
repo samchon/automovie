@@ -1,7 +1,4 @@
-import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
 import type {
-  IAutoMovieModelPart,
-  IAutoMovieQuaternion,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -9,19 +6,19 @@ import type {
 import {
   type Archetype,
   ArchetypeCourse,
-  ArchetypeFrame,
+  ArchetypeRefusal,
   ArchetypeRide,
 } from "../core";
 import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedChange } from "./QuadrupedChange";
 import { QuadrupedGait } from "./QuadrupedGait";
 import { QuadrupedJoints } from "./QuadrupedJoints";
-import { QuadrupedLimb } from "./QuadrupedLimb";
 import { QuadrupedLocomotion } from "./QuadrupedLocomotion";
 import { QuadrupedMotion } from "./QuadrupedMotion";
 import { QuadrupedRideClock } from "./QuadrupedRideClock";
-import { createQuadruped } from "./createQuadruped";
+import { QuadrupedRidePose } from "./QuadrupedRidePose";
 import { admitQuadrupedPhase } from "./admitQuadrupedPhase";
+import { createQuadruped } from "./createQuadruped";
 
 /**
  * A quadruped going along a course: its root on the path, its trunk rising and falling and its head nodding with the stride, its four limbs stepping in the gait's order, and its gait and lead changing with the speed or as the course's legs name them. Every kind is ridden by this one function, from its species' data (`createQuadruped.species`).
@@ -47,20 +44,28 @@ import { admitQuadrupedPhase } from "./admitQuadrupedPhase";
  * nonrepresentable advances and periods shorter than that plan's cell width
  * before enumerating events; this explicit capacity is not a biological limit.
  *
+ * Limb roots remain fixed in their actual parent's local frame. Four unchanged
+ * foot goals and actual cylinder/capsule soles constrain one body-root height;
+ * the gait's bob is its soft preference, while the horizontal course is kept.
+ * Terminal directions retain their actual neutral carriage and the relative
+ * carpus/hock fold is solved without a translated shoulder or stretched bar.
+ * The shared generic FK must reproduce every solved origin and endpoint.
+ *
  * @param animal The animal, as `createQuadruped` or its kind's producer builds it.
  * @param course The course its root follows; a leg may name the `gait` and the `lead` it is taken at.
  * @param gait The gait of every stride whose leg names none; absent, the speed chooses it.
  * @param table Optional admitted authoring table, replacing only this ride's gait data. Explicit authored clocks remain separate from the species' measured default; the source species and animal are unchanged.
  * @returns The ride.
  * @throws {ArchetypeRefusal} When the animal is no quadruped's, a supplied table fails QuadrupedLocomotion.admit, a gait is not in the selected table, a requested speed is outside its domain, the course is malformed, or its phase advance exceeds representability/capacity before stride enumeration.
+ * @throws {RangeError} For unsupported actual geometry/carriage or foot goals whose four fixed chains and body-floor constraint have no common root height.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what moves, where the timing comes from, how the gait is chosen and changed, the instants added, what the support frame is and what happens below the gait's slowest speed.
- * @evidence contracts/development/implementation.md#principled-implementation Phase advances with time by one stride per stride time of the stride's own gait. Each foot's landings are listed stride by stride at that stride's gait's phase, so across a change the gap to the next landing grows or shrinks and the swing between them stretches to meet it. A planted foot is set back through the model by the distance the body has travelled since it landed, read from the course's plan; it lands half of its stance's travel ahead of its rest place, so the stance is centred under the joint that carries it. Each limb is solved in its own fore-and-aft plane as two links (`QuadrupedLimb.solve`), its carpus or hock folded by the gait's fold, the trunk's rise and fall the gait's bob, the head's pitch the gait's nod timed to the footfalls (`QuadrupedMotion.nod`), and each swinging foot brought to its next landing by the minimum-jerk lift-and-place path (`QuadrupedMotion.swing`) at the gait's lift.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the species and optionally compose a validated private gait-table snapshot, read the rest joints off the animal (`QuadrupedJoints.read`), plan the course, tabulate phase against time deciding each stride's gait at its start, list the landings, then one pose function: bob, nod, four limbs, new part transforms.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No species branch or upper-speed clamp hides an undeclared gait domain. Head-carried parts and explicitly listed contact ids receive the same neck-centred rigid turn; absent contact bindings preserve the legacy equid policy. Every emitted part record, placed TRS and contact frame is copied; immutable geometry/material data stay shared.
- * @evidence contracts/development/implementation.md#efficient-algorithms Builds the STEPS phase rows once; sampling performs phase-table binary searches, four closed-form limb solutions and linear copying of P part records and A contact frames. Each timing read scans the selected gait's R rows; no per-frame cache or physical simulation is introduced.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan, the phase table, the strides' gaits and the rest joints are shared by every sample; the ride samples the plan made here.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources For S phase cells, admission bounds retained phases to S+1, stride/lookahead records to S+2 and animal events to 5S+4, plus C course events. Every sample owns fresh part/TRS/contact records, sharing immutable geometry/material data. No sample cache or external handle is retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Integrate declared stride clocks and plan each real foot's stance travel from the course. Swing uses the existing minimum-jerk path; exact terminal solid clearance converts its lift to an endpoint goal. The four actual folded chains and body-floor support intersect into one vertical root interval, with the gait bob as a soft preference. Four oriented closed-form solves preserve fixed parent-local attachments and real lengths, then shared actual-rig FK must achieve every requested joint before emitting parts and contacts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit requests and actual source, prepare the bounded phase/landing plan and reusable pose owner, then compute four foot goals plus nod/bob for each stateless actual-rig sample.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No species case, undeclared-speed clamp, independent proximal translation, distance projection, stretched bone or endpoint-only floor proxy hides an infeasible request. Source-carried contacts and actual geometry are emitted by the same FK; impossible common-root geometry refuses.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Builds S phase rows once. A sample uses binary phase searches, existing R-row clock reads, exact support over P actual body parts, four constant-size reach intersections/closed-form IK solves, two B-bone FK passes and O(P+A+V) independent geometry/contact emission. No per-frame physical simulation or iterative IK is used.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The admitted plan/table, bounded phase rows, neutral source chains, prepared oriented solvers, real rig/reader and explicit carrier maps serve every sample; no rest animal or solver graph is rebuilt per frame.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources For S phase cells, retained phases are at most S+1, stride/lookahead records S+2 and animal events 5S+4 plus C course events. Prepared source/rig data are bounded by the actual model; each sample owns independent geometry, transforms and contact frames with no completed-pose cache or external handle.
  */
 export function rideQuadruped<Affordance extends string, D extends string>(
   animal: Archetype<Affordance, D | QuadrupedBody.Dimension>,
@@ -77,6 +82,19 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     animal.dimensions;
   const tempo: number = dimensions.tempo ?? 0;
   const withers: number = dimensions.withersHeight!;
+  const domains: readonly {
+    gait: QuadrupedGait.Gait;
+    minimum: number;
+    maximum: number;
+  }[] = species.table.order.map(
+    (
+      which: QuadrupedGait.Gait,
+    ): {
+      gait: QuadrupedGait.Gait;
+      minimum: number;
+      maximum: number;
+    } => ({ gait: which, ...QuadrupedGait.range(species, which, withers) }),
+  );
   if (gait !== undefined)
     QuadrupedGait.timing(species, gait, course.cruise, tempo, withers);
   const rig: ReturnType<typeof QuadrupedJoints.read> = QuadrupedJoints.read(
@@ -87,9 +105,15 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     course,
   );
   const clock: QuadrupedRideClock.IClock = QuadrupedRideClock.create(
-    species, course, plan, tempo, withers,
+    species,
+    course,
+    plan,
+    tempo,
+    withers,
   );
-  const selected: (speed: number) => QuadrupedGait.Gait = (speed: number): QuadrupedGait.Gait =>
+  const selected: (speed: number) => QuadrupedGait.Gait = (
+    speed: number,
+  ): QuadrupedGait.Gait =>
     QuadrupedChange.called(
       species,
       speed,
@@ -103,21 +127,19 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       (leg: rideQuadruped.ILeg): boolean => leg.gait === undefined,
     )
   )
-    QuadrupedGait.timing(
-      species,
-      selected(course.cruise),
-      course.cruise,
-      tempo,
-      withers,
-    );
-  const copied: (frame: IAutoMovieTransform) => IAutoMovieTransform = (frame: IAutoMovieTransform): IAutoMovieTransform => ({
+    admitSpeed(undefined, course.cruise);
+  const copied: (frame: IAutoMovieTransform) => IAutoMovieTransform = (
+    frame: IAutoMovieTransform,
+  ): IAutoMovieTransform => ({
     translation: { ...frame.translation },
     rotation: { ...frame.rotation },
     scale: { ...frame.scale },
   });
 
   // The leg holding each distance, and the gait and lead it names, by the legs the plan measured.
-  const legAt: (distance: number) => rideQuadruped.ILeg = (distance: number): rideQuadruped.ILeg => {
+  const legAt: (distance: number) => rideQuadruped.ILeg = (
+    distance: number,
+  ): rideQuadruped.ILeg => {
     let k: number = 0;
     while (
       k < plan.legSpans.length - 1 &&
@@ -134,31 +156,49 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       which,
       withers,
     );
-    if (fastest >= limits.minimum)
-      QuadrupedGait.timing(species, which, fastest, tempo, withers);
+    if (fastest >= limits.minimum) admitSpeed(leg.gait ?? gait, fastest);
   });
   course.speeds?.forEach((speed: number, index: number): void => {
-    if (speed > 0)
-      QuadrupedGait.timing(
-        species,
-        course.legs[index]!.gait ?? gait ?? selected(speed),
-        speed,
-        tempo,
-        withers,
-      );
+    if (speed > 0) admitSpeed(course.legs[index]!.gait ?? gait, speed);
   });
   for (const [speed, distance] of [
     [course.startSpeed ?? 0, 0],
     [course.endSpeed ?? 0, plan.length],
   ] as const)
-    if (speed > 0)
-      QuadrupedGait.timing(
-        species, legAt(distance).gait ?? gait ?? selected(speed),
-        speed, tempo, withers,
-      );
+    if (speed > 0) admitSpeed(legAt(distance).gait ?? gait, speed);
+
+  /** Requested named gaits are strict; automatic requests need actual declared coverage. */
+  function admitSpeed(
+    which: QuadrupedGait.Gait | undefined,
+    speed: number,
+  ): void {
+    if (which !== undefined) {
+      QuadrupedGait.timing(species, which, speed, tempo, withers);
+      return;
+    }
+    if (
+      domains.some(
+        (domain: (typeof domains)[number]): boolean =>
+          speed >= domain.minimum && speed <= domain.maximum,
+      )
+    )
+      return;
+    throw new ArchetypeRefusal({
+      kind: "parameter",
+      archetype: species.archetype,
+      axis: "speed",
+      value: speed,
+      feasible: null,
+      reason: `no declared gait covers ${speed} m/s; available domains: ${domains.map((domain: (typeof domains)[number]): string => `${domain.gait} [${domain.minimum}, ${domain.maximum}]`).join(", ")}`,
+      fix: "Choose a covered speed or supply explicitly authored gait clocks covering it.",
+    });
+  }
 
   // The stride's gait as the speed calls for it, from the one it is in.
-  const decide: (state: ArchetypeCourse.IState, from: QuadrupedGait.IStride) => QuadrupedGait.IStride = (
+  const decide: (
+    state: ArchetypeCourse.IState,
+    from: QuadrupedGait.IStride,
+  ) => QuadrupedGait.IStride = (
     state: ArchetypeCourse.IState,
     from: QuadrupedGait.IStride,
   ): QuadrupedGait.IStride => {
@@ -185,7 +225,10 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     gait: gait ?? slowest,
     lead: "left",
   });
-  const strides: QuadrupedGait.IStride[] = [first, decide(clock.at(clock.start), first)];
+  const strides: QuadrupedGait.IStride[] = [
+    first,
+    decide(clock.at(clock.start), first),
+  ];
   const phases: number[] = [0];
   for (let i: number = 0; i < rideQuadruped.STEPS; i++) {
     const current: QuadrupedGait.IStride = strides[Math.floor(phases[i]!)]!;
@@ -198,12 +241,16 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     );
     for (let n: number = Math.floor(phases[i]!) + 1; n <= next; n++)
       strides[n + 1] = decide(
-        clock.at(clock.start + (i + (n - phases[i]!) / (next - phases[i]!)) * step),
+        clock.at(
+          clock.start + (i + (n - phases[i]!) / (next - phases[i]!)) * step,
+        ),
         strides[n]!,
       );
     phases.push(next);
   }
-  const strideOf: (m: number) => QuadrupedGait.IStride = (m: number): QuadrupedGait.IStride =>
+  const strideOf: (m: number) => QuadrupedGait.IStride = (
+    m: number,
+  ): QuadrupedGait.IStride =>
     strides[Math.max(0, Math.min(strides.length - 1, m))]!;
   const phaseAt: (seconds: number) => number = (seconds: number): number => {
     const at: number = Math.max(
@@ -222,13 +269,16 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       else high = middle;
     }
     return (
-      clock.start + (low + (phase - phases[low]!) / (phases[high]! - phases[low]!)) * step
+      clock.start +
+      (low + (phase - phases[low]!) / (phases[high]! - phases[low]!)) * step
     );
   };
 
   // Each foot's landing in a stride: the stride's gait's phase on its lead.
-  const landing: (limb: QuadrupedBody.Limb, m: number) => number = (limb: QuadrupedBody.Limb, m: number): number =>
-    m + QuadrupedGait.phase(species, strideOf(m), limb);
+  const landing: (limb: QuadrupedBody.Limb, m: number) => number = (
+    limb: QuadrupedBody.Limb,
+    m: number,
+  ): number => m + QuadrupedGait.phase(species, strideOf(m), limb);
 
   // Every landing of every foot, and every change of gait or lead.
   const instants: { seconds: number; label: string }[] = [];
@@ -256,7 +306,11 @@ export function rideQuadruped<Affordance extends string, D extends string>(
 
   // Each foot's stance uses its end's declared duty when supplied; legacy
   // tables keep their common fore duty. Travel ends at that foot's own lift.
-  const stance: (at: number, which: QuadrupedGait.Gait, fore: boolean) => { duty: number; from: number; travel: number } = (
+  const stance: (
+    at: number,
+    which: QuadrupedGait.Gait,
+    fore: boolean,
+  ) => { duty: number; from: number; travel: number } = (
     at: number,
     which: QuadrupedGait.Gait,
     fore: boolean,
@@ -272,6 +326,10 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     };
   };
 
+  const pose: QuadrupedRidePose.IPrepared<
+    Affordance,
+    D | QuadrupedBody.Dimension
+  > = QuadrupedRidePose.prepare(animal, species, rig);
   return ArchetypeRide.along(
     animal,
     plan,
@@ -289,7 +347,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       const sink: number =
         ((going * QuadrupedGait.of(species, now).bob * withers) / 2) *
         (1 - Math.cos(2 * Math.PI * QuadrupedGait.BEATS[now] * phase));
-      const moved: Map<string, IAutoMovieModelPart["transform"]> = new Map();
+      const goals: Map<QuadrupedBody.Limb, QuadrupedRidePose.IGoal> = new Map();
       for (const limb of QuadrupedBody.LIMBS) {
         const fore: boolean = limb.endsWith("Fore");
         const end: "fore" | "hind" = fore ? "fore" : "hind";
@@ -325,30 +383,11 @@ export function rideQuadruped<Affordance extends string, D extends string>(
               stance(coming, strideOf(m + 1).gait, fore).travel) /
               2) *
               path.along;
-        const joints: IAutoMovieVector3[] = QuadrupedLimb.solve(
-          species,
-          rest,
-          fore,
-          rest[4]!.z + ahead,
-          sink + going * which.lift[end] * withers * path.rise,
-          going * which.fold[end] * path.rise,
-        );
-        QuadrupedBody.BONES[limb].forEach(
-          (bone: QuadrupedBody.Bone, k: number): void => {
-            const span: IAutoMovieVector3 = Vector3.subtract(
-              joints[k + 1]!,
-              joints[k]!,
-            );
-            moved.set(bone, {
-              translation: Vector3.scale(
-                Vector3.add(joints[k]!, joints[k + 1]!),
-                0.5,
-              ),
-              rotation: rotationBetween({ x: 0, y: 1, z: 0 }, span),
-              scale: { ...ArchetypeFrame.UNIT },
-            });
-          },
-        );
+        goals.set(limb, {
+          z: rest[4]!.z + ahead,
+          lift: going * which.lift[end] * withers * path.rise,
+          fold: going * which.fold[end] * path.rise,
+        });
       }
 
       // The neck and the head, with the tack the species names as riding them, pitch about the neck's root, timed to the footfalls as declared.
@@ -360,57 +399,18 @@ export function rideQuadruped<Affordance extends string, D extends string>(
           phase,
           clock.timing(now, plan.when(state.distance)).duty,
         );
-      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-        { x: 1, y: 0, z: 0 },
-        nod,
-      );
-      for (const part of animal.parts)
-        if (species.nodding.includes(part.id))
-          moved.set(part.id, {
-            translation: Vector3.add(
-              rig.neck,
-              Quaternion.rotateVector(
-                turn,
-                Vector3.subtract(part.transform!.translation, rig.neck),
-              ),
-            ),
-            rotation: Quaternion.multiply(turn, part.transform!.rotation),
-            scale: { ...ArchetypeFrame.UNIT },
-          });
-      const frames: Map<string, IAutoMovieTransform> = new Map();
-      for (const contact of animal.affordances) {
-        const frame: IAutoMovieTransform = copied(contact.frame);
-        if (species.noddingContacts?.includes(contact.id)) {
-          frame.translation = Vector3.add(
-            rig.neck,
-            Quaternion.rotateVector(
-              turn,
-              Vector3.subtract(frame.translation, rig.neck),
-            ),
-          );
-          frame.rotation = Quaternion.multiply(turn, frame.rotation);
-        }
-        frames.set(contact.id, frame);
-      }
       return {
-        archetype: animal.reposed(
-          animal.parts.map((part: IAutoMovieModelPart): IAutoMovieModelPart => {
-            const frame: IAutoMovieModelPart["transform"] =
-              moved.get(part.id) ?? part.transform;
-            return {
-              ...part,
-              ...(frame === null || frame === undefined ? {} : { transform: copied(frame) }),
-            };
-          }),
-          frames,
-        ),
-        placement: {
-          ...copied(state.placement),
-          translation: {
-            ...state.placement.translation,
-            y: state.placement.translation.y - sink,
+        archetype: pose.sample(
+          {
+            leftFore: goals.get("leftFore")!,
+            rightFore: goals.get("rightFore")!,
+            leftHind: goals.get("leftHind")!,
+            rightHind: goals.get("rightHind")!,
           },
-        },
+          nod,
+          -sink,
+        ),
+        placement: copied(state.placement),
       };
     },
     instants,

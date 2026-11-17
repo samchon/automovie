@@ -1,4 +1,10 @@
-import type { IAutoMovieViewPart, IAutoMovieConstructionOutlineParameter, IAutoMovieNaturalSpline, IAutoMovieViewHermite, IAutoMovieViewOutline } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieNaturalSpline,
+  IAutoMovieViewHermite,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE";
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
@@ -20,7 +26,6 @@ import { supportAutoMovieViewOutline } from "./supportAutoMovieViewOutline";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieViewOutline {
-
   /**
    * Prepare the original knots, returning a named premise failure rather than a replacement curve.
    *
@@ -192,7 +197,9 @@ export namespace AutoMovieViewOutline {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads one prepared source once; callers can retain this derived sample list while the source stays unchanged.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Natural spans return at most two roots; requested quintics can retain near-zero partition candidates, bounded by fifteen observations per span. No list is cached globally.
    */
-  export function criticalStations(outline: IAutoMovieViewOutline.IOutline): number[] {
+  export function criticalStations(
+    outline: IAutoMovieViewOutline.IOutline,
+  ): number[] {
     if (outline.hermite !== undefined)
       return AutoMovieViewHermite.critical(outline.hermite)
         .map((x: number): number =>
@@ -292,7 +299,10 @@ export namespace AutoMovieViewOutline {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the admitted spline and shared parameter/value helpers; changing knots requires a new preparation.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing and returns a scalar or failure string.
    */
-  export function value(outline: IAutoMovieViewOutline.IOutline, station: number): number | string {
+  export function value(
+    outline: IAutoMovieViewOutline.IOutline,
+    station: number,
+  ): number | string {
     return AutoMovieViewOutlineRead.value(outline, station);
   }
 
@@ -307,7 +317,10 @@ export namespace AutoMovieViewOutline {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Natural value and derivatives share a selected interval; all readers retain the original curvature/parameter preparation without a mutable query cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fixed-size reading and jets, retaining no previous query.
    */
-  export function at(outline: IAutoMovieViewOutline.IOutline, station: number): IAutoMovieViewOutline.IReading | string {
+  export function at(
+    outline: IAutoMovieViewOutline.IOutline,
+    station: number,
+  ): IAutoMovieViewOutline.IReading | string {
     return AutoMovieViewOutlineRead.at(outline, station);
   }
 

@@ -1,5 +1,8 @@
-import { type IAutoMovieViolationCollector, IAutoMovieDesignScaleCandidate, IAutoMovieDesignSourceFrame } from "@automovie/interface";
-
+import {
+  IAutoMovieDesignScaleCandidate,
+  IAutoMovieDesignSourceFrame,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";

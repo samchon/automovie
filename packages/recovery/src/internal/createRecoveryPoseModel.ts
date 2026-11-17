@@ -1,8 +1,8 @@
-import type { IAutoMovieRecoveryPoseModelCreationOperation, IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieMatrix3, Vector3 } from "@automovie/engine";
-
-
-
+import type {
+  IAutoMovieRecoveryPoseModelCreationOperation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Pixel epipolar model and its five local calibrated-pose derivatives.

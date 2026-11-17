@@ -1,5 +1,5 @@
-import type { IAutoMovieImpactBodyState } from "@automovie/interface";
 import { suggestCollisionResponse } from "@automovie/engine";
+import type { IAutoMovieImpactBodyState } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createSkeleton } from "../internal/fixtures";

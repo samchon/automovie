@@ -1,4 +1,5 @@
 import type { IAutoMoviePreparedSurface } from "@automovie/interface";
+
 import { footprintContains } from "./footprintContains";
 
 /**

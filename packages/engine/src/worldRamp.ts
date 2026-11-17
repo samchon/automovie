@@ -1,5 +1,7 @@
-import { type IAutoMovieWorldRamp, IAutoMovieWorldSurface } from "@automovie/interface";
-
+import {
+  type IAutoMovieWorldRamp,
+  IAutoMovieWorldSurface,
+} from "@automovie/interface";
 
 /**
  * Construct a rectangular planar ramp from a centerline, width and rise.
@@ -12,7 +14,11 @@ import { type IAutoMovieWorldRamp, IAutoMovieWorldSurface } from "@automovie/int
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One centerline length supplies both width offset and plane coefficients; no cheap coefficient cache is retained across calls.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns fresh footprint/rule records, while input endpoints and any host resources are not retained; current helper callers are tests.
  */
-export const worldRamp: (input: IAutoMovieWorldRamp.IInput) => IAutoMovieWorldSurface = (input: IAutoMovieWorldRamp.IInput): IAutoMovieWorldSurface => {
+export const worldRamp: (
+  input: IAutoMovieWorldRamp.IInput,
+) => IAutoMovieWorldSurface = (
+  input: IAutoMovieWorldRamp.IInput,
+): IAutoMovieWorldSurface => {
   assertText(input.id, "World ramp id");
   const dx: number = input.to.x - input.from.x;
   const dz: number = input.to.z - input.from.z;

@@ -1,4 +1,5 @@
 import type { IAutoMovieWarnAnalysisTargetKeys } from "@automovie/interface";
+
 /**
  * Report every declared target that names no metric the study reports.
  *
@@ -28,7 +29,9 @@ import type { IAutoMovieWarnAnalysisTargetKeys } from "@automovie/interface";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call checks one study's targets once; the envelope analyzer, the only multi-run caller, now calls it once and copies the result into both runs instead of repeating it per run.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The key set is call-local and released on return; the appended warnings, at most one per target, belong to the caller's sink.
  */
-export const warnAutoMovieAnalysisTargetKeys: (props: IAutoMovieWarnAnalysisTargetKeys.IProps) => void = (props: IAutoMovieWarnAnalysisTargetKeys.IProps): void => {
+export const warnAutoMovieAnalysisTargetKeys: (
+  props: IAutoMovieWarnAnalysisTargetKeys.IProps,
+) => void = (props: IAutoMovieWarnAnalysisTargetKeys.IProps): void => {
   const reported: Set<string> = new Set<string>(props.keys);
   for (const target of props.targets)
     if (!reported.has(target.key))

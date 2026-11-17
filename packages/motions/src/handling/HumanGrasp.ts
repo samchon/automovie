@@ -1,7 +1,20 @@
-import type { AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieCurlChainUntilContact, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMoviePhysicalProfile, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import { Quaternion, Vector3, physicalShapeSpan } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
+  IAutoMovieCurlChainUntilContact,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanGraspReach } from "./HumanGraspReach";
@@ -39,7 +52,6 @@ import { HumanGraspReach } from "./HumanGraspReach";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanGrasp {
-
   /**
    * A prop affordance as a target at a film second, from its displayed frame.
    *
@@ -56,7 +68,8 @@ export namespace HumanGrasp {
     id: string,
     seconds: number,
   ): IAutoMovieMotionHumanGrasp.ITarget {
-    const prop: IAutoMovieMotionHumanActionContext.IProp = context.prop(subject);
+    const prop: IAutoMovieMotionHumanActionContext.IProp =
+      context.prop(subject);
     return HumanGrasp.at(prop.prop, id, prop.frame(seconds));
   }
 
@@ -93,7 +106,8 @@ export namespace HumanGrasp {
         reason: `Prop ${subject} has no affordance ${id}; it has ${(prop.affordances ?? []).map((a: IAutoMovieAffordance): string => a.id).join(", ") || "none"}`,
         fix: "name one of the prop's affordances, or declare this one on the prop",
       });
-    const shapes: readonly IAutoMoviePhysicalProfile.IShape[] = prop.shapes ?? [];
+    const shapes: readonly IAutoMoviePhysicalProfile.IShape[] =
+      prop.shapes ?? [];
     if (shapes.length === 0)
       throw new HumanRefusal({
         kind: "affordance",
@@ -112,7 +126,9 @@ export namespace HumanGrasp {
       z: 0,
     });
     const colliders: IAutoMovieCurlChainUntilContact.ICollider[] = shapes.map(
-      (shape: IAutoMoviePhysicalProfile.IShape): IAutoMovieCurlChainUntilContact.ICollider => ({ shape, frame }),
+      (
+        shape: IAutoMoviePhysicalProfile.IShape,
+      ): IAutoMovieCurlChainUntilContact.ICollider => ({ shape, frame }),
     );
     const point: IAutoMovieVector3 = Vector3.add(
       frame.position,
@@ -121,7 +137,9 @@ export namespace HumanGrasp {
 
     // Without an authored aperture, the grasped part is the collider whose
     // centre lies nearest the grip point (a mug's handle, not its body).
-    const centre = (c: IAutoMovieCurlChainUntilContact.ICollider): IAutoMovieVector3 =>
+    const centre = (
+      c: IAutoMovieCurlChainUntilContact.ICollider,
+    ): IAutoMovieVector3 =>
       Vector3.add(
         c.frame.position,
         Quaternion.rotateVector(c.frame.rotation, c.shape.transform.position),
@@ -293,7 +311,10 @@ export namespace HumanGrasp {
    * @param turn Degrees about the wrapped axis.
    * @returns The turned target.
    */
-  export function around(target: IAutoMovieMotionHumanGrasp.ITarget, turn: number): IAutoMovieMotionHumanGrasp.ITarget {
+  export function around(
+    target: IAutoMovieMotionHumanGrasp.ITarget,
+    turn: number,
+  ): IAutoMovieMotionHumanGrasp.ITarget {
     return HumanGraspReach.around(target, turn);
   }
 

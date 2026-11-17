@@ -1,5 +1,3 @@
-
-
 /**
  * Proved contact cap of an attached fan on one original support triangle.
  *

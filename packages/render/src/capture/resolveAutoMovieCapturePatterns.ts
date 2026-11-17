@@ -1,11 +1,12 @@
-import type { IAutoMovieCaptureResolution, IAutoMovieInspectionRequest, IAutoMovieInspectionView, IAutoMovieResolveCapturePatternsProps } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieCaptureResolution,
+  IAutoMovieInspectionRequest,
+  IAutoMovieInspectionView,
+  IAutoMovieResolveCapturePatternsProps,
+} from "@automovie/interface";
 
 import { matchAutoMovieInspectionPath } from "../scene/inspection/matchAutoMovieInspectionPath.js";
 import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovieInspectionView.js";
-
 
 /**
  * Resolve every pattern a cell's request and view carry against the paths a drawn scene holds: the `parts`, `hide`, `label` and `color` patterns in that order and as written, then the view's focus pattern.
@@ -25,7 +26,9 @@ import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovie
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one cell's request, view and paths.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns names and counts only, bounded by the patterns times the distinct subtrees they reach.
  */
-export function resolveAutoMovieCapturePatterns(props: IAutoMovieResolveCapturePatternsProps): IAutoMovieCaptureResolution[] {
+export function resolveAutoMovieCapturePatterns(
+  props: IAutoMovieResolveCapturePatternsProps,
+): IAutoMovieCaptureResolution[] {
   const paths: string[] = [...new Set(props.paths)];
   const view: IAutoMovieInspectionView = parseAutoMovieInspectionView(
     props.view,

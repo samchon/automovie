@@ -1,5 +1,8 @@
-import type { IAutoMovieMotionHumanDefenceOutcome, IAutoMovieMotionHumanSkill } from "@automovie/interface";
 import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanDefenceOutcome,
+  IAutoMovieMotionHumanSkill,
+} from "@automovie/interface";
 import { DefenceOutcome, HumanSkill, StrikingSkill } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -53,7 +56,10 @@ export function test_motion_striking_defence_outcome(): void {
     "fail",
   );
 
-  const elite: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve({ level: "elite" }, "e4");
+  const elite: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
+    { level: "elite" },
+    "e4",
+  );
   const novice: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
     { level: "novice" },
     "e4",
@@ -66,18 +72,19 @@ export function test_motion_striking_defence_outcome(): void {
     for (const forced of ["inTime", "late", "fail"] as const)
       for (let k: number = 0; k < 40; k++) {
         const movement: number = StrikingSkill.defence(elite);
-        const d: IAutoMovieMotionHumanDefenceOutcome.IDecision = DefenceOutcome.decide(
-          {
-            launch: 1,
-            hit: 1 + hit,
-            telegraph: 0.5,
-            movement,
-            skill: elite,
-            stretch: [0.5, 1.5],
-          },
-          random(k),
-          forced,
-        );
+        const d: IAutoMovieMotionHumanDefenceOutcome.IDecision =
+          DefenceOutcome.decide(
+            {
+              launch: 1,
+              hit: 1 + hit,
+              telegraph: 0.5,
+              movement,
+              skill: elite,
+              stretch: [0.5, 1.5],
+            },
+            random(k),
+            forced,
+          );
         const [r0, r1] = StrikingSkill.reactionBand(elite);
         const [a0, a1] = StrikingSkill.anticipation(elite);
         TestValidator.predicate(
@@ -94,11 +101,12 @@ export function test_motion_striking_defence_outcome(): void {
       }
 
   const movement: number = StrikingSkill.defence(novice);
-  const fixed: IAutoMovieMotionHumanDefenceOutcome.IDecision = DefenceOutcome.decide(
-    { launch: 0, hit: 0.33, telegraph: 0, movement, skill: novice },
-    random(1),
-    "inTime",
-  );
+  const fixed: IAutoMovieMotionHumanDefenceOutcome.IDecision =
+    DefenceOutcome.decide(
+      { launch: 0, hit: 0.33, telegraph: 0, movement, skill: novice },
+      random(1),
+      "inTime",
+    );
   const [n0, n1] = StrikingSkill.reactionBand(novice);
   TestValidator.predicate(
     "impossible forcing warns and keeps plausible timing",
@@ -107,18 +115,19 @@ export function test_motion_striking_defence_outcome(): void {
       fixed.reaction >= n0 - 1e-12 &&
       fixed.reaction <= n1 + 1e-12,
   );
-  const stretched: IAutoMovieMotionHumanDefenceOutcome.IDecision = DefenceOutcome.decide(
-    {
-      launch: 0,
-      hit: 0.33,
-      telegraph: 0,
-      movement,
-      skill: novice,
-      stretch: [1, 1.6],
-    },
-    random(1),
-    "inTime",
-  );
+  const stretched: IAutoMovieMotionHumanDefenceOutcome.IDecision =
+    DefenceOutcome.decide(
+      {
+        launch: 0,
+        hit: 0.33,
+        telegraph: 0,
+        movement,
+        skill: novice,
+        stretch: [1, 1.6],
+      },
+      random(1),
+      "inTime",
+    );
   const needed: number = (n0 + 1.02 * movement) / 0.33;
   TestValidator.predicate(
     "a stretch makes it possible",

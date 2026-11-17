@@ -1,6 +1,15 @@
-import type { AutoMovieMotionHumanActionKey, IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanVault, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanVault,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { WorkoutSupport } from "../exercise/WorkoutSupport";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { handspring } from "./handspring";
@@ -57,7 +66,9 @@ export namespace vault {
       prop: context.params.on,
       affordance: "surface",
     });
-    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(context.params.on);
+    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(
+      context.params.on,
+    );
     const rotation: IAutoMovieQuaternion = read.frame(context.start).rotation;
     const declared: IAutoMovieAffordance | undefined = (
       read.prop.affordances ?? []

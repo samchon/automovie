@@ -1,6 +1,18 @@
-import type { IAutoMovieRenderedProductionSound, IAutoMovieCompiledFormation, IAutoMovieCompiledShotSource, IAutoMovieFilmTimeline, IAutoMovieFormationMotion, IAutoMovieProductionSoundEvent, IAutoMovieProductionSoundPlan, IAutoMovieShotContract } from "@automovie/interface";
-import { deriveProductionSoundPlan, materializeCompiledFormation, renderProductionSound } from "@automovie/engine";
-
+import {
+  deriveProductionSoundPlan,
+  materializeCompiledFormation,
+  renderProductionSound,
+} from "@automovie/engine";
+import type {
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledShotSource,
+  IAutoMovieFilmTimeline,
+  IAutoMovieFormationMotion,
+  IAutoMovieProductionSoundEvent,
+  IAutoMovieProductionSoundPlan,
+  IAutoMovieRenderedProductionSound,
+  IAutoMovieShotContract,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";

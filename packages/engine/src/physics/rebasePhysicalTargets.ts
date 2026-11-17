@@ -1,4 +1,5 @@
 import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
@@ -19,13 +20,14 @@ export function rebasePhysicalTargets(
   pose: IAutoMoviePhysicalProfile.ITransform,
 ): Record<string, IAutoMoviePhysicalProfile.ITransform> {
   const original: IAutoMoviePhysicalProfile.ITransform = targets[root]!;
-  const delta: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-    pose.rotation,
-    Quaternion.inverse(original.rotation),
-  );
+  const delta: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+    Quaternion.multiply(pose.rotation, Quaternion.inverse(original.rotation));
   return Object.fromEntries(
     Object.entries(targets).map(
-      ([bone, target]: [string, IAutoMoviePhysicalProfile.ITransform]): [string, IAutoMoviePhysicalProfile.ITransform] => [
+      ([bone, target]: [string, IAutoMoviePhysicalProfile.ITransform]): [
+        string,
+        IAutoMoviePhysicalProfile.ITransform,
+      ] => [
         bone,
         {
           position: Vector3.add(

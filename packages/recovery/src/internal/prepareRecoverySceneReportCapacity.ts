@@ -1,6 +1,8 @@
-import type { IAutoMovieRecoveryFeasibleReportCapacity, IAutoMovieRecoverySceneFeasibleRouting, IAutoMovieRecoverySceneWork } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieRecoveryFeasibleReportCapacity,
+  IAutoMovieRecoverySceneFeasibleRouting,
+  IAutoMovieRecoverySceneWork,
+} from "@automovie/interface";
 
 import { prepareRecoveryFeasibleReportCapacity } from "./prepareRecoveryFeasibleReportCapacity";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
@@ -29,6 +31,7 @@ export function prepareRecoverySceneReportCapacity(
     );
   routing.execution = {
     ...routing.execution,
-    maxResidentLinearEntries: reporting.sceneEntries };
+    maxResidentLinearEntries: reporting.sceneEntries,
+  };
   routing.reporting = reporting;
 }

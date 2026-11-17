@@ -1,5 +1,4 @@
 import type { IAutoMovieComposition } from "@automovie/interface";
-
 import * as motions from "@automovie/motions";
 import { HUMAN_ACTIONS, HumanChain } from "@automovie/motions";
 

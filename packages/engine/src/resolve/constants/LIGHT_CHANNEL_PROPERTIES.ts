@@ -1,4 +1,8 @@
-import type { AutoMovieLightProperty, IAutoMovieLightChannelProperty } from "@automovie/interface";
+import type {
+  AutoMovieLightProperty,
+  IAutoMovieLightChannelProperty,
+} from "@automovie/interface";
+
 /** The slack `validateTransformScalars` allows a staged rotation's length. */
 const UNIT_QUATERNION_EPSILON = 1e-6;
 

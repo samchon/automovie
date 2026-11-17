@@ -1,4 +1,14 @@
-import type { AutoMovieBernsteinGrid64, AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple, IAutoMovieLocalHermiteField64, IAutoMovieLocalHermiteStream64, IAutoMoviePlanLocalHermite64, IAutoMoviePlanLocalHermite64Leaf, IAutoMoviePlanLocalHermite64Plan } from "@automovie/interface";
+import type {
+  AutoMovieBernsteinGrid64,
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieVector3Tuple,
+  IAutoMovieLocalHermiteField64,
+  IAutoMovieLocalHermiteStream64,
+  IAutoMoviePlanLocalHermite64,
+  IAutoMoviePlanLocalHermite64Leaf,
+  IAutoMoviePlanLocalHermite64Plan,
+} from "@automovie/interface";
+
 import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdivision64";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
 import { AutoMovieLocalHermiteField64 as F } from "./AutoMovieLocalHermiteField64";
@@ -14,7 +24,9 @@ import { AutoMovieLocalHermiteField64 as F } from "./AutoMovieLocalHermiteField6
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call reuses its prepared data for the same original lifetime without a new cross-call cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned closure owns one prepared field; interval stacks expire after each query and retained plans remain caller-owned.
  */
-export function planAutoMovieLocalHermite64(input: IAutoMovieLocalHermiteStream64.Input): IAutoMoviePlanLocalHermite64.IResult {
+export function planAutoMovieLocalHermite64(
+  input: IAutoMovieLocalHermiteStream64.Input,
+): IAutoMoviePlanLocalHermite64.IResult {
   if (
     !input.name.trim() ||
     !input.topologyDomain.trim() ||
@@ -35,7 +47,9 @@ export function planAutoMovieLocalHermite64(input: IAutoMovieLocalHermiteStream6
     input.courses,
     input.stationInterpolation ?? "quadratic",
   );
-  const norm: (p: AutoMovieVector3Tuple) => number = (p: AutoMovieVector3Tuple): number => Math.hypot(...p);
+  const norm: (p: AutoMovieVector3Tuple) => number = (
+    p: AutoMovieVector3Tuple,
+  ): number => Math.hypot(...p);
   const bounds: (grid: AutoMovieBernsteinGrid64) => [number, number, number] = (
     grid: AutoMovieBernsteinGrid64,
   ): [number, number, number] => {
@@ -82,14 +96,20 @@ export function planAutoMovieLocalHermite64(input: IAutoMovieLocalHermiteStream6
       throw new Error("nonfinite-arithmetic: tensor derivative bound");
     return [uu / 8, uv / 4, vv / 8];
   };
-  const plan: (interval: number) => IAutoMoviePlanLocalHermite64Plan = (interval: number): IAutoMoviePlanLocalHermite64Plan => {
+  const plan: (interval: number) => IAutoMoviePlanLocalHermite64Plan = (
+    interval: number,
+  ): IAutoMoviePlanLocalHermite64Plan => {
     if (interval >= input.courses.length - 1) return { cells: [], leaves: [] };
     try {
-      const cells: IAutoMovieLocalHermiteField64.Cell[] = field.interval(interval),
+      const cells: IAutoMovieLocalHermiteField64.Cell[] =
+          field.interval(interval),
         leaves: IAutoMoviePlanLocalHermite64Leaf[] = [];
       const stack: IAutoMoviePlanLocalHermite64Leaf[] = cells
         .map(
-          (cell: IAutoMovieLocalHermiteField64.Cell, k: number): IAutoMoviePlanLocalHermite64Leaf => ({
+          (
+            cell: IAutoMovieLocalHermiteField64.Cell,
+            k: number,
+          ): IAutoMoviePlanLocalHermite64Leaf => ({
             ...cell,
             t0: 0,
             t1: 1,
@@ -128,21 +148,54 @@ export function planAutoMovieLocalHermite64(input: IAutoMovieLocalHermiteStream6
           z: AutoMovieBernsteinGrid64 = [];
         if (alongU)
           for (const row of cell.grid) {
-            const pieces: [AutoMovieBernsteinPolynomial64, AutoMovieBernsteinPolynomial64] = S.split(row, 0.5);
+            const pieces: [
+              AutoMovieBernsteinPolynomial64,
+              AutoMovieBernsteinPolynomial64,
+            ] = S.split(row, 0.5);
             a.push(pieces[0]);
             z.push(pieces[1]);
           }
         else {
-          const columns: [AutoMovieBernsteinPolynomial64, AutoMovieBernsteinPolynomial64][] = [0, 1, 2, 3].map(
-            (c: number): [AutoMovieBernsteinPolynomial64, AutoMovieBernsteinPolynomial64] =>
+          const columns: [
+            AutoMovieBernsteinPolynomial64,
+            AutoMovieBernsteinPolynomial64,
+          ][] = [0, 1, 2, 3].map(
+            (
+              c: number,
+            ): [
+              AutoMovieBernsteinPolynomial64,
+              AutoMovieBernsteinPolynomial64,
+            ] =>
               S.split(
-                cell.grid.map((row: AutoMovieBernsteinPolynomial64): AutoMovieVector3Tuple => row[c]!),
+                cell.grid.map(
+                  (
+                    row: AutoMovieBernsteinPolynomial64,
+                  ): AutoMovieVector3Tuple => row[c]!,
+                ),
                 0.5,
               ),
           );
           for (let r: number = 0; r < 4; r++) {
-            a.push(columns.map((p: [AutoMovieBernsteinPolynomial64, AutoMovieBernsteinPolynomial64]): AutoMovieVector3Tuple => p[0][r]!));
-            z.push(columns.map((p: [AutoMovieBernsteinPolynomial64, AutoMovieBernsteinPolynomial64]): AutoMovieVector3Tuple => p[1][r]!));
+            a.push(
+              columns.map(
+                (
+                  p: [
+                    AutoMovieBernsteinPolynomial64,
+                    AutoMovieBernsteinPolynomial64,
+                  ],
+                ): AutoMovieVector3Tuple => p[0][r]!,
+              ),
+            );
+            z.push(
+              columns.map(
+                (
+                  p: [
+                    AutoMovieBernsteinPolynomial64,
+                    AutoMovieBernsteinPolynomial64,
+                  ],
+                ): AutoMovieVector3Tuple => p[1][r]!,
+              ),
+            );
           }
         }
         stack.push(

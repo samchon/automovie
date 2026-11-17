@@ -1,10 +1,14 @@
-import type { IAutoMovieConicFieldJet, IAutoMovieViewConic, IAutoMovieViewSectionField } from "@automovie/interface";
 import {
   AutoMovieConicFieldJet,
   AutoMovieConicHermite,
   AutoMovieViewConic,
   AutoMovieViewSectionField,
 } from "@automovie/engine";
+import type {
+  IAutoMovieConicFieldJet,
+  IAutoMovieViewConic,
+  IAutoMovieViewSectionField,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import type { Profiler } from "node:inspector";
 import { Session } from "node:inspector/promises";
@@ -300,12 +304,13 @@ function effects(): void {
       return a / b;
     },
   };
-  const refused: IAutoMovieViewConic.ICurve = AutoMovieViewConic.prepareGeometry(
-    counted,
-    [1, 2, 3, 4],
-    [0.5, 0.5, 0.5, 0.5],
-    [1000, 1000, 1000, 1000],
-  );
+  const refused: IAutoMovieViewConic.ICurve =
+    AutoMovieViewConic.prepareGeometry(
+      counted,
+      [1, 2, 3, 4],
+      [0.5, 0.5, 0.5, 0.5],
+      [1000, 1000, 1000, 1000],
+    );
   if (
     divisions !== 4 ||
     !refused.failure?.startsWith("quarter 0: G2 conic end needs")

@@ -1,6 +1,8 @@
-import type { IAutoMovieMotionHumanArmGeometry, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
@@ -213,7 +215,8 @@ function certified(
       ),
   );
   const ends: IAutoMovieMotionHumanArmGeometry.IPlaced[] = [k, k + 1].map(
-    (j: number): IAutoMovieMotionHumanArmGeometry.IPlaced => G.placed(setup, c.frames[a]![j]!, x[a]![j]!),
+    (j: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+      G.placed(setup, c.frames[a]![j]!, x[a]![j]!),
   );
   const screens: S.IScreen[] = [k, k + 1].map(
     (j: number, e: number): S.IScreen =>
@@ -247,8 +250,10 @@ function certified(
         (c.allowed(a, j, probe, shape) - (S.gap(frame, shape, p, p) - r));
       const slack: number = (T.SKIN + T.TOLERANCE - short) / 1000;
       return inner.every((g: number, i: number): boolean => {
-        const there: IAutoMovieMotionHumanArmGeometry.IShape | undefined = fine.frames[a]![g]!.shapes[shape];
-        const here: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
+        const there: IAutoMovieMotionHumanArmGeometry.IShape | undefined =
+          fine.frames[a]![g]!.shapes[shape];
+        const here: IAutoMovieMotionHumanArmGeometry.IShape =
+          frame.shapes[shape]!;
         if (
           there === undefined ||
           there.bone !== here.bone ||

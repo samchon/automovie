@@ -1,4 +1,8 @@
-import type { IAutoMovieConstructionCurve, IAutoMovieMark } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionCurve,
+  IAutoMovieMark,
+} from "@automovie/interface";
+
 /**
  * Turn the construction curves of one built form into inspection marks that follow the scene object the form was built into.
  *

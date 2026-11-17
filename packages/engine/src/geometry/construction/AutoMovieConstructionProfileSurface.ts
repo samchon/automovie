@@ -1,6 +1,11 @@
-import type { IAutoMovieConstructionProfileSource, IAutoMovieSolidSurface, AutoMovieVector2Tuple, IAutoMovieLoftFrame, IAutoMovieLoftWorldJetWorld, IAutoMovieConstructionProfile } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieConstructionProfile,
+  IAutoMovieConstructionProfileSource,
+  IAutoMovieLoftFrame,
+  IAutoMovieLoftWorldJetWorld,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieConstructionProfileTopology } from "./AutoMovieConstructionProfileTopology";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
@@ -109,8 +114,10 @@ export function AutoMovieConstructionProfileSurface(
         st: scale(local!.st, factor),
         tt: scale(local!.tt, factor * factor),
       };
-      const world: IAutoMovieLoftWorldJetWorld =
-        AutoMovieLoftWorldJet(scaled, rows);
+      const world: IAutoMovieLoftWorldJetWorld = AutoMovieLoftWorldJet(
+        scaled,
+        rows,
+      );
       const normal: number[] = [
         world.s[1] * world.t[2] - world.s[2] * world.t[1],
         world.s[2] * world.t[0] - world.s[0] * world.t[2],

@@ -1,9 +1,9 @@
 import type { IAutoMovieMotionClock } from "../compose/IAutoMovieMotionClock";
 import type { IAutoMovieMotionHumanActionContext } from "../law/IAutoMovieMotionHumanActionContext";
-import type { IAutoMovieMotionHumanGrasp } from "./IAutoMovieMotionHumanGrasp";
-import type { IAutoMovieMotionHumanGraspUse } from "./IAutoMovieMotionHumanGraspUse";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
+import type { IAutoMovieMotionHumanGrasp } from "./IAutoMovieMotionHumanGrasp";
+import type { IAutoMovieMotionHumanGraspUse } from "./IAutoMovieMotionHumanGraspUse";
 
 /**
  * A held tool used as the grasp it was taken up by presents it: the act

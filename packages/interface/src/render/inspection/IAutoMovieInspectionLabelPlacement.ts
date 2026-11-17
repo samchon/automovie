@@ -10,7 +10,7 @@ import type { IAutoMovieInspectionLabel } from "./IAutoMovieInspectionLabel.js";
  */
 export interface IAutoMovieInspectionLabelPlacement {
   /** Visible nonoverlapping anchors kept in input order. */
-labels: IAutoMovieInspectionLabel[];
+  labels: IAutoMovieInspectionLabel[];
   /** Rejected anchors, retaining projected coordinates even when outside the raster or nonfinite. */
-dropped: IAutoMovieInspectionLabel[];
+  dropped: IAutoMovieInspectionLabel[];
 }

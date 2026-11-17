@@ -1,5 +1,9 @@
-import type { IAutoMovieCreateEllipticLoftAtlas, IAutoMovieBicubicAtlasGeometry, IAutoMovieEllipticLoft, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieBicubicAtlasGeometry,
+  IAutoMovieCreateEllipticLoftAtlas,
+  IAutoMovieEllipticLoft,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Form a shared bicubic atlas from cubic centre and ellipse-radius profiles.
@@ -22,7 +26,9 @@ import type { IAutoMovieCreateEllipticLoftAtlas, IAutoMovieBicubicAtlasGeometry,
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One angular coefficient ring and one shared row per physical span boundary supply all patches, without regenerating geometry for construction or a camera change.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No state survives except the caller-owned atlas and scalar deviation bound. The input profiles are borrowed synchronously and no I/O, process, handle or global cache is acquired.
  */
-export function createAutoMovieEllipticLoftAtlas(input: IAutoMovieCreateEllipticLoftAtlas.IInput): IAutoMovieCreateEllipticLoftAtlas.IResult {
+export function createAutoMovieEllipticLoftAtlas(
+  input: IAutoMovieCreateEllipticLoftAtlas.IInput,
+): IAutoMovieCreateEllipticLoftAtlas.IResult {
   if (
     !input ||
     !input.loft ||

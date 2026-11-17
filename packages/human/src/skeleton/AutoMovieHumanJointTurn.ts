@@ -1,8 +1,9 @@
-import type { AutoMovieQuaternionTuple, IAutoMovieHumanJointCentres, IAutoMovieHumanNeutral, IAutoMovieHumanSkeletonMath } from "@automovie/interface";
-
-
-
-
+import type {
+  AutoMovieQuaternionTuple,
+  IAutoMovieHumanJointCentres,
+  IAutoMovieHumanNeutral,
+  IAutoMovieHumanSkeletonMath,
+} from "@automovie/interface";
 
 import { AutoMovieHumanNeutral } from "./AutoMovieHumanNeutral";
 import { AutoMovieHumanPelvicShare } from "./AutoMovieHumanPelvicShare";
@@ -39,10 +40,12 @@ export namespace AutoMovieHumanJointTurn {
       ),
     );
     const parentOf: Map<string, string | null> = new Map(
-      joints.map((j: IAutoMovieHumanJointCentres.IJoint): [string, string | null] => [
-        j.bone,
-        j.parent,
-      ]),
+      joints.map(
+        (j: IAutoMovieHumanJointCentres.IJoint): [string, string | null] => [
+          j.bone,
+          j.parent,
+        ],
+      ),
     );
     const relative: (bone: string, q: AutoMovieQuaternionTuple) => number = (
       bone: string,
@@ -69,14 +72,24 @@ export namespace AutoMovieHumanJointTurn {
     ): void => {
       out.set(bone, Math.min(Math.PI, Math.max(out.get(bone) ?? 0, angle)));
     };
-    for (const [path, template, axis, sign, min, max] of AutoMovieHumanPoseChannels) {
+    for (const [
+      path,
+      template,
+      axis,
+      sign,
+      min,
+      max,
+    ] of AutoMovieHumanPoseChannels) {
       // Translations and the jaw's millimetres are not turns of a limb, and a
       // knee's rotation exists only with the knee bent, inside its flexion's turn.
       if (axis === "forward" || axis === "lateral") continue;
       if (path.startsWith("head.") || path.endsWith("knee.rotation")) continue;
-      for (const side of template.includes("<side>") ? ["left", "right"] : [""]) {
+      for (const side of template.includes("<side>")
+        ? ["left", "right"]
+        : [""]) {
         const bone: string = template.replace("<side>", side);
-        const own: IAutoMovieHumanJointCentres.IJoint | undefined = standing.get(bone);
+        const own: IAutoMovieHumanJointCentres.IJoint | undefined =
+          standing.get(bone);
         if (own === undefined) continue;
         const axes: IAutoMovieHumanSkeletonMath.IAxes = Math3D.boneAxes(
           bone,
@@ -93,7 +106,13 @@ export namespace AutoMovieHumanJointTurn {
           const turned: number = path.endsWith("hip.flexion")
             ? AutoMovieHumanPelvicShare.joint(value)
             : value;
-          raise(bone, relative(bone, Math3D.fromAxisAngle(axes[axis], sign * turned * share)));
+          raise(
+            bone,
+            relative(
+              bone,
+              Math3D.fromAxisAngle(axes[axis], sign * turned * share),
+            ),
+          );
           if (forearm)
             raise(
               `${side}Hand`,

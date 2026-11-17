@@ -1,6 +1,18 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObstacle, IAutoMovieMotionHumanStand, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HumanChain, HumanObstacle, HumanPerformance, stand } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObstacle,
+  IAutoMovieMotionHumanStand,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObstacle,
+  HumanPerformance,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -70,19 +82,22 @@ export function test_human_motion_core_obstacles(): void {
     ...HumanObstacle.wall("beam", at(-2, -1), at(2, -1), 0.2, 1.8),
     bottom: 1.6,
   };
-  const scene: readonly IAutoMovieMotionHumanObstacle.IObstacle[] = [north, far, beam];
-  const body: IAutoMovieMotionHumanObstacle.INeed = { breadth: 0.45, height: 1.75 };
+  const scene: readonly IAutoMovieMotionHumanObstacle.IObstacle[] = [
+    north,
+    far,
+    beam,
+  ];
+  const body: IAutoMovieMotionHumanObstacle.INeed = {
+    breadth: 0.45,
+    height: 1.75,
+  };
   const read = (
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
     need: IAutoMovieMotionHumanObstacle.INeed = body,
   ): unknown => {
-    const block: IAutoMovieMotionHumanObstacle.IBlock | null = HumanObstacle.blocking(
-      scene,
-      from,
-      to,
-      need,
-    );
+    const block: IAutoMovieMotionHumanObstacle.IBlock | null =
+      HumanObstacle.blocking(scene, from, to, need);
     return block === null
       ? "free"
       : [
@@ -133,25 +148,26 @@ export function test_human_motion_core_obstacles(): void {
   );
 
   // 7. An object's own opening.
-  const opening: IAutoMovieMotionHumanObstacle.IAperture | undefined = HumanObstacle.apertures(
-    {
-      affordances: [
-        {
-          id: "doorway",
-          kind: "aperture",
-          frame: {
-            translation: { x: 0.5, y: 0, z: 0 },
-            rotation: { x: 0, y: 0, z: 0, w: 1 },
-            scale: { x: 1, y: 1, z: 1 },
+  const opening: IAutoMovieMotionHumanObstacle.IAperture | undefined =
+    HumanObstacle.apertures(
+      {
+        affordances: [
+          {
+            id: "doorway",
+            kind: "aperture",
+            frame: {
+              translation: { x: 0.5, y: 0, z: 0 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              scale: { x: 1, y: 1, z: 1 },
+            },
+            extent: null,
+            width: 0.9,
+            height: 2,
           },
-          extent: null,
-          width: 0.9,
-          height: 2,
-        },
-      ],
-    },
-    { at: at(0, 2), yaw: 90 },
-  )[0];
+        ],
+      },
+      { at: at(0, 2), yaw: 90 },
+    )[0];
   TestValidator.equals(
     "an object's aperture is an opening in the world",
     opening === undefined
@@ -171,16 +187,22 @@ export function test_human_motion_core_obstacles(): void {
   // 8. A law reads the scene from its context.
   const man: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   let seen: readonly string[] = [];
-  const look: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> = {
-    ...stand,
-    name: "survey",
-    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>): IAutoMovieMotionHumanActionPlan => {
-      seen = context
-        .obstacles()
-        .map((obstacle: IAutoMovieMotionHumanObstacle.IObstacle): string => obstacle.subject);
-      return stand.plan(context);
-    },
-  };
+  const look: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
+    {
+      ...stand,
+      name: "survey",
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
+      ): IAutoMovieMotionHumanActionPlan => {
+        seen = context
+          .obstacles()
+          .map(
+            (obstacle: IAutoMovieMotionHumanObstacle.IObstacle): string =>
+              obstacle.subject,
+          );
+        return stand.plan(context);
+      },
+    };
   new HumanPerformance({
     seed: "obstacles",
     performers: [

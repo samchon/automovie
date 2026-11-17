@@ -1,6 +1,13 @@
-import type { IAutoMovieMotionCoupling, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget, IAutoMovieMotionMeeting, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionCoupling,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionMeeting,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
@@ -24,7 +31,6 @@ import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing role is a shorter role list and a meeting that is not solid, not a partner made up to fill it.
  */
 export namespace AutoMovieMotionMeeting {
-
   /**
    * The meeting of a mutual action.
    *
@@ -74,16 +80,20 @@ export namespace AutoMovieMotionMeeting {
           reason: `a ${kind.name} has no role "${role.name}"; its roles are ${kind.roles.join(", ")}`,
           fix: "name one of the kind's roles",
         });
-    const ordered: IAutoMovieMotionMeeting.IRole[] = [...roles].sort((a: IAutoMovieMotionMeeting.IRole, b: IAutoMovieMotionMeeting.IRole): number =>
-      a.name !== b.name
-        ? a.name < b.name
-          ? -1
-          : 1
-        : a.subject < b.subject
-          ? -1
-          : a.subject > b.subject
-            ? 1
-            : 0,
+    const ordered: IAutoMovieMotionMeeting.IRole[] = [...roles].sort(
+      (
+        a: IAutoMovieMotionMeeting.IRole,
+        b: IAutoMovieMotionMeeting.IRole,
+      ): number =>
+        a.name !== b.name
+          ? a.name < b.name
+            ? -1
+            : 1
+          : a.subject < b.subject
+            ? -1
+            : a.subject > b.subject
+              ? 1
+              : 0,
     );
     const solid: boolean = ordered.length === kind.roles.length;
     const floors: IAutoMovieVector3[] = ordered.map(
@@ -133,10 +143,14 @@ export namespace AutoMovieMotionMeeting {
             ),
           );
     const timings: IAutoMovieMotionMeeting.ITiming[] = ordered.map(
-      (r: IAutoMovieMotionMeeting.IRole): IAutoMovieMotionMeeting.ITiming => kind.timing(r, world),
+      (r: IAutoMovieMotionMeeting.IRole): IAutoMovieMotionMeeting.ITiming =>
+        kind.timing(r, world),
     );
     const latest = (key: keyof IAutoMovieMotionMeeting.ITiming): number =>
-      context.start + Math.max(...timings.map((t: IAutoMovieMotionMeeting.ITiming): number => t[key]));
+      context.start +
+      Math.max(
+        ...timings.map((t: IAutoMovieMotionMeeting.ITiming): number => t[key]),
+      );
 
     // A window moves the whole meeting later to its start and holds the
     // contact to its end.
@@ -179,7 +193,9 @@ export namespace AutoMovieMotionMeeting {
       ),
       instants,
       roles: ordered.map(
-        (r: IAutoMovieMotionMeeting.IRole): Pick<IAutoMovieMotionMeeting.IRole, "name" | "subject"> => ({
+        (
+          r: IAutoMovieMotionMeeting.IRole,
+        ): Pick<IAutoMovieMotionMeeting.IRole, "name" | "subject"> => ({
           name: r.name,
           subject: r.subject,
         }),
@@ -259,7 +275,10 @@ export namespace AutoMovieMotionMeeting {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function local(meeting: IAutoMovieMotionMeeting.IMeeting, start: number): IAutoMovieMotionMeeting.ITiming {
+  export function local(
+    meeting: IAutoMovieMotionMeeting.IMeeting,
+    start: number,
+  ): IAutoMovieMotionMeeting.ITiming {
     return {
       ready: meeting.instants.ready - start,
       stroke: meeting.instants.stroke - start,

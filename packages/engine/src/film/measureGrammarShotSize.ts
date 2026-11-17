@@ -1,5 +1,11 @@
-import { type IAutoMovieGrammarCameraObservation, type IAutoMovieGrammarSubjectObservation, type IAutoMovieNormalizedGrammarShot, type IAutoMovieProjectToNdc, IAutoMovieCameraIntent, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieCameraIntent,
+  type IAutoMovieGrammarCameraObservation,
+  type IAutoMovieGrammarSubjectObservation,
+  type IAutoMovieNormalizedGrammarShot,
+  type IAutoMovieProjectToNdc,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { classifyGrammarShotSize } from "./classifyGrammarShotSize";
 import { GRAMMAR_EPSILON } from "./constants/GRAMMAR_EPSILON";

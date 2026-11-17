@@ -1,5 +1,8 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftFrame } from "@automovie/interface";
 import { AutoMovieLoftChain } from "@automovie/engine";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftFrame,
+} from "@automovie/interface";
 
 type V3 = [number, number, number];
 

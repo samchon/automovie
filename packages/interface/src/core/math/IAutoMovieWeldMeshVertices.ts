@@ -1,5 +1,3 @@
-
-
 /** Data and callback contracts shared by the WeldMeshVertices operations. */
 export namespace IAutoMovieWeldMeshVertices {
   /**
@@ -9,7 +7,7 @@ export namespace IAutoMovieWeldMeshVertices {
   export type IResult = {
     /** Distinct delimiter-safe grid identities in first-occurrence order. */
     labels: string[];
-  
+
     /** One label ordinal per input XYZ tuple, in the original vertex order. */
     vertices: number[];
   };

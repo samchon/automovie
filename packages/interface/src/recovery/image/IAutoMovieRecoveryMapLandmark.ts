@@ -8,15 +8,12 @@ import type { IAutoMovieRecoveryMapObservation } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Members specify component identity, common length gauge and observed-image support.
  */
 export interface IAutoMovieRecoveryMapLandmark {
- 
- /** Deterministic linked-feature component identity within this operation. */
+  /** Deterministic linked-feature component identity within this operation. */
   id: number;
 
- 
- /** World coordinate in first-camera axes and unit seed-baseline length. */
+  /** World coordinate in first-camera axes and unit seed-baseline length. */
   point: [number, number, number];
 
- 
- /** Distinct-view observations retained by explicit geometry gates; absent images remain unobserved. */
+  /** Distinct-view observations retained by explicit geometry gates; absent images remain unobserved. */
   observations: IAutoMovieRecoveryMapObservation[];
 }

@@ -1,11 +1,16 @@
-import type { IAutoMovieMotionHumanColliders, IAutoMoviePhysicalHullFaces, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
-  physicalHullFaces,
-  physicalShapeSegmentDistance,
   Quaternion,
   Vector3,
+  physicalHullFaces,
+  physicalShapeSegmentDistance,
 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanColliders,
+  IAutoMoviePhysicalHullFaces,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { walkLegCapsules } from "./walkLegCapsules";
 
 /**
@@ -81,7 +86,12 @@ export namespace walkLegBinding {
       return {
         depth: Math.max(
           0,
-          -physicalShapeSegmentDistance(walkLegCapsules.IDENTITY, shape, local, local),
+          -physicalShapeSegmentDistance(
+            walkLegCapsules.IDENTITY,
+            shape,
+            local,
+            local,
+          ),
         ),
         face: undefined,
       };
@@ -90,7 +100,9 @@ export namespace walkLegBinding {
       Vector3.subtract(local, shape.transform.position),
     );
     // A point outside the sphere about the hull's vertices lies outside it.
-    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(shape.points);
+    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
+      shape.points,
+    );
     if (Vector3.length(Vector3.subtract(point, hull.centre)) >= hull.radius)
       return { depth: 0, face: undefined };
     let depth: number = Infinity;

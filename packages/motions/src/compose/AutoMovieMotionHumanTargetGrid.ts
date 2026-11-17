@@ -1,4 +1,11 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanTargetGrid, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTargetGrid,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -19,7 +26,6 @@ import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No name carries a number of its own beyond the tables and `OVERHEAD`; the record is the target's own `IDefault`.
  */
 export namespace AutoMovieMotionHumanTargetGrid {
-
   /** Every height, lowest first: the order `nearest` breaks a tie by and a nudge names a neighbour from, and the list {@link Height} is read from. */
   export const HEIGHTS = [
     "floor",
@@ -56,7 +62,9 @@ export namespace AutoMovieMotionHumanTargetGrid {
    * (`wave`; provisional, checked by the place verdict of the
    * `everyday-gesture-wave` captures across the body sweep).
    */
-  export const LATERALS: Readonly<Record<IAutoMovieMotionHumanTargetGrid.Lateral, number>> = {
+  export const LATERALS: Readonly<
+    Record<IAutoMovieMotionHumanTargetGrid.Lateral, number>
+  > = {
     centre: 0,
     inside: 0.6,
     shoulder: 1,
@@ -64,14 +72,21 @@ export namespace AutoMovieMotionHumanTargetGrid {
   };
 
   /** The distances of {@link Distance}, as data. */
-  export const DISTANCE_NAMES = ["close", "near", "mid", "far"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanTargetGrid.Distance>[];
+  export const DISTANCE_NAMES = [
+    "close",
+    "near",
+    "mid",
+    "far",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanTargetGrid.Distance>[];
 
   /**
    * The share of the arm (upper arm and forearm) each distance name is:
    * `close` at 0.1 (`raiseHand`), `near` at 0.25 (`wave`), `mid` at 0.6
    * (`AutoMovieMotionHumanTarget.DEFAULTS.desk`), `far` at 0.8 (`AutoMovieMotionHumanTarget.DEFAULTS.ahead`, `stopPalm`).
    */
-  export const DISTANCES: Readonly<Record<IAutoMovieMotionHumanTargetGrid.Distance, number>> = {
+  export const DISTANCES: Readonly<
+    Record<IAutoMovieMotionHumanTargetGrid.Distance, number>
+  > = {
     close: 0.1,
     near: 0.25,
     mid: 0.6,
@@ -217,7 +232,12 @@ export namespace AutoMovieMotionHumanTargetGrid {
     posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
     side: IAutoMovieMotionHumanHand.Side,
     point: IAutoMovieVector3,
-  ): Required<Pick<IAutoMovieMotionHumanTargetGrid.IGrid, "height" | "lateral" | "distance">> {
+  ): Required<
+    Pick<
+      IAutoMovieMotionHumanTargetGrid.IGrid,
+      "height" | "lateral" | "distance"
+    >
+  > {
     const m = body.measure;
     const local: IAutoMovieVector3 = HumanFrame.local(
       {
@@ -229,17 +249,20 @@ export namespace AutoMovieMotionHumanTargetGrid {
     return {
       height: closest(
         HEIGHTS,
-        (name: IAutoMovieMotionHumanTargetGrid.Height): number => height(body, name) * m.stature,
+        (name: IAutoMovieMotionHumanTargetGrid.Height): number =>
+          height(body, name) * m.stature,
         local.y,
       ),
       lateral: closest(
         Object.keys(LATERALS) as IAutoMovieMotionHumanTargetGrid.Lateral[],
-        (name: IAutoMovieMotionHumanTargetGrid.Lateral): number => LATERALS[name] * m.shoulderHalfWidth,
+        (name: IAutoMovieMotionHumanTargetGrid.Lateral): number =>
+          LATERALS[name] * m.shoulderHalfWidth,
         (side === "left" ? 1 : -1) * local.x,
       ),
       distance: closest(
         Object.keys(DISTANCES) as IAutoMovieMotionHumanTargetGrid.Distance[],
-        (name: IAutoMovieMotionHumanTargetGrid.Distance): number => DISTANCES[name] * (m.upperArm + m.forearm),
+        (name: IAutoMovieMotionHumanTargetGrid.Distance): number =>
+          DISTANCES[name] * (m.upperArm + m.forearm),
         local.z,
       ),
     };
@@ -250,7 +273,9 @@ export namespace AutoMovieMotionHumanTargetGrid {
 function named(
   body: Pick<IAutoMovieMotionHumanBody, "measure">,
   side: IAutoMovieMotionHumanHand.Side,
-  base: IAutoMovieMotionHumanTarget.Name | IAutoMovieMotionHumanTargetGrid.IGrid,
+  base:
+    | IAutoMovieMotionHumanTarget.Name
+    | IAutoMovieMotionHumanTargetGrid.IGrid,
 ): IAutoMovieMotionHumanTarget.IDefault {
   return typeof base === "string"
     ? AutoMovieMotionHumanTarget.DEFAULTS[base]

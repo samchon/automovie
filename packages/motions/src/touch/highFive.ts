@@ -1,6 +1,25 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanHighFive, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSeatedReach, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanTargetGrid, IAutoMovieMotionHumanTouchEffector, IAutoMovieMotionMeeting, IAutoMovieResolveMutualGoal, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, resolveAutoMovieMutualGoal } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanHighFive,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSeatedReach,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTargetGrid,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionMeeting,
+  IAutoMovieResolveMutualGoal,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -71,7 +90,10 @@ export namespace highFive {
 
   /** Each variant's meeting height. */
   export const HEIGHTS: Readonly<
-    Record<IAutoMovieMotionHumanHighFive.Kind, IAutoMovieMotionHumanTargetGrid.Height>
+    Record<
+      IAutoMovieMotionHumanHighFive.Kind,
+      IAutoMovieMotionHumanTargetGrid.Height
+    >
   > = { high: "crown", low: "waist", fist: "chest" };
 
   /** How long the hands stay together, seconds (provisional). */
@@ -109,14 +131,17 @@ export namespace highFive {
     side: IAutoMovieMotionHumanHand.Side,
   ): IAutoMovieMotionMeeting.IKind {
     const height: IAutoMovieMotionHumanTargetGrid.Height = HEIGHTS[kind];
-    const surface: IAutoMovieMotionHumanHand.Surface = kind === "fist" ? "fist" : "palm";
+    const surface: IAutoMovieMotionHumanHand.Surface =
+      kind === "fist" ? "fist" : "palm";
     return {
       name: `highFive-${kind}`,
       roles: ["slapper", "slapper"],
       contacts: { meet: { height: 0.9, range: 0.8, facing: "performer" } },
       place: (roles) => {
         const arms: IAutoMovieResolveMutualGoal.ISide[] = roles.map(
-          (r: IAutoMovieMotionMeeting.IRole): IAutoMovieResolveMutualGoal.ISide =>
+          (
+            r: IAutoMovieMotionMeeting.IRole,
+          ): IAutoMovieResolveMutualGoal.ISide =>
             handshake.arm(
               r.body,
               side,
@@ -130,7 +155,11 @@ export namespace highFive {
           leaned: readonly IAutoMovieResolveMutualGoal.ISide[],
         ): number =>
           roles.reduce(
-            (sum: number, r: IAutoMovieMotionMeeting.IRole, k: number): number =>
+            (
+              sum: number,
+              r: IAutoMovieMotionMeeting.IRole,
+              k: number,
+            ): number =>
               sum +
               AutoMovieMotionHumanTargetGrid.height(r.body, height) *
                 r.body.measure.stature -
@@ -334,8 +363,10 @@ export namespace highFive {
       body,
       context.entry.pose,
     );
-    const lean: { share: number; joints: IAutoMovieMotionHumanSeatedReach.IJoint[] } =
-      HumanSeatedReach.need(
+    const lean: {
+      share: number;
+      joints: IAutoMovieMotionHumanSeatedReach.IJoint[];
+    } = HumanSeatedReach.need(
       {
         name: "slapper",
         subject: context.subject,
@@ -343,7 +374,8 @@ export namespace highFive {
         posture: entry,
         bones,
         seated: context.entry.supports.some(
-          (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat",
+          (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+            s.kind === "seat",
         ),
       },
       bones.get(`${side}UpperArm`)!.worldPosition,
@@ -351,56 +383,60 @@ export namespace highFive {
       handshake.arm(body, side, bones.get(`${side}UpperArm`)!.worldPosition)
         .limit,
     );
-    const under: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      clock.duration,
-    );
-    const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base:
-        lean.share === 0
-          ? under
-          : {
-              ...under,
-              posture: (seconds: number): IAutoMovieMotionHumanPosture =>
-                HumanSeatedReach.posed(
-                  body,
-                  under.posture(seconds),
-                  lean.joints,
-                  lean.share *
-                    clock.envelope(["start", "ready"], ["relax", "end"], seconds),
-                ),
-            },
-      clock,
-      primitives: AutoMovieMotionHumanTouch.touch({
-        body,
+    const under: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, clock.duration);
+    const plan: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base:
+          lean.share === 0
+            ? under
+            : {
+                ...under,
+                posture: (seconds: number): IAutoMovieMotionHumanPosture =>
+                  HumanSeatedReach.posed(
+                    body,
+                    under.posture(seconds),
+                    lean.joints,
+                    lean.share *
+                      clock.envelope(
+                        ["start", "ready"],
+                        ["relax", "end"],
+                        seconds,
+                      ),
+                  ),
+              },
         clock,
-        side,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-        effector,
-        region,
-        kind: "press",
-        count: 1,
-        tangent: "up",
-        bend,
-        reference: AutoMovieMotionHumanTouchLaid.laid(
+        primitives: AutoMovieMotionHumanTouch.touch({
           body,
-          entry,
+          clock,
           side,
+          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
           effector,
-          place,
-          "up",
+          region,
+          kind: "press",
+          count: 1,
+          tangent: "up",
           bend,
+          reference: AutoMovieMotionHumanTouchLaid.laid(
+            body,
+            entry,
+            side,
+            effector,
+            place,
+            "up",
+            bend,
+            lay,
+            facing,
+          ),
           lay,
-          facing,
-        ),
-        lay,
-        ...(facing === undefined ? {} : { facing }),
-        ...(p.prop === undefined ? {} : { fingers: "keep" as const }),
-        entry,
-      }),
-      contact: "meet",
-    });
-    const waited: IAutoMovieMotionHumanActionPlan = lead > 0 ? delayed(plan, lead) : plan;
+          ...(facing === undefined ? {} : { facing }),
+          ...(p.prop === undefined ? {} : { fingers: "keep" as const }),
+          entry,
+        }),
+        contact: "meet",
+      });
+    const waited: IAutoMovieMotionHumanActionPlan =
+      lead > 0 ? delayed(plan, lead) : plan;
     return p.prop === undefined
       ? waited
       : HumanHeld.kept(context, waited, side, p.prop);

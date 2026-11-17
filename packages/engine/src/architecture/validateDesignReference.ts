@@ -1,5 +1,15 @@
-import { type IAutoMovieValidateDesignReference, type IAutoMovieViolationCollector, IAutoMovieDesignAnalysis, IAutoMovieDesignIssue, IAutoMovieDesignPoint, IAutoMovieDesignReference, IAutoMovieDesignSourceFrame, IAutoMovieObservedCandidate, IAutoMovieObservedPrimitive, IAutoMovieValidation } from "@automovie/interface";
-
+import {
+  IAutoMovieDesignAnalysis,
+  IAutoMovieDesignIssue,
+  IAutoMovieDesignPoint,
+  IAutoMovieDesignReference,
+  IAutoMovieDesignSourceFrame,
+  IAutoMovieObservedCandidate,
+  IAutoMovieObservedPrimitive,
+  type IAutoMovieValidateDesignReference,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
@@ -58,7 +68,11 @@ const PRIMITIVE_POINTS: ReadonlyMap<string, { min: number; max: number }> =
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A validation of one reference per call that coordinates no shared work; `promoteDesignObservations` calls it once per promotion.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The id sets, frame and candidate indexes and the producing-analysis map are local and released on return, each bounded by its record count; the returned validation holds the findings.
  */
-export const validateDesignReference: (props: IAutoMovieValidateDesignReference.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateDesignReference.IProps): IAutoMovieValidation => {
+export const validateDesignReference: (
+  props: IAutoMovieValidateDesignReference.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateDesignReference.IProps,
+): IAutoMovieValidation => {
   const reference: IAutoMovieDesignReference = props.reference;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";

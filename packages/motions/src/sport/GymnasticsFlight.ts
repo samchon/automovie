@@ -1,7 +1,23 @@
-import type { IAutoMovieResolveCenterOfMass, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGymnasticsFlight, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieGravity,
+  Quaternion,
+  Vector3,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGymnasticsFlight,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-
-import { AutoMovieGravity, Quaternion, Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
@@ -31,7 +47,6 @@ import { StrikingBody } from "../striking/StrikingBody";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Gravity is the engine's (`AutoMovieGravity`); every length is the body's or the plan's.
  */
 export namespace GymnasticsFlight {
-
   /**
    * The mass model of a body.
    *
@@ -46,7 +61,9 @@ export namespace GymnasticsFlight {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The callers keep it for the plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function model(body: IAutoMovieMotionHumanBody): IAutoMovieResolveCenterOfMass.IModel {
+  export function model(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieResolveCenterOfMass.IModel {
     return resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
   }
 
@@ -172,11 +189,12 @@ export namespace GymnasticsFlight {
   ): IAutoMovieMotionHumanPosture {
     if (Math.abs(posture.roll) > 1e-9)
       throw new Error("GymnasticsFlight.turned turns a posture with no roll");
-    const after: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> = {
-      yaw: posture.yaw + yaw,
-      pitch: posture.pitch + pitch,
-      roll: 0,
-    };
+    const after: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> =
+      {
+        yaw: posture.yaw + yaw,
+        pitch: posture.pitch + pitch,
+        roll: 0,
+      };
     const turn: IAutoMovieQuaternion = Quaternion.multiply(
       resolveHumanPosture.heading(after),
       Quaternion.inverse(resolveHumanPosture.heading(posture)),
@@ -274,7 +292,10 @@ export namespace GymnasticsFlight {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `knockdown.rest`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function lowest(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture): number {
+  export function lowest(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ): number {
     return posture.root.y - knockdown.rest(body, posture);
   }
 

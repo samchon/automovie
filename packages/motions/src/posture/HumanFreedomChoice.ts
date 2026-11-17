@@ -45,12 +45,15 @@ export namespace HumanFreedomChoice {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan and pose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function chosen(problem: IAutoMovieMotionHumanFreedomChoice.IProblem): IAutoMovieMotionHumanFreedomChoice.IChoice {
+  export function chosen(
+    problem: IAutoMovieMotionHumanFreedomChoice.IProblem,
+  ): IAutoMovieMotionHumanFreedomChoice.IChoice {
     const { tried, freedoms, judge } = problem;
     if (tried.length === 0) throw new Error("A pose has no candidate");
     const within = (values: readonly number[]): number[] =>
       values.map((v: number, i: number): number => {
-        const freedom: IAutoMovieMotionHumanFreedomChoice.Freedom = freedoms[i]!;
+        const freedom: IAutoMovieMotionHumanFreedomChoice.Freedom =
+          freedoms[i]!;
         if (freedom.kind === "bounded")
           return Math.min(freedom.greatest, Math.max(freedom.least, v));
         const p: number = freedom.period;

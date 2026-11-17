@@ -1,12 +1,12 @@
-import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
-import type { IAutoMoviePose } from "../pose/IAutoMoviePose";
-import type { IAutoMovieSceneNode } from "../scene/IAutoMovieSceneNode";
 import type { IAutoMovieShotPerformance } from "../cinematics/IAutoMovieShotPerformance";
-import type { IAutoMovieShotSpatialSelector } from "./IAutoMovieShotSpatialSelector";
-import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
-import type { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
 import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMoviePose } from "../pose/IAutoMoviePose";
+import type { IAutoMovieSceneNode } from "../scene/IAutoMovieSceneNode";
+import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
+import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
+import type { IAutoMovieShotSpatialSelector } from "./IAutoMovieShotSpatialSelector";
+import type { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
 
 /**
  * Where the subjects a shot contract names stand in its compiled artifacts, at

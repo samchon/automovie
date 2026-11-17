@@ -1,8 +1,8 @@
 import type { IAutoMovieBuiltBoundary } from "../architecture/IAutoMovieBuiltBoundary";
 import type { IAutoMovieBuiltElement } from "../architecture/IAutoMovieBuiltElement";
-import type { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
 import type { IAutoMovieModel } from "../model/IAutoMovieModel";
 import type { IAutoMovieModelPart } from "../model/IAutoMovieModelPart";
+import type { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
 
 /**
  * One built environment indexed for a single drawing, schedule or feature

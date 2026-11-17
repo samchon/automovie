@@ -1,4 +1,3 @@
-import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 import {
   AutoMoviePhysicalSimulation as Simulation,
   physicalNativeVector,
@@ -6,6 +5,10 @@ import {
   samplePhysicalTarget,
   trackPhysicalSupports,
 } from "@automovie/engine";
+import type {
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+} from "@automovie/interface";
 import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
@@ -53,16 +56,19 @@ export async function test_physical_native_transfer(): Promise<void> {
       reason:
         "Actual solved impulse products are checked only when transferred",
     };
-    const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], 1 / 120);
+    const input: IAutoMoviePhysicalSimulationInput.IInput =
+      PhysicalFixtures.input([body], 1 / 120);
     input.floor = 0;
     input.gravity.y = -9.81;
     input.substeps = 1;
     Simulation.identity(input);
-    const control: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+    const control: IAutoMoviePhysicalSimulationInput.IInput =
+      structuredClone(input);
     const controlMode: (typeof control.bodies)[number]["mode"] =
       control.bodies[0]!.mode;
     if (controlMode.kind === "exaggerated") controlMode.impulse = 1;
-    const observed: IAutoMoviePhysicalSimulation = await Simulation.compute(control);
+    const observed: IAutoMoviePhysicalSimulation =
+      await Simulation.compute(control);
     TestValidator.predicate(
       `real positive ${compliance === 0 ? "rigid" : "compliant"} floor transfer precedes the gain boundary`,
       observed.cache.contacts.some(
@@ -90,7 +96,8 @@ export async function test_physical_native_transfer(): Promise<void> {
     compliance: 1e-297,
     reason: "A finite very stiff Kelvin-Voigt limit",
   };
-  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([stiff], 1 / 120);
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([stiff], 1 / 120);
   input.floor = 0;
   input.gravity.y = -9.81;
   input.substeps = 1;

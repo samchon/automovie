@@ -1,5 +1,8 @@
-import { type IAutoMovieViolationCollector, IAutoMovieBuiltConnector, IAutoMovieConnectorLanding } from "@automovie/interface";
-
+import {
+  IAutoMovieBuiltConnector,
+  IAutoMovieConnectorLanding,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 /**
  * Validate the further spaces a run serves along its own route.

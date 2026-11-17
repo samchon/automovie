@@ -1,11 +1,12 @@
-import type { IAutoMovieHumanHeadCompiled, IAutoMovieHumanHeadInputs, IAutoMovieHumanHeadLayout, IAutoMovieHumanNeckSource } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieHumanHeadCompiled,
+  IAutoMovieHumanHeadInputs,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanNeckSource,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadLandmarks } from "../AutoMovieHumanHeadLandmarks";
 import { AutoMovieHumanHeadVault } from "../AutoMovieHumanHeadVault";
-
 
 /**
  * The head lane's anatomical layout from a pure neck generating record.
@@ -37,21 +38,34 @@ export namespace AutoMovieHumanHeadLayout {
    * @evidence contracts/performance.md#reuse-equivalent-work The same posterior point serves scale and nape placement, the mean centres the neck, and one plan serves the lane's parts and attachments.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Local coefficient arrays and compiled splines are released with the call; the returned plan retains only its own landmark and profile data.
    */
-  export function create(source: IAutoMovieHumanNeckSource.IOutput, inputs: IAutoMovieHumanHeadInputs): IAutoMovieHumanHeadLayout {
-    const compiled: IAutoMovieHumanHeadCompiled = AutoMovieHumanHeadLandmarks.compile();
-    const plan: IAutoMovieHumanHeadLayout = AutoMovieHumanHeadLandmarks.layout(compiled, inputs, source.head, source.scale, AutoMovieHumanHeadLandmarks.NONE);
-    plan.neck = { ...plan.neck, base: {
-      girth: inputs.neckBase.girth * source.scale,
-      cervicaleHeight: inputs.neckBase.cervicaleHeight * source.scale,
-      sideNeckPointHeight: inputs.neckBase.sideNeckPointHeight * source.scale,
-      suprasternaleHeight: inputs.neckBase.suprasternaleHeight * source.scale,
+  export function create(
+    source: IAutoMovieHumanNeckSource.IOutput,
+    inputs: IAutoMovieHumanHeadInputs,
+  ): IAutoMovieHumanHeadLayout {
+    const compiled: IAutoMovieHumanHeadCompiled =
+      AutoMovieHumanHeadLandmarks.compile();
+    const plan: IAutoMovieHumanHeadLayout = AutoMovieHumanHeadLandmarks.layout(
+      compiled,
+      inputs,
+      source.head,
+      source.scale,
+      AutoMovieHumanHeadLandmarks.NONE,
+    );
+    plan.neck = {
+      ...plan.neck,
+      base: {
+        girth: inputs.neckBase.girth * source.scale,
+        cervicaleHeight: inputs.neckBase.cervicaleHeight * source.scale,
+        sideNeckPointHeight: inputs.neckBase.sideNeckPointHeight * source.scale,
+        suprasternaleHeight: inputs.neckBase.suprasternaleHeight * source.scale,
 
-      // The harmonic neck has already been rigidly registered to this
-      // shared input frame; shape-dependent posterior estimates do not
-      // move the body's common C7 datum.
-      cervicaleOrigin: inputs.neckBase.cervicaleOrigin * source.scale,
-      priorCervicaleOrigin: source.registration.priorCervicaleX,
-    } };
+        // The harmonic neck has already been rigidly registered to this
+        // shared input frame; shape-dependent posterior estimates do not
+        // move the body's common C7 datum.
+        cervicaleOrigin: inputs.neckBase.cervicaleOrigin * source.scale,
+        priorCervicaleOrigin: source.registration.priorCervicaleX,
+      },
+    };
     plan.vault = AutoMovieHumanHeadVault.closing(plan);
     return plan;
   }
@@ -71,5 +85,4 @@ export namespace AutoMovieHumanHeadLayout {
   export function seat(inputs: IAutoMovieHumanHeadInputs): number {
     return inputs.neckBase.cervicaleHeight;
   }
-
 }

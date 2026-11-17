@@ -1,5 +1,10 @@
-import type { IAutoMovieRigidTransformVelocity, IAutoMovieViolationCollector, IAutoMovieQuaternion, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieRigidTransformVelocity,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+  IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { Quaternion } from "./Quaternion";

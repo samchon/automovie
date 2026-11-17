@@ -1,4 +1,5 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
+
 import { describeInvalidValue } from "../../validation/describeInvalidValue";
 import { isRecord } from "../../validation/isRecord";
 import { validateColor } from "../../validation/validateColor";

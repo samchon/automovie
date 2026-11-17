@@ -1,4 +1,11 @@
-import type { IAutoMovieConicHermite, IAutoMoviePolarSector, IAutoMovieSource, IAutoMovieViewConic, IAutoMovieViewSection } from "@automovie/interface";
+import type {
+  IAutoMovieConicHermite,
+  IAutoMoviePolarSector,
+  IAutoMovieSource,
+  IAutoMovieViewConic,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
+
 import { AutoMovieConicArc } from "./AutoMovieConicArc";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import { AutoMovieViewConic } from "./AutoMovieViewConic";

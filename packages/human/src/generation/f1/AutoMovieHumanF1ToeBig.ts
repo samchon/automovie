@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
-
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
@@ -23,7 +22,11 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  */
 export const AutoMovieHumanF1ToeBig: IAutoMovieHumanConicLoft.IFamily = {
   name: "toe.big",
-  centres: [AutoMovieHumanF1Joints.bigtoe1, AutoMovieHumanF1Joints.bigtoe2, AutoMovieHumanF1Joints.bigtoeEnd],
+  centres: [
+    AutoMovieHumanF1Joints.bigtoe1,
+    AutoMovieHumanF1Joints.bigtoe2,
+    AutoMovieHumanF1Joints.bigtoeEnd,
+  ],
   halves: [5],
   up: AutoMovieHumanF1Placement.direction("toe.big.up"),
   layout: AutoMovieHumanConicSection.limb(0),
@@ -56,5 +59,5 @@ export const AutoMovieHumanF1ToeBig: IAutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
-  tips: [null, {from: 53, tip: 56.13}],
+  tips: [null, { from: 53, tip: 56.13 }],
 };

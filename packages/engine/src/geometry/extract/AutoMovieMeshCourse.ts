@@ -1,4 +1,10 @@
-import type { AutoMovieVector2Tuple, AutoMovieVector3Tuple, IAutoMovieMeshCourse, IAutoMovieMeshExtract } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieMeshCourse,
+  IAutoMovieMeshExtract,
+} from "@automovie/interface";
+
 import { AutoMovieMeshExtract } from "./AutoMovieMeshExtract";
 
 /** A polyline segment, chart millimetres, start then end. */
@@ -33,7 +39,6 @@ type Segment = readonly [AutoMovieVector2Tuple, AutoMovieVector2Tuple];
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No member serves only a test or one part; the reading is the same for every part's course.
  */
 export namespace AutoMovieMeshCourse {
-
   /**
    * Cut a mesh on every course plane and read each holding loop.
    *
@@ -51,32 +56,71 @@ export namespace AutoMovieMeshCourse {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each cut is read once for all its readings.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Owns no retained state or handle; only the returned sections remain.
    */
-  export function cut(mesh: IAutoMovieMeshExtract.IMesh, planes: readonly IAutoMovieMeshCourse.IPlane[], tolerance: number = 0.5, bridge: number = 25): IAutoMovieMeshCourse.ISection[] {
-    const sections: IAutoMovieMeshCourse.ISection[] = planes.map((plane: IAutoMovieMeshCourse.IPlane): IAutoMovieMeshCourse.ISection => {
-      const n: AutoMovieVector3Tuple = cross(plane.v, plane.u);
-      const cut: IAutoMovieMeshExtract.ISection = AutoMovieMeshExtract.outline(mesh, { origin: plane.origin, axes: [n, plane.u, plane.v] }, [0], 0, tolerance, bridge)[0]!;
-      const held: IAutoMovieMeshExtract.ILoop | undefined = cut.outer.find((l: IAutoMovieMeshExtract.ILoop): boolean => contains(l.points, 0, 0));
-      if (held === undefined) return { plane, pieces: cut.outer.length, loop: null, reading: null, normal: null, centroid: null, area: null, reach: null, flags: cut.flags, checks: [] };
-      const world: AutoMovieVector3Tuple[] = held.points.map(([a, b]: [number, number]): AutoMovieVector3Tuple => add(plane.origin, add(scale(plane.u, a), scale(plane.v, b))));
-      const vector: AutoMovieVector3Tuple = newell(world);
-      const length: number = Math.hypot(...vector);
-      return {
-        plane,
-        pieces: cut.outer.length,
-        loop: held.points,
-        reading: read(held.points, tolerance),
-        normal: length === 0 ? null : scale(vector, 1 / length),
-        centroid: centroid(world),
-        area: length / 2,
-        reach: Math.max(...held.points.map(([a, b]: [number, number]): number => Math.hypot(a, b))),
-        flags: cut.flags,
-        checks: [],
-      };
-    });
+  export function cut(
+    mesh: IAutoMovieMeshExtract.IMesh,
+    planes: readonly IAutoMovieMeshCourse.IPlane[],
+    tolerance: number = 0.5,
+    bridge: number = 25,
+  ): IAutoMovieMeshCourse.ISection[] {
+    const sections: IAutoMovieMeshCourse.ISection[] = planes.map(
+      (plane: IAutoMovieMeshCourse.IPlane): IAutoMovieMeshCourse.ISection => {
+        const n: AutoMovieVector3Tuple = cross(plane.v, plane.u);
+        const cut: IAutoMovieMeshExtract.ISection =
+          AutoMovieMeshExtract.outline(
+            mesh,
+            { origin: plane.origin, axes: [n, plane.u, plane.v] },
+            [0],
+            0,
+            tolerance,
+            bridge,
+          )[0]!;
+        const held: IAutoMovieMeshExtract.ILoop | undefined = cut.outer.find(
+          (l: IAutoMovieMeshExtract.ILoop): boolean => contains(l.points, 0, 0),
+        );
+        if (held === undefined)
+          return {
+            plane,
+            pieces: cut.outer.length,
+            loop: null,
+            reading: null,
+            normal: null,
+            centroid: null,
+            area: null,
+            reach: null,
+            flags: cut.flags,
+            checks: [],
+          };
+        const world: AutoMovieVector3Tuple[] = held.points.map(
+          ([a, b]: [number, number]): AutoMovieVector3Tuple =>
+            add(plane.origin, add(scale(plane.u, a), scale(plane.v, b))),
+        );
+        const vector: AutoMovieVector3Tuple = newell(world);
+        const length: number = Math.hypot(...vector);
+        return {
+          plane,
+          pieces: cut.outer.length,
+          loop: held.points,
+          reading: read(held.points, tolerance),
+          normal: length === 0 ? null : scale(vector, 1 / length),
+          centroid: centroid(world),
+          area: length / 2,
+          reach: Math.max(
+            ...held.points.map(([a, b]: [number, number]): number =>
+              Math.hypot(a, b),
+            ),
+          ),
+          flags: cut.flags,
+          checks: [],
+        };
+      },
+    );
 
     // Jumps on the holding loop's own values.
     const names: string[] = ["+u", "-u", "+v", "-v", "q0", "q1", "q2", "q3"];
-    const value = (s: IAutoMovieMeshCourse.ISection, k: number): number | null => {
+    const value = (
+      s: IAutoMovieMeshCourse.ISection,
+      k: number,
+    ): number | null => {
       if (s.reading === null) return null;
       if (k < 4) return s.reading.extents[k]!;
       const q: IAutoMovieMeshCourse.IQuarter = s.reading.quarters[k - 4]!;
@@ -84,13 +128,20 @@ export namespace AutoMovieMeshCourse {
     };
     for (let i: number = 1; i + 1 < sections.length; ++i)
       for (let k: number = 0; k < names.length; ++k) {
-        const [p, c, q] = [value(sections[i - 1]!, k), value(sections[i]!, k), value(sections[i + 1]!, k)];
+        const [p, c, q] = [
+          value(sections[i - 1]!, k),
+          value(sections[i]!, k),
+          value(sections[i + 1]!, k),
+        ];
         if (p === null || c === null || q === null) continue;
         const s0: number = planes[i - 1]!.station;
         const s1: number = planes[i]!.station;
         const s2: number = planes[i + 1]!.station;
         const deviation: number = c - (p + ((q - p) * (s1 - s0)) / (s2 - s0));
-        if (Math.abs(deviation) > tolerance) sections[i]!.checks.push(`jump ${names[k]}: ${deviation.toFixed(3)} mm`);
+        if (Math.abs(deviation) > tolerance)
+          sections[i]!.checks.push(
+            `jump ${names[k]}: ${deviation.toFixed(3)} mm`,
+          );
       }
     return sections;
   }
@@ -110,7 +161,10 @@ export namespace AutoMovieMeshCourse {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading coordinates no requests.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; returns fresh tuples.
    */
-  export function read(loop: readonly (readonly [number, number])[], tolerance: number = 0.5): IAutoMovieMeshCourse.IReading {
+  export function read(
+    loop: readonly (readonly [number, number])[],
+    tolerance: number = 0.5,
+  ): IAutoMovieMeshCourse.IReading {
     let iu: [number, number] = [0, 0];
     let iv: [number, number] = [0, 0];
     for (let i: number = 1; i < loop.length; ++i) {
@@ -119,9 +173,22 @@ export namespace AutoMovieMeshCourse {
       if (loop[i]![1] > loop[iv[0]]![1]) iv = [i, iv[1]];
       if (loop[i]![1] < loop[iv[1]]![1]) iv = [iv[0], i];
     }
-    const extents: [number, number, number, number] = [loop[iu[0]]![0], loop[iu[1]]![0], loop[iv[0]]![1], loop[iv[1]]![1]];
-    const touch: [number, number, number, number] = [loop[iu[0]]![1], loop[iu[1]]![1], loop[iv[0]]![0], loop[iv[1]]![0]];
-    const found: IAutoMovieMeshCourse.IFeature[][] = DIRECTIONS.map((d: AutoMovieVector2Tuple): IAutoMovieMeshCourse.IFeature[] => features(loop, d, tolerance));
+    const extents: [number, number, number, number] = [
+      loop[iu[0]]![0],
+      loop[iu[1]]![0],
+      loop[iv[0]]![1],
+      loop[iv[1]]![1],
+    ];
+    const touch: [number, number, number, number] = [
+      loop[iu[0]]![1],
+      loop[iu[1]]![1],
+      loop[iv[0]]![0],
+      loop[iv[1]]![0],
+    ];
+    const found: IAutoMovieMeshCourse.IFeature[][] = DIRECTIONS.map(
+      (d: AutoMovieVector2Tuple): IAutoMovieMeshCourse.IFeature[] =>
+        features(loop, d, tolerance),
+    );
 
     // Guides on the axis lines, in quarter order +u, +v, -u, -v.
     const guides: AutoMovieVector2Tuple[] = [
@@ -130,15 +197,33 @@ export namespace AutoMovieMeshCourse {
       [extents[1], 0],
       [0, extents[3]],
     ];
-    const all: Segment[] = loop.map((p: readonly [number, number], i: number): Segment => [[p[0], p[1]], [loop[(i + 1) % loop.length]![0], loop[(i + 1) % loop.length]![1]]]);
-    const quarters: IAutoMovieMeshCourse.IQuarter[] = [0, 1, 2, 3].map((q: number): IAutoMovieMeshCourse.IQuarter => {
-      const g0: AutoMovieVector2Tuple = guides[q]!;
-      const g1: AutoMovieVector2Tuple = guides[(q + 1) % 4]!;
-      const M: AutoMovieVector2Tuple = [(g0[0] + g1[0]) / 2, (g0[1] + g1[1]) / 2];
-      const A: AutoMovieVector2Tuple = [g0[0] + g1[0], g0[1] + g1[1]];
-      return { rho: crossing(all, M, A)?.t ?? null, reach: Math.hypot(A[0] - M[0], A[1] - M[1]) };
-    });
-    return { extents, touch, features: found as IAutoMovieMeshCourse.IReading["features"], quarters: quarters as IAutoMovieMeshCourse.IReading["quarters"] };
+    const all: Segment[] = loop.map(
+      (p: readonly [number, number], i: number): Segment => [
+        [p[0], p[1]],
+        [loop[(i + 1) % loop.length]![0], loop[(i + 1) % loop.length]![1]],
+      ],
+    );
+    const quarters: IAutoMovieMeshCourse.IQuarter[] = [0, 1, 2, 3].map(
+      (q: number): IAutoMovieMeshCourse.IQuarter => {
+        const g0: AutoMovieVector2Tuple = guides[q]!;
+        const g1: AutoMovieVector2Tuple = guides[(q + 1) % 4]!;
+        const M: AutoMovieVector2Tuple = [
+          (g0[0] + g1[0]) / 2,
+          (g0[1] + g1[1]) / 2,
+        ];
+        const A: AutoMovieVector2Tuple = [g0[0] + g1[0], g0[1] + g1[1]];
+        return {
+          rho: crossing(all, M, A)?.t ?? null,
+          reach: Math.hypot(A[0] - M[0], A[1] - M[1]),
+        };
+      },
+    );
+    return {
+      extents,
+      touch,
+      features: found as IAutoMovieMeshCourse.IReading["features"],
+      quarters: quarters as IAutoMovieMeshCourse.IReading["quarters"],
+    };
   }
 
   /**
@@ -163,14 +248,23 @@ export namespace AutoMovieMeshCourse {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading coordinates no requests.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function ascend(loop: readonly (readonly [number, number])[], direction: number, start: number, tolerance: number = 0.5): number {
+  export function ascend(
+    loop: readonly (readonly [number, number])[],
+    direction: number,
+    start: number,
+    tolerance: number = 0.5,
+  ): number {
     const N: number = loop.length;
     const d: AutoMovieVector2Tuple = DIRECTIONS[direction]!;
     const h = (i: number): number => loop[i]![0] * d[0] + loop[i]![1] * d[1];
     let best: number = start;
     for (const step of [1, N - 1]) {
       let top: number = start;
-      for (let k: number = 1, i: number = (start + step) % N; k < N; ++k, i = (i + step) % N) {
+      for (
+        let k: number = 1, i: number = (start + step) % N;
+        k < N;
+        ++k, i = (i + step) % N
+      ) {
         if (h(i) < h(top) - tolerance) break;
         if (h(i) > h(top)) top = i;
       }
@@ -194,7 +288,15 @@ export namespace AutoMovieMeshCourse {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading coordinates no requests.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; returns fresh tuples.
    */
-  export function pieces(loop: readonly (readonly [number, number])[], guides: readonly [number, number, number, number]): [IAutoMovieMeshCourse.IPiece, IAutoMovieMeshCourse.IPiece, IAutoMovieMeshCourse.IPiece, IAutoMovieMeshCourse.IPiece] {
+  export function pieces(
+    loop: readonly (readonly [number, number])[],
+    guides: readonly [number, number, number, number],
+  ): [
+    IAutoMovieMeshCourse.IPiece,
+    IAutoMovieMeshCourse.IPiece,
+    IAutoMovieMeshCourse.IPiece,
+    IAutoMovieMeshCourse.IPiece,
+  ] {
     const N: number = loop.length;
     let area: number = 0;
     for (let i: number = 0; i < N; ++i) {
@@ -221,24 +323,56 @@ export namespace AutoMovieMeshCourse {
     // The segments of the arc from loop index a to loop index b in increasing phase, each oriented along it.
     const arc = (a: number, b: number): Segment[] => {
       const out: Segment[] = [];
-      for (let i: number = a; i !== b; i = (i + step) % N) out.push([at(i), at((i + step) % N)]);
+      for (let i: number = a; i !== b; i = (i + step) % N)
+        out.push([at(i), at((i + step) % N)]);
       return out;
     };
     return [0, 1, 2, 3].map((q: number): IAutoMovieMeshCourse.IPiece => {
       const segments: Segment[] = arc(guides[q]!, guides[(q + 1) % 4]!);
       const g0: AutoMovieVector2Tuple = g[q]!;
       const g1: AutoMovieVector2Tuple = g[(q + 1) % 4]!;
-      const M: AutoMovieVector2Tuple = [(g0[0] + g1[0]) / 2, (g0[1] + g1[1]) / 2];
+      const M: AutoMovieVector2Tuple = [
+        (g0[0] + g1[0]) / 2,
+        (g0[1] + g1[1]) / 2,
+      ];
       const A: AutoMovieVector2Tuple = corners[q]!;
       const hit: { t: number; index: number } | null = crossing(segments, M, A);
-      if (hit === null) return { split: null, angle: null, shoulders: [null, null], reach: [null, null] };
-      const S: AutoMovieVector2Tuple = [M[0] + hit.t * (A[0] - M[0]), M[1] + hit.t * (A[1] - M[1])];
+      if (hit === null)
+        return {
+          split: null,
+          angle: null,
+          shoulders: [null, null],
+          reach: [null, null],
+        };
+      const S: AutoMovieVector2Tuple = [
+        M[0] + hit.t * (A[0] - M[0]),
+        M[1] + hit.t * (A[1] - M[1]),
+      ];
       const [from, to]: Segment = segments[hit.index]!;
       const T: AutoMovieVector2Tuple = [to[0] - from[0], to[1] - from[1]];
-      const first: [number | null, number | null] = piece(g0, lines[q]!, S, T, [...segments.slice(0, hit.index), [from, S]]);
-      const second: [number | null, number | null] = piece(S, T, g1, lines[(q + 1) % 4]!, [[S, to], ...segments.slice(hit.index + 1)]);
-      return { split: S, angle: Math.atan2(T[1], T[0]), shoulders: [first[0], second[0]], reach: [first[1], second[1]] };
-    }) as [IAutoMovieMeshCourse.IPiece, IAutoMovieMeshCourse.IPiece, IAutoMovieMeshCourse.IPiece, IAutoMovieMeshCourse.IPiece];
+      const first: [number | null, number | null] = piece(g0, lines[q]!, S, T, [
+        ...segments.slice(0, hit.index),
+        [from, S],
+      ]);
+      const second: [number | null, number | null] = piece(
+        S,
+        T,
+        g1,
+        lines[(q + 1) % 4]!,
+        [[S, to], ...segments.slice(hit.index + 1)],
+      );
+      return {
+        split: S,
+        angle: Math.atan2(T[1], T[0]),
+        shoulders: [first[0], second[0]],
+        reach: [first[1], second[1]],
+      };
+    }) as [
+      IAutoMovieMeshCourse.IPiece,
+      IAutoMovieMeshCourse.IPiece,
+      IAutoMovieMeshCourse.IPiece,
+      IAutoMovieMeshCourse.IPiece,
+    ];
   }
 
   /**
@@ -257,9 +391,26 @@ export namespace AutoMovieMeshCourse {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure arc reading has no shared requests across calls.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Segment pairs are temporary. Only the two scalar readings are returned.
    */
-  export function shoulder(arc: readonly AutoMovieVector2Tuple[], start: AutoMovieVector2Tuple, end: AutoMovieVector2Tuple): [number | null, number | null] {
+  export function shoulder(
+    arc: readonly AutoMovieVector2Tuple[],
+    start: AutoMovieVector2Tuple,
+    end: AutoMovieVector2Tuple,
+  ): [number | null, number | null] {
     if (arc.length < 2) return [null, null];
-    return piece(arc[0]!, start, arc[arc.length - 1]!, end, arc.slice(1).map((point: AutoMovieVector2Tuple, i: number): Segment => [arc[i]!, point]));
+    return piece(
+      arc[0]!,
+      start,
+      arc[arc.length - 1]!,
+      end,
+      arc
+        .slice(1)
+        .map(
+          (point: AutoMovieVector2Tuple, i: number): Segment => [
+            arc[i]!,
+            point,
+          ],
+        ),
+    );
   }
 
   /**
@@ -276,7 +427,9 @@ export namespace AutoMovieMeshCourse {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading coordinates no requests.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function newell(points: readonly AutoMovieVector3Tuple[]): AutoMovieVector3Tuple {
+  export function newell(
+    points: readonly AutoMovieVector3Tuple[],
+  ): AutoMovieVector3Tuple {
     const out: AutoMovieVector3Tuple = [0, 0, 0];
     for (let i: number = 0; i < points.length; ++i) {
       const p: AutoMovieVector3Tuple = points[i]!;
@@ -302,7 +455,9 @@ export namespace AutoMovieMeshCourse {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading coordinates no requests.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function centroid(points: readonly AutoMovieVector3Tuple[]): AutoMovieVector3Tuple | null {
+  export function centroid(
+    points: readonly AutoMovieVector3Tuple[],
+  ): AutoMovieVector3Tuple | null {
     const n: AutoMovieVector3Tuple = newell(points);
     const length: number = Math.hypot(...n);
     if (length === 0 || points.length < 3) return null;
@@ -336,7 +491,13 @@ export namespace AutoMovieMeshCourse {
    * the segment from the chord midpoint toward that point. Null with its
    * first cause.
    */
-  function piece(P0: AutoMovieVector2Tuple, T0: AutoMovieVector2Tuple, P2: AutoMovieVector2Tuple, T2: AutoMovieVector2Tuple, segments: readonly Segment[]): [number | null, number | null] {
+  function piece(
+    P0: AutoMovieVector2Tuple,
+    T0: AutoMovieVector2Tuple,
+    P2: AutoMovieVector2Tuple,
+    T2: AutoMovieVector2Tuple,
+    segments: readonly Segment[],
+  ): [number | null, number | null] {
     const den: number = T0[0] * T2[1] - T0[1] * T2[0];
     if (den === 0) return [null, null];
     const d: AutoMovieVector2Tuple = [P2[0] - P0[0], P2[1] - P0[1]];
@@ -356,7 +517,11 @@ export namespace AutoMovieMeshCourse {
    * kind when its outward normal (the loop's own winding, the tangent from
    * its two neighbours) faces d. Sorted by phase from `-pi`.
    */
-  function features(loop: readonly (readonly [number, number])[], d: AutoMovieVector2Tuple, tolerance: number): IAutoMovieMeshCourse.IFeature[] {
+  function features(
+    loop: readonly (readonly [number, number])[],
+    d: AutoMovieVector2Tuple,
+    tolerance: number,
+  ): IAutoMovieMeshCourse.IFeature[] {
     const N: number = loop.length;
     if (N < 3) return [];
     const h = (i: number): number => loop[i]![0] * d[0] + loop[i]![1] * d[1];
@@ -369,7 +534,9 @@ export namespace AutoMovieMeshCourse {
     const winding: number = area > 0 ? 1 : -1;
     let start: number = 0;
     for (let i: number = 1; i < N; ++i) if (h(i) > h(start)) start = i;
-    const turns: { index: number; kind: "crest" | "notch" }[] = [{ index: start, kind: "crest" }];
+    const turns: { index: number; kind: "crest" | "notch" }[] = [
+      { index: start, kind: "crest" },
+    ];
     let seeking: "min" | "max" = "min";
     let candidate: number = start;
     for (let k: number = 1; k <= N; ++k) {
@@ -398,7 +565,13 @@ export namespace AutoMovieMeshCourse {
       const p: readonly [number, number] = loop[turn.index]!;
       out.push({ kind: turn.kind, point: [p[0], p[1]], value: h(turn.index) });
     }
-    return out.sort((x: IAutoMovieMeshCourse.IFeature, y: IAutoMovieMeshCourse.IFeature): number => Math.atan2(x.point[1], x.point[0]) - Math.atan2(y.point[1], y.point[0]));
+    return out.sort(
+      (
+        x: IAutoMovieMeshCourse.IFeature,
+        y: IAutoMovieMeshCourse.IFeature,
+      ): number =>
+        Math.atan2(x.point[1], x.point[0]) - Math.atan2(y.point[1], y.point[0]),
+    );
   }
 
   /**
@@ -406,7 +579,11 @@ export namespace AutoMovieMeshCourse {
    * M)`, t in [-1, 1], and the crossed segment's index, or null. A
    * zero-length segment is never crossed.
    */
-  function crossing(segments: readonly Segment[], M: AutoMovieVector2Tuple, A: AutoMovieVector2Tuple): { t: number; index: number } | null {
+  function crossing(
+    segments: readonly Segment[],
+    M: AutoMovieVector2Tuple,
+    A: AutoMovieVector2Tuple,
+  ): { t: number; index: number } | null {
     const d: AutoMovieVector2Tuple = [A[0] - M[0], A[1] - M[1]];
     let best: { t: number; index: number } | null = null;
     segments.forEach(([p, q]: Segment, i: number): void => {
@@ -416,29 +593,51 @@ export namespace AutoMovieMeshCourse {
       const w: AutoMovieVector2Tuple = [p[0] - M[0], p[1] - M[1]];
       const t: number = (w[0] * e[1] - w[1] * e[0]) / den;
       const s: number = (w[0] * d[1] - w[1] * d[0]) / den;
-      if (s >= 0 && s <= 1 && t >= -1 && t <= 1 && (best === null || t > best.t)) best = { t, index: i };
+      if (
+        s >= 0 &&
+        s <= 1 &&
+        t >= -1 &&
+        t <= 1 &&
+        (best === null || t > best.t)
+      )
+        best = { t, index: i };
     });
     return best;
   }
 
   /** Even-odd point in polygon. */
-  function contains(poly: readonly (readonly [number, number])[], x: number, y: number): boolean {
+  function contains(
+    poly: readonly (readonly [number, number])[],
+    x: number,
+    y: number,
+  ): boolean {
     let c: boolean = false;
-    for (let i: number = 0, j: number = poly.length - 1; i < poly.length; j = i++) {
+    for (
+      let i: number = 0, j: number = poly.length - 1;
+      i < poly.length;
+      j = i++
+    ) {
       const [xi, yi] = poly[i]!;
       const [xj, yj] = poly[j]!;
-      if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) c = !c;
+      if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi)
+        c = !c;
     }
     return c;
   }
 
   /** a + b. */
-  function add(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  function add(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
   /** a - b. */
-  function sub(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  function sub(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
@@ -453,7 +652,14 @@ export namespace AutoMovieMeshCourse {
   }
 
   /** a x b. */
-  function cross(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
-    return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  function cross(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
+    return [
+      a[1] * b[2] - a[2] * b[1],
+      a[2] * b[0] - a[0] * b[2],
+      a[0] * b[1] - a[1] * b[0],
+    ];
   }
 }

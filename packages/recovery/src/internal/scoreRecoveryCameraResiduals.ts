@@ -1,4 +1,5 @@
 import type { IAutoMovieRecoveryCameraResidualsScoreOperation } from "@automovie/interface";
+
 /**
  * Collect finite absolute residuals within an inclusive pixel threshold.
  * Returned indices preserve observation order; quantiles use linear interpolation
@@ -45,5 +46,6 @@ export function scoreRecoveryCameraResiduals(
         (medianAt - medianLower),
     p90Px:
       values[p90Lower]! +
-      (values[Math.ceil(p90At)]! - values[p90Lower]!) * (p90At - p90Lower) };
+      (values[Math.ceil(p90At)]! - values[p90Lower]!) * (p90At - p90Lower),
+  };
 }

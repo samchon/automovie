@@ -1,5 +1,3 @@
-
-
 /**
  * Opening size with its profile-or-fill measurement provenance.
  *
@@ -12,7 +10,7 @@ export namespace IAutoMovieOpeningNominalExtent {
   /**
    * The nominal width and height of one opening, and what they were measured
    * from, or `null` when nothing in the design sizes it.
-   * 
+   *
    * The opening's own void wins: it is the only record that describes the hole,
    * and its size is the hull the wall kernel cuts (`basis: "profile"`). Without
    * one, the filling element's world extent stands in (`basis: "fill"`), which

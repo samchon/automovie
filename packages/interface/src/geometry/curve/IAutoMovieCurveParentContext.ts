@@ -9,13 +9,13 @@ import type { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reflections, absent parents, nonfinite transforms and copied/stale operator tokens are refused; no pose fitting or anatomy-specific placement is inserted.
  * @evidence contracts/development/common.md#meaningful-documentation Documents parent-first inputs, millimetre charts, throw-before-use construction failure, copied frame snapshots, immutable shared fields and same-instance publication binding.
  */
-export interface IAutoMovieCurveParentContext  {
-/**
+export interface IAutoMovieCurveParentContext {
+  /**
    * JSON serialization of resolved frames and edges in insertion order; equal strings do not authenticate another context's copied operator.
    */
   readonly revision: string;
 
-/**
+  /**
    * Rotate a finite local vector into world coordinates without translation, preserving its physical units.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Resolved rotation-row dot products apply the admitted local-to-world proper basis.
@@ -26,9 +26,12 @@ export interface IAutoMovieCurveParentContext  {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the constructor-resolved basis rather than recomposing the hierarchy.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new vector and retains neither the input nor the result.
    */
-  direction(bone: string, vector: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> ;
+  direction(
+    bone: string,
+    vector: Readonly<AutoMovieVector3Tuple>,
+  ): Readonly<AutoMovieVector3Tuple>;
 
-/**
+  /**
    * Transform a finite local millimetre point to world millimetres using the resolved affine matrix.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Matrix4.transformPoint applies the stored proper local-to-world matrix including millimetre translation.
@@ -39,9 +42,12 @@ export interface IAutoMovieCurveParentContext  {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the matrix resolved once during context construction.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The new point belongs to the caller; the input is not retained.
    */
-  point(bone: string, point: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> ;
+  point(
+    bone: string,
+    point: Readonly<AutoMovieVector3Tuple>,
+  ): Readonly<AutoMovieVector3Tuple>;
 
-/**
+  /**
    * Rotate a finite world vector back to a node chart with the transpose of its resolved proper rotation.
    *
    * @evidence contracts/development/implementation.md#principled-implementation For the admitted orthonormal basis, transpose is the inverse; binary64 orthogonality tolerance remains the constructor premise.
@@ -52,9 +58,12 @@ export interface IAutoMovieCurveParentContext  {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the retained resolved rotation instead of rebuilding or inverting the hierarchy.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a new result tuple is allocated; no inverse-query state is retained.
    */
-  inverseDirection(bone: string, vector: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> ;
+  inverseDirection(
+    bone: string,
+    vector: Readonly<AutoMovieVector3Tuple>,
+  ): Readonly<AutoMovieVector3Tuple>;
 
-/**
+  /**
    * Pull a world millimetre point into the node chart by subtracting world translation and applying the inverse direction transform.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The inverse of a rigid affine transform is R-transpose times the translated point.
@@ -65,9 +74,12 @@ export interface IAutoMovieCurveParentContext  {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses stored world translation and the shared inverseDirection method.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary difference/result tuples are caller-local and not retained.
    */
-  inversePoint(bone: string, point: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> ;
+  inversePoint(
+    bone: string,
+    point: Readonly<AutoMovieVector3Tuple>,
+  ): Readonly<AutoMovieVector3Tuple>;
 
-/**
+  /**
    * Return an independent copy of a resolved world frame, with the original node and parent keys preserved.
    *
    * @evidence contracts/development/implementation.md#principled-implementation A structured clone prevents callers from mutating the context-owned resolved basis and translation.
@@ -78,9 +90,9 @@ export interface IAutoMovieCurveParentContext  {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The resolved frame is reused as the snapshot source; returned snapshots are independent.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the clone and the context retains only its original frame.
    */
-  frame(bone: string): IAutoMovieCurve64.Frame ;
+  frame(bone: string): IAutoMovieCurve64.Frame;
 
-/**
+  /**
    * Admit an owner boundary once, clone and deep-freeze its complete field, then retain the genuine token for later binding. Deep freezing expects the supported acyclic plain coefficient record; arbitrary cyclic extra properties are outside this input contract.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Declared region/node/ID ownership is checked before a cloned field is recursively frozen and paired with the context revision.
@@ -95,9 +107,9 @@ export interface IAutoMovieCurveParentContext  {
     region: string,
     bone: string,
     boundary: IAutoMovieCurve64.Boundary,
-  ): IAutoMovieCurve64.Operator ;
+  ): IAutoMovieCurve64.Operator;
 
-/**
+  /**
    * Authenticate the declared consumer against this context's genuine publication and return the same immutable boundary object.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Edge endpoint checks, revision equality and publication-map object identity jointly authenticate the token.
@@ -108,5 +120,9 @@ export interface IAutoMovieCurveParentContext  {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns the published field instance reused across dependent constructors.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation adds no retained references or handles; existing context publication ownership is unchanged.
    */
-  bind(region: string, bone: string, operator: IAutoMovieCurve64.Operator): IAutoMovieCurve64.Boundary ;
+  bind(
+    region: string,
+    bone: string,
+    operator: IAutoMovieCurve64.Operator,
+  ): IAutoMovieCurve64.Boundary;
 }

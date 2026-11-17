@@ -1,16 +1,18 @@
-import type { IAutoMovieLoftContract, IAutoMovieViewAxis, IAutoMovieViewParallelAxis, IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanDigitWalk, IAutoMovieHumanSiteViewPart, IAutoMovieHumanToePart, IAutoMovieConstructionParallelAxis } from "@automovie/interface";
-
-
-
-
-
 import { AutoMovieViewParallelAxis } from "@automovie/engine";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionParallelAxis,
+  IAutoMovieHumanDigitWalk,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanToePart,
+  IAutoMovieLoftContract,
+  IAutoMovieViewAxis,
+  IAutoMovieViewParallelAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
-
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
-
 
 /**
  * Toe skin from foot-axis observations, with parallel source section planes.
@@ -29,12 +31,6 @@ import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned source results without caches, samplers or realized skin references.
  */
 export namespace AutoMovieHumanToePart {
-  
-
-  
-
-  
-
   /**
    * Build the actual toe source and production AST in its observation frame.
    *
@@ -46,7 +42,9 @@ export namespace AutoMovieHumanToePart {
    * @evidence contracts/performance.md#reuse-equivalent-work The identical authored axis record is passed to source evaluation and retained on the returned production view.
    * @evidence contracts/performance.md#bound-retention-and-release-resources All arrays belong to the returned source result; no cross-person state or host surface is retained.
    */
-  export function create(input: IAutoMovieHumanToePart.IInput): IAutoMovieHumanSiteViewPart.IResult {
+  export function create(
+    input: IAutoMovieHumanToePart.IInput,
+  ): IAutoMovieHumanSiteViewPart.IResult {
     return AutoMovieHumanSiteViewPart.loft(define(input));
   }
 
@@ -61,9 +59,12 @@ export namespace AutoMovieHumanToePart {
    * @evidence contracts/performance.md#reuse-equivalent-work Returns the same final part/view for metric reads and one later loft.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The synchronous caller owns the finite preparation and borrows only its own toe's original vertical source.
    */
-  export function define(input: IAutoMovieHumanToePart.IInput): IAutoMovieHumanToePart.IDefinition {
-    const declaration: IAutoMovieHumanToePart.ISource | IAutoMovieHumanSiteViewPart.IResult =
-      source(input);
+  export function define(
+    input: IAutoMovieHumanToePart.IInput,
+  ): IAutoMovieHumanToePart.IDefinition {
+    const declaration:
+      | IAutoMovieHumanToePart.ISource
+      | IAutoMovieHumanSiteViewPart.IResult = source(input);
     if ("diagnostics" in declaration) return declaration;
     const prepared: IAutoMovieHumanSiteViewPart.IDefinition =
       AutoMovieHumanSiteViewPart.define(declaration);
@@ -145,12 +146,13 @@ export namespace AutoMovieHumanToePart {
   ): IAutoMovieHumanToePart.ISource | IAutoMovieHumanSiteViewPart.IResult {
     const points: AutoMovieVector3Tuple[] = [...input.centres, input.apex];
     const first: AutoMovieVector3Tuple = points[0]!;
-    const projected: number[] = points.map((point: AutoMovieVector3Tuple): number =>
-      point.reduce(
-        (sum: number, value: number, coordinate: number): number =>
-          sum + (value - first[coordinate]!) * input.along[coordinate]!,
-        0,
-      ),
+    const projected: number[] = points.map(
+      (point: AutoMovieVector3Tuple): number =>
+        point.reduce(
+          (sum: number, value: number, coordinate: number): number =>
+            sum + (value - first[coordinate]!) * input.along[coordinate]!,
+          0,
+        ),
     );
     const stations: number[] =
       input.vertical === undefined
@@ -191,7 +193,9 @@ export namespace AutoMovieHumanToePart {
       Math.max(
         1,
         total,
-        ...points.flatMap((point: AutoMovieVector3Tuple): number[] => point.map(Math.abs)),
+        ...points.flatMap((point: AutoMovieVector3Tuple): number[] =>
+          point.map(Math.abs),
+        ),
       );
     for (let index: number = 0; index < points.length; index++) {
       const mismatch: number = Math.hypot(

@@ -1,5 +1,11 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftSectionSource, IAutoMovieLoftSectionSourceBinding, IAutoMovieLoftSectionSourceFamily, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource } from "@automovie/interface";
-
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSectionSource,
+  IAutoMovieLoftSectionSourceBinding,
+  IAutoMovieLoftSectionSourceFamily,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+} from "@automovie/interface";
 
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 
@@ -12,7 +18,6 @@ import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftSectionSource {
-
   /**
    * Bind original scalar ownership after ordinary/frame coefficient preparation.
    *
@@ -29,7 +34,9 @@ export namespace AutoMovieLoftSectionSource {
     data: IAutoMovieLoftViewSource.ISource,
   ): IAutoMovieLoftChain {
     const rows: IAutoMovieLoftSectionSourceBinding[] = chain.layers.map(
-      (layer: IAutoMovieLoftChain.ILayer): IAutoMovieLoftSectionSourceBinding => {
+      (
+        layer: IAutoMovieLoftChain.ILayer,
+      ): IAutoMovieLoftSectionSourceBinding => {
         const jets: IAutoMovieLoftViewRead.IJets | string =
           AutoMovieLoftViewRead.jets(data, layer.y);
         return remember(layer, typeof jets === "string" ? jets : null);
@@ -54,7 +61,8 @@ export namespace AutoMovieLoftSectionSource {
     lo: number,
     hi: number,
   ): IAutoMovieLoftSectionSource.ISource | null {
-    const source: IAutoMovieLoftSectionSource.ISource | undefined = chain.nativeSource;
+    const source: IAutoMovieLoftSectionSource.ISource | undefined =
+      chain.nativeSource;
     for (const index of [lo, hi])
       endpoint(chain.layers[index]!, 2 * chain.order);
     if (source === undefined) return null;
@@ -73,7 +81,10 @@ export namespace AutoMovieLoftSectionSource {
     for (const index of [lo, hi]) {
       const layer: IAutoMovieLoftChain.ILayer = chain.layers[index]!;
       if (layer.sectionSource !== undefined) continue;
-      const binding: IAutoMovieLoftSectionSourceBinding | null = find(source.rows, layer.y);
+      const binding: IAutoMovieLoftSectionSourceBinding | null = find(
+        source.rows,
+        layer.y,
+      );
       if (binding === null || !fits(layer, binding, 2 * chain.order))
         throw new Error(
           `Native compatibility rows of ${chain.name} at ${layer.y} were rewritten without re-expressing their source.`,
@@ -97,7 +108,8 @@ export namespace AutoMovieLoftSectionSource {
     layer: IAutoMovieLoftChain.ILayer,
     expectedWidth?: number,
   ): IAutoMovieLoftSectionSource.IEndpoint | null {
-    const source: IAutoMovieLoftSectionSource.IEndpoint | undefined = layer.sectionSource;
+    const source: IAutoMovieLoftSectionSource.IEndpoint | undefined =
+      layer.sectionSource;
     if (source === undefined) return null;
     if (
       source === null ||
@@ -123,7 +135,10 @@ export namespace AutoMovieLoftSectionSource {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The retained endpoint is shared by both adjoining field readers.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent plain data and retains no host chain or callable owner.
    */
-  export function bind(layer: IAutoMovieLoftChain.ILayer, field: IAutoMovieLoftSectionSourceFamily): IAutoMovieLoftSectionSource.IEndpoint {
+  export function bind(
+    layer: IAutoMovieLoftChain.ILayer,
+    field: IAutoMovieLoftSectionSourceFamily,
+  ): IAutoMovieLoftSectionSource.IEndpoint {
     if (!family(field))
       throw new Error(
         "A native boundary needs an actual complete generating family.",
@@ -148,7 +163,8 @@ export namespace AutoMovieLoftSectionSource {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or result.
    */
   export function regular(chain: IAutoMovieLoftChain): boolean {
-    const source: IAutoMovieLoftSectionSource.ISource | undefined = chain.nativeSource;
+    const source: IAutoMovieLoftSectionSource.ISource | undefined =
+      chain.nativeSource;
     if (source === undefined) return true;
     if (
       source === null ||
@@ -216,7 +232,10 @@ function fits(
 }
 
 /** Ordered original bindings permit clipping without changing source evaluation. */
-function find(rows: readonly IAutoMovieLoftSectionSourceBinding[], station: number): IAutoMovieLoftSectionSourceBinding | null {
+function find(
+  rows: readonly IAutoMovieLoftSectionSourceBinding[],
+  station: number,
+): IAutoMovieLoftSectionSourceBinding | null {
   let low: number = 0;
   let high: number = rows.length;
   while (low < high) {

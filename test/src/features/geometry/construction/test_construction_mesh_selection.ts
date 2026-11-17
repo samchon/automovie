@@ -1,5 +1,11 @@
-import type { IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshPlan } from "@automovie/interface";
-import { AutoMovieSolidMeshPlan, triangulateAutoMovieSolidBoundary } from "@automovie/engine";
+import {
+  AutoMovieSolidMeshPlan,
+  triangulateAutoMovieSolidBoundary,
+} from "@automovie/engine";
+import type {
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshPlan,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionGridAuthorities } from "../../internal/construction/ConstructionGridAuthorities";

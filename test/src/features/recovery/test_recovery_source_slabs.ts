@@ -1,4 +1,8 @@
-import type { IAutoMovieRecoverySectionsInput, IAutoMovieRecoverySlabObservation, IAutoMovieRecoverySourceLineage } from "@automovie/interface";
+import type {
+  IAutoMovieRecoverySectionsInput,
+  IAutoMovieRecoverySlabObservation,
+  IAutoMovieRecoverySourceLineage,
+} from "@automovie/interface";
 import { observeAutoMovieRecoverySections } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 

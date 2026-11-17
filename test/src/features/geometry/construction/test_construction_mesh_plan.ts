@@ -1,5 +1,12 @@
-import type { IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshPlan } from "@automovie/interface";
-import { AutoMovieSolidMeshPlan, insertAutoMovieSolidMeshPoints, triangulateAutoMovieSolidBoundary } from "@automovie/engine";
+import {
+  AutoMovieSolidMeshPlan,
+  insertAutoMovieSolidMeshPoints,
+  triangulateAutoMovieSolidBoundary,
+} from "@automovie/engine";
+import type {
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshPlan,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -427,11 +434,13 @@ function grazing(failures: string[]): void {
     [15, 13],
     [13, 16],
     [16, 10],
-  ].map(([a, b]): IAutoMovieSolidMeshConstraints.ISegment => ({
-    a: a!,
-    b: b!,
-    turn: 0,
-  }));
+  ].map(
+    ([a, b]): IAutoMovieSolidMeshConstraints.ISegment => ({
+      a: a!,
+      b: b!,
+      turn: 0,
+    }),
+  );
   const made: IAutoMovieSolidMeshPlan.IPlan | string =
     AutoMovieSolidMeshPlan.triangulate(
       points,

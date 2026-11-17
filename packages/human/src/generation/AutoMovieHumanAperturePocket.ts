@@ -1,13 +1,13 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanApertureEdge, IAutoMovieHumanAperturePocket, IAutoMovieHumanConstructionPath, IAutoMovieHumanLoftAperture, IAutoMovieHumanLoftMesh } from "@automovie/interface";
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanApertureEdge,
+  IAutoMovieHumanAperturePocket,
+  IAutoMovieHumanConstructionPath,
+  IAutoMovieHumanLoftAperture,
+  IAutoMovieHumanLoftMesh,
+} from "@automovie/interface";
 
 import { AutoMovieHumanApertureConstruction } from "./AutoMovieHumanApertureConstruction";
-
 
 /**
  * Inferred nasal pocket, continuing the observed exterior into a rounded
@@ -56,17 +56,31 @@ export namespace AutoMovieHumanAperturePocket {
       (_: unknown, i: number): number[] => cubic(c, i / DENSE),
     );
     const radius: number =
-      Math.hypot(...c[0].map((v: number, a: number): number => c[3][a]! - v)) / Math.PI;
+      Math.hypot(...c[0].map((v: number, a: number): number => c[3][a]! - v)) /
+      Math.PI;
     const out: number[] = [0];
     for (let i: number = 1; i <= DENSE; i++) {
-      const d: number[] = points[i]!.map((v: number, a: number): number => v - points[i - 1]![a]!);
+      const d: number[] = points[i]!.map(
+        (v: number, a: number): number => v - points[i - 1]![a]!,
+      );
       let turn: number = 0;
       if (i > 1) {
-        const e: number[] = points[i - 1]!.map((v: number, a: number): number => v - points[i - 2]![a]!);
+        const e: number[] = points[i - 1]!.map(
+          (v: number, a: number): number => v - points[i - 2]![a]!,
+        );
         const l: number = Math.hypot(...d) * Math.hypot(...e);
         if (l > 1e-12)
           turn = Math.acos(
-            Math.min(1, Math.max(-1, d.reduce((s: number, v: number, a: number): number => s + v * e[a]!, 0) / l)),
+            Math.min(
+              1,
+              Math.max(
+                -1,
+                d.reduce(
+                  (s: number, v: number, a: number): number => s + v * e[a]!,
+                  0,
+                ) / l,
+              ),
+            ),
           );
       }
       out.push(out[i - 1]! + Math.hypot(...d) + radius * turn);
@@ -89,7 +103,13 @@ export namespace AutoMovieHumanAperturePocket {
         const target: number = k / STEPS;
         while (j + 1 < DENSE && measure[j + 1]! < target) j++;
         const span: number = measure[j + 1]! - measure[j]! || 1;
-        out.push(cubic(c, (j + Math.min(1, Math.max(0, (target - measure[j]!) / span))) / DENSE));
+        out.push(
+          cubic(
+            c,
+            (j + Math.min(1, Math.max(0, (target - measure[j]!) / span))) /
+              DENSE,
+          ),
+        );
       }
       return out;
     });
@@ -118,25 +138,51 @@ export namespace AutoMovieHumanAperturePocket {
     emit: IAutoMovieHumanAperturePocket.LoopEmit,
   ): IAutoMovieHumanConstructionPath[] {
     const centre: number[] = [0, 1, 2].map(
-      (a: number): number => rim.reduce((sum: number, p: [number, number, number]): number => sum + p[a]!, 0) / rim.length,
+      (a: number): number =>
+        rim.reduce(
+          (sum: number, p: [number, number, number]): number => sum + p[a]!,
+          0,
+        ) / rim.length,
     );
-    const tip: number[] = centre.map((v: number, a: number): number => v - aperture.forward[a]! * aperture.pocket!);
+    const tip: number[] = centre.map(
+      (v: number, a: number): number =>
+        v - aperture.forward[a]! * aperture.pocket!,
+    );
     const pole: number = mesh.positions.length / 3;
     mesh.positions.push(...tip);
-    const controls: IControls[] = ring.map((_: number, i: number): IControls => {
-      const p: number[] = [...rim[i]!];
-      const tangent: number[] = slopes[i]!.map((x: number): number => -x);
-      const length: number = Math.hypot(...p.map((value: number, a: number): number => tip[a]! - value));
-      // The pole's tangent plane is across the aperture axis: the last
-      // control lies toward the rim from the tip, in that plane.
-      const towards: number[] = p.map((value: number, a: number): number => value - tip[a]!);
-      const along: number = towards.reduce((s: number, x: number, a: number): number => s + x * aperture.forward[a]!, 0);
-      const radial: number[] = towards.map((x: number, a: number): number => x - along * aperture.forward[a]!);
-      const handle: number = Math.min(length / 3, HANDLE * Math.hypot(...radial));
-      const first: number[] = p.map((value: number, a: number): number => value + tangent[a]! * handle);
-      const last: number[] = tip.map((value: number, a: number): number => value + radial[a]! / 2);
-      return [p, first, last, tip];
-    });
+    const controls: IControls[] = ring.map(
+      (_: number, i: number): IControls => {
+        const p: number[] = [...rim[i]!];
+        const tangent: number[] = slopes[i]!.map((x: number): number => -x);
+        const length: number = Math.hypot(
+          ...p.map((value: number, a: number): number => tip[a]! - value),
+        );
+        // The pole's tangent plane is across the aperture axis: the last
+        // control lies toward the rim from the tip, in that plane.
+        const towards: number[] = p.map(
+          (value: number, a: number): number => value - tip[a]!,
+        );
+        const along: number = towards.reduce(
+          (s: number, x: number, a: number): number =>
+            s + x * aperture.forward[a]!,
+          0,
+        );
+        const radial: number[] = towards.map(
+          (x: number, a: number): number => x - along * aperture.forward[a]!,
+        );
+        const handle: number = Math.min(
+          length / 3,
+          HANDLE * Math.hypot(...radial),
+        );
+        const first: number[] = p.map(
+          (value: number, a: number): number => value + tangent[a]! * handle,
+        );
+        const last: number[] = tip.map(
+          (value: number, a: number): number => value + radial[a]! / 2,
+        );
+        return [p, first, last, tip];
+      },
+    );
     const rings: Map<number, number[]> = new Map();
     meridians(controls).forEach((points: number[][], i: number): void => {
       const row: number[] = [ring[i]!];
@@ -148,14 +194,25 @@ export namespace AutoMovieHumanAperturePocket {
       rings.set(ring[i]!, row);
     });
     const open: IAutoMovieHumanApertureEdge[] = ring.map(
-      (u: number, i: number): IAutoMovieHumanApertureEdge => ({ u, v: ring[(i + 1) % ring.length]!, inside: -1, name: aperture.name }),
+      (u: number, i: number): IAutoMovieHumanApertureEdge => ({
+        u,
+        v: ring[(i + 1) % ring.length]!,
+        inside: -1,
+        name: aperture.name,
+      }),
     );
     for (const edge of open) {
       const u: number[] = rings.get(edge.u)!;
       const v: number[] = rings.get(edge.v)!;
-      for (let k: number = 0; k + 1 < STEPS; k++) emit(edge.name, v[k]!, u[k]!, u[k + 1]!, v[k]!, u[k + 1]!, v[k + 1]!);
+      for (let k: number = 0; k + 1 < STEPS; k++)
+        emit(edge.name, v[k]!, u[k]!, u[k + 1]!, v[k]!, u[k + 1]!, v[k + 1]!);
       emit(edge.name, v[STEPS - 1]!, u[STEPS - 1]!, pole);
     }
-    return AutoMovieHumanApertureConstruction.generate(mesh, aperture.name, open, rings);
+    return AutoMovieHumanApertureConstruction.generate(
+      mesh,
+      aperture.name,
+      open,
+      rings,
+    );
   }
 }

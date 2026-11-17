@@ -1,8 +1,19 @@
-import type { IAutoMovieComposition, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionTarget } from "@automovie/interface";
 import { createHeavyBag } from "@automovie/archetypes";
 import { AutoMovieComposition } from "@automovie/engine";
-
-import { HumanChain, HumanDefence, HumanObject, HumanPerformance, HumanStrike } from "@automovie/motions";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionTarget,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanDefence,
+  HumanObject,
+  HumanPerformance,
+  HumanStrike,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -44,10 +55,15 @@ export function test_human_motion_strike_matrix(): void {
     ["prop", { kind: "prop", subject: "bag", point: "target" }],
     ["none", { kind: "none" } as IAutoMovieMotionTarget],
   ];
-  const perform = (composition: IAutoMovieComposition): IAutoMovieMotionHumanPerformance =>
+  const perform = (
+    composition: IAutoMovieComposition,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "matrix",
-      laws: [...rows, HumanDefence.parry as IAutoMovieMotionHumanActionLaw<never>],
+      laws: [
+        ...rows,
+        HumanDefence.parry as IAutoMovieMotionHumanActionLaw<never>,
+      ],
       props: [
         HumanObject.prop("bag", bag, {
           at: { x: 1.2, y: 0, z: reach + 0.25 },

@@ -1,4 +1,7 @@
-import type { IAutoMovieSweepOrientation, IAutoMovieOrientSweep } from "@automovie/interface";
+import type {
+  IAutoMovieOrientSweep,
+  IAutoMovieSweepOrientation,
+} from "@automovie/interface";
 
 import { AutoMovieSweepRotation } from "./AutoMovieSweepRotation";
 
@@ -31,7 +34,11 @@ import { AutoMovieSweepRotation } from "./AutoMovieSweepRotation";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The relative turns are computed once per `update` and serve every query.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains 8 S numbers, S flags and 40 numbers of frame and scratch, sized at creation and released with the orientation.
  */
-export const orientAutoMovieSweep: (props: IAutoMovieOrientSweep.IProps) => IAutoMovieSweepOrientation = (props: IAutoMovieOrientSweep.IProps): IAutoMovieSweepOrientation => {
+export const orientAutoMovieSweep: (
+  props: IAutoMovieOrientSweep.IProps,
+) => IAutoMovieSweepOrientation = (
+  props: IAutoMovieOrientSweep.IProps,
+): IAutoMovieSweepOrientation => {
   const { transport, knots, fixed } = props;
   const count: number = knots.length;
   const rotations: Float64Array = new Float64Array(4 * count);

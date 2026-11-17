@@ -1,10 +1,11 @@
-import type { IAutoMovieHumanConicPose, AutoMovieVector3Tuple, IAutoMovieHumanConicLoft, IAutoMovieHumanF1Placement, IAutoMovieHumanF1Placing, IAutoMovieHumanSegmentFrame } from "@automovie/interface";
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanConicLoft,
+  IAutoMovieHumanConicPose,
+  IAutoMovieHumanF1Placement,
+  IAutoMovieHumanF1Placing,
+  IAutoMovieHumanSegmentFrame,
+} from "@automovie/interface";
 
 import { AutoMovieHumanConicPose } from "../conic/AutoMovieHumanConicPose";
 import { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
@@ -25,12 +26,11 @@ import { AutoMovieHumanF1Placing as T } from "./AutoMovieHumanF1Placing";
  * takes the roll its joints' twists ask for, each an exact no-op at the reference pose.
  */
 export namespace AutoMovieHumanF1Placement {
-  
-
-  
-
   /** The frames of the reference pose: the chain at its own rotations. */
-  export const REFERENCE: IAutoMovieHumanF1Placement.IFrames = F.world(T.CHAIN, (): undefined => undefined);
+  export const REFERENCE: IAutoMovieHumanF1Placement.IFrames = F.world(
+    T.CHAIN,
+    (): undefined => undefined,
+  );
 
   /**
    * The rigid parts of the tree: the ear and the nose stand on the head and the breast on the thorax. They are not joints: a rigid
@@ -44,54 +44,90 @@ export namespace AutoMovieHumanF1Placement {
    * the root, and the thorax and the head stand on it without a joint for now (the trunk is one family on one straight course).
    */
   export const ARTICULATED: readonly string[] = [
-    "humerus", "forearm", "hand",
-    ...["index", "middle", "ring", "pinky"].flatMap((finger: string): string[] => ["proximal", "middle", "distal"].map((bone: string): string => finger + "." + bone)),
-    "thumb.metacarpal", "thumb.proximal", "thumb.distal",
-    "femur", "tibia", "foot",
-    ...["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].flatMap((toe: string): string[] => ["proximal", "distal"].map((bone: string): string => toe + "." + bone)),
+    "humerus",
+    "forearm",
+    "hand",
+    ...["index", "middle", "ring", "pinky"].flatMap(
+      (finger: string): string[] =>
+        ["proximal", "middle", "distal"].map(
+          (bone: string): string => finger + "." + bone,
+        ),
+    ),
+    "thumb.metacarpal",
+    "thumb.proximal",
+    "thumb.distal",
+    "femur",
+    "tibia",
+    "foot",
+    ...["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].flatMap(
+      (toe: string): string[] =>
+        ["proximal", "distal"].map((bone: string): string => toe + "." + bone),
+    ),
   ];
 
   /**
    * The neutral pose: every articulated joint (`ARTICULATED`) at the identity, its segment's axes parallel to its parent's. The root,
    * the trunk's frames and the rigid parts (`RIGID`) keep their reference rotations, since none of them is a joint's angle.
    */
-  export const NEUTRAL: IAutoMovieHumanF1Placement.IPose = (name: string): IAutoMovieHumanSegmentFrame.M3 | undefined => (ARTICULATED.includes(name) ? F.IDENTITY : undefined);
+  export const NEUTRAL: IAutoMovieHumanF1Placement.IPose = (
+    name: string,
+  ): IAutoMovieHumanSegmentFrame.M3 | undefined =>
+    ARTICULATED.includes(name) ? F.IDENTITY : undefined;
   /** The frames of a pose; absent, the reference pose. */
-  export function frames(pose?: IAutoMovieHumanF1Placement.IPose): IAutoMovieHumanF1Placement.IFrames {
+  export function frames(
+    pose?: IAutoMovieHumanF1Placement.IPose,
+  ): IAutoMovieHumanF1Placement.IFrames {
     return pose === undefined ? REFERENCE : F.world(T.CHAIN, pose);
   }
 
   /** One segment's frame; a name the tree lacks is refused. */
-  export function frame(name: string, at: IAutoMovieHumanF1Placement.IFrames = REFERENCE): IAutoMovieHumanSegmentFrame.IFrame {
+  export function frame(
+    name: string,
+    at: IAutoMovieHumanF1Placement.IFrames = REFERENCE,
+  ): IAutoMovieHumanSegmentFrame.IFrame {
     const found: IAutoMovieHumanSegmentFrame.IFrame | undefined = at.get(name);
     if (found === undefined) throw new Error("f1 has no segment " + name);
     return found;
   }
 
   /** A stored point in the figure's frame, mm: `o + A q` in its segment's frame. */
-  export function point(name: string, at: IAutoMovieHumanF1Placement.IFrames = REFERENCE): AutoMovieVector3Tuple {
+  export function point(
+    name: string,
+    at: IAutoMovieHumanF1Placement.IFrames = REFERENCE,
+  ): AutoMovieVector3Tuple {
     const placed: IAutoMovieHumanF1Placing.IPlaced | undefined = T.POINTS[name];
     if (placed === undefined) throw new Error("f1 has no point " + name);
     return F.toWorld(frame(placed.frame, at), placed.local);
   }
 
   /** A stored polyline in the figure's frame: the points `<name>.0`, `<name>.1` and so on. */
-  export function points(name: string, at: IAutoMovieHumanF1Placement.IFrames = REFERENCE): AutoMovieVector3Tuple[] {
+  export function points(
+    name: string,
+    at: IAutoMovieHumanF1Placement.IFrames = REFERENCE,
+  ): AutoMovieVector3Tuple[] {
     const out: AutoMovieVector3Tuple[] = [];
-    while (T.POINTS[name + "." + out.length] !== undefined) out.push(point(name + "." + out.length, at));
+    while (T.POINTS[name + "." + out.length] !== undefined)
+      out.push(point(name + "." + out.length, at));
     if (out.length === 0) throw new Error("f1 has no polyline " + name);
     return out;
   }
 
   /** A stored direction in the figure's frame: `A q` in its segment's frame. */
-  export function direction(name: string, at: IAutoMovieHumanF1Placement.IFrames = REFERENCE): AutoMovieVector3Tuple {
-    const placed: IAutoMovieHumanF1Placing.IPlaced | undefined = T.DIRECTIONS[name];
+  export function direction(
+    name: string,
+    at: IAutoMovieHumanF1Placement.IFrames = REFERENCE,
+  ): AutoMovieVector3Tuple {
+    const placed: IAutoMovieHumanF1Placing.IPlaced | undefined =
+      T.DIRECTIONS[name];
     if (placed === undefined) throw new Error("f1 has no direction " + name);
     return F.toWorldDirection(frame(placed.frame, at), placed.local);
   }
 
   /** A family's course in the figure's frame: the centres `AutoMovieHumanF1Placing.COURSES` names for it. */
-  export function course(family: string, at: IAutoMovieHumanF1Placement.IFrames = REFERENCE): AutoMovieVector3Tuple[] {
+  export function course(
+    family: string,
+    at: IAutoMovieHumanF1Placement.IFrames = REFERENCE,
+  ): AutoMovieVector3Tuple[] {
     const names: string[] | undefined = T.COURSES[family];
     if (names === undefined) throw new Error("f1 has no course for " + family);
     return names.map((name: string): AutoMovieVector3Tuple => point(name, at));
@@ -107,8 +143,14 @@ export namespace AutoMovieHumanF1Placement {
     if (names === undefined) throw new Error("f1 has no course for " + family);
     return names.slice(1).map((name: string): string => {
       const far: IAutoMovieHumanF1Placing.IPlaced = T.POINTS[name]!;
-      const parent: string | null = T.CHAIN.find((joint: IAutoMovieHumanSegmentFrame.IJoint): boolean => joint.name === far.frame)?.parent ?? null;
-      return far.local.every((x: number): boolean => x === 0) && parent !== null ? parent : far.frame;
+      const parent: string | null =
+        T.CHAIN.find(
+          (joint: IAutoMovieHumanSegmentFrame.IJoint): boolean =>
+            joint.name === far.frame,
+        )?.parent ?? null;
+      return far.local.every((x: number): boolean => x === 0) && parent !== null
+        ? parent
+        : far.frame;
     });
   }
 
@@ -118,7 +160,10 @@ export namespace AutoMovieHumanF1Placement {
    * rule) keeps its name and is placed the same; a twin is the reflection of the placed family, never placed itself. A family whose
    * course has another count of centres than the table names for it was laid on another course and is refused.
    */
-  export function place(family: IAutoMovieHumanConicLoft.IFamily, at: IAutoMovieHumanF1Placement.IFrames = REFERENCE): IAutoMovieHumanConicLoft.IFamily {
+  export function place(
+    family: IAutoMovieHumanConicLoft.IFamily,
+    at: IAutoMovieHumanF1Placement.IFrames = REFERENCE,
+  ): IAutoMovieHumanConicLoft.IFamily {
     return repose(family, at).family;
   }
 
@@ -128,12 +173,38 @@ export namespace AutoMovieHumanF1Placement {
    *
    * @param family A stored family, or one derived from it that keeps its name, course and stations.
    */
-  export function repose(family: IAutoMovieHumanConicLoft.IFamily, at: IAutoMovieHumanF1Placement.IFrames = REFERENCE): IAutoMovieHumanConicPose.IReposeResult {
+  export function repose(
+    family: IAutoMovieHumanConicLoft.IFamily,
+    at: IAutoMovieHumanF1Placement.IFrames = REFERENCE,
+  ): IAutoMovieHumanConicPose.IReposeResult {
     const centres: AutoMovieVector3Tuple[] = course(family.name, at);
-    if (centres.length !== family.centres.length) throw new Error("f1's table names " + centres.length + " centres for " + family.name + ", whose course has " + family.centres.length);
+    if (centres.length !== family.centres.length)
+      throw new Error(
+        "f1's table names " +
+          centres.length +
+          " centres for " +
+          family.name +
+          ", whose course has " +
+          family.centres.length,
+      );
     const segments: string[] = runs(family.name);
-    const carried = (run: number, d: AutoMovieVector3Tuple): AutoMovieVector3Tuple => F.toWorldDirection(frame(segments[run]!, at), F.toLocalDirection(frame(segments[run]!), d));
-    const posed: { family: IAutoMovieHumanConicLoft.IFamily; station: ((station: number) => number) | null } = AutoMovieHumanConicPose.repose(family, centres, direction(family.name + ".up", at), carried);
+    const carried = (
+      run: number,
+      d: AutoMovieVector3Tuple,
+    ): AutoMovieVector3Tuple =>
+      F.toWorldDirection(
+        frame(segments[run]!, at),
+        F.toLocalDirection(frame(segments[run]!), d),
+      );
+    const posed: {
+      family: IAutoMovieHumanConicLoft.IFamily;
+      station: ((station: number) => number) | null;
+    } = AutoMovieHumanConicPose.repose(
+      family,
+      centres,
+      direction(family.name + ".up", at),
+      carried,
+    );
     return {
       station: posed.station,
       family: {
@@ -141,11 +212,21 @@ export namespace AutoMovieHumanF1Placement {
         ...(posed.family.reliefs === undefined
           ? {}
           : {
-              reliefs: posed.family.reliefs.map((relief: NonNullable<IAutoMovieHumanConicLoft.IFamily["reliefs"]>[number]): NonNullable<IAutoMovieHumanConicLoft.IFamily["reliefs"]>[number] => ({
-              ...relief,
-              axis: direction(relief.name + ".axis", at),
-                ...(relief.turn === undefined ? {} : { turn: direction(relief.name + ".turn", at) }),
-              })),
+              reliefs: posed.family.reliefs.map(
+                (
+                  relief: NonNullable<
+                    IAutoMovieHumanConicLoft.IFamily["reliefs"]
+                  >[number],
+                ): NonNullable<
+                  IAutoMovieHumanConicLoft.IFamily["reliefs"]
+                >[number] => ({
+                  ...relief,
+                  axis: direction(relief.name + ".axis", at),
+                  ...(relief.turn === undefined
+                    ? {}
+                    : { turn: direction(relief.name + ".turn", at) }),
+                }),
+              ),
             }),
       },
     };

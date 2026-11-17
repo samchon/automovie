@@ -1,7 +1,19 @@
-import type { IAutoMovieMotionHumanActionParams, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionManner, IAutoMovieResolveSchedule, IAutoMovieMotionEvent } from "@automovie/interface";
-
-
-import { AutoMovieMotionManner, HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionParams,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionManner,
+  IAutoMovieResolveSchedule,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionManner,
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -124,7 +136,8 @@ export function test_human_motion_recompose_exercise(): void {
           const free: Map<string, number> = events(
             perform(
               body,
-              (c: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => c.dance({ kind, beats: 8, bpm }),
+              (c: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+                c.dance({ kind, beats: 8, bpm }),
             ),
           );
           for (let k: number = 1; k <= 8; k++)
@@ -196,7 +209,10 @@ export function test_human_motion_recompose_exercise(): void {
             perform(
               body,
               (c: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-                c.exercise({ kind, reps } as IAutoMovieMotionHumanActionParams["exercise"]),
+                c.exercise({
+                  kind,
+                  reps,
+                } as IAutoMovieMotionHumanActionParams["exercise"]),
             ),
           );
           const bottoms: number = [...placed.keys()].filter(
@@ -229,7 +245,10 @@ export function test_human_motion_recompose_exercise(): void {
         const short: IAutoMovieMotionHumanPerformance = perform(
           body,
           (c: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-            c.stretch({ kind, seconds: 5 } as IAutoMovieMotionHumanActionParams["stretch"]),
+            c.stretch({
+              kind,
+              seconds: 5,
+            } as IAutoMovieMotionHumanActionParams["stretch"]),
         );
         const long: number = held.segments("a")[1]!.plan.duration;
         const brief: number = short.segments("a")[1]!.plan.duration;

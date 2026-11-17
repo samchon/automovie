@@ -65,7 +65,7 @@ export namespace IAutoMovieCreateEllipticLoftAtlas {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer checks finite positive radii, adjacent intervals and exact shared endpoints; C1 continuity, source fit and end caps are not inferred.
    * @evidence contracts/development/common.md#meaningful-documentation Elliptic section coefficients and the bicubic atlas generated from them. Profiles and the circular-arc deviation bound use model-local metres; angular U runs clockwise and V follows increasing Y.
    */
-  export type IResult = { 
+  export type IResult = {
     /**
      * New mutable open lateral bicubic atlas in the loft frame, with shared coefficient identities and per-patch normal fans; no end caps or triangle buffers are created.
      */
@@ -74,5 +74,6 @@ export namespace IAutoMovieCreateEllipticLoftAtlas {
     /**
      * Metre bound 0.000273 times the largest radius Bernstein control, bounding the circular-cubic section approximation separately from tessellation and source fitting.
      */
-    arcDeviationBound: number };
+    arcDeviationBound: number;
+  };
 }

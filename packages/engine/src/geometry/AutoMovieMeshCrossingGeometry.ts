@@ -1,4 +1,7 @@
-import type { IAutoMovieMeshCrossingGeometry, IAutoMovieMesh } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshCrossingGeometry,
+} from "@automovie/interface";
 
 import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { refitAutoMovieMeshQueryHierarchy } from "./refitAutoMovieMeshQueryHierarchy";
@@ -15,7 +18,6 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieMeshCrossingGeometry {
-
   /**
    * Admit and index one current subject without retaining its buffers.
    *
@@ -27,7 +29,9 @@ export namespace AutoMovieMeshCrossingGeometry {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A current subject may change on every query, so no coordinate or admission verdict is cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns O(T) fresh corner/box records and retains no mesh, source indices or caller positions after the call.
    */
-  export function index(mesh: IAutoMovieMesh): IAutoMovieMeshCrossingGeometry.ITriangle[] {
+  export function index(
+    mesh: IAutoMovieMesh,
+  ): IAutoMovieMeshCrossingGeometry.ITriangle[] {
     return read(
       mesh.positions,
       triangleIndicesOf(mesh, "Mesh crossings (complete triangle buffers)"),
@@ -45,14 +49,19 @@ export namespace AutoMovieMeshCrossingGeometry {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Produces the frozen source index run and hierarchy partition that later current-position snapshots can reuse; changed indices/cardinality require another preparation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Transfers copied frozen indices and O(T) private triangle/tree state to the query owner, retaining no original mesh/position/index buffers.
    */
-  export function prepare(mesh: IAutoMovieMesh): IAutoMovieMeshCrossingGeometry.ISnapshot {
+  export function prepare(
+    mesh: IAutoMovieMesh,
+  ): IAutoMovieMeshCrossingGeometry.ISnapshot {
     const indices: readonly number[] = Object.freeze(
       triangleIndicesOf(
         mesh,
         "Mesh crossings (complete triangle buffers)",
       ).slice(),
     );
-    const triangles: IAutoMovieMeshCrossingGeometry.ITriangle[] = read(mesh.positions, indices);
+    const triangles: IAutoMovieMeshCrossingGeometry.ITriangle[] = read(
+      mesh.positions,
+      indices,
+    );
     return {
       positionCount: mesh.positions.length,
       indices,
@@ -85,7 +94,10 @@ export namespace AutoMovieMeshCrossingGeometry {
       throw new Error(
         "Mesh crossing refit needs the original XYZ position cardinality.",
       );
-    const triangles: IAutoMovieMeshCrossingGeometry.ITriangle[] = read(positions, source.indices);
+    const triangles: IAutoMovieMeshCrossingGeometry.ITriangle[] = read(
+      positions,
+      source.indices,
+    );
     return {
       positionCount: source.positionCount,
       indices: source.indices,
@@ -95,7 +107,10 @@ export namespace AutoMovieMeshCrossingGeometry {
           ? undefined
           : refitAutoMovieMeshQueryHierarchy(
               source.hierarchy,
-              (triangle: IAutoMovieMeshCrossingGeometry.ITriangle): IAutoMovieMeshCrossingGeometry.ITriangle => triangles[triangle.ordinal]!,
+              (
+                triangle: IAutoMovieMeshCrossingGeometry.ITriangle,
+              ): IAutoMovieMeshCrossingGeometry.ITriangle =>
+                triangles[triangle.ordinal]!,
             ),
     };
   }

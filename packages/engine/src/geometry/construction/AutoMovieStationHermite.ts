@@ -1,5 +1,8 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftFrame, IAutoMovieStationHermite } from "@automovie/interface";
-
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftFrame,
+  IAutoMovieStationHermite,
+} from "@automovie/interface";
 
 /**
  * Interpolation of a chain's values between two principal layers from their
@@ -27,7 +30,6 @@ import type { IAutoMovieLoftChain, IAutoMovieLoftFrame, IAutoMovieStationHermite
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieStationHermite {
-
   /**
    * Weights of `[f_a, f'_a, f''_a, f''_b, f'_b, f_b]` for the value or a
    * station derivative at unit parameter u of an interval of width H.
@@ -135,7 +137,11 @@ export namespace AutoMovieStationHermite {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Every output component uses the supplied common weights instead of recomputing basis polynomials.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh W-entry array; no endpoint or weight reference is retained by the module.
    */
-  export function combine(a: IAutoMovieStationHermite.IEnd, b: IAutoMovieStationHermite.IEnd, w: readonly number[]): number[] {
+  export function combine(
+    a: IAutoMovieStationHermite.IEnd,
+    b: IAutoMovieStationHermite.IEnd,
+    w: readonly number[],
+  ): number[] {
     return a.value.map(
       (v: number, k: number): number =>
         w[0]! * v +
@@ -174,7 +180,9 @@ export namespace AutoMovieStationHermite {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned endpoint can serve multiple station derivative orders with their shared interval weights; this adapter owns no cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The new endpoint owns its flattened arrays without retaining the original layer or its tuples.
    */
-  export function frameEnd(layer: IAutoMovieLoftChain.ILayer): IAutoMovieStationHermite.IEnd {
+  export function frameEnd(
+    layer: IAutoMovieLoftChain.ILayer,
+  ): IAutoMovieStationHermite.IEnd {
     const flat = (f: IAutoMovieLoftFrame.IFrame): number[] => [
       ...f.origin,
       ...f.u,

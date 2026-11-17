@@ -1,4 +1,9 @@
-import type { IAutoMovieSolidBody, IAutoMovieSolidCycle, IAutoMovieSolidMesh } from "@automovie/interface";
+import type {
+  IAutoMovieSolidBody,
+  IAutoMovieSolidCycle,
+  IAutoMovieSolidMesh,
+} from "@automovie/interface";
+
 import { AutoMovieSolidBodyMerge } from "./AutoMovieSolidBodyMerge";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 
@@ -30,7 +35,6 @@ import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidBody {
-
   /**
    * A body of base faces, untrimmed.
    *
@@ -46,10 +50,18 @@ export namespace AutoMovieSolidBody {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Does not evaluate or rebuild surfaces; their existing objects remain the source identities.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned body owns its new containers and borrows original surface/grid data; no factory cache is retained.
    */
-  export function create(name: string, faces: IAutoMovieSolidBody.IFaceInput[]): IAutoMovieSolidBody.IBody {
+  export function create(
+    name: string,
+    faces: IAutoMovieSolidBody.IFaceInput[],
+  ): IAutoMovieSolidBody.IBody {
     return {
       name,
-      faces: faces.map((f: IAutoMovieSolidBody.IFaceInput): IAutoMovieSolidBody.IFace => ({ ...f, cycles: [] })),
+      faces: faces.map(
+        (f: IAutoMovieSolidBody.IFaceInput): IAutoMovieSolidBody.IFace => ({
+          ...f,
+          cycles: [],
+        }),
+      ),
       mesh: AutoMovieSolidMesh.create(),
       blends: [],
     };
@@ -93,7 +105,10 @@ export namespace AutoMovieSolidBody {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The helper preserves shared boundary indices and supplied trace reuse at their original owners.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Successful body data and returned join/blend references retain their original populations; no extra façade state survives.
    */
-  export function merge(body: IAutoMovieSolidBody.IBody, input: IAutoMovieSolidBody.IMerge): IAutoMovieSolidBody.IMerged {
+  export function merge(
+    body: IAutoMovieSolidBody.IBody,
+    input: IAutoMovieSolidBody.IMerge,
+  ): IAutoMovieSolidBody.IMerged {
     return AutoMovieSolidBodyMerge.merge(body, input);
   }
 
@@ -116,25 +131,26 @@ export namespace AutoMovieSolidBody {
     body: IAutoMovieSolidBody.IBody,
     onFailure?: (face: string, detail: string) => void,
   ): IAutoMovieSolidMesh.IOpen[][] {
-    return body.faces.map((f: IAutoMovieSolidBody.IFace): IAutoMovieSolidMesh.IOpen[] =>
-      AutoMovieSolidMesh.face(body.mesh, {
-        surface: f.surface,
-        stations: f.stations,
-        phases: f.phases,
-        domainLoops: f.meshLoops,
-        loops: f.cycles.map(
-          (c: IAutoMovieSolidCycle.ICycle): IAutoMovieSolidMesh.ILoop => ({
-            kind: c.kind,
-            vertices: c.vertices,
-            chart: c.chart,
-          }),
-        ),
-        inverted: f.inverted,
-        onFailure:
-          onFailure === undefined
-            ? undefined
-            : (detail: string): void => onFailure(f.surface.name, detail),
-      }),
+    return body.faces.map(
+      (f: IAutoMovieSolidBody.IFace): IAutoMovieSolidMesh.IOpen[] =>
+        AutoMovieSolidMesh.face(body.mesh, {
+          surface: f.surface,
+          stations: f.stations,
+          phases: f.phases,
+          domainLoops: f.meshLoops,
+          loops: f.cycles.map(
+            (c: IAutoMovieSolidCycle.ICycle): IAutoMovieSolidMesh.ILoop => ({
+              kind: c.kind,
+              vertices: c.vertices,
+              chart: c.chart,
+            }),
+          ),
+          inverted: f.inverted,
+          onFailure:
+            onFailure === undefined
+              ? undefined
+              : (detail: string): void => onFailure(f.surface.name, detail),
+        }),
     );
   }
 
@@ -152,7 +168,9 @@ export namespace AutoMovieSolidBody {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The same mesh index reuses its earlier published identifier across all faces.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh boundary/face/chart arrays; the local index map and body reference are not retained by that projection.
    */
-  export function publish(body: IAutoMovieSolidBody.IBody): IAutoMovieSolidBody.IPublished {
+  export function publish(
+    body: IAutoMovieSolidBody.IBody,
+  ): IAutoMovieSolidBody.IPublished {
     /** Renumber each first-seen boundary vertex once. */
     const index: Map<number, number> = new Map();
 
@@ -190,25 +208,33 @@ export namespace AutoMovieSolidBody {
     return {
       name: body.name,
       points,
-      faces: body.faces.map((f: IAutoMovieSolidBody.IFace): IAutoMovieSolidBody.IPublished["faces"][number] => {
-        const domains: IAutoMovieSolidBody.IPublished["faces"][number]["cycles"] | undefined =
-          f.meshLoops?.map(cycle);
-        const grid: IAutoMovieSolidBody.IPublished["faces"][number]["grid"] =
-          domains === undefined
-            ? undefined
-            : {
-                stations: [f.stations[0]!, f.stations[f.stations.length - 1]!],
-                phases: [f.phases[0]!, f.phases[f.phases.length - 1]!],
-              };
-        return {
-          chain: f.surface.name,
-          cycles: f.cycles.map(cycle),
-          ...(domains === undefined
-            ? {}
-            : { domainLoops: domains, grid: grid! }),
-          ...(f.inverted === true ? { inverted: true } : {}),
-        };
-      }),
+      faces: body.faces.map(
+        (
+          f: IAutoMovieSolidBody.IFace,
+        ): IAutoMovieSolidBody.IPublished["faces"][number] => {
+          const domains:
+            | IAutoMovieSolidBody.IPublished["faces"][number]["cycles"]
+            | undefined = f.meshLoops?.map(cycle);
+          const grid: IAutoMovieSolidBody.IPublished["faces"][number]["grid"] =
+            domains === undefined
+              ? undefined
+              : {
+                  stations: [
+                    f.stations[0]!,
+                    f.stations[f.stations.length - 1]!,
+                  ],
+                  phases: [f.phases[0]!, f.phases[f.phases.length - 1]!],
+                };
+          return {
+            chain: f.surface.name,
+            cycles: f.cycles.map(cycle),
+            ...(domains === undefined
+              ? {}
+              : { domainLoops: domains, grid: grid! }),
+            ...(f.inverted === true ? { inverted: true } : {}),
+          };
+        },
+      ),
     };
   }
 
@@ -229,7 +255,11 @@ export namespace AutoMovieSolidBody {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads current face cycles without introducing a stale query cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar without retaining the face or coordinates.
    */
-  export function kept(face: IAutoMovieSolidBody.IFace, u: number, v: number): boolean {
+  export function kept(
+    face: IAutoMovieSolidBody.IFace,
+    u: number,
+    v: number,
+  ): boolean {
     return AutoMovieSolidBodyMerge.kept(face, u, v);
   }
 }

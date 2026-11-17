@@ -1,17 +1,16 @@
-import type { IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanLegBones, IAutoMovieHumanLegProximal, IAutoMovieHumanLegWalk, IAutoMovieHumanSiteViewPart, IAutoMovieHumanWalkPart } from "@automovie/interface";
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanLegBones,
+  IAutoMovieHumanLegProximal,
+  IAutoMovieHumanLegWalk,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanWalkPart,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanWalkPart } from "../limb/AutoMovieHumanWalkPart";
-
 import { AutoMovieHumanLegDistal } from "./AutoMovieHumanLegDistal";
 import { AutoMovieHumanLegProximal } from "./AutoMovieHumanLegProximal";
 
@@ -46,10 +45,6 @@ type Vec3 = AutoMovieVector3Tuple;
  * depth sets the knee's turn.
  */
 export namespace AutoMovieHumanLegWalk {
-  
-
-  
-
   /** The sites, from the hip down. */
   export const SITES: readonly string[] = [
     "thigh",
@@ -61,10 +56,6 @@ export namespace AutoMovieHumanLegWalk {
 
   /** Control points and ring phases of every section: 256, over four times the reference pack's about 57 spans per leg section (`generalization.md`, Leg), a multiple of 4. */
   export const ORDER: number = 256;
-
-  
-
-  
 
   /**
    * Prepare the actual leg family once; its retained distal interval serves the foot while the full proximal source is separately assembled.
@@ -244,9 +235,12 @@ export namespace AutoMovieHumanLegWalk {
     law: IAutoMovieHumanLegWalk.ILaw,
     gap: number,
   ): IAutoMovieHumanWalkPart.ISource | string {
-    const laws: IAutoMovieHumanLegWalk.ISiteLaw[] = SITES.map((s: string): IAutoMovieHumanLegWalk.ISiteLaw => law(s));
-    const reach: (l: IAutoMovieHumanLegWalk.ISiteLaw) => number = (l: IAutoMovieHumanLegWalk.ISiteLaw): number =>
-      Math.max(...l.edges.map(Math.abs));
+    const laws: IAutoMovieHumanLegWalk.ISiteLaw[] = SITES.map(
+      (s: string): IAutoMovieHumanLegWalk.ISiteLaw => law(s),
+    );
+    const reach: (l: IAutoMovieHumanLegWalk.ISiteLaw) => number = (
+      l: IAutoMovieHumanLegWalk.ISiteLaw,
+    ): number => Math.max(...l.edges.map(Math.abs));
     const along: (from: Vec3, to: Vec3, by: number) => Vec3 = (
       from: Vec3,
       to: Vec3,
@@ -312,13 +306,19 @@ export namespace AutoMovieHumanLegWalk {
       ...SITES,
       ...(law.intermediate ?? []),
     ]
-      .map((site: string): { site: string; law: IAutoMovieHumanLegWalk.ISiteLaw } => ({
-        site,
-        law: law(site),
-      }))
+      .map(
+        (
+          site: string,
+        ): { site: string; law: IAutoMovieHumanLegWalk.ISiteLaw } => ({
+          site,
+          law: law(site),
+        }),
+      )
       .sort(
-        (a: { law: IAutoMovieHumanLegWalk.ISiteLaw }, b: { law: IAutoMovieHumanLegWalk.ISiteLaw }): number =>
-          b.law.height - a.law.height,
+        (
+          a: { law: IAutoMovieHumanLegWalk.ISiteLaw },
+          b: { law: IAutoMovieHumanLegWalk.ISiteLaw },
+        ): number => b.law.height - a.law.height,
       );
     const sites: IAutoMovieHumanWalkPart.ISite[] = placed.map(
       (site: {

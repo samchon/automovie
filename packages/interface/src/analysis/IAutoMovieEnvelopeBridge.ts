@@ -1,5 +1,3 @@
-
-
 /**
  * One linear thermal bridge along an assembly.
  *

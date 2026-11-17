@@ -1,6 +1,13 @@
-import type { IAutoMoviePhysicalHandoff, IAutoMoviePhysicalProfile, IAutoMoviePhysicalTargetInterval, IAutoMoviePhysicsCache, IAutoMoviePreparePhysicalGeometry, IAutoMovieSamplePhysicalAuthoredTargets, IAutoMovieSolvePhysicalCompliantContacts, IAutoMovieContactReceipt } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMoviePhysicalHandoff,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalTargetInterval,
+  IAutoMoviePhysicsCache,
+  IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieSamplePhysicalAuthoredTargets,
+  IAutoMovieSolvePhysicalCompliantContacts,
+} from "@automovie/interface";
 import type { ImpulseJoint, RigidBody } from "@dimforge/rapier3d-compat";
 
 /**

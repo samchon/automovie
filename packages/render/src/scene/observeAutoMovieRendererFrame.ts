@@ -1,7 +1,4 @@
 import type { IAutoMovieObservedRenderResult } from "@automovie/interface";
-
-
-
 import type * as THREE from "three";
 
 /**

@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { createDoor } from "@automovie/archetypes";
-
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -77,7 +81,8 @@ export function test_human_motion_object_door_drive(): void {
               x:
                 lever.x +
                 latch *
-                  (body.measure.shoulderHalfWidth + body.measure.upperArmRadius),
+                  (body.measure.shoulderHalfWidth +
+                    body.measure.upperArmRadius),
               y: 0,
               z: 0.45,
             },

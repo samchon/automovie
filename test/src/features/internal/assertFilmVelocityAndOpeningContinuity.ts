@@ -1,6 +1,21 @@
-import type { IAutoMovieActorContext, IAutoMovieBeatEndActorState, IAutoMovieBeatEndState, IAutoMovieSceneNode, IAutoMovieShotProgram, IAutoMovieSkeleton, IAutoMovieStageActor, IAutoMovieStageCamera, IAutoMovieVector3 } from "@automovie/interface";
-import { Vector3, compileDefinedShot, defineShot, makeActorSynthesizer, sampleMotion } from "@automovie/engine";
-
+import {
+  Vector3,
+  compileDefinedShot,
+  defineShot,
+  makeActorSynthesizer,
+  sampleMotion,
+} from "@automovie/engine";
+import type {
+  IAutoMovieActorContext,
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndState,
+  IAutoMovieSceneNode,
+  IAutoMovieShotProgram,
+  IAutoMovieSkeleton,
+  IAutoMovieStageActor,
+  IAutoMovieStageCamera,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import type { IFilmDefinedShotContinuityInputs } from "./IFilmDefinedShotContinuityInputs";

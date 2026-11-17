@@ -1,4 +1,5 @@
 import type { IAutoMovieLoftParameter } from "@automovie/interface";
+
 /**
  * Correspondence rules that assign a phase to each point of a closed section.
  *
@@ -36,7 +37,6 @@ import type { IAutoMovieLoftParameter } from "@automovie/interface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftParameter {
-
   /**
    * Phase of every polygon vertex under a rule.
    *

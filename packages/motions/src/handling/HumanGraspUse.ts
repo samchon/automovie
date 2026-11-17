@@ -1,7 +1,24 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanGraspUse, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingHeld, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanGraspUse,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-
-import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -31,9 +48,10 @@ import { HumanGraspWorn } from "./HumanGraspWorn";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No tool kind is named: a sword and a pistol differ only in the id of their working point and the line asked.
  */
 export namespace HumanGraspUse {
-
   /** The tool line's rise above the level line when presented, degrees, by use. */
-  export const RISE: Readonly<Record<IAutoMovieMotionHumanGraspUse.IUse["line"], number>> = {
+  export const RISE: Readonly<
+    Record<IAutoMovieMotionHumanGraspUse.IUse["line"], number>
+  > = {
     forearm: 0,
     oblique: 45,
     square: 90,
@@ -123,9 +141,13 @@ export namespace HumanGraspUse {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the entry pose's bones once.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned key retains its immutable body and pose inputs; the roll-search map is local to the call and is released before return.
    */
-  export function presented(props: IAutoMovieMotionHumanGraspUse.IPresentedProps): IAutoMovieMotionHumanGrasp.IKey {
+  export function presented(
+    props: IAutoMovieMotionHumanGraspUse.IPresentedProps,
+  ): IAutoMovieMotionHumanGrasp.IKey {
     const context: (typeof props)["context"] = props.context;
-    const held: IAutoMovieMotionHumanActionContext.IProp = context.prop(props.prop);
+    const held: IAutoMovieMotionHumanActionContext.IProp = context.prop(
+      props.prop,
+    );
     const contact = (id: string): IAutoMovieAffordance | undefined =>
       (held.prop.affordances ?? []).find(
         (affordance: IAutoMovieAffordance): boolean => affordance.id === id,
@@ -182,7 +204,9 @@ export namespace HumanGraspUse {
       context.body,
       context.entry.pose,
     );
-    const region: IAutoMovieMotionHumanBody["surfaces"]["regions"]["mouth"] | undefined =
+    const region:
+      | IAutoMovieMotionHumanBody["surfaces"]["regions"]["mouth"]
+      | undefined =
       at === undefined ? undefined : context.body.surfaces.regions[at];
     const bearer: IAutoMovieResolvedBone | undefined =
       region === undefined ? undefined : bones.get(region.bone);

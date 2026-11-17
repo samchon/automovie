@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanPushPullLean } from "./IAutoMovieMotionHumanPushPullLean";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanPushPullLean } from "./IAutoMovieMotionHumanPushPullLean";
 
 /**
  * A heavy load that is not carried moved by its two handles (#3351): a

@@ -1,7 +1,7 @@
-import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
-import type { IAutoMovieMotionHumanProp } from "../perform/IAutoMovieMotionHumanProp";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieMotionHumanProp } from "../perform/IAutoMovieMotionHumanProp";
+import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 
 /**
  * Setting a held prop down at a place and letting go.

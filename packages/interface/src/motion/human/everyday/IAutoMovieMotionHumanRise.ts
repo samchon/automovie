@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
-import type { IAutoMovieMotionHumanFoot } from "../posture/IAutoMovieMotionHumanFoot";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanFoot } from "../posture/IAutoMovieMotionHumanFoot";
 
 /**
  * Standing up from a seat, in the four phases of sit-to-stand (Schenkman,

@@ -11,11 +11,9 @@ import type { IAutoMovieRecoveryOutcome } from "../../index";
 export interface IAutoMovieRecoveryCompleted<
   T,
 > extends IAutoMovieRecoveryOutcome {
- 
- /** Complete qualifies declared coverage only; partial retains usable output. */
+  /** Complete qualifies declared coverage only; partial retains usable output. */
   status: "complete" | "partial";
 
- 
- /** Caller-owned output without a visual quality certificate. */
+  /** Caller-owned output without a visual quality certificate. */
   value: T;
 }

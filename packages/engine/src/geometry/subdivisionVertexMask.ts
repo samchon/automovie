@@ -1,4 +1,5 @@
 import type { IAutoMovieSubdivisionVertexMask } from "@automovie/interface";
+
 import { decaySubdivisionSharpness } from "./decaySubdivisionSharpness";
 
 /**
@@ -33,7 +34,10 @@ export const subdivisionVertexMask = (
   faceCount: number,
 ): IAutoMovieSubdivisionVertexMask => {
   const child: number[] = sharpness.map(decaySubdivisionSharpness);
-  const parentMask: IAutoMovieSubdivisionVertexMask = ruleMask(sharpness, faceCount);
+  const parentMask: IAutoMovieSubdivisionVertexMask = ruleMask(
+    sharpness,
+    faceCount,
+  );
   const sharpParent: number = countSharp(sharpness);
   const sharpChild: number = countSharp(child);
   if (rank(sharpParent) === rank(sharpChild)) return parentMask;

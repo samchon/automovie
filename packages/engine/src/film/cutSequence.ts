@@ -1,7 +1,10 @@
-import type { IAutoMovieCut, IAutoMovieEditPlan, IAutoMovieSequenceEntry, IAutoMovieShot, IAutoMovieViolationCollector } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieCut,
+  IAutoMovieEditPlan,
+  IAutoMovieSequenceEntry,
+  IAutoMovieShot,
+  IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 
@@ -84,126 +87,129 @@ export function cutSequence(
   let runtime: number = 0;
   let previousPlayed: number | null = null;
   let previousIncomingTransition: number = 0;
-  assemble.entries.forEach((entry: IAutoMovieSequenceEntry, i: number): void => {
-    validateNonEmptyId(entry.shot, `$input.entries[${i}].shot`, "shot id");
-    const found: IBuiltShot | undefined = byId.get(entry.shot);
-    if (found === undefined) {
-      out.push(
-        "type",
-        `$input.entries[${i}].shot`,
-        `entry must reference a built shot, but "${entry.shot}" was never performed`,
-        entry.shot,
-      );
-      previousPlayed = null;
-      previousIncomingTransition = 0;
-      return;
-    }
-    const shot: IAutoMovieShot = found.shot;
-    const shotIndex: number = found.index;
-    const validShotDuration: boolean =
-      Number.isFinite(shot.duration) && shot.duration > 0;
-    if (!validShotDuration)
-      out.push(
-        "range",
-        `$shots[${shotIndex}].duration`,
-        `referenced shot "${shot.id}" duration must be a finite number > 0 seconds, but was ${shot.duration}`,
-        shot.duration,
-      );
-    let played: number = shot.duration;
-    let validPlayedSpan: boolean = validShotDuration;
-    let incomingTransition: number = 0;
-    if (entry.trim !== null) {
-      const start: number = entry.trim.start;
-      const duration: number = entry.trim.duration;
-      if (!Number.isFinite(duration) || !(duration > 0)) {
-        validPlayedSpan = false;
-        out.push(
-          "range",
-          `$input.entries[${i}].trim.duration`,
-          `trim duration must be a finite number > 0 seconds, but was ${duration}`,
-          duration,
-        );
-      } else if (!Number.isFinite(start)) {
-        validPlayedSpan = false;
-        out.push(
-          "range",
-          `$input.entries[${i}].trim.start`,
-          `trim start must be a finite number >= 0 seconds, but was ${start}`,
-          start,
-        );
-      } else if (
-        validShotDuration &&
-        (start < 0 || start + duration > shot.duration)
-      ) {
-        validPlayedSpan = false;
-        out.push(
-          "range",
-          `$input.entries[${i}].trim`,
-          `trim [${start}, ${start + duration}] must lie inside shot "${shot.id}" [0, ${shot.duration}]`,
-          entry.trim,
-          Math.max(-start, start + duration - shot.duration),
-        );
-      } else played = duration;
-    }
-    if (entry.transition !== null) {
-      if (i === 0)
+  assemble.entries.forEach(
+    (entry: IAutoMovieSequenceEntry, i: number): void => {
+      validateNonEmptyId(entry.shot, `$input.entries[${i}].shot`, "shot id");
+      const found: IBuiltShot | undefined = byId.get(entry.shot);
+      if (found === undefined) {
         out.push(
           "type",
-          `$input.entries[0].transition`,
-          "the first entry has nothing to transition from",
-          entry.transition,
+          `$input.entries[${i}].shot`,
+          `entry must reference a built shot, but "${entry.shot}" was never performed`,
+          entry.shot,
         );
-      else if (
-        !Number.isFinite(entry.transition.duration) ||
-        !(entry.transition.duration > 0)
-      )
-        out.push(
-          "range",
-          `$input.entries[${i}].transition.duration`,
-          `transition duration must be a finite number > 0 seconds, but was ${entry.transition.duration}`,
-          entry.transition.duration,
-        );
-      else if (validPlayedSpan && entry.transition.duration > played)
-        out.push(
-          "range",
-          `$input.entries[${i}].transition.duration`,
-          `transition (${entry.transition.duration}s) must not outlast the entry's played span (${played}s)`,
-          entry.transition.duration,
-          entry.transition.duration - played,
-        );
-      else if (
-        previousPlayed !== null &&
-        entry.transition.duration > previousPlayed
-      )
-        out.push(
-          "range",
-          `$input.entries[${i}].transition.duration`,
-          `transition (${entry.transition.duration}s) must not outlast the previous entry's played span (${previousPlayed}s)`,
-          entry.transition.duration,
-          entry.transition.duration - previousPlayed,
-        );
-      else if (
-        previousPlayed !== null &&
-        previousIncomingTransition + entry.transition.duration > previousPlayed
-      )
-        out.push(
-          "range",
-          `$input.entries[${i}].transition.duration`,
-          `adjacent transitions (${previousIncomingTransition}s + ${entry.transition.duration}s) must not overlap inside the previous entry's played span (${previousPlayed}s)`,
-          entry.transition.duration,
-          previousIncomingTransition +
-            entry.transition.duration -
-            previousPlayed,
-        );
-      else {
-        runtime -= entry.transition.duration;
-        incomingTransition = entry.transition.duration;
+        previousPlayed = null;
+        previousIncomingTransition = 0;
+        return;
       }
-    }
-    runtime += played;
-    previousPlayed = validPlayedSpan ? played : null;
-    previousIncomingTransition = validPlayedSpan ? incomingTransition : 0;
-  });
+      const shot: IAutoMovieShot = found.shot;
+      const shotIndex: number = found.index;
+      const validShotDuration: boolean =
+        Number.isFinite(shot.duration) && shot.duration > 0;
+      if (!validShotDuration)
+        out.push(
+          "range",
+          `$shots[${shotIndex}].duration`,
+          `referenced shot "${shot.id}" duration must be a finite number > 0 seconds, but was ${shot.duration}`,
+          shot.duration,
+        );
+      let played: number = shot.duration;
+      let validPlayedSpan: boolean = validShotDuration;
+      let incomingTransition: number = 0;
+      if (entry.trim !== null) {
+        const start: number = entry.trim.start;
+        const duration: number = entry.trim.duration;
+        if (!Number.isFinite(duration) || !(duration > 0)) {
+          validPlayedSpan = false;
+          out.push(
+            "range",
+            `$input.entries[${i}].trim.duration`,
+            `trim duration must be a finite number > 0 seconds, but was ${duration}`,
+            duration,
+          );
+        } else if (!Number.isFinite(start)) {
+          validPlayedSpan = false;
+          out.push(
+            "range",
+            `$input.entries[${i}].trim.start`,
+            `trim start must be a finite number >= 0 seconds, but was ${start}`,
+            start,
+          );
+        } else if (
+          validShotDuration &&
+          (start < 0 || start + duration > shot.duration)
+        ) {
+          validPlayedSpan = false;
+          out.push(
+            "range",
+            `$input.entries[${i}].trim`,
+            `trim [${start}, ${start + duration}] must lie inside shot "${shot.id}" [0, ${shot.duration}]`,
+            entry.trim,
+            Math.max(-start, start + duration - shot.duration),
+          );
+        } else played = duration;
+      }
+      if (entry.transition !== null) {
+        if (i === 0)
+          out.push(
+            "type",
+            `$input.entries[0].transition`,
+            "the first entry has nothing to transition from",
+            entry.transition,
+          );
+        else if (
+          !Number.isFinite(entry.transition.duration) ||
+          !(entry.transition.duration > 0)
+        )
+          out.push(
+            "range",
+            `$input.entries[${i}].transition.duration`,
+            `transition duration must be a finite number > 0 seconds, but was ${entry.transition.duration}`,
+            entry.transition.duration,
+          );
+        else if (validPlayedSpan && entry.transition.duration > played)
+          out.push(
+            "range",
+            `$input.entries[${i}].transition.duration`,
+            `transition (${entry.transition.duration}s) must not outlast the entry's played span (${played}s)`,
+            entry.transition.duration,
+            entry.transition.duration - played,
+          );
+        else if (
+          previousPlayed !== null &&
+          entry.transition.duration > previousPlayed
+        )
+          out.push(
+            "range",
+            `$input.entries[${i}].transition.duration`,
+            `transition (${entry.transition.duration}s) must not outlast the previous entry's played span (${previousPlayed}s)`,
+            entry.transition.duration,
+            entry.transition.duration - previousPlayed,
+          );
+        else if (
+          previousPlayed !== null &&
+          previousIncomingTransition + entry.transition.duration >
+            previousPlayed
+        )
+          out.push(
+            "range",
+            `$input.entries[${i}].transition.duration`,
+            `adjacent transitions (${previousIncomingTransition}s + ${entry.transition.duration}s) must not overlap inside the previous entry's played span (${previousPlayed}s)`,
+            entry.transition.duration,
+            previousIncomingTransition +
+              entry.transition.duration -
+              previousPlayed,
+          );
+        else {
+          runtime -= entry.transition.duration;
+          incomingTransition = entry.transition.duration;
+        }
+      }
+      runtime += played;
+      previousPlayed = validPlayedSpan ? played : null;
+      previousIncomingTransition = validPlayedSpan ? incomingTransition : 0;
+    },
+  );
 
   if (out.items.length === 0 && !Number.isFinite(runtime))
     out.push(

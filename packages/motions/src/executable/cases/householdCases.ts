@@ -1,9 +1,14 @@
-import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanOperate, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanWipe, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   minimumJerk,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanOperate,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanWipe,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { wipe } from "../../tasks/wipe";
@@ -71,11 +76,12 @@ export function householdCases(
       ],
     ];
     for (const [label, chain] of chains) {
-      const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
-        "household",
-        [{ subject: "a", body: who.body }],
-        chain,
-      );
+      const performance: IAutoMovieMotionHumanPerformance =
+        FamilyCaseKit.perform(
+          "household",
+          [{ subject: "a", body: who.body }],
+          chain,
+        );
       const segment = performance.segments("a").at(-1)!;
       const at = (name: string): number =>
         segment.start +

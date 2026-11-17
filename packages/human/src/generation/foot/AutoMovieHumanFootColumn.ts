@@ -1,15 +1,14 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanFootColumnLaw, IAutoMovieHumanFootFrame, IAutoMovieHumanFootGuide, IAutoMovieHumanFootWebLine } from "@automovie/interface";
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootColumnLaw,
+  IAutoMovieHumanFootFrame,
+  IAutoMovieHumanFootGuide,
+  IAutoMovieHumanFootWebLine,
+} from "@automovie/interface";
 import { Singleton } from "tstl";
 
 import { AutoMovieHumanFootColumnLaw } from "./AutoMovieHumanFootColumnLaw";
-
 import { AutoMovieHumanFootGuide } from "./AutoMovieHumanFootGuide";
-
 
 /**
  * The two borders up the ankle's column, one rule over two knot tables: a
@@ -37,7 +36,9 @@ import { AutoMovieHumanFootGuide } from "./AutoMovieHumanFootGuide";
  */
 export namespace AutoMovieHumanFootColumn {
   /** Each border's knots. */
-  const KNOTS: Readonly<Record<"lateral" | "medial", readonly IAutoMovieHumanFootGuide.IFanKnot[]>> = {
+  const KNOTS: Readonly<
+    Record<"lateral" | "medial", readonly IAutoMovieHumanFootGuide.IFanKnot[]>
+  > = {
     lateral: [
       [0.75, 0.2298, 0.7308, 0.2417, 0.862],
       [0.8, 0.2146, 0.7366, 0.2731, 0.964],
@@ -58,7 +59,9 @@ export namespace AutoMovieHumanFootColumn {
   };
 
   /** Each border's plan law over its knots' heights in lateral malleolus heights, built once. */
-  const LAWS: Readonly<Record<"lateral" | "medial", Singleton<IAutoMovieHumanFootColumnLaw.IPlan>>> = {
+  const LAWS: Readonly<
+    Record<"lateral" | "medial", Singleton<IAutoMovieHumanFootColumnLaw.IPlan>>
+  > = {
     lateral: law("lateral"),
     medial: law("medial"),
   };
@@ -73,12 +76,26 @@ export namespace AutoMovieHumanFootColumn {
    * @param line The web line.
    * @returns The knots.
    */
-  export function knots(which: "lateral" | "medial", frame: IAutoMovieHumanFootFrame.IFrame, line: IAutoMovieHumanFootWebLine.IWebLine): AutoMovieVector3Tuple[] {
+  export function knots(
+    which: "lateral" | "medial",
+    frame: IAutoMovieHumanFootFrame.IFrame,
+    line: IAutoMovieHumanFootWebLine.IWebLine,
+  ): AutoMovieVector3Tuple[] {
     const plan: IAutoMovieHumanFootColumnLaw.IPlan = LAWS[which].get();
     return AutoMovieHumanFootGuide.fanned(
       frame,
       line,
-      KNOTS[which].map((q: IAutoMovieHumanFootGuide.IFanKnot): IAutoMovieHumanFootGuide.IFanKnot => [q[0], plan.along(q[4]), plan.across(q[4]), q[3], q[4]]),
+      KNOTS[which].map(
+        (
+          q: IAutoMovieHumanFootGuide.IFanKnot,
+        ): IAutoMovieHumanFootGuide.IFanKnot => [
+          q[0],
+          plan.along(q[4]),
+          plan.across(q[4]),
+          q[3],
+          q[4],
+        ],
+      ),
     );
   }
 
@@ -91,7 +108,11 @@ export namespace AutoMovieHumanFootColumn {
    * @param height Height in lateral malleolus heights.
    * @returns The place, world mm.
    */
-  export function centre(which: "lateral" | "medial", frame: IAutoMovieHumanFootFrame.IFrame, height: number): AutoMovieVector3Tuple {
+  export function centre(
+    which: "lateral" | "medial",
+    frame: IAutoMovieHumanFootFrame.IFrame,
+    height: number,
+  ): AutoMovieVector3Tuple {
     const plan: IAutoMovieHumanFootColumnLaw.IPlan = LAWS[which].get();
     return frame.at(plan.along(height), plan.across(height), height * frame.H);
   }
@@ -102,13 +123,21 @@ export namespace AutoMovieHumanFootColumn {
    * @param which The border.
    * @returns The law, built on first use.
    */
-  function law(which: "lateral" | "medial"): Singleton<IAutoMovieHumanFootColumnLaw.IPlan> {
+  function law(
+    which: "lateral" | "medial",
+  ): Singleton<IAutoMovieHumanFootColumnLaw.IPlan> {
     return new Singleton(
       (): IAutoMovieHumanFootColumnLaw.IPlan =>
         AutoMovieHumanFootColumnLaw.plan(
-          KNOTS[which].map((q: IAutoMovieHumanFootGuide.IFanKnot): number => q[4]),
-          KNOTS[which].map((q: IAutoMovieHumanFootGuide.IFanKnot): number => q[1]),
-          KNOTS[which].map((q: IAutoMovieHumanFootGuide.IFanKnot): number => q[2]),
+          KNOTS[which].map(
+            (q: IAutoMovieHumanFootGuide.IFanKnot): number => q[4],
+          ),
+          KNOTS[which].map(
+            (q: IAutoMovieHumanFootGuide.IFanKnot): number => q[1],
+          ),
+          KNOTS[which].map(
+            (q: IAutoMovieHumanFootGuide.IFanKnot): number => q[2],
+          ),
         ),
     );
   }

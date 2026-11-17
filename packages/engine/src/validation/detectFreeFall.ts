@@ -1,6 +1,11 @@
-import { type IAutoMovieFreeFallResult, type IAutoMovieDetectFreeFall, type IAutoMovieViolationCollector, IAutoMovieClip, IAutoMovieInteractionEvent, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  IAutoMovieClip,
+  type IAutoMovieDetectFreeFall,
+  type IAutoMovieFreeFallResult,
+  IAutoMovieInteractionEvent,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { convexHull2D } from "../math/convexHull2D";
 import { pointHullDistance } from "../math/pointHullDistance";
@@ -29,7 +34,11 @@ const DEFAULT_FPS: number = 30;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One support hull decides the candidate and one canonical trajectory supplies its position/facing tracks; changed support or projectile inputs require a fresh evaluation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns returned clip/findings/events, with the event borrowing the supplied center point; temporary hull storage leaves scope and no simulation cursor or host is acquired.
  */
-export const detectFreeFall: (props: IAutoMovieDetectFreeFall.IProps) => IAutoMovieFreeFallResult = (props: IAutoMovieDetectFreeFall.IProps): IAutoMovieFreeFallResult => {
+export const detectFreeFall: (
+  props: IAutoMovieDetectFreeFall.IProps,
+) => IAutoMovieFreeFallResult = (
+  props: IAutoMovieDetectFreeFall.IProps,
+): IAutoMovieFreeFallResult => {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const path: string = props.path ?? "$input";
   const margin: number =
@@ -105,7 +114,9 @@ export const detectFreeFall: (props: IAutoMovieDetectFreeFall.IProps) => IAutoMo
   return { validation: collector.toValidation(), events: [event], trajectory };
 };
 
-const empty: (collector: IAutoMovieViolationCollector) => IAutoMovieFreeFallResult = (
+const empty: (
+  collector: IAutoMovieViolationCollector,
+) => IAutoMovieFreeFallResult = (
   collector: IAutoMovieViolationCollector,
 ): IAutoMovieFreeFallResult => ({
   validation: collector.toValidation(),

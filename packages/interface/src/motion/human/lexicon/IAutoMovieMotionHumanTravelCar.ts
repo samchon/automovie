@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanObstacle } from "../perform/IAutoMovieMotionHumanObstacle";
 import type { IAutoMovieMotionHumanSeated } from "../everyday/IAutoMovieMotionHumanSeated";
+import type { IAutoMovieMotionHumanObstacle } from "../perform/IAutoMovieMotionHumanObstacle";
 
 /**
  * Getting into a car through its door: the person stands in the doorway

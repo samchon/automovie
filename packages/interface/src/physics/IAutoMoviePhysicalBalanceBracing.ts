@@ -1,5 +1,5 @@
-import type { IAutoMoviePhysicalBalance } from "./IAutoMoviePhysicalBalance";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMoviePhysicalBalance } from "./IAutoMoviePhysicalBalance";
 
 /**
  * Capture-point root-target feedback with a bounded horizontal travel envelope.

@@ -1,11 +1,7 @@
 import type { IAutoMovieRecoveryOrderedLineage } from "@automovie/interface";
 
-
 import { bindRecoveryOrderedFits } from "../internal/bindRecoveryOrderedFits";
 import { observeRecoveryOrderedCuts } from "../internal/observeRecoveryOrderedCuts";
-
-
-
 
 /** Acquisition owner for ordered source cuts and equality-gated saved-cubic correspondence.
  * Source bytes and stage receipts remain the existing program's responsibility.
@@ -17,9 +13,7 @@ import { observeRecoveryOrderedCuts } from "../internal/observeRecoveryOrderedCu
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A new accepted replay trace proves saved numeric cubic equality only, never historical trace identity, material phase or a replacement fitted surface.
  */
 export namespace AutoMovieRecoveryOrderedLineage {
-
- 
- /** Reobserve requested saved planes without reading or fitting a coefficient.
+  /** Reobserve requested saved planes without reading or fitting a coefficient.
    * The caller verifies native and saved artifact bytes; this function compares
    * their declared source/selection/frame identities and rechecks complete raw
    * populations, closure and broad/exact face sets through the official binder.
@@ -35,12 +29,13 @@ export namespace AutoMovieRecoveryOrderedLineage {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A local-to-original injection, admitted incidence registry, vertex heights, interval index and cutter closure are reused only for this immutable source/frame/selection. Each distinct plane is cut once after duplicate rejection; persistent reuse is the processor's byte-verified named-stage responsibility, not identity-string caching here.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The call borrows source arrays and owns O(V+T) preparation plus active cut/binding data; its output grows with all requested contour points, witnesses and face addresses. Temporary references expire on return or throw and copied results transfer to the caller. There is no independent aggregate output-byte limit, handle, background task or cancellation listener.
    */
-  export function observeCuts(input: IAutoMovieRecoveryOrderedLineage.Input): IAutoMovieRecoveryOrderedLineage.Cuts {
+  export function observeCuts(
+    input: IAutoMovieRecoveryOrderedLineage.Input,
+  ): IAutoMovieRecoveryOrderedLineage.Cuts {
     return observeRecoveryOrderedCuts(input);
   }
 
- 
- /** Recover a new pointwise correspondence for explicitly requested saved cubics.
+  /** Recover a new pointwise correspondence for explicitly requested saved cubics.
    * The caller byte-verifies cuts, target publications and their actual policies.
    * The original section fitter replays each target once; conversion to the saved
    * cubic basis must reproduce its JSON numeric geometry and physical h exactly.

@@ -1,52 +1,38 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftContract, IAutoMovieViewPart, AutoMovieHumanSex as AutoMovieHumanSexType, IAutoMovieHumanBodyFrame, IAutoMovieHumanBodySources, IAutoMovieHumanHeadLane, IAutoMovieHumanHeadPlacement, IAutoMovieHumanLimbRest, IAutoMovieHumanLimbSources, IAutoMovieHumanNeckBoundary, IAutoMovieHumanNeckConstruction, IAutoMovieHumanNeckSource, IAutoMovieHumanSkeletonLaw, IAutoMovieHumanTrunkSolution } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieHumanSex as AutoMovieHumanSexType,
+  IAutoMovieHumanBodyFrame,
+  IAutoMovieHumanBodySources,
+  IAutoMovieHumanHeadLane,
+  IAutoMovieHumanHeadPlacement,
+  IAutoMovieHumanLimbRest,
+  IAutoMovieHumanLimbSources,
+  IAutoMovieHumanNeckBoundary,
+  IAutoMovieHumanNeckConstruction,
+  IAutoMovieHumanNeckSource,
+  IAutoMovieHumanSkeletonLaw,
+  IAutoMovieHumanTrunkSolution,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftContract,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyBox } from "./AutoMovieHumanBodyBox";
 import { AutoMovieHumanBodyFrame } from "./AutoMovieHumanBodyFrame";
-
-
 import { AutoMovieHumanLimbRest } from "./AutoMovieHumanLimbRest";
 import { AutoMovieHumanLimbSources } from "./AutoMovieHumanLimbSources";
 import { AutoMovieHumanNeckBoundary } from "./AutoMovieHumanNeckBoundary";
-
 import { AutoMovieHumanNeckSource } from "./AutoMovieHumanNeckSource";
 import { AutoMovieHumanShoulderDatum } from "./AutoMovieHumanShoulderDatum";
 import { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
-
 import { AutoMovieHumanTrunkSolver } from "./AutoMovieHumanTrunkSolver";
-
-
 import { AutoMovieHumanHeadLane } from "./head/AutoMovieHumanHeadLane";
 import { AutoMovieHumanHeadNeckScalars } from "./head/AutoMovieHumanHeadNeckScalars";
 import { AutoMovieHumanHeadPose } from "./head/AutoMovieHumanHeadPose";
 import { AutoMovieHumanHeadSourceAxis } from "./head/AutoMovieHumanHeadSourceAxis";
 
-
 /** Direct common anatomical definitions and explicit original-family requests, before tree assembly or raw geometry. */
 export namespace AutoMovieHumanBodySources {
-  
-
-  
-
-  
-
   /**
    * Resolve source invocation inputs and expose explicit common/original requests.
    * The same local boundary is prepared only when an actual consumer needs it. No source/property/metadata getter constructs
@@ -60,7 +46,9 @@ export namespace AutoMovieHumanBodySources {
    * @evidence contracts/performance.md#reuse-equivalent-work Call-owned closures retain identical actual head, solution, body anatomy and raw results; full production completes this same source context.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Retains only this invocation's generating definitions and explicitly requested sources; no global cache, watcher, renderer or process is introduced.
    */
-  export function create(input: IAutoMovieHumanBodySources.IInput): IAutoMovieHumanBodySources.IOriginal {
+  export function create(
+    input: IAutoMovieHumanBodySources.IInput,
+  ): IAutoMovieHumanBodySources.IOriginal {
     const sex: AutoMovieHumanSexType = AutoMovieHumanBodyAnatomy.sexOf(
       input.params,
     );
@@ -103,72 +91,85 @@ export namespace AutoMovieHumanBodySources {
     let neck: IAutoMovieHumanNeckConstruction.IOutput | undefined;
 
     /** Required shared constraints are measured here on explicit first demand, including original failures. */
-    const common: IAutoMovieHumanBodySources.IOriginal["common"] = (): IAutoMovieHumanBodySources.ICommon => {
-      if (shared !== undefined) return shared;
-      if (commonFailed) throw commonError;
-      const began: number = performance.now();
-      try {
-        const neckSource: IAutoMovieHumanNeckSource.IOutput =
-          AutoMovieHumanNeckSource.of(input.headInputs, input.limbs.legs.scale);
-        const pose: IAutoMovieHumanHeadPlacement.IOutput =
-          AutoMovieHumanHeadPose.create(input.headInputs, sex, neckSource);
-        const controls: typeof pose.neck.layout.neck.curves =
-          pose.neck.layout.neck.curves;
-        if (controls === undefined)
-          throw new Error(
-            "The original neck boundary has no shared generating controls",
-          );
-        if (pose.neck.layout.vertex !== stature)
-          throw new Error("Common and head source stature arithmetic disagree");
-        const stations: number[] = [neckSource.bottom[1], stature];
-        const upperSupport: IAutoMovieHumanBodySources.ICommon["upperSupport"] = {
-          part: {
-            stations,
-            axis: AutoMovieHumanHeadSourceAxis.of(
-              {
-                x: controls.centre,
-                y: {
-                  knots: stations.map(
-                    (station: number, i: number): IAutoMovieViewPart.IKnot => ({
-                      site: `common.neck.axis.${i}`,
-                      station,
-                      value: station,
-                    }),
-                  ),
-                },
-                z: {
-                  knots: stations.map(
-                    (station: number, i: number): IAutoMovieViewPart.IKnot => ({
-                      site: `common.neck.zero.${i}`,
-                      station,
-                      value: 0,
-                    }),
-                  ),
-                },
+    const common: IAutoMovieHumanBodySources.IOriginal["common"] =
+      (): IAutoMovieHumanBodySources.ICommon => {
+        if (shared !== undefined) return shared;
+        if (commonFailed) throw commonError;
+        const began: number = performance.now();
+        try {
+          const neckSource: IAutoMovieHumanNeckSource.IOutput =
+            AutoMovieHumanNeckSource.of(
+              input.headInputs,
+              input.limbs.legs.scale,
+            );
+          const pose: IAutoMovieHumanHeadPlacement.IOutput =
+            AutoMovieHumanHeadPose.create(input.headInputs, sex, neckSource);
+          const controls: typeof pose.neck.layout.neck.curves =
+            pose.neck.layout.neck.curves;
+          if (controls === undefined)
+            throw new Error(
+              "The original neck boundary has no shared generating controls",
+            );
+          if (pose.neck.layout.vertex !== stature)
+            throw new Error(
+              "Common and head source stature arithmetic disagree",
+            );
+          const stations: number[] = [neckSource.bottom[1], stature];
+          const upperSupport: IAutoMovieHumanBodySources.ICommon["upperSupport"] =
+            {
+              part: {
+                stations,
+                axis: AutoMovieHumanHeadSourceAxis.of(
+                  {
+                    x: controls.centre,
+                    y: {
+                      knots: stations.map(
+                        (
+                          station: number,
+                          i: number,
+                        ): IAutoMovieViewPart.IKnot => ({
+                          site: `common.neck.axis.${i}`,
+                          station,
+                          value: station,
+                        }),
+                      ),
+                    },
+                    z: {
+                      knots: stations.map(
+                        (
+                          station: number,
+                          i: number,
+                        ): IAutoMovieViewPart.IKnot => ({
+                          site: `common.neck.zero.${i}`,
+                          station,
+                          value: 0,
+                        }),
+                      ),
+                    },
+                  },
+                  [1, 0, 0],
+                  [0, 0, 1],
+                ),
               },
-              [1, 0, 0],
-              [0, 0, 1],
-            ),
-          },
-          crown: [pose.neck.layout.centre, stature, 0],
-        };
+              crown: [pose.neck.layout.centre, stature, 0],
+            };
 
-        shared = {
-          parameters: input.params,
-          inputs: input.headInputs,
-          neckSource,
-          upperSupport,
-          pose,
-        };
-        return shared;
-      } catch (error: unknown) {
-        commonFailed = true;
-        commonError = error;
-        throw error;
-      } finally {
-        milliseconds.common = performance.now() - began;
-      }
-    };
+          shared = {
+            parameters: input.params,
+            inputs: input.headInputs,
+            neckSource,
+            upperSupport,
+            pose,
+          };
+          return shared;
+        } catch (error: unknown) {
+          commonFailed = true;
+          commonError = error;
+          throw error;
+        } finally {
+          milliseconds.common = performance.now() - began;
+        }
+      };
 
     /** Prepare only the actual legacy receiver cut when that consumer explicitly needs it. */
     const neckBoundary: IAutoMovieHumanBodySources.IOriginal["neckBoundary"] =
@@ -218,23 +219,24 @@ export namespace AutoMovieHumanBodySources {
       };
 
     /** Only the explicit legacy loft consumer calls this supplier. */
-    const neckRaw: IAutoMovieHumanBodySources.IOriginal["neckRaw"] = (): IAutoMovieLoftChain => {
-      if (neck === undefined) {
-        const began: number = performance.now();
-        try {
-          neck = headSource().source.lower(common().neckSource);
-          diagnostics.push(...neck.loft.diagnostics);
-        } finally {
-          milliseconds.neckRaw = performance.now() - began;
+    const neckRaw: IAutoMovieHumanBodySources.IOriginal["neckRaw"] =
+      (): IAutoMovieLoftChain => {
+        if (neck === undefined) {
+          const began: number = performance.now();
+          try {
+            neck = headSource().source.lower(common().neckSource);
+            diagnostics.push(...neck.loft.diagnostics);
+          } finally {
+            milliseconds.neckRaw = performance.now() - began;
+          }
         }
-      }
-      if (neck.loft.chain === null)
-        throw new Error(
-          "The actual head-source neck interval made no chain: " +
-            JSON.stringify(neck.loft.diagnostics),
-        );
-      return neck.loft.chain;
-    };
+        if (neck.loft.chain === null)
+          throw new Error(
+            "The actual head-source neck interval made no chain: " +
+              JSON.stringify(neck.loft.diagnostics),
+          );
+        return neck.loft.chain;
+      };
 
     /** The shared numerical placement consumes the original cut, never a manufactured chain. */
     const trunkSolution: IAutoMovieHumanBodySources.IOriginal["trunkSolution"] =

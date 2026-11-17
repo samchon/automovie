@@ -8,19 +8,15 @@ import type { IAutoMovieRecoveryImageCamera } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation States relative-path resolution, exact-byte identity and supplied camera ownership.
  */
 export interface IAutoMovieRecoveryImageFile {
- 
- /** Stable identity within this saved publication. */
+  /** Stable identity within this saved publication. */
   id: string;
 
- 
- /** Image path resolved relative to the containing manifest; absolute paths are also accepted. */
+  /** Image path resolved relative to the containing manifest; absolute paths are also accepted. */
   path: string;
 
- 
- /** SHA-256 of the exact published or acquired bytes. */
+  /** SHA-256 of the exact published or acquired bytes. */
   sha256: string;
 
- 
- /** Supplied fixed camera chart associated with this image. */
+  /** Supplied fixed camera chart associated with this image. */
   camera: IAutoMovieRecoveryImageCamera;
 }

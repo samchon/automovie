@@ -1,6 +1,14 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieResolveSchedule } from "@automovie/interface";
-
-import { HumanChain, HumanCue, HumanPerformance, HumanRefusal } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieResolveSchedule,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanCue,
+  HumanPerformance,
+  HumanRefusal,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -50,13 +58,18 @@ export function test_human_motion_core_schedule_refusals(): void {
     a: motionHumanBody("m-average"),
     b: motionHumanBody("f-small"),
   };
-  const perform = (composition: { node: IAutoMovieMotionHumanChain["node"] }): unknown => {
+  const perform = (composition: {
+    node: IAutoMovieMotionHumanChain["node"];
+  }): unknown => {
     try {
       new HumanPerformance({
         seed: "refusals",
         cues,
         performers: Object.entries(bodies).map(
-          ([subject, body]: [string, IAutoMovieMotionHumanBody], index: number) => ({
+          (
+            [subject, body]: [string, IAutoMovieMotionHumanBody],
+            index: number,
+          ) => ({
             subject,
             body,
             at: { x: index * 1.2, y: 0, z: 0 },

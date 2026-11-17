@@ -40,10 +40,10 @@ export namespace IAutoMovieFitSubdivisionRegions {
   export type IProps = {
     /** Joined original controls and indexed face-varying UV topology, metres. */
     cage: IAutoMovieSubdivisionCage;
-  
+
     /** Render refinements relative to the source cage, integer 2–6; omitted, 2. */
     levels?: number;
-  
+
     /**
      * Borrowed nonempty disjoint source-face regions; an empty region list simply returns the uniformly refined original cage with zero fitting residual.
      */
@@ -52,18 +52,18 @@ export namespace IAutoMovieFitSubdivisionRegions {
       faces: ReadonlySet<number>;
 
       /**
-     * Initial local-metre generating samples by source vertex; omitted keys use original cage positions. These samples define the frozen fitting metric, not hard equality targets.
-     */
+       * Initial local-metre generating samples by source vertex; omitted keys use original cage positions. These samples define the frozen fitting metric, not hard equality targets.
+       */
       samples: ReadonlyMap<number, readonly [number, number, number]>;
 
       /**
-     * Independent finite local-metre hard limit targets by source vertex; omitted keys impose no limit equation.
-     */
+       * Independent finite local-metre hard limit targets by source vertex; omitted keys impose no limit equation.
+       */
       limitTargets: ReadonlyMap<number, readonly [number, number, number]>;
 
       /**
-     * Source control vertices pinned to original positions; the producer additionally anchors the support collar and shared region boundaries.
-     */
+       * Source control vertices pinned to original positions; the producer additionally anchors the support collar and shared region boundaries.
+       */
       anchors: ReadonlySet<number>;
     }>;
   };
@@ -76,7 +76,7 @@ export namespace IAutoMovieFitSubdivisionRegions {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer checks levels 2 through 6, nonempty disjoint regions and constraint membership; caller checks still cover measurements, intersections and poses.
    * @evidence contracts/development/common.md#meaningful-documentation Disjoint source-face fits composed on the joined subdivision domain. Source face and vertex identities survive local crop solves; positions retain cage-local metres and indexed UVs refine globally.
    */
-  export type IResult = { 
+  export type IResult = {
     /**
      * New joined generating level at the requested refinement depth, with globally refined UV identities and source-face parameters; cage-local metre positions contain composed fit deltas.
      */
@@ -85,5 +85,6 @@ export namespace IAutoMovieFitSubdivisionRegions {
     /**
      * Largest domain-fitter row violation across regions and coordinate solves, in metre-valued row units; zero for no regions and not a final surface or pose validation.
      */
-    maximumEqualityError: number };
+    maximumEqualityError: number;
+  };
 }

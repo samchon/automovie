@@ -1,4 +1,5 @@
 import type { IAutoMovieRecoveryScalarIntervalsSelectionOperation } from "@automovie/interface";
+
 /**
  * Select complete saved scalar slabs intersecting a declared physical window.
  * Scalars are millimetres along the observation's normalized sweep direction.
@@ -60,5 +61,6 @@ export function selectRecoveryScalarIntervals(
     intervals,
     windowMm: windowMm ? [windowMm[0], windowMm[1]] : null,
     wholeSlabBoundsMm: intervals.length ? [lower, upper] : null,
-    excludedIntervals: order.length - intervals.length };
+    excludedIntervals: order.length - intervals.length,
+  };
 }

@@ -1,40 +1,40 @@
-import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 
 /** Data and callback contracts shared by the PhysicalJointMotorCommand operations. */
 export namespace IAutoMoviePhysicalJointMotorCommand {
   /** One joint's motor command. */
-    export interface IOutput {
-      /** One velocity-motor command per declared axis, in declaration order. */
-      axes: IAutoMoviePhysicalJointMotorCommand.IAxis[];
-  
-      /** Norm of the declared axes' geodesic error, radians. */
-      error: number;
-  
-      /** Axes whose forecast demand exceeds their torque cap. */
-      saturated: ("x" | "y" | "z")[];
-    }
+  export interface IOutput {
+    /** One velocity-motor command per declared axis, in declaration order. */
+    axes: IAutoMoviePhysicalJointMotorCommand.IAxis[];
+
+    /** Norm of the declared axes' geodesic error, radians. */
+    error: number;
+
+    /** Axes whose forecast demand exceeds their torque cap. */
+    saturated: ("x" | "y" | "z")[];
+  }
 
   /** One axis's native velocity-motor command. */
-    export interface IAxis {
-      /** Joint-frame axis. */
-      axis: "x" | "y" | "z";
-  
-      /** Target relative angular speed, rad/s. */
-      speed: number;
-  
-      /** Implicit motor damping, N m s/rad. */
-      damping: number;
-  
-      /** Motor torque cap, N m; zero for an inactive motor. */
-      maximumTorque: number;
-    }
+  export interface IAxis {
+    /** Joint-frame axis. */
+    axis: "x" | "y" | "z";
+
+    /** Target relative angular speed, rad/s. */
+    speed: number;
+
+    /** Implicit motor damping, N m s/rad. */
+    damping: number;
+
+    /** Motor torque cap, N m; zero for an inactive motor. */
+    maximumTorque: number;
+  }
 
   /**
    * The bounded quaternion PD command of one joint for the native implicit
    * velocity motors.
-   * 
+   *
    * A native positional motor measures 2 asin(qi) while using the plain joint
    * axis as its Jacobian, which disagrees under compound rotations. The error is
    * therefore the geodesic rotation vector of target times inverse current, on

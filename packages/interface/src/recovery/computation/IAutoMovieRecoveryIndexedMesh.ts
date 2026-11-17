@@ -11,15 +11,12 @@ import type { AutoMovieVector3Tuple } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation States common units, registration responsibility, connectivity-only aliases and borrowed immutable lifetime.
  */
 export interface IAutoMovieRecoveryIndexedMesh {
- 
- /** Positions in the common declared Cartesian frame and physical units. */
+  /** Positions in the common declared Cartesian frame and physical units. */
   vertices: AutoMovieVector3Tuple[];
 
- 
- /** Oriented faces addressing the supplied positions. */
+  /** Oriented faces addressing the supplied positions. */
   triangles: [number, number, number][];
 
- 
- /** One in-range canonical connectivity address per position. */
+  /** One in-range canonical connectivity address per position. */
   canon: Int32Array;
 }

@@ -1,7 +1,18 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-
-import { HumanChain, HumanPerformance, HumanPursuit, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanPursuit,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -70,7 +81,8 @@ export function test_human_motion_travel_search(): void {
     body,
     0,
   );
-  const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] = performance.segments("a");
+  const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+    performance.segments("a");
   if (segments.length !== 1 + 2 * places.length)
     complaints.push(
       `the search places ${segments.length} actions, a stand and then a walk and a stand per place expected (${1 + 2 * places.length})`,
@@ -95,7 +107,8 @@ export function test_human_motion_travel_search(): void {
   const left = (seconds: number): number =>
     ((heading("head", seconds) - heading("hips", seconds) + 540) % 360) - 180;
   places.forEach((place: IAutoMovieVector3, index: number): void => {
-    const stop: IAutoMovieMotionHumanSegment.ISegment | undefined = segments[2 + 2 * index];
+    const stop: IAutoMovieMotionHumanSegment.ISegment | undefined =
+      segments[2 + 2 * index];
     if (stop === undefined) return;
     const middle: number = (stop.entryTime + stop.end) / 2;
     const l: IAutoMovieVector3 = HumanSignature.joint(

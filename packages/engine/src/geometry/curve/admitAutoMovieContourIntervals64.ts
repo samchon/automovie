@@ -1,4 +1,7 @@
-import type { IAutoMovieContourLoft64, IAutoMoviePlanContourSlabs64Props } from "@automovie/interface";
+import type {
+  IAutoMovieContourLoft64,
+  IAutoMoviePlanContourSlabs64Props,
+} from "@automovie/interface";
 
 type Ring = IAutoMoviePlanContourSlabs64Props["rings"][number][number];
 type Slice = IAutoMoviePlanContourSlabs64Props["slices"][number];

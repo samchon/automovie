@@ -1,5 +1,17 @@
-import { type IAutoMovieActionSynthesizer, type IAutoMovieLaunchResult, type IAutoMovieCompilePerformShotLaunches, type IAutoMovieEnginePerformShotActionPlan, type IAutoMovieEnginePerformShotGateContext, type IAutoMoviePerformShotLaunchJob, IAutoMovieActionCall, IAutoMovieClip, IAutoMovieInteractionEvent, IAutoMovieQuaternion, IAutoMovieTrack, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieActionCall,
+  type IAutoMovieActionSynthesizer,
+  IAutoMovieClip,
+  type IAutoMovieCompilePerformShotLaunches,
+  type IAutoMovieEnginePerformShotActionPlan,
+  type IAutoMovieEnginePerformShotGateContext,
+  IAutoMovieInteractionEvent,
+  type IAutoMovieLaunchResult,
+  type IAutoMoviePerformShotLaunchJob,
+  IAutoMovieQuaternion,
+  IAutoMovieTrack,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { compilePerformance } from "../perform/compilePerformance";
 import { animatedBaseAt } from "./animatedBaseAt";
@@ -107,7 +119,8 @@ function leadOf(
   synthesize: IAutoMovieActionSynthesizer,
   rotations: ReadonlyMap<string, IAutoMovieQuaternion>,
 ): ((seconds: number) => IAutoMovieVector3) | undefined {
-  const targetAt: IAutoMovieEnginePerformShotGateContext["targetAt"] = context.targetAt;
+  const targetAt: IAutoMovieEnginePerformShotGateContext["targetAt"] =
+    context.targetAt;
   if (job.action.at.kind === "bone" && targetAt !== undefined)
     return (seconds: number): IAutoMovieVector3 =>
       targetAt(job.action.at, seconds) ?? job.target;

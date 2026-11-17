@@ -1,6 +1,19 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanRacket, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanRacket,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -110,10 +123,14 @@ export namespace racket {
     const leftward: IAutoMovieVector3 = local(entry, { x: 1, y: 0, z: 0 });
     const arm: number = m.upperArm + m.forearm;
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
-    let contacts: IAutoMovieMotionHumanContactWindow[] = AutoMovieMotionHumanBase.plants();
+    let contacts: IAutoMovieMotionHumanContactWindow[] =
+      AutoMovieMotionHumanBase.plants();
     const grip = (
       hand: "left" | "right",
-      place: (posture: IAutoMovieMotionHumanPosture, s: number) => IAutoMovieVector3,
+      place: (
+        posture: IAutoMovieMotionHumanPosture,
+        s: number,
+      ) => IAutoMovieVector3,
       bend: "front" | "forward",
     ): IAutoMovieMotionHumanPrimitive[] =>
       AutoMovieMotionHumanPlaced.arm({
@@ -169,7 +186,10 @@ export namespace racket {
             side: foot,
             from: 0,
             to: clock.duration,
-            placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement => {
+            placement: (
+              _: IAutoMovieMotionHumanPosture,
+              s: number,
+            ): IAutoMovieMotionHumanFoot.IPlacement => {
               const placed: IAutoMovieMotionHumanFoot.IPlacement =
                 AutoMovieMotionHumanLegPhrase.between(
                   from,
@@ -194,7 +214,10 @@ export namespace racket {
           channels: ["root"],
           from: 0,
           to: clock.duration,
-          write: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanPosture => ({
+          write: (
+            posture: IAutoMovieMotionHumanPosture,
+            s: number,
+          ): IAutoMovieMotionHumanPosture => ({
             ...posture,
             root: {
               ...posture.root,
@@ -206,7 +229,10 @@ export namespace racket {
           channels: ["trunk"],
           from: 0,
           to: clock.duration,
-          write: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanPosture => ({
+          write: (
+            posture: IAutoMovieMotionHumanPosture,
+            s: number,
+          ): IAutoMovieMotionHumanPosture => ({
             ...posture,
             pitch: posture.pitch + 15 * into(s),
           }),

@@ -1,4 +1,10 @@
-import type { IAutoMovieConstructionCurve, IAutoMovieLoftChain, IAutoMovieSolidSurface, IAutoMovieConstructionRealization, IAutoMovieSampleConstructionCurves } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionCurve,
+  IAutoMovieConstructionRealization,
+  IAutoMovieLoftChain,
+  IAutoMovieSampleConstructionCurves,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 

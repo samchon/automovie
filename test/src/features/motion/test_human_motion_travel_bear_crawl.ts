@@ -1,5 +1,15 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature } from "@automovie/interface";
-import { HumanChain, HumanPerformance, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -34,7 +44,9 @@ export function test_human_motion_travel_bear_crawl(): void {
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const perform = (kind: "bear" | "knees"): IAutoMovieMotionHumanPerformance =>
+    const perform = (
+      kind: "bear" | "knees",
+    ): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "bear-crawl",
         performers: [

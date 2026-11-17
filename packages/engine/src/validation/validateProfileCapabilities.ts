@@ -1,5 +1,8 @@
-import { type IAutoMovieValidateProfileCapabilities, type IAutoMovieViolationCollector, IAutoMovieValidation } from "@automovie/interface";
-
+import {
+  type IAutoMovieValidateProfileCapabilities,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
 
@@ -14,7 +17,11 @@ import { ViolationCollector } from "./ViolationCollector";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Scalar helpers share finite/range semantics while uniqueness is local to current inputs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only diagnostics return; no response driver, physics task or mount host is retained.
  */
-export const validateProfileCapabilities: (props: IAutoMovieValidateProfileCapabilities.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateProfileCapabilities.IProps): IAutoMovieValidation => {
+export const validateProfileCapabilities: (
+  props: IAutoMovieValidateProfileCapabilities.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateProfileCapabilities.IProps,
+): IAutoMovieValidation => {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const profileIds: Set<string> = new Set<string>();
   for (const [profileIndex, profile] of props.profiles.entries()) {

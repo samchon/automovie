@@ -1,7 +1,22 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-
-import { AutoMovieMotionClock, AutoMovieMotionHumanTrunk, GymnasticsFlight, HumanBalance, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionClock,
+  AutoMovieMotionHumanTrunk,
+  GymnasticsFlight,
+  HumanBalance,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 
 import { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -72,7 +87,11 @@ export namespace motionComposeTrunk {
       const u: IAutoMovieVector3 = axis(pose, bone, { x: 0, y: 1, z: 0 });
       return Math.atan2(yaw === 90 ? u.x : u.z, u.y) * DEG;
     };
-    const standing: IAutoMovieMotionHumanPosture = stand.posture(body, ORIGIN, 0);
+    const standing: IAutoMovieMotionHumanPosture = stand.posture(
+      body,
+      ORIGIN,
+      0,
+    );
     const upright: Bones = bones(standing);
     const hips: IAutoMovieVector3 = upright.get("hips")!.worldPosition;
     const hipHeight: number = body.measure.hipHeight;
@@ -113,7 +132,11 @@ export namespace motionComposeTrunk {
 
     // 2. A posture sunk into its knees.
     for (const yaw of [0, 90] as const) {
-      const turned: IAutoMovieMotionHumanPosture = stand.posture(body, ORIGIN, yaw);
+      const turned: IAutoMovieMotionHumanPosture = stand.posture(
+        body,
+        ORIGIN,
+        yaw,
+      );
       const base: Bones = bones(turned);
       const was: IAutoMovieVector3 = base.get("hips")!.worldPosition;
       for (const share of [0.1, 0.3] as const)
@@ -187,7 +210,11 @@ export namespace motionComposeTrunk {
       const u: IAutoMovieVector3 = axis(pose, "chest", { x: 0, y: 1, z: 0 });
       return Math.atan2(u.z, u.y) * DEG;
     };
-    const standing: IAutoMovieMotionHumanPosture = stand.posture(body, ORIGIN, 0);
+    const standing: IAutoMovieMotionHumanPosture = stand.posture(
+      body,
+      ORIGIN,
+      0,
+    );
     const upright: Bones = bones(standing);
     const hips: IAutoMovieVector3 = upright.get("hips")!.worldPosition;
     const hipHeight: number = body.measure.hipHeight;
@@ -231,7 +258,10 @@ export namespace motionComposeTrunk {
           [["root", "trunk", "leftLeg", "rightLeg"], 0, 1.25],
         );
         for (const seconds of [0, 0.125, 0.25, 0.625, 1, 1.125, 1.25]) {
-          const written: IAutoMovieMotionHumanPosture = phrase.write(standing, seconds);
+          const written: IAutoMovieMotionHumanPosture = phrase.write(
+            standing,
+            seconds,
+          );
           const pose: Bones = bones(written);
           const sunk: number = hips.y - pose.get("hips")!.worldPosition.y;
           const inclined: number = tipped(pose) - tipped(upright);
@@ -269,7 +299,10 @@ export namespace motionComposeTrunk {
       }
 
     // 4. A standing posture of joint angles alone.
-    const angles: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(body, standing);
+    const angles: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(
+      body,
+      standing,
+    );
     const bare: IAutoMovieMotionHumanPrimitive =
       AutoMovieMotionHumanTrunk.crouch({
         body,
@@ -294,16 +327,15 @@ export namespace motionComposeTrunk {
   const DEG: number = 180 / Math.PI;
 
   /** The phrases' clock: `ready` at 0.25 s, `relax` at 1 s and `end` at 1.25 s. */
-  export const CLOCK: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase(
-    {
+  export const CLOCK: IAutoMovieMotionClock.IClock =
+    AutoMovieMotionClock.phrase({
       prepare: 0.25,
       wait: 0.125,
       attack: 0.25,
       follow: 0.25,
       hold: 0.125,
       retract: 0.25,
-    },
-  );
+    });
 
   /** The phrases' rise. */
   export const RISE: readonly ["start", "ready"] = ["start", "ready"];

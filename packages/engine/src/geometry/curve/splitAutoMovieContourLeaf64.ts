@@ -1,4 +1,9 @@
-import type { AutoMovieVector3Tuple, IAutoMovieContourLoftCurves64, IAutoMovieSplitContourLeaf64 } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieContourLoftCurves64,
+  IAutoMovieSplitContourLeaf64,
+} from "@automovie/interface";
+
 import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdivision64";
 import { AutoMovieContourLoftCurves64 as C } from "./AutoMovieContourLoftCurves64";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
@@ -31,7 +36,10 @@ export function splitAutoMovieContourLeaf64(
     (phase - source.start) / (source.end - source.start);
   if (!(parameter > 0 && parameter < 1))
     throw new Error("Interior source slit parameter is not representable");
-  const halves: [AutoMovieVector3Tuple[], AutoMovieVector3Tuple[]] = S.split(C.controls(source), parameter);
+  const halves: [AutoMovieVector3Tuple[], AutoMovieVector3Tuple[]] = S.split(
+    C.controls(source),
+    parameter,
+  );
   const depth: number = source.depth + 1;
   const before: IAutoMovieContourLoftCurves64.Leaf[] = C.partition(
     { net: halves[0], start: source.start, end: phase, depth },

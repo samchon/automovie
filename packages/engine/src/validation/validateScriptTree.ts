@@ -1,5 +1,10 @@
-import { type IAutoMovieValidateScriptTree, type IAutoMovieViolationCollector, IAutoMovieBeat, IAutoMovieScriptNode, IAutoMovieValidation } from "@automovie/interface";
-
+import {
+  IAutoMovieBeat,
+  IAutoMovieScriptNode,
+  type IAutoMovieValidateScriptTree,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
 
@@ -51,7 +56,9 @@ const ALLOWED_PARENTS: Record<
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares one first-declaration node index across roots, parent edges, cross references and cycles, and memoizes completed parent chains only during this synchronous validation; no result is reused after mutable script inputs can change.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns indexes, cycle paths and collector until return; transient state is bounded by node and beat counts, with violations growing by the failing authored fields. Only the validation and its violations transfer to the caller, with no retained cache or handles.
  */
-export function validateScriptTree(props: IAutoMovieValidateScriptTree.IProps): IAutoMovieValidation {
+export function validateScriptTree(
+  props: IAutoMovieValidateScriptTree.IProps,
+): IAutoMovieValidation {
   const path: string = "$input.tree";
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const { tree, beats }: typeof props = props;

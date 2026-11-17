@@ -1,5 +1,8 @@
-import type { IAutoMovieViewHermite, IAutoMovieViewPart } from "@automovie/interface";
 import { AutoMovieViewHermite, AutoMovieViewOutline } from "@automovie/engine";
+import type {
+  IAutoMovieViewHermite,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { nclose } from "../nclose";
 

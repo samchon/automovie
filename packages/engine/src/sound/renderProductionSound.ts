@@ -1,6 +1,15 @@
-import { type IAutoMovieRandom, type IAutoMovieRenderedProductionSound, type IAutoMovieRenderProductionSound, IAutoMovieProductionAcousticResponse, IAutoMovieProductionDialogueLine, IAutoMovieProductionFrameRate, IAutoMovieProductionSoundAnalysis, IAutoMovieProductionSoundCue, IAutoMovieProductionSoundEvent, IAutoMovieProductionSoundPlan } from "@automovie/interface";
-
-
+import {
+  IAutoMovieProductionAcousticResponse,
+  IAutoMovieProductionDialogueLine,
+  IAutoMovieProductionFrameRate,
+  IAutoMovieProductionSoundAnalysis,
+  IAutoMovieProductionSoundCue,
+  IAutoMovieProductionSoundEvent,
+  IAutoMovieProductionSoundPlan,
+  type IAutoMovieRandom,
+  type IAutoMovieRenderProductionSound,
+  type IAutoMovieRenderedProductionSound,
+} from "@automovie/interface";
 
 import { productionFrameBoundaryToGridTick } from "../film/productionFrameBoundaryToGridTick";
 import { productionFrameIntervalToGridTicks } from "../film/productionFrameIntervalToGridTicks";
@@ -21,7 +30,11 @@ import { productionSoundEventTone } from "./productionSoundEventTone";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Cue ranges are calculated once, adopted buffers are validated once per referenced id and per-event gains are shared across samples; the selected tone owner evaluates only the event's expression rather than every palette formula per sample.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns fresh master/analysis; dry, responded, fitted and loudness arrays leave scope after completion/failure, with film-duration-driven storage and no decoder, process, audio device or completed-mix cache.
  */
-export const renderProductionSound: (props: IAutoMovieRenderProductionSound.IProps) => IAutoMovieRenderedProductionSound = (props: IAutoMovieRenderProductionSound.IProps): IAutoMovieRenderedProductionSound => {
+export const renderProductionSound: (
+  props: IAutoMovieRenderProductionSound.IProps,
+) => IAutoMovieRenderedProductionSound = (
+  props: IAutoMovieRenderProductionSound.IProps,
+): IAutoMovieRenderedProductionSound => {
   // Every cue is placed on the sample clock before any sample is mixed, so a
   // cue that contradicts its own source is refused before the work it would
   // have wasted, and each placement is computed once for the mix that follows.

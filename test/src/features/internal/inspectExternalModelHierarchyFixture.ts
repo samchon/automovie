@@ -1,5 +1,8 @@
-import type { AutoMovieExternalModelIngestProfile, IAutoMovieExternalModelInspection } from "@automovie/interface";
 import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
+import type {
+  AutoMovieExternalModelIngestProfile,
+  IAutoMovieExternalModelInspection,
+} from "@automovie/interface";
 
 import type { IExternalModelHierarchyFixture } from "./IExternalModelHierarchyFixture";
 

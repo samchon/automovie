@@ -51,8 +51,6 @@ export namespace AutoMovieHumanEyeGlobe {
     irisRecession: 0.5,
   };
 
-  
-
   /**
    * Evaluate {@link IDerived} from {@link dimensions}.
    *

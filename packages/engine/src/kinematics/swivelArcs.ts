@@ -1,4 +1,5 @@
 import type { IAutoMovieSwivelArcs } from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 
 /**
@@ -19,7 +20,6 @@ import { Quaternion } from "../math/Quaternion";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Exact roots, never sampling; the margin is the caller's.
  */
 export namespace swivelArcs {
-
   /**
    * The sinusoid through its values at swivels 0, 90 and 180 degrees.
    *
@@ -60,7 +60,10 @@ export namespace swivelArcs {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by every bound.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function scaled(f: IAutoMovieSwivelArcs.ISinusoid, by: number): IAutoMovieSwivelArcs.ISinusoid {
+  export function scaled(
+    f: IAutoMovieSwivelArcs.ISinusoid,
+    by: number,
+  ): IAutoMovieSwivelArcs.ISinusoid {
     return { a: f.a * by, b: f.b * by, c: f.c * by };
   }
 
@@ -105,7 +108,10 @@ export namespace swivelArcs {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by every bound.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function above(f: IAutoMovieSwivelArcs.ISinusoid, margin: number): IAutoMovieSwivelArcs.IArc | "all" | null {
+  export function above(
+    f: IAutoMovieSwivelArcs.ISinusoid,
+    margin: number,
+  ): IAutoMovieSwivelArcs.IArc | "all" | null {
     const radius: number = Math.hypot(f.b, f.c);
     if (f.a - radius > margin) return "all";
     if (f.a + radius <= margin) return null;
@@ -131,7 +137,9 @@ export namespace swivelArcs {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Built once per fit and read by every test of it.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list.
    */
-  export function union(arcs: readonly IAutoMovieSwivelArcs.IArc[]): IAutoMovieSwivelArcs.IArc[] | "all" {
+  export function union(
+    arcs: readonly IAutoMovieSwivelArcs.IArc[],
+  ): IAutoMovieSwivelArcs.IArc[] | "all" {
     const pieces: IAutoMovieSwivelArcs.IArc[] = [];
     for (const arc of arcs) {
       const from: number = arc.from - 360 * Math.floor(arc.from / 360);
@@ -141,7 +149,10 @@ export namespace swivelArcs {
           to: from + (arc.to - arc.from) + turn,
         });
     }
-    pieces.sort((x: IAutoMovieSwivelArcs.IArc, y: IAutoMovieSwivelArcs.IArc): number => x.from - y.from);
+    pieces.sort(
+      (x: IAutoMovieSwivelArcs.IArc, y: IAutoMovieSwivelArcs.IArc): number =>
+        x.from - y.from,
+    );
     const out: IAutoMovieSwivelArcs.IArc[] = [];
     for (const piece of pieces) {
       const last: IAutoMovieSwivelArcs.IArc | undefined = out[out.length - 1];
@@ -149,7 +160,12 @@ export namespace swivelArcs {
         last.to = Math.max(last.to, piece.to);
       else out.push({ ...piece });
     }
-    if (out.some((arc: IAutoMovieSwivelArcs.IArc): boolean => arc.from <= 0 && arc.to >= 360))
+    if (
+      out.some(
+        (arc: IAutoMovieSwivelArcs.IArc): boolean =>
+          arc.from <= 0 && arc.to >= 360,
+      )
+    )
       return "all";
     return out;
   }
@@ -178,7 +194,8 @@ export namespace swivelArcs {
     if (merged === "all") return true;
     const turns: number = 360 * Math.floor(low / 360);
     return merged.some(
-      (arc: IAutoMovieSwivelArcs.IArc): boolean => arc.from <= low - turns && arc.to >= high - turns,
+      (arc: IAutoMovieSwivelArcs.IArc): boolean =>
+        arc.from <= low - turns && arc.to >= high - turns,
     );
   }
 
@@ -204,7 +221,8 @@ export namespace swivelArcs {
     if (merged === "all") return null;
     const at: number = swivel - 360 * Math.floor(swivel / 360);
     const holding: IAutoMovieSwivelArcs.IArc | undefined = merged.find(
-      (arc: IAutoMovieSwivelArcs.IArc): boolean => arc.from <= at && at <= arc.to,
+      (arc: IAutoMovieSwivelArcs.IArc): boolean =>
+        arc.from <= at && at <= arc.to,
     );
     if (holding === undefined) return swivel;
     return at - holding.from <= holding.to - at ? holding.from : holding.to;

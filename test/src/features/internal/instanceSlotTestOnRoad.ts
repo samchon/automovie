@@ -1,6 +1,5 @@
 import type { IAutoMovieInstanceSetPlacement } from "@automovie/interface";
 
-
 import { INSTANCE_SLOT_TEST_ROAD as road } from "./INSTANCE_SLOT_TEST_ROAD";
 import { instanceSlotTestPlacement as placement } from "./instanceSlotTestPlacement";
 

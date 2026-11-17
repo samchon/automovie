@@ -1,5 +1,16 @@
-import { type IAutoMovieModelPartPoints, IAutoMovieBuildingUnit, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieCompiledInstanceSet, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieSubjectArtifact, IAutoMovieSubjectBox, IAutoMovieSubjectDescription, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieBuildingUnit,
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieCompiledInstanceSet,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  type IAutoMovieModelPartPoints,
+  IAutoMovieSubjectArtifact,
+  IAutoMovieSubjectBox,
+  IAutoMovieSubjectDescription,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { builtEnvironmentPartBoxes } from "./architecture/builtEnvironmentPartBoxes";
 import { builtPointBounds } from "./architecture/builtPointBounds";
@@ -50,10 +61,8 @@ export class AutoMovieSubjectDescriber {
   private readonly builtElements: Map<string, IBuiltElementEntry> = new Map();
   private readonly populationSpaces: Map<string, string> = new Map();
   private readonly elementChildren: Map<string, string[]> = new Map();
-  private readonly geometry: Map<
-    string,
-    IAutoMovieModelPartPoints.IResult
-  > = new Map();
+  private readonly geometry: Map<string, IAutoMovieModelPartPoints.IResult> =
+    new Map();
   private readonly partBoxes: Map<string, Map<string, IAutoMovieSubjectBox[]>> =
     new Map();
 

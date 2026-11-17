@@ -1,5 +1,5 @@
-import type { IAutoMoviePreparedSurface } from "./IAutoMoviePreparedSurface";
 import type { IAutoMovieSpace } from "../../scene/IAutoMovieSpace";
+import type { IAutoMoviePreparedSurface } from "./IAutoMoviePreparedSurface";
 
 /**
  * Prepared footprint index for all surfaces in a space.

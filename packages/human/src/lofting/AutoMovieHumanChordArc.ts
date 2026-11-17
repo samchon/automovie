@@ -1,5 +1,7 @@
-import type { IAutoMovieArcLengthJet, IAutoMovieHumanChordArc } from "@automovie/interface";
-
+import type {
+  IAutoMovieArcLengthJet,
+  IAutoMovieHumanChordArc,
+} from "@automovie/interface";
 
 /**
  * A section arc between two guide points, built in the frame of its own chord.
@@ -19,10 +21,6 @@ import type { IAutoMovieArcLengthJet, IAutoMovieHumanChordArc } from "@automovie
  * direction, `(c_z, -c_x) / |c|`.
  */
 export namespace AutoMovieHumanChordArc {
-  
-
-  
-
   /**
    * The arc's point and its two derivatives in `xi`.
    *
@@ -32,21 +30,41 @@ export namespace AutoMovieHumanChordArc {
    * @param xi Place in the sector, 0 at `a` and 1 at `b`.
    * @returns `[p, p_xi, p_xixi]`.
    */
-  export function jet(a: IAutoMovieHumanChordArc.IEnd, b: IAutoMovieHumanChordArc.IEnd, fullness: number, xi: number): IAutoMovieHumanChordArc.Jet {
+  export function jet(
+    a: IAutoMovieHumanChordArc.IEnd,
+    b: IAutoMovieHumanChordArc.IEnd,
+    fullness: number,
+    xi: number,
+  ): IAutoMovieHumanChordArc.Jet {
     const c: number[] = [b.point[0]! - a.point[0]!, b.point[1]! - a.point[1]!];
     const length: number = Math.hypot(c[0]!, c[1]!);
-    if (!(length > 0)) throw new Error("A sector needs two distinct guide points");
+    if (!(length > 0))
+      throw new Error("A sector needs two distinct guide points");
 
     // The Hermite data in xi: value, speed `length` times the tangent and
     // `length^2` times the curvature vector.
-    const lo: number[][] = [[...a.point], a.tangent.map((v: number): number => length * v), a.curvature.map((v: number): number => length * length * v)];
-    const hi: number[][] = [[...b.point], b.tangent.map((v: number): number => length * v), b.curvature.map((v: number): number => length * length * v)];
-    const out: IAutoMovieHumanChordArc.Jet = [[0, 0], [0, 0], [0, 0]];
+    const lo: number[][] = [
+      [...a.point],
+      a.tangent.map((v: number): number => length * v),
+      a.curvature.map((v: number): number => length * length * v),
+    ];
+    const hi: number[][] = [
+      [...b.point],
+      b.tangent.map((v: number): number => length * v),
+      b.curvature.map((v: number): number => length * length * v),
+    ];
+    const out: IAutoMovieHumanChordArc.Jet = [
+      [0, 0],
+      [0, 0],
+      [0, 0],
+    ];
     const outward: number[] = [c[1]! / length, -c[0]! / length];
     for (let k: number = 0; k < 3; k++) {
       // Each basis polynomial's k-th derivative at xi, once for both axes.
       const bump: number = horner(DERIVED_BUMP[k]!, xi);
-      const basis: number[] = DERIVED_BASIS[k]!.map((p: readonly number[]): number => horner(p, xi));
+      const basis: number[] = DERIVED_BASIS[k]!.map(
+        (p: readonly number[]): number => horner(p, xi),
+      );
       for (let d: number = 0; d < 2; d++)
         out[k]![d] =
           fullness * outward[d]! * bump +
@@ -64,7 +82,12 @@ export namespace AutoMovieHumanChordArc {
    * The jet of the arc's end as the neighbour would copy it: the published
    * jet at `xi` of an arc, by arclength.
    */
-  export function published(a: IAutoMovieHumanChordArc.IEnd, b: IAutoMovieHumanChordArc.IEnd, fullness: number, xi: number): IAutoMovieArcLengthJet {
+  export function published(
+    a: IAutoMovieHumanChordArc.IEnd,
+    b: IAutoMovieHumanChordArc.IEnd,
+    fullness: number,
+    xi: number,
+  ): IAutoMovieArcLengthJet {
     const [p, d1, d2] = jet(a, b, fullness, xi);
     const speed: number = Math.hypot(d1[0]!, d1[1]!) || 1;
     const tangent: number[] = d1.map((v: number): number => v / speed);
@@ -72,7 +95,10 @@ export namespace AutoMovieHumanChordArc {
     return {
       point: p,
       tangent,
-      curvature: d2.map((v: number, k: number): number => (v - along * speed * tangent[k]!) / (speed * speed)),
+      curvature: d2.map(
+        (v: number, k: number): number =>
+          (v - along * speed * tangent[k]!) / (speed * speed),
+      ),
     };
   }
 
@@ -111,8 +137,14 @@ export namespace AutoMovieHumanChordArc {
   }
 
   /** The basis' value, first and second derivative polynomials. */
-  const DERIVED_BASIS: readonly (readonly (readonly number[])[])[] = [0, 1, 2].map((k: number): number[][] => BASIS.map((c: readonly number[]): number[] => derive(c, k)));
+  const DERIVED_BASIS: readonly (readonly (readonly number[])[])[] = [
+    0, 1, 2,
+  ].map((k: number): number[][] =>
+    BASIS.map((c: readonly number[]): number[] => derive(c, k)),
+  );
 
   /** The bump's value, first and second derivative polynomials. */
-  const DERIVED_BUMP: readonly (readonly number[])[] = [0, 1, 2].map((k: number): number[] => derive(BUMP, k));
+  const DERIVED_BUMP: readonly (readonly number[])[] = [0, 1, 2].map(
+    (k: number): number[] => derive(BUMP, k),
+  );
 }

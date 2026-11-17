@@ -1,5 +1,3 @@
-import type { IAutoMovieHumanCanonicalBody, IAutoMoviePhysicalProfile, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Quaternion,
   Vector3,
@@ -7,6 +5,12 @@ import {
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
+import type {
+  IAutoMovieHumanCanonicalBody,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   type AutoMovieHumanPolygon,
   buildHumanPolygon,

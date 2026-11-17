@@ -1,5 +1,3 @@
-
-
 /**
  * Answer of a refutation-only mesh separation query: whether one complete
  * feature is separated from the resident surface by at least the requested

@@ -1,7 +1,13 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -76,7 +82,8 @@ export function test_human_motion_prop_worn(): void {
     );
     return;
   }
-  const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] = performance.segments("a");
+  const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+    performance.segments("a");
   const instant = (index: number, event: string): number =>
     segments[index]!.start +
     (segments[index]!.plan.events.find((e): boolean => e.name === event)
@@ -91,7 +98,10 @@ export function test_human_motion_prop_worn(): void {
     const frame: IAutoMovieResolvedBone = performance
       .bones("a", seconds)
       .get(bone)!;
-    const prop: IAutoMovieMotionHumanProp.IFrame = performance.prop("flask", seconds);
+    const prop: IAutoMovieMotionHumanProp.IFrame = performance.prop(
+      "flask",
+      seconds,
+    );
     const inverse = Quaternion.inverse(frame.worldRotation);
     return {
       position: Quaternion.rotateVector(

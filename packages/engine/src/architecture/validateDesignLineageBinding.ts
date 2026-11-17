@@ -1,5 +1,11 @@
-import { type IAutoMovieValidateDesignLineageBinding, type IAutoMovieViolationCollector, IAutoMovieDerivedArtifact, IAutoMovieDesignLineage, IAutoMovieDesignSubject, IAutoMovieValidation } from "@automovie/interface";
-
+import {
+  IAutoMovieDerivedArtifact,
+  IAutoMovieDesignLineage,
+  IAutoMovieDesignSubject,
+  type IAutoMovieValidateDesignLineageBinding,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 
@@ -33,7 +39,11 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A check of one lineage against one id list per call that coordinates no shared work.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The published-id set is local and released on return, bounded by the known-id count; the returned validation holds the findings.
  */
-export const validateDesignLineageBinding: (props: IAutoMovieValidateDesignLineageBinding.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateDesignLineageBinding.IProps): IAutoMovieValidation => {
+export const validateDesignLineageBinding: (
+  props: IAutoMovieValidateDesignLineageBinding.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateDesignLineageBinding.IProps,
+): IAutoMovieValidation => {
   const lineage: IAutoMovieDesignLineage = props.lineage;
   const known: readonly string[] = props.known;
   const out: IAutoMovieViolationCollector = new ViolationCollector();

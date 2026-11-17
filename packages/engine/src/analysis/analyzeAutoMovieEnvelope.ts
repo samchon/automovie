@@ -1,5 +1,16 @@
-import { type IAutoMovieEnvelopeAssembly, type IAutoMovieEnvelopeBridge, type IAutoMovieEnvelopeLayer, type IAutoMovieEnvelopeRequest, type IAutoMovieAnalyzeEnvelope, IAutoMovieAnalysisMetric, IAutoMovieAnalysisMetricGap, IAutoMovieAnalysisSample, IAutoMovieAnalysisSolver, IAutoMovieAnalysisWarning, IAutoMovieEnvironmentInstant } from "@automovie/interface";
-
+import {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisMetricGap,
+  IAutoMovieAnalysisSample,
+  IAutoMovieAnalysisSolver,
+  IAutoMovieAnalysisWarning,
+  type IAutoMovieAnalyzeEnvelope,
+  type IAutoMovieEnvelopeAssembly,
+  type IAutoMovieEnvelopeBridge,
+  type IAutoMovieEnvelopeLayer,
+  type IAutoMovieEnvelopeRequest,
+  IAutoMovieEnvironmentInstant,
+} from "@automovie/interface";
 
 import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
 import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTargets";
@@ -74,7 +85,11 @@ interface IAssemblyMargin {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Solves each assembly once for both runs' metrics and samples, computes one dew point for every margin, builds one settings string for both seals, and collects the unknown-target warnings once and copies them into both runs, since both runs report against the same union of keys.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates per-call arrays proportional to A and keeps none of them after returning the two runs, which own their metrics, samples and warnings.
  */
-export const analyzeAutoMovieEnvelope: (props: IAutoMovieAnalyzeEnvelope.IProps) => IAutoMovieAnalyzeEnvelope.IResult = (props: IAutoMovieAnalyzeEnvelope.IProps): IAutoMovieAnalyzeEnvelope.IResult => {
+export const analyzeAutoMovieEnvelope: (
+  props: IAutoMovieAnalyzeEnvelope.IProps,
+) => IAutoMovieAnalyzeEnvelope.IResult = (
+  props: IAutoMovieAnalyzeEnvelope.IProps,
+): IAutoMovieAnalyzeEnvelope.IResult => {
   const request: IAutoMovieEnvelopeRequest = props.request;
   const instant: IAutoMovieEnvironmentInstant | null =
     resolveAutoMovieEnvelopeRequest(request);

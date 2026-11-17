@@ -1,7 +1,9 @@
-import { type IAutoMovieResolvedBone, IAutoMovieBone } from "@automovie/interface";
 import { resolvePose } from "@automovie/engine";
 import { humanoidSkeleton } from "@automovie/ingest";
-
+import {
+  IAutoMovieBone,
+  type IAutoMovieResolvedBone,
+} from "@automovie/interface";
 import { Document, Node as GLTFNode } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 
@@ -131,8 +133,7 @@ export function test_ingest_humanoid_skeleton(): void {
     bone: string,
   ): IAutoMovieResolvedBone =>
     resolvePose(restPose(skeleton.id), skeleton).find(
-      (r: IAutoMovieResolvedBone): boolean =>
-        r.bone === bone,
+      (r: IAutoMovieResolvedBone): boolean => r.bone === bone,
     )!;
 
   const shifted: Document = new Document();

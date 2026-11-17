@@ -1,5 +1,16 @@
-import type { IAutoMovieLoftFrame, IAutoMovieViewCurves, IAutoMovieViewLoft, IAutoMovieViewOutline, IAutoMovieViewPart } from "@automovie/interface";
-import { AutoMovieViewAxis, AutoMovieViewCurves, AutoMovieViewLoft, AutoMovieViewOutline } from "@automovie/engine";
+import {
+  AutoMovieViewAxis,
+  AutoMovieViewCurves,
+  AutoMovieViewLoft,
+  AutoMovieViewOutline,
+} from "@automovie/engine";
+import type {
+  IAutoMovieLoftFrame,
+  IAutoMovieViewCurves,
+  IAutoMovieViewLoft,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * Original view curves remain observable before section admission, with their actual frames, knot identities, natural-cubic extrema and finite pole endpoints.
@@ -26,10 +37,8 @@ export function test_construction_source_curves(): void {
     outline: IAutoMovieViewOutline.IOutline,
     station: number,
   ): IAutoMovieViewOutline.IReading => {
-    const out: IAutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
-      outline,
-      station,
-    );
+    const out: IAutoMovieViewOutline.IReading | string =
+      AutoMovieViewOutline.at(outline, station);
     if (typeof out === "string") throw new Error(out);
     return out;
   };
@@ -359,8 +368,12 @@ function prepared(
   outline: IAutoMovieViewPart.IOutline,
   ends: IAutoMovieViewOutline.IEnds = {},
 ): IAutoMovieViewOutline.IOutline {
-  const result: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
-    AutoMovieViewOutline.create(outline, ends);
+  const result:
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+    outline,
+    ends,
+  );
   if ("detail" in result) throw new Error(result.detail);
   return result;
 }

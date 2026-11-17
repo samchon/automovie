@@ -1,5 +1,8 @@
-import type { IAutoMovieRealizeBicubicAtlas64, IAutoMovieRealizeGeometry, IAutoMovieGeometry } from "@automovie/interface";
-
+import type {
+  IAutoMovieGeometry,
+  IAutoMovieRealizeBicubicAtlas64,
+  IAutoMovieRealizeGeometry,
+} from "@automovie/interface";
 
 import { realizeAutoMovieBicubicAtlas64 } from "./realizeAutoMovieBicubicAtlas64";
 import { tessellateToMesh } from "./tessellateToMesh";

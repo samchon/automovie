@@ -1,4 +1,8 @@
-import type { IAutoMovieChain, IAutoMovieComposition } from "@automovie/interface";
+import type {
+  IAutoMovieChain,
+  IAutoMovieComposition,
+} from "@automovie/interface";
+
 import { AutoMovieComposition } from "./AutoMovieComposition";
 
 /**

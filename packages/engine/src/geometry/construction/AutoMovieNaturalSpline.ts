@@ -1,4 +1,5 @@
 import type { IAutoMovieNaturalSpline } from "@automovie/interface";
+
 /**
  * Natural cubic spline through knots: the C2 curve of least bending that
  * passes through every knot, with zero curvature at both ends.
@@ -13,7 +14,6 @@ import type { IAutoMovieNaturalSpline } from "@automovie/interface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieNaturalSpline {
-
   /**
    * Solve the tridiagonal system of the knot curvatures.
    *
@@ -65,13 +65,20 @@ export namespace AutoMovieNaturalSpline {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the prepared knot curvatures and reads only one interval's coefficients; repeated query locations are not cached.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains no input, buffer or handle.
    */
-  export function evaluate(spline: IAutoMovieNaturalSpline.ISpline, x: number): number {
+  export function evaluate(
+    spline: IAutoMovieNaturalSpline.ISpline,
+    x: number,
+  ): number {
     const k: number = interval(spline.xs, x);
     return valueAt(spline, x, k);
   }
 
   /** Same polynomial and tangent arithmetic at an already selected span. */
-  function valueAt(spline: IAutoMovieNaturalSpline.ISpline, x: number, k: number): number {
+  function valueAt(
+    spline: IAutoMovieNaturalSpline.ISpline,
+    x: number,
+    k: number,
+  ): number {
     const { xs, ys, curvatures }: IAutoMovieNaturalSpline.ISpline = spline;
     const h: number = xs[k + 1]! - xs[k]!;
     const t: number = x - xs[k]!;
@@ -114,7 +121,10 @@ export namespace AutoMovieNaturalSpline {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both derivatives share the interval width, local parameter, secant and prepared curvatures.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the fresh two-number result escapes; the spline is not mutated or retained.
    */
-  export function derivative(spline: IAutoMovieNaturalSpline.ISpline, x: number): [number, number] {
+  export function derivative(
+    spline: IAutoMovieNaturalSpline.ISpline,
+    x: number,
+  ): [number, number] {
     const k: number = interval(spline.xs, x);
     return derivativeAt(spline, x, k);
   }
@@ -154,7 +164,10 @@ export namespace AutoMovieNaturalSpline {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both existing polynomial readers share the selected span without caching query history.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A fresh three-number tuple and local derivative pair are call-owned; nothing is retained.
    */
-  export function read(spline: IAutoMovieNaturalSpline.ISpline, x: number): [number, number, number] {
+  export function read(
+    spline: IAutoMovieNaturalSpline.ISpline,
+    x: number,
+  ): [number, number, number] {
     const k: number = interval(spline.xs, x);
     const value: number = valueAt(spline, x, k);
     const jet: [number, number] = derivativeAt(spline, x, k);
@@ -190,7 +203,10 @@ export namespace AutoMovieNaturalSpline {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
    */
-  export function jerk(spline: IAutoMovieNaturalSpline.ISpline, x: number): number {
+  export function jerk(
+    spline: IAutoMovieNaturalSpline.ISpline,
+    x: number,
+  ): number {
     const { xs, curvatures }: IAutoMovieNaturalSpline.ISpline = spline;
     const n: number = xs.length;
     if (!(x >= xs[0]! && x <= xs[n - 1]!)) return 0;
@@ -232,8 +248,7 @@ export namespace AutoMovieNaturalSpline {
           (right[j]! - M[(j - 1 + m) % m]! - M[(j + 1) % m]!) / 4,
       );
     return (psi: number): number => {
-      const x: number =
-        ((psi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      const x: number = ((psi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
       const j: number = Math.min(m - 1, Math.floor(x / h));
       const t: number = x - j * h;
       const [a, b]: [number, number] = [M[j]!, M[(j + 1) % m]!];

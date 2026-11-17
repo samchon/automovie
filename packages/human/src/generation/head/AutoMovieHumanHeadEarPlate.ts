@@ -1,14 +1,23 @@
-import type { IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieNaturalSpline, IAutoMovieViewAxis, IAutoMovieViewPart, IAutoMovieHumanHeadEarFrame, IAutoMovieHumanHeadEarPlate, IAutoMovieHumanHeadLayout, IAutoMovieConstructionView } from "@automovie/interface";
-
-
-
-
-import { AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieNaturalSpline, AutoMovieViewSection } from "@automovie/engine";
-
+import {
+  AutoMovieLoftSectionNative,
+  AutoMovieLoftViewRead,
+  AutoMovieLoftViewSource,
+  AutoMovieNaturalSpline,
+  AutoMovieViewSection,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionView,
+  IAutoMovieHumanHeadEarFrame,
+  IAutoMovieHumanHeadEarPlate,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieNaturalSpline,
+  IAutoMovieViewAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
-
-
 import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
 import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
 import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
@@ -36,10 +45,6 @@ import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns caller-owned sources and no global head cache.
  */
 export namespace AutoMovieHumanHeadEarPlate {
-  
-
-  
-
   /**
    * Author the plate and its named source/scalp endpoints together.
    *
@@ -127,10 +132,11 @@ export namespace AutoMovieHumanHeadEarPlate {
     widthSites.sort(
       (a: [number, number], b: [number, number]): number => a[0] - b[0],
     );
-    const width: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
-      widthSites.map((p: [number, number]): number => theta(p[0])),
-      widthSites.map((p: [number, number]): number => p[1]),
-    );
+    const width: IAutoMovieNaturalSpline.ISpline =
+      AutoMovieNaturalSpline.create(
+        widthSites.map((p: [number, number]): number => theta(p[0])),
+        widthSites.map((p: [number, number]): number => p[1]),
+      );
     const half: (y: number) => number = (y: number): number =>
       y === low || y === high
         ? 0
@@ -243,7 +249,9 @@ export namespace AutoMovieHumanHeadEarPlate {
     if (admitted === null || admitted.source === null)
       throw new Error(`Ear ${side} has no admitted original plate field`);
     const original: IAutoMovieLoftViewSource.ISource = admitted.source;
-    const section: (at: number) => IAutoMovieHumanHeadEarPlate.ISection = (at: number): IAutoMovieHumanHeadEarPlate.ISection => {
+    const section: (at: number) => IAutoMovieHumanHeadEarPlate.ISection = (
+      at: number,
+    ): IAutoMovieHumanHeadEarPlate.ISection => {
       const inputs: IAutoMovieLoftViewRead.IValues | string =
         AutoMovieLoftViewRead.values(original, at);
       if (typeof inputs === "string")

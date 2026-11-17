@@ -1,4 +1,5 @@
 import type { IAutoMovieRecoveryChartMap } from "@automovie/interface";
+
 /**
  * Private Dirichlet parameterization of an observed triangulated chart.
  * Original source incidence is used only by observation and never returned.
@@ -9,9 +10,7 @@ import type { IAutoMovieRecoveryChartMap } from "@automovie/interface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A numerical parameter map does not itself authorize topology repair, source coverage or a generated replacement surface.
  */
 export namespace RecoveryChartMap {
-
- 
- /**
+  /**
    * Solve a positive-weight Dirichlet graph Laplacian with diagonal PCG.
    * Anchoring every connected component makes the free matrix positive definite.
    * The caller still establishes disk topology and a compatible boundary map;
@@ -25,7 +24,9 @@ export namespace RecoveryChartMap {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One undirected adjacency and free-index registry are reused for u, v and independent original-equation residuals.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Adjacency and PCG arrays are local and released on return or refusal; only parameters and diagnostic witnesses escape to the private observation caller.
    */
-  export function parameterize(input: IAutoMovieRecoveryChartMap.Input): IAutoMovieRecoveryChartMap.Result {
+  export function parameterize(
+    input: IAutoMovieRecoveryChartMap.Input,
+  ): IAutoMovieRecoveryChartMap.Result {
     if (
       !Number.isSafeInteger(input.vertices) ||
       input.vertices < 3 ||
@@ -230,6 +231,7 @@ export namespace RecoveryChartMap {
       iterations,
       residual,
       failedTriangles,
-      diagnostics };
+      diagnostics,
+    };
   }
 }

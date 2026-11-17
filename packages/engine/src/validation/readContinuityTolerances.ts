@@ -1,5 +1,7 @@
-import type { IAutoMovieContinuityTolerances, IAutoMovieViolationCollector } from "@automovie/interface";
-
+import type {
+  IAutoMovieContinuityTolerances,
+  IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 /** Default world-space position drift tolerated across a cut (metres). */
 const DEFAULT_POSITION_TOLERANCE: number = 0.05;

@@ -1,9 +1,13 @@
-import type { IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanFootConnection, IAutoMovieHumanToeVertical } from "@automovie/interface";
-
-
-
-import { AutoMovieViewOutline, AutoMovieViewParameter } from "@automovie/engine";
-
+import {
+  AutoMovieViewOutline,
+  AutoMovieViewParameter,
+} from "@automovie/engine";
+import type {
+  IAutoMovieHumanFootConnection,
+  IAutoMovieHumanToeVertical,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /** Source value with first/second physical-station derivatives. */
 type Scalar = [number, number, number];
@@ -20,8 +24,6 @@ type Scalar = [number, number, number];
  * @evidence contracts/performance.md#bound-retention-and-release-resources A toe definition owns four finite outlines, their prepared readers and two parent contacts; no persistent cache or handle exists.
  */
 export namespace AutoMovieHumanToeVertical {
-  
-
   /**
    * Author root contact and retained distal depth together; unavailable parent jets are not invented.
    *
@@ -241,11 +243,12 @@ function prepare(
     NonNullable<IAutoMovieViewPart.IOutline["parameter"]>,
     { type: "angle" }
   >;
-  const source: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
-    AutoMovieViewOutline.create(
-      outline,
-      radial ? { bottom: parameter.bottom, top: parameter.top } : {},
-    );
+  const source:
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+    outline,
+    radial ? { bottom: parameter.bottom, top: parameter.top } : {},
+  );
   if ("detail" in source) throw new Error(source.detail);
   return source;
 }
@@ -255,10 +258,8 @@ function read(
   source: IAutoMovieViewOutline.IOutline,
   station: number,
 ): IAutoMovieViewOutline.IReading {
-  const value: IAutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(
-    source,
-    station,
-  );
+  const value: IAutoMovieViewOutline.IReading | string =
+    AutoMovieViewOutline.at(source, station);
   if (typeof value === "string") throw new Error(value);
   return value;
 }

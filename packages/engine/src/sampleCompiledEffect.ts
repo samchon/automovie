@@ -1,4 +1,9 @@
-import { type IAutoMovieEffectParticle, type IAutoMovieEffectSample, IAutoMovieCompiledEffect, IAutoMovieEffectRecipe } from "@automovie/interface";
+import {
+  IAutoMovieCompiledEffect,
+  type IAutoMovieEffectParticle,
+  IAutoMovieEffectRecipe,
+  type IAutoMovieEffectSample,
+} from "@automovie/interface";
 
 import { mixSeed } from "./math/mixSeed";
 

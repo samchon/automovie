@@ -1,4 +1,9 @@
-import type { IAutoMovieSubdivisionParameter, IAutoMovieSubdivisionSurface, IAutoMovieLimitSubdivisionLevel, IAutoMovieSubdivisionLevel } from "@automovie/interface";
+import type {
+  IAutoMovieLimitSubdivisionLevel,
+  IAutoMovieSubdivisionLevel,
+  IAutoMovieSubdivisionParameter,
+  IAutoMovieSubdivisionSurface,
+} from "@automovie/interface";
 
 import { limitSubdivisionLevel } from "./limitSubdivisionLevel";
 

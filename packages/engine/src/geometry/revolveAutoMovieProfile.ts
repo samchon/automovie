@@ -1,5 +1,8 @@
-import { type IAutoMovieProfilePoint, type IAutoMovieRevolveProfile, IAutoMovieMesh } from "@automovie/interface";
-
+import {
+  IAutoMovieMesh,
+  type IAutoMovieProfilePoint,
+  type IAutoMovieRevolveProfile,
+} from "@automovie/interface";
 
 import { countAtLeast } from "./countAtLeast";
 import { finitePoint } from "./finitePoint";
@@ -103,7 +106,11 @@ import { meshOf } from "./meshOf";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one requested mesh whose buffers the caller owns, so nothing is cached between calls.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the meridian lengths and normal groups are released on return, and the position, UV, index and normal arrays are transferred to the returned mesh, sized by S * P.
  */
-export const revolveAutoMovieProfile: (props: IAutoMovieRevolveProfile.IProps) => IAutoMovieMesh = (props: IAutoMovieRevolveProfile.IProps): IAutoMovieMesh => {
+export const revolveAutoMovieProfile: (
+  props: IAutoMovieRevolveProfile.IProps,
+) => IAutoMovieMesh = (
+  props: IAutoMovieRevolveProfile.IProps,
+): IAutoMovieMesh => {
   if (props.profile.length < 2)
     throw new Error("revolve profile needs at least two points");
   countAtLeast(props.segments, 3, "revolve segments");

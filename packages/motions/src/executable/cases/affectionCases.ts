@@ -1,6 +1,13 @@
-import type { AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanTouch, IAutoMovieMotionHumanTouchEffector, IAutoMovieMotionHumanTouchForm } from "@automovie/interface";
-
 import { AutoMovieChain, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionHumanTouchForm,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { createHumanBody } from "../../body/createHumanBody";
@@ -108,7 +115,11 @@ export function affectionCases(
           HumanChain.subject("a").act("touch", params),
           HumanChain.subject("b").stand({ seconds: 8 }),
         );
-      const performance: IAutoMovieMotionHumanPerformance | null = attempt(out, name, run);
+      const performance: IAutoMovieMotionHumanPerformance | null = attempt(
+        out,
+        name,
+        run,
+      );
       if (performance === null) continue;
       const kind: IAutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
       const effector: IAutoMovieMotionHumanTouchEffector.IEffector =

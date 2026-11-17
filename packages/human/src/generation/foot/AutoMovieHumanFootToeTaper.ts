@@ -1,9 +1,11 @@
-import type { IAutoMovieHumanDigitSpan, IAutoMovieHumanFootToeTaper } from "@automovie/interface";
-
+import type {
+  IAutoMovieHumanDigitSpan,
+  IAutoMovieHumanFootToeTaper,
+} from "@automovie/interface";
 
 import { AutoMovieHumanMonotoneCubic } from "../../lofting/AutoMovieHumanMonotoneCubic";
-import { AutoMovieHumanDigitSpan } from "../hand/AutoMovieHumanDigitSpan";
 import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
+import { AutoMovieHumanDigitSpan } from "../hand/AutoMovieHumanDigitSpan";
 
 /**
  * A toe's taper along its line: the digit span law
@@ -33,9 +35,16 @@ export namespace AutoMovieHumanFootToeTaper {
    * @param shaft The toe's shaft half breadth, mm.
    * @param s Length along the line from the metatarsal head, mm.
    */
-  export function at(index: number, length: number, shaft: number, s: number): IAutoMovieHumanFootToeTaper.AtResult {
-    const joints: readonly number[] = AutoMovieHumanFootPrior.PRIOR.toes[index]!.joints;
-    const knots: readonly IAutoMovieHumanDigitSpan.IKnot[] = AutoMovieHumanDigitSpan.KNOTS;
+  export function at(
+    index: number,
+    length: number,
+    shaft: number,
+    s: number,
+  ): IAutoMovieHumanFootToeTaper.AtResult {
+    const joints: readonly number[] =
+      AutoMovieHumanFootPrior.PRIOR.toes[index]!.joints;
+    const knots: readonly IAutoMovieHumanDigitSpan.IKnot[] =
+      AutoMovieHumanDigitSpan.KNOTS;
     const first: IAutoMovieHumanDigitSpan.IKnot = knots[0]!;
     const cap: number = Math.max(0, length - shaft);
 
@@ -58,13 +67,18 @@ export namespace AutoMovieHumanFootToeTaper {
     // Keep the stations increasing: a station at or behind the one before
     // adds nothing.
     const kept: [number, IAutoMovieHumanDigitSpan.IKnot][] = stations.filter(
-      (q: [number, IAutoMovieHumanDigitSpan.IKnot], i: number): boolean => i === 0 || q[0] > stations[i - 1]![0] + MIN_GAP,
+      (q: [number, IAutoMovieHumanDigitSpan.IKnot], i: number): boolean =>
+        i === 0 || q[0] > stations[i - 1]![0] + MIN_GAP,
     );
     const share = (key: keyof IAutoMovieHumanDigitSpan.IKnot): number =>
       kept.length < 2
         ? 1
         : AutoMovieHumanMonotoneCubic.interpolate(
-            kept.map((q: [number, IAutoMovieHumanDigitSpan.IKnot]): [number, number] => [q[0], q[1][key] / first[key]]),
+            kept.map(
+              (
+                q: [number, IAutoMovieHumanDigitSpan.IKnot],
+              ): [number, number] => [q[0], q[1][key] / first[key]],
+            ),
             Math.min(kept[kept.length - 1]![0], Math.max(kept[0]![0], s)),
           );
 

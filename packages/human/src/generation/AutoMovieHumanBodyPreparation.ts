@@ -1,30 +1,25 @@
-import type { IAutoMovieLoftContract, IAutoMovieHumanBodyCalibration, IAutoMovieHumanBodyLane, IAutoMovieHumanBodyLaw, IAutoMovieHumanBodyMeasures, IAutoMovieHumanBodyPreparation, IAutoMovieHumanBodySources, IAutoMovieHumanHeadLane, IAutoMovieHumanParameters, IAutoMovieHumanSiteViewPart, IAutoMovieHumanSkeletonLaw, IAutoMovieHumanTrunkBuild, IAutoMovieHumanTrunkInputs, IAutoMovieHumanTrunkSolution } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+import type {
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBodyLane,
+  IAutoMovieHumanBodyLaw,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanBodyPreparation,
+  IAutoMovieHumanBodySources,
+  IAutoMovieHumanHeadLane,
+  IAutoMovieHumanParameters,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanSkeletonLaw,
+  IAutoMovieHumanTrunkBuild,
+  IAutoMovieHumanTrunkInputs,
+  IAutoMovieHumanTrunkSolution,
+  IAutoMovieLoftContract,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
-
 import { AutoMovieHumanBodyLaneInterim } from "./AutoMovieHumanBodyLaneInterim";
-
 import { AutoMovieHumanBodySources } from "./AutoMovieHumanBodySources";
 import { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
-
-
 import { AutoMovieHumanSiteViewPart } from "./limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
 
@@ -35,28 +30,29 @@ import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
  * obtains a chain. Original lookup assembles no body tree or final skin.
  */
 export namespace AutoMovieHumanBodyPreparation {
-  
-
-  
-
-  
-
   /** Resolve the original common definitions without requesting head, body tree or raw geometry. */
-  export function prepareSources(input: IAutoMovieHumanBodySources.IInput): IAutoMovieHumanBodySources.IOriginal {
-    const original: IAutoMovieHumanBodySources.IOriginal = AutoMovieHumanBodySources.create({
-      ...input,
-      completeLeg: (): void => completeLeg(original),
-    });
+  export function prepareSources(
+    input: IAutoMovieHumanBodySources.IInput,
+  ): IAutoMovieHumanBodySources.IOriginal {
+    const original: IAutoMovieHumanBodySources.IOriginal =
+      AutoMovieHumanBodySources.create({
+        ...input,
+        completeLeg: (): void => completeLeg(original),
+      });
     return original;
   }
 
   /** Explicit production preparation adds actual head/eye and whole bind records, before tree assembly. */
-  export function of(input: IAutoMovieHumanBodySources.IInput): IAutoMovieHumanBodyPreparation.IOutput {
+  export function of(
+    input: IAutoMovieHumanBodySources.IInput,
+  ): IAutoMovieHumanBodyPreparation.IOutput {
     return complete(prepareSources(input));
   }
 
   /** Explicitly add actual head/eye and full skeleton metadata to the same originals; no raw request is made. */
-  export function complete(original: IAutoMovieHumanBodySources.IOriginal): IAutoMovieHumanBodyPreparation.IOutput {
+  export function complete(
+    original: IAutoMovieHumanBodySources.IOriginal,
+  ): IAutoMovieHumanBodyPreparation.IOutput {
     if (original.production === undefined) {
       const head: IAutoMovieHumanHeadLane.IPrepared = original.headSource();
       const solution: IAutoMovieHumanTrunkSolution = original.trunkSolution();
@@ -87,8 +83,9 @@ export namespace AutoMovieHumanBodyPreparation {
 
     // Promote this same invocation object. Copying its absent lazy memo fields
     // would let a later original/full request construct a second source family.
-    const boundary: ReturnType<IAutoMovieHumanBodySources.IOriginal["neckBoundary"]> =
-      original.neckBoundary();
+    const boundary: ReturnType<
+      IAutoMovieHumanBodySources.IOriginal["neckBoundary"]
+    > = original.neckBoundary();
     return Object.assign(
       original,
       original.common(),
@@ -98,7 +95,9 @@ export namespace AutoMovieHumanBodyPreparation {
   }
 
   /** Prepare the same lazy original factories, without evaluating unrelated siblings. */
-  export function bodyInput(context: IAutoMovieHumanBodySources.IOriginal): IAutoMovieHumanBodyLane.IInput {
+  export function bodyInput(
+    context: IAutoMovieHumanBodySources.IOriginal,
+  ): IAutoMovieHumanBodyLane.IInput {
     if (context.body !== undefined) return context.body;
     const solution: IAutoMovieHumanTrunkSolution = context.trunkSolution();
     context.body = AutoMovieHumanBodyLaneInterim.of({
@@ -162,7 +161,9 @@ export namespace AutoMovieHumanBodyPreparation {
           )
           .at(-1)?.result ?? null
       );
-    const sources: ReturnType<IAutoMovieHumanBodySources.IOriginal["limbSources"]> = context.limbSources();
+    const sources: ReturnType<
+      IAutoMovieHumanBodySources.IOriginal["limbSources"]
+    > = context.limbSources();
     for (const side of ["left", "right"] as const) {
       if (name === "arm." + side) return sources.arm(side).definition();
       if (name === "thumb." + side || name.startsWith("finger." + side + "."))

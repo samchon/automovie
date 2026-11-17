@@ -1,5 +1,5 @@
-import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
 import type { IAutoMovieMesh } from "../../model/IAutoMovieMesh";
+import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
 
 /** Data and callback contracts shared by the TessellateContourPath64 operations. */
 export namespace IAutoMovieTessellateContourPath64 {
@@ -53,10 +53,11 @@ export namespace IAutoMovieTessellateContourPath64 {
     mesh: IAutoMovieMesh;
     /** Saved polygon boundaries converted to metres, each closed by repeating its first point at the end. */
     construction: {
-    /** Original saved polygon identity. */
-    id: string;
-    /** World-metre points in original ring order followed by the first point again; the caller owns the returned arrays. */
-    points: [number, number, number][] }[];
+      /** Original saved polygon identity. */
+      id: string;
+      /** World-metre points in original ring order followed by the first point again; the caller owns the returned arrays. */
+      points: [number, number, number][];
+    }[];
     /** One emission report per requested pair in input order, including pairs whose proposed triangles were all omitted. */
     pairs: {
       /** Original pair identity. */

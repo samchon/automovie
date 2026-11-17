@@ -1,5 +1,10 @@
-import { type IAutoMovieScanJointRom, type IAutoMovieSwingTwistRange, IAutoMovieAngleRange, IAutoMovieJointConstraint, IAutoMovieJointPose } from "@automovie/interface";
-
+import {
+  IAutoMovieAngleRange,
+  IAutoMovieJointConstraint,
+  IAutoMovieJointPose,
+  type IAutoMovieScanJointRom,
+  type IAutoMovieSwingTwistRange,
+} from "@automovie/interface";
 
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { swingTwistRange } from "../kinematics/swingTwistRange";

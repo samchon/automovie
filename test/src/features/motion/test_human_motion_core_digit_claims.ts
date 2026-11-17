@@ -1,4 +1,13 @@
-import type { AutoMovieMotionHumanChannel, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanChannel,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 import { HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -13,7 +22,9 @@ const bend = (
   name,
   interrupts: {},
   overlay: true,
-  plan: (context: IAutoMovieMotionHumanActionContext<object>): IAutoMovieMotionHumanActionPlan => ({
+  plan: (
+    context: IAutoMovieMotionHumanActionContext<object>,
+  ): IAutoMovieMotionHumanActionPlan => ({
     duration: 1,
     events: [],
     contacts: [],
@@ -78,8 +89,10 @@ export function test_human_motion_core_digit_claims(): void {
         },
       ],
       composition: over.reduce(
-        (chain: IAutoMovieMotionHumanChain, name: string): IAutoMovieMotionHumanChain =>
-          chain.over((o) => o.registered(name)),
+        (
+          chain: IAutoMovieMotionHumanChain,
+          name: string,
+        ): IAutoMovieMotionHumanChain => chain.over((o) => o.registered(name)),
         HumanChain.subject("a").stand({ seconds: 3 }),
       ).node,
     });

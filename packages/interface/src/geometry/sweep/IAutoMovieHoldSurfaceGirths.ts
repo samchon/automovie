@@ -6,7 +6,7 @@ export namespace IAutoMovieHoldSurfaceGirths {
   /**
    * Hold the limit perimeter of a surface network's girth rings, the rings
    * that declare `perimeter`, by solving a radial factor along each sweep.
-   * 
+   *
    * A girth ring runs once round one sweep at one `u`. Along a row of
    * valence-four vertices whose loop neighbours lie opposite, beside rows of
    * such vertices, the Catmull-Clark limit is the tensor-product cubic

@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanTouchEffector, IAutoMovieMotionHumanTouchEffectors } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionHumanTouchEffectors,
+} from "@automovie/interface";
 
 /**
  * The parts of the hand a touch lays on its region (`touch.With`) and each
@@ -10,10 +13,12 @@ import type { IAutoMovieMotionHumanTouchEffector, IAutoMovieMotionHumanTouchEffe
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every offset is a share of the hand's length.
  */
 export namespace touchEffectors {
-
   /** Each part's effector. */
   export const TABLE: Readonly<
-    Record<IAutoMovieMotionHumanTouchEffectors.With, IAutoMovieMotionHumanTouchEffector.IEffector>
+    Record<
+      IAutoMovieMotionHumanTouchEffectors.With,
+      IAutoMovieMotionHumanTouchEffector.IEffector
+    >
   > = {
     palm: { surface: "palm", shape: "flat" },
     fingertips: { surface: "indexTip", shape: "flat" },

@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionEvent, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanWalkSteps } from "@automovie/interface";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanWalkSteps,
+} from "@automovie/interface";
 
 import { walkReach } from "./walkReach";
 
@@ -43,7 +48,10 @@ export namespace walkWindows {
     body: IAutoMovieMotionHumanBody,
     steps: IAutoMovieMotionHumanWalkSteps.IPlan,
     pelvis: (seconds: number) => readonly [number, number, number],
-  ): { events: IAutoMovieMotionEvent[]; contacts: IAutoMovieMotionHumanContactWindow[] } {
+  ): {
+    events: IAutoMovieMotionEvent[];
+    contacts: IAutoMovieMotionHumanContactWindow[];
+  } {
     const duration: number = steps.duration;
     const events: IAutoMovieMotionEvent[] = steps.events.map(
       (e: { name: string; seconds: number }): IAutoMovieMotionEvent => ({

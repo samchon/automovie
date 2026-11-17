@@ -1,5 +1,3 @@
-
-
 /**
  * A reusable directional surface-envelope query over a copied mesh.
  *
@@ -35,7 +33,10 @@ export namespace IAutoMovieCreateMeshDepthSampler {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The factory rejects malformed meshes and axes; queries reject nonfinite coordinates or depths, return null on a miss and skip zero-area triangle projections.
    * @evidence contracts/development/common.md#meaningful-documentation A reusable directional surface-envelope query over a copied mesh. Input plane coordinates and returned axial depths are mesh-local metres, with Y/Z, Z/X or X/Y query planes for X, Y or Z depth.
    */
-  export type IResult = (u: number, v: number) => { 
+  export type IResult = (
+    u: number,
+    v: number,
+  ) => {
     /**
      * Smallest axial surface depth in mesh-local metres among covering projected triangles; may equal maximum on an open sheet.
      */
@@ -44,5 +45,6 @@ export namespace IAutoMovieCreateMeshDepthSampler {
     /**
      * Largest axial surface depth in mesh-local metres; the span between depths is an envelope, not proof of occupied volume.
      */
-    maximum: number } | null;
+    maximum: number;
+  } | null;
 }

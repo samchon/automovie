@@ -1,5 +1,8 @@
 import type { IAutoMovieInspectionView } from "@automovie/interface";
-import { formatAutoMovieInspectionView, parseAutoMovieInspectionView } from "@automovie/render";
+import {
+  formatAutoMovieInspectionView,
+  parseAutoMovieInspectionView,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**

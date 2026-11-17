@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionHumanArmGeometry, IAutoMovieMotionHumanQuadraticProgram, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3, physicalShapeNormal } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanQuadraticProgram,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
@@ -133,8 +137,10 @@ export namespace HumanArmTrajectoryConvex {
         // (`HumanArmTrajectoryTravel`): the later point's share of a step's
         // gradient is its world Jacobian, the earlier point's that Jacobian
         // turned by the bases' relative turn.
-        const before: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
-        const after: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k + 1]!;
+        const before: IAutoMovieMotionHumanArmGeometry.IFrame =
+          c.frames[a]![k]!;
+        const after: IAutoMovieMotionHumanArmGeometry.IFrame =
+          c.frames[a]![k + 1]!;
         const turn: IAutoMovieQuaternion = V.back(before, after);
         for (const probe of c.still ? [] : new Set([...T.PATH, ...T.SPEED])) {
           const d: IAutoMovieVector3 = Vector3.scale(
@@ -209,7 +215,8 @@ export namespace HumanArmTrajectoryConvex {
             );
             const pb: IAutoMovieVector3 = moved.point;
             if (Vector3.length(Vector3.subtract(pa, pb)) < r) continue;
-            const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
+            const frame: IAutoMovieMotionHumanArmGeometry.IFrame =
+              c.frames[a]![k]!;
             const d0: number = 1000 * (S.gap(frame, shape, pa, pb) - r);
             const lower: number =
               1000 *
@@ -276,7 +283,8 @@ export namespace HumanArmTrajectoryConvex {
       for (let k: number = 1; k < n; ++k) {
         if (!inner(k)) continue;
         const site: M.ISite | undefined = c.sites[a]![k];
-        const placedK: IAutoMovieMotionHumanArmGeometry.IPlaced = at.placed[a]![k]!;
+        const placedK: IAutoMovieMotionHumanArmGeometry.IPlaced =
+          at.placed[a]![k]!;
         if (site !== undefined) {
           const at: P.ILocated = P.located(c, at0.placed, a, k, site);
           const contact0: IAutoMovieVector3 = P.pad(placedK, site.contact);

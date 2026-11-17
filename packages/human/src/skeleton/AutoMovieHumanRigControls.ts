@@ -1,23 +1,13 @@
-import type { IAutoMovieHumanPose, IAutoMovieHumanRigControls, IAutoMovieHumanSkeleton } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieHumanPose,
+  IAutoMovieHumanRigControls,
+  IAutoMovieHumanSkeleton,
+} from "@automovie/interface";
 
 import { AutoMovieHumanPoseChannels } from "./AutoMovieHumanPoseChannels";
 
-
 /** Typed clinical controls derived from the public pose and the canonical joint/channel table. */
 export namespace AutoMovieHumanRigControls {
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
   /** Admit a drawing/asset string at the explicit canonical Human-joint boundary. */
   export function joint(value: string): IAutoMovieHumanRigControls.Joint {
     if (!isJoint(value))
@@ -25,17 +15,23 @@ export namespace AutoMovieHumanRigControls {
     return value;
   }
   /** Check exact canonical Human joint identity without preparing a body. */
-  export function isJoint(value: string): value is IAutoMovieHumanRigControls.Joint {
+  export function isJoint(
+    value: string,
+  ): value is IAutoMovieHumanRigControls.Joint {
     return JOINTS.has(value);
   }
   /** Admit an angular channel from untyped input; jaw millimetres remain a distinct API. */
-  export function channel(value: string): IAutoMovieHumanRigControls.DegreeChannel {
+  export function channel(
+    value: string,
+  ): IAutoMovieHumanRigControls.DegreeChannel {
     if (!isChannel(value))
       throw new Error(`Unknown Human degree channel: ${value}`);
     return value;
   }
   /** Check exact registered angular pose paths; no spelling aliases or invented knobs. */
-  export function isChannel(value: string): value is IAutoMovieHumanRigControls.DegreeChannel {
+  export function isChannel(
+    value: string,
+  ): value is IAutoMovieHumanRigControls.DegreeChannel {
     return ANGLES.has(value);
   }
   /** Read the canonical degree interval; an optional current pose applies FK's flexion-dependent tibial interval. */
@@ -65,7 +61,9 @@ export namespace AutoMovieHumanRigControls {
     return { minimum: row.minimum * scale, maximum: row.maximum * scale };
   }
   /** Read canonical jaw millimetre bounds without admitting a jaw path as degrees. */
-  export function millimetreBounds(path: IAutoMovieHumanRigControls.MillimetreChannel): IAutoMovieHumanRigControls.IMillimetreBoundsResult {
+  export function millimetreBounds(
+    path: IAutoMovieHumanRigControls.MillimetreChannel,
+  ): IAutoMovieHumanRigControls.IMillimetreBoundsResult {
     const row: CompiledChannel | undefined = MILLIMETRES.get(path);
     if (!row) throw new Error(`Unknown Human millimetre channel: ${path}`);
     return { minimum: row.minimum, maximum: row.maximum };
@@ -120,7 +118,9 @@ export namespace AutoMovieHumanRigControls {
    * have separate bounded chains. Returns owned paths and validates unknown
    * JavaScript requests rather than silently selecting a default side.
    */
-  export function chain(selection: IAutoMovieHumanRigControls.IChain): IAutoMovieHumanRigControls.DegreeChannel[] {
+  export function chain(
+    selection: IAutoMovieHumanRigControls.IChain,
+  ): IAutoMovieHumanRigControls.DegreeChannel[] {
     if (
       "side" in selection &&
       selection.side !== "left" &&
@@ -156,7 +156,9 @@ export namespace AutoMovieHumanRigControls {
       default:
         throw new Error("Unknown Human anatomical chain");
     }
-    const paths: IAutoMovieHumanRigControls.DegreeChannel[] = [...ANGLES.keys()].filter(isChannel);
+    const paths: IAutoMovieHumanRigControls.DegreeChannel[] = [
+      ...ANGLES.keys(),
+    ].filter(isChannel);
     const result: IAutoMovieHumanRigControls.DegreeChannel[] = paths.filter(
       (path: IAutoMovieHumanRigControls.DegreeChannel): boolean =>
         path.startsWith(prefix) &&
@@ -287,5 +289,3 @@ const MILLIMETRES: ReadonlyMap<string, CompiledChannel> = new Map(
 const JOINTS: ReadonlySet<string> = new Set(
   CATALOGUE.map((row: CompiledChannel): string => row.bone),
 );
-
-

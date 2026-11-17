@@ -1,4 +1,8 @@
-import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+} from "@automovie/interface";
+
 import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 
 /**

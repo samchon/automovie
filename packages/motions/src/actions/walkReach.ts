@@ -1,5 +1,3 @@
-import type { IAutoMovieAngleRange, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanWalkFoot, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   DEFAULT_HUMANOID_ROM,
   Quaternion,
@@ -9,6 +7,15 @@ import {
   smoothMinimum,
   wrapDegrees,
 } from "@automovie/engine";
+import type {
+  IAutoMovieAngleRange,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanWalkFoot,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
@@ -98,7 +105,9 @@ export namespace walkReach {
    * @param foot The foot.
    * @returns 1 in stance, fading to 0 in mid-swing.
    */
-  export function weight(foot: IAutoMovieMotionHumanWalkFoot.IScheduled): number {
+  export function weight(
+    foot: IAutoMovieMotionHumanWalkFoot.IScheduled,
+  ): number {
     if (foot.swing === undefined) return 1;
     const u: number = foot.swing.u;
     return u < 0.5
@@ -142,7 +151,9 @@ export namespace walkReach {
     root: IAutoMovieVector3,
     planned: number,
     hips: readonly [number, number, number],
-    feet: Readonly<Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>>,
+    feet: Readonly<
+      Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>
+    >,
   ): IPelvis {
     const pivots: Record<"left" | "right", number> = { left: 0, right: 0 };
     let yaw: number = planned;
@@ -213,7 +224,9 @@ export namespace walkReach {
     root: IAutoMovieVector3,
     planned: number,
     hips: readonly [number, number, number],
-    feet: Readonly<Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>>,
+    feet: Readonly<
+      Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>
+    >,
     claims: Readonly<Partial<Record<"left" | "right", number>>> = {},
     rocker: number = walkLeg.ROCKER,
   ): IGround {

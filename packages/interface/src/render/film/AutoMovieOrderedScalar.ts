@@ -1,5 +1,3 @@
-
-
 /**
  * One comparable leaf value in an ordered plan field.
  *

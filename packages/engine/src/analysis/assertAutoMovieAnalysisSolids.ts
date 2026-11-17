@@ -1,6 +1,9 @@
-import { type IAutoMovieAnalysisSolid, type IAutoMovieViolationCollector, IAutoMovieConstraintViolation, IAutoMovieValidation } from "@automovie/interface";
-
-
+import {
+  type IAutoMovieAnalysisSolid,
+  IAutoMovieConstraintViolation,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { validateSolidPlanes } from "./validateSolidPlanes";

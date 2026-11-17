@@ -6,27 +6,21 @@
  * @evidence contracts/development/common.md#meaningful-documentation Acceptance, actual horizon and representational failure are separate from normal termination; a nullable owned increment records exactly the selected physical chart action.
  */
 export interface IAutoMovieRecoveryFeasibleTrialSelection<State> {
- 
- /** Chosen detached state, or the unchanged base when accepted is false. */
+  /** Chosen detached state, or the unchanged base when accepted is false. */
   state: State;
 
- 
- /** Original cost of state over the unchanged population. */
+  /** Original cost of state over the unchanged population. */
   cost: number;
 
- 
- /** One candidate was selected for a local controller update; checkpoint acceptance and normal KKT remain separate. */
+  /** One candidate was selected for a local controller update; checkpoint acceptance and normal KKT remain separate. */
   accepted: boolean;
 
- 
- /** All evaluated candidates, including qualified unselected ones. */
+  /** All evaluated candidates, including qualified unselected ones. */
   iterations: number;
 
- 
- /** No representable baseline half-step remains; never normal convergence. */
+  /** No representable baseline half-step remains; never normal convergence. */
   stalled: boolean;
 
- 
- /** Exact owned chosen retraction increment; null only when no candidate was selected. */
+  /** Exact owned chosen retraction increment; null only when no candidate was selected. */
   increment: number[] | null;
 }

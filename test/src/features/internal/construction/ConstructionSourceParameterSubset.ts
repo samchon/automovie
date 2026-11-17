@@ -1,6 +1,25 @@
-import type { IAutoMovieConstructionOutlineParameter, IAutoMovieLoftChain, IAutoMovieLoftJet, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewCurves, IAutoMovieViewLoft, IAutoMovieViewOutline, IAutoMovieViewPart } from "@automovie/interface";
-import { AutoMovieLoftChain, AutoMovieLoftJet, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieLoftViewWorldJet, AutoMovieViewAxis, AutoMovieViewCurves, AutoMovieViewLoft, AutoMovieViewOutline } from "@automovie/engine";
-
+import {
+  AutoMovieLoftChain,
+  AutoMovieLoftJet,
+  AutoMovieLoftViewRead,
+  AutoMovieLoftViewSource,
+  AutoMovieLoftViewWorldJet,
+  AutoMovieViewAxis,
+  AutoMovieViewCurves,
+  AutoMovieViewLoft,
+  AutoMovieViewOutline,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftJet,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewCurves,
+  IAutoMovieViewLoft,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { nclose } from "../nclose";
 

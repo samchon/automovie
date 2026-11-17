@@ -1,6 +1,9 @@
-import type { IAutoMovieMotionHumanHand, IAutoMovieMotionHumanRefusal, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { handshakeOffer } from "./handshakeOffer";

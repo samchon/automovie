@@ -1,5 +1,5 @@
-import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 
 /**
  * The analytic Jacobian of a posed body: how each of a posture's variables

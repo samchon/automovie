@@ -1,8 +1,7 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryAtlasObservationState } from "@automovie/interface";
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryAtlasObservationState,
+} from "@automovie/interface";
 
 /**
  * Compute the original unnormalized source face cross products in index order.

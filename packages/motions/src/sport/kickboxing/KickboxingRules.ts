@@ -1,4 +1,9 @@
-import type { AutoMovieHumanoidRegion, IAutoMovieCheckLegality, IAutoMovieMotionTarget, IAutoMovieSchedule } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieCheckLegality,
+  IAutoMovieMotionTarget,
+  IAutoMovieSchedule,
+} from "@automovie/interface";
 
 /**
  * The kickboxing ruleset a performance's schedule must keep, in the engine's

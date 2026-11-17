@@ -1,12 +1,13 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanFootFrame, IAutoMovieHumanFootPrior, IAutoMovieHumanFootWebLine } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootFrame,
+  IAutoMovieHumanFootPrior,
+  IAutoMovieHumanFootWebLine,
+} from "@automovie/interface";
 
 import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
 import { AutoMovieHumanFootCrestForefoot } from "./AutoMovieHumanFootCrestForefoot";
 import { AutoMovieHumanFootLateralForefoot } from "./AutoMovieHumanFootLateralForefoot";
-
 
 /**
  * The line of the toes' webs and the fan of section planes that starts on it.
@@ -22,28 +23,32 @@ import { AutoMovieHumanFootLateralForefoot } from "./AutoMovieHumanFootLateralFo
  * themselves are `AutoMovieHumanFootFan`.
  */
 export namespace AutoMovieHumanFootWebLine {
-  
-
-  
-
   /** The web line of a foot. */
-  export function of(input: IAutoMovieHumanFootWebLine.IInput): IAutoMovieHumanFootWebLine.IWebLine {
+  export function of(
+    input: IAutoMovieHumanFootWebLine.IInput,
+  ): IAutoMovieHumanFootWebLine.IWebLine {
     const frame: IAutoMovieHumanFootFrame.IFrame = input.frame;
-    const prior: IAutoMovieHumanFootPrior.IPrior = AutoMovieHumanFootPrior.PRIOR;
+    const prior: IAutoMovieHumanFootPrior.IPrior =
+      AutoMovieHumanFootPrior.PRIOR;
 
     // Each cleft in the foot's own plan (along, across), mm, moved back by
     // half the forefoot's own height at the cleft: the web's margin radius.
     const points: [number, number][] = prior.clefts.map(
       (c: readonly [number, number]): [number, number] => [
         (c[1] - prior.ankle[1]) * frame.B,
-        (c[0] - prior.ankle[0]) * frame.L - 0.5 * height(input.depth(c[0]), c[0], c[1]) * frame.L,
+        (c[0] - prior.ankle[0]) * frame.L -
+          0.5 * height(input.depth(c[0]), c[0], c[1]) * frame.L,
       ],
     );
 
     // Least squares line through them: along = my + slope (across - mx).
     const n: number = points.length;
-    const mx: number = points.reduce((s: number, p: [number, number]): number => s + p[0], 0) / n;
-    const my: number = points.reduce((s: number, p: [number, number]): number => s + p[1], 0) / n;
+    const mx: number =
+      points.reduce((s: number, p: [number, number]): number => s + p[0], 0) /
+      n;
+    const my: number =
+      points.reduce((s: number, p: [number, number]): number => s + p[1], 0) /
+      n;
     let sxx: number = 0;
     let sxy: number = 0;
     for (const p of points) {
@@ -55,7 +60,11 @@ export namespace AutoMovieHumanFootWebLine {
     // The yaw axis stands PIVOT breadths beyond the lateral border, on that line.
     const c: number = Math.cos(prior.yaw);
     const s: number = Math.sin(prior.yaw);
-    const plan = (along: number, across: number): AutoMovieVector3Tuple => [along * c - across * s, 0, along * s + across * c];
+    const plan = (along: number, across: number): AutoMovieVector3Tuple => [
+      along * c - across * s,
+      0,
+      along * s + across * c,
+    ];
     const reach: number = (1 - prior.ankle[1] + PIVOT) * frame.B;
     const o: AutoMovieVector3Tuple = plan(my + slope * (reach - mx), reach);
     const yaw: number = Math.atan(-slope);

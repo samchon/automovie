@@ -1,8 +1,12 @@
-import type { IAutoMovieRecoveryEventRegion, IAutoMovieRecoveryEventRegionSource } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryEventRegion,
+  IAutoMovieRecoveryEventRegionSource,
+} from "@automovie/interface";
 
-
-type V = Parameters<IAutoMovieRecoveryEventRegion.Operation>[0]["verticesMm"][number];
-type Triangle = Parameters<IAutoMovieRecoveryEventRegion.Operation>[0]["triangles"][number];
+type V =
+  Parameters<IAutoMovieRecoveryEventRegion.Operation>[0]["verticesMm"][number];
+type Triangle =
+  Parameters<IAutoMovieRecoveryEventRegion.Operation>[0]["triangles"][number];
 
 /**
  * Prepare immutable source rank and incidence once for all scalar queries.
@@ -15,7 +19,9 @@ type Triangle = Parameters<IAutoMovieRecoveryEventRegion.Operation>[0]["triangle
  * @evidence contracts/development/implementation.md#reuse-equivalent-work All queries reuse these original source addresses and per-face metadata.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned closures borrow source and per-face state; temporary integer coordinates and first-face keys are cleared at their original release points.
  */
-export function RecoveryEventRegionSource(source: Parameters<IAutoMovieRecoveryEventRegionSource.Operation>[0]): ReturnType<IAutoMovieRecoveryEventRegionSource.Operation> {
+export function RecoveryEventRegionSource(
+  source: Parameters<IAutoMovieRecoveryEventRegionSource.Operation>[0],
+): ReturnType<IAutoMovieRecoveryEventRegionSource.Operation> {
   const size: number = source.verticesMm.length;
   if (
     !size ||

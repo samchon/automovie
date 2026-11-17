@@ -1,6 +1,17 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HUMAN_LEXICON, HumanChain, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -36,10 +47,10 @@ export function test_human_motion_travel_intercept(): void {
     ["m-average", "f-small"],
     ["f-small", "m-average"],
   ] as const) {
-    const bodies: readonly [IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBody] = [
-      motionHumanBody(names[0]),
-      motionHumanBody(names[1]),
-    ];
+    const bodies: readonly [
+      IAutoMovieMotionHumanBody,
+      IAutoMovieMotionHumanBody,
+    ] = [motionHumanBody(names[0]), motionHumanBody(names[1])];
     const label: string = `${names[0]} heading off ${names[1]}`;
     const walking: IAutoMovieMotionHumanChain = HumanChain.subject("b")
       .stand({ seconds: 0.3 })
@@ -47,7 +58,10 @@ export function test_human_motion_travel_intercept(): void {
     const running: IAutoMovieMotionHumanChain = HumanChain.subject("a")
       .stand({ seconds: 0.3 })
       .registered("intercept", { target: "b" });
-    const perform = (first: IAutoMovieMotionHumanChain, second: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
+    const perform = (
+      first: IAutoMovieMotionHumanChain,
+      second: IAutoMovieMotionHumanChain,
+    ): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "intercept",
         laws: [...HUMAN_LEXICON.pursuit!],

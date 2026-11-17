@@ -1,5 +1,8 @@
-import { type IAutoMovieMeshTopology, type IAutoMovieResolvedPhysicalVertices, IAutoMovieMesh } from "@automovie/interface";
-
+import {
+  IAutoMovieMesh,
+  type IAutoMovieMeshTopology,
+  type IAutoMovieResolvedPhysicalVertices,
+} from "@automovie/interface";
 
 import { MESH_WELD_GRID } from "../constants/MESH_WELD_GRID";
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";

@@ -1,5 +1,7 @@
-import { type IAutoMovieFormationSlotRecord, IAutoMovieFormationSlot } from "@automovie/interface";
-
+import {
+  IAutoMovieFormationSlot,
+  type IAutoMovieFormationSlotRecord,
+} from "@automovie/interface";
 
 import { seededValue } from "./math/seededValue";
 

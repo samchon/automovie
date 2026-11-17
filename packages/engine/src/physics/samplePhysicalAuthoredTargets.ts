@@ -1,4 +1,10 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMovieSamplePhysicalAuthoredTargets, IAutoMovieSamplePhysicalTarget } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieSamplePhysicalAuthoredTargets,
+  IAutoMovieSamplePhysicalTarget,
+} from "@automovie/interface";
+
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { preparePhysicalTargetSampler } from "./preparePhysicalTargetSampler";
 
@@ -21,7 +27,8 @@ export function samplePhysicalAuthoredTargets(
   seconds: number,
   rate: number,
 ): Record<string, IAutoMovieSamplePhysicalTarget.IResult> {
-  const from: Record<string, IAutoMoviePhysicalProfile.ITransform> = body.targets[step - 1]!.segments;
+  const from: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+    body.targets[step - 1]!.segments;
   let prepared: IAutoMovieSamplePhysicalAuthoredTargets.IPlan | undefined =
     bound.authoredTargets.get(body.id);
   if (
@@ -38,10 +45,8 @@ export function samplePhysicalAuthoredTargets(
     0,
     Math.min(1, seconds * rate - (step - 1)),
   );
-  const result: Record<
-    string,
-    IAutoMovieSamplePhysicalTarget.IResult
-  > = Object.create(null);
+  const result: Record<string, IAutoMovieSamplePhysicalTarget.IResult> =
+    Object.create(null);
   for (const segment of body.profile.segments) {
     const bone: string = segment.bone;
     let motion: ReturnType<typeof prepared.bones.get> =

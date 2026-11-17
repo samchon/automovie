@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanCrawl } from "../floor/IAutoMovieMotionHumanCrawl";
 import type { IAutoMovieMotionHumanWorkout } from "../exercise/IAutoMovieMotionHumanWorkout";
+import type { IAutoMovieMotionHumanCrawl } from "../floor/IAutoMovieMotionHumanCrawl";
 
 /**
  * Open parameters of the sportGym lexicon family, keyed by each runtime export name.

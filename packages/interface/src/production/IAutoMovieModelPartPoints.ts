@@ -1,5 +1,5 @@
-import type { IAutoMovieModelPart } from "../model/IAutoMovieModelPart";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieModelPart } from "../model/IAutoMovieModelPart";
 
 /**
  * Model-frame vertex collections sharing one set of transformed point objects.

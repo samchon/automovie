@@ -1,4 +1,14 @@
-import { type IAutoMovieConnectorSectionAt, type IAutoMoviePassageBlockage, IAutoMovieBuiltConnector, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieConnectorSection, IAutoMovieModel, IAutoMoviePropBox, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBuiltConnector,
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieConnectorSection,
+  type IAutoMovieConnectorSectionAt,
+  IAutoMovieModel,
+  type IAutoMoviePassageBlockage,
+  IAutoMoviePropBox,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { builtConnectorSection } from "../architecture/builtConnectorSection";
 import { builtElementRestMatrices } from "../architecture/builtElementRestMatrices";

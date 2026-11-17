@@ -1,16 +1,16 @@
-import type { AutoMovieVector3Tuple, IAutoMovieContourLoft64, IAutoMovieCurve64, IAutoMoviePolylineFit, IAutoMovieRecoveryMeshSections, IAutoMovieRecoverySectionObservationOperation, IAutoMovieRecoverySourceLineage } from "@automovie/interface";
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieContourLoft64,
+  IAutoMovieCurve64,
+  IAutoMoviePolylineFit,
+  IAutoMovieRecoveryMeshSections,
+  IAutoMovieRecoverySectionObservationOperation,
+  IAutoMovieRecoverySourceLineage,
+} from "@automovie/interface";
 
 import { RecoveryBezierFit as F } from "./RecoveryBezierFit";
 import { collectRecoveryContourFaceSupport } from "./collectRecoveryContourFaceSupport";
-
-
 import { signedArea } from "./mesh-observations/signedArea";
-
 
 /**
  * Observe and fit every contour on one fixed private section. An optional collection name prefixes curve identities; an optional acquisition observer receives copied original face incidence after local fitting, including rejected contours. Observer exceptions escape the fitting catch.
@@ -23,7 +23,9 @@ import { signedArea } from "./mesh-observations/signedArea";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One existing fit supplies publication, diagnostics and optional accepted parameters with no second fit, cut or conversion. No persistent cache is added; saved-cut admission and stage receipt owners decide historical equivalence.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Inputs remain borrowed synchronously. Local support, fit and trace data grow with contour points/incidence/spans; returned curves and callback copies transfer to callers, including copies retained by observers. Temporary references expire on completion or throw; no independent metadata byte ceiling, listener, task or cancellation hook is added.
  */
-export function observeRecoverySection(input: Parameters<IAutoMovieRecoverySectionObservationOperation.Operation>[0]): ReturnType<IAutoMovieRecoverySectionObservationOperation.Operation> {
+export function observeRecoverySection(
+  input: Parameters<IAutoMovieRecoverySectionObservationOperation.Operation>[0],
+): ReturnType<IAutoMovieRecoverySectionObservationOperation.Operation> {
   const {
     coordinateMm,
     plane,
@@ -31,7 +33,8 @@ export function observeRecoverySection(input: Parameters<IAutoMovieRecoverySecti
     faceEdges,
     vertexFaces,
     orientation,
-    policy }: typeof input = input;
+    policy,
+  }: typeof input = input;
   let observations: number = 0,
     spans: number = 0;
   const edgeKey: (a: number, b: number) => string = (
@@ -44,7 +47,8 @@ export function observeRecoverySection(input: Parameters<IAutoMovieRecoverySecti
     fits: [],
     open: [],
     isolatedContactsMm: [],
-    diagnostics: [] };
+    diagnostics: [],
+  };
   const supports: Set<number>[] = [];
   const faces: Set<number>[] = [],
     defects: Set<number>[] = [];
@@ -57,8 +61,8 @@ export function observeRecoverySection(input: Parameters<IAutoMovieRecoverySecti
       edgeKey,
     );
     let publication: IAutoMovieRecoverySourceLineage["publication"] | undefined;
- 
-   /** Current optional callback record; this alias makes no historical parameter claim.
+
+    /** Current optional callback record; this alias makes no historical parameter claim.
      *
      */
     type Accepted = Parameters<NonNullable<typeof input.onAcceptedFit>>[0];
@@ -102,7 +106,8 @@ export function observeRecoverySection(input: Parameters<IAutoMovieRecoverySecti
         i < points.length - (contour.closed ? 0 : 1);
         i++
       ) {
-        const a: Readonly<AutoMovieVector3Tuple> = points[(i + points.length - 1) % points.length]!,
+        const a: Readonly<AutoMovieVector3Tuple> =
+            points[(i + points.length - 1) % points.length]!,
           b: Readonly<AutoMovieVector3Tuple> = points[i]!,
           c: Readonly<AutoMovieVector3Tuple> = points[(i + 1) % points.length]!;
         const u: number[] = b.map((x: number, k: number): number => x - a[k]!),
@@ -127,7 +132,8 @@ export function observeRecoverySection(input: Parameters<IAutoMovieRecoverySecti
           corners,
           toleranceMm: policy.toleranceMm,
           maxSpans: policy.maxSpans,
-          parameterization: "chord" },
+          parameterization: "chord",
+        },
         input.onAcceptedFit === undefined
           ? undefined
           : (
@@ -140,7 +146,8 @@ export function observeRecoverySection(input: Parameters<IAutoMovieRecoverySecti
                 span,
                 first,
                 last,
-                parameters: [...parameters] });
+                parameters: [...parameters],
+              });
             },
       );
       if (accepted !== undefined)
@@ -152,10 +159,14 @@ export function observeRecoverySection(input: Parameters<IAutoMovieRecoverySecti
           publication = {
             kind: "closed",
             loopIndex: section.loops.length,
-            curveName: fit.curve.name };
-        (section.loops as { curve: IAutoMovieCurve64.Cubic; winding: 1 | -1 }[]).push({
+            curveName: fit.curve.name,
+          };
+        (
+          section.loops as { curve: IAutoMovieCurve64.Cubic; winding: 1 | -1 }[]
+        ).push({
           curve: fit.curve,
-          winding });
+          winding,
+        });
         const { curve: _curve, ...quality }: IAutoMoviePolylineFit = fit;
         report.fits.push(quality);
         supports.push(
@@ -172,7 +183,8 @@ export function observeRecoverySection(input: Parameters<IAutoMovieRecoverySecti
           publication = {
             kind: "open",
             reportIndex: report.open.length,
-            curveName: fit.curve.name };
+            curveName: fit.curve.name,
+          };
         report.open.push(fit);
         defects.push(faceSupport);
         report.diagnostics.push(
@@ -188,7 +200,8 @@ export function observeRecoverySection(input: Parameters<IAutoMovieRecoverySecti
         publication = {
           kind: "failed",
           diagnostic:
-            failure instanceof Error ? failure.message : String(failure) };
+            failure instanceof Error ? failure.message : String(failure),
+        };
       defects.push(faceSupport);
       report.diagnostics.push(
         `Contour ${ci} unresolved: ${failure instanceof Error ? failure.message : String(failure)}`,
@@ -201,7 +214,8 @@ export function observeRecoverySection(input: Parameters<IAutoMovieRecoverySecti
         ...(contour.exactSourceTriangleIds === undefined
           ? {}
           : { exactSourceTriangleIds: [...contour.exactSourceTriangleIds] }),
-        publication: publication ?? { kind: "degenerate" } });
+        publication: publication ?? { kind: "degenerate" },
+      });
       if (acceptedFit !== undefined) input.onAcceptedFit?.(acceptedFit);
     }
   }

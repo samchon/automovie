@@ -8,19 +8,15 @@ import type { IAutoMovieRecoveryImageFeaturesMatchingOperation } from "../../ind
  * @evidence contracts/development/common.md#meaningful-documentation First and second are input view indices; each directed array uses its original query/target order.
  */
 export interface IAutoMovieRecoveryTrackPair {
- 
- /** First view's index in the fixed input population. */
+  /** First view's index in the fixed input population. */
   first: number;
 
- 
- /** Second view's index in the same input population. */
+  /** Second view's index in the same input population. */
   second: number;
 
- 
- /** Borrowed query-first to target-second feature matches. */
+  /** Borrowed query-first to target-second feature matches. */
   forward: ReturnType<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation>;
 
- 
- /** Borrowed query-second to target-first feature matches. */
+  /** Borrowed query-second to target-first feature matches. */
   reverse: ReturnType<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation>;
 }

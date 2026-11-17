@@ -1,11 +1,19 @@
-import { type IAutoMovieCompileAttach, IAutoMovieAttachment, IAutoMovieClip, IAutoMovieMotion, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieAttachment,
+  IAutoMovieClip,
+  type IAutoMovieCompileAttach,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { resolveAttachment } from "../kinematics/resolveAttachment";
 import { Quaternion } from "../math/Quaternion";
+import { Transform } from "../math/Transform";
 import { Vector3 } from "../math/Vector3";
 import { sampleMotion } from "../motion/sampleMotion";
-import { Transform } from "../math/Transform";
 
 /** The child rides the bone directly: origin on the bone, no extra offset. */
 const IDENTITY_OFFSET: IAutoMovieTransform = Transform.identity();
@@ -31,7 +39,9 @@ const IDENTITY_OFFSET: IAutoMovieTransform = Transform.identity();
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call bakes one coupling from its own inputs; `coupleObjects` coordinates the shot's couplings and shares a parent's baked clips with its riders.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after returning; the two tracks share one time array and own position and rotation arrays, holding 1 + 3 + 4 numbers per sample for the caller.
  */
-export function compileAttach(props: IAutoMovieCompileAttach.IProps): IAutoMovieClip {
+export function compileAttach(
+  props: IAutoMovieCompileAttach.IProps,
+): IAutoMovieClip {
   const fps: number = props.fps ?? 30;
   // `performShot` rejects a zero-span coupling before it reaches here; this
   // precondition, the one `projectileTrajectory` enforces, keeps any other

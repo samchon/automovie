@@ -1,5 +1,8 @@
-import { type IAutoMovieViolationCollector, IAutoMovieAngleRange, IAutoMovieJointConstraint } from "@automovie/interface";
-
+import {
+  IAutoMovieAngleRange,
+  IAutoMovieJointConstraint,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { swingConeAngle } from "../rom/swingConeAngle";
 

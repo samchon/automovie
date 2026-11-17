@@ -1,4 +1,7 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionLaw } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionLaw,
+} from "@automovie/interface";
 
 import { operate } from "../affordance/operate";
 import { kickBall } from "../ballStrike/kickBall";

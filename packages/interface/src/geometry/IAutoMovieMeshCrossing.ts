@@ -1,5 +1,3 @@
-
-
 /**
  * One triangle of the first mesh that a triangle of the second mesh crosses,
  * as reported by `measureAutoMovieMeshCrossings`.

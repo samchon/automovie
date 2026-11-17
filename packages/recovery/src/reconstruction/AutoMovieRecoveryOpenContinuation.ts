@@ -1,17 +1,23 @@
-import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieMeshCriticalPoints, IAutoMovieMeshPlaneCut, IAutoMoviePlaneFrameConstruction, IAutoMovieRecoveryIndexedMesh, IAutoMovieRecoveryMeshSections, IAutoMovieRecoveryOpenContinuation, IAutoMovieRecoveryOpenContinuationRow, IAutoMovieRecoveryOpenSlabGraph, IAutoMovieRecoveryScalarIndex, IAutoMovieRecoveryInput } from "@automovie/interface";
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieMeshCriticalPoints,
+  IAutoMovieMeshPlaneCut,
+  IAutoMoviePlaneFrameConstruction,
+  IAutoMovieRecoveryIndexedMesh,
+  IAutoMovieRecoveryInput,
+  IAutoMovieRecoveryMeshSections,
+  IAutoMovieRecoveryOpenContinuation,
+  IAutoMovieRecoveryOpenContinuationRow,
+  IAutoMovieRecoveryOpenSlabGraph,
+  IAutoMovieRecoveryScalarIndex,
+} from "@automovie/interface";
 
 import { RecoveryOpenSlabGraph as O } from "../internal/RecoveryOpenSlabGraph";
 import { RecoveryScalarIndex as S } from "../internal/RecoveryScalarIndex";
-
 import { critical } from "../internal/mesh-observations/critical";
 import { cutExact } from "../internal/mesh-observations/cutExact";
 import { planeFrame } from "../internal/mesh-observations/planeFrame";
-
-
 
 /**
  * Source observation of open-curve continuation without repeating numerical fitting.
@@ -22,8 +28,7 @@ import { planeFrame } from "../internal/mesh-observations/planeFrame";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller verifies source and artifact bytes; orientation warnings and unsupported topology remain explicit instead of changing geometry.
  */
 export namespace AutoMovieRecoveryOpenContinuation {
- 
- /**
+  /**
    * Reobserve automatically saved stations, preserving their complete cubic coefficients.
    * The command caller must bind both the fixed source bytes and the original bundle hash.
    *
@@ -66,12 +71,10 @@ export namespace AutoMovieRecoveryOpenContinuation {
     const mesh: IAutoMovieRecoveryIndexedMesh = {
       vertices,
       triangles: input.triangles,
-      canon };
-    const frame: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> = planeFrame(
-      [0, 0, 0],
-      input.axis,
-      input.reference,
-    );
+      canon,
+    };
+    const frame: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> =
+      planeFrame([0, 0, 0], input.axis, input.reference);
     const heights: number[] = vertices.map(
       (p: Readonly<AutoMovieVector3Tuple>): number =>
         p[0] * frame.n[0] + p[1] * frame.n[1] + p[2] * frame.n[2],
@@ -84,11 +87,14 @@ export namespace AutoMovieRecoveryOpenContinuation {
       mesh,
       heights,
     );
-    const open: ReturnType<IAutoMovieRecoveryOpenSlabGraph.Prepare> = O.prepare({
-      vertices,
-      triangles: mesh.triangles,
-      canon,
-      heights });
+    const open: ReturnType<IAutoMovieRecoveryOpenSlabGraph.Prepare> = O.prepare(
+      {
+        vertices,
+        triangles: mesh.triangles,
+        canon,
+        heights,
+      },
+    );
     const edgeFaces: Map<string, Set<number>> = new Map(),
       vertexFaces: Map<number, Set<number>> = new Map();
     const edgeKey: (a: number, b: number) => string = (
@@ -125,7 +131,8 @@ export namespace AutoMovieRecoveryOpenContinuation {
         "Unresolved open-observation groups include components with no open boundary arcs; closed-section surfaces are generated independently. These counts are not a count of remaining whole-model holes.",
       ],
       resolutionMm: input.chordToleranceMm,
-      maxVerticesPerRun: 2_000_000 };
+      maxVerticesPerRun: 2_000_000,
+    };
     let previous: IAutoMovieRecoveryOpenContinuationRow | undefined,
       eventCursor: number = 0;
     for (let i: number = 0; i < bundle.loft.sections.length; i++) {
@@ -137,7 +144,8 @@ export namespace AutoMovieRecoveryOpenContinuation {
         throw new Error("Increasing aligned saved stations required");
       const plane: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> = {
         ...frame,
-        origin: [frame.n[0] * level, frame.n[1] * level, frame.n[2] * level] };
+        origin: [frame.n[0] * level, frame.n[1] * level, frame.n[2] * level],
+      };
       const contours: ReturnType<IAutoMovieMeshPlaneCut.Operation> = slice(
         plane,
         level,
@@ -155,7 +163,8 @@ export namespace AutoMovieRecoveryOpenContinuation {
         arcs: [],
         ordinals: [],
         missing: [],
-        defects: [] };
+        defects: [],
+      };
       const signs: (1 | -1 | null)[] = bundle.reports[i]!.open.map(
         (): null => null,
       );
@@ -178,7 +187,8 @@ export namespace AutoMovieRecoveryOpenContinuation {
           row.defects.push(support);
           continue;
         }
-        const curve: IAutoMovieCurve64.Cubic = bundle.reports[i]!.open[ordinal]!.curve;
+        const curve: IAutoMovieCurve64.Cubic =
+          bundle.reports[i]!.open[ordinal]!.curve;
         const first: Readonly<AutoMovieVector3Tuple> = curve.spans[0]![0],
           last: Readonly<AutoMovieVector3Tuple> = curve.spans.at(-1)![3];
         if (
@@ -199,7 +209,8 @@ export namespace AutoMovieRecoveryOpenContinuation {
           ends: [
             { a: contour.pts[0]!.a, b: contour.pts[0]!.b },
             { a: contour.pts.at(-1)!.a, b: contour.pts.at(-1)!.b },
-          ] });
+          ],
+        });
         for (
           let k: number = 1;
           k < contour.pts.length && signs[ordinal] === null;
@@ -261,16 +272,20 @@ export namespace AutoMovieRecoveryOpenContinuation {
           before: previous.arcs,
           after: row.arcs,
           defects,
-          candidates: index.slab(beforeMm, level) });
+          candidates: index.slab(beforeMm, level),
+        });
         const interval: IAutoMovieRecoveryOpenContinuation["intervals"][number] =
           {
             beforeSection: i - 1,
             afterSection: i,
             pairs: observed.pairs.map(
-              (pair: IAutoMovieRecoveryOpenSlabGraph.Result["pairs"][number]): IAutoMovieRecoveryOpenSlabGraph.Result["pairs"][number] => ({
+              (
+                pair: IAutoMovieRecoveryOpenSlabGraph.Result["pairs"][number],
+              ): IAutoMovieRecoveryOpenSlabGraph.Result["pairs"][number] => ({
                 before: previous!.ordinals[pair.before]!,
                 after: row.ordinals[pair.after]!,
-                reverseAfter: pair.reverseAfter }),
+                reverseAfter: pair.reverseAfter,
+              }),
             ),
             unresolved: observed.unresolved.map(
               (
@@ -280,14 +295,17 @@ export namespace AutoMovieRecoveryOpenContinuation {
                   (j: number): number => previous!.ordinals[j]!,
                 ),
                 after: group.after.map((j: number): number => row.ordinals[j]!),
-                reason: group.reason }),
-            ) };
+                reason: group.reason,
+              }),
+            ),
+          };
         if (previous.missing.length || row.missing.length)
           interval.unresolved.push({
             before: previous.missing,
             after: row.missing,
             reason:
-              "Saved open coefficients have no identical endpoint-bound source observation" });
+              "Saved open coefficients have no identical endpoint-bound source observation",
+          });
         output.intervals.push(interval);
         for (const diagnostic of observed.diagnostics ?? [])
           output.diagnostics.push(diagnostic);

@@ -1,6 +1,7 @@
-import type { IAutoMovieAffordance, IAutoMovieAffordanceTravelRange } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieAffordanceTravelRange,
+} from "@automovie/interface";
 
 import { affordanceFollowedTravel } from "./affordanceFollowedTravel";
 

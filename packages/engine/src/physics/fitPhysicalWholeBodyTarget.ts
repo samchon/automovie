@@ -1,5 +1,9 @@
-import type { IAutoMovieFitPhysicalWholeBodyTarget, IAutoMoviePhysicalProfile, IAutoMovieSolvePhysicalArticulationTargets, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieFitPhysicalWholeBodyTarget,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieSolvePhysicalArticulationTargets,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -30,13 +34,25 @@ import { solvePhysicalArticulationTargets } from "./solvePhysicalArticulationTar
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 30 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function fitPhysicalWholeBodyTarget(input: IAutoMovieFitPhysicalWholeBodyTarget.IInput): IAutoMovieFitPhysicalWholeBodyTarget.IResult {
+export function fitPhysicalWholeBodyTarget(
+  input: IAutoMovieFitPhysicalWholeBodyTarget.IInput,
+): IAutoMovieFitPhysicalWholeBodyTarget.IResult {
   const pivot: string = `${input.support.bone}:pivot`;
-  if (input.profile.segments.some((s: IAutoMoviePhysicalProfile.ISegment): boolean => s.bone === pivot))
+  if (
+    input.profile.segments.some(
+      (s: IAutoMoviePhysicalProfile.ISegment): boolean => s.bone === pivot,
+    )
+  )
     throw new Error(`Physical pivot name ${pivot} is taken`);
-  const held: IAutoMoviePhysicalProfile.ITransform = input.targets[input.support.bone]!;
-  const frame: IAutoMoviePhysicalProfile.ITransform["rotation"] = along(input.support.normal);
-  const rerooted: IAutoMoviePhysicalProfile = rerootPhysicalProfile(input.profile, input.support.bone);
+  const held: IAutoMoviePhysicalProfile.ITransform =
+    input.targets[input.support.bone]!;
+  const frame: IAutoMoviePhysicalProfile.ITransform["rotation"] = along(
+    input.support.normal,
+  );
+  const rerooted: IAutoMoviePhysicalProfile = rerootPhysicalProfile(
+    input.profile,
+    input.support.bone,
+  );
   const inverted: Set<string> = new Set(
     rerooted.joints
       .filter(
@@ -101,12 +117,16 @@ export function fitPhysicalWholeBodyTarget(input: IAutoMovieFitPhysicalWholeBody
   const moving: string[] = [
     input.support.bone,
     ...input.profile.joints
-      .filter((joint: IAutoMoviePhysicalProfile.IJoint): boolean => input.bones.includes(joint.child))
+      .filter((joint: IAutoMoviePhysicalProfile.IJoint): boolean =>
+        input.bones.includes(joint.child),
+      )
       .map((joint: IAutoMoviePhysicalProfile.IJoint): string =>
         inverted.has(joint.id) ? joint.parent : joint.child,
       ),
   ];
-  const measure = (poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>): number[] => {
+  const measure = (
+    poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+  ): number[] => {
     const pose: IAutoMoviePhysicalProfile.ITransform = poses[input.goal.bone]!;
     const error: IAutoMovieVector3 = Vector3.subtract(
       Vector3.add(
@@ -140,7 +160,9 @@ export function fitPhysicalWholeBodyTarget(input: IAutoMovieFitPhysicalWholeBody
       tolerance: input.tolerance,
     });
   const rows: number[] = measure(solved.targets);
-  const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> = { ...solved.targets };
+  const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> = {
+    ...solved.targets,
+  };
   delete targets[pivot];
   return {
     targets,
@@ -151,7 +173,9 @@ export function fitPhysicalWholeBodyTarget(input: IAutoMovieFitPhysicalWholeBody
 }
 
 /** The rotation taking +x to a unit direction by the shortest arc. */
-function along(direction: IAutoMovieVector3): IAutoMoviePhysicalProfile.ITransform["rotation"] {
+function along(
+  direction: IAutoMovieVector3,
+): IAutoMoviePhysicalProfile.ITransform["rotation"] {
   const d: IAutoMovieVector3 = Vector3.normalize(direction);
   if (d.x < -1 + 1e-12) return { x: 0, y: 0, z: 1, w: 0 };
   const half: number = Math.sqrt((1 + d.x) / 2);

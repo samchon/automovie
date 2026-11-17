@@ -1,6 +1,11 @@
-import type { AutoMovieVector3Tuple, IAutoMovieContourLoft64, IAutoMovieContourLoftEmission64, IAutoMovieJsonArraySource, IAutoMovieRecoveryContourFileMesh } from "@automovie/interface";
 import { generateAutoMovieContourLoft64 } from "@automovie/engine";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieContourLoft64,
+  IAutoMovieContourLoftEmission64,
+  IAutoMovieJsonArraySource,
+  IAutoMovieRecoveryContourFileMesh,
+} from "@automovie/interface";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -175,8 +180,9 @@ export function createAutoMovieRecoveryContourFileMesh(
         append(3, {
           id,
           closed: true,
-          points: points.map((point: Readonly<AutoMovieVector3Tuple>): number[] =>
-            point.map((value: number): number => value * 0.001),
+          points: points.map(
+            (point: Readonly<AutoMovieVector3Tuple>): number[] =>
+              point.map((value: number): number => value * 0.001),
           ),
           phases: points.map(phase),
         });

@@ -1,6 +1,18 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingBlade, IAutoMovieMotionHumanStrikingHeld, IAutoMovieMotionHumanSupportAim, IAutoMovieMotionHumanWeaponHeld, IAutoMovieMotionHumanWeaponPresent, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingBlade,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionHumanSupportAim,
+  IAutoMovieMotionHumanWeaponHeld,
+  IAutoMovieMotionHumanWeaponPresent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -24,10 +36,10 @@ import { StrikingHeld } from "../striking/StrikingHeld";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No firearm kind is named: a long gun is a prop with a fore-end; the reach is the body's own, never a share of it.
  */
 export namespace HumanWeaponHeld {
-
   /** The hand a weapon action holds the weapon in: the right when the parameters name none. */
-  export const hand = (p: IAutoMovieMotionHumanWeaponPresent.IWield): IAutoMovieMotionHumanHand.Side =>
-    p.hand ?? "right";
+  export const hand = (
+    p: IAutoMovieMotionHumanWeaponPresent.IWield,
+  ): IAutoMovieMotionHumanHand.Side => p.hand ?? "right";
 
   /** How the hand holds the weapon at an action's start, by the points it is read at (`StrikingHeld.of`). */
   export const held =
@@ -36,8 +48,12 @@ export namespace HumanWeaponHeld {
         IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IWield>,
         "body" | "entry" | "prop" | "subject" | "params"
       >,
-    ): ((points: IAutoMovieMotionHumanStrikingHeld.IPoints) => IAutoMovieMotionHumanStrikingHeld.ITool) =>
-    (points: IAutoMovieMotionHumanStrikingHeld.IPoints): IAutoMovieMotionHumanStrikingHeld.ITool =>
+    ): ((
+      points: IAutoMovieMotionHumanStrikingHeld.IPoints,
+    ) => IAutoMovieMotionHumanStrikingHeld.ITool) =>
+    (
+      points: IAutoMovieMotionHumanStrikingHeld.IPoints,
+    ): IAutoMovieMotionHumanStrikingHeld.ITool =>
       StrikingHeld.of(
         context,
         hand(context.params),
@@ -59,7 +75,9 @@ export namespace HumanWeaponHeld {
       IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IWield>,
       "params" | "prop" | "body"
     >,
-    read: (points: IAutoMovieMotionHumanStrikingHeld.IPoints) => IAutoMovieMotionHumanStrikingHeld.ITool,
+    read: (
+      points: IAutoMovieMotionHumanStrikingHeld.IPoints,
+    ) => IAutoMovieMotionHumanStrikingHeld.ITool,
   ): IAutoMovieMotionHumanWeaponHeld.ISetup => {
     const p: IAutoMovieMotionHumanWeaponPresent.IWield = context.params;
     const side: IAutoMovieMotionHumanHand.Side = hand(p);
@@ -161,7 +179,8 @@ export namespace HumanWeaponHeld {
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieMotionHumanStrikingBlade.ISupport | null => {
     if (s.support === null || !s.long) return s.support;
-    const other: IAutoMovieMotionHumanHand.Side = s.tool.side === "left" ? "right" : "left";
+    const other: IAutoMovieMotionHumanHand.Side =
+      s.tool.side === "left" ? "right" : "left";
     const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(
       context.body,
       posture,
@@ -224,7 +243,8 @@ export namespace HumanWeaponHeld {
   ): IAutoMovieMotionHumanActionPlan => {
     if (context.carrier === undefined) return plan;
     const side: IAutoMovieMotionHumanHand.Side = s.tool.side;
-    const other: IAutoMovieMotionHumanHand.Side = side === "left" ? "right" : "left";
+    const other: IAutoMovieMotionHumanHand.Side =
+      side === "left" ? "right" : "left";
     return HumanSupportCarry.plan(
       context,
       plan,

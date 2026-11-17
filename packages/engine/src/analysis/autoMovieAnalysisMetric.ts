@@ -1,5 +1,9 @@
-import { type IAutoMovieAnalysisMetricInput, IAutoMovieAnalysisMetric, IAutoMovieAnalysisMetricGap, IAutoMovieAnalysisTarget } from "@automovie/interface";
-
+import {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisMetricGap,
+  type IAutoMovieAnalysisMetricInput,
+  IAutoMovieAnalysisTarget,
+} from "@automovie/interface";
 
 import { autoMovieAnalysisTargetMet } from "./autoMovieAnalysisTargetMet";
 
@@ -30,7 +34,11 @@ import { autoMovieAnalysisTargetMet } from "./autoMovieAnalysisTargetMet";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call resolves one metric of one run against that study's own targets; there is no completed or in-flight result another call could reuse.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new metric record and appends at most one warning to the caller-owned array, retaining nothing itself.
  */
-export const autoMovieAnalysisMetric: (props: IAutoMovieAnalysisMetricInput.IProps) => IAutoMovieAnalysisMetric = (props: IAutoMovieAnalysisMetricInput.IProps): IAutoMovieAnalysisMetric => {
+export const autoMovieAnalysisMetric: (
+  props: IAutoMovieAnalysisMetricInput.IProps,
+) => IAutoMovieAnalysisMetric = (
+  props: IAutoMovieAnalysisMetricInput.IProps,
+): IAutoMovieAnalysisMetric => {
   const key: string = props.key;
   const unit: string = props.unit;
   const value: number | null = props.value;

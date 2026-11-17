@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingHeld, IAutoMovieMotionHumanStrikingRoll, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionHumanStrikingRoll,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -131,7 +137,9 @@ export namespace StrikingRoll {
     cone: number,
     posture:
       | IAutoMovieMotionHumanPosture
-      | ((frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame) => IAutoMovieMotionHumanPosture),
+      | ((
+          frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+        ) => IAutoMovieMotionHumanPosture),
   ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
     const along: IAutoMovieVector3 = Vector3.normalize(axis);
     const from: IAutoMovieVector3 | undefined =
@@ -146,7 +154,9 @@ export namespace StrikingRoll {
     );
     // A frame of the line leaned `tilt` toward `around` and turned `turn`
     // about itself, degrees.
-    const frame = (values: readonly number[]): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
+    const frame = (
+      values: readonly number[],
+    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
       const [tilt, around, turn] = values as readonly [number, number, number];
       const run: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.fromAxisAngle(along, around),
@@ -286,7 +296,8 @@ export namespace StrikingRoll {
         tried,
         freedoms,
         judge: (values: readonly number[]): number[] => {
-          const posed: IAutoMovieMotionHumanStrikingHeld.IHandFrame = frame(values);
+          const posed: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+            frame(values);
           try {
             return [
               miss(

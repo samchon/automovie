@@ -1,6 +1,12 @@
-import type { IAutoMovieBone, IAutoMovieDerivePhysicalActuators, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieModel, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieBone,
+  IAutoMovieDerivePhysicalActuators,
+  IAutoMovieJointAxes,
+  IAutoMovieJointConstraint,
+  IAutoMovieModel,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
@@ -35,7 +41,9 @@ export function derivePhysicalModelJoints(
     actuator.dampingRatio < 0
   )
     throw new Error("Invalid model actuator assumptions");
-  const joints: IAutoMoviePhysicalProfile.IJoint[] = (model.skeleton?.bones ?? [])
+  const joints: IAutoMoviePhysicalProfile.IJoint[] = (
+    model.skeleton?.bones ?? []
+  )
     .filter((bone: IAutoMovieBone): boolean => bone.parent !== null)
     .map((bone: IAutoMovieBone): IAutoMoviePhysicalProfile.IJoint => {
       const parent: IAutoMoviePhysicalProfile.ISegment = segments.find(
@@ -59,11 +67,8 @@ export function derivePhysicalModelJoints(
         Math.abs(Math.abs(Vector3.dot(z, abduction)) - 1) > 1e-6
       )
         throw new Error(`Physical model axes are not orthogonal: ${bone.bone}`);
-      const basis: IAutoMoviePhysicalProfile.ITransform["rotation"] = quaternionFromAutoMovieBasis(
-        x,
-        y,
-        z,
-      );
+      const basis: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+        quaternionFromAutoMovieBasis(x, y, z);
       const constraint: IAutoMovieJointConstraint | null = getConstraint(
         bone.bone,
         bone.constraint,
@@ -76,7 +81,10 @@ export function derivePhysicalModelJoints(
       const axes: IAutoMoviePhysicalProfile.IAxis[] = (
         ["flexion", "twist", "abduction"] as const
       ).flatMap(
-        (name: "flexion" | "twist" | "abduction", index: number): IAutoMoviePhysicalProfile.IAxis[] => {
+        (
+          name: "flexion" | "twist" | "abduction",
+          index: number,
+        ): IAutoMoviePhysicalProfile.IAxis[] => {
           const range: IAutoMovieJointConstraint["flexion"] | undefined =
             constraint?.[name];
           if (constraint && range === null) return [];

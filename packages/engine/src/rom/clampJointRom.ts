@@ -1,5 +1,11 @@
-import { type IAutoMovieResolvedJointAngles, type IAutoMovieSwingTwistRange, IAutoMovieAngleRange, IAutoMovieJointConstraint, IAutoMovieJointPose, IAutoMovieQuaternion } from "@automovie/interface";
-
+import {
+  IAutoMovieAngleRange,
+  IAutoMovieJointConstraint,
+  IAutoMovieJointPose,
+  IAutoMovieQuaternion,
+  type IAutoMovieResolvedJointAngles,
+  type IAutoMovieSwingTwistRange,
+} from "@automovie/interface";
 
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";

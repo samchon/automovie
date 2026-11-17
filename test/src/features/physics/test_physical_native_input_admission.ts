@@ -1,5 +1,5 @@
-import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 import { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
+import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 import assert from "node:assert/strict";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -22,11 +22,14 @@ import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Finite JS overflow, derived overflow and underflowing native settings refuse coherently.).
  */
 export function test_physical_native_input_admission(): void {
-  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
-    [PhysicalFixtures.body("solid", PhysicalFixtures.sphere(), 1 / 120)],
-    1 / 120,
-  );
-  const mutations: ((copy: IAutoMoviePhysicalSimulationInput.IInput) => void)[] = [
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input(
+      [PhysicalFixtures.body("solid", PhysicalFixtures.sphere(), 1 / 120)],
+      1 / 120,
+    );
+  const mutations: ((
+    copy: IAutoMoviePhysicalSimulationInput.IInput,
+  ) => void)[] = [
     (copy: IAutoMoviePhysicalSimulationInput.IInput): void => {
       copy.gravity.y = 1e100;
     },
@@ -87,7 +90,8 @@ export function test_physical_native_input_admission(): void {
   ];
   Simulation.identity(input);
   for (const mutate of mutations) {
-    const invalid: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+    const invalid: IAutoMoviePhysicalSimulationInput.IInput =
+      structuredClone(input);
     mutate(invalid);
     assert.throws((): string => Simulation.identity(invalid));
   }
@@ -99,7 +103,8 @@ export function test_physical_native_input_admission(): void {
       "balance",
       "releasedQuality",
     ]) {
-      const invalid: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+      const invalid: IAutoMoviePhysicalSimulationInput.IInput =
+        structuredClone(input);
       Reflect.set(invalid.bodies[0]!, key, value);
       assert.throws((): string => Simulation.identity(invalid));
     }
@@ -110,33 +115,39 @@ export function test_physical_native_input_admission(): void {
       "unavailableSupports",
     ]) {
       if (key === "unavailableSupports" && Array.isArray(value)) continue;
-      const invalid: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+      const invalid: IAutoMoviePhysicalSimulationInput.IInput =
+        structuredClone(input);
       Reflect.set(invalid.bodies[0]!.targets[0]!, key, value);
       assert.throws((): string => Simulation.identity(invalid));
     }
   }
   for (const value of [null, false, 0, "1", true]) {
     for (const key of ["handoffSeconds", "maximumBindings"]) {
-      const invalid: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+      const invalid: IAutoMoviePhysicalSimulationInput.IInput =
+        structuredClone(input);
       Reflect.set(invalid.bodies[0]!, key, value);
       assert.throws((): string => Simulation.identity(invalid));
     }
-    const invalid: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+    const invalid: IAutoMoviePhysicalSimulationInput.IInput =
+      structuredClone(input);
     Reflect.set(invalid, "substeps", value);
     assert.throws((): string => Simulation.identity(invalid));
   }
   for (const value of [null, 0, 1, "false"]) {
-    const invalid: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+    const invalid: IAutoMoviePhysicalSimulationInput.IInput =
+      structuredClone(input);
     Reflect.set(invalid.bodies[0]!, "compensateGravity", value);
     assert.throws((): string => Simulation.identity(invalid));
   }
-  const permitted: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+  const permitted: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(input);
   permitted.bodies[0]!.compensateGravity = false;
   permitted.bodies[0]!.targets[0]!.jointStrength = {};
   permitted.bodies[0]!.targets[0]!.supportStrength = {};
   permitted.bodies[0]!.targets[0]!.unavailableSupports = [];
   Simulation.identity(permitted);
-  const zeroGravity: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+  const zeroGravity: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(input);
   zeroGravity.bodies[0]!.mode = {
     kind: "exaggerated",
     gravity: 1e100,
@@ -150,7 +161,8 @@ export function test_physical_native_input_admission(): void {
     /native gravity/,
   );
   for (const factor of [1e-308, 1e308]) {
-    const scaled: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+    const scaled: IAutoMoviePhysicalSimulationInput.IInput =
+      structuredClone(input);
     const profile: (typeof scaled.bodies)[number]["profile"] =
       scaled.bodies[0]!.profile;
     profile.materials[0]!.compliance = factor < 1 ? 1e-38 : 1e38;
@@ -188,26 +200,31 @@ export function test_physical_native_input_admission(): void {
     },
   ];
   assert.throws((): string => Simulation.identity(core), /rigidCore/);
-  const motion: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+  const motion: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(input);
   motion.floorBounds.min.x = -1e38;
   motion.floorBounds.max.x = 1e38;
   for (const target of motion.bodies[0]!.targets)
     target.dynamicSegments = ["root"];
   motion.bodies[0]!.targets[1]!.segments.root!.position.x = 1e37;
   assert.throws((): string => Simulation.identity(motion), /Derived native/);
-  const motorIntent: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(motion);
+  const motorIntent: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(motion);
   for (const target of motorIntent.bodies[0]!.targets)
     target.dynamicSegments = undefined;
   Simulation.identity(motorIntent);
-  const geometric: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(motion);
+  const geometric: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(motion);
   geometric.bodies[0]!.mode = { kind: "kinematic" };
   Simulation.identity(geometric);
-  const boundary: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+  const boundary: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(input);
   boundary.bodies[0]!.profile.segments[0]!.shapes[0]!.transform.position.y = 2e38;
   for (const target of boundary.bodies[0]!.targets)
     target.segments.root!.position.y = 2e38;
   assert.throws((): string => Simulation.identity(boundary), /Derived native/);
-  const transport: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+  const transport: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(input);
   transport.bodies[0]!.profile.segments[0]!.centerOfMass.x = 1e38;
   transport.bodies[0]!.profile.centerOfMass.x = 1e38;
   for (const target of transport.bodies[0]!.targets)
@@ -219,20 +236,22 @@ export function test_physical_native_input_admission(): void {
     w: Math.SQRT1_2,
   };
   assert.throws((): string => Simulation.identity(transport), /Derived native/);
-  const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalSupportFixtures.body(
-    PhysicalModelFixtures.quadrupod(),
-    1 / 120,
-  );
-  const balanced: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], 1 / 120);
+  const body: IAutoMoviePhysicalSimulationInput.IBody =
+    PhysicalSupportFixtures.body(PhysicalModelFixtures.quadrupod(), 1 / 120);
+  const balanced: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([body], 1 / 120);
   balanced.gravity.y = -9.81;
   for (const value of [0, false, null]) {
-    const invalid: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(balanced);
+    const invalid: IAutoMoviePhysicalSimulationInput.IInput =
+      structuredClone(balanced);
     Reflect.set(invalid.bodies[0]!.balance!, "bracing", value);
     assert.throws((): string => Simulation.identity(invalid), /bracing/);
-    const reach: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(balanced);
+    const reach: IAutoMoviePhysicalSimulationInput.IInput =
+      structuredClone(balanced);
     Reflect.set(reach.bodies[0]!.balance!.pattern.limbs[0]!, "reach", value);
     assert.throws((): string => Simulation.identity(reach), /reach/);
-    const domain: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(balanced);
+    const domain: IAutoMoviePhysicalSimulationInput.IInput =
+      structuredClone(balanced);
     Reflect.set(
       domain.bodies[0]!.profile.joints[0]!.axes[0]!,
       "sourceDomain",
@@ -240,7 +259,8 @@ export function test_physical_native_input_admission(): void {
     );
     assert.throws((): string => Simulation.identity(domain), /sourceDomain/);
   }
-  const damping: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(balanced);
+  const damping: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(balanced);
   const axis: (typeof body.profile.joints)[number]["axes"][number] =
     damping.bodies[0]!.profile.joints[0]!.axes[0]!;
   axis.stiffness = 1;

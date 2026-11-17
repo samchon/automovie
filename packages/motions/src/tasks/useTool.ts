@@ -1,6 +1,23 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBend, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanToolWork, IAutoMovieMotionHumanUseTool, IAutoMovieMotionManner, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanToolWork,
+  IAutoMovieMotionHumanUseTool,
+  IAutoMovieMotionManner,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -78,7 +95,9 @@ export namespace useTool {
   export const overlay: boolean = true;
 
   /** Each work's cycle, seconds (provisional). */
-  export const PERIODS: Readonly<Record<IAutoMovieMotionHumanToolWork.Kind, number>> = {
+  export const PERIODS: Readonly<
+    Record<IAutoMovieMotionHumanToolWork.Kind, number>
+  > = {
     hammer: 0.6,
     saw: 0.8,
     stir: 1.0,
@@ -111,7 +130,9 @@ export namespace useTool {
    * @returns The plan with its tool.
    * @throws {HumanRefusal} When the cycle count is not a positive integer, the hand does not hold the tool, the tool has no `grip` or `face` or the two coincide, or a stir's work point is no vessel the spoon reaches into.
    */
-  export function plan(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanUseTool.IParams>): IAutoMovieMotionHumanUseTool.IPlan {
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanUseTool.IParams>,
+  ): IAutoMovieMotionHumanUseTool.IPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
     const kind: IAutoMovieMotionHumanToolWork.Kind = context.params.tool;
@@ -353,28 +374,27 @@ export namespace useTool {
       };
     };
 
-    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      duration,
-    );
-    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      contact: "contact1",
-      primitives: [
-        AutoMovieMotionHumanArm.move({
-          body,
-          side,
-          from: 0,
-          to: duration,
-          origin,
-          target: hand,
-          weight: (seconds: number): number =>
-            clock.progress("reaching", "ready", seconds) -
-            clock.progress("recover", "end", seconds),
-        }),
-      ],
-    });
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, duration);
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        contact: "contact1",
+        primitives: [
+          AutoMovieMotionHumanArm.move({
+            body,
+            side,
+            from: 0,
+            to: duration,
+            origin,
+            target: hand,
+            weight: (seconds: number): number =>
+              clock.progress("reaching", "ready", seconds) -
+              clock.progress("recover", "end", seconds),
+          }),
+        ],
+      });
     // The fingers stay closed on the tool as the grip left them.
     const fingers: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.fingers(
       context.entry.pose,

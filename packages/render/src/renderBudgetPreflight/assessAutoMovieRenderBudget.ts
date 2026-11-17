@@ -1,11 +1,16 @@
-import type { IAutoMovieRenderTextureSource, IAutoMovieAssessRenderBudgetProps, IAutoMovieRenderBudgetAssessment } from "@automovie/interface";
-
-
-
-import { autoMovieRenderSubjectOfCompiledShot, autoMovieRenderTextureDigest, deriveAutoMovieSemanticMask, evaluateAutoMovieRenderBudget, measureAutoMovieRenderInventory, sealAutoMovieRenderTarget } from "@automovie/engine";
-
-
-
+import {
+  autoMovieRenderSubjectOfCompiledShot,
+  autoMovieRenderTextureDigest,
+  deriveAutoMovieSemanticMask,
+  evaluateAutoMovieRenderBudget,
+  measureAutoMovieRenderInventory,
+  sealAutoMovieRenderTarget,
+} from "@automovie/engine";
+import type {
+  IAutoMovieAssessRenderBudgetProps,
+  IAutoMovieRenderBudgetAssessment,
+  IAutoMovieRenderTextureSource,
+} from "@automovie/interface";
 
 /**
  * Measure one caller-supplied compiled shot against an explicitly supplied budget, renderer identity, settings, assets and decoded texture/residency facts. The subject feeds both mask ownership and inventory measurement; the sealed target names those supplied inputs rather than proving that a renderer drew a frame.
@@ -22,7 +27,11 @@ import { autoMovieRenderSubjectOfCompiledShot, autoMovieRenderTextureDigest, der
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One subject and mask serve both inventory measurement and budget attribution; all sharing is confined to this artifact and the supplied renderer, settings, assets and residency facts.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The assessment retains the inventory, mask, report and sealed target until its caller discards them; it neither acquires the renderer nor owns texture allocation or host tasks.
  */
-export const assessAutoMovieRenderBudget: (props: IAutoMovieAssessRenderBudgetProps) => IAutoMovieRenderBudgetAssessment = (props: IAutoMovieAssessRenderBudgetProps): IAutoMovieRenderBudgetAssessment => {
+export const assessAutoMovieRenderBudget: (
+  props: IAutoMovieAssessRenderBudgetProps,
+) => IAutoMovieRenderBudgetAssessment = (
+  props: IAutoMovieAssessRenderBudgetProps,
+): IAutoMovieRenderBudgetAssessment => {
   if (props.renderer === null)
     return {
       shot: props.shot,

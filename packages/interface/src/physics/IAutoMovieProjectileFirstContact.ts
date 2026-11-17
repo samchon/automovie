@@ -1,108 +1,105 @@
-import type { IAutoMovieProjectile } from "./IAutoMovieProjectile";
 import type { IAutoMovieResolveContactEvents } from "../geometry/IAutoMovieResolveContactEvents";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieProjectile } from "./IAutoMovieProjectile";
 
 /** Collider surface/departure callbacks, projectile extent and launch-relative contact-search intervals. */
 export namespace IAutoMovieProjectileFirstContact {
   /**
-     * Signed collider-surface reading against the projectile's centre segment.
-     *
-     * distance is metres before subtracting projectile radius; point is world metres and normal an outward world unit vector. Collider nearest callbacks produce this reading; projectileFirstContact uses its distance for the sweep and may return point/normal references in the final hit. The callback's physical model owns correctness and finite readings; a segment entering the solid has negative distance, while a capsule radius is accounted for separately.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Signed collider-surface reading against the projectile's centre segment.
-     * @evidence contracts/development/design.md#principled-representation distance is metres before subtracting projectile radius; point is world metres and normal an outward world unit vector.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Collider nearest callbacks produce this reading; projectileFirstContact uses its distance for the sweep and may return point/normal references in the final hit.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts The callback's physical model owns correctness and finite readings; a segment entering the solid has negative distance, while a capsule radius is accounted for separately.
-     */
-    export interface INearest {
-      
-      /** Signed distance, metres; negative when the segment enters. */
-      distance: number;
-  
-      /** The nearest point of the collider's surface, world metres. */
-      point: IAutoMovieVector3;
-  
-      /** The collider's outward unit normal there. */
-      normal: IAutoMovieVector3;
-    }
+   * Signed collider-surface reading against the projectile's centre segment.
+   *
+   * distance is metres before subtracting projectile radius; point is world metres and normal an outward world unit vector. Collider nearest callbacks produce this reading; projectileFirstContact uses its distance for the sweep and may return point/normal references in the final hit. The callback's physical model owns correctness and finite readings; a segment entering the solid has negative distance, while a capsule radius is accounted for separately.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Signed collider-surface reading against the projectile's centre segment.
+   * @evidence contracts/development/design.md#principled-representation distance is metres before subtracting projectile radius; point is world metres and normal an outward world unit vector.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Collider nearest callbacks produce this reading; projectileFirstContact uses its distance for the sweep and may return point/normal references in the final hit.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The callback's physical model owns correctness and finite readings; a segment entering the solid has negative distance, while a capsule radius is accounted for separately.
+   */
+  export interface INearest {
+    /** Signed distance, metres; negative when the segment enters. */
+    distance: number;
+
+    /** The nearest point of the collider's surface, world metres. */
+    point: IAutoMovieVector3;
+
+    /** The collider's outward unit normal there. */
+    normal: IAutoMovieVector3;
+  }
 
   /**
-     * A named time-dependent nearest-surface query with optional departure certification.
+   * A named time-dependent nearest-surface query with optional departure certification.
+   *
+   * nearest receives world segment endpoints and seconds since the supplied flight's launch; ids must be unique in the searched collider list. projectileFirstContact invokes these synchronous callbacks repeatedly and propagates errors; returned hit vectors may borrow the callback's result, so preserve their contents. An absent or undefined departure certificate retains ordinary initial-overlap reporting. A certificate is checked by the shared contact resolver and cannot excuse other colliders or later reentry.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation A named time-dependent nearest-surface query with optional departure certification.
+   * @evidence contracts/development/design.md#principled-representation nearest receives world segment endpoints and seconds since the supplied flight's launch; ids must be unique in the searched collider list.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface projectileFirstContact invokes these synchronous callbacks repeatedly and propagates errors; returned hit vectors may borrow the callback's result, so preserve their contents.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An absent or undefined departure certificate retains ordinary initial-overlap reporting. A certificate is checked by the shared contact resolver and cannot excuse other colliders or later reentry.
+   */
+  export interface ICollider {
+    /** Unique id among the colliders. */
+    id: string;
+
+    /** Optional synchronous certificate for an explicitly resolved initial contact, on the supplied flight clock. Return undefined when the model cannot prove departure; shared resolver validation may throw. No callback is retained after the search.
      *
-     * nearest receives world segment endpoints and seconds since the supplied flight's launch; ids must be unique in the searched collider list. projectileFirstContact invokes these synchronous callbacks repeatedly and propagates errors; returned hit vectors may borrow the callback's result, so preserve their contents. An absent or undefined departure certificate retains ordinary initial-overlap reporting. A certificate is checked by the shared contact resolver and cannot excuse other colliders or later reentry.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation A named time-dependent nearest-surface query with optional departure certification.
-     * @evidence contracts/development/design.md#principled-representation nearest receives world segment endpoints and seconds since the supplied flight's launch; ids must be unique in the searched collider list.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface projectileFirstContact invokes these synchronous callbacks repeatedly and propagates errors; returned hit vectors may borrow the callback's result, so preserve their contents.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts An absent or undefined departure certificate retains ordinary initial-overlap reporting. A certificate is checked by the shared contact resolver and cannot excuse other colliders or later reentry.
+     * @evidence contracts/development/common.md#meaningful-documentation Specifies the departure callback or sampling contract, including its clock and ownership obligations.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
      */
-    export interface ICollider {
-      
-      /** Unique id among the colliders. */
-      id: string;
-  
-      /** Optional synchronous certificate for an explicitly resolved initial contact, on the supplied flight clock. Return undefined when the model cannot prove departure; shared resolver validation may throw. No callback is retained after the search.
-       *
-       * @evidence contracts/development/common.md#meaningful-documentation Specifies the departure callback or sampling contract, including its clock and ownership obligations.
-       * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-       * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-       * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-       * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-       * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-       * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-       */
-      departure?(
-        projectile: IAutoMovieProjectile,
-        options: IAutoMovieProjectileFirstContact.IOptions,
-        contact: IAutoMovieResolveContactEvents.IInitialContact,
-      ): IAutoMovieResolveContactEvents.Departure | undefined;
-  
-      /** Synchronously measure the world centre segment from a to b at launch-relative seconds, using a point when endpoints coincide. Return signed separation in metres and a world surface point/outward unit normal. Errors propagate; hit vectors may borrow this result.
-       *
-       * @evidence contracts/development/common.md#meaningful-documentation Specifies the nearest callback or sampling contract, including its clock and ownership obligations.
-       * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-       * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-       * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-       * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-       * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-       * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-       */
-      nearest(
-        a: IAutoMovieVector3,
-        b: IAutoMovieVector3,
-        seconds: number,
-      ): IAutoMovieProjectileFirstContact.INearest;
-    }
+    departure?(
+      projectile: IAutoMovieProjectile,
+      options: IAutoMovieProjectileFirstContact.IOptions,
+      contact: IAutoMovieResolveContactEvents.IInitialContact,
+    ): IAutoMovieResolveContactEvents.Departure | undefined;
+
+    /** Synchronously measure the world centre segment from a to b at launch-relative seconds, using a point when endpoints coincide. Return signed separation in metres and a world surface point/outward unit normal. Errors propagate; hit vectors may borrow this result.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Specifies the nearest callback or sampling contract, including its clock and ownership obligations.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
+     */
+    nearest(
+      a: IAutoMovieVector3,
+      b: IAutoMovieVector3,
+      seconds: number,
+    ): IAutoMovieProjectileFirstContact.INearest;
+  }
 
   /**
-     * Projectile extent and spatial resolution policy for a finite contact sweep.
-     *
-     * radius is finite nonnegative metres, thickness finite positive metres and optional tail a body-local offset in metres requiring projectile attitude. projectileFirstContact derives the time step from projectile translation and rotation bounds; departing identifies an already-resolved initial collider for its departure model. Admission rejects invalid radius/thickness or a tail without attitude. Colliders thinner than thickness and opaque unbounded collider motion are not guaranteed detectable by this finite sweep.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Projectile extent and spatial resolution policy for a finite contact sweep.
-     * @evidence contracts/development/design.md#principled-representation radius is finite nonnegative metres, thickness finite positive metres and optional tail a body-local offset in metres requiring projectile attitude.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface projectileFirstContact derives the time step from projectile translation and rotation bounds; departing identifies an already-resolved initial collider for its departure model.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Admission rejects invalid radius/thickness or a tail without attitude. Colliders thinner than thickness and opaque unbounded collider motion are not guaranteed detectable by this finite sweep.
+   * Projectile extent and spatial resolution policy for a finite contact sweep.
+   *
+   * radius is finite nonnegative metres, thickness finite positive metres and optional tail a body-local offset in metres requiring projectile attitude. projectileFirstContact derives the time step from projectile translation and rotation bounds; departing identifies an already-resolved initial collider for its departure model. Admission rejects invalid radius/thickness or a tail without attitude. Colliders thinner than thickness and opaque unbounded collider motion are not guaranteed detectable by this finite sweep.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Projectile extent and spatial resolution policy for a finite contact sweep.
+   * @evidence contracts/development/design.md#principled-representation radius is finite nonnegative metres, thickness finite positive metres and optional tail a body-local offset in metres requiring projectile attitude.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface projectileFirstContact derives the time step from projectile translation and rotation bounds; departing identifies an already-resolved initial collider for its departure model.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Admission rejects invalid radius/thickness or a tail without attitude. Colliders thinner than thickness and opaque unbounded collider motion are not guaranteed detectable by this finite sweep.
+   */
+  export interface IOptions {
+    /**
+     * Collider whose initial contact was already resolved by a continuation.
+     * Only a physical departure certificate may defer this pair; absent or
+     * unknown, initial overlap/touch is still reported. Other colliders and
+     * this collider's later entry remain in the same sweep.
      */
-    export interface IOptions {
-      
-      /**
-                   * Collider whose initial contact was already resolved by a continuation.
-                   * Only a physical departure certificate may defer this pair; absent or
-                   * unknown, initial overlap/touch is still reported. Other colliders and
-                   * this collider's later entry remain in the same sweep.
-                   */
-      departing?: string;
-      
-      /** The projectile's radius, metres; 0 for a point. */
-      radius: number;
-  
-      /** A capsule's other end in the body's own frame from the flight's point, metres; a sphere when absent. Needs an attitude. */
-      tail?: IAutoMovieVector3;
-  
-      /** The thinnest collider the search must not step over, metres; positive. */
-      thickness: number;
-    }
+    departing?: string;
+
+    /** The projectile's radius, metres; 0 for a point. */
+    radius: number;
+
+    /** A capsule's other end in the body's own frame from the flight's point, metres; a sphere when absent. Needs an attitude. */
+    tail?: IAutoMovieVector3;
+
+    /** The thinnest collider the search must not step over, metres; positive. */
+    thickness: number;
+  }
 
   /**
    * Forward search interval on the supplied flight's launch-relative clock.
@@ -114,11 +111,11 @@ export namespace IAutoMovieProjectileFirstContact {
    * @evidence contracts/development/design.md#minimal-and-owned-surface The search samples the complete interval through the shared contact resolver and returns the first detected hit or null.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Invalid or zero-length intervals throw. Step sizing follows the declared projectile extent and thickness, so a null result is limited by that sweep resolution.
    */
-  export type ISpan = { 
-  
-  /** Finite first second relative to this flight's launch. */
-  from: number; 
-  
-  /** Finite last second relative to launch, strictly greater than from. */
-  to: number };
+  export type ISpan = {
+    /** Finite first second relative to this flight's launch. */
+    from: number;
+
+    /** Finite last second relative to launch, strictly greater than from. */
+    to: number;
+  };
 }

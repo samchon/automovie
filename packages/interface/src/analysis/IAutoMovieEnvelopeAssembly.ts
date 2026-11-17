@@ -1,5 +1,5 @@
-import type { IAutoMovieEnvelopeLayer } from "./IAutoMovieEnvelopeLayer";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieEnvelopeLayer } from "./IAutoMovieEnvelopeLayer";
 
 /**
  * One envelope build-up between the indoor air and the outdoor air.

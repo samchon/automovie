@@ -1,4 +1,12 @@
-import type { IAutoMovieSolidAtlas, IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieLoftContract, IAutoMovieSolidIntersection, IAutoMovieSolidJoin, IAutoMovieSolidRail } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieLoftContract,
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidRail,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieSolidBlend } from "./AutoMovieSolidBlend";
 import { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
@@ -35,7 +43,6 @@ const {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidJoin {
-
   /** Shares of each column read by the fold check. */
   export const FOLD_SHARES: number = 8;
 
@@ -70,7 +77,10 @@ export namespace AutoMovieSolidJoin {
     );
 
     /** Append this failed premise without claiming rollback of any caller-owned body. */
-    const fail: (contract: string, detail: string) => IAutoMovieSolidJoin.IResult = (
+    const fail: (
+      contract: string,
+      detail: string,
+    ) => IAutoMovieSolidJoin.IResult = (
       contract: string,
       detail: string,
     ): IAutoMovieSolidJoin.IResult => {
@@ -141,7 +151,10 @@ export namespace AutoMovieSolidJoin {
       const read: IAutoMovieSolidRail.IExplanation | null = explain(t);
       if (read === null) return "the curve has no point there";
       const numbers: string = Object.entries(read.quantities)
-        .map(([key, value]: [string, number]): string => `${key} ${Number(value.toPrecision(6))}`)
+        .map(
+          ([key, value]: [string, number]): string =>
+            `${key} ${Number(value.toPrecision(6))}`,
+        )
         .join(", ");
       return read.refusal === null
         ? `the rails solved but their ribbons did not (${numbers})`
@@ -149,7 +162,9 @@ export namespace AutoMovieSolidJoin {
     };
 
     /** Rebuild both surface ribbons at the cached rail; columns themselves are not cached. */
-    const column: IAutoMovieSolidJoin.IJoin["column"] = (t: number): IAutoMovieSolidJoin.IColumn | null => {
+    const column: IAutoMovieSolidJoin.IJoin["column"] = (
+      t: number,
+    ): IAutoMovieSolidJoin.IColumn | null => {
       const r: IAutoMovieSolidRail.IRail | null = rail(t);
       return r === null
         ? null
@@ -157,7 +172,9 @@ export namespace AutoMovieSolidJoin {
     };
 
     /** Read the host rail loop at uniform curve parameters from the seed. */
-    const loop: IAutoMovieSolidJoin.IJoin["loop"] = (count: number): [number, number][] | null => {
+    const loop: IAutoMovieSolidJoin.IJoin["loop"] = (
+      count: number,
+    ): [number, number][] | null => {
       const out: [number, number][] = [];
       for (let i: number = 0; i < count; i++) {
         const r: IAutoMovieSolidRail.IRail | null = rail(
@@ -192,12 +209,15 @@ export namespace AutoMovieSolidJoin {
     // The host's rail loop must stay simple in the chart (read where it
     // lies on one face; across faces each piece is clipped into its face).
     const single: boolean = columns.every(
-      (c: IAutoMovieSolidJoin.IColumn): boolean => c.rail.hostFace === columns[0]!.rail.hostFace,
+      (c: IAutoMovieSolidJoin.IColumn): boolean =>
+        c.rail.hostFace === columns[0]!.rail.hostFace,
     );
     const crossing: string | null = !single
       ? null
       : crossed(
-          columns.map((c: IAutoMovieSolidJoin.IColumn): [number, number] => c.rail.host),
+          columns.map(
+            (c: IAutoMovieSolidJoin.IColumn): [number, number] => c.rail.host,
+          ),
           curve.winding === 0,
         );
     if (crossing !== null)
@@ -209,8 +229,12 @@ export namespace AutoMovieSolidJoin {
     // The blend's normal must not reverse along a column.
     const step: number = period / (16 * curve.points.length);
     for (const c of columns) {
-      const before: IAutoMovieSolidJoin.IColumn | null = column(c.rail.curve.t - step);
-      const after: IAutoMovieSolidJoin.IColumn | null = column(c.rail.curve.t + step);
+      const before: IAutoMovieSolidJoin.IColumn | null = column(
+        c.rail.curve.t - step,
+      );
+      const after: IAutoMovieSolidJoin.IColumn | null = column(
+        c.rail.curve.t + step,
+      );
       if (before === null || after === null)
         return fail("rails", `no rail beside t ${c.rail.curve.t}`);
       let previous: AutoMovieVector3Tuple | null = null;
@@ -241,7 +265,16 @@ export namespace AutoMovieSolidJoin {
       part: typeof input.width.part === "function" ? input.width.part(t) : null,
     });
     return {
-      join: { curve, keep, continuity: "G2", rail, explain, column, loop, widths },
+      join: {
+        curve,
+        keep,
+        continuity: "G2",
+        rail,
+        explain,
+        column,
+        loop,
+        widths,
+      },
       diagnostics,
     };
   }

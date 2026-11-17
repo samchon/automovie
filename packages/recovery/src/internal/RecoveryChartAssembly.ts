@@ -1,11 +1,12 @@
-import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieRecoveryChartAssembly, IAutoMovieRecoveryChartLeafAssembly } from "@automovie/interface";
-
 import { AutoMovieBernstein64 as S } from "@automovie/engine";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieRecoveryChartAssembly,
+  IAutoMovieRecoveryChartLeafAssembly,
+} from "@automovie/interface";
 
 import { RecoveryChartLeafAssembly } from "./RecoveryChartLeafAssembly";
-
 
 /**
  * Assemble fitted chart fields using one canonical boundary coefficient registry.
@@ -41,19 +42,25 @@ export function RecoveryChartAssembly(
           chart: (typeof charts)[number],
         ): Parameters<IAutoMovieRecoveryChartLeafAssembly.Operation>[0][number] => ({
           ...chart,
-          leafLayout: chart.leafLayout! }),
+          leafLayout: chart.leafLayout!,
+        }),
       ),
     );
   const controlsMm: Readonly<AutoMovieVector3Tuple>[] = [],
     patches: { id: string; controlIds: number[] }[] = [],
     diagnostics: string[] = [];
   const ids: Map<string, number> = new Map(),
-    spans: Map<string, { net: IAutoMovieCurve64.Span; uses: number; boundary: string }> =
-      new Map(),
+    spans: Map<
+      string,
+      { net: IAutoMovieCurve64.Span; uses: number; boundary: string }
+    > = new Map(),
     boundaryUses: Map<string, number> = new Map(),
     endpoints: Map<string, Readonly<AutoMovieVector3Tuple>> = new Map();
   let maximumCanonicalRestrictionDifferenceMm: number = 0;
-  const install: (key: string, point: Readonly<AutoMovieVector3Tuple>) => number = (
+  const install: (
+    key: string,
+    point: Readonly<AutoMovieVector3Tuple>,
+  ) => number = (
     key: string,
     point: Readonly<AutoMovieVector3Tuple>,
   ): number => {
@@ -104,7 +111,8 @@ export function RecoveryChartAssembly(
         parameter: number,
       ): Readonly<AutoMovieVector3Tuple> => {
         const key: string = `${binding.id}.at.${parameter}`,
-          previous: Readonly<AutoMovieVector3Tuple> | undefined = endpoints.get(key);
+          previous: Readonly<AutoMovieVector3Tuple> | undefined =
+            endpoints.get(key);
         if (previous) return previous;
         const knot: number = binding.canonicalKnots.indexOf(parameter),
           which: number =
@@ -113,7 +121,8 @@ export function RecoveryChartAssembly(
               : binding.canonicalKnots.findIndex(
                   (end: number, i: number): boolean => i > 0 && parameter < end,
                 ) - 1;
-        const original: IAutoMovieCurve64.Span = binding.canonicalCurve.spans[which]!,
+        const original: IAutoMovieCurve64.Span =
+            binding.canonicalCurve.spans[which]!,
           localParameter: number =
             (parameter - binding.canonicalKnots[which]!) /
             (binding.canonicalKnots[which + 1]! -
@@ -124,11 +133,11 @@ export function RecoveryChartAssembly(
               ? original[3]
               : original[0]
             : S.split(
-                original.map((p: Readonly<AutoMovieVector3Tuple>): [number, number, number] => [
-                  p[0],
-                  p[1],
-                  p[2],
-                ]),
+                original.map(
+                  (
+                    p: Readonly<AutoMovieVector3Tuple>,
+                  ): [number, number, number] => [p[0], p[1], p[2]],
+                ),
                 localParameter,
               )[0][3]!;
         endpoints.set(key, point);
@@ -143,8 +152,9 @@ export function RecoveryChartAssembly(
             knots[binding.reversed ? interval : interval + 1]!,
           ),
           key: string = `${binding.id}:${a}:${b}`;
-        let span: { net: IAutoMovieCurve64.Span; uses: number; boundary: string } | undefined =
-          spans.get(key);
+        let span:
+          | { net: IAutoMovieCurve64.Span; uses: number; boundary: string }
+          | undefined = spans.get(key);
         if (!span) {
           const which: number =
             a === 1
@@ -160,16 +170,19 @@ export function RecoveryChartAssembly(
             );
           const raw: IAutoMovieCurve64.Span = S.restrict(
             binding.canonicalCurve.spans[which]!.map(
-              (point: Readonly<AutoMovieVector3Tuple>): [number, number, number] => [
-                point[0],
-                point[1],
-                point[2],
-              ],
+              (
+                point: Readonly<AutoMovieVector3Tuple>,
+              ): [number, number, number] => [point[0], point[1], point[2]],
             ),
             (a - start) / (end - start),
             (b - start) / (end - start),
           ) as unknown as IAutoMovieCurve64.Span;
-          const net: IAutoMovieCurve64.Span = [endpoint(a), raw[1], raw[2], endpoint(b)];
+          const net: IAutoMovieCurve64.Span = [
+            endpoint(a),
+            raw[1],
+            raw[2],
+            endpoint(b),
+          ];
           span = { net, uses: 0, boundary: binding.id };
           spans.set(key, span);
         }
@@ -216,7 +229,8 @@ export function RecoveryChartAssembly(
               chart.controlsMm[id]!,
             );
           return local[id]!;
-        }) });
+        }),
+      });
   }
   const sharedBoundarySpans: number = [...spans.values()].filter(
       (span: { uses: number }): boolean => span.uses > 1,
@@ -239,5 +253,6 @@ export function RecoveryChartAssembly(
     diagnostics,
     maximumCanonicalRestrictionDifferenceMm,
     sharedBoundarySpans,
-    unmatchedBoundarySpans };
+    unmatchedBoundarySpans,
+  };
 }

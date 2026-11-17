@@ -1,6 +1,18 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieMotionHumanVerdicts, IAutoMovieMotionHumanWalkParams, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HumanChain, HumanPerformance, HumanSignature, HumanVerdicts } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieMotionHumanVerdicts,
+  IAutoMovieMotionHumanWalkParams,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanSignature,
+  HumanVerdicts,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -55,7 +67,9 @@ export function motionWalkFacing(
   const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const complaints: string[] = [];
   const at = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
-  const perform = (params: IAutoMovieMotionHumanWalkParams): IAutoMovieMotionHumanPerformance =>
+  const perform = (
+    params: IAutoMovieMotionHumanWalkParams,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "facing",
       performers: [
@@ -132,7 +146,8 @@ export function motionWalkFacing(
       body,
       0,
     );
-    const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[0]!;
+    const segment: IAutoMovieMotionHumanSegment.ISegment =
+      performance.segments("a")[0]!;
     durations[one.label] = segment.end - segment.entryTime;
 
     // 1. It arrives.
@@ -195,9 +210,9 @@ export function motionWalkFacing(
   // 5. Backward against forward.
   if (which === "back")
     try {
-      const forward: IAutoMovieMotionHumanSegment.ISegment = perform({ to: at(0, 2) }).segments(
-        "a",
-      )[0]!;
+      const forward: IAutoMovieMotionHumanSegment.ISegment = perform({
+        to: at(0, 2),
+      }).segments("a")[0]!;
       const ratio: number =
         (durations["the backpedal"] ?? NaN) / (forward.end - forward.entryTime);
       if (!(ratio >= 1.1 && ratio <= 1.4))

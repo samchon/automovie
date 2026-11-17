@@ -1,6 +1,8 @@
-import type { IAutoMoviePrimitiveShape, IAutoMovieTessellation } from "@automovie/interface";
 import { tessellate } from "@automovie/engine";
-
+import type {
+  IAutoMoviePrimitiveShape,
+  IAutoMovieTessellation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";

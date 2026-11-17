@@ -1,10 +1,19 @@
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGestureStroke, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanTargetGrid, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGestureStroke,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanTargetGrid,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFrame } from "../../posture/HumanFrame";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";

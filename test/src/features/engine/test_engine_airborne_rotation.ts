@@ -1,7 +1,24 @@
-import type { IAutoMovieIntegrateAirborneRotation, IAutoMovieMotionHumanBody, IAutoMovieResolveCenterOfMass, IAutoMovieResolveMomentum, IAutoMovieResolvedBone, IAutoMovieSolveAirborneTakeoff, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-import { Quaternion, Vector3, integrateAirborneRotation, resolveAutoMovieCenterOfMass, resolveAutoMovieMomentum, resolvePose, solveAirborneTakeoff } from "@automovie/engine";
-
-
+import {
+  Quaternion,
+  Vector3,
+  integrateAirborneRotation,
+  resolveAutoMovieCenterOfMass,
+  resolveAutoMovieMomentum,
+  resolvePose,
+  solveAirborneTakeoff,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolveMomentum,
+  IAutoMovieResolvedBone,
+  IAutoMovieSolveAirborneTakeoff,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -91,7 +108,10 @@ export function test_engine_airborne_rotation(): void {
         ],
       ),
     );
-  const posed = (body: IAutoMovieMotionHumanBody, joints: IAutoMovieJointPose[]): Bones =>
+  const posed = (
+    body: IAutoMovieMotionHumanBody,
+    joints: IAutoMovieJointPose[],
+  ): Bones =>
     new Map(
       resolvePose(
         { skeleton: body.skeleton.id, root: null, joints },
@@ -226,15 +246,14 @@ export function test_engine_airborne_rotation(): void {
     );
     const L: number = 40;
     const rate: number = L / principal.moments[key];
-    const flight: IAutoMovieIntegrateAirborneRotation.IFlight = integrateAirborneRotation(
-      {
+    const flight: IAutoMovieIntegrateAirborneRotation.IFlight =
+      integrateAirborneRotation({
         history: restHistory,
         t0: 0,
         t1: 1,
         q0: STILL,
         momentum: Vector3.scale(axis, L),
-      },
-    );
+      });
     for (let k: number = 0; k <= 20; k++) {
       const t: number = k / 20;
       const expected: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
@@ -260,22 +279,23 @@ export function test_engine_airborne_rotation(): void {
     const u: number = Math.max(0, Math.min(1, (t - 0.4) / 0.2));
     return 0.6 + (0.25 - 0.6) * (10 * u ** 3 - 15 * u ** 4 + 6 * u ** 5);
   };
-  const tuck: IAutoMovieIntegrateAirborneRotation.IFlight = integrateAirborneRotation({
-    history: integrateAirborneRotation.history(
-      core,
-      (t: number): Bones =>
-        placed({
-          hips: ORIGIN,
-          head: { x: 0, y: reach(t), z: 0 },
-          leftFoot: { x: 0, y: -reach(t), z: 0 },
-        }),
-    ),
-    t0: 0,
-    t1: 1,
-    q0: STILL,
-    momentum: { x: 20, y: 0, z: 0 },
-    h: 1 / 120,
-  });
+  const tuck: IAutoMovieIntegrateAirborneRotation.IFlight =
+    integrateAirborneRotation({
+      history: integrateAirborneRotation.history(
+        core,
+        (t: number): Bones =>
+          placed({
+            hips: ORIGIN,
+            head: { x: 0, y: reach(t), z: 0 },
+            leftFoot: { x: 0, y: -reach(t), z: 0 },
+          }),
+      ),
+      t0: 0,
+      t1: 1,
+      q0: STILL,
+      momentum: { x: 20, y: 0, z: 0 },
+      h: 1 / 120,
+    });
   const iLayout: number = 1.2 + 2 * (0.02 + ends * 0.6 * 0.6);
   const iTuck: number = 1.2 + 2 * (0.02 + ends * 0.25 * 0.25);
   const before: number = Vector3.length(rateAt(tuck, 0.2, 0.01));
@@ -315,13 +335,14 @@ export function test_engine_airborne_rotation(): void {
       },
     ]);
   const L3: IAutoMovieVector3 = { x: 35, y: 6, z: -4 };
-  const moving: IAutoMovieIntegrateAirborneRotation.IFlight = integrateAirborneRotation({
-    history: integrateAirborneRotation.history(model, swinging),
-    t0: 0,
-    t1: 1,
-    q0: STILL,
-    momentum: L3,
-  });
+  const moving: IAutoMovieIntegrateAirborneRotation.IFlight =
+    integrateAirborneRotation({
+      history: integrateAirborneRotation.history(model, swinging),
+      t0: 0,
+      t1: 1,
+      q0: STILL,
+      momentum: L3,
+    });
   for (let k: number = 1; k <= 20; k++) {
     const t: number = k / 21;
     const d: number = 1e-3;
@@ -351,8 +372,8 @@ export function test_engine_airborne_rotation(): void {
   );
   const lambda: number = w * Math.sqrt(((2 - 1) * (3 - 2)) / (1 * 3));
   const bound: number = (2 * Math.log(4 / epsilon)) / lambda;
-  const spinning: IAutoMovieIntegrateAirborneRotation.IFlight = integrateAirborneRotation(
-    {
+  const spinning: IAutoMovieIntegrateAirborneRotation.IFlight =
+    integrateAirborneRotation({
       history: integrateAirborneRotation.history(
         top,
         (): Bones => placed({ hips: ORIGIN }),
@@ -362,8 +383,7 @@ export function test_engine_airborne_rotation(): void {
       q0: STILL,
       momentum: L4,
       h: 1 / 240,
-    },
-  );
+    });
   let flipped: number | null = null;
   let returned: boolean = false;
   let drift: number = 0;
@@ -411,7 +431,9 @@ export function test_engine_airborne_rotation(): void {
       const up: number = 60 * (10 * u ** 3 - 15 * u ** 4 + 6 * u ** 5);
       return side === "left" ? layout(up, 0) : layout(0, up);
     };
-  const attitude = (side: "left" | "right"): IAutoMovieSolveAirborneTakeoff.IAngles =>
+  const attitude = (
+    side: "left" | "right",
+  ): IAutoMovieSolveAirborneTakeoff.IAngles =>
     solveAirborneTakeoff.unwrapped(
       integrateAirborneRotation({
         history: integrateAirborneRotation.history(model, raising(side)),
@@ -445,14 +467,15 @@ export function test_engine_airborne_rotation(): void {
   const layoutHistory: IAutoMovieIntegrateAirborneRotation.IHistory =
     integrateAirborneRotation.history(model, (): Bones => layoutShape);
   for (const twist of [0, 1, 2]) {
-    const solved: IAutoMovieSolveAirborneTakeoff.ISolution = solveAirborneTakeoff({
-      history: layoutHistory,
-      t0: 0,
-      t1: 1,
-      q0: STILL,
-      somersault: 1,
-      twist,
-    });
+    const solved: IAutoMovieSolveAirborneTakeoff.ISolution =
+      solveAirborneTakeoff({
+        history: layoutHistory,
+        t0: 0,
+        t1: 1,
+        q0: STILL,
+        somersault: 1,
+        twist,
+      });
     if (twist === 0) plain = Vector3.length(solved.momentum);
     const worst: number = Math.max(
       Math.abs(solved.residual.somersault),
@@ -497,14 +520,16 @@ export function test_engine_airborne_rotation(): void {
   for (let k: number = 0; k < 20000; k++)
     inverse += 0.66 / 20000 / iOf((0.66 * (k + 0.5)) / 20000);
   const planar: number = (2 * Math.PI) / inverse;
-  const tucked: IAutoMovieSolveAirborneTakeoff.ISolution = solveAirborneTakeoff({
-    history: integrateAirborneRotation.history(core, folded),
-    t0: 0,
-    t1: 0.66,
-    q0: STILL,
-    somersault: 1,
-    twist: 0,
-  });
+  const tucked: IAutoMovieSolveAirborneTakeoff.ISolution = solveAirborneTakeoff(
+    {
+      history: integrateAirborneRotation.history(core, folded),
+      t0: 0,
+      t1: 0.66,
+      q0: STILL,
+      somersault: 1,
+      twist: 0,
+    },
+  );
   // The somersault angle is `L ∫ dt / I`, linear in L, so a residual within
   // the solver's tolerance bounds L's relative error by that many turns.
   const within: number = solveAirborneTakeoff.TOLERANCE / (2 * Math.PI);

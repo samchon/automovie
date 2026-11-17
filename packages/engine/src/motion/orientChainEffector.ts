@@ -1,5 +1,13 @@
-import type { IAutoMovieResolvedBone, IAutoMovieFitChainToTargetProps, IAutoMovieResolvedJointAngles, AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieFitChainToTargetProps,
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieResolvedJointAngles,
+} from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
@@ -79,8 +87,11 @@ export function orientChainEffector(
   const effectorAxes: IAutoMovieJointAxes | undefined =
     axes[props.chain.effector];
   const frame = props.restFrames?.[props.chain.effector];
-  const angles: IAutoMovieResolvedJointAngles =
-    decomposeJointRotation(local, effectorAxes, frame);
+  const angles: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+    local,
+    effectorAxes,
+    frame,
+  );
   const raw: IAutoMovieJointPose = {
     bone: props.chain.effector,
     flexion: angles.flexion,

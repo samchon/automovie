@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanWorkoutKind } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanWorkoutKind,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -56,7 +61,9 @@ export namespace WorkoutFeet {
     const planted: readonly ("left" | "right")[] =
       kind.strides === true ? [] : bearing("plant");
     const pivots: readonly ("left" | "right")[] = bearing("pivot");
-    return (placed: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => {
+    return (
+      placed: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanPosture => {
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...placed.limbs };
       for (const side of [...planted, ...pivots]) {
         const stance: IAutoMovieMotionHumanFoot.IPlacement = {

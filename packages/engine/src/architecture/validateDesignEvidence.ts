@@ -1,5 +1,9 @@
-import { type IAutoMovieValidateDesignEvidence, type IAutoMovieViolationCollector, IAutoMovieDesignEvidence, IAutoMovieValidation } from "@automovie/interface";
-
+import {
+  IAutoMovieDesignEvidence,
+  type IAutoMovieValidateDesignEvidence,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 
@@ -26,7 +30,11 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A validation of one citation list per call that coordinates no shared work across requests.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local document entries are bounded by reference records, their sets by reference candidate entries, and seen keys by cited entries. They are released on return; the caller owns findings.
  */
-export const validateDesignEvidence: (props: IAutoMovieValidateDesignEvidence.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateDesignEvidence.IProps): IAutoMovieValidation => {
+export const validateDesignEvidence: (
+  props: IAutoMovieValidateDesignEvidence.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateDesignEvidence.IProps,
+): IAutoMovieValidation => {
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
   const byDocument: Map<string, Set<string>> = new Map();

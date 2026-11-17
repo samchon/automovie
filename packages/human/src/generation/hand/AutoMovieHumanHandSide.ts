@@ -1,11 +1,9 @@
-import type { IAutoMovieLoftFrame, AutoMovieVector3Tuple } from "@automovie/interface";
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieLoftFrame,
+} from "@automovie/interface";
 
 import { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
-
 
 /**
  * The right side as the left's reflection: a ring with its phase reversed, so
@@ -14,7 +12,10 @@ import { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
  */
 export namespace AutoMovieHumanHandSide {
   /** Read a world point's mirror on a side. */
-  export function sided(p: Readonly<AutoMovieVector3Tuple>, sign: 1 | -1): AutoMovieVector3Tuple {
+  export function sided(
+    p: Readonly<AutoMovieVector3Tuple>,
+    sign: 1 | -1,
+  ): AutoMovieVector3Tuple {
     return [p[0], p[1], sign * p[2]];
   }
 
@@ -30,9 +31,15 @@ export namespace AutoMovieHumanHandSide {
    * A ring of one side from the left frame's: mirrored, its phase reversed so
    * the right side's point at phase t is the mirror of the left's at -t.
    */
-  export function reflect(ring: readonly AutoMovieVector3Tuple[], sign: 1 | -1): AutoMovieVector3Tuple[] {
+  export function reflect(
+    ring: readonly AutoMovieVector3Tuple[],
+    sign: 1 | -1,
+  ): AutoMovieVector3Tuple[] {
     if (sign === 1) return [...ring];
     const n: number = ring.length;
-    return ring.map((_: AutoMovieVector3Tuple, m: number): AutoMovieVector3Tuple => sided(ring[(n - m) % n]!, -1));
+    return ring.map(
+      (_: AutoMovieVector3Tuple, m: number): AutoMovieVector3Tuple =>
+        sided(ring[(n - m) % n]!, -1),
+    );
   }
 }

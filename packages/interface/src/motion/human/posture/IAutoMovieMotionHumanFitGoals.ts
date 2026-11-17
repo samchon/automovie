@@ -1,5 +1,5 @@
-import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 
 /**
  * Included angles and a centre-of-mass position in the whole-body fit.

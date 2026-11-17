@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionTarget, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, physicalShapeBounds } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionTarget,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { createHumanBody } from "../../body/createHumanBody";
@@ -69,7 +75,11 @@ export function reactionCases(
     ];
 
     for (const [label, at] of threats) {
-      const from: IAutoMovieMotionTarget = { kind: "point", at, frame: "world" };
+      const from: IAutoMovieMotionTarget = {
+        kind: "point",
+        at,
+        frame: "world",
+      };
       const performance: IAutoMovieMotionHumanPerformance = perform(
         body,
         HumanChain.subject("a").flinch({ from }),
@@ -263,7 +273,10 @@ function planted(
 }
 
 /** A performance of one polygon man standing at the origin heading +Z. */
-function perform(body: IAutoMovieMotionHumanBody, chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance {
+function perform(
+  body: IAutoMovieMotionHumanBody,
+  chain: IAutoMovieMotionHumanChain,
+): IAutoMovieMotionHumanPerformance {
   return new HumanPerformance({
     seed: "reaction",
     performers: [
@@ -292,7 +305,10 @@ function figure(
 }
 
 /** The film second of an event of the first action. */
-function event(performance: IAutoMovieMotionHumanPerformance, name: string): number {
+function event(
+  performance: IAutoMovieMotionHumanPerformance,
+  name: string,
+): number {
   const segment = performance.segments("a")[0]!;
   return (
     segment.start +

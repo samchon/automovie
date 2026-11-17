@@ -1,6 +1,15 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingReach, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingReach,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -331,7 +340,8 @@ export namespace KickChain {
     base: IAutoMovieMotionHumanPosture,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): number {
-    const goal: IAutoMovieMotionHumanPosture.IGoal | undefined = base.limbs[`${support}Leg`];
+    const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
+      base.limbs[`${support}Leg`];
     if (goal === undefined || goal.rotation === undefined) return 0;
     const offset: IAutoMovieVector3 = HumanFoot.offset(body, support, "ball");
     const foot: IAutoMovieResolvedBone = bones.get(

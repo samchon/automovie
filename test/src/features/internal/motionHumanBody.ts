@@ -1,5 +1,8 @@
-import type { IAutoMovieHumanParameters, IAutoMovieMotionHumanBody } from "@automovie/interface";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
+import type {
+  IAutoMovieHumanParameters,
+  IAutoMovieMotionHumanBody,
+} from "@automovie/interface";
 import { createHumanBody } from "@automovie/motions";
 
 import PEOPLE from "./MOTION_HUMAN_PEOPLE.json";
@@ -23,7 +26,9 @@ import { motionHumanBodyCache } from "./motionHumanBodyCache";
  * @param name The person.
  * @returns The body.
  */
-export function motionHumanBody(name: motionHumanBody.Name): IAutoMovieMotionHumanBody {
+export function motionHumanBody(
+  name: motionHumanBody.Name,
+): IAutoMovieMotionHumanBody {
   const known: IAutoMovieMotionHumanBody | undefined = BODIES.get(name);
   if (known !== undefined) return known;
   const person: { mass: number; params: unknown } = PEOPLE[name];
@@ -38,7 +43,10 @@ export function motionHumanBody(name: motionHumanBody.Name): IAutoMovieMotionHum
         id: name,
       }),
   );
-  const body: IAutoMovieMotionHumanBody = createHumanBody(prepared.skeleton, prepared.profile);
+  const body: IAutoMovieMotionHumanBody = createHumanBody(
+    prepared.skeleton,
+    prepared.profile,
+  );
   BODIES.set(name, body);
   return body;
 }

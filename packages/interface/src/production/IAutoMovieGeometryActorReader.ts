@@ -1,9 +1,9 @@
-import type { IAutoMovieCompiledShotSource } from "./IAutoMovieCompiledShotSource";
-import type { IAutoMovieGeometrySelector } from "./IAutoMovieGeometrySelector";
-import type { IAutoMoviePose } from "../pose/IAutoMoviePose";
-import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMoviePose } from "../pose/IAutoMoviePose";
+import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
+import type { IAutoMovieCompiledShotSource } from "./IAutoMovieCompiledShotSource";
+import type { IAutoMovieGeometrySelector } from "./IAutoMovieGeometrySelector";
 import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
@@ -31,13 +31,25 @@ export type IAutoMovieGeometryActorReader = {
   ) => IAutoMovieVector3;
 
   /** Return a fresh wrapper borrowing the matching shot, node and resident model. An omitted shot searches every supplied shot; absent or multi-shot matches and missing node models throw. No sample time is read. */
-  find: (actor: string, shot?: string) => IAutoMovieGeometryActorReader.ICompiledActor;
+  find: (
+    actor: string,
+    shot?: string,
+  ) => IAutoMovieGeometryActorReader.ICompiledActor;
 
   /** Sample a known node in the supplied compiled shot at finite shot-local seconds in [0, duration]. The caller must first resolve the actor and provide its model's skeleton, or null for an unrigged model; unlike find, this entry does not validate node membership. Missing referenced motion throws. Returns a shallow sample with borrowed nested records. */
-  spatial: ((compiled: IAutoMovieCompiledShotSource, actor: string, time: number, skeleton: IAutoMovieSkeleton | null) => IAutoMovieGeometryActorReader.ISpatialSample);
+  spatial: (
+    compiled: IAutoMovieCompiledShotSource,
+    actor: string,
+    time: number,
+    skeleton: IAutoMovieSkeleton | null,
+  ) => IAutoMovieGeometryActorReader.ISpatialSample;
 
   /** Resolve the actor and model within this compiled shot, then return its world root point in metres at the supplied shot-local seconds. Node TRS transforms pose-root translation; the result can alias node translation when no pose root is present. */
-  position: ((compiled: IAutoMovieCompiledShotSource, actor: string, time: number) => IAutoMovieVector3);
+  position: (
+    compiled: IAutoMovieCompiledShotSource,
+    actor: string,
+    time: number,
+  ) => IAutoMovieVector3;
 
   /** Return a fresh scalar summary at finite shot-local seconds in [0, duration]: shot/actor IDs, held (selected performance or node motion is null), world-metre rootX/rootY/rootZ, and the sampled pose's jointCount. An omitted shot requires a unique actor across the map; missing motion throws. */
   pose: (
@@ -60,10 +72,10 @@ export namespace IAutoMovieGeometryActorReader {
   export interface ICompiledActor {
     /** Shot snapshot owning both the node and model. */
     compiled: IAutoMovieCompiledShotSource;
-  
+
     /** Borrowed scene node whose ID is the queried actor; supplies node TRS and authored pose/motion references. */
     node: IAutoMovieCompiledShotSource["scene"]["nodes"][number];
-  
+
     /** Borrowed resident model whose ID equals node.model; supplies the rig or a null skeleton for an unrigged actor. */
     model: IAutoMovieCompiledShotSource["models"][number];
   }
@@ -81,13 +93,13 @@ export namespace IAutoMovieGeometryActorReader {
   export interface ISpatialSample {
     /** Shallow copy of the sampled or held pose with root set to null, ready for model-frame FK. Joint records remain shared; no motion/pose yields an empty joint list and the supplied skeleton ID, or "unrigged". */
     pose: IAutoMoviePose;
-  
+
     /** World root point in metres: node TRS applied to pose-root translation, or nodeTransform.translation itself when poseRoot is null. Treat as borrowed because the latter case may alias source placement. */
     position: IAutoMovieVector3;
-  
+
     /** Node-local to world TRS, using sampled object channels at shot time where present and borrowing authored components otherwise; translation is in metres and scale is dimensionless. */
     nodeTransform: IAutoMovieTransform;
-  
+
     /** Borrowed sampled/held pose root, or null when no pose root is authored. Its model-space translation and rotation precede node placement; its scale is ignored by bone geometry queries. */
     poseRoot: IAutoMovieTransform | null;
   }

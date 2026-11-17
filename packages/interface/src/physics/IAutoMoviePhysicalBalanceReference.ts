@@ -14,7 +14,9 @@ export namespace IAutoMoviePhysicalBalanceReference {
   export type IInput = {
     /** Body whose authored targets bound the interval. */ body: IAutoMoviePhysicalSimulationInput.IBody;
     /** Current interval's authored end target. */ target: IAutoMoviePhysicalSimulationInput.ITarget;
-    /** The previous fitted plan, if any. */ previous: IAutoMoviePhysicalTargetInterval.IPlan | undefined;
+    /** The previous fitted plan, if any. */ previous:
+      | IAutoMoviePhysicalTargetInterval.IPlan
+      | undefined;
     /** Enclosing cache interval. */ step: number;
     /** Replan boundary, seconds on the native tick grid. */ start: number;
     /** Declared cache frequency, hertz. */ rate: number;
@@ -27,7 +29,8 @@ export namespace IAutoMoviePhysicalBalanceReference {
    * preceding native tick of the previous plan. Without a contiguous previous
    * plan there is no completed reference.
    */
-  export type IResult = | {
+  export type IResult =
+    | {
         /** Fitted placements already delivered at the boundary. */ completed: Record<
           string,
           IAutoMoviePhysicalProfile.ITransform

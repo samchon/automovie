@@ -1,4 +1,10 @@
-import type { IAutoMovieLoftSectionBoundary, IAutoMovieLoftSectionBoundaryControls, IAutoMovieLoftViewRead, IAutoMovieViewSectionField } from "@automovie/interface";
+import type {
+  IAutoMovieLoftSectionBoundary,
+  IAutoMovieLoftSectionBoundaryControls,
+  IAutoMovieLoftViewRead,
+  IAutoMovieViewSectionField,
+} from "@automovie/interface";
+
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 
 /** Actual or explicitly generated scalar value/physical-station derivatives. */
@@ -19,7 +25,6 @@ type Scalar = IAutoMovieViewSectionField.IStationJet;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The eight-scalar law refuses touch and split chains because their extra controls cannot be recovered from the four extents and four shoulders.
  */
 export namespace AutoMovieLoftSectionBoundary {
-
   /**
    * Define one changed span from actual effective native scalar endpoint2.
    *
@@ -31,7 +36,10 @@ export namespace AutoMovieLoftSectionBoundary {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The transformed endpoint rows serve all later station reads.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns copied endpoint/control arrays or a diagnostic and retains no caller object globally.
    */
-  export function create(first: IAutoMovieLoftSectionBoundary.IEnd, last: IAutoMovieLoftSectionBoundary.IEnd): IAutoMovieLoftSectionBoundary.IBridge | string {
+  export function create(
+    first: IAutoMovieLoftSectionBoundary.IEnd,
+    last: IAutoMovieLoftSectionBoundary.IEnd,
+  ): IAutoMovieLoftSectionBoundary.IBridge | string {
     if (chained(first?.inputs) || chained(last?.inputs)) return CHAIN;
     if (
       first === null ||
@@ -73,10 +81,16 @@ export namespace AutoMovieLoftSectionBoundary {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller prepares native geometry once from this result for all of that station's phases.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Every result owns fresh triples; this owner retains no queried station.
    */
-  export function read(bridge: IAutoMovieLoftSectionBoundary.IBridge, station: number): IAutoMovieLoftViewRead.IJets | string {
+  export function read(
+    bridge: IAutoMovieLoftSectionBoundary.IBridge,
+    station: number,
+  ): IAutoMovieLoftViewRead.IJets | string {
     const fault: string | null = admit(bridge, station);
     if (fault !== null) return fault;
-    const [a, b]: readonly [IAutoMovieLoftSectionBoundary.IEnd, IAutoMovieLoftSectionBoundary.IEnd] = bridge.ends;
+    const [a, b]: readonly [
+      IAutoMovieLoftSectionBoundary.IEnd,
+      IAutoMovieLoftSectionBoundary.IEnd,
+    ] = bridge.ends;
     if (station === a.station) return copy(a.inputs);
     if (station === b.station) return copy(b.inputs);
     const H: number = b.station - a.station;
@@ -119,7 +133,10 @@ export namespace AutoMovieLoftSectionBoundary {
   ): IAutoMovieLoftViewRead.IValues | string {
     const fault: string | null = admit(bridge, station);
     if (fault !== null) return fault;
-    const [a, b]: readonly [IAutoMovieLoftSectionBoundary.IEnd, IAutoMovieLoftSectionBoundary.IEnd] = bridge.ends;
+    const [a, b]: readonly [
+      IAutoMovieLoftSectionBoundary.IEnd,
+      IAutoMovieLoftSectionBoundary.IEnd,
+    ] = bridge.ends;
     const endpoint: IAutoMovieLoftViewRead.IJets | null =
       station === a.station
         ? a.inputs
@@ -163,7 +180,10 @@ export namespace AutoMovieLoftSectionBoundary {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This value transform owns no reusable station plan.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent tuples and retains no source or output.
    */
-  export function orient(inputs: IAutoMovieLoftViewRead.IJets, sign: 1 | -1): IAutoMovieLoftViewRead.IJets {
+  export function orient(
+    inputs: IAutoMovieLoftViewRead.IJets,
+    sign: 1 | -1,
+  ): IAutoMovieLoftViewRead.IJets {
     if (chained(inputs)) throw new Error(CHAIN);
     if (!valid(inputs) || (sign !== 1 && sign !== -1))
       throw new Error(
@@ -191,11 +211,15 @@ const CHAIN: string =
   "A touch-offset or split-quarter source is a G1 conic chain, phase C1 with sided second derivatives at its joins; it has no eight-scalar boundary law.";
 
 /** Inputs declaring touch offsets or splits belong to a chain. */
-function chained(inputs: IAutoMovieLoftViewRead.IJets | null | undefined): boolean {
+function chained(
+  inputs: IAutoMovieLoftViewRead.IJets | null | undefined,
+): boolean {
   return (
     inputs !== null &&
     inputs !== undefined &&
-    (inputs.touch !== undefined || inputs.splits !== undefined || inputs.pieces !== undefined)
+    (inputs.touch !== undefined ||
+      inputs.splits !== undefined ||
+      inputs.pieces !== undefined)
   );
 }
 
@@ -280,7 +304,10 @@ function control(value: IAutoMovieLoftSectionBoundaryControls): boolean {
 }
 
 /** Explicit value copies retain the same exact endpoint/control relation. */
-function matches(inputs: IAutoMovieLoftViewRead.IJets, controls: IAutoMovieLoftSectionBoundaryControls): boolean {
+function matches(
+  inputs: IAutoMovieLoftViewRead.IJets,
+  controls: IAutoMovieLoftSectionBoundaryControls,
+): boolean {
   const expected: IAutoMovieLoftSectionBoundaryControls = transform(inputs);
   return expected.value.every(
     (v: number, q: number): boolean =>
@@ -291,7 +318,9 @@ function matches(inputs: IAutoMovieLoftViewRead.IJets, controls: IAutoMovieLoftS
 }
 
 /** The original exact endpoint data is never replaced by inverse-transform rounding. */
-function copy(inputs: IAutoMovieLoftViewRead.IJets): IAutoMovieLoftViewRead.IJets {
+function copy(
+  inputs: IAutoMovieLoftViewRead.IJets,
+): IAutoMovieLoftViewRead.IJets {
   return {
     extents: inputs.extents.map((jet: Scalar): Scalar => [...jet]),
     shoulders: inputs.shoulders.map((jet: Scalar): Scalar => [...jet]),
@@ -299,7 +328,9 @@ function copy(inputs: IAutoMovieLoftViewRead.IJets): IAutoMovieLoftViewRead.IJet
 }
 
 /** Log and logit chain rules use actual physical endpoint derivatives. */
-function transform(inputs: IAutoMovieLoftViewRead.IJets): IAutoMovieLoftSectionBoundaryControls {
+function transform(
+  inputs: IAutoMovieLoftViewRead.IJets,
+): IAutoMovieLoftSectionBoundaryControls {
   const jets: Scalar[] = [...inputs.extents, ...inputs.shoulders].map(
     (jet: Scalar, q: number): Scalar => {
       const [v, first, second]: Scalar = jet;

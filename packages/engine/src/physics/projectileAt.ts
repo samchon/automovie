@@ -1,5 +1,9 @@
-import type { IAutoMovieProjectile, IAutoMovieProjectileState, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieProjectile,
+  IAutoMovieProjectileState,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { aimRotation } from "../kinematics/aimRotation";
 import { Quaternion } from "../math/Quaternion";

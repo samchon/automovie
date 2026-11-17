@@ -1,6 +1,17 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HumanChain, HumanFloorFall, HumanPerformance, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFloorFall,
+  HumanPerformance,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -70,7 +81,8 @@ export function test_human_motion_floor_fall(): void {
         );
         continue;
       }
-      const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+      const placed: IAutoMovieMotionHumanSegment.ISegment =
+        performance.segments("a")[1]!;
       const at = (event: string): number =>
         placed.start +
         (placed.plan.events.find((e): boolean => e.name === event)?.share ??

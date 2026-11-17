@@ -1,5 +1,5 @@
-import type { IAutoMovieAudioMixCue } from "@automovie/interface";
 import { decodeProductionAudioAsset } from "@automovie/ingest";
+import type { IAutoMovieAudioMixCue } from "@automovie/interface";
 import {
   encodeAutoMovieWavPcm16,
   mixAutoMovieAudioPcm,

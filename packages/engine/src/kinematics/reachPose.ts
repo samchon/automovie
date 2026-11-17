@@ -1,4 +1,17 @@
-import { type IAutoMovieHingedArticulation, type IAutoMovieResolvedBone, type IAutoMovieResolvedJointAngles, type IAutoMovieRestFrame, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  type IAutoMovieHingedArticulation,
+  IAutoMovieJointAxes,
+  IAutoMovieJointConstraint,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieResolvedJointAngles,
+  type IAutoMovieRestFrame,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { getConstraint } from "../rom/getConstraint";

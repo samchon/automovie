@@ -1,6 +1,14 @@
-import type { IAutoMovieSupportResult, IAutoMovieAffordance, IAutoMovieQuaternion, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-import { affordanceSupportContacts, detectSupportToppling } from "@automovie/engine";
-
+import {
+  affordanceSupportContacts,
+  detectSupportToppling,
+} from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieQuaternion,
+  IAutoMovieSupportResult,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {

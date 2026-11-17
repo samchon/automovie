@@ -29,7 +29,10 @@ export namespace IAutoMovieBicubicAtlasPlan64 {
     /** Euclidean norm of the supplied three components, preserving their units; no direction normalization or finite-value admission is implied. */
     norm: (p: AutoMovieVector3Tuple) => number;
     /** Three-dimensional cross product returning a new tuple. Output units are the product of operand units; this callback does not normalize the result. */
-    cross: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => AutoMovieVector3Tuple;
+    cross: (
+      a: AutoMovieVector3Tuple,
+      b: AutoMovieVector3Tuple,
+    ) => AutoMovieVector3Tuple;
     /** One adaptive plan per input patch in input order, sharing the admitted global cell budget. Empty or incomplete cells and diagnostics remain visible for omitted work. */
     plans: IAutoMovieBicubicAtlas64.Plan[];
   };

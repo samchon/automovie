@@ -1,8 +1,11 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanPosture } from "@automovie/interface";
-import type { AutoMovieMotionHumanChannel as AutoMovieMotionHumanChannelContract } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanChannel as AutoMovieMotionHumanChannelContract,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 import { HumanPosture } from "../posture/HumanPosture";
+
 /**
  * Channel ordering, bone ownership and posture merging for the canonical channel vocabulary.
  * ORDER is constrained by the interface union. The readers below use this order

@@ -1,6 +1,10 @@
-import type { IAutoMovieConstructionProfileSource, IAutoMovieSolidAtlas, IAutoMovieSolidSurface, IAutoMoviePreparedConstructionProfile, IAutoMovieConstructionProfile } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieConstructionProfile,
+  IAutoMovieConstructionProfileSource,
+  IAutoMoviePreparedConstructionProfile,
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieConstructionProfilePhase } from "./AutoMovieConstructionProfilePhase";
 import { AutoMovieConstructionProfileSurface } from "./AutoMovieConstructionProfileSurface";
@@ -42,7 +46,6 @@ interface Piece {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieConstructionProfile {
-
   /**
    * Prepare immutable original owners; malformed domains/references throw before publication.
    *

@@ -1,7 +1,9 @@
-import type { IAutoMovieTessellation, IAutoMovieSpace, IAutoMovieSurface } from "@automovie/interface";
-
 import { tessellateSurface } from "@automovie/engine";
-
+import type {
+  IAutoMovieSpace,
+  IAutoMovieSurface,
+  IAutoMovieTessellation,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import { SPACE_GROUP_NAME } from "./SPACE_GROUP_NAME.js";

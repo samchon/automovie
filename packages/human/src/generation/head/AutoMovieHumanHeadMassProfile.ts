@@ -1,7 +1,5 @@
-import type { IAutoMovieHumanHeadLayout } from "@automovie/interface";
-
 import { AutoMovieViewSection } from "@automovie/engine";
-
+import type { IAutoMovieHumanHeadLayout } from "@automovie/interface";
 
 /** Existing shape laws shared by original mass authoring and its public template readers, without constructing another source. */
 export namespace AutoMovieHumanHeadMassProfile {

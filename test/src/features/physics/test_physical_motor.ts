@@ -1,6 +1,9 @@
-import type { IAutoMoviePhysicalJointMotorCommand, IAutoMovieQuaternion, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { Quaternion, physicalJointMotorCommand } from "@automovie/engine";
-
+import type {
+  IAutoMoviePhysicalJointMotorCommand,
+  IAutoMovieQuaternion,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -54,10 +57,11 @@ export function test_physical_motor(): void {
   );
 
   // 350 degrees about z is -10 degrees on the short arc.
-  const around: IAutoMoviePhysicalJointMotorCommand.IOutput = physicalJointMotorCommand({
-    ...base,
-    target: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 350),
-  });
+  const around: IAutoMoviePhysicalJointMotorCommand.IOutput =
+    physicalJointMotorCommand({
+      ...base,
+      target: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 350),
+    });
   TestValidator.predicate(
     "short-arc error",
     nclose(around.error, (10 * Math.PI) / 180, 1e-12) &&
@@ -65,15 +69,14 @@ export function test_physical_motor(): void {
   );
 
   // A compound rotation of 0.4 rad about (1, 1, 0) / sqrt 2.
-  const compound: IAutoMoviePhysicalJointMotorCommand.IOutput = physicalJointMotorCommand(
-    {
+  const compound: IAutoMoviePhysicalJointMotorCommand.IOutput =
+    physicalJointMotorCommand({
       ...base,
       target: Quaternion.fromAxisAngle(
         { x: Math.SQRT1_2, y: Math.SQRT1_2, z: 0 },
         0.4 * (180 / Math.PI),
       ),
-    },
-  );
+    });
   const component: number = 0.4 * Math.SQRT1_2;
   TestValidator.predicate(
     "geodesic compound error",
@@ -90,11 +93,12 @@ export function test_physical_motor(): void {
   const withdrawn: IAutoMoviePhysicalJointMotorCommand.IOutput =
     physicalJointMotorCommand({ ...base, strength: 0 });
   const passive: P.IJoint = hinge(0.5);
-  const damped: IAutoMoviePhysicalJointMotorCommand.IOutput = physicalJointMotorCommand({
-    ...base,
-    joint: passive,
-    strength: 0,
-  });
+  const damped: IAutoMoviePhysicalJointMotorCommand.IOutput =
+    physicalJointMotorCommand({
+      ...base,
+      joint: passive,
+      strength: 0,
+    });
   TestValidator.predicate(
     "withdrawn and passive motors",
     axis(withdrawn, "z").speed === 0 &&
@@ -105,12 +109,13 @@ export function test_physical_motor(): void {
   );
 
   // Feed-forward, target speed and saturation forecasts.
-  const fed: IAutoMoviePhysicalJointMotorCommand.IOutput = physicalJointMotorCommand({
-    ...base,
-    feedForward: { x: 0, y: 0, z: 2 },
-    targetVelocity: { x: 0, y: 0, z: 1.5 },
-    velocity: { x: 0, y: 0, z: -100 },
-  });
+  const fed: IAutoMoviePhysicalJointMotorCommand.IOutput =
+    physicalJointMotorCommand({
+      ...base,
+      feedForward: { x: 0, y: 0, z: 2 },
+      targetVelocity: { x: 0, y: 0, z: 1.5 },
+      velocity: { x: 0, y: 0, z: -100 },
+    });
   TestValidator.predicate(
     "feed-forward and target speed",
     nclose(axis(fed, "z").speed, (k * 0.3 + d * 1.5 + 2) / d, 1e-12) &&
@@ -123,17 +128,18 @@ export function test_physical_motor(): void {
   );
 
   // At the +0.6 rad twist limit, a target beyond it commands no outward speed.
-  const limited: IAutoMoviePhysicalJointMotorCommand.IOutput = physicalJointMotorCommand({
-    ...base,
-    current: Quaternion.fromAxisAngle(
-      { x: 0, y: 0, z: 1 },
-      0.6 * (180 / Math.PI),
-    ),
-    target: Quaternion.fromAxisAngle(
-      { x: 0, y: 0, z: 1 },
-      0.9 * (180 / Math.PI),
-    ),
-  });
+  const limited: IAutoMoviePhysicalJointMotorCommand.IOutput =
+    physicalJointMotorCommand({
+      ...base,
+      current: Quaternion.fromAxisAngle(
+        { x: 0, y: 0, z: 1 },
+        0.6 * (180 / Math.PI),
+      ),
+      target: Quaternion.fromAxisAngle(
+        { x: 0, y: 0, z: 1 },
+        0.9 * (180 / Math.PI),
+      ),
+    });
   TestValidator.predicate(
     "limit-bounded speed",
     axis(limited, "z").speed <= 1e-9 && limited.error > 0.29,

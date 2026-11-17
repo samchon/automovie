@@ -1,5 +1,5 @@
-import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
+import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 
 import { glb } from "./glb";
 

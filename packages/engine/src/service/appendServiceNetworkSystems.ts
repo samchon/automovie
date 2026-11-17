@@ -1,5 +1,13 @@
-import { type IAutoMovieViolationCollector, AutoMovieServiceDiscipline, AutoMovieServiceMedium, AutoMovieServiceUnit, IAutoMovieServiceNetwork, IAutoMovieServiceNode, IAutoMovieServicePort, IAutoMovieServiceSystem } from "@automovie/interface";
-
+import {
+  AutoMovieServiceDiscipline,
+  AutoMovieServiceMedium,
+  AutoMovieServiceUnit,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSystem,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 const DISCIPLINES: readonly AutoMovieServiceDiscipline[] = [
   "plumbing",

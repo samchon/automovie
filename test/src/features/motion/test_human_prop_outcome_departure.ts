@@ -1,5 +1,10 @@
-import type { IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropOutcome, IAutoMovieProjectile, IAutoMovieProjectileFirstContact } from "@automovie/interface";
 import { projectileAt, projectileFirstContact } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropOutcome,
+  IAutoMovieProjectile,
+  IAutoMovieProjectileFirstContact,
+} from "@automovie/interface";
 import { HumanPropOutcome } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -53,11 +58,12 @@ export function test_human_prop_outcome_departure(): void {
       },
     ],
   };
-  const plane: IAutoMovieProjectileFirstContact.ICollider = projectileFirstContact.plane(
-    "resolved plane",
-    { x: 0, y: 0, z: 0 },
-    { x: 0, y: 1, z: 0 },
-  );
+  const plane: IAutoMovieProjectileFirstContact.ICollider =
+    projectileFirstContact.plane(
+      "resolved plane",
+      { x: 0, y: 0, z: 0 },
+      { x: 0, y: 1, z: 0 },
+    );
   const horizon: number = 2.25;
   for (const gravity of [0, -2]) {
     const projectile: IAutoMovieProjectile = {
@@ -133,7 +139,8 @@ export function test_human_prop_outcome_departure(): void {
       },
     };
     try {
-      const legs: IAutoMovieMotionHumanPropOutcome.ILeg[] = HumanPropOutcome.legs(input);
+      const legs: IAutoMovieMotionHumanPropOutcome.ILeg[] =
+        HumanPropOutcome.legs(input);
       if (gravity === 0) {
         if (
           legs.length !== 1 ||

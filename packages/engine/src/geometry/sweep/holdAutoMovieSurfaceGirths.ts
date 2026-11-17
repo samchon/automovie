@@ -1,4 +1,7 @@
-import type { IAutoMovieSurfaceNetwork, IAutoMovieHoldSurfaceGirths } from "@automovie/interface";
+import type {
+  IAutoMovieHoldSurfaceGirths,
+  IAutoMovieSurfaceNetwork,
+} from "@automovie/interface";
 
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 
@@ -64,7 +67,9 @@ const GAUSS: ReadonlyArray<readonly [number, number]> = [
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Runs once per rig compile; the factor it leaves is what every pose reuses.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no state after return; temporary adjacency, row controls and dense solve arrays cost O(V + F + R + G^2) for V cage vertices, plus ring/profile records, and are released on completion or refusal. The sweep rigs own the installed scale factors.
  */
-export const holdAutoMovieSurfaceGirths: (props: IAutoMovieHoldSurfaceGirths.IProps) => void = (props: IAutoMovieHoldSurfaceGirths.IProps): void => {
+export const holdAutoMovieSurfaceGirths: (
+  props: IAutoMovieHoldSurfaceGirths.IProps,
+) => void = (props: IAutoMovieHoldSurfaceGirths.IProps): void => {
   const declared: IAutoMovieSurfaceNetwork.IRing[] = (
     props.network.rings ?? []
   ).filter(

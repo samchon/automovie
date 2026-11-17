@@ -1,4 +1,9 @@
-import type { IAutoMovieIntent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanPerformanceState } from "@automovie/interface";
+import type {
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanPerformanceState,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
@@ -57,7 +62,9 @@ export namespace HumanPerformanceAhead {
       "subject" | "body" | "skill" | "prop" | "start"
     >,
     ordinal: number,
-  ): (grip: IAutoMovieMotionHumanActionLaw.IGrip) => readonly IAutoMovieMotionHumanActionLaw.IDemand[] {
+  ): (
+    grip: IAutoMovieMotionHumanActionLaw.IGrip,
+  ) => readonly IAutoMovieMotionHumanActionLaw.IDemand[] {
     const found: Map<string, INext | null> = new Map();
     const next = (prop: string): INext | null => {
       if (!found.has(prop))
@@ -116,9 +123,8 @@ export namespace HumanPerformanceAhead {
     for (const intent of (self.intended.get(subject) ?? []).slice(
       ordinal + 1,
     )) {
-      const law: IAutoMovieMotionHumanActionLaw<never> | undefined = self.laws.get(
-        intent.capability,
-      );
+      const law: IAutoMovieMotionHumanActionLaw<never> | undefined =
+        self.laws.get(intent.capability);
       // An action the vocabulary lacks is refused where it is placed.
       if (law === undefined) return null;
       const given: object = params(intent);

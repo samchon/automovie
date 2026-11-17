@@ -1,7 +1,7 @@
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
-import type { IAutoMovieRestFrame } from "./IAutoMovieRestFrame";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
+import type { IAutoMovieRestFrame } from "./IAutoMovieRestFrame";
 
 /**
  * The rig a pose's clinical angles are read through: its skeleton and the

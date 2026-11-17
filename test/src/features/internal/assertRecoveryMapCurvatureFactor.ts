@@ -1,6 +1,14 @@
-import type { IAutoMovieRecoveryMapCurvatureBlocks, IAutoMovieRecoveryMapCurvatureFit, IAutoMovieRecoveryMapPose, IAutoMovieSimplexAtom } from "@automovie/interface";
-
-import { createRecoveryMapTriangularMetric, differentiateRecoveryMapProjection, factorRecoveryMapCurvature } from "@automovie/recovery";
+import type {
+  IAutoMovieRecoveryMapCurvatureBlocks,
+  IAutoMovieRecoveryMapCurvatureFit,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieSimplexAtom,
+} from "@automovie/interface";
+import {
+  createRecoveryMapTriangularMetric,
+  differentiateRecoveryMapProjection,
+  factorRecoveryMapCurvature,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

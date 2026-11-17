@@ -1,5 +1,12 @@
-import type { AutoMovieMotionHumanChannel as AutoMovieMotionHumanChannelType, IAutoMovieMotionHumanPosture } from "@automovie/interface";
-import { AutoMovieMotionHumanChannel, HumanRide, stand } from "@automovie/motions";
+import type {
+  AutoMovieMotionHumanChannel as AutoMovieMotionHumanChannelType,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanChannel,
+  HumanRide,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -63,11 +70,8 @@ export function test_human_motion_channel_trunk_turn(): void {
     },
     limbs: {},
   };
-  const merged: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanChannel.merge(
-    base,
-    written,
-    claims,
-  );
+  const merged: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanChannel.merge(base, written, claims);
   TestValidator.equals(
     "the spine and the chest come from the act",
     [merged.joints.spine, merged.joints.chest],

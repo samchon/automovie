@@ -1,6 +1,31 @@
-import type { AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanLean, IAutoMovieMotionHumanPerturb, IAutoMovieMotionHumanPosture, IAutoMovieMotionTarget, IAutoMovieResolveBalanceOutcome, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Vector3,
+  resolveAutoMovieBalanceOutcome,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanForce,
+  IAutoMovieMotionHumanLean,
+  IAutoMovieMotionHumanPerturb,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionTarget,
+  IAutoMovieResolveBalanceOutcome,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { Vector3, resolveAutoMovieBalanceOutcome, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
@@ -102,11 +127,15 @@ export namespace perturb {
     const impulses: IAutoMovieMotionHumanForce.IImpulse[] = (
       context.forces?.(-1 / w0, 0) ?? []
     ).filter(
-      (f: IAutoMovieMotionHumanForce.IForce): f is IAutoMovieMotionHumanForce.IImpulse => f.kind === "impulse",
+      (
+        f: IAutoMovieMotionHumanForce.IForce,
+      ): f is IAutoMovieMotionHumanForce.IImpulse => f.kind === "impulse",
     );
     const impulse: IAutoMovieVector3 = impulses.reduce(
-      (sum: IAutoMovieVector3, f: IAutoMovieMotionHumanForce.IImpulse): IAutoMovieVector3 =>
-        Vector3.add(sum, f.impulse),
+      (
+        sum: IAutoMovieVector3,
+        f: IAutoMovieMotionHumanForce.IImpulse,
+      ): IAutoMovieVector3 => Vector3.add(sum, f.impulse),
       { x: 0, y: 0, z: 0 },
     );
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
@@ -196,8 +225,9 @@ export namespace perturb {
         : caught === null || landing === undefined
           ? { ...balanced, outcome: "fall" }
           : decide(landing.share * caught.duration);
-    const requested: NonNullable<IAutoMovieMotionHumanPerturb.IParams["outcome"]> =
-      context.params.outcome ?? "auto";
+    const requested: NonNullable<
+      IAutoMovieMotionHumanPerturb.IParams["outcome"]
+    > = context.params.outcome ?? "auto";
 
     // The two-body outcomes are the two-body response's (#3439), which
     // answers them before this law plans its own.
@@ -285,47 +315,54 @@ export namespace perturb {
     );
     const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
-    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(duration, {
-        root: entry.root,
-        yaw: entry.yaw,
-        pitch: entry.pitch,
-        roll: entry.roll,
-        joints: entry.joints,
-        limbs: {},
-      }),
-      clock,
-      primitives: [
-        AutoMovieMotionHumanLean.sway({
-          body,
-          from: 0,
-          to: duration,
-          angles: (): IAutoMovieMotionHumanLean.IAngles => ({
-            pitch: 0,
-            roll: 0,
-          }),
-          shift: (seconds: number): IAutoMovieVector3 =>
-            Vector3.scale(local, speed * seconds * Math.exp(-w0 * seconds)),
-          legs: (): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> =>
-            StrikingStance.legs(body, feet),
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.still(duration, {
+          root: entry.root,
+          yaw: entry.yaw,
+          pitch: entry.pitch,
+          roll: entry.roll,
+          joints: entry.joints,
+          limbs: {},
         }),
-
-        // The sway reads the legs for the hips' height only; the legs stand
-        // on the entry's feet through their own channels.
-        {
-          channels: ["leftLeg", "rightLeg"],
-          from: 0,
-          to: duration,
-          write: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => ({
-            ...posture,
-            limbs: { ...posture.limbs, ...StrikingStance.legs(body, feet) },
+        clock,
+        primitives: [
+          AutoMovieMotionHumanLean.sway({
+            body,
+            from: 0,
+            to: duration,
+            angles: (): IAutoMovieMotionHumanLean.IAngles => ({
+              pitch: 0,
+              roll: 0,
+            }),
+            shift: (seconds: number): IAutoMovieVector3 =>
+              Vector3.scale(local, speed * seconds * Math.exp(-w0 * seconds)),
+            legs: (): Pick<
+              IAutoMovieMotionHumanPosture["limbs"],
+              "leftLeg" | "rightLeg"
+            > => StrikingStance.legs(body, feet),
           }),
-        },
-      ],
-    });
+
+          // The sway reads the legs for the hips' height only; the legs stand
+          // on the entry's feet through their own channels.
+          {
+            channels: ["leftLeg", "rightLeg"],
+            from: 0,
+            to: duration,
+            write: (
+              posture: IAutoMovieMotionHumanPosture,
+            ): IAutoMovieMotionHumanPosture => ({
+              ...posture,
+              limbs: { ...posture.limbs, ...StrikingStance.legs(body, feet) },
+            }),
+          },
+        ],
+      });
 
     // Both feet stay planted through the absorb.
-    const plant = (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
+    const plant = (
+      part: "leftFoot" | "rightFoot",
+    ): IAutoMovieMotionHumanContactWindow => ({
       part,
       kind: "plant",
       from: 0,

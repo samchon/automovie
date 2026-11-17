@@ -17,7 +17,10 @@ import type { IAutoMovieMotionHumanDrillRegulation } from "@automovie/interface"
  *   `HumanGait.DOUBLE`.
  */
 export const HUMAN_DRILL_CADENCES: Readonly<
-  Record<IAutoMovieMotionHumanDrillRegulation.Name, IAutoMovieMotionHumanDrillRegulation>
+  Record<
+    IAutoMovieMotionHumanDrillRegulation.Name,
+    IAutoMovieMotionHumanDrillRegulation
+  >
 > = {
   british1792: {
     times: { ordinary: 75, quick: 108, quickest: 120 },

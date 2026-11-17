@@ -1,5 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieTessellateContourPath64, IAutoMovieMesh } from "@automovie/interface";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieMesh,
+  IAutoMovieTessellateContourPath64,
+} from "@automovie/interface";
 
 /**
  * Generate an indexed surface from saved physical polygon identities and P/Q paths.
@@ -16,7 +19,9 @@ import type { AutoMovieVector3Tuple, IAutoMovieTessellateContourPath64, IAutoMov
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Polygon identity shares one newly allocated vertex set between incident pairs and one normal accumulation across emitted faces; no coordinate-based sharing occurs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local registries expire on return and generated arrays transfer to the caller; no global cache, source geometry or file handle is acquired.
  */
-export function tessellateAutoMovieContourPath64(input: IAutoMovieTessellateContourPath64.IInput): IAutoMovieTessellateContourPath64.IResult {
+export function tessellateAutoMovieContourPath64(
+  input: IAutoMovieTessellateContourPath64.IInput,
+): IAutoMovieTessellateContourPath64.IResult {
   if (!input.topologyDomain.trim())
     throw new Error("A generated physical identity domain is required");
   const polygons: Map<string, (typeof input.polygons)[number]> = new Map();
@@ -36,7 +41,11 @@ export function tessellateAutoMovieContourPath64(input: IAutoMovieTessellateCont
       throw new Error("Unique finite Y-plane polygons are required");
     const origin: Readonly<AutoMovieVector3Tuple> = polygon.pointsMm[0]!;
     const area: number = polygon.pointsMm.reduce(
-      (sum: number, point: Readonly<AutoMovieVector3Tuple>, i: number): number => {
+      (
+        sum: number,
+        point: Readonly<AutoMovieVector3Tuple>,
+        i: number,
+      ): number => {
         const next: Readonly<AutoMovieVector3Tuple> =
           polygon.pointsMm[(i + 1) % polygon.pointsMm.length]!;
         if (point.every((x: number, k: number): boolean => x === next[k]))

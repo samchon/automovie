@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryConstructionLine } from "../../index";
+import type { IAutoMovieConstructionPolyline } from "../../render/IAutoMovieConstructionPolyline";
 
 /**
  * Tensor control-net construction generated from the retained recipe.
@@ -9,8 +9,8 @@ import type { IAutoMovieRecoveryConstructionLine } from "../../index";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
  */
 
-export interface IAutoMovieRecoveryTensorConstruction extends IAutoMovieRecoveryConstructionLine {
- 
- /** Optional normalized generating phases aligned with construction points. */
+export interface IAutoMovieRecoveryTensorConstruction
+  extends IAutoMovieConstructionPolyline.IMutable {
+  /** Optional normalized generating phases aligned with construction points. */
   phases?: number[];
 }

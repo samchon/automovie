@@ -1,6 +1,30 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieIntegrateAirborneRotation, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanForceExchange, IAutoMovieMotionHumanForceResponse, IAutoMovieMotionHumanForceThrow, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieGravity,
+  Quaternion,
+  Vector3,
+  integrateAirborneRotation,
+  integrateMotionTrajectory,
+  resolveAutoMovieCenterOfMass,
+  resolveAutoMovieHumanoidSurfaces,
+  resolveAutoMovieMomentum,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanForce,
+  IAutoMovieMotionHumanForceExchange,
+  IAutoMovieMotionHumanForceResponse,
+  IAutoMovieMotionHumanForceThrow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { AutoMovieGravity, Quaternion, Vector3, integrateAirborneRotation, integrateMotionTrajectory, resolveAutoMovieCenterOfMass, resolveAutoMovieHumanoidSurfaces, resolveAutoMovieMomentum } from "@automovie/engine";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -21,7 +45,6 @@ import { HumanForceExchange } from "./HumanForceExchange";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No angle or landing is scripted: the swing and the flight are integrated.
  */
 export namespace HumanForceThrow {
-
   /**
    * Plan the throw after the broken base: the swing about the thrower's
    * fulcrum, the release and the flight to the landing.
@@ -106,18 +129,19 @@ export namespace HumanForceThrow {
         ),
       0,
     );
-    const swing: IAutoMovieMotionHumanForceExchange.ISwing | null = HumanForceExchange.swing({
-      mass: model.mass,
-      inertia: about,
-      radius,
-      angle: start,
-      rate: (props.speed * Vector3.dot(direction, tangent)) / radius,
+    const swing: IAutoMovieMotionHumanForceExchange.ISwing | null =
+      HumanForceExchange.swing({
+        mass: model.mass,
+        inertia: about,
+        radius,
+        angle: start,
+        rate: (props.speed * Vector3.dot(direction, tangent)) / radius,
 
-      // A horizontal pull at the grips turns the body about the fulcrum by
-      // its force times the grips' height above it.
-      torque: props.force * (props.grip - point.y),
-      until: props.remaining,
-    });
+        // A horizontal pull at the grips turns the body about the fulcrum by
+        // its force times the grips' height above it.
+        torque: props.force * (props.grip - point.y),
+        until: props.remaining,
+      });
     if (swing === null)
       throw new HumanRefusal({
         kind: "parameter",
@@ -164,15 +188,14 @@ export namespace HumanForceThrow {
       Quaternion.rotateVector(turned, apply(tensor, axis)),
       rate,
     );
-    const flight: IAutoMovieIntegrateAirborneRotation.IFlight = integrateAirborneRotation(
-      {
+    const flight: IAutoMovieIntegrateAirborneRotation.IFlight =
+      integrateAirborneRotation({
         history: integrateAirborneRotation.history(model, () => local),
         t0: 0,
         t1: Math.max(fall, integrateMotionTrajectory.STEP),
         q0: Quaternion.normalize(Quaternion.multiply(turned, heading)),
         momentum,
-      },
-    );
+      });
     const turnIn = (tau: number): IAutoMovieQuaternion =>
       Quaternion.normalize(
         Quaternion.multiply(

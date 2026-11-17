@@ -1,5 +1,14 @@
-import type { IAutoMovieAdvancePhysicalBalance, IAutoMovieCollectPhysicalSupports, IAutoMoviePhysicalBalance, IAutoMoviePhysicalBalanceBracing, IAutoMoviePhysicalBalanceExhaustion, IAutoMoviePhysicalProfile, IAutoMovieSamplePhysicalRecoveryGoal, IAutoMovieContactReceipt, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieAdvancePhysicalBalance,
+  IAutoMovieCollectPhysicalSupports,
+  IAutoMovieContactReceipt,
+  IAutoMoviePhysicalBalance,
+  IAutoMoviePhysicalBalanceBracing,
+  IAutoMoviePhysicalBalanceExhaustion,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieSamplePhysicalRecoveryGoal,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import type { RigidBody, World } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
@@ -134,13 +143,14 @@ export function advancePhysicalBalance(input: {
         { x: position.x, y: intended.y, z: position.z },
         intended,
       );
-      const root: IAutoMoviePhysicalProfile.ISegment = input.profile.segments.find(
-        (segment: (typeof input.profile.segments)[number]): boolean =>
-          !input.profile.joints.some(
-            (joint: (typeof input.profile.joints)[number]): boolean =>
-              joint.child === segment.bone,
-          ),
-      )!;
+      const root: IAutoMoviePhysicalProfile.ISegment =
+        input.profile.segments.find(
+          (segment: (typeof input.profile.segments)[number]): boolean =>
+            !input.profile.joints.some(
+              (joint: (typeof input.profile.joints)[number]): boolean =>
+                joint.child === segment.bone,
+            ),
+        )!;
       const rootPosition: IAutoMovieVector3 = input.segments
         .get(root.bone)!
         .translation();
@@ -247,10 +257,11 @@ export function advancePhysicalBalance(input: {
         seconds: input.seconds,
       });
     goals[state.swing.bone] = motion.point;
-    const segment: IAutoMoviePhysicalProfile.ISegment = input.profile.segments.find(
-      (candidate: (typeof input.profile.segments)[number]): boolean =>
-        candidate.bone === state.swing!.bone,
-    )!;
+    const segment: IAutoMoviePhysicalProfile.ISegment =
+      input.profile.segments.find(
+        (candidate: (typeof input.profile.segments)[number]): boolean =>
+          candidate.bone === state.swing!.bone,
+      )!;
     const position: IAutoMovieVector3 = actual(state.swing.bone);
 
     drive(
@@ -271,10 +282,11 @@ export function advancePhysicalBalance(input: {
   for (const [bone, offset] of Object.entries(state.offsets)) {
     if (state.swing?.bone === bone) continue;
     const rigid: RigidBody = input.segments.get(bone)!;
-    const segment: IAutoMoviePhysicalProfile.ISegment = input.profile.segments.find(
-      (candidate: (typeof input.profile.segments)[number]): boolean =>
-        candidate.bone === bone,
-    )!;
+    const segment: IAutoMoviePhysicalProfile.ISegment =
+      input.profile.segments.find(
+        (candidate: (typeof input.profile.segments)[number]): boolean =>
+          candidate.bone === bone,
+      )!;
     goals[bone] = Vector3.add(authored(bone), offset);
     const position: IAutoMovieVector3 = actual(bone);
     drive(

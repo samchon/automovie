@@ -1,4 +1,13 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanAudit, IAutoMovieMotionHumanAuditContinuity, IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanAuditTangle, IAutoMovieMotionHumanBody, IAutoMovieResolvedBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAudit,
+  IAutoMovieMotionHumanAuditContinuity,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditTangle,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditBalance } from "./AutoMovieMotionHumanAuditBalance";
 import { AutoMovieMotionHumanAuditContinuity } from "./AutoMovieMotionHumanAuditContinuity";
@@ -32,7 +41,6 @@ import { AutoMovieMotionHumanAuditTangle } from "./AutoMovieMotionHumanAuditTang
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The resolved bones are held by one run's own closure and released when it returns.
  */
 export namespace AutoMovieMotionHumanAudit {
-
   /**
    * The default limits, metres unless stated: 10 mm of self-penetration (the
    * skin's give where a hand rests on the body), 5 mm below the floor, 5 mm
@@ -41,7 +49,9 @@ export namespace AutoMovieMotionHumanAudit {
    * hand peaks near 40 m/s only at ball release, a punch's fist near 10 m/s)
    * and no departure of the extrapolated centre of mass from the feet.
    */
-  export const LIMITS: Readonly<Record<IAutoMovieMotionHumanAudit.Check, number>> = {
+  export const LIMITS: Readonly<
+    Record<IAutoMovieMotionHumanAudit.Check, number>
+  > = {
     tangle: 0.01,
     floor: 0.005,
     slip: 0.005,
@@ -84,7 +94,10 @@ export namespace AutoMovieMotionHumanAudit {
   ): IAutoMovieMotionHumanAudit.IReport {
     const motion: IAutoMovieMotionHumanAuditMotion = remember(source);
     const rate: number = options.rate ?? 24;
-    const limits: IAutoMovieMotionHumanAudit.ILimits = { ...LIMITS, ...options.limits };
+    const limits: IAutoMovieMotionHumanAudit.ILimits = {
+      ...LIMITS,
+      ...options.limits,
+    };
     const measures: IAutoMovieMotionHumanAudit.IReport["measures"] = {};
     let pairs: IAutoMovieMotionHumanAuditTangle.IPair[] = [];
     if (limits.tangle !== null) {

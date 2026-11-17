@@ -1,6 +1,12 @@
-import { type IAutoMovieAxisFrame, IAutoMovieJointConstraint } from "@automovie/interface";
-import { restRelativeConstraint, toClinicalAngle, toRigAngle } from "@automovie/engine";
-
+import {
+  restRelativeConstraint,
+  toClinicalAngle,
+  toRigAngle,
+} from "@automovie/engine";
+import {
+  type IAutoMovieAxisFrame,
+  IAutoMovieJointConstraint,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

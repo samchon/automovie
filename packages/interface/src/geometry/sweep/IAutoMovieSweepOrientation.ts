@@ -1,5 +1,3 @@
-
-
 /**
  * A sweep's section planes compiled into buffers that a pose can rewrite,
  * from `orientAutoMovieSweep`.

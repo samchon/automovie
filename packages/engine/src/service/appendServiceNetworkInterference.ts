@@ -1,5 +1,11 @@
-import { type IAutoMovieViolationCollector, IAutoMoviePropBox, IAutoMovieServiceNetwork, IAutoMovieServiceNode, IAutoMovieServicePort, IAutoMovieServiceSegment } from "@automovie/interface";
-
+import {
+  IAutoMoviePropBox,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSegment,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { propBoundsOverlap } from "../film/propBoundsOverlap";
 import { serviceMaintenanceBounds } from "./serviceMaintenanceBounds";

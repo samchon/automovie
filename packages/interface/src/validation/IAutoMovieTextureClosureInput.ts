@@ -1,5 +1,5 @@
-import type { IAutoMovieAssetProvenance } from "../production/IAutoMovieAssetProvenance";
 import type { IAutoMovieModel } from "../model/IAutoMovieModel";
+import type { IAutoMovieAssetProvenance } from "../production/IAutoMovieAssetProvenance";
 import type { IAutoMovieSceneEnvironmentUse } from "./IAutoMovieSceneEnvironmentUse";
 import type { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
 

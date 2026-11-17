@@ -1,5 +1,15 @@
-import { type IAutoMovieMatrix4, type IAutoMovieViolationCollector, IAutoMovieBuiltConnector, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieConnectorCarriage, IAutoMovieConnectorState, IAutoMovieMovablePanel, IAutoMovieOperationState } from "@automovie/interface";
-
+import {
+  IAutoMovieBuiltConnector,
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMovieConnectorCarriage,
+  IAutoMovieConnectorState,
+  type IAutoMovieMatrix4,
+  IAutoMovieMovablePanel,
+  IAutoMovieOperationState,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";

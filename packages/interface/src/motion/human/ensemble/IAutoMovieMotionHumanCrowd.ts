@@ -1,8 +1,8 @@
-import type { IAutoMovieMotionHumanEnsemble } from "./IAutoMovieMotionHumanEnsemble";
-import type { IAutoMovieMotionHumanFormation } from "./IAutoMovieMotionHumanFormation";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionHumanObstacle } from "../perform/IAutoMovieMotionHumanObstacle";
 import type { IAutoMovieMotionHumanResponse } from "../skill/IAutoMovieMotionHumanResponse";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanEnsemble } from "./IAutoMovieMotionHumanEnsemble";
+import type { IAutoMovieMotionHumanFormation } from "./IAutoMovieMotionHumanFormation";
 
 /**
  * A crowd that keeps no formation, steered: each member (or each walking

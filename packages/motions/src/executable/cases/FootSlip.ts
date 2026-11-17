@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanFoot, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * How far a planted foot slides, the one rule every capture case measures
@@ -23,7 +26,9 @@ export namespace FootSlip {
    * @param sole The foot's sockets, in tie order.
    * @returns The lowest.
    */
-  export function contact(sole: IAutoMovieMotionHumanFoot.ISocket[]): IAutoMovieMotionHumanFoot.ISocket {
+  export function contact(
+    sole: IAutoMovieMotionHumanFoot.ISocket[],
+  ): IAutoMovieMotionHumanFoot.ISocket {
     let lowest: IAutoMovieMotionHumanFoot.ISocket = sole[0]!;
     for (const p of sole) if (p.point.y < lowest.point.y - 1e-6) lowest = p;
     return lowest;

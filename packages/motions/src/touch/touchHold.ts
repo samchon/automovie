@@ -1,7 +1,21 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTouch, IAutoMovieMotionHumanTouchEffector, IAutoMovieMotionHumanTouchForm, IAutoMovieMotionHumanTouchSite, IAutoMovieMotionTarget, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionHumanTouchForm,
+  IAutoMovieMotionHumanTouchSite,
+  IAutoMovieMotionTarget,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
@@ -77,7 +91,10 @@ export namespace touchHold {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The context closes over the given one.
    */
   export function felt<
-    Context extends Pick<IAutoMovieMotionHumanActionContext, "aim" | "performer">,
+    Context extends Pick<
+      IAutoMovieMotionHumanActionContext,
+      "aim" | "performer"
+    >,
   >(context: Context): Context {
     return {
       ...context,
@@ -86,9 +103,8 @@ export namespace touchHold {
         seconds: number,
       ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } => {
         if (target.kind !== "person") return context.aim(target, seconds);
-        const other: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(
-          target.subject,
-        );
+        const other: IAutoMovieMotionHumanActionContext.IPerformer =
+          context.performer(target.subject);
         return StrikingBody.region(
           other.body,
           other.bones(seconds - StrikingTarget.LOOK),
@@ -116,10 +132,22 @@ export namespace touchHold {
    */
   export function region(
     clock: IAutoMovieMotionClock.IClock,
-    perceived: (posture: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanTouchSite.IFrame,
-    held: (posture: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanTouchSite.IFrame,
-  ): (posture: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanTouchSite.IFrame {
-    return (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanTouchSite.IFrame =>
+    perceived: (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ) => IAutoMovieMotionHumanTouchSite.IFrame,
+    held: (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ) => IAutoMovieMotionHumanTouchSite.IFrame,
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+  ) => IAutoMovieMotionHumanTouchSite.IFrame {
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieMotionHumanTouchSite.IFrame =>
       holding(clock, seconds)
         ? held(posture, seconds)
         : perceived(posture, seconds);
@@ -158,28 +186,33 @@ export namespace touchHold {
     return (
       _: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): { clear: IAutoMovieMotionHumanColliders.IPlaced[]; rests: IAutoMovieMotionHumanColliders.IPlaced[] } => {
-      const partner: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(
-        target.subject,
-      );
+    ): {
+      clear: IAutoMovieMotionHumanColliders.IPlaced[];
+      rests: IAutoMovieMotionHumanColliders.IPlaced[];
+    } => {
+      const partner: IAutoMovieMotionHumanActionContext.IPerformer =
+        context.performer(target.subject);
       const bone: AutoMovieHumanoidBone | undefined =
         partner.body.surfaces.regions[target.region]?.bone;
-      const placed: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
-        partner.body,
-        partner.bones(
-          context.start +
-            seconds -
-            (holding(clock, seconds)
-              ? StrikingTarget.LOOK
-              : HumanPerception.REACTION),
-        ),
-      );
+      const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
+        HumanColliders.placed(
+          partner.body,
+          partner.bones(
+            context.start +
+              seconds -
+              (holding(clock, seconds)
+                ? StrikingTarget.LOOK
+                : HumanPerception.REACTION),
+          ),
+        );
       return {
         clear: placed.filter(
-          (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean => segment.bone !== bone,
+          (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+            segment.bone !== bone,
         ),
         rests: placed.filter(
-          (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean => segment.bone === bone,
+          (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+            segment.bone === bone,
         ),
       };
     };
@@ -210,23 +243,35 @@ export namespace touchHold {
     context: Pick<IAutoMovieMotionHumanActionContext, "performer" | "start">,
     target: { subject: string; region: AutoMovieHumanoidRegion },
     clock: IAutoMovieMotionClock.IClock,
-    perceived: (posture: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanTouchSite.IFrame,
+    perceived: (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ) => IAutoMovieMotionHumanTouchSite.IFrame,
   ): {
-    region: (posture: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanTouchSite.IFrame;
+    region: (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ) => IAutoMovieMotionHumanTouchSite.IFrame;
     others: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ) => { clear: IAutoMovieMotionHumanColliders.IPlaced[]; rests: IAutoMovieMotionHumanColliders.IPlaced[] };
+    ) => {
+      clear: IAutoMovieMotionHumanColliders.IPlaced[];
+      rests: IAutoMovieMotionHumanColliders.IPlaced[];
+    };
   } {
     const at: number = clock.at("start");
     const colliders: ReturnType<typeof others> = others(context, target, clock);
     return {
-      region: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanTouchSite.IFrame =>
-        perceived(posture, at),
+      region: (
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieMotionHumanTouchSite.IFrame => perceived(posture, at),
       others: (
         posture: IAutoMovieMotionHumanPosture,
-      ): { clear: IAutoMovieMotionHumanColliders.IPlaced[]; rests: IAutoMovieMotionHumanColliders.IPlaced[] } =>
-        colliders(posture, at),
+      ): {
+        clear: IAutoMovieMotionHumanColliders.IPlaced[];
+        rests: IAutoMovieMotionHumanColliders.IPlaced[];
+      } => colliders(posture, at),
     };
   }
 
@@ -265,7 +310,10 @@ export namespace touchHold {
       AutoMovieMotionHumanTouchForm.FORMS[p.kind ?? "pat"].travel *
       context.body.measure.hand *
       AutoMovieMotionManner.of(context, p.manner).extent;
-    return (side: IAutoMovieMotionHumanHand.Side, target: IAutoMovieMotionTarget): ILaid => {
+    return (
+      side: IAutoMovieMotionHumanHand.Side,
+      target: IAutoMovieMotionTarget,
+    ): ILaid => {
       const tangent: IAutoMovieMotionHumanTouchForm.Tangent = p.tangent ?? "up";
       const lay: ILaid["lay"] = p.with === "forefinger" ? "reach" : "arm";
       return lay === "reach" ||
@@ -367,28 +415,30 @@ function rubbed(
     );
     let deepest: number = 0;
     for (const share of SWEEP) {
-      const goal: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanTouchEffector.goal(
-        body,
-        side,
-        effector,
-        Vector3.add(place.point, Vector3.scale(way, share * travel)),
-        normal,
-        along,
-        hang,
-      );
-      const posed: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
-        body,
-        new Map([
-          [
-            hand.bone,
-            {
-              bone: hand.bone,
-              worldPosition: goal.point,
-              worldRotation: goal.rotation!,
-            } as IAutoMovieResolvedBone,
-          ],
-        ]),
-      );
+      const goal: IAutoMovieMotionHumanPosture.IGoal =
+        AutoMovieMotionHumanTouchEffector.goal(
+          body,
+          side,
+          effector,
+          Vector3.add(place.point, Vector3.scale(way, share * travel)),
+          normal,
+          along,
+          hang,
+        );
+      const posed: IAutoMovieMotionHumanColliders.IPlaced[] =
+        HumanColliders.placed(
+          body,
+          new Map([
+            [
+              hand.bone,
+              {
+                bone: hand.bone,
+                worldPosition: goal.point,
+                worldRotation: goal.rotation!,
+              } as IAutoMovieResolvedBone,
+            ],
+          ]),
+        );
       for (const at of posed)
         for (const part of parts)
           for (const depth of AutoMovieMotionHumanAuditTangleModel.depths(

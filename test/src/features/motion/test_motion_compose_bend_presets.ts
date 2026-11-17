@@ -1,5 +1,8 @@
-import type { IAutoMovieMotionHumanBend, IAutoMovieMotionHumanBody, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanBend, HumanFrame } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";

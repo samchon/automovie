@@ -1,6 +1,21 @@
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGaze, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  gazeChainJoints,
+  minimumJerk,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGaze,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { Quaternion, Vector3, gazeChainJoints, minimumJerk } from "@automovie/engine";
 import { HumanTrunk } from "./HumanTrunk";
 
 /**
@@ -53,7 +68,6 @@ import { HumanTrunk } from "./HumanTrunk";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanGaze {
-
   /** Final eye-in-head eccentricity before the head joins, degrees (Freedman 2008). */
   export const EYES: number = 15;
 
@@ -189,8 +203,14 @@ export namespace HumanGaze {
       posture,
       point,
     );
-    const parts: IAutoMovieMotionHumanGaze.ISplit = split(towards.yaw, towards.pitch, recruit);
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+    const parts: IAutoMovieMotionHumanGaze.ISplit = split(
+      towards.yaw,
+      towards.pitch,
+      recruit,
+    );
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...posture.joints,
+    };
     const blend = (
       bone: AutoMovieHumanoidBone,
       target: readonly [number, number, number],

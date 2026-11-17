@@ -1,9 +1,8 @@
-import type { IAutoMovieCaptureDrawing, IAutoMovieInspectionLegendEntry, IAutoMovieRasterImage } from "@automovie/interface";
-
-
-
-
-
+import type {
+  IAutoMovieCaptureDrawing,
+  IAutoMovieInspectionLegendEntry,
+  IAutoMovieRasterImage,
+} from "@automovie/interface";
 
 /** Rows of a stamped label box in font pixels: five glyph rows and two of padding above and below, as the label stamp draws it. */
 const ROW: number = 9;

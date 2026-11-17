@@ -7,7 +7,6 @@ export type { IAutoMovieMaterialLayer } from "./IAutoMovieMaterialLayer";
 export type { IAutoMovieMaterialOverlay } from "./IAutoMovieMaterialOverlay";
 export type { IAutoMovieMaterialSubstance } from "./IAutoMovieMaterialSubstance";
 export type { IAutoMoviePpmImageDecodeOptions } from "./IAutoMoviePpmImageDecodeOptions";
-export type { IAutoMovieResolveMaterialAssembly } from "./IAutoMovieResolveMaterialAssembly";
 export type { IAutoMovieRgb8Image } from "./IAutoMovieRgb8Image";
 export type { IAutoMovieTextureReference } from "./IAutoMovieTextureReference";
 export type { IAutoMovieValidateMaterialAssembly } from "./IAutoMovieValidateMaterialAssembly";

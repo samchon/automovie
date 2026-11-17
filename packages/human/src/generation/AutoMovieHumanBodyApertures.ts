@@ -1,20 +1,18 @@
-import type { IAutoMovieLoftChain, AutoMovieVector3Tuple, IAutoMovieHumanBodyApertures, IAutoMovieHumanBodyCalibration, IAutoMovieHumanEyelid, IAutoMovieHumanLoftAperture } from "@automovie/interface";
-
-
-
-
-
+import { AutoMovieLoftChain } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanBodyApertures,
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanEyelid,
+  IAutoMovieHumanLoftAperture,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
 import { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
-import { AutoMovieLoftChain } from "@automovie/engine";
-
 import { AutoMovieHumanEyelid } from "./AutoMovieHumanEyelid";
-
 
 /** Openings prepared once: their margins, cut outlines and lids, and the rows refined near them. */
 export namespace AutoMovieHumanBodyApertures {
-  
-
   /** Station spacing where a chain's rings pass near an opening, mm. */
   const SPACING: number = 0.5;
 
@@ -31,57 +29,66 @@ export namespace AutoMovieHumanBodyApertures {
     apertures: readonly IAutoMovieHumanLoftAperture[],
     eyes: readonly IAutoMovieHumanBodyCalibration.IEye[],
   ): IAutoMovieHumanBodyApertures.IPrepared[] {
-    return apertures.map((aperture: IAutoMovieHumanLoftAperture): IAutoMovieHumanBodyApertures.IPrepared => {
-      const margin: AutoMovieVector3Tuple[] =
-        AutoMovieHumanLoftAperture.polyline(aperture);
+    return apertures.map(
+      (
+        aperture: IAutoMovieHumanLoftAperture,
+      ): IAutoMovieHumanBodyApertures.IPrepared => {
+        const margin: AutoMovieVector3Tuple[] =
+          AutoMovieHumanLoftAperture.polyline(aperture);
 
-      // A globe belongs to the opening whose margin centre lies within its
-      // radius plus a margin of half that again.
-      const centre: number[] = [0, 1, 2].map(
-        (axis: number): number =>
-          margin.reduce(
-            (sum: number, p: AutoMovieVector3Tuple): number =>
-              sum + p[axis]!,
-            0,
-          ) / margin.length,
-      );
-      let globe: IAutoMovieHumanBodyCalibration.IEye | null = null;
-      let best: number = Infinity;
-      for (const eye of eyes) {
-        const d: number = Math.hypot(
-          eye.centre[0] - centre[0]!,
-          eye.centre[1] - centre[1]!,
-          eye.centre[2] - centre[2]!,
+        // A globe belongs to the opening whose margin centre lies within its
+        // radius plus a margin of half that again.
+        const centre: number[] = [0, 1, 2].map(
+          (axis: number): number =>
+            margin.reduce(
+              (sum: number, p: AutoMovieVector3Tuple): number => sum + p[axis]!,
+              0,
+            ) / margin.length,
         );
-        if (d < 1.5 * eye.radius && d < best) {
-          best = d;
-          globe = eye;
+        let globe: IAutoMovieHumanBodyCalibration.IEye | null = null;
+        let best: number = Infinity;
+        for (const eye of eyes) {
+          const d: number = Math.hypot(
+            eye.centre[0] - centre[0]!,
+            eye.centre[1] - centre[1]!,
+            eye.centre[2] - centre[2]!,
+          );
+          if (d < 1.5 * eye.radius && d < best) {
+            best = d;
+            globe = eye;
+          }
         }
-      }
-      if (globe === null)
+        if (globe === null)
+          return {
+            aperture,
+            outline: AutoMovieHumanLoftAperture.outline(aperture, margin),
+            lid: null,
+            edge: margin,
+          };
+
+        // An eye is cut out to the lid band's outer edge.
+        const lid: IAutoMovieHumanEyelid.ILid = AutoMovieHumanEyelid.create(
+          aperture,
+          globe,
+        );
+        const edge: AutoMovieVector3Tuple[] = lid.samples.map(
+          (s: IAutoMovieHumanEyelid.ISample): AutoMovieVector3Tuple =>
+            AutoMovieHumanEyelid.add(
+              s.contact,
+              AutoMovieHumanEyelid.scale(
+                s.outward,
+                AutoMovieHumanEyelid.rule.band,
+              ),
+            ),
+        );
         return {
           aperture,
-          outline: AutoMovieHumanLoftAperture.outline(aperture, margin),
-          lid: null,
-          edge: margin,
+          outline: AutoMovieHumanLoftAperture.outline(aperture, edge),
+          lid,
+          edge,
         };
-
-      // An eye is cut out to the lid band's outer edge.
-      const lid: IAutoMovieHumanEyelid.ILid = AutoMovieHumanEyelid.create(
-        aperture,
-        globe,
-      );
-      const edge: AutoMovieVector3Tuple[] = lid.samples.map(
-        (s: IAutoMovieHumanEyelid.ISample): AutoMovieVector3Tuple =>
-          AutoMovieHumanEyelid.add(s.contact, AutoMovieHumanEyelid.scale(s.outward, AutoMovieHumanEyelid.rule.band)),
-      );
-      return {
-        aperture,
-        outline: AutoMovieHumanLoftAperture.outline(aperture, edge),
-        lid,
-        edge,
-      };
-    });
+      },
+    );
   }
 
   /**
@@ -164,7 +171,8 @@ export namespace AutoMovieHumanBodyApertures {
   function split(
     heights: readonly number[],
     near: (s: number) => boolean,
-    count: (a: number, b: number) => number = (a: number, b: number): number => Math.ceil((b - a) / SPACING),
+    count: (a: number, b: number) => number = (a: number, b: number): number =>
+      Math.ceil((b - a) / SPACING),
   ): number[] {
     const out: number[] = [heights[0]!];
     const marked: boolean[] = heights.map(near);
@@ -173,9 +181,14 @@ export namespace AutoMovieHumanBodyApertures {
       const b: number = heights[k + 1]!;
       // An interval no longer than the spacing whose ends are not near is not
       // near in the middle either: the reach round an opening is wider.
-      if (marked[k] || marked[k + 1] || (b - a > SPACING && near((a + b) / 2))) {
+      if (
+        marked[k] ||
+        marked[k + 1] ||
+        (b - a > SPACING && near((a + b) / 2))
+      ) {
         const steps: number = count(a, b);
-        for (let i: number = 1; i < steps; i++) out.push(a + ((b - a) * i) / steps);
+        for (let i: number = 1; i < steps; i++)
+          out.push(a + ((b - a) * i) / steps);
       }
       out.push(b);
     }

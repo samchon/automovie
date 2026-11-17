@@ -1,6 +1,17 @@
-import type { IAutoMovieFormationBlock, IAutoMovieFormationDesign, IAutoMovieMotionEvent, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPopulation, IAutoMovieMotionHumanSegment, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion } from "@automovie/engine";
+import type {
+  IAutoMovieFormationBlock,
+  IAutoMovieFormationDesign,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPopulation,
+  IAutoMovieMotionHumanSegment,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFormation } from "./HumanFormation";
@@ -26,7 +37,6 @@ import { HumanFormation } from "./HumanFormation";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No generic gait stands in for the template's poses.
  */
 export namespace HumanPopulation {
-
   /**
    * An ensemble's formation as one formation design: its blocks as the
    * design's blocks (`IAutoMovieFormationBlock`), its frame at a film second
@@ -43,9 +53,11 @@ export namespace HumanPopulation {
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
     props: IAutoMovieMotionHumanPopulation.IDesignProps,
   ): IAutoMovieFormationDesign {
-    const formation: IAutoMovieMotionHumanFormation | undefined = ensemble.input.formation;
+    const formation: IAutoMovieMotionHumanFormation | undefined =
+      ensemble.input.formation;
     const population: number = ensemble.members.filter(
-      (m: IAutoMovieMotionHumanEnsemble.IMember): boolean => m.detail === "population",
+      (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
+        m.detail === "population",
     ).length;
     if (formation === undefined || population === 0)
       throw new HumanRefusal({
@@ -66,7 +78,9 @@ export namespace HumanPopulation {
       count: HumanFormation.count(formation),
       layout: formation.blocks[0]!.layout,
       blocks: formation.blocks.map(
-        (block: IAutoMovieMotionHumanFormation.IBlock): IAutoMovieFormationBlock => ({
+        (
+          block: IAutoMovieMotionHumanFormation.IBlock,
+        ): IAutoMovieFormationBlock => ({
           layout: block.layout,
           count: block.count,
           ...(block.offset === undefined ? {} : { offset: block.offset }),
@@ -80,12 +94,17 @@ export namespace HumanPopulation {
       capabilities: [],
       heroOverrides: ensemble.members
         .filter(
-          (m: IAutoMovieMotionHumanEnsemble.IMember): boolean => m.detail !== "population",
+          (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
+            m.detail !== "population",
         )
-        .map((m: IAutoMovieMotionHumanEnsemble.IMember): { slot: number; actor: string } => ({
-          slot: m.index,
-          actor: m.subject,
-        })),
+        .map(
+          (
+            m: IAutoMovieMotionHumanEnsemble.IMember,
+          ): { slot: number; actor: string } => ({
+            slot: m.index,
+            actor: m.subject,
+          }),
+        ),
     };
   }
   /**
@@ -105,12 +124,13 @@ export namespace HumanPopulation {
     from: number,
     samples: number,
   ): IAutoMovieMotionHumanPopulation.ICycle {
-    const segment: IAutoMovieMotionHumanSegment.ISegment | undefined = performance
-      .segments(template)
-      .find(
-        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
-          s.entryTime <= from && from < s.end,
-      );
+    const segment: IAutoMovieMotionHumanSegment.ISegment | undefined =
+      performance
+        .segments(template)
+        .find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+            s.entryTime <= from && from < s.end,
+        );
     const strikes: { seconds: number; side: string }[] = (
       segment?.plan.events ?? []
     )

@@ -1,5 +1,7 @@
-import { type IAutoMovieFramedBox, IAutoMovieSubjectBox } from "@automovie/interface";
-
+import {
+  type IAutoMovieFramedBox,
+  IAutoMovieSubjectBox,
+} from "@automovie/interface";
 
 import { midpoint } from "../math/midpoint";
 

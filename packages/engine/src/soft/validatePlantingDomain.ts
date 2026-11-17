@@ -1,5 +1,12 @@
-import { type IAutoMovieValidatePlantingDomain, type IAutoMovieViolationCollector, IAutoMoviePlantingBudget, IAutoMoviePlantingChild, IAutoMoviePlantingStructure, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMoviePlantingBudget,
+  IAutoMoviePlantingChild,
+  IAutoMoviePlantingStructure,
+  type IAutoMovieValidatePlantingDomain,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { PLANTING_MAX_BRANCHES } from "./constants/PLANTING_MAX_BRANCHES";
@@ -23,7 +30,11 @@ import { validateSoftVector as vector } from "./validateSoftVector";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Scalar, integer, vector and sibling-id policies are shared with soft-domain validation, while each pass owns its sets and recipe-specific limits; no mutable-recipe result cache is retained.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fresh collector and child-id set are local; returned findings retain offending values, and no emitted plant, viewer handle or task is acquired.
  */
-export const validatePlantingDomain: (props: IAutoMovieValidatePlantingDomain.IProps) => IAutoMovieValidation = (props: IAutoMovieValidatePlantingDomain.IProps): IAutoMovieValidation => {
+export const validatePlantingDomain: (
+  props: IAutoMovieValidatePlantingDomain.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidatePlantingDomain.IProps,
+): IAutoMovieValidation => {
   const { domain }: typeof props = props;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";

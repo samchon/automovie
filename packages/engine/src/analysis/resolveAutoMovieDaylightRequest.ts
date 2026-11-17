@@ -1,6 +1,12 @@
-import { type IAutoMovieAnalysisWorkplane, type IAutoMovieDaylightRequest, type IAutoMovieResolveDaylightRequest, IAutoMovieConstraintViolation, IAutoMovieEnvironmentInstant, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  type IAutoMovieAnalysisWorkplane,
+  IAutoMovieConstraintViolation,
+  type IAutoMovieDaylightRequest,
+  IAutoMovieEnvironmentInstant,
+  type IAutoMovieResolveDaylightRequest,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { assertAutoMovieAnalysisSolids } from "./assertAutoMovieAnalysisSolids";

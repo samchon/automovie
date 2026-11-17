@@ -1,13 +1,11 @@
-import type { IAutoMovieMark, IAutoMovieInspectionView } from "@automovie/interface";
-
-
-
-
+import type {
+  IAutoMovieInspectionView,
+  IAutoMovieMark,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
-
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 import { measureAutoMovieInspectionPaths } from "./measureAutoMovieInspectionPaths.js";
 

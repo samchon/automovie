@@ -1,4 +1,10 @@
-import type { AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanInterruptRow, IAutoMovieMotionHumanSegment, IAutoMovieSchedule } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanInterruptRow,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieSchedule,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanSegment } from "./HumanSegment";
@@ -85,7 +91,8 @@ export namespace HumanSegmentCut {
       feasible: {
         kind: "alternatives",
         values: rows.map(
-          (r: IAutoMovieMotionHumanInterruptRow): string => `[${r.window.join(", ")}]`,
+          (r: IAutoMovieMotionHumanInterruptRow): string =>
+            `[${r.window.join(", ")}]`,
         ),
       },
       reason: `${previous.name} cannot be cut into ${name} at share ${share.toFixed(3)} of itself; its legal windows into ${name}: ${legal}`,

@@ -8,7 +8,6 @@ import type { IAutoMovieRecoveryOutcome } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation States the absence of usable output and the meaning of each terminating state.
  */
 export interface IAutoMovieRecoveryTerminated extends IAutoMovieRecoveryOutcome {
- 
- /** Refusal declines the requested operation; failure and cancellation return no usable value. */
+  /** Refusal declines the requested operation; failure and cancellation return no usable value. */
   status: "refused" | "failed" | "cancelled";
 }

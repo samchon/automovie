@@ -1,12 +1,30 @@
-import type { IAutoMoviePlaybackSample, IAutoMoviePlaybackTimeline, IAutoMovieCamera, IAutoMovieDeliveryCrop, IAutoMovieMotion, IAutoMoviePlanPoseKeypointSidecarProps, IAutoMoviePose, IAutoMoviePoseKeypointActor, IAutoMoviePoseKeypointFrame, IAutoMoviePoseKeypointSidecar, IAutoMovieScene, IAutoMovieSceneNode, IAutoMovieShot, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-
-
-
-import { foldRoot, playbackCursor, projectToNdc, resolveCameraAt, resolvePoseKeypoints, sampleMotion, sceneFogTransmittance, sequenceTimeline } from "@automovie/engine";
-
-
-
-
+import {
+  foldRoot,
+  playbackCursor,
+  projectToNdc,
+  resolveCameraAt,
+  resolvePoseKeypoints,
+  sampleMotion,
+  sceneFogTransmittance,
+  sequenceTimeline,
+} from "@automovie/engine";
+import type {
+  IAutoMovieCamera,
+  IAutoMovieDeliveryCrop,
+  IAutoMovieMotion,
+  IAutoMoviePlanPoseKeypointSidecarProps,
+  IAutoMoviePlaybackSample,
+  IAutoMoviePlaybackTimeline,
+  IAutoMoviePose,
+  IAutoMoviePoseKeypointActor,
+  IAutoMoviePoseKeypointFrame,
+  IAutoMoviePoseKeypointSidecar,
+  IAutoMovieScene,
+  IAutoMovieSceneNode,
+  IAutoMovieShot,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { frameTimes } from "./frameTimes.js";
 import { shotBeat } from "./shotBeat.js";
@@ -26,7 +44,11 @@ import { shotBeat } from "./shotBeat.js";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A shot's staging, its scene, camera and node index, is resolved once per call and shared by all its frames, which is equivalent because the inputs are immutable for the call and the staging depends only on the shot's `scene` and `camera` ids; the cache is dropped on return.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local maps reference every supplied shot, scene, motion and skeleton; at most one staging entry per supplied shot also holds a camera and node map, which can repeat one scene's node population across shots. The F-time schedule, motion samples and projection intermediates become collectable when their calls finish. The caller retains every returned frame, actor and keypoint, with no frame or population cap here; no native handle or background task is acquired.
  */
-export const planPoseKeypointSidecar: (props: IAutoMoviePlanPoseKeypointSidecarProps) => IAutoMoviePoseKeypointSidecar = (props: IAutoMoviePlanPoseKeypointSidecarProps): IAutoMoviePoseKeypointSidecar => {
+export const planPoseKeypointSidecar: (
+  props: IAutoMoviePlanPoseKeypointSidecarProps,
+) => IAutoMoviePoseKeypointSidecar = (
+  props: IAutoMoviePlanPoseKeypointSidecarProps,
+): IAutoMoviePoseKeypointSidecar => {
   if (Number.isFinite(props.fps) === false || props.fps <= 0)
     throw new Error(`fps must be a finite number > 0, but was ${props.fps}`);
   const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(

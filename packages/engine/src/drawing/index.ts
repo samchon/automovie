@@ -1,4 +1,3 @@
-
 export * from "./autoMovieBoundaryFacePoint";
 export * from "./autoMovieBoundaryShellTriangles";
 export * from "./autoMovieDrawingCellSection";

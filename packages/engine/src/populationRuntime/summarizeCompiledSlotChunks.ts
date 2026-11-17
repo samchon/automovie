@@ -1,5 +1,9 @@
-import { type IAutoMovieCreateCompiledSlotSummary, type IAutoMovieSummarizeCompiledSlotChunks, IAutoMovieFormationBounds, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieCreateCompiledSlotSummary,
+  IAutoMovieFormationBounds,
+  type IAutoMovieSummarizeCompiledSlotChunks,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { createCompiledSlotSummary } from "./createCompiledSlotSummary";
 

@@ -1,5 +1,7 @@
-import type { IAutoMovieSolidBlendChain, IAutoMovieSolidSurface } from "@automovie/interface";
-
+import type {
+  IAutoMovieSolidBlendChain,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 /** World vector in the caller's declared length unit. */
 type V3 = [number, number, number];

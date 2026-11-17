@@ -1,5 +1,3 @@
-
-
 /**
  * One axis-aligned rectangular void in a wall's local XY face, in metres from
  * the wall's lower-left corner, as `buildAutoMovieWall` cuts it.

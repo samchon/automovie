@@ -1,6 +1,13 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanGymnasticsWheel, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanGymnasticsWheel,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { StrikingBody } from "../striking/StrikingBody";
 
@@ -28,7 +35,6 @@ import { StrikingBody } from "../striking/StrikingBody";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres: every place follows from the spokes.
  */
 export namespace GymnasticsWheel {
-
   /** How much lower a later spoke must reach to take the weight from an earlier one, metres: two spokes level within it keep the earlier. */
   const LEVEL: number = 1e-3;
 
@@ -46,7 +52,9 @@ export namespace GymnasticsWheel {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The table holds one record per row and is released with the plan.
    */
-  export function roll(props: IAutoMovieMotionHumanGymnasticsWheel.IRollProps): IAutoMovieMotionHumanGymnasticsWheel.IWheel {
+  export function roll(
+    props: IAutoMovieMotionHumanGymnasticsWheel.IRollProps,
+  ): IAutoMovieMotionHumanGymnasticsWheel.IWheel {
     const count: number = Math.max(1, Math.ceil(props.until / props.step));
     const rows: IAutoMovieMotionHumanGymnasticsWheel.IRow[] = [];
     let place: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -54,7 +62,9 @@ export namespace GymnasticsWheel {
       const angle: number = (props.until * i) / count;
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         StrikingBody.trunk(props.body, props.shaped(angle));
-      const middle = (spoke: IAutoMovieMotionHumanGymnasticsWheel.ISpoke): IAutoMovieVector3 => {
+      const middle = (
+        spoke: IAutoMovieMotionHumanGymnasticsWheel.ISpoke,
+      ): IAutoMovieVector3 => {
         let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
         for (const bone of spoke.bones) {
           const p: IAutoMovieVector3 = bones.get(bone)!.worldPosition;
@@ -69,7 +79,8 @@ export namespace GymnasticsWheel {
       for (let s: number = 1; s < props.spokes.length; s++)
         if (reach(s) < reach(bears) - LEVEL) bears = s;
       const at: IAutoMovieVector3 = middle(props.spokes[bears]!);
-      const before: IAutoMovieMotionHumanGymnasticsWheel.IRow | undefined = rows.at(-1);
+      const before: IAutoMovieMotionHumanGymnasticsWheel.IRow | undefined =
+        rows.at(-1);
       if (before === undefined)
         place = { x: props.start.x + at.x, y: 0, z: props.start.z + at.z };
       else if (before.bears !== bears) {
@@ -136,31 +147,36 @@ export namespace GymnasticsWheel {
     const windows: IAutoMovieMotionHumanContactWindow[] = [];
 
     // Each joint's running window and the last row it bore at.
-    const open: Map<string, { window: IAutoMovieMotionHumanContactWindow; row: number }> =
-      new Map();
-    wheel.rows.forEach((row: IAutoMovieMotionHumanGymnasticsWheel.IRow, index: number): void => {
-      const at: number = share(row.angle);
-      const spoke: IAutoMovieMotionHumanGymnasticsWheel.ISpoke = spokes[row.bears]!;
-      for (const bone of spoke.bones) {
-        const running:
-          | { window: IAutoMovieMotionHumanContactWindow; row: number }
-          | undefined = open.get(bone);
-        if (running !== undefined && running.row === index - 1) {
-          running.window.to = at;
-          running.row = index;
-        } else {
-          const window: IAutoMovieMotionHumanContactWindow = {
-            part: bone,
-            kind: "plant",
-            from: at,
-            to: at,
-            support: spoke.support,
-          };
-          windows.push(window);
-          open.set(bone, { window, row: index });
+    const open: Map<
+      string,
+      { window: IAutoMovieMotionHumanContactWindow; row: number }
+    > = new Map();
+    wheel.rows.forEach(
+      (row: IAutoMovieMotionHumanGymnasticsWheel.IRow, index: number): void => {
+        const at: number = share(row.angle);
+        const spoke: IAutoMovieMotionHumanGymnasticsWheel.ISpoke =
+          spokes[row.bears]!;
+        for (const bone of spoke.bones) {
+          const running:
+            | { window: IAutoMovieMotionHumanContactWindow; row: number }
+            | undefined = open.get(bone);
+          if (running !== undefined && running.row === index - 1) {
+            running.window.to = at;
+            running.row = index;
+          } else {
+            const window: IAutoMovieMotionHumanContactWindow = {
+              part: bone,
+              kind: "plant",
+              from: at,
+              to: at,
+              support: spoke.support,
+            };
+            windows.push(window);
+            open.set(bone, { window, row: index });
+          }
         }
-      }
-    });
+      },
+    );
     return windows;
   }
 

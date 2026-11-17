@@ -1,8 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
 import { createKerb, createTap } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanSignature, HumanSportGym } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanSignature,
+  HumanSportGym,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -26,7 +38,9 @@ export function test_archetype_kerb_used(): void {
   const step: ReturnType<typeof createKerb> = createKerb({ kind: "step" });
   const kerb: ReturnType<typeof createKerb> = createKerb({ kind: "kerb" });
   const tap: ReturnType<typeof createTap> = createTap();
-  const places: Readonly<Record<"step" | "kerb", IAutoMovieMotionHumanProp.IFrame>> = {
+  const places: Readonly<
+    Record<"step" | "kerb", IAutoMovieMotionHumanProp.IFrame>
+  > = {
     step: {
       position: { x: 0, y: 0, z: -1.2 - step.dimensions.depth! },
       rotation: Quaternion.identity(),
@@ -39,19 +53,21 @@ export function test_archetype_kerb_used(): void {
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const performer: IAutoMovieMotionHumanPerformance.IInput["performers"][number] = {
-      subject: "a",
-      body,
-      at: { x: 0, y: 0, z: 0 },
-      yaw: 0,
-      proficiency: { level: "trained" },
-    };
+    const performer: IAutoMovieMotionHumanPerformance.IInput["performers"][number] =
+      {
+        subject: "a",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      };
     const when = (
       film: IAutoMovieMotionHumanPerformance,
       index: number,
       event: string,
     ): number => {
-      const found: IAutoMovieMotionHumanSegment.ISegment = film.segments("a")[index]!;
+      const found: IAutoMovieMotionHumanSegment.ISegment =
+        film.segments("a")[index]!;
       return (
         found.start +
         (found.plan.events.find((e): boolean => e.name === event)?.share ??

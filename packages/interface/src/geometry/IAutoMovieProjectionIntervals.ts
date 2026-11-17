@@ -1,5 +1,3 @@
-
-
 /**
  * Outward-enclosed projections of represented points along a stored direction,
  * produced by `measureAutoMovieProjectionIntervals`.

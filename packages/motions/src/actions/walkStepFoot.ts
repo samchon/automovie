@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanWalkFoot } from "@automovie/interface";
-
 import { wrapDegrees } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanWalkFoot,
+} from "@automovie/interface";
+
 import { HumanFoot } from "../posture/HumanFoot";
 import { stand } from "./stand";
 import { walkFoot } from "./walkFoot";

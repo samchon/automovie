@@ -1,6 +1,15 @@
-import type { IAutoMovieMeshDeformationInfluence, IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
-import { createAutoMovieMeshDeformer, createMeshPhysicalPartitionMatcher, mergeAutoMovieMeshes, resolveAutoMovieMeshPhysicalVertices, transformAutoMovieMesh } from "@automovie/engine";
-
+import {
+  createAutoMovieMeshDeformer,
+  createMeshPhysicalPartitionMatcher,
+  mergeAutoMovieMeshes,
+  resolveAutoMovieMeshPhysicalVertices,
+  transformAutoMovieMesh,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshDeformationInfluence,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createPhysicalMesh } from "../internal/createPhysicalMesh";

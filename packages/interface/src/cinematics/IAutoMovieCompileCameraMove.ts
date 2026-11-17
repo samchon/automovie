@@ -12,18 +12,18 @@ import type { IAutoMovieCameraFrameEntry } from "./IAutoMovieCameraFrameEntry";
 export namespace IAutoMovieCompileCameraMove {
   /**
    * One camera's admitted frame actions and measured subjects, borrowed for compilation into a fresh translation/rotation clip.
-   * 
+   *
    * Framing fixes the distance and the aim. The frame must show the framing's {@link FRAMING_HEIGHT_FRACTION} multiple of the subject's height vertically and of its width (twice `radius`) horizontally, each by the pinhole fit `d = (visible / 2) / tan(half-angle)`, and the camera stands at whichever distance is larger. It aims at {@link FRAMING_AIM_FRACTION} of the height above the subject's base. The camera approaches along its staged bearing, the direction from the aim point to the staged camera, so the side staging chose is kept and only the distance is solved; a camera staged on the aim point uses +Z.
-   * 
+   *
    * Move picks the path over the span `[start, start + duration]`, clipped to the shot, where an `"auto"` duration runs to the next entry's start or the shot end:
-   * 
+   *
    * - `static` holds one framed key at the start.
    * - `push-in` dollies from 1.25 to 0.8 times the framed distance, eased in and out over eight segments.
    * - `orbit` swings 45 degrees about world up around the start aim, eased over eight segments.
    * - `truck` slides one framed distance toward the camera's screen-left while looking at the subject, eased over eight segments and riding the subject's animated base when it has one; a camera staged straight above or below uses world -X as screen-left.
    * - `follow` re-frames against the animated base at 4 Hz, at least two keys, or holds one framed key when the subject does not move.
    * - `whip` keeps the staged position and turns from the staged rotation onto the aim within 0.2 seconds, without solving a distance.
-   * 
+   *
    * Keys are linear, so the gap between two entries plays as a re-frame move, and a key landing within 1e-9 s of the previous one replaces it, the later framing winning. Entries must be sorted by `start` and must not overlap, which `performShot` checks. Compilation returns null for no entries, and throws for an unknown framing/move or a follow key count outside safe-integer representation. Subject callbacks run synchronously for truck/follow samples, are not retained by the clip, and their exceptions propagate.
    *
    * @evidence contracts/development/design.md#principled-representation Positions and subject bounds use world metres, camera fovY uses degrees and actions use shot-local seconds. performShot gates timing and camera inputs; this low-level compiler does not validate all numerical premises or guarantee visible enclosure between keys.

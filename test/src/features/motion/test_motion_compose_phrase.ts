@@ -1,6 +1,21 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanLeg, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionClock, AutoMovieMotionHumanArm, AutoMovieMotionHumanHead, AutoMovieMotionHumanLegPhrase, AutoMovieMotionHumanRoot, AutoMovieMotionHumanTrunk } from "@automovie/motions";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanLeg,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionClock,
+  AutoMovieMotionHumanArm,
+  AutoMovieMotionHumanHead,
+  AutoMovieMotionHumanLegPhrase,
+  AutoMovieMotionHumanRoot,
+  AutoMovieMotionHumanTrunk,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -267,7 +282,8 @@ export function test_motion_compose_phrase(): void {
   const foot = (
     primitive: IAutoMovieMotionHumanPrimitive,
     s: number,
-  ): IAutoMovieMotionHumanPosture.IGoal => primitive.write(posture, s).limbs.leftLeg!;
+  ): IAutoMovieMotionHumanPosture.IGoal =>
+    primitive.write(posture, s).limbs.leftLeg!;
   const lift = AutoMovieMotionHumanLegPhrase.lift({
     ...leg,
     clock: free,

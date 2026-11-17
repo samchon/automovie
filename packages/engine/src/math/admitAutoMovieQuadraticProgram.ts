@@ -1,4 +1,7 @@
-import type { IAutoMovieQuadraticRow, IAutoMovieSolveQuadraticProgram } from "@automovie/interface";
+import type {
+  IAutoMovieQuadraticRow,
+  IAutoMovieSolveQuadraticProgram,
+} from "@automovie/interface";
 
 import { AUTOMOVIE_QUADRATIC_INFINITY } from "../constants/AUTOMOVIE_QUADRATIC_INFINITY";
 
@@ -22,7 +25,7 @@ import { AUTOMOVIE_QUADRATIC_INFINITY } from "../constants/AUTOMOVIE_QUADRATIC_I
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Inputs remain borrowed and unmodified; the call-local marker becomes unreachable on return or throw and is reclaimed by the host rather than explicitly disposed. Explicit refusal creates one Error/host stack without attaching the input, and no matrix, numerical kernel workspace or task is acquired.
  */
 export function admitAutoMovieQuadraticProgram(
-  input: ([IAutoMovieSolveQuadraticProgram.IInput])[0],
+  input: [IAutoMovieSolveQuadraticProgram.IInput][0],
 ): void {
   const variables: number = input.diagonal.length;
   if (

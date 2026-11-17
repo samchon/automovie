@@ -1,6 +1,18 @@
-import { type IAutoMovieWorldBlock, IAutoMovieInstanceSetDesign, IAutoMovieWorldSurface } from "@automovie/interface";
-import { assertWorldPlacements, worldAlongRoute, worldBlock, worldGrid, worldRamp, worldScatter, worldSurfaceHeight, worldTerrain } from "@automovie/engine";
-
+import {
+  assertWorldPlacements,
+  worldAlongRoute,
+  worldBlock,
+  worldGrid,
+  worldRamp,
+  worldScatter,
+  worldSurfaceHeight,
+  worldTerrain,
+} from "@automovie/engine";
+import {
+  IAutoMovieInstanceSetDesign,
+  type IAutoMovieWorldBlock,
+  IAutoMovieWorldSurface,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, throwsError } from "../internal/predicates";

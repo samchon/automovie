@@ -1,6 +1,8 @@
-import { type IAutoMovieProductionFilmEffectSample, type IAutoMovieSampleProductionFilmEffects, IAutoMovieCompiledFilmEffect } from "@automovie/interface";
-
-
+import {
+  IAutoMovieCompiledFilmEffect,
+  type IAutoMovieProductionFilmEffectSample,
+  type IAutoMovieSampleProductionFilmEffects,
+} from "@automovie/interface";
 
 import { productionFrameBoundaryToSeconds } from "../film/productionFrameBoundaryToSeconds";
 import { sampleCompiledEffect } from "../sampleCompiledEffect";
@@ -29,7 +31,9 @@ import { validateProductionFilmEffectRuntime } from "./validateProductionFilmEff
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Validation results are deliberately not cached between frames: the persisted runtimes are mutable records with no version token, so object identity cannot prove a runtime is unchanged since its last check, and a caller sampling many frames pays the digests each time.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing between calls; the returned samples own deep clones of their runtimes, so the result's size is linear in the population and is released with the caller's array.
  */
-export const sampleProductionFilmEffects = (props: IAutoMovieSampleProductionFilmEffects.IProps): IAutoMovieProductionFilmEffectSample[] => {
+export const sampleProductionFilmEffects = (
+  props: IAutoMovieSampleProductionFilmEffects.IProps,
+): IAutoMovieProductionFilmEffectSample[] => {
   validateProductionFilmEffectIdentity(props.identity);
   if (
     Number.isSafeInteger(props.timelineFrame) === false ||

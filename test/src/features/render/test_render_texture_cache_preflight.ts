@@ -1,5 +1,4 @@
 import type { IAutoMovieRenderTextureSource } from "@automovie/interface";
-
 import {
   AutoMovieTextureCache,
   assessAutoMovieRenderBudget,

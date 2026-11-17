@@ -1,5 +1,10 @@
-import { type IAutoMovieValidatePropAffordanceTarget, type IAutoMovieViolationCollector, AutoMovieAffordanceKind, IAutoMovieAffordance, IAutoMoviePropRelationTarget } from "@automovie/interface";
-
+import {
+  AutoMovieAffordanceKind,
+  IAutoMovieAffordance,
+  IAutoMoviePropRelationTarget,
+  type IAutoMovieValidatePropAffordanceTarget,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 /**
  * Gate one relation that cites another prop's declared contact point.

@@ -1,22 +1,19 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanBreastConnection, IAutoMovieHumanGlutealParent, IAutoMovieHumanMassSource } from "@automovie/interface";
-
-
-
-
 import { AutoMovieLoftSectionNative } from "@automovie/engine";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanBreastConnection,
+  IAutoMovieHumanGlutealParent,
+  IAutoMovieHumanMassSource,
+} from "@automovie/interface";
 
 import { AutoMovieHumanGlutealParent } from "./AutoMovieHumanGlutealParent";
 
-
 /** Derive a breast's internal AP root from actual whole-parent local chords, preserving its separate footprint and public apex. */
 export namespace AutoMovieHumanBreastConnection {
-  
-
-  
-
   /** Find a common interior root plane using the parent source at every tested footprint phase, with bounded refinement. */
-  export function create(input: IAutoMovieHumanBreastConnection.IInput): IAutoMovieHumanBreastConnection.IConnection | string {
+  export function create(
+    input: IAutoMovieHumanBreastConnection.IInput,
+  ): IAutoMovieHumanBreastConnection.IConnection | string {
     if (
       !input.target.every(Number.isFinite) ||
       !input.footprint.every(
@@ -34,7 +31,11 @@ export namespace AutoMovieHumanBreastConnection {
     if (typeof centre === "string") return centre;
     if (centre.length !== 1)
       return "Breast apex has no unique actual parent AP chord";
-    const wall: AutoMovieVector3Tuple = [centre[0]!.front.x, input.target[1], input.target[2]];
+    const wall: AutoMovieVector3Tuple = [
+      centre[0]!.front.x,
+      input.target[1],
+      input.target[2],
+    ];
     const amplitude: number = input.target[0] - wall[0];
     if (!(amplitude > 0))
       return "Breast public apex leaves no positive local AP projection";
@@ -96,7 +97,11 @@ export namespace AutoMovieHumanBreastConnection {
           Math.abs(upper - previous[1]),
         ) <= 1e-3
       ) {
-        const root: AutoMovieVector3Tuple = [(lower + upper) / 2, wall[1], wall[2]];
+        const root: AutoMovieVector3Tuple = [
+          (lower + upper) / 2,
+          wall[1],
+          wall[2],
+        ];
         return {
           parent,
           wall,

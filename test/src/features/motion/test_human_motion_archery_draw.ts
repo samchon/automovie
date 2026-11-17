@@ -1,8 +1,16 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 import { createBow, createProjectile } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
-
-import { HumanArchery, HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanArchery,
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";

@@ -1,5 +1,3 @@
-
-
 /**
  * One closed ring's span inside a region's shared canonical point list.
  *

@@ -1,5 +1,11 @@
-import type { IAutoMovieMotionHumanAuditMotion as IAutoMovieMotionHumanAuditMotionType, IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditBalance, IAutoMovieMotionHumanAuditMotion } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanAuditMotion as IAutoMovieMotionHumanAuditMotionType,
+  IAutoMovieMotionHumanContactWindow,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAuditBalance,
+  AutoMovieMotionHumanAuditMotion,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditPoints } from "../internal/motionAuditPoints";
@@ -42,7 +48,9 @@ import { motionAuditPoints } from "../internal/motionAuditPoints";
  * @evidence contracts/development/common.md#meaningful-documentation States the film and lists the 7 scenarios with their seconds.
  */
 export function test_motion_audit_windows(): void {
-  const ground: IAutoMovieMotionHumanContactWindow["support"] = { kind: "ground" };
+  const ground: IAutoMovieMotionHumanContactWindow["support"] = {
+    kind: "ground",
+  };
   const contact = (
     part: IAutoMovieMotionHumanContactWindow["part"],
     kind: IAutoMovieMotionHumanContactWindow["kind"],
@@ -67,7 +75,7 @@ export function test_motion_audit_windows(): void {
   const film = (
     spans: IAutoMovieMotionHumanAuditMotionType.ISpan[],
   ): IAutoMovieMotionHumanAuditMotionType.IWindow[] =>
-    IAutoMovieMotionHumanAuditMotion.windows(
+    AutoMovieMotionHumanAuditMotion.windows(
       motionAuditPoints(6.5, () => ({}), spans),
       "a",
     );

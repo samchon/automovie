@@ -1,4 +1,7 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanPosture } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 /**
  * The order to fit a posture's limbs in: legs then arms, so an arm is
@@ -34,7 +37,9 @@ export function orderHumanLimbs(
     "rightArm",
   ];
   // The limb a bone belongs to, when it belongs to one.
-  const owner = (bone: AutoMovieHumanoidBone): IAutoMovieMotionHumanPosture.Limb | undefined =>
+  const owner = (
+    bone: AutoMovieHumanoidBone,
+  ): IAutoMovieMotionHumanPosture.Limb | undefined =>
     all.find((limb: IAutoMovieMotionHumanPosture.Limb): boolean => {
       const side: string = limb.startsWith("left") ? "left" : "right";
       return limb.endsWith("Arm")
@@ -43,7 +48,9 @@ export function orderHumanLimbs(
         : bone.startsWith(side) &&
             /(UpperLeg|LowerLeg|Foot|Toes|Hallux)/.test(bone);
     });
-  const after = (limb: IAutoMovieMotionHumanPosture.Limb): IAutoMovieMotionHumanPosture.Limb | undefined => {
+  const after = (
+    limb: IAutoMovieMotionHumanPosture.Limb,
+  ): IAutoMovieMotionHumanPosture.Limb | undefined => {
     const on: AutoMovieHumanoidBone | undefined = limbs[limb]?.on;
     const first: IAutoMovieMotionHumanPosture.Limb | undefined =
       on === undefined ? undefined : owner(on);
@@ -59,7 +66,10 @@ export function orderHumanLimbs(
   // With at most one dependency per limb and no two-cycle, placing each limb
   // after its dependency in one pass is a topological order of four nodes.
   const out: IAutoMovieMotionHumanPosture.Limb[] = [];
-  const visit = (limb: IAutoMovieMotionHumanPosture.Limb, depth: number): void => {
+  const visit = (
+    limb: IAutoMovieMotionHumanPosture.Limb,
+    depth: number,
+  ): void => {
     if (out.includes(limb)) return;
     if (depth > all.length)
       throw new Error("Limb goal attachments form a cycle");

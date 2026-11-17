@@ -1,6 +1,10 @@
-import type { IAutoMovieResolvedBone, IAutoMovieHumanoidSurfaceExtents, IAutoMovieHumanoidSurfaces, AutoMovieHumanoidBone, AutoMovieHumanoidRegion } from "@automovie/interface";
-
-
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaceExtents,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -31,7 +35,7 @@ export function AutoMovieHumanoidSurfaceExtents(
     Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces.IFrame>
   >,
   at: (bone: AutoMovieHumanoidBone) => IAutoMovieResolvedBone,
-  bounds: IAutoMovieHumanoidSurfaceExtents.IBounds,
+  bounds: IAutoMovieHumanoidSurfaceExtents.ReadBounds,
 ): Record<AutoMovieHumanoidRegion, number> {
   const placed = Object.entries(regions).map(
     ([name, frame]: [string, IAutoMovieHumanoidSurfaces.IFrame]) => {

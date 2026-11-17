@@ -1,4 +1,3 @@
-import { IAutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
 import type {
   IAutoMovieMotionHumanAuditContact,
   IAutoMovieMotionHumanAuditMeasure,
@@ -9,6 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
 /**
  * Whether the feet's contact with the floor, inferred from the displayed

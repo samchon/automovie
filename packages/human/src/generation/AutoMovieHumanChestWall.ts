@@ -1,11 +1,11 @@
-import type { AutoMovieHumanSexPair, IAutoMovieHumanBodyMeasures, IAutoMovieHumanChestWall } from "@automovie/interface";
-
-
-
 import { AutoMovieViewSection } from "@automovie/engine";
+import type {
+  AutoMovieHumanSexPair,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanChestWall,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
-
 
 /**
  * The chest wall's box at a girth: the thorax's breadth and depth without the
@@ -38,8 +38,6 @@ import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
  * the few centimetres between the nipple line and the inframammary fold.
  */
 export namespace AutoMovieHumanChestWall {
-  
-
   /**
    * Women's and men's lines, Heinz et al. 2003, mm on mm of girth: depth R2
    * 0.38 and 0.49 (residual SD 14.5 and 15.3 mm), diameter R2 0.54 and 0.53

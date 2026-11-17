@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryEventChartInput, IAutoMovieRecoveryUnsupportedDomain } from "../../index";
+import type {
+  IAutoMovieRecoveryEventChartInput,
+  IAutoMovieRecoveryUnsupportedDomain,
+} from "../../index";
 
 /**
  * Named source-free charts and the producer's observation coverage.
@@ -10,19 +13,15 @@ import type { IAutoMovieRecoveryEventChartInput, IAutoMovieRecoveryUnsupportedDo
  */
 
 export interface IAutoMovieRecoveryFieldComplexInput {
- 
- /** Nonempty topology domain for the assembled atlas. */
+  /** Nonempty topology domain for the assembled atlas. */
   id: string;
 
- 
- /** Caller-owned chart declarations in admission order. */
+  /** Caller-owned chart declarations in admission order. */
   charts: readonly IAutoMovieRecoveryEventChartInput[];
 
- 
- /** Previously omitted observations and their original causes. */
+  /** Previously omitted observations and their original causes. */
   unsupported?: readonly IAutoMovieRecoveryUnsupportedDomain[];
 
- 
- /** Producer observation completion independent of coefficient assembly. */
+  /** Producer observation completion independent of coefficient assembly. */
   observationComplete: boolean;
 }

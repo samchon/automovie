@@ -1,5 +1,9 @@
 import type { IAutoMovieFilmBeautyComposition } from "@automovie/interface";
-import { disposeFadeToBlack, renderFadeToBlackFrame, resolveAutoMovieFilmBeautyComposition } from "@automovie/render";
+import {
+  disposeFadeToBlack,
+  renderFadeToBlackFrame,
+  resolveAutoMovieFilmBeautyComposition,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -54,8 +58,10 @@ export function test_viewer_film_fade(): void {
     shot: string;
     weight: number;
   }> = resolveAutoMovieFilmBeautyComposition([directLayer]);
-  const fade: IAutoMovieFilmBeautyComposition<{ shot: string; weight: number }> =
-    resolveAutoMovieFilmBeautyComposition([fadedLayer]);
+  const fade: IAutoMovieFilmBeautyComposition<{
+    shot: string;
+    weight: number;
+  }> = resolveAutoMovieFilmBeautyComposition([fadedLayer]);
   const dissolve: IAutoMovieFilmBeautyComposition<{
     shot: string;
     weight: number;

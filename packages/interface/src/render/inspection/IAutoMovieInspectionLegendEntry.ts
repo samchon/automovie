@@ -1,5 +1,3 @@
-
-
 /**
  * One colour an inspection picture uses and what it marks, so a reader of the picture can name each mark.
  *

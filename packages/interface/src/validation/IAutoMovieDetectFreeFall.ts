@@ -1,5 +1,5 @@
-import type { IAutoMovieBody } from "../model/IAutoMovieBody";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieBody } from "../model/IAutoMovieBody";
 
 /**
  * Declared support and initial trajectory facts for the free-fall adviser.

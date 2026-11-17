@@ -1,4 +1,3 @@
-import type { AutoMovieMotionHumanChannel, IAutoMovieMotionCoupling, IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanPrimitive, IAutoMovieProficiency } from "@automovie/interface";
 export * from "./HumanActionKey";
 export * from "./HumanActionName";
 export * from "./HumanChain";
@@ -221,7 +220,7 @@ export * from "./capture/IMotionCaptureOverlays";
 export * from "./capture/markMotionCaptureCase";
 export * from "./capture/planMotionCaptureInstants";
 export * from "./audit/IAutoMovieMotionHumanAuditMeasure";
-export * from "./audit/IAutoMovieMotionHumanAuditMotion";
+export * from "./audit/AutoMovieMotionHumanAuditMotion";
 export * from "./audit/AutoMovieMotionHumanAuditContinuity";
 export * from "./audit/AutoMovieMotionHumanAuditGround";
 export * from "./audit/AutoMovieMotionHumanAuditBalance";

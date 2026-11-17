@@ -1,7 +1,7 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryAnnularChartPreparation } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryAnnularChartPreparation,
+} from "@automovie/interface";
 
 /**
  * Cut a private oriented annular triangle chart along an observed edge path.
@@ -18,7 +18,9 @@ import type { AutoMovieVector3Tuple, IAutoMovieRecoveryAnnularChartPreparation }
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One oriented edge registry serves path adjacency, vertex-link separation and boundary checks; no source-wide extraction or duplicate chart solve occurs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All graph and heap state expires on return or failure; at most one duplicate per seam vertex plus remapped private triangles transfers to the observation caller. Nothing is published to the reconstruction consumer.
  */
-export function RecoveryAnnularChart(input: Parameters<IAutoMovieRecoveryAnnularChartPreparation.Operation>[0]): ReturnType<IAutoMovieRecoveryAnnularChartPreparation.Operation> {
+export function RecoveryAnnularChart(
+  input: Parameters<IAutoMovieRecoveryAnnularChartPreparation.Operation>[0],
+): ReturnType<IAutoMovieRecoveryAnnularChartPreparation.Operation> {
   if (
     input.verticesMm.length !== input.vertexKeys.length ||
     input.before.length < 3 ||
@@ -290,5 +292,6 @@ export function RecoveryAnnularChart(input: Parameters<IAutoMovieRecoveryAnnular
     vertexKeys,
     sides,
     seam,
-    seamLengthMm: distance[target]! };
+    seamLengthMm: distance[target]!,
+  };
 }

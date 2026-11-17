@@ -1,5 +1,13 @@
-import { type IAutoMovieOpeningSweep, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieMovablePanel, IAutoMovieSubjectBox, IAutoMovieTravelMotion, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMovieMovablePanel,
+  type IAutoMovieOpeningSweep,
+  IAutoMovieSubjectBox,
+  IAutoMovieTravelMotion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { unionSubjectBoxes } from "../film/unionSubjectBoxes";
 import { Matrix4 } from "../math/Matrix4";

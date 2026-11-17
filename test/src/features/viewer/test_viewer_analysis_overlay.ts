@@ -1,6 +1,12 @@
-import { type IAutoMovieDaylightRequest, IAutoMovieAnalysisRun } from "@automovie/interface";
-import { analyzeAutoMovieAcoustics, analyzeAutoMovieDaylight, sealAutoMovieAnalysisRun } from "@automovie/engine";
-
+import {
+  analyzeAutoMovieAcoustics,
+  analyzeAutoMovieDaylight,
+  sealAutoMovieAnalysisRun,
+} from "@automovie/engine";
+import {
+  IAutoMovieAnalysisRun,
+  type IAutoMovieDaylightRequest,
+} from "@automovie/interface";
 import {
   autoMovieAnalysisRampColor,
   buildAnalysisOverlayObject,

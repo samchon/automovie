@@ -1,4 +1,5 @@
 import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
+
 /**
  * Shared self-contact exclusions for native filtering, goal fitting and audit. Same owners, direct joint neighbours and declared overlapping pivot regions cannot collide with themselves.
  *
@@ -23,7 +24,11 @@ export function isPhysicalProfilePairExcluded(
         (joint.parent === b && joint.child === a),
     ) ||
     (profile.collisionExclusions?.some(
-      (pair: NonNullable<IAutoMoviePhysicalProfile["collisionExclusions"]>[number]): boolean =>
+      (
+        pair: NonNullable<
+          IAutoMoviePhysicalProfile["collisionExclusions"]
+        >[number],
+      ): boolean =>
         (pair.a === a && pair.b === b) || (pair.a === b && pair.b === a),
     ) ??
       false)

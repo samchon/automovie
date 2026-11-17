@@ -6,7 +6,7 @@ import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViola
 export namespace IAutoMovieAppendServiceInsideSpace {
   /**
    * One world-space service point and its owning logical-space containment context.
-   * 
+   *
    * A node is placed in a room, and a port is the point a run is anchored to, so
    * the two answer the same question and are held by the same predicate the
    * architecture holds a prop with. A port allowed to drift out of its node's
@@ -15,7 +15,7 @@ export namespace IAutoMovieAppendServiceInsideSpace {
    * plant room can be routed entirely inside that room, never appear to leave
    * anywhere, need no sleeve, and still render as the thing that serves the
    * hall.
-   * 
+   *
    * A point that is not finite has already been reported for being unreadable,
    * and a space that does not resolve has already been reported for not existing.
    * Neither is accused a second time of standing in the wrong place, which would

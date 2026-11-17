@@ -1,6 +1,15 @@
-import type { IAutoMovieResolvedBone, IAutoMovieHumanoidSurfaceRays, IAutoMovieHumanoidSurfaceRegions, IAutoMovieHumanoidSurfaces, IAutoMoviePhysicalProfile, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaceReader, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanoidSurfaceRays,
+  IAutoMovieHumanoidSurfaceReader,
+  IAutoMovieHumanoidSurfaceRegions,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -162,10 +171,13 @@ export namespace AutoMovieHumanoidSurfaceRays {
         throw new Error(`Surfaces need the rig bone ${bone}`);
       return r;
     };
-    const segment = (bone: AutoMovieHumanoidBone): IAutoMoviePhysicalProfile.ISegment => {
-      const s: IAutoMoviePhysicalProfile.ISegment | undefined = profile.segments.find(
-        (x: IAutoMoviePhysicalProfile.ISegment): boolean => x.bone === bone,
-      );
+    const segment = (
+      bone: AutoMovieHumanoidBone,
+    ): IAutoMoviePhysicalProfile.ISegment => {
+      const s: IAutoMoviePhysicalProfile.ISegment | undefined =
+        profile.segments.find(
+          (x: IAutoMoviePhysicalProfile.ISegment): boolean => x.bone === bone,
+        );
       if (s === undefined)
         throw new Error(`Surfaces need the profile segment ${bone}`);
       return s;

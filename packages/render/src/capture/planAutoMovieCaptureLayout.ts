@@ -1,9 +1,9 @@
-import type { IAutoMovieCaptureLayout, IAutoMovieCaptureLayoutProps } from "@automovie/interface";
-
+import type {
+  IAutoMovieCaptureLayout,
+  IAutoMovieCaptureLayoutProps,
+} from "@automovie/interface";
 
 import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
-
-
 
 /** Slack for the rounding of a pixel size that is a whole number in exact arithmetic, such as 720 × 200 / 720. */
 const EPSILON: number = 1e-9;
@@ -28,7 +28,9 @@ const EPSILON: number = 1e-9;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one small record and keeps nothing.
  */
-export function planAutoMovieCaptureLayout(props: IAutoMovieCaptureLayoutProps): IAutoMovieCaptureLayout {
+export function planAutoMovieCaptureLayout(
+  props: IAutoMovieCaptureLayoutProps,
+): IAutoMovieCaptureLayout {
   const { width, height, count, budget } = props;
   for (const [key, value] of Object.entries({
     width,

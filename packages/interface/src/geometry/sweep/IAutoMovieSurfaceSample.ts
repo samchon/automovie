@@ -48,22 +48,22 @@ export interface IAutoMovieSurfaceSample {
 
   /** The sweep and domain point it lies on, for a point of a sweep edge; otherwise null. */
   sweep: {
-  /** Borrowed compiled sweep rig whose live pose supplies the loop's normal or spine derivative. It must be updated before a bridge reads its probes. */
-  rig: IAutoMovieSweepRig;
+    /** Borrowed compiled sweep rig whose live pose supplies the loop's normal or spine derivative. It must be updated before a bridge reads its probes. */
+    rig: IAutoMovieSweepRig;
 
-  /** Normalized chord-length position used with the sweep rig's section point and probe registration. */
-  u: number;
+    /** Normalized chord-length position used with the sweep rig's section point and probe registration. */
+    u: number;
 
-  /** Section turn used with the sweep rig; wraps with the sweep's section parameter convention. */
-  v: number;
+    /** Section turn used with the sweep rig; wraps with the sweep's section parameter convention. */
+    v: number;
   } | null;
 
   /** The curve and share it lies at, for a point of a curve edge; otherwise null. */
   curve: {
-  /** Borrowed network-curve rig. Update it after its source sweeps/bones and before reading bridge points, normals or declared directions. */
-  rig: IAutoMovieSurfaceCurveRig;
+    /** Borrowed network-curve rig. Update it after its source sweeps/bones and before reading bridge points, normals or declared directions. */
+    rig: IAutoMovieSurfaceCurveRig;
 
-  /** Curve share in [0,1], used consistently for point and blended normal queries. */
-  t: number;
+    /** Curve share in [0,1], used consistently for point and blended normal queries. */
+    t: number;
   } | null;
 }

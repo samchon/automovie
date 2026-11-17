@@ -1,8 +1,13 @@
-import type { AutoMovieVector3Tuple, IAutoMovieMeshPlaneCut, IAutoMoviePlaneFrameConstruction, IAutoMovieRecoveryMeshIncidencePreparationOperation, IAutoMovieRecoveryOrderedLineage, IAutoMovieRecoverySavedSectionCutsBindingOperation, IAutoMovieRecoveryScalarIndex, IAutoMovieRecoverySourceLineage } from "@automovie/interface";
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieMeshPlaneCut,
+  IAutoMoviePlaneFrameConstruction,
+  IAutoMovieRecoveryMeshIncidencePreparationOperation,
+  IAutoMovieRecoveryOrderedLineage,
+  IAutoMovieRecoverySavedSectionCutsBindingOperation,
+  IAutoMovieRecoveryScalarIndex,
+  IAutoMovieRecoverySourceLineage,
+} from "@automovie/interface";
 
 import { RecoveryScalarIndex } from "./RecoveryScalarIndex";
 import { bindRecoverySavedSectionCuts } from "./bindRecoverySavedSectionCuts";
@@ -31,16 +36,14 @@ export function observeRecoveryOrderedCuts(
 ): IAutoMovieRecoveryOrderedLineage.Cuts {
   const prepared: ReturnType<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation> =
     prepareRecoveryMeshIncidence(input, input.verticesMm);
-  const frame: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> = planeFrame(
-    [0, 0, 0],
-    input.axis,
-    input.reference,
-  );
+  const frame: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> =
+    planeFrame([0, 0, 0], input.axis, input.reference);
   const physicalFrame: IAutoMovieRecoveryOrderedLineage.Cuts["frame"] = {
     originMm: [...frame.origin],
     n: [...frame.n],
     u: [...frame.u],
-    v: [...frame.v] };
+    v: [...frame.v],
+  };
   if (
     ![frame.n, frame.u, frame.v].every(
       (v: Readonly<AutoMovieVector3Tuple>): boolean =>
@@ -106,7 +109,8 @@ export function observeRecoveryOrderedCuts(
         frame.n[0] * saved.coordinateMm,
         frame.n[1] * saved.coordinateMm,
         frame.n[2] * saved.coordinateMm,
-      ] };
+      ],
+    };
     const raw: ReturnType<typeof cut> = cut(
       plane,
       saved.coordinateMm,
@@ -124,11 +128,14 @@ export function observeRecoveryOrderedCuts(
               sourceTriangleIds: local(r.sourceTriangleIds),
               ...(r.exactSourceTriangleIds === undefined
                 ? {}
-                : { exactSourceTriangleIds: local(r.exactSourceTriangleIds) }) }),
-          ) },
+                : { exactSourceTriangleIds: local(r.exactSourceTriangleIds) }),
+            }),
+          ),
+        },
         contours: raw,
         prepared,
-        checkpoint: (): void => {} });
+        checkpoint: (): void => {},
+      });
     if (bound.status !== "bound") throw new Error(bound.diagnostic);
     const contours: IAutoMovieRecoveryOrderedLineage.Contour[] = raw.map(
       (
@@ -168,7 +175,8 @@ export function observeRecoveryOrderedCuts(
               endMm,
               originalTriangleIds: s.sourceTriangleIds.map(
                 (id: number): number => input.originalTriangleIds[id]!,
-              ) };
+              ),
+            };
           },
         );
         const lineage: IAutoMovieRecoverySourceLineage =
@@ -200,24 +208,29 @@ export function observeRecoveryOrderedCuts(
                       ): NonNullable<
                         IAutoMovieRecoveryOrderedLineage.Contour["points"][number]["sourceEdges"]
                       >[number] => ({ ...e, pointMm: [...e.pointMm] }),
-                    ) }) }),
+                    ),
+                  }),
+            }),
           ),
           cumulativePolylineMm: cumulative,
           totalPolylineMm: segments.at(-1)?.endMm ?? 0,
-          segments };
+          segments,
+        };
       },
     );
     sections.push({
       coordinateMm: saved.coordinateMm,
       observationIdentity: saved.observationIdentity,
-      contours });
+      contours,
+    });
   }
   return {
     name: input.name,
     sourceIdentity: input.sourceIdentity,
     sourceSelectionIdentity: input.sourceSelectionIdentity,
     frame: physicalFrame,
-    sections };
+    sections,
+  };
 }
 /** Measure a chord between two registered observation points in mm.
  * Math.hypot limits intermediate sum overflow but is not exact arithmetic;
@@ -225,6 +238,9 @@ export function observeRecoveryOrderedCuts(
  * not independently refuse. No approximation or coordinate correction occurs.
  *
  */
-function distance(a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>): number {
+function distance(
+  a: Readonly<AutoMovieVector3Tuple>,
+  b: Readonly<AutoMovieVector3Tuple>,
+): number {
   return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 }

@@ -1,11 +1,14 @@
-import type { IAutoMovieMotionHumanArmGeometry, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Quaternion,
   Vector3,
   physicalShapeNormal,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
@@ -193,7 +196,9 @@ export namespace HumanArmTrajectoryPairs {
    */
   export function located(
     c: M.IContext,
-    placed: readonly (readonly IAutoMovieMotionHumanArmGeometry.IPlaced[])[] | ((arm: number) => IAutoMovieMotionHumanArmGeometry.IPlaced),
+    placed:
+      | readonly (readonly IAutoMovieMotionHumanArmGeometry.IPlaced[])[]
+      | ((arm: number) => IAutoMovieMotionHumanArmGeometry.IPlaced),
     a: number,
     k: number,
     site: M.ISite,
@@ -293,8 +298,10 @@ export namespace HumanArmTrajectoryPairs {
     shape: number,
     p: IAutoMovieVector3,
   ): { point: IAutoMovieVector3; turn: IAutoMovieQuaternion } {
-    const now: IAutoMovieMotionHumanArmGeometry.IShape = c.frames[a]![k]!.shapes[shape]!;
-    const next: IAutoMovieMotionHumanArmGeometry.IShape | undefined = c.frames[a]![k + 1]!.shapes[shape];
+    const now: IAutoMovieMotionHumanArmGeometry.IShape =
+      c.frames[a]![k]!.shapes[shape]!;
+    const next: IAutoMovieMotionHumanArmGeometry.IShape | undefined =
+      c.frames[a]![k + 1]!.shapes[shape];
 
     // A shape read at both waypoints by the same index is the same segment
     // (the body's colliders lead every frame in profile order).

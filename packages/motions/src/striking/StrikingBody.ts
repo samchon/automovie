@@ -1,6 +1,27 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, AutoMovieHumanoidSocket, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingBody, IAutoMovieMotionHumanStrikingContact, IAutoMoviePhysicalProfile, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+  resolvePose,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  AutoMovieHumanoidSocket,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingBody,
+  IAutoMovieMotionHumanStrikingContact,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces, resolvePose } from "@automovie/engine";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -288,7 +309,9 @@ export namespace StrikingBody {
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieMotionHumanStrikingContact.ICollider[] {
     return HumanColliders.placed(body, bones).flatMap(
-      (segment: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieMotionHumanStrikingContact.ICollider[] =>
+      (
+        segment: IAutoMovieMotionHumanColliders.IPlaced,
+      ): IAutoMovieMotionHumanStrikingContact.ICollider[] =>
         segment.shapes.map(
           (
             shape: IAutoMoviePhysicalProfile.IShape,

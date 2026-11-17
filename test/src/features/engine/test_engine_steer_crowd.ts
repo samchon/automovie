@@ -1,6 +1,9 @@
-import type { IAutoMovieCrowdAgent, IAutoMovieSteerCrowd, IAutoMovieVector3 } from "@automovie/interface";
 import { steerAutoMovieCrowd } from "@automovie/engine";
-
+import type {
+  IAutoMovieCrowdAgent,
+  IAutoMovieSteerCrowd,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,5 +1,7 @@
-import type { IAutoMovieWarpRoot, IAutoMovieTransform } from "@automovie/interface";
-
+import type {
+  IAutoMovieTransform,
+  IAutoMovieWarpRoot,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { minimumJerk } from "./minimumJerk";

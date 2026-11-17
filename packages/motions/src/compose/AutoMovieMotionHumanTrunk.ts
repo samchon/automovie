@@ -1,6 +1,15 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanTrunk, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanTrunk,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -77,12 +86,17 @@ export namespace AutoMovieMotionHumanTrunk {
   export function footing(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-  ): Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanFoot.IPlacement> {
+  ): Record<
+    IAutoMovieMotionHumanHand.Side,
+    IAutoMovieMotionHumanFoot.IPlacement
+  > {
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,
       resolveHumanPosture(body, posture),
     );
-    const at = (side: IAutoMovieMotionHumanHand.Side): IAutoMovieMotionHumanFoot.IPlacement => ({
+    const at = (
+      side: IAutoMovieMotionHumanHand.Side,
+    ): IAutoMovieMotionHumanFoot.IPlacement => ({
       ankle: bones.get(`${side}Foot`)!.worldPosition,
       rotation: bones.get(`${side}Foot`)!.worldRotation,
     });
@@ -112,7 +126,12 @@ export namespace AutoMovieMotionHumanTrunk {
   export function planted(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    feet: Readonly<Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanFoot.IPlacement>>,
+    feet: Readonly<
+      Record<
+        IAutoMovieMotionHumanHand.Side,
+        IAutoMovieMotionHumanFoot.IPlacement
+      >
+    >,
     legs: readonly IAutoMovieMotionHumanHand.Side[],
   ): IAutoMovieMotionHumanPosture {
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
@@ -168,8 +187,10 @@ export namespace AutoMovieMotionHumanTrunk {
         hips,
       ),
     );
-    const left: IAutoMovieMotionHumanPosture.IGoal | undefined = posture.limbs.leftLeg;
-    const right: IAutoMovieMotionHumanPosture.IGoal | undefined = posture.limbs.rightLeg;
+    const left: IAutoMovieMotionHumanPosture.IGoal | undefined =
+      posture.limbs.leftLeg;
+    const right: IAutoMovieMotionHumanPosture.IGoal | undefined =
+      posture.limbs.rightLeg;
     const tilt = HumanTrunk.incline(
       posture.joints,
       inclination,
@@ -217,15 +238,19 @@ export namespace AutoMovieMotionHumanTrunk {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the lowered pose to `sunk`, the solve to `HumanBalance.shift` and the leg goals to `AutoMovieMotionHumanLeg.goal`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive keeps its arguments, the two feet and one solved number.
    */
-  export function crouch(props: IAutoMovieMotionHumanTrunk.ICrouch): IAutoMovieMotionHumanPrimitive {
+  export function crouch(
+    props: IAutoMovieMotionHumanTrunk.ICrouch,
+  ): IAutoMovieMotionHumanPrimitive {
     if (!(props.depth >= 0) || !(props.pitch >= 0))
       throw new Error("A crouch's depth and pitch are not negative");
     const legs: readonly IAutoMovieMotionHumanHand.Side[] = props.legs ?? [
       "left",
       "right",
     ];
-    const feet: Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanFoot.IPlacement> =
-      footing(props.body, props.standing);
+    const feet: Record<
+      IAutoMovieMotionHumanHand.Side,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = footing(props.body, props.standing);
 
     // The legs are planted before the hips sink, so `sunk` reads the thighs
     // the pelvis's share is limited by, and the knees bend as the root goes
@@ -262,7 +287,10 @@ export namespace AutoMovieMotionHumanTrunk {
       ],
       from: props.clock.at(props.rise[0]),
       to: props.clock.at(props.fall[1]),
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
         const share: number = props.clock.envelope(
           props.rise,
           props.fall,

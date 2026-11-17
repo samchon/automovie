@@ -1,7 +1,11 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 import { createCart } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,7 +32,9 @@ export function test_human_motion_support_walk_wagon(): void {
   const cart: ReturnType<typeof createCart> = createCart({ kind: "cart" });
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const perform = (speed: number): IAutoMovieMotionHumanPerformance => {
-    const motion = (seconds: number): IAutoMovieMotionHumanObject.Placement => ({
+    const motion = (
+      seconds: number,
+    ): IAutoMovieMotionHumanObject.Placement => ({
       at: { x: 0, y: 0, z: speed * seconds },
       yaw: 0,
     });

@@ -1,4 +1,5 @@
 import type { IAutoMovieRecoveryImageDirectionSolverCreationOperation } from "@automovie/interface";
+
 /**
  * Factor a two-column camera-direction design without normal equations.
  * Reorthogonalized modified Gram-Schmidt supplies the small QR factors; the
@@ -75,5 +76,6 @@ export function createRecoveryImageDirectionSolver(
       if (!Number.isFinite(x) || !Number.isFinite(z))
         throw new Error("Direction solve exceeded finite arithmetic");
       return [x, z];
-    } };
+    },
+  };
 }

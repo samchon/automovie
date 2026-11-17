@@ -1,6 +1,8 @@
-import type { IAutoMovieSubjectContribution, IAutoMovieSubject, IAutoMovieShotBuildContext } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieShotBuildContext,
+  IAutoMovieSubject,
+  IAutoMovieSubjectContribution,
+} from "@automovie/interface";
 
 import { AutoMovieSubject } from "./AutoMovieSubject";
 import { mergeAutoMovieSubjectContributions } from "./mergeAutoMovieSubjectContributions";

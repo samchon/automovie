@@ -1,6 +1,8 @@
-import type { IAutoMovieResolveMutualGoal, IAutoMovieVector3 } from "@automovie/interface";
 import { resolveAutoMovieMutualGoal } from "@automovie/engine";
-
+import type {
+  IAutoMovieResolveMutualGoal,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -80,10 +82,12 @@ export function test_motion_handling_mutual_goal(): void {
   );
 
   // 2. Partner symmetry.
-  const swapped: IAutoMovieResolveMutualGoal.IGoal = resolveAutoMovieMutualGoal({
-    a: b,
-    b: a,
-  });
+  const swapped: IAutoMovieResolveMutualGoal.IGoal = resolveAutoMovieMutualGoal(
+    {
+      a: b,
+      b: a,
+    },
+  );
   TestValidator.predicate(
     "swap keeps the point",
     close(swapped.point.x, goal.point.x) &&

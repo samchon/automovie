@@ -1,4 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieAxisDirection } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieAxisDirection,
+} from "@automovie/interface";
+
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
 /**
@@ -12,7 +16,6 @@ import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieAxisDirection {
-
   /**
    * Project a direction off an admitted unit tangent, preserving ordinary arithmetic.
    *
@@ -43,14 +46,13 @@ export namespace AutoMovieAxisDirection {
         const scaled: AutoMovieVector3Tuple = up.map(
           (value: number): number => value / magnitude,
         ) as AutoMovieVector3Tuple;
-        const scaledVector: AutoMovieVector3Tuple =
-          AutoMovieSolidVector.sub(
-            scaled,
-            AutoMovieSolidVector.scale(
-              tangent,
-              AutoMovieSolidVector.dot(scaled, tangent),
-            ),
-          );
+        const scaledVector: AutoMovieVector3Tuple = AutoMovieSolidVector.sub(
+          scaled,
+          AutoMovieSolidVector.scale(
+            tangent,
+            AutoMovieSolidVector.dot(scaled, tangent),
+          ),
+        );
         const scaledNorm: number = Math.hypot(...scaledVector);
 
         // Scaling an enormous tangent component must not erase a representable raw normal.

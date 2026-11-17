@@ -1,5 +1,8 @@
-import type { IAutoMovieRecoveryCameraChartCreationOperation, IAutoMovieRecoveryCameraPairAdmissionOperation, IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
-
+import type {
+  IAutoMovieRecoveryCameraChartCreationOperation,
+  IAutoMovieRecoveryCameraPairAdmissionOperation,
+  IAutoMovieRecoveryCameraPairInput,
+} from "@automovie/interface";
 
 import { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 
@@ -159,7 +162,8 @@ export function admitRecoveryCameraPair(
     );
   let pixels: number = 0;
   const identities: Set<string> = new Set<string>();
-  const charts: ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>[] = [];
+  const charts: ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>[] =
+    [];
   for (const view of input.views) {
     keys(
       view,

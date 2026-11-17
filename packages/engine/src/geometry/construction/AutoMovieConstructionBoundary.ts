@@ -1,4 +1,8 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftFrame, IAutoMovieLoftSectionSource } from "@automovie/interface";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftFrame,
+  IAutoMovieLoftSectionSource,
+} from "@automovie/interface";
 
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import { AutoMovieLoftSection } from "./AutoMovieLoftSection";

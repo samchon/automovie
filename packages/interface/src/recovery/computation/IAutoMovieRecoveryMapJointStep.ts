@@ -8,27 +8,21 @@ import type { IAutoMovieRecoveryMapMetric } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Fields distinguish physical increments, undamped ratios and explicit factor retention.
  */
 export interface IAutoMovieRecoveryMapJointStep {
- 
- /** C physical gauge-fixed camera increments. */
+  /** C physical gauge-fixed camera increments. */
   cameraStep: number[];
 
- 
- /** Three physical world-coordinate increments per ordered landmark. */
+  /** Three physical world-coordinate increments per ordered landmark. */
   pointSteps: [number, number, number][];
 
- 
- /** Undamped column-scaled reduced-camera smallest/largest singular ratio. */
+  /** Undamped column-scaled reduced-camera smallest/largest singular ratio. */
   cameraDesignRatio: number;
 
- 
- /** Minimum corresponding undamped three-column landmark ratio. */
+  /** Minimum corresponding undamped three-column landmark ratio. */
   minimumPointDesignRatio: number;
 
- 
- /** Maximum scaled original least-squares gradient component. */
+  /** Maximum scaled original least-squares gradient component. */
   gradient: number;
 
- 
- /** Present only when explicitly retained for the feasible consumer. */
+  /** Present only when explicitly retained for the feasible consumer. */
   metric?: IAutoMovieRecoveryMapMetric;
 }

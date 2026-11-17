@@ -6,15 +6,12 @@
  * @evidence contracts/development/common.md#meaningful-documentation States admission, diagnostics and unchanged caller ownership.
  */
 export interface IAutoMovieRecoveryObservationTransportRefused {
- 
- /** No transported row was admitted. */
+  /** No transported row was admitted. */
   admitted: false;
 
- 
- /** Causes that prevented an ordered, representable geometric transport. */
+  /** Causes that prevented an ordered, representable geometric transport. */
   diagnostics: string[];
 
- 
- /** The operation leaves the caller's original observations untouched. */
+  /** The operation leaves the caller's original observations untouched. */
   originalCourseRetainedByCaller: true;
 }

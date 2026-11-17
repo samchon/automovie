@@ -1,6 +1,3 @@
-import type { IAutoMoviePhysicalHullFaces, IAutoMovieResolveHumanoidRingModules, IAutoMovieHumanCanonicalSolids, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import {
   Vector3,
   physicalHullFaces,
@@ -8,8 +5,13 @@ import {
   physicalHullNearest,
   resolveAutoMovieHumanoidRingModules,
 } from "@automovie/engine";
-
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanCanonicalSolids,
+  IAutoMoviePhysicalHullFaces,
+  IAutoMovieResolveHumanoidRingModules,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The convex solids of a polygon man at the canonical T-pose rest: the
@@ -37,17 +39,15 @@ import {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No `any`, `unknown`, index signature or cast beyond naming a carrier; ring geometry and hull mathematics stay with their engine owners.
  */
 export namespace AutoMovieHumanCanonicalSolids {
-  
-
-  
-
   /**
    * Build every solid of the body.
    *
    * @param joints Every drawn Human joint by id, parent before child.
    * @returns The solids in the ring owner's module order.
    */
-  export function build(joints: ReadonlyMap<string, IAutoMovieHumanCanonicalSolids.IJoint>): IAutoMovieHumanCanonicalSolids.ISolid[] {
+  export function build(
+    joints: ReadonlyMap<string, IAutoMovieHumanCanonicalSolids.IJoint>,
+  ): IAutoMovieHumanCanonicalSolids.ISolid[] {
     const tuple = (p: IAutoMovieVector3): [number, number, number] => [
       p.z,
       p.y,

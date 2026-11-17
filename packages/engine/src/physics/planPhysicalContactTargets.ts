@@ -1,4 +1,15 @@
-import type { IAutoMovieLinearizePhysicalTargetRows, IAutoMoviePhysicalContactBinding, IAutoMoviePhysicalContactBindingRows, IAutoMoviePhysicalPointBound, IAutoMoviePhysicalProfile, IAutoMoviePlanPhysicalContactTargets, IAutoMoviePoses, IAutoMoviePreparePhysicalGeometry, IAutoMovieSolvePhysicalArticulationTargets } from "@automovie/interface";
+import type {
+  IAutoMovieLinearizePhysicalTargetRows,
+  IAutoMoviePhysicalContactBinding,
+  IAutoMoviePhysicalContactBindingRows,
+  IAutoMoviePhysicalPointBound,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePlanPhysicalContactTargets,
+  IAutoMoviePoses,
+  IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieSolvePhysicalArticulationTargets,
+} from "@automovie/interface";
+
 import { admitPhysicalPointBounds } from "./admitPhysicalPointBounds";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
 import { linearizePhysicalInterval } from "./linearizePhysicalInterval";
@@ -30,7 +41,9 @@ type PoseRead<Value> = (poses: IAutoMoviePoses) => Value;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 43 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function planPhysicalContactTargets(input: IAutoMoviePlanPhysicalContactTargets.IInput): IAutoMoviePlanPhysicalContactTargets.IResult {
+export function planPhysicalContactTargets(
+  input: IAutoMoviePlanPhysicalContactTargets.IInput,
+): IAutoMoviePlanPhysicalContactTargets.IResult {
   const profile: IAutoMoviePhysicalProfile = input.profiles[input.body]!;
   const supports: IAutoMovieLinearizePhysicalTargetRows.IRows[] =
     physicalContactSupportRows({
@@ -40,40 +53,46 @@ export function planPhysicalContactTargets(input: IAutoMoviePlanPhysicalContactT
       geometry: input.geometry,
       floor: input.floor,
     });
-  const pointBounds: readonly IAutoMoviePhysicalPointBound[] = input.pointBounds ?? [];
+  const pointBounds: readonly IAutoMoviePhysicalPointBound[] =
+    input.pointBounds ?? [];
   admitPhysicalPointBounds(
     input.profiles,
     input.body,
     pointBounds,
-    new Set(input.bindings.map((binding: IAutoMoviePhysicalContactBinding): string => binding.id)),
+    new Set(
+      input.bindings.map(
+        (binding: IAutoMoviePhysicalContactBinding): string => binding.id,
+      ),
+    ),
   );
   const root: string = profile.segments.find(
     (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
       !profile.joints.some(
-        (joint: IAutoMoviePhysicalProfile.IJoint): boolean => joint.child === segment.bone,
+        (joint: IAutoMoviePhysicalProfile.IJoint): boolean =>
+          joint.child === segment.bone,
       ),
   )!.bone;
-  const coherent: Record<string, IAutoMoviePhysicalProfile.ITransform> = projectPhysicalTargets(
-    profile,
-    input.targets,
-  ).targets;
-  const initial: Record<string, IAutoMoviePhysicalProfile.ITransform> = rebasePhysicalTargets(
-    coherent,
-    root,
-    input.actual[input.body]![root]!,
-  );
+  const coherent: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+    projectPhysicalTargets(profile, input.targets).targets;
+  const initial: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+    rebasePhysicalTargets(coherent, root, input.actual[input.body]![root]!);
   const bindings: IAutoMoviePhysicalContactBinding[] = input.bindings.filter(
     (binding: IAutoMoviePhysicalContactBinding): boolean => binding.weight > 0,
   );
-  const shapes: { bone: string; shape: IAutoMoviePhysicalProfile.IShape }[] = profile.segments.flatMap(
-    (segment: IAutoMoviePhysicalProfile.ISegment): { bone: string; shape: IAutoMoviePhysicalProfile.IShape }[] =>
-      segment.shapes.map(
-        (shape: IAutoMoviePhysicalProfile.IShape): { bone: string; shape: IAutoMoviePhysicalProfile.IShape } => ({
-          bone: segment.bone,
-          shape,
-        }),
-      ),
-  );
+  const shapes: { bone: string; shape: IAutoMoviePhysicalProfile.IShape }[] =
+    profile.segments.flatMap(
+      (
+        segment: IAutoMoviePhysicalProfile.ISegment,
+      ): { bone: string; shape: IAutoMoviePhysicalProfile.IShape }[] =>
+        segment.shapes.map(
+          (
+            shape: IAutoMoviePhysicalProfile.IShape,
+          ): { bone: string; shape: IAutoMoviePhysicalProfile.IShape } => ({
+            bone: segment.bone,
+            shape,
+          }),
+        ),
+    );
   const pairs: { a: (typeof shapes)[number]; b: (typeof shapes)[number] }[] =
     input.selfAvoidance
       ? shapes.flatMap(
@@ -108,21 +127,26 @@ export function planPhysicalContactTargets(input: IAutoMoviePlanPhysicalContactT
               input.actual[bound.reference.body]![bound.reference.bone]!,
       ),
   );
-  const pairContacts: PoseRead<ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]>>[] =
-    pairs.map(
-      (
-        pair: (typeof pairs)[number],
-      ): PoseRead<ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]>> =>
-        remember(
-          [pair.a.bone, pair.b.bone],
-          (poses: IAutoMoviePoses): ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =>
-            input.geometry.contact(
-              collider(pair.a, poses),
-              collider(pair.b, poses),
-              0,
-            ),
-        ),
-    );
+  const pairContacts: PoseRead<
+    ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]>
+  >[] = pairs.map(
+    (
+      pair: (typeof pairs)[number],
+    ): PoseRead<
+      ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]>
+    > =>
+      remember(
+        [pair.a.bone, pair.b.bone],
+        (
+          poses: IAutoMoviePoses,
+        ): ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =>
+          input.geometry.contact(
+            collider(pair.a, poses),
+            collider(pair.b, poses),
+            0,
+          ),
+      ),
+  );
   const rows: IAutoMovieLinearizePhysicalTargetRows.IRows[] = [
     ...relationships.map(
       (
@@ -178,13 +202,15 @@ export function planPhysicalContactTargets(input: IAutoMoviePlanPhysicalContactT
           Math.min(0, pairContacts[index]!(poses)?.separation ?? 0),
         ],
         linearize: (poses: IAutoMoviePoses): PoseRead<number[]> => {
-          const model: ((first: IAutoMoviePhysicalProfile.ITransform, second: IAutoMoviePhysicalProfile.ITransform) => number) =
-            linearizePhysicalSeparation(
-              input.geometry,
-              collider(pair.a, poses),
-              collider(pair.b, poses),
-              pairContacts[index]!(poses),
-            );
+          const model: (
+            first: IAutoMoviePhysicalProfile.ITransform,
+            second: IAutoMoviePhysicalProfile.ITransform,
+          ) => number = linearizePhysicalSeparation(
+            input.geometry,
+            collider(pair.a, poses),
+            collider(pair.b, poses),
+            pairContacts[index]!(poses),
+          );
           return (probe: IAutoMoviePoses): number[] => [
             model(probe[pair.a.bone]!, probe[pair.b.bone]!),
           ];
@@ -194,11 +220,18 @@ export function planPhysicalContactTargets(input: IAutoMoviePlanPhysicalContactT
     ...supports,
   ];
   const bones: string[] = input.selfAvoidance
-    ? profile.joints.map((joint: IAutoMoviePhysicalProfile.IJoint): string => joint.child)
+    ? profile.joints.map(
+        (joint: IAutoMoviePhysicalProfile.IJoint): string => joint.child,
+      )
     : [
         ...new Set([
-          ...bindings.flatMap((binding: IAutoMoviePhysicalContactBinding): string[] => binding.chain),
-          ...pointBounds.flatMap((bound: IAutoMoviePhysicalPointBound): string[] => bound.chain),
+          ...bindings.flatMap(
+            (binding: IAutoMoviePhysicalContactBinding): string[] =>
+              binding.chain,
+          ),
+          ...pointBounds.flatMap(
+            (bound: IAutoMoviePhysicalPointBound): string[] => bound.chain,
+          ),
         ]),
       ];
   if (!bones.length)
@@ -210,13 +243,23 @@ export function planPhysicalContactTargets(input: IAutoMoviePlanPhysicalContactT
       bones,
       iterations: Math.max(
         input.selfAvoidance?.iterations ?? 1,
-        ...bindings.map((binding: IAutoMoviePhysicalContactBinding): number => binding.iterations),
-        ...pointBounds.map((bound: IAutoMoviePhysicalPointBound): number => bound.iterations),
+        ...bindings.map(
+          (binding: IAutoMoviePhysicalContactBinding): number =>
+            binding.iterations,
+        ),
+        ...pointBounds.map(
+          (bound: IAutoMoviePhysicalPointBound): number => bound.iterations,
+        ),
       ),
       tolerance: Math.min(
         input.selfAvoidance?.tolerance ?? Infinity,
-        ...bindings.map((binding: IAutoMoviePhysicalContactBinding): number => binding.tolerance),
-        ...pointBounds.map((bound: IAutoMoviePhysicalPointBound): number => bound.tolerance),
+        ...bindings.map(
+          (binding: IAutoMoviePhysicalContactBinding): number =>
+            binding.tolerance,
+        ),
+        ...pointBounds.map(
+          (bound: IAutoMoviePhysicalPointBound): number => bound.tolerance,
+        ),
       ),
       measure,
       linearize: (
@@ -231,15 +274,23 @@ export function planPhysicalContactTargets(input: IAutoMoviePlanPhysicalContactT
         Math.hypot(...relationship.rows.measure(result.targets)),
       ],
     ),
-    ...pointBounds.map((bound: IAutoMoviePhysicalPointBound, index: number): [string, number] => [
-      bound.id,
-      Math.hypot(...pointValues[index]!(result.targets)),
-    ]),
+    ...pointBounds.map(
+      (
+        bound: IAutoMoviePhysicalPointBound,
+        index: number,
+      ): [string, number] => [
+        bound.id,
+        Math.hypot(...pointValues[index]!(result.targets)),
+      ],
+    ),
   ]);
   return { targets: result.targets, residuals };
 
   /** Same-body references move coherently with shared ancestors; other bodies remain the simultaneous actual snapshot. */
-  function pointRelationship(bound: IAutoMoviePhysicalPointBound, poses: IAutoMoviePoses): number[] {
+  function pointRelationship(
+    bound: IAutoMoviePhysicalPointBound,
+    poses: IAutoMoviePoses,
+  ): number[] {
     const value: number = physicalPointProjection(
       input.body,
       input.profiles,
@@ -259,8 +310,9 @@ export function planPhysicalContactTargets(input: IAutoMoviePlanPhysicalContactT
 
   /** Exact merit retains every row, including those invariant in a local probe. */
   function measure(poses: IAutoMoviePoses): number[] {
-    return rows.flatMap((row: IAutoMovieLinearizePhysicalTargetRows.IRows): number[] =>
-      row.measure(poses),
+    return rows.flatMap(
+      (row: IAutoMovieLinearizePhysicalTargetRows.IRows): number[] =>
+        row.measure(poses),
     );
   }
 
@@ -273,7 +325,9 @@ export function planPhysicalContactTargets(input: IAutoMoviePlanPhysicalContactT
     const names: string[] = [...new Set(bones)];
     return memoizePhysicalTransformValue(
       (poses: IAutoMoviePoses): IAutoMoviePhysicalProfile.ITransform[] => [
-        ...names.map((bone: string): IAutoMoviePhysicalProfile.ITransform => poses[bone]!),
+        ...names.map(
+          (bone: string): IAutoMoviePhysicalProfile.ITransform => poses[bone]!,
+        ),
         ...(external ? [external()] : []),
       ],
       compute,

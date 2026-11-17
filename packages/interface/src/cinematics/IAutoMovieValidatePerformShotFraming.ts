@@ -1,5 +1,3 @@
-
-
 /**
  * Independent vocabulary-admission flags for framing and movement.
  *
@@ -11,9 +9,9 @@
 export namespace IAutoMovieValidatePerformShotFraming {
   /**
    * Fresh mutable result of checking membership in the camera framing and movement vocabularies.
-   * 
+   *
    * The values are `unknown` because a `frame` action and a blocking coverage intent reach `performShot` in-process without the transport's structural gate. Each unknown value is one `type` violation at `<path>.framing` or `<path>.move` listing the accepted values, the members of {@link CAMERA_FRAMINGS} and {@link CAMERA_MOVES} in declaration order.
-   * 
+   *
    * A refused value whose string conversion throws is described as `an uninspectable value`; its original reference remains in the finding and the other vocabulary is still checked.
    *
    * @evidence contracts/development/design.md#principled-representation Two independent booleans preserve partial validity: either vocabulary can fail alone. Neither flag validates timing, subject resolution, lens values or the collector's earlier findings.

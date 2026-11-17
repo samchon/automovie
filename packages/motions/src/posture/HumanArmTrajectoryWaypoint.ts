@@ -1,10 +1,12 @@
-import type { IAutoMovieMotionHumanArmGeometry, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Vector3,
   physicalShapeNormal,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
@@ -69,11 +71,17 @@ export namespace HumanArmTrajectoryWaypoint {
     sites: (M.ISite | undefined)[],
   ): IWaypoint {
     const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[] = setups.map(
-      (setup: IAutoMovieMotionHumanArmGeometry.ISetup, a: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+      (
+        setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+        a: number,
+      ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
         G.placed(setup, frames[a]!, resting[a]!),
     );
     const colliders: IAutoMovieMotionHumanArmGeometry.IShape[][] = frames.map(
-      (frame: IAutoMovieMotionHumanArmGeometry.IFrame, a: number): IAutoMovieMotionHumanArmGeometry.IShape[] =>
+      (
+        frame: IAutoMovieMotionHumanArmGeometry.IFrame,
+        a: number,
+      ): IAutoMovieMotionHumanArmGeometry.IShape[] =>
         S.colliders(frame, placed[a]!),
     );
     const touched: number[] = sites.map((): number => -1);
@@ -97,19 +105,21 @@ export namespace HumanArmTrajectoryWaypoint {
               );
         let best: number = -1;
         let least: number = Infinity;
-        candidates.forEach((shape: IAutoMovieMotionHumanArmGeometry.IShape, i: number): void => {
-          if (on !== undefined && owners[i] !== on.owner) return;
-          const d: number = physicalShapeSegmentDistance(
-            shape.pose,
-            shape.shape,
-            site.point,
-            site.point,
-          );
-          if (d < least) {
-            least = d;
-            best = i;
-          }
-        });
+        candidates.forEach(
+          (shape: IAutoMovieMotionHumanArmGeometry.IShape, i: number): void => {
+            if (on !== undefined && owners[i] !== on.owner) return;
+            const d: number = physicalShapeSegmentDistance(
+              shape.pose,
+              shape.shape,
+              site.point,
+              site.point,
+            );
+            if (d < least) {
+              least = d;
+              best = i;
+            }
+          },
+        );
 
         // A site touches the collider its point lies on, within the depth a
         // pressed skin gives (`AutoMovieMotionHumanAuditSkin.BUILT`); a site

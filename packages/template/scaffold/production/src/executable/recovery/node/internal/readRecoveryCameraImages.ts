@@ -1,7 +1,8 @@
-import type { IAutoMovieRecoveryCameraFile, IAutoMovieRecoveryCameraView } from "@automovie/interface";
 import { decodeAutoMoviePpmImage } from "@automovie/ingest";
-
-
+import type {
+  IAutoMovieRecoveryCameraFile,
+  IAutoMovieRecoveryCameraView,
+} from "@automovie/interface";
 import { createHash } from "node:crypto";
 import path from "node:path";
 

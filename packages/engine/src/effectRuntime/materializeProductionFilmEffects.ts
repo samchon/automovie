@@ -1,6 +1,14 @@
-import { type IAutoMovieShotEffectFilmInterval, type IAutoMovieMaterializeProductionFilmEffects, IAutoMovieCompiledEffect, IAutoMovieCompiledFilmEffect, IAutoMovieEffectRecipe, IAutoMovieFilmTimeline, IAutoMovieProductionFrameRate, IAutoMovieShotEffectCue, IAutoMovieWorldEffectZone } from "@automovie/interface";
-
-
+import {
+  IAutoMovieCompiledEffect,
+  IAutoMovieCompiledFilmEffect,
+  IAutoMovieEffectRecipe,
+  IAutoMovieFilmTimeline,
+  type IAutoMovieMaterializeProductionFilmEffects,
+  IAutoMovieProductionFrameRate,
+  IAutoMovieShotEffectCue,
+  type IAutoMovieShotEffectFilmInterval,
+  IAutoMovieWorldEffectZone,
+} from "@automovie/interface";
 
 import { productionFrameBoundaryToSeconds } from "../film/productionFrameBoundaryToSeconds";
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
@@ -39,7 +47,9 @@ type FilmEffectCue = IAutoMovieFilmTimeline["tracks"]["effects"][number];
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per production build with that build's identity and timeline; the result is the persisted artifact, and nothing is cached across builds because the identity is part of every digest.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The id set, latest-cue map, shot-interval groups and stream map live only for the call and grow linearly with the cue and interval counts; the returned runtimes own their streams and share one reduced `frameRate` object, so mutating one runtime's rate changes the others.
  */
-export const materializeProductionFilmEffects = (props: IAutoMovieMaterializeProductionFilmEffects.IProps): IAutoMovieCompiledFilmEffect[] => {
+export const materializeProductionFilmEffects = (
+  props: IAutoMovieMaterializeProductionFilmEffects.IProps,
+): IAutoMovieCompiledFilmEffect[] => {
   validateProductionFilmEffectIdentity(props.identity);
   const frameRate: IAutoMovieProductionFrameRate =
     productionFilmEffectFrameRate(props.frameRate, "film-effect-input-invalid");

@@ -1,6 +1,14 @@
-import type { IAutoMovieComposition, IAutoMovieMotionHumanAttribute, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanChainCore, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanPerformer, IAutoMovieRandom } from "@automovie/interface";
-
 import { AutoMovieComposition } from "@automovie/engine";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanAttribute,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanChainCore,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanPerformer,
+  IAutoMovieRandom,
+} from "@automovie/interface";
 
 import { HumanChain } from "../HumanChain";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -28,7 +36,6 @@ import { instance } from "./instance";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No member has a law of its own.
  */
 export namespace HumanEnsemble {
-
   /**
    * Resolve an ensemble's members.
    *
@@ -52,11 +59,18 @@ export namespace HumanEnsemble {
    * @param ensemble The ensemble.
    * @returns The performers.
    */
-  export function performers(ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble): IAutoMovieMotionHumanPerformer[] {
+  export function performers(
+    ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
+  ): IAutoMovieMotionHumanPerformer[] {
     return ensemble.members
-      .filter((m: IAutoMovieMotionHumanEnsemble.IMember): boolean => m.detail !== "population")
+      .filter(
+        (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
+          m.detail !== "population",
+      )
       .map(
-        (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieMotionHumanPerformer => ({
+        (
+          m: IAutoMovieMotionHumanEnsemble.IMember,
+        ): IAutoMovieMotionHumanPerformer => ({
           subject: m.subject,
           body: m.body,
           at: m.place.at,
@@ -73,7 +87,9 @@ export namespace HumanEnsemble {
    * @param ensemble The ensemble.
    * @returns The members.
    */
-  export function members(ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble): readonly IAutoMovieMotionHumanEnsemble.IMember[] {
+  export function members(
+    ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
+  ): readonly IAutoMovieMotionHumanEnsemble.IMember[] {
     return ensemble.members;
   }
 
@@ -94,52 +110,63 @@ export namespace HumanEnsemble {
    */
   export function chains(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
-    build: (member: IAutoMovieMotionHumanEnsemble.IMember, chain: IAutoMovieMotionHumanChain) => IAutoMovieMotionHumanChainCore,
+    build: (
+      member: IAutoMovieMotionHumanEnsemble.IMember,
+      chain: IAutoMovieMotionHumanChain,
+    ) => IAutoMovieMotionHumanChainCore,
     seconds?: number,
   ): IAutoMovieComposition {
-    const full: IAutoMovieMotionHumanEnsemble.IMember[] = ensemble.members.filter(
-      (m: IAutoMovieMotionHumanEnsemble.IMember): boolean => m.detail === "full",
-    );
-    const instanced: IAutoMovieMotionHumanEnsemble.IMember[] = ensemble.members.filter(
-      (m: IAutoMovieMotionHumanEnsemble.IMember): boolean => m.detail === "instanced",
-    );
+    const full: IAutoMovieMotionHumanEnsemble.IMember[] =
+      ensemble.members.filter(
+        (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
+          m.detail === "full",
+      );
+    const instanced: IAutoMovieMotionHumanEnsemble.IMember[] =
+      ensemble.members.filter(
+        (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
+          m.detail === "instanced",
+      );
     return AutoMovieComposition.parallel(
       ...full.map(
         (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieComposition =>
           build(m, HumanChain.subject(m.subject)).node,
       ),
-      ...instanced.map((m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieComposition => {
-        const template: IAutoMovieMotionHumanEnsemble.IMember | undefined = full.find(
-          (f: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
-            f.pool === m.pool && (f.slot?.block ?? 0) === (m.slot?.block ?? 0),
-        );
-        if (template === undefined || seconds === undefined)
-          throw new HumanRefusal({
-            kind: "participant",
-            performer: m.subject,
-            axis: `${ensemble.input.id}.detail`,
-            value: m.detail,
-            reason:
-              seconds === undefined
-                ? "an instanced member needs the span it lasts"
-                : `no fully performed member of block ${m.slot?.block ?? 0} has ${m.subject}'s body`,
-            fix: "give chains the span, and perform at least one member of each body and block in full",
-          });
-        const shift: number = Math.floor(
-          HumanAttribute.stream(
-            ensemble.input.seed,
-            ensemble.input.id,
-            m.index,
-            "instance",
-          ).float(0) *
-            (Math.round(LAG * instance.RATE) + 1),
-        );
-        return HumanChain.subject(m.subject).registered(instance.name, {
-          of: template.subject,
-          seconds,
-          shift,
-        }).node;
-      }),
+      ...instanced.map(
+        (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieComposition => {
+          const template: IAutoMovieMotionHumanEnsemble.IMember | undefined =
+            full.find(
+              (f: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
+                f.pool === m.pool &&
+                (f.slot?.block ?? 0) === (m.slot?.block ?? 0),
+            );
+          if (template === undefined || seconds === undefined)
+            throw new HumanRefusal({
+              kind: "participant",
+              performer: m.subject,
+              axis: `${ensemble.input.id}.detail`,
+              value: m.detail,
+              reason:
+                seconds === undefined
+                  ? "an instanced member needs the span it lasts"
+                  : `no fully performed member of block ${m.slot?.block ?? 0} has ${m.subject}'s body`,
+              fix: "give chains the span, and perform at least one member of each body and block in full",
+            });
+          const shift: number = Math.floor(
+            HumanAttribute.stream(
+              ensemble.input.seed,
+              ensemble.input.id,
+              m.index,
+              "instance",
+            ).float(0) *
+              (Math.round(LAG * instance.RATE) + 1),
+          );
+          return HumanChain.subject(m.subject).registered(instance.name, {
+            of: template.subject,
+            seconds,
+            shift,
+          }).node;
+        },
+      ),
     );
   }
 
@@ -169,8 +196,10 @@ export namespace HumanEnsemble {
     formation?: IAutoMovieMotionHumanFormation,
     until?: number,
   ): IAutoMovieMotionHumanFormation.IStation {
-    const kept: IAutoMovieMotionHumanFormation | undefined = formation ?? ensemble.input.formation;
-    if (kept === undefined) throw new Error(`${member.subject} keeps no formation`);
+    const kept: IAutoMovieMotionHumanFormation | undefined =
+      formation ?? ensemble.input.formation;
+    if (kept === undefined)
+      throw new Error(`${member.subject} keeps no formation`);
     return {
       formation: kept,
       slot: member.index,
@@ -178,8 +207,17 @@ export namespace HumanEnsemble {
       dress: {
         bound:
           DRESS *
-          HumanAttribute.effect(HUMAN_ATTRIBUTE_EFFECTS.discipline.dress, member.attributes.discipline, 0.5),
-        seed: HumanAttribute.stream(ensemble.input.seed, ensemble.input.id, member.index, "dress").seed,
+          HumanAttribute.effect(
+            HUMAN_ATTRIBUTE_EFFECTS.discipline.dress,
+            member.attributes.discipline,
+            0.5,
+          ),
+        seed: HumanAttribute.stream(
+          ensemble.input.seed,
+          ensemble.input.id,
+          member.index,
+          "dress",
+        ).seed,
       },
     };
   }
@@ -212,9 +250,11 @@ export namespace HumanEnsemble {
     among?: (member: IAutoMovieMotionHumanEnsemble.IMember) => boolean,
     weighted?: IAutoMovieMotionHumanAttribute.Name,
   ): number[] {
-    const admitted: IAutoMovieMotionHumanEnsemble.IMember[] = ensemble.members.filter(
-      (m: IAutoMovieMotionHumanEnsemble.IMember): boolean => among?.(m) ?? true,
-    );
+    const admitted: IAutoMovieMotionHumanEnsemble.IMember[] =
+      ensemble.members.filter(
+        (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
+          among?.(m) ?? true,
+      );
     if (!(Number.isInteger(count) && count >= 0 && count <= admitted.length))
       throw new HumanRefusal({
         kind: "parameter",
@@ -230,22 +270,26 @@ export namespace HumanEnsemble {
         fix: "ask no more members than may take the outcome",
       });
     return admitted
-      .map((m: IAutoMovieMotionHumanEnsemble.IMember): { index: number; key: number } => {
-        const u: number = Math.max(
-          1e-12,
-          HumanAttribute.stream(
-            ensemble.input.seed,
-            ensemble.input.id,
-            m.index,
-            `pick:${name}`,
-          ).float(0),
-        );
-        const w: number =
-          weighted === undefined
-            ? 1
-            : Math.max(1e-6, 1 - (m.attributes[weighted] ?? 0.5));
-        return { index: m.index, key: Math.log(u) / w };
-      })
+      .map(
+        (
+          m: IAutoMovieMotionHumanEnsemble.IMember,
+        ): { index: number; key: number } => {
+          const u: number = Math.max(
+            1e-12,
+            HumanAttribute.stream(
+              ensemble.input.seed,
+              ensemble.input.id,
+              m.index,
+              `pick:${name}`,
+            ).float(0),
+          );
+          const w: number =
+            weighted === undefined
+              ? 1
+              : Math.max(1e-6, 1 - (m.attributes[weighted] ?? 0.5));
+          return { index: m.index, key: Math.log(u) / w };
+        },
+      )
       .sort(
         (
           a: { key: number; index: number },

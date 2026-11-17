@@ -1,6 +1,10 @@
-import type { IAutoMovieRecoveryCameraSetObservation, IAutoMovieRecoveryImageFeaturesExtractionOperation, IAutoMovieRecoveryCameraBudget, IAutoMovieRecoveryCameraPolicy, IAutoMovieRecoveryCameraView } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieRecoveryCameraBudget,
+  IAutoMovieRecoveryCameraPolicy,
+  IAutoMovieRecoveryCameraSetObservation,
+  IAutoMovieRecoveryCameraView,
+  IAutoMovieRecoveryImageFeaturesExtractionOperation,
+} from "@automovie/interface";
 
 import { extractRecoveryImageFeatures } from "./extractRecoveryImageFeatures";
 import { matchRecoveryImageFeatures } from "./matchRecoveryImageFeatures";
@@ -23,7 +27,8 @@ export function observeRecoveryCameraSet(
   maximumComparisons: number,
   checkpoint: (phase: string, completed: number, total: number) => void,
 ): IAutoMovieRecoveryCameraSetObservation {
-  const features: ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[] = [];
+  const features: ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[] =
+    [];
   for (const view of views) {
     checkpoint("image-features", features.length, views.length);
     features.push(extractRecoveryImageFeatures(view, policy, budget));
@@ -59,7 +64,8 @@ export function observeRecoveryCameraSet(
           features[first]!.points,
           policy.descriptorDistanceRatio,
           budget.maxDescriptorPairs,
-        ) });
+        ),
+      });
     }
   checkpoint("descriptor-matching", pairCount, pairCount);
   return { features, pairs, descriptorComparisons };

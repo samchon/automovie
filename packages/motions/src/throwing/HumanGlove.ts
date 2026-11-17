@@ -1,6 +1,13 @@
-import type { AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanProp, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
@@ -43,7 +50,8 @@ export namespace HumanGlove {
     subject: string,
     sides: readonly IAutoMovieMotionHumanHand.Side[],
   ): IAutoMovieVector3 {
-    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(subject);
+    const read: IAutoMovieMotionHumanActionContext.IProp =
+      context.prop(subject);
     const side: IAutoMovieMotionHumanHand.Side = sides[0]!;
     const worn: IAutoMovieMotionHumanProp.IWorn | undefined = read.prop.worn;
     if (

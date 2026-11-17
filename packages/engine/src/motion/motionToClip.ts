@@ -1,6 +1,16 @@
-import { type IAutoMovieMotionClipBridge, type IAutoMovieMotionToClip, type IAutoMovieNode, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieTrack, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
+  type IAutoMovieMotionClipBridge,
+  type IAutoMovieMotionToClip,
+  type IAutoMovieNode,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieTrack,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
@@ -23,7 +33,11 @@ const DEFAULT_SAMPLE_RATE: number = 24;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One sampleMotion pose and joint lookup map per bake time serve all bone tracks; root translation/rotation share the sampled poses, and track time arrays are independent outputs rather than a retained cross-clip cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns nodes, per-track time/value buffers and clip; sampled pose arrays are released after packaging, output grows with rate*duration and articulated bones, and no renderer/native handle is acquired.
  */
-export const motionToClip: (props: IAutoMovieMotionToClip.IProps) => IAutoMovieMotionClipBridge = (props: IAutoMovieMotionToClip.IProps): IAutoMovieMotionClipBridge => {
+export const motionToClip: (
+  props: IAutoMovieMotionToClip.IProps,
+) => IAutoMovieMotionClipBridge = (
+  props: IAutoMovieMotionToClip.IProps,
+): IAutoMovieMotionClipBridge => {
   const { motion, skeleton }: typeof props = props;
   const prefix: string = props.nodePrefix ?? "";
   const sampleRate: number = props.sampleRate ?? DEFAULT_SAMPLE_RATE;

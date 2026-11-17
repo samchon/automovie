@@ -1,6 +1,20 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HUMAN_LEXICON, HumanChain, HumanFoot, HumanPerformance, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanFoot,
+  HumanPerformance,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -34,7 +48,8 @@ export function test_human_motion_base_stances(): void {
   );
   const names: readonly ["m-average", "f-small"] = ["m-average", "f-small"];
   const bodies: readonly IAutoMovieMotionHumanBody[] = names.map(
-    (name: "m-average" | "f-small"): IAutoMovieMotionHumanBody => motionHumanBody(name),
+    (name: "m-average" | "f-small"): IAutoMovieMotionHumanBody =>
+      motionHumanBody(name),
   );
   rows.forEach((row: string, r: number): void => {
     const body: IAutoMovieMotionHumanBody = bodies[r % 2]!;
@@ -63,7 +78,8 @@ export function test_human_motion_base_stances(): void {
       );
       return;
     }
-    const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+    const segment: IAutoMovieMotionHumanSegment.ISegment =
+      performance.segments("a")[1]!;
     const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",

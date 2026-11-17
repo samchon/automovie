@@ -1,5 +1,7 @@
-import { type IAutoMoviePatternPoint, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMoviePatternPoint,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { convexHull2D } from "../math/convexHull2D";
 

@@ -8,7 +8,7 @@ export namespace IAutoMovieLocateSurfaceVertices {
    * Locate every vertex of a subdivided surface network in the network's own
    * terms, so a field declared over the network, such as a displacement, can be
    * evaluated at each vertex.
-   * 
+   *
    * A vertex's cage face and quad-local coordinates give its surface
    * coordinate, the bilinear blend of the face's corner coordinates, the same
    * chart `mapAutoMovieSurfaceTier` uses, so the coordinate is exact on a grid

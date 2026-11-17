@@ -15,20 +15,6 @@ import type { IAutoMovieHumanHeadPrior } from "@automovie/interface";
  * section curves.
  */
 export namespace AutoMovieHumanHeadPrior {
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
   /** The population's prior. */
   export const PRIOR: IAutoMovieHumanHeadPrior.IPrior = {
     tilt: [-0.245, 1.3, 0.62, 0.52],

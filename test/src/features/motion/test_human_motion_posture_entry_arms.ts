@@ -1,7 +1,22 @@
-import type { IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanAuditTangle, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanSeated, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
-import { AutoMovieMotionHumanAuditTangle, HumanChain, HumanEmblem, HumanHabit, HumanPerformance, HumanStance, seated } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditTangle,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAuditTangle,
+  HumanChain,
+  HumanEmblem,
+  HumanHabit,
+  HumanPerformance,
+  HumanStance,
+  seated,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -65,7 +80,11 @@ export function test_human_motion_posture_entry_arms(): void {
 
   // A performance with the rows the scenes use registered.
   const perform = (
-    people: readonly { subject: string; body: IAutoMovieMotionHumanBody; z: number }[],
+    people: readonly {
+      subject: string;
+      body: IAutoMovieMotionHumanBody;
+      z: number;
+    }[],
     composition: IAutoMovieMotionHumanChain | IAutoMovieMotionHumanChain[],
   ): motionHumanLaw.IFilm =>
     motionHumanLaw.film(
@@ -257,13 +276,19 @@ export function test_human_motion_posture_entry_arms(): void {
       { side: "right", label: "right, meeting from 4 s", from: 4 },
     ] as const) {
       const cell: string = `lowFive ${name} ${variant.label}`;
-      const five = (subject: string, other: string): IAutoMovieMotionHumanChain => {
-        const fived: IAutoMovieMotionHumanChain = hips(subject).act("highFive", {
-          partner: other,
-          kind: "low",
-          side: variant.side,
-          ...("from" in variant ? { window: { from: variant.from } } : {}),
-        });
+      const five = (
+        subject: string,
+        other: string,
+      ): IAutoMovieMotionHumanChain => {
+        const fived: IAutoMovieMotionHumanChain = hips(subject).act(
+          "highFive",
+          {
+            partner: other,
+            kind: "low",
+            side: variant.side,
+            ...("from" in variant ? { window: { from: variant.from } } : {}),
+          },
+        );
         return subject === "a" && variant.label === "right"
           ? fived.registered("thumbsUp", {})
           : fived;

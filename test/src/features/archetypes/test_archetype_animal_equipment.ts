@@ -17,6 +17,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { AnimalEquipmentFixture as Equipment } from "../internal/AnimalEquipmentFixture";
+import { animalEquipmentBearingObservation } from "../internal/animalEquipmentBearingObservation";
 import { nclose } from "../internal/nclose";
 
 /** An actual public non-equid producer output. */
@@ -44,9 +45,12 @@ interface Invalid {
  * 2. Each hitch/load contact is on its actual cylinder's upper bearing surface,
  *    with +Y outward, two physical upright bars and the authored clear opening
  *    and depth. Leads describe their actual bar's midpoint and diameter.
- * 3. Pad inner faces clear the real barrel; rails touch pad tops, bridges clear
- *    the back and the forward bridge stays behind the neck-root footprint.
- * 4. Empty equipment is a no-op and exact fit/zero clearance remain admitted.
+ * 3. Actual bearings touch neck/barrel over positive axial spans and connect
+ *    to the free frame. Actual triangle sections also meet without penetrating.
+ *    Pad inner faces retain barrel clearance; rails touch
+ *    pad tops, bridges clear the back and stay behind the neck-root footprint.
+ * 4. Empty equipment is a no-op and exact fit/zero clearance remain admitted,
+ *    including a narrow positive pad with thickness equal to its rail diameter.
  *    Adjacent out-of-fit requests and malformed lengths preserve actionable
  *    refusals and the real builder's complete before/after serialization,
  *    including a valid yoke planned before an invalid pack. No spy is installed.
@@ -59,7 +63,7 @@ interface Invalid {
  *
  * @evidence contracts/development/common.md#meaningful-documentation States authored mass/dimension ownership, actual bearing and clearance observations, atomic parameter admission and the explicit limits of coarse equipment verification.
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual public equipped producers and dispatcher, observes real cylinder/box parts and contact frames, and builds the same genuine body builder before and after direct invalid QuadrupedEquipment.lay requests.
- * @evidence contracts/development/testing.md#independent-expectations Authored SI lengths and analytic cylinder surfaces determine hook openings, depth, grasp diameter and beam span; real primitive extrema determine body clearances. Expected hook contacts are not taken from a constructor table, and unchanged real builder output proves parameter preflight without replacing methods.
+ * @evidence contracts/development/testing.md#independent-expectations Authored SI lengths and analytic cylinder surfaces determine hook openings, depth, grasp diameter and beam span; real primitive extrema determine body clearances. Body-local circular sections retain analytic tangency and positive axial overlap. Separating axes of actual tessellated triangle sections independently require zero gap without penetration; rod endpoints establish frame joins. No fitting plan supplies these expectations. Expected hook contacts are not taken from a constructor table, and unchanged real builder output proves parameter preflight without replacing methods.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts yoke, two side hooks and lead; empty, exact fit and adjacent overflow; zero versus negative clearance; finite positive versus zero, negative, NaN and infinity; complete authored mass versus bare deer mass; and valid-yoke-plus-invalid-pack atomicity. Cohort references and 200-seed construction belong to the adjacent species unit.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous unit owns its actual in-memory builders, models, authored equipment and observations. It starts no host, compiler, renderer or process and uses no foreign-method replacement or monkeypatch.
  */
@@ -114,11 +118,11 @@ export function test_archetype_animal_equipment(): void {
       findings.push(`${animal.archetype}: equipment reads mutated model bytes`);
   }
   if (
-    ox.parts.length !== createOx({ mass: 300 }, 7).parts.length + 7 ||
-    camel.parts.length !== createCamel({ mass: 450 }, 7).parts.length + 20
+    ox.parts.length !== createOx({ mass: 300 }, 7).parts.length + 9 ||
+    camel.parts.length !== createCamel({ mass: 450 }, 7).parts.length + 26
   )
     findings.push(
-      "five real yoke parts, eighteen pack parts and two lead parts were not assembled",
+      "seven real yoke parts, twenty-four pack parts and two lead parts were not assembled",
     );
   if (!nclose(ox.body.mass, 300) || !nclose(camel.body.mass, 450))
     findings.push("equipment silently replaced the authored whole-model mass");
@@ -134,6 +138,8 @@ export function test_archetype_animal_equipment(): void {
   Equipment.inspectHook(ox, "yoke-hitch", "hitch", yoke.hook, findings);
   Equipment.inspectHook(camel, "pack-left-hook", "leftLoad", pack.hook, findings);
   Equipment.inspectHook(camel, "pack-right-hook", "rightLoad", pack.hook, findings);
+  animalEquipmentBearingObservation(ox, "yoke", yoke.radius, findings);
+  animalEquipmentBearingObservation(camel, "pack", pack.railRadius, findings);
 
   // Clearance is observed on the actual fitted parts, not a returned plan.
   const beam: IAutoMovieModelPart = Equipment.part(ox, "yoke-beam");
@@ -220,6 +226,8 @@ export function test_archetype_animal_equipment(): void {
     "equipment-fixture",
   );
   const exactModel: Animal = exact.builder.build(300);
+  animalEquipmentBearingObservation(exactModel, "yoke", yoke.radius, findings);
+  animalEquipmentBearingObservation(exactModel, "pack", pack.railRadius, findings);
   const frontBridge: IAutoMovieModelPart = Equipment.part(exactModel, "pack-bridge-1");
   const exactNeck: IAutoMovieModelPart = Equipment.part(exactModel, "neck");
   const exactBeam: IAutoMovieModelPart = Equipment.part(exactModel, "yoke-beam");
@@ -237,6 +245,24 @@ export function test_archetype_animal_equipment(): void {
     )
   )
     findings.push("exact span and zero-clearance equipment did not admit");
+  const narrow: Fixture = Equipment.create();
+  QuadrupedEquipment.lay(
+    narrow.builder,
+    narrow.rig,
+    {
+      pack: {
+        ...pack,
+        width: pack.railRadius,
+        thickness: 2 * pack.railRadius,
+        clearance: 0,
+      },
+    },
+    "equipment-fixture",
+  );
+  const narrowModel: Animal = narrow.builder.build(300);
+  animalEquipmentBearingObservation(narrowModel, "pack", pack.railRadius, findings);
+  if (!validateModel({ model: narrowModel }).success)
+    findings.push("narrow positive zero-clearance pack lost its actual body path");
   const invalid: Invalid[] = [
     {
       params: { yoke: { ...yoke, width: Number.NaN } },

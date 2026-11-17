@@ -1,6 +1,12 @@
-import type { IAutoMovieFormationPlacement, IAutoMovieFormationSlotMotion } from "@automovie/interface";
-import { formationSlotPosition, placeFormationSlot, sampleFormationSlotMotion } from "@automovie/engine";
-
+import {
+  formationSlotPosition,
+  placeFormationSlot,
+  sampleFormationSlotMotion,
+} from "@automovie/engine";
+import type {
+  IAutoMovieFormationPlacement,
+  IAutoMovieFormationSlotMotion,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { filmEffectValuesClose } from "./filmEffectValuesClose";

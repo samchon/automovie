@@ -1,5 +1,10 @@
-import { type AutoMovieLightProperty, type IAutoMovieClipChannelGate, type IAutoMovieLightChannelProperty, type IAutoMovieLightPointer, IAutoMovieConstraintViolation } from "@automovie/interface";
-
+import {
+  type AutoMovieLightProperty,
+  type IAutoMovieClipChannelGate,
+  IAutoMovieConstraintViolation,
+  type IAutoMovieLightChannelProperty,
+  type IAutoMovieLightPointer,
+} from "@automovie/interface";
 
 import { cubicHermiteValue } from "../math/cubicHermiteValue";
 import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/constants/LIGHT_CHANNEL_PROPERTIES";

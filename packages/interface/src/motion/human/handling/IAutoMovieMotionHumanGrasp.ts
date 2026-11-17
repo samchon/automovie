@@ -1,11 +1,11 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieGripKind } from "../../../model/AutoMovieGripKind";
-import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieCurlChainUntilContact } from "../../../pose/IAutoMovieCurlChainUntilContact";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
-import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
 import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
+import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 
 /**
  * A prop's grip affordance as a grasp target, and the hand that grasps it:

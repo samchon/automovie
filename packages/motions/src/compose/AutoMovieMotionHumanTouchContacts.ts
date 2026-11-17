@@ -1,5 +1,10 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionClock, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanTouchContacts } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanTouchContacts,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
@@ -16,7 +21,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The window is the contact window's own `lie` on a person's segment (`HumanContactWindow.Support`).
  */
 export namespace AutoMovieMotionHumanTouchContacts {
-
   /**
    * Each arm's rests of a row's declaration.
    *
@@ -36,15 +40,23 @@ export namespace AutoMovieMotionHumanTouchContacts {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Closes over its arguments only.
    */
   export function sided(
-    declared: readonly IAutoMovieMotionHumanTouchContacts.IDeclared[] | undefined,
+    declared:
+      | readonly IAutoMovieMotionHumanTouchContacts.IDeclared[]
+      | undefined,
     first: IAutoMovieMotionHumanHand.Side,
     both: boolean,
     subject: string,
-  ): (side: IAutoMovieMotionHumanHand.Side) => IAutoMovieMotionHumanTouchContacts.IRest[] {
-    const rests: readonly IAutoMovieMotionHumanTouchContacts.IDeclared[] = declared ?? [];
+  ): (
+    side: IAutoMovieMotionHumanHand.Side,
+  ) => IAutoMovieMotionHumanTouchContacts.IRest[] {
+    const rests: readonly IAutoMovieMotionHumanTouchContacts.IDeclared[] =
+      declared ?? [];
     if (
       !both &&
-      rests.some((rest: IAutoMovieMotionHumanTouchContacts.IDeclared): boolean => rest.hand === "other")
+      rests.some(
+        (rest: IAutoMovieMotionHumanTouchContacts.IDeclared): boolean =>
+          rest.hand === "other",
+      )
     )
       throw new HumanRefusal({
         kind: "parameter",
@@ -62,14 +74,18 @@ export namespace AutoMovieMotionHumanTouchContacts {
           : bone.startsWith("right")
             ? (`left${bone.slice(5)}` as AutoMovieHumanoidBone)
             : bone;
-    return (side: IAutoMovieMotionHumanHand.Side): IAutoMovieMotionHumanTouchContacts.IRest[] =>
+    return (
+      side: IAutoMovieMotionHumanHand.Side,
+    ): IAutoMovieMotionHumanTouchContacts.IRest[] =>
       rests
         .filter(
           (rest: IAutoMovieMotionHumanTouchContacts.IDeclared): boolean =>
             (rest.hand === "first") === (side === first),
         )
         .map(
-          (rest: IAutoMovieMotionHumanTouchContacts.IDeclared): IAutoMovieMotionHumanTouchContacts.IRest => ({
+          (
+            rest: IAutoMovieMotionHumanTouchContacts.IDeclared,
+          ): IAutoMovieMotionHumanTouchContacts.IRest => ({
             part: rest.part,
             on: mirror(rest.on),
             subject,
@@ -117,7 +133,9 @@ export namespace AutoMovieMotionHumanTouchContacts {
             },
           ]),
       ...rests.map(
-        (rest: IAutoMovieMotionHumanTouchContacts.IRest): IAutoMovieMotionHumanContactWindow => ({
+        (
+          rest: IAutoMovieMotionHumanTouchContacts.IRest,
+        ): IAutoMovieMotionHumanContactWindow => ({
           part: `${side}${rest.part === "upperArm" ? "UpperArm" : "LowerArm"}`,
           kind: "lie",
           from,

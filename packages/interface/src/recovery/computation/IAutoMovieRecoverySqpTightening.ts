@@ -6,24 +6,19 @@
  * @evidence contracts/development/common.md#meaningful-documentation Null denotes unavailable arithmetic. A prepared scalar does not certify that a particular trial right-hand side or correction can represent its strict margin.
  */
 export interface IAutoMovieRecoverySqpTightening {
- 
- /** Original physical mixed-step norm raised to 2.5; null for overflow. */
+  /** Original physical mixed-step norm raised to 2.5; null for overflow. */
   ceiling: number | null;
 
- 
- /** Prepared positive inward length, or null when scalar support is absent. */
+  /** Prepared positive inward length, or null when scalar support is absent. */
   value: number | null;
 
- 
- /** Computed -f*p for the actual mixed physical direction; null if nonfinite. */
+  /** Computed -f*p for the actual mixed physical direction; null if nonfinite. */
   descent: number | null;
 
- 
- /** Same-QP sum of original multipliers times physical row norms; null if unresolved. */
+  /** Same-QP sum of original multipliers times physical row norms; null if unresolved. */
   multiplierPrice: number | null;
 
- 
- /** Scalar support branch, independent of factor, actual feasibility and normal status. */
+  /** Scalar support branch, independent of factor, actual feasibility and normal status. */
   reason:
     | "original-ceiling"
     | "zero-multiplier-price"

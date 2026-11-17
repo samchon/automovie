@@ -1,4 +1,3 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanRide, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSignature, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import {
   createBicycle,
   createHorse,
@@ -6,8 +5,25 @@ import {
   rideHorse,
 } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
-
-import { HumanChain, HumanFrame, HumanObject, HumanPerformance, HumanRide, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanRide,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFrame,
+  HumanObject,
+  HumanPerformance,
+  HumanRide,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -117,7 +133,8 @@ export function test_human_motion_ride_grips(): void {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(mount.name);
     const known: Map<number, IAutoMovieMotionHumanProp.IFrame> = new Map();
     const placed = (seconds: number): IAutoMovieMotionHumanProp.IFrame => {
-      const kept: IAutoMovieMotionHumanProp.IFrame | undefined = known.get(seconds);
+      const kept: IAutoMovieMotionHumanProp.IFrame | undefined =
+        known.get(seconds);
       if (kept !== undefined) return kept;
       const placement: IAutoMovieTransform = mount.at(
         Math.max(0, seconds - WAIT),
@@ -131,7 +148,10 @@ export function test_human_motion_ride_grips(): void {
     };
     const part = (id: string, seconds: number): IAutoMovieTransform =>
       mount.part(id, Math.max(0, seconds - WAIT));
-    const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(mount.model, placed(0));
+    const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+      mount.model,
+      placed(0),
+    );
     const seconds: number = WAIT + mount.duration;
     let performance: IAutoMovieMotionHumanPerformance;
     try {

@@ -1,4 +1,12 @@
-import type { IAutoMovieActorContext, IAutoMovieResolvedBone, IAutoMovieActionTarget, IAutoMovieMotion, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieActionTarget,
+  IAutoMovieActorContext,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { resolvePose } from "../kinematics/resolvePose";

@@ -1,6 +1,20 @@
-import type { IAutoMovieConstructionOutlineParameter, IAutoMovieLoftChain, IAutoMovieLoftCoefficientSource, IAutoMovieLoftJet, IAutoMovieViewLoft, IAutoMovieViewPart } from "@automovie/interface";
-import { AutoMovieLoftChain, AutoMovieLoftCoefficientSource, AutoMovieLoftJet, AutoMovieStationHermite, AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieViewSection } from "@automovie/engine";
-
+import {
+  AutoMovieLoftChain,
+  AutoMovieLoftCoefficientSource,
+  AutoMovieLoftJet,
+  AutoMovieStationHermite,
+  AutoMovieViewAxis,
+  AutoMovieViewLoft,
+  AutoMovieViewSection,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftCoefficientSource,
+  IAutoMovieLoftJet,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

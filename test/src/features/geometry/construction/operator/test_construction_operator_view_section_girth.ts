@@ -1,5 +1,9 @@
-import type { IAutoMovieLoftContract, IAutoMovieViewPart, IAutoMovieViewSection } from "@automovie/interface";
 import { AutoMovieViewSection } from "@automovie/engine";
+import type {
+  IAutoMovieLoftContract,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 import { PriorityQueue } from "tstl";
 
 type Quarters = IAutoMovieViewPart.IQuarters<number>;

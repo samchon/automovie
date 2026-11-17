@@ -1,5 +1,3 @@
-
-
 /**
  * Connectivity of one subdivision level: polygons, edges with sharpness, and
  * the ordered fan of edges and faces around every vertex.

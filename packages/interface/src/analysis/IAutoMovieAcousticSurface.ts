@@ -1,5 +1,3 @@
-
-
 /**
  * One absorbing surface of a room.
  *

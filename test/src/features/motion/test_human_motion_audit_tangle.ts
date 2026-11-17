@@ -1,7 +1,18 @@
-import type { IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanAuditTangle, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanContactWindow, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
-import { AutoMovieMotionHumanAuditTangle, HumanColliders, poseBones } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditTangle,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAuditTangle,
+  HumanColliders,
+  poseBones,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditMoved } from "../internal/motionAuditMoved";
@@ -81,19 +92,24 @@ export function test_human_motion_audit_tangle(): void {
 
   // The trunk's front surface on either side of the midline.
   const height: number = stance.get("chest")!.worldPosition.y;
-  const front = (side: "left" | "right"): IAutoMovieMotionHumanColliders.IHit => {
-    const hit: IAutoMovieMotionHumanColliders.IHit | undefined = HumanColliders.cast(
-      body,
-      new Map(
-        [...stance].filter(
-          ([bone]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): boolean =>
-            bone === "chest" || bone === "spine",
+  const front = (
+    side: "left" | "right",
+  ): IAutoMovieMotionHumanColliders.IHit => {
+    const hit: IAutoMovieMotionHumanColliders.IHit | undefined =
+      HumanColliders.cast(
+        body,
+        new Map(
+          [...stance].filter(
+            ([bone]: [
+              AutoMovieHumanoidBone,
+              IAutoMovieResolvedBone,
+            ]): boolean => bone === "chest" || bone === "spine",
+          ),
         ),
-      ),
-      { x: side === "left" ? 0.05 : -0.05, y: height, z: 1 },
-      { x: 0, y: 0, z: -1 },
-      2,
-    );
+        { x: side === "left" ? 0.05 : -0.05, y: height, z: 1 },
+        { x: 0, y: 0, z: -1 },
+        2,
+      );
     if (hit === undefined) throw new Error("The ray missed the trunk");
     return hit;
   };

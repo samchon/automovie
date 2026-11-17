@@ -1,5 +1,5 @@
-import type { IAutoMovieConstructionOutlineParameter } from "./IAutoMovieConstructionOutlineParameter";
 import type { IAutoMovieConstructionKnot } from "./IAutoMovieConstructionKnot";
+import type { IAutoMovieConstructionOutlineParameter } from "./IAutoMovieConstructionOutlineParameter";
 import type { IAutoMovieConstructionOutlineRange } from "./IAutoMovieConstructionOutlineRange";
 
 /**

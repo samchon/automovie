@@ -1,7 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, AutoMovieHumanoidBone } from "@automovie/interface";
 import { physicalShapeBounds } from "@automovie/engine";
-
-import { HumanChain, HumanColliders, HumanPerformance, HumanRefusal, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanColliders,
+  HumanPerformance,
+  HumanRefusal,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -79,7 +92,9 @@ export function test_human_motion_floor_get_up(): void {
     // 1 to 4. A rise read through.
     const rise = (
       label: string,
-      composition: { node: IAutoMovieMotionHumanPerformance.IInput["composition"] },
+      composition: {
+        node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+      },
     ): void => {
       let performance: IAutoMovieMotionHumanPerformance;
       try {
@@ -91,7 +106,8 @@ export function test_human_motion_floor_get_up(): void {
         );
         return;
       }
-      const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+      const placed: IAutoMovieMotionHumanSegment.ISegment =
+        performance.segments("a")[1]!;
       let fastest: { speed: number; bone: string; seconds: number } = {
         speed: 0,
         bone: "none",

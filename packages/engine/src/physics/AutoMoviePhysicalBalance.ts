@@ -1,5 +1,8 @@
-import type { IAutoMoviePhysicalBalance, IAutoMovieFootfallPattern, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalBalance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { convexHull2D } from "../math/convexHull2D";
@@ -27,7 +30,9 @@ export namespace AutoMoviePhysicalBalance {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 13 allocation sites become the returned value or die with the call, so nothing grows.
    */
-  export function assess(input: IAutoMoviePhysicalBalance.IAssessInput): IAutoMoviePhysicalBalance.IResult {
+  export function assess(
+    input: IAutoMoviePhysicalBalance.IAssessInput,
+  ): IAutoMoviePhysicalBalance.IResult {
     const height: number = input.center.y - input.floor;
     if (
       !(input.gravity > 0) ||
@@ -100,8 +105,10 @@ export namespace AutoMoviePhysicalBalance {
     if (outside <= input.margin) return { ...result, state: "supported" };
     const centroid: IAutoMovieVector3 = Vector3.scale(
       input.supports.reduce(
-        (sum: IAutoMovieVector3, support: IAutoMoviePhysicalBalance.ISupport): IAutoMovieVector3 =>
-          Vector3.add(sum, support.position),
+        (
+          sum: IAutoMovieVector3,
+          support: IAutoMoviePhysicalBalance.ISupport,
+        ): IAutoMovieVector3 => Vector3.add(sum, support.position),
         { x: 0, y: 0, z: 0 },
       ),
       1 / input.supports.length,

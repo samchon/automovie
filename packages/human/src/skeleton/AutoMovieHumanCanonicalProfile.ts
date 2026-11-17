@@ -1,6 +1,3 @@
-import type { IAutoMovieCombinePhysicalMassProperties, IAutoMovieHumanCanonicalSolids, AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMovieQuaternion, IAutoMovieVector3, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-
-
 import {
   DEFAULT_HUMANOID_ROM,
   DEFAULT_JOINT_AXES,
@@ -12,11 +9,15 @@ import {
   rotationBetween,
   toRigAngle,
 } from "@automovie/engine";
-
-
-
-
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieCombinePhysicalMassProperties,
+  IAutoMovieHumanCanonicalSolids,
+  IAutoMovieJointAxes,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 
 import { AutoMovieHumanCanonicalSolids as Solids } from "./AutoMovieHumanCanonicalSolids";
 
@@ -54,8 +55,6 @@ import { AutoMovieHumanCanonicalSolids as Solids } from "./AutoMovieHumanCanonic
  * placeholders kinematic motion never reads: 50 N m per downstream kilogram.
  */
 export namespace AutoMovieHumanCanonicalProfile {
-  
-
   /**
    * Build the profile.
    *
@@ -70,7 +69,8 @@ export namespace AutoMovieHumanCanonicalProfile {
     id: string,
   ): P {
     const j = (name: string): IAutoMovieHumanCanonicalSolids.IJoint => {
-      const found: IAutoMovieHumanCanonicalSolids.IJoint | undefined = joints.get(name);
+      const found: IAutoMovieHumanCanonicalSolids.IJoint | undefined =
+        joints.get(name);
       if (found === undefined)
         throw new Error(`The polygon profile needs the joint ${name}`);
       return found;
@@ -219,7 +219,9 @@ export namespace AutoMovieHumanCanonicalProfile {
           const whole: IAutoMovieCombinePhysicalMassProperties.IPart =
             combinePhysicalMassProperties(
               members[index]!.map(
-                (part: IPart): IAutoMovieCombinePhysicalMassProperties.IPart => ({
+                (
+                  part: IPart,
+                ): IAutoMovieCombinePhysicalMassProperties.IPart => ({
                   mass: density * part.volume,
                   centerOfMass: part.shape.transform.position,
                   inertia: Vector3.scale(part.inertia, density * part.volume),

@@ -1,6 +1,14 @@
-import type { IAutoMovieRenderSubject, IAutoMovieRenderTextureSource, IAutoMovieMaterial, IAutoMovieModel, IAutoMovieScene } from "@automovie/interface";
-import { deriveAutoMovieSemanticMask, measureAutoMovieRenderInventory } from "@automovie/engine";
-
+import {
+  deriveAutoMovieSemanticMask,
+  measureAutoMovieRenderInventory,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieModel,
+  IAutoMovieRenderSubject,
+  IAutoMovieRenderTextureSource,
+  IAutoMovieScene,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { boxModel, material, sceneFixture } from "../internal/renderFixtures";

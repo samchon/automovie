@@ -1,5 +1,7 @@
-import { type IAutoMovieGroundQueryPoint, IAutoMovieWorldSurface } from "@automovie/interface";
-
+import {
+  type IAutoMovieGroundQueryPoint,
+  IAutoMovieWorldSurface,
+} from "@automovie/interface";
 
 import { surfaceHeightAt } from "./space/surfaceHeightAt";
 

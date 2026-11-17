@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanArmGeometry, IAutoMovieMotionHumanJacobian, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanArmJacobian } from "./HumanArmJacobian";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -76,8 +81,10 @@ export namespace HumanArmTrajectoryJacobians {
           };
           if (!M.inner(c, k)) return entry;
           const site: M.ISite | undefined = c.sites[a]![k];
-          const here: IAutoMovieMotionHumanArmGeometry.IPlaced = at.placed[a]![k]!;
-          const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
+          const here: IAutoMovieMotionHumanArmGeometry.IPlaced =
+            at.placed[a]![k]!;
+          const frame: IAutoMovieMotionHumanArmGeometry.IFrame =
+            c.frames[a]![k]!;
           entry.probes = here.probes.map((): IAutoMovieVector3[] => []);
           const origins: Record<"upper" | "lower" | "hand", IAutoMovieVector3> =
             { upper: here.shoulder, lower: here.elbow, hand: here.wrist };
@@ -98,7 +105,9 @@ export namespace HumanArmTrajectoryJacobians {
             here,
             c.free[a]!,
           )) {
-            const motion = (twist: IAutoMovieMotionHumanJacobian.ITwist): IMotion => ({
+            const motion = (
+              twist: IAutoMovieMotionHumanJacobian.ITwist,
+            ): IMotion => ({
               origin: Vector3.scale(twist.linear, 1000),
               omega: twist.angular,
             });

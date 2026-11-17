@@ -6,15 +6,12 @@
  * @evidence contracts/development/common.md#meaningful-documentation Members give original pixels, local coordinate order and symmetric per-pixel Hessians. Null at the producer means optional arithmetic support is absent; malformed chart ownership is an exception.
  */
 export interface IAutoMovieRecoveryMapLocalCurvature {
- 
- /** Original calibrated pixel coordinates. */
+  /** Original calibrated pixel coordinates. */
   pixel: [number, number];
 
- 
- /** Two local derivative rows, with the world-point coordinates last. */
+  /** Two local derivative rows, with the world-point coordinates last. */
   jacobian: number[][];
 
- 
- /** Two symmetric local Hessians in the identical coordinate order. */
+  /** Two symmetric local Hessians in the identical coordinate order. */
   hessians: number[][][];
 }

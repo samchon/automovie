@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryAnalyticDomainsInput, IAutoMovieRecoveryTensorFamily } from "../../index";
+import type {
+  IAutoMovieRecoveryAnalyticDomainsInput,
+  IAutoMovieRecoveryTensorFamily,
+} from "../../index";
 
 /** Analytic recipes with the optional tensor ownership claims checked for conflicts.
  *
@@ -8,8 +11,7 @@ import type { IAutoMovieRecoveryAnalyticDomainsInput, IAutoMovieRecoveryTensorFa
  * @evidence contracts/development/common.md#meaningful-documentation Optional tensor claims retain their saved interval and group addresses.
  */
 export interface IAutoMovieRecoveryAnalyticRealizationInput extends IAutoMovieRecoveryAnalyticDomainsInput {
- 
- /** Optional ownership claims used to reject duplicate analytic generation. */
+  /** Optional ownership claims used to reject duplicate analytic generation. */
   tensorFamilies?: readonly Pick<
     IAutoMovieRecoveryTensorFamily,
     "replacedGroups"

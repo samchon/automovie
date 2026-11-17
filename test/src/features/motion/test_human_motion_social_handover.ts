@@ -1,8 +1,22 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanMutual, HumanObject, HumanPerformance, HumanSignature, HumanSocial } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanMutual,
+  HumanObject,
+  HumanPerformance,
+  HumanSignature,
+  HumanSocial,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -66,7 +80,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
     };
     const perform = (
       props: IAutoMovieMotionHumanProp[],
-      composition: { node: IAutoMovieMotionHumanPerformance.IInput["composition"] },
+      composition: {
+        node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+      },
     ): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "social",
@@ -81,7 +97,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
         })),
         composition: composition.node,
       });
-    const instant = (segment: IAutoMovieMotionHumanSegment.ISegment, event: string): number =>
+    const instant = (
+      segment: IAutoMovieMotionHumanSegment.ISegment,
+      event: string,
+    ): number =>
       segment.start +
       (segment.plan.events.find((e): boolean => e.name === event)?.share ??
         NaN) *
@@ -144,7 +163,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
           { prop: "mug", handle: "body" },
         ),
       );
-      const give: IAutoMovieMotionHumanSegment.ISegment = passed.segments("a")[1]!;
+      const give: IAutoMovieMotionHumanSegment.ISegment =
+        passed.segments("a")[1]!;
       const grip: number = instant(passed.segments("a")[0]!, "gripClosed");
       const offered: number = instant(give, "offered");
       const release: number = instant(give, "release");

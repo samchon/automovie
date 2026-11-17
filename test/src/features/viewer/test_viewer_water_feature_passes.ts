@@ -1,6 +1,11 @@
-import { type IAutoMovieWaterFeatureFrame, IAutoMovieBuiltEnvironment, IAutoMovieFluidDomain, IAutoMovieFluidSpray, IAutoMovieWaterFeature } from "@automovie/interface";
 import { lowerWaterFeature, validateWaterFeatures } from "@automovie/engine";
-
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieFluidDomain,
+  IAutoMovieFluidSpray,
+  IAutoMovieWaterFeature,
+  type IAutoMovieWaterFeatureFrame,
+} from "@automovie/interface";
 import {
   applyRenderMode,
   buildFluidSprayObject,
@@ -408,18 +413,16 @@ export function test_viewer_water_feature_passes(): void {
         "bounds",
         (): boolean =>
           frames.every(
-            (
-              frame: IAutoMovieWaterFeatureFrame,
-            ): boolean => frame.surface.bounds !== null,
+            (frame: IAutoMovieWaterFeatureFrame): boolean =>
+              frame.surface.bounds !== null,
           ),
       ],
       [
         "quads",
         (): boolean =>
           frames.every(
-            (
-              frame: IAutoMovieWaterFeatureFrame,
-            ): boolean => (frame.surface.mesh.indices ?? []).length >= 6,
+            (frame: IAutoMovieWaterFeatureFrame): boolean =>
+              (frame.surface.mesh.indices ?? []).length >= 6,
           ),
       ],
       [
@@ -450,18 +453,16 @@ export function test_viewer_water_feature_passes(): void {
           frames
             .slice(1)
             .every(
-              (
-                frame: IAutoMovieWaterFeatureFrame,
-              ): boolean => frame.state.step === solvedStep,
+              (frame: IAutoMovieWaterFeatureFrame): boolean =>
+                frame.state.step === solvedStep,
             ),
       ],
       [
         "surfaceFollowsState",
         (): boolean =>
           frames.every(
-            (
-              frame: IAutoMovieWaterFeatureFrame,
-            ): boolean => frame.surface.step === frame.state.step,
+            (frame: IAutoMovieWaterFeatureFrame): boolean =>
+              frame.surface.step === frame.state.step,
           ),
       ],
       [

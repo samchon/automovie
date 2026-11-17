@@ -1,6 +1,18 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HumanChain, HumanPerformance, HumanSignature, seated } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanSignature,
+  seated,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -52,7 +64,9 @@ export function test_human_motion_base_armrests(): void {
       left: { x: aside, y: height + 0.22, z: -0.3 },
       right: { x: -aside, y: height + 0.22, z: -0.3 },
     };
-    const perform = (seat: IAutoMovieMotionHumanSeated.ISeat): IAutoMovieMotionHumanPerformance =>
+    const perform = (
+      seat: IAutoMovieMotionHumanSeated.ISeat,
+    ): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "armrests",
         performers: [
@@ -84,7 +98,10 @@ export function test_human_motion_base_armrests(): void {
         )
         .map((c: IAutoMovieMotionHumanContactWindow): string => c.part)
         .sort((x: string, y: string): number => x.localeCompare(y));
-    const event = (segment: IAutoMovieMotionHumanSegment.ISegment, named: string): number =>
+    const event = (
+      segment: IAutoMovieMotionHumanSegment.ISegment,
+      named: string,
+    ): number =>
       segment.plan.events.find(
         (e: { name: string }): boolean => e.name === named,
       )?.share ?? 1;
@@ -104,7 +121,10 @@ export function test_human_motion_base_armrests(): void {
       }
 
       // 1 to 3. A hand on each armrest sitting down and pushing on it getting up.
-      const performance: IAutoMovieMotionHumanPerformance = perform({ ...bare, armrests });
+      const performance: IAutoMovieMotionHumanPerformance = perform({
+        ...bare,
+        armrests,
+      });
       const [down, up]: readonly IAutoMovieMotionHumanSegment.ISegment[] =
         performance.segments("a");
       const off: number = event(up!, "seatOff");

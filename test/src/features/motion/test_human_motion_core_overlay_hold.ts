@@ -1,8 +1,22 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
-
-import { AutoMovieMotionHumanAuditContinuity, HumanChain, HumanObject, HumanPerformance, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAuditContinuity,
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -61,7 +75,9 @@ export function test_human_motion_core_overlay_hold(): void {
       y: 0.58 * body.measure.stature,
       z: 0.17 * body.measure.stature,
     };
-    const perform = (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
+    const perform = (
+      chain: IAutoMovieMotionHumanChain,
+    ): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "overlay-hold",
         performers: [
@@ -111,7 +127,10 @@ export function test_human_motion_core_overlay_hold(): void {
       const hand: IAutoMovieResolvedBone = film
         .bones("a", seconds)
         .get("rightHand")!;
-      const glass: IAutoMovieMotionHumanProp.IFrame = film.prop("glass", seconds);
+      const glass: IAutoMovieMotionHumanProp.IFrame = film.prop(
+        "glass",
+        seconds,
+      );
       return Quaternion.rotateVector(Quaternion.inverse(hand.worldRotation), {
         x: glass.position.x - hand.worldPosition.x,
         y: glass.position.y - hand.worldPosition.y,
@@ -136,7 +155,12 @@ export function test_human_motion_core_overlay_hold(): void {
       );
 
     // 3. The glass reaches where a mouth is.
-    const shown: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(film, "a", body, 0);
+    const shown: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+      film,
+      "a",
+      body,
+      0,
+    );
     const start: number =
       film.prop("glass", taken).position.y -
       HumanSignature.joint(shown, taken, "neck").y;
@@ -170,7 +194,10 @@ export function test_human_motion_core_overlay_hold(): void {
       if (jump.value > 0.005) {
         // The right arm's joint angles at the readings 1/120 s apart around
         // the jump, so the row says which joint changed and by how much.
-        const arm = (seconds: number, of: IAutoMovieMotionHumanPerformance = film): string =>
+        const arm = (
+          seconds: number,
+          of: IAutoMovieMotionHumanPerformance = film,
+        ): string =>
           (["rightUpperArm", "rightLowerArm", "rightHand"] as const)
             .map((bone): string => {
               const joint = of

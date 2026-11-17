@@ -1,11 +1,14 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Quaternion,
   Vector3,
   closestPointsBetweenSegments,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { HumanShapeFraming } from "./HumanShapeFraming";
@@ -252,8 +255,9 @@ function roomOf(
   rests: readonly IAutoMovieMotionHumanColliders.IPlaced[],
   side: "left" | "right",
 ): IRoom {
-  const key = (list: readonly IAutoMovieMotionHumanColliders.IPlaced[]): object =>
-    list.length === 0 ? EMPTY : list;
+  const key = (
+    list: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  ): object => (list.length === 0 ? EMPTY : list);
   let byOthers:
     | WeakMap<object, WeakMap<object, Partial<Record<"left" | "right", IRoom>>>>
     | undefined = ROOMS.get(key(shapes));
@@ -278,8 +282,12 @@ function roomOf(
   const known: IRoom | undefined = sides[side];
   if (known !== undefined) return known;
   const chest: IAutoMovieMotionHumanColliders.IPlaced | undefined =
-    shapes.find((s: IAutoMovieMotionHumanColliders.IPlaced) => s.bone === "upperChest") ??
-    shapes.find((s: IAutoMovieMotionHumanColliders.IPlaced) => s.bone === "chest");
+    shapes.find(
+      (s: IAutoMovieMotionHumanColliders.IPlaced) => s.bone === "upperChest",
+    ) ??
+    shapes.find(
+      (s: IAutoMovieMotionHumanColliders.IPlaced) => s.bone === "chest",
+    );
   const other: "left" | "right" = side === "left" ? "right" : "left";
   const room: IRoom = {
     chest,
@@ -296,12 +304,22 @@ function roomOf(
         s.bone === `${other}UpperArm` || s.bone === `${other}LowerArm`,
     ),
     shapes: [
-      ...shapes.map((s: IAutoMovieMotionHumanColliders.IPlaced) => [s, false, false] as const),
-      ...others.map((s: IAutoMovieMotionHumanColliders.IPlaced) => [s, true, false] as const),
-      ...rests.map((s: IAutoMovieMotionHumanColliders.IPlaced) => [s, true, true] as const),
+      ...shapes.map(
+        (s: IAutoMovieMotionHumanColliders.IPlaced) =>
+          [s, false, false] as const,
+      ),
+      ...others.map(
+        (s: IAutoMovieMotionHumanColliders.IPlaced) =>
+          [s, true, false] as const,
+      ),
+      ...rests.map(
+        (s: IAutoMovieMotionHumanColliders.IPlaced) => [s, true, true] as const,
+      ),
     ].flatMap(([segment, free, rest]): IShape[] =>
       segment.shapes.map(
-        (shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number]): IShape => ({
+        (
+          shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
+        ): IShape => ({
           pose: segment.pose,
           shape,
           free,

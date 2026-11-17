@@ -1,4 +1,3 @@
-import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
 import type {
   AutoMovieMotionHumanActionKey,
   AutoMovieMotionHumanChannel,
@@ -11,6 +10,7 @@ import type {
   IAutoMovieSchedule,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 

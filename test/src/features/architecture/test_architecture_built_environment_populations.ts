@@ -1,6 +1,23 @@
-import type { IAutoMovieSubjectContribution, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieBuiltPopulation, IAutoMovieConvexSpaceCell, IAutoMovieInstanceSetDesign, IAutoMovieModel, IAutoMovieSubjectBox, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-import { builtEnvironmentSpaceContentBounds, builtEnvironmentSpaceFidelity, builtEnvironmentSpaceNodes, builtEnvironmentSpacePopulations, lowerBuiltEnvironment, validateBuiltEnvironment } from "@automovie/engine";
-
+import {
+  builtEnvironmentSpaceContentBounds,
+  builtEnvironmentSpaceFidelity,
+  builtEnvironmentSpaceNodes,
+  builtEnvironmentSpacePopulations,
+  lowerBuiltEnvironment,
+  validateBuiltEnvironment,
+} from "@automovie/engine";
+import type {
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltPopulation,
+  IAutoMovieConvexSpaceCell,
+  IAutoMovieInstanceSetDesign,
+  IAutoMovieModel,
+  IAutoMovieSubjectBox,
+  IAutoMovieSubjectContribution,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeProp, primitivePart } from "../internal/fixtures";

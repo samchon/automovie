@@ -1,5 +1,22 @@
-import { type IAutoMovieBoneBuffer, type IAutoMovieResolvedBone, type IAutoMovieSubdivisionStencil, type IAutoMovieSurfaceCage, type IAutoMovieSurfaceConstruction, type IAutoMovieSurfaceCurveRig, type IAutoMovieSurfaceNetwork, type IAutoMovieSurfacePoint, type IAutoMovieSurfaceRegistry, type IAutoMovieSurfaceRig, type IAutoMovieSurfaceSample, type IAutoMovieSweepBinding, type IAutoMovieSweepRig, type IAutoMoviePlanSurfaceRigPatchesOutput, type IAutoMovieRigSurfaceNetwork, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieBoneBuffer,
+  type IAutoMoviePlanSurfaceRigPatchesOutput,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieRigSurfaceNetwork,
+  type IAutoMovieSubdivisionStencil,
+  type IAutoMovieSurfaceCage,
+  type IAutoMovieSurfaceConstruction,
+  type IAutoMovieSurfaceCurveRig,
+  type IAutoMovieSurfaceNetwork,
+  type IAutoMovieSurfacePoint,
+  type IAutoMovieSurfaceRegistry,
+  type IAutoMovieSurfaceRig,
+  type IAutoMovieSurfaceSample,
+  type IAutoMovieSweepBinding,
+  type IAutoMovieSweepRig,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { bufferAutoMovieBones } from "./bufferAutoMovieBones";
 import { holdAutoMovieSurfaceGirths } from "./holdAutoMovieSurfaceGirths";
@@ -47,7 +64,11 @@ const FIT_LIMIT: number = 1e-6;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shapes, Coons weights, Hermite weights, stencils and rest volumes are computed once; shared identities reuse their compiled geometric writers and sampling coefficients. Each emitted vertex is written once, while each curve endpoint read reevaluates its shared field's one to three terms; endpoint values are not cached.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the cage record, one writer per vertex or blend, four position buffers of 3 V numbers, the stencils, and each sweep's and curve's rig with its compiled surface, whose row cache `compileAutoMovieSweep` bounds at 8,192 rows and which posing does not grow; requested construction temporarily adds one writer per sample, clears those writers after reading, and retains the registered observation frame/scale slots and the separate rest snapshot until the rig is released.
  */
-export const rigAutoMovieSurfaceNetwork: (props: IAutoMovieRigSurfaceNetwork.IProps) => IAutoMovieSurfaceRig = (props: IAutoMovieRigSurfaceNetwork.IProps): IAutoMovieSurfaceRig => {
+export const rigAutoMovieSurfaceNetwork: (
+  props: IAutoMovieRigSurfaceNetwork.IProps,
+) => IAutoMovieSurfaceRig = (
+  props: IAutoMovieRigSurfaceNetwork.IProps,
+): IAutoMovieSurfaceRig => {
   const { network, tier }: typeof props = props;
   const bindings: NonNullable<typeof props.bindings> = props.bindings ?? {};
   function known(

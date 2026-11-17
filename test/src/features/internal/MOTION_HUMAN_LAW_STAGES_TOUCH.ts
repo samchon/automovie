@@ -1,6 +1,5 @@
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 
-
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
 const S: typeof motionHumanLawSweep = motionHumanLawSweep;

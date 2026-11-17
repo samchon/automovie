@@ -1,5 +1,14 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftJet } from "@automovie/interface";
-import { AutoMovieLoftChain, AutoMovieLoftJet, AutoMovieLoftRelief, AutoMovieSplineCurve, AutoMovieStationHermite } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  AutoMovieLoftJet,
+  AutoMovieLoftRelief,
+  AutoMovieSplineCurve,
+  AutoMovieStationHermite,
+} from "@automovie/engine";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftJet,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";

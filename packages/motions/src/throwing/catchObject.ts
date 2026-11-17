@@ -1,11 +1,27 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBend, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCatchObject, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanThrowObjectLaunch, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   AutoMovieGravity,
   Quaternion,
   Vector3,
   minimumJerk,
 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCatchObject,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanThrowObjectLaunch,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { stand } from "../actions/stand";
 import { HumanBall } from "../ballStrike/HumanBall";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -100,7 +116,9 @@ export namespace catchObject {
    * @returns The plan.
    * @throws {HumanRefusal} When the anchor is not a throw, the ball declares no size, the glove is not worn on the one catching hand or has no pocket, the path never comes within reach, or the catch would start before the action.
    */
-  export function plan(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IParams>): IAutoMovieMotionHumanCatchObject.IPlan {
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IParams>,
+  ): IAutoMovieMotionHumanCatchObject.IPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
     const arm: number = m.upperArm + m.forearm;
@@ -111,7 +129,8 @@ export namespace catchObject {
       "ball",
     ).radius;
     const placed = context.action(context.params.from);
-    const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch | undefined = throwObject.of(placed.plan);
+    const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch | undefined =
+      throwObject.of(placed.plan);
     if (launch === undefined)
       throw new HumanRefusal({
         kind: "participant",
@@ -347,7 +366,9 @@ export namespace catchObject {
       }
       return best.fingers;
     };
-    const hand = (side: IAutoMovieMotionHumanHand.Side): IAutoMovieMotionHumanPrimitive => {
+    const hand = (
+      side: IAutoMovieMotionHumanHand.Side,
+    ): IAutoMovieMotionHumanPrimitive => {
       const outward: IAutoMovieVector3 =
         sides.length === 2
           ? Vector3.scale(left, side === "left" ? 1 : -1)
@@ -384,16 +405,15 @@ export namespace catchObject {
       });
     };
 
-    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      duration,
-    );
-    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      contact: "contact",
-      primitives: sides.map(hand),
-    });
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, duration);
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        contact: "contact",
+        primitives: sides.map(hand),
+      });
     return {
       ...composed,
       object: (seconds: number): IAutoMovieVector3 =>

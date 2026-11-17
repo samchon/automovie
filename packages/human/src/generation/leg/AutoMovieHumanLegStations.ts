@@ -17,14 +17,6 @@ import type { IAutoMovieHumanLegStations } from "@automovie/interface";
  * first row so the rows either side of the ring match.
  */
 export namespace AutoMovieHumanLegStations {
-  
-
-  
-
-  
-
-  
-
   /**
    * Skin depths either side of a joint over which its bend spreads, as the
    * rig's cut does: the frames turn over it and its rows are spaced in it.
@@ -40,7 +32,10 @@ export namespace AutoMovieHumanLegStations {
    * generation may not import.
    */
   export const RANGES: Readonly<
-    Record<"ankle.dorsiflexion" | "knee.flexion" | "hip.flexion", readonly [number, number]>
+    Record<
+      "ankle.dorsiflexion" | "knee.flexion" | "hip.flexion",
+      readonly [number, number]
+    >
   > = {
     "ankle.dorsiflexion": [-58.35, 13.25],
     "knee.flexion": [-1.3, 139.8],
@@ -58,7 +53,9 @@ export namespace AutoMovieHumanLegStations {
   export const DENSITY_STEP: number = 0.25;
 
   /** A joint's whole range of motion along its flexion channel, radians. */
-  export function range(channel: IAutoMovieHumanLegStations.RangeChannel): number {
+  export function range(
+    channel: IAutoMovieHumanLegStations.RangeChannel,
+  ): number {
     const [low, high]: readonly [number, number] = RANGES[channel];
     return ((high - low) * Math.PI) / 180;
   }
@@ -72,7 +69,11 @@ export namespace AutoMovieHumanLegStations {
    * @param share Share of the bone's length; a share outside 0 to 1 extends it.
    * @returns Height of the point on the bone line, mm.
    */
-  export function heightAt(bones: IAutoMovieHumanLegStations.IBones, segment: IAutoMovieHumanLegStations.Segment, share: number): number {
+  export function heightAt(
+    bones: IAutoMovieHumanLegStations.IBones,
+    segment: IAutoMovieHumanLegStations.Segment,
+    share: number,
+  ): number {
     const from: number = segment === "thigh" ? bones.hip : bones.knee;
     const to: number = segment === "thigh" ? bones.knee : bones.ankle;
     return from + share * (to - from);
@@ -110,7 +111,10 @@ export namespace AutoMovieHumanLegStations {
     const sums: number[] = [0];
     for (let i: number = 0; i < steps; i++) {
       const a: number = bottom + i * h;
-      sums.push(sums[i]! + ((density(a) + 4 * density(a + h / 2) + density(a + h)) * h) / 6);
+      sums.push(
+        sums[i]! +
+          ((density(a) + 4 * density(a + h / 2) + density(a + h)) * h) / 6,
+      );
     }
 
     // Equal shares of the total: layer k stands where the cumulative density reaches k / count.

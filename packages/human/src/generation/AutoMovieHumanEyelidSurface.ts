@@ -1,15 +1,15 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanApertureEdge, IAutoMovieHumanConstructionPath, IAutoMovieHumanEyelid, IAutoMovieHumanEyelidSurface, IAutoMovieHumanLoftMesh } from "@automovie/interface";
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanApertureEdge,
+  IAutoMovieHumanConstructionPath,
+  IAutoMovieHumanEyelid,
+  IAutoMovieHumanEyelidSurface,
+  IAutoMovieHumanLoftMesh,
+} from "@automovie/interface";
 
 import { AutoMovieHumanApertureConstruction } from "./AutoMovieHumanApertureConstruction";
 import { AutoMovieHumanEyelid } from "./AutoMovieHumanEyelid";
 import { AutoMovieHumanEyelidProfile } from "./AutoMovieHumanEyelidProfile";
-
 
 /** Lid bands from an eye's trim loop, their columns starting on the base surface's own derivative across the loop. */
 export namespace AutoMovieHumanEyelidSurface {
@@ -39,21 +39,29 @@ export namespace AutoMovieHumanEyelidSurface {
     const rows: Map<number, number[]> = new Map();
     const forward: AutoMovieVector3Tuple = lid.globe.forward;
     ring.forEach((u: number, i: number): void => {
-      const p: AutoMovieVector3Tuple = mesh.positions.slice(3 * u, 3 * u + 3) as AutoMovieVector3Tuple;
+      const p: AutoMovieVector3Tuple = mesh.positions.slice(
+        3 * u,
+        3 * u + 3,
+      ) as AutoMovieVector3Tuple;
       const sample: IAutoMovieHumanEyelid.ISample = { ...lid.samples[i]! };
       const delta: AutoMovieVector3Tuple = E.sub(p, sample.contact);
-      const across: AutoMovieVector3Tuple = E.sub(delta, E.scale(forward, E.dot(delta, forward)));
+      const across: AutoMovieVector3Tuple = E.sub(
+        delta,
+        E.scale(forward, E.dot(delta, forward)),
+      );
       const band: number = Math.hypot(...across);
       sample.outward = E.normalize(across);
       const slope: AutoMovieVector3Tuple = slopes[i]!;
       const planar: number = E.dot(slope, sample.outward);
-      const profile: AutoMovieVector3Tuple[] = AutoMovieHumanEyelidProfile.generate(sample, lid.globe, band, {
-        x: E.dot(p, forward) - E.dot(lid.globe.centre, forward),
-        k: Math.abs(planar) > 1e-6 ? E.dot(slope, forward) / planar : 0,
-      });
+      const profile: AutoMovieVector3Tuple[] =
+        AutoMovieHumanEyelidProfile.generate(sample, lid.globe, band, {
+          x: E.dot(p, forward) - E.dot(lid.globe.centre, forward),
+          k: Math.abs(planar) > 1e-6 ? E.dot(slope, forward) / planar : 0,
+        });
       const column: number[] = [u];
       for (const point of profile) {
-        if (!point.every(Number.isFinite)) throw new Error(`Non-finite lid profile ${lid.name}`);
+        if (!point.every(Number.isFinite))
+          throw new Error(`Non-finite lid profile ${lid.name}`);
         column.push(mesh.positions.length / 3);
         mesh.positions.push(...point);
       }
@@ -73,6 +81,11 @@ export namespace AutoMovieHumanEyelidSurface {
       for (let r: number = 0; r + 1 < u.length; r++)
         emit(edge.name, v[r]!, u[r]!, u[r + 1]!, v[r]!, u[r + 1]!, v[r + 1]!);
     }
-    return AutoMovieHumanApertureConstruction.generate(mesh, lid.name, open, rows);
+    return AutoMovieHumanApertureConstruction.generate(
+      mesh,
+      lid.name,
+      open,
+      rows,
+    );
   }
 }

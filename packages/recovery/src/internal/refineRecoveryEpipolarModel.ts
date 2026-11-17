@@ -1,6 +1,10 @@
-import type { IAutoMovieRecoveryCameraPoseRefinementOperation, IAutoMovieRecoveryCameraPoseSelectionOperation, IAutoMovieRecoveryCameraResidualsScoreOperation, IAutoMovieRecoveryEpipolarErrorsMeasurementOperation, IAutoMovieRecoveryEpipolarModelRefinementOperation } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieRecoveryCameraPoseRefinementOperation,
+  IAutoMovieRecoveryCameraPoseSelectionOperation,
+  IAutoMovieRecoveryCameraResidualsScoreOperation,
+  IAutoMovieRecoveryEpipolarErrorsMeasurementOperation,
+  IAutoMovieRecoveryEpipolarModelRefinementOperation,
+} from "@automovie/interface";
 
 import { measureRecoveryEpipolarErrors } from "./measureRecoveryEpipolarErrors";
 import { refineRecoveryCameraPose } from "./refineRecoveryCameraPose";
@@ -31,7 +35,8 @@ export function refineRecoveryEpipolarModel(
   policy: Parameters<IAutoMovieRecoveryEpipolarModelRefinementOperation.Operation>[6],
   budget: Parameters<IAutoMovieRecoveryEpipolarModelRefinementOperation.Operation>[7],
 ): ReturnType<IAutoMovieRecoveryEpipolarModelRefinementOperation.Operation> {
-  let score: ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation> = initialScore;
+  let score: ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation> =
+    initialScore;
   let fittedMatrix: number[] = matrix.slice();
   const initial: ReturnType<IAutoMovieRecoveryCameraPoseSelectionOperation.Operation> =
     selectRecoveryCameraPose(
@@ -49,8 +54,10 @@ export function refineRecoveryEpipolarModel(
     );
   let pose: { rotation: number[]; translation: [number, number, number] } = {
     rotation: initial.rotation,
-    translation: initial.translation };
-  const fits: ReturnType<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>[] = [];
+    translation: initial.translation,
+  };
+  const fits: ReturnType<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>[] =
+    [];
   for (let refit: number = 0; refit < 3; refit++) {
     if (score.indices.length < 8)
       return {
@@ -58,7 +65,8 @@ export function refineRecoveryEpipolarModel(
         score,
         fits,
         converged: false,
-        refusal: "insufficient-refined-support" };
+        refusal: "insufficient-refined-support",
+      };
     const fit: ReturnType<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation> =
       refineRecoveryCameraPose(
         pose,
@@ -74,7 +82,8 @@ export function refineRecoveryEpipolarModel(
           lossScalePx: policy.refinementLossScalePx,
           minimumDesignRatio: policy.minimumDesignSingularRatio,
           maxIterations: budget.maxRefinementIterations,
-          maxSweeps: budget.maxSingularSweeps },
+          maxSweeps: budget.maxSingularSweeps,
+        },
       );
     fits.push(fit);
     fittedMatrix = fit.fundamental;
@@ -100,21 +109,24 @@ export function refineRecoveryEpipolarModel(
         score,
         fits,
         converged: false,
-        refusal: "optimizer-termination" };
+        refusal: "optimizer-termination",
+      };
     if (score.indices.length < 8)
       return {
         matrix: fittedMatrix,
         score,
         fits,
         converged: false,
-        refusal: "insufficient-refined-support" };
+        refusal: "insufficient-refined-support",
+      };
     if (unchanged)
       return {
         matrix: fittedMatrix,
         score,
         fits,
         converged: true,
-        refusal: null };
+        refusal: null,
+      };
     pose = { rotation: fit.rotation, translation: fit.translation };
   }
   return {
@@ -122,5 +134,6 @@ export function refineRecoveryEpipolarModel(
     score,
     fits,
     converged: false,
-    refusal: "inlier-refit-budget" };
+    refusal: "inlier-refit-budget",
+  };
 }

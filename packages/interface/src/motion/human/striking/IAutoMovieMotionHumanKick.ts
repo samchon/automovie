@@ -1,7 +1,7 @@
+import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionHumanKickGeometry } from "./IAutoMovieMotionHumanKickGeometry";
 import type { IAutoMovieMotionHumanStrikingQuality } from "./IAutoMovieMotionHumanStrikingQuality";
 import type { IAutoMovieMotionHumanStrikingRecord } from "./IAutoMovieMotionHumanStrikingRecord";
-import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 
 /**
  * A kick: the round kick's lower shin or the push kick's ball of the foot

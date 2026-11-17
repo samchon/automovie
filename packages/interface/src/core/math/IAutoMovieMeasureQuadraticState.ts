@@ -1,5 +1,3 @@
-
-
 /** Data and callback contracts shared by the MeasureQuadraticState operations. */
 export namespace IAutoMovieMeasureQuadraticState {
   /**

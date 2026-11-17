@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
-
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
@@ -27,7 +26,13 @@ export const AutoMovieHumanF1Plate: IAutoMovieHumanConicLoft.IFamily = {
   halves: [4, 8, 4],
   up: AutoMovieHumanF1Placement.direction("plate.up"),
   // The chart's roll about the course, radians at its own knots (`AutoMovieHumanConicLoft.IFamily.roll`).
-  roll: { knots: [6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66], values: [2.0608, 2.0708, 1.9408, 1.7708, 1.6708, 1.6108, 1.5708, 1.5008, 1.4908, 1.5608, 1.6208, 1.7508, 1.9008, 2.0708, 2.2508, 2.3908] },
+  roll: {
+    knots: [6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66],
+    values: [
+      2.0608, 2.0708, 1.9408, 1.7708, 1.6708, 1.6108, 1.5708, 1.5008, 1.4908,
+      1.5608, 1.6208, 1.7508, 1.9008, 2.0708, 2.2508, 2.3908,
+    ],
+  },
   layout: AutoMovieHumanConicSection.lens(0),
   knots: [5.5, 19.5, 35.75, 40.5, 48.5, 58.5, 66],
   values: [
@@ -57,5 +62,8 @@ export const AutoMovieHumanF1Plate: IAutoMovieHumanConicLoft.IFamily = {
   pitch: 1.5,
 
   // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
-  tips: [{from: 5.5, tip: 2.5}, {from: 66, tip: 69.13}],
+  tips: [
+    { from: 5.5, tip: 2.5 },
+    { from: 66, tip: 69.13 },
+  ],
 };

@@ -1,6 +1,6 @@
+import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
 import type { IAutoMovieMotionHumanCarryHang } from "../handling/IAutoMovieMotionHumanCarryHang";
 import type { IAutoMovieMotionHumanPushSled } from "../handling/IAutoMovieMotionHumanPushSled";
-import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
 
 /**
  * Open parameters of the sportCarry lexicon family, keyed by each runtime export name.

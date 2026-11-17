@@ -6,15 +6,12 @@
  * @evidence contracts/development/common.md#meaningful-documentation Members define row correspondence, physical tangent coordinates and minus-residual sign.
  */
 export interface IAutoMovieRecoveryMapJointBlock {
- 
- /** Three weighted world-point derivative columns per pixel coordinate. */
+  /** Three weighted world-point derivative columns per pixel coordinate. */
   pointRows: number[][];
 
- 
- /** C gauge-fixed weighted camera derivative columns in the same row order. */
+  /** C gauge-fixed weighted camera derivative columns in the same row order. */
   cameraRows: number[][];
 
- 
- /** Minus weighted residual for every row, in pixels. */
+  /** Minus weighted residual for every row, in pixels. */
   right: number[];
 }

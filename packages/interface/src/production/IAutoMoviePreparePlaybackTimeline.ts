@@ -1,5 +1,5 @@
-import type { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
 import type { IAutoMovieShot } from "../cinematics/IAutoMovieShot";
+import type { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
 
 /**
  * Prepared output-clock layout and the supplied-shot identity index it uses.
@@ -23,14 +23,18 @@ export namespace IAutoMoviePreparePlaybackTimeline {
     /**
      * New index of every supplied shot, including unused shots. Map values are new wrappers but shot references are borrowed; keep shots stable while consuming the prepared layout.
      */
-    shotById: ReadonlyMap<string, { 
-    /**
-     * Original supplied shot object, not a clone. Its id is the index key and its duration provides the untrimmed playback length.
-     */
-    shot: IAutoMovieShot; 
-    /**
-     * Zero-based position in the supplied shots array, retained for diagnostics and event-source provenance; it is not a sequence-entry index.
-     */
-    index: number }>;
+    shotById: ReadonlyMap<
+      string,
+      {
+        /**
+         * Original supplied shot object, not a clone. Its id is the index key and its duration provides the untrimmed playback length.
+         */
+        shot: IAutoMovieShot;
+        /**
+         * Zero-based position in the supplied shots array, retained for diagnostics and event-source provenance; it is not a sequence-entry index.
+         */
+        index: number;
+      }
+    >;
   };
 }

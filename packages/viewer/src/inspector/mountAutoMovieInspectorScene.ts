@@ -1,5 +1,21 @@
-import type { IAutoMovieCapturePlanRequest, IAutoMovieInspectionLabel, IAutoMovieInspectionView } from "@automovie/interface";
-import { type IApplyAutoMovieInspectionProps, type IAutoMovieDrawScene, type IAutoMovieDrawSubject, type IAutoMovieInspectionHandle, type IAutoMovieViewerViewpoint, applyAutoMovieInspection, autoMovieViewerNamedViewpoints, formatAutoMovieInspectionRequest, listAutoMovieInspectionPaths, parseAutoMovieInspectionView, resolveAutoMovieInspectionView } from "@automovie/render";
+import type {
+  IAutoMovieCapturePlanRequest,
+  IAutoMovieInspectionLabel,
+  IAutoMovieInspectionView,
+} from "@automovie/interface";
+import {
+  type IApplyAutoMovieInspectionProps,
+  type IAutoMovieDrawScene,
+  type IAutoMovieDrawSubject,
+  type IAutoMovieInspectionHandle,
+  type IAutoMovieViewerViewpoint,
+  applyAutoMovieInspection,
+  autoMovieViewerNamedViewpoints,
+  formatAutoMovieInspectionRequest,
+  listAutoMovieInspectionPaths,
+  parseAutoMovieInspectionView,
+  resolveAutoMovieInspectionView,
+} from "@automovie/render";
 import type * as THREE from "three";
 
 import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";

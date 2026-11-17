@@ -1,14 +1,13 @@
-import type { IAutoMovieHumanBodyMeasures, IAutoMovieHumanTrunkSolution, IAutoMovieHumanTrunkViewLaws } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanTrunkSolution,
+  IAutoMovieHumanTrunkViewLaws,
+} from "@automovie/interface";
 
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import { AutoMovieHumanTrunkInguinalFold } from "../AutoMovieHumanTrunkInguinalFold";
 import { AutoMovieHumanTrunkRows } from "../AutoMovieHumanTrunkRows";
-
-
 import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
-
 
 /**
  * The trunk's interim accessors (#3044's rule for priors the campaign has

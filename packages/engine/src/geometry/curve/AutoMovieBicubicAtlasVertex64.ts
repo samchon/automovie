@@ -1,4 +1,14 @@
-import type { AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple, IAutoMovieBicubicAtlas64, IAutoMovieBicubicAtlasPlan64, IAutoMovieBicubicAtlasRegistry64, IAutoMovieBicubicAtlasTessellation64, IAutoMovieBicubicAtlasVertex64, IAutoMovieCanonicalBoundaryPhase64 } from "@automovie/interface";
+import type {
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieVector3Tuple,
+  IAutoMovieBicubicAtlas64,
+  IAutoMovieBicubicAtlasPlan64,
+  IAutoMovieBicubicAtlasRegistry64,
+  IAutoMovieBicubicAtlasTessellation64,
+  IAutoMovieBicubicAtlasVertex64,
+  IAutoMovieCanonicalBoundaryPhase64,
+} from "@automovie/interface";
+
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
 
@@ -29,12 +39,11 @@ export function AutoMovieBicubicAtlasVertex64(
   jet: IAutoMovieBicubicAtlasVertex64.IJet,
   edgeUV: (side: number, t: number) => [number, number],
   SIDES: readonly (readonly number[])[],
-): (sample: IAutoMovieBicubicAtlas64.Sample) => IAutoMovieBicubicAtlas64.Vertex {
-  const {
-    plans,
-    boundary,
-    fanVertices,
-  }: IAutoMovieBicubicAtlasPlan64.IResult = prepared;
+): (
+  sample: IAutoMovieBicubicAtlas64.Sample,
+) => IAutoMovieBicubicAtlas64.Vertex {
+  const { plans, boundary, fanVertices }: IAutoMovieBicubicAtlasPlan64.IResult =
+    prepared;
   const { root, canonicalPoint }: typeof boundary = boundary;
   const {
     corners,
@@ -42,7 +51,11 @@ export function AutoMovieBicubicAtlasVertex64(
     occurrences,
     summary,
   }: IAutoMovieBicubicAtlasRegistry64.IResult = registered;
-  const vertex: (sample: IAutoMovieBicubicAtlas64.Sample) => IAutoMovieBicubicAtlas64.Vertex = (sample: IAutoMovieBicubicAtlas64.Sample): IAutoMovieBicubicAtlas64.Vertex => {
+  const vertex: (
+    sample: IAutoMovieBicubicAtlas64.Sample,
+  ) => IAutoMovieBicubicAtlas64.Vertex = (
+    sample: IAutoMovieBicubicAtlas64.Sample,
+  ): IAutoMovieBicubicAtlas64.Vertex => {
     const chunk: IAutoMovieBicubicAtlasTessellation64.Chunk = currentChunk();
     const { u, v }: IAutoMovieBicubicAtlas64.Sample = sample;
     const key: string = `${u}:${v}:${sample.phase?.key ?? "interior"}`,
@@ -85,7 +98,8 @@ export function AutoMovieBicubicAtlasVertex64(
     if (declared && edge) {
       const phase: IAutoMovieCanonicalBoundaryPhase64 = requested!,
         identity: string = root(`authority:${declared.authority}:${phase.key}`);
-      const fans: Map<string, IAutoMovieBicubicAtlas64.Vertex> = fanVertices.get(identity) ?? new Map();
+      const fans: Map<string, IAutoMovieBicubicAtlas64.Vertex> =
+        fanVertices.get(identity) ?? new Map();
       fanVertices.set(identity, fans);
       const fan: string =
         declared.legacy === undefined
@@ -96,7 +110,10 @@ export function AutoMovieBicubicAtlasVertex64(
         local.set(key, shared);
         return shared;
       }
-      const position: AutoMovieVector3Tuple = canonicalPoint(declared.authority, phase),
+      const position: AutoMovieVector3Tuple = canonicalPoint(
+          declared.authority,
+          phase,
+        ),
         value: ReturnType<typeof jet> = jet(p, u, v);
       if (
         !position.every(Number.isFinite) ||

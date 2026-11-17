@@ -5,12 +5,6 @@ import type { IAutoMovieLoftViewSource } from "../../../construction/IAutoMovieL
 import type { IAutoMovieViewOutline } from "../../../construction/IAutoMovieViewOutline";
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 
-
-
-
-
-
-
 /** Type contracts exchanged by AutoMovieHumanHeadEarRidge; runtime evaluation remains in Human. */
 export namespace IAutoMovieHumanHeadEarRidge {
   /**

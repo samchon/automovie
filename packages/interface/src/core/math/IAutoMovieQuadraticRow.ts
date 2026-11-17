@@ -1,5 +1,3 @@
-
-
 /**
  * One linear interval constraint of a quadratic program, `lower <= sum of
  * weights[k] * x[indices[k]] <= upper`, in sparse form.

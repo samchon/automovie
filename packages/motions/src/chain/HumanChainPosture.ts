@@ -1,13 +1,14 @@
-import type { IAutoMovieMotionHumanBend, IAutoMovieMotionHumanCrouch, IAutoMovieMotionHumanGetUp, IAutoMovieMotionHumanKneel, IAutoMovieMotionHumanLieDown, IAutoMovieMotionHumanRise, IAutoMovieMotionHumanShift, IAutoMovieMotionHumanSit, IAutoMovieMotionHumanSupport } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
+import type {
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanCrouch,
+  IAutoMovieMotionHumanGetUp,
+  IAutoMovieMotionHumanKneel,
+  IAutoMovieMotionHumanLieDown,
+  IAutoMovieMotionHumanRise,
+  IAutoMovieMotionHumanShift,
+  IAutoMovieMotionHumanSit,
+  IAutoMovieMotionHumanSupport,
+} from "@automovie/interface";
 
 import { HumanChainTravel } from "./HumanChainTravel";
 
@@ -40,7 +41,10 @@ export class HumanChainPosture extends HumanChainTravel {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public rise(params: IAutoMovieMotionHumanRise.IParams = {}, anchor?: string): this {
+  public rise(
+    params: IAutoMovieMotionHumanRise.IParams = {},
+    anchor?: string,
+  ): this {
     return this.act("rise", params, anchor);
   }
 
@@ -51,7 +55,10 @@ export class HumanChainPosture extends HumanChainTravel {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public shift(params: IAutoMovieMotionHumanShift.IParams, anchor?: string): this {
+  public shift(
+    params: IAutoMovieMotionHumanShift.IParams,
+    anchor?: string,
+  ): this {
     return this.act("shift", params, anchor);
   }
 
@@ -62,7 +69,10 @@ export class HumanChainPosture extends HumanChainTravel {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public bend(params: IAutoMovieMotionHumanBend.IParams, anchor?: string): this {
+  public bend(
+    params: IAutoMovieMotionHumanBend.IParams,
+    anchor?: string,
+  ): this {
     return this.act("bend", params, anchor);
   }
 
@@ -73,7 +83,10 @@ export class HumanChainPosture extends HumanChainTravel {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public crouch(params: IAutoMovieMotionHumanCrouch.IParams = {}, anchor?: string): this {
+  public crouch(
+    params: IAutoMovieMotionHumanCrouch.IParams = {},
+    anchor?: string,
+  ): this {
     return this.act("crouch", params, anchor);
   }
 
@@ -84,7 +97,10 @@ export class HumanChainPosture extends HumanChainTravel {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public kneel(params: IAutoMovieMotionHumanKneel.IParams = {}, anchor?: string): this {
+  public kneel(
+    params: IAutoMovieMotionHumanKneel.IParams = {},
+    anchor?: string,
+  ): this {
     return this.act("kneel", params, anchor);
   }
 
@@ -95,7 +111,10 @@ export class HumanChainPosture extends HumanChainTravel {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public lieDown(params: IAutoMovieMotionHumanLieDown.IParams = {}, anchor?: string): this {
+  public lieDown(
+    params: IAutoMovieMotionHumanLieDown.IParams = {},
+    anchor?: string,
+  ): this {
     return this.act("lieDown", params, anchor);
   }
 
@@ -107,7 +126,10 @@ export class HumanChainPosture extends HumanChainTravel {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public getUp(params: IAutoMovieMotionHumanGetUp.IParams = {}, anchor?: string): this {
+  public getUp(
+    params: IAutoMovieMotionHumanGetUp.IParams = {},
+    anchor?: string,
+  ): this {
     return this.act("getUp", params, anchor);
   }
 
@@ -119,7 +141,10 @@ export class HumanChainPosture extends HumanChainTravel {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public support(params: IAutoMovieMotionHumanSupport.IParams, anchor?: string): this {
+  public support(
+    params: IAutoMovieMotionHumanSupport.IParams,
+    anchor?: string,
+  ): this {
     return this.act("support", params, anchor);
   }
 }

@@ -1,5 +1,10 @@
-import type { IAutoMovieAssemblyBreak, IAutoMovieAssemblyContinuity, IAutoMovieAssemblyJunction, IAutoMovieResolvedAssembly, IAutoMovieMatchAssemblyJunction } from "@automovie/interface";
-
+import type {
+  IAutoMovieAssemblyBreak,
+  IAutoMovieAssemblyContinuity,
+  IAutoMovieAssemblyJunction,
+  IAutoMovieMatchAssemblyJunction,
+  IAutoMovieResolvedAssembly,
+} from "@automovie/interface";
 
 /**
  * The hull and summed thickness of layers sharing one role.
@@ -51,7 +56,11 @@ interface IRoleSpan {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure comparison of two resolved values that coordinates no work across calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the two role maps only for the call; the caller owns the returned junction.
  */
-export const matchAutoMovieAssemblyJunction: (props: IAutoMovieMatchAssemblyJunction.IProps) => IAutoMovieAssemblyJunction = (props: IAutoMovieMatchAssemblyJunction.IProps): IAutoMovieAssemblyJunction => {
+export const matchAutoMovieAssemblyJunction: (
+  props: IAutoMovieMatchAssemblyJunction.IProps,
+) => IAutoMovieAssemblyJunction = (
+  props: IAutoMovieMatchAssemblyJunction.IProps,
+): IAutoMovieAssemblyJunction => {
   if (!Number.isFinite(props.tolerance) || props.tolerance < 0)
     throw new Error("junction tolerance must be a finite number >= 0");
   const left: Map<string, IRoleSpan> = rolesOf(props.left);

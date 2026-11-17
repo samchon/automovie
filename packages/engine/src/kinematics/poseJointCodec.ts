@@ -1,6 +1,14 @@
-import { type IAutoMoviePoseRig, type IAutoMovieResolvedJointAngles, type IAutoMoviePoseJointCodec, AutoMovieHumanoidBone, IAutoMovieAngleRange, IAutoMovieBone, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieQuaternion } from "@automovie/interface";
-
-
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieAngleRange,
+  IAutoMovieBone,
+  IAutoMovieJointAxes,
+  IAutoMovieJointConstraint,
+  type IAutoMoviePoseJointCodec,
+  type IAutoMoviePoseRig,
+  IAutoMovieQuaternion,
+  type IAutoMovieResolvedJointAngles,
+} from "@automovie/interface";
 
 import { getConstraint } from "../rom/getConstraint";
 import { decomposeJointRotation } from "./decomposeJointRotation";
@@ -43,7 +51,9 @@ import { skeletonJointAxes } from "./skeletonJointAxes";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The indexed tables are shared by every conversion of one codec.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the rig's tables and one range per bone, bounded by the bone count.
  */
-export function poseJointCodec(rig?: IAutoMoviePoseRig): IAutoMoviePoseJointCodec.ICodec {
+export function poseJointCodec(
+  rig?: IAutoMoviePoseRig,
+): IAutoMoviePoseJointCodec.ICodec {
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
     rig === undefined ? {} : skeletonJointAxes(rig.skeleton, rig.jointAxes);
   const declared: Map<AutoMovieHumanoidBone, IAutoMovieJointConstraint | null> =
@@ -93,7 +103,8 @@ export function poseJointCodec(rig?: IAutoMoviePoseRig): IAutoMoviePoseJointCode
       const mobile = (r: IAutoMovieAngleRange | null): boolean =>
         r !== null && r.max > r.min;
       return (
-        c === null || (mobile(c.flexion) && mobile(c.abduction) && mobile(c.twist))
+        c === null ||
+        (mobile(c.flexion) && mobile(c.abduction) && mobile(c.twist))
       );
     },
   };

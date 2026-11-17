@@ -1,7 +1,12 @@
-import type { IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieSolidFoot } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidFoot,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
+
 const { dot, norm, sub } = AutoMovieSolidVector;
 
 /**
@@ -23,7 +28,6 @@ const { dot, norm, sub } = AutoMovieSolidVector;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidFoot {
-
   /** Newton steps before the search gives up. */
   export const STEPS: number = 60;
 

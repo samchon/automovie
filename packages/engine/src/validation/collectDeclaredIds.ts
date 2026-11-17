@@ -1,4 +1,5 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
+
 /**
  * Collect the ids a list of records declares, reporting each blank or
  * repeated one.

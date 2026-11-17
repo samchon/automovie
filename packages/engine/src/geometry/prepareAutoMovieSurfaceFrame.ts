@@ -1,5 +1,9 @@
-import type { IAutoMoviePreparedSurfaceFrame, IAutoMovieSurfaceFrame, IAutoMovieSweepFrame, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePreparedSurfaceFrame,
+  IAutoMovieSurfaceFrame,
+  IAutoMovieSweepFrame,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { normalizeAutoMovieSurfaceFrame } from "./normalizeAutoMovieSurfaceFrame";

@@ -11,23 +11,18 @@
  */
 
 export interface IAutoMovieMemoryUsage {
- 
- /** Resident bytes sampled by the host. */
+  /** Resident bytes sampled by the host. */
   rss: number;
 
- 
- /** Allocated managed heap bytes. */
+  /** Allocated managed heap bytes. */
   heapTotal: number;
 
- 
- /** Used managed heap bytes. */
+  /** Used managed heap bytes. */
   heapUsed: number;
 
- 
- /** Host-reported external allocation bytes. */
+  /** Host-reported external allocation bytes. */
   external: number;
 
- 
- /** Array buffer bytes within host accounting. */
+  /** Array buffer bytes within host accounting. */
   arrayBuffers: number;
 }

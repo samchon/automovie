@@ -1,10 +1,14 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieInteractionEvent, IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieComposition,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanChain, HumanPerformance, HumanStrike } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

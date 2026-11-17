@@ -1,10 +1,10 @@
-import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
+import type { IAutoMovieMotionHumanRise } from "../everyday/IAutoMovieMotionHumanRise";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
+import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
-import type { IAutoMovieMotionHumanRise } from "../everyday/IAutoMovieMotionHumanRise";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * What the body behind the arm does so a hand reaches a region its arm

@@ -1,4 +1,8 @@
-import type { IAutoMovieSubdivisionRing, IAutoMovieSubdivisionVertexMask } from "@automovie/interface";
+import type {
+  IAutoMovieSubdivisionRing,
+  IAutoMovieSubdivisionVertexMask,
+} from "@automovie/interface";
+
 import { decaySubdivisionSharpness } from "./decaySubdivisionSharpness";
 import { subdivisionEdgeSmoothness } from "./subdivisionEdgeSmoothness";
 import { subdivisionVertexMask } from "./subdivisionVertexMask";

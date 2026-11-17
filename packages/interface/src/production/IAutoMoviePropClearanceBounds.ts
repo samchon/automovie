@@ -1,7 +1,7 @@
-import type { IAutoMoviePropBox } from "../harness/IAutoMoviePropBox";
-import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
 import type { IAutoMovieStageSetPiece } from "../authoring/IAutoMovieStageSetPiece";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMoviePropBox } from "../harness/IAutoMoviePropBox";
+import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
 
 /**
  * One prop clearance box carried into world space, still carrying the id that

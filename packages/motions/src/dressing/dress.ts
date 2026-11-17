@@ -1,6 +1,23 @@
-import type { AutoMovieHumanoidRegion, AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanDress, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanProp, IAutoMovieMotionManner, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidRegion,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanDress,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionManner,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -150,7 +167,9 @@ export namespace dress {
   export const TURN: number = 45;
 
   /** The head region each item is worn on. */
-  export const WORN: Readonly<Record<IAutoMovieMotionHumanDress.Item, AutoMovieHumanoidRegion>> = {
+  export const WORN: Readonly<
+    Record<IAutoMovieMotionHumanDress.Item, AutoMovieHumanoidRegion>
+  > = {
     hat: "crown",
     glasses: "noseBridge",
   };
@@ -323,7 +342,11 @@ export namespace dress {
           holder,
           "grip",
         ),
-        path: (posture: IAutoMovieMotionHumanPosture, _: number, progress: number) => {
+        path: (
+          posture: IAutoMovieMotionHumanPosture,
+          _: number,
+          progress: number,
+        ) => {
           const { grip: on, rotation } = carried(posture, turn);
           const grip: IAutoMovieVector3 = Vector3.add(
             on,
@@ -353,7 +376,8 @@ export namespace dress {
         },
       });
     const arm = (side: IAutoMovieMotionHumanHand.Side) => {
-      const surface: IAutoMovieMotionHumanHand.Surface = item === "hat" ? "palm" : "indexTip";
+      const surface: IAutoMovieMotionHumanHand.Surface =
+        item === "hat" ? "palm" : "indexTip";
       return AutoMovieMotionHumanArm.stroke({
         body,
         clock,
@@ -365,7 +389,11 @@ export namespace dress {
           side,
           surface,
         ),
-        path: (posture: IAutoMovieMotionHumanPosture, _: number, progress: number) => {
+        path: (
+          posture: IAutoMovieMotionHumanPosture,
+          _: number,
+          progress: number,
+        ) => {
           const at = place(body, posture, item, side);
           return AutoMovieMotionHumanTarget.hand(
             body,
@@ -387,15 +415,16 @@ export namespace dress {
         },
       });
     };
-    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.under(context, clock.duration),
-      clock,
-      contact: "stroke",
-      primitives: [
-        holder === "left" ? carry() : arm("left"),
-        holder === "right" ? carry() : arm("right"),
-      ],
-    });
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.under(context, clock.duration),
+        clock,
+        contact: "stroke",
+        primitives: [
+          holder === "left" ? carry() : arm("left"),
+          holder === "right" ? carry() : arm("right"),
+        ],
+      });
     // The holding hand keeps the item until it is on, closed as the grip
     // left it; from then the head wears it.
     const on: number = clock.at("stroke") / clock.duration;

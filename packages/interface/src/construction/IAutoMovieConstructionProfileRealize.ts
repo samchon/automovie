@@ -11,7 +11,7 @@ import type { IAutoMovieConstructionProfile } from "./IAutoMovieConstructionProf
 export namespace IAutoMovieConstructionProfileRealize {
   /**
    * Resolve one pure profile leaf to its actual invocation-owned original family.
-   * 
+   *
    * A detached declaration is compared structurally without property-order or
    * object-identity assumptions. Actual curve/frame functions then prepare the
    * retained atlas, physical2 grids and shared mesh boundaries once. Initial

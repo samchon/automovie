@@ -1,6 +1,18 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieInteractionEvent, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanPropFlight, IAutoMovieMotionHumanPropOutcome, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPropFlight,
+  IAutoMovieMotionHumanPropOutcome,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanBlast } from "./HumanBlast";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
@@ -69,9 +81,13 @@ export namespace HumanPerformanceHits {
   }
 
   /** The melee stops. */
-  function melee(self: IAutoMovieMotionHumanPerformanceState): IAutoMovieInteractionEvent[] {
+  function melee(
+    self: IAutoMovieMotionHumanPerformanceState,
+  ): IAutoMovieInteractionEvent[] {
     return self.strikes.map(
-      (strike: IAutoMovieMotionHumanPerformanceState.IStrike): IAutoMovieInteractionEvent => {
+      (
+        strike: IAutoMovieMotionHumanPerformanceState.IStrike,
+      ): IAutoMovieInteractionEvent => {
         const t: number = strike.seconds;
         const point: IAutoMovieVector3 = strike.weapon.path(t);
         const end: IAutoMovieVector3 = strike.weapon.tail?.(t) ?? point;
@@ -120,7 +136,9 @@ export namespace HumanPerformanceHits {
   }
 
   /** The blasts' hits. */
-  function blasts(self: IAutoMovieMotionHumanPerformanceState): IAutoMovieInteractionEvent[] {
+  function blasts(
+    self: IAutoMovieMotionHumanPerformanceState,
+  ): IAutoMovieInteractionEvent[] {
     const out: IAutoMovieInteractionEvent[] = [];
     for (const blast of self.blasts) {
       const t: number = HumanPerformanceLayers.instant(self, blast.at);
@@ -157,13 +175,17 @@ export namespace HumanPerformanceHits {
   }
 
   /** The flights' first contacts, with what each did and the velocity it left with. */
-  function flights(self: IAutoMovieMotionHumanPerformanceState): IAutoMovieInteractionEvent[] {
+  function flights(
+    self: IAutoMovieMotionHumanPerformanceState,
+  ): IAutoMovieInteractionEvent[] {
     const out: IAutoMovieInteractionEvent[] = [];
     for (const prop of self.props.values())
       for (const f of HumanPropFlight.flights(self, prop.subject)) {
-        const c: IAutoMovieMotionHumanPropFlight.IContact | undefined = f.contact;
+        const c: IAutoMovieMotionHumanPropFlight.IContact | undefined =
+          f.contact;
         if (c === undefined) continue;
-        const next: IAutoMovieMotionHumanPropOutcome.ILeg | undefined = f.legs?.[0];
+        const next: IAutoMovieMotionHumanPropOutcome.ILeg | undefined =
+          f.legs?.[0];
         const region: AutoMovieHumanoidRegion | undefined =
           c.struck.kind === "person"
             ? nearestRegion(
@@ -215,10 +237,8 @@ export namespace HumanPerformanceHits {
     normal: IAutoMovieVector3;
     region?: AutoMovieHumanoidRegion;
   } {
-    const who: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      subject,
-    );
+    const who: IAutoMovieMotionHumanSegment.IPerson =
+      HumanPerformanceRead.person(self, subject);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanPerformanceRead.bones(self, subject, seconds);
     const near = HumanColliders.nearest(who.performer.body, bones, a, b);

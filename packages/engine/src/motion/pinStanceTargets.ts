@@ -1,5 +1,9 @@
-import { type IAutoMovieFootPlant, type IAutoMoviePinStanceTargets, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieFootPlant,
+  type IAutoMoviePinStanceTargets,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { contactMask } from "./contactMask";
 
@@ -14,7 +18,11 @@ import { contactMask } from "./contactMask";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work All frames in one run share the same fixed target object and the compact plant record, so IK reads one admitted contact rather than resampling ground at each pinned frame.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned per-frame maps and plants belong to the pass caller; run masks/ranges are temporary, and no input pose, callback or external handle is retained.
  */
-export const pinStanceTargets: (props: IAutoMoviePinStanceTargets.IProps) => IAutoMoviePinStanceTargets.IResult = (props: IAutoMoviePinStanceTargets.IProps): IAutoMoviePinStanceTargets.IResult => {
+export const pinStanceTargets: (
+  props: IAutoMoviePinStanceTargets.IProps,
+) => IAutoMoviePinStanceTargets.IResult = (
+  props: IAutoMoviePinStanceTargets.IProps,
+): IAutoMoviePinStanceTargets.IResult => {
   const { legs, resolved, times, groundAt, tolerance }: typeof props = props;
   const plants: IAutoMovieFootPlant[] = [];
   const targets: Array<Map<AutoMovieHumanoidBone, IAutoMovieVector3>> =

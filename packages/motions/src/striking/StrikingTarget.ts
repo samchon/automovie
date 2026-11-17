@@ -1,6 +1,14 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanStrikingTarget, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanStrikingTarget,
+  IAutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFoot } from "../posture/HumanFoot";
 
 /**
@@ -38,7 +46,9 @@ export namespace StrikingTarget {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function lead(entry: IAutoMovieMotionHumanEntryState): "left" | "right" {
+  export function lead(
+    entry: IAutoMovieMotionHumanEntryState,
+  ): "left" | "right" {
     const r: number = (entry.posture.yaw * Math.PI) / 180;
     const forward: IAutoMovieVector3 = { x: Math.sin(r), y: 0, z: Math.cos(r) };
     const ahead: number = Vector3.dot(
@@ -235,7 +245,9 @@ export namespace StrikingTarget {
           ? m.headHeight - 0.5 * m.headRadius
           : m.chestHeight;
     const distance: number = target.range ?? range(height);
-    const from: IAutoMovieMotionHumanStrikingTarget.IStance = stance(context.entry);
+    const from: IAutoMovieMotionHumanStrikingTarget.IStance = stance(
+      context.entry,
+    );
     return {
       x: from.centre.x + from.forward.x * distance,
       y: height,
@@ -251,7 +263,9 @@ export namespace StrikingTarget {
    * @param entry The action's entry.
    * @returns The stance centre and the unit direction toward the opponent.
    */
-  export function stance(entry: IAutoMovieMotionHumanActionContext["entry"]): IAutoMovieMotionHumanStrikingTarget.IStance {
+  export function stance(
+    entry: IAutoMovieMotionHumanActionContext["entry"],
+  ): IAutoMovieMotionHumanStrikingTarget.IStance {
     const r0: number = (entry.posture.yaw * Math.PI) / 180;
     const staggered: boolean =
       Math.abs(

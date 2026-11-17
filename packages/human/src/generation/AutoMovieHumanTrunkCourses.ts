@@ -1,14 +1,15 @@
-import type { IAutoMovieLoftRelief, AutoMovieVector3Tuple, IAutoMovieHumanTrunkColumn, IAutoMovieHumanTrunkQuadrant, IAutoMovieHumanTrunkSection } from "@automovie/interface";
-
-
-
-
-
-import { AutoMovieSplineCurve, AutoMovieLoftRelief } from "@automovie/engine";
-import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
-import { AutoMovieHumanTrunkRing } from "./AutoMovieHumanTrunkRing";
+import { AutoMovieLoftRelief, AutoMovieSplineCurve } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanTrunkColumn,
+  IAutoMovieHumanTrunkQuadrant,
+  IAutoMovieHumanTrunkSection,
+  IAutoMovieLoftRelief,
+} from "@automovie/interface";
 
 import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
+import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
+import { AutoMovieHumanTrunkRing } from "./AutoMovieHumanTrunkRing";
 
 /**
  * The trunk's course inputs read on the construction's own surface, by their
@@ -18,14 +19,17 @@ import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
  * bisects the landmark each course owns until the course reads its input.
  */
 export namespace AutoMovieHumanTrunkCourses {
-  
-
   /**
    * Length of a tape taut from a to b over points, bridging hollows, on the
    * side `out` points to: the hull chain between the two ends in the plane
    * of the chord and `out`.
    */
-  export function taut(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, out: AutoMovieVector3Tuple, points: readonly AutoMovieVector3Tuple[]): number {
+  export function taut(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+    out: AutoMovieVector3Tuple,
+    points: readonly AutoMovieVector3Tuple[],
+  ): number {
     const d: AutoMovieVector3Tuple = sub(b, a);
     const L: number = norm(d);
     const u: AutoMovieVector3Tuple = scale(d, 1 / L);
@@ -34,8 +38,13 @@ export namespace AutoMovieHumanTrunkCourses {
     const flat: [number, number][] = [
       [0, 0] as [number, number],
       ...points
-        .map((p: AutoMovieVector3Tuple): [number, number] => [dot(sub(p, a), u), dot(sub(p, a), n)])
-        .filter((q: [number, number]): boolean => q[0] > 0 && q[0] < L && q[1] > 0),
+        .map((p: AutoMovieVector3Tuple): [number, number] => [
+          dot(sub(p, a), u),
+          dot(sub(p, a), n),
+        ])
+        .filter(
+          (q: [number, number]): boolean => q[0] > 0 && q[0] < L && q[1] > 0,
+        ),
       [L, 0] as [number, number],
     ].sort((p, q): number => p[0] - q[0]);
     // The upper hull from the first end to the last.
@@ -44,13 +53,21 @@ export namespace AutoMovieHumanTrunkCourses {
       while (hull.length >= 2) {
         const o2: [number, number] = hull[hull.length - 2]!;
         const c: [number, number] = hull[hull.length - 1]!;
-        if ((c[0] - o2[0]) * (p[1] - o2[1]) - (c[1] - o2[1]) * (p[0] - o2[0]) >= 0) hull.pop();
+        if (
+          (c[0] - o2[0]) * (p[1] - o2[1]) - (c[1] - o2[1]) * (p[0] - o2[0]) >=
+          0
+        )
+          hull.pop();
         else break;
       }
       hull.push(p);
     }
     let sum: number = 0;
-    for (let i: number = 1; i < hull.length; i++) sum += Math.hypot(hull[i]![0] - hull[i - 1]![0], hull[i]![1] - hull[i - 1]![1]);
+    for (let i: number = 1; i < hull.length; i++)
+      sum += Math.hypot(
+        hull[i]![0] - hull[i - 1]![0],
+        hull[i]![1] - hull[i - 1]![1],
+      );
     return sum;
   }
 
@@ -58,9 +75,14 @@ export namespace AutoMovieHumanTrunkCourses {
    * ISO 8559-1 5.4.5, back neck point to waist: down the back's median skin
    * from cervicale to the waist level.
    */
-  export function backNeckToWaist(column: IAutoMovieHumanTrunkColumn.IColumn, waist: number, cervicale: AutoMovieVector3Tuple): number {
+  export function backNeckToWaist(
+    column: IAutoMovieHumanTrunkColumn.IColumn,
+    waist: number,
+    cervicale: AutoMovieVector3Tuple,
+  ): number {
     const points: AutoMovieVector3Tuple[] = [];
-    for (let y: number = waist; y < cervicale[1]; y += 2) points.push([column.at(y).back, y, 0]);
+    for (let y: number = waist; y < cervicale[1]; y += 2)
+      points.push([column.at(y).back, y, 0]);
     const low: AutoMovieVector3Tuple = [column.at(waist).back, waist, 0];
     return taut(cervicale, low, [-1, 0, 0], points);
   }
@@ -73,12 +95,21 @@ export namespace AutoMovieHumanTrunkCourses {
     side: IAutoMovieHumanTrunkQuadrant.Side,
     controls: number[] = AutoMovieHumanTrunkRing.controls(s),
   ): AutoMovieVector3Tuple {
-    const L: number = AutoMovieHumanTrunkQuadrant.phase(AutoMovieHumanTrunkGuides.KNOT.midAxillary);
-    const S: number = AutoMovieHumanTrunkQuadrant.phase(AutoMovieHumanTrunkGuides.KNOT.backMidline);
+    const L: number = AutoMovieHumanTrunkQuadrant.phase(
+      AutoMovieHumanTrunkGuides.KNOT.midAxillary,
+    );
+    const S: number = AutoMovieHumanTrunkQuadrant.phase(
+      AutoMovieHumanTrunkGuides.KNOT.backMidline,
+    );
     // Phase rises with z on the front and falls with it on the back.
     let lo: number = side === "front" ? 0 : L;
     let hi: number = side === "front" ? L : S;
-    const zAt = (t: number): number => AutoMovieSplineCurve.evaluate(controls, AutoMovieHumanTrunkQuadrant.ORDER, t)[1];
+    const zAt = (t: number): number =>
+      AutoMovieSplineCurve.evaluate(
+        controls,
+        AutoMovieHumanTrunkQuadrant.ORDER,
+        t,
+      )[1];
     for (let k: number = 0; k < 40; k++) {
       const mid: number = (lo + hi) / 2;
       const rising: boolean = side === "front";
@@ -86,7 +117,11 @@ export namespace AutoMovieHumanTrunkCourses {
       else hi = mid;
     }
     const t: number = (lo + hi) / 2;
-    const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(controls, AutoMovieHumanTrunkQuadrant.ORDER, t);
+    const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(
+      controls,
+      AutoMovieHumanTrunkQuadrant.ORDER,
+      t,
+    );
     let x: number = p[0];
     let y: number = s.y;
     let zz: number = p[1];
@@ -124,7 +159,11 @@ export namespace AutoMovieHumanTrunkCourses {
    * ISO 8559-1 5.4.3, across back shoulder width: shoulder point through the
    * back neck point to shoulder point, taut over the back in their plane.
    */
-  export function acrossBack(column: IAutoMovieHumanTrunkColumn.IColumn, shoulder: AutoMovieVector3Tuple, cervicale: AutoMovieVector3Tuple): number {
+  export function acrossBack(
+    column: IAutoMovieHumanTrunkColumn.IColumn,
+    shoulder: AutoMovieVector3Tuple,
+    cervicale: AutoMovieVector3Tuple,
+  ): number {
     const points: AutoMovieVector3Tuple[] = [];
     const count: number = 20;
     for (let i: number = 1; i < count; i++) {
@@ -141,11 +180,20 @@ export namespace AutoMovieHumanTrunkCourses {
    * ISO 8559-1 5.4.7, across front width: between the anterior axillary fold
    * points over the front of the section at the axilla, taut.
    */
-  export function acrossFront(s: IAutoMovieHumanTrunkSection, reliefs: readonly IAutoMovieLoftRelief[]): number {
+  export function acrossFront(
+    s: IAutoMovieHumanTrunkSection,
+    reliefs: readonly IAutoMovieLoftRelief[],
+  ): number {
     const controls: number[] = AutoMovieHumanTrunkRing.controls(s);
-    const A: number = AutoMovieHumanTrunkQuadrant.phase(AutoMovieHumanTrunkGuides.KNOT.anteriorAxillary);
+    const A: number = AutoMovieHumanTrunkQuadrant.phase(
+      AutoMovieHumanTrunkGuides.KNOT.anteriorAxillary,
+    );
     const at = (t: number): AutoMovieVector3Tuple => {
-      const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(controls, AutoMovieHumanTrunkQuadrant.ORDER, t);
+      const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(
+        controls,
+        AutoMovieHumanTrunkQuadrant.ORDER,
+        t,
+      );
       let x: number = p[0];
       let z: number = p[1];
       for (const r of reliefs) {
@@ -163,7 +211,10 @@ export namespace AutoMovieHumanTrunkCourses {
   }
 }
 
-function sub(a: readonly number[], b: readonly number[]): [number, number, number] {
+function sub(
+  a: readonly number[],
+  b: readonly number[],
+): [number, number, number] {
   return [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
 }
 function dot(a: readonly number[], b: readonly number[]): number {

@@ -1,5 +1,9 @@
-import type { IAutoMovieIntegrateMotionTrajectory, IAutoMovieMotionTrajectoryInterval, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieMotionTrajectoryInterval,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { MotionTrajectoryStepper } from "./MotionTrajectoryStepper";
@@ -83,7 +87,9 @@ export function integrateMotionTrajectory(
   const qs: (IAutoMovieQuaternion | null)[] = [
     oriented ? Quaternion.normalize(props.q0!) : null,
   ];
-  const ks: IAutoMovieIntegrateMotionTrajectory.IRate[] = [rate(t0, xs[0]!, qs[0]!)];
+  const ks: IAutoMovieIntegrateMotionTrajectory.IRate[] = [
+    rate(t0, xs[0]!, qs[0]!),
+  ];
   for (let s: number = 0; s < steps; s++) {
     const t: number = times[s]!;
     const next: number = s === steps - 1 ? t1 : t0 + (s + 1) * h;

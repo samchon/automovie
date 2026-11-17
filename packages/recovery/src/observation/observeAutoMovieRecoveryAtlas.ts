@@ -1,7 +1,14 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryAtlasObservationCreases, IAutoMovieRecoveryAtlasObservationOperation, IAutoMovieRecoveryAtlasObservationSource, IAutoMovieRecoveryAtlasObservationState, IAutoMovieRecoveryChartAssembly, IAutoMovieRecoveryChartBoundary, IAutoMovieRecoveryEventRegion, IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieBicubicAtlasGeometry,
+  IAutoMovieRecoveryAtlasObservationCreases,
+  IAutoMovieRecoveryAtlasObservationOperation,
+  IAutoMovieRecoveryAtlasObservationSource,
+  IAutoMovieRecoveryAtlasObservationState,
+  IAutoMovieRecoveryChartAssembly,
+  IAutoMovieRecoveryChartBoundary,
+  IAutoMovieRecoveryEventRegion,
+} from "@automovie/interface";
 
 import { RecoveryAtlasObservationChart } from "../internal/RecoveryAtlasObservationChart";
 import { RecoveryAtlasObservationCreases } from "../internal/RecoveryAtlasObservationCreases";
@@ -9,12 +16,7 @@ import { RecoveryAtlasObservationFeatures } from "../internal/RecoveryAtlasObser
 import { RecoveryAtlasObservationNormals } from "../internal/RecoveryAtlasObservationNormals";
 import { RecoveryAtlasObservationPublish } from "../internal/RecoveryAtlasObservationPublish";
 import { RecoveryAtlasObservationSource } from "../internal/RecoveryAtlasObservationSource";
-
-
 import { RecoveryChartBoundary } from "../internal/RecoveryChartBoundary";
-
-
-
 
 type Pending = IAutoMovieRecoveryAtlasObservationState["Pending"];
 
@@ -53,7 +55,8 @@ export function observeAutoMovieRecoveryAtlas(
     selection,
     heights,
     region,
-    index }: ReturnType<IAutoMovieRecoveryAtlasObservationSource.Operation> =
+    index,
+  }: ReturnType<IAutoMovieRecoveryAtlasObservationSource.Operation> =
     RecoveryAtlasObservationSource(input);
   const controls: IAutoMovieBicubicAtlasGeometry["controls"] = [],
     patches: IAutoMovieBicubicAtlasGeometry["patches"] = [],
@@ -63,7 +66,8 @@ export function observeAutoMovieRecoveryAtlas(
     RecoveryChartBoundary({
       toleranceMm: input.toleranceMm,
       maxSpans: input.maxSpans,
-      cornerDegrees: input.cornerDegrees });
+      cornerDegrees: input.cornerDegrees,
+    });
   const fittedCharts: Parameters<IAutoMovieRecoveryChartAssembly.Operation>[0][number][] =
     [];
   const pending: Pending[] = [],
@@ -116,9 +120,9 @@ export function observeAutoMovieRecoveryAtlas(
         ...index.cut(afterMm),
       ]),
     ].sort((a: number, b: number): number => a - b);
-    const observed: ReturnType<ReturnType<IAutoMovieRecoveryEventRegion.Operation>> = region(
-      { beforeMm, afterMm, candidates, ports: [] },
-    );
+    const observed: ReturnType<
+      ReturnType<IAutoMovieRecoveryEventRegion.Operation>
+    > = region({ beforeMm, afterMm, candidates, ports: [] });
     visitedIntervals++;
     visitedIntervalIds.push(interval);
     const byRaw: Map<string, string> = new Map(
@@ -209,7 +213,8 @@ export function observeAutoMovieRecoveryAtlas(
         );
       const {
         creaseFaces,
-        featureEdges }: ReturnType<IAutoMovieRecoveryAtlasObservationCreases.Operation> =
+        featureEdges,
+      }: ReturnType<IAutoMovieRecoveryAtlasObservationCreases.Operation> =
         RecoveryAtlasObservationCreases({
           input,
           observed,
@@ -217,7 +222,8 @@ export function observeAutoMovieRecoveryAtlas(
           sourceNormals,
           byRaw,
           mark,
-          reason });
+          reason,
+        });
       const cycle: (typeof component.cycles)[number] | undefined =
         component.cycles[0];
       type Run = { side: "before" | "after" | "physical"; nodes: string[] };
@@ -336,7 +342,8 @@ export function observeAutoMovieRecoveryAtlas(
               failedSelectedComponents,
               incrementUnsupported: (): void => {
                 unsupportedComponents++;
-              } });
+              },
+            });
             continue;
           }
           RecoveryAtlasObservationChart({
@@ -356,7 +363,8 @@ export function observeAutoMovieRecoveryAtlas(
             outcomes,
             annular,
             generalDisk,
-            ordered });
+            ordered,
+          });
           continue;
         } catch (error) {
           mark(
@@ -371,7 +379,8 @@ export function observeAutoMovieRecoveryAtlas(
           chart: null,
           reason,
           reasons: [...new Set(reasons)],
-          creaseWitnessFaces: [...new Set(creaseFaces)] });
+          creaseWitnessFaces: [...new Set(creaseFaces)],
+        });
       }
     }
     const planeOwnership: {
@@ -393,7 +402,8 @@ export function observeAutoMovieRecoveryAtlas(
       planeOwnership.push({
         identity,
         ownerInterval: planeOwners.get(identity)!,
-        localOccurrence });
+        localOccurrence,
+      });
     };
     for (const cell of observed.cells)
       if (cell.stratum.kind === "plane")
@@ -418,7 +428,8 @@ export function observeAutoMovieRecoveryAtlas(
       contacts: observed.contacts,
       issues: observed.issues,
       planeOwnership,
-      outcomes });
+      outcomes,
+    });
     observe?.({
       phase: "event-chart-observation",
       interval,
@@ -426,7 +437,8 @@ export function observeAutoMovieRecoveryAtlas(
       visitedComponents,
       charts: charts.length,
       patches: patches.length,
-      unsupportedComponents });
+      unsupportedComponents,
+    });
   }
   return RecoveryAtlasObservationPublish({
     input,
@@ -451,5 +463,6 @@ export function observeAutoMovieRecoveryAtlas(
       unsupportedComponents++;
     },
     unsupportedCount: (): number => unsupportedComponents,
-    observe });
+    observe,
+  });
 }

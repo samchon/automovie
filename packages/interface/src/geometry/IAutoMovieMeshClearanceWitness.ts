@@ -1,5 +1,3 @@
-
-
 /**
  * An affine contact condition at one clipped overlap vertex, delivered to the
  * optional visitor of `measureAutoMovieMeshClearance`.

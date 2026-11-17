@@ -1,6 +1,16 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanDrinkingArm, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanTouchDrink, IAutoMovieMotionHumanTouchEffector, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanDrinkingArm,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTouchDrink,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
 import { AutoMovieMotionHumanDrinkingSwivel } from "./AutoMovieMotionHumanDrinkingSwivel";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
@@ -193,16 +203,17 @@ export namespace AutoMovieMotionHumanTouchDrink {
     rotation: IAutoMovieQuaternion,
     after?: IAutoMovieMotionHumanTouchDrink.IAfter,
   ): IAutoMovieMotionHumanTouchDrink.IHeld {
-    const laid: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanTouchLaid.rest(
-      body,
-      posture,
-      side,
-      effector,
-      place,
-      "up",
-      hint,
-      "upright",
-    );
+    const laid: IAutoMovieMotionHumanPosture.IGoal =
+      AutoMovieMotionHumanTouchLaid.rest(
+        body,
+        posture,
+        side,
+        effector,
+        place,
+        "up",
+        hint,
+        "upright",
+      );
     const contact: IAutoMovieVector3 = laid.contact ?? { x: 0, y: 0, z: 0 };
     const at: IAutoMovieVector3 = Vector3.add(
       laid.point,
@@ -229,17 +240,20 @@ export namespace AutoMovieMotionHumanTouchDrink {
         };
         // The same vessel in the drinking phase: the hand keeps the turn
         // and the vessel's point follows the region.
-        const later = (phase: IAutoMovieMotionHumanTouchDrink.IAfter): IAutoMovieMotionHumanDrinkingArm.IArm => {
-          const there: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanTouchLaid.rest(
-            body,
-            phase.posture,
-            side,
-            effector,
-            phase.place,
-            "up",
-            hint,
-            "upright",
-          );
+        const later = (
+          phase: IAutoMovieMotionHumanTouchDrink.IAfter,
+        ): IAutoMovieMotionHumanDrinkingArm.IArm => {
+          const there: IAutoMovieMotionHumanPosture.IGoal =
+            AutoMovieMotionHumanTouchLaid.rest(
+              body,
+              phase.posture,
+              side,
+              effector,
+              phase.place,
+              "up",
+              hint,
+              "upright",
+            );
           return AutoMovieMotionHumanDrinkingArm.read(
             body,
             phase.posture,

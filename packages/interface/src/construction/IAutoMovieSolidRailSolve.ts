@@ -1,5 +1,3 @@
-
-
 /**
  * Mutable diagnostics supplied to the atlas normal-section rail solver.
  *

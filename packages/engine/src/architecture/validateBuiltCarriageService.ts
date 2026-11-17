@@ -1,5 +1,14 @@
-import { type IAutoMovieViolationCollector, IAutoMovieBuiltConnector, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieBuiltSpace, IAutoMovieCarriageValue, IAutoMovieConnectorCarriage, IAutoMovieConnectorState, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieBuiltConnector,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMovieBuiltSpace,
+  IAutoMovieCarriageValue,
+  IAutoMovieConnectorCarriage,
+  IAutoMovieConnectorState,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { Matrix4 } from "../math/Matrix4";
 import { builtEnvironmentContainsPoint } from "./builtEnvironmentContainsPoint";

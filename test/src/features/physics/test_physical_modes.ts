@@ -1,5 +1,8 @@
-import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 import { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
+import type {
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures as Fixtures } from "../internal/PhysicalFixtures";
@@ -20,11 +23,19 @@ import { PhysicalFixtures as Fixtures } from "../internal/PhysicalFixtures";
 export async function test_physical_modes(): Promise<void> {
   const velocities: number[] = [];
   for (const gain of [1, 3]) {
-    const a: IAutoMoviePhysicalSimulationInput.IBody = Fixtures.body("driver", Fixtures.sphere(), 1);
+    const a: IAutoMoviePhysicalSimulationInput.IBody = Fixtures.body(
+      "driver",
+      Fixtures.sphere(),
+      1,
+    );
     a.mode = { kind: "kinematic" };
     for (const [step, target] of a.targets.entries())
       target.segments.root!.position.x = -0.3 + step / 120;
-    const b: IAutoMoviePhysicalSimulationInput.IBody = Fixtures.body("receiver", Fixtures.sphere(), 1);
+    const b: IAutoMoviePhysicalSimulationInput.IBody = Fixtures.body(
+      "receiver",
+      Fixtures.sphere(),
+      1,
+    );
     for (const target of b.targets) target.segments.root!.position.x = 0.3;
     b.mode =
       gain === 1
@@ -36,7 +47,9 @@ export async function test_physical_modes(): Promise<void> {
             compliance: 1,
             reason: "Explicit response-policy comparison",
           };
-    const run: IAutoMoviePhysicalSimulation = await Simulation.compute(Fixtures.input([a, b], 1));
+    const run: IAutoMoviePhysicalSimulation = await Simulation.compute(
+      Fixtures.input([a, b], 1),
+    );
     const first: (typeof run.cache.frames)[number] | undefined =
       run.cache.frames.find(
         (frame: (typeof run.cache.frames)[number]): boolean =>

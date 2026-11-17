@@ -1,7 +1,24 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPerformer, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
 import { ArchetypeCourse, createHorse, rideHorse } from "@automovie/archetypes";
-
-import { HumanCue, HumanEnsemble, HumanFormation, HumanObject, HumanPerformance, HumanRide } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformer,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanCue,
+  HumanEnsemble,
+  HumanFormation,
+  HumanObject,
+  HumanPerformance,
+  HumanRide,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -98,7 +115,10 @@ export function test_human_motion_scene_squadron(): void {
         ),
     );
     const props: IAutoMovieMotionHumanProp[] = squadron.members.map(
-      (m: IAutoMovieMotionHumanEnsemble.IMember, i: number): IAutoMovieMotionHumanProp => {
+      (
+        m: IAutoMovieMotionHumanEnsemble.IMember,
+        i: number,
+      ): IAutoMovieMotionHumanProp => {
         const placed = (seconds: number): IAutoMovieMotionHumanProp.IFrame => {
           const sample: ReturnType<ReturnType<typeof rideHorse>["at"]> =
             rides[i]!.at(seconds);
@@ -135,7 +155,10 @@ export function test_human_motion_scene_squadron(): void {
       props,
       cues,
       performers: HumanEnsemble.performers(squadron).map(
-        (p: IAutoMovieMotionHumanPerformer, i: number): IAutoMovieMotionHumanPerformer => {
+        (
+          p: IAutoMovieMotionHumanPerformer,
+          i: number,
+        ): IAutoMovieMotionHumanPerformer => {
           const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
             rides[i]!.at(0).archetype,
             props[i]!.frame,
@@ -155,7 +178,10 @@ export function test_human_motion_scene_squadron(): void {
       ),
       composition: HumanEnsemble.chains(
         squadron,
-        (m: IAutoMovieMotionHumanEnsemble.IMember, chain: IAutoMovieMotionHumanChain) => {
+        (
+          m: IAutoMovieMotionHumanEnsemble.IMember,
+          chain: IAutoMovieMotionHumanChain,
+        ) => {
           const horse: string = m.prop("horse");
           const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
             rides[m.index]!.at(0).archetype,
@@ -248,7 +274,10 @@ export function test_human_motion_scene_squadron(): void {
   for (const m of squadron.members) {
     const ride: IAutoMovieMotionHumanSegment.ISegment | undefined = performance
       .segments(m.subject)
-      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "ride");
+      .find(
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+          s.name === "ride",
+      );
     if (ride === undefined) {
       findings.push(`${m.subject} does not ride`);
       continue;

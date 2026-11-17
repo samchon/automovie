@@ -1,5 +1,3 @@
-
-
 /**
  * One sequence entry's placement on the output clock: where it starts globally,
  * how long it plays, and the shot-local second its playback begins at.

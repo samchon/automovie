@@ -1,4 +1,5 @@
 import type { IAutoMovieAuditOutcome } from "@automovie/interface";
+
 /**
  * Audit a declared outcome against measured contacts, failing and never
  * rewriting: every expected contact must be measured between its subjects

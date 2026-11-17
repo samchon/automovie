@@ -1,5 +1,12 @@
-import type { IAutoMovieAuditPhysicalOutcomes, IAutoMovieMotionAudit, IAutoMoviePhysicsCache } from "@automovie/interface";
-import { AutoMovieMotionAudit as Audit, auditPhysicalOutcomes as outcomes } from "@automovie/engine";
+import {
+  AutoMovieMotionAudit as Audit,
+  auditPhysicalOutcomes as outcomes,
+} from "@automovie/engine";
+import type {
+  IAutoMovieAuditPhysicalOutcomes,
+  IAutoMovieMotionAudit,
+  IAutoMoviePhysicsCache,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
@@ -20,45 +27,46 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A genuine finite floor violation is independently observable.).
  */
 export async function test_physical_audit_admission(): Promise<void> {
-  const fixture: () => IAutoMovieMotionAudit.IInput = (): IAutoMovieMotionAudit.IInput => ({
-    bodies: [
-      {
-        id: "solid",
-        profile: PhysicalFixtures.sphere(),
-        speeds: { root: 1 },
-        supports: [
-          {
-            bone: "root",
-            start: 0,
-            end: 0,
-            point: { x: 0, y: 0.08, z: 0 },
-            tolerance: 0.001,
-          },
-        ],
-        floorTolerance: 0.001,
-        overlapTolerance: 0.001,
-        jointTolerance: 0.001,
-      },
-    ],
-    start: 0,
-    end: 0,
-    rate: 120,
-    floor: 0,
-    allowed: (): boolean => false,
-    sample: (seconds: number): IAutoMoviePhysicsCache.IFrame => ({
-      seconds,
-      bodies: {
-        solid: {
-          root: {
-            position: { x: 0, y: 0.08, z: 0 },
-            rotation: { x: 0, y: 0, z: 0, w: 1 },
-            velocity: { x: 0, y: 0, z: 0 },
-            angularVelocity: { x: 0, y: 0, z: 0 },
+  const fixture: () => IAutoMovieMotionAudit.IInput =
+    (): IAutoMovieMotionAudit.IInput => ({
+      bodies: [
+        {
+          id: "solid",
+          profile: PhysicalFixtures.sphere(),
+          speeds: { root: 1 },
+          supports: [
+            {
+              bone: "root",
+              start: 0,
+              end: 0,
+              point: { x: 0, y: 0.08, z: 0 },
+              tolerance: 0.001,
+            },
+          ],
+          floorTolerance: 0.001,
+          overlapTolerance: 0.001,
+          jointTolerance: 0.001,
+        },
+      ],
+      start: 0,
+      end: 0,
+      rate: 120,
+      floor: 0,
+      allowed: (): boolean => false,
+      sample: (seconds: number): IAutoMoviePhysicsCache.IFrame => ({
+        seconds,
+        bodies: {
+          solid: {
+            root: {
+              position: { x: 0, y: 0.08, z: 0 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              velocity: { x: 0, y: 0, z: 0 },
+              angularVelocity: { x: 0, y: 0, z: 0 },
+            },
           },
         },
-      },
-    }),
-  });
+      }),
+    });
   const baseline: Awaited<ReturnType<typeof Audit.run>> =
     await Audit.run(fixture());
   TestValidator.predicate(
@@ -164,7 +172,9 @@ export async function test_physical_audit_admission(): Promise<void> {
       falls: [{ ...promise.falls[0]!, tolerance }],
       observedFalls: { solid: 1000 },
     };
-    assert.throws((): IAutoMovieAuditPhysicalOutcomes.IFinding[] => outcomes(invalid));
+    assert.throws((): IAutoMovieAuditPhysicalOutcomes.IFinding[] =>
+      outcomes(invalid),
+    );
   }
   assert.throws((): IAutoMovieAuditPhysicalOutcomes.IFinding[] =>
     outcomes({ ...promise, observedFalls: { solid: NaN } }),

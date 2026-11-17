@@ -1,4 +1,11 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicsCache, IAutoMoviePreparePhysicalGeometry, IAutoMovieSamplePhysicalTarget, IAutoMovieContactReceipt } from "@automovie/interface";
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicsCache,
+  IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieSamplePhysicalTarget,
+} from "@automovie/interface";
 
 import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
 import { planPhysicalContactTargets } from "./planPhysicalContactTargets";
@@ -23,45 +30,51 @@ export function bindPhysicalKinematicFrame(
   geometry: IAutoMoviePreparePhysicalGeometry.IQueries,
   contacts: IAutoMovieContactReceipt[],
   profiles: Record<string, IAutoMoviePhysicalProfile> = Object.fromEntries(
-    input.bodies.map((body: IAutoMoviePhysicalSimulationInput.IBody): [string, IAutoMoviePhysicalProfile] => [
-      body.id,
-      body.profile,
-    ]),
+    input.bodies.map(
+      (
+        body: IAutoMoviePhysicalSimulationInput.IBody,
+      ): [string, IAutoMoviePhysicalProfile] => [body.id, body.profile],
+    ),
   ),
 ): IAutoMoviePhysicsCache.IFrame {
   const actual: IAutoMoviePhysicsCache.IFrame["bodies"] = frame.bodies;
   const bodies: IAutoMoviePhysicsCache.IFrame["bodies"] = { ...actual };
   for (const body of input.bodies) {
-    const target: IAutoMoviePhysicalSimulationInput.ITarget = body.targets[step]!;
+    const target: IAutoMoviePhysicalSimulationInput.ITarget =
+      body.targets[step]!;
     if (
       !target.bindings?.length &&
       !target.pointBounds?.length &&
       !body.selfAvoidance
     )
       continue;
-    const planned: Record<string, IAutoMoviePhysicalProfile.ITransform> = planPhysicalContactTargets({
-      body: body.id,
-      profiles,
-      targets: target.segments,
-      actual,
-      bindings: target.bindings ?? [],
-      pointBounds: target.pointBounds,
-      selfAvoidance: body.selfAvoidance,
-      supports: physicalContactSupportGoals(
-        body,
-        target,
-        input.floor,
-        input.contactTolerance!,
-        step / input.rate,
-        input.rate,
-        step,
-      ),
-      geometry,
-      floor: input.floor - input.contactTolerance!,
-    }).targets;
+    const planned: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+      planPhysicalContactTargets({
+        body: body.id,
+        profiles,
+        targets: target.segments,
+        actual,
+        bindings: target.bindings ?? [],
+        pointBounds: target.pointBounds,
+        selfAvoidance: body.selfAvoidance,
+        supports: physicalContactSupportGoals(
+          body,
+          target,
+          input.floor,
+          input.contactTolerance!,
+          step / input.rate,
+          input.rate,
+          step,
+        ),
+        geometry,
+        floor: input.floor - input.contactTolerance!,
+      }).targets;
     bodies[body.id] = Object.fromEntries(
       Object.entries(planned).map(
-        ([bone, pose]: [string, IAutoMoviePhysicalProfile.ITransform]): [string, IAutoMoviePhysicsCache.ISegment] => {
+        ([bone, pose]: [string, IAutoMoviePhysicalProfile.ITransform]): [
+          string,
+          IAutoMoviePhysicsCache.ISegment,
+        ] => {
           const sampled: IAutoMovieSamplePhysicalTarget.IResult =
             samplePhysicalTarget(
               previous?.bodies[body.id]?.[bone] ?? pose,
@@ -91,12 +104,17 @@ export function bindPhysicalKinematicFrame(
             segment.bone === binding.source.bone,
         )!
         .shapes.find(
-          (shape: IAutoMoviePhysicalProfile.IShape): boolean => shape.id === binding.source.shape,
+          (shape: IAutoMoviePhysicalProfile.IShape): boolean =>
+            shape.id === binding.source.shape,
         )!;
-      const target: IAutoMoviePhysicalProfile.IShape = profiles[binding.target.body]!.segments.find(
-        (segment: IAutoMoviePhysicalProfile.ISegment): boolean => segment.bone === binding.target.bone,
+      const target: IAutoMoviePhysicalProfile.IShape = profiles[
+        binding.target.body
+      ]!.segments.find(
+        (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+          segment.bone === binding.target.bone,
       )!.shapes.find(
-        (shape: IAutoMoviePhysicalProfile.IShape): boolean => shape.id === binding.target.shape,
+        (shape: IAutoMoviePhysicalProfile.IShape): boolean =>
+          shape.id === binding.target.shape,
       )!;
       const receipt: IAutoMovieContactReceipt | null = geometry.contact(
         {

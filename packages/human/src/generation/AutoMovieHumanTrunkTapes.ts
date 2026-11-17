@@ -1,8 +1,10 @@
-import type { IAutoMovieLoftRelief, IAutoMovieHumanTrunkSection, IAutoMovieHumanTrunkTapes } from "@automovie/interface";
+import { AutoMovieLoftRelief, AutoMovieSplineCurve } from "@automovie/engine";
+import type {
+  IAutoMovieHumanTrunkSection,
+  IAutoMovieHumanTrunkTapes,
+  IAutoMovieLoftRelief,
+} from "@automovie/interface";
 
-
-
-import { AutoMovieSplineCurve, AutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
 import { AutoMovieHumanTrunkRing } from "./AutoMovieHumanTrunkRing";
 
@@ -30,35 +32,55 @@ export namespace AutoMovieHumanTrunkTapes {
     count: number = PHASES,
   ): IAutoMovieHumanTrunkTapes.PointsResult {
     const c: number[] = AutoMovieHumanTrunkRing.controls(s);
-    return Array.from({ length: count }, (_: unknown, i: number): [number, number] => {
-      const t: number = (2 * Math.PI * i) / count;
-      const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(c, AutoMovieHumanTrunkQuadrant.ORDER, t);
-      let x: number = p[0];
-      let z: number = p[1];
-      for (const r of reliefs) {
-        const d: number = AutoMovieLoftRelief.height(r, s.y, t)[0];
-        x += d * r.axis[0];
-        z += d * r.axis[2];
-      }
-      return [x, z];
-    });
+    return Array.from(
+      { length: count },
+      (_: unknown, i: number): [number, number] => {
+        const t: number = (2 * Math.PI * i) / count;
+        const p: [number, number, number, number] =
+          AutoMovieSplineCurve.evaluate(
+            c,
+            AutoMovieHumanTrunkQuadrant.ORDER,
+            t,
+          );
+        let x: number = p[0];
+        let z: number = p[1];
+        for (const r of reliefs) {
+          const d: number = AutoMovieLoftRelief.height(r, s.y, t)[0];
+          x += d * r.axis[0];
+          z += d * r.axis[2];
+        }
+        return [x, z];
+      },
+    );
   }
 
   /** Hull perimeter of planar points. */
   export function hull(points: IAutoMovieHumanTrunkTapes.HullPoints): number {
-    const sorted: [number, number][] = [...points].sort((a, b): number => a[0] - b[0] || a[1] - b[1]);
-    const cross = (o: [number, number], a: [number, number], b: [number, number]): number =>
-      (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const sorted: [number, number][] = [...points].sort(
+      (a, b): number => a[0] - b[0] || a[1] - b[1],
+    );
+    const cross = (
+      o: [number, number],
+      a: [number, number],
+      b: [number, number],
+    ): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
     const half = (list: [number, number][]): [number, number][] => {
       const out: [number, number][] = [];
       for (const p of list) {
-        while (out.length >= 2 && cross(out[out.length - 2]!, out[out.length - 1]!, p) <= 0) out.pop();
+        while (
+          out.length >= 2 &&
+          cross(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
+        )
+          out.pop();
         out.push(p);
       }
       out.pop();
       return out;
     };
-    const ring: [number, number][] = [...half(sorted), ...half([...sorted].reverse())];
+    const ring: [number, number][] = [
+      ...half(sorted),
+      ...half([...sorted].reverse()),
+    ];
     let sum: number = 0;
     for (let i: number = 0; i < ring.length; i++) {
       const a: [number, number] = ring[i]!;
@@ -75,7 +97,11 @@ export namespace AutoMovieHumanTrunkTapes {
    * @param girth The tape read at a trial half width.
    * @param guess A half width to start from, mm.
    */
-  export function solve(tape: number, girth: IAutoMovieHumanTrunkTapes.SolveGirth, guess: number): number {
+  export function solve(
+    tape: number,
+    girth: IAutoMovieHumanTrunkTapes.SolveGirth,
+    guess: number,
+  ): number {
     let low: number = 0.3 * guess;
     let high: number = 2.5 * guess;
     for (let k: number = 0; k < STEPS; k++) {

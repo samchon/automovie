@@ -1,13 +1,16 @@
-import type { IAutoMovieLoftContract, IAutoMovieLoftRelief, IAutoMovieHumanTrunkColumn, IAutoMovieHumanTrunkFeature, IAutoMovieHumanTrunkFeatureFrame, IAutoMovieHumanTrunkFeatures, IAutoMovieHumanTrunkQuadrant, IAutoMovieHumanTrunkReliefNet, IAutoMovieHumanTrunkSection } from "@automovie/interface";
-
-
-
-
-
-
-
-
 import { AutoMovieSplineCurve } from "@automovie/engine";
+import type {
+  IAutoMovieHumanTrunkColumn,
+  IAutoMovieHumanTrunkFeature,
+  IAutoMovieHumanTrunkFeatureFrame,
+  IAutoMovieHumanTrunkFeatures,
+  IAutoMovieHumanTrunkQuadrant,
+  IAutoMovieHumanTrunkReliefNet,
+  IAutoMovieHumanTrunkSection,
+  IAutoMovieLoftContract,
+  IAutoMovieLoftRelief,
+} from "@automovie/interface";
+
 import { AutoMovieHumanBreastDome } from "./AutoMovieHumanBreastDome";
 import { AutoMovieHumanBreastFootprint } from "./AutoMovieHumanBreastFootprint";
 import { AutoMovieHumanBreastFrame } from "./AutoMovieHumanBreastFrame";
@@ -20,15 +23,12 @@ import { AutoMovieHumanSpinalGroove } from "./AutoMovieHumanSpinalGroove";
 import { AutoMovieHumanSpinalProfile } from "./AutoMovieHumanSpinalProfile";
 import { AutoMovieHumanSternalNotch } from "./AutoMovieHumanSternalNotch";
 import { AutoMovieHumanSternalNotchProfile } from "./AutoMovieHumanSternalNotchProfile";
-import { AutoMovieHumanUmbilicalProfile } from "./AutoMovieHumanUmbilicalProfile";
-import { AutoMovieHumanUmbilicus } from "./AutoMovieHumanUmbilicus";
-
 import { AutoMovieHumanTrunkCourses } from "./AutoMovieHumanTrunkCourses";
 import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
-
 import { AutoMovieHumanTrunkRing } from "./AutoMovieHumanTrunkRing";
-
+import { AutoMovieHumanUmbilicalProfile } from "./AutoMovieHumanUmbilicalProfile";
+import { AutoMovieHumanUmbilicus } from "./AutoMovieHumanUmbilicus";
 
 /**
  * The trunk's features merged into its chart: the breasts, the buttocks, the
@@ -46,8 +46,6 @@ export namespace AutoMovieHumanTrunkFeatures {
   /** Construction level of a subtractive piece. */
   const SUBTRACTIVE: number = 4;
 
-  
-
   /**
    * The phase of a side's section at a lateral place: the bisection of the
    * section's spline over the quadrant's phases.
@@ -57,14 +55,22 @@ export namespace AutoMovieHumanTrunkFeatures {
    * @param z Lateral place, mm.
    * @returns The phase, radians.
    */
-  export function phaseAt(controls: readonly number[], side: IAutoMovieHumanTrunkQuadrant.Side, z: number): number {
+  export function phaseAt(
+    controls: readonly number[],
+    side: IAutoMovieHumanTrunkQuadrant.Side,
+    z: number,
+  ): number {
     const widest: number = AutoMovieHumanTrunkQuadrant.phase(70);
     let lo: number = side === "front" ? 0 : widest;
     let hi: number = side === "front" ? widest : Math.PI;
 
     for (let k: number = 0; k < 40; k++) {
       const mid: number = (lo + hi) / 2;
-      const zm: number = AutoMovieSplineCurve.evaluate(controls, AutoMovieHumanTrunkQuadrant.ORDER, mid)[1];
+      const zm: number = AutoMovieSplineCurve.evaluate(
+        controls,
+        AutoMovieHumanTrunkQuadrant.ORDER,
+        mid,
+      )[1];
 
       // Lateral place rises with phase on the front and falls with it on the back.
       if (zm < z === (side === "front")) lo = mid;
@@ -81,7 +87,9 @@ export namespace AutoMovieHumanTrunkFeatures {
    * @param col The column.
    * @returns The base surface.
    */
-  export function baseSurface(col: IAutoMovieHumanTrunkColumn.IColumn): IAutoMovieHumanTrunkReliefNet.Base {
+  export function baseSurface(
+    col: IAutoMovieHumanTrunkColumn.IColumn,
+  ): IAutoMovieHumanTrunkReliefNet.Base {
     const rings: Map<number, number[]> = new Map();
     const at = (y: number, t: number): [number, number, number] => {
       let controls: number[] | undefined = rings.get(y);
@@ -89,14 +97,21 @@ export namespace AutoMovieHumanTrunkFeatures {
         controls = AutoMovieHumanTrunkRing.controls(col.at(y));
         rings.set(y, controls);
       }
-      const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(controls, AutoMovieHumanTrunkQuadrant.ORDER, t);
+      const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(
+        controls,
+        AutoMovieHumanTrunkQuadrant.ORDER,
+        t,
+      );
 
       return [p[0], y, p[1]];
     };
 
     // The windows stay inside the chart's two shared ends: over the crotch
     // ring the legs share, under the neck's ring a clearance below it.
-    const bounds: [number, number] = [col.keys[0]!.y, col.keys[col.keys.length - 1]!.y - AutoMovieHumanSternalNotch.CLEARANCE];
+    const bounds: [number, number] = [
+      col.keys[0]!.y,
+      col.keys[col.keys.length - 1]!.y - AutoMovieHumanSternalNotch.CLEARANCE,
+    ];
 
     return Object.assign(at, { bounds });
   }
@@ -108,23 +123,37 @@ export namespace AutoMovieHumanTrunkFeatures {
    * @param sites The landmark heights and tapes.
    * @returns The left breast as a height field.
    */
-  export function breastDome(col: IAutoMovieHumanTrunkColumn.IColumn, sites: IAutoMovieHumanTrunkFeatures.ISites): IAutoMovieHumanTrunkFeature {
+  export function breastDome(
+    col: IAutoMovieHumanTrunkColumn.IColumn,
+    sites: IAutoMovieHumanTrunkFeatures.ISites,
+  ): IAutoMovieHumanTrunkFeature {
     const s: IAutoMovieHumanTrunkSection = col.at(sites.bust);
     const controls: number[] = AutoMovieHumanTrunkRing.controls(s);
     const lateral: number = Math.min(0.8 * s.width, sites.bustSpan / 2);
 
     // The breast's own frame stands on the wall at the bust point, along the wall's normal.
-    const apex: [number, number, number] = AutoMovieHumanTrunkCourses.point(s, [], lateral, "front", controls);
-    const j: [number, number, number, number, number, number] = AutoMovieSplineCurve.jet(
+    const apex: [number, number, number] = AutoMovieHumanTrunkCourses.point(
+      s,
+      [],
+      lateral,
+      "front",
       controls,
-      AutoMovieHumanTrunkQuadrant.ORDER,
-      phaseAt(controls, "front", lateral),
     );
-    const frame: IAutoMovieHumanTrunkFeatureFrame.IFrame = AutoMovieHumanBreastFrame.create({ apex, tangent: [j[2], j[3]] });
+    const j: [number, number, number, number, number, number] =
+      AutoMovieSplineCurve.jet(
+        controls,
+        AutoMovieHumanTrunkQuadrant.ORDER,
+        phaseAt(controls, "front", lateral),
+      );
+    const frame: IAutoMovieHumanTrunkFeatureFrame.IFrame =
+      AutoMovieHumanBreastFrame.create({ apex, tangent: [j[2], j[3]] });
 
     return AutoMovieHumanBreastDome.create({
       frame,
-      footprint: AutoMovieHumanBreastFootprint.create(lateral, sites.bust - sites.fold),
+      footprint: AutoMovieHumanBreastFootprint.create(
+        lateral,
+        sites.bust - sites.fold,
+      ),
       projection: sites.projection,
     });
   }
@@ -136,14 +165,18 @@ export namespace AutoMovieHumanTrunkFeatures {
    * @param sites The landmark heights and tapes.
    * @returns The left and the right window.
    */
-  export function breasts(col: IAutoMovieHumanTrunkColumn.IColumn, sites: IAutoMovieHumanTrunkFeatures.ISites): IAutoMovieLoftRelief[] {
+  export function breasts(
+    col: IAutoMovieHumanTrunkColumn.IColumn,
+    sites: IAutoMovieHumanTrunkFeatures.ISites,
+  ): IAutoMovieLoftRelief[] {
     const s: IAutoMovieHumanTrunkSection = col.at(sites.bust);
     const controls: number[] = AutoMovieHumanTrunkRing.controls(s);
 
     return AutoMovieHumanBreastRelief.create({
       dome: breastDome(col, sites),
       base: baseSurface(col),
-      phaseOf: (z: number): number => phaseAt(controls, "front", Math.min(0.97 * s.width, Math.max(0, z))),
+      phaseOf: (z: number): number =>
+        phaseAt(controls, "front", Math.min(0.97 * s.width, Math.max(0, z))),
     });
   }
 
@@ -154,19 +187,30 @@ export namespace AutoMovieHumanTrunkFeatures {
    * @param sites The landmark heights and the buttock's projection.
    * @returns The left buttock as a height field.
    */
-  export function glutealDome(col: IAutoMovieHumanTrunkColumn.IColumn, sites: IAutoMovieHumanTrunkFeatures.ISites): IAutoMovieHumanTrunkFeature {
+  export function glutealDome(
+    col: IAutoMovieHumanTrunkColumn.IColumn,
+    sites: IAutoMovieHumanTrunkFeatures.ISites,
+  ): IAutoMovieHumanTrunkFeature {
     const s: IAutoMovieHumanTrunkSection = col.at(sites.buttock);
     const controls: number[] = AutoMovieHumanTrunkRing.controls(s);
 
     // The gluteal mass's own frame stands on the back wall at the buttock point.
     const lateral: number = AutoMovieHumanGlutealDome.LATERAL * s.width;
-    const apex: [number, number, number] = AutoMovieHumanTrunkCourses.point(s, [], lateral, "back", controls);
-    const j: [number, number, number, number, number, number] = AutoMovieSplineCurve.jet(
+    const apex: [number, number, number] = AutoMovieHumanTrunkCourses.point(
+      s,
+      [],
+      lateral,
+      "back",
       controls,
-      AutoMovieHumanTrunkQuadrant.ORDER,
-      phaseAt(controls, "back", lateral),
     );
-    const frame: IAutoMovieHumanTrunkFeatureFrame.IFrame = AutoMovieHumanGlutealFrame.create({ apex, tangent: [j[2], j[3]] });
+    const j: [number, number, number, number, number, number] =
+      AutoMovieSplineCurve.jet(
+        controls,
+        AutoMovieHumanTrunkQuadrant.ORDER,
+        phaseAt(controls, "back", lateral),
+      );
+    const frame: IAutoMovieHumanTrunkFeatureFrame.IFrame =
+      AutoMovieHumanGlutealFrame.create({ apex, tangent: [j[2], j[3]] });
 
     return AutoMovieHumanGlutealDome.create({
       frame,
@@ -184,14 +228,18 @@ export namespace AutoMovieHumanTrunkFeatures {
    * @param sites The landmark heights and the buttock's projection.
    * @returns The left and the right window; none when the base already has the buttock's depth.
    */
-  export function buttocks(col: IAutoMovieHumanTrunkColumn.IColumn, sites: IAutoMovieHumanTrunkFeatures.ISites): IAutoMovieLoftRelief[] {
+  export function buttocks(
+    col: IAutoMovieHumanTrunkColumn.IColumn,
+    sites: IAutoMovieHumanTrunkFeatures.ISites,
+  ): IAutoMovieLoftRelief[] {
     const s: IAutoMovieHumanTrunkSection = col.at(sites.buttock);
     const controls: number[] = AutoMovieHumanTrunkRing.controls(s);
 
     return AutoMovieHumanGlutealRelief.create({
       dome: glutealDome(col, sites),
       base: baseSurface(col),
-      phaseOf: (z: number): number => phaseAt(controls, "back", Math.min(0.97 * s.width, Math.max(0, z))),
+      phaseOf: (z: number): number =>
+        phaseAt(controls, "back", Math.min(0.97 * s.width, Math.max(0, z))),
     });
   }
   /**
@@ -201,25 +249,39 @@ export namespace AutoMovieHumanTrunkFeatures {
    * @param sites The landmark heights and the span.
    * @returns The left and the right window.
    */
-  export function scapulae(col: IAutoMovieHumanTrunkColumn.IColumn, sites: IAutoMovieHumanTrunkFeatures.ISites): IAutoMovieLoftRelief[] {
+  export function scapulae(
+    col: IAutoMovieHumanTrunkColumn.IColumn,
+    sites: IAutoMovieHumanTrunkFeatures.ISites,
+  ): IAutoMovieLoftRelief[] {
     const s: IAutoMovieHumanTrunkSection = col.at(sites.axilla);
     const controls: number[] = AutoMovieHumanTrunkRing.controls(s);
 
     // The mass's centre lies midway between the blade's borders on the back wall.
-    const lateral: number = ((AutoMovieHumanScapularMass.MEDIAL + AutoMovieHumanScapularMass.OUTER) / 2) * s.width;
-    const centre: [number, number, number] = AutoMovieHumanTrunkCourses.point(s, [], lateral, "back", controls);
-    const j: [number, number, number, number, number, number] = AutoMovieSplineCurve.jet(
+    const lateral: number =
+      ((AutoMovieHumanScapularMass.MEDIAL + AutoMovieHumanScapularMass.OUTER) /
+        2) *
+      s.width;
+    const centre: [number, number, number] = AutoMovieHumanTrunkCourses.point(
+      s,
+      [],
+      lateral,
+      "back",
       controls,
-      AutoMovieHumanTrunkQuadrant.ORDER,
-      phaseAt(controls, "back", lateral),
     );
+    const j: [number, number, number, number, number, number] =
+      AutoMovieSplineCurve.jet(
+        controls,
+        AutoMovieHumanTrunkQuadrant.ORDER,
+        phaseAt(controls, "back", lateral),
+      );
 
     return AutoMovieHumanScapularMass.create({
       centre,
       tangent: [j[2], j[3]],
       width: s.width,
       span: sites.span,
-      phaseOf: (z: number): number => phaseAt(controls, "back", Math.min(0.97 * s.width, Math.max(0, z))),
+      phaseOf: (z: number): number =>
+        phaseAt(controls, "back", Math.min(0.97 * s.width, Math.max(0, z))),
       base: baseSurface(col),
       ceiling: sites.neck - AutoMovieHumanSternalNotch.CLEARANCE,
     });
@@ -238,31 +300,63 @@ export namespace AutoMovieHumanTrunkFeatures {
     sites: IAutoMovieHumanTrunkFeatures.ISites,
     diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [],
   ): IAutoMovieLoftRelief[] {
-    const rate = (y: number, index: number): number => AutoMovieHumanTrunkRing.speeds(col.at(y))[index]!;
+    const rate = (y: number, index: number): number =>
+      AutoMovieHumanTrunkRing.speeds(col.at(y))[index]!;
     const base: IAutoMovieHumanTrunkReliefNet.Base = baseSurface(col);
     const to: number = sites.axilla - 1;
     const middle: number = (sites.furrowFrom + to) / 2;
-    const notch: IAutoMovieHumanTrunkFeatureFrame.IFrame = AutoMovieHumanSternalNotch.frame(sites.neck, (y: number): number => col.at(y).front);
+    const notch: IAutoMovieHumanTrunkFeatureFrame.IFrame =
+      AutoMovieHumanSternalNotch.frame(
+        sites.neck,
+        (y: number): number => col.at(y).front,
+      );
 
     return [
-      ...guarded("trunk.sternalNotch", SUBTRACTIVE, diagnostics, (): IAutoMovieLoftRelief[] => [
-        AutoMovieHumanSternalNotch.create(notch, base, AutoMovieHumanSternalNotchProfile.HALF / rate(notch.origin[1], 0)),
-      ]),
-      ...guarded("trunk.umbilicus", SUBTRACTIVE, diagnostics, (): IAutoMovieLoftRelief[] => [
-        AutoMovieHumanUmbilicus.create(
-          AutoMovieHumanTrunkFeatureFrame.midline(sites.omphalion, col.at(sites.omphalion).front, "front"),
-          base,
-          AutoMovieHumanUmbilicalProfile.RADIUS / rate(sites.omphalion, 0),
-        ),
-      ]),
-      ...guarded("trunk.spinalGroove", SUBTRACTIVE, diagnostics, (): IAutoMovieLoftRelief[] => [
-        AutoMovieHumanSpinalGroove.create(
-          AutoMovieHumanTrunkFeatureFrame.midline(middle, col.at(middle).back, "back"),
-          (to - sites.furrowFrom) / 2,
-          base,
-          AutoMovieHumanSpinalProfile.RADIUS / rate(sites.waist, 6),
-        ),
-      ]),
+      ...guarded(
+        "trunk.sternalNotch",
+        SUBTRACTIVE,
+        diagnostics,
+        (): IAutoMovieLoftRelief[] => [
+          AutoMovieHumanSternalNotch.create(
+            notch,
+            base,
+            AutoMovieHumanSternalNotchProfile.HALF / rate(notch.origin[1], 0),
+          ),
+        ],
+      ),
+      ...guarded(
+        "trunk.umbilicus",
+        SUBTRACTIVE,
+        diagnostics,
+        (): IAutoMovieLoftRelief[] => [
+          AutoMovieHumanUmbilicus.create(
+            AutoMovieHumanTrunkFeatureFrame.midline(
+              sites.omphalion,
+              col.at(sites.omphalion).front,
+              "front",
+            ),
+            base,
+            AutoMovieHumanUmbilicalProfile.RADIUS / rate(sites.omphalion, 0),
+          ),
+        ],
+      ),
+      ...guarded(
+        "trunk.spinalGroove",
+        SUBTRACTIVE,
+        diagnostics,
+        (): IAutoMovieLoftRelief[] => [
+          AutoMovieHumanSpinalGroove.create(
+            AutoMovieHumanTrunkFeatureFrame.midline(
+              middle,
+              col.at(middle).back,
+              "back",
+            ),
+            (to - sites.furrowFrom) / 2,
+            base,
+            AutoMovieHumanSpinalProfile.RADIUS / rate(sites.waist, 6),
+          ),
+        ],
+      ),
     ];
   }
 
@@ -283,9 +377,24 @@ export namespace AutoMovieHumanTrunkFeatures {
     diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [],
   ): IAutoMovieLoftRelief[] {
     return [
-      ...guarded("trunk.breast", ADDITIVE, diagnostics, (): IAutoMovieLoftRelief[] => breasts(col, sites)),
-      ...guarded("trunk.scapula", ADDITIVE, diagnostics, (): IAutoMovieLoftRelief[] => scapulae(col, sites)),
-      ...guarded("trunk.buttock", ADDITIVE, diagnostics, (): IAutoMovieLoftRelief[] => buttocks(col, sites)),
+      ...guarded(
+        "trunk.breast",
+        ADDITIVE,
+        diagnostics,
+        (): IAutoMovieLoftRelief[] => breasts(col, sites),
+      ),
+      ...guarded(
+        "trunk.scapula",
+        ADDITIVE,
+        diagnostics,
+        (): IAutoMovieLoftRelief[] => scapulae(col, sites),
+      ),
+      ...guarded(
+        "trunk.buttock",
+        ADDITIVE,
+        diagnostics,
+        (): IAutoMovieLoftRelief[] => buttocks(col, sites),
+      ),
       ...midline(col, sites, diagnostics),
     ];
   }
@@ -312,7 +421,8 @@ export namespace AutoMovieHumanTrunkFeatures {
       diagnostics.push({
         producer,
         level,
-        contract: "a trunk feature's window over its own footprint, single-signed and inside the chart",
+        contract:
+          "a trunk feature's window over its own footprint, single-signed and inside the chart",
         detail: error instanceof Error ? error.message : String(error),
       });
       return [];

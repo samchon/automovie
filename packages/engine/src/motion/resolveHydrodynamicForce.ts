@@ -1,5 +1,7 @@
-import type { IAutoMovieResolveHydrodynamicForce, IAutoMoviePhysicalProfile } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMovieResolveHydrodynamicForce,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { AutoMovieGravity } from "../physics/AutoMovieGravity";

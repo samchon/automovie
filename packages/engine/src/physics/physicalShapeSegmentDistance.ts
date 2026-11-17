@@ -1,5 +1,7 @@
-import type { IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { physicalShapeNearest } from "./physicalShapeNearest";
 

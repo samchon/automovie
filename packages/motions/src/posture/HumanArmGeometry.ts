@@ -1,5 +1,3 @@
-import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanArmGeometry, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
@@ -13,6 +11,19 @@ import {
   skeletonJointAxes,
   swingTwistRange,
 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieJointAxes,
+  IAutoMovieJointConstraint,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * An arm's joint-space coordinates and what they place: the shoulder's
@@ -56,7 +67,10 @@ export namespace HumanArmGeometry {
    * @param side The arm.
    * @returns The setup.
    */
-  export function prepare(body: IAutoMovieMotionHumanBody, side: "left" | "right"): IAutoMovieMotionHumanArmGeometry.ISetup {
+  export function prepare(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+  ): IAutoMovieMotionHumanArmGeometry.ISetup {
     const bones: IAutoMovieMotionHumanArmGeometry.ISetup["bones"] = {
       upper: `${side}UpperArm`,
       lower: `${side}LowerArm`,
@@ -175,7 +189,10 @@ export namespace HumanArmGeometry {
    * @param arm Its clinical triples.
    * @returns The coordinates.
    */
-  export function encode(setup: IAutoMovieMotionHumanArmGeometry.ISetup, arm: IAutoMovieMotionHumanArmClearance.IArm): number[] {
+  export function encode(
+    setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+    arm: IAutoMovieMotionHumanArmClearance.IArm,
+  ): number[] {
     const place: { x: number; y: number; twist: number } =
       swingTwistRange.chart(
         rotation(setup, setup.bones.upper, arm.upper),
@@ -347,7 +364,10 @@ const AXES: WeakMap<
 > = new WeakMap();
 
 /** A bone of the body's skeleton. */
-function find(body: IAutoMovieMotionHumanBody, bone: AutoMovieHumanoidBone): IAutoMovieBone {
+function find(
+  body: IAutoMovieMotionHumanBody,
+  bone: AutoMovieHumanoidBone,
+): IAutoMovieBone {
   return body.skeleton.bones.find(
     (b: IAutoMovieBone): boolean => b.bone === bone,
   )!;

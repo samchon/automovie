@@ -8,11 +8,9 @@
  */
 
 export interface IAutoMovieRecoveryOpenPairAddress {
- 
- /** Original saved interval ordinal. */
+  /** Original saved interval ordinal. */
   interval: number;
 
- 
- /** Original saved open-pair ordinal within that interval. */
+  /** Original saved open-pair ordinal within that interval. */
   pair: number;
 }

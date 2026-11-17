@@ -1,20 +1,19 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanArmFrame, IAutoMovieHumanArmWalk, IAutoMovieHumanWalkPart } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanArmFrame,
+  IAutoMovieHumanArmWalk,
+  IAutoMovieHumanWalkPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanBendArc } from "../limb/AutoMovieHumanBendArc";
 import { AutoMovieHumanWalkPart } from "../limb/AutoMovieHumanWalkPart";
 
-
 /** Bone-relative material chart shared before arm or digit scalar constraints are requested. */
 export namespace AutoMovieHumanArmFrame {
-  
-
-  
-
   /** Preserve the existing bone/share map and metre canonicalization without preparing any section. */
-  export function create(input: IAutoMovieHumanArmFrame.IInput): IAutoMovieHumanArmFrame.IOutput | string {
+  export function create(
+    input: IAutoMovieHumanArmFrame.IInput,
+  ): IAutoMovieHumanArmFrame.IOutput | string {
     const {
       name,
       bones,
@@ -115,5 +114,3 @@ export namespace AutoMovieHumanArmFrame {
     return typeof source === "string" ? source : { source, run, humerus: d };
   }
 }
-
-

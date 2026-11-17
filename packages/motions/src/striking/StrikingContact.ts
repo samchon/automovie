@@ -1,6 +1,8 @@
-import type { IAutoMovieMotionHumanStrikingContact, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, physicalShapeNearest } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanStrikingContact,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * When and where a moving weapon first touches a surface of another body.
@@ -29,7 +31,6 @@ import { Vector3, physicalShapeNearest } from "@automovie/engine";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface shape and transform and the engine's shape query; no shape distance is restated here.
  */
 export namespace StrikingContact {
-
   /**
    * The closest point of a segment to a point.
    *
@@ -77,7 +78,10 @@ export namespace StrikingContact {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function distance(p: IAutoMovieVector3, shape: IAutoMovieMotionHumanStrikingContact.ICollider): number {
+  export function distance(
+    p: IAutoMovieVector3,
+    shape: IAutoMovieMotionHumanStrikingContact.ICollider,
+  ): number {
     return physicalShapeNearest(shape.pose, shape.shape, p, p).distance;
   }
 

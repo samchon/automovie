@@ -1,6 +1,6 @@
+import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanLadder } from "./IAutoMovieMotionHumanLadder";
-import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 
 /**
  * Climbing a vertical fixed ladder from the floor before it, in the

@@ -1,9 +1,10 @@
-import type { IAutoMovieHumanBodyCalibration, IAutoMovieHumanHeadEyeOpening, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadPrior, IAutoMovieHumanLoftAperture } from "@automovie/interface";
-
-
-
-
-
+import type {
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanHeadEyeOpening,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadPrior,
+  IAutoMovieHumanLoftAperture,
+} from "@automovie/interface";
 
 /**
  * One lid margin as a short Fourier series about its globe, the right one the
@@ -22,13 +23,11 @@ export namespace AutoMovieHumanHeadEyeMargin {
     // The right margin is the left's reflection, z to -z with its phase run
     // backward (t -> -t): every sine harmonic changes sign, so both margins
     // turn the same way about their globes.
-    const row = (
-      c0: number,
-      h: readonly number[],
-      unit: number,
-    ): number[] => [
+    const row = (c0: number, h: readonly number[], unit: number): number[] => [
       c0,
-      ...h.map((v: number, i: number): number => v * unit * (i % 2 === 1 ? sign : 1)),
+      ...h.map(
+        (v: number, i: number): number => v * unit * (i % 2 === 1 ? sign : 1),
+      ),
     ];
     return {
       name: sign > 0 ? "eye.left" : "eye.right",

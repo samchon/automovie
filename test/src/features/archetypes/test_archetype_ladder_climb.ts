@@ -1,8 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
 import { createLadder } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -69,7 +81,8 @@ export function test_archetype_ladder_climb(): void {
     }
 
     // 2. The ladder stays where it was placed.
-    const placed: IAutoMovieMotionHumanProp.IFrame = HumanObject.frame(placement);
+    const placed: IAutoMovieMotionHumanProp.IFrame =
+      HumanObject.frame(placement);
     let moved: number = 0;
     for (let s: number = 0; s <= film.duration; s += 0.1)
       moved = Math.max(

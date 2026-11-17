@@ -1,6 +1,15 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanWalkFacing, IAutoMovieMotionHumanWalkFoot, IAutoMovieMotionHumanWalkSteps, IAutoMovieRandom, IAutoMovieVector3 } from "@automovie/interface";
-
 import { minimumJerk, wrapDegrees } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanWalkFacing,
+  IAutoMovieMotionHumanWalkFoot,
+  IAutoMovieMotionHumanWalkSteps,
+  IAutoMovieRandom,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanSkill } from "../skill/HumanSkill";
@@ -52,7 +61,6 @@ import { walkStepFoot } from "./walkStepFoot";
  * every foot goal reachable on the actual pelvis.
  */
 export namespace walkSteps {
-
   /** One footfall (walkStepFoot.IStep). */
   type IStep = walkStepFoot.IStep;
 
@@ -75,7 +83,10 @@ export namespace walkSteps {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function tempo(
-    context: Pick<IAutoMovieMotionHumanActionContext, "skill" | "subject" | "series">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "skill" | "subject" | "series"
+    >,
   ): IAutoMovieRandom {
     return HumanSkill.stream(
       context.skill,
@@ -92,19 +103,26 @@ export namespace walkSteps {
    * @param input The body, its entry state, the destination, the speed, the longest step and the period law.
    * @returns The plan.
    */
-  export function plan(input: IAutoMovieMotionHumanWalkSteps.IInput): IAutoMovieMotionHumanWalkSteps.IPlan {
+  export function plan(
+    input: IAutoMovieMotionHumanWalkSteps.IInput,
+  ): IAutoMovieMotionHumanWalkSteps.IPlan {
     const { body } = input;
     const m = body.measure;
     const l: number = m.hipHeight;
     const yaw0: number = input.entry.posture.yaw;
-    const flatten = (side: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => ({
+    const flatten = (
+      side: "left" | "right",
+    ): IAutoMovieMotionHumanFoot.IPlacement => ({
       ankle: { ...input.entry.feet[side].ankle, y: m.ankleHeight },
       rotation: HumanFoot.rotation(
         HumanFoot.heading(input.entry.feet[side].rotation),
         0,
       ),
     });
-    const start: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
+    const start: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = {
       left: flatten("left"),
       right: flatten("right"),
     };
@@ -149,7 +167,8 @@ export namespace walkSteps {
     const along$ = (s: number): number =>
       D < 1e-6 ? heading : unwrap(path.heading(s, delta / 2), heading);
     // The heading faced at a floor point, nearest the starting heading.
-    const facing: IAutoMovieMotionHumanWalkFacing.IFacing | undefined = input.facing;
+    const facing: IAutoMovieMotionHumanWalkFacing.IFacing | undefined =
+      input.facing;
     const faced$ = (at: IAutoMovieVector3): number =>
       facing === undefined
         ? NaN
@@ -169,7 +188,10 @@ export namespace walkSteps {
             along$(D),
           )
         : unwrap(input.face ?? faced$(path.at(D)), yaw0);
-    const frame: IAutoMovieMotionHumanFrame.IFrame = { origin: S, yaw: heading };
+    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+      origin: S,
+      yaw: heading,
+    };
     const along = (side: "left" | "right"): number =>
       HumanFrame.local(frame, start[side].ankle).z;
     const lead: "left" | "right" =
@@ -370,8 +392,10 @@ export namespace walkSteps {
         raised,
       ),
     };
-    const foot = (side: "left" | "right", t: number): IAutoMovieMotionHumanWalkFoot.IScheduled =>
-      schedules[side](t);
+    const foot = (
+      side: "left" | "right",
+      t: number,
+    ): IAutoMovieMotionHumanWalkFoot.IScheduled => schedules[side](t);
     const planned = (t: number): IAutoMovieVector3 => {
       const yaw: number = yawAt(t);
       const c: IAutoMovieVector3 = centre(yaw);

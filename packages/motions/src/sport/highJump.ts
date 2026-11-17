@@ -1,7 +1,22 @@
-import type { IAutoMovieResolveCenterOfMass, AutoMovieMotionHumanActionKey, IAutoMovieAffordance, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanExerciseKey, IAutoMovieMotionHumanGymnasticsTakeoff, IAutoMovieMotionHumanHighJump, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieAffordance,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanGymnasticsTakeoff,
+  IAutoMovieMotionHumanHighJump,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { lieDown } from "../floor/lieDown";
@@ -98,7 +113,9 @@ export namespace highJump {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function arched(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey {
+  export function arched(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
     return ExerciseKey.from(
       body,
       { spine: [-25, 0, 0], chest: [-20, 0, 0], neck: -30 },
@@ -121,7 +138,9 @@ export namespace highJump {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function piked(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey {
+  export function piked(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
     return ExerciseKey.from(
       body,
       { spine: [10, 0, 0], neck: 30 },
@@ -150,7 +169,8 @@ export namespace highJump {
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     subject: string,
   ): number {
-    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(subject);
+    const read: IAutoMovieMotionHumanActionContext.IProp =
+      context.prop(subject);
     const found: IAutoMovieAffordance | undefined = (
       read.prop.affordances ?? []
     ).find((a: IAutoMovieAffordance): boolean => a.id === "bar");
@@ -194,7 +214,8 @@ export namespace highJump {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHighJump.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(body);
+    const model: IAutoMovieResolveCenterOfMass.IModel =
+      GymnasticsFlight.model(body);
     const p: IAutoMovieMotionHumanHighJump.IParams = context.params;
     const surface: number = p.to.y;
     const bar: number = crossbar(context, p.bar);
@@ -217,50 +238,51 @@ export namespace highJump {
 
     // The take-off: the centre peaks at the bar and comes down at the
     // landing place at its lying height.
-    const takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff = GymnasticsTakeoff.of(
-      context,
-      (centre: IAutoMovieVector3): IAutoMovieVector3 => {
-        if (!(bar > centre.y))
-          throw new HumanRefusal({
-            kind: "parameter",
-            axis: "bar",
-            value: bar,
-            feasible: {
-              kind: "range",
-              minimum: centre.y,
-              maximum: null,
-              unit: "m",
-              open: "minimum",
-            },
-            reason: `the bar at ${bar.toFixed(2)} m is no higher than the take-off's centre of mass at ${centre.y.toFixed(2)} m`,
-            fix: "raise the bar",
-          });
-        const vy: number = Math.sqrt(
-          2 * AutoMovieGravity.STANDARD * (bar - centre.y),
-        );
-        if (vy > RISE)
-          throw new HumanRefusal({
-            kind: "parameter",
-            axis: "bar",
-            value: bar,
-            feasible: {
-              kind: "range",
-              minimum: centre.y,
-              maximum:
-                centre.y + (RISE * RISE) / (2 * AutoMovieGravity.STANDARD),
-              unit: "m",
-            },
-            reason: `a bar at ${bar.toFixed(2)} m needs a vertical take-off speed of ${vy.toFixed(2)} m/s, past ${RISE}`,
-            fix: "lower the bar",
-          });
-        const time: number = GymnasticsFlight.fall(centre.y, vy, lying)!;
-        return {
-          x: (p.to.x - centre.x) / time,
-          y: vy,
-          z: (p.to.z - centre.z) / time,
-        };
-      },
-    );
+    const takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff =
+      GymnasticsTakeoff.of(
+        context,
+        (centre: IAutoMovieVector3): IAutoMovieVector3 => {
+          if (!(bar > centre.y))
+            throw new HumanRefusal({
+              kind: "parameter",
+              axis: "bar",
+              value: bar,
+              feasible: {
+                kind: "range",
+                minimum: centre.y,
+                maximum: null,
+                unit: "m",
+                open: "minimum",
+              },
+              reason: `the bar at ${bar.toFixed(2)} m is no higher than the take-off's centre of mass at ${centre.y.toFixed(2)} m`,
+              fix: "raise the bar",
+            });
+          const vy: number = Math.sqrt(
+            2 * AutoMovieGravity.STANDARD * (bar - centre.y),
+          );
+          if (vy > RISE)
+            throw new HumanRefusal({
+              kind: "parameter",
+              axis: "bar",
+              value: bar,
+              feasible: {
+                kind: "range",
+                minimum: centre.y,
+                maximum:
+                  centre.y + (RISE * RISE) / (2 * AutoMovieGravity.STANDARD),
+                unit: "m",
+              },
+              reason: `a bar at ${bar.toFixed(2)} m needs a vertical take-off speed of ${vy.toFixed(2)} m/s, past ${RISE}`,
+              fix: "lower the bar",
+            });
+          const time: number = GymnasticsFlight.fall(centre.y, vy, lying)!;
+          return {
+            x: (p.to.x - centre.x) / time,
+            y: vy,
+            z: (p.to.z - centre.z) / time,
+          };
+        },
+      );
     const off: number = takeoff.seconds;
     // The flight leaves from the take-off posture's own centre, so the body
     // does not step at the take-off where the push-off's flight, which the
@@ -341,18 +363,20 @@ export namespace highJump {
       lowest,
       surface,
     );
-    const landing: (seconds: number) => IAutoMovieMotionHumanPosture = GymnasticsMat.lie({
-      body,
-      model,
-      from: flying(down),
-      velocity: { x: v.x, y: v.y - AutoMovieGravity.STANDARD * down, z: v.z },
-      height: surface,
-    });
+    const landing: (seconds: number) => IAutoMovieMotionHumanPosture =
+      GymnasticsMat.lie({
+        body,
+        model,
+        from: flying(down),
+        velocity: { x: v.x, y: v.y - AutoMovieGravity.STANDARD * down, z: v.z },
+        height: surface,
+      });
 
     const touchdown: number = off + down;
     const settled: number = touchdown + GymnasticsMat.SETTLE;
     const duration: number = settled + GymnasticsMat.HOLD;
-    const pushed: IAutoMovieMotionHumanContactWindow = takeoff.plan.contacts[0]!;
+    const pushed: IAutoMovieMotionHumanContactWindow =
+      takeoff.plan.contacts[0]!;
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {
         ...pushed,

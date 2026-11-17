@@ -1,6 +1,15 @@
-import type { IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieResolvedBone, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanHand, poseBones } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,7 +37,10 @@ const placed = (
 };
 
 /** A pose holding one hand shape. */
-const shaped = (body: IAutoMovieMotionHumanBody, form: IAutoMovieMotionHumanHand.Shape): IAutoMoviePose => ({
+const shaped = (
+  body: IAutoMovieMotionHumanBody,
+  form: IAutoMovieMotionHumanHand.Shape,
+): IAutoMoviePose => ({
   skeleton: body.skeleton.id,
   root: null,
   joints: Object.entries(HumanHand.shape("right", form)).map(

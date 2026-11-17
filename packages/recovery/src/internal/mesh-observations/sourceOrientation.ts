@@ -1,9 +1,11 @@
-import type { AutoMovieVector2Tuple, AutoMovieVector3Tuple, IAutoMovieMeshPlaneContour, IAutoMovieMeshPlaneIntersection, IAutoMovieMeshSectionOrientation, IAutoMoviePlaneFrame } from "@automovie/interface";
-
-
-
-
-
+import type {
+  AutoMovieVector2Tuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieMeshPlaneContour,
+  IAutoMovieMeshPlaneIntersection,
+  IAutoMovieMeshSectionOrientation,
+  IAutoMoviePlaneFrame,
+} from "@automovie/interface";
 
 import { cross } from "./cross";
 import { dist } from "./dist";
@@ -58,12 +60,16 @@ export function sourceOrientation(
   const outward: number =
     orientation === "signed-volume" ? Math.sign(volume) : orientation;
   if (!outward) throw new Error("Source orientation has zero signed volume");
-  return (plane: IAutoMoviePlaneFrame, polyline: IAutoMovieMeshPlaneContour): number => {
+  return (
+    plane: IAutoMoviePlaneFrame,
+    polyline: IAutoMovieMeshPlaneContour,
+  ): number => {
     if (!polyline.closed)
       throw new Error("An open arc does not define a material winding");
     for (let i: number = 0; i < polyline.pts.length; i++) {
       const a: IAutoMovieMeshPlaneIntersection = polyline.pts[i],
-        b: IAutoMovieMeshPlaneIntersection = polyline.pts[(i + 1) % polyline.pts.length];
+        b: IAutoMovieMeshPlaneIntersection =
+          polyline.pts[(i + 1) % polyline.pts.length];
       const other: number[] = edges.get(key(b.a, b.b)) ?? [];
       const triangle: number | undefined = (
         edges.get(key(a.a, a.b)) ?? []
@@ -84,7 +90,12 @@ export function sourceOrientation(
         return (
           sense *
           Math.sign(
-            signedArea(polyline.pts.map((p: IAutoMovieMeshPlaneIntersection): AutoMovieVector2Tuple => to2(plane, p.p))),
+            signedArea(
+              polyline.pts.map(
+                (p: IAutoMovieMeshPlaneIntersection): AutoMovieVector2Tuple =>
+                  to2(plane, p.p),
+              ),
+            ),
           )
         );
     }

@@ -1,5 +1,11 @@
-import type { IAutoMovieSubdivisionParameter, IAutoMovieSurfaceCage, IAutoMovieSurfaceCoordinate, IAutoMovieSurfaceLocation, IAutoMovieSurfaceNetwork, IAutoMovieLocateSurfaceVertices } from "@automovie/interface";
-
+import type {
+  IAutoMovieLocateSurfaceVertices,
+  IAutoMovieSubdivisionParameter,
+  IAutoMovieSurfaceCage,
+  IAutoMovieSurfaceCoordinate,
+  IAutoMovieSurfaceLocation,
+  IAutoMovieSurfaceNetwork,
+} from "@automovie/interface";
 
 /**
  * Locate every vertex of a subdivided surface network in the network's own
@@ -31,7 +37,11 @@ import type { IAutoMovieSubdivisionParameter, IAutoMovieSurfaceCage, IAutoMovieS
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A single pass; the caller keeps its result across poses, as the description states.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the result holds one location per vertex, owned by the caller.
  */
-export const locateAutoMovieSurfaceVertices: (props: IAutoMovieLocateSurfaceVertices.IProps) => IAutoMovieSurfaceLocation[] = (props: IAutoMovieLocateSurfaceVertices.IProps): IAutoMovieSurfaceLocation[] => {
+export const locateAutoMovieSurfaceVertices: (
+  props: IAutoMovieLocateSurfaceVertices.IProps,
+) => IAutoMovieSurfaceLocation[] = (
+  props: IAutoMovieLocateSurfaceVertices.IProps,
+): IAutoMovieSurfaceLocation[] => {
   const patches: IAutoMovieSurfaceNetwork.IPatch[] = props.network.patches;
   if (
     patches.length !== props.cage.patches.length ||

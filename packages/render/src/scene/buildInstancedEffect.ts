@@ -1,6 +1,9 @@
-import type { IAutoMovieEffectParticle, IAutoMovieEffectSample, IAutoMovieCompiledEffect } from "@automovie/interface";
 import { sampleCompiledEffect } from "@automovie/engine";
-
+import type {
+  IAutoMovieCompiledEffect,
+  IAutoMovieEffectParticle,
+  IAutoMovieEffectSample,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import type { IAutoMovieEffectViewerObject } from "./IAutoMovieEffectViewerObject.js";

@@ -1,5 +1,3 @@
-
-
 /**
  * Bound on every possible contact of an anchored fan with one support face,
  * returned by `boundAutoMovieTriangleAttachmentContact`.

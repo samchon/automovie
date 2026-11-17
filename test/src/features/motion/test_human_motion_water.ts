@@ -1,6 +1,13 @@
-import type { IAutoMovieIntegrateMotionTrajectory, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanWater, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3, resolvePose } from "@automovie/engine";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanWater,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanWater } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -151,14 +158,8 @@ export function test_human_motion_water(): void {
     const k: number =
       -Vector3.dot(HumanWater.sum(body, afloat, along, fresh).drag, along) /
       mass;
-    const glide: IAutoMovieIntegrateMotionTrajectory.ITrajectory = HumanWater.glide(
-      body,
-      afloat,
-      along,
-      1,
-      2,
-      fresh,
-    );
+    const glide: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
+      HumanWater.glide(body, afloat, along, 1, 2, fresh);
     for (let i: number = 0; i <= 20; i++) {
       const t: number = i / 10;
       const v: number = glide.at(t).x[0]!;

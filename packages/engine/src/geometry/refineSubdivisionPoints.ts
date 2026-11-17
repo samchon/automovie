@@ -1,4 +1,9 @@
-import type { IAutoMovieRefineSubdivisionPoints, IAutoMovieSubdivisionTopology, IAutoMovieSubdivisionVertexMask } from "@automovie/interface";
+import type {
+  IAutoMovieRefineSubdivisionPoints,
+  IAutoMovieSubdivisionTopology,
+  IAutoMovieSubdivisionVertexMask,
+} from "@automovie/interface";
+
 import { subdivisionEdgeSmoothness } from "./subdivisionEdgeSmoothness";
 import { subdivisionVertexMask } from "./subdivisionVertexMask";
 
@@ -69,9 +74,8 @@ export const refineSubdivisionPoints = (
     }
   }
 
-  const masks: IAutoMovieSubdivisionVertexMask[] = new Array<IAutoMovieSubdivisionVertexMask>(
-    vertexCount,
-  );
+  const masks: IAutoMovieSubdivisionVertexMask[] =
+    new Array<IAutoMovieSubdivisionVertexMask>(vertexCount);
   for (let v: number = 0; v < vertexCount; ++v) {
     const edges: number[] = topology.fanEdges.slice(
       topology.fanEdgeOffsets[v],

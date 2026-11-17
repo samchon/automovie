@@ -21,10 +21,6 @@ import type { IAutoMovieHumanFootPrior } from "@automovie/interface";
  * - Convention: a choice with no measurement yet, stated as such.
  */
 export namespace AutoMovieHumanFootPrior {
-  
-
-  
-
   /** Foot length Maestro's millimetres are read at, mm (adult mean of ANSUR II women and men). */
   export const CASCADE_FOOT: number = 258.75;
 
@@ -50,11 +46,66 @@ export namespace AutoMovieHumanFootPrior {
       [0.76, 0.836],
     ],
     toes: [
-      { name: "toe.{side}.1", tip: [1, 0.2], head: 0.139, height: 0.06, breadth: 0.274, depth: 0.75, pulp: 1.1, joints: [0.5], order: 64, sections: 29 },
-      { name: "toe.{side}.2", tip: [0.985, 0.455], head: 0.39, height: 0.055, breadth: 0.177, depth: 0.95, pulp: 1.02, joints: [0.5, 0.75], order: 32, sections: 29 },
-      { name: "toe.{side}.3", tip: [0.945, 0.63], head: 0.586, height: 0.05, breadth: 0.157, depth: 0.95, pulp: 1.02, joints: [0.5, 0.75], order: 32, sections: 25 },
-      { name: "toe.{side}.4", tip: [0.89, 0.775], head: 0.75, height: 0.044, breadth: 0.153, depth: 0.95, pulp: 1.02, joints: [0.5, 0.75], order: 32, sections: 21 },
-      { name: "toe.{side}.5", tip: [0.82, 0.885], head: 0.95, height: 0.036, breadth: 0.139, depth: 0.95, pulp: 1.02, joints: [0.5, 0.75], order: 32, sections: 19 },
+      {
+        name: "toe.{side}.1",
+        tip: [1, 0.2],
+        head: 0.139,
+        height: 0.06,
+        breadth: 0.274,
+        depth: 0.75,
+        pulp: 1.1,
+        joints: [0.5],
+        order: 64,
+        sections: 29,
+      },
+      {
+        name: "toe.{side}.2",
+        tip: [0.985, 0.455],
+        head: 0.39,
+        height: 0.055,
+        breadth: 0.177,
+        depth: 0.95,
+        pulp: 1.02,
+        joints: [0.5, 0.75],
+        order: 32,
+        sections: 29,
+      },
+      {
+        name: "toe.{side}.3",
+        tip: [0.945, 0.63],
+        head: 0.586,
+        height: 0.05,
+        breadth: 0.157,
+        depth: 0.95,
+        pulp: 1.02,
+        joints: [0.5, 0.75],
+        order: 32,
+        sections: 25,
+      },
+      {
+        name: "toe.{side}.4",
+        tip: [0.89, 0.775],
+        head: 0.75,
+        height: 0.044,
+        breadth: 0.153,
+        depth: 0.95,
+        pulp: 1.02,
+        joints: [0.5, 0.75],
+        order: 32,
+        sections: 21,
+      },
+      {
+        name: "toe.{side}.5",
+        tip: [0.82, 0.885],
+        head: 0.95,
+        height: 0.036,
+        breadth: 0.139,
+        depth: 0.95,
+        pulp: 1.02,
+        joints: [0.5, 0.75],
+        order: 32,
+        sections: 19,
+      },
     ],
     malleoli: {
       lateral: { height: 1, prominence: 3, radius: 14 },

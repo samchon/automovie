@@ -1,5 +1,7 @@
-import type { IAutoMovieSchedule, IAutoMovieCheckLegality } from "@automovie/interface";
-
+import type {
+  IAutoMovieCheckLegality,
+  IAutoMovieSchedule,
+} from "@automovie/interface";
 
 /**
  * Check a schedule against a production's rules: each rule's predicate reads

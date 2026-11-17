@@ -1,7 +1,22 @@
-import type { IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointPose, IAutoMoviePose } from "@automovie/interface";
 import { getConstraint, jointRomOvershoot } from "@automovie/engine";
-
-import { HumanArmClearance, HumanColliders, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
+import {
+  HumanArmClearance,
+  HumanColliders,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -39,24 +54,30 @@ export function motionArmClearing(
   name: motionHumanBody.Name,
 ): void {
   const partner: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const partnered: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
-    partner,
-    poseBones(
+  const partnered: IAutoMovieMotionHumanColliders.IPlaced[] =
+    HumanColliders.placed(
       partner,
-      resolveHumanPosture(
+      poseBones(
         partner,
-        stand.posture(partner, { x: 0, y: 0, z: 0.4 }, 180),
+        resolveHumanPosture(
+          partner,
+          stand.posture(partner, { x: 0, y: 0, z: 0.4 }, 180),
+        ),
       ),
-    ),
-  );
+    );
   const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-  const posture: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const posture: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
   const pose: IAutoMoviePose = resolveHumanPosture(body, posture);
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
     body,
     pose,
   );
-  const placed: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
+  const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
+    HumanColliders.placed(body, bones);
   for (const side of ["left", "right"] as const) {
     const cell: string = `${name} ${side}`;
     const own: IAutoMovieMotionHumanArmClearance.IArm = {
@@ -88,8 +109,11 @@ export function motionArmClearing(
       own,
     );
     // 2. The cells' arms, each cleared only as the function promises.
-    const arms: [string, IAutoMovieMotionHumanArmClearance.IArm, IAutoMovieMotionHumanColliders.IPlaced[]][] =
-      [];
+    const arms: [
+      string,
+      IAutoMovieMotionHumanArmClearance.IArm,
+      IAutoMovieMotionHumanColliders.IPlaced[],
+    ][] = [];
     for (const twist of [-60, 60])
       for (const abduction of [-20, 0])
         arms.push([
@@ -121,14 +145,8 @@ export function motionArmClearing(
       );
       if (before <= 1) continue;
       const what: string = `${cell} ${label}`;
-      const after: IAutoMovieMotionHumanArmClearance.IArm = HumanArmClearance.cleared(
-        body,
-        pose,
-        side,
-        arm,
-        0,
-        others,
-      );
+      const after: IAutoMovieMotionHumanArmClearance.IArm =
+        HumanArmClearance.cleared(body, pose, side, arm, 0, others);
       complaints.check(
         `${what}: only the abduction and the elbow's flexion turn`,
         after.upper[0] === arm.upper[0] &&

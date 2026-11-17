@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanForce } from "../perform/IAutoMovieMotionHumanForce";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanForce } from "../perform/IAutoMovieMotionHumanForce";
 
 /**
  * The mechanics of a force exchanged through grips (#3439): a pull that

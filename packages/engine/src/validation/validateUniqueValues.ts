@@ -1,4 +1,5 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
+
 /**
  * Append duplicate faults while scanning typed value/path pairs with one local set.
  *

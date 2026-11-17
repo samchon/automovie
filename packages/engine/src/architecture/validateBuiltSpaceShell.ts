@@ -1,5 +1,8 @@
-import { type IAutoMovieViolationCollector, IAutoMovieSpaceShell, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieSpaceShell,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { builtSpaceShellVolume } from "./builtSpaceShellVolume";

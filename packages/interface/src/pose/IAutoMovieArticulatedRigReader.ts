@@ -1,5 +1,5 @@
-import type { IAutoMovieJointPose } from "./IAutoMovieJointPose";
 import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
+import type { IAutoMovieJointPose } from "./IAutoMovieJointPose";
 
 /**
  * An independently prepared rigid tree in its owner's closed bone vocabulary.

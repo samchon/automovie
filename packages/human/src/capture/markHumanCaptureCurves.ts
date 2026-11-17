@@ -1,10 +1,15 @@
-import type { IAutoMovieConstructionCurve, IAutoMovieMark, IAutoMovieViewLoft, IAutoMovieHumanF1 } from "@automovie/interface";
-
-
-import { AutoMovieLoftChain, markAutoMovieConstructionCurves } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  markAutoMovieConstructionCurves,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionCurve,
+  IAutoMovieHumanF1,
+  IAutoMovieMark,
+  IAutoMovieViewLoft,
+} from "@automovie/interface";
 
 import { AutoMovieHumanConicLoft } from "../generation/conic/AutoMovieHumanConicLoft";
-
 
 /** Samples round a section ring; a multiple of four, so the guides' quarter phases are ring samples. */
 const PHASES: number = 48;

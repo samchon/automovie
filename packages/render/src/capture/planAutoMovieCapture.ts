@@ -1,17 +1,18 @@
-import type { IAutoMovieCaptureCell, IAutoMovieCapturePlan, IAutoMovieCapturePlanProps, IAutoMovieCapturePlanRequest, IAutoMovieCaptureSelection, IAutoMovieCaptureSubject, IAutoMovieCaptureTime, IAutoMovieInspectionRequest, IAutoMovieInspectionView } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieCaptureCell,
+  IAutoMovieCapturePlan,
+  IAutoMovieCapturePlanProps,
+  IAutoMovieCapturePlanRequest,
+  IAutoMovieCaptureSelection,
+  IAutoMovieCaptureSubject,
+  IAutoMovieCaptureTime,
+  IAutoMovieInspectionRequest,
+  IAutoMovieInspectionView,
+} from "@automovie/interface";
 
 import { expandAutoMovieInspectionSweep } from "../scene/inspection/expandAutoMovieInspectionSweep.js";
 import { matchAutoMovieInspectionPath } from "../scene/inspection/matchAutoMovieInspectionPath.js";
 import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovieInspectionView.js";
-
-
-
-
-
-
 import { planAutoMovieCaptureFrames } from "./planAutoMovieCaptureFrames.js";
 import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
 
@@ -32,7 +33,9 @@ import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the request and the subject.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the cells it returns and one set of their names.
  */
-export function planAutoMovieCapture(props: IAutoMovieCapturePlanProps): IAutoMovieCapturePlan {
+export function planAutoMovieCapture(
+  props: IAutoMovieCapturePlanProps,
+): IAutoMovieCapturePlan {
   const { request, subject } = props;
   if (subject.name.trim() === "")
     throw new Error("A capture subject has no name");

@@ -1,14 +1,14 @@
-import type { IAutoMovieLoftRelief, IAutoMovieHumanSternalNotch, IAutoMovieHumanTrunkFeature, IAutoMovieHumanTrunkFeatureFrame, IAutoMovieHumanTrunkReliefNet } from "@automovie/interface";
-
-
-
-
-
+import type {
+  IAutoMovieHumanSternalNotch,
+  IAutoMovieHumanTrunkFeature,
+  IAutoMovieHumanTrunkFeatureFrame,
+  IAutoMovieHumanTrunkReliefNet,
+  IAutoMovieLoftRelief,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSternalNotchProfile } from "./AutoMovieHumanSternalNotchProfile";
 import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
 import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
-
 
 /**
  * The sternal notch carved into the shoulders: the hollow as a relief window
@@ -30,8 +30,12 @@ export namespace AutoMovieHumanSternalNotch {
    * @param front The front midline's forward place at the notch, as a function of height, mm.
    * @returns The frame.
    */
-  export function frame(neck: number, front: IAutoMovieHumanSternalNotch.FrameFront): IAutoMovieHumanTrunkFeatureFrame.IFrame {
-    const y: number = neck - CLEARANCE - AutoMovieHumanSternalNotchProfile.UPPER;
+  export function frame(
+    neck: number,
+    front: IAutoMovieHumanSternalNotch.FrameFront,
+  ): IAutoMovieHumanTrunkFeatureFrame.IFrame {
+    const y: number =
+      neck - CLEARANCE - AutoMovieHumanSternalNotchProfile.UPPER;
 
     return AutoMovieHumanTrunkFeatureFrame.midline(y, front(y), "front");
   }
@@ -42,8 +46,11 @@ export namespace AutoMovieHumanSternalNotch {
    * @param at The notch's frame.
    * @returns The hollow as a height field.
    */
-  export function feature(at: IAutoMovieHumanTrunkFeatureFrame.IFrame): IAutoMovieHumanTrunkFeature {
-    const P: typeof AutoMovieHumanSternalNotchProfile = AutoMovieHumanSternalNotchProfile;
+  export function feature(
+    at: IAutoMovieHumanTrunkFeatureFrame.IFrame,
+  ): IAutoMovieHumanTrunkFeature {
+    const P: typeof AutoMovieHumanSternalNotchProfile =
+      AutoMovieHumanSternalNotchProfile;
 
     return {
       frame: at,
@@ -66,7 +73,8 @@ export namespace AutoMovieHumanSternalNotch {
     base: IAutoMovieHumanTrunkReliefNet.Base,
     halfPhase: number,
   ): IAutoMovieLoftRelief {
-    const P: typeof AutoMovieHumanSternalNotchProfile = AutoMovieHumanSternalNotchProfile;
+    const P: typeof AutoMovieHumanSternalNotchProfile =
+      AutoMovieHumanSternalNotchProfile;
     const y: number = at.origin[1];
 
     return AutoMovieHumanTrunkReliefNet.fromFeature(

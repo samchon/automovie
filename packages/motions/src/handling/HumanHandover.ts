@@ -1,6 +1,19 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanHandover, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieMutualGoal,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHandover,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { Quaternion, Vector3, resolveAutoMovieMutualGoal } from "@automovie/engine";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -74,8 +87,11 @@ export namespace HumanHandover {
    * @returns The plan.
    * @throws {Error} When the partners stand beyond reach of each other or the prop lacks the receiving grip.
    */
-  export function plan(input: IAutoMovieMotionHumanHandover.IInput): IAutoMovieMotionHumanHandover.IPlan {
-    const outcome: IAutoMovieMotionHumanHandover.Outcome = input.outcome ?? "transfer";
+  export function plan(
+    input: IAutoMovieMotionHumanHandover.IInput,
+  ): IAutoMovieMotionHumanHandover.IPlan {
+    const outcome: IAutoMovieMotionHumanHandover.Outcome =
+      input.outcome ?? "transfer";
     const giver = input.giver.bones;
     const receiver = input.receiver.bones;
     const hand = (
@@ -85,8 +101,14 @@ export namespace HumanHandover {
       const b = bones.get(`${side}Hand`)!;
       return { point: b.worldPosition, rotation: b.worldRotation };
     };
-    const giverFrom: IAutoMovieMotionHumanHand.IWrist = hand(giver, input.giver.side);
-    const receiverFrom: IAutoMovieMotionHumanHand.IWrist = hand(receiver, input.receiver.side);
+    const giverFrom: IAutoMovieMotionHumanHand.IWrist = hand(
+      giver,
+      input.giver.side,
+    );
+    const receiverFrom: IAutoMovieMotionHumanHand.IWrist = hand(
+      receiver,
+      input.receiver.side,
+    );
 
     // Where: the receiving grip on the mutual goal, the prop turned as held,
     // its middle at the exchange share of the mean sternum height.
@@ -137,7 +159,9 @@ export namespace HumanHandover {
           HumanGrasp.around(authored, turn),
         ),
       [0],
-      (wrist: IAutoMovieMotionHumanHand.IWrist): IAutoMovieMotionHumanGrasp.IKey[] => [
+      (
+        wrist: IAutoMovieMotionHumanHand.IWrist,
+      ): IAutoMovieMotionHumanGrasp.IKey[] => [
         {
           posture: standing,
           wrist: {
@@ -152,7 +176,10 @@ export namespace HumanHandover {
         },
       ],
     );
-    const target: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.around(authored, chosen.turn);
+    const target: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.around(
+      authored,
+      chosen.turn,
+    );
     const receiverAt: IAutoMovieMotionHumanHand.IWrist = chosen.wrist;
     const receiverShown: IAutoMovieMotionHumanHand.IWrist = chosen.shown;
 

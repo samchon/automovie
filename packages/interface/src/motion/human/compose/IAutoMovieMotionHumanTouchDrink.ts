@@ -1,7 +1,7 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanTarget } from "./IAutoMovieMotionHumanTarget";
 import type { IAutoMovieMotionHumanTouchUpright } from "./IAutoMovieMotionHumanTouchUpright";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * How far a vessel is leaned toward the face at the lips, and turned there,

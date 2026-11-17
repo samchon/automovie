@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBase, IAutoMovieMotionHumanBendLower, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBase,
+  IAutoMovieMotionHumanBendLower,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { bend } from "../everyday/bend";
@@ -51,7 +57,10 @@ export namespace pickUpPosture {
     at: (share: number) => IAutoMovieMotionHumanPosture;
 
     /** Any posture of the same base lowered or leaned the same way, a share of it: the lowering carried onto a body that walks. */
-    lower: (posture: IAutoMovieMotionHumanPosture, share: number) => IAutoMovieMotionHumanPosture;
+    lower: (
+      posture: IAutoMovieMotionHumanPosture,
+      share: number,
+    ) => IAutoMovieMotionHumanPosture;
 
     /** The adjustment step the stance takes, if any: the stepping foot and the shares of the way down at which it leaves the floor and lands. */
     step?: { side: "left" | "right"; off: number; on: number };
@@ -105,7 +114,10 @@ export namespace pickUpPosture {
         fix: "step closer to the prop first",
       });
     }
-    const lower = (posture: IAutoMovieMotionHumanPosture, share: number): IAutoMovieMotionHumanPosture =>
+    const lower = (
+      posture: IAutoMovieMotionHumanPosture,
+      share: number,
+    ): IAutoMovieMotionHumanPosture =>
       bendLower.lower(
         context.body,
         posture,
@@ -114,7 +126,8 @@ export namespace pickUpPosture {
         share,
         solved.lean * Math.sin((solved.pitch * share * Math.PI) / 180),
       );
-    const at = (share: number): IAutoMovieMotionHumanPosture => lower(entry, share);
+    const at = (share: number): IAutoMovieMotionHumanPosture =>
+      lower(entry, share);
     return { posture: at(1), at, lower };
   }
 
@@ -145,22 +158,33 @@ export namespace pickUpPosture {
       throw new Error("A seated lean of a body that is not seated");
     const limit: number =
       reach ?? context.body.measure.upperArm + context.body.measure.forearm;
-    const lower = (posture: IAutoMovieMotionHumanPosture, pitch: number): IAutoMovieMotionHumanPosture => {
+    const lower = (
+      posture: IAutoMovieMotionHumanPosture,
+      pitch: number,
+    ): IAutoMovieMotionHumanPosture => {
       if (pitch <= 0) return posture;
       const socket: IAutoMovieVector3 = seated.socket(context.body, posture);
-      const tilt: { pitch: number; joints: IAutoMovieMotionHumanPosture["joints"] } =
-        HumanTrunk.incline(posture.joints, pitch);
-      const heading: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> = {
+      const tilt: {
+        pitch: number;
+        joints: IAutoMovieMotionHumanPosture["joints"];
+      } = HumanTrunk.incline(posture.joints, pitch);
+      const heading: Pick<
+        IAutoMovieMotionHumanPosture,
+        "yaw" | "pitch" | "roll"
+      > = {
         yaw: posture.yaw,
         pitch: posture.pitch + tilt.pitch,
         roll: posture.roll,
       };
-      const leant: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(context.body, {
-        ...posture,
-        ...heading,
-        root: seated.root(context.body, socket, heading),
-        joints: tilt.joints,
-      });
+      const leant: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+        context.body,
+        {
+          ...posture,
+          ...heading,
+          root: seated.root(context.body, socket, heading),
+          joints: tilt.joints,
+        },
+      );
       // A free hand rests where the leaned body sets it, on the thigh or
       // the armrest, as it rested sitting; a hand that holds keeps its goal.
       // The rest is read from the leaned body's legs alone, as `seated.rested`
@@ -259,12 +283,15 @@ export namespace pickUpPosture {
       else low = middle;
     }
     const pitch: number = far(0) <= limit ? 0 : high;
-    const at = (share: number): IAutoMovieMotionHumanPosture => lower(entry, pitch * share);
+    const at = (share: number): IAutoMovieMotionHumanPosture =>
+      lower(entry, pitch * share);
     return {
       posture: at(1),
       at,
-      lower: (posture: IAutoMovieMotionHumanPosture, share: number): IAutoMovieMotionHumanPosture =>
-        lower(posture, pitch * share),
+      lower: (
+        posture: IAutoMovieMotionHumanPosture,
+        share: number,
+      ): IAutoMovieMotionHumanPosture => lower(posture, pitch * share),
     };
   };
 

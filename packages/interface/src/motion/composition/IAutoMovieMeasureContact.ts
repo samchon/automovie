@@ -1,41 +1,41 @@
-import type { IAutoMovieAuditOutcome } from "./IAutoMovieAuditOutcome";
 import type { IAutoMoviePhysicalProfile } from "../../physics/IAutoMoviePhysicalProfile";
 import type { IAutoMoviePreparePhysicalGeometry } from "../../physics/IAutoMoviePreparePhysicalGeometry";
+import type { IAutoMovieAuditOutcome } from "./IAutoMovieAuditOutcome";
 
 /** Data and callback contracts shared by the MeasureContact operations. */
 export namespace IAutoMovieMeasureContact {
   /** One measured side. */
-    export interface ISide {
-      /** Subject id. */
-      subject: string;
-  
-      /** Region id reported in the contact record. */
-      region: string;
-  
-      /** Its physical profile with declared colliders. */
-      profile: IAutoMoviePhysicalProfile;
-  
-      /** Its displayed world pose by segment. */
-      segments: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>;
-  
-      /** Segments whose colliders form the side. */
-      bones: readonly string[];
-    }
+  export interface ISide {
+    /** Subject id. */
+    subject: string;
+
+    /** Region id reported in the contact record. */
+    region: string;
+
+    /** Its physical profile with declared colliders. */
+    profile: IAutoMoviePhysicalProfile;
+
+    /** Its displayed world pose by segment. */
+    segments: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>;
+
+    /** Segments whose colliders form the side. */
+    bones: readonly string[];
+  }
 
   /** A measurement. */
-    export interface IResult {
-      /** Least signed separation, metres; Infinity when no pair is within the prediction. */
-      separation: number;
-  
-      /** The acting segment of the closest pair. */
-      a: string | null;
-  
-      /** The receiving segment of the closest pair. */
-      b: string | null;
-  
-      /** The contact record when the separation is within tolerance. */
-      contact: IAutoMovieAuditOutcome.IContact | null;
-    }
+  export interface IResult {
+    /** Least signed separation, metres; Infinity when no pair is within the prediction. */
+    separation: number;
+
+    /** The acting segment of the closest pair. */
+    a: string | null;
+
+    /** The receiving segment of the closest pair. */
+    b: string | null;
+
+    /** The contact record when the separation is within tolerance. */
+    contact: IAutoMovieAuditOutcome.IContact | null;
+  }
 
   /**
    * Measure whether two displayed bodies meet: the least signed separation, in

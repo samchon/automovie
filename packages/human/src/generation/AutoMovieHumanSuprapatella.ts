@@ -1,8 +1,9 @@
-import type { AutoMovieHumanSexPair, IAutoMovieHumanBodyMeasures } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanSexPair,
+  IAutoMovieHumanBodyMeasures,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
-
 
 /**
  * The suprapatella's height: the patella's superior point above the floor,
@@ -36,6 +37,10 @@ export namespace AutoMovieHumanSuprapatella {
    * @returns Height, mm.
    */
   export function height(measures: IAutoMovieHumanBodyMeasures): number {
-    return MIDPATELLA[measures.sex === AutoMovieHumanSex.Female ? 0 : 1] * measures.stature + PATELLA_LENGTH / 2;
+    return (
+      MIDPATELLA[measures.sex === AutoMovieHumanSex.Female ? 0 : 1] *
+        measures.stature +
+      PATELLA_LENGTH / 2
+    );
   }
 }

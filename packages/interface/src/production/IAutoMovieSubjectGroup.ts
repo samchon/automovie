@@ -24,8 +24,11 @@ import type { IAutoMovieSubjectContribution } from "./IAutoMovieSubjectContribut
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Names no member kind or layout and bounds members only by `AutoMovieSubject<unknown>`; an unchecked membership cycle overflows the stack, as documented, rather than being caught and retried.
  * @evidence contracts/development/common.md#meaningful-documentation States the nesting levels it models, that `render` composes members by default, how an override keeps its members' output, and the unchecked membership cycle.
  */
-export interface IAutoMovieSubjectGroup<TDesign, TMember extends IAutoMovieSubject<unknown>> extends IAutoMovieSubject<TDesign> {
-/**
+export interface IAutoMovieSubjectGroup<
+  TDesign,
+  TMember extends IAutoMovieSubject<unknown>,
+> extends IAutoMovieSubject<TDesign> {
+  /**
    * The subjects this group holds, in a stable order.
    *
    * Called on every `render`, so this order is the merge order and therefore
@@ -42,7 +45,7 @@ export interface IAutoMovieSubjectGroup<TDesign, TMember extends IAutoMovieSubje
    */
   members(): readonly TMember[];
 
-/**
+  /**
    * Merge every member's authored contribution in stable member order.
    *
    * Each call renders every member again with the same context and merges the
@@ -57,7 +60,5 @@ export interface IAutoMovieSubjectGroup<TDesign, TMember extends IAutoMovieSubje
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares nothing between calls or between groups: the shot context is an input and no identity keys a stored contribution, so a member reachable through two groups is rendered once per path.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates the member-contribution list and the merged arrays per call and keeps neither; the caller owns the returned record, and the recursion depth is the nesting depth.
    */
-  render(
-    context: IAutoMovieShotBuildContext,
-  ): IAutoMovieSubjectContribution ;
+  render(context: IAutoMovieShotBuildContext): IAutoMovieSubjectContribution;
 }

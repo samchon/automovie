@@ -1,8 +1,28 @@
-import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieJointPose, IAutoMovieMotionEvent, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
-import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-
-import { HumanChain, HumanPerformance, mixHumanPosture, poseBones, resolveHumanPosture } from "@automovie/motions";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieJointPose,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  mixHumanPosture,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -50,7 +70,9 @@ export function test_human_motion_core_rotation(): void {
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const chest: number = body.measure.chestHeight;
-    const reach = (side: "left" | "right"): IAutoMovieMotionHumanPosture.IGoal => ({
+    const reach = (
+      side: "left" | "right",
+    ): IAutoMovieMotionHumanPosture.IGoal => ({
       point: { x: side === "left" ? 0.15 : -0.15, y: chest, z: 0.35 },
       bend: { x: side === "left" ? 0.5 : -0.5, y: chest - 0.3, z: 0 },
     });
@@ -119,8 +141,14 @@ export function test_human_motion_core_rotation(): void {
     }
 
     // 2. Mixing is a slerp.
-    const a: IAutoMovieMotionHumanPosture.IRotation = { about, turn: turns[0]! };
-    const b: IAutoMovieMotionHumanPosture.IRotation = { about, turn: turns[2]! };
+    const a: IAutoMovieMotionHumanPosture.IRotation = {
+      about,
+      turn: turns[0]!,
+    };
+    const b: IAutoMovieMotionHumanPosture.IRotation = {
+      about,
+      turn: turns[2]!,
+    };
     const whole: number = Quaternion.angle(a.turn, b.turn);
     for (const w of [0.25, 0.5, 0.75]) {
       const mixed: IAutoMovieMotionHumanPosture = mixHumanPosture(

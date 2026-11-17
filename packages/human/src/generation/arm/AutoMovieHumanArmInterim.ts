@@ -1,17 +1,16 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanArmConstruction, IAutoMovieHumanArmInterim, IAutoMovieHumanArmWalk, IAutoMovieHumanHandMeasures, IAutoMovieHumanReferenceOutlineTypes } from "@automovie/interface";
-
-
-
-
-
-
 import { AutoMovieIllinois } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanArmConstruction,
+  IAutoMovieHumanArmInterim,
+  IAutoMovieHumanArmWalk,
+  IAutoMovieHumanHandMeasures,
+  IAutoMovieHumanReferenceOutlineTypes,
+} from "@automovie/interface";
 
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
-
 import { AutoMovieHumanDeltoidSpan } from "./AutoMovieHumanDeltoidSpan";
-
 
 /**
  * The arm's site laws from the person's tapes. Each section's four extents
@@ -56,29 +55,114 @@ export namespace AutoMovieHumanArmInterim {
    * @param radialCenter The palm breadth-centre offset from MCP3 along radial u, mm; zero for a caller without the source hand record.
    * @returns The site laws.
    */
-  export function sites(side: "left" | "right", inputs: IAutoMovieHumanArmConstruction.IInputs, elbow: AutoMovieVector3Tuple, wrist: AutoMovieVector3Tuple, placement: IAutoMovieHumanArmInterim.ISitesPlacement, crease: boolean = false, radialCenter: number = 0): IAutoMovieHumanArmWalk.ISiteLaw[] {
-    const T: typeof AutoMovieHumanReferenceOutlines = AutoMovieHumanReferenceOutlines;
-    const biceps: number = (inputs.upper / 2 - placement.projection) / placement.humerus;
-    if (!(biceps > AutoMovieHumanDeltoidSpan.ROOT && biceps < 1)) throw new Error("The retained biceps midpoint must follow the first free deltoid source row inside the humerus");
-    const forearm: number = Math.hypot(wrist[0] - elbow[0], wrist[1] - elbow[1], wrist[2] - elbow[2]);
-    const box: (table: IAutoMovieHumanReferenceOutlineTypes.ITable, share: number, girth: number) => [number, number, number, number] = (table: IAutoMovieHumanReferenceOutlineTypes.ITable, share: number, girth: number): [number, number, number, number] => {
-      const read: (column: string) => number = (column: string): number => T.at(table, column, share) * girth;
+  export function sites(
+    side: "left" | "right",
+    inputs: IAutoMovieHumanArmConstruction.IInputs,
+    elbow: AutoMovieVector3Tuple,
+    wrist: AutoMovieVector3Tuple,
+    placement: IAutoMovieHumanArmInterim.ISitesPlacement,
+    crease: boolean = false,
+    radialCenter: number = 0,
+  ): IAutoMovieHumanArmWalk.ISiteLaw[] {
+    const T: typeof AutoMovieHumanReferenceOutlines =
+      AutoMovieHumanReferenceOutlines;
+    const biceps: number =
+      (inputs.upper / 2 - placement.projection) / placement.humerus;
+    if (!(biceps > AutoMovieHumanDeltoidSpan.ROOT && biceps < 1))
+      throw new Error(
+        "The retained biceps midpoint must follow the first free deltoid source row inside the humerus",
+      );
+    const forearm: number = Math.hypot(
+      wrist[0] - elbow[0],
+      wrist[1] - elbow[1],
+      wrist[2] - elbow[2],
+    );
+    const box: (
+      table: IAutoMovieHumanReferenceOutlineTypes.ITable,
+      share: number,
+      girth: number,
+    ) => [number, number, number, number] = (
+      table: IAutoMovieHumanReferenceOutlineTypes.ITable,
+      share: number,
+      girth: number,
+    ): [number, number, number, number] => {
+      const read: (column: string) => number = (column: string): number =>
+        T.at(table, column, share) * girth;
       const lateral: number = read("lateral");
       const medial: number = read("medial");
-      const [plus, minus]: [number, number] = side === "left" ? [lateral, medial] : [medial, lateral];
+      const [plus, minus]: [number, number] =
+        side === "left" ? [lateral, medial] : [medial, lateral];
       return [read("anterior"), plus, -read("posterior"), -minus];
     };
-    const hand: IAutoMovieHumanHandMeasures = side === "left" ? inputs.left : inputs.right;
+    const hand: IAutoMovieHumanHandMeasures =
+      side === "left" ? inputs.left : inputs.right;
     const depth: number = ellipseDepth(hand.breadth, inputs.circumference);
-    const palm: [number, number, number, number] = [hand.breadth / 2 + radialCenter, depth / 2, -hand.breadth / 2 + radialCenter, -depth / 2];
+    const palm: [number, number, number, number] = [
+      hand.breadth / 2 + radialCenter,
+      depth / 2,
+      -hand.breadth / 2 + radialCenter,
+      -depth / 2,
+    ];
     return [
-      { site: "deltoid", bone: 1, share: AutoMovieHumanDeltoidSpan.ROOT, edges: box(T.UPPER_ARM, 0.5, AutoMovieHumanDeltoidSpan.ROOT_GIRTH * inputs.bicep), fullness: { girth: AutoMovieHumanDeltoidSpan.ROOT_GIRTH * inputs.bicep } },
-      { site: "biceps", bone: 1, share: biceps, edges: box(T.UPPER_ARM, 0.5, inputs.bicep), fullness: { girth: inputs.bicep } },
-      { site: "elbow", bone: 2, share: 0, edges: box(T.FOREARM, 1, inputs.elbow), fullness: { girth: inputs.elbow } },
-      { site: "forearm", bone: 2, share: 0.215 * (1 - AutoMovieHumanArmBones.STYLION_WRIST / forearm), edges: box(T.FOREARM, 1 - 0.215, inputs.forearm), fullness: { girth: inputs.forearm } },
-      { site: "wrist", bone: 2, share: 1 - AutoMovieHumanArmBones.STYLION_WRIST / forearm, edges: box(T.FOREARM, 0, inputs.wrist), fullness: { girth: inputs.wrist } },
-      { site: "knuckles", bone: 3, share: 1, edges: [...palm], fullness: { girth: inputs.circumference } },
-      ...(crease ? [{ site: "crease", bone: 4, share: 1, edges: [...palm] as [number, number, number, number], fullness: { shoulder: Math.SQRT2 - 1 } }] : []),
+      {
+        site: "deltoid",
+        bone: 1,
+        share: AutoMovieHumanDeltoidSpan.ROOT,
+        edges: box(
+          T.UPPER_ARM,
+          0.5,
+          AutoMovieHumanDeltoidSpan.ROOT_GIRTH * inputs.bicep,
+        ),
+        fullness: {
+          girth: AutoMovieHumanDeltoidSpan.ROOT_GIRTH * inputs.bicep,
+        },
+      },
+      {
+        site: "biceps",
+        bone: 1,
+        share: biceps,
+        edges: box(T.UPPER_ARM, 0.5, inputs.bicep),
+        fullness: { girth: inputs.bicep },
+      },
+      {
+        site: "elbow",
+        bone: 2,
+        share: 0,
+        edges: box(T.FOREARM, 1, inputs.elbow),
+        fullness: { girth: inputs.elbow },
+      },
+      {
+        site: "forearm",
+        bone: 2,
+        share: 0.215 * (1 - AutoMovieHumanArmBones.STYLION_WRIST / forearm),
+        edges: box(T.FOREARM, 1 - 0.215, inputs.forearm),
+        fullness: { girth: inputs.forearm },
+      },
+      {
+        site: "wrist",
+        bone: 2,
+        share: 1 - AutoMovieHumanArmBones.STYLION_WRIST / forearm,
+        edges: box(T.FOREARM, 0, inputs.wrist),
+        fullness: { girth: inputs.wrist },
+      },
+      {
+        site: "knuckles",
+        bone: 3,
+        share: 1,
+        edges: [...palm],
+        fullness: { girth: inputs.circumference },
+      },
+      ...(crease
+        ? [
+            {
+              site: "crease",
+              bone: 4,
+              share: 1,
+              edges: [...palm] as [number, number, number, number],
+              fullness: { shoulder: Math.SQRT2 - 1 },
+            },
+          ]
+        : []),
     ];
   }
 
@@ -99,14 +183,33 @@ export namespace AutoMovieHumanArmInterim {
       const h: number = ((a - b) / (a + b)) ** 2;
       return Math.PI * (a + b) * (1 + (3 * h) / (10 + Math.sqrt(4 - 3 * h)));
     };
-    if (!(Number.isFinite(breadth) && breadth > 0 && Number.isFinite(girth) && girth > 0))
-      throw new Error("Palm ellipse proxy requires positive finite breadth and girth");
+    if (
+      !(
+        Number.isFinite(breadth) &&
+        breadth > 0 &&
+        Number.isFinite(girth) &&
+        girth > 0
+      )
+    )
+      throw new Error(
+        "Palm ellipse proxy requires positive finite breadth and girth",
+      );
     const depth: number | null = AutoMovieIllinois.root(
-      (d: number): number => perimeter(d) - girth, 1e-6, girth, 1e-6, 100,
+      (d: number): number => perimeter(d) - girth,
+      1e-6,
+      girth,
+      1e-6,
+      100,
     );
-    if (depth === null || !Number.isFinite(depth) || !(depth > 0) ||
-      Math.abs(perimeter(depth) - girth) > 1e-6)
-      throw new Error("Palm Ramanujan ellipse-depth proxy has no admitted positive root for its unchanged tape");
+    if (
+      depth === null ||
+      !Number.isFinite(depth) ||
+      !(depth > 0) ||
+      Math.abs(perimeter(depth) - girth) > 1e-6
+    )
+      throw new Error(
+        "Palm Ramanujan ellipse-depth proxy has no admitted positive root for its unchanged tape",
+      );
     return depth;
   }
 }

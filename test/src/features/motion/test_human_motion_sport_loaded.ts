@@ -1,4 +1,3 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import {
   type Archetype,
   createBarbell,
@@ -6,8 +5,24 @@ import {
   createKettlebell,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanFoot, HumanObject, HumanPerformance, HumanSignature, HumanSportGym, HumanSportWorkout } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFoot,
+  HumanObject,
+  HumanPerformance,
+  HumanSignature,
+  HumanSportGym,
+  HumanSportWorkout,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -117,7 +132,10 @@ export function test_human_motion_sport_loaded(): void {
     }
     const lift: IAutoMovieMotionHumanSegment.ISegment = film
       .segments("a")
-      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "deadlift")!;
+      .find(
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+          s.name === "deadlift",
+      )!;
     const bottom: number =
       lift.start +
       (lift.plan.events.find((e): boolean => e.name === "bottom1")?.share ??
@@ -319,7 +337,9 @@ export function test_human_motion_sport_loaded(): void {
       }
       const act: IAutoMovieMotionHumanSegment.ISegment = film
         .segments("a")
-        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row)!;
+        .find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
+        )!;
       const at = (event: string): number =>
         act.start +
         (act.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -332,7 +352,10 @@ export function test_human_motion_sport_loaded(): void {
         0,
       );
       for (const event of [low, high]) {
-        const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("bell", at(event));
+        const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
+          "bell",
+          at(event),
+        );
         const away: number = Vector3.length(
           Vector3.subtract(
             HumanSignature.joint(reader, at(event), "rightHand"),

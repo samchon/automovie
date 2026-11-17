@@ -1,15 +1,15 @@
-import type { IAutoMovieArcLengthJet, IAutoMovieHumanArmRootArc, IAutoMovieHumanDeltoidCap, IAutoMovieHumanTrunkAssembly, IAutoMovieHumanTrunkQuadrant, IAutoMovieHumanTrunkSection } from "@automovie/interface";
-
-
-
-
-
-
+import type {
+  IAutoMovieArcLengthJet,
+  IAutoMovieHumanArmRootArc,
+  IAutoMovieHumanDeltoidCap,
+  IAutoMovieHumanTrunkAssembly,
+  IAutoMovieHumanTrunkQuadrant,
+  IAutoMovieHumanTrunkSection,
+} from "@automovie/interface";
 
 import { AutoMovieHumanArmRootOval } from "./AutoMovieHumanArmRootOval";
-import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
-
 import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
+import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
 
 /**
  * The arm's arc of the shoulder ring: where the arm's horizontal ellipse
@@ -62,21 +62,33 @@ export namespace AutoMovieHumanArmRootArc {
     extreme: number,
     torso: number,
   ): IAutoMovieHumanArmRootArc {
-    const own: number = s.posterior ?? AutoMovieHumanTrunkGuides.SHARE.posteriorAxillary;
-    const anterior: number = torso * s.anterior + (1 - torso) * share(s, "front", oval.x + CROSS * oval.rx);
-    const posterior: number = torso * own + (1 - torso) * share(s, "back", oval.x - CROSS * oval.rx);
-    const A: IAutoMovieArcLengthJet = AutoMovieHumanTrunkGuides.jet("anteriorAxillary", { ...s, anterior });
-    const P: IAutoMovieArcLengthJet = AutoMovieHumanTrunkGuides.jet("posteriorAxillary", { ...s, posterior });
+    const own: number =
+      s.posterior ?? AutoMovieHumanTrunkGuides.SHARE.posteriorAxillary;
+    const anterior: number =
+      torso * s.anterior +
+      (1 - torso) * share(s, "front", oval.x + CROSS * oval.rx);
+    const posterior: number =
+      torso * own + (1 - torso) * share(s, "back", oval.x - CROSS * oval.rx);
+    const A: IAutoMovieArcLengthJet = AutoMovieHumanTrunkGuides.jet(
+      "anteriorAxillary",
+      { ...s, anterior },
+    );
+    const P: IAutoMovieArcLengthJet = AutoMovieHumanTrunkGuides.jet(
+      "posteriorAxillary",
+      { ...s, posterior },
+    );
     const L: IAutoMovieArcLengthJet = {
       point: [oval.x, extreme],
       tangent: [-1, 0],
       curvature: [0, -AutoMovieHumanArmRootOval.curvature(oval)],
     };
     const spanFront: number = AutoMovieHumanTrunkQuadrant.phase(
-      AutoMovieHumanTrunkGuides.KNOT.midAxillary - AutoMovieHumanTrunkGuides.KNOT.anteriorAxillary,
+      AutoMovieHumanTrunkGuides.KNOT.midAxillary -
+        AutoMovieHumanTrunkGuides.KNOT.anteriorAxillary,
     );
     const spanBack: number = AutoMovieHumanTrunkQuadrant.phase(
-      AutoMovieHumanTrunkGuides.KNOT.posteriorAxillary - AutoMovieHumanTrunkGuides.KNOT.midAxillary,
+      AutoMovieHumanTrunkGuides.KNOT.posteriorAxillary -
+        AutoMovieHumanTrunkGuides.KNOT.midAxillary,
     );
     const lengthFront: number = QUARTER * chord(A.point, L.point);
     const lengthBack: number = QUARTER * chord(L.point, P.point);
@@ -87,10 +99,26 @@ export namespace AutoMovieHumanArmRootArc {
       torso,
       guides: [A, L, P],
       rates: [lengthFront / spanFront, lengthBack / spanBack],
-      front: (speeds: readonly [number, number]): IAutoMovieHumanTrunkAssembly.Sector =>
-        sector(A, L, AutoMovieHumanTrunkGuides.KNOT.anteriorAxillary, AutoMovieHumanTrunkGuides.KNOT.midAxillary, speeds),
-      back: (speeds: readonly [number, number]): IAutoMovieHumanTrunkAssembly.Sector =>
-        sector(L, P, AutoMovieHumanTrunkGuides.KNOT.midAxillary, AutoMovieHumanTrunkGuides.KNOT.posteriorAxillary, speeds),
+      front: (
+        speeds: readonly [number, number],
+      ): IAutoMovieHumanTrunkAssembly.Sector =>
+        sector(
+          A,
+          L,
+          AutoMovieHumanTrunkGuides.KNOT.anteriorAxillary,
+          AutoMovieHumanTrunkGuides.KNOT.midAxillary,
+          speeds,
+        ),
+      back: (
+        speeds: readonly [number, number],
+      ): IAutoMovieHumanTrunkAssembly.Sector =>
+        sector(
+          L,
+          P,
+          AutoMovieHumanTrunkGuides.KNOT.midAxillary,
+          AutoMovieHumanTrunkGuides.KNOT.posteriorAxillary,
+          speeds,
+        ),
     };
   }
 
@@ -103,10 +131,19 @@ export namespace AutoMovieHumanArmRootArc {
    * @param x Forward place, mm.
    * @returns The lateral share.
    */
-  function share(s: IAutoMovieHumanTrunkSection, side: IAutoMovieHumanTrunkQuadrant.Side, x: number): number {
+  function share(
+    s: IAutoMovieHumanTrunkSection,
+    side: IAutoMovieHumanTrunkQuadrant.Side,
+    x: number,
+  ): number {
     const xi: number = Math.min(
       1,
-      Math.max(0, side === "front" ? (x - s.middle) / (s.front - s.middle) : (s.middle - x) / (s.middle - s.back)),
+      Math.max(
+        0,
+        side === "front"
+          ? (x - s.middle) / (s.front - s.middle)
+          : (s.middle - x) / (s.middle - s.back),
+      ),
     );
     const n: number = AutoMovieHumanTrunkQuadrant.square(s, side);
 

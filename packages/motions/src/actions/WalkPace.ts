@@ -89,7 +89,10 @@ export class WalkPace {
    *   the realised period for a planned one.
    */
   public constructor(
-    props: IAutoMovieMotionHumanWalkPace.IProps & { steps: number; longest: number },
+    props: IAutoMovieMotionHumanWalkPace.IProps & {
+      steps: number;
+      longest: number;
+    },
   ) {
     const first: number = WalkPace.FIRST;
     const n: number = props.steps;
@@ -167,7 +170,10 @@ export class WalkPace {
    * @param longest The longest step, metres.
    * @returns The timing.
    */
-  public static fit(props: IAutoMovieMotionHumanWalkPace.IProps, longest: number): WalkPace {
+  public static fit(
+    props: IAutoMovieMotionHumanWalkPace.IProps,
+    longest: number,
+  ): WalkPace {
     if (props.travel !== undefined && props.distance >= 1e-6)
       return WalkPace.travelled(props, props.travel, longest);
     const least: number = Math.max(

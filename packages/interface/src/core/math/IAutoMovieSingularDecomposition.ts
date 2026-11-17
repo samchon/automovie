@@ -1,5 +1,3 @@
-
-
 /**
  * Column-oriented factors of a bounded real matrix, A = U diag(s) V transpose.
  * Singular values descend. Right columns form a full basis, including a wide

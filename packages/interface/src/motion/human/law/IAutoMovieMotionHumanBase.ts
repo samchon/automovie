@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanEntryState } from "./IAutoMovieMotionHumanEntryState";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanEntryState } from "./IAutoMovieMotionHumanEntryState";
 
 /**
  * What carries a body: the base axis of the grammar. A person stands,

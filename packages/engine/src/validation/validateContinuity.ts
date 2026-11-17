@@ -1,5 +1,9 @@
-import { type IAutoMovieContinuityTolerances, type IAutoMovieValidateContinuity, type IAutoMovieViolationCollector, IAutoMovieValidation } from "@automovie/interface";
-
+import {
+  type IAutoMovieContinuityTolerances,
+  type IAutoMovieValidateContinuity,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
 import { compareContinuityBoundary } from "./compareContinuityBoundary";
@@ -16,7 +20,11 @@ import { readContinuityTolerances } from "./readContinuityTolerances";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The opening id map shares lookup work within this boundary, without caching mutable snapshots.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Snapshots are borrowed; only report rows escape and no film playback state is retained.
  */
-export const validateContinuity: (props: IAutoMovieValidateContinuity.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateContinuity.IProps): IAutoMovieValidation => {
+export const validateContinuity: (
+  props: IAutoMovieValidateContinuity.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateContinuity.IProps,
+): IAutoMovieValidation => {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const tolerances: IAutoMovieContinuityTolerances | null =
     readContinuityTolerances(

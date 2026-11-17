@@ -1,6 +1,19 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionHumanTouchEffector, HumanChain, HumanPerformance, HumanSignature, HumanStageFight, touch } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanTouchEffector,
+  HumanChain,
+  HumanPerformance,
+  HumanSignature,
+  HumanStageFight,
+  touch,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -88,7 +101,8 @@ export function test_human_motion_hand_reach_up(): void {
       );
       continue;
     }
-    const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+    const placed: IAutoMovieMotionHumanSegment.ISegment =
+      performance.segments("a")[1]!;
     const ready: number =
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === "ready")?.share ??

@@ -1,7 +1,8 @@
-import type { IAutoMovieHumanLoftAperture, IAutoMovieHumanMouthArch, IAutoMovieHumanMouthConstruction } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieHumanLoftAperture,
+  IAutoMovieHumanMouthArch,
+  IAutoMovieHumanMouthConstruction,
+} from "@automovie/interface";
 
 import { AutoMovieHumanMouthArch } from "./AutoMovieHumanMouthArch";
 import { AutoMovieHumanMouthPrior as Prior } from "./AutoMovieHumanMouthPrior";
@@ -31,20 +32,10 @@ import { AutoMovieHumanMouthPrior as Prior } from "./AutoMovieHumanMouthPrior";
  * and compared.
  */
 export namespace AutoMovieHumanMouth {
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
   /** Place the mouth from the head. */
-  export function create(inputs: IAutoMovieHumanMouthConstruction.IInputs): IAutoMovieHumanMouthConstruction.IOutput {
+  export function create(
+    inputs: IAutoMovieHumanMouthConstruction.IInputs,
+  ): IAutoMovieHumanMouthConstruction.IOutput {
     const contact: number[] = Array.from(
       { length: SAMPLES + 1 },
       (_: unknown, i: number): number => inputs.contact(i / SAMPLES),
@@ -62,17 +53,27 @@ export namespace AutoMovieHumanMouth {
     // front, their edges the rest display below it.
     const share: number = (1 + Math.max(-1, Math.min(1, inputs.sex))) / 2;
     const display: number =
-      Prior.DISPLAY_MASCULINE + share * (Prior.DISPLAY_FEMININE - Prior.DISPLAY_MASCULINE);
+      Prior.DISPLAY_MASCULINE +
+      share * (Prior.DISPLAY_FEMININE - Prior.DISPLAY_MASCULINE);
     const cant: number = Math.tan((Prior.OCCLUSAL_CANT * Math.PI) / 180);
     const labial: number = labrale - Prior.LIP_THICKNESS;
     const edge: [number, number] = [labial, inputs.stomion - display];
 
     // The cusp line runs a quarter of each crown's depth inside its labial or
     // buccal face; the upper's passes through the central incisors' edges.
-    const upperArch: IAutoMovieHumanMouthArch.IArch = AutoMovieHumanMouthArch.arch(Prior.UPPER);
+    const upperArch: IAutoMovieHumanMouthArch.IArch =
+      AutoMovieHumanMouthArch.arch(Prior.UPPER);
     const start: number = labial - Prior.UPPER[0]!.depth / 4;
     const teeth: IAutoMovieHumanMouthConstruction.ITooth[] = [
-      ...AutoMovieHumanMouthArch.place(Prior.UPPER, upperArch, 0, start, edge, cant, "upper"),
+      ...AutoMovieHumanMouthArch.place(
+        Prior.UPPER,
+        upperArch,
+        0,
+        start,
+        edge,
+        cant,
+        "upper",
+      ),
       ...AutoMovieHumanMouthArch.place(
         Prior.LOWER,
         upperArch,
@@ -87,15 +88,44 @@ export namespace AutoMovieHumanMouth {
     // The front wall wraps the canines' outer faces and the gums over the
     // incisors' necks; the molar section wraps the first molars and rises to
     // the palate's vault.
-    const at = (jaw: string, side: string, tooth: string): IAutoMovieHumanMouthConstruction.ITooth =>
-      teeth.find((t: IAutoMovieHumanMouthConstruction.ITooth): boolean => t.name === `${jaw}.${side}.${tooth}`)!;
-    const canine: IAutoMovieHumanMouthConstruction.ITooth = at("upper", "left", "canine");
-    const molar: IAutoMovieHumanMouthConstruction.ITooth = at("upper", "left", "firstMolar");
-    const lowerMolar: IAutoMovieHumanMouthConstruction.ITooth = at("lower", "left", "firstMolar");
-    const lowerIncisor: IAutoMovieHumanMouthConstruction.ITooth = at("lower", "left", "centralIncisor");
-    const upperIncisor: IAutoMovieHumanMouthConstruction.ITooth = at("upper", "left", "centralIncisor");
-    const outer = (t: IAutoMovieHumanMouthConstruction.ITooth): number => t.neck[2] + (t.out[2] * t.crown.depth) / 2;
-    const upperReach: number = Prior.UPPER[0]!.height + Prior.GINGIVA + Prior.MUCOSA;
+    const at = (
+      jaw: string,
+      side: string,
+      tooth: string,
+    ): IAutoMovieHumanMouthConstruction.ITooth =>
+      teeth.find(
+        (t: IAutoMovieHumanMouthConstruction.ITooth): boolean =>
+          t.name === `${jaw}.${side}.${tooth}`,
+      )!;
+    const canine: IAutoMovieHumanMouthConstruction.ITooth = at(
+      "upper",
+      "left",
+      "canine",
+    );
+    const molar: IAutoMovieHumanMouthConstruction.ITooth = at(
+      "upper",
+      "left",
+      "firstMolar",
+    );
+    const lowerMolar: IAutoMovieHumanMouthConstruction.ITooth = at(
+      "lower",
+      "left",
+      "firstMolar",
+    );
+    const lowerIncisor: IAutoMovieHumanMouthConstruction.ITooth = at(
+      "lower",
+      "left",
+      "centralIncisor",
+    );
+    const upperIncisor: IAutoMovieHumanMouthConstruction.ITooth = at(
+      "upper",
+      "left",
+      "centralIncisor",
+    );
+    const outer = (t: IAutoMovieHumanMouthConstruction.ITooth): number =>
+      t.neck[2] + (t.out[2] * t.crown.depth) / 2;
+    const upperReach: number =
+      Prior.UPPER[0]!.height + Prior.GINGIVA + Prior.MUCOSA;
     const lowerReach: number =
       Prior.LOWER[0]!.height - Prior.OVERBITE + Prior.GINGIVA + Prior.MUCOSA;
     const centre: number = edge[1] + Prior.OVERBITE / 2;
@@ -130,10 +160,7 @@ export namespace AutoMovieHumanMouth {
       lowerMolar.neck[2] - (lowerMolar.out[2] * lowerMolar.crown.depth) / 2;
     const lowerEdge: number = lowerIncisor.neck[1] + lowerIncisor.crown.height;
     const tongue: IAutoMovieHumanMouthConstruction.ITongue = {
-      tip:
-        lowerIncisor.neck[0] -
-        lowerIncisor.crown.depth / 2 -
-        Prior.MUCOSA,
+      tip: lowerIncisor.neck[0] - lowerIncisor.crown.depth / 2 - Prior.MUCOSA,
       back: pharynx[0] + Prior.MUCOSA,
       tipTop: lowerEdge - Prior.MUCOSA,
       // At rest the dorsum lies just under the palate, a lining's thickness
@@ -184,7 +211,10 @@ export namespace AutoMovieHumanMouth {
   }
 
   /** Height of the contact line at a lateral place, flat beyond the cheilia. */
-  export function contactAt(mouth: IAutoMovieHumanMouthConstruction.IMouth, z: number): number {
+  export function contactAt(
+    mouth: IAutoMovieHumanMouthConstruction.IMouth,
+    z: number,
+  ): number {
     const u: number = Math.min(1, Math.abs(z) / mouth.width) * SAMPLES;
     const i: number = Math.min(SAMPLES - 1, Math.floor(u));
     const f: number = u - i;
@@ -192,14 +222,22 @@ export namespace AutoMovieHumanMouth {
   }
 
   /** Half-height of the slit at a lateral place: whole, then a half circle at each cheilion. */
-  export function slitAt(mouth: IAutoMovieHumanMouthConstruction.IMouth, z: number): number {
+  export function slitAt(
+    mouth: IAutoMovieHumanMouthConstruction.IMouth,
+    z: number,
+  ): number {
     const over: number = Math.abs(z) - (mouth.width - mouth.slit);
     if (over <= 0) return mouth.slit;
-    return over >= mouth.slit ? 0 : Math.sqrt(mouth.slit * mouth.slit - over * over);
+    return over >= mouth.slit
+      ? 0
+      : Math.sqrt(mouth.slit * mouth.slit - over * over);
   }
 
   /** Forward place of a section's wall at a lateral share. */
-  export function sweepAt(section: IAutoMovieHumanMouthConstruction.ISection, share: number): number {
+  export function sweepAt(
+    section: IAutoMovieHumanMouthConstruction.ISection,
+    share: number,
+  ): number {
     return section.x - section.sweep * share * share;
   }
 
@@ -212,7 +250,10 @@ export namespace AutoMovieHumanMouth {
    * into three loops. The stadium's curvature jumps only where its circles
    * meet its sides, so the series converges as the cube of its order.
    */
-  function aperture(mouth: IAutoMovieHumanMouthConstruction.IMouth, inputs: IAutoMovieHumanMouthConstruction.IInputs): IAutoMovieHumanLoftAperture {
+  function aperture(
+    mouth: IAutoMovieHumanMouthConstruction.IMouth,
+    inputs: IAutoMovieHumanMouthConstruction.IInputs,
+  ): IAutoMovieHumanLoftAperture {
     const count: number = 4 * ORDER;
     const g: number = mouth.slit;
     const straight: number = mouth.width - g;
@@ -234,7 +275,8 @@ export namespace AutoMovieHumanMouth {
         else if ((s -= (Math.PI / 2) * g) < 2 * straight) {
           z = straight - s;
           up = g;
-        } else if ((s -= 2 * straight) < Math.PI * g) arc(-straight, Math.PI / 2);
+        } else if ((s -= 2 * straight) < Math.PI * g)
+          arc(-straight, Math.PI / 2);
         else if ((s -= Math.PI * g) < 2 * straight) {
           z = -straight + s;
           up = -g;
@@ -248,8 +290,10 @@ export namespace AutoMovieHumanMouth {
     );
     const coefficients: number[] = [0, 1, 2].flatMap((c: number): number[] => {
       const out: number[] = [
-        points.reduce((v: number, p: [number, number, number]): number => v + p[c]!, 0) /
-          count,
+        points.reduce(
+          (v: number, p: [number, number, number]): number => v + p[c]!,
+          0,
+        ) / count,
       ];
       for (let k: number = 1; k <= ORDER; k++) {
         let a: number = 0;

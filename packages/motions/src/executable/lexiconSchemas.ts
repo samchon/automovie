@@ -2,10 +2,10 @@ import type {
   IAutoMovieMotionHumanActionParams,
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
-
 import fs from "node:fs";
 import path from "node:path";
 import typia from "typia";
+
 import { HUMAN_LEXICON_FAMILIES } from "../lexicon/HUMAN_LEXICON_FAMILIES";
 import HUMAN_SCHEMA_METADATA from "./HUMAN_SCHEMA_METADATA.json";
 import { HumanSchemaMetadata } from "./HumanSchemaMetadata";

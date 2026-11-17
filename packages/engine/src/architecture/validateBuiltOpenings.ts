@@ -1,4 +1,12 @@
-import { type IAutoMovieValidateBuiltOpenings, type IAutoMovieViolationCollector, IAutoMovieBoundaryFace, IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMoviePlanarPoint } from "@automovie/interface";
+import type {
+  IAutoMovieBoundaryFace,
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltBoundaryIndex,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMoviePlanarPoint,
+  IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 import { appendBuiltRegionDefects } from "./appendBuiltRegionDefects";
@@ -41,14 +49,14 @@ import { validateBuiltOpeningOperation } from "./validateBuiltOpeningOperation";
 export const validateBuiltOpenings: (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
-  boundaries: IAutoMovieValidateBuiltOpenings.IBoundaries,
+  boundaries: IAutoMovieBuiltBoundaryIndex,
   elementIds: ReadonlySet<string>,
   driven: Map<string, string>,
   collector: IAutoMovieViolationCollector,
 ) => Map<number, IAutoMoviePlanarPoint[]> = (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
-  boundaries: IAutoMovieValidateBuiltOpenings.IBoundaries,
+  boundaries: IAutoMovieBuiltBoundaryIndex,
   elementIds: ReadonlySet<string>,
   driven: Map<string, string>,
   collector: IAutoMovieViolationCollector,

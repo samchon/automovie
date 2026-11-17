@@ -10,7 +10,6 @@ import type { IAutoMovieRecoveryChartSourcePiece } from "../../index";
  */
 
 export interface IAutoMovieRecoveryFieldComplexPiece extends IAutoMovieRecoveryChartSourcePiece {
- 
- /** Identity of the input chart that generated this patch. */
+  /** Identity of the input chart that generated this patch. */
   owningChart: string;
 }

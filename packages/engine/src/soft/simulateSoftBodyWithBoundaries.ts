@@ -1,4 +1,12 @@
-import { type IAutoMovieSoftBodyBoundarySample, type IAutoMovieSoftBodyObserver, IAutoMovieSoftAnchor, IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState, IAutoMovieSoftCollider, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieSoftAnchor,
+  type IAutoMovieSoftBodyBoundarySample,
+  IAutoMovieSoftBodyDomain,
+  type IAutoMovieSoftBodyObserver,
+  IAutoMovieSoftBodyState,
+  IAutoMovieSoftCollider,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { simulateSoftBodyCore } from "./simulateSoftBodyCore";
 

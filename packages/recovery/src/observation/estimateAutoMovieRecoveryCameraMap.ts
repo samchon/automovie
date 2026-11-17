@@ -1,13 +1,16 @@
-import type { AutoMovieRecoveryOperator, IAutoMovieRecoveryCameraMapAdmissionOperation, IAutoMovieRecoveryCameraMapEstimate, IAutoMovieRecoveryCameraSetObservationOperation, IAutoMovieRecoveryOptions, IAutoMovieRecoveryResult, IAutoMovieRecoveryCameraMapInput } from "@automovie/interface";
-
+import type {
+  AutoMovieRecoveryOperator,
+  IAutoMovieRecoveryCameraMapAdmissionOperation,
+  IAutoMovieRecoveryCameraMapEstimate,
+  IAutoMovieRecoveryCameraMapInput,
+  IAutoMovieRecoveryCameraSetObservationOperation,
+  IAutoMovieRecoveryOptions,
+  IAutoMovieRecoveryResult,
+} from "@automovie/interface";
 
 import { admitRecoveryCameraMap } from "../internal/admitRecoveryCameraMap";
 import { createRecoveryCameraMap } from "../internal/createRecoveryCameraMap";
 import { observeRecoveryCameraSet } from "../internal/observeRecoveryCameraSet";
-
-
-
-
 
 /**
  * Observe three fixed calibrated RGB images and register a sparse camera triad.
@@ -51,7 +54,8 @@ export function estimateAutoMovieRecoveryCameraMap(
       ) ||
       (options.onProgress !== undefined &&
         typeof options.onProgress !== "function") ||
-      (options.cancelled !== undefined && typeof options.cancelled !== "function")
+      (options.cancelled !== undefined &&
+        typeof options.cancelled !== "function")
     )
       throw new Error(
         "invalid-camera-map-options: only cancellation callback and synchronous progress observer supported",
@@ -62,7 +66,9 @@ export function estimateAutoMovieRecoveryCameraMap(
       callback = true;
       const requested: boolean | undefined = probe?.();
       if (probe !== undefined && typeof requested !== "boolean")
-        throw new Error("Cancellation callback must return a boolean synchronously");
+        throw new Error(
+          "Cancellation callback must return a boolean synchronously",
+        );
       callback = false;
       return requested === true;
     };
@@ -81,8 +87,11 @@ export function estimateAutoMovieRecoveryCameraMap(
           camera: {
             ...view.camera,
             focalPx: [...view.camera.focalPx],
-            principalPointPx: [...view.camera.principalPointPx] } }),
-      ) };
+            principalPointPx: [...view.camera.principalPointPx],
+          },
+        }),
+      ),
+    };
     admitted = true;
     const checkpoint: (
       phase: string,
@@ -123,16 +132,19 @@ export function estimateAutoMovieRecoveryCameraMap(
           : `Map incomplete: ${value.refusalReasons.join(", ")}`,
         "Supplied intrinsics and rigidity remain assertions; metric scale, covariance, material correspondence truth, unseen geometry and an editable surface remain unobserved",
         "Only seed-supported tracks are triangulated in this version; conflicting and unsupported tracks remain explicit",
-      ] };
+      ],
+    };
   } catch (error: unknown) {
     if (error === cancellation && !callback)
       return {
         operator,
         status: "cancelled",
-        diagnostics: [cancellation.message] };
+        diagnostics: [cancellation.message],
+      };
     return {
       operator,
       status: admitted || callback ? "failed" : "refused",
-      diagnostics: [error instanceof Error ? error.message : String(error)] };
+      diagnostics: [error instanceof Error ? error.message : String(error)],
+    };
   }
 }

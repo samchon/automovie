@@ -1,4 +1,11 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanLeanInto, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanReach, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanLeanInto,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanReach,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -25,7 +32,6 @@ import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The wrist is the caller's own goal, so the lean is measured to what the arm must place, never to the hand's surface.
  */
 export namespace AutoMovieMotionHumanLeanInto {
-
   /**
    * Solve the lean of a stroke.
    *
@@ -40,7 +46,9 @@ export namespace AutoMovieMotionHumanLeanInto {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanLean.tip`, `HumanBalance.shift`, `AutoMovieMotionHumanReach.check` and `resolveHumanPosture.lower`; each step's balance shift is solved once.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closes over the props, the held centre and at most ten solved shifts.
    */
-  export function solve(props: IAutoMovieMotionHumanLeanInto.IProps): IAutoMovieMotionHumanLeanInto.ILean {
+  export function solve(
+    props: IAutoMovieMotionHumanLeanInto.IProps,
+  ): IAutoMovieMotionHumanLeanInto.ILean {
     // The step of the scan for the first pitch that reaches, degrees
     // (provisional: the measured distances change by a few millimetres per
     // five degrees near their least, so a reach is not stepped over).
@@ -54,7 +62,9 @@ export namespace AutoMovieMotionHumanLeanInto {
 
     // The standing posture as the balance weighs it: lowered onto the
     // planted legs, the working arm on its goal.
-    const weighed = (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => {
+    const weighed = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanPosture => {
       const lowered: IAutoMovieMotionHumanPosture = {
         ...posture,
         root: resolveHumanPosture.lower(props.body, posture).root,
@@ -108,9 +118,15 @@ export namespace AutoMovieMotionHumanLeanInto {
         ? step(below)
         : step(below) * (1 - share) + step(below + 1) * share;
     };
-    const tip = (posture: IAutoMovieMotionHumanPosture, pitch: number): IAutoMovieMotionHumanPosture =>
+    const tip = (
+      posture: IAutoMovieMotionHumanPosture,
+      pitch: number,
+    ): IAutoMovieMotionHumanPosture =>
       AutoMovieMotionHumanLean.tip(props.body, posture, pitch, back(pitch));
-    const pitch = (posture: IAutoMovieMotionHumanPosture, progress: number): number => {
+    const pitch = (
+      posture: IAutoMovieMotionHumanPosture,
+      progress: number,
+    ): number => {
       const wrist: IAutoMovieVector3 = props.wrist(posture, progress);
       const beyond = (degrees: number): number => {
         const check: IAutoMovieMotionHumanReach.ICheck =
@@ -171,7 +187,10 @@ export namespace AutoMovieMotionHumanLeanInto {
         channels: ["root", "trunk"],
         from: 0,
         to: clock.duration,
-        write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieMotionHumanPosture => {
           const leaned: IAutoMovieMotionHumanPosture = tip(
             posture,
             clock.envelope(["start", "ready"], ["relax", "end"], seconds) *

@@ -1,5 +1,8 @@
-import type { IAutoMovieMeasurePhysicalJointLimits, IAutoMoviePhysicalProfile, IAutoMovieMotionGeometry } from "@automovie/interface";
-
+import type {
+  IAutoMovieMeasurePhysicalJointLimits,
+  IAutoMovieMotionGeometry,
+  IAutoMoviePhysicalProfile,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 
@@ -22,12 +25,13 @@ export function measurePhysicalJointLimits(
   parent: IAutoMoviePhysicalProfile.ITransform,
   child: IAutoMoviePhysicalProfile.ITransform,
 ): IAutoMovieMeasurePhysicalJointLimits.IResult {
-  const relative: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-    Quaternion.inverse(
-      Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
-    ),
-    Quaternion.multiply(child.rotation, joint.childFrame.rotation),
-  );
+  const relative: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+    Quaternion.multiply(
+      Quaternion.inverse(
+        Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
+      ),
+      Quaternion.multiply(child.rotation, joint.childFrame.rotation),
+    );
   const sign: number = relative.w < 0 ? -1 : 1;
   return (["x", "y", "z"] as const).map(
     (

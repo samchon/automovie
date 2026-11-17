@@ -1,15 +1,14 @@
-import type { IAutoMovieLoftViewSource, IAutoMovieViewPart, IAutoMovieHumanArmWalk, IAutoMovieHumanHandParent, IAutoMovieHumanSiteViewPart } from "@automovie/interface";
-
-
-
-
 import { AutoMovieLoftViewSource, AutoMovieViewAxis } from "@automovie/engine";
-
+import type {
+  IAutoMovieHumanArmWalk,
+  IAutoMovieHumanHandParent,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /** Common hand-region scalar/frame controls and the explicit legacy part adapter. */
 export namespace AutoMovieHumanHandParent {
-  
-
   /** Prepare the final normalized parent once; failed originals never become substitutes. */
   export function prepare(
     definition: IAutoMovieHumanSiteViewPart.IDefinition,
@@ -42,7 +41,9 @@ export namespace AutoMovieHumanHandParent {
       },
       relief: "absent from original view definition",
       stations: part.stations.map(
-        (station: number): IAutoMovieHumanHandParent.IOutput["stations"][number] => {
+        (
+          station: number,
+        ): IAutoMovieHumanHandParent.IOutput["stations"][number] => {
           const frame: IAutoMovieHumanHandParent.Frame = part.axis.at(station);
           return { station, frame, normal: AutoMovieViewAxis.normal(frame) };
         },
@@ -82,7 +83,9 @@ export namespace AutoMovieHumanHandParent {
       },
       relief: "absent from original view definition",
       stations: controls.hand.stations.map(
-        (station: number): IAutoMovieHumanHandParent.IOutput["stations"][number] => {
+        (
+          station: number,
+        ): IAutoMovieHumanHandParent.IOutput["stations"][number] => {
           const frame: IAutoMovieHumanHandParent.Frame = axis.at(station);
           return { station, frame, normal: AutoMovieViewAxis.normal(frame) };
         },

@@ -14,4 +14,6 @@ import { mul } from "./mul";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call depends directly on its arguments; no retained cache or effectful shared work exists.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh triple; no state survives the call.
  */
-export const norm: (a: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (a: AutoMovieVector3Tuple): AutoMovieVector3Tuple => mul(a, 1 / (len(a) || 1));
+export const norm: (a: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (
+  a: AutoMovieVector3Tuple,
+): AutoMovieVector3Tuple => mul(a, 1 / (len(a) || 1));

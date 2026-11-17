@@ -10,7 +10,6 @@ import type { IAutoMovieFileReceipt } from "../../index";
  */
 
 export interface IAutoMovieRecoveryArrayFragment extends IAutoMovieFileReceipt {
- 
- /** Number of values in the persisted array fragment. */
+  /** Number of values in the persisted array fragment. */
   items: number;
 }

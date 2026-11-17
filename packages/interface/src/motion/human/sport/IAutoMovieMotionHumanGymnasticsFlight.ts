@@ -1,4 +1,3 @@
-
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**

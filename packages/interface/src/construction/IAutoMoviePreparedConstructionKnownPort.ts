@@ -27,17 +27,17 @@ export namespace IAutoMoviePreparedConstructionKnownPort {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Runtime domain and finite/regular-jet admission do not prove C2, shared bindings or derivatives over unqueried points.
    * @evidence contracts/development/common.md#meaningful-documentation States chart order, orientation, units, copy/borrow lifetime and nullable derivative failure behavior.
    */
-    export interface IPrepared extends IAutoMovieSolidSurface {
-      /** Detached descriptor retains original clock bounds and authored outward convention. */
-      definition: IAutoMovieConstructionKnownPort;
-  
-      /** Actual immutable field/map owners of both rails; labels alone certify no weights. */
-      rails: {
-        /** Original field and map that own the transverse-zero boundary. */
-        parent: IAutoMovieConstructionKnownPortSide;
+  export interface IPrepared extends IAutoMovieSolidSurface {
+    /** Detached descriptor retains original clock bounds and authored outward convention. */
+    definition: IAutoMovieConstructionKnownPort;
 
-        /** Original field and map that own the transverse-one boundary. */
-        child: IAutoMovieConstructionKnownPortSide;
-      };
-    }
+    /** Actual immutable field/map owners of both rails; labels alone certify no weights. */
+    rails: {
+      /** Original field and map that own the transverse-zero boundary. */
+      parent: IAutoMovieConstructionKnownPortSide;
+
+      /** Original field and map that own the transverse-one boundary. */
+      child: IAutoMovieConstructionKnownPortSide;
+    };
+  }
 }

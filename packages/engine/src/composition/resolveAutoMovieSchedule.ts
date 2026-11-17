@@ -1,4 +1,9 @@
-import type { IAutoMovieSchedule, IAutoMovieComposition, IAutoMovieResolveSchedule, IAutoMovieScheduleWalk } from "@automovie/interface";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieResolveSchedule,
+  IAutoMovieSchedule,
+  IAutoMovieScheduleWalk,
+} from "@automovie/interface";
 
 import { AutoMovieSchedulePlace } from "./AutoMovieSchedulePlace";
 import { AutoMovieScheduleWalk } from "./AutoMovieScheduleWalk";

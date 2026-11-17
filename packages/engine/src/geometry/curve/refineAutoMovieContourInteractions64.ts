@@ -1,4 +1,11 @@
-import type { AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple, IAutoMovieContourLoftCurves64, IAutoMovieRefineContourInteractions64, IAutoMovieRefineContourInteractions64Ring } from "@automovie/interface";
+import type {
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieVector3Tuple,
+  IAutoMovieContourLoftCurves64,
+  IAutoMovieRefineContourInteractions64,
+  IAutoMovieRefineContourInteractions64Ring,
+} from "@automovie/interface";
+
 import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdivision64";
 import { AutoMovieContourLoftCurves64 as C } from "./AutoMovieContourLoftCurves64";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
@@ -20,10 +27,14 @@ import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Encoded point coordinates are reused during this invocation. Existing point objects and source leaves survive refinement, and all adjacent slabs consume the same updated ring.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Point encodings and contact scratch are call-local; shared source knots transfer to the loft invocation and expire with it. Witness strings contain counts, source intervals and reasons rather than retained mesh buffers.
  */
-export function refineAutoMovieContourInteractions64<R extends IAutoMovieRefineContourInteractions64Ring>(
+export function refineAutoMovieContourInteractions64<
+  R extends IAutoMovieRefineContourInteractions64Ring,
+>(
   rings: R[],
   selection: number[],
-  leaf: (point: AutoMovieVector3Tuple) => IAutoMovieContourLoftCurves64.Leaf | undefined,
+  leaf: (
+    point: AutoMovieVector3Tuple,
+  ) => IAutoMovieContourLoftCurves64.Leaf | undefined,
   register: (ring: R, knot: IAutoMovieContourLoftCurves64.Knot) => void,
   toleranceMm: number,
   observeWork: boolean = false,
@@ -45,8 +56,9 @@ export function refineAutoMovieContourInteractions64<R extends IAutoMovieRefineC
     };
   const points: AutoMovieVector3Tuple[] = rings[selection[0]].points;
   const origin: AutoMovieVector3Tuple = points[0];
-  const endpoint: AutoMovieVector3Tuple = points.find((p: AutoMovieVector3Tuple): boolean =>
-    p.some((x: number, k: number): boolean => x !== origin[k]),
+  const endpoint: AutoMovieVector3Tuple = points.find(
+    (p: AutoMovieVector3Tuple): boolean =>
+      p.some((x: number, k: number): boolean => x !== origin[k]),
   )!;
   const axis: AutoMovieVector3Tuple = M.sub(endpoint, origin);
   let normal: AutoMovieVector3Tuple = [0, 0, 0];
@@ -65,7 +77,8 @@ export function refineAutoMovieContourInteractions64<R extends IAutoMovieRefineC
     0,
   );
   const axes: number[] = [0, 1, 2].filter((k: number): boolean => k !== drop);
-  const encoded: WeakMap<AutoMovieVector3Tuple, [bigint, bigint]> = new WeakMap();
+  const encoded: WeakMap<AutoMovieVector3Tuple, [bigint, bigint]> =
+    new WeakMap();
   const bits: DataView = new DataView(new ArrayBuffer(8));
   const integer = (x: number): bigint => {
     // Every finite binary64 value scaled by 2^1074 is an integer, including subnormals.
@@ -84,7 +97,11 @@ export function refineAutoMovieContourInteractions64<R extends IAutoMovieRefineC
       encoded.set(p, [integer(p[axes[0]]), integer(p[axes[1]])]);
     return encoded.get(p)!;
   };
-  const orient = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, c: AutoMovieVector3Tuple): bigint => {
+  const orient = (
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+    c: AutoMovieVector3Tuple,
+  ): bigint => {
     exactOrientationTests++;
     const p: [bigint, bigint] = encode(a),
       q: [bigint, bigint] = encode(b),
@@ -93,7 +110,12 @@ export function refineAutoMovieContourInteractions64<R extends IAutoMovieRefineC
       (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
     return value < 0n ? -1n : value > 0n ? 1n : 0n;
   };
-  const intersects = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, p: AutoMovieVector3Tuple, q: AutoMovieVector3Tuple): boolean => {
+  const intersects = (
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+    p: AutoMovieVector3Tuple,
+    q: AutoMovieVector3Tuple,
+  ): boolean => {
     chordPairs++;
     if (
       axes.some(
@@ -125,10 +147,10 @@ export function refineAutoMovieContourInteractions64<R extends IAutoMovieRefineC
     if (!(mid > source.start && mid < source.end)) return false;
     let children: IAutoMovieContourLoftCurves64.Leaf[];
     try {
-      const halves: [AutoMovieBernsteinPolynomial64, AutoMovieBernsteinPolynomial64] = S.split(
-        C.controls(source),
-        0.5,
-      );
+      const halves: [
+        AutoMovieBernsteinPolynomial64,
+        AutoMovieBernsteinPolynomial64,
+      ] = S.split(C.controls(source), 0.5);
       children = [
         ...C.partition(
           {
@@ -169,14 +191,20 @@ export function refineAutoMovieContourInteractions64<R extends IAutoMovieRefineC
     if (at < 0)
       throw new Error("Interaction refinement lost shared source ownership");
     const knots: IAutoMovieContourLoftCurves64.Knot[] = children.map(
-      (child: IAutoMovieContourLoftCurves64.Leaf, i: number): IAutoMovieContourLoftCurves64.Knot => ({
+      (
+        child: IAutoMovieContourLoftCurves64.Leaf,
+        i: number,
+      ): IAutoMovieContourLoftCurves64.Knot => ({
         p: i === 0 ? point : M.clone(C.controls(child)[0]),
         phase: child.start,
         leaf: child,
       }),
     );
     for (const knot of knots) register(ring, knot);
-    const replacement: AutoMovieVector3Tuple[] = knots.map((knot: IAutoMovieContourLoftCurves64.Knot): AutoMovieVector3Tuple => knot.p);
+    const replacement: AutoMovieVector3Tuple[] = knots.map(
+      (knot: IAutoMovieContourLoftCurves64.Knot): AutoMovieVector3Tuple =>
+        knot.p,
+    );
     ring.points.splice(
       at,
       1,
@@ -230,7 +258,10 @@ export function refineAutoMovieContourInteractions64<R extends IAutoMovieRefineC
           [b, contact[1]],
         ];
         choices.sort(
-          (x: [R, AutoMovieVector3Tuple], y: [R, AutoMovieVector3Tuple]): number => error(y[1]) - error(x[1]),
+          (
+            x: [R, AutoMovieVector3Tuple],
+            y: [R, AutoMovieVector3Tuple],
+          ): number => error(y[1]) - error(x[1]),
         );
         if (refine(...choices[0]) || refine(...choices[1])) {
           changes++;

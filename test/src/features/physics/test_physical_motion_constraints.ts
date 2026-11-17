@@ -1,6 +1,12 @@
-import type { IAutoMovieMeasurePhysicalMotionConstraint, IAutoMoviePhysicsCache, IAutoMovieMotionGeometry } from "@automovie/interface";
-import { AutoMovieMotionAudit as Audit, measurePhysicalMotionConstraint as Measure } from "@automovie/engine";
-
+import {
+  AutoMovieMotionAudit as Audit,
+  measurePhysicalMotionConstraint as Measure,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMeasurePhysicalMotionConstraint,
+  IAutoMovieMotionGeometry,
+  IAutoMoviePhysicsCache,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -135,7 +141,10 @@ export async function test_physical_motion_constraints(): Promise<void> {
     end: 0,
     rate: 120,
     floor: -1,
-    sample: (): IAutoMoviePhysicsCache.IFrame => ({ seconds: 0, bodies: { rig: states } }),
+    sample: (): IAutoMoviePhysicsCache.IFrame => ({
+      seconds: 0,
+      bodies: { rig: states },
+    }),
     allowed: (): boolean => false,
   });
   TestValidator.equals(

@@ -1,4 +1,9 @@
-import type { IAutoMoviePhysicalHandoff, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMoviePreparePhysicalGeometry } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalHandoff,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePreparePhysicalGeometry,
+} from "@automovie/interface";
 import type { RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
@@ -47,7 +52,10 @@ export function assertPhysicalReturnPath(
         id,
         Object.fromEntries(
           [...segments].map(
-            ([bone, rigid]: [string, RigidBody]): [string, IAutoMoviePhysicalProfile.ITransform] => [
+            ([bone, rigid]: [string, RigidBody]): [
+              string,
+              IAutoMoviePhysicalProfile.ITransform,
+            ] => [
               bone,
               {
                 position:
@@ -65,20 +73,27 @@ export function assertPhysicalReturnPath(
       ],
     ),
   );
-  const shapes: IAutoMoviePreparePhysicalGeometry.ICollider[] = input.bodies.flatMap(
-    (body: IAutoMoviePhysicalSimulationInput.IBody): IAutoMoviePreparePhysicalGeometry.ICollider[] =>
-      body.profile.segments.flatMap(
-        (segment: IAutoMoviePhysicalProfile.ISegment): IAutoMoviePreparePhysicalGeometry.ICollider[] =>
-          segment.shapes.map(
-            (shape: IAutoMoviePhysicalProfile.IShape): IAutoMoviePreparePhysicalGeometry.ICollider => ({
-              body: body.id,
-              bone: segment.bone,
-              shape,
-              pose: poses[body.id]![segment.bone]!,
-            }),
-          ),
-      ),
-  );
+  const shapes: IAutoMoviePreparePhysicalGeometry.ICollider[] =
+    input.bodies.flatMap(
+      (
+        body: IAutoMoviePhysicalSimulationInput.IBody,
+      ): IAutoMoviePreparePhysicalGeometry.ICollider[] =>
+        body.profile.segments.flatMap(
+          (
+            segment: IAutoMoviePhysicalProfile.ISegment,
+          ): IAutoMoviePreparePhysicalGeometry.ICollider[] =>
+            segment.shapes.map(
+              (
+                shape: IAutoMoviePhysicalProfile.IShape,
+              ): IAutoMoviePreparePhysicalGeometry.ICollider => ({
+                body: body.id,
+                bone: segment.bone,
+                shape,
+                pose: poses[body.id]![segment.bone]!,
+              }),
+            ),
+        ),
+    );
   for (const body of input.bodies) {
     const transitions: Record<string, IAutoMoviePhysicalHandoff> =
       bound.handoffs.get(body.id) ?? {};
@@ -102,8 +117,10 @@ export function assertPhysicalReturnPath(
           ),
         );
         const fade: number = 2 * fraction ** 3 - 3 * fraction ** 2 + 1;
-        const parent: IAutoMoviePhysicalProfile.ITransform = poses[body.id]![joint.parent]!;
-        const child: IAutoMoviePhysicalProfile.ITransform = poses[body.id]![joint.child]!;
+        const parent: IAutoMoviePhysicalProfile.ITransform =
+          poses[body.id]![joint.parent]!;
+        const child: IAutoMoviePhysicalProfile.ITransform =
+          poses[body.id]![joint.child]!;
         const distance: number = Vector3.length(
           Vector3.subtract(
             physicalSupportPoint(parent, joint.parentFrame.position),
@@ -135,12 +152,13 @@ export function assertPhysicalReturnPath(
           throw new Error(
             `Physical return violates joint anchor envelope: ${body.id}/${joint.id} at ${seconds}: ${distance} m`,
           );
-        const relative: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-          Quaternion.inverse(
-            Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
-          ),
-          Quaternion.multiply(child.rotation, joint.childFrame.rotation),
-        );
+        const relative: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+          Quaternion.multiply(
+            Quaternion.inverse(
+              Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
+            ),
+            Quaternion.multiply(child.rotation, joint.childFrame.rotation),
+          );
         const error: number = Vector3.length(
           PhysicalRotationVector.log(
             Quaternion.multiply(
@@ -174,10 +192,11 @@ export function assertPhysicalReturnPath(
           input.contactTolerance! +
           body.handoffLimits!.maximumLinearError *
             (2 * fraction ** 3 - 3 * fraction ** 2 + 1);
-        const material: IAutoMoviePhysicalProfile.IMaterial = body.profile.materials.find(
-          (candidate: IAutoMoviePhysicalProfile.IMaterial): boolean =>
-            candidate.id === source.shape.material,
-        )!;
+        const material: IAutoMoviePhysicalProfile.IMaterial =
+          body.profile.materials.find(
+            (candidate: IAutoMoviePhysicalProfile.IMaterial): boolean =>
+              candidate.id === source.shape.material,
+          )!;
         const clearance: number =
           bound.geometry!.minimumY(source) - input.floor;
         if (clearance < -(material.maximumCompression ?? 0) - allowance)
@@ -195,10 +214,11 @@ export function assertPhysicalReturnPath(
               ))
           )
             continue;
-          const other: IAutoMoviePhysicalSimulationInput.IBody = input.bodies.find(
-            (candidate: IAutoMoviePhysicalSimulationInput.IBody): boolean =>
-              candidate.id === receiver.body,
-          )!;
+          const other: IAutoMoviePhysicalSimulationInput.IBody =
+            input.bodies.find(
+              (candidate: IAutoMoviePhysicalSimulationInput.IBody): boolean =>
+                candidate.id === receiver.body,
+            )!;
           const compression: number =
             (body.profile.materials.find(
               (material: IAutoMoviePhysicalProfile.IMaterial): boolean =>
@@ -208,8 +228,9 @@ export function assertPhysicalReturnPath(
               (material: IAutoMoviePhysicalProfile.IMaterial): boolean =>
                 material.id === receiver.shape.material,
             )?.maximumCompression ?? 0);
-          const contact: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =
-            bound.geometry!.contact(source, receiver, seconds);
+          const contact: ReturnType<
+            IAutoMoviePreparePhysicalGeometry.IQueries["contact"]
+          > = bound.geometry!.contact(source, receiver, seconds);
           if (contact && contact.separation < -compression - allowance)
             throw new Error(
               `Physical return intersects receiver: ${body.id}/${source.bone} with ${other.id}/${receiver.bone} at ${seconds}: ${contact.separation} m`,

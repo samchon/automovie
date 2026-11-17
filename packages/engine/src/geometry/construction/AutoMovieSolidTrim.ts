@@ -1,4 +1,11 @@
-import type { IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieLoftContract, IAutoMovieSolidFoot, IAutoMovieSolidRibbon, IAutoMovieSolidTrim } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieLoftContract,
+  IAutoMovieSolidFoot,
+  IAutoMovieSolidRibbon,
+  IAutoMovieSolidSurface,
+  IAutoMovieSolidTrim,
+} from "@automovie/interface";
 
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidFoot } from "./AutoMovieSolidFoot";
@@ -6,6 +13,7 @@ import { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidRibbon } from "./AutoMovieSolidRibbon";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
+
 const { dot } = AutoMovieSolidVector;
 
 /**
@@ -38,7 +46,6 @@ const { dot } = AutoMovieSolidVector;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieSolidTrim {
-
   /** Samples per landmark span of the polygon the inside test reads. */
   export const DENSITY: number = 16;
 
@@ -67,7 +74,10 @@ export namespace AutoMovieSolidTrim {
   ): IAutoMovieSolidTrim.IResult {
     const producer: string = `solid.trim.${surface.name}`;
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
-    const fail = (contract: string, detail: string): IAutoMovieSolidTrim.IResult => {
+    const fail = (
+      contract: string,
+      detail: string,
+    ): IAutoMovieSolidTrim.IResult => {
       diagnostics.push({ producer, level: 5, contract, detail });
       return { trim: null, diagnostics };
     };

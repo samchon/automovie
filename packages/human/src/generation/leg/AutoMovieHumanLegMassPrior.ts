@@ -32,8 +32,6 @@ import type { IAutoMovieHumanLegMassPrior } from "@automovie/interface";
  * by finding this reader; no new fit or private person reading was made.
  */
 export namespace AutoMovieHumanLegMassPrior {
-  
-
   /** The thigh's rows, hip to knee. */
   export const THIGH: readonly IAutoMovieHumanLegMassPrior.IRow[] = [
     { share: 0.25, front: 0.534 },

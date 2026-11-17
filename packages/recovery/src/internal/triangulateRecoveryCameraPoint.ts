@@ -1,11 +1,12 @@
-import type { IAutoMovieRecoveryCameraPointTriangulationOperation, IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieMatrix3,
   Vector3,
-  decomposeAutoMovieSingularMatrix } from "@automovie/engine";
-
-
-
+  decomposeAutoMovieSingularMatrix,
+} from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryCameraPointTriangulationOperation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Triangulate one observation pair in the first-camera, unit-baseline gauge.
@@ -62,7 +63,8 @@ export function triangulateRecoveryCameraPoint(
     decomposeAutoMovieSingularMatrix(rows, {
       maxEntries: 16,
       maxSweeps,
-      orthogonalityTolerance: 1e-12 });
+      orthogonalityTolerance: 1e-12,
+    });
   const ratio: number = factors.singularValues[2]! / factors.singularValues[0]!;
   if (!Number.isFinite(ratio) || ratio < minimumDesignRatio) return null;
   const homogeneous: number[] = factors.rightColumns[3]!;
@@ -99,11 +101,13 @@ export function triangulateRecoveryCameraPoint(
   const unit1: IAutoMovieVector3 = {
     x: ray1[0] / norm1,
     y: ray1[1] / norm1,
-    z: ray1[2] / norm1 };
+    z: ray1[2] / norm1,
+  };
   const unit2: IAutoMovieVector3 = {
     x: backRay[0] / norm2,
     y: backRay[1] / norm2,
-    z: backRay[2] / norm2 };
+    z: backRay[2] / norm2,
+  };
   const cross: IAutoMovieVector3 = Vector3.cross(unit1, unit2);
   const parallaxRadians: number = Math.atan2(
     Math.hypot(cross.x, cross.y, cross.z),
@@ -138,5 +142,6 @@ export function triangulateRecoveryCameraPoint(
     positiveDepth: point[2] > 0 && inSecond[2] > 0,
     parallaxRadians,
     firstReprojectionPx,
-    secondReprojectionPx };
+    secondReprojectionPx,
+  };
 }

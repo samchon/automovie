@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanFormation } from "./IAutoMovieMotionHumanFormation";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanFormation } from "./IAutoMovieMotionHumanFormation";
 
 /**
  * Constants and types of {@link manoeuvreWheel}.

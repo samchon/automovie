@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanFrame } from "../posture/HumanFrame";
 

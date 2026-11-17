@@ -1,5 +1,7 @@
-import type { IAutoMovieSweepSurface, IAutoMovieSampleParameterSweep } from "@automovie/interface";
-
+import type {
+  IAutoMovieSampleParameterSweep,
+  IAutoMovieSweepSurface,
+} from "@automovie/interface";
 
 /**
  * Register a fixed-cell Cartesian section average for parameter correspondence.
@@ -30,7 +32,9 @@ import type { IAutoMovieSweepSurface, IAutoMovieSampleParameterSweep } from "@au
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The angular averages and u scale slots are compiled once; each pose/girth pass reads the current frame/scales through the supplied views.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains at most three unscaled points, three weights/slots, two scaled work arrays and one two-coordinate mean buffer until its owning rig is released.
  */
-export function sampleAutoMovieParameterSweep(props: IAutoMovieSampleParameterSweep.IProps): (out: Float64Array, offset: number) => void {
+export function sampleAutoMovieParameterSweep(
+  props: IAutoMovieSampleParameterSweep.IProps,
+): (out: Float64Array, offset: number) => void {
   const us: Array<[number, number]> = tent(props.cell[0], props.cell[1]);
   const vs: Array<[number, number]> = tent(props.cell[2], props.cell[3]);
   const slots: Int32Array = new Int32Array(us.length);

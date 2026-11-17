@@ -1,6 +1,15 @@
-import type { AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanInstance, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanInstance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
@@ -70,9 +79,11 @@ export namespace instance {
           "an instance lasts a positive time and lags by a whole number of frames",
         fix: "give a positive span and a whole, nonnegative shift",
       });
-    const template: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(p.of);
-    const read: ((seconds: number) => IAutoMovieMotionHumanPosture) | undefined =
-      template.posture?.bind(template);
+    const template: IAutoMovieMotionHumanActionContext.IPerformer =
+      context.performer(p.of);
+    const read:
+      | ((seconds: number) => IAutoMovieMotionHumanPosture)
+      | undefined = template.posture?.bind(template);
     if (template.body !== context.body || read === undefined)
       throw new HumanRefusal({
         kind: "participant",
@@ -85,7 +96,8 @@ export namespace instance {
         fix: "instance a template of the same body from the same pool",
       });
     const lag: number = shift / RATE;
-    const at = (t: number): IAutoMovieMotionHumanPosture => read(context.start + t - lag);
+    const at = (t: number): IAutoMovieMotionHumanPosture =>
+      read(context.start + t - lag);
 
     // The template keeps its heading over the span, read every film frame.
     const first: IAutoMovieMotionHumanPosture = at(0);
@@ -126,7 +138,9 @@ export namespace instance {
       events: [],
       contacts: [],
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-        const t: IAutoMovieMotionHumanPosture = at(Math.min(p.seconds, Math.max(0, seconds)));
+        const t: IAutoMovieMotionHumanPosture = at(
+          Math.min(p.seconds, Math.max(0, seconds)),
+        );
         const root: IAutoMovieVector3 = add(t.root, rotate(offset, t.yaw));
         const move = (point: IAutoMovieVector3): IAutoMovieVector3 =>
           add(root, rotate(sub(point, t.root), turn));

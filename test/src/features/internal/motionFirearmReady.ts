@@ -1,8 +1,22 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { createHandgun, createTable } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanFirearm, HumanObject, HumanPerformance, HumanWeaponFirearm } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFirearm,
+  HumanObject,
+  HumanPerformance,
+  HumanWeaponFirearm,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -119,8 +133,11 @@ export function motionFirearmReady(name: motionHumanBody.Name): void {
     const named = (row: string): IAutoMovieMotionHumanSegment.ISegment =>
       film
         .segments("a")
-        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row)!;
-    const present: IAutoMovieMotionHumanSegment.ISegment = named("presentFirearm");
+        .find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
+        )!;
+    const present: IAutoMovieMotionHumanSegment.ISegment =
+      named("presentFirearm");
     const stroke: number =
       present.start +
       (present.plan.events.find((e): boolean => e.name === "stroke")?.share ??
@@ -145,7 +162,10 @@ export function motionFirearmReady(name: motionHumanBody.Name): void {
 
     // 3. The pistol stays in the hand.
     const held = (seconds: number): IAutoMovieVector3 => {
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("pistol", seconds);
+      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
+        "pistol",
+        seconds,
+      );
       const hand: IAutoMovieResolvedBone = film
         .bones("a", seconds)
         .get("rightHand")!;

@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionHumanHandToFaceArm, IAutoMovieMotionHumanTouch, IAutoMovieMotionHumanTouchDrink, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanHandToFaceArm,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchDrink,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTouchDrink } from "../compose/AutoMovieMotionHumanTouchDrink";
@@ -16,7 +21,6 @@ import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTo
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Delegates the vessel's search, the hint and the reference to their owners.
  */
 export namespace handToFaceArm {
-
   /**
    * One hand's arm at the face.
    *
@@ -40,7 +44,9 @@ export namespace handToFaceArm {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanTouchDrink`, `AutoMovieMotionHumanBend` and `AutoMovieMotionHumanTouchLaid`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function of(props: IAutoMovieMotionHumanHandToFaceArm.IProps): IAutoMovieMotionHumanHandToFaceArm.IArm {
+  export function of(
+    props: IAutoMovieMotionHumanHandToFaceArm.IProps,
+  ): IAutoMovieMotionHumanHandToFaceArm.IArm {
     const { body, atFace, turned, side, effector, place, tangent, own } = props;
     const lay: IAutoMovieMotionHumanTouch.ITouch["lay"] = props.upright
       ? "upright"

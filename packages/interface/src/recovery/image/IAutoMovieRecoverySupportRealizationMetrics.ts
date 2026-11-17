@@ -8,11 +8,9 @@ import type { IAutoMovieRecoverySupportGeneration } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation States metre units and distinguishes face approximation from uncertified event arithmetic.
  */
 export interface IAutoMovieRecoverySupportRealizationMetrics extends IAutoMovieRecoverySupportGeneration {
- 
- /** Numerical face chord bound, metres. */
+  /** Numerical face chord bound, metres. */
   faceChordBoundMeters: number;
 
- 
- /** Scope of the binary64 event calculation, without certification. */
+  /** Scope of the binary64 event calculation, without certification. */
   eventQualification: "binary64-numerical-not-certified";
 }

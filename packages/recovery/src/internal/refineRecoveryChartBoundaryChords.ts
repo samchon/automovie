@@ -1,6 +1,7 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryChartBoundaryChordsRefinementOperation } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryChartBoundaryChordsRefinementOperation,
+} from "@automovie/interface";
 
 /**
  * Subdivide private interior edges whose fixed endpoints share one square side.
@@ -20,9 +21,13 @@ import type { AutoMovieVector3Tuple, IAutoMovieRecoveryChartBoundaryChordsRefine
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One incidence registry selects all original chords and physical endpoint keys determine the same midpoint identity on duplicated cut occurrences.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All registries are local; only copied private observations and a scalar subdivision count escape, and original input arrays remain immutable.
  */
-export function refineRecoveryChartBoundaryChords(input: Parameters<IAutoMovieRecoveryChartBoundaryChordsRefinementOperation.Operation>[0]): ReturnType<IAutoMovieRecoveryChartBoundaryChordsRefinementOperation.Operation> {
+export function refineRecoveryChartBoundaryChords(
+  input: Parameters<IAutoMovieRecoveryChartBoundaryChordsRefinementOperation.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartBoundaryChordsRefinementOperation.Operation> {
   const verticesMm: Readonly<AutoMovieVector3Tuple>[] = input.verticesMm.map(
-      (point: Readonly<AutoMovieVector3Tuple>): Readonly<AutoMovieVector3Tuple> => [...point],
+      (
+        point: Readonly<AutoMovieVector3Tuple>,
+      ): Readonly<AutoMovieVector3Tuple> => [...point],
     ),
     vertexKeys: string[] = [...input.vertexKeys];
   let triangles: [number, number, number][] = input.triangles.map(
@@ -119,5 +124,6 @@ export function refineRecoveryChartBoundaryChords(input: Parameters<IAutoMovieRe
     verticesMm,
     triangles,
     vertexKeys,
-    subdividedChords: midpoints.size };
+    subdividedChords: midpoints.size,
+  };
 }

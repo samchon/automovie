@@ -1,4 +1,9 @@
-import type { IAutoMovieConstructionProfileBody, IAutoMovieSolidBody, IAutoMovieSolidMesh } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionProfileBody,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidMesh,
+} from "@automovie/interface";
+
 import { AutoMovieSolidBody } from "./AutoMovieSolidBody";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 

@@ -1,4 +1,5 @@
 import type { IAutoMovieProfilePoint } from "@automovie/interface";
+
 /**
  * Refuse a two-dimensional construction point whose `x` or `y` is not a
  * finite number, such as a profile corner or a wall opening's origin.

@@ -1,6 +1,10 @@
-import { type IAutoMovieServiceCheckReport, type IAutoMovieServiceAnalysisSupport, AutoMovieServiceDiscipline, IAutoMovieBuiltBoundary, IAutoMovieServicePenetration } from "@automovie/interface";
-
-
+import {
+  AutoMovieServiceDiscipline,
+  IAutoMovieBuiltBoundary,
+  type IAutoMovieServiceAnalysisSupport,
+  type IAutoMovieServiceCheckReport,
+  IAutoMovieServicePenetration,
+} from "@automovie/interface";
 
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
 
@@ -30,7 +34,11 @@ import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The report describes the supplied network and building now; no capability cache assumes those mutable geometry declarations stay equivalent.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh string/status rows transfer to the caller, retaining neither network nor building objects and acquiring no solver task.
  */
-export const serviceAnalysisSupport: (props: IAutoMovieServiceAnalysisSupport.IProps) => IAutoMovieServiceCheckReport[] = (props: IAutoMovieServiceAnalysisSupport.IProps): IAutoMovieServiceCheckReport[] => {
+export const serviceAnalysisSupport: (
+  props: IAutoMovieServiceAnalysisSupport.IProps,
+) => IAutoMovieServiceCheckReport[] = (
+  props: IAutoMovieServiceAnalysisSupport.IProps,
+): IAutoMovieServiceCheckReport[] => {
   const disciplines: AutoMovieServiceDiscipline[] = [];
   for (const system of props.network.systems)
     if (!disciplines.includes(system.discipline))

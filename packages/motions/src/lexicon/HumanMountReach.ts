@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
@@ -55,12 +59,19 @@ export namespace HumanMountReach {
     sides: readonly ("left" | "right")[],
   ): (points: Partial<Record<"left" | "right", IAutoMovieVector3>>) => number {
     // The shoulders at three flexions, 0, half and the whole of `LEAN`.
-    const angles: readonly [number, number, number] = [0, HumanMountRider.LEAN / 2, HumanMountRider.LEAN];
+    const angles: readonly [number, number, number] = [
+      0,
+      HumanMountRider.LEAN / 2,
+      HumanMountRider.LEAN,
+    ];
     const read: ReturnType<typeof poseBones>[] = angles.map(
       (degrees: number): ReturnType<typeof poseBones> =>
         poseBones(
           body,
-          resolveHumanPosture(body, { ...HumanMountRider.leant(seated, degrees), limbs: {} }),
+          resolveHumanPosture(body, {
+            ...HumanMountRider.leant(seated, degrees),
+            limbs: {},
+          }),
         ),
     );
     const circles: Map<"left" | "right", ICircle> = new Map(

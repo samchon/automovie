@@ -1,10 +1,18 @@
-import type { IAutoMovieLoftFrame, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewOutline, IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanHeadDome, IAutoMovieHumanHeadDomeHost } from "@automovie/interface";
-
-
-
-
-import { AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource } from "@automovie/engine";
-
+import {
+  AutoMovieLoftSectionNative,
+  AutoMovieLoftViewRead,
+  AutoMovieLoftViewSource,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanHeadDome,
+  IAutoMovieHumanHeadDomeHost,
+  IAutoMovieLoftFrame,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * Original material plane, regular contact and transverse curvature for regional caps.
@@ -18,8 +26,6 @@ import { AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSou
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only caller-owned original sources and contact frames survive; no global registry or cache is retained.
  */
 export namespace AutoMovieHumanHeadDomeHost {
-  
-
   /**
    * Original transverse curvature in the supplied query point's radial direction.
    *
@@ -215,7 +221,11 @@ export namespace AutoMovieHumanHeadDomeHost {
       regular: boolean;
     } = (
       parameter: number,
-    ): { host: IAutoMovieHumanHeadDomeHost.IHost; residual: number; regular: boolean } => {
+    ): {
+      host: IAutoMovieHumanHeadDomeHost.IHost;
+      residual: number;
+      regular: boolean;
+    } => {
       const point: [number, number, number] = dome.origin.map(
         (value: number, i: number): number =>
           value + parameter * dome.outward[i]!,

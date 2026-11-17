@@ -1,4 +1,8 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+} from "@automovie/interface";
 
 /**
  * A row: a shipped or registered action under a name of its own, with some
@@ -52,7 +56,9 @@ export namespace HumanActionRow {
       ...(law.accepts === undefined ? {} : { accepts: law.accepts }),
       ...(law.yields === undefined ? {} : { yields: law.yields }),
       ...(law.overlay === undefined ? {} : { overlay: law.overlay }),
-      plan: (context: IAutoMovieMotionHumanActionContext<Omit<P, Fixed>>): IAutoMovieMotionHumanActionPlan =>
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<Omit<P, Fixed>>,
+      ): IAutoMovieMotionHumanActionPlan =>
         law.plan(context as unknown as IAutoMovieMotionHumanActionContext<P>),
       // The owner's demands, read from the resolved parameters as its plan
       // reads them.
@@ -62,7 +68,9 @@ export namespace HumanActionRow {
             demands: (
               ahead: IAutoMovieMotionHumanActionLaw.IAhead<Omit<P, Fixed>>,
             ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] =>
-              law.demands!(ahead as unknown as IAutoMovieMotionHumanActionLaw.IAhead<P>),
+              law.demands!(
+                ahead as unknown as IAutoMovieMotionHumanActionLaw.IAhead<P>,
+              ),
           }),
     };
   }

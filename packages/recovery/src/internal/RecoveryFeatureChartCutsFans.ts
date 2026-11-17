@@ -1,8 +1,7 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryFeatureChartCuts } from "@automovie/interface";
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryFeatureChartCuts,
+} from "@automovie/interface";
 
 type Input = Parameters<IAutoMovieRecoveryFeatureChartCuts.Operation>[0];
 

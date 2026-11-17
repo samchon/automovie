@@ -1,5 +1,3 @@
-
-
 /**
  * Uncompressed two-dimensional texel-storage measurement inputs.
  *

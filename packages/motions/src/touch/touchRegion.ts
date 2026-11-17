@@ -1,6 +1,16 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTouchSite, IAutoMovieMotionTarget, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTouchSite,
+  IAutoMovieMotionTarget,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
@@ -54,7 +64,10 @@ export namespace touchRegion {
   ): (
     target: IAutoMovieMotionTarget,
     legs: boolean,
-  ) => (posture: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanTouchSite.IFrame {
+  ) => (
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+  ) => IAutoMovieMotionHumanTouchSite.IFrame {
     const body: IAutoMovieMotionHumanBody = context.body;
     const sited: ReturnType<typeof touchSite.of> | undefined =
       site === undefined ? undefined : touchSite.of(context, site);
@@ -79,30 +92,37 @@ export namespace touchRegion {
     return (
         aimed: IAutoMovieMotionTarget,
         legs: boolean,
-      ): ((posture: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanTouchSite.IFrame) =>
-      (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanTouchSite.IFrame => {
-        const frame: IAutoMovieMotionHumanTouchSite.IFrame = AutoMovieMotionHumanTouch.region(
-          context,
-          aimed,
-          context.start + seconds,
-          posture,
-          legs && onLeg(body, aimed)
-            ? poseBones(
-                body,
-                resolveHumanPosture(body, {
-                  ...posture,
-                  limbs: {
-                    ...(posture.limbs.leftLeg === undefined
-                      ? {}
-                      : { leftLeg: posture.limbs.leftLeg }),
-                    ...(posture.limbs.rightLeg === undefined
-                      ? {}
-                      : { rightLeg: posture.limbs.rightLeg }),
-                  },
-                }),
-              )
-            : bones,
-        );
+      ): ((
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ) => IAutoMovieMotionHumanTouchSite.IFrame) =>
+      (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanTouchSite.IFrame => {
+        const frame: IAutoMovieMotionHumanTouchSite.IFrame =
+          AutoMovieMotionHumanTouch.region(
+            context,
+            aimed,
+            context.start + seconds,
+            posture,
+            legs && onLeg(body, aimed)
+              ? poseBones(
+                  body,
+                  resolveHumanPosture(body, {
+                    ...posture,
+                    limbs: {
+                      ...(posture.limbs.leftLeg === undefined
+                        ? {}
+                        : { leftLeg: posture.limbs.leftLeg }),
+                      ...(posture.limbs.rightLeg === undefined
+                        ? {}
+                        : { rightLeg: posture.limbs.rightLeg }),
+                    },
+                  }),
+                )
+              : bones,
+          );
         if (sited === undefined || aimed !== target) return frame;
         return along === undefined
           ? sited(frame, shoulder)

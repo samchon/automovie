@@ -10,7 +10,6 @@ import type { IAutoMovieRecoveryEventChart } from "../../index";
  */
 
 export interface IAutoMovieRecoveryAnnularChart extends IAutoMovieRecoveryEventChart {
- 
- /** Left and right reference the same seam occurrence authority. */
+  /** Left and right reference the same seam occurrence authority. */
   periodic: true;
 }

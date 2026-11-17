@@ -1,5 +1,7 @@
-import { type IAutoMovieHemisphereDirections, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieHemisphereDirections,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 
@@ -33,7 +35,11 @@ const AXIS_EPSILON: number = 1e-12;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The daylight analyzer builds the set once per study and shares it across every grid cell, which is valid because the set depends only on the plane normal and `diffuseSamples`, both fixed for the study.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one new array of N vectors owned by the caller and retains nothing; N is the caller's `diffuseSamples`, which nothing caps beyond being a safe integer, so that allocation has no bound.
  */
-export const autoMovieHemisphereDirections: (props: IAutoMovieHemisphereDirections.IProps) => IAutoMovieVector3[] = (props: IAutoMovieHemisphereDirections.IProps): IAutoMovieVector3[] => {
+export const autoMovieHemisphereDirections: (
+  props: IAutoMovieHemisphereDirections.IProps,
+) => IAutoMovieVector3[] = (
+  props: IAutoMovieHemisphereDirections.IProps,
+): IAutoMovieVector3[] => {
   const count: number = props.count;
   if (!Number.isSafeInteger(count) || count < 1)
     throw new Error(

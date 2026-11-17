@@ -1,3 +1,6 @@
+import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { AutoMovieMotionHumanActionKey } from "../AutoMovieMotionHumanActionKey";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
@@ -6,12 +9,9 @@ import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanInterruptRow } from "../law/IAutoMovieMotionHumanInterruptRow";
 import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLayer";
-import type { IAutoMovieMotionHumanPerformer } from "./IAutoMovieMotionHumanPerformer";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanSkill } from "../skill/IAutoMovieMotionHumanSkill";
-import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
-import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanPerformer } from "./IAutoMovieMotionHumanPerformer";
 
 /**
  * One placed action of one person, and how a person's displayed pose is

@@ -1,5 +1,8 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePreparePhysicalGeometry, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePreparePhysicalGeometry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -27,9 +30,13 @@ export function linearizePhysicalSeparation(
   a: IAutoMoviePreparePhysicalGeometry.ICollider,
   b: IAutoMoviePreparePhysicalGeometry.ICollider,
   measured?: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]>,
-): (first: IAutoMoviePhysicalProfile.ITransform, second: IAutoMoviePhysicalProfile.ITransform) => number {
-  const receipt: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =
-    measured === undefined ? geometry.contact(a, b, 0) : measured;
+): (
+  first: IAutoMoviePhysicalProfile.ITransform,
+  second: IAutoMoviePhysicalProfile.ITransform,
+) => number {
+  const receipt: ReturnType<
+    IAutoMoviePreparePhysicalGeometry.IQueries["contact"]
+  > = measured === undefined ? geometry.contact(a, b, 0) : measured;
   if (!receipt || receipt.separation >= 0) return (): number => 0;
   const first: IAutoMovieVector3 = Vector3.subtract(
     receipt.point,
@@ -48,7 +55,10 @@ export function linearizePhysicalSeparation(
     Vector3.subtract(second, b.pose.position),
   );
   const difference: IAutoMovieVector3 = Vector3.subtract(second, first);
-  return (poseA: IAutoMoviePhysicalProfile.ITransform, poseB: IAutoMoviePhysicalProfile.ITransform): number =>
+  return (
+    poseA: IAutoMoviePhysicalProfile.ITransform,
+    poseB: IAutoMoviePhysicalProfile.ITransform,
+  ): number =>
     receipt.separation +
     Vector3.dot(
       receipt.normal,

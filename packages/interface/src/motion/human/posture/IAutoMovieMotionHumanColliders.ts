@@ -1,6 +1,6 @@
-import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
-import type { IAutoMoviePhysicalProfile } from "../../../physics/IAutoMoviePhysicalProfile";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMoviePhysicalProfile } from "../../../physics/IAutoMoviePhysicalProfile";
+import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 
 /**
  * A posed body's colliders as signed distances: how far a point, or a

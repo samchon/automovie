@@ -1,5 +1,3 @@
-
-
 /**
  * One topological or shape defect of a triangle mesh, located by the vertices that carry it, as `measureAutoMovieMeshDefects` lists them.
  *
@@ -25,19 +23,19 @@ export interface IAutoMovieMeshDefect {
 /** Data and callback contracts shared by the MeshDefect operations. */
 export namespace IAutoMovieMeshDefect {
   /**
-     * The defect classes `measureAutoMovieMeshDefects` tells apart.
-     *
-     * `open`, `non-manifold` and `inconsistent` are edge kinds: an edge between two welded corners used by exactly one triangle, by more than two, or by exactly two that traverse it in the same direction. `degenerate` and `sliver` are triangle kinds: a triangle whose corners weld onto fewer than three lattice cells, or a triangle on three distinct cells whose aspect exceeds the caller's limit.
-     *
-     * @evidence contracts/development/design.md#principled-representation A closed union of the five classes the edge census and the triangle tests can produce, so a consumer's switch over it is exhaustive and no other string can be written.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Owned with `IAutoMovieMeshDefect`; the producer writes each literal and the viewer's inspection instrument maps each to a colour and a legend entry.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts The union does not split edge kinds from triangle kinds into two types, since its consumers handle both through the one record; which kinds are which is stated here instead.
-     * @evidence contracts/development/common.md#meaningful-documentation Defines each literal by its incidence or shape condition and says which are edge kinds and which are triangle kinds.
-     */
-    export type Kind =
-      | "open"
-      | "non-manifold"
-      | "inconsistent"
-      | "degenerate"
-      | "sliver";
+   * The defect classes `measureAutoMovieMeshDefects` tells apart.
+   *
+   * `open`, `non-manifold` and `inconsistent` are edge kinds: an edge between two welded corners used by exactly one triangle, by more than two, or by exactly two that traverse it in the same direction. `degenerate` and `sliver` are triangle kinds: a triangle whose corners weld onto fewer than three lattice cells, or a triangle on three distinct cells whose aspect exceeds the caller's limit.
+   *
+   * @evidence contracts/development/design.md#principled-representation A closed union of the five classes the edge census and the triangle tests can produce, so a consumer's switch over it is exhaustive and no other string can be written.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned with `IAutoMovieMeshDefect`; the producer writes each literal and the viewer's inspection instrument maps each to a colour and a legend entry.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The union does not split edge kinds from triangle kinds into two types, since its consumers handle both through the one record; which kinds are which is stated here instead.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines each literal by its incidence or shape condition and says which are edge kinds and which are triangle kinds.
+   */
+  export type Kind =
+    | "open"
+    | "non-manifold"
+    | "inconsistent"
+    | "degenerate"
+    | "sliver";
 }

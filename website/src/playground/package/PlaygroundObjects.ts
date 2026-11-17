@@ -1,5 +1,4 @@
 import type { IAutoMovieMotionHumanProp } from "@automovie/interface";
-
 import * as motions from "@automovie/motions";
 
 import { SceneArchetype } from "../../scenes/package/SceneArchetype";
@@ -20,7 +19,11 @@ export namespace PlaygroundObjects {
   /** `HumanObject` as this module calls it, present only where the installed package has it. */
   interface IHumanObject {
     /** The prop of a model placed in the world. */
-    prop(subject: string, model: object, placement: IPlacement): IAutoMovieMotionHumanProp;
+    prop(
+      subject: string,
+      model: object,
+      placement: IPlacement,
+    ): IAutoMovieMotionHumanProp;
 
     /** The seat of a model placed in the world. */
     seat(model: object, placement: IPlacement, id?: string): unknown;
@@ -63,16 +66,18 @@ export namespace PlaygroundObjects {
     const human: IHumanObject = attach();
     // An object worn at the start rides the wearer's bone until a hand
     // draws it, as `IHumanProp.worn` says.
-    return objects.map((object: IPlaygroundComposition.IObject): IAutoMovieMotionHumanProp => {
-      const made: IAutoMovieMotionHumanProp = human.prop(
-        object.subject,
-        model(object),
-        placement(object),
-      );
-      return object.worn === undefined
-        ? made
-        : ({ ...made, worn: object.worn } as IAutoMovieMotionHumanProp);
-    });
+    return objects.map(
+      (object: IPlaygroundComposition.IObject): IAutoMovieMotionHumanProp => {
+        const made: IAutoMovieMotionHumanProp = human.prop(
+          object.subject,
+          model(object),
+          placement(object),
+        );
+        return object.worn === undefined
+          ? made
+          : ({ ...made, worn: object.worn } as IAutoMovieMotionHumanProp);
+      },
+    );
   }
 
   /**

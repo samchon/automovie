@@ -1,6 +1,15 @@
-import type { IAutoMovieProductionSoundRaster, IAutoMovieRenderedProductionSound, IAutoMovieCompiledShotSource, IAutoMovieProductionSoundPlan } from "@automovie/interface";
-import { deriveProductionSoundPlan, productionSoundSpectrogram, productionSoundWaveform, renderProductionSound } from "@automovie/engine";
-
+import {
+  deriveProductionSoundPlan,
+  productionSoundSpectrogram,
+  productionSoundWaveform,
+  renderProductionSound,
+} from "@automovie/engine";
+import type {
+  IAutoMovieCompiledShotSource,
+  IAutoMovieProductionSoundPlan,
+  IAutoMovieProductionSoundRaster,
+  IAutoMovieRenderedProductionSound,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";

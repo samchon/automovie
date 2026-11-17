@@ -1,6 +1,26 @@
-import type { IAutoMovieFitDigitToTarget, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieResolvedBone, IAutoMovieViolationCollector, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieJointConstraint, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, ViolationCollector, fitDigitToTarget, getConstraint, resolveAutoMovieHumanoidSurfaces, validateJointRom } from "@automovie/engine";
-
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Vector3,
+  ViolationCollector,
+  fitDigitToTarget,
+  getConstraint,
+  resolveAutoMovieHumanoidSurfaces,
+  validateJointRom,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieFitDigitToTarget,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieJointConstraint,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+  IAutoMovieViolationCollector,
+} from "@automovie/interface";
 import { poseBones } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -179,7 +199,8 @@ export function test_engine_digit_fit(): void {
             null,
         );
         if (constraint === null) continue;
-        const collector: IAutoMovieViolationCollector = new ViolationCollector();
+        const collector: IAutoMovieViolationCollector =
+          new ViolationCollector();
         validateJointRom({ joint: j, constraint, path: j.bone, collector });
         for (const item of collector.items)
           outside.push(JSON.stringify(item).slice(0, 160));
@@ -202,7 +223,12 @@ export function test_engine_digit_fit(): void {
     "indexTipRight",
   ).point;
   const far: IAutoMovieVector3 = Vector3.add(rest, { x: -0.2, y: 0, z: 0 });
-  const beyond: IAutoMovieFitDigitToTarget.IResult = fit(body, "right", "Index", far);
+  const beyond: IAutoMovieFitDigitToTarget.IResult = fit(
+    body,
+    "right",
+    "Index",
+    far,
+  );
   let nearest: number = Infinity;
   for (let k: number = 0; k < 200; k++) {
     const pose: IAutoMoviePose = posed(

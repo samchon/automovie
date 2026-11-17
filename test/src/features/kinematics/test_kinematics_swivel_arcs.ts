@@ -1,5 +1,5 @@
-import type { IAutoMovieSwivelArcs } from "@automovie/interface";
 import { swivelArcs } from "@automovie/engine";
+import type { IAutoMovieSwivelArcs } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -40,7 +40,11 @@ export function test_kinematics_swivel_arcs(): void {
     return seed / 2147483648 - 0.5;
   };
   for (let k: number = 0; k < 50; k++) {
-    const f: IAutoMovieSwivelArcs.ISinusoid = { a: random(), b: random(), c: random() };
+    const f: IAutoMovieSwivelArcs.ISinusoid = {
+      a: random(),
+      b: random(),
+      c: random(),
+    };
     const fit: IAutoMovieSwivelArcs.ISinusoid = swivelArcs.fitted(
       value(f, 0),
       value(f, 90),
@@ -55,7 +59,10 @@ export function test_kinematics_swivel_arcs(): void {
 
   // 2. The arc above a margin.
   const f: IAutoMovieSwivelArcs.ISinusoid = { a: 0.2, b: 0.6, c: -0.8 };
-  const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(f, 0.5);
+  const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(
+    f,
+    0.5,
+  );
   TestValidator.predicate(
     "above finds an arc",
     typeof arc === "object" && arc !== null,

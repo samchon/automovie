@@ -1,5 +1,23 @@
-import { type IAutoMovieFramedBox, type IAutoMovieFramedSubject, type IAutoMovieCreatePerformShotSubjectFramer, type IAutoMovieEnginePerformShotGateContext, IAutoMovieActionTarget, IAutoMovieClip, IAutoMovieCompiledFormation, IAutoMovieFormationMotion, IAutoMovieGroupTarget, IAutoMovieModel, IAutoMovieMotion, IAutoMovieQuaternion, IAutoMovieSceneNode, IAutoMovieSkeleton, IAutoMovieSubjectBox, IAutoMovieTrack, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieActionTarget,
+  IAutoMovieClip,
+  IAutoMovieCompiledFormation,
+  type IAutoMovieCreatePerformShotSubjectFramer,
+  type IAutoMovieEnginePerformShotGateContext,
+  IAutoMovieFormationMotion,
+  type IAutoMovieFramedBox,
+  type IAutoMovieFramedSubject,
+  IAutoMovieGroupTarget,
+  IAutoMovieModel,
+  IAutoMovieMotion,
+  IAutoMovieQuaternion,
+  IAutoMovieSceneNode,
+  IAutoMovieSkeleton,
+  IAutoMovieSubjectBox,
+  IAutoMovieTrack,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { animatedBaseAt } from "./animatedBaseAt";
 import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
@@ -212,7 +230,8 @@ function movementOf(
   node: string | null,
   point: IAutoMovieVector3,
 ): ((seconds: number) => IAutoMovieVector3) | null {
-  const targetAt: IAutoMovieEnginePerformShotGateContext["targetAt"] = context.targetAt;
+  const targetAt: IAutoMovieEnginePerformShotGateContext["targetAt"] =
+    context.targetAt;
   if (on.kind === "bone" && targetAt !== undefined)
     return (seconds: number): IAutoMovieVector3 =>
       targetAt(on, seconds) ?? point;

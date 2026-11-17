@@ -1,5 +1,3 @@
-import type { IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMoviePhysicalProfile, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   AutoMovieHumanoidSurfaceRays,
   Quaternion,
@@ -7,6 +5,13 @@ import {
   convexHull2D,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
+import type {
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * A foot's outline on its sole: the corners of the outline of the foot's

@@ -1,4 +1,12 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanLimbFitFrame, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieSeededChainFit, IAutoMovieSwivelNear, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLimbFitFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelNear,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanArmMirror } from "./HumanArmMirror";
 import { HumanLimbFit } from "./HumanLimbFit";
@@ -121,10 +129,8 @@ export namespace HumanLimbFitMemory {
     // Keyed and solved in the root's floor frame (`HumanLimbFitFrame`), so
     // one body doing the same thing elsewhere or facing elsewhere shares the
     // fit; handed back with the caller's root and the seed as it is.
-    const frame: IAutoMovieMotionHumanLimbFitFrame.IFrame | null = HumanLimbFitFrame.of(
-      pose,
-      goal,
-    );
+    const frame: IAutoMovieMotionHumanLimbFitFrame.IFrame | null =
+      HumanLimbFitFrame.of(pose, goal);
     const own: IAutoMoviePose =
       frame === null ? pose : HumanLimbFitFrame.pose(frame, pose);
     const aim: IAutoMovieMotionHumanPosture.IGoal =

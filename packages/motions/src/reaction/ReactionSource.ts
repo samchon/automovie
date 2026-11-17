@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget, IAutoMovieMotionTarget } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionTarget,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { StrikingBody } from "../striking/StrikingBody";
@@ -41,7 +46,10 @@ export namespace ReactionSource {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function at(
-    context: Pick<IAutoMovieMotionHumanActionContext, "aim" | "body" | "performer">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "aim" | "body" | "performer"
+    >,
     from: IAutoMovieMotionTarget | undefined,
     seconds: number,
     posture: IAutoMovieMotionHumanPosture,
@@ -55,9 +63,8 @@ export namespace ReactionSource {
         posture,
         place,
       );
-    const other: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(
-      from.subject,
-    );
+    const other: IAutoMovieMotionHumanActionContext.IPerformer =
+      context.performer(from.subject);
     return {
       ...StrikingBody.region(other.body, other.bones(seconds), from.region),
       solid: true,

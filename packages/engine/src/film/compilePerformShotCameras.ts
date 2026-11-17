@@ -1,5 +1,17 @@
-import { type IAutoMovieCameraFrameEntry, type IAutoMovieFramedSubject, type IAutoMovieCompilePerformShotCameras, type IAutoMovieEnginePerformShotGateContext, type IAutoMoviePerformShotCoverageJob, type IAutoMoviePerformShotFrameJob, IAutoMovieActionTarget, IAutoMovieCamera, IAutoMovieCameraIntent, IAutoMovieClip, IAutoMovieShot, IAutoMovieShotCoverage } from "@automovie/interface";
-
+import {
+  IAutoMovieActionTarget,
+  IAutoMovieCamera,
+  type IAutoMovieCameraFrameEntry,
+  IAutoMovieCameraIntent,
+  IAutoMovieClip,
+  type IAutoMovieCompilePerformShotCameras,
+  type IAutoMovieEnginePerformShotGateContext,
+  type IAutoMovieFramedSubject,
+  type IAutoMoviePerformShotCoverageJob,
+  type IAutoMoviePerformShotFrameJob,
+  IAutoMovieShot,
+  IAutoMovieShotCoverage,
+} from "@automovie/interface";
 
 import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
 import { compileCameraCoverage } from "./compileCameraCoverage";
@@ -60,7 +72,10 @@ export function compilePerformShotCameras(
     aspect: props.aspect,
   });
   const coverage: IAutoMovieShotCoverage[] = props.coverageJobs.map(
-    ({ intent, camera }: IAutoMoviePerformShotCoverageJob): IAutoMovieShotCoverage =>
+    ({
+      intent,
+      camera,
+    }: IAutoMoviePerformShotCoverageJob): IAutoMovieShotCoverage =>
       compileCameraCoverage({
         camera,
         clipId: `cam:${props.scope}:${camera.id}`,

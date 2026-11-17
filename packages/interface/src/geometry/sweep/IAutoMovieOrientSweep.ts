@@ -5,7 +5,7 @@ export namespace IAutoMovieOrientSweep {
   /**
    * Create the station-rotation buffers of a sweep and the in-place
    * computation of its section planes.
-   * 
+   *
    * The carried frame at `u` is the transport's rotation-minimizing frame, or
    * under the fixed orientation its first frame's axes moved to the spine
    * point. `update` stores each giving station's turn relative to the carried

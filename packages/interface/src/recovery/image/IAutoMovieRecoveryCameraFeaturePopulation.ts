@@ -6,31 +6,24 @@
  * @evidence contracts/development/common.md#meaningful-documentation Members identify the source and explain each preselection, retained and omitted population.
  */
 export interface IAutoMovieRecoveryCameraFeaturePopulation {
- 
- /** Source identity for the detector counters. */
+  /** Source identity for the detector counters. */
   viewId: string;
 
- 
- /** Interior response maxima before quadratic/orientation/window admission. */
+  /** Interior response maxima before quadratic/orientation/window admission. */
   rawCorners: number;
 
- 
- /** Descriptor-window-valid candidates entering ANMS. */
+  /** Descriptor-window-valid candidates entering ANMS. */
   validCandidates: number;
 
- 
- /** ANMS-selected points before actual descriptor observation. */
+  /** ANMS-selected points before actual descriptor observation. */
   selectedBeforeDescriptor: number;
 
- 
- /** Retained finite nonzero normalized descriptors. */
+  /** Retained finite nonzero normalized descriptors. */
   observedDescriptors: number;
 
- 
- /** Selected points omitted for an unresolved descriptor norm. */
+  /** Selected points omitted for an unresolved descriptor norm. */
   zeroDescriptors: number;
 
- 
- /** Selected points omitted when floating sample coordinates cross their image support. */
+  /** Selected points omitted when floating sample coordinates cross their image support. */
   invalidSupportDescriptors: number;
 }

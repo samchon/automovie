@@ -1,16 +1,16 @@
-import type { IAutoMovieCaptureCell, IAutoMovieCaptureDrawing, IAutoMovieCapturePlan, IAutoMovieCapturePlanRequest, IAutoMovieCaptureRecord, IAutoMovieCaptureSubject, IAutoMovieRunVideoCaptureProps } from "@automovie/interface";
-
+import type {
+  IAutoMovieCaptureCell,
+  IAutoMovieCaptureDrawing,
+  IAutoMovieCapturePlan,
+  IAutoMovieCapturePlanRequest,
+  IAutoMovieCaptureRecord,
+  IAutoMovieCaptureSubject,
+  IAutoMovieRunVideoCaptureProps,
+} from "@automovie/interface";
 
 import { decodeAutoMovieRasterPng } from "../picture/decodeAutoMovieRasterPng.js";
 import { formatAutoMovieInspectionRequest } from "../scene/inspection/formatAutoMovieInspectionRequest.js";
 import { AutoMovieCaptureFolder } from "./AutoMovieCaptureFolder.js";
-
-
-
-
-
-
-
 import { planAutoMovieCapture } from "./planAutoMovieCapture.js";
 import { planAutoMovieVideoFrames } from "./planAutoMovieVideoFrames.js";
 import { planAutoMovieVideoSceneCuts } from "./planAutoMovieVideoSceneCuts.js";
@@ -48,7 +48,9 @@ const BACKEND: string = "ffmpeg";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each run detects and extracts afresh, because the file may have changed.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Extracted stills wait in the folder, claimed by its record, and each is deleted once read; one decoded still is held at a time.
  */
-export async function runAutoMovieVideoCapture(props: IAutoMovieRunVideoCaptureProps): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
+export async function runAutoMovieVideoCapture(
+  props: IAutoMovieRunVideoCaptureProps,
+): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
   // 1. What a file cannot give is refused before the folder is touched.
   const { request } = props;
   if (

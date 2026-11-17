@@ -8,4 +8,6 @@ import type { AutoMovieOrderedScalar } from "./AutoMovieOrderedScalar.js";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The documented boundary preserves its producer's admitted values and does not introduce a fallback representation.
  * @evidence contracts/development/common.md#meaningful-documentation Defines the concrete producer, interpretation and failure or comparison semantics.
  */
-export type AutoMovieOrderedEntry = AutoMovieOrderedScalar | readonly AutoMovieOrderedScalar[];
+export type AutoMovieOrderedEntry =
+  | AutoMovieOrderedScalar
+  | readonly AutoMovieOrderedScalar[];

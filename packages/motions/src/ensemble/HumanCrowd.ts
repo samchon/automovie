@@ -1,6 +1,15 @@
-import type { IAutoMovieCrowdAgent, IAutoMovieMotionHumanCrowd, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanObstacle, IAutoMovieMotionHumanSkill, IAutoMovieRandom, IAutoMovieSteerCrowd, IAutoMovieVector3 } from "@automovie/interface";
-
 import { AutoMovieGravity, steerAutoMovieCrowd } from "@automovie/engine";
+import type {
+  IAutoMovieCrowdAgent,
+  IAutoMovieMotionHumanCrowd,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanObstacle,
+  IAutoMovieMotionHumanSkill,
+  IAutoMovieRandom,
+  IAutoMovieSteerCrowd,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { run } from "../actions/run";
 import { walk } from "../actions/walk";
@@ -57,7 +66,10 @@ export namespace HumanCrowd {
   export function desired(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
     m: IAutoMovieMotionHumanEnsemble.IMember,
-    request: Pick<IAutoMovieMotionHumanCrowd.IRequest, "gait" | "latency" | "flight">,
+    request: Pick<
+      IAutoMovieMotionHumanCrowd.IRequest,
+      "gait" | "latency" | "flight"
+    >,
   ): IAutoMovieMotionHumanCrowd.IDesired {
     const skill: IAutoMovieMotionHumanSkill.ISkill = HumanSkill.resolve(
       m.proficiency,
@@ -128,8 +140,10 @@ export namespace HumanCrowd {
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
     request: IAutoMovieMotionHumanCrowd.IRequest,
   ): IAutoMovieMotionHumanCrowd.IResult {
-    const members: readonly IAutoMovieMotionHumanEnsemble.IMember[] = ensemble.members;
-    const grouped: Map<number, IAutoMovieMotionHumanEnsemble.IGroup> = new Map();
+    const members: readonly IAutoMovieMotionHumanEnsemble.IMember[] =
+      ensemble.members;
+    const grouped: Map<number, IAutoMovieMotionHumanEnsemble.IGroup> =
+      new Map();
     for (const group of request.groups ?? [])
       for (const index of group.members) grouped.set(index, group);
 
@@ -140,12 +154,17 @@ export namespace HumanCrowd {
     );
     const agents: IAutoMovieCrowdAgent[] = leaders.map(
       (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieCrowdAgent => {
-        const group: IAutoMovieMotionHumanEnsemble.IGroup | undefined = grouped.get(m.index);
+        const group: IAutoMovieMotionHumanEnsemble.IGroup | undefined =
+          grouped.get(m.index);
         const breadth: number = (group?.members ?? [m.index]).reduce(
           (sum: number, i: number): number => sum + 2 * half(members[i]!),
           0,
         );
-        const { speed, delay }: IAutoMovieMotionHumanCrowd.IDesired = desired(ensemble, m, request);
+        const { speed, delay }: IAutoMovieMotionHumanCrowd.IDesired = desired(
+          ensemble,
+          m,
+          request,
+        );
         return {
           at: m.place.at,
           goal: request.goals(m),
@@ -167,7 +186,9 @@ export namespace HumanCrowd {
     const obstacles: IAutoMovieCrowdAgent.IObstacle[] = (
       request.obstacles ?? []
     ).map(
-      (o: IAutoMovieMotionHumanObstacle.IObstacle): IAutoMovieCrowdAgent.IObstacle => ({
+      (
+        o: IAutoMovieMotionHumanObstacle.IObstacle,
+      ): IAutoMovieCrowdAgent.IObstacle => ({
         footprint: o.footprint,
         ...(o.motion === undefined ? {} : { motion: o.motion }),
       }),
@@ -200,7 +221,10 @@ export namespace HumanCrowd {
     const step: number = 1 / 24;
     const count: number = Math.ceil((request.until - request.start) / step);
     const frames: IAutoMovieMotionHumanFormation.ICourse[] = leaders.map(
-      (_: IAutoMovieMotionHumanEnsemble.IMember, a: number): IAutoMovieMotionHumanFormation.ICourse => {
+      (
+        _: IAutoMovieMotionHumanEnsemble.IMember,
+        a: number,
+      ): IAutoMovieMotionHumanFormation.ICourse => {
         const samples: IAutoMovieMotionHumanFormation.ISample[] = [];
         for (let k: number = 0; k <= count; ++k) {
           const seconds: number = Math.min(
@@ -214,17 +238,20 @@ export namespace HumanCrowd {
       },
     );
     const byLeader: Map<number, number> = new Map(
-      leaders.map((m: IAutoMovieMotionHumanEnsemble.IMember, a: number): [number, number] => [
-        m.index,
-        a,
-      ]),
+      leaders.map(
+        (
+          m: IAutoMovieMotionHumanEnsemble.IMember,
+          a: number,
+        ): [number, number] => [m.index, a],
+      ),
     );
     const agentOf = (m: IAutoMovieMotionHumanEnsemble.IMember): number =>
       byLeader.get(grouped.get(m.index)?.members[0] ?? m.index)!;
     return {
       frames: members.map(
-        (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieMotionHumanFormation.ICourse =>
-          frames[agentOf(m)]!,
+        (
+          m: IAutoMovieMotionHumanEnsemble.IMember,
+        ): IAutoMovieMotionHumanFormation.ICourse => frames[agentOf(m)]!,
       ),
       arrivals: members.map(
         (m: IAutoMovieMotionHumanEnsemble.IMember): number | null =>

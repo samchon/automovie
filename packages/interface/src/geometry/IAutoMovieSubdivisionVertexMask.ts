@@ -1,5 +1,3 @@
-
-
 /**
  * Weights that place one refined vertex point from its parent neighbourhood.
  *

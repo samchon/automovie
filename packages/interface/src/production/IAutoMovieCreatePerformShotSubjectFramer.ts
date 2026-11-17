@@ -1,8 +1,8 @@
 import type { IAutoMovieClip } from "../core/IAutoMovieClip";
-import type { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
+import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieModel } from "../model/IAutoMovieModel";
 import type { IAutoMovieMotion } from "../motion/IAutoMovieMotion";
-import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
 
 /**
  * Final shot artifacts borrowed by the camera subject-framing closure.
@@ -23,25 +23,25 @@ export namespace IAutoMovieCreatePerformShotSubjectFramer {
    * @evidence contracts/development/common.md#meaningful-documentation Final shot artifacts borrowed by the camera subject-framing closure. Models supply model-metre bounds, rotations place motion under staged world facing, and all clips/cues are sampled on shot-local seconds. Missing geometry falls back to rig span and then the stand-in.
    */
   export type IProps = {
-      /**
+    /**
      * Borrowed compiled model registry, retained by the returned closure. Undefined or an unresolved model uses the node's rig span, then the stand-in height; measured extents are cached per node.
      */
     models: readonly IAutoMovieModel[] | undefined;
-      /**
+    /**
      * Borrowed shot-local formation cues. Empty means formations remain at rest; a cued group's follow position changes while its opening height and radius stay fixed.
      */
     formationMotions: readonly IAutoMovieFormationMotion[];
-      /**
+    /**
      * Borrowed compiled actor motions keyed by node id. With a staged rotation, a motion drives the subject's base; absent motion falls through to object clips or a stationary subject.
      */
     motions: Readonly<Record<string, IAutoMovieMotion>>;
-      /**
+    /**
      * Borrowed final object clips in producer order. The framing closure samples their effective translation channel authority after coupling, using the staged point where none applies.
      */
     objectMotions: readonly IAutoMovieClip[];
-      /**
+    /**
      * Borrowed map of scene-node world-facing quaternions. A node must have a facing here to follow its actor motion; camera subjects have no staged node facing.
      */
     rotations: ReadonlyMap<string, IAutoMovieQuaternion>;
-    };
+  };
 }

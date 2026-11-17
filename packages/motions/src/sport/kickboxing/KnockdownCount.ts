@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanKickboxingRing, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanKickboxingRing,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { KickboxingRing } from "./KickboxingRing";
 

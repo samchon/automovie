@@ -1,6 +1,17 @@
-import type { AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanCarryHang, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanCarryHang,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -71,11 +82,11 @@ export namespace carryHang {
     const body = context.body;
     const duration: number = p.seconds ?? 3;
     HumanBound.above("seconds", duration, 0, "s");
-    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      duration,
-    );
-    const sides: IAutoMovieMotionHumanHand.Side[] = (["left", "right"] as const).filter(
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, duration);
+    const sides: IAutoMovieMotionHumanHand.Side[] = (
+      ["left", "right"] as const
+    ).filter(
       (side: IAutoMovieMotionHumanHand.Side): boolean => p[side] !== undefined,
     );
     const bones = poseBones(body, context.entry.pose);
@@ -99,7 +110,9 @@ export namespace carryHang {
       contacts: [
         ...base.contacts,
         ...sides.map(
-          (side: IAutoMovieMotionHumanHand.Side): IAutoMovieMotionHumanContactWindow => ({
+          (
+            side: IAutoMovieMotionHumanHand.Side,
+          ): IAutoMovieMotionHumanContactWindow => ({
             part: `${side}Hand`,
             kind: "grip",
             from: 0,
@@ -128,8 +141,12 @@ export namespace carryHang {
         const posture: IAutoMovieMotionHumanPosture = base.posture(t);
         const share: number = minimumJerk(Math.min(1, t / SETTLE)).s;
         const trunk = HumanTrunk.resolve(body, posture);
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-        let joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+          ...posture.limbs,
+        };
+        let joints: IAutoMovieMotionHumanPosture["joints"] = {
+          ...posture.joints,
+        };
         for (const side of sides) {
           const shoulder: IAutoMovieVector3 = trunk.get(
             `${side}UpperArm`,
@@ -157,7 +174,10 @@ export namespace carryHang {
         }
         const walked = resolveHumanPosture(body, posture);
         const run: Partial<
-          Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanArmAngles.IAngles>
+          Record<
+            IAutoMovieMotionHumanHand.Side,
+            IAutoMovieMotionHumanArmAngles.IAngles
+          >
         > = Object.fromEntries(
           sides.map((side: IAutoMovieMotionHumanHand.Side) => [
             side,

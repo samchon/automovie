@@ -1,5 +1,10 @@
-import { type IAutoMovieClipShapeFault, type IAutoMovieSampledChannel, IAutoMovieClip, IAutoMovieQuaternion, IAutoMovieTrack } from "@automovie/interface";
-
+import {
+  IAutoMovieClip,
+  type IAutoMovieClipShapeFault,
+  IAutoMovieQuaternion,
+  type IAutoMovieSampledChannel,
+  IAutoMovieTrack,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { cubicHermiteValue } from "../math/cubicHermiteValue";

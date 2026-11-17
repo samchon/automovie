@@ -1,4 +1,5 @@
 import type { IAutoMovieSubdivisionTopology } from "@automovie/interface";
+
 /**
  * Build the edges and vertex fans of polygon rows, refusing anything that is
  * not an oriented manifold.

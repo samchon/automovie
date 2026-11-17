@@ -7,7 +7,7 @@ export namespace IAutoMovieMapSurfaceTier {
   /**
    * Inputs for carrying a point bound to one tier's cage onto another tier of the same
    * network.
-   * 
+   *
    * The point's face and local coordinates on the source tier give its surface
    * coordinate, the bilinear blend of the face's corner coordinates, which is
    * exact on a grid patch because every face spans an axis-aligned rectangle of

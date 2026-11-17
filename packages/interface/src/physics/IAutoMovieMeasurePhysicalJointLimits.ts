@@ -1,5 +1,3 @@
-
-
 /** World-pose-derived angular coordinates and unadjusted physical-joint limit violations. */
 export namespace IAutoMovieMeasurePhysicalJointLimits {
   /**
@@ -12,14 +10,14 @@ export namespace IAutoMovieMeasurePhysicalJointLimits {
    * @evidence contracts/development/design.md#minimal-and-owned-surface measurePhysicalJointLimits computes these from displayed parent and child poses; the caller independently chooses acceptable numerical tolerance.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Free coordinates use wrapped twist projection and distance to the nearest limit; omitted axes are locked and report absolute locked-coordinate error. This measurement does not apply a solver tolerance.
    */
-  export type IResult = { 
-  
-  /** Coordinate of the joint frame; all three axes are reported, including locked axes. */
-  axis: "x" | "y" | "z"; 
-  
-  /** Signed measured coordinate wrapped to [-pi, pi], radians. */
-  angle: number; 
-  
-  /** Nonnegative shortest angular distance outside the declared interval, radians; zero inside, absolute angle for a locked axis. */
-  violation: number }[];
+  export type IResult = {
+    /** Coordinate of the joint frame; all three axes are reported, including locked axes. */
+    axis: "x" | "y" | "z";
+
+    /** Signed measured coordinate wrapped to [-pi, pi], radians. */
+    angle: number;
+
+    /** Nonnegative shortest angular distance outside the declared interval, radians; zero inside, absolute angle for a locked axis. */
+    violation: number;
+  }[];
 }

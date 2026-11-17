@@ -1,5 +1,12 @@
-import { type IAutoMovieDrawingDesignIndex, type IAutoMovieDrawingTriangle, IAutoMovieBuiltBoundary, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieModel, IAutoMovieModelPart } from "@automovie/interface";
-
+import {
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  type IAutoMovieDrawingDesignIndex,
+  type IAutoMovieDrawingTriangle,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
 
 import { builtEnvironmentWorldMatrices } from "../architecture/builtEnvironmentWorldMatrices";
 import { autoMovieDrawingPartTriangles } from "./autoMovieDrawingPartTriangles";

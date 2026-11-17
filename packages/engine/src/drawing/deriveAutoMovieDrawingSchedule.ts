@@ -1,6 +1,24 @@
-import { type IAutoMovieDrawingDesignIndex, type IAutoMovieDeriveDrawingSchedule, type IAutoMovieValidation, AutoMovieDrawingScheduleSubject, IAutoMovieBuiltBoundary, IAutoMovieBuiltConnector, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace, IAutoMovieConnectorLanding, IAutoMovieConnectorSection, IAutoMovieDrawingConnectorPlace, IAutoMovieDrawingGap, IAutoMovieDrawingOpeningPlace, IAutoMovieDrawingSchedule, IAutoMovieDrawingScheduleBox, IAutoMovieDrawingSchedulePlace, IAutoMovieDrawingScheduleRow, IAutoMovieSubjectBox } from "@automovie/interface";
-
-
+import {
+  AutoMovieDrawingScheduleSubject,
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltConnector,
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieConnectorLanding,
+  IAutoMovieConnectorSection,
+  type IAutoMovieDeriveDrawingSchedule,
+  IAutoMovieDrawingConnectorPlace,
+  type IAutoMovieDrawingDesignIndex,
+  IAutoMovieDrawingGap,
+  IAutoMovieDrawingOpeningPlace,
+  IAutoMovieDrawingSchedule,
+  IAutoMovieDrawingScheduleBox,
+  IAutoMovieDrawingSchedulePlace,
+  IAutoMovieDrawingScheduleRow,
+  IAutoMovieSubjectBox,
+  type IAutoMovieValidation,
+} from "@automovie/interface";
 
 import { builtEnvironmentAdjacentSpaces } from "../architecture/builtEnvironmentAdjacentSpaces";
 import { builtEnvironmentBuildingOfSpace } from "../architecture/builtEnvironmentBuildingOfSpace";
@@ -57,7 +75,11 @@ interface IOccurrence {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The opening subject builds one design index that shares id lookups, world matrices and part tessellations across opening rows. Room queries keep their own request-local work and connector rows need no index; no cross-call cache can conceal a mutable environment edit.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The index, occurrences and grouping map are owned by the call and released on return, bounded by the design's size; only the returned schedule, owned by the caller, survives.
  */
-export const deriveAutoMovieDrawingSchedule: (props: IAutoMovieDeriveDrawingSchedule.IProps) => IAutoMovieDrawingSchedule = (props: IAutoMovieDeriveDrawingSchedule.IProps): IAutoMovieDrawingSchedule => {
+export const deriveAutoMovieDrawingSchedule: (
+  props: IAutoMovieDeriveDrawingSchedule.IProps,
+) => IAutoMovieDrawingSchedule = (
+  props: IAutoMovieDeriveDrawingSchedule.IProps,
+): IAutoMovieDrawingSchedule => {
   const {
     environment,
     subject,
@@ -65,8 +87,9 @@ export const deriveAutoMovieDrawingSchedule: (props: IAutoMovieDeriveDrawingSche
     environment: IAutoMovieBuiltEnvironment;
     subject: AutoMovieDrawingScheduleSubject;
   } = props;
-  const validated: IAutoMovieValidation =
-    validateBuiltEnvironment({ environment });
+  const validated: IAutoMovieValidation = validateBuiltEnvironment({
+    environment,
+  });
   if (validated.success === false) {
     const first: (typeof validated.violations)[number] =
       validated.violations[0]!;

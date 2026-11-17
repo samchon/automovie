@@ -1,12 +1,12 @@
-import type { IAutoMovieLoftContract, AutoMovieHumanSex as AutoMovieHumanSexType, AutoMovieVector3Tuple, IAutoMovieHumanArmPrior, IAutoMovieHumanHandBones, IAutoMovieHumanHandFrame, IAutoMovieHumanHandMeasures } from "@automovie/interface";
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieHumanSex as AutoMovieHumanSexType,
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanArmPrior,
+  IAutoMovieHumanHandBones,
+  IAutoMovieHumanHandFrame,
+  IAutoMovieHumanHandMeasures,
+  IAutoMovieLoftContract,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSex } from "../../typings/AutoMovieHumanSex";
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
@@ -14,7 +14,6 @@ import { AutoMovieHumanDigitJoints } from "../AutoMovieHumanDigitJoints";
 import { AutoMovieHumanHandJoints } from "./AutoMovieHumanHandJoints";
 import { AutoMovieHumanHandPosture } from "./AutoMovieHumanHandPosture";
 import { AutoMovieHumanHandVector as V } from "./AutoMovieHumanHandVector";
-
 
 /**
  * Pure hand joint definitions, before skin: measured metacarpal and phalanx
@@ -42,12 +41,6 @@ import { AutoMovieHumanHandVector as V } from "./AutoMovieHumanHandVector";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns fixed module ratios and call-owned records without a person cache or source-skin reference.
  */
 export namespace AutoMovieHumanHandBones {
-  
-
-  
-
-  
-
   /**
    * Place a hand without constructing or measuring a palm, digit or mesh.
    * Public lengths are measured in the straightened measuring pose; shared
@@ -146,7 +139,13 @@ export namespace AutoMovieHumanHandBones {
       (b: number, index: number): AutoMovieVector3Tuple =>
         point(reach - third + METACARPALS[index + 1]! * third, b - centres[1]!),
     );
-    const fingers: Record<IAutoMovieHumanHandBones.Finger, IAutoMovieHumanHandBones.IDigit> = {} as Record<IAutoMovieHumanHandBones.Finger, IAutoMovieHumanHandBones.IDigit>;
+    const fingers: Record<
+      IAutoMovieHumanHandBones.Finger,
+      IAutoMovieHumanHandBones.IDigit
+    > = {} as Record<
+      IAutoMovieHumanHandBones.Finger,
+      IAutoMovieHumanHandBones.IDigit
+    >;
     for (let index: number = 0; index < NAMES.length; index++) {
       const length: number = external * prior.external[index]!;
       const web: number = WEB[index]! * length;
@@ -168,8 +167,14 @@ export namespace AutoMovieHumanHandBones {
       );
       const mcp: AutoMovieVector3Tuple = mcps[index]!;
       const pip: AutoMovieVector3Tuple = V.plus(mcp, V.scale(proximal, first));
-      const dip: AutoMovieVector3Tuple = V.plus(pip, V.scale(middle, second - first));
-      const tip: AutoMovieVector3Tuple = V.plus(dip, V.scale(distal, web + length - second));
+      const dip: AutoMovieVector3Tuple = V.plus(
+        pip,
+        V.scale(middle, second - first),
+      );
+      const tip: AutoMovieVector3Tuple = V.plus(
+        dip,
+        V.scale(distal, web + length - second),
+      );
       fingers[NAMES[index]!] = {
         centres: [mcp, pip, dip, tip],
         dorsal: [...dorsal],
@@ -199,10 +204,17 @@ export namespace AutoMovieHumanHandBones {
         V.plus(V.scale(across, ray[1]), V.scale(frame.palmar, ray[2])),
       ),
     );
-    const mcp: AutoMovieVector3Tuple = V.plus(cmc, V.scale(metacarpal, METACARPALS[0]! * third));
+    const mcp: AutoMovieVector3Tuple = V.plus(
+      cmc,
+      V.scale(metacarpal, METACARPALS[0]! * third),
+    );
     const rest: { mcp: number; ip: number } =
       AutoMovieHumanHandPosture.thumbRest();
-    const proximal: AutoMovieVector3Tuple = bend(metacarpal, frame.palmar, rest.mcp);
+    const proximal: AutoMovieVector3Tuple = bend(
+      metacarpal,
+      frame.palmar,
+      rest.mcp,
+    );
     const distal: AutoMovieVector3Tuple = bend(proximal, frame.palmar, rest.ip);
     const ip: AutoMovieVector3Tuple = V.plus(
       mcp,
@@ -240,18 +252,26 @@ export namespace AutoMovieHumanHandBones {
    * @evidence contracts/performance.md#reuse-equivalent-work The canonical side reuses its actual source; the reflected record is shared by bind and curve consumers.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns source-owned records without a global cache or calibration reference.
    */
-  export function sided(hand: IAutoMovieHumanHandBones.IOutput, sign: 1 | -1): IAutoMovieHumanHandBones.IOutput {
+  export function sided(
+    hand: IAutoMovieHumanHandBones.IOutput,
+    sign: 1 | -1,
+  ): IAutoMovieHumanHandBones.IOutput {
     if (sign === 1) return hand;
-    const point: (value: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (value: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
-      value[0],
-      value[1],
-      -value[2],
-    ];
-    const digit: (value: IAutoMovieHumanHandBones.IDigit) => IAutoMovieHumanHandBones.IDigit = (value: IAutoMovieHumanHandBones.IDigit): IAutoMovieHumanHandBones.IDigit => ({
+    const point: (value: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (
+      value: AutoMovieVector3Tuple,
+    ): AutoMovieVector3Tuple => [value[0], value[1], -value[2]];
+    const digit: (
+      value: IAutoMovieHumanHandBones.IDigit,
+    ) => IAutoMovieHumanHandBones.IDigit = (
+      value: IAutoMovieHumanHandBones.IDigit,
+    ): IAutoMovieHumanHandBones.IDigit => ({
       centres: value.centres.map(point),
       dorsal: point(value.dorsal),
     });
-    const fingers: Record<IAutoMovieHumanHandBones.Finger, IAutoMovieHumanHandBones.IDigit> = {
+    const fingers: Record<
+      IAutoMovieHumanHandBones.Finger,
+      IAutoMovieHumanHandBones.IDigit
+    > = {
       Index: digit(hand.fingers.Index),
       Middle: digit(hand.fingers.Middle),
       Ring: digit(hand.fingers.Ring),
@@ -299,7 +319,6 @@ export namespace AutoMovieHumanHandBones {
   }
 }
 
-
 /** The four fingers, in radial-to-ulnar packing order. */
 const NAMES: readonly IAutoMovieHumanHandBones.Finger[] = [
   "Index",
@@ -317,7 +336,11 @@ const MET3: readonly number[] = [78 / 170.1, 86.2 / 187.9];
 const WEB: readonly number[] = [0.1552, 0.1533, 0.1849, 0.2472];
 
 /** Turn a phalanx toward the palm by its shared bind angle, retaining unit length. */
-function bend(direction: AutoMovieVector3Tuple, palmar: AutoMovieVector3Tuple, degrees: number): AutoMovieVector3Tuple {
+function bend(
+  direction: AutoMovieVector3Tuple,
+  palmar: AutoMovieVector3Tuple,
+  degrees: number,
+): AutoMovieVector3Tuple {
   const normal: AutoMovieVector3Tuple = V.unit(
     V.sub(palmar, V.scale(direction, V.dot(palmar, direction))),
   );

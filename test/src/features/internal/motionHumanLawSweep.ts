@@ -1,7 +1,22 @@
-import type { IAutoMovieComposition, IAutoMovieMotionHumanAudit, IAutoMovieMotionHumanAuditContact, IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanProp, IAutoMovieVector3 } from "@automovie/interface";
-
-
-import { AutoMovieMotionHumanAudit, AutoMovieMotionHumanAuditContact, AutoMovieMotionHumanAuditDifference, AutoMovieMotionHumanAuditPartner, AutoMovieMotionHumanAuditRange, AutoMovieMotionHumanAuditSpin, AutoMovieMotionHumanAuditTiming } from "@automovie/motions";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanAudit,
+  IAutoMovieMotionHumanAuditContact,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAudit,
+  AutoMovieMotionHumanAuditContact,
+  AutoMovieMotionHumanAuditDifference,
+  AutoMovieMotionHumanAuditPartner,
+  AutoMovieMotionHumanAuditRange,
+  AutoMovieMotionHumanAuditSpin,
+  AutoMovieMotionHumanAuditTiming,
+} from "@automovie/motions";
 
 import LEDGER from "./MOTION_HUMAN_LEDGER.json";
 import { MotionHumanSweepChain } from "./MotionHumanSweepChain";
@@ -72,7 +87,11 @@ export namespace motionHumanLawSweep {
   export type Pick = (param: string) => string | undefined;
 
   /** The scene of a row, for subject `a`'s body and a partner's. */
-  export type Stage = (pick: Pick, a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody) => IScene;
+  export type Stage = (
+    pick: Pick,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
+  ) => IScene;
 
   /** The reading of one cell. */
   export interface ICell {
@@ -179,7 +198,9 @@ export namespace motionHumanLawSweep {
     a: IAutoMovieMotionHumanBody,
     b: IAutoMovieMotionHumanBody,
     gap: number,
-    composition: IAutoMovieComposition | [IAutoMovieMotionHumanChain, IAutoMovieMotionHumanChain],
+    composition:
+      | IAutoMovieComposition
+      | [IAutoMovieMotionHumanChain, IAutoMovieMotionHumanChain],
     props: IAutoMovieMotionHumanProp[] = [],
     facing: boolean = true,
   ): IScene {

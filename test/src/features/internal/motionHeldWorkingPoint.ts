@@ -1,8 +1,21 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
 import { createClub, createRacket } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HUMAN_LEXICON, HumanChain, HumanObject, HumanPerformance, HumanRefusal } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+} from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
 
@@ -29,7 +42,8 @@ import { motionHumanBody } from "./motionHumanBody";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; each film is dropped after its reading.
  */
 export function motionHeldWorkingPoint(name: motionHumanBody.Name): string[] {
-  const laws: IAutoMovieMotionHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
+  const laws: IAutoMovieMotionHumanActionLaw<never>[] =
+    Object.values(HUMAN_LEXICON).flat();
   const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const stature: number = body.measure.stature;
   const shoulder: IAutoMovieVector3 = body.rest.get("rightUpperArm")!;
@@ -128,7 +142,10 @@ export function motionHeldWorkingPoint(name: motionHumanBody.Name): string[] {
     }
     const act: IAutoMovieMotionHumanSegment.ISegment = film
       .segments("a")
-      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === swing.row)!;
+      .find(
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+          s.name === swing.row,
+      )!;
     const at: number = act.start + (act.plan.contact ?? Number.NaN);
     const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("tool", at);
     const off: number = Vector3.length(

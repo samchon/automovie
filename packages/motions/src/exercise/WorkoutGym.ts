@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanExerciseKey, IAutoMovieMotionHumanWorkoutGym, IAutoMovieMotionHumanWorkoutKind } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanWorkoutGym,
+  IAutoMovieMotionHumanWorkoutKind,
+} from "@automovie/interface";
 
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
@@ -32,11 +37,16 @@ import { WorkoutStance } from "./WorkoutStance";
  */
 export namespace WorkoutGym {
   /** A key of the body's, built once the body is known. */
-  type Keyed = (body: IAutoMovieMotionHumanBody) => IAutoMovieMotionHumanExerciseKey.IKey;
+  type Keyed = (
+    body: IAutoMovieMotionHumanBody,
+  ) => IAutoMovieMotionHumanExerciseKey.IKey;
 
   /** A key from the whole body's part and the limbs' angles, on the body it is built for (`ExerciseKey.from`). */
   const key =
-    (trunk: IAutoMovieMotionHumanExerciseKey.ITrunk, both: IAutoMovieMotionHumanExerciseKey.ILimb): Keyed =>
+    (
+      trunk: IAutoMovieMotionHumanExerciseKey.ITrunk,
+      both: IAutoMovieMotionHumanExerciseKey.ILimb,
+    ): Keyed =>
     (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey =>
       ExerciseKey.from(body, trunk, both);
 
@@ -63,14 +73,21 @@ export namespace WorkoutGym {
       WorkoutStance.FEET,
       0.8,
       reps,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(low[0](body), low[1], low[2], low[3]),
         WorkoutKind.step(high[0](body), high[1], high[2], high[3]),
       ],
     );
 
   /** The exercises. */
-  export const KINDS: Readonly<Record<IAutoMovieMotionHumanWorkoutGym.Name, IAutoMovieMotionHumanWorkoutKind>> = {
+  export const KINDS: Readonly<
+    Record<
+      IAutoMovieMotionHumanWorkoutGym.Name,
+      IAutoMovieMotionHumanWorkoutKind
+    >
+  > = {
     /** A bent-over row: the trunk held at 60 degrees, the elbows drawn back past it. */
     bentOverRow: pair(
       5,
@@ -139,7 +156,9 @@ export namespace WorkoutGym {
       WorkoutStance.FEET,
       0,
       8,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutStance.rest(body, 0.8),
         WorkoutKind.step(
           key({}, { ankle: -30, toes: 30 })(body),
@@ -183,7 +202,9 @@ export namespace WorkoutGym {
       WorkoutStance.FEET,
       1.2,
       5,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
           WorkoutStance.stride(body, 22, {}, { elbow: 20 }),
           1,
@@ -207,7 +228,9 @@ export namespace WorkoutGym {
       WorkoutStance.FEET,
       1.5,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.pose(squat(0, 90, 0, { elbow: 10 })(body), 0, 30),
       ],
     ),
@@ -245,7 +268,9 @@ export namespace WorkoutGym {
       WorkoutStance.FEET,
       1,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
           squat(65, 75, 25, { shoulder: 65, raise: 0, elbow: 3 })(body),
           1,
@@ -282,7 +307,9 @@ export namespace WorkoutGym {
       WorkoutStance.FEET,
       1,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
           squat(60, 85, 28, { shoulder: 60, raise: 30, elbow: 3 })(body),
           1,

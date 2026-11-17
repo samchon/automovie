@@ -1,6 +1,17 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionHumanArm, AutoMovieMotionHumanTarget, HumanRefusal, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanArm,
+  AutoMovieMotionHumanTarget,
+  HumanRefusal,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -25,13 +36,20 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_core_bimanual_rod_undeclared(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const quiet: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const quiet: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
   const span = { start: 0, ready: 0.6, relax: 1.1, end: 1.5 };
   const lift = (seconds: number): number => {
     const s: number = Math.min(1, Math.max(0, (seconds - 0.65) / 0.4));
     return 0.15 * s * s * s * (10 - 15 * s + 6 * s * s);
   };
-  const place = (side: IAutoMovieMotionHumanHand.Side, seconds: number): IAutoMovieVector3 => ({
+  const place = (
+    side: IAutoMovieMotionHumanHand.Side,
+    seconds: number,
+  ): IAutoMovieVector3 => ({
     x: side === "left" ? 0.03 : -0.03,
     y: 1.0 + lift(seconds),
     z: 0.35,
@@ -50,7 +68,10 @@ export function test_human_motion_core_bimanual_rod_undeclared(): void {
           resolveHumanPosture(body, quiet),
           side,
         ),
-        goal: (_: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture.IGoal =>
+        goal: (
+          _: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieMotionHumanPosture.IGoal =>
           AutoMovieMotionHumanArm.goal(
             body,
             side,

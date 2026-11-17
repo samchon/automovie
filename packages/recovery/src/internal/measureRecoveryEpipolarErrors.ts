@@ -1,5 +1,5 @@
-import type { IAutoMovieRecoveryEpipolarErrorsMeasurementOperation } from "@automovie/interface";
 import { AutoMovieMatrix3 } from "@automovie/engine";
+import type { IAutoMovieRecoveryEpipolarErrorsMeasurementOperation } from "@automovie/interface";
 
 /**
  * Measure signed Sampson distance and mean two-sided point-to-line distance

@@ -1,5 +1,7 @@
-import type { IAutoMovieRecoveryChartFitPrepare, IAutoMovieRecoveryChartFitSystem } from "@automovie/interface";
-
+import type {
+  IAutoMovieRecoveryChartFitPrepare,
+  IAutoMovieRecoveryChartFitSystem,
+} from "@automovie/interface";
 
 import { RecoveryChartFitRows as O } from "./RecoveryChartFitRows";
 
@@ -29,7 +31,8 @@ export function RecoveryChartFitSystem(
     reduced,
     unknowns,
     normalizedConstants,
-    totalWeight }: ReturnType<IAutoMovieRecoveryChartFitPrepare.Operation> = prepared;
+    totalWeight,
+  }: ReturnType<IAutoMovieRecoveryChartFitPrepare.Operation> = prepared;
   const diagonal: Float64Array = new Float64Array(unknowns);
   const hessian: Map<number, number>[] = Array.from(
     { length: unknowns },
@@ -248,5 +251,6 @@ export function RecoveryChartFitSystem(
     dataQrDiagonalRatio,
     rankTolerance,
     observationRank,
-    gramPivotRatio };
+    gramPivotRatio,
+  };
 }

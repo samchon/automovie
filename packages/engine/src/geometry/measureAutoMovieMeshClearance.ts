@@ -1,5 +1,8 @@
-import { type IAutoMovieMeshClearanceWitness, type IAutoMovieMeasureMeshClearance, IAutoMovieMesh } from "@automovie/interface";
-
+import {
+  type IAutoMovieMeasureMeshClearance,
+  IAutoMovieMesh,
+  type IAutoMovieMeshClearanceWitness,
+} from "@automovie/interface";
 
 import { triangleIndicesOf } from "./triangleIndicesOf";
 

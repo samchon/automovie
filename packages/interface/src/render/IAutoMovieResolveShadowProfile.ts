@@ -1,6 +1,6 @@
-import type { IAutoMovieConstraintViolation } from "../validation/IAutoMovieConstraintViolation";
 import type { IAutoMovieLight } from "../scene/IAutoMovieLight";
 import type { IAutoMovieSceneEnvironment } from "../scene/IAutoMovieSceneEnvironment";
+import type { IAutoMovieConstraintViolation } from "../validation/IAutoMovieConstraintViolation";
 
 /**
  * Pure shadow-policy inputs and the supported allocation/submission profile.
@@ -18,7 +18,7 @@ export namespace IAutoMovieResolveShadowProfile {
    * Directional and spot VSM add two fullscreen filtering triangles after their
    * one depth face. Area lights allocate no shadow map. Disabled and noncasting
    * lights therefore cost no shadow work. No camera culling reduces this bound.
-   * 
+   *
    * Enabled point VSM is refused with the original light path before any resource
    * or fictitious work is priced. Scalar and light-shape admission belong to
    * their existing validators. An omitted policy retains enabled legacy PCF;
@@ -37,13 +37,14 @@ export namespace IAutoMovieResolveShadowProfile {
    * Directional and spot VSM add two fullscreen filtering triangles after their
    * one depth face. Area lights allocate no shadow map. Disabled and noncasting
    * lights therefore cost no shadow work. No camera culling reduces this bound.
-   * 
+   *
    * Enabled point VSM is refused with the original light path before any resource
    * or fictitious work is priced. Scalar and light-shape admission belong to
    * their existing validators. An omitted policy retains enabled legacy PCF;
    * callers with a renderer target supply that target's effective fallback.
    */
-  export type IResult = | {
+  export type IResult =
+    | {
         /** Enabled point-light VSM was refused; inspect source-path violations. */
         success: false;
         /** New violations in input order, pointing to each unsupported light's castShadow. */

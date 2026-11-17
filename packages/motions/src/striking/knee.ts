@@ -1,11 +1,24 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanKnee, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingRecord, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Quaternion,
   Vector3,
   minimumJerk,
   wrapDegrees,
 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanKnee,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingRecord,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickCarriage } from "./KickCarriage";
@@ -139,13 +152,14 @@ export namespace knee {
       whole: number,
       drive: number,
     ): IAutoMovieMotionHumanPosture => {
-      const supportFoot: IAutoMovieMotionHumanFoot.IPlacement = StrikingTarget.pivot(
-        body,
-        support,
-        feet[support],
-        turn * whole,
-        KneeForm.HEEL_RAISE * whole,
-      );
+      const supportFoot: IAutoMovieMotionHumanFoot.IPlacement =
+        StrikingTarget.pivot(
+          body,
+          support,
+          feet[support],
+          turn * whole,
+          KneeForm.HEEL_RAISE * whole,
+        );
       return resolveHumanPosture.lower(
         body,
         {
@@ -284,7 +298,10 @@ export namespace knee {
 
     // The knee on its free course at a clock second (as if it met nothing),
     // the clinching hands reading the other's nape at the film second.
-    const free = (clock: number, seconds: number): IAutoMovieMotionHumanPosture => {
+    const free = (
+      clock: number,
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture => {
       const t: number = Math.min(duration, Math.max(0, clock));
       const g: IGeometry = geometry();
 
@@ -300,7 +317,12 @@ export namespace knee {
       const drive: number =
         minimumJerk((t - (impact - lift)) / lift).s -
         minimumJerk((t - impact) / lower).s;
-      const posture: IAutoMovieMotionHumanPosture = carriage(g.thrust, g.turn, whole, drive);
+      const posture: IAutoMovieMotionHumanPosture = carriage(
+        g.thrust,
+        g.turn,
+        whole,
+        drive,
+      );
 
       // The thigh swung about the hip the carriage leaves, the shank folding
       // under it, and the stance's slack given back as the leg lifts.
@@ -320,9 +342,8 @@ export namespace knee {
       );
       const hands = StrikingStance.guard(body, posture, { lead });
       if (p.at.kind === "person") {
-        const other: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(
-          p.at.subject,
-        );
+        const other: IAutoMovieMotionHumanActionContext.IPerformer =
+          context.performer(p.at.subject);
         const nape: IAutoMovieVector3 = other
           .bones(seconds - StrikingTarget.LOOK)
           .get("neck")!.worldPosition;
@@ -415,7 +436,9 @@ export namespace knee {
       ...(p.at.kind === "person"
         ? {
             weapons: StrikingWeapon.capsules(chain),
-            stop: (found: readonly IAutoMovieMotionHumanActionPlan.IContactEvent[]): void => {
+            stop: (
+              found: readonly IAutoMovieMotionHumanActionPlan.IContactEvent[],
+            ): void => {
               met = StrikingWeapon.first(found);
               fixed = met === null ? null : met.seconds;
               ride = undefined;
@@ -440,29 +463,32 @@ export namespace knee {
         return carried(free(s * (1 - w), at), t);
       },
     };
-    StrikingRecord.register(out, (): IAutoMovieMotionHumanStrikingRecord.IRecord => {
-      // The knee's front where the leg's free course puts it at the planned
-      // impact, with the solve's own status; the performer's own displayed
-      // bones read the entry's (`StrikingWeapon`).
-      const g: IGeometry = geometry();
-      const bones = poseBones(
-        body,
-        resolveHumanPosture(body, free(impact, t0 + impact)),
-      );
-      const reached: IAutoMovieVector3 = StrikingBody.region(
-        body,
-        bones,
-        side === "left" ? "kneeLeft" : "kneeRight",
-      ).point;
-      return {
-        limb: side === "left" ? "leftFoot" : "rightFoot",
-        offset: { x: 0, y: 0, z: 0 },
-        planned: g.target,
-        reached,
-        status: g.status,
-        stop,
-      };
-    });
+    StrikingRecord.register(
+      out,
+      (): IAutoMovieMotionHumanStrikingRecord.IRecord => {
+        // The knee's front where the leg's free course puts it at the planned
+        // impact, with the solve's own status; the performer's own displayed
+        // bones read the entry's (`StrikingWeapon`).
+        const g: IGeometry = geometry();
+        const bones = poseBones(
+          body,
+          resolveHumanPosture(body, free(impact, t0 + impact)),
+        );
+        const reached: IAutoMovieVector3 = StrikingBody.region(
+          body,
+          bones,
+          side === "left" ? "kneeLeft" : "kneeRight",
+        ).point;
+        return {
+          limb: side === "left" ? "leftFoot" : "rightFoot",
+          offset: { x: 0, y: 0, z: 0 },
+          planned: g.target,
+          reached,
+          status: g.status,
+          stop,
+        };
+      },
+    );
     return out;
   }
 }

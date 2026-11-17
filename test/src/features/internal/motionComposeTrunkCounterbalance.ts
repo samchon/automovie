@@ -1,7 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
-import { AutoMovieMotionHumanTrunk, HumanBalance, HumanRefusal, HumanTrunk, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanTrunk,
+  HumanBalance,
+  HumanRefusal,
+  HumanTrunk,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 
 import { motionComplaints } from "./motionComplaints";
 import { motionComposeTrunk } from "./motionComposeTrunk";
@@ -77,7 +90,11 @@ export namespace motionComposeTrunkCounterbalance {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const reach: number = body.measure.thigh + body.measure.shank;
     for (const yaw of [0, 90] as const) {
-      const turned: IAutoMovieMotionHumanPosture = stand.posture(body, ORIGIN, yaw);
+      const turned: IAutoMovieMotionHumanPosture = stand.posture(
+        body,
+        ORIGIN,
+        yaw,
+      );
       const base: Bones = poseBones(body, resolveHumanPosture(body, turned));
       const ahead = (
         p: IAutoMovieVector3,
@@ -88,7 +105,9 @@ export namespace motionComposeTrunkCounterbalance {
         y: p.y + up,
         z: p.z + (yaw === 0 ? forward : 0),
       });
-      const arm = (side: "left" | "right"): IAutoMovieMotionHumanPosture.IGoal => {
+      const arm = (
+        side: "left" | "right",
+      ): IAutoMovieMotionHumanPosture.IGoal => {
         const shoulder: IAutoMovieVector3 = base.get(
           `${side}UpperArm`,
         )!.worldPosition;
@@ -143,7 +162,10 @@ export namespace motionComposeTrunkCounterbalance {
             extended,
           );
         const before: number = HumanBalance.offset(body, extended);
-        const full: IAutoMovieMotionHumanPosture = phrase.write(extended, 0.625);
+        const full: IAutoMovieMotionHumanPosture = phrase.write(
+          extended,
+          0.625,
+        );
         const after: number = HumanBalance.offset(body, full);
         const back: number =
           yaw === 0
@@ -226,13 +248,14 @@ export namespace motionComposeTrunkCounterbalance {
         `${name}: at a heading of ${yaw} a pitched trunk puts the centre ahead of the soles, so the counterbalance is exercised`,
         unbalanced >= 1,
       );
-      const still: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanTrunk.counterbalance(
-        body,
-        CLOCK,
-        RISE,
-        FALL,
-        turned,
-      ).write(turned, 0.625);
+      const still: IAutoMovieMotionHumanPosture =
+        AutoMovieMotionHumanTrunk.counterbalance(
+          body,
+          CLOCK,
+          RISE,
+          FALL,
+          turned,
+        ).write(turned, 0.625);
       all.check(
         `${name}: a counterbalance at a heading of ${yaw} moves nothing for the standing body, whose centre is ${mm(HumanBalance.offset(body, turned))} mm ahead`,
         HumanBalance.offset(body, turned) > 0 ||

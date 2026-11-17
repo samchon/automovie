@@ -1,6 +1,18 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanStand, IAutoMovieResolveSchedule } from "@automovie/interface";
-
-import { HumanChain, HumanCue, HumanPerformance, HumanRefusal, stand } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanStand,
+  IAutoMovieResolveSchedule,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanCue,
+  HumanPerformance,
+  HumanRefusal,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -38,14 +50,17 @@ export function test_human_motion_core_context_cue(): void {
   ];
   const read = (track: string): readonly IAutoMovieResolveSchedule.ICue[] => {
     let seen: readonly IAutoMovieResolveSchedule.ICue[] = [];
-    const listen: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> = {
-      ...stand,
-      name: "listen",
-      plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>): IAutoMovieMotionHumanActionPlan => {
-        seen = context.cue(track);
-        return stand.plan(context);
-      },
-    };
+    const listen: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
+      {
+        ...stand,
+        name: "listen",
+        plan: (
+          context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
+        ): IAutoMovieMotionHumanActionPlan => {
+          seen = context.cue(track);
+          return stand.plan(context);
+        },
+      };
     new HumanPerformance({
       seed: "cue",
       performers: [

@@ -53,15 +53,15 @@ export interface IAutoMovieConstructionProfile {
  */
 export namespace IAutoMovieConstructionProfile {
   /**
- * A complete oriented contour over a physical station interval.
- *
- * Its ordered original pieces close an outer contour or hole. The station domain is in metres inside the family's domain. orientation describes winding in the plane; surfaceOrientation independently sets the world surface sign and defaults to +1. pole declares whole-loop collapse only at named ends; an absent pole leaves regular open ends. AutoMovieConstructionProfile preparation resolves sources and domains; declaring a loop does not prove simplicity or global regularity.
- *
- * @evidence contracts/development/design.md#principled-representation A closed component retains original piece order, winding, physical station bounds and explicit endpoint collapse.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Profile preparation and meshing use the same contour record for outer components and holes without imposing convexity.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Planar winding and surface normal orientation are distinct; coincident loops are not automatically sewn.
- * @evidence contracts/development/common.md#meaningful-documentation Defines piece order, station units, both orientation conventions and absent pole/default surface orientation.
- */
+   * A complete oriented contour over a physical station interval.
+   *
+   * Its ordered original pieces close an outer contour or hole. The station domain is in metres inside the family's domain. orientation describes winding in the plane; surfaceOrientation independently sets the world surface sign and defaults to +1. pole declares whole-loop collapse only at named ends; an absent pole leaves regular open ends. AutoMovieConstructionProfile preparation resolves sources and domains; declaring a loop does not prove simplicity or global regularity.
+   *
+   * @evidence contracts/development/design.md#principled-representation A closed component retains original piece order, winding, physical station bounds and explicit endpoint collapse.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Profile preparation and meshing use the same contour record for outer components and holes without imposing convexity.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Planar winding and surface normal orientation are distinct; coincident loops are not automatically sewn.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines piece order, station units, both orientation conventions and absent pole/default surface orientation.
+   */
   export interface ILoop {
     /** Unique loop identity in the family. */
     id: string;
@@ -86,15 +86,15 @@ export namespace IAutoMovieConstructionProfile {
   }
 
   /**
- * One retained original curve interval in a profile contour.
- *
- * source resolves to an invocation-owned curve family. clock is increasing in that source's parameter units; direction selects traversal without changing the original function. branch preserves the declared topological branch shared with neighboring pieces. Profile preparation checks source availability and retained intervals before building charts.
- *
- * @evidence contracts/development/design.md#principled-representation Original source identity, parameter interval and traversal sign represent a curve piece without resampling it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Profile chart preparation and guide resolution share the piece identity and source interval.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A reverse traversal does not rewrite the source or create new interpolation, and an unresolved source is not guessed from its name.
- * @evidence contracts/development/common.md#meaningful-documentation Defines clock units, traversal sign, chart identity and topological branch meaning.
- */
+   * One retained original curve interval in a profile contour.
+   *
+   * source resolves to an invocation-owned curve family. clock is increasing in that source's parameter units; direction selects traversal without changing the original function. branch preserves the declared topological branch shared with neighboring pieces. Profile preparation checks source availability and retained intervals before building charts.
+   *
+   * @evidence contracts/development/design.md#principled-representation Original source identity, parameter interval and traversal sign represent a curve piece without resampling it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Profile chart preparation and guide resolution share the piece identity and source interval.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A reverse traversal does not rewrite the source or create new interpolation, and an unresolved source is not guessed from its name.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines clock units, traversal sign, chart identity and topological branch meaning.
+   */
   export interface IPiece {
     /** Unique piece/chart identity in the family. */
     id: string;
@@ -113,15 +113,15 @@ export namespace IAutoMovieConstructionProfile {
   }
 
   /**
- * A named locus at one original clock value along a profile piece.
- *
- * piece names an existing family piece; clock uses that original curve's parameter and lies in its retained interval. Profile preparation resolves the source, so the guide follows the original station-varying curve rather than an observed display polyline.
- *
- * @evidence contracts/development/design.md#principled-representation A piece reference and fixed source clock identify a locus throughout the piece's physical station domain.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Source constraints and geometry selections share a stable guide identity without copying sampled positions.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The declaration does not fit a locus to output geometry or invent missing source derivatives.
- * @evidence contracts/development/common.md#meaningful-documentation Defines piece membership, source parameter units and original-curve ownership.
- */
+   * A named locus at one original clock value along a profile piece.
+   *
+   * piece names an existing family piece; clock uses that original curve's parameter and lies in its retained interval. Profile preparation resolves the source, so the guide follows the original station-varying curve rather than an observed display polyline.
+   *
+   * @evidence contracts/development/design.md#principled-representation A piece reference and fixed source clock identify a locus throughout the piece's physical station domain.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Source constraints and geometry selections share a stable guide identity without copying sampled positions.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The declaration does not fit a locus to output geometry or invent missing source derivatives.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines piece membership, source parameter units and original-curve ownership.
+   */
   export interface IGuide {
     /** Guide identity used by source constraints and editor selections. */
     id: string;
@@ -134,15 +134,15 @@ export namespace IAutoMovieConstructionProfile {
   }
 
   /**
- * Logical selections and material/binding ownership on original profile pieces.
- *
- * pieces names existing family charts. An omitted domain uses the retained family interval in metres; omitted or null trim selects complete referenced charts, while a trim key resolves an original-source membership function. Material and binding identities express ownership, not optical values or a guarantee that touching charts are sewn.
- *
- * @evidence contracts/development/design.md#principled-representation Explicit piece and optional original membership references assign logical and material/binding regions without duplicating geometry.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Profile preparation and mesh selection consume one region identity across the original source charts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Touching sheets may retain different material and binding owners; a logical name cannot create a shared physical boundary.
- * @evidence contracts/development/common.md#meaningful-documentation Defines chart references, metre domain defaults, trim absence and ownership identities.
- */
+   * Logical selections and material/binding ownership on original profile pieces.
+   *
+   * pieces names existing family charts. An omitted domain uses the retained family interval in metres; omitted or null trim selects complete referenced charts, while a trim key resolves an original-source membership function. Material and binding identities express ownership, not optical values or a guarantee that touching charts are sewn.
+   *
+   * @evidence contracts/development/design.md#principled-representation Explicit piece and optional original membership references assign logical and material/binding regions without duplicating geometry.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Profile preparation and mesh selection consume one region identity across the original source charts.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Touching sheets may retain different material and binding owners; a logical name cannot create a shared physical boundary.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines chart references, metre domain defaults, trim absence and ownership identities.
+   */
   export interface IRegion {
     /** Region identity, separate from a loop or generating stream. */
     id: string;

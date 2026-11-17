@@ -1,6 +1,8 @@
-import { type IAutoMovieDeliveryCropNdc, type IAutoMovieIntersectsPerspectiveFrustumSphere, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  type IAutoMovieDeliveryCropNdc,
+  type IAutoMovieIntersectsPerspectiveFrustumSphere,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -29,7 +31,9 @@ import { deliveryCropNdc } from "./deliveryCropNdc";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure predicate over one sphere and one camera that coordinates no work across calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The camera-local centre and the NDC crop are garbage on return, and the predicate keeps no reference to the camera or sphere.
  */
-export function intersectsPerspectiveFrustumSphere(props: IAutoMovieIntersectsPerspectiveFrustumSphere.IProps): boolean {
+export function intersectsPerspectiveFrustumSphere(
+  props: IAutoMovieIntersectsPerspectiveFrustumSphere.IProps,
+): boolean {
   const local: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.inverse(props.camera.rotation),
     Vector3.subtract(props.center, props.camera.position),

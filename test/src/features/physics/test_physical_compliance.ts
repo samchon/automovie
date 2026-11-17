@@ -1,6 +1,10 @@
-import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMovieContactReceipt, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
-
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures as Fixtures } from "../internal/PhysicalFixtures";
@@ -28,15 +32,28 @@ export async function test_physical_compliance(): Promise<void> {
   }[] = [];
   for (const speed of [1, 4]) {
     const profile: P = Fixtures.sphere(0.1, 0.001);
-    const a: IAutoMoviePhysicalSimulationInput.IBody = Fixtures.body("striker", profile, 1, {
-      position: { x: -0.3, y: 1, z: 0 },
-      rotation: { x: 0, y: 0, z: 0, w: 1 },
-    });
-    const b: IAutoMoviePhysicalSimulationInput.IBody = Fixtures.body("receiver", profile, 1, {
-      position: { x: 0.3, y: 1, z: 0 },
-      rotation: { x: 0, y: 0, z: 0, w: 1 },
-    });
-    const input: IAutoMoviePhysicalSimulationInput.IInput = Fixtures.input([a, b], 1);
+    const a: IAutoMoviePhysicalSimulationInput.IBody = Fixtures.body(
+      "striker",
+      profile,
+      1,
+      {
+        position: { x: -0.3, y: 1, z: 0 },
+        rotation: { x: 0, y: 0, z: 0, w: 1 },
+      },
+    );
+    const b: IAutoMoviePhysicalSimulationInput.IBody = Fixtures.body(
+      "receiver",
+      profile,
+      1,
+      {
+        position: { x: 0.3, y: 1, z: 0 },
+        rotation: { x: 0, y: 0, z: 0, w: 1 },
+      },
+    );
+    const input: IAutoMoviePhysicalSimulationInput.IInput = Fixtures.input(
+      [a, b],
+      1,
+    );
     input.impulses.push({
       step: 1,
       body: "striker",
@@ -75,13 +92,15 @@ export async function test_physical_compliance(): Promise<void> {
       velocity: run.cache.at(1).bodies.receiver!.root!.velocity.x,
     });
     if (speed === 1) {
-      const repeat: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
+      const repeat: IAutoMoviePhysicalSimulation =
+        await Simulation.compute(input);
       TestValidator.equals(
         "soft solver deterministic frames and contacts",
         JSON.stringify([run.cache.frames, run.cache.contacts]),
         JSON.stringify([repeat.cache.frames, repeat.cache.contacts]),
       );
-      const miss: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+      const miss: IAutoMoviePhysicalSimulationInput.IInput =
+        structuredClone(input);
       for (const target of miss.bodies[1]!.targets)
         target.segments.root!.position.z = 0.21;
       const air: IAutoMoviePhysicalSimulation = await Simulation.compute(miss);

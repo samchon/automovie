@@ -1,9 +1,9 @@
+import type { IAutoMovieProjectile } from "../../../physics/IAutoMovieProjectile";
+import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
+import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanThrowObjectForm } from "./IAutoMovieMotionHumanThrowObjectForm";
 import type { IAutoMovieMotionHumanThrowObjectLever } from "./IAutoMovieMotionHumanThrowObjectLever";
-import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
-import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
-import type { IAutoMovieProjectile } from "../../../physics/IAutoMovieProjectile";
 
 /**
  * The parameters of a throw (`IAutoMovieMotionHumanThrowObjectParams`).

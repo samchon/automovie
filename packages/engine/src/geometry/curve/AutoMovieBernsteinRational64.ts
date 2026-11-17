@@ -1,4 +1,10 @@
-import type { AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple, IAutoMovieRationalBernsteinScalar64, IAutoMovieRationalBernsteinVector64 } from "@automovie/interface";
+import type {
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieVector3Tuple,
+  IAutoMovieRationalBernsteinScalar64,
+  IAutoMovieRationalBernsteinVector64,
+} from "@automovie/interface";
+
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
 import { AutoMovieBernsteinSubdivision64 as D } from "./AutoMovieBernsteinSubdivision64";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
@@ -26,11 +32,16 @@ export namespace AutoMovieBernsteinRational64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both coefficient families use one identical three-domain partition.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each returned record owns its new numerator and denominator arrays.
    */
-  export function thirdsR(r: IAutoMovieRationalBernsteinVector64): IAutoMovieRationalBernsteinVector64[] {
+  export function thirdsR(
+    r: IAutoMovieRationalBernsteinVector64,
+  ): IAutoMovieRationalBernsteinVector64[] {
     const ns: AutoMovieBernsteinPolynomial64[] = D.thirds(r.numerator),
       qs: number[][] = D.thirdsS(r.denominator);
     return ns.map(
-      (n: AutoMovieBernsteinPolynomial64, i: number): IAutoMovieRationalBernsteinVector64 => ({
+      (
+        n: AutoMovieBernsteinPolynomial64,
+        i: number,
+      ): IAutoMovieRationalBernsteinVector64 => ({
         numerator: n,
         denominator: qs[i]!,
       }),

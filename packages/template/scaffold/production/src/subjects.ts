@@ -1,5 +1,4 @@
 import type { IAutoMovieMark } from "@automovie/interface";
-
 import type {
   AutoMovieDrawSubjects,
   IAutoMovieDrawScene,

@@ -1,6 +1,8 @@
-import type { IAutoMovieMotionHumanBody, IAutoMoviePoseRig } from "@automovie/interface";
-
 import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePoseRig,
+} from "@automovie/interface";
 
 /**
  * The rig a body's poses are read through: its skeleton with the canonical

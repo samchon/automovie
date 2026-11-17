@@ -34,10 +34,14 @@ export namespace IAutoMovieProjectProductionShotEffectFilmIntervals {
     /**
      * Borrowed shot-id index; absent entries are skipped. Values and their effect arrays are read only for this projection and are not retained by the result.
      */
-    shots: ReadonlyMap<string, { 
-    /**
-     * Shot-local effects in declaration order. Empty arrays contribute nothing; start and end must form a finite nonnegative positive-duration interval representable on the source-frame clock.
-     */
-    effects: readonly IAutoMovieShotEffect[] }>;
+    shots: ReadonlyMap<
+      string,
+      {
+        /**
+         * Shot-local effects in declaration order. Empty arrays contribute nothing; start and end must form a finite nonnegative positive-duration interval representable on the source-frame clock.
+         */
+        effects: readonly IAutoMovieShotEffect[];
+      }
+    >;
   };
 }

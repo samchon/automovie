@@ -1,13 +1,13 @@
-import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
-import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
-import type { IAutoMovieMotionHumanArmTarget } from "./IAutoMovieMotionHumanArmTarget";
+import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
+import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
+import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
+import type { IAutoMovieMotionHumanArmTarget } from "./IAutoMovieMotionHumanArmTarget";
 import type { IAutoMovieMotionHumanTiming } from "./IAutoMovieMotionHumanTiming";
 import type { IAutoMovieMotionManner } from "./IAutoMovieMotionManner";
-import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 
 /**
  * Arm primitives: a hand surface carried to a target, kept on it and taken

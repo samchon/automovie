@@ -1,4 +1,9 @@
-import type { IAutoMovieMeasureContact, IAutoMoviePhysicalProfile, IAutoMoviePreparePhysicalGeometry } from "@automovie/interface";
+import type {
+  IAutoMovieMeasureContact,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePreparePhysicalGeometry,
+} from "@automovie/interface";
+
 /**
  * Measure whether two displayed bodies meet: the least signed separation, in
  * metres, between every declared collider of one body's named segments (an
@@ -20,7 +25,9 @@ import type { IAutoMovieMeasureContact, IAutoMoviePhysicalProfile, IAutoMoviePre
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 8 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function measureAutoMovieContact(input: IAutoMovieMeasureContact.IInput): IAutoMovieMeasureContact.IResult {
+export function measureAutoMovieContact(
+  input: IAutoMovieMeasureContact.IInput,
+): IAutoMovieMeasureContact.IResult {
   const colliders = (
     side: IAutoMovieMeasureContact.ISide,
   ): IAutoMoviePreparePhysicalGeometry.ICollider[] =>
@@ -28,23 +35,34 @@ export function measureAutoMovieContact(input: IAutoMovieMeasureContact.IInput):
       .filter((segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
         side.bones.includes(segment.bone),
       )
-      .flatMap((segment: IAutoMoviePhysicalProfile.ISegment): IAutoMoviePreparePhysicalGeometry.ICollider[] => {
-        const pose: IAutoMoviePhysicalProfile.ITransform | undefined = side.segments[segment.bone];
-        if (!pose)
-          throw new Error(
-            `Missing displayed pose ${side.subject}.${segment.bone}`,
+      .flatMap(
+        (
+          segment: IAutoMoviePhysicalProfile.ISegment,
+        ): IAutoMoviePreparePhysicalGeometry.ICollider[] => {
+          const pose: IAutoMoviePhysicalProfile.ITransform | undefined =
+            side.segments[segment.bone];
+          if (!pose)
+            throw new Error(
+              `Missing displayed pose ${side.subject}.${segment.bone}`,
+            );
+          return segment.shapes.map(
+            (
+              shape: IAutoMoviePhysicalProfile.IShape,
+            ): IAutoMoviePreparePhysicalGeometry.ICollider => ({
+              body: side.subject,
+              bone: segment.bone,
+              shape,
+              pose,
+            }),
           );
-        return segment.shapes.map(
-          (shape: IAutoMoviePhysicalProfile.IShape): IAutoMoviePreparePhysicalGeometry.ICollider => ({
-            body: side.subject,
-            bone: segment.bone,
-            shape,
-            pose,
-          }),
-        );
-      });
-  const sources: IAutoMoviePreparePhysicalGeometry.ICollider[] = colliders(input.a);
-  const targets: IAutoMoviePreparePhysicalGeometry.ICollider[] = colliders(input.b);
+        },
+      );
+  const sources: IAutoMoviePreparePhysicalGeometry.ICollider[] = colliders(
+    input.a,
+  );
+  const targets: IAutoMoviePreparePhysicalGeometry.ICollider[] = colliders(
+    input.b,
+  );
   if (sources.length === 0 || targets.length === 0)
     throw new Error(
       `No declared colliders between ${input.a.subject} and ${input.b.subject}`,

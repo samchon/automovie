@@ -1,5 +1,3 @@
-
-
 /**
  * A polyline sampled from a surface rig's generating construction at rest, in network-frame metres, after any girth correction.
  *
@@ -27,24 +25,24 @@ export interface IAutoMovieSurfaceConstruction {
 /** Data and callback contracts shared by the SurfaceConstruction operations. */
 export namespace IAutoMovieSurfaceConstruction {
   /**
-     * Segment counts for each construction class, with all four fields required and unknown keys refused.
-     *
-     * @evidence contracts/development/design.md#principled-representation Counts set observation resolution independently of the cage's topology.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface One count for closed stations, ordinary lines, each feature segment and network curves.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts All four named counts are required and validated as positive safe integers; stations need at least three and unknown keys are refused.
-     * @evidence contracts/development/common.md#meaningful-documentation States count meanings, minimums and strict named-key admission.
-     */
-    export interface ISamples {
-      /** Segments around a closed station, at least three. */
-      station: number;
-  
-      /** Segments along a spine or guide, at least one. */
-      line: number;
-  
-      /** Segments per declared feature segment, at least one. */
-      feature: number;
-  
-      /** Segments along a network curve, at least one. */
-      curve: number;
-    }
+   * Segment counts for each construction class, with all four fields required and unknown keys refused.
+   *
+   * @evidence contracts/development/design.md#principled-representation Counts set observation resolution independently of the cage's topology.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One count for closed stations, ordinary lines, each feature segment and network curves.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts All four named counts are required and validated as positive safe integers; stations need at least three and unknown keys are refused.
+   * @evidence contracts/development/common.md#meaningful-documentation States count meanings, minimums and strict named-key admission.
+   */
+  export interface ISamples {
+    /** Segments around a closed station, at least three. */
+    station: number;
+
+    /** Segments along a spine or guide, at least one. */
+    line: number;
+
+    /** Segments per declared feature segment, at least one. */
+    feature: number;
+
+    /** Segments along a network curve, at least one. */
+    curve: number;
+  }
 }

@@ -1,11 +1,13 @@
-import type { IAutoMovieViewPart, IAutoMovieConstructionFullness, IAutoMovieConstructionAxis, IAutoMovieConstructionOutline, IAutoMovieConstructionOutlinePair, IAutoMovieConstructionView, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import { AutoMovieViewOutline } from "@automovie/engine";
-
-
-
-
+import type {
+  IAutoMovieConstructionAxis,
+  IAutoMovieConstructionFullness,
+  IAutoMovieConstructionOutline,
+  IAutoMovieConstructionOutlinePair,
+  IAutoMovieConstructionView,
+  IAutoMovieVector3,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * A body part's view record in the construction tree (`IAutoMovieConstructionView`)
@@ -26,7 +28,10 @@ export namespace AutoMovieHumanConstructionView {
    * @param axis The part's axis record, metres, naming the frame the part was lofted in.
    * @returns The view, metres.
    */
-  export function of(part: IAutoMovieViewPart, axis: IAutoMovieConstructionAxis): IAutoMovieConstructionView {
+  export function of(
+    part: IAutoMovieViewPart,
+    axis: IAutoMovieConstructionAxis,
+  ): IAutoMovieConstructionView {
     return {
       type: "view",
       name: part.name,
@@ -69,34 +74,57 @@ export namespace AutoMovieHumanConstructionView {
    * @param outline The curve, millimetres of station and value.
    * @returns The curve, metres.
    */
-  export function length(outline: IAutoMovieViewPart.IOutline): IAutoMovieConstructionOutline {
+  export function length(
+    outline: IAutoMovieViewPart.IOutline,
+  ): IAutoMovieConstructionOutline {
     return AutoMovieViewOutline.scale(outline, METRES, METRES);
   }
 
   /** A complete share-valued curve: station/parameter lengths change units; values, normalized-parameter jets and ranges keep theirs. */
-  function share(outline: IAutoMovieViewPart.IOutline): IAutoMovieConstructionOutline {
+  function share(
+    outline: IAutoMovieViewPart.IOutline,
+  ): IAutoMovieConstructionOutline {
     return AutoMovieViewOutline.scale(outline, METRES, 1);
   }
 
   /** A view's two edges in metres. */
-  function pair(p: IAutoMovieViewPart.IPair): IAutoMovieConstructionOutlinePair {
+  function pair(
+    p: IAutoMovieViewPart.IPair,
+  ): IAutoMovieConstructionOutlinePair {
     return { positive: length(p.positive), negative: length(p.negative) };
   }
 
   /** Four quarters' share curves. */
   function quarters(
     q: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline>,
-  ): [IAutoMovieConstructionOutline, IAutoMovieConstructionOutline, IAutoMovieConstructionOutline, IAutoMovieConstructionOutline] {
+  ): [
+    IAutoMovieConstructionOutline,
+    IAutoMovieConstructionOutline,
+    IAutoMovieConstructionOutline,
+    IAutoMovieConstructionOutline,
+  ] {
     return [share(q[0]), share(q[1]), share(q[2]), share(q[3])];
   }
 
   /** The fullness owner as the tree's record. */
-  function fullness(f: IAutoMovieViewPart.Fullness): IAutoMovieConstructionFullness {
+  function fullness(
+    f: IAutoMovieViewPart.Fullness,
+  ): IAutoMovieConstructionFullness {
     switch (f.kind) {
       case "girth":
-        return { type: "girth", girth: length(f.girth), departures: f.departures === undefined ? null : quarters(f.departures) };
+        return {
+          type: "girth",
+          girth: length(f.girth),
+          departures:
+            f.departures === undefined ? null : quarters(f.departures),
+        };
       case "shoulder":
-        return { type: "shoulder", shoulder: share(f.shoulder), departures: f.departures === undefined ? null : quarters(f.departures) };
+        return {
+          type: "shoulder",
+          shoulder: share(f.shoulder),
+          departures:
+            f.departures === undefined ? null : quarters(f.departures),
+        };
       case "top":
         return { type: "top", shoulders: quarters(f.shoulders) };
     }

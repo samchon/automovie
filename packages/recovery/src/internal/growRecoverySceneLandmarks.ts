@@ -1,14 +1,13 @@
-import type { IAutoMovieRecoveryMapLandmark, IAutoMovieRecoveryMapObservation, IAutoMovieRecoveryMapPointProjectionOperation, IAutoMovieRecoveryMapPose, IAutoMovieRecoverySceneLandmarksGrowthOperation, IAutoMovieRecoverySceneTrackTriangulationOperation } from "@automovie/interface";
-
-
-
-
-
-
+import type {
+  IAutoMovieRecoveryMapLandmark,
+  IAutoMovieRecoveryMapObservation,
+  IAutoMovieRecoveryMapPointProjectionOperation,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoverySceneLandmarksGrowthOperation,
+  IAutoMovieRecoverySceneTrackTriangulationOperation,
+} from "@automovie/interface";
 
 import { assertRecoverySceneLinearRetention } from "./assertRecoverySceneLinearRetention";
-
-
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 import { triangulateRecoverySceneTrack } from "./triangulateRecoverySceneTrack";
@@ -63,8 +62,10 @@ export function growRecoverySceneLandmarks(
           observation: IAutoMovieRecoveryMapObservation,
         ): IAutoMovieRecoveryMapObservation => ({
           ...observation,
-          pixel: [...observation.pixel] }),
-      ) }),
+          pixel: [...observation.pixel],
+        }),
+      ),
+    }),
   );
   const byId: Map<number, IAutoMovieRecoveryMapLandmark> = new Map(
     landmarks.map(
@@ -117,7 +118,8 @@ export function growRecoverySceneLandmarks(
           );
           existing.observations.push({
             ...observation,
-            pixel: [...observation.pixel] });
+            pixel: [...observation.pixel],
+          });
           retained.add(observation.viewIndex);
           addedObservations++;
           observationCount++;
@@ -169,8 +171,10 @@ export function growRecoverySceneLandmarks(
           observation: IAutoMovieRecoveryMapObservation,
         ): IAutoMovieRecoveryMapObservation => ({
           ...observation,
-          pixel: [...observation.pixel] }),
-      ) };
+          pixel: [...observation.pixel],
+        }),
+      ),
+    };
     landmarks.push(landmark);
     byId.set(track.id, landmark);
     addedLandmarks++;

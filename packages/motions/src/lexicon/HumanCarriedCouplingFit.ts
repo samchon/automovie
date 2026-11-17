@@ -1,3 +1,9 @@
+import {
+  Quaternion,
+  Vector3,
+  getConstraint,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -13,12 +19,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import {
-  Quaternion,
-  Vector3,
-  getConstraint,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { HumanTrunk } from "../everyday/HumanTrunk";

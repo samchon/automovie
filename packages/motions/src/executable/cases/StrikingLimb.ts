@@ -1,6 +1,18 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import { HumanColliders } from "../../posture/HumanColliders";
 import { StrikingRecord } from "../../striking/StrikingRecord";
 import { StrikingWeapon } from "../../striking/StrikingWeapon";
@@ -161,7 +173,11 @@ export namespace StrikingLimb {
    * @param knee Whether the strike is a knee, which ends at the kneecap.
    * @returns The length.
    */
-  export function length(body: IAutoMovieMotionHumanBody, limb: End, knee: boolean): number {
+  export function length(
+    body: IAutoMovieMotionHumanBody,
+    limb: End,
+    knee: boolean,
+  ): number {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     if (knee) return m.thigh + m.thighRadius;
     return leg(limb)
@@ -320,13 +336,11 @@ export namespace StrikingLimb {
   ): IGap {
     let best: IGap = { distance: Infinity, bone: undefined, part: "nothing" };
     for (const c of capsules(body, bones, limb)) {
-      const near: IAutoMovieMotionHumanColliders.IDistance = HumanColliders.distanceToSegment(
-        other,
-        others,
-        c.a,
-        c.b,
-        [c.radius, c.tail],
-      );
+      const near: IAutoMovieMotionHumanColliders.IDistance =
+        HumanColliders.distanceToSegment(other, others, c.a, c.b, [
+          c.radius,
+          c.tail,
+        ]);
       if (near.distance < best.distance)
         best = {
           distance: near.distance,

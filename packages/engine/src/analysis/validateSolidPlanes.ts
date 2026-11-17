@@ -1,4 +1,7 @@
-import { type IAutoMovieViolationCollector, IAutoMovieHalfSpacePlane } from "@automovie/interface";
+import {
+  IAutoMovieHalfSpacePlane,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "./constants/AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES";
 

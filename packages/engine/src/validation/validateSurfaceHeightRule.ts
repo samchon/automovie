@@ -1,5 +1,7 @@
-import { type IAutoMovieViolationCollector, IAutoMovieHeightRule } from "@automovie/interface";
-
+import {
+  IAutoMovieHeightRule,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 /**
  * Admit constant/plane finite parameters or a finite heightfield with positive pitch, safe dimensions>=2 and exact row-major count.

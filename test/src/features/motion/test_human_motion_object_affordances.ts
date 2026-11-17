@@ -1,8 +1,22 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieAffordance, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { createCar, createDrinkware, createSeat } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -85,7 +99,10 @@ export function test_human_motion_object_affordances(): void {
     at: { x: 0.3, y: 0, z: -0.45 },
     yaw: 30,
   };
-  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(chair, where);
+  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+    chair,
+    where,
+  );
   const placed: IAutoMovieTransform = chair.placed("seat", {
     translation: where.at,
     rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, where.yaw),

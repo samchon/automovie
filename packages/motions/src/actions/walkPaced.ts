@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionEvent, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture } from "@automovie/interface";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 /**
  * A stepping plan played on a tabulated clock: at each film second the body
@@ -63,13 +68,16 @@ export function walkPaced(
       }),
     ),
     contacts: plan.contacts.map(
-      (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
+      (
+        c: IAutoMovieMotionHumanContactWindow,
+      ): IAutoMovieMotionHumanContactWindow => ({
         ...c,
         from: moved(c.from),
         to: moved(c.to),
       }),
     ),
     ...(plan.contact === undefined ? {} : { contact: toFilm(plan.contact) }),
-    posture: (film: number): IAutoMovieMotionHumanPosture => plan.posture(toPlan(film)),
+    posture: (film: number): IAutoMovieMotionHumanPosture =>
+      plan.posture(toPlan(film)),
   };
 }

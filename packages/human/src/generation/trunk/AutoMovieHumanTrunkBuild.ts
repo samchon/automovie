@@ -1,20 +1,19 @@
-import type { IAutoMovieLoftContract, IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanBodyTree, IAutoMovieHumanMassSource, IAutoMovieHumanSiteViewPart, IAutoMovieHumanTrunkBuild, IAutoMovieHumanTrunkMassPlacement, IAutoMovieHumanTrunkSectionFamily, IAutoMovieHumanTrunkTape, IAutoMovieHumanTrunkViews, IAutoMovieConstructionView } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionView,
+  IAutoMovieHumanBodyTree,
+  IAutoMovieHumanMassSource,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanTrunkBuild,
+  IAutoMovieHumanTrunkMassPlacement,
+  IAutoMovieHumanTrunkSectionFamily,
+  IAutoMovieHumanTrunkTape,
+  IAutoMovieHumanTrunkViews,
+  IAutoMovieLoftContract,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanMassPart } from "../limb/AutoMovieHumanMassPart";
-
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanBreastConnection } from "./AutoMovieHumanBreastConnection";
 import { AutoMovieHumanGlutealConnection } from "./AutoMovieHumanGlutealConnection";
@@ -23,7 +22,6 @@ import { AutoMovieHumanTrunkMassPlacement } from "./AutoMovieHumanTrunkMassPlace
 import { AutoMovieHumanTrunkSectionFamily } from "./AutoMovieHumanTrunkSectionFamily";
 import { AutoMovieHumanTrunkTape } from "./AutoMovieHumanTrunkTape";
 import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
-
 
 /**
  * The trunk subtree built and joined (#3047): the base lofted from its views,
@@ -64,20 +62,13 @@ import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
  * pair that reaches the median plane is reported and left unjoined.
  */
 export namespace AutoMovieHumanTrunkBuild {
-  
-
-  
-
-  
-
   /** Section controls and ring phases of a mass. */
   const MASS_ORDER: number = 128;
 
   /** Preserve the existing upper scalar support from the canonical head axis; the regular shared connection excludes that support's dome from the loft domain. */
   export function withHead(
     trunk: IAutoMovieHumanTrunkBuild.IInput,
-    head:
-      IAutoMovieHumanTrunkBuild.IWithHeadHead,
+    head: IAutoMovieHumanTrunkBuild.IWithHeadHead,
     diagnostics: IAutoMovieLoftContract.IDiagnostic[],
   ): IAutoMovieHumanTrunkBuild.IInput {
     const neck: IAutoMovieHumanTrunkViews.ISite | undefined =
@@ -106,12 +97,18 @@ export namespace AutoMovieHumanTrunkBuild {
    * @param input The views, the merged tapes and the masses' laws.
    * @returns The chains, the merges and the diagnostics.
    */
-  export function create(input: IAutoMovieHumanTrunkBuild.IInput, prepared?: IAutoMovieHumanTrunkBuild.IOutput): IAutoMovieHumanTrunkBuild.IOutput {
-    const original: IAutoMovieHumanTrunkBuild.IOutput = prepared ?? define(input);
+  export function create(
+    input: IAutoMovieHumanTrunkBuild.IInput,
+    prepared?: IAutoMovieHumanTrunkBuild.IOutput,
+  ): IAutoMovieHumanTrunkBuild.IOutput {
+    const original: IAutoMovieHumanTrunkBuild.IOutput =
+      prepared ?? define(input);
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [
       ...original.diagnostics,
     ];
-    const sources: IAutoMovieHumanSiteViewPart.ISource[] = [...original.sources];
+    const sources: IAutoMovieHumanSiteViewPart.ISource[] = [
+      ...original.sources,
+    ];
     const last: Map<string, IAutoMovieHumanSiteViewPart.ISource> = new Map(
       sources.map(
         (
@@ -154,7 +151,9 @@ export namespace AutoMovieHumanTrunkBuild {
   }
 
   /** Prepare the identical two tape passes from original fields, without raw lofts, a mesh or final realization. */
-  export function define(input: IAutoMovieHumanTrunkBuild.IInput): IAutoMovieHumanTrunkBuild.IOutput {
+  export function define(
+    input: IAutoMovieHumanTrunkBuild.IInput,
+  ): IAutoMovieHumanTrunkBuild.IOutput {
     const sections: ReadonlyMap<
       string,
       IAutoMovieHumanTrunkSectionFamily.IPlane
@@ -167,7 +166,13 @@ export namespace AutoMovieHumanTrunkBuild {
     ) => IAutoMovieHumanTrunkBuild.IOutput = (
       trunk: IAutoMovieConstructionView | null,
       masses: IAutoMovieHumanBodyTree.IFold[],
-    ): IAutoMovieHumanTrunkBuild.IOutput => ({ trunk, masses, diagnostics, sources, sections });
+    ): IAutoMovieHumanTrunkBuild.IOutput => ({
+      trunk,
+      masses,
+      diagnostics,
+      sources,
+      sections,
+    });
 
     // Pass 1: the base with the ellipse's shoulders, the masses on it.
     const first: IAutoMovieHumanSiteViewPart.IResult = {
@@ -219,7 +224,9 @@ export namespace AutoMovieHumanTrunkBuild {
                 kind === "gluteal"
                   ? (
                       shoulder: number,
-                    ): NonNullable<IAutoMovieHumanTrunkTape.IInput["parents"]> =>
+                    ): NonNullable<
+                      IAutoMovieHumanTrunkTape.IInput["parents"]
+                    > =>
                       AutoMovieHumanTrunkLegs.trial(
                         input,
                         s,
@@ -299,7 +306,10 @@ export namespace AutoMovieHumanTrunkBuild {
     sources: IAutoMovieHumanSiteViewPart.ISource[],
   ): IMass[] {
     const out: IMass[] = [];
-    const pairs: ["breast" | "gluteal", IAutoMovieHumanTrunkBuild.IMassLaw | null][] = [
+    const pairs: [
+      "breast" | "gluteal",
+      IAutoMovieHumanTrunkBuild.IMassLaw | null,
+    ][] = [
       ["breast", input.breast],
       ["gluteal", input.gluteal],
     ];
@@ -319,7 +329,8 @@ export namespace AutoMovieHumanTrunkBuild {
         continue;
       }
       for (const side of ["left", "right"] as const) {
-        const own: IAutoMovieHumanTrunkBuild.IMassLaw = side === "left" ? law : mirror(law);
+        const own: IAutoMovieHumanTrunkBuild.IMassLaw =
+          side === "left" ? law : mirror(law);
         const name: string = `${kind}.${side}`;
         const placement: IAutoMovieHumanTrunkMassPlacement.IPlacement | string =
           AutoMovieHumanTrunkMassPlacement.of(
@@ -435,8 +446,12 @@ export namespace AutoMovieHumanTrunkBuild {
    * @param law The left side's law.
    * @returns The right side's.
    */
-  function mirror(law: IAutoMovieHumanTrunkBuild.IMassLaw): IAutoMovieHumanTrunkBuild.IMassLaw {
-    const flip: (p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [p[0], p[1], -p[2]];
+  function mirror(
+    law: IAutoMovieHumanTrunkBuild.IMassLaw,
+  ): IAutoMovieHumanTrunkBuild.IMassLaw {
+    const flip: (p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (
+      p: AutoMovieVector3Tuple,
+    ): AutoMovieVector3Tuple => [p[0], p[1], -p[2]];
     return { ...law, target: flip(law.target), up: flip(law.up) };
   }
 }

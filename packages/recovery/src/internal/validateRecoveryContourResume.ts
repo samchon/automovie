@@ -1,7 +1,8 @@
-import type { IAutoMovieRecoveryContourResumeInput, IAutoMovieRecoveryContourResumePolicy, IAutoMovieRecoverySavedSection } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieRecoveryContourResumeInput,
+  IAutoMovieRecoveryContourResumePolicy,
+  IAutoMovieRecoverySavedSection,
+} from "@automovie/interface";
 
 /** Admit complete saved cuts and distinct failed-target policies before fitting.
  * @evidence contracts/development/implementation.md#principled-implementation Finite mesh addresses, frame records, unique planes, raw targets and artifact-bound fit policies are checked structurally. Opaque identities remain caller-attested.

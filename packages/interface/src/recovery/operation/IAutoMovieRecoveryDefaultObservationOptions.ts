@@ -9,7 +9,6 @@ import type { IAutoMovieRecoveryOptions } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation States the saved basis and the meaning of selector omission.
  */
 export interface IAutoMovieRecoveryDefaultObservationOptions extends IAutoMovieRecoveryOptions {
- 
- /** Saved Bernstein controls; omission selects the same Bezier basis. */
+  /** Saved Bernstein controls; omission selects the same Bezier basis. */
   curveFormat?: "bezier";
 }

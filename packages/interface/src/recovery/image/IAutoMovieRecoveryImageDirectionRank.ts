@@ -6,11 +6,9 @@
  * @evidence contracts/development/common.md#meaningful-documentation Names the two design matrices and the dimensionless rank-ratio interpretation.
  */
 export interface IAutoMovieRecoveryImageDirectionRank {
- 
- /** Squared-radius support design singular-value ratio. */
+  /** Squared-radius support design singular-value ratio. */
   radii: number;
 
- 
- /** Centre-projection design singular-value ratio. */
+  /** Centre-projection design singular-value ratio. */
   centres: number;
 }

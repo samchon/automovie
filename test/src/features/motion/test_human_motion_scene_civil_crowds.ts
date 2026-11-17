@@ -1,6 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanCrowd, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HumanCrowd, HumanEnsemble, HumanFormation, HumanPerformance, HumanResponse } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanCrowd,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanCrowd,
+  HumanEnsemble,
+  HumanFormation,
+  HumanPerformance,
+  HumanResponse,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -67,7 +81,11 @@ export function test_human_motion_scene_civil_crowds(): void {
     });
 
   // 1. A shot.
-  const bystanders: IAutoMovieMotionHumanEnsemble.IEnsemble = scatter("s", "civilians", 30);
+  const bystanders: IAutoMovieMotionHumanEnsemble.IEnsemble = scatter(
+    "s",
+    "civilians",
+    30,
+  );
   const shot: number = 2;
   const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "crowds",
@@ -75,7 +93,10 @@ export function test_human_motion_scene_civil_crowds(): void {
     cues: { shot: [{ name: "report", seconds: shot }] },
     composition: HumanEnsemble.chains(
       bystanders,
-      (_: IAutoMovieMotionHumanEnsemble.IMember, chain: IAutoMovieMotionHumanChain) =>
+      (
+        _: IAutoMovieMotionHumanEnsemble.IMember,
+        chain: IAutoMovieMotionHumanChain,
+      ) =>
         chain
           .look({
             target: {
@@ -92,7 +113,9 @@ export function test_human_motion_scene_civil_crowds(): void {
   });
   const onsets: number[] = bystanders.members.map(
     (m: IAutoMovieMotionHumanEnsemble.IMember): number => {
-      const s: IAutoMovieMotionHumanSegment.ISegment = performance.segments(m.subject)[0]!;
+      const s: IAutoMovieMotionHumanSegment.ISegment = performance.segments(
+        m.subject,
+      )[0]!;
       return s.entryTime - shot;
     },
   );
@@ -103,7 +126,9 @@ export function test_human_motion_scene_civil_crowds(): void {
     findings.push("the bystanders turn nearly as one");
 
   // 2. A mob.
-  const flee = (e: IAutoMovieMotionHumanEnsemble.IEnsemble): IAutoMovieMotionHumanCrowd.IResult =>
+  const flee = (
+    e: IAutoMovieMotionHumanEnsemble.IEnsemble,
+  ): IAutoMovieMotionHumanCrowd.IResult =>
     HumanCrowd.steer(e, {
       goals: (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieVector3 => ({
         x: m.place.at.x,
@@ -116,8 +141,16 @@ export function test_human_motion_scene_civil_crowds(): void {
       latency: "reaction",
       flight: true,
     });
-  const rabble: IAutoMovieMotionHumanEnsemble.IEnsemble = scatter("r", "rabble", 30);
-  const civilians: IAutoMovieMotionHumanEnsemble.IEnsemble = scatter("c", "civilians", 30);
+  const rabble: IAutoMovieMotionHumanEnsemble.IEnsemble = scatter(
+    "r",
+    "rabble",
+    30,
+  );
+  const civilians: IAutoMovieMotionHumanEnsemble.IEnsemble = scatter(
+    "c",
+    "civilians",
+    30,
+  );
   const mob: IAutoMovieMotionHumanCrowd.IResult = flee(rabble);
   const calm: IAutoMovieMotionHumanCrowd.IResult = flee(civilians);
   const apart = (
@@ -151,7 +184,10 @@ export function test_human_motion_scene_civil_crowds(): void {
   };
   apart("mob", rabble, mob, 30);
   apart("calm", civilians, calm, 30);
-  const arrived = (r: IAutoMovieMotionHumanCrowd.IResult, label: string): number[] =>
+  const arrived = (
+    r: IAutoMovieMotionHumanCrowd.IResult,
+    label: string,
+  ): number[] =>
     r.arrivals.map((x: number | null, i: number): number => {
       if (x === null) findings.push(`${label}: member ${i} never arrives`);
       return x ?? 30;
@@ -169,17 +205,29 @@ export function test_human_motion_scene_civil_crowds(): void {
   // The presets' own claim, deterministic: the arrivals the drawn desires alone imply (delay plus the course over the desired speed) vary more for the rabble, over `PILOT` seeds.
   const implied = (preset: IAutoMovieMotionHumanEnsemble["preset"]): number[] =>
     Array.from({ length: PILOT }, (_: unknown, k: number): number[] => {
-      const e: IAutoMovieMotionHumanEnsemble.IEnsemble = scatter("x", preset, 30, `pilot:${k}`);
-      return e.members.map((m: IAutoMovieMotionHumanEnsemble.IMember): number => {
-        const d: IAutoMovieMotionHumanCrowd.IDesired = HumanCrowd.desired(e, m, {
-          gait: "run",
-          latency: "reaction",
-          flight: true,
-        });
-        return d.delay + 30 / d.speed;
-      });
+      const e: IAutoMovieMotionHumanEnsemble.IEnsemble = scatter(
+        "x",
+        preset,
+        30,
+        `pilot:${k}`,
+      );
+      return e.members.map(
+        (m: IAutoMovieMotionHumanEnsemble.IMember): number => {
+          const d: IAutoMovieMotionHumanCrowd.IDesired = HumanCrowd.desired(
+            e,
+            m,
+            {
+              gait: "run",
+              latency: "reaction",
+              flight: true,
+            },
+          );
+          return d.delay + 30 / d.speed;
+        },
+      );
     }).flat();
-  const ratio: number = variance(implied("rabble")) / variance(implied("civilians"));
+  const ratio: number =
+    variance(implied("rabble")) / variance(implied("civilians"));
   if (!(ratio > 1))
     findings.push(
       `the presets imply the rabble's arrivals vary ${ratio.toFixed(3)} times the civilians'`,
@@ -187,7 +235,8 @@ export function test_human_motion_scene_civil_crowds(): void {
 
   // The behaviour: the steered arrivals over enough seeds to resolve that ratio. A one-sided test of the variance ratio at alpha 0.05 with power 0.8 needs, by the large-sample normality of the log variance ratio (variance 2 / (n - 1) per sample), n = 1 + 4 (z_0.95 + z_0.8)^2 / (ln ratio)^2 arrivals per preset; the seeds are that many scenes of 30.
   const needed: number =
-    1 + (4 * (Z_ALPHA + Z_POWER) ** 2) / Math.log(Math.max(ratio, 1 + 1e-9)) ** 2;
+    1 +
+    (4 * (Z_ALPHA + Z_POWER) ** 2) / Math.log(Math.max(ratio, 1 + 1e-9)) ** 2;
   const seeds: number = Math.max(1, Math.ceil(needed / 30));
   if (seeds > MOST_SEEDS)
     findings.push(
@@ -205,7 +254,9 @@ export function test_human_motion_scene_civil_crowds(): void {
   }
   // Levene's test in its Brown-Forsythe form (absolute deviations from each group's median, robust to skewed arrivals), one-sided: for two groups it is the pooled t-test on those deviations, read against z_0.95 at these sizes.
   const deviations = (a: readonly number[]): number[] => {
-    const sorted: number[] = [...a].sort((p: number, q: number): number => p - q);
+    const sorted: number[] = [...a].sort(
+      (p: number, q: number): number => p - q,
+    );
     const median: number =
       sorted.length % 2 === 1
         ? sorted[(sorted.length - 1) / 2]!
@@ -236,10 +287,13 @@ export function test_human_motion_scene_civil_crowds(): void {
       yaw: 0,
     }),
   });
-  const groups: IAutoMovieMotionHumanEnsemble.IGroup[] = HumanEnsemble.groups(street, {
-    share: 2 / 3,
-    sizes: [2, 3],
-  });
+  const groups: IAutoMovieMotionHumanEnsemble.IGroup[] = HumanEnsemble.groups(
+    street,
+    {
+      share: 2 / 3,
+      sizes: [2, 3],
+    },
+  );
   const walked: IAutoMovieMotionHumanCrowd.IResult = HumanCrowd.steer(street, {
     goals: (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieVector3 => ({
       x: m.place.at.x,
@@ -290,7 +344,9 @@ export function test_human_motion_scene_civil_crowds(): void {
 
   // 5. Determinism.
   const again: IAutoMovieMotionHumanCrowd.IResult = flee(rabble);
-  const other: IAutoMovieMotionHumanCrowd.IResult = flee(scatter("r", "rabble", 30, "another"));
+  const other: IAutoMovieMotionHumanCrowd.IResult = flee(
+    scatter("r", "rabble", 30, "another"),
+  );
   let moved: boolean = false;
   for (let i: number = 0; i < 30; ++i)
     for (let t: number = 0; t <= 30; t += 3) {

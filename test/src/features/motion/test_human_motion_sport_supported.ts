@@ -1,4 +1,3 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import {
   createBench,
   createParallelBars,
@@ -10,8 +9,23 @@ import {
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanSignature, HumanSportGym, HumanSportThrow, HumanSportWorkout } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanSignature,
+  HumanSportGym,
+  HumanSportThrow,
+  HumanSportWorkout,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -183,7 +197,9 @@ export function test_human_motion_sport_supported(): void {
     const when = (row: string, event: string): number => {
       const found: IAutoMovieMotionHumanSegment.ISegment = film
         .segments("a")
-        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row)!;
+        .find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
+        )!;
       return (
         found.start +
         (found.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -205,10 +221,8 @@ export function test_human_motion_sport_supported(): void {
       );
     // The grip sockets' middle, the centre of the closed fists.
     const fists = (seconds: number): IAutoMovieVector3 => {
-      const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> = film.bones(
-        "a",
-        seconds,
-      );
+      const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
+        film.bones("a", seconds);
       return Vector3.scale(
         [body.surfaces.sockets.gripLeft, body.surfaces.sockets.gripRight]
           .map(

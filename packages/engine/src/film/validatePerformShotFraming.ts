@@ -1,4 +1,8 @@
-import { type IAutoMovieValidatePerformShotFraming, type IAutoMovieViolationCollector, IAutoMovieCameraAction } from "@automovie/interface";
+import {
+  IAutoMovieCameraAction,
+  type IAutoMovieValidatePerformShotFraming,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { CAMERA_FRAMINGS } from "./constants/CAMERA_FRAMINGS";

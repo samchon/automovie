@@ -1,5 +1,3 @@
-
-
 /**
  * One degree-valued affine clinical mapping: clinical = sign * rig + neutral. Conversion owners admit sign plus/minus one and finite neutral; the type itself performs no validation.
  *

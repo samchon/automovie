@@ -1,10 +1,17 @@
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   DEFAULT_HUMANOID_ROM,
   jointRomOvershoot,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FootSlip } from "./FootSlip";
@@ -257,7 +264,10 @@ interface IPlant {
 }
 
 /** Every foot plant window of a person's performance. */
-function plants(performance: IAutoMovieMotionHumanPerformance, subject: string): IPlant[] {
+function plants(
+  performance: IAutoMovieMotionHumanPerformance,
+  subject: string,
+): IPlant[] {
   const out: IPlant[] = [];
   for (const segment of performance.segments(subject))
     for (const contact of segment.plan.contacts) {

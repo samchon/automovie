@@ -1,14 +1,15 @@
-import type { IAutoMovieHumanBackProfile, IAutoMovieHumanBodyMeasures, IAutoMovieHumanReferenceOutlineTypes, IAutoMovieHumanTrunkLaws, IAutoMovieHumanTrunkViewLaws } from "@automovie/interface";
-
-
-
-
+import type {
+  IAutoMovieHumanBackProfile,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanReferenceOutlineTypes,
+  IAutoMovieHumanTrunkLaws,
+  IAutoMovieHumanTrunkViewLaws,
+} from "@automovie/interface";
 
 import { AutoMovieHumanBackProfile } from "../AutoMovieHumanBackProfile";
 import { AutoMovieHumanChestWall } from "../AutoMovieHumanChestWall";
 import { AutoMovieHumanLumbarSection } from "../AutoMovieHumanLumbarSection";
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
-
 
 /**
  * The trunk's laws bound for a person (#3047), in calibration millimetres:
@@ -35,8 +36,6 @@ import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutli
  * perineum's, and the sites above the chest (their half breadths and fronts).
  */
 export namespace AutoMovieHumanTrunkLaws {
-  
-
   /**
    * The trunk's laws for a person.
    *

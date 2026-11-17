@@ -1,6 +1,16 @@
-import type { AutoMovieSurfaceTier, IAutoMovieResolvedBone, IAutoMovieSurfaceCage, IAutoMovieSurfaceNetwork, IAutoMovieSurfaceRig, IAutoMovieQuaternion } from "@automovie/interface";
-import { poseAutoMovieSurfaceNetwork, rigAutoMovieSurfaceNetwork, sampleAutoMovieSurfaceNetwork } from "@automovie/engine";
-
+import {
+  poseAutoMovieSurfaceNetwork,
+  rigAutoMovieSurfaceNetwork,
+  sampleAutoMovieSurfaceNetwork,
+} from "@automovie/engine";
+import type {
+  AutoMovieSurfaceTier,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSurfaceCage,
+  IAutoMovieSurfaceNetwork,
+  IAutoMovieSurfaceRig,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { sweepBranchedBody } from "../internal/sweepBranchedBody";

@@ -1,5 +1,13 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive } from "@automovie/interface";
-import { AutoMovieMotionClock, composeAutoMovieMotionHumanAction } from "@automovie/motions";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionClock,
+  composeAutoMovieMotionHumanAction,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -59,7 +67,9 @@ export function test_motion_compose_action(): void {
     channels: ["head"],
     from: 0,
     to: 1,
-    write: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => ({
+    write: (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanPosture => ({
       ...posture,
       joints: { ...posture.joints, head: [posture.pitch, 0, 0] },
     }),
@@ -87,18 +97,21 @@ export function test_motion_compose_action(): void {
         path: () => ({ x: 0, y: 1, z: 0 }),
       },
     ],
-    write: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => ({
+    write: (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanPosture => ({
       ...posture,
       yaw: 99,
       pitch: 30,
     }),
   });
-  const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-    base,
-    clock,
-    primitives: [head, trunk(0.2, 0.8)],
-    contact: "contact",
-  });
+  const plan: IAutoMovieMotionHumanActionPlan =
+    composeAutoMovieMotionHumanAction({
+      base,
+      clock,
+      primitives: [head, trunk(0.2, 0.8)],
+      contact: "contact",
+    });
 
   const inside: IAutoMovieMotionHumanPosture = plan.posture(0.5);
   const outside: IAutoMovieMotionHumanPosture = plan.posture(0.1);

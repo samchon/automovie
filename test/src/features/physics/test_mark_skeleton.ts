@@ -1,6 +1,9 @@
-import type { IAutoMovieMark, IAutoMoviePhysicsCache, IAutoMoviePhysicalProfile } from "@automovie/interface";
 import { markAutoMovieSkeleton } from "@automovie/engine";
-
+import type {
+  IAutoMovieMark,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicsCache,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

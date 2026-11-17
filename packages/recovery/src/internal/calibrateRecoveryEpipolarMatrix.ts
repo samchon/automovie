@@ -1,11 +1,12 @@
-import type { IAutoMovieRecoveryEpipolarMatrixCalibrateOperation, IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieMatrix3,
   Vector3,
-  decomposeAutoMovieSingularMatrix } from "@automovie/engine";
-
-
-
+  decomposeAutoMovieSingularMatrix,
+} from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryEpipolarMatrixCalibrateOperation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Project a pixel fundamental matrix onto the supplied-calibration essential
@@ -96,11 +97,13 @@ export function calibrateRecoveryEpipolarMatrix(
     for (const sign of [1, -1])
       poses.push({
         rotation: rotation.slice(),
-        translation: [sign * u[2]!, sign * u[5]!, sign * u[8]!] });
+        translation: [sign * u[2]!, sign * u[5]!, sign * u[8]!],
+      });
   }
   return {
     essential,
     fundamental: pixel.map((value: number): number => value / pixelNorm),
     relativeProjectionDiscrepancy,
-    poses };
+    poses,
+  };
 }

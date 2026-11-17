@@ -1,6 +1,8 @@
-import { type IAutoMoviePrimitiveShape, IAutoMovieTransform } from "@automovie/interface";
 import { deriveCenterOfMass } from "@automovie/engine";
-
+import {
+  type IAutoMoviePrimitiveShape,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeProp, primitivePart } from "../internal/fixtures";

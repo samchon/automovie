@@ -1,5 +1,3 @@
-
-
 /**
  * Role of a renderer-owned PNG, which decides its picture profile.
  *

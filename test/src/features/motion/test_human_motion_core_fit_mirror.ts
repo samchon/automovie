@@ -1,5 +1,9 @@
-import type { IAutoMovieMotionHumanPosture, AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -52,7 +56,9 @@ export function test_human_motion_core_fit_mirror(): void {
       : name.startsWith("right")
         ? `left${name.slice(5)}`
         : name;
-  const mirror = (p: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => {
+  const mirror = (
+    p: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture => {
     const joints: Record<string, readonly [number, number, number]> = {};
     for (const [bone, v] of Object.entries(p.joints ?? {}) as [
       string,
@@ -143,7 +149,11 @@ export function test_human_motion_core_fit_mirror(): void {
     });
 
     // 3. Both hands reaching forward, apart, the right a little higher.
-    const level: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+    const level: IAutoMovieMotionHumanPosture = stand.posture(
+      body,
+      { x: 0, y: 0, z: 0 },
+      0,
+    );
     const chest: number = body.measure.shoulderHeight - 0.2;
     const hand = (
       x: number,

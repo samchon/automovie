@@ -1,4 +1,3 @@
-import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 import type {
   AutoMovieMotionHumanChannel,
   IAutoMovieMotionHumanActionPlan,
@@ -9,6 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 
 /**
  * An action composed of part primitives over a base.

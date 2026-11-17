@@ -1,6 +1,11 @@
-import type { IAutoMovieQuaternion, IAutoMovieSphere, IAutoMovieSpringDriver, IAutoMovieSpringState, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieSphere,
+  IAutoMovieSpringDriver,
+  IAutoMovieSpringState,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";

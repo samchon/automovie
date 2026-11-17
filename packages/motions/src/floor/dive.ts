@@ -1,6 +1,17 @@
-import type { AutoMovieHumanoidBone, AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanDive, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanDive,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -83,16 +94,18 @@ export namespace dive {
   };
 
   /** How far the hips joint travels, statures: to the side in a dive, ahead in a slide (provisional). */
-  export const REACH: Readonly<Record<IAutoMovieMotionHumanDive.Kind, number>> = {
-    dive: 0.8,
-    slide: 0.7,
-  };
+  export const REACH: Readonly<Record<IAutoMovieMotionHumanDive.Kind, number>> =
+    {
+      dive: 0.8,
+      slide: 0.7,
+    };
 
   /** How high the dive's flight rises above its chord, statures (provisional). */
   export const APEX: number = 0.12;
 
   /** The turn about the kind's axis when landed, degrees (provisional): a quarter onto the side in a dive, leaning back in a slide. */
-  export const TURN: Readonly<Record<IAutoMovieMotionHumanDive.Kind, number>> = { dive: 90, slide: -55 };
+  export const TURN: Readonly<Record<IAutoMovieMotionHumanDive.Kind, number>> =
+    { dive: 90, slide: -55 };
 
   /** Seconds of each phase (provisional): the crouch, the flight or the slide, and the rest on the floor. */
   export const PHASES: Readonly<
@@ -184,11 +197,15 @@ export namespace dive {
           : { pitch: entry.pitch + turn }),
       };
     };
-    const centres = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3[] =>
+    const centres = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieVector3[] =>
       [...poseBones(body, resolveHumanPosture(body, posture)).values()].map(
         (b) => b.worldPosition,
       );
-    const ankleMid = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 => {
+    const ankleMid = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieVector3 => {
       const bones = poseBones(body, resolveHumanPosture(body, posture));
       const l: IAutoMovieVector3 = bones.get("leftFoot")!.worldPosition;
       const r: IAutoMovieVector3 = bones.get("rightFoot")!.worldPosition;
@@ -223,15 +240,17 @@ export namespace dive {
     // The flight leaves from the take-off's solved joints, its bent knees
     // included, and extends them into the kind's shape, so the legs push out
     // of the crouch rather than snapping straight as the feet leave.
-    const launch: IAutoMovieMotionHumanPosture["joints"] = GymnasticsFlight.frozen(
-      body,
-      crouched(1),
-    ).joints;
+    const launch: IAutoMovieMotionHumanPosture["joints"] =
+      GymnasticsFlight.frozen(body, crouched(1)).joints;
 
     // Landed: the full shape, its lowest joint at the ankles' height, the
     // hips joint `REACH` statures from where it took off (the turn moves the
     // hips about the root, so the root is placed for the hips).
-    const landedShape: IAutoMovieMotionHumanPosture = shape(1, TURN[kind], launch);
+    const landedShape: IAutoMovieMotionHumanPosture = shape(
+      1,
+      TURN[kind],
+      launch,
+    );
     const lowest: number = Math.min(
       ...centres(landedShape).map((p: IAutoMovieVector3): number => p.y),
     );
@@ -250,7 +269,9 @@ export namespace dive {
     const share = (seconds: number): number => seconds / duration;
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       ...(["leftFoot", "rightFoot"] as const).map(
-        (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
+        (
+          part: "leftFoot" | "rightFoot",
+        ): IAutoMovieMotionHumanContactWindow => ({
           part,
           kind: "plant",
           from: 0,
@@ -290,7 +311,11 @@ export namespace dive {
         if (t >= crouch + travel) return { ...landedShape, root: landed };
         const u: number = (t - crouch) / travel;
         const s: number = kind === "dive" ? u : minimumJerk(u).s;
-        const posture: IAutoMovieMotionHumanPosture = shape(s, TURN[kind] * s, launch);
+        const posture: IAutoMovieMotionHumanPosture = shape(
+          s,
+          TURN[kind] * s,
+          launch,
+        );
         const rise: number =
           kind === "dive" ? 4 * APEX * stature * u * (1 - u) : 0;
         return {

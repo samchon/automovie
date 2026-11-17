@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanOperate, IAutoMovieMotionHumanOperateDrive, IAutoMovieMotionHumanOperateState, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanOperate,
+  IAutoMovieMotionHumanOperateDrive,
+  IAutoMovieMotionHumanOperateState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { operateDrive } from "./operateDrive";
 import { operateInsert } from "./operateInsert";
 

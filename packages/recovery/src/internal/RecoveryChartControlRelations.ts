@@ -1,4 +1,5 @@
 import type { IAutoMovieRecoveryChartControlRelations } from "@automovie/interface";
+
 /**
  * Eliminate acyclic affine control relations without changing their coefficients.
  * Original control IDs remain the independent term addresses; they are never
@@ -24,7 +25,9 @@ import type { IAutoMovieRecoveryChartControlRelations } from "@automovie/interfa
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Every control expression and its depth are computed once and reused by all dependent relations; repeated source IDs combine in a bounded map. There is no cross-call cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local ownership maps, traversal state and flattened expressions expire on return or throw. Outputs own their arrays; controls and explicit sparse/depth budgets bound retained data, and no handles or input arrays escape.
  */
-export function RecoveryChartControlRelations(input: Parameters<IAutoMovieRecoveryChartControlRelations.Operation>[0]): ReturnType<IAutoMovieRecoveryChartControlRelations.Operation> {
+export function RecoveryChartControlRelations(
+  input: Parameters<IAutoMovieRecoveryChartControlRelations.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartControlRelations.Operation> {
   if (
     !input ||
     !Number.isSafeInteger(input.controls) ||
@@ -147,9 +150,8 @@ export function RecoveryChartControlRelations(input: Parameters<IAutoMovieRecove
       stack.pop();
     }
   }
-  const expressions: ReturnType<
-    IAutoMovieRecoveryChartControlRelations.Operation
-  >["expressions"] = [];
+  const expressions: ReturnType<IAutoMovieRecoveryChartControlRelations.Operation>["expressions"] =
+    [];
   let maximumTerms: number = 0,
     minimumWeight: number = Infinity,
     maximumWeightSumError: number = 0;
@@ -193,5 +195,6 @@ export function RecoveryChartControlRelations(input: Parameters<IAutoMovieRecove
     maximumTerms,
     maximumDepth,
     minimumWeight: minimumWeight === Infinity ? 0 : minimumWeight,
-    maximumWeightSumError };
+    maximumWeightSumError,
+  };
 }

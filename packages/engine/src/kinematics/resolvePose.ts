@@ -1,5 +1,15 @@
-import { type IAutoMovieResolvedBone, type IAutoMovieRestFrame, type IAutoMovieSkeletonTopology, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointAxes, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieJointAxes,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieRestFrame,
+  IAutoMovieSkeleton,
+  type IAutoMovieSkeletonTopology,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";

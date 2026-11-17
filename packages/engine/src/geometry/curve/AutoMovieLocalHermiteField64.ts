@@ -1,4 +1,11 @@
-import type { AutoMovieBernsteinGrid64, AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieLocalHermiteField64 } from "@automovie/interface";
+import type {
+  AutoMovieBernsteinGrid64,
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieLocalHermiteField64,
+} from "@automovie/interface";
+
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
 import { AutoMovieBernsteinGrid64 as G } from "./AutoMovieBernsteinGrid64";
 import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdivision64";
@@ -19,7 +26,6 @@ import { compileAutoMovieNormalizedPhases64 } from "./compileAutoMovieNormalized
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLocalHermiteField64 {
-
   /**
    * Admit continuous open cubic courses and prepare linear physical derivative weights.
    * Source curves must already share a normalized correspondence chart and orientation.
@@ -59,31 +65,33 @@ export namespace AutoMovieLocalHermiteField64 {
       throw new Error(
         "Increasing finite physical stations and corresponding courses required",
       );
-    const knots: number[][] = courses.map((course: IAutoMovieCurve64.Cubic): number[] => {
-      assertAutoMovieCurve64(course);
-      if (
-        course.type !== "cubicBezier" ||
-        course.closed ||
-        course.phaseUnit !== "normalized" ||
-        course.unit !== "mm"
-      )
-        throw new Error("Open normalized millimetre cubic courses required");
-      const out: number[] = compileAutoMovieNormalizedPhases64(
-        course.phaseIntervals,
-        course.spans.length,
-      );
-      for (let k: number = 1; k < course.spans.length; k++)
+    const knots: number[][] = courses.map(
+      (course: IAutoMovieCurve64.Cubic): number[] => {
+        assertAutoMovieCurve64(course);
         if (
-          course.spans[k - 1]![3].some(
-            (x: number, axis: number): boolean =>
-              x !== course.spans[k]![0][axis],
-          )
+          course.type !== "cubicBezier" ||
+          course.closed ||
+          course.phaseUnit !== "normalized" ||
+          course.unit !== "mm"
         )
-          throw new Error(
-            "A source course must have continuous span endpoints",
-          );
-      return out;
-    });
+          throw new Error("Open normalized millimetre cubic courses required");
+        const out: number[] = compileAutoMovieNormalizedPhases64(
+          course.phaseIntervals,
+          course.spans.length,
+        );
+        for (let k: number = 1; k < course.spans.length; k++)
+          if (
+            course.spans[k - 1]![3].some(
+              (x: number, axis: number): boolean =>
+                x !== course.spans[k]![0][axis],
+            )
+          )
+            throw new Error(
+              "A source course must have continuous span endpoints",
+            );
+        return out;
+      },
+    );
     const h: number[] = stations
       .slice(1)
       .map((s: number, i: number): number => s - stations[i]!);
@@ -129,16 +137,31 @@ export namespace AutoMovieLocalHermiteField64 {
       }
       return lo;
     };
-    const coefficients: (j: number, k: number) => AutoMovieBernsteinPolynomial64 = (
+    const coefficients: (
+      j: number,
+      k: number,
+    ) => AutoMovieBernsteinPolynomial64 = (
       j: number,
       k: number,
     ): AutoMovieBernsteinPolynomial64 =>
-      courses[j]!.spans[k]!.map((p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [p[0], p[1], p[2]]);
-    const combine: (j: number, values: Map<number, AutoMovieBernsteinPolynomial64>) => AutoMovieBernsteinPolynomial64 = (
+      courses[j]!.spans[k]!.map(
+        (p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [
+          p[0],
+          p[1],
+          p[2],
+        ],
+      );
+    const combine: (
+      j: number,
+      values: Map<number, AutoMovieBernsteinPolynomial64>,
+    ) => AutoMovieBernsteinPolynomial64 = (
       j: number,
       values: Map<number, AutoMovieBernsteinPolynomial64>,
     ): AutoMovieBernsteinPolynomial64 => {
-      const out: AutoMovieBernsteinPolynomial64 = Array.from({ length: 4 }, (): AutoMovieVector3Tuple => [0, 0, 0]);
+      const out: AutoMovieBernsteinPolynomial64 = Array.from(
+        { length: 4 },
+        (): AutoMovieVector3Tuple => [0, 0, 0],
+      );
       // Form secants before weighting so a common spatial translation cancels first.
       for (const { interval, factor } of stencils[j]!)
         for (let k: number = 0; k < 4; k++)
@@ -172,53 +195,67 @@ export namespace AutoMovieLocalHermiteField64 {
         const partition: number[] = [
           ...new Set(support.flatMap((j: number): number[] => knots[j]!)),
         ].sort((a: number, b: number): number => a - b);
-        return partition.slice(0, -1).map((a: number, k: number): IAutoMovieLocalHermiteField64.Cell => {
-          const b: number = partition[k + 1]!,
-            values: Map<number, AutoMovieBernsteinPolynomial64> = new Map();
-          for (const j of support) {
-            const piece: number = locate(j, a),
-              start: number = knots[j]![piece]!,
-              width: number = knots[j]![piece + 1]! - start;
-            values.set(
-              j,
-              S.restrict(
-                coefficients(j, piece),
-                (a - start) / width,
-                (b - start) / width,
-              ),
-            );
-          }
-          const first: AutoMovieBernsteinPolynomial64 = values.get(index)!,
-            last: AutoMovieBernsteinPolynomial64 = values.get(index + 1)!;
-          const grid: AutoMovieBernsteinGrid64 =
-            interpolation === "ruled"
-              ? [
-                  first,
-                  first.map(
-                    (p: AutoMovieVector3Tuple, c: number): AutoMovieVector3Tuple => V.mix(p, last[c]!, 1 / 3),
-                  ),
-                  first.map(
-                    (p: AutoMovieVector3Tuple, c: number): AutoMovieVector3Tuple => V.mix(p, last[c]!, 2 / 3),
-                  ),
-                  last,
-                ]
-              : G.hermite(
-                  first,
-                  last,
-                  combine(index, values),
-                  combine(index + 1, values),
-                  h[index]!,
-                );
-          if (
-            grid.some((row: AutoMovieBernsteinPolynomial64): boolean =>
-              row.some((p: AutoMovieVector3Tuple): boolean => !p.every(Number.isFinite)),
+        return partition
+          .slice(0, -1)
+          .map((a: number, k: number): IAutoMovieLocalHermiteField64.Cell => {
+            const b: number = partition[k + 1]!,
+              values: Map<number, AutoMovieBernsteinPolynomial64> = new Map();
+            for (const j of support) {
+              const piece: number = locate(j, a),
+                start: number = knots[j]![piece]!,
+                width: number = knots[j]![piece + 1]! - start;
+              values.set(
+                j,
+                S.restrict(
+                  coefficients(j, piece),
+                  (a - start) / width,
+                  (b - start) / width,
+                ),
+              );
+            }
+            const first: AutoMovieBernsteinPolynomial64 = values.get(index)!,
+              last: AutoMovieBernsteinPolynomial64 = values.get(index + 1)!;
+            const grid: AutoMovieBernsteinGrid64 =
+              interpolation === "ruled"
+                ? [
+                    first,
+                    first.map(
+                      (
+                        p: AutoMovieVector3Tuple,
+                        c: number,
+                      ): AutoMovieVector3Tuple => V.mix(p, last[c]!, 1 / 3),
+                    ),
+                    first.map(
+                      (
+                        p: AutoMovieVector3Tuple,
+                        c: number,
+                      ): AutoMovieVector3Tuple => V.mix(p, last[c]!, 2 / 3),
+                    ),
+                    last,
+                  ]
+                : G.hermite(
+                    first,
+                    last,
+                    combine(index, values),
+                    combine(index + 1, values),
+                    h[index]!,
+                  );
+            if (
+              grid.some((row: AutoMovieBernsteinPolynomial64): boolean =>
+                row.some(
+                  (p: AutoMovieVector3Tuple): boolean =>
+                    !p.every(Number.isFinite),
+                ),
+              )
             )
-          )
-            throw new Error("Unresolved local Hermite coefficients");
-          return { u0: a, u1: b, grid };
-        });
+              throw new Error("Unresolved local Hermite coefficients");
+            return { u0: a, u1: b, grid };
+          });
       },
-      station: (index: number, u: number): IAutoMovieLocalHermiteField64.Jet => {
+      station: (
+        index: number,
+        u: number,
+      ): IAutoMovieLocalHermiteField64.Jet => {
         if (
           !Number.isInteger(index) ||
           index < 0 ||
@@ -228,7 +265,9 @@ export namespace AutoMovieLocalHermiteField64 {
           u > 1
         )
           throw new Error("Station jet outside admitted chart");
-        const point: (j: number) => AutoMovieVector3Tuple = (j: number): AutoMovieVector3Tuple => {
+        const point: (j: number) => AutoMovieVector3Tuple = (
+          j: number,
+        ): AutoMovieVector3Tuple => {
           const k: number = locate(j, u),
             width: number = knots[j]![k + 1]! - knots[j]![k]!;
           return B.value(coefficients(j, k), (u - knots[j]![k]!) / width);

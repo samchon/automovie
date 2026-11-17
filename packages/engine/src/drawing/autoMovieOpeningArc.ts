@@ -1,4 +1,7 @@
-import { type IAutoMovieOpeningArc, IAutoMoviePlanarPoint } from "@automovie/interface";
+import {
+  type IAutoMovieOpeningArc,
+  IAutoMoviePlanarPoint,
+} from "@automovie/interface";
 
 import { AUTOMOVIE_OPENING_BULGE_EPSILON } from "./constants/AUTOMOVIE_OPENING_BULGE_EPSILON";
 

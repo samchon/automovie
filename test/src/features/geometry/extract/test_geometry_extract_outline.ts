@@ -1,5 +1,5 @@
-import type { IAutoMovieMeshExtract } from "@automovie/interface";
 import { AutoMovieMeshExtract as X } from "@automovie/engine";
+import type { IAutoMovieMeshExtract } from "@automovie/interface";
 
 /**
  * A made 40 mm cube centred on the origin: eight vertices at +-20 mm, each
@@ -127,7 +127,8 @@ export function test_geometry_extract_outline(): void {
     }
     if (!near(Math.abs(area), 1600, 1e-6))
       failures.push(`the cube's loop encloses ${area} mm^2`);
-    const e: NonNullable<IAutoMovieMeshExtract.ISection["extremes"]> = square.extremes;
+    const e: NonNullable<IAutoMovieMeshExtract.ISection["extremes"]> =
+      square.extremes;
     for (const name of ["+a", "-a", "+b", "-b"] as const)
       if (!near(e[name].reach, 20, 1e-9))
         failures.push(`cube extreme ${name} ${e[name].reach}`);
@@ -143,7 +144,8 @@ export function test_geometry_extract_outline(): void {
   if (section === undefined || section.extremes === null)
     failures.push("the plane through the cylinder reads no section");
   else {
-    const e: NonNullable<IAutoMovieMeshExtract.ISection["extremes"]> = section.extremes;
+    const e: NonNullable<IAutoMovieMeshExtract.ISection["extremes"]> =
+      section.extremes;
     // Axis 1's in-plane axes: a = axes[2] (Z), b = axes[0] (X).
     if (
       !(
@@ -195,7 +197,9 @@ export function test_geometry_extract_outline(): void {
   const mid: number[] = [5, 15, 25, 35, 45, 55, 65, 75, 85, 95];
   const flagged = (sections: IAutoMovieMeshExtract.ISection[]): number[] =>
     sections
-      .filter((s: IAutoMovieMeshExtract.ISection): boolean => s.flags.length !== 0)
+      .filter(
+        (s: IAutoMovieMeshExtract.ISection): boolean => s.flags.length !== 0,
+      )
       .map((s: IAutoMovieMeshExtract.ISection): number => s.station);
   const sound: number[] = flagged(
     X.outline(cylinder(), frame, [...mid, 20, 30, 40], 1),
@@ -226,7 +230,12 @@ export function test_geometry_extract_outline(): void {
     failures.push(
       `the gapped cut's loops ${JSON.stringify(holed.loops.map((l: IAutoMovieMeshExtract.ILoop): [number, boolean] => [l.points.length, l.closed]))}`,
     );
-  const spike: IAutoMovieMeshExtract.ISection[] = X.outline(cylinder({ spike: 5 }), frame, mid, 1);
+  const spike: IAutoMovieMeshExtract.ISection[] = X.outline(
+    cylinder({ spike: 5 }),
+    frame,
+    mid,
+    1,
+  );
   for (const station of [45, 55])
     if (
       !spike.some(

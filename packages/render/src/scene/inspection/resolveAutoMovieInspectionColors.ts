@@ -1,7 +1,7 @@
-import type { IAutoMovieInspectionKindStyle, IAutoMovieResolveInspectionColorsProps } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieInspectionKindStyle,
+  IAutoMovieResolveInspectionColorsProps,
+} from "@automovie/interface";
 
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 
@@ -18,7 +18,9 @@ import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js"
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one picture's marks.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh map and keeps nothing.
  */
-export function resolveAutoMovieInspectionColors(props: IAutoMovieResolveInspectionColorsProps): Map<string, IAutoMovieInspectionKindStyle> {
+export function resolveAutoMovieInspectionColors(
+  props: IAutoMovieResolveInspectionColorsProps,
+): Map<string, IAutoMovieInspectionKindStyle> {
   const kinds: Map<string, { label: string; color: number }> = new Map<
     string,
     { label: string; color: number }

@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanLexiconParams } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+} from "@automovie/interface";
 
 import { HumanActionRow } from "../law/HumanActionRow";
 import { HumanSword } from "./HumanSword";
@@ -25,76 +28,91 @@ import { HumanSwordGuard } from "./HumanSwordGuard";
  */
 export namespace HumanSportSwing {
   /** A baseball swing: both hands, level from the bat hand's side. */
-  export const batSwing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportSwing"]["batSwing"]> = HumanActionRow.of("batSwing", HumanSword.cut, {
+  export const batSwing: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportSwing"]["batSwing"]
+  > = HumanActionRow.of("batSwing", HumanSword.cut, {
     from: "forehand",
     hands: 2,
   });
 
   /** A checked swing: the bat started and held back at half its path. */
-  export const checkSwing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportSwing"]["checkSwing"]> = HumanActionRow.of("checkSwing", HumanSword.cut, {
+  export const checkSwing: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportSwing"]["checkSwing"]
+  > = HumanActionRow.of("checkSwing", HumanSword.cut, {
     from: "forehand",
     hands: 2,
     feint: 0.5,
   });
 
   /** A bunt: the bat held level before the body in both hands. */
-  export const bunt: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportSwing"]["bunt"]> = HumanActionRow.of("bunt", HumanSwordGuard.guard, {
+  export const bunt: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportSwing"]["bunt"]
+  > = HumanActionRow.of("bunt", HumanSwordGuard.guard, {
     guard: "middle",
     hands: 2,
   });
 
   /** A forehand drive of tennis, squash or table tennis. */
-  export const forehand: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportSwing"]["forehand"]> = HumanActionRow.of("forehand", HumanSword.cut, {
+  export const forehand: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportSwing"]["forehand"]
+  > = HumanActionRow.of("forehand", HumanSword.cut, {
     from: "forehand",
   });
 
   /** A one-handed backhand drive. */
-  export const backhandDrive: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportSwing"]["backhandDrive"]> = HumanActionRow.of(
-    "backhandDrive",
-    HumanSword.cut,
-    { from: "backhand" },
-  );
+  export const backhandDrive: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportSwing"]["backhandDrive"]
+  > = HumanActionRow.of("backhandDrive", HumanSword.cut, { from: "backhand" });
 
   /** A two-handed backhand drive. */
-  export const twoHandBackhand: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportSwing"]["twoHandBackhand"]> = HumanActionRow.of(
-    "twoHandBackhand",
-    HumanSword.cut,
-    { from: "backhand", hands: 2 },
-  );
+  export const twoHandBackhand: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportSwing"]["twoHandBackhand"]
+  > = HumanActionRow.of("twoHandBackhand", HumanSword.cut, {
+    from: "backhand",
+    hands: 2,
+  });
 
   /** A topspin stroke: the racket brushed up from below the ball. */
-  export const topspin: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportSwing"]["topspin"]> = HumanActionRow.of("topspin", HumanSword.cut, {
+  export const topspin: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportSwing"]["topspin"]
+  > = HumanActionRow.of("topspin", HumanSword.cut, {
     from: "belowForehand",
   });
 
   /** A serve, a smash or a badminton clear: the racket brought down from overhead. */
-  export const overheadSmash: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportSwing"]["overheadSmash"]> = HumanActionRow.of(
-    "overheadSmash",
-    HumanSword.cut,
-    {
-      from: "above",
-    },
-  );
+  export const overheadSmash: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportSwing"]["overheadSmash"]
+  > = HumanActionRow.of("overheadSmash", HumanSword.cut, {
+    from: "above",
+  });
 
   /** A volley: a short punch of the racket from high on its own side. */
-  export const volley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportSwing"]["volley"]> = HumanActionRow.of("volley", HumanSword.cut, {
+  export const volley: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportSwing"]["volley"]
+  > = HumanActionRow.of("volley", HumanSword.cut, {
     from: "aboveForehand",
   });
 
   /** A full golf swing: both hands, down from above the rear shoulder. */
-  export const golfSwing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportSwing"]["golfSwing"]> = HumanActionRow.of("golfSwing", HumanSword.cut, {
+  export const golfSwing: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportSwing"]["golfSwing"]
+  > = HumanActionRow.of("golfSwing", HumanSword.cut, {
     from: "aboveForehand",
     hands: 2,
   });
 
   /** A golf putt or chip: both hands, a level stroke along the ground line. */
-  export const putt: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportSwing"]["putt"]> = HumanActionRow.of("putt", HumanSword.cut, {
+  export const putt: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportSwing"]["putt"]
+  > = HumanActionRow.of("putt", HumanSword.cut, {
     from: "forehand",
     hands: 2,
   });
 
   /** A volleyball spike or serve: the open hand brought down from overhead. */
-  export const spike: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportSwing"]["spike"]> = HumanActionRow.of("spike", HumanSword.cut, {
+  export const spike: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportSwing"]["spike"]
+  > = HumanActionRow.of("spike", HumanSword.cut, {
     from: "above",
   });
 }

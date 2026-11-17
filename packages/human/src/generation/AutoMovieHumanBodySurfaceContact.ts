@@ -1,17 +1,16 @@
-import type { IAutoMovieLoftChain, IAutoMovieHumanBodyCalibration, IAutoMovieHumanConstructionPath, IAutoMovieHumanLoftMesh, IAutoMovieHumanSurfaceContext, IAutoMovieHumanWebResult } from "@automovie/interface";
-
-
-
-
-
+import type {
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanConstructionPath,
+  IAutoMovieHumanLoftMesh,
+  IAutoMovieHumanSurfaceContext,
+  IAutoMovieHumanWebResult,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-
 import { AutoMovieHumanBodySurfacePhases } from "./AutoMovieHumanBodySurfacePhases";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 import { AutoMovieHumanBodyWeb } from "./AutoMovieHumanBodyWeb";
-
-
 
 const { chain, endHeight, ringVertices } = AutoMovieHumanBodySurfaceRead;
 const { arcVertices, ownPhases } = AutoMovieHumanBodySurfacePhases;
@@ -75,7 +74,9 @@ export namespace AutoMovieHumanBodySurfaceContact {
         index: (name: string): number => context.indices.get(name)!,
         parent,
         down: event.direction === "down",
-        phase: new Map(ring.map((v: number, i: number): [number, number] => [v, phases[i]!])),
+        phase: new Map(
+          ring.map((v: number, i: number): [number, number] => [v, phases[i]!]),
+        ),
         shares: children,
       });
       for (const c of children)
@@ -83,7 +84,8 @@ export namespace AutoMovieHumanBodySurfaceContact {
           kind: "inherited",
           ring: built.rings.get(c.name)!,
         });
-      const paths: IAutoMovieHumanConstructionPath[] = WEBS.get(context.mesh) ?? [];
+      const paths: IAutoMovieHumanConstructionPath[] =
+        WEBS.get(context.mesh) ?? [];
       paths.push(...built.construction);
       WEBS.set(context.mesh, paths);
       return;
@@ -129,8 +131,9 @@ export namespace AutoMovieHumanBodySurfaceContact {
         to,
       );
       const inner: number =
-        Math.round(Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]) / spacing) -
-        1;
+        Math.round(
+          Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]) / spacing,
+        ) - 1;
       const points: [number, number, number][] = Array.from(
         { length: Math.max(0, inner) },
         (_: unknown, i: number): [number, number, number] => {
@@ -176,10 +179,16 @@ export namespace AutoMovieHumanBodySurfaceContact {
   }
 
   /** Each mesh's webs' rows and separatrices, as construction. */
-  export const WEBS: WeakMap<IAutoMovieHumanLoftMesh.IContext, IAutoMovieHumanConstructionPath[]> = new WeakMap();
+  export const WEBS: WeakMap<
+    IAutoMovieHumanLoftMesh.IContext,
+    IAutoMovieHumanConstructionPath[]
+  > = new WeakMap();
 
   /** Each mesh's slit pinches, whose normal is their faces' own. */
-  export const PINNED: WeakMap<IAutoMovieHumanLoftMesh.IContext, Set<number>> = new WeakMap();
+  export const PINNED: WeakMap<
+    IAutoMovieHumanLoftMesh.IContext,
+    Set<number>
+  > = new WeakMap();
 
   /**
    * Normals with every slit pinch on its faces' own normal. A pinch lies on
@@ -196,8 +205,14 @@ export namespace AutoMovieHumanBodySurfaceContact {
   ): number[] {
     const out: number[] = [...normals];
     for (const v of PINNED.get(mesh) ?? []) {
-      const l: number = Math.hypot(faces[3 * v]!, faces[3 * v + 1]!, faces[3 * v + 2]!);
-      if (l > 1e-12) for (let k: number = 0; k < 3; k++) out[3 * v + k] = faces[3 * v + k]! / l;
+      const l: number = Math.hypot(
+        faces[3 * v]!,
+        faces[3 * v + 1]!,
+        faces[3 * v + 2]!,
+      );
+      if (l > 1e-12)
+        for (let k: number = 0; k < 3; k++)
+          out[3 * v + k] = faces[3 * v + k]! / l;
     }
     return out;
   }

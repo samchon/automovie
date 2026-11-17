@@ -8,23 +8,18 @@ import type { IAutoMovieRecoveryCameraCalibration } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Members state relative path resolution, hash syntax, decoding history and supplied calibration ownership.
  */
 export interface IAutoMovieRecoveryCameraFile {
- 
- /** Unique resident acquisition identity. */
+  /** Unique resident acquisition identity. */
   id: string;
 
- 
- /** Image path relative to its manifest, or an explicitly supplied absolute path. */
+  /** Image path relative to its manifest, or an explicitly supplied absolute path. */
   path: string;
 
- 
- /** Lowercase SHA-256 of the exact acquired P6 bytes. */
+  /** Lowercase SHA-256 of the exact acquired P6 bytes. */
   sha256: string;
 
- 
- /** Declared capture/decoding history, including original hashes of a lossless derivative. */
+  /** Declared capture/decoding history, including original hashes of a lossless derivative. */
   pixelProvenance: string;
 
- 
- /** Corrected pinhole intrinsics in this exact unchanged integer-pixel-centre chart. */
+  /** Corrected pinhole intrinsics in this exact unchanged integer-pixel-centre chart. */
   camera: IAutoMovieRecoveryCameraCalibration;
 }

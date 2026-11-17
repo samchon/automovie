@@ -8,11 +8,9 @@ import type { IAutoMovieRecoveryMapLandmark } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Members define actual source indices and acute support semantics.
  */
 export interface IAutoMovieRecoverySceneLandmark extends IAutoMovieRecoveryMapLandmark {
- 
- /** Two retained source indices supplying the strongest acute angle after final refinement. */
+  /** Two retained source indices supplying the strongest acute angle after final refinement. */
   supportingViews: [number, number];
 
- 
- /** That actual pair's acute angle in degrees, at least the declared point threshold. */
+  /** That actual pair's acute angle in degrees, at least the declared point threshold. */
   acuteParallaxDegrees: number;
 }

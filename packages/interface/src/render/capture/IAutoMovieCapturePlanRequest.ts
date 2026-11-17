@@ -1,5 +1,5 @@
-import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
 import type { IAutoMovieInspectionRequest } from "../inspection/IAutoMovieInspectionRequest.js";
+import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
 
 /**
  * Everything one capture asks for, as `parseAutoMovieCapturePlanRequest` reads it from named text values and `formatAutoMovieCapturePlanRequest` writes it back: the subject, its times, views, passes and selections, the reader budget, the round, and the inspection of every still.

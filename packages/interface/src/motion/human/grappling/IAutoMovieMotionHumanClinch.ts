@@ -1,7 +1,7 @@
-import type { AutoMovieHumanoidRegion } from "../../../skeleton/AutoMovieHumanoidRegion";
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
-import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanoidRegion } from "../../../skeleton/AutoMovieHumanoidRegion";
+import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 
 /**
  * Taking a clinch grip on a partner standing within reach and holding it:

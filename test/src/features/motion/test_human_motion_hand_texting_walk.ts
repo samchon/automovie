@@ -1,6 +1,17 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HumanChain, HumanHabit, HumanPerformance, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanHabit,
+  HumanPerformance,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -57,7 +68,8 @@ export function test_human_motion_hand_texting_walk(): void {
       ],
       composition: (read
         ? walk.over(
-            (u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => u.handToFace({ task: "read" }),
+            (u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+              u.handToFace({ task: "read" }),
           )
         : walk
       ).node,
@@ -78,14 +90,18 @@ export function test_human_motion_hand_texting_walk(): void {
     );
     return;
   }
-  const overlay: IAutoMovieMotionHumanSegment.IOverlay = reading.overlays("a")[0]!;
+  const overlay: IAutoMovieMotionHumanSegment.IOverlay =
+    reading.overlays("a")[0]!;
   const instant = (event: string): number =>
     overlay.start +
     (overlay.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       overlay.plan.duration;
   const from: number = instant("atSheet");
   const to: number = instant("taskEnd");
-  const readers: Record<"free" | "reading", IAutoMovieMotionHumanSignature.IReader> = {
+  const readers: Record<
+    "free" | "reading",
+    IAutoMovieMotionHumanSignature.IReader
+  > = {
     free: HumanSignature.of(free, "a", body, 0),
     reading: HumanSignature.of(reading, "a", body, 0),
   };
@@ -100,7 +116,10 @@ export function test_human_motion_hand_texting_walk(): void {
     );
 
   // 3. The reading arm held with the trunk.
-  const wander = (reader: IAutoMovieMotionHumanSignature.IReader, end: number): number => {
+  const wander = (
+    reader: IAutoMovieMotionHumanSignature.IReader,
+    end: number,
+  ): number => {
     const seat = (seconds: number): IAutoMovieVector3 => {
       const wrist: IAutoMovieVector3 = HumanSignature.joint(
         reader,

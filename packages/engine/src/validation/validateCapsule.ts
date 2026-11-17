@@ -1,5 +1,8 @@
-import type { IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieCapsuleProxy } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieCapsuleProxy,
+  IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 /**
  * Require distinct skeleton endpoints that are declared and FK-reachable, plus finite positive radius.

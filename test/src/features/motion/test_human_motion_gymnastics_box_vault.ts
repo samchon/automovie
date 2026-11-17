@@ -1,7 +1,18 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment } from "@automovie/interface";
 import { createPlyoBox } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
-import { HumanChain, HumanFoot, HumanGymnastics, HumanObject, HumanPerformance } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFoot,
+  HumanGymnastics,
+  HumanObject,
+  HumanPerformance,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -81,7 +92,10 @@ export function test_human_motion_gymnastics_box_vault(): void {
     // 1. Placed under its name.
     const vault: IAutoMovieMotionHumanSegment.ISegment | undefined = film
       .segments("a")
-      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "boxVault");
+      .find(
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+          s.name === "boxVault",
+      );
     complaints.check(`${name}: placed as boxVault`, vault !== undefined);
     if (vault === undefined) continue;
     const share = (event: string): number | undefined =>

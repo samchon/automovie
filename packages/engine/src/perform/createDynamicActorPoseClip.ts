@@ -1,5 +1,9 @@
-import { type IAutoMovieCreateDynamicActorPoseClip, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
-
+import {
+  type IAutoMovieCreateDynamicActorPoseClip,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
 const BONE_TARGET_HZ: number = 24 as const;
 
@@ -33,7 +37,11 @@ const boneTargetTimes: (
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Duplicate landmarks are collapsed before callback evaluation; no cache spans actions because live target and actor-frame callbacks may depend on different shot times.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The invocation owns the grid and keyframes, releases partial output on null/throw, and returns successful callback poses by reference; no external handle or task is retained.
  */
-export const createDynamicActorPoseClip: (props: IAutoMovieCreateDynamicActorPoseClip.IProps) => IAutoMovieMotion | null = (props: IAutoMovieCreateDynamicActorPoseClip.IProps): IAutoMovieMotion | null => {
+export const createDynamicActorPoseClip: (
+  props: IAutoMovieCreateDynamicActorPoseClip.IProps,
+) => IAutoMovieMotion | null = (
+  props: IAutoMovieCreateDynamicActorPoseClip.IProps,
+): IAutoMovieMotion | null => {
   const keyframes: IAutoMovieKeyframe[] = [];
   for (const time of boneTargetTimes(props.duration, props.landmarks)) {
     const pose: IAutoMoviePose | null = props.poseAt(time);

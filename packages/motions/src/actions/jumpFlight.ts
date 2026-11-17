@@ -1,6 +1,5 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
 import { AutoMovieGravity } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";

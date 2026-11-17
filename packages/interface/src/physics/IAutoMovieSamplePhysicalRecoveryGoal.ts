@@ -1,5 +1,5 @@
-import type { IAutoMovieStepPlanner } from "./IAutoMovieStepPlanner";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieStepPlanner } from "./IAutoMovieStepPlanner";
 
 /** Recovery-swing sampling inputs and requested world support position/velocity. */
 export namespace IAutoMovieSamplePhysicalRecoveryGoal {
@@ -14,19 +14,18 @@ export namespace IAutoMovieSamplePhysicalRecoveryGoal {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller supplies a finite positive swing duration and admitted placements. Progress clamps to [0,1]; horizontal authored point/velocity components do not drive this trajectory.
    */
   export type IInput = {
-    
     /** Existing support swing, with explicit start and end. */
     swing: IAutoMovieStepPlanner.IStep;
-    
+
     /** Authored world endpoint in metres at seconds; only Y supplies the vertical baseline. */
     point: IAutoMovieVector3;
-    
+
     /** Authored world endpoint velocity in m/s at seconds; only Y is added to the swing derivative. */
     velocity: IAutoMovieVector3;
-    
+
     /** Declared peak clearance, metres. */
     height: number;
-    
+
     /** Requested local seconds. */
     seconds: number;
   };
@@ -41,11 +40,11 @@ export namespace IAutoMovieSamplePhysicalRecoveryGoal {
    * @evidence contracts/development/design.md#minimal-and-owned-surface samplePhysicalRecoveryGoal allocates both vectors; neither is a measurement of a native body or a landing receipt.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Outside the swing the horizontal rate and added clearance rate are zero, while the authored vertical velocity remains. The caller owns admission of the swing and baseline.
    */
-  export type IResult = { 
-  
-  /** Requested world support endpoint in metres, combining swing X/Z and authored Y plus clearance. */
-  point: IAutoMovieVector3; 
-  
-  /** Requested world support velocity in m/s from the same trajectory and clock; not a measured native velocity. */
-  velocity: IAutoMovieVector3 };
+  export type IResult = {
+    /** Requested world support endpoint in metres, combining swing X/Z and authored Y plus clearance. */
+    point: IAutoMovieVector3;
+
+    /** Requested world support velocity in m/s from the same trajectory and clock; not a measured native velocity. */
+    velocity: IAutoMovieVector3;
+  };
 }

@@ -1,6 +1,8 @@
-import type { IAutoMovieMotionHumanInteractionMesh, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanInteractionMesh,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The Laplacian of an interaction mesh (Ho, Komura and Tai 2010, sections

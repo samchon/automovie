@@ -1,4 +1,5 @@
 import type { IAutoMoviePchipField64 } from "@automovie/interface";
+
 import { AutoMoviePchipField64 } from "./AutoMoviePchipField64";
 
 /**

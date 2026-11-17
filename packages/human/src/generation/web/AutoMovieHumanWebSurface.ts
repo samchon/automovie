@@ -1,16 +1,23 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanWeb, IAutoMovieHumanWebChild, IAutoMovieHumanWebColumn, IAutoMovieHumanWebSurface } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanWeb,
+  IAutoMovieHumanWebChild,
+  IAutoMovieHumanWebColumn,
+  IAutoMovieHumanWebSurface,
+} from "@automovie/interface";
 
-
-
-
-
-
-import { AutoMovieHumanHandVector } from "../hand/AutoMovieHumanHandVector";
 import { AutoMovieHumanSeam } from "../../lofting/AutoMovieHumanSeam";
+import { AutoMovieHumanHandVector } from "../hand/AutoMovieHumanHandVector";
 import { AutoMovieHumanWebCurve } from "./AutoMovieHumanWebCurve";
 
 type Vec3 = AutoMovieVector3Tuple;
-const { sub, plus: add, scale, dot, norm }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
+const {
+  sub,
+  plus: add,
+  scale,
+  dot,
+  norm,
+}: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 const { sampled }: typeof AutoMovieHumanWebCurve = AutoMovieHumanWebCurve;
 
 /**
@@ -30,7 +37,10 @@ export namespace AutoMovieHumanWebSurface {
    *
    * @param rows Rows from the parent's ring to the children's sections.
    * @param crestRow The row of the crests. */
-  export function of(rows: number, crestRow: number): IAutoMovieHumanWebSurface {
+  export function of(
+    rows: number,
+    crestRow: number,
+  ): IAutoMovieHumanWebSurface {
     // A row's level in the chart: -1 at the ring, 0 at the crests, and a
     // child's own column's depth over the margin's radius at its section.
     // The levels close on the crest as the square of the row, so the rows run
@@ -38,8 +48,14 @@ export namespace AutoMovieHumanWebSurface {
     // levels would stretch the cells about the crest by the square root. Below
     // the crest's first rows they run on evenly in depth, or the last row
     // before a child's section would span a fifth of the web.
-    const levelOf = (r: number, own: IAutoMovieHumanWebChild, web: IAutoMovieHumanWeb): number =>
-      r <= crestRow ? -((1 - r / crestRow) ** 2) : (own.depth / web.rho) * lower(r);
+    const levelOf = (
+      r: number,
+      own: IAutoMovieHumanWebChild,
+      web: IAutoMovieHumanWeb,
+    ): number =>
+      r <= crestRow
+        ? -((1 - r / crestRow) ** 2)
+        : (own.depth / web.rho) * lower(r);
     const ramp: number = CREST_ROWS / (rows - crestRow);
     const lower = (r: number): number => {
       const t: number = (r - crestRow) / (rows - crestRow);
@@ -48,21 +64,35 @@ export namespace AutoMovieHumanWebSurface {
 
     // The row at a level, the inverse of `levelOf`: above the crest from the
     // square law, below it from the hyperbolic spacing.
-    const rowOf = (x: number, own: IAutoMovieHumanWebChild, web: IAutoMovieHumanWeb): number => {
+    const rowOf = (
+      x: number,
+      own: IAutoMovieHumanWebChild,
+      web: IAutoMovieHumanWeb,
+    ): number => {
       if (x <= 0) return crestRow * (1 - Math.sqrt(Math.min(1, -x)));
       const top: number = Math.hypot(1, ramp) - ramp;
       const reach: number = ((x * web.rho) / own.depth) * top + ramp;
 
-      return crestRow + (rows - crestRow) * Math.sqrt(Math.max(0, reach * reach - ramp * ramp));
+      return (
+        crestRow +
+        (rows - crestRow) * Math.sqrt(Math.max(0, reach * reach - ramp * ramp))
+      );
     };
 
     // A margin's lip at a depth past the ring, as a share of its radius; past
     // the pinch above the ring for a share below zero.
-    const lip = (web: IAutoMovieHumanWeb, side: number, share: number): Vec3 => {
+    const lip = (
+      web: IAutoMovieHumanWeb,
+      side: number,
+      share: number,
+    ): Vec3 => {
       const theta: number = Math.asin(Math.min(1, Math.max(-1, share)));
       return add(
         scale(add(web.A, web.B), 0.5),
-        add(scale(web.xi, side * web.rho * Math.cos(theta)), scale(web.ea, web.rho * Math.sin(theta))),
+        add(
+          scale(web.xi, side * web.rho * Math.cos(theta)),
+          scale(web.ea, web.rho * Math.sin(theta)),
+        ),
       );
     };
 
@@ -75,12 +105,20 @@ export namespace AutoMovieHumanWebSurface {
     // A column's end levels and their points are the same for every row, so
     // they are read once per column and child.
     const ends: WeakMap<object, WeakMap<object, IEnds>> = new WeakMap();
-    const chart = (col: Extract<IAutoMovieHumanWebColumn, { kind: "plain" }>, own: IAutoMovieHumanWebChild, r: number): Vec3 => {
+    const chart = (
+      col: Extract<IAutoMovieHumanWebColumn, { kind: "plain" }>,
+      own: IAutoMovieHumanWebChild,
+      r: number,
+    ): Vec3 => {
       const at = (x: number): Vec3 => {
         const h: number = Math.hypot(x, col.y);
         const u: number = Math.sqrt(Math.max(0, (h + x) / 2));
-        const v: number = Math.sign(col.side) * Math.sqrt(Math.max(0, (h - x) / 2));
-        return add(sub(own.own(col.web.rho * u * u), col.web.S), lip(col.web, Math.sign(v) || col.side, 1 - v * v));
+        const v: number =
+          Math.sign(col.side) * Math.sqrt(Math.max(0, (h - x) / 2));
+        return add(
+          sub(own.own(col.web.rho * u * u), col.web.S),
+          lip(col.web, Math.sign(v) || col.side, 1 - v * v),
+        );
       };
       let byChild: WeakMap<object, IEnds> | undefined = ends.get(col);
       if (byChild === undefined) ends.set(col, (byChild = new WeakMap()));
@@ -88,7 +126,12 @@ export namespace AutoMovieHumanWebSurface {
       if (end === undefined) {
         const first: number = levelOf(0, own, col.web);
         const last: number = levelOf(rows, own, col.web);
-        end = { top: first, bottom: last, atTop: at(first), atBottom: at(last) };
+        end = {
+          top: first,
+          bottom: last,
+          atTop: at(first),
+          atBottom: at(last),
+        };
         byChild.set(own, end);
       }
       const { top, bottom, atTop, atBottom }: IEnds = end;
@@ -102,7 +145,9 @@ export namespace AutoMovieHumanWebSurface {
 
     // A column away from the webs: the Hermite from the parent's surface to
     // the child's, its rows at the same depths as the chart's levels.
-    const plainAt = (col: Extract<IAutoMovieHumanWebColumn, { kind: "plain" }>): ((r: number) => Vec3) => {
+    const plainAt = (
+      col: Extract<IAutoMovieHumanWebColumn, { kind: "plain" }>,
+    ): ((r: number) => Vec3) => {
       const L: number = norm(sub(col.q, col.p));
       // The quintic Hermite between the two pieces' copied jets at the
       // column's own speed L: it meets the parent's ring and the child's
@@ -111,7 +156,13 @@ export namespace AutoMovieHumanWebSurface {
       const [, o1, o2] = AutoMovieHumanSeam.adopt(col.from, L);
       const [, d1, d2] = AutoMovieHumanSeam.adopt(col.to, L);
       const curve = sampled(
-        (u: number): Vec3 => AutoMovieHumanSeam.quintic([col.p, o1, o2], [col.q, d1, d2], 1, u) as Vec3,
+        (u: number): Vec3 =>
+          AutoMovieHumanSeam.quintic(
+            [col.p, o1, o2],
+            [col.q, d1, d2],
+            1,
+            u,
+          ) as Vec3,
         col.o,
       );
       const total: number = dot(sub(col.q, col.p), col.o);

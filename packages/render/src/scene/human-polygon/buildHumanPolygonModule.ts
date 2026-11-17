@@ -1,6 +1,6 @@
+import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
 import { humanPolygonTopology as LoftMesh } from "./humanPolygonTopology.js";
 
 /**

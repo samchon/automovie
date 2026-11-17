@@ -1,5 +1,3 @@
-
-
 /**
  * Finite nonnegative coefficients for a unit-mass scalar spring; stiffness uses inverse seconds squared and damping inverse seconds when dt is seconds.
  *

@@ -1,7 +1,22 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 import { Transform } from "@automovie/engine";
-
-import { HumanChain, HumanFrame, HumanPerformance, jump, poseBones } from "@automovie/motions";
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFrame,
+  HumanPerformance,
+  jump,
+  poseBones,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -45,7 +60,8 @@ export function test_human_motion_jump_takeoff(): void {
       composition: HumanChain.subject("a").stand({ seconds: 0.3, sway: 0 })
         .node,
     });
-    const initial: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[0]!;
+    const initial: IAutoMovieMotionHumanSegment.ISegment =
+      performance.segments("a")[0]!;
     for (const leading of [null, "left", "right"] as const) {
       const angle = (side: "left" | "right"): number =>
         leading === null ? 0 : leading === side ? 20 : -20;
@@ -131,7 +147,10 @@ export function test_human_motion_jump_takeoff(): void {
               (contact: IAutoMovieMotionHumanContactWindow): boolean =>
                 contact.from === 0 && contact.kind === "plant",
             )
-            .map((contact: IAutoMovieMotionHumanContactWindow): string => contact.part);
+            .map(
+              (contact: IAutoMovieMotionHumanContactWindow): string =>
+                contact.part,
+            );
           const expected: string = `${leading ?? "left"}Foot`;
           if (parts.length !== 1 || parts[0] !== expected)
             findings.push(

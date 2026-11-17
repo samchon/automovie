@@ -1,8 +1,22 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { AutoMovieMotionHumanTouchDrink, HumanChain, HumanObject, HumanPerformance, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanTouchDrink,
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -89,13 +103,17 @@ export function test_human_motion_prop_held_walk(): void {
   }
 
   // 2. The rim at the mouth, the glass upright.
-  const sip: IAutoMovieMotionHumanSegment.IOverlay = performance.overlays("a")[0]!;
+  const sip: IAutoMovieMotionHumanSegment.IOverlay =
+    performance.overlays("a")[0]!;
   const seconds: number =
     sip.start +
     (sip.plan.events.find((e): boolean => e.name === "atMouth")?.share ?? NaN) *
       sip.plan.duration;
   const lip: IAutoMovieVector3 = glass.affordance("lip").frame.translation;
-  const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop("glass", seconds);
+  const frame: IAutoMovieMotionHumanProp.IFrame = performance.prop(
+    "glass",
+    seconds,
+  );
   const axis: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
     x: 0,
     y: 1,
@@ -141,7 +159,8 @@ export function test_human_motion_prop_held_walk(): void {
     );
 
   // 3. The glass stays in the hand.
-  const pick: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[0]!;
+  const pick: IAutoMovieMotionHumanSegment.ISegment =
+    performance.segments("a")[0]!;
   const from: number =
     pick.start +
     (pick.plan.events.find((e): boolean => e.name === "gripClosed")?.share ??

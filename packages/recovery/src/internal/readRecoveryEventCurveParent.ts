@@ -1,8 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieRecoveryEventCurveSource } from "@automovie/interface";
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieRecoveryEventCurveSource,
+} from "@automovie/interface";
 
 /**
  * Admit the single complete Bernstein curve supplying an event occurrence.

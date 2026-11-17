@@ -1,6 +1,8 @@
-import type { IAutoMovieComposition, IAutoMovieMotionHumanGunCrew } from "@automovie/interface";
-
 import { AutoMovieComposition } from "@automovie/engine";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanGunCrew,
+} from "@automovie/interface";
 
 import { HumanChain } from "../HumanChain";
 import { HumanGunDrill } from "./HumanGunDrill";
@@ -29,7 +31,6 @@ import { HumanGunDrill } from "./HumanGunDrill";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No duty writes motion; every place and prop is the scene's.
  */
 export namespace HumanGunCrew {
-
   /**
    * The crew's composition for one load and fire.
    *
@@ -37,7 +38,10 @@ export namespace HumanGunCrew {
    * @param scene The gun, the implements and the places.
    * @returns The composition, every role's chain in one parallel group.
    */
-  export function drill(roles: IAutoMovieMotionHumanGunCrew.IRoles, scene: IAutoMovieMotionHumanGunCrew.IScene): IAutoMovieComposition {
+  export function drill(
+    roles: IAutoMovieMotionHumanGunCrew.IRoles,
+    scene: IAutoMovieMotionHumanGunCrew.IScene,
+  ): IAutoMovieComposition {
     const muzzle = {
       kind: "prop",
       subject: scene.gun,

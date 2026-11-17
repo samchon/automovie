@@ -1,4 +1,5 @@
 import type { IAutoMovieRecoveryScalarIndex } from "@automovie/interface";
+
 /**
  * Immutable face-height interval queries for one admitted observation mesh.
  *
@@ -8,8 +9,7 @@ import type { IAutoMovieRecoveryScalarIndex } from "@automovie/interface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The index returns original face candidates in ascending order and does not imply geometric intersection, topology qualification or a cross-input cache.
  */
 export namespace RecoveryScalarIndex {
- 
- /**
+  /**
    * Prepare height intervals once; the caller keeps source arrays unchanged until queries finish.
    * Results contain original face IDs in ascending order. Plane queries include both endpoints;
    * slab queries require positive overlap with the open interval, retaining internal components.
@@ -102,6 +102,7 @@ export namespace RecoveryScalarIndex {
     return {
       cut: (level: number): readonly number[] => query(level, level, false),
       slab: (before: number, after: number): readonly number[] =>
-        query(before, after, true) };
+        query(before, after, true),
+    };
   }
 }

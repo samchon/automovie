@@ -1,5 +1,5 @@
-import type { IAutoMovieContactReceipt } from "./IAutoMovieContactReceipt";
 import type { IAutoMovieEffectRecipe } from "../production/IAutoMovieEffectRecipe";
+import type { IAutoMovieContactReceipt } from "./IAutoMovieContactReceipt";
 
 /** Data and callback contracts shared by the CompileImpactEffects operations. */
 export namespace IAutoMovieCompileImpactEffects {

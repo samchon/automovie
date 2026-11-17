@@ -1,6 +1,11 @@
-import type { IAutoMovieResolvedAssembly, IAutoMovieResolvedLayer, IAutoMovieMaterialAssembly, IAutoMovieMaterialLayer, IAutoMovieMaterialSubstance } from "@automovie/interface";
 import { resolveAutoMovieMaterialAssembly } from "@automovie/engine";
-
+import type {
+  IAutoMovieMaterialAssembly,
+  IAutoMovieMaterialLayer,
+  IAutoMovieMaterialSubstance,
+  IAutoMovieResolvedAssembly,
+  IAutoMovieResolvedLayer,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { assembly, layer, substance } from "../internal/materialFixtures";

@@ -1,5 +1,8 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalShapeBounds, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShapeBounds,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";

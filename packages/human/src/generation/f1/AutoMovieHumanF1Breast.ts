@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
-
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
@@ -23,7 +22,10 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  */
 export const AutoMovieHumanF1Breast: IAutoMovieHumanConicLoft.IFamily = {
   name: "breast",
-  centres: [AutoMovieHumanF1Joints.breastRoot, AutoMovieHumanF1Joints.breastTip],
+  centres: [
+    AutoMovieHumanF1Joints.breastRoot,
+    AutoMovieHumanF1Joints.breastTip,
+  ],
   halves: [],
   up: AutoMovieHumanF1Placement.direction("breast.up"),
   layout: AutoMovieHumanConicSection.limb(1),
@@ -72,5 +74,5 @@ export const AutoMovieHumanF1Breast: IAutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
-  tips: [null, {from: 26, tip: 29.88}],
+  tips: [null, { from: 26, tip: 29.88 }],
 };

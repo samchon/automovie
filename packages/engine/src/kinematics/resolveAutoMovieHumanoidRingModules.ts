@@ -1,5 +1,7 @@
-import type { IAutoMovieResolveHumanoidRingModules, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieResolveHumanoidRingModules,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 

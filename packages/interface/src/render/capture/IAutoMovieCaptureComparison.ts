@@ -1,5 +1,3 @@
-
-
 /**
  * How one capture compared against an earlier round, cell by cell, as `compareAutoMovieCaptureRounds` writes it to `comparison.json` and the record keeps it.
  *
@@ -70,13 +68,13 @@ export namespace IAutoMovieCaptureComparison {
         /** Smallest box holding every changed pixel, inclusive pixel bounds, or null when none changed. */
         bounds: {
           /** Inclusive leftmost changed pixel column, from zero. */
-left: number;
+          left: number;
           /** Inclusive topmost changed pixel row, from zero. */
-top: number;
+          top: number;
           /** Inclusive rightmost changed pixel column. */
-right: number;
+          right: number;
           /** Inclusive bottommost changed pixel row. */
-bottom: number;
+          bottom: number;
         } | null;
 
         /** File name of the difference image, or null when no pixel changed. */

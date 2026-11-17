@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanVariation } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanSkill,
+  IAutoMovieMotionHumanVariation,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanVariation, HumanSkill } from "@automovie/motions";
 
 /**

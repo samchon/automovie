@@ -1,12 +1,25 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSignature, IAutoMovieResolveCenterOfMass, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieGravity,
   Quaternion,
   Vector3,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
-
-import { HumanChain, HumanCoupled, HumanForceExchange, HumanPerformance, HumanSignature, clinch } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanCoupled,
+  HumanForceExchange,
+  HumanPerformance,
+  HumanSignature,
+  clinch,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";

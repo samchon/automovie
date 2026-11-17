@@ -1,4 +1,9 @@
-import type { AutoMovieVector2Tuple, IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshIncidence } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshIncidence,
+} from "@automovie/interface";
+
 import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
 import { witnessAutoMovieSolidChartTriangle } from "./witnessAutoMovieSolidChartTriangle";
 
@@ -56,7 +61,10 @@ function corridor(
 ): Readonly<AutoMovieVector2Tuple> | string | null {
   const first: Readonly<AutoMovieVector2Tuple> = vertices.get(edge.a)!;
   const stored: Readonly<AutoMovieVector2Tuple> = vertices.get(edge.b)!;
-  const end: Readonly<AutoMovieVector2Tuple> = [stored[0], stored[1] + edge.turn * (period ?? 0)];
+  const end: Readonly<AutoMovieVector2Tuple> = [
+    stored[0],
+    stored[1] + edge.turn * (period ?? 0),
+  ];
   const middle: Readonly<AutoMovieVector2Tuple> = midpoint(first, end);
   const dx: number = end[0] - first[0];
   const dy: number = end[1] - first[1];
@@ -70,8 +78,14 @@ function corridor(
     if (shifts === null)
       return "visibility probe cover image is not representable";
     for (const image of shifts) {
-      const c: Readonly<AutoMovieVector2Tuple> = [a[0], a[1] + image * (period ?? 0)];
-      const d: Readonly<AutoMovieVector2Tuple> = [b[0], b[1] + (image + other.turn) * (period ?? 0)];
+      const c: Readonly<AutoMovieVector2Tuple> = [
+        a[0],
+        a[1] + image * (period ?? 0),
+      ];
+      const d: Readonly<AutoMovieVector2Tuple> = [
+        b[0],
+        b[1] + (image + other.turn) * (period ?? 0),
+      ];
       if (![...c, ...d].every(Number.isFinite))
         return "visibility probe cover coordinates are not representable";
       if (
@@ -125,7 +139,11 @@ function corridor(
 }
 
 /** Floating distance proposes a probe only; witness checks decide the represented corridor. */
-function distance(point: Readonly<AutoMovieVector2Tuple>, a: Readonly<AutoMovieVector2Tuple>, b: Readonly<AutoMovieVector2Tuple>): number {
+function distance(
+  point: Readonly<AutoMovieVector2Tuple>,
+  a: Readonly<AutoMovieVector2Tuple>,
+  b: Readonly<AutoMovieVector2Tuple>,
+): number {
   const dx: number = b[0] - a[0];
   const dy: number = b[1] - a[1];
   const length: number = Math.hypot(dx, dy);
@@ -139,7 +157,10 @@ function distance(point: Readonly<AutoMovieVector2Tuple>, a: Readonly<AutoMovieV
 }
 
 /** Same finite midpoint formula used by the visibility owner. */
-function midpoint(a: Readonly<AutoMovieVector2Tuple>, b: Readonly<AutoMovieVector2Tuple>): Readonly<AutoMovieVector2Tuple> {
+function midpoint(
+  a: Readonly<AutoMovieVector2Tuple>,
+  b: Readonly<AutoMovieVector2Tuple>,
+): Readonly<AutoMovieVector2Tuple> {
   return [
     a[0] === b[0] ? a[0] : a[0] / 2 + b[0] / 2,
     a[1] === b[1] ? a[1] : a[1] / 2 + b[1] / 2,

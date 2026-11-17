@@ -6,6 +6,8 @@ import {
   ArchetypeFrame,
   type ArchetypeTrack,
 } from "../core";
+import { SiegeClearance } from "./SiegeClearance";
+import { SiegeStructure } from "./SiegeStructure";
 import type { createSiegeEngine } from "./createSiegeEngine";
 
 /** A siege engine under construction. */
@@ -31,7 +33,7 @@ export namespace SiegeArm {
   /** The arm's travel at rest, its long end straight up, its centre of mass on the short side lowest: a quarter turn. */
   export const REST: number = 90;
 
-  /** The sizes no source read gives, metres, each an estimate: the posts' and the base's section, the counterweight box's side, the release pin's grip and pull, and the winch's height above the ground (searched: Saimre 2006, Hansen 1992, Tarver 1995; records-siege.md). */
+  /** Unsourced authored sizes, metres: post and base sections (beam also caps the designed moving diameter), counterweight box, release control and windlass height. Actual moving arm/cradle radius is designed from their whole angular floor domain, separately from base/control stock. */
   export const ESTIMATES: Readonly<{
     post: number;
     beam: number;
@@ -90,11 +92,11 @@ export namespace SiegeArm {
    * @param counterweight Whether the arm carries a hanging counterweight (a trebuchet) or a cup at the long end (a mangonel).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it lays.
-   * @evidence contracts/development/implementation.md#principled-implementation Two posts carry the axle at its read height; the arm of its read lengths lies across it, level at rest; the counterweight box hangs from the short end on a hinge that turns against the arm, so it stays plumb; the pouch rides the arm at the long end; the winch at the posts' foot turns as the arm is wound down.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Frame, arm, counterweight, then the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The frame's sections and the box are `ESTIMATES`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms About eight parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one engine.
+   * @evidence contracts/development/implementation.md#principled-implementation Keep sourced arm lengths, axle height and declared angle range. Design the unsourced moving section against the exact whole-domain arm/cradle/cord support, then admit actual base/post and plumb-counterweight support. The pouch socket consumes that real section. Generic articulation moves the connected fittings; every actual solid enters the existing total-mass volume allocation, independently of the stated reduced launch mass law.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Frame, arm, counterweight and contacts, then connected shaft/cradle/span/control fittings through SiegeStructure.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Fixed frame/control stock remains separate from the admitted moving section. No fitting is hidden with zero share, no source length/angle/floor is shifted and no runtime pose clamp or new physical simulator replaces the declared launch approximation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A bounded list of primitive fittings, two spans and at most six contacts; generic articulation and actual-anchor span emission remain linear in that list.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work SiegeStructure owns each missing physical fitting and its articulation membership; the existing pendulum and draw owners are unchanged.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lay(
@@ -109,26 +111,58 @@ export namespace SiegeArm {
     const width: number = d.frameWidth!;
     const long: number = d.armLength!;
     const short: number = d.shortArm!;
+    const radius: number = SiegeStructure.radius(d, e);
+    floor(
+      "base",
+      SiegeClearance.box(v(0, e.beam / 2, 0), v(width, e.beam, long), 0, 0, 0),
+    );
     builder.box("base", v(width, e.beam, long), v(0, e.beam / 2, 0), wood);
     for (const [side, sign] of [
       ["left", 1],
       ["right", -1],
-    ] as const)
+    ] as const) {
+      floor(
+        `post-${side}`,
+        SiegeClearance.box(
+          v((sign * width) / 2, axle / 2, 0),
+          v(e.post, axle, e.post),
+          0,
+          0,
+          0,
+        ),
+      );
       builder.box(
         `post-${side}`,
         v(e.post, axle, e.post),
         v((sign * width) / 2, axle / 2, 0),
         wood,
       );
-    builder.rod("arm", e.beam / 2, v(0, axle, -short), v(0, axle, long), wood);
+    }
+    floor(
+      "arm",
+      SiegeClearance.cylinder(
+        v(0, axle, -short),
+        v(0, axle, long),
+        radius,
+        axle,
+        -d.cocked!,
+        d.reach!,
+      ),
+    );
+    builder.rod("arm", radius, v(0, axle, -short), v(0, axle, long), wood);
     const pin: IAutoMovieVector3 = v(0, axle, -short);
-    if (counterweight)
+    if (counterweight) {
+      floor(
+        "counterweight",
+        SiegeClearance.minimum(axle - e.box, 0, -short, -d.cocked!, d.reach!),
+      );
       builder.box(
         "counterweight",
         v(e.box, e.box, e.box),
         v(0, axle - e.box / 2, -short),
         { color: "#5a5a5a" },
       );
+    }
     builder.affordance({
       id: "arm",
       kind: "hinge",
@@ -137,7 +171,10 @@ export namespace SiegeArm {
       travel: d.reach!,
       // A traction engine's arm starts level, so it has no travel below level.
       ...(d.cocked! > 0 ? { reverse: d.cocked! } : {}),
-      parts: ["arm"],
+      parts: [
+        ...SiegeStructure.ARM_PARTS,
+        ...(counterweight ? ["counterweight-axle"] : []),
+      ],
     });
     if (counterweight)
       builder.affordance({
@@ -154,7 +191,7 @@ export namespace SiegeArm {
     builder.affordance({
       id: "pouch",
       kind: "socket",
-      frame: ArchetypeFrame.upright(v(0, axle + e.beam / 2, long)),
+      frame: ArchetypeFrame.upright(v(0, axle + radius, long)),
       extent: null,
       rides: "arm",
     });
@@ -167,6 +204,7 @@ export namespace SiegeArm {
       aperture: e.pin.aperture,
       length: e.pin.length,
       travel: e.pin.pull,
+      parts: [...SiegeStructure.PIN_PARTS],
     });
     builder.affordance({
       id: "winch",
@@ -180,6 +218,7 @@ export namespace SiegeArm {
       radius: d.winchRadius!,
       // A windlass's drum turns without a stop, so the crank states no travel: it follows the arm both ways.
       follows: { id: "arm", ratio: -d.winchRatio! },
+      parts: [...SiegeStructure.WINCH_PARTS],
     });
     builder.affordance({
       id: "frame",
@@ -189,5 +228,12 @@ export namespace SiegeArm {
       width,
       depth: long,
     });
+    SiegeStructure.lay(builder, d, e, counterweight, radius);
+
+    /** Admit the whole actual solid; the ground remains model Y zero. */
+    function floor(id: string, minimum: number): void {
+      if (!(Number.isFinite(minimum) && minimum >= 0))
+        throw new RangeError(`Siege ${id} cannot clear the declared floor`);
+    }
   }
 }

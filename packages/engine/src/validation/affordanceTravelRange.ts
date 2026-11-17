@@ -1,5 +1,7 @@
-import type { IAutoMovieAffordanceTravelRange, IAutoMovieAffordance } from "@automovie/interface";
-
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieAffordanceTravelRange,
+} from "@automovie/interface";
 
 /** The kinds that may move the other way from rest by their `reverse`. */
 const REVERSIBLE: ReadonlySet<IAutoMovieAffordance["kind"]> = new Set([
@@ -24,7 +26,9 @@ const REVERSIBLE: ReadonlySet<IAutoMovieAffordance["kind"]> = new Set([
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
-export function affordanceTravelRange(affordance: IAutoMovieAffordance): IAutoMovieAffordanceTravelRange.IResult {
+export function affordanceTravelRange(
+  affordance: IAutoMovieAffordance,
+): IAutoMovieAffordanceTravelRange.IResult {
   const travel: number | null = affordance.travel ?? null;
   if (affordance.kind === "crank" && travel === null)
     return { minimum: null, maximum: null };

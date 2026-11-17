@@ -1,6 +1,12 @@
-import type { IAutoMovieMark, IAutoMovieMeshClearanceWitness, IAutoMovieMesh } from "@automovie/interface";
-import { markAutoMovieMeshClearance, measureAutoMovieMeshClearance } from "@automovie/engine";
-
+import {
+  markAutoMovieMeshClearance,
+  measureAutoMovieMeshClearance,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMark,
+  IAutoMovieMesh,
+  IAutoMovieMeshClearanceWitness,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

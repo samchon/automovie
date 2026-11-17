@@ -1,8 +1,26 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { createWearable } from "@automovie/archetypes";
-import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanRefusal, StrikingRoll, dress } from "@automovie/motions";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  StrikingRoll,
+  dress,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -40,9 +58,11 @@ export function archetypeWearableDress(name: motionHumanBody.Name): void {
       const wear: IAutoMovieVector3 =
         model.affordance("wear").frame.translation;
       const perform = (taken: boolean): IAutoMovieMotionHumanPerformance => {
-        const start: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand({
-          seconds: 0.3,
-        });
+        const start: IAutoMovieMotionHumanChain = HumanChain.subject("a").stand(
+          {
+            seconds: 0.3,
+          },
+        );
         return new HumanPerformance({
           seed: "dress",
           laws: [],
@@ -92,13 +112,19 @@ export function archetypeWearableDress(name: motionHumanBody.Name): void {
       }
       const act: IAutoMovieMotionHumanSegment.ISegment = film
         .segments("a")
-        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "dress")!;
+        .find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+            s.name === "dress",
+        )!;
       const stroke: number =
         act.start +
         act.plan.events.find((e): boolean => e.name === "stroke")!.share *
           act.plan.duration;
       const socket = (seconds: number): IAutoMovieVector3 => {
-        const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("item", seconds);
+        const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
+          "item",
+          seconds,
+        );
         return Vector3.add(
           frame.position,
           Quaternion.rotateVector(frame.rotation, wear),

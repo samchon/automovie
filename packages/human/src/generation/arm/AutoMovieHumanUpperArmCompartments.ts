@@ -1,6 +1,7 @@
-import type { IAutoMovieHumanArmSpanEnd, IAutoMovieHumanArmPiece } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieHumanArmPiece,
+  IAutoMovieHumanArmSpanEnd,
+} from "@automovie/interface";
 
 import { AutoMovieHumanArmRows } from "./AutoMovieHumanArmRows";
 import { AutoMovieHumanDeltoidSpan } from "./AutoMovieHumanDeltoidSpan";
@@ -49,10 +50,17 @@ export namespace AutoMovieHumanUpperArmCompartments {
    *
    * @param inputs The fixed inputs.
    */
-  export function end(inputs: IAutoMovieHumanArmPiece.IInputs): IAutoMovieHumanArmSpanEnd {
-    const s: number = inputs.axis.upper((1 - SUPRACONDYLAR) * inputs.bones.humerus);
+  export function end(
+    inputs: IAutoMovieHumanArmPiece.IInputs,
+  ): IAutoMovieHumanArmSpanEnd {
+    const s: number = inputs.axis.upper(
+      (1 - SUPRACONDYLAR) * inputs.bones.humerus,
+    );
 
-    return { row: AutoMovieHumanArmRows.row("ridge", s), knot: [s, SUPRACONDYLAR_GIRTH * inputs.tapes.elbow] };
+    return {
+      row: AutoMovieHumanArmRows.row("ridge", s),
+      knot: [s, SUPRACONDYLAR_GIRTH * inputs.tapes.elbow],
+    };
   }
 
   /**
@@ -60,10 +68,14 @@ export namespace AutoMovieHumanUpperArmCompartments {
    *
    * @param inputs The fixed inputs.
    */
-  export function piece(inputs: IAutoMovieHumanArmPiece.IInputs): IAutoMovieHumanArmPiece {
+  export function piece(
+    inputs: IAutoMovieHumanArmPiece.IInputs,
+  ): IAutoMovieHumanArmPiece {
     const humerus: number = inputs.bones.humerus;
-    const near: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } = AutoMovieHumanDeltoidSpan.end(inputs);
-    const far: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } = end(inputs);
+    const near: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } =
+      AutoMovieHumanDeltoidSpan.end(inputs);
+    const far: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } =
+      end(inputs);
     const ridge: number = far.knot[1];
 
     return {
@@ -80,7 +92,10 @@ export namespace AutoMovieHumanUpperArmCompartments {
       knots: [
         near.knot,
         // Between the biceps girth and the ridge's, one monotone fall.
-        [inputs.axis.upper(LOWER * humerus), ridge + LOWER_GIRTH * (inputs.tapes.bicep - ridge)],
+        [
+          inputs.axis.upper(LOWER * humerus),
+          ridge + LOWER_GIRTH * (inputs.tapes.bicep - ridge),
+        ],
         far.knot,
       ],
     };

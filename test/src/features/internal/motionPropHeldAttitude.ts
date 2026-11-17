@@ -1,8 +1,25 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware, createSmoking } from "@automovie/archetypes";
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
-
-import { AutoMovieMotionHumanTouch, AutoMovieMotionHumanTouchDrink, HumanChain, HumanHabit, HumanObject, HumanPerformance, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanTouch,
+  AutoMovieMotionHumanTouchDrink,
+  HumanChain,
+  HumanHabit,
+  HumanObject,
+  HumanPerformance,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -87,7 +104,10 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
       ],
       composition: composition.node,
     });
-  const instant = (segment: IAutoMovieMotionHumanSegment.ISegment, event: string): number =>
+  const instant = (
+    segment: IAutoMovieMotionHumanSegment.ISegment,
+    event: string,
+  ): number =>
     segment.start +
     (segment.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       segment.plan.duration;
@@ -153,7 +173,8 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
         .handToFace({ task: "drink", prop: "glass" }),
     );
     const lift: IAutoMovieMotionHumanSegment.ISegment = drunk.segments("a")[0]!;
-    const drink: IAutoMovieMotionHumanSegment.ISegment = drunk.segments("a")[1]!;
+    const drink: IAutoMovieMotionHumanSegment.ISegment =
+      drunk.segments("a")[1]!;
     const atMouth: number = instant(drink, "atMouth");
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const axis = (seconds: number): IAutoMovieVector3 =>
@@ -253,7 +274,10 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
         .registered("smoke", { prop: "cigarette" }),
     );
     const seconds: number = instant(smoked.segments("a")[1]!, "atLips");
-    const frame: IAutoMovieMotionHumanProp.IFrame = smoked.prop("cigarette", seconds);
+    const frame: IAutoMovieMotionHumanProp.IFrame = smoked.prop(
+      "cigarette",
+      seconds,
+    );
     const off: number = Vector3.length(
       Vector3.subtract(
         Vector3.add(

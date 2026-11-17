@@ -1,7 +1,8 @@
-import type { IAutoMovieHumanArmAxis, IAutoMovieHumanArmBones, IAutoMovieHumanArmPiece } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieHumanArmAxis,
+  IAutoMovieHumanArmBones,
+  IAutoMovieHumanArmPiece,
+} from "@automovie/interface";
 
 import { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
 import { AutoMovieHumanDeltoidSpan } from "./AutoMovieHumanDeltoidSpan";
@@ -32,7 +33,12 @@ export namespace AutoMovieHumanArmPieces {
     axis: IAutoMovieHumanArmAxis.IAxis,
     tapes: IAutoMovieHumanArmPiece.ITapes,
   ): IAutoMovieHumanArmPiece.IInputs {
-    return { bones, axis, tapes, stylion: bones.forearm - AutoMovieHumanArmBones.STYLION_WRIST };
+    return {
+      bones,
+      axis,
+      tapes,
+      stylion: bones.forearm - AutoMovieHumanArmBones.STYLION_WRIST,
+    };
   }
 
   /**
@@ -40,7 +46,9 @@ export namespace AutoMovieHumanArmPieces {
    *
    * @param input The fixed inputs.
    */
-  export function build(input: IAutoMovieHumanArmPiece.IInputs): IAutoMovieHumanArmPiece[] {
+  export function build(
+    input: IAutoMovieHumanArmPiece.IInputs,
+  ): IAutoMovieHumanArmPiece[] {
     return [
       AutoMovieHumanDeltoidSpan.piece(input),
       AutoMovieHumanUpperArmCompartments.piece(input),

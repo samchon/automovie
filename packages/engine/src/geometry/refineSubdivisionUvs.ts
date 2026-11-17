@@ -1,4 +1,9 @@
-import type { IAutoMovieRefineSubdivisionUvs, IAutoMovieSubdivisionTopology, IAutoMovieSubdivisionVertexMask } from "@automovie/interface";
+import type {
+  IAutoMovieRefineSubdivisionUvs,
+  IAutoMovieSubdivisionTopology,
+  IAutoMovieSubdivisionVertexMask,
+} from "@automovie/interface";
+
 import { subdivisionEdgeSmoothness } from "./subdivisionEdgeSmoothness";
 
 /**

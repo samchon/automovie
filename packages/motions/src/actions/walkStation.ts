@@ -1,6 +1,15 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanWalkGait, IAutoMovieMotionHumanWalkPace, IAutoMovieMotionHumanWalkStation, IAutoMovieRandom, IAutoMovieVector3 } from "@automovie/interface";
-
 import { createAutoMovieRandom, seededSmoothNoise } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanWalkGait,
+  IAutoMovieMotionHumanWalkPace,
+  IAutoMovieMotionHumanWalkStation,
+  IAutoMovieRandom,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanFormation } from "../ensemble/HumanFormation";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -198,7 +207,9 @@ export namespace walkStation {
    * @returns The context the stepping plan reads.
    * @throws {HumanRefusal} When the station ends before the action starts, or a guide frame's station names no end.
    */
-  export function resolve<P extends IAutoMovieMotionHumanWalkStation.IStationed>(
+  export function resolve<
+    P extends IAutoMovieMotionHumanWalkStation.IStationed,
+  >(
     context: IAutoMovieMotionHumanActionContext<P>,
   ): IAutoMovieMotionHumanActionContext<P> {
     const station: IAutoMovieMotionHumanFormation.IStation | undefined =
@@ -218,7 +229,8 @@ export namespace walkStation {
         k === count ? Math.max(from, until) : from + k * HumanFormation.SAMPLE;
       samples.push({ seconds, ...at(seconds) });
     }
-    const last: IAutoMovieMotionHumanFormation.ISample = samples[samples.length - 1]!;
+    const last: IAutoMovieMotionHumanFormation.ISample =
+      samples[samples.length - 1]!;
     const via: IAutoMovieVector3[] = [];
     let kept: IAutoMovieVector3 = context.entry.posture.root;
     for (const s of samples.slice(0, -1))
@@ -321,7 +333,8 @@ export namespace walkStation {
     if (!(span > 0)) return {};
 
     // The plan's own way, as the stepping plan lays it: from the feet's midpoint through `via` to `to`.
-    const feet: IAutoMovieMotionHumanActionContext["entry"]["feet"] = context.entry.feet;
+    const feet: IAutoMovieMotionHumanActionContext["entry"]["feet"] =
+      context.entry.feet;
     const way: WalkPath = new WalkPath(
       [
         {
@@ -385,7 +398,8 @@ export namespace walkStation {
     const read: IAutoMovieMotionHumanFormation.Reader = (
       subject: string,
       t: number,
-    ): IAutoMovieMotionHumanActionContext.IRoot => context.performer(subject).root(t);
+    ): IAutoMovieMotionHumanActionContext.IRoot =>
+      context.performer(subject).root(t);
     const dress: { bound: number; seed: string } | undefined = station.dress;
     if (dress === undefined || !(dress.bound > 0))
       return (seconds: number): IAutoMovieVector3 =>

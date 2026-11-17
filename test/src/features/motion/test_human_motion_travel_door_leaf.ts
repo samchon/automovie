@@ -1,7 +1,23 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { createDoor } from "@automovie/archetypes";
-
-import { HumanChain, HumanFoot, HumanObject, HumanPerformance, HumanRefusal, HumanSignature, HumanTravelLeaf } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFoot,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+  HumanTravelLeaf,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -53,7 +69,10 @@ export function test_human_motion_travel_door_leaf(): void {
     rotation: { x: 0, y: 0, z: 0, w: 1 },
     scale: { x: 1, y: 1, z: 1 },
   };
-  const where: IAutoMovieMotionHumanObject.Placement = { at: { x: 0, y: 0, z: 0 }, yaw: 0 };
+  const where: IAutoMovieMotionHumanObject.Placement = {
+    at: { x: 0, y: 0, z: 0 },
+    yaw: 0,
+  };
   const bar: IAutoMovieVector3 = door.placed("pull", placement).translation;
   const full: number = door.affordance("hinge").travel!;
   const OPEN: number = 0.5;
@@ -64,7 +83,10 @@ export function test_human_motion_travel_door_leaf(): void {
       const u: number = Math.min(1, Math.max(0, (seconds - OPEN) / SWING));
       return degrees * (10 * u ** 3 - 15 * u ** 4 + 6 * u ** 5);
     };
-  const perform = (body: IAutoMovieMotionHumanBody, degrees: number): IAutoMovieMotionHumanPerformance =>
+  const perform = (
+    body: IAutoMovieMotionHumanBody,
+    degrees: number,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "door",
       laws: [HumanTravelLeaf.openDoor],
@@ -112,7 +134,8 @@ export function test_human_motion_travel_door_leaf(): void {
       body,
       180,
     );
-    const hold: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[0]!;
+    const hold: IAutoMovieMotionHumanSegment.ISegment =
+      performance.segments("a")[0]!;
     const span = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
       Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
     const ball = (side: "left" | "right", t: number): IAutoMovieVector3 =>
@@ -167,13 +190,10 @@ export function test_human_motion_travel_door_leaf(): void {
       thrown = error;
     }
     if (whole !== null) {
-      const followed: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-        whole,
-        "a",
-        body,
-        180,
-      );
-      const held: IAutoMovieMotionHumanSegment.ISegment = whole.segments("a")[0]!;
+      const followed: IAutoMovieMotionHumanSignature.IReader =
+        HumanSignature.of(whole, "a", body, 180);
+      const held: IAutoMovieMotionHumanSegment.ISegment =
+        whole.segments("a")[0]!;
       let away: number = 0;
       for (const t of HumanSignature.times(
         held.entryTime + HumanTravelLeaf.TAKE + 0.05,

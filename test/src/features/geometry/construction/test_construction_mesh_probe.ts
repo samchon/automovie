@@ -1,5 +1,8 @@
-import type { IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshIncidence } from "@automovie/interface";
 import { probeAutoMovieSolidMesh } from "@automovie/engine";
+import type {
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshIncidence,
+} from "@automovie/interface";
 
 /** One chart point. */
 type Chart = [number, number];
@@ -39,21 +42,50 @@ export function test_construction_mesh_probe(): void {
   ] as const) {
     const vertices: Map<number, Chart> = new Map();
     square.forEach((p: Chart, k: number): void => void vertices.set(k, p));
-    const edges: IAutoMovieSolidMeshConstraints.ISegment[] = square.map((_: Chart, k: number): IAutoMovieSolidMeshConstraints.ISegment => ({ a: k, b: (k + 1) % 4, turn: 0 }));
+    const edges: IAutoMovieSolidMeshConstraints.ISegment[] = square.map(
+      (_: Chart, k: number): IAutoMovieSolidMeshConstraints.ISegment => ({
+        a: k,
+        b: (k + 1) % 4,
+        turn: 0,
+      }),
+    );
     for (const segment of extra) {
       const a: number = vertices.size;
       vertices.set(a, segment[0]!);
       vertices.set(a + 1, segment[1]!);
       edges.push({ a, b: a + 1, turn: 0 });
     }
-    const walk: IAutoMovieSolidMeshIncidence.IWalk = { vertices: [0, 1, 2, 3], lifts: [0, 0, 0, 0], winding: 0 };
-    const probe: readonly [number, number] | string = probeAutoMovieSolidMesh(vertices, edges, walk, undefined);
+    const walk: IAutoMovieSolidMeshIncidence.IWalk = {
+      vertices: [0, 1, 2, 3],
+      lifts: [0, 0, 0, 0],
+      winding: 0,
+    };
+    const probe: readonly [number, number] | string = probeAutoMovieSolidMesh(
+      vertices,
+      edges,
+      walk,
+      undefined,
+    );
     if (typeof probe === "string") {
       failures.push(`${name}: refused: ${probe}`);
       continue;
     }
-    if (!(probe[0] > 0 && probe[0] < 1 && probe[1] > 1 && probe[1] < 2)) failures.push(`${name}: probe ${JSON.stringify(probe)} is not inside the square`);
-    if (extra.length > 0 && probe[1] <= 1 + 2 ** -52 && probe[0] >= 0.25 && probe[0] <= 0.75) failures.push(`${name}: probe ${JSON.stringify(probe)} stands between the first edge and the sliver`);
+    if (!(probe[0] > 0 && probe[0] < 1 && probe[1] > 1 && probe[1] < 2))
+      failures.push(
+        `${name}: probe ${JSON.stringify(probe)} is not inside the square`,
+      );
+    if (
+      extra.length > 0 &&
+      probe[1] <= 1 + 2 ** -52 &&
+      probe[0] >= 0.25 &&
+      probe[0] <= 0.75
+    )
+      failures.push(
+        `${name}: probe ${JSON.stringify(probe)} stands between the first edge and the sliver`,
+      );
   }
-  if (failures.length > 0) throw new Error(`${failures.length} probe failures:\n${failures.join("\n")}`);
+  if (failures.length > 0)
+    throw new Error(
+      `${failures.length} probe failures:\n${failures.join("\n")}`,
+    );
 }

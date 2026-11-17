@@ -1,11 +1,13 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanArmPrior, IAutoMovieHumanHandDigit, IAutoMovieHumanHandFinger, IAutoMovieHumanHandForm, IAutoMovieHumanHandJoints, IAutoMovieHumanHandScales, IAutoMovieHumanHandWrist } from "@automovie/interface";
-
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanArmPrior,
+  IAutoMovieHumanHandDigit,
+  IAutoMovieHumanHandFinger,
+  IAutoMovieHumanHandForm,
+  IAutoMovieHumanHandJoints,
+  IAutoMovieHumanHandScales,
+  IAutoMovieHumanHandWrist,
+} from "@automovie/interface";
 
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanFingerBones } from "./AutoMovieHumanFingerBones";
@@ -13,7 +15,6 @@ import { AutoMovieHumanHandJoints } from "./AutoMovieHumanHandJoints";
 import { AutoMovieHumanHandMap } from "./AutoMovieHumanHandMap";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 import { AutoMovieHumanThumbBones } from "./AutoMovieHumanThumbBones";
-
 
 type Vec3 = AutoMovieVector3Tuple;
 const { sub, norm }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
@@ -44,11 +45,17 @@ export namespace AutoMovieHumanHandFingers {
     law: IAutoMovieHumanHandWrist,
     joints: IAutoMovieHumanHandJoints,
   ): IAutoMovieHumanHandFinger[] {
-    const prior: IAutoMovieHumanArmPrior.IHandPrior = AutoMovieHumanArmPrior.PRIOR.hand;
-    const map = (q: readonly [number, number, number]): Vec3 => handPoint(q, measures, law.wrist);
-    const reach3: number = measures.length - STYLION - norm(sub(joints.mcps[2]!, law.crease));
+    const prior: IAutoMovieHumanArmPrior.IHandPrior =
+      AutoMovieHumanArmPrior.PRIOR.hand;
+    const map = (q: readonly [number, number, number]): Vec3 =>
+      handPoint(q, measures, law.wrist);
+    const reach3: number =
+      measures.length - STYLION - norm(sub(joints.mcps[2]!, law.crease));
     const crests: Vec3[] = hand.crests.map((c: Vec3): Vec3 => map(c));
-    const own = (i: number, external: (web: number) => number): IAutoMovieHumanHandFinger =>
+    const own = (
+      i: number,
+      external: (web: number) => number,
+    ): IAutoMovieHumanHandFinger =>
       AutoMovieHumanFingerBones.of(
         hand.digits[i]!,
         i,
@@ -61,13 +68,17 @@ export namespace AutoMovieHumanHandFingers {
       );
 
     // The middle finger first: the others are measured against its length.
-    const middle: IAutoMovieHumanHandFinger = own(2, (web: number): number => reach3 - web);
-    return hand.digits.map((d: IAutoMovieHumanHandDigit, i: number): IAutoMovieHumanHandFinger =>
-      i === 0
-        ? AutoMovieHumanThumbBones.of(d, joints, measures, map)
-        : i === 2
-          ? middle
-          : own(i, (): number => middle.external * prior.external[i - 1]!),
+    const middle: IAutoMovieHumanHandFinger = own(
+      2,
+      (web: number): number => reach3 - web,
+    );
+    return hand.digits.map(
+      (d: IAutoMovieHumanHandDigit, i: number): IAutoMovieHumanHandFinger =>
+        i === 0
+          ? AutoMovieHumanThumbBones.of(d, joints, measures, map)
+          : i === 2
+            ? middle
+            : own(i, (): number => middle.external * prior.external[i - 1]!),
     );
   }
 }

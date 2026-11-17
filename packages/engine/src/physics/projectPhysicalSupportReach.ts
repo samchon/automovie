@@ -1,4 +1,8 @@
-import type { IAutoMovieProjectPhysicalSupportReach, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieProjectPhysicalSupportReach,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 
 /**
@@ -16,9 +20,12 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function projectPhysicalSupportReach(input: IAutoMovieProjectPhysicalSupportReach.IInput): IAutoMovieProjectPhysicalSupportReach.IResult {
-  const finite: (value: IAutoMovieVector3) => boolean = (value: IAutoMovieVector3): boolean =>
-    !!value && [value.x, value.y, value.z].every(Number.isFinite);
+export function projectPhysicalSupportReach(
+  input: IAutoMovieProjectPhysicalSupportReach.IInput,
+): IAutoMovieProjectPhysicalSupportReach.IResult {
+  const finite: (value: IAutoMovieVector3) => boolean = (
+    value: IAutoMovieVector3,
+  ): boolean => !!value && [value.x, value.y, value.z].every(Number.isFinite);
   if (
     !Array.isArray(input.supports) ||
     !Number.isFinite(input.maximumTranslation) ||

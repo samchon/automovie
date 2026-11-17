@@ -1,11 +1,13 @@
-import type { IAutoMovieWarpRoot, IAutoMovieTransform } from "@automovie/interface";
 import {
   createAutoMovieRandom,
   deriveAutoMovieSeed,
   seededSmoothNoise,
   warpRoot,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieTransform,
+  IAutoMovieWarpRoot,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,16 +1,14 @@
-import type { IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanDigitWalk, IAutoMovieHumanSiteViewPart, IAutoMovieHumanWalkPart } from "@automovie/interface";
-
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanDigitWalk,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanWalkPart,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanBendArc } from "./AutoMovieHumanBendArc";
 import { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanWalkPart } from "./AutoMovieHumanWalkPart";
-
 
 /**
  * A digit (a finger, the thumb, a toe) as one walk over its phalanges
@@ -34,17 +32,15 @@ import { AutoMovieHumanWalkPart } from "./AutoMovieHumanWalkPart";
  * own reach assessment. Radius and arclength are different quantities.
  */
 export namespace AutoMovieHumanDigitWalk {
-  
-
-  
-
   /**
    * Build and loft the digit.
    *
    * @param input The centres, the laws and the tip.
    * @returns The part, its loft and the diagnostics.
    */
-  export function create(input: IAutoMovieHumanDigitWalk.IInput): IAutoMovieHumanSiteViewPart.IResult {
+  export function create(
+    input: IAutoMovieHumanDigitWalk.IInput,
+  ): IAutoMovieHumanSiteViewPart.IResult {
     return AutoMovieHumanSiteViewPart.loft(define(input));
   }
 
@@ -58,7 +54,9 @@ export namespace AutoMovieHumanDigitWalk {
       string,
       NonNullable<IAutoMovieHumanDigitWalk.ISiteLaw["shoulderJets"]>
     > = new Map();
-    const box: (law: IAutoMovieHumanDigitWalk.ISiteLaw) => [number, number, number, number] = (
+    const box: (
+      law: IAutoMovieHumanDigitWalk.ISiteLaw,
+    ) => [number, number, number, number] = (
       law: IAutoMovieHumanDigitWalk.ISiteLaw,
     ): [number, number, number, number] => [
       law.depth * law.dorsal,
@@ -163,7 +161,9 @@ export namespace AutoMovieHumanDigitWalk {
       const departures: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline> =
         [0, 1, 2, 3].map((q: number): IAutoMovieViewPart.IOutline => {
           const knots: IAutoMovieViewPart.IKnot[] = definition.sites.map(
-            (s: IAutoMovieHumanSiteViewPart.ISite): IAutoMovieViewPart.IKnot => {
+            (
+              s: IAutoMovieHumanSiteViewPart.ISite,
+            ): IAutoMovieViewPart.IKnot => {
               if (!("shoulder" in s.fullness))
                 throw new Error(
                   "A hand contact requires sourced quarter fullness",
@@ -232,7 +232,13 @@ export namespace AutoMovieHumanDigitWalk {
     const root: AutoMovieVector3Tuple = input.centres[0]!;
     const joint: AutoMovieVector3Tuple = input.attachment.joint;
     const first: AutoMovieVector3Tuple = input.centres[1]!;
-    const length: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number =>
+    const length: (
+      a: AutoMovieVector3Tuple,
+      b: AutoMovieVector3Tuple,
+    ) => number = (
+      a: AutoMovieVector3Tuple,
+      b: AutoMovieVector3Tuple,
+    ): number =>
       Math.hypot(
         ...a.map((value: number, axis: number): number => value - b[axis]!),
       );

@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanBase, IAutoMovieMotionHumanEntryState } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBase,
+  IAutoMovieMotionHumanEntryState,
+} from "@automovie/interface";
 
 /** Companion types, the kinds as data and the passing-on rule of {@link HumanBase}. */
 export namespace HumanBase {
@@ -22,7 +25,13 @@ export namespace HumanBase {
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanBase.Kind>[];
 
   /** The sides a seat sat astride is got onto and off from, as data: `either` takes both. */
-  export const MOUNTS = ["left", "right", "either"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanBase.ISeat["mount"]>[];
+  export const MOUNTS = [
+    "left",
+    "right",
+    "either",
+  ] as const satisfies readonly NonNullable<
+    IAutoMovieMotionHumanBase.ISeat["mount"]
+  >[];
 
   /**
    * The base a body is on as it leaves an action at a share of it.
@@ -38,15 +47,19 @@ export namespace HumanBase {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function with nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function after(props: IAutoMovieMotionHumanBase.IAfterProps): IAutoMovieMotionHumanBase {
+  export function after(
+    props: IAutoMovieMotionHumanBase.IAfterProps,
+  ): IAutoMovieMotionHumanBase {
     if (props.declared !== undefined && props.share >= 1 - 1e-9)
       return props.declared;
     const shown: IAutoMovieMotionHumanBase.Kind = props.supports.some(
-      (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat",
+      (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+        s.kind === "seat",
     )
       ? "seated"
       : props.supports.some(
-            (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "lie",
+            (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+              s.kind === "lie",
           )
         ? "lying"
         : props.supports.some(

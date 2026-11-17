@@ -1,11 +1,14 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanFoot, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Vector3,
   convexHull2D,
   minimumJerk,
   pointInHull,
 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -59,7 +62,10 @@ export class StaggerPendulum {
   public readonly across: IAutoMovieVector3;
 
   /** The feet as the entry stands them. */
-  public readonly entered: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+  public readonly entered: Record<
+    "left" | "right",
+    IAutoMovieMotionHumanFoot.IPlacement
+  >;
 
   /** The narrowest the feet stand, ankle to ankle across the heading, side by side with their outlines touching. */
   public readonly width: number;
@@ -248,10 +254,7 @@ export class StaggerPendulum {
       this.bearing([stance]),
       p0,
     );
-    const count: number = Math.max(
-      1,
-      Math.round(seconds / staggerBounds.STEP),
-    );
+    const count: number = Math.max(1, Math.round(seconds / staggerBounds.STEP));
     for (let i: number = 0; i < count; i++)
       this.advance(
         Vector3.lerp(p0, p1, minimumJerk((i + 0.5) / count).s),

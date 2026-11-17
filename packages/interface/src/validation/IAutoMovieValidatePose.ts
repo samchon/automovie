@@ -10,13 +10,13 @@ export namespace IAutoMovieValidatePose {
   export type IProps = {
     /** Borrowed pose; null joint angles mean rest and invalid angles are reported without clamping. */
     pose: IAutoMoviePose;
-  
+
     /** Current rig for bone identity and per-bone/default degree constraints. */
     skeleton: IAutoMovieSkeleton;
-  
+
     /** Base diagnostic address, defaulting to $input. */
     path?: string;
-  
+
     /** Optional caller-owned sink; omitted, a fresh collector is returned. */
     collector?: IAutoMovieViolationCollector;
   };

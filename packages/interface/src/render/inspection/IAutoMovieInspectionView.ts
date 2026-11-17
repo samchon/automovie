@@ -96,12 +96,14 @@ export namespace IAutoMovieInspectionView {
    * @evidence contracts/development/common.md#meaningful-documentation States what each form frames.
    */
   export type IFocus =
-    | { 
-/** Select path-pattern framing or the bounds of flagged marks. */
-type: "pattern"; 
-/** Inspection path pattern selecting the objects/marks to frame. */
-pattern: string }
-    | { 
-/** Select path-pattern framing or the bounds of flagged marks. */
-type: "flagged" };
+    | {
+        /** Select path-pattern framing or the bounds of flagged marks. */
+        type: "pattern";
+        /** Inspection path pattern selecting the objects/marks to frame. */
+        pattern: string;
+      }
+    | {
+        /** Select path-pattern framing or the bounds of flagged marks. */
+        type: "flagged";
+      };
 }

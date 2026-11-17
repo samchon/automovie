@@ -1,5 +1,11 @@
-import type { IAutoMovieCapturePlan, IAutoMovieCaptureSubject } from "@automovie/interface";
-import { parseAutoMovieCapturePlanRequest, planAutoMovieCapture } from "@automovie/render";
+import type {
+  IAutoMovieCapturePlan,
+  IAutoMovieCaptureSubject,
+} from "@automovie/interface";
+import {
+  parseAutoMovieCapturePlanRequest,
+  planAutoMovieCapture,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";

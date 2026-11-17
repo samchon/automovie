@@ -1,4 +1,11 @@
-import type { AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanSalto } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanSalto,
+} from "@automovie/interface";
 
 import { jump } from "../actions/jump";
 import { HumanBound } from "../law/HumanBound";
@@ -31,7 +38,8 @@ export namespace salto {
   export const name: AutoMovieMotionHumanActionKey = "salto";
 
   /** Cancel table: the jump's. */
-  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = jump.interrupts;
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
+    jump.interrupts;
 
   /** The greatest mean rate of turn, turns a second (provisional; Yeadon 1993). */
   export const RATE: number = 2.5;

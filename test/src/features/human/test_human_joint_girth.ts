@@ -1,6 +1,10 @@
-import type { IAutoMovieHumanBodyCalibration, IAutoMovieHumanJointCentres, IAutoMovieHumanSkeletonLaw, IAutoMovieLoftChain } from "@automovie/interface";
-
 import { AutoMovieHumanJointCentres } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanJointCentres,
+  IAutoMovieHumanSkeletonLaw,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

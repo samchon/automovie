@@ -1,5 +1,8 @@
-import { type IAutoMovieViolationCollector, IAutoMovieLight, IAutoMovieStageLight } from "@automovie/interface";
-
+import {
+  IAutoMovieLight,
+  IAutoMovieStageLight,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
 import { AUTO_MOVIE_LIGHT_TYPES } from "../../resolve/constants/AUTO_MOVIE_LIGHT_TYPES";

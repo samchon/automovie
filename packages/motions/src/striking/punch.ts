@@ -1,6 +1,20 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieHumanoidSurfaces, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPunch, IAutoMovieMotionHumanStrikingRecord, IAutoMovieMotionHumanStrikingSkill, IAutoMovieMotionHumanVariation, IAutoMovieVector3 } from "@automovie/interface";
-
 import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPunch,
+  IAutoMovieMotionHumanStrikingRecord,
+  IAutoMovieMotionHumanStrikingSkill,
+  IAutoMovieMotionHumanVariation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVariation";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingBody } from "./StrikingBody";
@@ -93,7 +107,9 @@ export namespace punch {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function hand(params: IAutoMovieMotionHumanPunch.IParams): "lead" | "rear" {
+  export function hand(
+    params: IAutoMovieMotionHumanPunch.IParams,
+  ): "lead" | "rear" {
     return params.hand ?? (params.technique === "uppercut" ? "rear" : "lead");
   }
 
@@ -134,7 +150,8 @@ export namespace punch {
     ) {
       const elapsed: number =
         from.share * from.plan.duration - from.plan.contact;
-      const same: boolean = hand(from.params as IAutoMovieMotionHumanPunch.IParams) === which;
+      const same: boolean =
+        hand(from.params as IAutoMovieMotionHumanPunch.IParams) === which;
       delivery = Math.max(
         0.12,
         (same
@@ -299,7 +316,9 @@ export namespace punch {
       ...(strikes
         ? {
             weapons: StrikingWeapon.capsules(chain),
-            stop: (found: readonly IAutoMovieMotionHumanActionPlan.IContactEvent[]): void => {
+            stop: (
+              found: readonly IAutoMovieMotionHumanActionPlan.IContactEvent[],
+            ): void => {
               met = StrikingWeapon.first(found);
               fixed = met === null ? null : met.seconds;
               ride = undefined;

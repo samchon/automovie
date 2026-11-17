@@ -1,6 +1,17 @@
-import { type IAutoMovieArmChainFault, type IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-import { HUMANOID_JOINT_AXES, armChainFault, reachPose, resolvePose } from "@automovie/engine";
-
+import {
+  HUMANOID_JOINT_AXES,
+  armChainFault,
+  reachPose,
+  resolvePose,
+} from "@automovie/engine";
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieArmChainFault,
+  IAutoMovieBone,
+  type IAutoMovieResolvedBone,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/namedFacts";

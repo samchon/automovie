@@ -1,6 +1,6 @@
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieFormationSlot } from "./IAutoMovieFormationSlot";
 import type { IAutoMovieInstanceSlot } from "./IAutoMovieInstanceSlot";
-import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * Deterministic geometry and compact-member helpers exposed to a shot source builder over borrowed current records.
@@ -22,10 +22,7 @@ export interface IAutoMovieSourceOracle {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
    */
-  distance(
-    left: IAutoMovieVector3,
-    right: IAutoMovieVector3,
-  ): number;
+  distance(left: IAutoMovieVector3, right: IAutoMovieVector3): number;
 
   /**
    * World-meter height of the first containing world surface at the supplied XZ point, or zero when none contains it.

@@ -1,5 +1,13 @@
-import { type IAutoMovieLowerWetZoneDrainage, IAutoMovieFluidDomain, IAutoMovieFluidDrain, IAutoMovieFluidSource, IAutoMovieServiceNode, IAutoMovieServicePort, IAutoMovieServiceSystem, IAutoMovieWetZone } from "@automovie/interface";
-
+import {
+  IAutoMovieFluidDomain,
+  IAutoMovieFluidDrain,
+  IAutoMovieFluidSource,
+  type IAutoMovieLowerWetZoneDrainage,
+  IAutoMovieServiceNode,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSystem,
+  IAutoMovieWetZone,
+} from "@automovie/interface";
 
 /** Media a floor drain is allowed to discharge into. */
 const WASTE_MEDIUM: string = "waste-water";
@@ -29,7 +37,10 @@ const WASTE_MEDIUM: string = "waste-water";
  * own `demand` already states.
  *
  * The network is expected to have been validated already; this lowering answers
- * only for the placement it performs, not for the graph it reads.
+ * only for the placement it performs, not for the graph it reads. Selected
+ * plumbing inlet system and port units must both be cubic-meter-per-second;
+ * other units throw because network admission permits nonvolumetric "other"
+ * media, while this seam performs no physical unit conversion.
  *
  * Refuses rather than repairs. An unknown zone, an unknown drain node, a node
  * standing off the lattice and a derived id that collides with an authored one
@@ -47,7 +58,11 @@ const WASTE_MEDIUM: string = "waste-water";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The system lookup is built once for all ports; per-cell placement serves every derived row at a node, and no composition result persists across domain edits.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources New source/drain lists and rows transfer to the caller; untouched domain records remain source aliases, and temporary system/candidate arrays retain no independent simulation state.
  */
-export const lowerWetZoneDrainage: (props: IAutoMovieLowerWetZoneDrainage.IProps) => IAutoMovieFluidDomain = (props: IAutoMovieLowerWetZoneDrainage.IProps): IAutoMovieFluidDomain => {
+export const lowerWetZoneDrainage: (
+  props: IAutoMovieLowerWetZoneDrainage.IProps,
+) => IAutoMovieFluidDomain = (
+  props: IAutoMovieLowerWetZoneDrainage.IProps,
+): IAutoMovieFluidDomain => {
   const { network, domain }: typeof props = props;
   const zone: IAutoMovieWetZone | undefined = network.zones.find(
     (candidate: IAutoMovieWetZone): boolean => candidate.id === props.zone,
@@ -74,8 +89,13 @@ export const lowerWetZoneDrainage: (props: IAutoMovieLowerWetZoneDrainage.IProps
         port.system,
       );
       if (system === undefined || system.discipline !== "plumbing") continue;
-      if (system.unit !== "cubic-meter-per-second" || port.unit !== "cubic-meter-per-second")
-        throw new Error(`wet zone "${zone.id}" inlet "${port.id}" requires cubic-meter-per-second demand`);
+      if (
+        system.unit !== "cubic-meter-per-second" ||
+        port.unit !== "cubic-meter-per-second"
+      )
+        throw new Error(
+          `wet zone "${zone.id}" inlet "${port.id}" requires cubic-meter-per-second demand`,
+        );
       const cell: { column: number; row: number } = cellOf(
         domain,
         node,

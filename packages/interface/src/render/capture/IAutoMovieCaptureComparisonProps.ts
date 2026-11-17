@@ -30,9 +30,10 @@ export interface IAutoMovieCaptureComparisonProps {
   budget: IAutoMovieCaptureBudget;
 
   /** This capture's still raster in pixels, which sizes the sheet cells. */
-  raster: { 
-/** Current still width in pixels used to plan comparison cells. */
-width: number; 
-/** Current still height in pixels used to plan comparison cells. */
-height: number };
+  raster: {
+    /** Current still width in pixels used to plan comparison cells. */
+    width: number;
+    /** Current still height in pixels used to plan comparison cells. */
+    height: number;
+  };
 }

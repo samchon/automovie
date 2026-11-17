@@ -1,5 +1,14 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance } from "@automovie/interface";
-import { HUMAN_LEXICON, HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+} from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
 
@@ -55,7 +64,8 @@ export namespace motionHumanMutualReads {
     victim: motionHumanBody.Name,
   ): string[] {
     const label: string = `${scene} (${attacker} and ${victim})`;
-    const laws: IAutoMovieMotionHumanActionLaw<never>[] = Object.values(HUMAN_LEXICON).flat();
+    const laws: IAutoMovieMotionHumanActionLaw<never>[] =
+      Object.values(HUMAN_LEXICON).flat();
     let xia: IAutoMovieMotionHumanChain = HumanChain.subject("xia");
     let yan: IAutoMovieMotionHumanChain = HumanChain.subject("yan");
     if (scene === "held") {

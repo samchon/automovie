@@ -1,5 +1,8 @@
 import type { IAutoMovieRasterImage } from "@automovie/interface";
-import { decodeAutoMovieDrawPixels, encodeAutoMovieDrawPixels } from "@automovie/render";
+import {
+  decodeAutoMovieDrawPixels,
+  encodeAutoMovieDrawPixels,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

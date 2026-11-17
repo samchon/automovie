@@ -1,4 +1,9 @@
-import type { IAutoMovieConstructionState, IAutoMovieSolidBody, IAutoMovieSolidCycle } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionState,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidCycle,
+} from "@automovie/interface";
+
 /**
  * What a construction's walk builds besides the body (`realizeAutoMovieConstruction`), and its rollback: a snapshot of the body's faces, cycles, mesh and the walk's lists taken before a part is built, restored when the node attaching that part breaks a premise, so the part's whole subtree is left out and its host stands as it was.
  *
@@ -8,7 +13,6 @@ import type { IAutoMovieConstructionState, IAutoMovieSolidBody, IAutoMovieSolidC
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConstructionState {
-
   /**
    * Capture the geometry/list checkpoint consumed by a failed subtree's rollback.
    *

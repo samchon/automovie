@@ -1,5 +1,17 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated } from "@automovie/interface";
-import { HUMAN_LEXICON, HumanChain, HumanPerformance, HumanRefusal, seated } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+  seated,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { LexiconRowNet } from "../internal/LexiconRowNet";
@@ -76,7 +88,8 @@ export function test_human_motion_recompose_upper_matrix(): void {
     }
   };
   for (const family of FAMILIES) {
-    const rows: readonly IAutoMovieMotionHumanActionLaw<never>[] = HUMAN_LEXICON[family] ?? [];
+    const rows: readonly IAutoMovieMotionHumanActionLaw<never>[] =
+      HUMAN_LEXICON[family] ?? [];
     if (rows.length === 0) complaints.push(`the family ${family} holds no row`);
     for (const law of rows) {
       const given: object = LexiconRowNet.given(law.name) ?? {};

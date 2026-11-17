@@ -1,24 +1,24 @@
+import type { IAutoMovieInteractionEvent } from "../../../cinematics/IAutoMovieInteractionEvent";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
+import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieCheckLegality } from "../../composition/IAutoMovieCheckLegality";
 import type { IAutoMovieComposition } from "../../composition/IAutoMovieComposition";
-import type { IAutoMovieInteractionEvent } from "../../../cinematics/IAutoMovieInteractionEvent";
+import type { IAutoMovieResolveSchedule } from "../../composition/IAutoMovieResolveSchedule";
+import type { IAutoMovieSchedule } from "../../composition/IAutoMovieSchedule";
 import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHumanActionLaw";
+import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLayer";
+import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanBlast } from "./IAutoMovieMotionHumanBlast";
 import type { IAutoMovieMotionHumanForce } from "./IAutoMovieMotionHumanForce";
-import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLayer";
 import type { IAutoMovieMotionHumanObstacle } from "./IAutoMovieMotionHumanObstacle";
 import type { IAutoMovieMotionHumanPerformanceAim } from "./IAutoMovieMotionHumanPerformanceAim";
 import type { IAutoMovieMotionHumanPerformer } from "./IAutoMovieMotionHumanPerformer";
-import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 import type { IAutoMovieMotionHumanPropFlight } from "./IAutoMovieMotionHumanPropFlight";
 import type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegment";
-import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
-import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
-import type { IAutoMovieResolveSchedule } from "../../composition/IAutoMovieResolveSchedule";
-import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
-import type { IAutoMovieSchedule } from "../../composition/IAutoMovieSchedule";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * A performance of people and props: their chained actions placed on the

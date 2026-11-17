@@ -1,4 +1,8 @@
-import type { IAutoMovieFilePublicationOptions, IAutoMovieFileReceipt, IAutoMovieRecoveryResult } from "@automovie/interface";
+import type {
+  IAutoMovieFilePublicationOptions,
+  IAutoMovieFileReceipt,
+  IAutoMovieRecoveryResult,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import fs from "node:fs";
 import os from "node:os";
@@ -21,40 +25,104 @@ import { publishAutoMovieRecoveryArtifact } from "../../src/executable/recovery/
  * @evidence contracts/development/common.md#meaningful-documentation States pre-work cancellation and failure behavior alongside exact output/lifetime checks.
  */
 export function test_recovery_publication_cancellation(): void {
-  const directory: string = fs.mkdtempSync(path.join(os.tmpdir(), "automovie-interface-publication-"));
+  const directory: string = fs.mkdtempSync(
+    path.join(os.tmpdir(), "automovie-interface-publication-"),
+  );
   const output: string = path.join(directory, "artifact.json");
   const artifact: { value: number } = { value: 42 };
   try {
     for (const throws of [false, true]) {
       let calls: number = 0;
-      const result: IAutoMovieRecoveryResult<IAutoMovieFileReceipt> = publishAutoMovieRecoveryArtifact(output, artifact, {
-        cancelled: (): boolean => {
-          calls++;
-          if (throws) throw new Error("publication predicate failed");
-          return true;
-        },
-      });
-      TestValidator.equals("cancellation and exception remain distinct", result.status, throws ? "failed" : "cancelled");
+      const result: IAutoMovieRecoveryResult<IAutoMovieFileReceipt> =
+        publishAutoMovieRecoveryArtifact(output, artifact, {
+          cancelled: (): boolean => {
+            calls++;
+            if (throws) throw new Error("publication predicate failed");
+            return true;
+          },
+        });
+      TestValidator.equals(
+        "cancellation and exception remain distinct",
+        result.status,
+        throws ? "failed" : "cancelled",
+      );
       TestValidator.equals("one pre-work predicate call", calls, 1);
-      TestValidator.predicate("pre-work exit returns no receipt", !("value" in result));
-      TestValidator.equals("pre-work exit creates no files", fs.readdirSync(directory), []);
+      TestValidator.predicate(
+        "pre-work exit returns no receipt",
+        !("value" in result),
+      );
+      TestValidator.equals(
+        "pre-work exit creates no files",
+        fs.readdirSync(directory),
+        [],
+      );
     }
     for (const invalidResult of [undefined, null, "yes", 1]) {
-      const options: IAutoMovieFilePublicationOptions = Object.defineProperty({}, "cancelled", { value: (): unknown => invalidResult });
-      const result: IAutoMovieRecoveryResult<IAutoMovieFileReceipt> = publishAutoMovieRecoveryArtifact(output, artifact, options);
-      TestValidator.equals("nonboolean predicate fails", result.status, "failed");
-      TestValidator.equals("invalid result creates no files", fs.readdirSync(directory), []);
+      const options: IAutoMovieFilePublicationOptions = Object.defineProperty(
+        {},
+        "cancelled",
+        { value: (): unknown => invalidResult },
+      );
+      const result: IAutoMovieRecoveryResult<IAutoMovieFileReceipt> =
+        publishAutoMovieRecoveryArtifact(output, artifact, options);
+      TestValidator.equals(
+        "nonboolean predicate fails",
+        result.status,
+        "failed",
+      );
+      TestValidator.equals(
+        "invalid result creates no files",
+        fs.readdirSync(directory),
+        [],
+      );
     }
-    const invalid: IAutoMovieRecoveryResult<IAutoMovieFileReceipt> = publishAutoMovieRecoveryArtifact(output, artifact, JSON.parse('{"cancelled":null}'));
-    TestValidator.equals("nonfunction predicate refuses", invalid.status, "refused");
-    TestValidator.equals("refused predicate creates no files", fs.readdirSync(directory), []);
-    const completed: IAutoMovieRecoveryResult<IAutoMovieFileReceipt> = publishAutoMovieRecoveryArtifact(output, artifact, { cancelled: (): boolean => false });
-    TestValidator.equals("false permits publication", completed.status, "complete");
+    const invalid: IAutoMovieRecoveryResult<IAutoMovieFileReceipt> =
+      publishAutoMovieRecoveryArtifact(
+        output,
+        artifact,
+        JSON.parse('{"cancelled":null}'),
+      );
+    TestValidator.equals(
+      "nonfunction predicate refuses",
+      invalid.status,
+      "refused",
+    );
+    TestValidator.equals(
+      "refused predicate creates no files",
+      fs.readdirSync(directory),
+      [],
+    );
+    const completed: IAutoMovieRecoveryResult<IAutoMovieFileReceipt> =
+      publishAutoMovieRecoveryArtifact(output, artifact, {
+        cancelled: (): boolean => false,
+      });
+    TestValidator.equals(
+      "false permits publication",
+      completed.status,
+      "complete",
+    );
     const bytes: string = fs.readFileSync(output, "utf8");
-    TestValidator.equals("published data preserves the artifact", JSON.parse(bytes), artifact);
-    const cancelled: IAutoMovieRecoveryResult<IAutoMovieFileReceipt> = publishAutoMovieRecoveryArtifact(output, { value: 99 }, { cancelled: (): boolean => true });
-    TestValidator.equals("later cancellation returns no publication", cancelled.status, "cancelled");
-    TestValidator.equals("cancellation preserves published bytes", fs.readFileSync(output, "utf8"), bytes);
+    TestValidator.equals(
+      "published data preserves the artifact",
+      JSON.parse(bytes),
+      artifact,
+    );
+    const cancelled: IAutoMovieRecoveryResult<IAutoMovieFileReceipt> =
+      publishAutoMovieRecoveryArtifact(
+        output,
+        { value: 99 },
+        { cancelled: (): boolean => true },
+      );
+    TestValidator.equals(
+      "later cancellation returns no publication",
+      cancelled.status,
+      "cancelled",
+    );
+    TestValidator.equals(
+      "cancellation preserves published bytes",
+      fs.readFileSync(output, "utf8"),
+      bytes,
+    );
   } finally {
     fs.rmSync(directory, { recursive: true });
   }

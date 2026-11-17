@@ -1,5 +1,3 @@
-import type { IAutoMovieMotionHumanBend, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanHand, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
@@ -9,6 +7,15 @@ import {
   resolveBoneMap,
   skeletonJointAxes,
 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanHand,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -76,11 +83,14 @@ export namespace AutoMovieMotionHumanBendChain {
     );
     const pose: IAutoMoviePose = {
       skeleton: body.skeleton.id,
-      root: Transform.of(posture.root, resolveHumanPosture.heading({
+      root: Transform.of(
+        posture.root,
+        resolveHumanPosture.heading({
           yaw: posture.yaw,
           pitch: posture.pitch ?? 0,
           roll: posture.roll ?? 0,
-        })),
+        }),
+      ),
       joints: [],
     };
     const prepared: ReturnType<typeof prepareChainPlant> = prepareChainPlant({

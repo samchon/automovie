@@ -1,7 +1,7 @@
-import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
-import type { IAutoMovieImpactBodyState } from "./IAutoMovieImpactBodyState";
-import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
+import type { IAutoMovieImpactBodyState } from "./IAutoMovieImpactBodyState";
 
 /** Data and callback contracts shared by the SuggestCollisionResponse operations. */
 export namespace IAutoMovieSuggestCollisionResponse {

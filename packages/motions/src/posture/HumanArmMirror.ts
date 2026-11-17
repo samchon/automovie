@@ -1,4 +1,9 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanColliders, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanArmGeometry } from "./HumanArmGeometry";
 

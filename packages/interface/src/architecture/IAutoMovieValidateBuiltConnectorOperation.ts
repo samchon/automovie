@@ -1,12 +1,12 @@
+import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
 import type { IAutoMovieBuiltConnector } from "./IAutoMovieBuiltConnector";
 import type { IAutoMovieBuiltElement } from "./IAutoMovieBuiltElement";
-import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
 
 /** Connector-operation validation context with shared element-drive ownership tracking. */
 export namespace IAutoMovieValidateBuiltConnectorOperation {
   /**
    * Connector-operation validation context with shared element-drive ownership tracking.
-   * 
+   *
    * An operated connector must name the elements it is built from, and declare
    * at least one carriage and one state. Each carriage needs a unique non-blank
    * id, an element that resolves and is one of the run's elements or below one,

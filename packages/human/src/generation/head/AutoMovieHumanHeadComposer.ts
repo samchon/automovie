@@ -1,19 +1,19 @@
-import type { IAutoMovieLoftContract, IAutoMovieViewLoft, IAutoMovieViewPart, IAutoMovieHumanEar, IAutoMovieHumanPair, IAutoMovieHumanHeadCanonical, IAutoMovieHumanHeadComposer, IAutoMovieHumanHeadDome, IAutoMovieHumanHeadFeatures, IAutoMovieHumanHeadLayout, IAutoMovieConstructionView } from "@automovie/interface";
-
-
-
-
-
-
-
-
 import { AutoMovieViewLoft } from "@automovie/engine";
-
-
+import type {
+  IAutoMovieConstructionView,
+  IAutoMovieHumanEar,
+  IAutoMovieHumanHeadCanonical,
+  IAutoMovieHumanHeadComposer,
+  IAutoMovieHumanHeadDome,
+  IAutoMovieHumanHeadFeatures,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanPair,
+  IAutoMovieLoftContract,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadCanonical } from "./AutoMovieHumanHeadCanonical";
-
-
 import { AutoMovieHumanHeadOriginalSources } from "./AutoMovieHumanHeadOriginalSources";
 import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
 
@@ -36,16 +36,6 @@ import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned source map, original parts and raw lofts; their immutable dependencies share that lifetime, with no global or cross-input cache.
  */
 export namespace AutoMovieHumanHeadComposer {
-  
-
-  
-
-  
-
-  
-
-  
-
   /**
    * Prepare the canonical mass and neck before any regional source is requested.
    *
@@ -163,7 +153,8 @@ export namespace AutoMovieHumanHeadComposer {
       plan,
       part: massPart,
     }: IAutoMovieHumanHeadCanonical.IOutput["tape"] = base.closed().tape;
-    const definition: IAutoMovieHumanHeadComposer.IDefinition = originals ?? define(base, ears, places);
+    const definition: IAutoMovieHumanHeadComposer.IDefinition =
+      originals ?? define(base, ears, places);
     const attachments: IAutoMovieHumanHeadDome.IAttempt[] =
       definition.attachments;
 
@@ -207,7 +198,9 @@ export namespace AutoMovieHumanHeadComposer {
           ),
         )}`,
       );
-    const place: (feature: IAutoMovieHumanHeadFeatures.IFeature) => IAutoMovieHumanHeadComposer.IPlaced = (
+    const place: (
+      feature: IAutoMovieHumanHeadFeatures.IFeature,
+    ) => IAutoMovieHumanHeadComposer.IPlaced = (
       feature: IAutoMovieHumanHeadFeatures.IFeature,
     ): IAutoMovieHumanHeadComposer.IPlaced => {
       return {
@@ -218,21 +211,25 @@ export namespace AutoMovieHumanHeadComposer {
         },
       };
     };
-    const parts: IAutoMovieHumanHeadComposer.IPlaced[] = definition.parts.map(place);
+    const parts: IAutoMovieHumanHeadComposer.IPlaced[] =
+      definition.parts.map(place);
 
-    const studies: IAutoMovieHumanHeadComposer.IOutput["studies"] = definition.studies.map(
-      (part: IAutoMovieViewPart): IAutoMovieHumanHeadComposer.IOutput["studies"][number] => {
-        const view: IAutoMovieConstructionView =
-          AutoMovieHumanHeadTree.view(part);
-        return {
-          part,
-          view,
-          get loft(): IAutoMovieViewLoft.IResult {
-            return definition.loft(part.name);
-          },
-        };
-      },
-    );
+    const studies: IAutoMovieHumanHeadComposer.IOutput["studies"] =
+      definition.studies.map(
+        (
+          part: IAutoMovieViewPart,
+        ): IAutoMovieHumanHeadComposer.IOutput["studies"][number] => {
+          const view: IAutoMovieConstructionView =
+            AutoMovieHumanHeadTree.view(part);
+          return {
+            part,
+            view,
+            get loft(): IAutoMovieViewLoft.IResult {
+              return definition.loft(part.name);
+            },
+          };
+        },
+      );
     const sources: ReadonlyMap<string, IAutoMovieViewPart> = definition.sources;
     return {
       plan,

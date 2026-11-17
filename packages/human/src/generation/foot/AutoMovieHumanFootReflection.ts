@@ -1,6 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanFootReflection, IAutoMovieHumanLimbFrame } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootReflection,
+  IAutoMovieHumanLimbFrame,
+} from "@automovie/interface";
 
 import { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
@@ -14,20 +16,34 @@ import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
  */
 export namespace AutoMovieHumanFootReflection {
   /** A left-frame section sample for a side. */
-  export function sample(s: IAutoMovieHumanLimbFrame.ISample, sign: 1 | -1): IAutoMovieHumanLimbFrame.ISample {
+  export function sample(
+    s: IAutoMovieHumanLimbFrame.ISample,
+    sign: 1 | -1,
+  ): IAutoMovieHumanLimbFrame.ISample {
     if (sign === 1) return s;
     const n: number = s.ring.length;
     return {
       station: s.station,
       frame: AutoMovieHumanLimbFrame.mirror(s.frame),
-      ring: s.ring.map((_: AutoMovieVector3Tuple, m: number): AutoMovieVector3Tuple => G.sided(s.ring[(n - m) % n]!, -1)),
+      ring: s.ring.map(
+        (_: AutoMovieVector3Tuple, m: number): AutoMovieVector3Tuple =>
+          G.sided(s.ring[(n - m) % n]!, -1),
+      ),
     };
   }
 
   /** A left foot's arcs of a ring for a side. */
-  export function arcs(list: IAutoMovieHumanFootReflection.ArcsList, sign: 1 | -1): IAutoMovieHumanFootReflection.ArcsResult {
+  export function arcs(
+    list: IAutoMovieHumanFootReflection.ArcsList,
+    sign: 1 | -1,
+  ): IAutoMovieHumanFootReflection.ArcsResult {
     return sign === 1
       ? list.map((a: [number, number]): [number, number] => [a[0], a[1]])
-      : [...list].reverse().map((a: [number, number]): [number, number] => [G.wrap(G.TWO_PI - a[1]), G.wrap(G.TWO_PI - a[0])]);
+      : [...list]
+          .reverse()
+          .map((a: [number, number]): [number, number] => [
+            G.wrap(G.TWO_PI - a[1]),
+            G.wrap(G.TWO_PI - a[0]),
+          ]);
   }
 }

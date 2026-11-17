@@ -1,8 +1,8 @@
 import type { IAutoMovieConicApproximation } from "@automovie/interface";
 import {
   AutoMovieRecoveryConicApproximation as C,
-  GhoshConicApproximationDisplacement as displacement,
   approximateAutoMovieRecoveryConicsGhosh as approximate,
+  GhoshConicApproximationDisplacement as displacement,
 } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,7 +28,12 @@ import { nclose } from "../internal/nclose";
  */
 export function test_recovery_conics_ghosh_boundaries(): void {
   /** Four Bernstein controls represent one exact source polynomial chart. */
-  type Controls = readonly [IAutoMovieConicApproximation.Point, IAutoMovieConicApproximation.Point, IAutoMovieConicApproximation.Point, IAutoMovieConicApproximation.Point];
+  type Controls = readonly [
+    IAutoMovieConicApproximation.Point,
+    IAutoMovieConicApproximation.Point,
+    IAutoMovieConicApproximation.Point,
+    IAutoMovieConicApproximation.Point,
+  ];
   const options: IAutoMovieConicApproximation.IOptions = {
     toleranceMm: 0.001,
     maximumArcs: 128,
@@ -48,7 +53,10 @@ export function test_recovery_conics_ghosh_boundaries(): void {
       points = points
         .slice(1)
         .map(
-          (p: IAutoMovieConicApproximation.Point, index: number): IAutoMovieConicApproximation.Point => [
+          (
+            p: IAutoMovieConicApproximation.Point,
+            index: number,
+          ): IAutoMovieConicApproximation.Point => [
             degree * (p[0] - points[index]![0]),
             degree * (p[1] - points[index]![1]),
           ],
@@ -58,7 +66,10 @@ export function test_recovery_conics_ghosh_boundaries(): void {
       points = points
         .slice(1)
         .map(
-          (p: IAutoMovieConicApproximation.Point, index: number): IAutoMovieConicApproximation.Point => [
+          (
+            p: IAutoMovieConicApproximation.Point,
+            index: number,
+          ): IAutoMovieConicApproximation.Point => [
             (1 - u) * points[index]![0] + u * p[0],
             (1 - u) * points[index]![1] + u * p[1],
           ],
@@ -66,7 +77,10 @@ export function test_recovery_conics_ghosh_boundaries(): void {
     return points[0]!;
   }
   /** Critical parameters change only the chart partition, not points or jets. */
-  function chart(controls: Controls, partition: boolean = true): IAutoMovieConicApproximation.ICurve {
+  function chart(
+    controls: Controls,
+    partition: boolean = true,
+  ): IAutoMovieConicApproximation.ICurve {
     const critical: IAutoMovieConicApproximation.ICubicCriticalParameters =
       C.cubicCriticalParameters(controls);
     return {
@@ -78,14 +92,24 @@ export function test_recovery_conics_ghosh_boundaries(): void {
       evaluate(t: number): IAutoMovieConicApproximation.Point {
         return value(controls, (t - 7) / 4, 0);
       },
-      derivative(t: number, order: 1 | 2 | 3 | 4 | 5): IAutoMovieConicApproximation.Point {
-        const p: IAutoMovieConicApproximation.Point = value(controls, (t - 7) / 4, order);
+      derivative(
+        t: number,
+        order: 1 | 2 | 3 | 4 | 5,
+      ): IAutoMovieConicApproximation.Point {
+        const p: IAutoMovieConicApproximation.Point = value(
+          controls,
+          (t - 7) / 4,
+          order,
+        );
         return [p[0] / 4 ** order, p[1] / 4 ** order];
       },
     };
   }
   /** Coverage and G1 checks use original source jets; no missing interval is skipped. */
-  function verify(source: IAutoMovieConicApproximation.ICurve, result: IAutoMovieConicApproximation.IResult): void {
+  function verify(
+    source: IAutoMovieConicApproximation.ICurve,
+    result: IAutoMovieConicApproximation.IResult,
+  ): void {
     TestValidator.equals(
       "partitioned source complete",
       result.status,
@@ -101,10 +125,16 @@ export function test_recovery_conics_ghosh_boundaries(): void {
         "only finite positive coefficients",
         Number.isFinite(arc.weight) &&
           arc.weight > 0 &&
-          arc.controls.every((p: IAutoMovieConicApproximation.Point): boolean => p.every(Number.isFinite)),
+          arc.controls.every((p: IAutoMovieConicApproximation.Point): boolean =>
+            p.every(Number.isFinite),
+          ),
       );
-      const start: IAutoMovieConicApproximation.Point = source.evaluate(arc.domain[0]);
-      const end: IAutoMovieConicApproximation.Point = source.evaluate(arc.domain[1]);
+      const start: IAutoMovieConicApproximation.Point = source.evaluate(
+        arc.domain[0],
+      );
+      const end: IAutoMovieConicApproximation.Point = source.evaluate(
+        arc.domain[1],
+      );
       TestValidator.predicate(
         "exact source endpoints",
         C.distance(start, arc.controls[0]) < 1e-10 &&
@@ -191,7 +221,10 @@ export function test_recovery_conics_ghosh_boundaries(): void {
     "analytic non-dyadic inflection is registered",
     source.breaks.some((t: number): boolean => nclose(t, 7 + 4 / 3, 1e-10)),
   );
-  const fitted: IAutoMovieConicApproximation.IResult = approximate(source, options);
+  const fitted: IAutoMovieConicApproximation.IResult = approximate(
+    source,
+    options,
+  );
   verify(source, fitted);
   TestValidator.predicate(
     "zero-curvature boundary extension is explicit",
@@ -227,7 +260,9 @@ export function test_recovery_conics_ghosh_boundaries(): void {
   verify(archSource, approximate(archSource, options));
   for (const reflection of [1, -1]) {
     /** A rigid map changes neither geometric fitting tolerance nor criticality. */
-    function transform(p: IAutoMovieConicApproximation.Point): IAutoMovieConicApproximation.Point {
+    function transform(
+      p: IAutoMovieConicApproximation.Point,
+    ): IAutoMovieConicApproximation.Point {
       return [
         1200 + Math.cos(0.73) * p[0] - Math.sin(0.73) * reflection * p[1],
         -800 + Math.sin(0.73) * p[0] + Math.cos(0.73) * reflection * p[1],

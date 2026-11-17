@@ -1,7 +1,8 @@
-import type { IAutoMovieHumanApertureEdge, IAutoMovieHumanConstructionPath, IAutoMovieHumanLoftMesh } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieHumanApertureEdge,
+  IAutoMovieHumanConstructionPath,
+  IAutoMovieHumanLoftMesh,
+} from "@automovie/interface";
 
 /** Construction paths read from the actual aperture columns, without another fit. */
 export namespace AutoMovieHumanApertureConstruction {

@@ -1,5 +1,10 @@
-import type { IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanVerdicts } from "@automovie/interface";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
+import type {
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanVerdicts,
+} from "@automovie/interface";
 import { HumanRefusal, HumanVerdicts } from "@automovie/motions";
 
 import type { IHumanEntry } from "../../human/structures/IHumanEntry";
@@ -33,7 +38,10 @@ export namespace TakeCompute {
     new Map();
 
   /** The performance built last, which a verdict request on the same composition reads without building it again. */
-  let last: { key: string; performance: IAutoMovieMotionHumanPerformance } | null = null;
+  let last: {
+    key: string;
+    performance: IAutoMovieMotionHumanPerformance;
+  } | null = null;
 
   /**
    * Answer one request.
@@ -128,10 +136,8 @@ export namespace TakeCompute {
 
           // A prop is one entry: the frame it is carried, rests or moves in.
           ...props.map((subject: string): SceneTrack.IPlacement[] => {
-            const frame: IAutoMovieMotionHumanProp.IFrame = built.performance.prop(
-              subject,
-              seconds,
-            );
+            const frame: IAutoMovieMotionHumanProp.IFrame =
+              built.performance.prop(subject, seconds);
             return [
               {
                 bone: PROP,
@@ -200,12 +206,15 @@ export namespace TakeCompute {
         ? last.performance
         : PlaygroundPerformance.build(composition).performance;
     last = { key, performance };
-    const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(performance);
+    const report: IAutoMovieMotionHumanVerdicts.IReport =
+      HumanVerdicts.of(performance);
     return {
       clean: report.clean,
       text: HumanVerdicts.describe(report),
       findings: report.findings.map(
-        (finding: IAutoMovieMotionHumanVerdicts.IFinding): IPlaygroundVerdicts.IFinding => ({
+        (
+          finding: IAutoMovieMotionHumanVerdicts.IFinding,
+        ): IPlaygroundVerdicts.IFinding => ({
           ...finding,
         }),
       ),
@@ -327,7 +336,9 @@ export namespace TakeCompute {
       | ((subject: string) => readonly IAutoMovieMotionHumanSegment.ISegment[])
       | undefined = (
       performance as unknown as {
-        overlays?: (subject: string) => readonly IAutoMovieMotionHumanSegment.ISegment[];
+        overlays?: (
+          subject: string,
+        ) => readonly IAutoMovieMotionHumanSegment.ISegment[];
       }
     ).overlays;
     return {
@@ -341,16 +352,18 @@ export namespace TakeCompute {
             ...performance
               .segments(performer.subject)
               .map(
-                (s: IAutoMovieMotionHumanSegment.ISegment): IPlaygroundTimeline.ISpan =>
-                  span(s, false),
+                (
+                  s: IAutoMovieMotionHumanSegment.ISegment,
+                ): IPlaygroundTimeline.ISpan => span(s, false),
               ),
             ...(overlays === undefined
               ? []
               : overlays
                   .call(performance, performer.subject)
                   .map(
-                    (s: IAutoMovieMotionHumanSegment.ISegment): IPlaygroundTimeline.ISpan =>
-                      span(s, true),
+                    (
+                      s: IAutoMovieMotionHumanSegment.ISegment,
+                    ): IPlaygroundTimeline.ISpan => span(s, true),
                   )),
           ],
         }),

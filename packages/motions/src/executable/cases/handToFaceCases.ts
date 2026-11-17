@@ -1,6 +1,12 @@
-import type { IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanHandToFaceRows, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanHandToFaceRows,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { createHumanBody } from "../../body/createHumanBody";
@@ -57,8 +63,11 @@ export function handToFaceCases(
       man.body.profile,
     );
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
-    for (const task of Object.keys(handToFace.ROWS) as IAutoMovieMotionHumanHandToFaceRows.Task[]) {
-      const row: IAutoMovieMotionHumanHandToFaceRows.IRow = handToFace.ROWS[task];
+    for (const task of Object.keys(
+      handToFace.ROWS,
+    ) as IAutoMovieMotionHumanHandToFaceRows.Task[]) {
+      const row: IAutoMovieMotionHumanHandToFaceRows.IRow =
+        handToFace.ROWS[task];
       let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = perform(
@@ -235,7 +244,10 @@ export function handToFaceCases(
 }
 
 /** A performance of one polygon man standing at the origin heading +Z. */
-function perform(body: IAutoMovieMotionHumanBody, chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance {
+function perform(
+  body: IAutoMovieMotionHumanBody,
+  chain: IAutoMovieMotionHumanChain,
+): IAutoMovieMotionHumanPerformance {
   return new HumanPerformance({
     seed: "hand-face",
     performers: [

@@ -1,5 +1,13 @@
-import { type IAutoMovieSampledChannel, IAutoMovieChannel, IAutoMovieCopyDriver, IAutoMovieDrivenDriver, IAutoMovieDriver, IAutoMovieNode, IAutoMovieQuaternion, IAutoMovieTransform } from "@automovie/interface";
-
+import {
+  IAutoMovieChannel,
+  IAutoMovieCopyDriver,
+  IAutoMovieDrivenDriver,
+  IAutoMovieDriver,
+  IAutoMovieNode,
+  IAutoMovieQuaternion,
+  type IAutoMovieSampledChannel,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { channelKey } from "./channelKey";

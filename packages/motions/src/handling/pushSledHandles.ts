@@ -1,6 +1,11 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanProp, IAutoMovieQuaternion } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 

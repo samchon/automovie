@@ -1,4 +1,3 @@
-
 export * from "./analyzeAutoMovieAcoustics";
 export * from "./analyzeAutoMovieDaylight";
 export * from "./analyzeAutoMovieEnvelope";

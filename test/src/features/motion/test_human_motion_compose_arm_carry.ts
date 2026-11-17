@@ -1,8 +1,26 @@
-import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { getConstraint, jointRomOvershoot } from "@automovie/engine";
-
-import { AutoMovieMotionHumanArm, AutoMovieMotionHumanBend, HumanArmClearance, HumanColliders, blendHumanJoint, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanArm,
+  AutoMovieMotionHumanBend,
+  HumanArmClearance,
+  HumanColliders,
+  blendHumanJoint,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -48,19 +66,24 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_compose_arm_carry(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   const partner: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const others: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
-    partner,
-    poseBones(
+  const others: IAutoMovieMotionHumanColliders.IPlaced[] =
+    HumanColliders.placed(
       partner,
-      resolveHumanPosture(
+      poseBones(
         partner,
-        stand.posture(partner, { x: 0, y: 0, z: 0.35 }, 180),
+        resolveHumanPosture(
+          partner,
+          stand.posture(partner, { x: 0, y: 0, z: 0.35 }, 180),
+        ),
       ),
-    ),
-  );
+    );
   for (const name of motionHumanBody.EXTREMES) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const base: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+    const base: IAutoMovieMotionHumanPosture = stand.posture(
+      body,
+      { x: 0, y: 0, z: 0 },
+      0,
+    );
     const stance: IAutoMoviePose = resolveHumanPosture(body, base);
     const bones = poseBones(body, stance);
     const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
@@ -93,7 +116,9 @@ export function test_human_motion_compose_arm_carry(): void {
       ];
       for (const [goal, point, near] of goals) {
         const cell: string = `${name} ${side} ${goal}`;
-        const blocking: IAutoMovieMotionHumanColliders.IPlaced[] = near ? others : [];
+        const blocking: IAutoMovieMotionHumanColliders.IPlaced[] = near
+          ? others
+          : [];
         const posture: IAutoMovieMotionHumanPosture = {
           ...base,
           limbs: {

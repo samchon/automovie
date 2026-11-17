@@ -1,4 +1,11 @@
-import { type AutoMovieGenericGesture, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+import {
+  type AutoMovieGenericGesture,
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
 import { Transform } from "../math/Transform";
 

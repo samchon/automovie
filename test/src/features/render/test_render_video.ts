@@ -1,5 +1,7 @@
-import { type IAutoMovieRenderAdapters, IAutoMovieRenderSpec } from "@automovie/interface";
-
+import {
+  type IAutoMovieRenderAdapters,
+  IAutoMovieRenderSpec,
+} from "@automovie/interface";
 import { renderVideo } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 

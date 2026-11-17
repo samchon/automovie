@@ -1,4 +1,3 @@
-import type { IAutoMovieLinearizePhysicalTargetRows, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   Quaternion,
   Vector3,
@@ -6,7 +5,10 @@ import {
   memoizePhysicalTransformValue,
   solvePhysicalArticulationTargets,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieLinearizePhysicalTargetRows,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 

@@ -1,10 +1,15 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanWalkLegClearance, IAutoMoviePhysicalProfile, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanWalkLegClearance,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import {
-  AutoMovieMotionHumanAuditTangleModel,
-} from "../audit/AutoMovieMotionHumanAuditTangleModel";
+import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
 
 /**
  * The legs' geometry the clearance reads (`walkLegClearance`): a leg's
@@ -171,7 +176,9 @@ export namespace walkLegCapsules {
   }
 
   /** Each segment's index among the audit model's parts, read once per body. */
-  export function indices(body: IAutoMovieMotionHumanBody): ReadonlyMap<AutoMovieHumanoidBone, number> {
+  export function indices(
+    body: IAutoMovieMotionHumanBody,
+  ): ReadonlyMap<AutoMovieHumanoidBone, number> {
     const known: Map<AutoMovieHumanoidBone, number> | undefined =
       INDICES.get(body);
     if (known !== undefined) return known;
@@ -232,15 +239,22 @@ export namespace walkLegCapsules {
   }
 
   /** Each body's bounding capsules of its leg segments (`capsules`). */
-  const CAPSULES: WeakMap<IAutoMovieMotionHumanBody, Map<AutoMovieHumanoidBone, ICapsule>> =
-    new WeakMap();
+  const CAPSULES: WeakMap<
+    IAutoMovieMotionHumanBody,
+    Map<AutoMovieHumanoidBone, ICapsule>
+  > = new WeakMap();
 
   /** Each body's segment indices among the audit model's parts (`indices`). */
-  const INDICES: WeakMap<IAutoMovieMotionHumanBody, Map<AutoMovieHumanoidBone, number>> =
-    new WeakMap();
+  const INDICES: WeakMap<
+    IAutoMovieMotionHumanBody,
+    Map<AutoMovieHumanoidBone, number>
+  > = new WeakMap();
 
   /** Each body's readable probes by ordered pair of segments (`readable`). */
-  const READABLE: WeakMap<IAutoMovieMotionHumanBody, Map<number, IReadable>> = new WeakMap();
+  const READABLE: WeakMap<
+    IAutoMovieMotionHumanBody,
+    Map<number, IReadable>
+  > = new WeakMap();
 
   /** The identity frame a shape's distance is read in. */
   export const IDENTITY: IAutoMoviePhysicalProfile.ITransform = {
@@ -258,9 +272,21 @@ export namespace walkLegCapsules {
   };
 
   /** Each side's leg bones by their name without the side. */
-  export const NAMES: Readonly<Record<"left" | "right", Record<string, AutoMovieHumanoidBone>>> = {
-    left: { UpperLeg: "leftUpperLeg", LowerLeg: "leftLowerLeg", Foot: "leftFoot", Toes: "leftToes" },
-    right: { UpperLeg: "rightUpperLeg", LowerLeg: "rightLowerLeg", Foot: "rightFoot", Toes: "rightToes" },
+  export const NAMES: Readonly<
+    Record<"left" | "right", Record<string, AutoMovieHumanoidBone>>
+  > = {
+    left: {
+      UpperLeg: "leftUpperLeg",
+      LowerLeg: "leftLowerLeg",
+      Foot: "leftFoot",
+      Toes: "leftToes",
+    },
+    right: {
+      UpperLeg: "rightUpperLeg",
+      LowerLeg: "rightLowerLeg",
+      Foot: "rightFoot",
+      Toes: "rightToes",
+    },
   };
   /**
    * The least distance between two segments (Ericson 2005, Real-Time Collision

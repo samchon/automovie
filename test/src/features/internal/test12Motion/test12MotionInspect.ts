@@ -1,5 +1,5 @@
-import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
+import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 
 import { test12MotionFixture } from "./test12MotionFixture";
 

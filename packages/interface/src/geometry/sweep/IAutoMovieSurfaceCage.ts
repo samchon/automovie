@@ -1,5 +1,5 @@
-import type { AutoMovieSurfaceTier } from "./AutoMovieSurfaceTier";
 import type { IAutoMovieSubdivisionCage } from "../IAutoMovieSubdivisionCage";
+import type { AutoMovieSurfaceTier } from "./AutoMovieSurfaceTier";
 import type { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
 
 /**
@@ -64,27 +64,27 @@ export interface IAutoMovieSurfaceCage {
 /** Data and callback contracts shared by the SurfaceCage operations. */
 export namespace IAutoMovieSurfaceCage {
   /**
-     * One patch's grid at the tier.
-     *
-     * @evidence contracts/development/design.md#principled-representation A patch's grid is its row and column counts and its faces in row-major order, which is all the chart inversion needs; a band that is no grid says so and is inverted face by face.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Three numbers and one index list per patch; the faces themselves live once in the cage.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Counts are the tier's declared counts, never inferred from positions.
-     * @evidence contracts/development/common.md#meaningful-documentation States the row-major face order and how face `(i, j)` is found.
-     */
-    export interface IPatch {
-      /** The patch's name. */
-      name: string;
-  
-      /** Faces along `s`; for a transition band, the finer ring's count. */
-      columns: number;
-  
-      /** Faces along `t`, a transition band's rows included. */
-      rows: number;
-  
-      /** Whether the faces form the grid below; a transition band's do not, and each face's corners carry its coordinates. */
-      grid: boolean;
-  
-      /** Face indices; on a grid, row by row from `t` 0, each row from `s` 0, so face `(i, j)` is `faces[j * columns + i]`. */
-      faces: number[];
-    }
+   * One patch's grid at the tier.
+   *
+   * @evidence contracts/development/design.md#principled-representation A patch's grid is its row and column counts and its faces in row-major order, which is all the chart inversion needs; a band that is no grid says so and is inverted face by face.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Three numbers and one index list per patch; the faces themselves live once in the cage.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Counts are the tier's declared counts, never inferred from positions.
+   * @evidence contracts/development/common.md#meaningful-documentation States the row-major face order and how face `(i, j)` is found.
+   */
+  export interface IPatch {
+    /** The patch's name. */
+    name: string;
+
+    /** Faces along `s`; for a transition band, the finer ring's count. */
+    columns: number;
+
+    /** Faces along `t`, a transition band's rows included. */
+    rows: number;
+
+    /** Whether the faces form the grid below; a transition band's do not, and each face's corners carry its coordinates. */
+    grid: boolean;
+
+    /** Face indices; on a grid, row by row from `t` 0, each row from `s` 0, so face `(i, j)` is `faces[j * columns + i]`. */
+    faces: number[];
+  }
 }

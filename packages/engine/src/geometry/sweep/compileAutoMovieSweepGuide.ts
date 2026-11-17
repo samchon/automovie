@@ -1,4 +1,7 @@
-import type { IAutoMovieSweep, IAutoMovieCompileSweepGuideOutput } from "@automovie/interface";
+import type {
+  IAutoMovieCompileSweepGuideOutput,
+  IAutoMovieSweep,
+} from "@automovie/interface";
 
 import { compileAutoMovieSweepProfile } from "./compileAutoMovieSweepProfile";
 

@@ -1,8 +1,8 @@
-import type { IAutoMovieMotionHumanPosture } from "./IAutoMovieMotionHumanPosture";
 import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
-import type { IAutoMovieSeededChainFit } from "../../IAutoMovieSeededChainFit";
 import type { IAutoMovieSwivelNear } from "../../../pose/IAutoMovieSwivelNear";
 import type { IAutoMovieSwivelSeed } from "../../../pose/IAutoMovieSwivelSeed";
+import type { IAutoMovieSeededChainFit } from "../../IAutoMovieSeededChainFit";
+import type { IAutoMovieMotionHumanPosture } from "./IAutoMovieMotionHumanPosture";
 
 /**
  * Companion helpers of {@link resolveHumanPosture}.

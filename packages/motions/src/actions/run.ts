@@ -1,4 +1,11 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanRun, IAutoMovieMotionHumanWalkGait } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanRun,
+  IAutoMovieMotionHumanWalkGait,
+} from "@automovie/interface";
 
 import { walk } from "./walk";
 
@@ -66,7 +73,10 @@ export namespace run {
 
   /** Each pace's running gait. */
   export const GAITS: Readonly<
-    Record<NonNullable<IAutoMovieMotionHumanRun.IParams["pace"]>, IAutoMovieMotionHumanWalkGait>
+    Record<
+      NonNullable<IAutoMovieMotionHumanRun.IParams["pace"]>,
+      IAutoMovieMotionHumanWalkGait
+    >
   > = {
     jog: gait(0.6, 0.4, 0.15, 25, 5),
     run: gait(1.3, 0.35, 0.25, 35, 8),

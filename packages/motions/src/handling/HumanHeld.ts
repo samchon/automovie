@@ -1,6 +1,17 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanTouchEffector, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
@@ -38,7 +49,6 @@ import { HumanHand } from "../posture/HumanHand";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop kind is named: a vessel is the act's `upright`, and the point is any the prop declares.
  */
 export namespace HumanHeld {
-
   /**
    * The effector that lays a held prop's point on the act's region.
    *
@@ -60,7 +70,10 @@ export namespace HumanHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function effector(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop"
+    >,
     row: IAutoMovieMotionHumanHeld.IUse,
     side: IAutoMovieMotionHumanHand.Side,
     subject: string,
@@ -224,7 +237,10 @@ export namespace HumanHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function steadiest(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop"
+    >,
     row: IAutoMovieMotionHumanHeld.IUse,
     side: IAutoMovieMotionHumanHand.Side,
     subject: string,
@@ -330,7 +346,10 @@ export namespace HumanHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the plan it wraps and nothing else.
    */
   export function kept(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop"
+    >,
     plan: IAutoMovieMotionHumanActionPlan,
     side: IAutoMovieMotionHumanHand.Side,
     subject: string,

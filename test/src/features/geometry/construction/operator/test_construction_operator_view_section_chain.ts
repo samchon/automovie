@@ -1,5 +1,20 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftContract, IAutoMovieLoftFrame, IAutoMovieLoftJet, IAutoMovieViewLoft, IAutoMovieViewPart, IAutoMovieViewSection } from "@automovie/interface";
-import { AutoMovieLoftChain, AutoMovieLoftFrame, AutoMovieLoftJet, AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieViewSection } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  AutoMovieLoftFrame,
+  AutoMovieLoftJet,
+  AutoMovieViewAxis,
+  AutoMovieViewLoft,
+  AutoMovieViewSection,
+} from "@automovie/engine";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieLoftContract,
+  IAutoMovieLoftFrame,
+  IAutoMovieLoftJet,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 /** Four signed source extents in their existing guide order. */
 type Quarters = IAutoMovieViewPart.IQuarters<number>;
@@ -269,7 +284,8 @@ export function test_construction_operator_view_section_chain(): void {
   if (
     odd.chain !== null ||
     !odd.diagnostics.some(
-      (d: IAutoMovieLoftContract.IDiagnostic): boolean => d.contract === "order",
+      (d: IAutoMovieLoftContract.IDiagnostic): boolean =>
+        d.contract === "order",
     )
   )
     failures.push("order 10: no order diagnostic, or a chain");

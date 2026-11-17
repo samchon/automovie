@@ -1,5 +1,8 @@
-import { type IAutoMovieDescribeSubject, IAutoMovieSubjectArtifact, IAutoMovieSubjectDescription } from "@automovie/interface";
-
+import {
+  type IAutoMovieDescribeSubject,
+  IAutoMovieSubjectArtifact,
+  IAutoMovieSubjectDescription,
+} from "@automovie/interface";
 
 import { AutoMovieSubjectDescriber } from "./AutoMovieSubjectDescriber";
 

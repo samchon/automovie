@@ -1,6 +1,22 @@
-import type { AutoMovieHumanoidBone, IAutoMovieIntegrateMotionTrajectory, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanWater, IAutoMoviePhysicalProfile, IAutoMovieResolveCenterOfMass, IAutoMovieResolveHydrodynamicForce, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieGravity, Quaternion, Vector3, integrateMotionTrajectory, resolveAutoMovieCenterOfMass, resolveHydrodynamicForce } from "@automovie/engine";
+import {
+  AutoMovieGravity,
+  Quaternion,
+  Vector3,
+  integrateMotionTrajectory,
+  resolveAutoMovieCenterOfMass,
+  resolveHydrodynamicForce,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanWater,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolveHydrodynamicForce,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * A body the water carries (#3432): the water's forces on every segment
@@ -31,7 +47,6 @@ import { AutoMovieGravity, Quaternion, Vector3, integrateMotionTrajectory, resol
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned trajectory.
  */
 export namespace HumanWater {
-
   /**
    * The water's forces on a posed body moving at one velocity.
    *
@@ -58,8 +73,8 @@ export namespace HumanWater {
         if (!(v > 0)) return;
         const s: IAutoMovieResolveCenterOfMass.ISegment = model.segments[i]!;
         const bone: IAutoMovieResolvedBone = bones.get(s.bone)!;
-        const force: IAutoMovieResolveHydrodynamicForce.IForce = resolveHydrodynamicForce(
-          {
+        const force: IAutoMovieResolveHydrodynamicForce.IForce =
+          resolveHydrodynamicForce({
             volume: v,
             centre: Vector3.add(
               bone.worldPosition,
@@ -68,8 +83,7 @@ export namespace HumanWater {
             velocity,
             surface: water.surface,
             density: water.density,
-          },
-        );
+          });
         buoyancy = Vector3.add(buoyancy, force.buoyancy);
         drag = Vector3.add(drag, force.drag);
         submerged += force.submerged;
@@ -176,8 +190,10 @@ export namespace HumanWater {
   }
 
   /** Each body's mass model, built once. */
-  const MODELS: WeakMap<IAutoMovieMotionHumanBody, IAutoMovieResolveCenterOfMass.IModel> =
-    new WeakMap();
+  const MODELS: WeakMap<
+    IAutoMovieMotionHumanBody,
+    IAutoMovieResolveCenterOfMass.IModel
+  > = new WeakMap();
 
   /**
    * A body's mass model, built once.
@@ -185,7 +201,9 @@ export namespace HumanWater {
    * @param body The body.
    * @returns The model, its segments in the profile's order.
    */
-  function modelOf(body: IAutoMovieMotionHumanBody): IAutoMovieResolveCenterOfMass.IModel {
+  function modelOf(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieResolveCenterOfMass.IModel {
     let model: IAutoMovieResolveCenterOfMass.IModel | undefined =
       MODELS.get(body);
     if (model === undefined) {

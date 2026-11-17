@@ -1,6 +1,28 @@
-import type { AutoMovieHumanoidBone, IAutoMovieHingedArmSwivel, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanLegChain, IAutoMoviePose, IAutoMoviePreparedChainPlant, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieSeededChainFit, IAutoMovieSwivelNear, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  DEFAULT_JOINT_AXES,
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Quaternion,
+  Vector3,
+  hingedArmSwivel,
+  prepareChainPlant,
+  resolveBoneMap,
+  skeletonJointAxes,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHingedArmSwivel,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLegChain,
+  IAutoMoviePose,
+  IAutoMoviePreparedChainPlant,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelNear,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, hingedArmSwivel, prepareChainPlant, resolveBoneMap, skeletonJointAxes } from "@automovie/engine";
 import { HumanLimbFit } from "./HumanLimbFit";
 
 /**
@@ -20,7 +42,6 @@ import { HumanLimbFit } from "./HumanLimbFit";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The knee is never placed by a model of its own: the fit is the posture's, the posing and the reading the engine's.
  */
 export namespace HumanLegChain {
-
   /**
    * The leg posed from a held branch and swivel, its ankle at a target.
    *
@@ -128,9 +149,9 @@ export namespace HumanLegChain {
         lower.x * hinge.x + lower.y * hinge.y + lower.z * hinge.z,
         lower.w,
       );
-    const stops: IAutoMovieHingedArmSwivel.IStop[] = hingedArmSwivel.branches(chain) ?? [
-      { theta, shortfall: 0 },
-    ];
+    const stops: IAutoMovieHingedArmSwivel.IStop[] = hingedArmSwivel.branches(
+      chain,
+    ) ?? [{ theta, shortfall: 0 }];
     const apart = (a: number): number =>
       Math.abs(Math.atan2(Math.sin(a - theta), Math.cos(a - theta)));
     let branch: number = 0;
@@ -278,7 +299,10 @@ export namespace HumanLegChain {
   }
 
   /** The leg's chain at rest, read once per body and side. */
-  function restOf(body: IAutoMovieMotionHumanBody, side: "left" | "right"): IRest {
+  function restOf(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+  ): IRest {
     let sides: Map<string, IRest> | undefined = RESTS.get(body);
     if (sides === undefined) {
       sides = new Map();
@@ -320,5 +344,8 @@ export namespace HumanLegChain {
   }
 
   /** Each body's legs at rest (`restOf`). */
-  const RESTS: WeakMap<IAutoMovieMotionHumanBody, Map<string, IRest>> = new WeakMap();
+  const RESTS: WeakMap<
+    IAutoMovieMotionHumanBody,
+    Map<string, IRest>
+  > = new WeakMap();
 }

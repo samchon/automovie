@@ -1,7 +1,19 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, AutoMovieHumanoidRegion, IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Transform } from "@automovie/engine";
-
-import { HumanChain, HumanPerformance, HumanUpperRows } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanUpperRows,
+} from "@automovie/motions";
 
 import { motionHandleShapes } from "./motionHandleShapes";
 

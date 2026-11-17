@@ -1,12 +1,11 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanBindingLimb, IAutoMovieHumanBindingPlane, IAutoMovieHumanBodyCalibration, IAutoMovieHumanCrotchBinding } from "@automovie/interface";
-
-
-
-
-
-
 import { AutoMovieLoftChain } from "@automovie/engine";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanBindingLimb,
+  IAutoMovieHumanBindingPlane,
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanCrotchBinding,
+} from "@automovie/interface";
 
 import { AutoMovieHumanLimbCapsule } from "./AutoMovieHumanLimbCapsule";
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
@@ -29,8 +28,6 @@ export namespace AutoMovieHumanCrotchBinding {
 
   /** Least half of that release, in skin depths at the hip (convention). */
   export const CROTCH_RAMP: number = 0.6;
-
-  
 
   /**
    * The crotch's height: the trunk's lowest skin on the midline.

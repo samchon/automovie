@@ -30,18 +30,29 @@ export namespace AutoMovieHumanDigitPalmarShare {
    * @param joints The digit's interphalangeal joints along its line, mm.
    * @param length Arc length of the digit's apex, mm.
    */
-  export function at(s: number, joints: readonly number[], length: number): number {
-    const shares: IAutoMovieHumanArmPrior.IPalmar = AutoMovieHumanArmPrior.PRIOR.hand.palmar;
+  export function at(
+    s: number,
+    joints: readonly number[],
+    length: number,
+  ): number {
+    const shares: IAutoMovieHumanArmPrior.IPalmar =
+      AutoMovieHumanArmPrior.PRIOR.hand.palmar;
     const dip: number = joints[joints.length - 1]!;
     const pip: number = joints.length > 1 ? joints[joints.length - 2]! : dip;
     const reach: number = HANDOVER * (length - dip);
-    const shaft: number = shares.proximal + (shares.middle - shares.proximal) * smooth((s - pip + reach) / (2 * reach));
+    const shaft: number =
+      shares.proximal +
+      (shares.middle - shares.proximal) *
+        smooth((s - pip + reach) / (2 * reach));
     if (s <= dip) return shaft;
 
     // Over the distal phalanx: up to the nail bed's middle, down to the tip.
     const u: number = (s - dip) / (length - dip);
     return u <= shares.nailAt
-      ? shares.middle + (shares.nail - shares.middle) * smooth(u / shares.nailAt)
-      : shares.nail + (shares.tip - shares.nail) * smooth((u - shares.nailAt) / (1 - shares.nailAt));
+      ? shares.middle +
+          (shares.nail - shares.middle) * smooth(u / shares.nailAt)
+      : shares.nail +
+          (shares.tip - shares.nail) *
+            smooth((u - shares.nailAt) / (1 - shares.nailAt));
   }
 }

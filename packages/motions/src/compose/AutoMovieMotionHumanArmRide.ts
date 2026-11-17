@@ -1,6 +1,20 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanHand, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  physicalShapeNormal,
+  physicalShapeSegmentDistance,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanHand,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { Quaternion, Vector3, physicalShapeNormal, physicalShapeSegmentDistance } from "@automovie/engine";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
@@ -101,10 +115,11 @@ export namespace AutoMovieMotionHumanArmRide {
       `${side}${owner === "upper" ? "UpperArm" : owner === "lower" ? "LowerArm" : "Hand"}`,
     )!;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(by.worldRotation);
-    const segment: IAutoMovieMotionHumanColliders.IPlaced | undefined = HumanColliders.placed(
-      body,
-      bones,
-    ).find((s: IAutoMovieMotionHumanColliders.IPlaced): boolean => s.bone === by.bone);
+    const segment: IAutoMovieMotionHumanColliders.IPlaced | undefined =
+      HumanColliders.placed(body, bones).find(
+        (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+          s.bone === by.bone,
+      );
     let normal: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(point, by.worldPosition),
     );

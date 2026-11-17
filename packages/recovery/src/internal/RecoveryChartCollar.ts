@@ -1,4 +1,5 @@
 import type { IAutoMovieRecoveryChartCollar } from "@automovie/interface";
+
 /**
  * Partition one unit UV square into an affine boundary collar and local leaves.
  * Side knots are bottom, right, top and left, increasing in chart u or v.
@@ -23,7 +24,9 @@ import type { IAutoMovieRecoveryChartCollar } from "@automovie/interface";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Side cuts are collected once, and the leaf map resolves each sequential split without searching or rebuilding unrelated roots. There is no cross-call cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One call owns knot-derived cut arrays and at most maxLeaves leaf records. Temporary maps expire on return or throw; returned bounds are newly owned arrays and inputs are never retained or mutated.
  */
-export function RecoveryChartCollar(input: Parameters<IAutoMovieRecoveryChartCollar.Operation>[0]): ReturnType<IAutoMovieRecoveryChartCollar.Operation> {
+export function RecoveryChartCollar(
+  input: Parameters<IAutoMovieRecoveryChartCollar.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartCollar.Operation> {
   if (
     !input ||
     !Array.isArray(input.knots) ||
@@ -106,7 +109,8 @@ export function RecoveryChartCollar(input: Parameters<IAutoMovieRecoveryChartCol
               : [0, uL, a, b];
       roots.push({
         id: `${["bottom", "right", "top", "left"][side]}.${i}`,
-        bounds });
+        bounds,
+      });
     }
   for (const root of roots) {
     if (
@@ -120,7 +124,8 @@ export function RecoveryChartCollar(input: Parameters<IAutoMovieRecoveryChartCol
       id: root.id,
       root: root.id,
       level: 0,
-      bounds: root.bounds });
+      bounds: root.bounds,
+    });
   }
   if (leaves.size !== initialLeaves)
     throw new Error("The initial collar lost a required covering leaf");
@@ -163,12 +168,14 @@ export function RecoveryChartCollar(input: Parameters<IAutoMovieRecoveryChartCol
       id: `${parent.id}.0`,
       root: parent.root,
       level: parent.level + 1,
-      bounds: lower });
+      bounds: lower,
+    });
     leaves.set(`${parent.id}.1`, {
       id: `${parent.id}.1`,
       root: parent.root,
       level: parent.level + 1,
-      bounds: upper });
+      bounds: upper,
+    });
   }
   return {
     frame: { uL, uR, vD, vU },
@@ -176,5 +183,6 @@ export function RecoveryChartCollar(input: Parameters<IAutoMovieRecoveryChartCol
     initialLeaves,
     diagnostics: [
       "Parameter rectangles preserve the unit domain; physical conditioning, boundary authorities and interface conformity are consumer responsibilities.",
-    ] };
+    ],
+  };
 }

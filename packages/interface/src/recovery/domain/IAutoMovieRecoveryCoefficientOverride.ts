@@ -8,11 +8,9 @@
  */
 
 export interface IAutoMovieRecoveryCoefficientOverride {
- 
- /** Saved source-free curve identity. */
+  /** Saved source-free curve identity. */
   curveName: string;
 
- 
- /** Upper numerical data estimate in millimetres; this is not a source-fit certificate. */
+  /** Upper numerical data estimate in millimetres; this is not a source-fit certificate. */
   dataUpperEstimateMm: number;
 }

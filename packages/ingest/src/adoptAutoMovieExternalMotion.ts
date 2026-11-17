@@ -1,6 +1,21 @@
-import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieClip, IAutoMovieExternalMotionAdoptionDecision, IAutoMovieExternalMotionAdoptionReceipt, IAutoMovieExternalMotionInspection, IAutoMovieExternalMotionNativeHandoff, IAutoMovieExternalMotionNodeInspection, IAutoMovieExternalMotionRetargetDecision, IAutoMovieExternalMotionRetargetHandoff, IAutoMovieExternalMotionSource, IAutoMovieImportedNodeBoneMapping, IAutoMovieSkeleton, IAutoMovieTrack, IAutoMovieTransform } from "@automovie/interface";
 import { SHA256_DIGEST_PATTERN } from "@automovie/engine";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieClip,
+  IAutoMovieExternalMotionAdoptionDecision,
+  IAutoMovieExternalMotionAdoptionReceipt,
+  IAutoMovieExternalMotionInspection,
+  IAutoMovieExternalMotionNativeHandoff,
+  IAutoMovieExternalMotionNodeInspection,
+  IAutoMovieExternalMotionRetargetDecision,
+  IAutoMovieExternalMotionRetargetHandoff,
+  IAutoMovieExternalMotionSource,
+  IAutoMovieImportedNodeBoneMapping,
+  IAutoMovieSkeleton,
+  IAutoMovieTrack,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
 import { AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE } from "./AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE";
 import { compareCodeUnits } from "./internal/compareCodeUnits";

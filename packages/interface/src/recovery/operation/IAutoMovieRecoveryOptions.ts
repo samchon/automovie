@@ -1,4 +1,8 @@
-import type { AutoMovieRecoveryCurveFormat, IAutoMovieRecoverySlabObservation, IAutoMovieRecoverySourceLineage } from "../../index";
+import type {
+  AutoMovieRecoveryCurveFormat,
+  IAutoMovieRecoverySlabObservation,
+  IAutoMovieRecoverySourceLineage,
+} from "../../index";
 
 /** Cooperative synchronous cancellation and progress; a blocked event loop cannot deliver a new event-loop cancellation.
  *
@@ -8,12 +12,10 @@ import type { AutoMovieRecoveryCurveFormat, IAutoMovieRecoverySlabObservation, I
  * @evidence contracts/development/common.md#meaningful-documentation States selector defaults, omitted station-limit meaning, callback ownership and progress-exception behavior.
  */
 export interface IAutoMovieRecoveryOptions {
- 
- /** Saved cubic basis for observation; omitted preserves Bernstein coefficients. */
+  /** Saved cubic basis for observation; omitted preserves Bernstein coefficients. */
   curveFormat?: AutoMovieRecoveryCurveFormat;
 
- 
- /** Synchronous cooperative cancellation query; absent means continue.
+  /** Synchronous cooperative cancellation query; absent means continue.
    * Return true to stop at the next existing checkpoint without publishing a value;
    * false continues. Throwing or returning a nonboolean value fails the operation.
    * The caller owns callback cost and captured state; it must not return a Promise.
@@ -22,8 +24,7 @@ export interface IAutoMovieRecoveryOptions {
    */
   cancelled?: () => boolean;
 
- 
- /** Observe an existing synchronous progress point; a thrown error fails the operation.
+  /** Observe an existing synchronous progress point; a thrown error fails the operation.
    * The caller owns callback work and must return before computation continues.
    * @evidence contracts/development/implementation.md#principled-implementation The caller receives phase and completed/planned counts from existing operation checkpoints; its exception becomes a failed terminal outcome.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure This optional observer reports progress without supplying geometry or changing the admitted policy.
@@ -35,8 +36,7 @@ export interface IAutoMovieRecoveryOptions {
    */
   onProgress?: (phase: string, completed: number, total: number) => void;
 
- 
- /** Receive copied source incidence once per observed section contour, outside the coefficient result. The callback runs synchronously after fitting or local rejection; throwing fails observation, and records already delivered remain provisional until a successful terminal result. Cancellation can stop delivery before the next contour. The caller owns callback cost and any retained records.
+  /** Receive copied source incidence once per observed section contour, outside the coefficient result. The callback runs synchronously after fitting or local rejection; throwing fails observation, and records already delivered remain provisional until a successful terminal result. Cancellation can stop delivery before the next contour. The caller owns callback cost and any retained records.
    * @evidence contracts/development/implementation.md#principled-implementation Existing contour incidence supplies original triangle addresses and exact publication indices without altering fitting or reconstruction.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Acquisition provenance has one optional observer and stays outside source-free coefficients.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The callback supplies no geometry or part classification and cannot replace generated coefficients.
@@ -47,8 +47,7 @@ export interface IAutoMovieRecoveryOptions {
    */
   onSourceLineage?: (observation: IAutoMovieRecoverySourceLineage) => void;
 
- 
- /** Receive acquisition-only incidence for every requested source slab after section processing. Delivery is synchronous and provisional until the operation succeeds; throwing fails the operation, and callback-triggered cancellation stops later delivery. Copied source addresses stay outside the coefficient value. Slab-only observation binds saved publications without fitting and delivers independent metadata copies.
+  /** Receive acquisition-only incidence for every requested source slab after section processing. Delivery is synchronous and provisional until the operation succeeds; throwing fails the operation, and callback-triggered cancellation stops later delivery. Copied source addresses stay outside the coefficient value. Slab-only observation binds saved publications without fitting and delivers independent metadata copies.
    * @evidence contracts/development/implementation.md#principled-implementation Existing clipped source-cell topology and PL critical owners supply exact port and event evidence on the admitted scalar chart.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional observer separates acquisition metadata from generated coefficient input.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The observer supplies no source geometry, normals, inferred cap or physical-jet fallback.
@@ -59,11 +58,9 @@ export interface IAutoMovieRecoveryOptions {
    */
   onSourceSlab?: (observation: IAutoMovieRecoverySlabObservation) => void;
 
- 
- /** Explicit incomplete observation prefix; omitted for the full planned station set. */
+  /** Explicit incomplete observation prefix; omitted for the full planned station set. */
   sectionLimit?: number;
 
- 
- /** Collect operation timing observations without changing geometry. */
+  /** Collect operation timing observations without changing geometry. */
   observeWork?: boolean;
 }

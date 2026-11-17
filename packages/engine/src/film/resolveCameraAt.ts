@@ -1,5 +1,9 @@
-import { type IAutoMovieResolvedCamera, type IAutoMovieSampledChannel, type IAutoMovieResolveCameraAt, IAutoMovieShot } from "@automovie/interface";
-
+import {
+  type IAutoMovieResolveCameraAt,
+  type IAutoMovieResolvedCamera,
+  type IAutoMovieSampledChannel,
+  IAutoMovieShot,
+} from "@automovie/interface";
 
 import { channelKey } from "../resolve/channelKey";
 import { sampleClip } from "../resolve/sampleClip";

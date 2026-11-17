@@ -1,7 +1,7 @@
-import type { AutoMovieGuidePass, IAutoMovieSemanticMaskBinding } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieGuidePass,
+  IAutoMovieSemanticMaskBinding,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import { DEPTH_NORMALIZATION_RANGE } from "./DEPTH_NORMALIZATION_RANGE.js";

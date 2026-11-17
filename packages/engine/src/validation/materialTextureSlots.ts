@@ -1,5 +1,9 @@
-import { type IAutoMovieMaterialTextureSlotsMaterialTextureSlot, AutoMovieTextureBinding, IAutoMovieMaterial, IAutoMovieMaterialOverlay } from "@automovie/interface";
-
+import {
+  AutoMovieTextureBinding,
+  IAutoMovieMaterial,
+  IAutoMovieMaterialOverlay,
+  type IAutoMovieMaterialTextureSlotsMaterialTextureSlot,
+} from "@automovie/interface";
 
 /** Own-slot order: base color, metallic-roughness, normal, detail normal, occlusion, emissive, then thickness. */
 const OWN_SLOTS: ReadonlyArray<{

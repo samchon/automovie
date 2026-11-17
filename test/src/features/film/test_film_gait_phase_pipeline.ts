@@ -1,6 +1,23 @@
-import { type IAutoMovieActionSynthesizer, type IAutoMovieActorContext, IAutoMovieActionCall, IAutoMovieBeatEndActorState, IAutoMovieBeatEndState, IAutoMovieGait, IAutoMovieJointPose, IAutoMovieMotion, IAutoMoviePose, IAutoMovieScene, IAutoMovieShot, IAutoMovieVector3 } from "@automovie/interface";
-import { compilePerformance, makeActorSynthesizer, resolveBeatEnd, sampleMotion } from "@automovie/engine";
-
+import {
+  compilePerformance,
+  makeActorSynthesizer,
+  resolveBeatEnd,
+  sampleMotion,
+} from "@automovie/engine";
+import {
+  IAutoMovieActionCall,
+  type IAutoMovieActionSynthesizer,
+  type IAutoMovieActorContext,
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndState,
+  IAutoMovieGait,
+  IAutoMovieJointPose,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieScene,
+  IAutoMovieShot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { IDENTITY_TRANSFORM, joint, makePose } from "../internal/fixtures";

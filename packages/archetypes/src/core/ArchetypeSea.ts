@@ -1,6 +1,14 @@
-import type { IAutoMovieRandom, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieGravity, Quaternion, createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
-
+import {
+  AutoMovieGravity,
+  Quaternion,
+  createAutoMovieRandom,
+  deriveAutoMovieSeed,
+} from "@automovie/engine";
+import type {
+  IAutoMovieRandom,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
@@ -14,7 +22,7 @@ import { ArchetypeUnits } from "./ArchetypeUnits";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the surface model, the spectrum and its source, the boat's following and when it holds, and determinism.
  * @evidence contracts/development/design.md#principled-representation A sea is its components (frequency, wavenumber, amplitude, phase) and the heading they travel, from which elevation and slope are closed-form at any point and second.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `of` builds a sea and `float` puts any ride on it, the `sea` option every water-borne ride takes (#3497).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `of` builds a sea and `float` carries a level still-water ride on it, the `sea` option water-borne rides take (#3497).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No random source but the seed's counter stream; no frame grid enters the surface.
  */
 export namespace ArchetypeSea {
@@ -30,7 +38,7 @@ export namespace ArchetypeSea {
     /** The significant wave height, metres: the WMO sea state code 3700's bands (0 to 0.1 m calm-rippled, 0.1 to 0.5 smooth, 0.5 to 1.25 slight, 1.25 to 2.5 moderate). */
     height: number;
 
-    /** The direction the waves travel, degrees about `+Y` from `+Z`; drawn from the seed when absent. */
+    /** The finite direction the waves travel, degrees about `+Y` from `+Z`; drawn from the seed when absent. Full turns leave the surface unchanged. */
     heading?: number;
 
     /** The seed the phases and an absent heading are drawn from. */
@@ -77,7 +85,7 @@ export namespace ArchetypeSea {
     /** The greatest elevation the components can reach together, metres: the sum of their amplitudes. */
     crest: number;
 
-    /** The greatest slope they can reach together, radians: the sum of each wavenumber times its amplitude. */
+    /** The greatest rise per horizontal metre they can reach together: the sum of each wavenumber times its amplitude. */
     steepest: number;
 
     /**
@@ -128,72 +136,113 @@ export namespace ArchetypeSea {
    *
    * @param options The significant height, the heading and the seed.
    * @returns The sea.
-   * @throws {ArchetypeRefusal} When the height is negative or not finite.
+   * @throws {ArchetypeRefusal} When the height is negative or not finite, the heading is not finite, or the height's spectrum and bounds cannot be represented by finite positive numbers.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is drawn and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation WMO-No. 702: a fully developed sea of significant height H has the wind at 10 m u10 = (H / 0.0246) ^ 0.5 (eq. 1.30), the wind at 19.5 m 1.075 times that (the eq. 1.28 note), the peak frequency 0.877 g / (2 pi u19.5) (eq. 1.29), and the spectrum E(f) = 0.0081 g^2 (2 pi)^-4 f^-5 exp(-0.74 (g / (2 pi u19.5 f))^4) (eq. 1.28). Each component takes the energy of an equal band of the spectrum, its amplitude the root of twice that energy, so the components' variance is the spectrum's; the wavenumber is (2 pi f)^2 / g for deep water.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The wind, the peak, the bands, then the two closed-form readers.
+   * @evidence contracts/development/common.md#meaningful-documentation States the measured spectrum, angular periodicity and scalar or derived-representation refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation WMO-No. 702: a fully developed sea of significant height H has the wind at 10 m u10 = (H / 0.0246) ^ 0.5 (eq. 1.30), the wind at 19.5 m 1.075 times that (the eq. 1.28 note), the peak frequency 0.877 g / (2 pi u19.5) (eq. 1.29), and the spectrum E(f) = 0.0081 g^2 (2 pi)^-4 f^-5 exp(-0.74 (g / (2 pi u19.5 f))^4) (eq. 1.28). Substituting r=f/peak before taking the amplitude avoids dimensional fifth powers and H squared; each amplitude is H times a dimensionless factor. Deep-water wavenumber is (2 pi f / sqrt(g)) squared. Only representable components and summed bounds are admitted.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit scalar inputs, form the peak-relative components and their bounds, then expose the two closed-form readers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Long-crested: the directional spread no source here gives is left out; a calm sea of zero height has no components.
    * @evidence contracts/development/implementation.md#efficient-algorithms `COMPONENTS` cosines per reading.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent sea.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sea holds its components for as long as its caller keeps it.
    */
   export function of(options: IOptions): ISea {
-    if (!(Number.isFinite(options.height) && options.height >= 0))
+    const height: number = options.height;
+    if (!(Number.isFinite(height) && height >= 0))
       throw new ArchetypeRefusal({
         kind: "parameter",
         archetype: "sea",
         axis: "height",
-        value: options.height,
+        value: height,
         feasible: { kind: "range", minimum: 0, maximum: null, unit: "m" },
-        reason: `a significant wave height of ${options.height} m is no sea`,
+        reason: `a significant wave height of ${height} m is no sea`,
         fix: "give the significant height in metres, 0 or more",
       });
     const random: IAutoMovieRandom = createAutoMovieRandom(
       deriveAutoMovieSeed(String(options.seed), "archetype", "sea"),
     );
-    const heading: number = options.heading ?? random.float(0) * 360;
+    const heading: number =
+      options.heading === undefined ? random.float(0) * 360 : options.heading;
+    if (!Number.isFinite(heading))
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: "sea",
+        axis: "heading",
+        value: heading,
+        feasible: null,
+        reason: `a wave heading of ${heading} degrees is not finite`,
+        fix: "give a finite heading in degrees or leave it to the seed",
+      });
     const components: IComponent[] = [];
-    if (options.height > 0) {
-      const wind: number = 1.075 * Math.sqrt(options.height / 0.0246);
+    if (height > 0) {
       const peak: number =
-        (0.877 * AutoMovieGravity.STANDARD) / (2 * Math.PI * wind);
-      const low: number = BAND[0] * peak;
-      const width: number = ((BAND[1] - BAND[0]) * peak) / COMPONENTS;
+        (0.877 * AutoMovieGravity.STANDARD * Math.sqrt(0.0246)) /
+        (2 * Math.PI * 1.075 * Math.sqrt(height));
+      const width: number = (BAND[1] - BAND[0]) / COMPONENTS;
+      const scale: number =
+        (1.075 * 1.075) / (0.0246 * AutoMovieGravity.STANDARD);
+
+      // E(f) df becomes u19.5^4/g^2 times a dimensionless function of r=f/peak.
+      // Taking its square root first leaves H as one final linear factor.
       for (let k: number = 0; k < COMPONENTS; k++) {
-        const frequency: number = low + (k + 0.5) * width;
-        const energy: number =
-          ((0.0081 * AutoMovieGravity.STANDARD * AutoMovieGravity.STANDARD) /
-            ((2 * Math.PI) ** 4 * frequency ** 5)) *
-          Math.exp(
-            -0.74 *
-              (AutoMovieGravity.STANDARD / (2 * Math.PI * wind * frequency)) **
-                4,
-          );
+        const relative: number = BAND[0] + (k + 0.5) * width;
+        const frequency: number = peak * relative;
+        const amplitude: number =
+          height *
+          (scale *
+            Math.sqrt(
+              ((2 * 0.0081 * width) / (0.877 ** 4 * relative ** 5)) *
+                Math.exp(-0.74 / (0.877 * relative) ** 4),
+            ));
+        const wave: number =
+          ((2 * Math.PI) / Math.sqrt(AutoMovieGravity.STANDARD)) * frequency;
         components.push({
           frequency,
-          wavenumber:
-            (2 * Math.PI * frequency) ** 2 / AutoMovieGravity.STANDARD,
-          amplitude: Math.sqrt(2 * energy * width),
+          wavenumber: wave * wave,
+          amplitude,
           phase: random.float(k + 1) * 2 * Math.PI,
         });
       }
     }
-    const radians: number = heading * ArchetypeUnits.DEGREE;
-    const along = (x: number, z: number): number =>
-      x * Math.sin(radians) + z * Math.cos(radians);
+    const crest: number = components.reduce(
+      (sum: number, c: IComponent): number => sum + c.amplitude,
+      0,
+    );
+    const steepest: number = components.reduce(
+      (sum: number, c: IComponent): number => sum + c.amplitude * c.wavenumber,
+      0,
+    );
+    if (
+      !Number.isFinite(crest) ||
+      !Number.isFinite(steepest) ||
+      components.some(
+        (c: IComponent): boolean =>
+          ![c.frequency, c.wavenumber, c.amplitude].every(
+            (value: number): boolean => Number.isFinite(value) && value > 0,
+          ),
+      )
+    )
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: "sea",
+        axis: "height",
+        value: height,
+        feasible: null,
+        reason: `the spectrum at ${height} m has an unrepresentable component or summed bound`,
+        fix: "choose a height whose frequencies, wavenumbers, amplitudes and summed bounds are representable",
+      });
+
+    // Reduce whole turns before trigonometry so large headings retain angular periodicity.
+    const radians: number = (heading % 360) * ArchetypeUnits.DEGREE;
+    const along: (x: number, z: number) => number = (
+      x: number,
+      z: number,
+    ): number => x * Math.sin(radians) + z * Math.cos(radians);
     return {
       heading,
       components,
-      crest: components.reduce(
-        (sum: number, c: IComponent): number => sum + c.amplitude,
-        0,
-      ),
-      steepest: components.reduce(
-        (sum: number, c: IComponent): number =>
-          sum + c.amplitude * c.wavenumber,
-        0,
-      ),
+      crest,
+      steepest,
       elevation: (x: number, z: number, seconds: number): number =>
         components.reduce(
           (sum: number, c: IComponent): number =>
@@ -243,20 +292,20 @@ export namespace ArchetypeSea {
     /** The bow's rise, radians about the support's own `-X`. */
     pitch: number;
 
-    /** The roll, radians about the support's own `+Z`, raising its `+X` side. */
+    /** The roll applied before pitch, radians about the support's own `+Z`, raising its `+X` side. */
     roll: number;
   }
 
   /**
-   * How a support placed on the sea moves there at a second: the elevation under its root, and the surface's slope along and across its heading.
+   * How a support level on still water moves on the sea at a second: the elevation under its root and the coupled pitch and roll matching the surface normal.
    *
    * @param sea The sea.
    * @param placement The support's placement on still water.
    * @param seconds The film second.
    * @returns Its heave, pitch and roll.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each motion is.
-   * @evidence contracts/development/implementation.md#principled-implementation The surface under the root and its gradient resolved on the support's own forward and left axes; the angle is the arctangent of the slope.
+   * @evidence contracts/development/common.md#meaningful-documentation States the level-support premise, axes and order of the coupled rotations.
+   * @evidence contracts/development/implementation.md#principled-implementation Resolve the gradient along the level support's forward and left axes as f and l. Rx(-p)Rz(r) maps up to (-sin(r),cos(p)cos(r),-sin(p)cos(r)); matching the plane normal (-l,1,-f) gives p=atan(f) and r=atan2(l,hypot(1,f)), including oblique waves. Heave is the elevation under the root.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One elevation, one slope, two projections.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hull follows the surface at its root, its own response to waves of its length's order left out, as `ArchetypeSea` states.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two sums over the components.
@@ -272,15 +321,17 @@ export namespace ArchetypeSea {
     const slope: { x: number; z: number } = sea.slope(at.x, at.z, seconds);
     const forward: IAutoMovieVector3 = ArchetypeFrame.axis(placement, "z");
     const left: IAutoMovieVector3 = ArchetypeFrame.axis(placement, "x");
+    const fore: number = slope.x * forward.x + slope.z * forward.z;
+    const across: number = slope.x * left.x + slope.z * left.z;
     return {
       heave: sea.elevation(at.x, at.z, seconds),
-      pitch: Math.atan(slope.x * forward.x + slope.z * forward.z),
-      roll: Math.atan(slope.x * left.x + slope.z * left.z),
+      pitch: Math.atan(fore),
+      roll: Math.atan2(across, Math.hypot(1, fore)),
     };
   }
 
   /**
-   * A ride on the sea: every sample's placement heaved, pitched and rolled by the sea under it.
+   * A ride level on still water, heaved and turned onto the sea's tangent plane at each root sample.
    *
    * @param ride The ride on still water.
    * @param sea The sea.
@@ -298,7 +349,9 @@ export namespace ArchetypeSea {
     ride: ArchetypeRide.IRide<Id, Dimension>,
     sea: ISea,
   ): ArchetypeRide.IRide<Id, Dimension> {
-    const at = (seconds: number): ArchetypeRide.ISample<Id, Dimension> => {
+    const at: (seconds: number) => ArchetypeRide.ISample<Id, Dimension> = (
+      seconds: number,
+    ): ArchetypeRide.ISample<Id, Dimension> => {
       const sample: ArchetypeRide.ISample<Id, Dimension> = ride.at(seconds);
       const moved: IMotion = motion(sea, sample.placement, seconds);
       const tilt: IAutoMovieTransform["rotation"] = Quaternion.multiply(

@@ -1,4 +1,3 @@
-import type { IAutoMovieResolveFraming, IAutoMovieResolveRelationalGoal, IAutoMovieVector3, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   Quaternion,
   Vector3,
@@ -6,7 +5,12 @@ import {
   resolveAutoMovieRelationalGoal,
   resolveAutoMovieZone,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieResolveFraming,
+  IAutoMovieResolveRelationalGoal,
+  IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";

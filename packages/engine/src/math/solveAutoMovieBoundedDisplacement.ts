@@ -1,4 +1,7 @@
-import type { IAutoMovieQuadraticRow, IAutoMovieSolveBoundedDisplacement } from "@automovie/interface";
+import type {
+  IAutoMovieQuadraticRow,
+  IAutoMovieSolveBoundedDisplacement,
+} from "@automovie/interface";
 
 import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram";
 import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
@@ -36,7 +39,9 @@ import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Selected rows accumulate across rounds and absent-coordinate minima remain zeros; no global solution survives changed inputs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Selected sets and reduced rows are bounded by input dimensions; delegated workspaces release on failure or completion, and only final travel/diagnostics escape.
  */
-export function solveAutoMovieBoundedDisplacement(input: IAutoMovieSolveBoundedDisplacement.IInput): IAutoMovieSolveBoundedDisplacement.IResult {
+export function solveAutoMovieBoundedDisplacement(
+  input: IAutoMovieSolveBoundedDisplacement.IInput,
+): IAutoMovieSolveBoundedDisplacement.IResult {
   if (
     !Number.isFinite(input.tolerance) ||
     input.tolerance <= 0 ||

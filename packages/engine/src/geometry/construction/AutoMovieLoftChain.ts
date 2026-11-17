@@ -1,4 +1,9 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftCapSource, IAutoMovieLoftCoefficientSource, IAutoMovieLoftFrame } from "@automovie/interface";
+import type {
+  IAutoMovieLoftCapSource,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftCoefficientSource,
+  IAutoMovieLoftFrame,
+} from "@automovie/interface";
 
 import { AutoMovieHarmonicCurve } from "./AutoMovieHarmonicCurve";
 import { AutoMovieLoftCapSource } from "./AutoMovieLoftCapSource";

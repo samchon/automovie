@@ -1,6 +1,12 @@
-import { type IAutoMovieConnectorGeometry, type IAutoMovieViolationCollector, IAutoMovieBuiltConnector, IAutoMovieBuiltEnvironment, IAutoMovieConnectorSection, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  IAutoMovieBuiltConnector,
+  IAutoMovieBuiltEnvironment,
+  type IAutoMovieConnectorGeometry,
+  IAutoMovieConnectorSection,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { builtConnectorGeometry } from "./builtConnectorGeometry";

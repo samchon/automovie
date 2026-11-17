@@ -1,6 +1,12 @@
-import { type IAutoMovieActionSynthesizer, AutoMovieGestureKind, IAutoMovieActionCall, IAutoMovieExpression, IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
 import { compilePerformance } from "@automovie/engine";
-
+import {
+  AutoMovieGestureKind,
+  IAutoMovieActionCall,
+  type IAutoMovieActionSynthesizer,
+  IAutoMovieExpression,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {

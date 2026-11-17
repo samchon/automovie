@@ -21,8 +21,6 @@ import type { IAutoMovieHumanLegSectionProportion } from "@automovie/interface";
  * section normal to the near-vertical leg; the replacement stays open.
  */
 export namespace AutoMovieHumanLegSectionProportion {
-  
-
   /** The rows, ankle to crotch. */
   export const ROWS: readonly IAutoMovieHumanLegSectionProportion.IRow[] = [
     { share: 0.05, ratio: 0.812, fullness: 0.266 },
@@ -52,9 +50,12 @@ export namespace AutoMovieHumanLegSectionProportion {
    *
    * @param share Share of the ankle-to-crotch span, 0 to 1.
    */
-  export function at(share: number): IAutoMovieHumanLegSectionProportion.IAtResult {
+  export function at(
+    share: number,
+  ): IAutoMovieHumanLegSectionProportion.IAtResult {
     const first: IAutoMovieHumanLegSectionProportion.IRow = ROWS[0]!;
-    const last: IAutoMovieHumanLegSectionProportion.IRow = ROWS[ROWS.length - 1]!;
+    const last: IAutoMovieHumanLegSectionProportion.IRow =
+      ROWS[ROWS.length - 1]!;
     if (share <= first.share)
       return { ratio: first.ratio, fullness: first.fullness };
     if (share >= last.share)

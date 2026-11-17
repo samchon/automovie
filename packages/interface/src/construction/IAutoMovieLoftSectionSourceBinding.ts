@@ -1,5 +1,3 @@
-
-
 /**
  * Independent numeric snapshot binding a retained section source to one layer.
  *

@@ -1,7 +1,30 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanTouch, IAutoMovieMotionHumanTouchEffector, IAutoMovieMotionHumanTouchForm, IAutoMovieMotionTarget, IAutoMovieResolvedBone, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieJointPose, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieChain, Quaternion, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-
-import { AutoMovieMotionHumanAuditDifference, AutoMovieMotionHumanTouchEffector, AutoMovieMotionHumanTouchForm, HumanChain, HumanColliders, IAutoMovieMotionHumanAuditMotion, touch } from "@automovie/motions";
+import {
+  AutoMovieChain,
+  Quaternion,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionHumanTouchForm,
+  IAutoMovieMotionTarget,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAuditDifference,
+  AutoMovieMotionHumanAuditMotion,
+  AutoMovieMotionHumanTouchEffector,
+  AutoMovieMotionHumanTouchForm,
+  HumanChain,
+  HumanColliders,
+  touch,
+} from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanLaw } from "./motionHumanLaw";
@@ -80,7 +103,10 @@ export function motionHumanLawTouch(
     row: IAutoMovieMotionHumanTouch.IParams,
     still: boolean = false,
   ): motionHumanLaw.IFilm => {
-    const a: IAutoMovieMotionHumanChain = HumanChain.subject("a").act("touch", row);
+    const a: IAutoMovieMotionHumanChain = HumanChain.subject("a").act(
+      "touch",
+      row,
+    );
     return partner === undefined
       ? motionHumanLaw.perform(label, [{ subject: "a", body }], a)
       : motionHumanLaw.perform(
@@ -176,7 +202,7 @@ export function motionHumanLawTouch(
   const ready: number = motionHumanLaw.event(film, "ready");
   const strokeStart: number = motionHumanLaw.event(film, "strokeStart");
   const relax: number = motionHumanLaw.event(film, "relax");
-  const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
+  const times: number[] = AutoMovieMotionHumanAuditMotion.grid(
     0,
     film.duration,
     24,

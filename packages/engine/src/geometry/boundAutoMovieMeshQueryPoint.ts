@@ -1,4 +1,5 @@
 import type { IAutoMovieSpatialQueryEntry } from "@automovie/interface";
+
 /**
  * Internal squared point-to-box lower bound for admitted nearest-query data.
  * Bounds and point use XYZ metres; cutoff is the running nonnegative squared

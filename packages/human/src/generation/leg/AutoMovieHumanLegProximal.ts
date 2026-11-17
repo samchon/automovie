@@ -1,13 +1,19 @@
-import type { IAutoMovieViewOutline, IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanFootSource, IAutoMovieHumanLegProximal, IAutoMovieHumanSiteViewPart } from "@automovie/interface";
-
-
-
-
-
-import { AutoMovieIllinois, AutoMovieViewOutline, AutoMovieViewParameter, AutoMovieSolidVector as V } from "@automovie/engine";
+import {
+  AutoMovieIllinois,
+  AutoMovieViewOutline,
+  AutoMovieViewParameter,
+  AutoMovieSolidVector as V,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootSource,
+  IAutoMovieHumanLegProximal,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanFootSource } from "../foot/AutoMovieHumanFootSource";
-
 
 /**
  * An unmeasured proximal leg outline constrained by its actual parent field.
@@ -21,12 +27,6 @@ import { AutoMovieHumanFootSource } from "../foot/AutoMovieHumanFootSource";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The definition owns its finite outline and borrowed parent/contact records; no global cache or process is retained.
  */
 export namespace AutoMovieHumanLegProximal {
-  
-
-  
-
-  
-
   /**
    * Constrain only the unmeasured pole-to-thigh outward source. The canonical
    * parent is level in its actual declared X/Z chart; the child reference and
@@ -93,7 +93,9 @@ export namespace AutoMovieHumanLegProximal {
     const direction: AutoMovieVector3Tuple = V.scale(reference.v, outward);
     if (direction[2] === 0)
       throw new Error("Proximal lateral guide has no world lateral direction");
-    const point: (phi: number) => AutoMovieVector3Tuple = (phi: number): AutoMovieVector3Tuple => {
+    const point: (phi: number) => AutoMovieVector3Tuple = (
+      phi: number,
+    ): AutoMovieVector3Tuple => {
       const local: ReturnType<IAutoMovieHumanFootSource.IStation["phase"]> =
         section.phase(phi);
       return V.add(
@@ -122,7 +124,8 @@ export namespace AutoMovieHumanLegProximal {
     const contactPoint: AutoMovieVector3Tuple = point(phase);
     const station: number =
       thigh + V.dot(V.sub(contactPoint, reference.origin), advance);
-    const childFrame: IAutoMovieHumanLegProximal.FrameJet | null = child.axis.jet?.(station) ?? null;
+    const childFrame: IAutoMovieHumanLegProximal.FrameJet | null =
+      child.axis.jet?.(station) ?? null;
     const parentFrame: IAutoMovieHumanLegProximal.FrameJet | null =
       owner.part.axis.jet?.(parent.station) ?? null;
     if (childFrame === null || parentFrame === null || section.jet === null)
@@ -145,7 +148,11 @@ export namespace AutoMovieHumanLegProximal {
     const jet: ReturnType<
       NonNullable<IAutoMovieHumanFootSource.IStation["jet"]>
     > = section.jet(phase);
-    const pp: AutoMovieVector3Tuple = V.add(parentFrame.first.origin, [jet.s[0], 0, jet.s[1]]);
+    const pp: AutoMovieVector3Tuple = V.add(parentFrame.first.origin, [
+      jet.s[0],
+      0,
+      jet.s[1],
+    ]);
     const ppp: AutoMovieVector3Tuple = V.add(parentFrame.second.origin, [
       jet.ss[0],
       0,
@@ -156,7 +163,10 @@ export namespace AutoMovieHumanLegProximal {
     const ptt: AutoMovieVector3Tuple = [jet.tt[0], 0, jet.tt[1]];
     const ds: AutoMovieVector3Tuple = V.scale(childFrame.first.v, outward);
     const dss: AutoMovieVector3Tuple = V.scale(childFrame.second.v, outward);
-    const qs: AutoMovieVector3Tuple = V.add(childFrame.first.origin, V.scale(ds, radius));
+    const qs: AutoMovieVector3Tuple = V.add(
+      childFrame.first.origin,
+      V.scale(ds, radius),
+    );
     const fr: AutoMovieVector3Tuple = V.sub(V.scale(pp, d[1]), d);
     const fs: AutoMovieVector3Tuple = V.sub(V.scale(pp, qs[1]), qs);
     const first: [number, number] = solve(fr, pt, V.scale(fs, -1));
@@ -243,7 +253,11 @@ export namespace AutoMovieHumanLegProximal {
 }
 
 /** Solve the same implicit X/Z contact equations, rejecting degeneracy. */
-function solve(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, rhs: AutoMovieVector3Tuple): [number, number] {
+function solve(
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+  rhs: AutoMovieVector3Tuple,
+): [number, number] {
   const determinant: number = a[0] * b[2] - a[2] * b[0];
   const result: [number, number] = [
     (rhs[0] * b[2] - rhs[2] * b[0]) / determinant,

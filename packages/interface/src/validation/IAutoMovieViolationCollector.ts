@@ -1,8 +1,8 @@
+import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { AutoMovieViolationKind } from "./AutoMovieViolationKind";
 import type { IAutoMovieConstraintViolation } from "./IAutoMovieConstraintViolation";
-import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieValidation } from "./IAutoMovieValidation";
-import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * Mutable insertion-ordered finding storage shared by validation predicates.
@@ -12,11 +12,11 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The public items array is mutable and returned validation aliases it, so append-only usage is a caller discipline rather than enforced immutable publication; no severity or offending value is silently repaired.
  * @evidence contracts/development/common.md#meaningful-documentation Documents insertion order, public mutable storage, shared result ownership and error-versus-warning folding, with no automatic freeze or population ceiling.
  */
-export interface IAutoMovieViolationCollector  {
-/** Violations accumulated in insertion order. */
+export interface IAutoMovieViolationCollector {
+  /** Violations accumulated in insertion order. */
   readonly items: IAutoMovieConstraintViolation[];
 
-/**
+  /**
    * Append one canonical violation in the caller's traversal order.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Delegates kind, path, expectation, offending value, optional overshoot and severity to violation without altering their numerical or reporting meaning.
@@ -34,9 +34,9 @@ export interface IAutoMovieViolationCollector  {
     value: unknown,
     overshoot?: number,
     severity?: "error" | "warning",
-  ): void ;
+  ): void;
 
-/**
+  /**
    * Push a `"warning"`-severity violation, physical-plausibility advice that does not fail validation (see {@link IAutoMovieConstraintViolation.severity}).
    *
    * @evidence contracts/development/implementation.md#principled-implementation Delegates the exact supplied finding to push with severity=warning, retaining optional measured overshoot without failing warning-only canonical validation.
@@ -53,9 +53,9 @@ export interface IAutoMovieViolationCollector  {
     expected: string,
     value: unknown,
     overshoot?: number,
-  ): void ;
+  ): void;
 
-/**
+  /**
    * Finite range check `[min, max]`; pushes a `range` violation unless `value` is a finite number inside it. `value` is `unknown` so a field read off an untyped payload is narrowed here rather than cast to `number` first. Failed string conversion changes only the diagnostic representation to `an uninspectable value`; the finding retains the original value.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Type and Number.isFinite checks precede inclusive min/max comparisons; internal infinite bounds are permitted while the tested value must be finite.
@@ -72,9 +72,9 @@ export interface IAutoMovieViolationCollector  {
     min: number,
     max: number,
     label?: string,
-  ): void ;
+  ): void;
 
-/**
+  /**
    * Pushes a `type` violation when `value` is empty or only whitespace; the message is `<label> must be non-empty`.
    *
    * @param path Violation path of the checked string.
@@ -89,9 +89,9 @@ export interface IAutoMovieViolationCollector  {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A check of one string per call, coordinating no work across requests.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The trimmed copy is released on return; a refused value is appended to `items`, which grows by at most one entry per call and lives as long as the collector.
    */
-  nonEmpty(path: string, value: string, label: string): void ;
+  nonEmpty(path: string, value: string, label: string): void;
 
-/**
+  /**
    * Checks a direction that need not be unit length: one `range` violation at `<path>.<axis>` per non-finite component, or, when every component is finite, one at `path` if the length is `1e-12` or shorter.
    *
    * @param path Violation path of the checked vector.
@@ -106,13 +106,9 @@ export interface IAutoMovieViolationCollector  {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A check of one vector per call, coordinating no work across requests.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Appends at most three violations per call to items, either non-finite axes or one short length, held for the collector's lifetime; nothing else is retained.
    */
-  direction(
-    path: string,
-    value: IAutoMovieVector3,
-    label: string,
-  ): void ;
+  direction(path: string, value: IAutoMovieVector3, label: string): void;
 
-/**
+  /**
    * Pushes one `range` violation at `<path>.<axis>` for each non-finite component of a vector, worded `<label> <axis> must be finite, but was <value>`.
    *
    * @param path Violation path of the checked vector.
@@ -127,13 +123,9 @@ export interface IAutoMovieViolationCollector  {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Judges the components of one vector per call; validators call it once per vector they hold and share nothing between calls.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Appends at most three violations per call to `items`, which lives as long as the collector; nothing else is retained.
    */
-  finiteVector(
-    path: string,
-    value: IAutoMovieVector3,
-    label: string,
-  ): void ;
+  finiteVector(path: string, value: IAutoMovieVector3, label: string): void;
 
-/**
+  /**
    * Pushes a `range` violation at `path` unless a value is a finite number strictly above zero; a missing value fails and is reported as `null`.
    *
    * @param path Violation path of the checked number.
@@ -148,13 +140,9 @@ export interface IAutoMovieViolationCollector  {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A check of one number per call, coordinating no work across requests.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Appends at most one violation per call to `items`, which lives as long as the collector; nothing else is retained.
    */
-  positive(
-    path: string,
-    value: number | undefined,
-    label: string,
-  ): void ;
+  positive(path: string, value: number | undefined, label: string): void;
 
-/**
+  /**
    * Pushes a `range` violation at `path` when a quaternion's norm is not finite or differs from 1 by more than `1e-6`, reporting the norm.
    *
    * @param path Violation path of the checked rotation.
@@ -173,9 +161,9 @@ export interface IAutoMovieViolationCollector  {
     path: string,
     value: IAutoMovieQuaternion,
     label: string,
-  ): void ;
+  ): void;
 
-/**
+  /**
    * Wrap the current findings with canonical severity folding and shared storage.
    *
    * @evidence contracts/development/implementation.md#principled-implementation toValidation scans for any error, otherwise returns warning-only success or empty clean success; a nonempty result aliases this collector's items array.
@@ -186,5 +174,5 @@ export interface IAutoMovieViolationCollector  {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the same severity fold all standalone validator arrays use, with no cached result that could conceal later items mutation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Caller and collector share the nonempty result array and offending references until released; an empty wrapper retains no array or external handle.
    */
-  toValidation(): IAutoMovieValidation ;
+  toValidation(): IAutoMovieValidation;
 }

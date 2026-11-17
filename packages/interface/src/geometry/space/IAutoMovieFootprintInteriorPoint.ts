@@ -1,5 +1,3 @@
-
-
 /**
  * An interior plan anchor selected from the largest-area convex footprint piece.
  *
@@ -21,7 +19,7 @@ export namespace IAutoMovieFootprintInteriorPoint {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The footprint decomposition owns ring hygiene; null means no positive-area piece survived, including rejected or degenerate footprints. Equal-area ties keep the first piece.
    * @evidence contracts/development/common.md#meaningful-documentation An interior plan anchor selected from the largest-area convex footprint piece. x and z are world-plan metres inherited from the footprint; no height or orientation is inferred.
    */
-  export type IResult = { 
+  export type IResult = {
     /**
      * Fresh anchor's world X coordinate in metres, the arithmetic mean of the chosen convex piece's vertex x values.
      */
@@ -30,5 +28,6 @@ export namespace IAutoMovieFootprintInteriorPoint {
     /**
      * Fresh anchor's world Z coordinate in metres, paired with x; height must be evaluated by the surface owner.
      */
-    z: number } | null;
+    z: number;
+  } | null;
 }

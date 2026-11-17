@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryCameraFile, IAutoMovieRecoveryCameraSceneInput } from "../../index";
+import type {
+  IAutoMovieRecoveryCameraFile,
+  IAutoMovieRecoveryCameraSceneInput,
+} from "../../index";
 
 /** Fixed-byte calibrated image set for the Node cameras scene command.
  *
@@ -8,23 +11,18 @@ import type { IAutoMovieRecoveryCameraFile, IAutoMovieRecoveryCameraSceneInput }
  * @evidence contracts/development/common.md#meaningful-documentation Members specify relative paths, source order, exact encoding, header bounds and separate host versus numerical ownership.
  */
 export interface IAutoMovieRecoveryCameraSceneFiles {
- 
- /** Versioned bounded image-set acquisition manifest. */
+  /** Versioned bounded image-set acquisition manifest. */
   schema: "automovie-recovery-camera-scene-files-v1";
 
- 
- /** Exact sRGB RGB8 P6 variation without implicit chart correction. */
+  /** Exact sRGB RGB8 P6 variation without implicit chart correction. */
   encoding: "ppm-srgb-rgb8-v1";
 
- 
- /** Closed resident metadata/policy/budgets; the host supplies decoded views. */
+  /** Closed resident metadata/policy/budgets; the host supplies decoded views. */
   capture: Omit<IAutoMovieRecoveryCameraSceneInput, "views">;
 
- 
- /** Positive per-source P6 header-byte ceiling. */
+  /** Positive per-source P6 header-byte ceiling. */
   maxHeaderBytes: number;
 
- 
- /** Fixed source set, bounded by capture.budget.maxViews; first two are the seed. */
+  /** Fixed source set, bounded by capture.budget.maxViews; first two are the seed. */
   views: IAutoMovieRecoveryCameraFile[];
 }

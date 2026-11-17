@@ -1,5 +1,3 @@
-
-
 /**
  * Vertical projection of portable model rest geometry for framing.
  */
@@ -16,13 +14,14 @@ export namespace IAutoMovieComputeModelRestExtentY {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No default height is embedded in this result; formation and subject framing apply their own documented fallback after observing null or insufficient height.
    * @evidence contracts/development/common.md#meaningful-documentation Vertical projection of portable model rest geometry for framing. min and max are model-Y metres; height is max - min, not a skeleton joint span. Null is forwarded when computeModelRestExtent has no measurable extent.
    */
-  export type IResult = { 
+  export type IResult = {
     /**
      * Lowest measured model-space Y in metres, which may be above or below the model origin.
      */
-    min: number; 
+    min: number;
     /**
      * Highest measured model-space Y in metres; subtract min to obtain the measured vertical span. The returned scalar pair is newly allocated.
      */
-    max: number } | null;
+    max: number;
+  } | null;
 }

@@ -1,6 +1,13 @@
-import { type IAutoMovieGrammarDiagnostic, type IAutoMovieGrammarInput, type IAutoMovieGrammarReading, type IAutoMovieGrammarStyleClaim, type IAutoMovieNormalizedGrammarShot, type AutoMovieInspectGrammarCutFraming, AutoMovieGrammarStyleIntent, IAutoMovieCameraIntent } from "@automovie/interface";
-
-
+import {
+  AutoMovieGrammarStyleIntent,
+  type AutoMovieInspectGrammarCutFraming,
+  IAutoMovieCameraIntent,
+  type IAutoMovieGrammarDiagnostic,
+  type IAutoMovieGrammarInput,
+  type IAutoMovieGrammarReading,
+  type IAutoMovieGrammarStyleClaim,
+  type IAutoMovieNormalizedGrammarShot,
+} from "@automovie/interface";
 
 import { roundToThousandths } from "../math/roundToThousandths";
 import { assertGrammarPositive } from "./assertGrammarPositive";
@@ -19,10 +26,16 @@ const DEFAULT_REESTABLISH_DISTANCE: number = 10;
 type Framing = IAutoMovieCameraIntent["framing"] | null;
 
 /** Reads a shot's measured size at one boundary, measuring each pair once. */
-type ShotSizeOf = [IAutoMovieGrammarDiagnostic[], IAutoMovieNormalizedGrammarShot, IAutoMovieNormalizedGrammarShot, (
+type ShotSizeOf = [
+  IAutoMovieGrammarDiagnostic[],
+  IAutoMovieNormalizedGrammarShot,
+  IAutoMovieNormalizedGrammarShot,
+  (
     shot: IAutoMovieNormalizedGrammarShot,
     boundary: "start" | "end",
-  ) => AutoMovieInspectGrammarCutFraming, { minimumCutAngleDegrees: number; reestablishDistance: number }][3];
+  ) => AutoMovieInspectGrammarCutFraming,
+  { minimumCutAngleDegrees: number; reestablishDistance: number },
+][3];
 
 /**
  * Reads an ordered edit mechanically and reports the film-grammar findings no declared exception excepted, together with the declarations that excepted nothing.

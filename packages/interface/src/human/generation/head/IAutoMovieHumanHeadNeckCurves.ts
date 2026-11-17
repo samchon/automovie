@@ -1,11 +1,7 @@
-import type { IAutoMovieCurveLengthMeasurement64 } from "../../../geometry/curve/IAutoMovieCurveLengthMeasurement64";
-import type { IAutoMovieHumanHeadNeck } from "../IAutoMovieHumanHeadNeck";
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 import type { IAutoMovieViewSection } from "../../../construction/IAutoMovieViewSection";
-
-
-
-
+import type { IAutoMovieCurveLengthMeasurement64 } from "../../../geometry/curve/IAutoMovieCurveLengthMeasurement64";
+import type { IAutoMovieHumanHeadNeck } from "../IAutoMovieHumanHeadNeck";
 
 /** Type contracts exchanged by AutoMovieHumanHeadNeckCurves; runtime evaluation remains in Human. */
 export namespace IAutoMovieHumanHeadNeckCurves {

@@ -6,7 +6,7 @@ export namespace IAutoMovieRigSurfaceBridge {
   /**
    * Compile a bridge patch's interior for per-pose evaluation, returning the
    * writer that fills its rows into a target buffer.
-   * 
+   *
    * Column `k` joins loop point `k` of the first loop to loop point `k` of the
    * second by the cubic Hermite curve `h00 A + h10 m T_A + h01 B + h11 m T_B`,
    * `m` the tension times the chord, row `j` at `t = j / rows`. A loop point's

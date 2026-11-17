@@ -1,5 +1,8 @@
-import type { IAutoMovieContactReceipt, IAutoMovieRecordPhysicalContact, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMovieRecordPhysicalContact,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 
@@ -14,7 +17,9 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 13 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function recordPhysicalContact(input: IAutoMovieRecordPhysicalContact.IInput): IAutoMovieContactReceipt {
+export function recordPhysicalContact(
+  input: IAutoMovieRecordPhysicalContact.IInput,
+): IAutoMovieContactReceipt {
   const aKey: string = JSON.stringify(input.a);
   const bKey: string = JSON.stringify(input.b);
   const forward: boolean = aKey < bKey;
@@ -54,8 +59,9 @@ export function recordPhysicalContact(input: IAutoMovieRecordPhysicalContact.IIn
   receipt.impulse = (receipt.impulse ?? 0) + input.impulse;
   receipt.separation = Math.min(receipt.separation, input.separation);
   receipt.compression = Math.max(receipt.compression, -input.separation);
-  const sample: NonNullable<IAutoMovieContactReceipt["samples"]>[number] | undefined =
-    receipt.samples!.at(-1);
+  const sample:
+    | NonNullable<IAutoMovieContactReceipt["samples"]>[number]
+    | undefined = receipt.samples!.at(-1);
   if (sample?.seconds === input.seconds) {
     const total: number = sample.impulse + input.impulse;
     sample.point = Vector3.scale(

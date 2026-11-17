@@ -1,6 +1,15 @@
-import type { IAutoMovieHingedArmSwivel, IAutoMovieHingedArticulation, IAutoMovieSwivelNear, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-import { Quaternion, hingedArmArticulation, hingedArmSwivel } from "@automovie/engine";
-
+import {
+  Quaternion,
+  hingedArmArticulation,
+  hingedArmSwivel,
+} from "@automovie/engine";
+import type {
+  IAutoMovieHingedArmSwivel,
+  IAutoMovieHingedArticulation,
+  IAutoMovieQuaternion,
+  IAutoMovieSwivelNear,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

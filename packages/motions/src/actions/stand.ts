@@ -1,6 +1,24 @@
-import type { AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanStand, IAutoMovieMotionHumanStandUpright, IAutoMovieMotionHumanSupportCarry, IAutoMovieRandom, IAutoMovieVector3 } from "@automovie/interface";
-
 import { minimumJerk, seededSmoothNoise } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanStand,
+  IAutoMovieMotionHumanStandUpright,
+  IAutoMovieMotionHumanSupportCarry,
+  IAutoMovieRandom,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanBound } from "../law/HumanBound";
@@ -78,7 +96,8 @@ export namespace stand {
     );
     const footing: Record<"left" | "right", IAutoMovieVector3> = course.flat;
     const initial: IAutoMovieVector3 = course.offset(0);
-    const upright: IAutoMovieMotionHumanStandUpright.IAlignment = standUpright.of(context.body);
+    const upright: IAutoMovieMotionHumanStandUpright.IAlignment =
+      standUpright.of(context.body);
     const middle: IAutoMovieVector3 = root(context.body, footing, yaw);
     const joints: IAutoMovieMotionHumanPosture["joints"] = {
       ...relaxed(context.body),
@@ -93,14 +112,10 @@ export namespace stand {
     const sz: IAutoMovieRandom = context.random("swayZ");
 
     // The support the stance stands on: the ground, or a prop that moves.
-    const left: IAutoMovieMotionHumanContactWindow.Support = HumanSupportFrame.contact(
-      context,
-      "leftFoot",
-    );
-    const right: IAutoMovieMotionHumanContactWindow.Support = HumanSupportFrame.contact(
-      context,
-      "rightFoot",
-    );
+    const left: IAutoMovieMotionHumanContactWindow.Support =
+      HumanSupportFrame.contact(context, "leftFoot");
+    const right: IAutoMovieMotionHumanContactWindow.Support =
+      HumanSupportFrame.contact(context, "rightFoot");
     const inherited: string | undefined =
       context.entry.feet.left.planted &&
       context.entry.feet.right.planted &&
@@ -112,7 +127,9 @@ export namespace stand {
     const on: IAutoMovieMotionHumanStand.IParams["on"] =
       context.params.on ??
       (inherited === undefined ? undefined : { prop: inherited });
-    const carried: (seconds: number) => IAutoMovieMotionHumanSupportCarry.ICarry = (
+    const carried: (
+      seconds: number,
+    ) => IAutoMovieMotionHumanSupportCarry.ICarry = (
       seconds: number,
     ): IAutoMovieMotionHumanSupportCarry.ICarry =>
       on === undefined
@@ -122,7 +139,8 @@ export namespace stand {
             yaw: 0,
           }
         : HumanSupportCarry.of(
-            (t: number): IAutoMovieMotionHumanProp.IFrame => context.prop(on.prop).frame(t),
+            (t: number): IAutoMovieMotionHumanProp.IFrame =>
+              context.prop(on.prop).frame(t),
             context.start,
             context.start + seconds,
           );
@@ -130,7 +148,9 @@ export namespace stand {
       duration,
       events: [{ name: "settled", share: settle / duration }],
       contacts: (["leftFoot", "rightFoot"] as const).map(
-        (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
+        (
+          part: "leftFoot" | "rightFoot",
+        ): IAutoMovieMotionHumanContactWindow => ({
           part,
           kind: "plant" as const,
           from: 0,
@@ -421,7 +441,10 @@ export namespace stand {
 }
 
 /** The rest feet's midpoint in world offset for a heading, so a stand centres the pelvis over its feet. */
-function centre(body: IAutoMovieMotionHumanBody, yaw: number): IAutoMovieVector3 {
+function centre(
+  body: IAutoMovieMotionHumanBody,
+  yaw: number,
+): IAutoMovieVector3 {
   const l: IAutoMovieVector3 = body.rest.get("leftFoot")!;
   const r: IAutoMovieVector3 = body.rest.get("rightFoot")!;
   return HumanFrame.point(

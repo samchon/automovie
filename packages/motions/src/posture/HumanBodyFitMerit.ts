@@ -1,12 +1,12 @@
+import { Vector3 } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanSequentialConvex,
   IAutoMovieMotionHumanBodyFitTypes,
   IAutoMovieMotionHumanFitGoals,
   IAutoMovieMotionHumanJacobian,
+  IAutoMovieMotionHumanSequentialConvex,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "@automovie/engine";
 import { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanFitBalance } from "./HumanFitBalance";
 import { HumanFitGoals } from "./HumanFitGoals";

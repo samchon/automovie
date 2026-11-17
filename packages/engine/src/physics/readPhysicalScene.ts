@@ -1,4 +1,5 @@
 import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
+
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 
 /**
@@ -14,23 +15,33 @@ import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBin
  */
 export function readPhysicalScene(
   bound: Bound,
-  previous?: Readonly<Record<string, Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>>>,
+  previous?: Readonly<
+    Record<
+      string,
+      Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>
+    >
+  >,
   body?: string,
 ): Record<string, Record<string, IAutoMoviePhysicalProfile.ITransform>> {
   let result: Record<
     string,
     Record<string, IAutoMoviePhysicalProfile.ITransform>
-  > = (previous as Record<string, Record<string, IAutoMoviePhysicalProfile.ITransform>>) ??
-  Object.create(null);
+  > = (previous as Record<
+    string,
+    Record<string, IAutoMoviePhysicalProfile.ITransform>
+  >) ?? Object.create(null);
   for (const [id, segments] of bound.segments) {
     if (body !== undefined && id !== body) continue;
     let current: Record<string, IAutoMoviePhysicalProfile.ITransform> =
       result[id] ?? Object.create(null);
     let owned: boolean = previous === undefined || result[id] === undefined;
     for (const [bone, rigid] of segments) {
-      const position: IAutoMoviePhysicalProfile.ITransform["position"] = rigid.translation();
-      const rotation: IAutoMoviePhysicalProfile.ITransform["rotation"] = rigid.rotation();
-      const before: IAutoMoviePhysicalProfile.ITransform | undefined = current[bone];
+      const position: IAutoMoviePhysicalProfile.ITransform["position"] =
+        rigid.translation();
+      const rotation: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+        rigid.rotation();
+      const before: IAutoMoviePhysicalProfile.ITransform | undefined =
+        current[bone];
       if (
         before &&
         before.position.x === position.x &&

@@ -1,7 +1,8 @@
-import type { IAutoMovieHumanArmSpanEnd, IAutoMovieHumanArmBones, IAutoMovieHumanArmPiece } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieHumanArmBones,
+  IAutoMovieHumanArmPiece,
+  IAutoMovieHumanArmSpanEnd,
+} from "@automovie/interface";
 
 import { AutoMovieHumanArmRows } from "./AutoMovieHumanArmRows";
 
@@ -58,10 +59,15 @@ export namespace AutoMovieHumanDeltoidSpan {
    *
    * @param inputs The fixed inputs.
    */
-  export function end(inputs: IAutoMovieHumanArmPiece.IInputs): IAutoMovieHumanArmSpanEnd {
+  export function end(
+    inputs: IAutoMovieHumanArmPiece.IInputs,
+  ): IAutoMovieHumanArmSpanEnd {
     const s: number = insertion(inputs);
 
-    return { row: AutoMovieHumanArmRows.row("u0.45", s), knot: [s, inputs.tapes.bicep] };
+    return {
+      row: AutoMovieHumanArmRows.row("u0.45", s),
+      knot: [s, inputs.tapes.bicep],
+    };
   }
 
   /**
@@ -69,9 +75,12 @@ export namespace AutoMovieHumanDeltoidSpan {
    *
    * @param inputs The fixed inputs.
    */
-  export function piece(inputs: IAutoMovieHumanArmPiece.IInputs): IAutoMovieHumanArmPiece {
+  export function piece(
+    inputs: IAutoMovieHumanArmPiece.IInputs,
+  ): IAutoMovieHumanArmPiece {
     const first: number = inputs.axis.upper(ROOT * inputs.bones.humerus);
-    const last: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } = end(inputs);
+    const last: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } =
+      end(inputs);
 
     return {
       name: "deltoid",

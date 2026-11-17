@@ -1,5 +1,9 @@
-import type { IAutoMovieFitPhysicalWholeBodyTarget, IAutoMoviePhysicalProfile, IAutoMovieResolveRelationalGoal, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieFitPhysicalWholeBodyTarget,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieResolveRelationalGoal,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -27,14 +31,17 @@ import { fitPhysicalWholeBodyTarget } from "../physics/fitPhysicalWholeBodyTarge
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 10 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function resolveAutoMovieRelationalGoal(input: IAutoMovieResolveRelationalGoal.IInput): IAutoMovieResolveRelationalGoal.IResult {
+export function resolveAutoMovieRelationalGoal(
+  input: IAutoMovieResolveRelationalGoal.IInput,
+): IAutoMovieResolveRelationalGoal.IResult {
   const performer: IAutoMovieResolveRelationalGoal.IBody | undefined =
     input.bodies[input.performer];
   const target: IAutoMovieResolveRelationalGoal.IBody | undefined =
     input.bodies[input.goal.target.subject];
   if (!performer || !target)
     throw new Error(`Unknown relational subject of ${input.performer}`);
-  const prior: Record<string, IAutoMoviePhysicalProfile.ITransform> = performer.pose(input.seconds);
+  const prior: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+    performer.pose(input.seconds);
   const { start, end }: { start: number; end: number } = input.goal.window;
   if (input.seconds < start || input.seconds > end)
     return {
@@ -51,9 +58,8 @@ export function resolveAutoMovieRelationalGoal(input: IAutoMovieResolveRelationa
     throw new Error(
       `Unknown region ${input.goal.target.subject}.${input.goal.target.region}`,
     );
-  const read: Record<string, IAutoMoviePhysicalProfile.ITransform> = target.pose(
-    input.goal.lock === "freeze" ? start : input.seconds,
-  );
+  const read: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+    target.pose(input.goal.lock === "freeze" ? start : input.seconds);
   const pose: IAutoMoviePhysicalProfile.ITransform = read[region.bone]!;
   const point: IAutoMovieVector3 = Vector3.add(
     pose.position,
@@ -63,36 +69,37 @@ export function resolveAutoMovieRelationalGoal(input: IAutoMovieResolveRelationa
     input.seconds,
   );
   const held: IAutoMoviePhysicalProfile.ITransform = prior[support.bone]!;
-  const fit: IAutoMovieFitPhysicalWholeBodyTarget.IResult = fitPhysicalWholeBodyTarget({
-    profile: performer.profile,
-    targets: prior,
-    support: {
-      bone: support.bone,
-      point: Vector3.add(
-        held.position,
-        Quaternion.rotateVector(held.rotation, support.localPoint),
-      ),
-      normal: support.normal,
-      minimum: support.minimum,
-      maximum: support.maximum,
-    },
-    bones: performer.bones,
-    goal: {
-      bone: input.goal.surface.bone,
-      localPoint: input.goal.surface.localPoint,
-      point,
-      ...(input.goal.approach && input.goal.surface.localDirection
-        ? {
-            approach: {
-              localDirection: input.goal.surface.localDirection,
-              direction: input.goal.approach,
-              weight: input.approachWeight ?? 0.05,
-            },
-          }
-        : {}),
-    },
-    iterations: input.iterations ?? 32,
-    tolerance: input.tolerance ?? 1e-4,
-  });
+  const fit: IAutoMovieFitPhysicalWholeBodyTarget.IResult =
+    fitPhysicalWholeBodyTarget({
+      profile: performer.profile,
+      targets: prior,
+      support: {
+        bone: support.bone,
+        point: Vector3.add(
+          held.position,
+          Quaternion.rotateVector(held.rotation, support.localPoint),
+        ),
+        normal: support.normal,
+        minimum: support.minimum,
+        maximum: support.maximum,
+      },
+      bones: performer.bones,
+      goal: {
+        bone: input.goal.surface.bone,
+        localPoint: input.goal.surface.localPoint,
+        point,
+        ...(input.goal.approach && input.goal.surface.localDirection
+          ? {
+              approach: {
+                localDirection: input.goal.surface.localDirection,
+                direction: input.goal.approach,
+                weight: input.approachWeight ?? 0.05,
+              },
+            }
+          : {}),
+      },
+      iterations: input.iterations ?? 32,
+      tolerance: input.tolerance ?? 1e-4,
+    });
   return { ...fit, point, active: true };
 }

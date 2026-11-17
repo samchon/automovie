@@ -1,6 +1,13 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, bracketedRoot, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { kneelKeys } from "../everyday/kneelKeys";
@@ -101,7 +108,10 @@ export namespace crawlDown {
    */
   export interface IDown {
     /** The posture over a base at a second before the way down ends. */
-    write(base: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture;
+    write(
+      base: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture;
 
     /** The second the hands land. */
     hands: number;
@@ -138,7 +148,10 @@ export namespace crawlDown {
         props.tucks[side].offset,
       ),
     });
-    const holding: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles> = {
+    const holding: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanArmAngles.IAngles
+    > = {
       left: AutoMovieMotionHumanArm.angles(props.entry, "left"),
       right: AutoMovieMotionHumanArm.angles(props.entry, "right"),
     };
@@ -155,7 +168,9 @@ export namespace crawlDown {
           posture.joints.hips,
         ),
       );
-    const shouldersOf = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 => {
+    const shouldersOf = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieVector3 => {
       const bones = poseBones(body, resolveHumanPosture(body, posture));
       return Vector3.lerp(
         bones.get("leftUpperArm")!.worldPosition,
@@ -186,7 +201,10 @@ export namespace crawlDown {
 
     const armed = (
       posture: IAutoMovieMotionHumanPosture,
-      toward: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles> | null,
+      toward: Record<
+        "left" | "right",
+        IAutoMovieMotionHumanArmAngles.IAngles
+      > | null,
       share: number,
     ): IAutoMovieMotionHumanPosture =>
       crawlFrame.armed(body, posture, holding, toward ?? holding, share);
@@ -199,7 +217,11 @@ export namespace crawlDown {
       ends: number[];
     }
     const solve = (base: IAutoMovieMotionHumanPosture): IStates => {
-      const at = (back: number, lean: number, palms?: boolean): IAutoMovieMotionHumanPosture =>
+      const at = (
+        back: number,
+        lean: number,
+        palms?: boolean,
+      ): IAutoMovieMotionHumanPosture =>
         props.kneeling(base, back, lean, palms);
       const pair = (
         of: (side: "left" | "right") => IAutoMovieVector3,
@@ -250,8 +272,9 @@ export namespace crawlDown {
       const wrist: IAutoMovieVector3 = pair(
         (side) => crawling.limbs[`${side}Arm`]!.point,
       );
-      const shoulders = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
-        shouldersOf({ ...posture, limbs: {} });
+      const shoulders = (
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieVector3 => shouldersOf({ ...posture, limbs: {} });
       const reach: number = Vector3.length(
         Vector3.subtract(shoulders(crawling), wrist),
       );
@@ -282,7 +305,11 @@ export namespace crawlDown {
       // trunk has there.
       const furthest = (lean: (back: number) => number): number => {
         const lands = (back: number): boolean => {
-          const posture: IAutoMovieMotionHumanPosture = at(back, lean(back), false);
+          const posture: IAutoMovieMotionHumanPosture = at(
+            back,
+            lean(back),
+            false,
+          );
           const bones = poseBones(body, resolveHumanPosture(body, posture));
           return sides.every(
             (side): boolean =>
@@ -312,7 +339,8 @@ export namespace crawlDown {
         sitting,
         HumanBalance.shift(
           body,
-          (back: number): IAutoMovieMotionHumanPosture => armed(at(back, 0), null, 0),
+          (back: number): IAutoMovieMotionHumanPosture =>
+            armed(at(back, 0), null, 0),
           sitting / m.hipHeight,
         ),
       );
@@ -416,7 +444,10 @@ export namespace crawlDown {
     // The states solved once, on the standing posture the row is written
     // over.
     const s: IStates = solve(S);
-    const write = (base: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+    const write = (
+      base: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture => {
       const k: number = Math.max(
         1,
         s.ends.findIndex((end: number): boolean => seconds < end),

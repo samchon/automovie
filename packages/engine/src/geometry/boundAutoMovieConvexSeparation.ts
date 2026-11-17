@@ -1,4 +1,7 @@
-import type { IAutoMovieClosestSegmentPoints, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieClosestSegmentPoints,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";

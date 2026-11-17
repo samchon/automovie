@@ -1,6 +1,13 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, getConstraint } from "@automovie/engine";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanTrunk, HumanTrunkTurn, stand } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -39,7 +46,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_core_trunk_turn(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const base: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const base: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
   const posture: IAutoMovieMotionHumanPosture = {
     ...base,
     joints: { ...base.joints, spine: [10, 3, -4], chest: [10, 3, -4] },
@@ -58,7 +69,12 @@ export function test_human_motion_core_trunk_turn(): void {
     )!;
 
   // 1. Nothing at a share of 0.
-  const still: IAutoMovieMotionHumanPosture = HumanTrunkTurn.turned(body, posture, 0, "left");
+  const still: IAutoMovieMotionHumanPosture = HumanTrunkTurn.turned(
+    body,
+    posture,
+    0,
+    "left",
+  );
   for (const bone of ["spine", "chest", "neck", "head"] as const)
     if (JSON.stringify(of(still, bone)) !== JSON.stringify(of(posture, bone)))
       complaints.push(
@@ -118,7 +134,12 @@ export function test_human_motion_core_trunk_turn(): void {
         `at a share of 0.2 the neck and the head turn ${head.toFixed(4)} about axis ${axis} against the trunk's ${trunk.toFixed(4)}, its opposite expected`,
       );
   }
-  const whole: IAutoMovieMotionHumanPosture = HumanTrunkTurn.turned(body, posture, 1, "left");
+  const whole: IAutoMovieMotionHumanPosture = HumanTrunkTurn.turned(
+    body,
+    posture,
+    1,
+    "left",
+  );
   for (const bone of ["neck", "head"] as const) {
     const limits: Constraint = range(bone);
     const got: readonly [number, number, number] = of(whole, bone);

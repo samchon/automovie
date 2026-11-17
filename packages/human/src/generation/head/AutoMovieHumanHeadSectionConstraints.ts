@@ -1,11 +1,12 @@
-import type { IAutoMovieViewSection, IAutoMovieHumanHeadSectionConstraints } from "@automovie/interface";
-
-
 import {
   AutoMovieIllinois,
   AutoMovieLoftSectionNative,
   AutoMovieViewSection,
 } from "@automovie/engine";
+import type {
+  IAutoMovieHumanHeadSectionConstraints,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 /**
  * Independent named head points constrain the original section that owns them.
@@ -21,8 +22,6 @@ import {
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only returned scalars survive; there is no global source cache.
  */
 export namespace AutoMovieHumanHeadSectionConstraints {
-  
-
   /**
    * Lateral extent that puts a named point at its supplied half breadth.
    * The fixed forward coordinate is relative to the actual section origin.
@@ -169,7 +168,11 @@ export namespace AutoMovieHumanHeadSectionConstraints {
   }
 
   /** Radius of the engine-owned original section; no validity fallback changes its shape. */
-  function radius(extents: IAutoMovieHumanHeadSectionConstraints.Extents, shoulders: IAutoMovieHumanHeadSectionConstraints.Extents, angle: number): number {
+  function radius(
+    extents: IAutoMovieHumanHeadSectionConstraints.Extents,
+    shoulders: IAutoMovieHumanHeadSectionConstraints.Extents,
+    angle: number,
+  ): number {
     const value: number = AutoMovieLoftSectionNative.value({
       extents,
       shoulders,
@@ -187,7 +190,10 @@ export namespace AutoMovieHumanHeadSectionConstraints {
   }
 
   /** Basic finite input bounds only. Actual positive curvature, representable G2 end domains and convexity remain separate engine premises; these bounds do not prove residual continuity. */
-  function admit(extents: IAutoMovieHumanHeadSectionConstraints.Extents, shoulders: IAutoMovieHumanHeadSectionConstraints.Extents): void {
+  function admit(
+    extents: IAutoMovieHumanHeadSectionConstraints.Extents,
+    shoulders: IAutoMovieHumanHeadSectionConstraints.Extents,
+  ): void {
     if (
       !extents.every(
         (value: number): boolean => Number.isFinite(value) && value > 0,

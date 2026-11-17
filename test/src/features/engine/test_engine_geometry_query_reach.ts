@@ -1,10 +1,20 @@
-import type { IAutoMovieGeometryQuery, IAutoMovieBone, IAutoMovieCamera, IAutoMovieCompiledShotSource, IAutoMovieModel, IAutoMovieQuaternion, IAutoMovieSceneNode, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import {
   measureAutoMovieGeometry,
   reachPose,
   validatePose,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieBone,
+  IAutoMovieCamera,
+  IAutoMovieCompiledShotSource,
+  IAutoMovieGeometryQuery,
+  IAutoMovieModel,
+  IAutoMovieQuaternion,
+  IAutoMovieSceneNode,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/createModel";

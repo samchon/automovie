@@ -38,85 +38,88 @@ export interface IAutoMovieConstructionKnownPortSource {
  */
 export namespace IAutoMovieConstructionKnownPortSource {
   /**
-     * Complete total2 of the actual map from band clock u and normalized transverse v.
-     *
-     * Each tuple component keeps the corresponding target field-chart unit;
-     * derivative orders divide those units by the indicated source variables.
-     * KnownPort reads these arrays without modifying or retaining the jet record.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States target-chart component units and the original-clock/transverse derivative variables.
-     * @evidence contracts/development/design.md#principled-representation All six total-order-two terms are required for the exact two-variable chain rule.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface KnownPort.pullback consumes every term with the original field's surface jet.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts KnownPort checks two finite components per term; agreement with the actual map and validity throughout the rectangle remain source-owner obligations.
-     */
-    export interface IJet {
-      /** Actual field-chart point. */
-      p: AutoMovieVector2Tuple;
+   * Complete total2 of the actual map from band clock u and normalized transverse v.
+   *
+   * Each tuple component keeps the corresponding target field-chart unit;
+   * derivative orders divide those units by the indicated source variables.
+   * KnownPort reads these arrays without modifying or retaining the jet record.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States target-chart component units and the original-clock/transverse derivative variables.
+   * @evidence contracts/development/design.md#principled-representation All six total-order-two terms are required for the exact two-variable chain rule.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface KnownPort.pullback consumes every term with the original field's surface jet.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts KnownPort checks two finite components per term; agreement with the actual map and validity throughout the rectangle remain source-owner obligations.
+   */
+  export interface IJet {
+    /** Actual field-chart point. */
+    p: AutoMovieVector2Tuple;
 
-      /** First derivative per band tangential-clock unit. */
-      u: AutoMovieVector2Tuple;
+    /** First derivative per band tangential-clock unit. */
+    u: AutoMovieVector2Tuple;
 
-      /** First derivative per normalized band transverse unit. */
-      v: AutoMovieVector2Tuple;
+    /** First derivative per normalized band transverse unit. */
+    v: AutoMovieVector2Tuple;
 
-      /** Second derivative per squared original tangential-clock unit. */
-      uu: AutoMovieVector2Tuple;
+    /** Second derivative per squared original tangential-clock unit. */
+    uu: AutoMovieVector2Tuple;
 
-      /** Mixed derivative per original-clock unit and normalized transverse unit. */
-      uv: AutoMovieVector2Tuple;
+    /** Mixed derivative per original-clock unit and normalized transverse unit. */
+    uv: AutoMovieVector2Tuple;
 
-      /** Second derivative per squared normalized transverse unit. */
-      vv: AutoMovieVector2Tuple;
-    }
+    /** Second derivative per squared normalized transverse unit. */
+    vv: AutoMovieVector2Tuple;
+  }
 
   /**
-     * One original source-chart correspondence over the full band rectangle.
+   * One original source-chart correspondence over the full band rectangle.
+   *
+   * KnownPort retains the map by reference. Keep its callbacks, domains and
+   * dependencies immutable for the prepared surface's lifetime. Both methods
+   * receive `(original clock, normalized transverse)` and return the target
+   * field's chart coordinates or their derivatives; callback throws propagate.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines argument order, target units, retained ownership and unavailable/throw behavior.
+   * @evidence contracts/development/design.md#principled-representation Separate point and nullable total2 capabilities allow position queries without inventing derivatives.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface KnownPort checks rectangle coverage and evaluates both original maps in its interior blend.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Construction checks finite increasing coverage intervals and query data; it cannot prove that supplied derivatives differentiate point everywhere.
+   */
+  export interface IMap {
+    /** Actual tangential-clock domain in the same units as definition.domain. */
+    domain: readonly [number, number];
+
+    /** Actual normalized transverse domain, containing the entire interval [0,1]. */
+    transverse: readonly [number, number];
+
+    /**
+     * Target field-chart point at clock u and transverse v in [0,1], independent
+     * of derivative availability. The consumer checks finite components and
+     * the target field's declared u domain; it does not modify the returned tuple.
      *
-     * KnownPort retains the map by reference. Keep its callbacks, domains and
-     * dependencies immutable for the prepared surface's lifetime. Both methods
-     * receive `(original clock, normalized transverse)` and return the target
-     * field's chart coordinates or their derivatives; callback throws propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines argument order, target units, retained ownership and unavailable/throw behavior.
-     * @evidence contracts/development/design.md#principled-representation Separate point and nullable total2 capabilities allow position queries without inventing derivatives.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface KnownPort checks rectangle coverage and evaluates both original maps in its interior blend.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Construction checks finite increasing coverage intervals and query data; it cannot prove that supplied derivatives differentiate point everywhere.
+     * @evidence contracts/development/common.md#meaningful-documentation Gives clock/transverse arguments, target-chart units, finite/domain checks and nonmutating consumption.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the contract it fixes is: Actual field-chart point, independent of derivative availability.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
      */
-    export interface IMap {
-      /** Actual tangential-clock domain in the same units as definition.domain. */
-      domain: readonly [number, number];
-  
-      /** Actual normalized transverse domain, containing the entire interval [0,1]. */
-      transverse: readonly [number, number];
-  
-      /**
-       * Target field-chart point at clock u and transverse v in [0,1], independent
-       * of derivative availability. The consumer checks finite components and
-       * the target field's declared u domain; it does not modify the returned tuple.
-       *
-       * @evidence contracts/development/common.md#meaningful-documentation Gives clock/transverse arguments, target-chart units, finite/domain checks and nonmutating consumption.
-       * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the contract it fixes is: Actual field-chart point, independent of derivative availability.
-       * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
-       * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
-       * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
-       * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
-       * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
-       */
-      point(u: number, v: number): AutoMovieVector2Tuple;
-  
-      /**
-       * Complete derivatives of this map at clock u and transverse v, or null
-       * where unavailable. KnownPort turns null into an admission exception for
-       * a jet query; a point query remains independent. Foreign throws propagate.
-       *
-       * @evidence contracts/development/common.md#meaningful-documentation Distinguishes unavailable total2 from point capability and states conversion to admission failure versus propagated callback exceptions.
-       * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the contract it fixes is: Actual map total2, or null where genuinely unavailable.
-       * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
-       * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
-       * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
-       * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
-       * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
-       */
-      jet(u: number, v: number): IAutoMovieConstructionKnownPortSource.IJet | null;
-    }
+    point(u: number, v: number): AutoMovieVector2Tuple;
+
+    /**
+     * Complete derivatives of this map at clock u and transverse v, or null
+     * where unavailable. KnownPort turns null into an admission exception for
+     * a jet query; a point query remains independent. Foreign throws propagate.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Distinguishes unavailable total2 from point capability and states conversion to admission failure versus propagated callback exceptions.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the contract it fixes is: Actual map total2, or null where genuinely unavailable.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
+     */
+    jet(
+      u: number,
+      v: number,
+    ): IAutoMovieConstructionKnownPortSource.IJet | null;
+  }
 }

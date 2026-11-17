@@ -1,4 +1,9 @@
-import type { IAutoMovieContactReceipt, IAutoMoviePhysicalProfile, IAutoMoviePhysicalShapeBounds, IAutoMoviePreparePhysicalGeometry } from "@automovie/interface";
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShapeBounds,
+  IAutoMoviePreparePhysicalGeometry,
+} from "@automovie/interface";
 import RAPIER from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
@@ -64,8 +69,14 @@ export async function preparePhysicalGeometry(): Promise<IAutoMoviePreparePhysic
         )
       )
         return null;
-      const first: IAutoMoviePhysicalProfile.ITransform = place(a.pose, a.shape.transform);
-      const second: IAutoMoviePhysicalProfile.ITransform = place(b.pose, b.shape.transform);
+      const first: IAutoMoviePhysicalProfile.ITransform = place(
+        a.pose,
+        a.shape.transform,
+      );
+      const second: IAutoMoviePhysicalProfile.ITransform = place(
+        b.pose,
+        b.shape.transform,
+      );
       const search: number = prediction + rounding;
       if (!isPhysicalNativeNumber(search))
         throw new Error("Derived native contact prediction exceeds f32 range");
@@ -109,14 +120,19 @@ export async function preparePhysicalGeometry(): Promise<IAutoMoviePreparePhysic
         compression: Math.max(0, -measured.distance),
       };
     },
-    minimumY: (collider: IAutoMoviePreparePhysicalGeometry.ICollider): number => {
+    minimumY: (
+      collider: IAutoMoviePreparePhysicalGeometry.ICollider,
+    ): number => {
       return physicalShapeBounds(collider.pose, collider.shape).min.y;
     },
     project: (
       collider: IAutoMoviePreparePhysicalGeometry.ICollider,
       point: IAutoMoviePhysicalProfile.ITransform["position"],
     ): IAutoMoviePhysicalProfile.ITransform["position"] => {
-      const pose: IAutoMoviePhysicalProfile.ITransform = place(collider.pose, collider.shape.transform);
+      const pose: IAutoMoviePhysicalProfile.ITransform = place(
+        collider.pose,
+        collider.shape.transform,
+      );
       return {
         ...physicalNativeVector(
           physicalNativeShape(collider.shape).projectPoint(
@@ -132,7 +148,10 @@ export async function preparePhysicalGeometry(): Promise<IAutoMoviePreparePhysic
 }
 
 /** Compose bone and local shape transforms in the same world frame. */
-function place(parent: IAutoMoviePhysicalProfile.ITransform, local: IAutoMoviePhysicalProfile.ITransform): IAutoMoviePhysicalProfile.ITransform {
+function place(
+  parent: IAutoMoviePhysicalProfile.ITransform,
+  local: IAutoMoviePhysicalProfile.ITransform,
+): IAutoMoviePhysicalProfile.ITransform {
   const result: IAutoMoviePhysicalProfile.ITransform = {
     position: Vector3.add(
       parent.position,

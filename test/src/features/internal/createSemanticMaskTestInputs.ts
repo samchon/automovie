@@ -1,6 +1,9 @@
-import { type IAutoMovieRenderSubject, IAutoMovieScene, IAutoMovieSceneNode, IAutoMovieSemanticMask } from "@automovie/interface";
-
-
+import {
+  type IAutoMovieRenderSubject,
+  IAutoMovieScene,
+  IAutoMovieSceneNode,
+  IAutoMovieSemanticMask,
+} from "@automovie/interface";
 
 import {
   buildingFixture,

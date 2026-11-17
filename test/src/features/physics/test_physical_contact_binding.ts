@@ -1,11 +1,15 @@
-import type { IAutoMoviePhysicalSimulationInput, IAutoMoviePreparePhysicalGeometry, IAutoMoviePhysicalContactBinding as Binding, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   preparePhysicalGeometry as Geometry,
   AutoMoviePhysicalSimulation as Simulation,
   Vector3,
   planPhysicalContactTargets,
 } from "@automovie/engine";
-
+import type {
+  IAutoMoviePhysicalContactBinding as Binding,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePreparePhysicalGeometry,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -114,7 +118,9 @@ export async function test_physical_contact_binding(): Promise<void> {
     );
 
   // The fitted collider touches the receiver as a geometric receipt.
-  const contact: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> = geometry.contact(
+  const contact: ReturnType<
+    IAutoMoviePreparePhysicalGeometry.IQueries["contact"]
+  > = geometry.contact(
     {
       body: "mechanism",
       bone: "support-0",
@@ -139,10 +145,8 @@ export async function test_physical_contact_binding(): Promise<void> {
     !(contact.separation <= 0.005 + 1e-9)
   )
     findings.push(`fitted geometric receipt ${JSON.stringify(contact)}`);
-  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
-    [source, panel],
-    DURATION,
-  );
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([source, panel], DURATION);
   const failures: string[] = [];
   try {
     Simulation.identity(input);
@@ -158,7 +162,8 @@ export async function test_physical_contact_binding(): Promise<void> {
       return invalid;
     }),
   ]) {
-    const bad: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+    const bad: IAutoMoviePhysicalSimulationInput.IInput =
+      structuredClone(input);
     bad.bodies[0]!.targets[0]!.bindings = [invalid];
     try {
       Simulation.identity(bad);

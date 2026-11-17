@@ -1,5 +1,10 @@
-import type { IAutoMoviePhysicalProfile, IAutoMovieResolvePhysicalSupportRedundancy, IAutoMovieSingularDecomposition, IAutoMovieVector3, IAutoMovieFootfallPattern } from "@automovie/interface";
-
+import type {
+  IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieResolvePhysicalSupportRedundancy,
+  IAutoMovieSingularDecomposition,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { decomposeAutoMovieSingularMatrix } from "../math/decomposeAutoMovieSingularMatrix";
@@ -43,12 +48,18 @@ import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 19 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function resolvePhysicalSupportRedundancy(input: IAutoMovieResolvePhysicalSupportRedundancy.IInput): Record<string, IAutoMoviePhysicalProfile.ITransform> {
+export function resolvePhysicalSupportRedundancy(
+  input: IAutoMovieResolvePhysicalSupportRedundancy.IInput,
+): Record<string, IAutoMoviePhysicalProfile.ITransform> {
   if (!(input.tolerance > 0) || !Number.isFinite(input.tolerance))
     throw new Error("Invalid support redundancy tolerance");
-  const coordinates: { joint: IAutoMoviePhysicalProfile.IJoint; axis: IAutoMoviePhysicalProfile.IAxis }[] = [];
+  const coordinates: {
+    joint: IAutoMoviePhysicalProfile.IJoint;
+    axis: IAutoMoviePhysicalProfile.IAxis;
+  }[] = [];
   for (const segment of input.order) {
-    const joint: IAutoMoviePhysicalProfile.IJoint | undefined = input.joints.get(segment.bone);
+    const joint: IAutoMoviePhysicalProfile.IJoint | undefined =
+      input.joints.get(segment.bone);
     if (!joint || !input.selected.has(segment.bone)) continue;
     for (const axis of joint.axes)
       if (axis.maximum > axis.minimum) coordinates.push({ joint, axis });
@@ -59,7 +70,13 @@ export function resolvePhysicalSupportRedundancy(input: IAutoMovieResolvePhysica
 
   // Admitted coordinates of the warm seed and of the authored anchor.
   const seed: number[] = coordinates.map(
-    ({ joint, axis }: { joint: IAutoMoviePhysicalProfile.IJoint; axis: IAutoMoviePhysicalProfile.IAxis }): number =>
+    ({
+      joint,
+      axis,
+    }: {
+      joint: IAutoMoviePhysicalProfile.IJoint;
+      axis: IAutoMoviePhysicalProfile.IAxis;
+    }): number =>
       angle(
         projectPhysicalJointRotation(
           joint,
@@ -69,7 +86,13 @@ export function resolvePhysicalSupportRedundancy(input: IAutoMovieResolvePhysica
       ),
   );
   const authored: number[] = coordinates.map(
-    ({ joint, axis }: { joint: IAutoMoviePhysicalProfile.IJoint; axis: IAutoMoviePhysicalProfile.IAxis }): number =>
+    ({
+      joint,
+      axis,
+    }: {
+      joint: IAutoMoviePhysicalProfile.IJoint;
+      axis: IAutoMoviePhysicalProfile.IAxis;
+    }): number =>
       angle(
         projectPhysicalJointRotation(
           joint,
@@ -145,10 +168,13 @@ export function resolvePhysicalSupportRedundancy(input: IAutoMovieResolvePhysica
   );
 
   // Rebuild changed joints parent-first; the ROM projection admits each result.
-  const result: Record<string, IAutoMoviePhysicalProfile.ITransform> = { ...input.seed };
+  const result: Record<string, IAutoMoviePhysicalProfile.ITransform> = {
+    ...input.seed,
+  };
   const owned: Set<string> = new Set();
   for (const segment of input.order) {
-    const joint: IAutoMoviePhysicalProfile.IJoint | undefined = input.joints.get(segment.bone);
+    const joint: IAutoMoviePhysicalProfile.IJoint | undefined =
+      input.joints.get(segment.bone);
     if (
       !joint ||
       !coordinates.some(
@@ -173,11 +199,15 @@ export function resolvePhysicalSupportRedundancy(input: IAutoMovieResolvePhysica
   return result;
 
   /** Endpoint XYZ for every limb, plus each planted floor witness height. */
-  function rows(poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>): number[] {
+  function rows(
+    poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
+  ): number[] {
     return input.pattern.limbs.flatMap(
       (limb: IAutoMovieFootfallPattern["limbs"][number]): number[] => {
-        const endpoint: IAutoMovieVector3 =
-          physicalSupportPoint(poses[limb.bone]!, limb.localPoint);
+        const endpoint: IAutoMovieVector3 = physicalSupportPoint(
+          poses[limb.bone]!,
+          limb.localPoint,
+        );
         return [
           endpoint.x,
           endpoint.y,
@@ -204,7 +234,9 @@ export function resolvePhysicalSupportRedundancy(input: IAutoMovieResolvePhysica
     values[index] = values[index]! + delta;
     const joint: IAutoMoviePhysicalProfile.IJoint = coordinates[index]!.joint;
     const descendants: readonly string[] = input.descendants.get(joint.child)!;
-    const poses: Record<string, IAutoMoviePhysicalProfile.ITransform> = { ...input.seed };
+    const poses: Record<string, IAutoMoviePhysicalProfile.ITransform> = {
+      ...input.seed,
+    };
     for (const bone of descendants) poses[bone] = { ...poses[bone]! };
     setPhysicalTargetJointRotation(
       poses,
@@ -235,7 +267,10 @@ export function resolvePhysicalSupportRedundancy(input: IAutoMovieResolvePhysica
 }
 
 /** Independent twist coordinate of one admitted joint rotation. */
-function angle(rotation: IAutoMoviePhysicalProfile.ITransform["rotation"], axis: IAutoMoviePhysicalProfile.IAxis): number {
+function angle(
+  rotation: IAutoMoviePhysicalProfile.ITransform["rotation"],
+  axis: IAutoMoviePhysicalProfile.IAxis,
+): number {
   const sign: number = rotation.w < 0 ? -1 : 1;
   return 2 * Math.atan2(rotation[axis.axis] * sign, Math.abs(rotation.w));
 }

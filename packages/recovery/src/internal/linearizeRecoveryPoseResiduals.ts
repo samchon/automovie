@@ -1,7 +1,5 @@
-import type { IAutoMovieRecoveryPoseResidualsLinearizeOperation } from "@automovie/interface";
 import { AutoMovieMatrix3 } from "@automovie/engine";
-
-
+import type { IAutoMovieRecoveryPoseResidualsLinearizeOperation } from "@automovie/interface";
 
 /**
  * Signed pixel Sampson residuals and analytic five-coordinate local Jacobian.

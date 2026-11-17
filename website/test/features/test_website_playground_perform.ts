@@ -27,7 +27,9 @@ import type { IScene } from "../../src/scenes/structures/IScene";
  * 6. Browser history and adapter failures return their original messages through the same result path, so the page can leave its building state without weakening address admission.
  */
 export async function test_website_playground_perform(): Promise<void> {
-  const perform = (composition: IPlaygroundComposition): IAutoMovieMotionHumanPerformance => {
+  const perform = (
+    composition: IPlaygroundComposition,
+  ): IAutoMovieMotionHumanPerformance => {
     const built: PlaygroundChain.IBuilt = PlaygroundChain.build(composition);
     return new HumanPerformance({
       seed: composition.seed,

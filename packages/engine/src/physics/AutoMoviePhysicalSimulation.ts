@@ -1,5 +1,10 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicsCache, IAutoMovieContactReceipt } from "@automovie/interface";
-
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicsCache,
+} from "@automovie/interface";
 import RAPIER, {
   type PhysicsHooks,
   type RigidBody,
@@ -84,7 +89,9 @@ export class AutoMoviePhysicalSimulation {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
    */
-  public static identity(input: IAutoMoviePhysicalSimulationInput.IInput): string {
+  public static identity(
+    input: IAutoMoviePhysicalSimulationInput.IInput,
+  ): string {
     return physicalInputDigest(this.admitted(input));
   }
 
@@ -92,7 +99,8 @@ export class AutoMoviePhysicalSimulation {
   private static admitted(
     input: IAutoMoviePhysicalSimulationInput.IInput,
   ): IAutoMoviePhysicalSimulationInput.IInput {
-    const owned: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+    const owned: IAutoMoviePhysicalSimulationInput.IInput =
+      structuredClone(input);
     if (owned.substeps === undefined) owned.substeps = 16;
     if (owned.internalIterations === undefined) owned.internalIterations = 1;
     if (owned.contactTolerance === undefined) owned.contactTolerance = 0.0001;
@@ -129,7 +137,8 @@ export class AutoMoviePhysicalSimulation {
     progress?: (completed: number, total: number) => void,
   ): Promise<IAutoMoviePhysicalSimulation> {
     signal?.throwIfAborted();
-    const owned: IAutoMoviePhysicalSimulationInput.IInput = this.admitted(input);
+    const owned: IAutoMoviePhysicalSimulationInput.IInput =
+      this.admitted(input);
     const identity: string = physicalInputDigest(owned);
     if (previous?.cache.identity === identity) {
       progress?.(
@@ -139,7 +148,11 @@ export class AutoMoviePhysicalSimulation {
       signal?.throwIfAborted();
       return previous;
     }
-    const cache: IAutoMoviePhysicsCache = new Cache(identity, owned.rate, owned.duration);
+    const cache: IAutoMoviePhysicsCache = new Cache(
+      identity,
+      owned.rate,
+      owned.duration,
+    );
     const count: number = Math.round(owned.duration * owned.rate);
     const diagnostics: IAutoMoviePhysicalSimulationInput.IDiagnostic[] = [];
 
@@ -318,10 +331,11 @@ export class AutoMoviePhysicalSimulation {
           assertPhysicalReturnPath(owned, bound, tick, "before");
           for (const impulse of owned.impulses)
             if (impulse.step === step && substep === 1) {
-              const body: IAutoMoviePhysicalSimulationInput.IBody = owned.bodies.find(
-                (candidate: (typeof owned.bodies)[number]): boolean =>
-                  candidate.id === impulse.body,
-              )!;
+              const body: IAutoMoviePhysicalSimulationInput.IBody =
+                owned.bodies.find(
+                  (candidate: (typeof owned.bodies)[number]): boolean =>
+                    candidate.id === impulse.body,
+                )!;
               bound.bodies
                 .get(`${impulse.body}/${impulse.bone}`)!
                 .applyImpulseAtPoint(
@@ -399,10 +413,11 @@ export class AutoMoviePhysicalSimulation {
             if (receipt.a.body === "floor" || receipt.b.body === "floor")
               continue;
             for (const side of [receipt.a, receipt.b]) {
-              const body: IAutoMoviePhysicalSimulationInput.IBody = owned.bodies.find(
-                (candidate: (typeof owned.bodies)[number]): boolean =>
-                  candidate.id === side.body,
-              )!;
+              const body: IAutoMoviePhysicalSimulationInput.IBody =
+                owned.bodies.find(
+                  (candidate: (typeof owned.bodies)[number]): boolean =>
+                    candidate.id === side.body,
+                )!;
               softened.set(
                 `${side.body}/${side.bone}`,
                 instant + body.complianceSeconds,

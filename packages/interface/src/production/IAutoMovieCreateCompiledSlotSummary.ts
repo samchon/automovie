@@ -1,7 +1,5 @@
-import type { IAutoMoviePlacementSummary } from "./IAutoMoviePlacementSummary";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-
-
+import type { IAutoMoviePlacementSummary } from "./IAutoMoviePlacementSummary";
 
 /** Incremental placement-point summary shared by compact population compilers. */
 export namespace IAutoMovieCreateCompiledSlotSummary {
@@ -18,7 +16,7 @@ export namespace IAutoMovieCreateCompiledSlotSummary {
   export type IResult = {
     /** Synchronously fold one borrowed finite world-space position in metres. Its components are read immediately and no point reference is retained; callers preserve ascending slot order for digest-stable centroid arithmetic. */
     add: (point: IAutoMovieVector3) => void;
-  
+
     /** Return fresh wrappers around the live summary vectors. This does not reset or seal the fold; the caller must stop adding and may release the accumulator after taking ownership. */
     finish: () => IAutoMoviePlacementSummary;
   };

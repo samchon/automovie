@@ -1,5 +1,3 @@
-
-
 /**
  * One passage a world volume intrudes on.
  *

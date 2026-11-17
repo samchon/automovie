@@ -1,4 +1,26 @@
-import type { IAutoMovieRenderSubject, IAutoMovieRenderWaterBody, IAutoMovieMeasureRenderInventory, AutoMovieRenderMetric, IAutoMovieAreaLight, IAutoMovieCompiledInstanceSet, IAutoMovieConstraintViolation, IAutoMovieLight, IAutoMovieMaterial, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieRenderAnalysisGap, IAutoMovieRenderInventory, IAutoMovieRenderModelCost, IAutoMovieRenderOwnerCost, IAutoMovieRenderTargetSettings, IAutoMovieRenderTextureCost, IAutoMovieRenderTotals, IAutoMovieSemanticMask, IAutoMovieSemanticMaskEntry, IAutoMovieSpace } from "@automovie/interface";
+import type {
+  AutoMovieRenderMetric,
+  IAutoMovieAreaLight,
+  IAutoMovieCompiledInstanceSet,
+  IAutoMovieConstraintViolation,
+  IAutoMovieLight,
+  IAutoMovieMaterial,
+  IAutoMovieMeasureRenderInventory,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieRenderAnalysisGap,
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderModelCost,
+  IAutoMovieRenderOwnerCost,
+  IAutoMovieRenderSubject,
+  IAutoMovieRenderTargetSettings,
+  IAutoMovieRenderTextureCost,
+  IAutoMovieRenderTotals,
+  IAutoMovieRenderWaterBody,
+  IAutoMovieSemanticMask,
+  IAutoMovieSemanticMaskEntry,
+  IAutoMovieSpace,
+} from "@automovie/interface";
 
 /**
  * Orchestrate conservative one-frame render costs for budgets and reports.
@@ -73,7 +95,11 @@ import { sumAutoMovieRenderTextureAllocations } from "./sumAutoMovieRenderTextur
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Model/node indices, costs and validated material resolutions are reused within the request; the same material id is resolved once against the unchanged model population. Mutable subjects and host residency facts invalidate cross-call reuse.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only inventory rows and shared request cost records transfer to the caller; model/material/cache maps and encoded facts are call-local, and no native resource or background measurement task is owned.
  */
-export const measureAutoMovieRenderInventory: (props: IAutoMovieMeasureRenderInventory.IProps) => IAutoMovieRenderInventory = (props: IAutoMovieMeasureRenderInventory.IProps): IAutoMovieRenderInventory => {
+export const measureAutoMovieRenderInventory: (
+  props: IAutoMovieMeasureRenderInventory.IProps,
+) => IAutoMovieRenderInventory = (
+  props: IAutoMovieMeasureRenderInventory.IProps,
+): IAutoMovieRenderInventory => {
   const {
     subject,
     mask,

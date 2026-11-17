@@ -1,5 +1,17 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObstacle, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSignature } from "@automovie/interface";
-import { HumanChain, HumanObstacle, HumanPerformance, HumanRefusal, HumanSignature, HumanTravelDoor } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObstacle,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObstacle,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+  HumanTravelDoor,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -138,7 +150,9 @@ export function test_human_motion_travel_obstacles(): void {
 
   // 2. A door that fits.
   try {
-    const through: IAutoMovieMotionHumanPerformance = walk(wall({ width: 0.9, height: 2 }));
+    const through: IAutoMovieMotionHumanPerformance = walk(
+      wall({ width: 0.9, height: 2 }),
+    );
     const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       through,
       "a",
@@ -215,7 +229,9 @@ export function test_human_motion_travel_obstacles(): void {
     );
 
   // 7. Through the doorway from off its line, and no doorway to go through.
-  const passing = (obstacle: IAutoMovieMotionHumanObstacle.IObstacle): IAutoMovieMotionHumanPerformance =>
+  const passing = (
+    obstacle: IAutoMovieMotionHumanObstacle.IObstacle,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "obstacles",
       laws: [HumanTravelDoor.passThrough],
@@ -234,7 +250,9 @@ export function test_human_motion_travel_obstacles(): void {
       }).node,
     });
   try {
-    const through: IAutoMovieMotionHumanPerformance = passing(wall({ width: 0.9, height: 2 }));
+    const through: IAutoMovieMotionHumanPerformance = passing(
+      wall({ width: 0.9, height: 2 }),
+    );
     const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       through,
       "a",

@@ -1,5 +1,9 @@
-import { type IAutoMovieEvaluateStorySync, IAutoMovieShotStoryTime, IAutoMovieStorySyncOutcome, IAutoMovieStorySyncPoint } from "@automovie/interface";
-
+import {
+  type IAutoMovieEvaluateStorySync,
+  IAutoMovieShotStoryTime,
+  IAutoMovieStorySyncOutcome,
+  IAutoMovieStorySyncPoint,
+} from "@automovie/interface";
 
 import { autoMovieStoryTime } from "./autoMovieStoryTime";
 
@@ -29,7 +33,9 @@ interface IStorySyncEntry {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Evaluates one claim from its callbacks; `storySyncDiagnostics` routes every consumer through one call per claim and owns any reuse of realizations.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the outcome and its one point per addressed event.
  */
-export function evaluateAutoMovieStorySync(props: IAutoMovieEvaluateStorySync.IProps): IAutoMovieStorySyncOutcome {
+export function evaluateAutoMovieStorySync(
+  props: IAutoMovieEvaluateStorySync.IProps,
+): IAutoMovieStorySyncOutcome {
   const entries: IStorySyncEntry[] = props.events.map(
     (entry: { shot: string; event: string }): IStorySyncEntry => {
       const realized: number | null = props.realized(entry.shot, entry.event);

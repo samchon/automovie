@@ -10,23 +10,18 @@ import type { IAutoMovieSimplexBudget } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Members distinguish per-direction sparse work from total owner charging and logical simultaneous retention.
  */
 export interface IAutoMovieRecoveryFeasibleJointOptions {
- 
- /** Per-direction pairwise iteration, input-plus-scratch scalar and visit ceilings. */
+  /** Per-direction pairwise iteration, input-plus-scratch scalar and visit ceilings. */
   directionBudget: IAutoMovieSimplexBudget;
 
- 
- /** Maximum simultaneous logical joint/model/direction scalars, excluding JS overhead and images. */
+  /** Maximum simultaneous logical joint/model/direction scalars, excluding JS overhead and images. */
   maxResidentLinearEntries: number;
 
- 
- /** Select SQP mixing/curvature and same-base qualified full/half cost comparison; original KKT and the actual trial horizon still apply. */
+  /** Select SQP mixing/curvature and same-base qualified full/half cost comparison; original KKT and the actual trial horizon still apply. */
   sqpAcceleration?: boolean;
 
- 
- /** Independently select fit-local accepted-agreement damping, starting at 1e-3 and changing only the next existing model; false or absent retains fixed damping. */
+  /** Independently select fit-local accepted-agreement damping, starting at 1e-3 and changing only the next existing model; false or absent retains fixed damping. */
   adaptiveRegularization?: boolean;
 
- 
- /** Select a separately admitted lagged fixed-untilted-dual local curvature metric after the first GN model; true requires sqpAcceleration. Absence preserves the current metric policy. */
+  /** Select a separately admitted lagged fixed-untilted-dual local curvature metric after the first GN model; true requires sqpAcceleration. Absence preserves the current metric policy. */
   laggedLagrangianMetric?: boolean;
 }

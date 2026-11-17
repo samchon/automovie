@@ -32,7 +32,9 @@ export interface IAutoMovieHumanoidSurfaceReader {
   ): IAutoMovieHumanoidSurfaces.IFrame;
 
   /** Locate a region's source station in rig-world metres: the collider-box centre for `toward: "centre"`, otherwise the specified share between two rest joints. Missing referenced bones or segments propagate the corresponding reader failure. */
-  station(station: IAutoMovieHumanoidSurfaceRegions.IStation): IAutoMovieVector3;
+  station(
+    station: IAutoMovieHumanoidSurfaceRegions.IStation,
+  ): IAutoMovieVector3;
 
   /** Return only the farthest collider-exit point in rig-world metres; origin is a rig-world metre point and direction is normalized by the surface reader. A missing segment or ray with no admitted exit throws. */
   exit(

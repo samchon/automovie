@@ -1,5 +1,3 @@
-
-
 /**
  * Owned nearest-feature reading from one compiled oriented surface, returned by
  * the query `createAutoMovieSignedMeshQuery` compiles.

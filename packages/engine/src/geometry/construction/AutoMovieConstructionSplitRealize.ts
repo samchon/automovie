@@ -1,6 +1,17 @@
-import type { IAutoMovieLoftChain, IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieConstructionNode, IAutoMovieConstructionSplitBand, IAutoMovieConstructionSplitSeam, IAutoMovieConstructionState, IAutoMovieLoftFrame, IAutoMovieSolidBody, IAutoMovieSolidCycle, IAutoMovieSolidMesh, IAutoMovieConstructionSplit } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionSplit,
+  IAutoMovieConstructionSplitBand,
+  IAutoMovieConstructionSplitSeam,
+  IAutoMovieConstructionState,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftFrame,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidCycle,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieConstructionSplitBand } from "./AutoMovieConstructionSplitBand";
 import { AutoMovieConstructionSplitSeam } from "./AutoMovieConstructionSplitSeam";
@@ -36,7 +47,8 @@ export function AutoMovieConstructionSplitRealize(
   walk: (node: IAutoMovieConstructionNode) => void,
   report: (node: string, contract: string, detail: string) => void,
 ): void {
-  if ((node.outer ?? []).length > 0) return fan(node, body, state, walk, report);
+  if ((node.outer ?? []).length > 0)
+    return fan(node, body, state, walk, report);
   walk(node.host);
   const hostIndex: number | undefined = state.faces.get(node.hostFace);
   const hostChain: IAutoMovieLoftChain | undefined = state.chains.get(
@@ -115,7 +127,9 @@ export function AutoMovieConstructionSplitRealize(
               depth * S,
             ],
           ),
-          ...(node.profile.heading === undefined ? {} : { heading: node.profile.heading }),
+          ...(node.profile.heading === undefined
+            ? {}
+            : { heading: node.profile.heading }),
         });
       if (typeof curve === "string") return fail(`seam: ${curve}`);
       seam = { curve, corner: node.profile.corner };
@@ -170,7 +184,9 @@ export function AutoMovieConstructionSplitRealize(
           child: { surface, station: rail, into },
           count: n,
           crease: child.crease,
-          ...(child.correspondence === undefined ? {} : { correspondence: child.correspondence }),
+          ...(child.correspondence === undefined
+            ? {}
+            : { correspondence: child.correspondence }),
           ...(seam === undefined ? {} : { seam }),
         });
       if (typeof band === "string") return fail(`band ${child.band}: ${band}`);
@@ -397,12 +413,30 @@ function fan(
 ): void {
   walk(node.host);
   const hostIndex: number | undefined = state.faces.get(node.hostFace);
-  const hostChain: IAutoMovieLoftChain | undefined = state.chains.get(node.hostFace);
-  if (hostIndex === undefined || hostChain === undefined) return report(node.name, "host face", `the host face ${node.hostFace} was not realized`);
+  const hostChain: IAutoMovieLoftChain | undefined = state.chains.get(
+    node.hostFace,
+  );
+  if (hostIndex === undefined || hostChain === undefined)
+    return report(
+      node.name,
+      "host face",
+      `the host face ${node.hostFace} was not realized`,
+    );
   const hostKind: "start" | "end" = node.hostEnd === "bottom" ? "start" : "end";
-  if (closed(hostChain, node.hostEnd)) return report(node.name, "split end", `the host face's ${node.hostEnd} end closes in a pole`);
-  if (cut(body, hostIndex, hostKind)) return report(node.name, "split end", `the host face's ${node.hostEnd} end is already cut away or shared`);
-  const snapshot: IAutoMovieConstructionState.ISnapshot = AutoMovieConstructionState.snap(body, state);
+  if (closed(hostChain, node.hostEnd))
+    return report(
+      node.name,
+      "split end",
+      `the host face's ${node.hostEnd} end closes in a pole`,
+    );
+  if (cut(body, hostIndex, hostKind))
+    return report(
+      node.name,
+      "split end",
+      `the host face's ${node.hostEnd} end is already cut away or shared`,
+    );
+  const snapshot: IAutoMovieConstructionState.ISnapshot =
+    AutoMovieConstructionState.snap(body, state);
   const fail = (detail: string): void => {
     report(node.name, "split", detail);
     AutoMovieConstructionState.restore(body, state, snapshot);
@@ -416,71 +450,189 @@ function fan(
     const host: IAutoMovieSolidSurface = body.faces[hostIndex]!.surface;
     const hostStation: number = end(hostChain, node.hostEnd);
     const hostInto: 1 | -1 = node.hostEnd === "bottom" ? -1 : 1;
-    const layer: IAutoMovieLoftChain.ILayer = hostChain.layers[node.hostEnd === "bottom" ? 0 : hostChain.layers.length - 1]!;
-    const frame: IAutoMovieLoftFrame.IFrame = layer.frame ?? AutoMovieLoftFrame.horizontal(layer.y);
-    const normal: Vec3 | null = AutoMovieSolidVector.unit(AutoMovieSolidVector.scale(AutoMovieSolidVector.cross(frame.v, frame.u), hostInto));
+    const layer: IAutoMovieLoftChain.ILayer =
+      hostChain.layers[
+        node.hostEnd === "bottom" ? 0 : hostChain.layers.length - 1
+      ]!;
+    const frame: IAutoMovieLoftFrame.IFrame =
+      layer.frame ?? AutoMovieLoftFrame.horizontal(layer.y);
+    const normal: Vec3 | null = AutoMovieSolidVector.unit(
+      AutoMovieSolidVector.scale(
+        AutoMovieSolidVector.cross(frame.v, frame.u),
+        hostInto,
+      ),
+    );
     if (normal === null) return fail("the host's end section has no plane");
 
     // The seams, innermost first, each built once so both its bands read one curve.
-    const seams: IAutoMovieConstructionSplit.ISeam[] = [{ seam: node.seam, ...(node.profile === undefined ? {} : { profile: node.profile }) }, ...(node.outer ?? [])];
+    const seams: IAutoMovieConstructionSplit.ISeam[] = [
+      {
+        seam: node.seam,
+        ...(node.profile === undefined ? {} : { profile: node.profile }),
+      },
+      ...(node.outer ?? []),
+    ];
     const S: number = seams.length;
     const curves: IAutoMovieConstructionSplitSeam.ISeam[] = [];
     for (const [j, s] of seams.entries()) {
       const made: IAutoMovieConstructionSplitSeam.ISeam | string =
         s.profile === undefined
-          ? AutoMovieConstructionSplitSeam.straight({ host, station: hostStation, seam: s.seam, normal })
-          : AutoMovieConstructionSplitSeam.create({ host, station: hostStation, into: hostInto, seam: s.seam, normal, knots: s.profile.knots.map(([along, depth]: [number, number]): [number, number] => [along * AutoMovieConstructionViews.SCALE, depth * AutoMovieConstructionViews.SCALE]), ...(s.profile.heading === undefined ? {} : { heading: s.profile.heading }) });
+          ? AutoMovieConstructionSplitSeam.straight({
+              host,
+              station: hostStation,
+              seam: s.seam,
+              normal,
+            })
+          : AutoMovieConstructionSplitSeam.create({
+              host,
+              station: hostStation,
+              into: hostInto,
+              seam: s.seam,
+              normal,
+              knots: s.profile.knots.map(
+                ([along, depth]: [number, number]): [number, number] => [
+                  along * AutoMovieConstructionViews.SCALE,
+                  depth * AutoMovieConstructionViews.SCALE,
+                ],
+              ),
+              ...(s.profile.heading === undefined
+                ? {}
+                : { heading: s.profile.heading }),
+            });
       if (typeof made === "string") return fail(`seam ${j}: ${made}`);
       curves.push(made);
     }
-    const corner: number = seams.find((s: IAutoMovieConstructionSplit.ISeam): boolean => s.profile !== undefined)?.profile?.corner ?? 0;
-    const reach: number | undefined = seams.find((s: IAutoMovieConstructionSplit.ISeam): boolean => s.profile !== undefined)?.profile?.reach;
-    const square: boolean = seams.find((s: IAutoMovieConstructionSplit.ISeam): boolean => s.profile !== undefined)?.profile?.square === true;
+    const corner: number =
+      seams.find(
+        (s: IAutoMovieConstructionSplit.ISeam): boolean =>
+          s.profile !== undefined,
+      )?.profile?.corner ?? 0;
+    const reach: number | undefined = seams.find(
+      (s: IAutoMovieConstructionSplit.ISeam): boolean =>
+        s.profile !== undefined,
+    )?.profile?.reach;
+    const square: boolean =
+      seams.find(
+        (s: IAutoMovieConstructionSplit.ISeam): boolean =>
+          s.profile !== undefined,
+      )?.profile?.square === true;
     const a = (j: number): number => seams[j]!.seam[0];
     const b = (j: number): number => seams[j]!.seam[1];
 
     // Each child's loop: arcs in increasing host phase, seams between them (`IAutoMovieConstructionSplit.outer`). An arc names the fork it
     // starts at, `a` or `b` and its seam.
-    type Arc = { kind: "arc"; from: number; to: number; columns: number; fork: string };
-    type Seam = { kind: "seam"; index: number; forward: boolean; columns: number };
-    const plan: (Arc | Seam)[][] = Array.from({ length: S + 1 }, (_: unknown, c: number): (Arc | Seam)[] =>
-      c === 0
-        ? [{ kind: "arc", from: a(0), to: b(0), columns: 3 * q, fork: "a0" }, { kind: "seam", index: 0, forward: false, columns: q }]
-        : c === S
-          ? [{ kind: "arc", from: b(S - 1), to: a(S - 1) + turn, columns: 3 * q, fork: "b" + (S - 1) }, { kind: "seam", index: S - 1, forward: true, columns: q }]
-          : [
-              { kind: "arc", from: a(c), to: a(c - 1), columns: q, fork: "a" + c },
-              { kind: "seam", index: c - 1, forward: true, columns: q },
-              { kind: "arc", from: b(c - 1), to: b(c), columns: q, fork: "b" + (c - 1) },
-              { kind: "seam", index: c, forward: false, columns: q },
-            ],
+    type Arc = {
+      kind: "arc";
+      from: number;
+      to: number;
+      columns: number;
+      fork: string;
+    };
+    type Seam = {
+      kind: "seam";
+      index: number;
+      forward: boolean;
+      columns: number;
+    };
+    const plan: (Arc | Seam)[][] = Array.from(
+      { length: S + 1 },
+      (_: unknown, c: number): (Arc | Seam)[] =>
+        c === 0
+          ? [
+              { kind: "arc", from: a(0), to: b(0), columns: 3 * q, fork: "a0" },
+              { kind: "seam", index: 0, forward: false, columns: q },
+            ]
+          : c === S
+            ? [
+                {
+                  kind: "arc",
+                  from: b(S - 1),
+                  to: a(S - 1) + turn,
+                  columns: 3 * q,
+                  fork: "b" + (S - 1),
+                },
+                { kind: "seam", index: S - 1, forward: true, columns: q },
+              ]
+            : [
+                {
+                  kind: "arc",
+                  from: a(c),
+                  to: a(c - 1),
+                  columns: q,
+                  fork: "a" + c,
+                },
+                { kind: "seam", index: c - 1, forward: true, columns: q },
+                {
+                  kind: "arc",
+                  from: b(c - 1),
+                  to: b(c),
+                  columns: q,
+                  fork: "b" + (c - 1),
+                },
+                { kind: "seam", index: c, forward: false, columns: q },
+              ],
     );
 
     // The children, once the host's end and seams are admitted.
     for (const child of node.children) walk(child.part);
-    const children: { index: number; surface: IAutoMovieSolidSurface; rail: number; kind: "start" | "end"; band: IAutoMovieConstructionSplitBand.IStrip & { phases: number[] } }[] = [];
+    const children: {
+      index: number;
+      surface: IAutoMovieSolidSurface;
+      rail: number;
+      kind: "start" | "end";
+      band: IAutoMovieConstructionSplitBand.IStrip & { phases: number[] };
+    }[] = [];
     for (const [c, child] of node.children.entries()) {
       const index: number | undefined = state.faces.get(child.partFace);
-      const chain: IAutoMovieLoftChain | undefined = state.chains.get(child.partFace);
-      if (index === undefined || index < snapshot.faces || chain === undefined) return fail(`the child face ${child.partFace} was not realized`);
-      const kind: "start" | "end" = child.partEnd === "bottom" ? "start" : "end";
-      if (cut(body, index, kind)) return fail(`the child face ${child.partFace}'s ${child.partEnd} side is already cut away`);
+      const chain: IAutoMovieLoftChain | undefined = state.chains.get(
+        child.partFace,
+      );
+      if (index === undefined || index < snapshot.faces || chain === undefined)
+        return fail(`the child face ${child.partFace} was not realized`);
+      const kind: "start" | "end" =
+        child.partEnd === "bottom" ? "start" : "end";
+      if (cut(body, index, kind))
+        return fail(
+          `the child face ${child.partFace}'s ${child.partEnd} side is already cut away`,
+        );
       const surface: IAutoMovieSolidSurface = body.faces[index]!.surface;
       const into: 1 | -1 = child.partEnd === "bottom" ? 1 : -1;
-      const rail: number = end(chain, child.partEnd) + into * child.rail * AutoMovieConstructionViews.SCALE;
-      const [first, last]: [number, number] = surface.domain ?? [chain.layers[0]!.y, chain.layers[chain.layers.length - 1]!.y];
-      if (!(rail > first && rail < last)) return fail(`the child face ${child.partFace}'s rail at station ${rail} mm lies outside its domain [${first}, ${last}] mm`);
-      const band: (IAutoMovieConstructionSplitBand.IStrip & { phases: number[] }) | string = AutoMovieConstructionSplitBand.fan(
+      const rail: number =
+        end(chain, child.partEnd) +
+        into * child.rail * AutoMovieConstructionViews.SCALE;
+      const [first, last]: [number, number] = surface.domain ?? [
+        chain.layers[0]!.y,
+        chain.layers[chain.layers.length - 1]!.y,
+      ];
+      if (!(rail > first && rail < last))
+        return fail(
+          `the child face ${child.partFace}'s rail at station ${rail} mm lies outside its domain [${first}, ${last}] mm`,
+        );
+      const band:
+        | (IAutoMovieConstructionSplitBand.IStrip & { phases: number[] })
+        | string = AutoMovieConstructionSplitBand.fan(
         {
           name: child.band,
           host: { surface: host, station: hostStation, into: hostInto },
           child: { surface, station: rail, into },
-          stretches: plan[c]!.map((s: Arc | Seam): IAutoMovieConstructionSplitBand.IStretch => (s.kind === "arc" ? { kind: "arc", from: s.from, to: s.to, columns: s.columns } : { kind: "seam", curve: curves[s.index]!, forward: s.forward, columns: s.columns })),
+          stretches: plan[c]!.map(
+            (s: Arc | Seam): IAutoMovieConstructionSplitBand.IStretch =>
+              s.kind === "arc"
+                ? { kind: "arc", from: s.from, to: s.to, columns: s.columns }
+                : {
+                    kind: "seam",
+                    curve: curves[s.index]!,
+                    forward: s.forward,
+                    columns: s.columns,
+                  },
+          ),
           corner,
           ...(reach === undefined ? {} : { reach }),
           ...(square ? { square } : {}),
           ...(child.crease === undefined ? {} : { crease: child.crease }),
-          ...(child.correspondence === undefined ? {} : { correspondence: child.correspondence }),
+          ...(child.correspondence === undefined
+            ? {}
+            : { correspondence: child.correspondence }),
         },
         n,
       );
@@ -489,8 +641,32 @@ function fan(
     }
 
     // Each band's column: its stretch and the index in it.
-    const columns: { stretch: Arc | Seam; j: number; previous: Arc | Seam }[][] = plan.map((stretches: (Arc | Seam)[]): { stretch: Arc | Seam; j: number; previous: Arc | Seam }[] =>
-      stretches.flatMap((stretch: Arc | Seam, i: number): { stretch: Arc | Seam; j: number; previous: Arc | Seam }[] => Array.from({ length: stretch.columns }, (_: unknown, j: number): { stretch: Arc | Seam; j: number; previous: Arc | Seam } => ({ stretch, j, previous: stretches[(i - 1 + stretches.length) % stretches.length]! }))),
+    const columns: {
+      stretch: Arc | Seam;
+      j: number;
+      previous: Arc | Seam;
+    }[][] = plan.map(
+      (
+        stretches: (Arc | Seam)[],
+      ): { stretch: Arc | Seam; j: number; previous: Arc | Seam }[] =>
+        stretches.flatMap(
+          (
+            stretch: Arc | Seam,
+            i: number,
+          ): { stretch: Arc | Seam; j: number; previous: Arc | Seam }[] =>
+            Array.from(
+              { length: stretch.columns },
+              (
+                _: unknown,
+                j: number,
+              ): { stretch: Arc | Seam; j: number; previous: Arc | Seam } => ({
+                stretch,
+                j,
+                previous:
+                  stretches[(i - 1 + stretches.length) % stretches.length]!,
+              }),
+            ),
+        ),
     );
     // Where a seam's share index `i` (from its fork `a`, 0..q) stands in a band: its column, or past its last column the next stretch's first.
     const shareColumn = (c: number, seam: number, i: number): number | null => {
@@ -513,32 +689,81 @@ function fan(
     const ringVertex = (fork: string, j: number, phi: number): number => {
       const key: string = fork + ":" + j;
       let v: number | undefined = ring.get(key);
-      if (v === undefined) ring.set(key, (v = AutoMovieSolidMesh.vertex(mesh, host.jet(hostStation, phi).p, hostOwner, hostStation, phi)));
+      if (v === undefined)
+        ring.set(
+          key,
+          (v = AutoMovieSolidMesh.vertex(
+            mesh,
+            host.jet(hostStation, phi).p,
+            hostOwner,
+            hostStation,
+            phi,
+          )),
+        );
       return v;
     };
     // The fork an arc ends at is the first column of the arc that starts there.
-    const arcs: Arc[] = plan.flatMap((stretches: (Arc | Seam)[]): Arc[] => stretches.filter((s: Arc | Seam): s is Arc => s.kind === "arc"));
+    const arcs: Arc[] = plan.flatMap((stretches: (Arc | Seam)[]): Arc[] =>
+      stretches.filter((s: Arc | Seam): s is Arc => s.kind === "arc"),
+    );
     const forkOf = (phi: number): string => {
-      const at: Arc | undefined = arcs.find((x: Arc): boolean => Math.abs(((x.from - phi) % turn + turn + Math.PI) % turn - Math.PI) < 1e-12);
+      const at: Arc | undefined = arcs.find(
+        (x: Arc): boolean =>
+          Math.abs(
+            ((((x.from - phi) % turn) + turn + Math.PI) % turn) - Math.PI,
+          ) < 1e-12,
+      );
       if (at === undefined) throw new Error("a fork that starts no arc");
       return at.fork;
     };
     const seamPoints: Map<string, number> = new Map();
-    const loops: number[][] = children.map((child: (typeof children)[number], c: number): number[] =>
-      columns[c]!.map(({ stretch, j, previous }: { stretch: Arc | Seam; j: number; previous: Arc | Seam }, k: number): number => {
-        if (stretch.kind === "arc") return ringVertex(stretch.fork, j, child.band.phases[k]!);
-        if (j === 0 && previous.kind === "arc") return ringVertex(forkOf(previous.to), 0, previous.to);
-        const i: number = stretch.forward ? j : q - j;
-        const key: string = stretch.index + ":" + i;
-        let v: number | undefined = seamPoints.get(key);
-        if (v === undefined) seamPoints.set(key, (v = AutoMovieSolidMesh.vertex(mesh, child.band.surface.jet(0, clock(k)).p, AutoMovieSolidMesh.owner(mesh, child.band.surface), 0, clock(k))));
-        return v;
-      }),
+    const loops: number[][] = children.map(
+      (child: (typeof children)[number], c: number): number[] =>
+        columns[c]!.map(
+          (
+            {
+              stretch,
+              j,
+              previous,
+            }: { stretch: Arc | Seam; j: number; previous: Arc | Seam },
+            k: number,
+          ): number => {
+            if (stretch.kind === "arc")
+              return ringVertex(stretch.fork, j, child.band.phases[k]!);
+            if (j === 0 && previous.kind === "arc")
+              return ringVertex(forkOf(previous.to), 0, previous.to);
+            const i: number = stretch.forward ? j : q - j;
+            const key: string = stretch.index + ":" + i;
+            let v: number | undefined = seamPoints.get(key);
+            if (v === undefined)
+              seamPoints.set(
+                key,
+                (v = AutoMovieSolidMesh.vertex(
+                  mesh,
+                  child.band.surface.jet(0, clock(k)).p,
+                  AutoMovieSolidMesh.owner(mesh, child.band.surface),
+                  0,
+                  clock(k),
+                )),
+              );
+            return v;
+          },
+        ),
     );
-    const rails: number[][] = children.map((child: (typeof children)[number]): number[] => {
-      const owner: number = AutoMovieSolidMesh.owner(mesh, child.surface);
-      return child.band.childPhases.map((psi: number): number => AutoMovieSolidMesh.vertex(mesh, child.surface.jet(child.rail, psi).p, owner, child.rail, psi));
-    });
+    const rails: number[][] = children.map(
+      (child: (typeof children)[number]): number[] => {
+        const owner: number = AutoMovieSolidMesh.owner(mesh, child.surface);
+        return child.band.childPhases.map((psi: number): number =>
+          AutoMovieSolidMesh.vertex(
+            mesh,
+            child.surface.jet(child.rail, psi).p,
+            owner,
+            child.rail,
+            psi,
+          ),
+        );
+      },
+    );
 
     // The band faces.
     const faces: number[] = children.map(
@@ -546,20 +771,53 @@ function fan(
         body.faces.push({
           surface: child.band.surface,
           stations: graded(child.band.length, node.rows, child.band.loop),
-          phases: Array.from({ length: n }, (_: unknown, k: number): number => clock(k)),
+          phases: Array.from({ length: n }, (_: unknown, k: number): number =>
+            clock(k),
+          ),
           cycles: [],
         }) - 1,
     );
 
     // The host's end cycle: every arc's columns in increasing host phase.
     const ordered: { c: number; k: number }[] = children
-      .flatMap((_: (typeof children)[number], c: number): { c: number; k: number }[] => columns[c]!.flatMap((col: { stretch: Arc | Seam }, k: number): { c: number; k: number }[] => (col.stretch.kind === "arc" ? [{ c, k }] : [])))
-      .sort((x: { c: number; k: number }, y: { c: number; k: number }): number => children[x.c]!.band.phases[x.k]! - children[y.c]!.band.phases[y.k]!);
+      .flatMap(
+        (_: (typeof children)[number], c: number): { c: number; k: number }[] =>
+          columns[c]!.flatMap(
+            (
+              col: { stretch: Arc | Seam },
+              k: number,
+            ): { c: number; k: number }[] =>
+              col.stretch.kind === "arc" ? [{ c, k }] : [],
+          ),
+      )
+      .sort(
+        (x: { c: number; k: number }, y: { c: number; k: number }): number =>
+          children[x.c]!.band.phases[x.k]! - children[y.c]!.band.phases[y.k]!,
+      );
     body.faces[hostIndex]!.cycles.push({
       kind: hostKind,
-      vertices: ordered.map(({ c, k }: { c: number; k: number }): number => loops[c]![k]!),
-      chart: ordered.map(({ c, k }: { c: number; k: number }): [number, number] => [hostStation, children[c]!.band.phases[k]!]),
-      neighbours: ordered.map(({ c, k }: { c: number; k: number }): IAutoMovieSolidCycle.INeighbour => ({ face: faces[c]!, from: [0, clock(k)], to: [0, clock(k + 1)] })),
+      vertices: ordered.map(
+        ({ c, k }: { c: number; k: number }): number => loops[c]![k]!,
+      ),
+      chart: ordered.map(
+        ({ c, k }: { c: number; k: number }): [number, number] => [
+          hostStation,
+          children[c]!.band.phases[k]!,
+        ],
+      ),
+      neighbours: ordered.map(
+        ({
+          c,
+          k,
+        }: {
+          c: number;
+          k: number;
+        }): IAutoMovieSolidCycle.INeighbour => ({
+          face: faces[c]!,
+          from: [0, clock(k)],
+          to: [0, clock(k + 1)],
+        }),
+      ),
     });
 
     children.forEach((child: (typeof children)[number], c: number): void => {
@@ -568,45 +826,98 @@ function fan(
         {
           kind: "start",
           vertices: loop,
-          chart: loop.map((_: number, k: number): [number, number] => [0, clock(k)]),
-          neighbours: loop.map((_: number, k: number): IAutoMovieSolidCycle.INeighbour => {
-            const { stretch } = columns[c]![k]!;
-            if (stretch.kind === "arc") return { face: hostIndex, from: [hostStation, child.band.phases[k]!], to: [hostStation, child.band.phases[k + 1]!] };
-            // On a seam: the same two points in the other band beside it.
-            const j: number = columns[c]![k]!.j;
-            const i1: number = stretch.forward ? j : q - j;
-            const i2: number = stretch.forward ? j + 1 : q - j - 1;
-            const [left, right]: [number, number] = beside(stretch.index);
-            const other: number = c === left ? right : left;
-            const otherStretch: Seam = plan[other]!.find((s: Arc | Seam): s is Seam => s.kind === "seam" && s.index === stretch.index)!;
-            const from: number = clock(shareColumn(other, stretch.index, i1)!);
-            return { face: faces[other]!, from: [0, from], to: [0, from + (otherStretch.forward ? i2 - i1 : i1 - i2) * step] };
-          }),
+          chart: loop.map((_: number, k: number): [number, number] => [
+            0,
+            clock(k),
+          ]),
+          neighbours: loop.map(
+            (_: number, k: number): IAutoMovieSolidCycle.INeighbour => {
+              const { stretch } = columns[c]![k]!;
+              if (stretch.kind === "arc")
+                return {
+                  face: hostIndex,
+                  from: [hostStation, child.band.phases[k]!],
+                  to: [hostStation, child.band.phases[k + 1]!],
+                };
+              // On a seam: the same two points in the other band beside it.
+              const j: number = columns[c]![k]!.j;
+              const i1: number = stretch.forward ? j : q - j;
+              const i2: number = stretch.forward ? j + 1 : q - j - 1;
+              const [left, right]: [number, number] = beside(stretch.index);
+              const other: number = c === left ? right : left;
+              const otherStretch: Seam = plan[other]!.find(
+                (s: Arc | Seam): s is Seam =>
+                  s.kind === "seam" && s.index === stretch.index,
+              )!;
+              const from: number = clock(
+                shareColumn(other, stretch.index, i1)!,
+              );
+              return {
+                face: faces[other]!,
+                from: [0, from],
+                to: [
+                  0,
+                  from + (otherStretch.forward ? i2 - i1 : i1 - i2) * step,
+                ],
+              };
+            },
+          ),
         },
         {
           kind: "end",
           vertices: rails[c]!.slice(),
-          chart: rails[c]!.map((_: number, k: number): [number, number] => [child.band.length, clock(k)]),
-          neighbours: rails[c]!.map((_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({
-            face: child.index,
-            from: [child.rail, child.band.childPhases[k]!],
-            to: [child.rail, k + 1 < n ? child.band.childPhases[k + 1]! : child.band.childPhases[0]! + Math.sign(child.band.childPhases[n - 1]! - child.band.childPhases[0]!) * turn],
-          })),
+          chart: rails[c]!.map((_: number, k: number): [number, number] => [
+            child.band.length,
+            clock(k),
+          ]),
+          neighbours: rails[c]!.map(
+            (_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({
+              face: child.index,
+              from: [child.rail, child.band.childPhases[k]!],
+              to: [
+                child.rail,
+                k + 1 < n
+                  ? child.band.childPhases[k + 1]!
+                  : child.band.childPhases[0]! +
+                    Math.sign(
+                      child.band.childPhases[n - 1]! -
+                        child.band.childPhases[0]!,
+                    ) *
+                      turn,
+              ],
+            }),
+          ),
         },
       );
 
       // The child's rail cycle in increasing child phase.
-      const rising: boolean = child.band.childPhases[n - 1]! > child.band.childPhases[0]!;
-      const order: number[] = Array.from({ length: n }, (_: unknown, j: number): number => (rising ? j : n - 1 - j));
+      const rising: boolean =
+        child.band.childPhases[n - 1]! > child.band.childPhases[0]!;
+      const order: number[] = Array.from(
+        { length: n },
+        (_: unknown, j: number): number => (rising ? j : n - 1 - j),
+      );
       body.faces[child.index]!.cycles.push({
         kind: child.kind,
         vertices: order.map((k: number): number => rails[c]![k]!),
-        chart: order.map((k: number): [number, number] => [child.rail, child.band.childPhases[k]!]),
-        neighbours: order.map((k: number, j: number): IAutoMovieSolidCycle.INeighbour => {
-          const next: number = order[(j + 1) % n]!;
-          const wraps: boolean = j + 1 === n;
-          return { face: faces[c]!, from: [child.band.length, clock(k)], to: [child.band.length, clock(next) + (wraps ? (rising ? turn : -turn) : 0)] };
-        }),
+        chart: order.map((k: number): [number, number] => [
+          child.rail,
+          child.band.childPhases[k]!,
+        ]),
+        neighbours: order.map(
+          (k: number, j: number): IAutoMovieSolidCycle.INeighbour => {
+            const next: number = order[(j + 1) % n]!;
+            const wraps: boolean = j + 1 === n;
+            return {
+              face: faces[c]!,
+              from: [child.band.length, clock(k)],
+              to: [
+                child.band.length,
+                clock(next) + (wraps ? (rising ? turn : -turn) : 0),
+              ],
+            };
+          },
+        ),
       });
       state.faces.set(node.children[c]!.band, faces[c]!);
       state.chains.set(node.children[c]!.band, child.band.chain);
@@ -619,9 +930,15 @@ function fan(
     seams.forEach((s: IAutoMovieConstructionSplit.ISeam, j: number): void => {
       const fair: number | [number, number] | undefined = s.profile?.fair;
       if (fair === undefined) return;
-      const chord: number = AutoMovieSolidVector.norm(AutoMovieSolidVector.sub(curves[j]!.ends[1], curves[j]!.ends[0]));
-      const shares: [number, number] = typeof fair === "number" ? [fair, fair] : fair;
-      (state.fairs ??= []).push({ vertices: [ring.get("a" + j + ":0")!], radius: shares[0] * chord }, { vertices: [ring.get("b" + j + ":0")!], radius: shares[1] * chord });
+      const chord: number = AutoMovieSolidVector.norm(
+        AutoMovieSolidVector.sub(curves[j]!.ends[1], curves[j]!.ends[0]),
+      );
+      const shares: [number, number] =
+        typeof fair === "number" ? [fair, fair] : fair;
+      (state.fairs ??= []).push(
+        { vertices: [ring.get("a" + j + ":0")!], radius: shares[0] * chord },
+        { vertices: [ring.get("b" + j + ":0")!], radius: shares[1] * chord },
+      );
     });
   } catch (error: unknown) {
     AutoMovieConstructionState.restore(body, state, snapshot);
@@ -640,15 +957,24 @@ function fan(
 function graded(length: number, rows: number, loop: readonly Vec3[]): number[] {
   let perimeter: number = 0;
   loop.forEach((p: Vec3, k: number): void => {
-    perimeter += AutoMovieSolidVector.norm(AutoMovieSolidVector.sub(loop[(k + 1) % loop.length]!, p));
+    perimeter += AutoMovieSolidVector.norm(
+      AutoMovieSolidVector.sub(loop[(k + 1) % loop.length]!, p),
+    );
   });
   const coarse: number = length / rows;
   const stations: number[] = [0];
-  for (let h: number = Math.min(coarse, perimeter / loop.length); stations.at(-1)! < length - 1e-9; h = Math.min(coarse, 1.5 * h)) stations.push(stations.at(-1)! + h);
+  for (
+    let h: number = Math.min(coarse, perimeter / loop.length);
+    stations.at(-1)! < length - 1e-9;
+    h = Math.min(coarse, 1.5 * h)
+  )
+    stations.push(stations.at(-1)! + h);
   // The last station is the band's length itself, never its scaled image: `s * (length / s)` may round past the length, outside the
   // band's own domain, and its face's grid was then refused ("unavailable source physical2"), as f1's -Z little finger's band was.
   const scale: number = length / stations.at(-1)!;
-  return stations.map((s: number, k: number): number => (k === stations.length - 1 ? length : s * scale));
+  return stations.map((s: number, k: number): number =>
+    k === stations.length - 1 ? length : s * scale,
+  );
 }
 /** A real pole cannot be split. */
 function closed(chain: IAutoMovieLoftChain, side: "bottom" | "top"): boolean {

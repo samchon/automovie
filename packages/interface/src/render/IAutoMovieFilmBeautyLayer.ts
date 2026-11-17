@@ -1,5 +1,3 @@
-
-
 /**
  * The minimum film-layer shape needed to decide beauty composition.
  *

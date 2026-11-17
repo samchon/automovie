@@ -1,6 +1,16 @@
-import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-import { Transform, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Transform,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { seated } from "../../everyday/seated";
@@ -294,7 +304,10 @@ function obstacle(box: {
       {
         id: "top",
         kind: "surface",
-        frame: Transform.of({ x: 0, y: box.height, z: box.depth / 2 }, identity),
+        frame: Transform.of(
+          { x: 0, y: box.height, z: box.depth / 2 },
+          identity,
+        ),
         extent: null,
         depth: box.depth,
       },

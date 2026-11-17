@@ -5,7 +5,7 @@ import type { IAutoMovieServiceSystem } from "./IAutoMovieServiceSystem";
 export namespace IAutoMovieServiceSystemLoad {
   /**
    * Service graph and selected flow policy for declared demand aggregation.
-   * 
+   *
    * The load is read at the ports facing **opposite to the root**, because that
    * is the end a system is loaded from. A supply main, a lighting circuit and a
    * supply air trunk are loaded by what their `in` ports draw; a drainage stack,
@@ -13,14 +13,14 @@ export namespace IAutoMovieServiceSystemLoad {
    * Summing `in` ports for every system would leave every `to-root` system
    * measured against a load of zero — a capacity check that cannot fail is worse
    * than none, because it reads as one that passed.
-   * 
+   *
    * A fitting merely passing the medium on — a tee, a valve, a damper — declares
    * `0` and contributes nothing, so the water that reaches a basin through a
    * shut-off is counted where the basin draws it and not again at the valve. A
    * `bidirectional` port is counted at neither end: it is the fitting on a ring
    * that may be fed from either side, and a tap's draw is stated on the port that
    * draws it rather than on the ring it hangs off.
-   * 
+   *
    * This is a declaration check and nothing more. No diversity, no simultaneity
    * and no head loss enter it; `serviceAnalysisSupport` names the solver that
    * would as `unsupported`.

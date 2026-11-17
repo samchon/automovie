@@ -1,7 +1,19 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanRest, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 import { physicalShapeSegmentDistance } from "@automovie/engine";
-
-import { HumanChain, HumanColliders, HumanHand, HumanPerformance, rest } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanRest,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanColliders,
+  HumanHand,
+  HumanPerformance,
+  rest,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -39,33 +51,33 @@ export function test_human_motion_rest_clasp(): void {
       ["claspedBehind", "flat"],
       ["claspedFront", "relaxed"],
     ] as const) {
-      const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-        seed: "clasp",
-        performers: [
-          {
-            subject: "a",
-            body,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-        ],
-        composition: HumanChain.subject("a").rest({
-          left: place,
-          right: place,
-          seconds: 1.5,
-        }).node,
-      });
+      const performance: IAutoMovieMotionHumanPerformance =
+        new HumanPerformance({
+          seed: "clasp",
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
+          composition: HumanChain.subject("a").rest({
+            left: place,
+            right: place,
+            seconds: 1.5,
+          }).node,
+        });
       const t: number = performance.duration - 0.05;
-      const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> = performance.bones(
-        "a",
-        t,
-      );
-      const goals: Partial<Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanRest.IGoal>> = rest.goals(
-        body,
-        performance.posture("a", t),
-        { left: place, right: place },
-      );
+      const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
+        performance.bones("a", t);
+      const goals: Partial<
+        Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanRest.IGoal>
+      > = rest.goals(body, performance.posture("a", t), {
+        left: place,
+        right: place,
+      });
       for (const side of ["left", "right"] as const) {
         const goal: IAutoMovieMotionHumanRest.IGoal = goals[side]!;
         if (goal.shape !== shape)

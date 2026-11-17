@@ -1,5 +1,12 @@
-import type { IAutoMoviePhysicalHullFaces, IAutoMoviePhysicalProfile, AutoMovieHumanoidBone, IAutoMovieBodyMeasure, IAutoMovieBone, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBodyMeasure,
+  IAutoMovieBone,
+  IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { physicalHullFaces } from "../physics/physicalHullFaces";
@@ -63,10 +70,13 @@ export function measureAutoMovieHumanoidBody(
     a: AutoMovieHumanoidBone,
     b: AutoMovieHumanoidBone,
   ): number => Vector3.length(Vector3.subtract(at(a), at(b)));
-  const segment = (name: AutoMovieHumanoidBone): IAutoMoviePhysicalProfile.ISegment => {
-    const s: IAutoMoviePhysicalProfile.ISegment | undefined = profile.segments.find(
-      (x: IAutoMoviePhysicalProfile.ISegment): boolean => x.bone === name,
-    );
+  const segment = (
+    name: AutoMovieHumanoidBone,
+  ): IAutoMoviePhysicalProfile.ISegment => {
+    const s: IAutoMoviePhysicalProfile.ISegment | undefined =
+      profile.segments.find(
+        (x: IAutoMoviePhysicalProfile.ISegment): boolean => x.bone === name,
+      );
     if (s === undefined) throw new Error(`The humanoid profile lacks ${name}`);
     return s;
   };
@@ -90,43 +100,49 @@ export function measureAutoMovieHumanoidBody(
   };
   const radius = (name: AutoMovieHumanoidBone): number =>
     Math.max(
-      ...segment(name).shapes.map((shape: IAutoMoviePhysicalProfile.IShape): number => {
-        if (shape.kind === "box")
-          return Math.min(
-            shape.halfExtents.x,
-            shape.halfExtents.y,
-            shape.halfExtents.z,
-          );
-        if (shape.kind === "sphere" || shape.kind === "capsule")
-          return shape.radius;
-        if (shape.kind === "hull") {
-          // Half the hull's least width: the narrowest slab between a face
-          // plane and the vertex farthest behind it.
-          const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(shape.points);
-          return (
-            Math.min(
-              ...hull.faces.map(
-                (face: IAutoMoviePhysicalHullFaces.IFace): number =>
-                  face.offset -
-                  Math.min(
-                    ...hull.vertices.map((vertex: IAutoMovieVector3): number =>
-                      Vector3.dot(face.normal, vertex),
+      ...segment(name).shapes.map(
+        (shape: IAutoMoviePhysicalProfile.IShape): number => {
+          if (shape.kind === "box")
+            return Math.min(
+              shape.halfExtents.x,
+              shape.halfExtents.y,
+              shape.halfExtents.z,
+            );
+          if (shape.kind === "sphere" || shape.kind === "capsule")
+            return shape.radius;
+          if (shape.kind === "hull") {
+            // Half the hull's least width: the narrowest slab between a face
+            // plane and the vertex farthest behind it.
+            const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
+              shape.points,
+            );
+            return (
+              Math.min(
+                ...hull.faces.map(
+                  (face: IAutoMoviePhysicalHullFaces.IFace): number =>
+                    face.offset -
+                    Math.min(
+                      ...hull.vertices.map(
+                        (vertex: IAutoMovieVector3): number =>
+                          Vector3.dot(face.normal, vertex),
+                      ),
                     ),
-                  ),
-              ),
-            ) / 2
-          );
-        }
-        shape satisfies never;
-        throw new Error("Unknown physical shape kind");
-      }),
+                ),
+              ) / 2
+            );
+          }
+          shape satisfies never;
+          throw new Error("Unknown physical shape kind");
+        },
+      ),
     );
   const top: number = Math.max(
-    ...profile.segments.flatMap((s: IAutoMoviePhysicalProfile.ISegment): number[] =>
-      s.shapes.map(
-        (shape: IAutoMoviePhysicalProfile.IShape): number =>
-          physicalShapeBounds(s.neutral, shape).max.y,
-      ),
+    ...profile.segments.flatMap(
+      (s: IAutoMoviePhysicalProfile.ISegment): number[] =>
+        s.shapes.map(
+          (shape: IAutoMoviePhysicalProfile.IShape): number =>
+            physicalShapeBounds(s.neutral, shape).max.y,
+        ),
     ),
   );
   const head: { min: IAutoMovieVector3; max: IAutoMovieVector3 } =
@@ -174,7 +190,8 @@ export function measureAutoMovieHumanoidBody(
     );
     if (
       !profile.segments.some(
-        (x: IAutoMoviePhysicalProfile.ISegment): boolean => x.bone === bone(side, "Toes"),
+        (x: IAutoMoviePhysicalProfile.ISegment): boolean =>
+          x.bone === bone(side, "Toes"),
       )
     )
       return rear;

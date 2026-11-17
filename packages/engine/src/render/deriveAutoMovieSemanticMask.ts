@@ -1,4 +1,17 @@
-import { type IAutoMovieRenderSubject, AutoMovieSemanticKind, IAutoMovieBuildingUnit, IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieCompiledInstanceSet, IAutoMovieSemanticMask, IAutoMovieSemanticMaskEntry, IAutoMovieSemanticMaskGap, IAutoMovieSemanticMaskSlot, IAutoMovieSpace } from "@automovie/interface";
+import {
+  AutoMovieSemanticKind,
+  IAutoMovieBuildingUnit,
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMovieCompiledInstanceSet,
+  type IAutoMovieRenderSubject,
+  IAutoMovieSemanticMask,
+  IAutoMovieSemanticMaskEntry,
+  IAutoMovieSemanticMaskGap,
+  IAutoMovieSemanticMaskSlot,
+  IAutoMovieSpace,
+} from "@automovie/interface";
 
 import { assertAutoMovieSemanticMaskCapacity } from "./assertAutoMovieSemanticMaskCapacity";
 import { autoMovieFluidSurfaceNodeName } from "./autoMovieFluidSurfaceNodeName";

@@ -1,4 +1,12 @@
-import type { AutoMovieMotionHumanChannel, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanRefusal, IAutoMovieMotionHumanSegment, IAutoMovieResolveSchedule, IAutoMovieSchedule } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanChannel,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolveSchedule,
+  IAutoMovieSchedule,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
@@ -155,7 +163,9 @@ export namespace HumanPerformanceLayers {
       typeof scheduled.layer === "function"
         ? scheduled.layer({ from, to })
         : scheduled.layer;
-    const located = (refusal: IAutoMovieMotionHumanRefusal.IProps): IAutoMovieMotionHumanRefusal =>
+    const located = (
+      refusal: IAutoMovieMotionHumanRefusal.IProps,
+    ): IAutoMovieMotionHumanRefusal =>
       new HumanRefusal({ performer: person.performer.subject, ...refusal });
     if (!(to > from))
       throw located({

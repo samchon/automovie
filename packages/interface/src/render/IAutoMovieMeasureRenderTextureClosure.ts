@@ -24,7 +24,7 @@ export namespace IAutoMovieMeasureRenderTextureClosure {
    * mip-linear uploads and temporary linear conversion uploads can occupy distinct
    * keys even after properties match. Count each possible state once with every
    * equivalent material/source consumer; this is an upper bound, not a census.
-   * 
+   *
    * Missing object identities in a multi-resident closure leave required bytes
    * unknown. Legacy single-shot facts describe a fresh context. Opaque object
    * tokens are used only for equality; stable resident owners identify the result.

@@ -1,10 +1,19 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
+import { getConstraint, resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
-  getConstraint,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-
-import { HumanChain, HumanForceTrunk, HumanPerformance, HumanSocial, armWrestle, seated } from "@automovie/motions";
+  HumanChain,
+  HumanForceTrunk,
+  HumanPerformance,
+  HumanSocial,
+  armWrestle,
+  seated,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -99,7 +108,8 @@ export function test_human_motion_arm_wrestle_force(): void {
       continue;
     }
     const instant = (who: "a" | "b", event: string): number => {
-      const placed: IAutoMovieMotionHumanSegment.ISegment = film.segments(who)[1]!;
+      const placed: IAutoMovieMotionHumanSegment.ISegment =
+        film.segments(who)[1]!;
       return (
         placed.start +
         (placed.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -107,8 +117,11 @@ export function test_human_motion_arm_wrestle_force(): void {
           placed.plan.duration
       );
     };
-    const bendOf = (who: "a" | "b", seconds: number, bone: "spine" | "chest"): number =>
-      film.posture(who, seconds).joints[bone]?.[1] ?? 0;
+    const bendOf = (
+      who: "a" | "b",
+      seconds: number,
+      bone: "spine" | "chest",
+    ): number => film.posture(who, seconds).joints[bone]?.[1] ?? 0;
 
     // The derived share: the torque the loser's shoulder resists with, held
     // by the stiffness integrated over the bend.

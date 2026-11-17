@@ -1,5 +1,7 @@
-import type { IAutoMovieQuadraticHeap, IAutoMovieCreateQuadraticMemory } from "@automovie/interface";
-
+import type {
+  IAutoMovieCreateQuadraticMemory,
+  IAutoMovieQuadraticHeap,
+} from "@automovie/interface";
 
 /**
  * Create an independent synchronous TypeScript workspace owner. Byte requests

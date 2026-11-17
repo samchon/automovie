@@ -1,6 +1,14 @@
-import type { IAutoMovieResolvedBone, IAutoMovieSurfaceNetwork, IAutoMovieSurfaceRig, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-import { rigAutoMovieSurfaceNetwork, sampleAutoMovieSurfaceNetwork } from "@automovie/engine";
-
+import {
+  rigAutoMovieSurfaceNetwork,
+  sampleAutoMovieSurfaceNetwork,
+} from "@automovie/engine";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieSurfaceNetwork,
+  IAutoMovieSurfaceRig,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/namedFacts";

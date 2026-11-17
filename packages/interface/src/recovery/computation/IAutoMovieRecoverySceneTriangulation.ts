@@ -6,11 +6,9 @@
  * @evidence contracts/development/common.md#meaningful-documentation Members define finite qualified point ownership and null/refusal meaning.
  */
 export interface IAutoMovieRecoverySceneTriangulation {
- 
- /** Qualified point in common seed-baseline units, null on refusal. */
+  /** Qualified point in common seed-baseline units, null on refusal. */
   point: [number, number, number] | null;
 
- 
- /** Available reasons for withholding the candidate. */
+  /** Available reasons for withholding the candidate. */
   reasons: string[];
 }

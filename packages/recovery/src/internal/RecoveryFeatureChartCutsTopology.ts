@@ -1,7 +1,5 @@
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
-
-
 type Row = { a: number; b: number; face: number };
 type Topology = {
   edges: Map<string, Row[]>;
@@ -199,7 +197,8 @@ export function RecoveryFeatureChartCutsTopology(
       faceComponent,
       cycles,
       areas,
-      normals };
+      normals,
+    };
   };
 
   return analyze;

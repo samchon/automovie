@@ -1,6 +1,17 @@
-import type { IAutoMovieRigLocalTransform, AutoMovieHumanoidBone, IAutoMovieMesh, IAutoMovieModel, IAutoMovieModelPart } from "@automovie/interface";
-
-import { AutoMovieSkinnedMesh, type IAutoMovieModelObject, applyAutoMovieRigLocals, buildModel, collectAutoMovieOwnedResources } from "@automovie/render";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMesh,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieRigLocalTransform,
+} from "@automovie/interface";
+import {
+  AutoMovieSkinnedMesh,
+  type IAutoMovieModelObject,
+  applyAutoMovieRigLocals,
+  buildModel,
+  collectAutoMovieOwnedResources,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

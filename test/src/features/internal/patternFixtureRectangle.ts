@@ -1,6 +1,5 @@
 import type { IAutoMoviePatternPoint } from "@automovie/interface";
 
-
 /**
  * Author four planar corners from the supplied U/V bounds in metre coordinates.
  *

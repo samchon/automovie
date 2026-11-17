@@ -1,7 +1,8 @@
-import type { IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadNoseFrame, IAutoMovieHumanHeadPrior } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadNoseFrame,
+  IAutoMovieHumanHeadPrior,
+} from "@automovie/interface";
 
 /**
  * The nose's own frame: origin at the pronasale's height, the axis running
@@ -15,8 +16,6 @@ import type { IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadNoseFrame, IAutoMovi
  * half width and the tip's lead past the face. Publishes {@link IFrame}.
  */
 export namespace AutoMovieHumanHeadNoseFrame {
-  
-
   /**
    * The nose's frame at a height.
    *

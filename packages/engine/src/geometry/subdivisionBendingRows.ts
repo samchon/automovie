@@ -1,4 +1,5 @@
 import type { IAutoMovieSubdivisionLevel } from "@automovie/interface";
+
 /**
  * Frozen-metric discrete bending residuals M^(-1/2) C on a quad cage.
  * C is cotangent stiffness and M barycentric area mass. The diagonal 0–2

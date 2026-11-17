@@ -1,4 +1,10 @@
-import type { IAutoMovieAdvancePhysicalBalance, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMovieSamplePhysicalTarget } from "@automovie/interface";
+import type {
+  IAutoMovieAdvancePhysicalBalance,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieSamplePhysicalTarget,
+} from "@automovie/interface";
+
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
 import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
@@ -28,7 +34,9 @@ export function trackPhysicalContactTargets(
   revision: number = 0,
   scene?: Record<string, Record<string, IAutoMoviePhysicalProfile.ITransform>>,
   state?: IAutoMovieAdvancePhysicalBalance.IState,
-): Record<string, Record<string, IAutoMoviePhysicalProfile.ITransform>> | undefined {
+):
+  | Record<string, Record<string, IAutoMoviePhysicalProfile.ITransform>>
+  | undefined {
   if (
     (!target.bindings?.length &&
       !target.pointBounds?.length &&
@@ -52,13 +60,14 @@ export function trackPhysicalContactTargets(
     );
     const support: ReturnType<typeof bound.supportPlanned.get> =
       bound.supportPlanned.get(body.id);
-    const poses: Record<string, IAutoMoviePhysicalProfile.ITransform> = authoredRoot
-      ? target.segments
-      : support?.step === step && support.revision === revision
-        ? support.targets
-        : balance?.step === step && balance.revision === revision
-          ? balance.targets
-          : target.segments;
+    const poses: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+      authoredRoot
+        ? target.segments
+        : support?.step === step && support.revision === revision
+          ? support.targets
+          : balance?.step === step && balance.revision === revision
+            ? balance.targets
+            : target.segments;
     if (authoredRoot)
       actual = {
         ...scene,

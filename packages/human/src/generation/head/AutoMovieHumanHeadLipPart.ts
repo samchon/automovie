@@ -1,13 +1,20 @@
-import type { IAutoMovieLoftFrame, IAutoMovieNaturalSpline, IAutoMovieViewAxis, IAutoMovieViewOutline, IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieConstructionOutlineParameter, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadLipContact } from "@automovie/interface";
-
-
-
-
-
-
-import { AutoMovieNaturalSpline, AutoMovieViewOutline, AutoMovieViewParameter, AutoMovieViewSection } from "@automovie/engine";
-
-
+import {
+  AutoMovieNaturalSpline,
+  AutoMovieViewOutline,
+  AutoMovieViewParameter,
+  AutoMovieViewSection,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadLipContact,
+  IAutoMovieLoftFrame,
+  IAutoMovieNaturalSpline,
+  IAutoMovieViewAxis,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadLipContact } from "./AutoMovieHumanHeadLipContact";
 
@@ -36,10 +43,6 @@ import { AutoMovieHumanHeadLipContact } from "./AutoMovieHumanHeadLipContact";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned view and its call-owned spline/axis closure survive.
  */
 export namespace AutoMovieHumanHeadLipPart {
-  
-
-  
-
   /** Hidden depth inside the face, mm; the existing lip-root construction allowance. */
   const INSET: number = 3;
 
@@ -69,7 +72,10 @@ export namespace AutoMovieHumanHeadLipPart {
     plan: IAutoMovieHumanHeadLayout,
     upper: boolean,
     mass: IAutoMovieViewPart,
-    attachment: IAutoMovieHumanHeadLipContact.IContact = contact(mass, plan.stomion),
+    attachment: IAutoMovieHumanHeadLipContact.IContact = contact(
+      mass,
+      plan.stomion,
+    ),
   ): IAutoMovieViewPart {
     const half: number = plan.mouthWidth;
     const height: number = upper ? plan.upperLip : plan.lowerLip;
@@ -98,12 +104,13 @@ export namespace AutoMovieHumanHeadLipPart {
       { length: INTERVALS + 1 },
       (_: unknown, i: number): number => (Math.PI * i) / INTERVALS,
     );
-    const lower: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
-      angles,
-      angles.map((angle: number, i: number): number =>
-        i === 0 || i === INTERVALS ? 0 : height * Math.sin(angle),
-      ),
-    );
+    const lower: IAutoMovieNaturalSpline.ISpline =
+      AutoMovieNaturalSpline.create(
+        angles,
+        angles.map((angle: number, i: number): number =>
+          i === 0 || i === INTERVALS ? 0 : height * Math.sin(angle),
+        ),
+      );
     /** The border height in the engine's two-pole parameter; endpoints are exact shared corners. */
     const border: (s: number) => number = (s: number): number =>
       Math.abs(s) >= half

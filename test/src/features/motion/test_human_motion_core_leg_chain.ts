@@ -1,7 +1,16 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanLegChain, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
-
-import { HumanLegChain, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLegChain,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanLegChain,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -28,7 +37,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_core_leg_chain(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const quiet: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const quiet: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
   const right: IAutoMovieVector3 = poseBones(
     body,
     resolveHumanPosture(body, quiet),
@@ -58,7 +71,8 @@ export function test_human_motion_core_leg_chain(): void {
   for (const [label, posture] of postures) {
     const bones = poseBones(body, resolveHumanPosture(body, posture));
     for (const side of ["left", "right"] as const) {
-      const goal: IAutoMovieMotionHumanPosture.IGoal = posture.limbs[`${side}Leg`]!;
+      const goal: IAutoMovieMotionHumanPosture.IGoal =
+        posture.limbs[`${side}Leg`]!;
       const pelvis = bones.get("hips")!.worldRotation;
       const hip: IAutoMovieVector3 = bones.get(
         `${side}UpperLeg`,
@@ -67,9 +81,15 @@ export function test_human_motion_core_leg_chain(): void {
       const shown: IAutoMovieVector3 = bones.get(
         `${side}LowerLeg`,
       )!.worldPosition;
-      const knee = (swivel: IAutoMovieMotionHumanLegChain.ISwivel): IAutoMovieVector3 =>
+      const knee = (
+        swivel: IAutoMovieMotionHumanLegChain.ISwivel,
+      ): IAutoMovieVector3 =>
         HumanLegChain.pose(body, side, pelvis, hip, ankle, swivel)!.knee;
-      const read: IAutoMovieMotionHumanLegChain.ISwivel = HumanLegChain.read(body, side, bones);
+      const read: IAutoMovieMotionHumanLegChain.ISwivel = HumanLegChain.read(
+        body,
+        side,
+        bones,
+      );
       TestValidator.predicate(
         `${label}: the ${side} knee posed from its read swivel is the shown one`,
         Vector3.length(Vector3.subtract(knee(read), shown)) <= 1e-6,

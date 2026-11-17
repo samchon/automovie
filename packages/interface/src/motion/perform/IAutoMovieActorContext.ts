@@ -1,9 +1,9 @@
-import type { AutoMovieHumanoidBone } from "../../skeleton/AutoMovieHumanoidBone";
-import type { IAutoMovieGait } from "../IAutoMovieGait";
+import type { IAutoMovieVector3 } from "../../geometry/IAutoMovieVector3";
 import type { IAutoMoviePose } from "../../pose/IAutoMoviePose";
 import type { IAutoMovieRestFrame } from "../../pose/IAutoMovieRestFrame";
+import type { AutoMovieHumanoidBone } from "../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieSkeleton } from "../../skeleton/IAutoMovieSkeleton";
-import type { IAutoMovieVector3 } from "../../geometry/IAutoMovieVector3";
+import type { IAutoMovieGait } from "../IAutoMovieGait";
 
 /**
  * Borrowed per-actor inputs to the reference action synthesizer: skeleton id, named gaits, staged metre position, ground speed, +Y facing, eye height and rest articulation. Optional rig and clinical rest frames enable constrained gaze and arm/reaction solves.

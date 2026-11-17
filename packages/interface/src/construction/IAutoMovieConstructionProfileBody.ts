@@ -10,39 +10,39 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  */
 export namespace IAutoMovieConstructionProfileBody {
   /**
-     * An actual collapsed endpoint and its existing neighboring regular ring.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Distinguishes physical tip and regular-ring stations, body vertex IDs and face-local normalized phase checks.
-     * @evidence contracts/development/design.md#principled-representation Actual shared ring edges and their original chart addresses identify the cap strip without requesting a singular tip jet.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface ProfileBody creates the arrays; ProfileSkin checks each edge against drawn open boundaries before reusing the vertices in a fan.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts The record alone proves neither a complete kept ring nor collapse at every clock; drawing checks trim intersections, tip membership and shared edge IDs.
-     */
-    export interface IEnd {
-      /** Original collapsed point belongs to this actual retained surface. */
-      surface: IAutoMovieSolidSurface;
+   * An actual collapsed endpoint and its existing neighboring regular ring.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes physical tip and regular-ring stations, body vertex IDs and face-local normalized phase checks.
+   * @evidence contracts/development/design.md#principled-representation Actual shared ring edges and their original chart addresses identify the cap strip without requesting a singular tip jet.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface ProfileBody creates the arrays; ProfileSkin checks each edge against drawn open boundaries before reusing the vertices in a fan.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record alone proves neither a complete kept ring nor collapse at every clock; drawing checks trim intersections, tip membership and shared edge IDs.
+   */
+  export interface IEnd {
+    /** Original collapsed point belongs to this actual retained surface. */
+    surface: IAutoMovieSolidSurface;
 
-      /** Actual physical station mm, not the first regular tessellation row. */
-      station: number;
-  
-      /** Actual neighboring regular ring station mm; its original cap strip is not a trimmed patch. */
-      regular: number;
-  
-      /** Positive native boundary traversal: bottom reverses the loop clock. */
-      vertices: number[];
+    /** Actual physical station mm, not the first regular tessellation row. */
+    station: number;
 
-      /** One check per arc in piece traversal order, independent of the bottom end's reversed vertex traversal. */
-      checks: {
-        /** Index of the retained face in the same body's faces array. */
-        face: number;
+    /** Actual neighboring regular ring station mm; its original cap strip is not a trimmed patch. */
+    regular: number;
 
-        /** Arc midpoint in that piece's normalized [0,1] coordinate, used at the actual tip station. */
-        phase: number;
+    /** Positive native boundary traversal: bottom reverses the loop clock. */
+    vertices: number[];
 
-        /** Shared mesh vertex ID at the arc's first endpoint. */
-        from: number;
+    /** One check per arc in piece traversal order, independent of the bottom end's reversed vertex traversal. */
+    checks: {
+      /** Index of the retained face in the same body's faces array. */
+      face: number;
 
-        /** Shared mesh vertex ID at the arc's next endpoint, possibly in the next piece. */
-        to: number;
-      }[];
-    }
+      /** Arc midpoint in that piece's normalized [0,1] coordinate, used at the actual tip station. */
+      phase: number;
+
+      /** Shared mesh vertex ID at the arc's first endpoint. */
+      from: number;
+
+      /** Shared mesh vertex ID at the arc's next endpoint, possibly in the next piece. */
+      to: number;
+    }[];
+  }
 }

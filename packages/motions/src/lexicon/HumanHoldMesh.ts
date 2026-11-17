@@ -1,6 +1,13 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHoldMesh, IAutoMovieMotionHumanInteractionMesh, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHoldMesh,
+  IAutoMovieMotionHumanInteractionMesh,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanInteractionMesh } from "../posture/HumanInteractionMesh";
 
 /**
@@ -27,7 +34,6 @@ import { HumanInteractionMesh } from "../posture/HumanInteractionMesh";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No hold has a table of its own: any key pose of two bodies adapts the same way.
  */
 export namespace HumanHoldMesh {
-
   /**
    * Adapt a hold's key pose to a pair of bodies.
    *
@@ -46,10 +52,16 @@ export namespace HumanHoldMesh {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function; the maps it returns are the caller's.
    */
   export function adapt(
-    key: readonly [IAutoMovieMotionHumanHoldMesh.IKey, IAutoMovieMotionHumanHoldMesh.IKey],
+    key: readonly [
+      IAutoMovieMotionHumanHoldMesh.IKey,
+      IAutoMovieMotionHumanHoldMesh.IKey,
+    ],
     to: readonly [IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBody],
     contacts: readonly IAutoMovieMotionHumanHoldMesh.IContact[],
-  ): [IAutoMovieMotionHumanHoldMesh.IAdapted, IAutoMovieMotionHumanHoldMesh.IAdapted] {
+  ): [
+    IAutoMovieMotionHumanHoldMesh.IAdapted,
+    IAutoMovieMotionHumanHoldMesh.IAdapted,
+  ] {
     const points: IAutoMovieVector3[] = [];
     const index: Map<string, number> = new Map();
     key.forEach((k: IAutoMovieMotionHumanHoldMesh.IKey, side: number): void => {
@@ -88,7 +100,9 @@ export namespace HumanHoldMesh {
         reference: points,
         bones,
         contacts: contacts.map(
-          (c: IAutoMovieMotionHumanHoldMesh.IContact): IAutoMovieMotionHumanInteractionMesh.IContact => ({
+          (
+            c: IAutoMovieMotionHumanHoldMesh.IContact,
+          ): IAutoMovieMotionHumanInteractionMesh.IContact => ({
             a: at(0, c.a),
             b: at(1, c.b),
             offset: Vector3.subtract(points[at(0, c.a)]!, points[at(1, c.b)]!),

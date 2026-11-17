@@ -1,4 +1,8 @@
-import type { IAutoMovieBodyMeasure, IAutoMovieMotionHumanProxemics, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieBodyMeasure,
+  IAutoMovieMotionHumanProxemics,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -43,7 +47,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanProxemics {
-
   /** Hall's zones, metres. */
   export const ZONES: Readonly<
     Record<"intimate" | "personal" | "social", readonly [number, number]>
@@ -54,7 +57,9 @@ export namespace HumanProxemics {
   };
 
   /** Fixed named gaps, metres. */
-  export const GAPS: Readonly<Record<Exclude<IAutoMovieMotionHumanProxemics.Band, "handing">, number>> = {
+  export const GAPS: Readonly<
+    Record<Exclude<IAutoMovieMotionHumanProxemics.Band, "handing">, number>
+  > = {
     intimate: 0.3,
     faceToFace: 0.6,
     personal: 1.0,

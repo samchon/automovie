@@ -5,7 +5,7 @@ export namespace IAutoMovieCreateBoneMotion {
   /**
    * Build each bone's rigid motion from rest to pose, the transform a point or
    * a direction fixed in that bone undergoes.
-   * 
+   *
    * Bone `b` carries a point `p` to `P_b + Q_b R_b^-1 (p - O_b)`, with rest
    * origin `O_b` and rotation `R_b` and posed origin `P_b` and rotation `Q_b`
    * in model space, the rigid transform `skinAutoMovieMesh` applies per joint.

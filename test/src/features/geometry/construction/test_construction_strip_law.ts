@@ -1,5 +1,12 @@
-import type { IAutoMovieLoftChain, IAutoMovieSolidSurface } from "@automovie/interface";
-import { AutoMovieConstructionSplitBand, AutoMovieSolidBlendChain, AutoMovieSolidChain } from "@automovie/engine";
+import {
+  AutoMovieConstructionSplitBand,
+  AutoMovieSolidBlendChain,
+  AutoMovieSolidChain,
+} from "@automovie/engine";
+import type {
+  IAutoMovieLoftChain,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 type V3 = [number, number, number];
 

@@ -1,11 +1,26 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCoupled, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSignature, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
 import {
   AutoMovieGravity,
   Vector3,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
-
-import { HumanCarried, HumanChain, HumanCoupled, HumanFoot, HumanForceExchange, HumanPerformance, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanCoupled,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanCarried,
+  HumanChain,
+  HumanCoupled,
+  HumanFoot,
+  HumanForceExchange,
+  HumanPerformance,
+  HumanSignature,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -61,7 +76,10 @@ export function test_human_motion_lexicon_rows_coupled(): void {
         yaw: 0,
         proficiency: { level: "trained" as const },
       }));
-    const placed = (film: IAutoMovieMotionHumanPerformance, subject: string): string => {
+    const placed = (
+      film: IAutoMovieMotionHumanPerformance,
+      subject: string,
+    ): string => {
       const segments = film.segments(subject);
       return segments[segments.length - 1]?.name ?? "none";
     };
@@ -298,7 +316,12 @@ function resistible(body: IAutoMovieMotionHumanBody): number {
     ],
     composition: HumanChain.subject("b").stand({ seconds: 0.3 }).node,
   });
-  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(film, "b", body, 0);
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    film,
+    "b",
+    body,
+    0,
+  );
   const centre: IAutoMovieVector3 = HumanSignature.centre(reader, 0.3);
   const behind: number = HumanForceExchange.edge(
     centre,

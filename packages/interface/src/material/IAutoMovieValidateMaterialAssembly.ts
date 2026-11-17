@@ -6,7 +6,7 @@ import type { IAutoMovieMaterialSubstance } from "./IAutoMovieMaterialSubstance"
 export namespace IAutoMovieValidateMaterialAssembly {
   /**
    * Judge one layered build-up: its layers, its finishes, and its total.
-   * 
+   *
    * The checks fall into three groups the requirement names separately. Layer
    * conflicts are contradictions inside a layer: a cavity that carries a
    * substance, a solid with no thickness, a substance id that resolves to
@@ -15,10 +15,10 @@ export namespace IAutoMovieValidateMaterialAssembly {
    * another finish, a finish buried where it will never be seen, a finish spent
    * on a concealed face. Dimension conflicts are contradictions with the host: a
    * build-up whose layers do not sum to the thickness the host was drawn at.
-   * 
+   *
    * A single-layer stack presents both faces with the same layer, so its finish
    * answers for whichever of them is exposed rather than being demanded twice.
-   * 
+   *
    * A wrapping layer must belong to the run of wrapping layers starting at one
    * face; one behind a non-wrapping layer is refused. Ids must be non-blank and
    * unique within the assembly, the axis, sense, exposures and substances must
@@ -30,10 +30,10 @@ export namespace IAutoMovieValidateMaterialAssembly {
   export type IProps = {
     /** Layered build-up to judge. */
     assembly: IAutoMovieMaterialAssembly;
-  
+
     /** Substances the layers may cite; omitted skips reference resolution. */
     substances?: readonly IAutoMovieMaterialSubstance[];
-  
+
     /** Host dimension the layers must sum to; omitted skips the comparison. */
     host?: IAutoMovieAssemblyHost;
   };

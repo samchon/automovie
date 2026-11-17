@@ -1,6 +1,19 @@
-import { type IAutoMovieSampledChannel, type IAutoMovieStagedSet, type IAutoMovieResolveBeatProps, IAutoMovieBeatEndActorState, IAutoMovieBeatEndFootPlant, IAutoMovieBeatEndState, IAutoMovieClip, IAutoMovieMotion, IAutoMovieMountBinding, IAutoMoviePose, IAutoMovieSceneNode, IAutoMovieShot, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndFootPlant,
+  IAutoMovieBeatEndState,
+  IAutoMovieClip,
+  IAutoMovieMotion,
+  IAutoMovieMountBinding,
+  IAutoMoviePose,
+  type IAutoMovieResolveBeatProps,
+  type IAutoMovieSampledChannel,
+  IAutoMovieSceneNode,
+  IAutoMovieShot,
+  type IAutoMovieStagedSet,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";

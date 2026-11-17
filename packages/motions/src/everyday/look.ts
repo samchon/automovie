@@ -1,6 +1,17 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanGaze, IAutoMovieMotionHumanLook, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSkill, IAutoMovieRandom, IAutoMovieVector3 } from "@automovie/interface";
-
 import { minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanGaze,
+  IAutoMovieMotionHumanLook,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSkill,
+  IAutoMovieRandom,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { HumanBound } from "../law/HumanBound";
@@ -79,7 +90,8 @@ export namespace look {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLook.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    const recruit: IAutoMovieMotionHumanGaze.Recruit = context.params.with ?? "auto";
+    const recruit: IAutoMovieMotionHumanGaze.Recruit =
+      context.params.with ?? "auto";
     const at = (seconds: number): IAutoMovieVector3 =>
       context.aim(context.params.target, context.start + seconds).point;
     const first: { yaw: number; pitch: number } = HumanGaze.direction(

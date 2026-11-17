@@ -1,10 +1,11 @@
-import type { IAutoMovieLoftChain, AutoMovieVector3Tuple, IAutoMovieHumanEventJoinRing } from "@automovie/interface";
-
-
-
 import { AutoMovieLoftChain } from "@automovie/engine";
-import { AutoMovieHumanEventJoinVector } from "./AutoMovieHumanEventJoinVector";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanEventJoinRing,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
+import { AutoMovieHumanEventJoinVector } from "./AutoMovieHumanEventJoinVector";
 
 const { add, dot, norm, scale, smooth, sub } = AutoMovieHumanEventJoinVector;
 
@@ -17,8 +18,6 @@ const { add, dot, norm, scale, smooth, sub } = AutoMovieHumanEventJoinVector;
 export namespace AutoMovieHumanEventJoinRing {
   /** Fade length before a pinch, mm. */
   export const TAPER: number = 6;
-
-  
 
   /** Samples of the dense parent ring. */
   export const RING: number = 2048;
@@ -76,14 +75,19 @@ export namespace AutoMovieHumanEventJoinRing {
    * `guess`: its distance bounds the scan from the first step, so the arc
    * length bound passes over almost every sample.
    */
-  export function nearest(ring: IAutoMovieHumanEventJoinRing.IRing, p: AutoMovieVector3Tuple, guess?: number): IAutoMovieHumanEventJoinRing.NearestResult {
+  export function nearest(
+    ring: IAutoMovieHumanEventJoinRing.IRing,
+    p: AutoMovieVector3Tuple,
+    guess?: number,
+  ): IAutoMovieHumanEventJoinRing.NearestResult {
     const n: number = ring.points.length;
     let best: number = 0;
     let distance: number = Infinity;
     let bound: number = Infinity;
     if (guess !== undefined && guess >= 0 && guess < n) {
       const g: AutoMovieVector3Tuple = ring.points[guess]!;
-      const square: number = (g[0] - p[0]) ** 2 + (g[1] - p[1]) ** 2 + (g[2] - p[2]) ** 2;
+      const square: number =
+        (g[0] - p[0]) ** 2 + (g[1] - p[1]) ** 2 + (g[2] - p[2]) ** 2;
       best = guess;
       distance = Math.sqrt(square);
       bound = square * (1 + 1e-9);

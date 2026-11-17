@@ -1,9 +1,24 @@
-import type { AutoMovieFormationCapability, IAutoMovieCompiledFormation, IAutoMovieCompiledFormationLod, IAutoMovieFormationBounds, IAutoMovieFormationDesign, IAutoMovieFormationGrounding, IAutoMovieFormationLayout, IAutoMovieMaterializeCompiledFormation, IAutoMovieModel, IAutoMovieModelLod, IAutoMoviePlacementSummary, IAutoMovieQuaternion, IAutoMovieSummarizeCompiledSlotChunks, IAutoMovieVector3, IAutoMovieWorldSurface } from "@automovie/interface";
-
-
+import type {
+  AutoMovieFormationCapability,
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledFormationLod,
+  IAutoMovieFormationBounds,
+  IAutoMovieFormationDesign,
+  IAutoMovieFormationGrounding,
+  IAutoMovieFormationLayout,
+  IAutoMovieMaterializeCompiledFormation,
+  IAutoMovieModel,
+  IAutoMovieModelLod,
+  IAutoMoviePlacementSummary,
+  IAutoMovieQuaternion,
+  IAutoMovieSummarizeCompiledSlotChunks,
+  IAutoMovieVector3,
+  IAutoMovieWorldSurface,
+} from "@automovie/interface";
 
 import { formationSlotPosition } from "../formationSlotPosition";
 import { Quaternion } from "../math/Quaternion";
+import { Transform } from "../math/Transform";
 import { mixSeed } from "../math/mixSeed";
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
@@ -11,7 +26,6 @@ import { compiledPopulationRepresentation } from "./compiledPopulationRepresenta
 import { AUTOMOVIE_FORMATION_CHUNK_SIZE } from "./constants/AUTOMOVIE_FORMATION_CHUNK_SIZE";
 import { summarizeCompiledSlotChunks } from "./summarizeCompiledSlotChunks";
 import { summarizeCompiledSlotRange } from "./summarizeCompiledSlotRange";
-import { Transform } from "../math/Transform";
 
 /**
  * Compile one formation design into its compact, regenerable runtime record.
@@ -42,7 +56,11 @@ import { Transform } from "../math/Transform";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The flat summary is reused when no terrain changes Y; the grounded pass shares each generated point between chunk and global folds while preserving ascending running-mean order. No cache crosses mutable designs or terrain.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Cloned placement laws and selected terrain plus C chunks/H heroes transfer to the caller; transient folds and digest bytes are call-local and no resource handle is opened.
  */
-export const materializeCompiledFormation: (props: IAutoMovieMaterializeCompiledFormation.IProps) => IAutoMovieCompiledFormation = (props: IAutoMovieMaterializeCompiledFormation.IProps): IAutoMovieCompiledFormation => {
+export const materializeCompiledFormation: (
+  props: IAutoMovieMaterializeCompiledFormation.IProps,
+) => IAutoMovieCompiledFormation = (
+  props: IAutoMovieMaterializeCompiledFormation.IProps,
+): IAutoMovieCompiledFormation => {
   const formation: IAutoMovieFormationDesign = props.formation;
   const grounded: {
     formation: IAutoMovieFormationDesign & IAutoMovieFormationGrounding;
@@ -172,10 +190,10 @@ export const materializeCompiledFormation: (props: IAutoMovieMaterializeCompiled
         } => ({
           slot: hero.slot,
           actor: hero.actor,
-          transform: Transform.of(position(hero.slot), Quaternion.fromAxisAngle(
-              { x: 0, y: 1, z: 0 },
-              formation.facingDeg,
-            )),
+          transform: Transform.of(
+            position(hero.slot),
+            Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, formation.facingDeg),
+          ),
         }),
       ),
     lod: representation.lod,

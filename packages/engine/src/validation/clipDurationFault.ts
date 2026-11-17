@@ -1,4 +1,5 @@
 import type { IAutoMovieClipShapeFault } from "@automovie/interface";
+
 /**
  * Return the first sampler-duration fault or null for finite nonnegative seconds.
  *

@@ -1,6 +1,21 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanTargetGrid, IAutoMovieRandom } from "@automovie/interface";
 import { createAutoMovieRandom } from "@automovie/engine";
-import { AutoMovieMotionHumanClearance, AutoMovieMotionHumanCourse, AutoMovieMotionHumanInterrupt, AutoMovieMotionHumanRange, AutoMovieMotionHumanTarget, AutoMovieMotionHumanTargetGrid, AutoMovieMotionHumanTiming, AutoMovieMotionHumanVariation, AutoMovieMotionHumanVariationDraw, AutoMovieMotionManner } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanTargetGrid,
+  IAutoMovieRandom,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanClearance,
+  AutoMovieMotionHumanCourse,
+  AutoMovieMotionHumanInterrupt,
+  AutoMovieMotionHumanRange,
+  AutoMovieMotionHumanTarget,
+  AutoMovieMotionHumanTargetGrid,
+  AutoMovieMotionHumanTiming,
+  AutoMovieMotionHumanVariation,
+  AutoMovieMotionHumanVariationDraw,
+  AutoMovieMotionManner,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";

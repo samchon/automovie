@@ -1,6 +1,17 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionClock, AutoMovieMotionHumanLeg, AutoMovieMotionHumanLegPhrase } from "@automovie/motions";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionClock,
+  AutoMovieMotionHumanLeg,
+  AutoMovieMotionHumanLegPhrase,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -116,13 +127,8 @@ export function test_motion_compose_leg_place(): void {
   );
 
   // 2. Planted against free.
-  const planted: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanLeg.goal(
-    body,
-    posture,
-    "left",
-    stance,
-    true,
-  );
+  const planted: IAutoMovieMotionHumanPosture.IGoal =
+    AutoMovieMotionHumanLeg.goal(body, posture, "left", stance, true);
   TestValidator.predicate(
     "a planted goal declares the toes' joint as its contact",
     planted.planted === true &&
@@ -141,7 +147,10 @@ export function test_motion_compose_leg_place(): void {
     side: "left",
     from: 0.5,
     to: 2,
-    placement: (_: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanFoot.IPlacement => {
+    placement: (
+      _: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieMotionHumanFoot.IPlacement => {
       asked.push(seconds);
       return { ankle: { x: 0.1, y: 0.08, z: seconds }, rotation: identity };
     },
@@ -188,7 +197,8 @@ export function test_motion_compose_leg_place(): void {
     close(plant.from, 0.25) &&
       close(plant.to, 0.375) &&
       [0.25, 0.3, 0.375].every((t: number): boolean => {
-        const g: IAutoMovieMotionHumanPosture.IGoal = plant.write(posture, t).limbs.leftLeg!;
+        const g: IAutoMovieMotionHumanPosture.IGoal = plant.write(posture, t)
+          .limbs.leftLeg!;
         return at(g.point, 0.1, 0.08, 0.4) && g.planted === true;
       }),
   );
@@ -253,21 +263,12 @@ export function test_motion_compose_leg_place(): void {
   );
 
   // 7. Between two placements.
-  const mid: IAutoMovieMotionHumanFoot.IPlacement = AutoMovieMotionHumanLegPhrase.between(
-    stance,
-    ahead,
-    0.5,
-  );
-  const past: IAutoMovieMotionHumanFoot.IPlacement = AutoMovieMotionHumanLegPhrase.between(
-    stance,
-    ahead,
-    1.5,
-  );
-  const back: IAutoMovieMotionHumanFoot.IPlacement = AutoMovieMotionHumanLegPhrase.between(
-    stance,
-    ahead,
-    -0.5,
-  );
+  const mid: IAutoMovieMotionHumanFoot.IPlacement =
+    AutoMovieMotionHumanLegPhrase.between(stance, ahead, 0.5);
+  const past: IAutoMovieMotionHumanFoot.IPlacement =
+    AutoMovieMotionHumanLegPhrase.between(stance, ahead, 1.5);
+  const back: IAutoMovieMotionHumanFoot.IPlacement =
+    AutoMovieMotionHumanLegPhrase.between(stance, ahead, -0.5);
   TestValidator.predicate(
     "between is the midpoint turned half way",
     at(mid.ankle, 0.1, 0.08, 0.2) &&

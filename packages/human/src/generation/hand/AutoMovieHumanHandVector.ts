@@ -1,5 +1,7 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanHandVector } from "@automovie/interface";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanHandVector,
+} from "@automovie/interface";
 
 /**
  * The small vector and curve mathematics the hand's pieces share: three-vectors
@@ -8,28 +10,38 @@ import type { AutoMovieVector3Tuple, IAutoMovieHumanHandVector } from "@automovi
  * a private copy.
  */
 export namespace AutoMovieHumanHandVector {
-  
-
   /** A whole turn, radians. */
   export const TWO_PI: number = 2 * Math.PI;
 
   /** Difference. */
-  export function sub(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  export function sub(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
   /** Sum. */
-  export function plus(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  export function plus(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
   /** Scalar multiple. */
-  export function scale(a: AutoMovieVector3Tuple, s: number): AutoMovieVector3Tuple {
+  export function scale(
+    a: AutoMovieVector3Tuple,
+    s: number,
+  ): AutoMovieVector3Tuple {
     return [a[0] * s, a[1] * s, a[2] * s];
   }
 
   /** Dot product. */
-  export function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
+  export function dot(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
@@ -45,13 +57,19 @@ export namespace AutoMovieHumanHandVector {
   }
 
   /** The part of a vector across a unit heading, as a unit vector. */
-  export function across(v: AutoMovieVector3Tuple, t: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  export function across(
+    v: AutoMovieVector3Tuple,
+    t: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     const k: number = dot(v, t);
     return unit([v[0] - k * t[0], v[1] - k * t[1], v[2] - k * t[2]]);
   }
 
   /** Cross product. */
-  export function cross(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  export function cross(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],
@@ -61,7 +79,12 @@ export namespace AutoMovieHumanHandVector {
 
   /** Mean of one coordinate of a ring of points. */
   export function mean(ring: AutoMovieVector3Tuple[], c: number): number {
-    return ring.reduce((s: number, p: AutoMovieVector3Tuple): number => s + p[c]!, 0) / ring.length;
+    return (
+      ring.reduce(
+        (s: number, p: AutoMovieVector3Tuple): number => s + p[c]!,
+        0,
+      ) / ring.length
+    );
   }
 
   /** Smoothstep clamped to [0, 1]: no slope at either end. */
@@ -93,21 +116,32 @@ export namespace AutoMovieHumanHandVector {
    */
   export function hull(points: IAutoMovieHumanHandVector.HullPoints): number {
     const p: [number, number][] = [...points].sort(
-      (u: [number, number], v: [number, number]): number => u[0] - v[0] || u[1] - v[1],
+      (u: [number, number], v: [number, number]): number =>
+        u[0] - v[0] || u[1] - v[1],
     );
     if (p.length < 3) return 0;
 
-    const turn = (o: [number, number], a: [number, number], b: [number, number]): number =>
-      (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const turn = (
+      o: [number, number],
+      a: [number, number],
+      b: [number, number],
+    ): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
     const chain = (list: [number, number][]): [number, number][] => {
       const out: [number, number][] = [];
       for (const q of list) {
-        while (out.length >= 2 && turn(out[out.length - 2]!, out[out.length - 1]!, q) <= 0) out.pop();
+        while (
+          out.length >= 2 &&
+          turn(out[out.length - 2]!, out[out.length - 1]!, q) <= 0
+        )
+          out.pop();
         out.push(q);
       }
       return out;
     };
-    const ring: [number, number][] = [...chain(p).slice(0, -1), ...chain([...p].reverse()).slice(0, -1)];
+    const ring: [number, number][] = [
+      ...chain(p).slice(0, -1),
+      ...chain([...p].reverse()).slice(0, -1),
+    ];
 
     let sum: number = 0;
     ring.forEach((q: [number, number], i: number): void => {

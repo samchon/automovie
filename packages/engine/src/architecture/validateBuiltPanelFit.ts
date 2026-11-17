@@ -1,5 +1,13 @@
-import { type IAutoMovieViolationCollector, IAutoMovieBoundaryFace, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieMovablePanel, IAutoMoviePlanarPoint, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieBoundaryFace,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMovieMovablePanel,
+  IAutoMoviePlanarPoint,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { transformAutoMovieDrawingPoint } from "../drawing/transformAutoMovieDrawingPoint";
 import { Quaternion } from "../math/Quaternion";

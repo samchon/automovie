@@ -1,6 +1,17 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HumanBalance, HumanChain, HumanPartner, HumanPerformance, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanBalance,
+  HumanChain,
+  HumanPartner,
+  HumanPerformance,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -62,7 +73,8 @@ export function test_human_motion_partner_judo(): void {
     );
     return;
   }
-  const broken: IAutoMovieMotionHumanSegment.ISegment = performance.segments("u")[1]!;
+  const broken: IAutoMovieMotionHumanSegment.ISegment =
+    performance.segments("u")[1]!;
   const at = (event: string): number =>
     broken.start +
     (broken.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *

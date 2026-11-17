@@ -1,23 +1,25 @@
-import type { IAutoMovieHumanArmFrame, IAutoMovieHumanArmHandControls, IAutoMovieHumanArmWalk, IAutoMovieHumanSiteControls, IAutoMovieHumanSiteRegionControls, IAutoMovieHumanSiteViewPart } from "@automovie/interface";
-
-
-
-
-
-
+import type {
+  IAutoMovieHumanArmFrame,
+  IAutoMovieHumanArmHandControls,
+  IAutoMovieHumanArmWalk,
+  IAutoMovieHumanSiteControls,
+  IAutoMovieHumanSiteRegionControls,
+  IAutoMovieHumanSiteViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSiteRegionControls } from "../limb/AutoMovieHumanSiteRegionControls";
 
-
 /** Anatomical hand-domain selection over a common original C2 scalar owner. */
 export namespace AutoMovieHumanArmHandControls {
-  
-
   /** Close only forearm/wrist/palm constraints before either original is published. */
-  export function create(frame: IAutoMovieHumanArmFrame.IOutput): IAutoMovieHumanArmHandControls.IOutput {
-    const wrist: IAutoMovieHumanSiteViewPart.ISite | undefined = frame.source.input.sites.find(
-      (site: IAutoMovieHumanSiteViewPart.ISite): boolean => site.site === "wrist",
-    );
+  export function create(
+    frame: IAutoMovieHumanArmFrame.IOutput,
+  ): IAutoMovieHumanArmHandControls.IOutput {
+    const wrist: IAutoMovieHumanSiteViewPart.ISite | undefined =
+      frame.source.input.sites.find(
+        (site: IAutoMovieHumanSiteViewPart.ISite): boolean =>
+          site.site === "wrist",
+      );
     if (wrist === undefined)
       throw new Error("The hand chart needs its named wrist");
     const shared: IAutoMovieHumanSiteRegionControls.IOutput =
@@ -25,7 +27,9 @@ export namespace AutoMovieHumanArmHandControls {
     return {
       hand: region(shared.local, wrist.station),
       connect: shared.connect,
-      prepare(input: IAutoMovieHumanSiteViewPart.IInput): IAutoMovieHumanArmWalk.IPrepared {
+      prepare(
+        input: IAutoMovieHumanSiteViewPart.IInput,
+      ): IAutoMovieHumanArmWalk.IPrepared {
         return region(shared.prepare(input), wrist.station);
       },
     };

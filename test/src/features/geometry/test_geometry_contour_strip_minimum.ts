@@ -1,5 +1,5 @@
-import type { IAutoMovieContourLoft64 } from "@automovie/interface";
 import { tessellateAutoMovieContourStrip64 } from "@automovie/engine";
+import type { IAutoMovieContourLoft64 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
@@ -77,7 +77,9 @@ export function test_geometry_contour_strip_minimum(): void {
         );
         const emitted: O.Triangle[] = [];
         let record:
-          | NonNullable<IAutoMovieContourLoft64.IResult["stripObservations"]>[number]
+          | NonNullable<
+              IAutoMovieContourLoft64.IResult["stripObservations"]
+            >[number]
           | undefined;
         tessellateAutoMovieContourStrip64(
           a,

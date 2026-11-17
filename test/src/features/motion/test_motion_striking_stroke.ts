@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionHumanStrikingContact, IAutoMovieMotionHumanStrikingStroke, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3, superposeMinimumJerk } from "@automovie/engine";
-
+import type {
+  IAutoMovieMotionHumanStrikingContact,
+  IAutoMovieMotionHumanStrikingStroke,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { StrikingContact, StrikingStroke } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

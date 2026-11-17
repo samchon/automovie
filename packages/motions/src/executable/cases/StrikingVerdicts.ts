@@ -1,10 +1,20 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanStrikingRecord, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Vector3,
   clampPose,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanStrikingRecord,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { StrikingLimb } from "./StrikingLimb";
 
@@ -93,8 +103,9 @@ export namespace StrikingVerdicts {
     event: string,
   ): number | undefined {
     const share: number | undefined = segment.plan.events.find(
-      (e: IAutoMovieMotionHumanSegment.ISegment["plan"]["events"][number]): boolean =>
-        e.name === event,
+      (
+        e: IAutoMovieMotionHumanSegment.ISegment["plan"]["events"][number],
+      ): boolean => e.name === event,
     )?.share;
     return share === undefined
       ? undefined
@@ -197,7 +208,8 @@ export namespace StrikingVerdicts {
             detail: `a ${declared}, ${measured}; bound no stop and above 0 mm`,
           };
     }
-    const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined = strike.record;
+    const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined =
+      strike.record;
     if (strike.stop === undefined && record?.status === "short") {
       const length: number = StrikingLimb.length(
         strike.body,
@@ -247,7 +259,8 @@ export namespace StrikingVerdicts {
   export function extension(strike: IStrike): IMotionCaptureCase.IVerdict {
     const g: IAutoMovieMotionHumanSegment.ISegment = strike.segment;
     const name: string = `${strike.id} ${g.id} extension`;
-    const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined = strike.record;
+    const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined =
+      strike.record;
     if (record === undefined)
       return { name, passed: false, detail: "the plan records no aim" };
     const second: number = peak(g);
@@ -409,8 +422,8 @@ export namespace StrikingVerdicts {
     let when: number = from;
     let samples: number = 0;
     for (let t: number = from; t <= to + 1e-9; t += 1 / 48) {
-      const asked: IAutoMovieMotionHumanPosture.IGoal | undefined = g.plan.posture(t - g.start)
-        .limbs[`${side}Leg`];
+      const asked: IAutoMovieMotionHumanPosture.IGoal | undefined =
+        g.plan.posture(t - g.start).limbs[`${side}Leg`];
       if (asked === undefined) continue;
       samples++;
       const d: number = Vector3.length(

@@ -1,6 +1,13 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPunch, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPunch,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingArrest } from "./StrikingArrest";
 import { StrikingStance } from "./StrikingStance";
@@ -249,7 +256,10 @@ export namespace punchFootwork {
                     t - s,
                   );
     }
-    const base = (t: number, clock: number = t): IAutoMovieMotionHumanPosture => {
+    const base = (
+      t: number,
+      clock: number = t,
+    ): IAutoMovieMotionHumanPosture => {
       const turning: number = out(clock) - turnBack(clock);
       const moved: number = travel(t);
       const followed: number = follow(t);
@@ -257,12 +267,13 @@ export namespace punchFootwork {
       const nextLift: number = stepping
         ? lift * 4 * dragged(t) * (1 - dragged(t))
         : 0;
-      const leadFoot: IAutoMovieMotionHumanFoot.IPlacement = StrikingTarget.slide(
-        feet[lead],
-        line,
-        backing ? followed : moved,
-        backing ? nextLift : firstLift,
-      );
+      const leadFoot: IAutoMovieMotionHumanFoot.IPlacement =
+        StrikingTarget.slide(
+          feet[lead],
+          line,
+          backing ? followed : moved,
+          backing ? nextLift : firstLift,
+        );
       const slid: IAutoMovieMotionHumanFoot.IPlacement = StrikingTarget.slide(
         feet[rear],
         line,
@@ -279,7 +290,10 @@ export namespace punchFootwork {
               HEEL_RAISE * turning,
             )
           : slid;
-      const placed: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
+      const placed: Record<
+        "left" | "right",
+        IAutoMovieMotionHumanFoot.IPlacement
+      > =
         lead === "left"
           ? { left: leadFoot, right: rearFoot }
           : { left: rearFoot, right: leadFoot };

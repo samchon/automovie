@@ -1,5 +1,11 @@
-import type { IAutoMovieCombinePhysicalMassProperties, IAutoMovieDerivePhysicalProfile, IAutoMoviePhysicalProfile, IAutoMovieModel, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieCombinePhysicalMassProperties,
+  IAutoMovieDerivePhysicalProfile,
+  IAutoMovieModel,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -47,7 +53,8 @@ export function derivePhysicalProfile(
   )![0];
   const segments: IAutoMoviePhysicalProfile.ISegment[] = [];
   for (const [bone, neutral] of transforms) {
-    const override: IAutoMoviePhysicalProfile.ISegment | undefined = options.overrides?.[bone];
+    const override: IAutoMoviePhysicalProfile.ISegment | undefined =
+      options.overrides?.[bone];
     if (override) {
       if (override.bone !== bone)
         throw new Error(`Physical override bone must remain ${bone}`);
@@ -201,17 +208,22 @@ export function derivePhysicalProfile(
       neutral,
       ...aggregate,
       shapes: values.map(
-        (value: (typeof values)[number]): IAutoMoviePhysicalProfile.IShape => value.shape,
+        (value: (typeof values)[number]): IAutoMoviePhysicalProfile.IShape =>
+          value.shape,
       ),
     });
   }
   const mass: number = segments.reduce(
-    (sum: number, segment: IAutoMoviePhysicalProfile.ISegment): number => sum + segment.mass,
+    (sum: number, segment: IAutoMoviePhysicalProfile.ISegment): number =>
+      sum + segment.mass,
     0,
   );
   const centerOfMass: IAutoMovieVector3 = Vector3.scale(
     segments.reduce(
-      (sum: IAutoMovieVector3, segment: IAutoMoviePhysicalProfile.ISegment): IAutoMovieVector3 =>
+      (
+        sum: IAutoMovieVector3,
+        segment: IAutoMoviePhysicalProfile.ISegment,
+      ): IAutoMovieVector3 =>
         Vector3.add(
           sum,
           Vector3.scale(

@@ -1,12 +1,11 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanLimbRest, IAutoMovieHumanTrunkInputs } from "@automovie/interface";
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanLimbRest,
+  IAutoMovieHumanTrunkInputs,
+} from "@automovie/interface";
 
 import { AutoMovieHumanTrunkLandmarks } from "./AutoMovieHumanTrunkLandmarks";
 import { AutoMovieHumanTrunkShapes } from "./AutoMovieHumanTrunkShapes";
-
 
 /** Shared shoulder attachment from public dimensions and the original neck cut, before either adjoining part. */
 export namespace AutoMovieHumanShoulderDatum {

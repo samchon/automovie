@@ -1,6 +1,10 @@
-import type { IAutoMovieRecoveryCameraPointTriangulationOperation, IAutoMovieRecoveryCameraPoseSelectionOperation, IAutoMovieRecoveryEpipolarMatrixCalibrateOperation } from "@automovie/interface";
-import { calibrateRecoveryEpipolarMatrix } from "./calibrateRecoveryEpipolarMatrix";
+import type {
+  IAutoMovieRecoveryCameraPointTriangulationOperation,
+  IAutoMovieRecoveryCameraPoseSelectionOperation,
+  IAutoMovieRecoveryEpipolarMatrixCalibrateOperation,
+} from "@automovie/interface";
 
+import { calibrateRecoveryEpipolarMatrix } from "./calibrateRecoveryEpipolarMatrix";
 import { triangulateRecoveryCameraPoint } from "./triangulateRecoveryCameraPoint";
 
 /**
@@ -38,7 +42,8 @@ export function selectRecoveryCameraPose(
     angles: number[];
   } | null = null;
   for (const pose of calibrated.poses) {
-    const points: ReturnType<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[] = [];
+    const points: ReturnType<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[] =
+      [];
     const angles: number[] = [];
     for (let at: number = 0; at < firstPoints.length; at++) {
       const point: ReturnType<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation> =
@@ -76,5 +81,6 @@ export function selectRecoveryCameraPose(
     uniqueWinner:
       counts.filter((count: number): boolean => count === best!.positive)
         .length === 1,
-    relativeProjectionDiscrepancy: calibrated.relativeProjectionDiscrepancy };
+    relativeProjectionDiscrepancy: calibrated.relativeProjectionDiscrepancy,
+  };
 }

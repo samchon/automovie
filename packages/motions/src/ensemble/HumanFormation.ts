@@ -1,9 +1,13 @@
-import type { IAutoMovieFormationLayout, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanFormation, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   assignAutoMovieMinimumCost,
   formationSlotPosition,
 } from "@automovie/engine";
+import type {
+  IAutoMovieFormationLayout,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFormationPath } from "./HumanFormationPath";
@@ -49,7 +53,9 @@ export namespace HumanFormation {
    * @returns The same formation.
    * @throws {HumanRefusal} A `parameter` refusal naming the block and the value at fault.
    */
-  export function of(formation: IAutoMovieMotionHumanFormation): IAutoMovieMotionHumanFormation {
+  export function of(
+    formation: IAutoMovieMotionHumanFormation,
+  ): IAutoMovieMotionHumanFormation {
     if (formation.blocks.length === 0)
       throw new HumanRefusal({
         kind: "parameter",
@@ -122,7 +128,8 @@ export namespace HumanFormation {
    */
   export function count(formation: IAutoMovieMotionHumanFormation): number {
     return formation.blocks.reduce(
-      (sum: number, block: IAutoMovieMotionHumanFormation.IBlock): number => sum + block.count,
+      (sum: number, block: IAutoMovieMotionHumanFormation.IBlock): number =>
+        sum + block.count,
       0,
     );
   }
@@ -137,7 +144,10 @@ export namespace HumanFormation {
    * @returns The slot's local place.
    * @throws {RangeError} When the slot lies outside the formation.
    */
-  export function local(formation: IAutoMovieMotionHumanFormation, index: number): IAutoMovieMotionHumanFormation.ILocal {
+  export function local(
+    formation: IAutoMovieMotionHumanFormation,
+    index: number,
+  ): IAutoMovieMotionHumanFormation.ILocal {
     let b: number = 0;
     let within: number = index;
     while (
@@ -227,7 +237,10 @@ export namespace HumanFormation {
         reason: `the formation follows ${f.subject}, whose placed path is read only while the performance places its members`,
         fix: "read the slot from a law's context, or give the formation a fixed or path frame",
       });
-    const root: IAutoMovieMotionHumanActionContext.IRoot = read(f.subject, seconds);
+    const root: IAutoMovieMotionHumanActionContext.IRoot = read(
+      f.subject,
+      seconds,
+    );
     return {
       at: { x: root.position.x, y: 0, z: root.position.z },
       heading: root.yaw,
@@ -242,7 +255,9 @@ export namespace HumanFormation {
    * @param formation The formation.
    * @returns The second, or null.
    */
-  export function end(formation: IAutoMovieMotionHumanFormation): number | null {
+  export function end(
+    formation: IAutoMovieMotionHumanFormation,
+  ): number | null {
     const f: IAutoMovieMotionHumanFormation.Frame = formation.frame;
     if (f.kind === "path") return laid(f).end;
     if (f.kind === "course")
@@ -265,7 +280,10 @@ export namespace HumanFormation {
     seconds: number,
     read?: IAutoMovieMotionHumanFormation.Reader,
   ): IAutoMovieMotionHumanFormation.ISlot {
-    const place: IAutoMovieMotionHumanFormation.ILocal = local(formation, index);
+    const place: IAutoMovieMotionHumanFormation.ILocal = local(
+      formation,
+      index,
+    );
     const origin: { at: IAutoMovieVector3; heading: number } = frame(
       formation,
       seconds,
@@ -305,7 +323,10 @@ export namespace HumanFormation {
       throw new RangeError(
         `A slot's way runs forward in positive steps: ${from} to ${to} by ${step}`,
       );
-    const place: IAutoMovieMotionHumanFormation.ILocal = local(formation, index);
+    const place: IAutoMovieMotionHumanFormation.ILocal = local(
+      formation,
+      index,
+    );
     const count: number = Math.ceil((to - from) / step - 1e-9);
     const samples: IAutoMovieMotionHumanFormation.ISample[] = [];
     for (let k: number = 0; k <= count; ++k) {
@@ -380,11 +401,15 @@ export namespace HumanFormation {
 }
 
 /** Every laid path frame, by its record, so a formation's frame is laid once. */
-const LAID: WeakMap<IAutoMovieMotionHumanFormation.IPath, HumanFormationPath.ILaid> =
-  new WeakMap();
+const LAID: WeakMap<
+  IAutoMovieMotionHumanFormation.IPath,
+  HumanFormationPath.ILaid
+> = new WeakMap();
 
 /** The laid path frame of a record. */
-function laid(frame: IAutoMovieMotionHumanFormation.IPath): HumanFormationPath.ILaid {
+function laid(
+  frame: IAutoMovieMotionHumanFormation.IPath,
+): HumanFormationPath.ILaid {
   let out: HumanFormationPath.ILaid | undefined = LAID.get(frame);
   if (out === undefined) {
     out = HumanFormationPath.lay(
@@ -407,7 +432,8 @@ function coursed(
   let i: number = 0;
   while (i + 2 < s.length && s[i + 1]!.seconds <= seconds) ++i;
   const a: IAutoMovieMotionHumanFormation.ISample = s[i]!;
-  const b: IAutoMovieMotionHumanFormation.ISample = s[Math.min(i + 1, s.length - 1)]!;
+  const b: IAutoMovieMotionHumanFormation.ISample =
+    s[Math.min(i + 1, s.length - 1)]!;
   const span: number = b.seconds - a.seconds;
   const u: number =
     span <= 0 ? 0 : Math.min(1, Math.max(0, (seconds - a.seconds) / span));

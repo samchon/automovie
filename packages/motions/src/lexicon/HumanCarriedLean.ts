@@ -1,6 +1,13 @@
-import type { IAutoMovieMotionHumanLoad, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedLean, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanCarriedLean,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanLoad,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanLoad } from "../perform/HumanLoad";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -43,7 +50,9 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  */
 export namespace HumanCarriedLean {
   /** The carrier's whole-body pitch against each carry's load when no mass is known, degrees; positive leans forward. */
-  export const LEANS: Readonly<Record<IAutoMovieMotionHumanCarried.Carry, number>> = {
+  export const LEANS: Readonly<
+    Record<IAutoMovieMotionHumanCarried.Carry, number>
+  > = {
     piggyback: 20,
     cradle: -10,
     overShoulder: 10,
@@ -83,8 +92,9 @@ export namespace HumanCarriedLean {
     return {
       name: "carryLean",
       channels: ["root", "trunk"],
-      apply: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture =>
-        tipped(posture, lean, 0),
+      apply: (
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieMotionHumanPosture => tipped(posture, lean, 0),
     };
   }
 
@@ -104,12 +114,15 @@ export namespace HumanCarriedLean {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `tipped`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer closes over two angles.
    */
-  export function coupled(tip: IAutoMovieMotionHumanCarriedLean.ICoupledTip): IAutoMovieMotionHumanLayer {
+  export function coupled(
+    tip: IAutoMovieMotionHumanCarriedLean.ICoupledTip,
+  ): IAutoMovieMotionHumanLayer {
     return {
       name: "carryLean",
       channels: ["root", "trunk"],
-      apply: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture =>
-        tipped(posture, tip.pitch, tip.roll),
+      apply: (
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieMotionHumanPosture => tipped(posture, tip.pitch, tip.roll),
     };
   }
 

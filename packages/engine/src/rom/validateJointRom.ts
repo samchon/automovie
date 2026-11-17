@@ -1,4 +1,11 @@
-import { type IAutoMovieScanJointRom, type IAutoMovieValidateJointRom, type IAutoMovieViolationCollector, IAutoMovieAngleRange, IAutoMovieJointConstraint, IAutoMovieJointPose } from "@automovie/interface";
+import {
+  IAutoMovieAngleRange,
+  IAutoMovieJointConstraint,
+  IAutoMovieJointPose,
+  type IAutoMovieScanJointRom,
+  type IAutoMovieValidateJointRom,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { scanJointRom } from "./scanJointRom";
 
@@ -13,7 +20,9 @@ import { scanJointRom } from "./scanJointRom";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Detector/clamps share admitted constraints/metric, while collector effects are appended anew rather than cached.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns collector rows and release lifetime; joint/constraint references are borrowed and no handle or task is acquired.
  */
-export const validateJointRom: (props: IAutoMovieValidateJointRom.IProps) => void = (props: IAutoMovieValidateJointRom.IProps): void => {
+export const validateJointRom: (
+  props: IAutoMovieValidateJointRom.IProps,
+) => void = (props: IAutoMovieValidateJointRom.IProps): void => {
   const {
     joint,
     constraint,

@@ -1,6 +1,19 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HUMAN_DRILL_CADENCES, HUMAN_LEXICON, HumanCue, HumanEnsemble, HumanPerformance } from "@automovie/motions";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HUMAN_DRILL_CADENCES,
+  HUMAN_LEXICON,
+  HumanCue,
+  HumanEnsemble,
+  HumanPerformance,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -67,7 +80,10 @@ export function test_human_motion_cadence(): void {
       cues: { drum: HumanCue.beats({ bpm: 76, count: 40, from: 1 }) },
       composition: HumanEnsemble.chains(
         ensemble,
-        (m: IAutoMovieMotionHumanEnsemble.IMember, chain: IAutoMovieMotionHumanChain) =>
+        (
+          m: IAutoMovieMotionHumanEnsemble.IMember,
+          chain: IAutoMovieMotionHumanChain,
+        ) =>
           chain.registered("march", {
             to: { x: m.place.at.x, y: 0, z: 12 },
             regulation,
@@ -78,7 +94,9 @@ export function test_human_motion_cadence(): void {
     });
     const strikes: Map<string, number[]> = new Map();
     for (const m of ensemble.members) {
-      const s: IAutoMovieMotionHumanSegment.ISegment = performance.segments(m.subject)[0]!;
+      const s: IAutoMovieMotionHumanSegment.ISegment = performance.segments(
+        m.subject,
+      )[0]!;
       strikes.set(
         m.subject,
         s.plan.events

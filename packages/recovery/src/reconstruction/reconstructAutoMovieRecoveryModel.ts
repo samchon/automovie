@@ -1,15 +1,17 @@
-import type { AutoMovieRecoveryCurveData, IAutoMovieRecoveryDomainLedger, IAutoMovieRecoveryOptions, IAutoMovieRecoveryReconstructedModel, IAutoMovieRecoveryReconstruction, IAutoMovieRecoveryResult, IAutoMovieRecoveryTensorFamiliesInput } from "@automovie/interface";
+import type {
+  AutoMovieRecoveryCurveData,
+  IAutoMovieRecoveryDomainLedger,
+  IAutoMovieRecoveryOptions,
+  IAutoMovieRecoveryReconstructedModel,
+  IAutoMovieRecoveryReconstruction,
+  IAutoMovieRecoveryResult,
+  IAutoMovieRecoveryTensorFamiliesInput,
+} from "@automovie/interface";
+
 import { describeRecoveryDomains } from "../internal/describeRecoveryDomains";
 import { readRecoveryMetadata as read } from "../internal/readRecoveryMetadata";
 import { reconstructRecovery } from "../internal/reconstructRecovery";
 import { restoreRecoveryCurveBasis } from "../internal/restoreRecoveryCurveBasis";
-
-
-
-
-
-
-
 
 /**
  * Reconstruct saved cubic and domain coefficients without access to source geometry.
@@ -44,32 +46,40 @@ export function reconstructAutoMovieRecoveryModel(
   const cancelled: () => boolean = (): boolean => {
     const requested: boolean | undefined = probe?.();
     if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error("Cancellation callback must return a boolean synchronously");
+      throw new Error(
+        "Cancellation callback must return a boolean synchronously",
+      );
     cancellationRequested = requested === true;
     return cancellationRequested;
   };
   try {
     probe = options?.cancelled;
     if (probe !== undefined && typeof probe !== "function")
-      return { operator, status: "refused", diagnostics: ["Cancellation callback must be a function"] };
+      return {
+        operator,
+        status: "refused",
+        diagnostics: ["Cancellation callback must be a function"],
+      };
 
-  if (cancelled())
-    return {
-      operator,
-      status: "cancelled",
-      diagnostics: ["Cancelled before reconstruction"] };
-  if (
-    !input ||
-    !Array.isArray(input.loft?.sections) ||
-    !Array.isArray(input.loft.intervals)
-  )
-    return {
-      operator,
-      status: "refused",
-      diagnostics: [
-        "A saved cubic bundle with explicit interval incidence is required",
-      ] };
-  
+    if (cancelled())
+      return {
+        operator,
+        status: "cancelled",
+        diagnostics: ["Cancelled before reconstruction"],
+      };
+    if (
+      !input ||
+      !Array.isArray(input.loft?.sections) ||
+      !Array.isArray(input.loft.intervals)
+    )
+      return {
+        operator,
+        status: "refused",
+        diagnostics: [
+          "A saved cubic bundle with explicit interval incidence is required",
+        ],
+      };
+
     const canonical: IAutoMovieRecoveryTensorFamiliesInput =
       restoreRecoveryCurveBasis(input);
     options.onProgress?.("reconstruction", 0, 1);
@@ -77,7 +87,8 @@ export function reconstructAutoMovieRecoveryModel(
       return {
         operator,
         status: "cancelled",
-        diagnostics: ["Cancelled before reconstruction"] };
+        diagnostics: ["Cancelled before reconstruction"],
+      };
     const value: IAutoMovieRecoveryReconstruction = reconstructRecovery(
       canonical,
       { observeWork: options.observeWork },
@@ -86,13 +97,15 @@ export function reconstructAutoMovieRecoveryModel(
       return {
         operator,
         status: "cancelled",
-        diagnostics: ["Cancelled before publication"] };
+        diagnostics: ["Cancelled before publication"],
+      };
     options.onProgress?.("reconstruction", 1, 1);
     if (cancelled())
       return {
         operator,
         status: "cancelled",
-        diagnostics: ["Cancelled before publication"] };
+        diagnostics: ["Cancelled before publication"],
+      };
     const membership: IAutoMovieRecoveryDomainLedger = describeRecoveryDomains(
       canonical,
       value,
@@ -154,13 +167,15 @@ export function reconstructAutoMovieRecoveryModel(
       operator,
       status: partial ? "partial" : "complete",
       value: { ...value, membership },
-      diagnostics };
+      diagnostics,
+    };
   } catch (failure: unknown) {
     return {
       operator,
       status: cancellationRequested ? "cancelled" : "failed",
       diagnostics: [
         failure instanceof Error ? failure.message : String(failure),
-      ] };
+      ],
+    };
   }
 }

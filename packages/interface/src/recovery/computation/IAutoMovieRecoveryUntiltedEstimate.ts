@@ -6,19 +6,15 @@
  * @evidence contracts/development/common.md#meaningful-documentation Fields give physical width, objective-inclusive row count and ordered original inequality IDs. All fields and arrays are readonly borrows for this callback only; copying requires separate owner validation and charging.
  */
 export interface IAutoMovieRecoveryUntiltedEstimate {
- 
- /** Current original physical tangent width. */
+  /** Current original physical tangent width. */
   readonly width: number;
 
- 
- /** Current complete original row count, including objective row zero. */
+  /** Current complete original row count, including objective row zero. */
   readonly rowCount: number;
 
- 
- /** Increasing original inequality IDs, excluding zero; empty is qualified. */
+  /** Increasing original inequality IDs, excluding zero; empty is qualified. */
   readonly selected: readonly number[];
 
- 
- /** Finite nonnegative original untilted multipliers in selected-ID order. */
+  /** Finite nonnegative original untilted multipliers in selected-ID order. */
   readonly multipliers: readonly number[];
 }

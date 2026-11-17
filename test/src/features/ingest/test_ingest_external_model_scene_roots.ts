@@ -1,5 +1,7 @@
-import type { AutoMovieExternalModelIngestProfile, IAutoMovieExternalModelInspection } from "@automovie/interface";
-
+import type {
+  AutoMovieExternalModelIngestProfile,
+  IAutoMovieExternalModelInspection,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {

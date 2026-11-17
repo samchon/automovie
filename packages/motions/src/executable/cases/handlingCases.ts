@@ -1,6 +1,23 @@
-import type { AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGrip, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
-import { DEFAULT_HUMANOID_ROM, Quaternion, Transform, Vector3, closestPointsBetweenSegments, jointRomOvershoot, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  DEFAULT_HUMANOID_ROM,
+  Quaternion,
+  Transform,
+  Vector3,
+  closestPointsBetweenSegments,
+  jointRomOvershoot,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrip,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { createHumanBody } from "../../body/createHumanBody";
@@ -153,25 +170,26 @@ export function handlingCases(
           },
         ],
       };
-      const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-        seed: `handling-grasp-${name}`,
-        performers: [
-          {
-            subject: "a",
-            body,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-        ],
-        props: [bottle],
-        composition: HumanChain.subject("a")
-          .stand({ seconds: 0.4 })
-          .pickUp({ prop: "bottle", handle: "handle", hand: "right" })
-          .walk({ to: { x: 0, y: 0, z: 0.6 } })
-          .putDown({ prop: "bottle", at: target, yaw: 0, hand: "right" })
-          .stand({ seconds: 0.4 }).node,
-      });
+      const performance: IAutoMovieMotionHumanPerformance =
+        new HumanPerformance({
+          seed: `handling-grasp-${name}`,
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
+          props: [bottle],
+          composition: HumanChain.subject("a")
+            .stand({ seconds: 0.4 })
+            .pickUp({ prop: "bottle", handle: "handle", hand: "right" })
+            .walk({ to: { x: 0, y: 0, z: 0.6 } })
+            .putDown({ prop: "bottle", at: target, yaw: 0, hand: "right" })
+            .stand({ seconds: 0.4 }).node,
+        });
       const up = performance.segments("a").find((s) => s.name === "pickUp")!;
       const down = performance.segments("a").find((s) => s.name === "putDown")!;
       const at = (segment: typeof up, event: string): number =>
@@ -215,47 +233,45 @@ export function handlingCases(
       const gaps: number[] = ["Thumb", "Index", "Middle", "Ring", "Little"].map(
         (digit: string): number =>
           Math.min(
-            ...HumanGrip.bones("right", digit as IAutoMovieMotionHumanGrip.Digit).map(
-              (bone: AutoMovieHumanoidBone): number => {
-                const c = HumanGrip.chain(
-                  body,
-                  "right",
-                  digit as IAutoMovieMotionHumanGrip.Digit,
-                );
-                const r: IAutoMovieResolvedBone = bones.get(bone)!;
-                const shape = body.profile.segments
-                  .find((s) => s.bone === bone)!
-                  .shapes.find((s) => s.kind === "capsule")!;
-                const middle: IAutoMovieVector3 = Vector3.add(
-                  r.worldPosition,
-                  Quaternion.rotateVector(
-                    r.worldRotation,
-                    shape.transform.position,
-                  ),
-                );
-                const along: IAutoMovieVector3 = Quaternion.rotateVector(
-                  Quaternion.multiply(
-                    r.worldRotation,
-                    shape.transform.rotation,
-                  ),
-                  {
-                    x: 0,
-                    y: shape.kind === "capsule" ? shape.halfLength : 0,
-                    z: 0,
-                  },
-                );
-                return (
-                  closestPointsBetweenSegments(
-                    Vector3.subtract(middle, along),
-                    Vector3.add(middle, along),
-                    Vector3.subtract(centre(closed), axis),
-                    Vector3.add(centre(closed), axis),
-                  ).distance -
-                  c.radius -
-                  0.035
-                );
-              },
-            ),
+            ...HumanGrip.bones(
+              "right",
+              digit as IAutoMovieMotionHumanGrip.Digit,
+            ).map((bone: AutoMovieHumanoidBone): number => {
+              const c = HumanGrip.chain(
+                body,
+                "right",
+                digit as IAutoMovieMotionHumanGrip.Digit,
+              );
+              const r: IAutoMovieResolvedBone = bones.get(bone)!;
+              const shape = body.profile.segments
+                .find((s) => s.bone === bone)!
+                .shapes.find((s) => s.kind === "capsule")!;
+              const middle: IAutoMovieVector3 = Vector3.add(
+                r.worldPosition,
+                Quaternion.rotateVector(
+                  r.worldRotation,
+                  shape.transform.position,
+                ),
+              );
+              const along: IAutoMovieVector3 = Quaternion.rotateVector(
+                Quaternion.multiply(r.worldRotation, shape.transform.rotation),
+                {
+                  x: 0,
+                  y: shape.kind === "capsule" ? shape.halfLength : 0,
+                  z: 0,
+                },
+              );
+              return (
+                closestPointsBetweenSegments(
+                  Vector3.subtract(middle, along),
+                  Vector3.add(middle, along),
+                  Vector3.subtract(centre(closed), axis),
+                  Vector3.add(centre(closed), axis),
+                ).distance -
+                c.radius -
+                0.035
+              );
+            }),
           ),
       );
 
@@ -438,7 +454,9 @@ export function handlingCases(
       ): IAutoMovieAffordance => ({
         id,
         kind: "handle",
-        frame: Transform.of({ x: 0, y, z: 0 }, Quaternion.normalize(
+        frame: Transform.of(
+          { x: 0, y, z: 0 },
+          Quaternion.normalize(
             Quaternion.multiply(
               Quaternion.fromAxisAngle(
                 { x: 0, y: 1, z: 0 },
@@ -451,7 +469,8 @@ export function handlingCases(
                 ),
               ),
             ),
-          )),
+          ),
+        ),
         extent: null,
         grip: "power",
         aperture: 0.07,
@@ -482,38 +501,39 @@ export function handlingCases(
         handshake.gap(a, b) +
         handshake.stance(a).sternum +
         handshake.stance(b).sternum;
-      const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-        seed: `handling-handover-${first}-${second}`,
-        performers: [
-          {
-            subject: "a",
-            body: a,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-          {
-            subject: "b",
-            body: b,
-            at: { x: 0, y: 0, z: D },
-            yaw: 180,
-            proficiency: { level: "trained" },
-          },
-        ],
-        props: [bottle],
-        composition: HumanChain.pair(
-          HumanChain.subject("a")
-            .stand({ seconds: 0.3 })
-            .pickUp({ prop: "bottle", handle: "low", hand: "right" }),
-          HumanChain.subject("b").stand({ seconds: 0.3 }),
-        ).handOver({
-          prop: "bottle",
-          handle: "high",
-          hand: "right",
-          receiverHand: "right",
-          mass: 0.5,
-        }).node,
-      });
+      const performance: IAutoMovieMotionHumanPerformance =
+        new HumanPerformance({
+          seed: `handling-handover-${first}-${second}`,
+          performers: [
+            {
+              subject: "a",
+              body: a,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+            {
+              subject: "b",
+              body: b,
+              at: { x: 0, y: 0, z: D },
+              yaw: 180,
+              proficiency: { level: "trained" },
+            },
+          ],
+          props: [bottle],
+          composition: HumanChain.pair(
+            HumanChain.subject("a")
+              .stand({ seconds: 0.3 })
+              .pickUp({ prop: "bottle", handle: "low", hand: "right" }),
+            HumanChain.subject("b").stand({ seconds: 0.3 }),
+          ).handOver({
+            prop: "bottle",
+            handle: "high",
+            hand: "right",
+            receiverHand: "right",
+            mass: 0.5,
+          }).node,
+        });
       const giving = performance
         .segments("a")
         .find((s) => s.name === "handOver")!;

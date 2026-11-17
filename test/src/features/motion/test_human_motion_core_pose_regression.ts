@@ -1,12 +1,15 @@
-import type { IAutoMovieMotionHumanBody, AutoMovieHumanoidBone, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
 import {
   Quaternion,
   ROM_TOLERANCE,
   Vector3,
   curlChainUntilContact,
 } from "@automovie/engine";
-
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import CORPUS from "../internal/MOTION_HUMAN_POSE_CORPUS.json";

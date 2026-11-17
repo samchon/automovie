@@ -1,5 +1,5 @@
-import type { IAutoMovieModel } from "../../model/IAutoMovieModel";
 import type { IAutoMoviePropSpec } from "../../harness/IAutoMoviePropSpec";
+import type { IAutoMovieModel } from "../../model/IAutoMovieModel";
 import type { IAutoMovieScene } from "../IAutoMovieScene";
 
 /** Data and callback contracts shared by the SceneToNodes operations. */

@@ -1,4 +1,9 @@
-import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieGenerateSupportCurve64 } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieGenerateSupportCurve64,
+} from "@automovie/interface";
+
 /**
  * Generate a planar convex curve from a finite Fourier support function.
  * For the outward normal n=(cos(theta),sin(theta)) and tangent t=(-sin,cos),
@@ -20,7 +25,9 @@ import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieGenerateSuppor
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses each endpoint position and tangent in both incident Hermite spans and reuses harmonic amplitudes in both derivative majorants.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most 17 coefficient pairs and 4096 spans are admitted; local samples are discarded and only the generated curve and scalar qualifications transfer to the caller.
  */
-export function generateAutoMovieSupportCurve64(props: IAutoMovieGenerateSupportCurve64.IProps): IAutoMovieGenerateSupportCurve64.IResult {
+export function generateAutoMovieSupportCurve64(
+  props: IAutoMovieGenerateSupportCurve64.IProps,
+): IAutoMovieGenerateSupportCurve64.IResult {
   if (
     props.harmonics.length === 0 ||
     props.harmonics.length > 17 ||
@@ -107,25 +114,30 @@ export function generateAutoMovieSupportCurve64(props: IAutoMovieGenerateSupport
     points.push([h * c - derivative * s, 0, h * s + derivative * c]);
     tangents.push([-radius * s, 0, radius * c]);
   }
-  const spans: IAutoMovieCurve64.Span[] = points.map((a: Readonly<AutoMovieVector3Tuple>, i: number): IAutoMovieCurve64.Span => {
-    const next: number = (i + 1) % props.spans;
-    const b: Readonly<AutoMovieVector3Tuple> = points[next]!;
-    const da: Readonly<AutoMovieVector3Tuple> = tangents[i]!;
-    const db: Readonly<AutoMovieVector3Tuple> = tangents[next]!;
-    return [
-      a,
-      a.map(
-        (x: number, k: number): number => x + (width * da[k]!) / 3,
-      ) as unknown as Readonly<AutoMovieVector3Tuple>,
-      b.map(
-        (x: number, k: number): number => x - (width * db[k]!) / 3,
-      ) as unknown as Readonly<AutoMovieVector3Tuple>,
-      b,
-    ];
-  });
+  const spans: IAutoMovieCurve64.Span[] = points.map(
+    (a: Readonly<AutoMovieVector3Tuple>, i: number): IAutoMovieCurve64.Span => {
+      const next: number = (i + 1) % props.spans;
+      const b: Readonly<AutoMovieVector3Tuple> = points[next]!;
+      const da: Readonly<AutoMovieVector3Tuple> = tangents[i]!;
+      const db: Readonly<AutoMovieVector3Tuple> = tangents[next]!;
+      return [
+        a,
+        a.map(
+          (x: number, k: number): number => x + (width * da[k]!) / 3,
+        ) as unknown as Readonly<AutoMovieVector3Tuple>,
+        b.map(
+          (x: number, k: number): number => x - (width * db[k]!) / 3,
+        ) as unknown as Readonly<AutoMovieVector3Tuple>,
+        b,
+      ];
+    },
+  );
   if (
     spans.some((span: IAutoMovieCurve64.Span): boolean =>
-      span.some((p: Readonly<AutoMovieVector3Tuple>): boolean => !p.every(Number.isFinite)),
+      span.some(
+        (p: Readonly<AutoMovieVector3Tuple>): boolean =>
+          !p.every(Number.isFinite),
+      ),
     )
   )
     throw new Error("Support-curve arithmetic overflow");

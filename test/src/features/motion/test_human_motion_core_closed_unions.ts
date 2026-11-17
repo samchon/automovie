@@ -1,5 +1,9 @@
-import type { AutoMovieMotionHumanChannel, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanReach, IAutoMovieMotionManner } from "@automovie/interface";
-
+import type {
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanReach,
+  IAutoMovieMotionManner,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanBend,
   AutoMovieMotionHumanChannel,
@@ -13,13 +17,13 @@ import {
   AutoMovieMotionHumanTouchForm,
   AutoMovieMotionManner,
   HumanBase,
+  HumanContactWindow,
   HumanFoot,
   HumanHand,
-  HumanObstacle,
-  HumanRefusal,
-  HumanContactWindow,
   HumanInterruptRow,
+  HumanObstacle,
   HumanPosture,
+  HumanRefusal,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -55,8 +59,14 @@ export function test_human_motion_core_closed_unions(): void {
       IAutoMovieMotionManner.Preset,
       keyof typeof AutoMovieMotionManner.PRESETS
     >,
-    true satisfies Same<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanHand.Side>,
-    true satisfies Same<IAutoMovieMotionHumanPosture.Limb, IAutoMovieMotionHumanReach.Limb>,
+    true satisfies Same<
+      IAutoMovieMotionHumanHand.Side,
+      IAutoMovieMotionHumanHand.Side
+    >,
+    true satisfies Same<
+      IAutoMovieMotionHumanPosture.Limb,
+      IAutoMovieMotionHumanReach.Limb
+    >,
   ];
 
   // 2. At run time.

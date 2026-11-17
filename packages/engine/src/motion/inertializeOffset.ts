@@ -1,4 +1,5 @@
 import type { IAutoMovieInertializeOffset } from "@automovie/interface";
+
 /**
  * The decaying offset of one channel after a transition, by inertialization.
  *

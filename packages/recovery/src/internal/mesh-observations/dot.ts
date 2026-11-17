@@ -1,6 +1,5 @@
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
-
 /**
  * Euclidean inner product; units are the product of the operands' units.
  *
@@ -12,5 +11,8 @@ import type { AutoMovieVector3Tuple } from "@automovie/interface";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call depends directly on its arguments; no retained cache or effectful shared work exists.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains no references.
  */
-export const dot: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => number = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number =>
+export const dot: (
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+) => number = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number =>
   a[0] * b[0] + a[1] * b[1] + a[2] * b[2];

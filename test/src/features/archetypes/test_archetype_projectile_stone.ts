@@ -1,7 +1,9 @@
-import type { IAutoMoviePrimitiveShape, IAutoMovieModelPart } from "@automovie/interface";
 import { ArchetypeRefusal, createProjectile } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
-
+import type {
+  IAutoMovieModelPart,
+  IAutoMoviePrimitiveShape,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

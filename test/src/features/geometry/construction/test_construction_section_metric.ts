@@ -1,9 +1,9 @@
-import type { IAutoMovieViewSection } from "@automovie/interface";
 import {
   AutoMovieViewSection,
   AutoMovieViewSectionConic,
   measureAutoMovieCurveLength64,
 } from "@automovie/engine";
+import type { IAutoMovieViewSection } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

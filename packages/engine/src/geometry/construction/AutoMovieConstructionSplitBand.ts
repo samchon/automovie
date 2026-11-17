@@ -1,10 +1,19 @@
-import type { IAutoMovieLoftChain, IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieConstructionSplitBand, IAutoMovieConstructionSplitSeam, IAutoMovieSolidRibbon, IAutoMovieConstructionPort, IAutoMovieConstructionSplit } from "@automovie/interface";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionPort,
+  IAutoMovieConstructionSplit,
+  IAutoMovieConstructionSplitBand,
+  IAutoMovieConstructionSplitSeam,
+  IAutoMovieLoftChain,
+  IAutoMovieSolidRibbon,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieSolidBlendChain } from "./AutoMovieSolidBlendChain";
 import { AutoMovieSolidChain } from "./AutoMovieSolidChain";
 import { AutoMovieSolidRibbon } from "./AutoMovieSolidRibbon";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
+
 const { add, combine, cross, dot, norm, scale, sub, unit } =
   AutoMovieSolidVector;
 
@@ -23,7 +32,6 @@ const { add, combine, cross, dot, norm, scale, sub, unit } =
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds a use of `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieConstructionSplitBand {
-
   /**
    * The rail's station on a side at a phase: its curve's when it has one, else its one station.
    *
@@ -39,7 +47,10 @@ export namespace AutoMovieConstructionSplitBand {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reader coordinates no work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function railAt(side: IAutoMovieConstructionSplitBand.ISide, psi: number): number {
+  export function railAt(
+    side: IAutoMovieConstructionSplitBand.ISide,
+    psi: number,
+  ): number {
     return side.along === undefined ? side.station : side.along(psi);
   }
 
@@ -57,7 +68,9 @@ export namespace AutoMovieConstructionSplitBand {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The arc jets serve both the loop and the scale.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary columns are released; the result is caller-owned.
    */
-  export function create(input: IAutoMovieConstructionSplitBand.IInput): IAutoMovieConstructionSplitBand.IBand | string {
+  export function create(
+    input: IAutoMovieConstructionSplitBand.IInput,
+  ): IAutoMovieConstructionSplitBand.IBand | string {
     const factor: number = refine(input);
     const made: IAutoMovieConstructionSplitBand.IBand | string = build(
       factor === 1 ? input : { ...input, count: factor * input.count },
@@ -92,7 +105,9 @@ export namespace AutoMovieConstructionSplitBand {
     const n: number = input.count;
     const m: number = n / 2;
     const [alpha, beta]: [number, number] = input.arc;
-    const ring: (k: number) => AutoMovieVector3Tuple = (k: number): AutoMovieVector3Tuple =>
+    const ring: (k: number) => AutoMovieVector3Tuple = (
+      k: number,
+    ): AutoMovieVector3Tuple =>
       input.host.surface.jet(
         input.host.station,
         alpha + ((beta - alpha) * k) / m,
@@ -102,9 +117,15 @@ export namespace AutoMovieConstructionSplitBand {
     const reversed: boolean =
       norm(sub(seam.curve.ends[0], finish)) >
       norm(sub(seam.curve.ends[0], start));
-    const onSeam: (k: number) => AutoMovieVector3Tuple = (k: number): AutoMovieVector3Tuple =>
+    const onSeam: (k: number) => AutoMovieVector3Tuple = (
+      k: number,
+    ): AutoMovieVector3Tuple =>
       seam.curve.at(reversed ? 1 - (k - m) / m : (k - m) / m).point;
-    const turn: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, c: AutoMovieVector3Tuple) => number = (
+    const turn: (
+      a: AutoMovieVector3Tuple,
+      b: AutoMovieVector3Tuple,
+      c: AutoMovieVector3Tuple,
+    ) => number = (
       a: AutoMovieVector3Tuple,
       b: AutoMovieVector3Tuple,
       c: AutoMovieVector3Tuple,
@@ -125,7 +146,9 @@ export namespace AutoMovieConstructionSplitBand {
   }
 
   /** One band on exactly `input.count` columns. */
-  function build(input: IAutoMovieConstructionSplitBand.IInput): IAutoMovieConstructionSplitBand.IBand | string {
+  function build(
+    input: IAutoMovieConstructionSplitBand.IInput,
+  ): IAutoMovieConstructionSplitBand.IBand | string {
     const n: number = input.count;
     const m: number = n / 2;
     const [alpha, beta]: [number, number] = input.arc;
@@ -149,13 +172,17 @@ export namespace AutoMovieConstructionSplitBand {
       seam !== undefined &&
       norm(sub(seam.curve.ends[0], finish)) >
         norm(sub(seam.curve.ends[0], start));
-    const seamAt: (IAutoMovieConstructionSplitSeam.IPoint | null)[] = Array.from(
-      { length: n },
-      (_: unknown, k: number): IAutoMovieConstructionSplitSeam.IPoint | null =>
-        seam === undefined || k <= m
-          ? null
-          : seam.curve.at(reversed ? 1 - (k - m) / m : (k - m) / m),
-    );
+    const seamAt: (IAutoMovieConstructionSplitSeam.IPoint | null)[] =
+      Array.from(
+        { length: n },
+        (
+          _: unknown,
+          k: number,
+        ): IAutoMovieConstructionSplitSeam.IPoint | null =>
+          seam === undefined || k <= m
+            ? null
+            : seam.curve.at(reversed ? 1 - (k - m) / m : (k - m) / m),
+      );
     const loop: AutoMovieVector3Tuple[] = Array.from(
       { length: n },
       (_: unknown, k: number): AutoMovieVector3Tuple =>
@@ -258,7 +285,9 @@ export namespace AutoMovieConstructionSplitBand {
       // to the ribbon), so the band stays G1 to the host; its second
       // derivative falls with the turn's share.
       const ahead: AutoMovieVector3Tuple | null = unit(own.first);
-      const normal: AutoMovieVector3Tuple | null = unit(cross(ring[k]!.u, ring[k]!.v));
+      const normal: AutoMovieVector3Tuple | null = unit(
+        cross(ring[k]!.u, ring[k]!.v),
+      );
       if (ahead === null || normal === null)
         return `column ${k}: the host's tangent plane is degenerate`;
       const side: AutoMovieVector3Tuple | null = unit(
@@ -319,49 +348,99 @@ export namespace AutoMovieConstructionSplitBand {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each column's host jet serves its point and its ribbon.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary columns are released; the result is caller-owned.
    */
-  export function fan(input: IAutoMovieConstructionSplitBand.IFanInput, count: number): (IAutoMovieConstructionSplitBand.IStrip & { phases: number[] }) | string {
-    const stretches: IAutoMovieConstructionSplitBand.IStretch[] = input.stretches;
-    if (stretches[0]?.kind !== "arc") return "the loop does not start on an arc";
-    if (stretches.reduce((sum: number, s: IAutoMovieConstructionSplitBand.IStretch): number => sum + s.columns, 0) !== count) return "the stretches' columns do not add up to the band's";
+  export function fan(
+    input: IAutoMovieConstructionSplitBand.IFanInput,
+    count: number,
+  ): (IAutoMovieConstructionSplitBand.IStrip & { phases: number[] }) | string {
+    const stretches: IAutoMovieConstructionSplitBand.IStretch[] =
+      input.stretches;
+    if (stretches[0]?.kind !== "arc")
+      return "the loop does not start on an arc";
+    if (
+      stretches.reduce(
+        (sum: number, s: IAutoMovieConstructionSplitBand.IStretch): number =>
+          sum + s.columns,
+        0,
+      ) !== count
+    )
+      return "the stretches' columns do not add up to the band's";
     const n: number = count;
     const step: number = (2 * Math.PI) / n;
 
     // Each column: its stretch and its index in it; a stretch's first column is a fork.
     const owner: number[] = [];
     const within: number[] = [];
-    stretches.forEach((s: IAutoMovieConstructionSplitBand.IStretch, i: number): void => {
-      for (let j: number = 0; j < s.columns; ++j) {
-        owner.push(i);
-        within.push(j);
-      }
-    });
-    const previous = (i: number): IAutoMovieConstructionSplitBand.IStretch => stretches[(i - 1 + stretches.length) % stretches.length]!;
+    stretches.forEach(
+      (s: IAutoMovieConstructionSplitBand.IStretch, i: number): void => {
+        for (let j: number = 0; j < s.columns; ++j) {
+          owner.push(i);
+          within.push(j);
+        }
+      },
+    );
+    const previous = (i: number): IAutoMovieConstructionSplitBand.IStretch =>
+      stretches[(i - 1 + stretches.length) % stretches.length]!;
 
     // A seam's first column is the fork ending the arc before it: read as that arc's last phase.
     const phases: number[] = owner.map((i: number, k: number): number => {
       const s: IAutoMovieConstructionSplitBand.IStretch = stretches[i]!;
-      if (s.kind === "arc") return s.from + ((s.to - s.from) * within[k]!) / s.columns;
+      if (s.kind === "arc")
+        return s.from + ((s.to - s.from) * within[k]!) / s.columns;
       const before: IAutoMovieConstructionSplitBand.IStretch = previous(i);
       return within[k] === 0 && before.kind === "arc" ? before.to : NaN;
     });
-    const jets: (IAutoMovieSolidSurface.IJet | null)[] = phases.map((phi: number): IAutoMovieSolidSurface.IJet | null => (Number.isNaN(phi) ? null : input.host.surface.jet(input.host.station, phi)));
-    const share = (s: Extract<IAutoMovieConstructionSplitBand.IStretch, { kind: "seam" }>, j: number): number => (s.forward ? j / s.columns : 1 - j / s.columns);
-    const loop: AutoMovieVector3Tuple[] = owner.map((i: number, k: number): AutoMovieVector3Tuple => {
-      const jet: IAutoMovieSolidSurface.IJet | null = jets[k]!;
-      if (jet !== null) return [jet.p[0]!, jet.p[1]!, jet.p[2]!];
-      const s: IAutoMovieConstructionSplitBand.IStretch = stretches[i]!;
-      return s.kind === "seam" ? s.curve.at(share(s, within[k]!)).point : [NaN, NaN, NaN];
-    });
-    const centroid: AutoMovieVector3Tuple = scale(loop.reduce((sum: AutoMovieVector3Tuple, p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => add(sum, p), [0, 0, 0]), 1 / n);
+    const jets: (IAutoMovieSolidSurface.IJet | null)[] = phases.map(
+      (phi: number): IAutoMovieSolidSurface.IJet | null =>
+        Number.isNaN(phi)
+          ? null
+          : input.host.surface.jet(input.host.station, phi),
+    );
+    const share = (
+      s: Extract<IAutoMovieConstructionSplitBand.IStretch, { kind: "seam" }>,
+      j: number,
+    ): number => (s.forward ? j / s.columns : 1 - j / s.columns);
+    const loop: AutoMovieVector3Tuple[] = owner.map(
+      (i: number, k: number): AutoMovieVector3Tuple => {
+        const jet: IAutoMovieSolidSurface.IJet | null = jets[k]!;
+        if (jet !== null) return [jet.p[0]!, jet.p[1]!, jet.p[2]!];
+        const s: IAutoMovieConstructionSplitBand.IStretch = stretches[i]!;
+        return s.kind === "seam"
+          ? s.curve.at(share(s, within[k]!)).point
+          : [NaN, NaN, NaN];
+      },
+    );
+    const centroid: AutoMovieVector3Tuple = scale(
+      loop.reduce(
+        (
+          sum: AutoMovieVector3Tuple,
+          p: AutoMovieVector3Tuple,
+        ): AutoMovieVector3Tuple => add(sum, p),
+        [0, 0, 0],
+      ),
+      1 / n,
+    );
 
     // Each seam's ruling: its plane's normal toward this band's loop.
-    const ruling: (AutoMovieVector3Tuple | null)[] = stretches.map((s: IAutoMovieConstructionSplitBand.IStretch): AutoMovieVector3Tuple | null => {
-      if (s.kind !== "seam") return null;
-      const middle: AutoMovieVector3Tuple = scale(add(s.curve.ends[0], s.curve.ends[1]), 0.5);
-      const toward: number = dot(s.curve.normal, sub(centroid, middle));
-      return toward === 0 ? null : scale(s.curve.normal, Math.sign(toward));
-    });
-    if (stretches.some((s: IAutoMovieConstructionSplitBand.IStretch, i: number): boolean => s.kind === "seam" && ruling[i] === null)) return "a seam plane holds the direction toward the band's loop";
+    const ruling: (AutoMovieVector3Tuple | null)[] = stretches.map(
+      (
+        s: IAutoMovieConstructionSplitBand.IStretch,
+      ): AutoMovieVector3Tuple | null => {
+        if (s.kind !== "seam") return null;
+        const middle: AutoMovieVector3Tuple = scale(
+          add(s.curve.ends[0], s.curve.ends[1]),
+          0.5,
+        );
+        const toward: number = dot(s.curve.normal, sub(centroid, middle));
+        return toward === 0 ? null : scale(s.curve.normal, Math.sign(toward));
+      },
+    );
+    if (
+      stretches.some(
+        (s: IAutoMovieConstructionSplitBand.IStretch, i: number): boolean =>
+          s.kind === "seam" && ruling[i] === null,
+      )
+    )
+      return "a seam plane holds the direction toward the band's loop";
     const turn = (d: number): number => {
       if (!(d < input.corner)) return 0;
       const x: number = d / input.corner;
@@ -370,51 +449,128 @@ export namespace AutoMovieConstructionSplitBand {
     // The ribbons' reach toward each fork (`IAutoMovieConstructionSplit.IProfile.reach`): first derivative by the share, second by its
     // square, so each column only slows across its start and its curvature there, and the band's G2 to the host, are kept.
     const reach: number = input.reach ?? 1;
-    const near = (k: number, L: number): IAutoMovieSolidRibbon.IRibbon | string => {
+    const near = (
+      k: number,
+      L: number,
+    ): IAutoMovieSolidRibbon.IRibbon | string => {
       const made: IAutoMovieSolidRibbon.IRibbon | string = turned(k, L);
       if (typeof made === "string" || reach === 1) return made;
-      const lambda: number = reach + (1 - reach) * (1 - turn(Math.min(within[k]!, stretches[owner[k]!]!.columns - within[k]!) * step));
-      return { point: made.point, first: scale(made.first, lambda), second: scale(made.second, lambda * lambda) };
+      const lambda: number =
+        reach +
+        (1 - reach) *
+          (1 -
+            turn(
+              Math.min(within[k]!, stretches[owner[k]!]!.columns - within[k]!) *
+                step,
+            ));
+      return {
+        point: made.point,
+        first: scale(made.first, lambda),
+        second: scale(made.second, lambda * lambda),
+      };
     };
-    const turned = (k: number, L: number): IAutoMovieSolidRibbon.IRibbon | string => {
+    const turned = (
+      k: number,
+      L: number,
+    ): IAutoMovieSolidRibbon.IRibbon | string => {
       const i: number = owner[k]!;
       const s: IAutoMovieConstructionSplitBand.IStretch = stretches[i]!;
       const fromStart: number = within[k]! * step;
       const toEnd: number = (s.columns - within[k]!) * step;
       const jet: IAutoMovieSolidSurface.IJet | null = jets[k]!;
       if (jet === null && s.kind === "seam") {
-        const reading: IAutoMovieConstructionSplitSeam.IPoint = s.curve.at(share(s, within[k]!));
+        const reading: IAutoMovieConstructionSplitSeam.IPoint = s.curve.at(
+          share(s, within[k]!),
+        );
         const angle: number = (Math.PI / 4) * turn(Math.min(fromStart, toEnd));
-        const along: AutoMovieVector3Tuple = scale(reading.tangent, s.forward ? 1 : -1);
-        const away: AutoMovieVector3Tuple = scale(along, fromStart <= toEnd ? 1 : -1);
-        return { point: loop[k]!, first: scale(add(scale(ruling[i]!, Math.cos(angle)), scale(away, Math.sin(angle))), L), second: [0, 0, 0] };
+        const along: AutoMovieVector3Tuple = scale(
+          reading.tangent,
+          s.forward ? 1 : -1,
+        );
+        const away: AutoMovieVector3Tuple = scale(
+          along,
+          fromStart <= toEnd ? 1 : -1,
+        );
+        return {
+          point: loop[k]!,
+          first: scale(
+            add(
+              scale(ruling[i]!, Math.cos(angle)),
+              scale(away, Math.sin(angle)),
+            ),
+            L,
+          ),
+          second: [0, 0, 0],
+        };
       }
       if (jet === null) return `column ${k}: neither on an arc nor on a seam`;
       // The chart direction the band leaves along: the station line, or with `square` the line whose image is square to the end ring,
       // `(into, -into (S_u . S_v) / (S_v . S_v))`, so the host's 2-jet along it keeps the band G2 to the host.
-      const across: number = input.square === true && dot(jet.v, jet.v) > 0 ? (-input.host.into * dot(jet.u, jet.v)) / dot(jet.v, jet.v) : 0;
-      const hostSpeed: number = norm(add(scale(jet.u, input.host.into), scale(jet.v, across)));
-      if (!(hostSpeed > 0)) return `column ${k}: the host's station speed vanishes at its end`;
-      const own: IAutoMovieSolidRibbon.IRibbon = AutoMovieSolidRibbon.of(input.host.surface, input.host.station, phases[k]!, input.host.into, across, L / hostSpeed);
+      const across: number =
+        input.square === true && dot(jet.v, jet.v) > 0
+          ? (-input.host.into * dot(jet.u, jet.v)) / dot(jet.v, jet.v)
+          : 0;
+      const hostSpeed: number = norm(
+        add(scale(jet.u, input.host.into), scale(jet.v, across)),
+      );
+      if (!(hostSpeed > 0))
+        return `column ${k}: the host's station speed vanishes at its end`;
+      const own: IAutoMovieSolidRibbon.IRibbon = AutoMovieSolidRibbon.of(
+        input.host.surface,
+        input.host.station,
+        phases[k]!,
+        input.host.into,
+        across,
+        L / hostSpeed,
+      );
       // On an arc the nearer fork is its first column or the next seam's; a seam's first column is that seam's own fork.
       const onArc: boolean = s.kind === "arc";
       const d: number = onArc ? Math.min(fromStart, toEnd) : 0;
-      const seamIndex: number = onArc ? (fromStart <= toEnd ? (i - 1 + stretches.length) % stretches.length : (i + 1) % stretches.length) : i;
+      const seamIndex: number = onArc
+        ? fromStart <= toEnd
+          ? (i - 1 + stretches.length) % stretches.length
+          : (i + 1) % stretches.length
+        : i;
       const w: number = turn(d);
       const lateral: AutoMovieVector3Tuple | null = ruling[seamIndex] ?? null;
       if (w === 0 || lateral === null) return own;
       const ahead: AutoMovieVector3Tuple | null = unit(own.first);
       const normal: AutoMovieVector3Tuple | null = unit(cross(jet.u, jet.v));
-      if (ahead === null || normal === null) return `column ${k}: the host's tangent plane is degenerate`;
-      const side: AutoMovieVector3Tuple | null = unit(sub(sub(lateral, scale(normal, dot(lateral, normal))), scale(ahead, dot(lateral, ahead))));
-      if (side === null) return `column ${k}: the seam's ruling has no direction in the host's tangent plane square to its ribbon`;
+      if (ahead === null || normal === null)
+        return `column ${k}: the host's tangent plane is degenerate`;
+      const side: AutoMovieVector3Tuple | null = unit(
+        sub(
+          sub(lateral, scale(normal, dot(lateral, normal))),
+          scale(ahead, dot(lateral, ahead)),
+        ),
+      );
+      if (side === null)
+        return `column ${k}: the seam's ruling has no direction in the host's tangent plane square to its ribbon`;
       const angle: number = (Math.PI / 4) * w;
-      return { point: own.point, first: scale(add(scale(ahead, Math.cos(angle)), scale(side, Math.sin(angle))), L), second: scale(own.second, 1 - w) };
+      return {
+        point: own.point,
+        first: scale(
+          add(scale(ahead, Math.cos(angle)), scale(side, Math.sin(angle))),
+          L,
+        ),
+        second: scale(own.second, 1 - w),
+      };
     };
     const first: IAutoMovieSolidSurface.IJet = jets[0]!;
-    const outward: AutoMovieVector3Tuple | null = unit(scale(cross(first.u, first.v), input.host.surface.orientation));
-    if (outward === null) return "the host's tangent plane at the loop's start is degenerate";
-    const made: IAutoMovieConstructionSplitBand.IStrip | string = strip(input.name, loop, near, outward, input.child, input.crease, input.correspondence ?? "angle");
+    const outward: AutoMovieVector3Tuple | null = unit(
+      scale(cross(first.u, first.v), input.host.surface.orientation),
+    );
+    if (outward === null)
+      return "the host's tangent plane at the loop's start is degenerate";
+    const made: IAutoMovieConstructionSplitBand.IStrip | string = strip(
+      input.name,
+      loop,
+      near,
+      outward,
+      input.child,
+      input.crease,
+      input.correspondence ?? "angle",
+    );
     return typeof made === "string" ? made : { ...made, phases };
   }
 
@@ -453,7 +609,8 @@ export namespace AutoMovieConstructionSplitBand {
     profiles: readonly IAutoMovieConstructionPort.IProfile[] = [],
   ): IAutoMovieConstructionSplitBand.IStrip | string {
     const n: number = loop.length;
-    const childPhases: number[] | string = correspondence === "length" ? lengths(child, loop) : phases(child, loop);
+    const childPhases: number[] | string =
+      correspondence === "length" ? lengths(child, loop) : phases(child, loop);
     if (typeof childPhases === "string") return childPhases;
 
     const columns: {
@@ -529,7 +686,10 @@ export namespace AutoMovieConstructionSplitBand {
     // column holds at the final factor.
     const backward: number[] = [];
     for (const [k, column] of columns.entries()) {
-      const chord: AutoMovieVector3Tuple = sub(column.end.point, column.start.point);
+      const chord: AutoMovieVector3Tuple = sub(
+        column.end.point,
+        column.start.point,
+      );
       if (
         !(
           dot(chord, column.start.first) > 0 && dot(chord, column.end.first) > 0
@@ -574,7 +734,10 @@ export namespace AutoMovieConstructionSplitBand {
         : columns.map((): number => factor);
     if (typeof field === "string") return field;
     const scaled: typeof columns = columns.map(
-      (column: (typeof columns)[number], k: number): (typeof columns)[number] => ({
+      (
+        column: (typeof columns)[number],
+        k: number,
+      ): (typeof columns)[number] => ({
         start: {
           point: column.start.point,
           first: scale(column.start.first, field[k]!),
@@ -590,11 +753,17 @@ export namespace AutoMovieConstructionSplitBand {
 
     const plain: { chain: IAutoMovieLoftChain; length: number } | null =
       AutoMovieSolidBlendChain.strip(name, scaled, outward);
-    const flat: IAutoMovieSolidSurface | null = plain === null ? null : AutoMovieSolidChain.surface(plain.chain);
+    const flat: IAutoMovieSolidSurface | null =
+      plain === null ? null : AutoMovieSolidChain.surface(plain.chain);
     const published: { chain: IAutoMovieLoftChain; length: number } | null =
       profiles.length === 0 || plain === null || flat === null
         ? plain
-        : AutoMovieSolidBlendChain.strip(name, scaled, outward, sections(flat, plain.length, n, profiles));
+        : AutoMovieSolidBlendChain.strip(
+            name,
+            scaled,
+            outward,
+            sections(flat, plain.length, n, profiles),
+          );
     if (published === null)
       return "the strip has no positive span or no outward side";
     const surface: IAutoMovieSolidSurface | null = AutoMovieSolidChain.surface(
@@ -629,42 +798,102 @@ export namespace AutoMovieConstructionSplitBand {
     L: number,
     n: number,
     profiles: readonly IAutoMovieConstructionPort.IProfile[],
-  ): { t: number; jets: [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple][] }[] {
-    const shares: number[] = [...new Set(profiles.flatMap((p: IAutoMovieConstructionPort.IProfile): number[] => p.knots.map((k: [number, number]): number => k[0])))].sort(
-      (a: number, b: number): number => a - b,
-    );
+  ): {
+    t: number;
+    jets: [
+      AutoMovieVector3Tuple,
+      AutoMovieVector3Tuple,
+      AutoMovieVector3Tuple,
+    ][];
+  }[] {
+    const shares: number[] = [
+      ...new Set(
+        profiles.flatMap((p: IAutoMovieConstructionPort.IProfile): number[] =>
+          p.knots.map((k: [number, number]): number => k[0]),
+        ),
+      ),
+    ].sort((a: number, b: number): number => a - b);
     const depths: ((t: number) => [number, number, number])[] = profiles.map(
-      (p: IAutoMovieConstructionPort.IProfile): ((t: number) => [number, number, number]) =>
-        clamped([0, ...p.knots.map((k: [number, number]): number => k[0]), 1], [0, ...p.knots.map((k: [number, number]): number => k[1]), 0]),
+      (
+        p: IAutoMovieConstructionPort.IProfile,
+      ): ((t: number) => [number, number, number]) =>
+        clamped(
+          [0, ...p.knots.map((k: [number, number]): number => k[0]), 1],
+          [0, ...p.knots.map((k: [number, number]): number => k[1]), 0],
+        ),
     );
-    return shares.map((t: number): { t: number; jets: [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple][] } => ({
-      t,
-      jets: Array.from({ length: n }, (_: unknown, k: number): [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple] => {
-        const c: number = (2 * Math.PI * k) / n;
-        const jet: IAutoMovieSolidSurface.IJet = plain.jet(t * L, c);
-        const p: AutoMovieVector3Tuple = [jet.p[0], jet.p[1], jet.p[2]];
-        const d1: AutoMovieVector3Tuple = scale([jet.u[0], jet.u[1], jet.u[2]], L);
-        const d2: AutoMovieVector3Tuple = scale([jet.uu[0], jet.uu[1], jet.uu[2]], L * L);
-        const normal: AutoMovieVector3Tuple | null = unit(scale(cross(jet.u, jet.v), plain.orientation));
-        let depth: [number, number, number] = [0, 0, 0];
-        profiles.forEach((profile: IAutoMovieConstructionPort.IProfile, i: number): void => {
-          const w: number = weight(c, profile);
-          const [v, s, b]: [number, number, number] = depths[i]!(t);
-          depth = [depth[0] + w * v, depth[1] + w * s, depth[2] + w * b];
-        });
-        if (normal === null) return [p, d1, d2];
-        return [sub(p, scale(normal, depth[0])), sub(d1, scale(normal, depth[1])), sub(d2, scale(normal, depth[2]))];
+    return shares.map(
+      (
+        t: number,
+      ): {
+        t: number;
+        jets: [
+          AutoMovieVector3Tuple,
+          AutoMovieVector3Tuple,
+          AutoMovieVector3Tuple,
+        ][];
+      } => ({
+        t,
+        jets: Array.from(
+          { length: n },
+          (
+            _: unknown,
+            k: number,
+          ): [
+            AutoMovieVector3Tuple,
+            AutoMovieVector3Tuple,
+            AutoMovieVector3Tuple,
+          ] => {
+            const c: number = (2 * Math.PI * k) / n;
+            const jet: IAutoMovieSolidSurface.IJet = plain.jet(t * L, c);
+            const p: AutoMovieVector3Tuple = [jet.p[0], jet.p[1], jet.p[2]];
+            const d1: AutoMovieVector3Tuple = scale(
+              [jet.u[0], jet.u[1], jet.u[2]],
+              L,
+            );
+            const d2: AutoMovieVector3Tuple = scale(
+              [jet.uu[0], jet.uu[1], jet.uu[2]],
+              L * L,
+            );
+            const normal: AutoMovieVector3Tuple | null = unit(
+              scale(cross(jet.u, jet.v), plain.orientation),
+            );
+            let depth: [number, number, number] = [0, 0, 0];
+            profiles.forEach(
+              (
+                profile: IAutoMovieConstructionPort.IProfile,
+                i: number,
+              ): void => {
+                const w: number = weight(c, profile);
+                const [v, s, b]: [number, number, number] = depths[i]!(t);
+                depth = [depth[0] + w * v, depth[1] + w * s, depth[2] + w * b];
+              },
+            );
+            if (normal === null) return [p, d1, d2];
+            return [
+              sub(p, scale(normal, depth[0])),
+              sub(d1, scale(normal, depth[1])),
+              sub(d2, scale(normal, depth[2])),
+            ];
+          },
+        ),
       }),
-    }));
+    );
   }
 
   /**
    * The cubic spline through `(x_i, y_i)` with zero slope at both ends, read as its value and its first and second derivatives: the clamped
    * spline's second derivatives solved by the tridiagonal (Thomas) sweep.
    */
-  function clamped(x: readonly number[], y: readonly number[]): (t: number) => [number, number, number] {
+  function clamped(
+    x: readonly number[],
+    y: readonly number[],
+  ): (t: number) => [number, number, number] {
     const m: number = x.length;
-    const h: number[] = Array.from({ length: m - 1 }, (_: unknown, i: number): number => x[i + 1]! - x[i]!);
+    const h: number[] = Array.from(
+      { length: m - 1 },
+      (_: unknown, i: number): number => x[i + 1]! - x[i]!,
+    );
     const a: number[] = new Array<number>(m).fill(0);
     const b: number[] = new Array<number>(m).fill(0);
     const c: number[] = new Array<number>(m).fill(0);
@@ -688,15 +917,21 @@ export namespace AutoMovieConstructionSplitBand {
     }
     const M: number[] = new Array<number>(m).fill(0);
     M[m - 1] = r[m - 1]! / b[m - 1]!;
-    for (let i: number = m - 2; i >= 0; --i) M[i] = (r[i]! - c[i]! * M[i + 1]!) / b[i]!;
+    for (let i: number = m - 2; i >= 0; --i)
+      M[i] = (r[i]! - c[i]! * M[i + 1]!) / b[i]!;
     return (t: number): [number, number, number] => {
       let i: number = 0;
       while (i < m - 2 && t > x[i + 1]!) ++i;
       const hi: number = h[i]!;
       const A: number = (x[i + 1]! - t) / hi;
       const B: number = (t - x[i]!) / hi;
-      const value: number = A * y[i]! + B * y[i + 1]! + (((A * A * A - A) * M[i]! + (B * B * B - B) * M[i + 1]!) * hi * hi) / 6;
-      const slope: number = (y[i + 1]! - y[i]!) / hi + ((-(3 * A * A - 1) * M[i]! + (3 * B * B - 1) * M[i + 1]!) * hi) / 6;
+      const value: number =
+        A * y[i]! +
+        B * y[i + 1]! +
+        (((A * A * A - A) * M[i]! + (B * B * B - B) * M[i + 1]!) * hi * hi) / 6;
+      const slope: number =
+        (y[i + 1]! - y[i]!) / hi +
+        ((-(3 * A * A - 1) * M[i]! + (3 * B * B - 1) * M[i + 1]!) * hi) / 6;
       return [value, slope, A * M[i]! + B * M[i + 1]!];
     };
   }
@@ -741,7 +976,7 @@ export namespace AutoMovieConstructionSplitBand {
    * monotone (curves.md, Diagnose the Controls), so the column cannot turn
    * back and fold over itself.
    */
-  function monotone(column: IAutoMovieConstructionSplitBand.IColumn, f: number): boolean {
+  function monotone(column: IAutoMovieSolidRibbon.IColumn, f: number): boolean {
     const a: AutoMovieVector3Tuple = column.start.point;
     const b: AutoMovieVector3Tuple = column.end.point;
     const chord: AutoMovieVector3Tuple = sub(b, a);
@@ -800,14 +1035,21 @@ export namespace AutoMovieConstructionSplitBand {
    * columns and coordinates no work, and `create` answers the contracts for
    * the band it builds.
    */
-  function local(columns: readonly IAutoMovieConstructionSplitBand.IColumn[], backward: readonly number[], factors: readonly number[], forward: readonly IAutoMovieConstructionSplitBand.IColumn[]): number[] | string {
+  function local(
+    columns: readonly IAutoMovieSolidRibbon.IColumn[],
+    backward: readonly number[],
+    factors: readonly number[],
+    forward: readonly IAutoMovieSolidRibbon.IColumn[],
+  ): number[] | string {
     const n: number = columns.length;
     if (forward.length === 0) return columns.map((): number => 1);
     const turn: number = 2 * Math.PI;
-    const own: number[] = columns.map((column: IAutoMovieConstructionSplitBand.IColumn): number => {
-      const i: number = forward.indexOf(column);
-      return i < 0 ? Infinity : Math.log(factors[i]!);
-    });
+    const own: number[] = columns.map(
+      (column: IAutoMovieSolidRibbon.IColumn): number => {
+        const i: number = forward.indexOf(column);
+        return i < 0 ? Infinity : Math.log(factors[i]!);
+      },
+    );
     const distance = (j: number, k: number): number => {
       const d: number = Math.abs(j - k) % n;
       return (turn * Math.min(d, n - d)) / n;
@@ -816,16 +1058,29 @@ export namespace AutoMovieConstructionSplitBand {
     // the field above the column's own.
     const goal: number[] = [...own];
     for (let pass: number = 0; pass < 64; ++pass) {
-      const envelope: number[] = columns.map((_: IAutoMovieConstructionSplitBand.IColumn, k: number): number => Math.min(0, ...goal.map((g: number, j: number): number => g + LOCAL_SLOPE * distance(j, k))));
-      const smooth: number[] = columns.map((_: IAutoMovieConstructionSplitBand.IColumn, k: number): number => {
-        let [sum, weight]: [number, number] = [0, 0];
-        for (let j: number = 0; j < n; ++j) {
-          const w: number = Math.exp(-((distance(j, k) / LOCAL_SMOOTH) ** 2) / 2);
-          sum += w * envelope[j]!;
-          weight += w;
-        }
-        return sum / weight;
-      });
+      const envelope: number[] = columns.map(
+        (_: IAutoMovieSolidRibbon.IColumn, k: number): number =>
+          Math.min(
+            0,
+            ...goal.map(
+              (g: number, j: number): number =>
+                g + LOCAL_SLOPE * distance(j, k),
+            ),
+          ),
+      );
+      const smooth: number[] = columns.map(
+        (_: IAutoMovieSolidRibbon.IColumn, k: number): number => {
+          let [sum, weight]: [number, number] = [0, 0];
+          for (let j: number = 0; j < n; ++j) {
+            const w: number = Math.exp(
+              -((distance(j, k) / LOCAL_SMOOTH) ** 2) / 2,
+            );
+            sum += w * envelope[j]!;
+            weight += w;
+          }
+          return sum / weight;
+        },
+      );
       const field: number[] = smooth.map((h: number): number => Math.exp(h));
       let settled: boolean = true;
       for (const [k, column] of columns.entries()) {
@@ -837,7 +1092,8 @@ export namespace AutoMovieConstructionSplitBand {
         }
         if (monotone(column, field[k]!)) continue;
         const lower: number | null = largest(column, field[k]!);
-        if (lower === null) return "no ribbon scale keeps every column monotone along its chord";
+        if (lower === null)
+          return "no ribbon scale keeps every column monotone along its chord";
         own[k] = Math.log(lower);
         goal[k] = Math.min(goal[k]!, own[k]!);
         settled = false;
@@ -866,7 +1122,10 @@ export namespace AutoMovieConstructionSplitBand {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure numeric search coordinates no work.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function largest(column: IAutoMovieConstructionSplitBand.IColumn, from: number): number | null {
+  export function largest(
+    column: IAutoMovieSolidRibbon.IColumn,
+    from: number,
+  ): number | null {
     if (monotone(column, from)) return from;
     let hi: number = from;
     let lo: number = from / 2;
@@ -890,20 +1149,37 @@ export namespace AutoMovieConstructionSplitBand {
    * agree, from the start on the ring at which the two curves, each about its own centroid, stand closest in the least-squares sense.
    * Neither curve need be star-shaped about the centroid.
    */
-  function lengths(child: IAutoMovieConstructionSplitBand.ISide, loop: readonly AutoMovieVector3Tuple[]): number[] | string {
+  function lengths(
+    child: IAutoMovieConstructionSplitBand.ISide,
+    loop: readonly AutoMovieVector3Tuple[],
+  ): number[] | string {
     const turn: number = 2 * Math.PI;
     const samples: number = 8 * loop.length;
     const at = (psi: number): AutoMovieVector3Tuple => {
-      const p: readonly number[] = child.surface.point?.(railAt(child, psi), psi) ?? child.surface.jet(railAt(child, psi), psi).p;
+      const p: readonly number[] =
+        child.surface.point?.(railAt(child, psi), psi) ??
+        child.surface.jet(railAt(child, psi), psi).p;
       return [p[0]!, p[1]!, p[2]!];
     };
-    const ring: AutoMovieVector3Tuple[] = Array.from({ length: samples + 1 }, (_: unknown, j: number): AutoMovieVector3Tuple => at((turn * j) / samples));
-    const newell = (points: readonly AutoMovieVector3Tuple[]): { centre: AutoMovieVector3Tuple; normal: AutoMovieVector3Tuple | null } => {
+    const ring: AutoMovieVector3Tuple[] = Array.from(
+      { length: samples + 1 },
+      (_: unknown, j: number): AutoMovieVector3Tuple =>
+        at((turn * j) / samples),
+    );
+    const newell = (
+      points: readonly AutoMovieVector3Tuple[],
+    ): {
+      centre: AutoMovieVector3Tuple;
+      normal: AutoMovieVector3Tuple | null;
+    } => {
       let centre: AutoMovieVector3Tuple = [0, 0, 0];
       for (const q of points) centre = add(centre, scale(q, 1 / points.length));
       let area: AutoMovieVector3Tuple = [0, 0, 0];
       points.forEach((q: AutoMovieVector3Tuple, j: number): void => {
-        area = add(area, cross(sub(q, centre), sub(points[(j + 1) % points.length]!, centre)));
+        area = add(
+          area,
+          cross(sub(q, centre), sub(points[(j + 1) % points.length]!, centre)),
+        );
       });
       return { centre, normal: unit(area) };
     };
@@ -914,12 +1190,17 @@ export namespace AutoMovieConstructionSplitBand {
     const sense: 1 | -1 = dot(rim.normal, lap.normal) > 0 ? 1 : -1;
     // Cumulative arclength round the ring at its samples, and round the loop at its columns.
     const along: number[] = [0];
-    for (let j: number = 1; j <= samples; ++j) along.push(along[j - 1]! + norm(sub(ring[j]!, ring[j - 1]!)));
+    for (let j: number = 1; j <= samples; ++j)
+      along.push(along[j - 1]! + norm(sub(ring[j]!, ring[j - 1]!)));
     const total: number = along[samples]!;
     const lapAlong: number[] = [0];
-    for (let k: number = 1; k <= loop.length; ++k) lapAlong.push(lapAlong[k - 1]! + norm(sub(loop[k % loop.length]!, loop[k - 1]!)));
+    for (let k: number = 1; k <= loop.length; ++k)
+      lapAlong.push(
+        lapAlong[k - 1]! + norm(sub(loop[k % loop.length]!, loop[k - 1]!)),
+      );
     const lapTotal: number = lapAlong[loop.length]!;
-    if (!(total > 0 && lapTotal > 0)) return "the child's rail ring or the loop has no length";
+    if (!(total > 0 && lapTotal > 0))
+      return "the child's rail ring or the loop has no length";
     // The sample at an arclength round the ring: the last whose arclength does not pass it, by bisection.
     const below = (x: number): number => {
       let lo: number = 0;
@@ -954,7 +1235,13 @@ export namespace AutoMovieConstructionSplitBand {
     for (let j: number = 0; j < samples; ++j) {
       let cost: number = 0;
       for (let k: number = 0; k < loop.length && cost < least; ++k) {
-        const d: AutoMovieVector3Tuple = sub(sub(pointAt(along[j]! + sense * (lapAlong[k]! / lapTotal) * total), rim.centre), sub(loop[k]!, lap.centre));
+        const d: AutoMovieVector3Tuple = sub(
+          sub(
+            pointAt(along[j]! + sense * (lapAlong[k]! / lapTotal) * total),
+            rim.centre,
+          ),
+          sub(loop[k]!, lap.centre),
+        );
         cost += dot(d, d);
       }
       if (cost < least) [least, anchor] = [cost, j];
@@ -962,13 +1249,17 @@ export namespace AutoMovieConstructionSplitBand {
     const start: number = along[anchor]!;
     const out: number[] = [];
     for (let k: number = 0; k < loop.length; ++k) {
-      const psi: number = phaseAt(start + sense * (lapAlong[k]! / lapTotal) * total);
+      const psi: number = phaseAt(
+        start + sense * (lapAlong[k]! / lapTotal) * total,
+      );
       if (k === 0) {
         out.push(psi);
         continue;
       }
-      const step: number = sense * ((((sense * (psi - out[k - 1]!)) % turn) + turn) % turn);
-      if (!(step !== 0)) return `the child's rail phase does not advance at column ${k}`;
+      const step: number =
+        sense * ((((sense * (psi - out[k - 1]!)) % turn) + turn) % turn);
+      if (!(step !== 0))
+        return `the child's rail phase does not advance at column ${k}`;
       out.push(out[k - 1]! + step);
     }
     return out;
@@ -977,16 +1268,22 @@ export namespace AutoMovieConstructionSplitBand {
   /**
    * The child's rail phase at each loop point: the phase whose rail point stands at the loop point's angle about the rail ring's centroid, in the ring's Newell plane; or why none is admitted.
    */
-  function phases(child: IAutoMovieConstructionSplitBand.ISide, loop: readonly AutoMovieVector3Tuple[]): number[] | string {
+  function phases(
+    child: IAutoMovieConstructionSplitBand.ISide,
+    loop: readonly AutoMovieVector3Tuple[],
+  ): number[] | string {
     const turn: number = 2 * Math.PI;
     const samples: number = 8 * loop.length;
-    const at: (psi: number) => AutoMovieVector3Tuple = (psi: number): AutoMovieVector3Tuple => [
+    const at: (psi: number) => AutoMovieVector3Tuple = (
+      psi: number,
+    ): AutoMovieVector3Tuple => [
       ...(child.surface.point?.(railAt(child, psi), psi) ??
         child.surface.jet(railAt(child, psi), psi).p),
     ];
     const ring: AutoMovieVector3Tuple[] = Array.from(
       { length: samples },
-      (_: unknown, j: number): AutoMovieVector3Tuple => at((turn * j) / samples),
+      (_: unknown, j: number): AutoMovieVector3Tuple =>
+        at((turn * j) / samples),
     );
 
     // The ring's centroid and its Newell normal (the polygon's area vector).
@@ -1002,10 +1299,14 @@ export namespace AutoMovieConstructionSplitBand {
     const normal: AutoMovieVector3Tuple | null = unit(area);
     if (normal === null) return "the child's rail ring encloses no area";
     const d0: AutoMovieVector3Tuple = sub(ring[0]!, centre);
-    const e1: AutoMovieVector3Tuple | null = unit(sub(d0, scale(normal, dot(d0, normal))));
+    const e1: AutoMovieVector3Tuple | null = unit(
+      sub(d0, scale(normal, dot(d0, normal))),
+    );
     if (e1 === null) return "the child's rail ring starts at its centroid";
     const e2: AutoMovieVector3Tuple = cross(normal, e1);
-    const angle: (p: AutoMovieVector3Tuple) => number = (p: AutoMovieVector3Tuple): number => {
+    const angle: (p: AutoMovieVector3Tuple) => number = (
+      p: AutoMovieVector3Tuple,
+    ): number => {
       const d: AutoMovieVector3Tuple = sub(p, centre);
       return Math.atan2(dot(d, e2), dot(d, e1));
     };

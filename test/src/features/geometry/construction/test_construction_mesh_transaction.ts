@@ -1,5 +1,14 @@
-import type { IAutoMovieSolidBody, IAutoMovieSolidMesh, IAutoMovieSolidSurface } from "@automovie/interface";
-import { AutoMovieSolidBody, AutoMovieSolidCycle, AutoMovieSolidMesh, AutoMovieSolidMeshLoop } from "@automovie/engine";
+import {
+  AutoMovieSolidBody,
+  AutoMovieSolidCycle,
+  AutoMovieSolidMesh,
+  AutoMovieSolidMeshLoop,
+} from "@automovie/engine";
+import type {
+  IAutoMovieSolidBody,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { HumanSolidShapes } from "../../internal/HumanSolidShapes";
 import { nclose } from "../../internal/nclose";
@@ -73,9 +82,10 @@ export function test_construction_mesh_transaction(): void {
   }
 
   // Body must not turn an absent callback into an always-present no-op wrapper.
-  const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create("bad-body", [
-    { surface: bad, stations: [0, 1], phases: [0, 1] },
-  ]);
+  const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
+    "bad-body",
+    [{ surface: bad, stations: [0, 1], phases: [0, 1] }],
+  );
   let bodyError: unknown;
   try {
     AutoMovieSolidBody.draw(body);

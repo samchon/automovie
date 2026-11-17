@@ -39,6 +39,7 @@ export type { IAutoMovieSurfaceCurveRig } from "./IAutoMovieSurfaceCurveRig";
 export type { IAutoMovieSurfaceLayout } from "./IAutoMovieSurfaceLayout";
 export type { IAutoMovieSurfaceLocation } from "./IAutoMovieSurfaceLocation";
 export type { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
+export type { IAutoMovieSurfaceNetworkBindings } from "./IAutoMovieSurfaceNetworkBindings";
 export type { IAutoMovieSurfacePoint } from "./IAutoMovieSurfacePoint";
 export type { IAutoMovieSurfaceRegistry } from "./IAutoMovieSurfaceRegistry";
 export type { IAutoMovieSurfaceRig } from "./IAutoMovieSurfaceRig";

@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanWorkoutBodyweight } from "./IAutoMovieMotionHumanWorkoutBodyweight";
 import type { IAutoMovieMotionHumanWorkoutEquipment } from "./IAutoMovieMotionHumanWorkoutEquipment";
 import type { IAutoMovieMotionHumanWorkoutFloor } from "./IAutoMovieMotionHumanWorkoutFloor";
@@ -7,7 +8,6 @@ import type { IAutoMovieMotionHumanWorkoutLoad } from "./IAutoMovieMotionHumanWo
 import type { IAutoMovieMotionHumanWorkoutLying } from "./IAutoMovieMotionHumanWorkoutLying";
 import type { IAutoMovieMotionHumanWorkoutPoses } from "./IAutoMovieMotionHumanWorkoutPoses";
 import type { IAutoMovieMotionHumanWorkoutStanding } from "./IAutoMovieMotionHumanWorkoutStanding";
-import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 
 /**
  * An exercise, a stretch or a pose done on a support that is not only the

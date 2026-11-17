@@ -4,7 +4,7 @@ import type { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
 export namespace IAutoMovieParameterizeSweepSection {
   /**
    * Parameterize a section curve over one closed parameter interval.
-   * 
+   *
    * The parameter `t` runs over `[0, 1)` and wraps; the curve is split into
    * equal parameter spans, one per segment. A superellipse has four, one per
    * quadrant, its angle parameter `p = 2 pi t` as `IAutoMovieSweepSection`

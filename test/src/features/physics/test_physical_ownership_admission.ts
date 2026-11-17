@@ -1,6 +1,8 @@
-import type { IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
-
+import type {
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -26,7 +28,8 @@ export function test_physical_ownership_admission(): void {
     profile,
     1 / 120,
   );
-  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], 1 / 120);
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([body], 1 / 120);
   const branch: string[] = ["upper-0", "lower-0", "support-0"];
   for (const selected of [undefined, [], ["support-0"], branch]) {
     body.targets[0]!.dynamicSegments = selected;

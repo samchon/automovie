@@ -1,4 +1,8 @@
-import type { AutoMovieHumanoidRegion, IAutoMovieMotionHumanCoupled, IAutoMovieMotionHumanMutual } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanCoupled,
+  IAutoMovieMotionHumanMutual,
+} from "@automovie/interface";
 
 import { getUp } from "../floor/getUp";
 
@@ -48,9 +52,11 @@ import { getUp } from "../floor/getUp";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No law is written per hold: the coupling, the response and the support sequence are their owners'.
  */
 export namespace HumanCoupled {
-
   /** One person carries another: the bearer `bearing`, the borne `borne`, coupled. */
-  export const carry: IAutoMovieMotionHumanMutual<IAutoMovieMotionHumanCoupled.ICarry, "bearer" | "borne"> = {
+  export const carry: IAutoMovieMotionHumanMutual<
+    IAutoMovieMotionHumanCoupled.ICarry,
+    "bearer" | "borne"
+  > = {
     name: "carry",
     roles: ["bearer", "borne"],
     act: (
@@ -86,7 +92,10 @@ export namespace HumanCoupled {
    * that hand gripping the helper's palm, which bears on the helper while
    * the hand holds and lets go once the feet bear alone.
    */
-  export const helpUp: IAutoMovieMotionHumanMutual<IAutoMovieMotionHumanCoupled.IHelpUp, "helper" | "helped"> = {
+  export const helpUp: IAutoMovieMotionHumanMutual<
+    IAutoMovieMotionHumanCoupled.IHelpUp,
+    "helper" | "helped"
+  > = {
     name: "helpUp",
     roles: ["helper", "helped"],
     act: (
@@ -188,7 +197,9 @@ export namespace HumanCoupled {
   };
 
   /** The thrower's region each throw turns the thrown body over. */
-  export const FULCRUMS: Readonly<Record<IAutoMovieMotionHumanCoupled.Throw, AutoMovieHumanoidRegion>> = {
+  export const FULCRUMS: Readonly<
+    Record<IAutoMovieMotionHumanCoupled.Throw, AutoMovieHumanoidRegion>
+  > = {
     seoiNage: "upperBack",
     oGoshi: "lowerBack",
     oSotoGari: "thighOuterRight",
@@ -199,7 +210,10 @@ export namespace HumanCoupled {
   export const ON: AutoMovieHumanoidRegion = "abdomen";
 
   /** One person throws another: the thrower grips (`clinch`), the thrown answers the pull (`perturb`). */
-  export const throwing: IAutoMovieMotionHumanMutual<IAutoMovieMotionHumanCoupled.IThrow, "thrower" | "thrown"> = {
+  export const throwing: IAutoMovieMotionHumanMutual<
+    IAutoMovieMotionHumanCoupled.IThrow,
+    "thrower" | "thrown"
+  > = {
     name: "throw",
     roles: ["thrower", "thrown"],
     act: (

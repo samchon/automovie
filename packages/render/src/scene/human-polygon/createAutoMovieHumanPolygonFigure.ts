@@ -1,5 +1,4 @@
 import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
-
 import type * as THREE from "three";
 
 import type { AutoMovieHumanCartoon } from "./AutoMovieHumanCartoon.js";
@@ -51,7 +50,10 @@ export function createAutoMovieHumanPolygonFigure(input: {
     drawing,
     unsupported: [],
     place: (
-      output: Pick<Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">, "posed">,
+      output: Pick<
+        Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">,
+        "posed"
+      >,
       head?: AutoMovieHumanCartoon.IHeadPose,
       expression?: AutoMovieHumanCartoon.IExpression,
     ): void => {
@@ -111,7 +113,10 @@ export namespace createAutoMovieHumanPolygonFigure {
      * @param expression Optional facial expression.
      */
     place(
-      output: Pick<Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">, "posed">,
+      output: Pick<
+        Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">,
+        "posed"
+      >,
       head?: AutoMovieHumanCartoon.IHeadPose,
       expression?: AutoMovieHumanCartoon.IExpression,
     ): void;

@@ -1,4 +1,5 @@
 import type { IAutoMovieRecoveryChartRefinementClosure } from "@automovie/interface";
+
 /**
  * Close a private rectangle split under laminar opposed interface intervals. Bounds are global unit-square [u0,u1,v0,v1] coordinates; axes 0 and 1 vary u and v. An exact endpoint sweep first establishes one covering layer over every positive-area cell. Every subsequent strict split preserves that partition without moving an endpoint. Proper overlaps propagate an existing smaller end into the opposite leaf; identical, contained and disjoint interfaces need no additional split. Stable geometric and name ordering makes input permutations equivalent.
  *
@@ -12,13 +13,13 @@ import type { IAutoMovieRecoveryChartRefinementClosure } from "@automovie/interf
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One endpoint-compressed range-count tree serves each coverage sweep. Each closure round reuses its edge lists to find the first conflict, and every propagated parameter is an existing exact endpoint rather than a new geometric calculation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local leaves, historical names, endpoint trees and edge lists expire on return or failure. Every split increases leaf count by one, bounded by maxLeaves; output owns its arrays and no caller state or external handle is retained.
  */
-export function RecoveryChartRefinementClosure(input: Parameters<IAutoMovieRecoveryChartRefinementClosure.Operation>[0]): ReturnType<IAutoMovieRecoveryChartRefinementClosure.Operation> {
-  type Leaf = ReturnType<
-    IAutoMovieRecoveryChartRefinementClosure.Operation
-  >["leaves"][number];
-  type Split = ReturnType<
-    IAutoMovieRecoveryChartRefinementClosure.Operation
-  >["splits"][number];
+export function RecoveryChartRefinementClosure(
+  input: Parameters<IAutoMovieRecoveryChartRefinementClosure.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartRefinementClosure.Operation> {
+  type Leaf =
+    ReturnType<IAutoMovieRecoveryChartRefinementClosure.Operation>["leaves"][number];
+  type Split =
+    ReturnType<IAutoMovieRecoveryChartRefinementClosure.Operation>["splits"][number];
   type Edge = { leaf: string; start: number; end: number };
   type Line = {
     axis: 0 | 1;
@@ -69,7 +70,8 @@ export function RecoveryChartRefinementClosure(input: Parameters<IAutoMovieRecov
       id: leaf.id,
       root: leaf.root,
       level: leaf.level,
-      bounds: [leaf.bounds[0], leaf.bounds[1], leaf.bounds[2], leaf.bounds[3]] });
+      bounds: [leaf.bounds[0], leaf.bounds[1], leaf.bounds[2], leaf.bounds[3]],
+    });
   }
   const coverage: () => void = (): void => {
     const rows: Leaf[] = [...leaves.values()];
@@ -95,7 +97,8 @@ export function RecoveryChartRefinementClosure(input: Parameters<IAutoMovieRecov
               x: leaf.bounds[side]!,
               lo: indices.get(leaf.bounds[2])!,
               hi: indices.get(leaf.bounds[3])! - 1,
-              delta }),
+              delta,
+            }),
           ),
       );
     events.sort(
@@ -199,7 +202,8 @@ export function RecoveryChartRefinementClosure(input: Parameters<IAutoMovieRecov
         id,
         root: parent.root,
         level: parent.level + 1,
-        bounds });
+        bounds,
+      });
     }
     splits.push({ ...request });
   };
@@ -244,7 +248,8 @@ export function RecoveryChartRefinementClosure(input: Parameters<IAutoMovieRecov
             leaf: second.leaf,
             axis: line.axis,
             parameter: first.end,
-            reason: "interface-closure" };
+            reason: "interface-closure",
+          };
         else if (
           second.start < first.start &&
           first.start < second.end &&
@@ -254,7 +259,8 @@ export function RecoveryChartRefinementClosure(input: Parameters<IAutoMovieRecov
             leaf: first.leaf,
             axis: line.axis,
             parameter: second.end,
-            reason: "interface-closure" };
+            reason: "interface-closure",
+          };
         if (next) break;
         if (first.end <= second.end) a++;
         if (second.end <= first.end) b++;
@@ -273,5 +279,6 @@ export function RecoveryChartRefinementClosure(input: Parameters<IAutoMovieRecov
     diagnostics: [
       `Private interface closure applied ${splits.length - 1} propagated splits after one requested split; exact rectangle coverage and opposed laminar intervals checked`,
       "Coefficient C0 constraints, field prolongation, added degrees of freedom and source correspondence require separate consumer validation",
-    ] };
+    ],
+  };
 }

@@ -1,4 +1,10 @@
-import type { IAutoMovieRecoveryEventRegion, IAutoMovieRecoveryEventRegionCells, IAutoMovieRecoveryEventRegionSource, IAutoMovieRecoveryEventRegionTopology } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryEventRegion,
+  IAutoMovieRecoveryEventRegionCells,
+  IAutoMovieRecoveryEventRegionSource,
+  IAutoMovieRecoveryEventRegionTopology,
+} from "@automovie/interface";
+
 import { RecoveryEventRegionCells } from "./RecoveryEventRegionCells";
 import { RecoveryEventRegionPorts } from "./RecoveryEventRegionPorts";
 import { RecoveryEventRegionSource } from "./RecoveryEventRegionSource";
@@ -24,10 +30,14 @@ import { RecoveryEventRegionTopology } from "./RecoveryEventRegionTopology";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Source addresses, exact alias equality, triangle rank and duplicate occurrence detection are prepared once. Query roots, edge occurrences and vertex links are reused for topology, contacts and port ownership without recomputing geometry.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Preparation retains immutable source references and per-face metadata until its caller releases the closure. Temporary integer coordinates are cleared after rank admission. Query maps expire on return; the caller owns private cell and incidence records and must not publish them as engine geometry.
  */
-export function RecoveryEventRegion(source: Parameters<IAutoMovieRecoveryEventRegion.Operation>[0]): ReturnType<IAutoMovieRecoveryEventRegion.Operation> {
+export function RecoveryEventRegion(
+  source: Parameters<IAutoMovieRecoveryEventRegion.Operation>[0],
+): ReturnType<IAutoMovieRecoveryEventRegion.Operation> {
   const prepared: ReturnType<IAutoMovieRecoveryEventRegionSource.Operation> =
     RecoveryEventRegionSource(source);
-  return (query: IAutoMovieRecoveryEventRegion.Query): IAutoMovieRecoveryEventRegion.Result => {
+  return (
+    query: IAutoMovieRecoveryEventRegion.Query,
+  ): IAutoMovieRecoveryEventRegion.Result => {
     const work: ReturnType<IAutoMovieRecoveryEventRegionCells.Operation> =
       RecoveryEventRegionCells(source, prepared, query);
     const topology: ReturnType<IAutoMovieRecoveryEventRegionTopology.Operation> =

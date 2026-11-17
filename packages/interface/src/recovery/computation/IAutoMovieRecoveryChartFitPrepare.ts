@@ -1,6 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryChartControlRelations, IAutoMovieRecoveryChartFit } from "../../index";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryChartControlRelations,
+  IAutoMovieRecoveryChartFit,
+} from "../../index";
 
 /**
  * Admit and normalize one chart before sparse observation assembly.
@@ -12,63 +14,60 @@ import type { AutoMovieVector3Tuple, IAutoMovieRecoveryChartControlRelations, IA
  */
 
 export namespace IAutoMovieRecoveryChartFitPrepare {
-/**
- * Admit and normalize one chart before sparse observation assembly.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Checks finite Cartesian coordinates without repairing or clamping values. Lower componentwise physical control bound in registered millimetres.
- * @evidence contracts/development/design.md#principled-representation Checks finite Cartesian coordinates without repairing or clamping values.
- * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartFit, RecoveryChartFitPrepare, RecoveryChartFitReport share IAutoMovieRecoveryChartFitPrepare's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Checks finite Cartesian coordinates without repairing or clamping values.
- */
+  /**
+   * Admit and normalize one chart before sparse observation assembly.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Checks finite Cartesian coordinates without repairing or clamping values. Lower componentwise physical control bound in registered millimetres.
+   * @evidence contracts/development/design.md#principled-representation Checks finite Cartesian coordinates without repairing or clamping values.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartFit, RecoveryChartFitPrepare, RecoveryChartFitReport share IAutoMovieRecoveryChartFitPrepare's canonical records; the referenced quantities retain one declaration owner.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Checks finite Cartesian coordinates without repairing or clamping values.
+   */
 
-export type Operation = (input: IAutoMovieRecoveryChartFitPrepare.Input) => {
- 
- /** Checks finite Cartesian coordinates without repairing or clamping values. */
-finite: (p: Readonly<AutoMovieVector3Tuple>) => boolean;
- 
- /** Lower componentwise physical control bound in registered millimetres. */
-lower: Readonly<AutoMovieVector3Tuple>;
- 
- /** Upper componentwise physical control bound in registered millimetres. */
-upper: Readonly<AutoMovieVector3Tuple>;
- 
- /** Physical millimetre origin subtracted from coefficient positions before normalization. */
-origin: number[];
- 
- /** Positive common millimetre scale used to normalize the physical coefficient box. */
-scale: number;
- 
- /** Original control index to independent solver slot; fixed or dependent entries retain the owner's sentinel. */
-slots: Int32Array;
- 
- /** Admitted ceiling on sparse stencil entries after affine substitution. */
-maximumRowBudget: number;
- 
- /** Admitted acyclic affine substitution, preserving fixed values and independent control identities. */
-reduced: ReturnType<IAutoMovieRecoveryChartControlRelations.Operation>;
- 
- /** Number of independent vector controls after fixed and affine dependent controls are eliminated. */
-unknowns: number;
- 
- /** Fixed affine contributions after subtracting the admitted origin and dividing by the common scale. */
-normalizedConstants: Readonly<AutoMovieVector3Tuple>[];
- 
- /** Sum of positive observation weights used to normalize the assembled objective. */
-totalWeight: number;
- 
- /** Evaluates the normalized cubic Bernstein basis at the supplied local parameter. */
-basis: (t: number) => number[];
-};
+  export type Operation = (input: IAutoMovieRecoveryChartFitPrepare.Input) => {
+    /** Checks finite Cartesian coordinates without repairing or clamping values. */
+    finite: (p: Readonly<AutoMovieVector3Tuple>) => boolean;
 
+    /** Lower componentwise physical control bound in registered millimetres. */
+    lower: Readonly<AutoMovieVector3Tuple>;
 
-/**
- * Input observations and explicit numerical policy for RecoveryChartFitPrepare. The supplying workflow owns admission before execution.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Admit and normalize one chart before sparse observation assembly.
- * @evidence contracts/development/design.md#principled-representation Admit and normalize one chart before sparse observation assembly.
- * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartFit, RecoveryChartFitPrepare, RecoveryChartFitReport share IAutoMovieRecoveryChartFitPrepare's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
- */
-export type Input = IAutoMovieRecoveryChartFit.Input;
+    /** Upper componentwise physical control bound in registered millimetres. */
+    upper: Readonly<AutoMovieVector3Tuple>;
+
+    /** Physical millimetre origin subtracted from coefficient positions before normalization. */
+    origin: number[];
+
+    /** Positive common millimetre scale used to normalize the physical coefficient box. */
+    scale: number;
+
+    /** Original control index to independent solver slot; fixed or dependent entries retain the owner's sentinel. */
+    slots: Int32Array;
+
+    /** Admitted ceiling on sparse stencil entries after affine substitution. */
+    maximumRowBudget: number;
+
+    /** Admitted acyclic affine substitution, preserving fixed values and independent control identities. */
+    reduced: ReturnType<IAutoMovieRecoveryChartControlRelations.Operation>;
+
+    /** Number of independent vector controls after fixed and affine dependent controls are eliminated. */
+    unknowns: number;
+
+    /** Fixed affine contributions after subtracting the admitted origin and dividing by the common scale. */
+    normalizedConstants: Readonly<AutoMovieVector3Tuple>[];
+
+    /** Sum of positive observation weights used to normalize the assembled objective. */
+    totalWeight: number;
+
+    /** Evaluates the normalized cubic Bernstein basis at the supplied local parameter. */
+    basis: (t: number) => number[];
+  };
+
+  /**
+   * Input observations and explicit numerical policy for RecoveryChartFitPrepare. The supplying workflow owns admission before execution.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Admit and normalize one chart before sparse observation assembly.
+   * @evidence contracts/development/design.md#principled-representation Admit and normalize one chart before sparse observation assembly.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartFit, RecoveryChartFitPrepare, RecoveryChartFitReport share IAutoMovieRecoveryChartFitPrepare's canonical records; the referenced quantities retain one declaration owner.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
+   */
+  export type Input = IAutoMovieRecoveryChartFit.Input;
 }
-

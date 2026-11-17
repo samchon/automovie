@@ -1,5 +1,8 @@
-import type { IAutoMovieMotionHumanTouchForm, IAutoMovieBodyMeasure, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieBodyMeasure,
+  IAutoMovieMotionHumanTouchForm,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanTouchForm } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

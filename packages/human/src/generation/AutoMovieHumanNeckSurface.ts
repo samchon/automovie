@@ -1,10 +1,11 @@
-import type { IAutoMovieLoftChain, IAutoMovieHumanBodyCalibration, IAutoMovieHumanNeckSurface } from "@automovie/interface";
-
-
-
 import { AutoMovieLoftChain } from "@automovie/engine";
-import { AutoMovieHumanNeckSurfaceSampling } from "./AutoMovieHumanNeckSurfaceSampling";
+import type {
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanNeckSurface,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
+import { AutoMovieHumanNeckSurfaceSampling } from "./AutoMovieHumanNeckSurfaceSampling";
 
 /**
  * A small display copy of the prepared body's actual neck and head exterior.
@@ -29,12 +30,6 @@ import { AutoMovieHumanNeckSurfaceSampling } from "./AutoMovieHumanNeckSurfaceSa
  * @evidence contracts/performance.md#bound-retention-and-release-resources The producer retains no body or cache; its caller owns six rings, a pole and scalar metadata after temporary measurements are released.
  */
 export namespace AutoMovieHumanNeckSurface {
-  
-
-  
-
-  
-
   /**
    * Copy four neck courses, two head courses and the prepared source crown.
    *
@@ -105,17 +100,15 @@ export namespace AutoMovieHumanNeckSurface {
       (_: unknown, i: number): number => (2 * Math.PI * i) / 8,
     );
     const lowerStation: number = upper.layers[upper.layers.length - 1]!.y;
-    const lowerHeight: number = AutoMovieLoftChain.axis(
-      upper,
-      lowerStation,
-    )[1];
-    const lower: IAutoMovieHumanNeckSurface.ISection = AutoMovieHumanNeckSurfaceSampling.section(
-      upper,
-      lowerStation,
-      lowerHeight,
-      phases,
-      scale,
-    );
+    const lowerHeight: number = AutoMovieLoftChain.axis(upper, lowerStation)[1];
+    const lower: IAutoMovieHumanNeckSurface.ISection =
+      AutoMovieHumanNeckSurfaceSampling.section(
+        upper,
+        lowerStation,
+        lowerHeight,
+        phases,
+        scale,
+      );
 
     const chains: IAutoMovieLoftChain[] = body.chains.filter(
       (chain: IAutoMovieLoftChain): boolean =>
@@ -178,20 +171,24 @@ export namespace AutoMovieHumanNeckSurface {
           chain.name,
         ),
     );
-    const headSections: [IAutoMovieHumanNeckSurface.ISection, IAutoMovieHumanNeckSurface.ISection] = [1, 2].map(
-      (index: number): IAutoMovieHumanNeckSurface.ISection => {
-        const height: number =
-          neckTopHeight + ((crown.point[1] - neckTopHeight) * index) / 3;
-        const at: ICourse = course(headChains, height);
-        return AutoMovieHumanNeckSurfaceSampling.section(
-          at.chain,
-          at.station,
-          height,
-          phases,
-          scale,
-        );
-      },
-    ) as [IAutoMovieHumanNeckSurface.ISection, IAutoMovieHumanNeckSurface.ISection];
+    const headSections: [
+      IAutoMovieHumanNeckSurface.ISection,
+      IAutoMovieHumanNeckSurface.ISection,
+    ] = [1, 2].map((index: number): IAutoMovieHumanNeckSurface.ISection => {
+      const height: number =
+        neckTopHeight + ((crown.point[1] - neckTopHeight) * index) / 3;
+      const at: ICourse = course(headChains, height);
+      return AutoMovieHumanNeckSurfaceSampling.section(
+        at.chain,
+        at.station,
+        height,
+        phases,
+        scale,
+      );
+    }) as [
+      IAutoMovieHumanNeckSurface.ISection,
+      IAutoMovieHumanNeckSurface.ISection,
+    ];
 
     return {
       units: "metres",
@@ -281,8 +278,7 @@ function course(
       // A source interval brackets the target; no world-Y/station identity is used.
       for (let iteration: number = 0; iteration < 64; ++iteration) {
         const mid: number = (lo + hi) / 2;
-        const value: number =
-          AutoMovieLoftChain.axis(chain, mid)[1] - height;
+        const value: number = AutoMovieLoftChain.axis(chain, mid)[1] - height;
         if (Math.abs(value) <= 1e-6 || hi - lo <= 1e-6) {
           hi = mid;
           lo = mid;

@@ -1,12 +1,12 @@
-import type { IAutoMovieHandAnthropometry, AutoMovieHumanSex as AutoMovieHumanSexType, AutoMovieVector3Tuple, IAutoMovieHumanDigitWalk } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieHumanSex as AutoMovieHumanSexType,
+  AutoMovieVector3Tuple,
+  IAutoMovieHandAnthropometry,
+  IAutoMovieHumanDigitWalk,
+} from "@automovie/interface";
 
 import { AutoMovieHumanDigitJoints } from "../AutoMovieHumanDigitJoints";
-
 import { AutoMovieHumanArmInterim } from "../arm/AutoMovieHumanArmInterim";
-
 
 /**
  * The digits' walks from their published joints. Each finger and the thumb
@@ -49,20 +49,44 @@ export namespace AutoMovieHumanDigitInterim {
    * @param scale Calibration millimetres per world millimetre.
    * @returns The walk's input.
    */
-  export function finger(name: string, centres: AutoMovieVector3Tuple[], dorsal: AutoMovieVector3Tuple, sex: AutoMovieHumanSexType, handLength: number, digit: 1 | 2 | 3 | 4 | 5, scale: number): IAutoMovieHumanDigitWalk.IInput {
+  export function finger(
+    name: string,
+    centres: AutoMovieVector3Tuple[],
+    dorsal: AutoMovieVector3Tuple,
+    sex: AutoMovieHumanSexType,
+    handLength: number,
+    digit: 1 | 2 | 3 | 4 | 5,
+    scale: number,
+  ): IAutoMovieHumanDigitWalk.IInput {
     const law = (joint: 1 | 2): IAutoMovieHumanDigitWalk.ISiteLaw => {
-      const j: IAutoMovieHandAnthropometry.IJoint = AutoMovieHumanDigitJoints.at(sex, handLength, digit, joint);
+      const j: IAutoMovieHandAnthropometry.IJoint =
+        AutoMovieHumanDigitJoints.at(sex, handLength, digit, joint);
       const breadth: number = j.breadth * scale;
-      return { breadth, depth: AutoMovieHumanArmInterim.ellipseDepth(breadth, j.girth * scale), dorsal: 0.5, shoulder: Math.SQRT2 - 1 };
+      return {
+        breadth,
+        depth: AutoMovieHumanArmInterim.ellipseDepth(breadth, j.girth * scale),
+        dorsal: 0.5,
+        shoulder: Math.SQRT2 - 1,
+      };
     };
     const near: IAutoMovieHumanDigitWalk.ISiteLaw = law(2);
     const far: IAutoMovieHumanDigitWalk.ISiteLaw = law(1);
     const tip: AutoMovieVector3Tuple = centres.at(-1)!;
     const previous: AutoMovieVector3Tuple = centres.at(-2)!;
-    const length: number = Math.hypot(tip[0] - previous[0], tip[1] - previous[1], tip[2] - previous[2]);
+    const length: number = Math.hypot(
+      tip[0] - previous[0],
+      tip[1] - previous[1],
+      tip[2] - previous[2],
+    );
     const reach: number = far.depth / 2;
-    if (!(length > reach)) throw new Error(`The declared ${name} apex leaves no distal centre before its cap`);
-    const end: AutoMovieVector3Tuple = [0, 1, 2].map((axis: number): number => tip[axis]! - (tip[axis]! - previous[axis]!) * reach / length) as AutoMovieVector3Tuple;
+    if (!(length > reach))
+      throw new Error(
+        `The declared ${name} apex leaves no distal centre before its cap`,
+      );
+    const end: AutoMovieVector3Tuple = [0, 1, 2].map(
+      (axis: number): number =>
+        tip[axis]! - ((tip[axis]! - previous[axis]!) * reach) / length,
+    ) as AutoMovieVector3Tuple;
     return walk(name, [...centres.slice(0, -1), end], dorsal, near, far);
   }
 
@@ -76,16 +100,29 @@ export namespace AutoMovieHumanDigitInterim {
    * @param far The law at the joint nearer the tip.
    * @returns The walk's input.
    */
-  export function walk(name: string, centres: AutoMovieVector3Tuple[], dorsal: AutoMovieVector3Tuple, near: IAutoMovieHumanDigitWalk.ISiteLaw, far: IAutoMovieHumanDigitWalk.ISiteLaw): IAutoMovieHumanDigitWalk.IInput {
-    const mean: IAutoMovieHumanDigitWalk.ISiteLaw = near === far ? near : {
-      breadth: (near.breadth + far.breadth) / 2,
-      depth: (near.depth + far.depth) / 2,
-      // Interpolate absolute dorsal/plantar edges, not their depth ratios.
-      // In particular a shared standing plantar edge must remain unchanged.
-      dorsal: (near.depth * near.dorsal + far.depth * far.dorsal) / (near.depth + far.depth),
-      shoulder: (near.shoulder + far.shoulder) / 2,
-      ...(near.jets !== undefined && near.jets === far.jets ? { jets: near.jets } : {}),
-    };
+  export function walk(
+    name: string,
+    centres: AutoMovieVector3Tuple[],
+    dorsal: AutoMovieVector3Tuple,
+    near: IAutoMovieHumanDigitWalk.ISiteLaw,
+    far: IAutoMovieHumanDigitWalk.ISiteLaw,
+  ): IAutoMovieHumanDigitWalk.IInput {
+    const mean: IAutoMovieHumanDigitWalk.ISiteLaw =
+      near === far
+        ? near
+        : {
+            breadth: (near.breadth + far.breadth) / 2,
+            depth: (near.depth + far.depth) / 2,
+            // Interpolate absolute dorsal/plantar edges, not their depth ratios.
+            // In particular a shared standing plantar edge must remain unchanged.
+            dorsal:
+              (near.depth * near.dorsal + far.depth * far.dorsal) /
+              (near.depth + far.depth),
+            shoulder: (near.shoulder + far.shoulder) / 2,
+            ...(near.jets !== undefined && near.jets === far.jets
+              ? { jets: near.jets }
+              : {}),
+          };
     return {
       name,
       centres,

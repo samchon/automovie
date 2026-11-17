@@ -1,6 +1,21 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanClimbLadder, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanLadder, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanClimbLadder,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanLadder,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { stand } from "../actions/stand";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -93,12 +108,17 @@ export namespace climbLadder {
    * @returns The plan.
    * @throws {HumanRefusal} When the ladder is no fixture, leans, spaces its rungs outside the OSHA band or has too few above the hands, the climber does not stand before it facing it, or the rung count is not a positive integer.
    */
-  export function plan(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClimbLadder.IParams>): IAutoMovieMotionHumanClimbLadder.IPlan {
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClimbLadder.IParams>,
+  ): IAutoMovieMotionHumanClimbLadder.IPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
     const count: number = context.params.rungs ?? 3;
     HumanBound.whole("rungs", count);
-    const ladder: IAutoMovieMotionHumanLadder.ILadder = HumanLadder.of(context, context.params.ladder);
+    const ladder: IAutoMovieMotionHumanLadder.ILadder = HumanLadder.of(
+      context,
+      context.params.ladder,
+    );
     const spacing: number = ladder.spacing;
     const frame: IAutoMovieMotionHumanFrame.IFrame = ladder.frame;
     const yaw: number = frame.yaw;
@@ -107,8 +127,11 @@ export namespace climbLadder {
     const standing: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
-    const flat = (side: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => {
-      const goal: IAutoMovieMotionHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
+    const flat = (
+      side: "left" | "right",
+    ): IAutoMovieMotionHumanFoot.IPlacement => {
+      const goal: IAutoMovieMotionHumanPosture.IGoal =
+        standing.limbs[`${side}Leg`]!;
       return {
         ankle: goal.point,
         rotation: goal.rotation ?? HumanFrame.turn(standing.yaw),
@@ -170,16 +193,23 @@ export namespace climbLadder {
     const instants: IAutoMovieMotionClock.IInstant[] = [
       { name: "handsOn", seconds: beat },
     ];
-    const moves: { limb: IAutoMovieMotionHumanClimbLadder.Limb; n: number; from: number; to: number }[] = [];
+    const moves: {
+      limb: IAutoMovieMotionHumanClimbLadder.Limb;
+      n: number;
+      from: number;
+      to: number;
+    }[] = [];
     for (let k: number = 1; k <= count; k++)
-      ORDER.forEach((limb: IAutoMovieMotionHumanClimbLadder.Limb, i: number): void => {
-        const from: number = beat * (1 + (k - 1) * 4 + i);
-        moves.push({ limb, n: k, from, to: from + beat });
-        instants.push(
-          { name: `${limb}Release${k}`, seconds: from },
-          { name: `${limb}Contact${k}`, seconds: from + beat },
-        );
-      });
+      ORDER.forEach(
+        (limb: IAutoMovieMotionHumanClimbLadder.Limb, i: number): void => {
+          const from: number = beat * (1 + (k - 1) * 4 + i);
+          moves.push({ limb, n: k, from, to: from + beat });
+          instants.push(
+            { name: `${limb}Release${k}`, seconds: from },
+            { name: `${limb}Contact${k}`, seconds: from + beat },
+          );
+        },
+      );
     const duration: number = beat * (2 + count * 4);
     const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
       duration,
@@ -211,16 +241,25 @@ export namespace climbLadder {
       channels: ["root", "leftLeg", "rightLeg", "leftArm", "rightArm"],
       from: 0,
       to: duration,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
-        const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
+        const feet: Record<
+          "left" | "right",
+          IAutoMovieMotionHumanFoot.IPlacement
+        > = {
           left: flat("left"),
           right: flat("right"),
         };
         for (const side of ["left", "right"] as const) {
           const at = level(`${side}Foot`, seconds);
           const a: IAutoMovieMotionHumanFoot.IPlacement = footOn(side, at.from);
-          const b: IAutoMovieMotionHumanFoot.IPlacement = footOn(side, at.index);
+          const b: IAutoMovieMotionHumanFoot.IPlacement = footOn(
+            side,
+            at.index,
+          );
           feet[side] = at.moving
             ? (() => {
                 const out = AutoMovieMotionHumanLeg.arc(a, b, CLEARANCE, at.u);
@@ -263,10 +302,13 @@ export namespace climbLadder {
             feet[side],
             !level(`${side}Foot`, seconds).moving,
           );
-        const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(body, {
-          ...placed,
-          limbs,
-        });
+        const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+          body,
+          {
+            ...placed,
+            limbs,
+          },
+        );
 
         // Each hand grips its rung, reaching it from where it hung at first.
         const reachShare: number = clock.progress("start", "handsOn", seconds);

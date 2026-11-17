@@ -1,6 +1,19 @@
-import type { AutoMovieHumanoidSocket, IAutoMovieComposition, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCatchObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanThrowObjectForm, IAutoMovieMotionHumanThrowObjectLaunch, IAutoMovieVector3 } from "@automovie/interface";
-
-import { Transform, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Transform,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidSocket,
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCatchObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanThrowObjectForm,
+  IAutoMovieMotionHumanThrowObjectLaunch,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { catchObject } from "../../throwing/catchObject";
@@ -92,23 +105,25 @@ export function throwCases(
           }).node,
         ],
       };
-      const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
-        "throw",
-        [
-          { subject: "a", body: who.body },
-          {
-            subject: "b",
-            body: who.body,
-            at: { x: 0, y: 0, z: distance },
-            yaw: 180,
-          },
-        ],
-        composition,
-        [handball],
-      );
+      const performance: IAutoMovieMotionHumanPerformance =
+        FamilyCaseKit.perform(
+          "throw",
+          [
+            { subject: "a", body: who.body },
+            {
+              subject: "b",
+              body: who.body,
+              at: { x: 0, y: 0, z: distance },
+              yaw: 180,
+            },
+          ],
+          composition,
+          [handball],
+        );
       const thrown = performance.segments("a")[0]!;
       const caught = performance.segments("b")[0]!;
-      const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch = throwObject.of(thrown.plan)!;
+      const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch =
+        throwObject.of(thrown.plan)!;
       const release: number = FamilyCaseKit.event(performance, "release", "a");
       const contact: number = FamilyCaseKit.event(performance, "contact", "b");
       const held: number = FamilyCaseKit.event(performance, "held", "b");
@@ -138,7 +153,9 @@ export function throwCases(
 
       // The catching palms against the object's surface.
       const object = (seconds: number): IAutoMovieVector3 =>
-        (caught.plan as IAutoMovieMotionHumanCatchObject.IPlan).object(seconds - caught.start);
+        (caught.plan as IAutoMovieMotionHumanCatchObject.IPlan).object(
+          seconds - caught.start,
+        );
       const palmGap = (seconds: number): number =>
         Math.max(
           ...(["palmLeft", "palmRight"] as const).map((name) =>

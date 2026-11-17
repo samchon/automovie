@@ -1,8 +1,11 @@
-import type { IAutoMovieRecoveryCameraMapAdmissionOperation, IAutoMovieRecoveryCameraPairAdmissionOperation, IAutoMovieRecoveryCameraMapInput, IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
-
+import type {
+  IAutoMovieRecoveryCameraMapAdmissionOperation,
+  IAutoMovieRecoveryCameraMapInput,
+  IAutoMovieRecoveryCameraPairAdmissionOperation,
+  IAutoMovieRecoveryCameraPairInput,
+} from "@automovie/interface";
 
 import { admitRecoveryCameraPair } from "./admitRecoveryCameraPair";
-
 
 /**
  * Admit the closed three-view map and supplied charts before image allocation.
@@ -128,14 +131,16 @@ export function admitRecoveryCameraMap(
     cohort: input.cohort,
     views: input.views.slice(0, 2),
     policy: input.seedPolicy,
-    budget: input.seedBudget };
+    budget: input.seedBudget,
+  };
   const first: ReturnType<IAutoMovieRecoveryCameraPairAdmissionOperation.Operation> =
     admitRecoveryCameraPair(seed);
   const third: ReturnType<IAutoMovieRecoveryCameraPairAdmissionOperation.Operation> =
     admitRecoveryCameraPair({
       ...seed,
       views: [input.views[0]!, input.views[2]!],
-      budget: { ...input.seedBudget, maxPixels: budget.maxPixels } });
+      budget: { ...input.seedBudget, maxPixels: budget.maxPixels },
+    });
   const pixels: number = input.views.reduce(
     (sum: number, view: (typeof input.views)[number]): number =>
       sum + view.width * view.height,

@@ -1,5 +1,17 @@
-import { type IAutoMovieValidateServiceNetwork, type IAutoMovieViolationCollector, IAutoMovieBuiltBoundary, IAutoMovieBuiltElement, IAutoMovieBuiltOpening, IAutoMovieBuiltSpace, IAutoMovieServicePenetration, IAutoMovieServicePort, IAutoMovieServiceSystem, IAutoMovieValidation, IAutoMovieVector3, IAutoMovieWetZone } from "@automovie/interface";
-
+import {
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltOpening,
+  IAutoMovieBuiltSpace,
+  IAutoMovieServicePenetration,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSystem,
+  type IAutoMovieValidateServiceNetwork,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+  IAutoMovieWetZone,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { appendServiceNetworkCapacity } from "./appendServiceNetworkCapacity";
@@ -34,7 +46,11 @@ const ENDPOINT_EPSILON: number = 1e-6;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Space/element/boundary/system/port indexes and first port paths serve all phases once per validation; no prior build's mutable graph verdict is reused.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Lookup maps and the collector are call-local; only the validation envelope and its ordered finding values survive, with no host process, solver task or mesh cache retained.
  */
-export const validateServiceNetwork: (props: IAutoMovieValidateServiceNetwork.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateServiceNetwork.IProps): IAutoMovieValidation => {
+export const validateServiceNetwork: (
+  props: IAutoMovieValidateServiceNetwork.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateServiceNetwork.IProps,
+): IAutoMovieValidation => {
   const { network, environment }: typeof props = props;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";

@@ -1,8 +1,9 @@
-import type { IAutoMovieHumanHeadNoseFrame, IAutoMovieHumanHeadPrior } from "@automovie/interface";
-
+import type {
+  IAutoMovieHumanHeadNoseFrame,
+  IAutoMovieHumanHeadPrior,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
-
 
 /**
  * The alar lobules as a relief window in the nose's frame: two rounded wings,

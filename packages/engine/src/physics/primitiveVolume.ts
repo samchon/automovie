@@ -1,4 +1,5 @@
 import type { IAutoMoviePrimitiveShape } from "@automovie/interface";
+
 /**
  * Analytic solid volume of a primitive, in cubic meters.
  *

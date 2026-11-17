@@ -1,6 +1,11 @@
-import type { IAutoMovieConstructionNode, IAutoMovieConstructionRealization, IAutoMovieLoftChain, IAutoMovieSolidSurface, IAutoMovieVector3 } from "@automovie/interface";
 import { realizeAutoMovieConstruction } from "@automovie/engine";
-
+import type {
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionRealization,
+  IAutoMovieLoftChain,
+  IAutoMovieSolidSurface,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
 

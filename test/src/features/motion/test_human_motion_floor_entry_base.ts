@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, AutoMovieHumanoidBone } from "@automovie/interface";
-
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 import { HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -65,7 +69,9 @@ export function test_human_motion_floor_entry_base(): void {
     // The fastest joint centre and the highest rise of some bones across a seam.
     const seam = (
       label: string,
-      composition: { node: IAutoMovieMotionHumanPerformance.IInput["composition"] },
+      composition: {
+        node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+      },
       watched: readonly AutoMovieHumanoidBone[],
       rise: number,
     ): void => {
@@ -79,7 +85,8 @@ export function test_human_motion_floor_entry_base(): void {
         );
         return;
       }
-      const second: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+      const second: IAutoMovieMotionHumanSegment.ISegment =
+        performance.segments("a")[1]!;
       const at: number = second.entryTime;
       const left: Bones = performance.bones("a", at - STEP);
       let fastest: { speed: number; bone: string; seconds: number } = {

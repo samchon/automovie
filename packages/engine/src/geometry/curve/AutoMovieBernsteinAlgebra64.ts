@@ -1,4 +1,8 @@
-import type { AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple } from "@automovie/interface";
+import type {
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieVector3Tuple,
+} from "@automovie/interface";
+
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
 
 /**
@@ -80,14 +84,20 @@ export namespace AutoMovieBernsteinAlgebra64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each reduction row supplies the complete next level in the same evaluation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned vector belongs to the local cloned/evaluated net, with no input alias.
    */
-  export function value(c: readonly AutoMovieVector3Tuple[], t: number): AutoMovieVector3Tuple {
+  export function value(
+    c: readonly AutoMovieVector3Tuple[],
+    t: number,
+  ): AutoMovieVector3Tuple {
     if (t === 0) return V.clone(c[0]!);
     if (t === 1) return V.clone(c.at(-1)!);
     let row: AutoMovieVector3Tuple[] = c.map(V.clone);
     while (row.length > 1)
       row = row
         .slice(0, -1)
-        .map((a: AutoMovieVector3Tuple, i: number): AutoMovieVector3Tuple => V.mix(a, row[i + 1]!, t));
+        .map(
+          (a: AutoMovieVector3Tuple, i: number): AutoMovieVector3Tuple =>
+            V.mix(a, row[i + 1]!, t),
+        );
     return row[0]!;
   }
   /**
@@ -101,7 +111,10 @@ export namespace AutoMovieBernsteinAlgebra64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Derivative coefficients can be reused by quotient and grid callers without finite differences.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only newly allocated derivative triples escape.
    */
-  export function tangent(c: readonly AutoMovieVector3Tuple[], scale: number = 1): AutoMovieBernsteinPolynomial64 {
+  export function tangent(
+    c: readonly AutoMovieVector3Tuple[],
+    scale: number = 1,
+  ): AutoMovieBernsteinPolynomial64 {
     return c
       .slice(1)
       .map(
@@ -171,7 +184,10 @@ export namespace AutoMovieBernsteinAlgebra64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The elevated coordinate columns are each computed once for the returned net.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Output triples are independent of input controls and temporary columns expire.
    */
-  export function elevate(c: readonly AutoMovieVector3Tuple[], degree: number): AutoMovieBernsteinPolynomial64 {
+  export function elevate(
+    c: readonly AutoMovieVector3Tuple[],
+    degree: number,
+  ): AutoMovieBernsteinPolynomial64 {
     const axes: number[][] = [0, 1, 2].map((k: number): number[] =>
       elevateScalar(
         c.map((p: AutoMovieVector3Tuple): number => p[k]!),
@@ -224,7 +240,10 @@ export namespace AutoMovieBernsteinAlgebra64 {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A scalar numerator is reused as the operand of each coordinate product within this call.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The new vector net does not retain either operand.
    */
-  export function productV(a: readonly number[], b: readonly AutoMovieVector3Tuple[]): AutoMovieBernsteinPolynomial64 {
+  export function productV(
+    a: readonly number[],
+    b: readonly AutoMovieVector3Tuple[],
+  ): AutoMovieBernsteinPolynomial64 {
     const axes: number[][] = [0, 1, 2].map((k: number): number[] =>
       product(
         a,
@@ -255,7 +274,10 @@ export namespace AutoMovieBernsteinAlgebra64 {
     const degree: number = Math.max(a.length, b.length) - 1,
       x: AutoMovieBernsteinPolynomial64 = elevate(a, degree),
       y: AutoMovieBernsteinPolynomial64 = elevate(b, degree);
-    return x.map((p: AutoMovieVector3Tuple, i: number): AutoMovieVector3Tuple => V.add(p, V.scale(y[i]!, factor)));
+    return x.map(
+      (p: AutoMovieVector3Tuple, i: number): AutoMovieVector3Tuple =>
+        V.add(p, V.scale(y[i]!, factor)),
+    );
   }
   /**
    * Elevate to a common degree, then add the scaled scalar polynomial.
@@ -289,7 +311,12 @@ export namespace AutoMovieBernsteinAlgebra64 {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The current factor is applied directly without retaining previous products.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A new vector net owns the scaled controls.
    */
-  export function scale(a: readonly AutoMovieVector3Tuple[], factor: number): AutoMovieBernsteinPolynomial64 {
-    return a.map((p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => V.scale(p, factor));
+  export function scale(
+    a: readonly AutoMovieVector3Tuple[],
+    factor: number,
+  ): AutoMovieBernsteinPolynomial64 {
+    return a.map(
+      (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => V.scale(p, factor),
+    );
   }
 }

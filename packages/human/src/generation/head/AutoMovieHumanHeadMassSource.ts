@@ -1,16 +1,18 @@
-import type { IAutoMovieLoftFrame, IAutoMovieViewAxis, IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanHeadBackProfile, IAutoMovieHumanHeadLandmarks, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadMassSource } from "@automovie/interface";
-
-
-
-
-
 import { AutoMovieViewOutline, AutoMovieViewSection } from "@automovie/engine";
+import type {
+  IAutoMovieHumanHeadBackProfile,
+  IAutoMovieHumanHeadLandmarks,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadMassSource,
+  IAutoMovieLoftFrame,
+  IAutoMovieViewAxis,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadBackProfile } from "../AutoMovieHumanHeadBackProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import { AutoMovieHumanHeadVault } from "../AutoMovieHumanHeadVault";
-
-
 import { AutoMovieHumanHeadFrontSource } from "./AutoMovieHumanHeadFrontSource";
 import { AutoMovieHumanHeadMassProfile } from "./AutoMovieHumanHeadMassProfile";
 import { AutoMovieHumanHeadSectionConstraints } from "./AutoMovieHumanHeadSectionConstraints";
@@ -18,8 +20,6 @@ import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
 
 /** Original mass outlines, fullness and placement, retaining the existing source controls before any loft. */
 export namespace AutoMovieHumanHeadMassSource {
-  
-
   /** Author one mass by explicitly preparing its fixed inputs and evaluating its requested cranial power. */
   export function of(
     plan: IAutoMovieHumanHeadLayout,

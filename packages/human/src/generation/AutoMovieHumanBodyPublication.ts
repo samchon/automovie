@@ -1,11 +1,10 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftContract, IAutoMovieLoftFrame, IAutoMovieSolidBody, IAutoMovieHumanBodyLane } from "@automovie/interface";
-
-
-
-
-
-
-
+import type {
+  IAutoMovieHumanBodyLane,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftContract,
+  IAutoMovieLoftFrame,
+  IAutoMovieSolidBody,
+} from "@automovie/interface";
 
 /** Publish finite realized chains and only bodies whose complete face owners survived; no source construction is repeated. */
 export namespace AutoMovieHumanBodyPublication {

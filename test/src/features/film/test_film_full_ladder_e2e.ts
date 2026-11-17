@@ -1,6 +1,22 @@
-import { type IAutoMovieBlockedBeat, type IAutoMovieCut, type IAutoMovieForgedCast, type IAutoMoviePerformedShot, type IAutoMoviePlaybackSample, type IAutoMovieStagedSet, IAutoMovieSceneNode, IAutoMovieScript, IAutoMovieSkeleton } from "@automovie/interface";
-import { blockBeat, cutSequence, forgeCast, performShot, playbackFrameSamples, stageScene } from "@automovie/engine";
-
+import {
+  blockBeat,
+  cutSequence,
+  forgeCast,
+  performShot,
+  playbackFrameSamples,
+  stageScene,
+} from "@automovie/engine";
+import {
+  type IAutoMovieBlockedBeat,
+  type IAutoMovieCut,
+  type IAutoMovieForgedCast,
+  type IAutoMoviePerformedShot,
+  type IAutoMoviePlaybackSample,
+  IAutoMovieSceneNode,
+  IAutoMovieScript,
+  IAutoMovieSkeleton,
+  type IAutoMovieStagedSet,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {

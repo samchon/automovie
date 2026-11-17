@@ -1,11 +1,12 @@
-import type { IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanWalkStanceCourse, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, convexHull2D, pointInHull } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanWalkStanceCourse,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { walkStanceCourse } from "../actions/walkStanceCourse";
-import {
-  AutoMovieMotionHumanTiming,
-} from "../compose/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanFoot } from "../posture/HumanFoot";
 import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
@@ -83,14 +84,8 @@ export namespace staggerStep {
   ): IResult {
     const body = pendulum.body;
     const flat = StaggerPendulum.flat;
-    const {
-      REACTION,
-      TRANSFER,
-      LATERAL,
-      STEP_TIME,
-      STEP_LENGTH,
-      KNOTS,
-    } = staggerBounds;
+    const { REACTION, TRANSFER, LATERAL, STEP_TIME, STEP_LENGTH, KNOTS } =
+      staggerBounds;
     const { centre, forward, across, entered, width, length } = pendulum;
     const stance: "left" | "right" = side === "left" ? "right" : "left";
     if (reaction > 0) pendulum.bear(["left", "right"], reaction);
@@ -109,7 +104,9 @@ export namespace staggerStep {
     const swing: number = unloaded
       ? (LATERAL.swing * (STEP_TIME.forward + STEP_TIME.backward)) / 2
       : pendulum.bound(
-          flat(Vector3.subtract(Vector3.add(centre, pendulum.xi()), from.ankle)),
+          flat(
+            Vector3.subtract(Vector3.add(centre, pendulum.xi()), from.ankle),
+          ),
           STEP_TIME,
         );
     const start: number = pendulum.t;
@@ -234,7 +231,10 @@ export namespace staggerStep {
     const solveFrom = (
       origin: IAutoMovieMotionHumanFoot.IPlacement,
       warm: IAutoMovieMotionHumanWalkStanceCourse.ICourse | undefined,
-    ): { course: IAutoMovieMotionHumanWalkStanceCourse.ICourse; to: IAutoMovieMotionHumanFoot.IPlacement } => {
+    ): {
+      course: IAutoMovieMotionHumanWalkStanceCourse.ICourse;
+      to: IAutoMovieMotionHumanFoot.IPlacement;
+    } => {
       const knots: staggerKnots.IKnot[] = staggerKnots.of(
         body,
         pendulum.entry,
@@ -261,12 +261,8 @@ export namespace staggerStep {
               warm.knots.length,
               Math.floor(steps.at(-1)!.land * KNOTS + 1e-9),
             );
-      const course: IAutoMovieMotionHumanWalkStanceCourse.ICourse = staggerSequential.solve(
-        body,
-        knots,
-        warm,
-        settled,
-      );
+      const course: IAutoMovieMotionHumanWalkStanceCourse.ICourse =
+        staggerSequential.solve(body, knots, warm, settled);
       const at: number = Math.min(
         course.knots.length - 1,
         Math.ceil(t * KNOTS - 1e-9),
@@ -323,7 +319,8 @@ export namespace staggerStep {
     }
     pendulum.phases.pop();
     // The next step's course starts from this one.
-    const checking: IAutoMovieMotionHumanWalkStanceCourse.ICourse = landed.course;
+    const checking: IAutoMovieMotionHumanWalkStanceCourse.ICourse =
+      landed.course;
     if (landed.course.unmet > walkStanceCourse.MET)
       return { done: null, checking };
     const to: IAutoMovieMotionHumanFoot.IPlacement = landed.to;

@@ -1,11 +1,25 @@
-import type { AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmPlanned, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSit, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Vector3,
   bracketedRoot,
   minimumJerk,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSit,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
@@ -119,7 +133,8 @@ export namespace sit {
     // boat's or a stage's as well as the ground.
     const under: number = seated.floor(body, context.entry);
     seated.check(body, seat, under);
-    const back: NonNullable<IAutoMovieMotionHumanSit.IParams["back"]> = context.params.back ?? "upright";
+    const back: NonNullable<IAutoMovieMotionHumanSit.IParams["back"]> =
+      context.params.back ?? "upright";
     if (back === "lean" && seat.back === undefined)
       throw new HumanRefusal({
         kind: "affordance",
@@ -163,7 +178,8 @@ export namespace sit {
     const yaw0: number = context.entry.posture.yaw;
     const start: IAutoMovieVector3 = seated.socket(body, context.entry.posture);
     const final: (typeof sitPlace.BACKS)[typeof back] = sitPlace.BACKS[back];
-    const upright: IAutoMovieMotionHumanPosture["joints"] = standUpright.of(body).joints;
+    const upright: IAutoMovieMotionHumanPosture["joints"] =
+      standUpright.of(body).joints;
 
     // Crossed at the ankles: once seated the left foot lifts and is set down ahead of the right ankle and across it, by shares of the feet's own spacing at rest (provisional).
     const crossed: boolean = context.params.legs === "crossed";
@@ -188,14 +204,19 @@ export namespace sit {
       t: number,
     ): IAutoMovieMotionHumanPosture["limbs"] => {
       const share: number = crossed ? minimumJerk((t - descent) / CROSS).s : 0;
-      const limbs: IAutoMovieMotionHumanPosture["limbs"] = stand.legs(body, root, yaw, {
-        left: {
-          x: feet.left.x + (crossing.x - feet.left.x) * share,
-          y: feet.left.y + 0.3 * apart * Math.sin(Math.PI * share),
-          z: feet.left.z + (crossing.z - feet.left.z) * share,
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = stand.legs(
+        body,
+        root,
+        yaw,
+        {
+          left: {
+            x: feet.left.x + (crossing.x - feet.left.x) * share,
+            y: feet.left.y + 0.3 * apart * Math.sin(Math.PI * share),
+            z: feet.left.z + (crossing.z - feet.left.z) * share,
+          },
+          right: feet.right,
         },
-        right: feet.right,
-      });
+      );
       return share > 0 && share < 1
         ? { ...limbs, leftLeg: { ...limbs.leftLeg!, planted: false } }
         : limbs;
@@ -282,7 +303,9 @@ export namespace sit {
         to: duration,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         weight: (seconds: number): number => hand(side, seconds),
-        goal: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture.IGoal =>
+        goal: (
+          posture: IAutoMovieMotionHumanPosture,
+        ): IAutoMovieMotionHumanPosture.IGoal =>
           rest === undefined
             ? seated.hands(body, posture)[`${side}Arm`]!
             : seated.armrest(body, posture, side, rest, seat.yaw),
@@ -438,16 +461,17 @@ export namespace sit {
       );
       return from + (across - from) * minimumJerk((t - held) / fall).s;
     }
-    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: lowering,
-      clock: AutoMovieMotionClock.of(duration, [
-        { name: "commit", seconds: contact },
-        { name: "seatContact", seconds: contact },
-        { name: "seated", seconds: descent },
-      ]),
-      primitives: [arm("left"), arm("right")],
-      contact: "seatContact",
-    });
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: lowering,
+        clock: AutoMovieMotionClock.of(duration, [
+          { name: "commit", seconds: contact },
+          { name: "seatContact", seconds: contact },
+          { name: "seated", seconds: descent },
+        ]),
+        primitives: [arm("left"), arm("right")],
+        contact: "seatContact",
+      });
     return { ...composed, base: lowering.base };
   }
 }

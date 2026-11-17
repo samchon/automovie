@@ -1,6 +1,17 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionHumanTouchEffector, HumanChain, HumanPartner, HumanPerformance, HumanSignature, touch } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanTouchEffector,
+  HumanChain,
+  HumanPartner,
+  HumanPerformance,
+  HumanSignature,
+  touch,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -90,7 +101,8 @@ export function test_human_motion_partner_dance(): void {
     );
     return;
   }
-  const leading: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[0]!;
+  const leading: IAutoMovieMotionHumanSegment.ISegment =
+    performance.segments("a")[0]!;
   const readers = {
     a: HumanSignature.of(performance, "a", lead, 0),
     b: HumanSignature.of(performance, "b", follow, 0),
@@ -117,7 +129,8 @@ export function test_human_motion_partner_dance(): void {
     );
 
   // 4. The hold.
-  const held: IAutoMovieMotionHumanSegment.ISegment | undefined = performance.segments("b")[1];
+  const held: IAutoMovieMotionHumanSegment.ISegment | undefined =
+    performance.segments("b")[1];
   if (held === undefined)
     complaints.push("the hold is not placed after the follow");
   else {

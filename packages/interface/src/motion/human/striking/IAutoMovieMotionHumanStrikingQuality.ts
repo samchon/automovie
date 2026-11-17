@@ -1,6 +1,6 @@
-import type { IAutoMovieMotionHumanSkill } from "../skill/IAutoMovieMotionHumanSkill";
 import type { IAutoMovieRandom } from "../../../core/IAutoMovieRandom";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanSkill } from "../skill/IAutoMovieMotionHumanSkill";
 
 /**
  * Where a strike lands relative to its aim: the author's declared accuracy

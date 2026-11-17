@@ -1,6 +1,4 @@
 import type { IAutoMovieConstructionPolyline } from "@automovie/interface";
-
-
 import * as THREE from "three";
 
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";

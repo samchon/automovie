@@ -1,4 +1,8 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMovieSamplePhysicalTarget } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieSamplePhysicalTarget,
+} from "@automovie/interface";
 import RAPIER, {
   type Collider,
   type ImpulseJoint,
@@ -33,10 +37,9 @@ export function bindPhysicalWorld(
   const bound: Bound = {
     profiles: Object.fromEntries(
       input.bodies.map(
-        (body: IAutoMoviePhysicalSimulationInput.IBody): [string, IAutoMoviePhysicalProfile] => [
-          body.id,
-          body.profile,
-        ],
+        (
+          body: IAutoMoviePhysicalSimulationInput.IBody,
+        ): [string, IAutoMoviePhysicalProfile] => [body.id, body.profile],
       ),
     ),
     bodies: new Map(),
@@ -86,14 +89,16 @@ export function bindPhysicalWorld(
     bound.segments.set(body.id, local);
     bound.dynamic.set(body.id, dynamic);
     const parents: Map<string, IAutoMoviePhysicalProfile.IJoint> = new Map(
-      body.profile.joints.map((joint: IAutoMoviePhysicalProfile.IJoint): [string, IAutoMoviePhysicalProfile.IJoint] => [
-        joint.child,
-        joint,
-      ]),
+      body.profile.joints.map(
+        (
+          joint: IAutoMoviePhysicalProfile.IJoint,
+        ): [string, IAutoMoviePhysicalProfile.IJoint] => [joint.child, joint],
+      ),
     );
     bound.jointByChild.set(body.id, parents);
     for (const segment of body.profile.segments) {
-      const target: IAutoMoviePhysicalProfile.ITransform = body.targets[0]!.segments[segment.bone]!;
+      const target: IAutoMoviePhysicalProfile.ITransform =
+        body.targets[0]!.segments[segment.bone]!;
       const factor: number =
         body.mode.kind === "exaggerated" ? body.mode.gravity : 1;
       const selected: boolean =
@@ -159,10 +164,11 @@ export function bindPhysicalWorld(
       bound.bodies.set(`${body.id}/${segment.bone}`, rigid);
       local.set(segment.bone, rigid);
       for (const shape of segment.shapes) {
-        const material: IAutoMoviePhysicalProfile.IMaterial = body.profile.materials.find(
-          (candidate: (typeof body.profile.materials)[number]): boolean =>
-            candidate.id === shape.material,
-        )!;
+        const material: IAutoMoviePhysicalProfile.IMaterial =
+          body.profile.materials.find(
+            (candidate: (typeof body.profile.materials)[number]): boolean =>
+              candidate.id === shape.material,
+          )!;
         const descriptor: RAPIER.ColliderDesc = new RAPIER.ColliderDesc(
           physicalNativeShape(shape),
         );
@@ -311,12 +317,15 @@ export function bindPhysicalWorld(
       bound.joints.set(`${body.id}/${joint.id}`, native);
     }
     const order: IAutoMoviePhysicalProfile.IJoint[] = [];
-    const pending: Set<IAutoMoviePhysicalProfile.IJoint> = new Set(body.profile.joints);
+    const pending: Set<IAutoMoviePhysicalProfile.IJoint> = new Set(
+      body.profile.joints,
+    );
     while (pending.size > 0)
       for (const joint of pending)
         if (
           ![...pending].some(
-            (next: IAutoMoviePhysicalProfile.IJoint): boolean => next.parent === joint.child,
+            (next: IAutoMoviePhysicalProfile.IJoint): boolean =>
+              next.parent === joint.child,
           )
         ) {
           order.push(joint);
@@ -327,21 +336,26 @@ export function bindPhysicalWorld(
       body.profile.segments.find(
         (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
           !body.profile.joints.some(
-            (joint: IAutoMoviePhysicalProfile.IJoint): boolean => joint.child === segment.bone,
+            (joint: IAutoMoviePhysicalProfile.IJoint): boolean =>
+              joint.child === segment.bone,
           ),
       )!,
       ...[...order]
         .reverse()
         .map(
-          (joint: IAutoMoviePhysicalProfile.IJoint): IAutoMoviePhysicalProfile.ISegment =>
+          (
+            joint: IAutoMoviePhysicalProfile.IJoint,
+          ): IAutoMoviePhysicalProfile.ISegment =>
             body.profile.segments.find(
-              (segment: IAutoMoviePhysicalProfile.ISegment): boolean => segment.bone === joint.child,
+              (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+                segment.bone === joint.child,
             )!,
         ),
     ]);
   }
   for (const body of input.bodies) {
-    const parents: Map<string, IAutoMoviePhysicalProfile.IJoint> = bound.jointByChild.get(body.id)!;
+    const parents: Map<string, IAutoMoviePhysicalProfile.IJoint> =
+      bound.jointByChild.get(body.id)!;
     const posture: Set<string> = new Set(
       body.balance?.pattern.limbs.flatMap(
         (

@@ -1,6 +1,18 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanArmPhrase, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionClock, AutoMovieMotionHumanArm } from "@automovie/motions";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanArmPhrase,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionClock,
+  AutoMovieMotionHumanArm,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -272,7 +284,11 @@ export function test_motion_compose_arm_transport(): void {
     retract: 0.25,
   });
   const window = ["ready", "strokeStart"] as const;
-  const far: IAutoMovieMotionHumanArmTarget.Frame = target({ x: -0.2, y: 1, z: 0.4 });
+  const far: IAutoMovieMotionHumanArmTarget.Frame = target({
+    x: -0.2,
+    y: 1,
+    z: 0.4,
+  });
   const start: IAutoMovieMotionHumanArmTarget.IOrigin = {
     point: { x: -0.2, y: 1, z: 0 },
     rotation: identity,
@@ -308,7 +324,10 @@ export function test_motion_compose_arm_transport(): void {
     clock,
     "right",
     window,
-    (_: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanArmTarget.ITarget => ({
+    (
+      _: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieMotionHumanArmTarget.ITarget => ({
       surface: "wrist",
       shape: "relaxed",
       point: { x: seconds, y: 1, z: 0.4 },
@@ -326,10 +345,11 @@ export function test_motion_compose_arm_transport(): void {
   );
 
   // 5. The contact window.
-  const contact: Pick<IAutoMovieMotionHumanContactWindow, "kind" | "support"> = {
-    kind: "grip",
-    support: { kind: "prop", subject: "rail" },
-  };
+  const contact: Pick<IAutoMovieMotionHumanContactWindow, "kind" | "support"> =
+    {
+      kind: "grip",
+      support: { kind: "prop", subject: "rail" },
+    };
   TestValidator.equals(
     "a place in the air bears nothing",
     AutoMovieMotionHumanArm.bearing(

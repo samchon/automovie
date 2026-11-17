@@ -8,11 +8,9 @@ import type { IAutoMovieRecoveryMapObservation } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Members state array ownership and target measurement semantics.
  */
 export interface IAutoMovieRecoverySceneCandidate {
- 
- /** Index in the accepted landmark array for this revision. */
+  /** Index in the accepted landmark array for this revision. */
   landmark: number;
 
- 
- /** Fixed target measurement from the same global component. */
+  /** Fixed target measurement from the same global component. */
   observation: IAutoMovieRecoveryMapObservation;
 }

@@ -1,6 +1,20 @@
-import type { AutoMovieHumanoidBone, AutoMovieMotionHumanActionKey, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanExerciseKey, IAutoMovieMotionHumanGymnasticsWheel, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRoundOff, IAutoMovieResolvedBone } from "@automovie/interface";
-
 import { minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanGymnasticsWheel,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRoundOff,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
+
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { ExerciseKey } from "../exercise/ExerciseKey";
@@ -78,7 +92,9 @@ export namespace roundOff {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from` and `ExerciseKey.stood`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function landed(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey {
+  export function landed(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
     return ExerciseKey.from(
       body,
       {},
@@ -151,7 +167,9 @@ export namespace roundOff {
         entered.get("rightFoot")!.worldPosition.y) /
       2;
     const laid: number = GymnasticsWheel.laid(body);
-    const ground: IAutoMovieMotionHumanContactWindow.Support = { kind: "ground" };
+    const ground: IAutoMovieMotionHumanContactWindow.Support = {
+      kind: "ground",
+    };
     const lead: "left" | "right" = sign < 0 ? "left" : "right";
     const trail: "left" | "right" = lead === "left" ? "right" : "left";
     const spokes: IAutoMovieMotionHumanGymnasticsWheel.ISpoke[] = [
@@ -161,23 +179,25 @@ export namespace roundOff {
       { bones: [`${lead}Hand`], height: laid, support: ground },
       { bones: [`${trail}Hand`], height: laid, support: ground },
     ];
-    const wheel: IAutoMovieMotionHumanGymnasticsWheel.IWheel = GymnasticsWheel.roll({
-      body,
-      shaped,
-      spokes,
-      start: standing.root,
-      until: 360,
-      step: cartwheel.STEP,
-    });
+    const wheel: IAutoMovieMotionHumanGymnasticsWheel.IWheel =
+      GymnasticsWheel.roll({
+        body,
+        shaped,
+        spokes,
+        start: standing.root,
+        until: 360,
+        step: cartwheel.STEP,
+      });
 
     // The seconds at which the wheel reaches an angle.
     const when = (angle: number): number =>
       GymnasticsWheel.when(angle, 360, duration);
-    const contacts: IAutoMovieMotionHumanContactWindow[] = GymnasticsWheel.contacts(
-      wheel,
-      spokes,
-      (angle: number): number => when(angle) / duration,
-    );
+    const contacts: IAutoMovieMotionHumanContactWindow[] =
+      GymnasticsWheel.contacts(
+        wheel,
+        spokes,
+        (angle: number): number => when(angle) / duration,
+      );
     const handsDown: number =
       contacts.find((w: IAutoMovieMotionHumanContactWindow): boolean =>
         w.part.endsWith("Hand"),

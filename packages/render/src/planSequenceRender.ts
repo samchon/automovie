@@ -1,12 +1,12 @@
-import type { IAutoMoviePlaybackTimeline, IAutoMoviePlanSequenceRenderProps, IAutoMovieSequence, IAutoMovieSequenceRenderFrame, IAutoMovieSequenceRenderPlan, IAutoMovieSequenceRenderTransitionSpan } from "@automovie/interface";
-
-
-
 import { playbackCursor, sequenceTimeline } from "@automovie/engine";
-
-
-
-
+import type {
+  IAutoMoviePlanSequenceRenderProps,
+  IAutoMoviePlaybackTimeline,
+  IAutoMovieSequence,
+  IAutoMovieSequenceRenderFrame,
+  IAutoMovieSequenceRenderPlan,
+  IAutoMovieSequenceRenderTransitionSpan,
+} from "@automovie/interface";
 
 import { ffmpegArgs } from "./ffmpegArgs.js";
 import { frameName } from "./frameName.js";
@@ -25,7 +25,11 @@ import { renderPathStem } from "./renderPathStem.js";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One resolved timeline feeds shot spans, transitions and every frame sample; the forward cursor retains its current entry across increasing sample times only within this call.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned plan retains shot-span and frame metadata proportional to the output schedule; the temporary cursor and timeline are released on return, and planning opens no host resource.
  */
-export const planSequenceRender: (props: IAutoMoviePlanSequenceRenderProps) => IAutoMovieSequenceRenderPlan = (props: IAutoMoviePlanSequenceRenderProps): IAutoMovieSequenceRenderPlan => {
+export const planSequenceRender: (
+  props: IAutoMoviePlanSequenceRenderProps,
+) => IAutoMovieSequenceRenderPlan = (
+  props: IAutoMoviePlanSequenceRenderProps,
+): IAutoMovieSequenceRenderPlan => {
   if (props.spec.target !== props.sequence.id)
     throw new Error(
       `render spec target "${props.spec.target}" must equal sequence "${props.sequence.id}"`,

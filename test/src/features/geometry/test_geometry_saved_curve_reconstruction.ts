@@ -1,5 +1,13 @@
-import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieLocalHermiteField64, IAutoMovieLocalHermiteStream64 } from "@automovie/interface";
-import { AutoMovieLocalHermiteField64 as H, tessellateAutoMovieLocalHermite64 as tessellate } from "@automovie/engine";
+import {
+  AutoMovieLocalHermiteField64 as H,
+  tessellateAutoMovieLocalHermite64 as tessellate,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieLocalHermiteField64,
+  IAutoMovieLocalHermiteStream64,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -23,7 +31,11 @@ import { nclose } from "../internal/nclose";
 export function test_geometry_saved_curve_reconstruction(): void {
   /** Exact linear-in-course sections of the independently specified polynomial. */
   const stations: number[] = [0, 2, 7, 11];
-  const course: (s: number, divided: boolean, reverse: boolean) => IAutoMovieCurve64.Cubic = (
+  const course: (
+    s: number,
+    divided: boolean,
+    reverse: boolean,
+  ) => IAutoMovieCurve64.Cubic = (
     s: number,
     divided: boolean,
     reverse: boolean,
@@ -33,7 +45,9 @@ export function test_geometry_saved_curve_reconstruction(): void {
       .slice(0, -1)
       .map((start: number, j: number): IAutoMovieCurve64.Span => {
         const end: number = cuts[j + 1]!;
-        const point: (i: number) => Readonly<AutoMovieVector3Tuple> = (i: number): Readonly<AutoMovieVector3Tuple> => {
+        const point: (i: number) => Readonly<AutoMovieVector3Tuple> = (
+          i: number,
+        ): Readonly<AutoMovieVector3Tuple> => {
           const u: number = start + ((end - start) * i) / 3;
           return [reverse ? 1 - u : u, s, (s * s) / 100];
         };
@@ -73,10 +87,15 @@ export function test_geometry_saved_curve_reconstruction(): void {
   let maximum: number = 0;
   for (const reverse of [false, true]) {
     const courses: IAutoMovieCurve64.Cubic[] = stations.map(
-      (s: number, i: number): IAutoMovieCurve64.Cubic => course(s, i % 2 === 1, reverse),
+      (s: number, i: number): IAutoMovieCurve64.Cubic =>
+        course(s, i % 2 === 1, reverse),
     );
     const original: string = JSON.stringify([stations, courses]);
-    const field: IAutoMovieLocalHermiteField64.Prepared = H.prepare(stations, courses, "quadratic");
+    const field: IAutoMovieLocalHermiteField64.Prepared = H.prepare(
+      stations,
+      courses,
+      "quadratic",
+    );
     for (let j: number = 0; j < stations.length; j++)
       for (const u of [0, 0.125, 0.25, 0.6, 1]) {
         const s: number = stations[j]!,
@@ -167,7 +186,8 @@ export function test_geometry_saved_curve_reconstruction(): void {
       indices: number[] = [],
       intervals: number[] = [];
     const courses: IAutoMovieCurve64.Cubic[] = stations.map(
-      (s: number, i: number): IAutoMovieCurve64.Cubic => course(s, i % 2 === 1, false),
+      (s: number, i: number): IAutoMovieCurve64.Cubic =>
+        course(s, i % 2 === 1, false),
     );
     const generator: ReturnType<typeof tessellate> = tessellate({
       name: "polynomial.sheet",

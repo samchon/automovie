@@ -1,6 +1,7 @@
-import type { IAutoMovieRenderTextureSource, IAutoMovieTextureReference } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieRenderTextureSource,
+  IAutoMovieTextureReference,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import { AutoMovieEnvironmentTextureOwnership } from "./AutoMovieEnvironmentTextureOwnership.js";

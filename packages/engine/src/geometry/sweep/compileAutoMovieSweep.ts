@@ -1,6 +1,17 @@
-import { type IAutoMovieSweep, type IAutoMovieSweepFrame, type IAutoMovieSweepOrientation, type IAutoMovieSweepPath, type IAutoMovieSweepSection, type IAutoMovieSweepSurface, type IAutoMovieSweepTransport, type IAutoMovieCompileSweepFeatureOutput, type IAutoMovieCompileSweepGuideOutput, type IAutoMovieParameterizeSweepSection, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  type IAutoMovieCompileSweepFeatureOutput,
+  type IAutoMovieCompileSweepGuideOutput,
+  type IAutoMovieParameterizeSweepSection,
+  IAutoMovieQuaternion,
+  type IAutoMovieSweep,
+  type IAutoMovieSweepFrame,
+  type IAutoMovieSweepOrientation,
+  type IAutoMovieSweepPath,
+  type IAutoMovieSweepSection,
+  type IAutoMovieSweepSurface,
+  type IAutoMovieSweepTransport,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
 import { checkAutoMovieSweepFeature } from "./checkAutoMovieSweepFeature";
@@ -186,9 +197,7 @@ export const compileAutoMovieSweep: (
   const features: IAutoMovieCompileSweepFeatureOutput[] = (
     sweep.features ?? []
   ).map(
-    (
-      f: IAutoMovieSweep.IFeature,
-    ): IAutoMovieCompileSweepFeatureOutput =>
+    (f: IAutoMovieSweep.IFeature): IAutoMovieCompileSweepFeatureOutput =>
       compileAutoMovieSweepFeature(f, {
         length: path.length,
         // the sweep's mean station radius, which spaces a feature's knots in metres
@@ -347,9 +356,8 @@ export const compileAutoMovieSweep: (
     step: STEP,
     loops: byParameter ? loops.length : 1,
     feature: (index: number, t: number): { u: number; v: number } => {
-      const feature:
-        | IAutoMovieCompileSweepFeatureOutput
-        | undefined = features[index];
+      const feature: IAutoMovieCompileSweepFeatureOutput | undefined =
+        features[index];
       if (feature === undefined)
         throw new Error(`sweep has no feature ${index}`);
       return feature.point(t);

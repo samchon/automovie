@@ -1,5 +1,13 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance } from "@automovie/interface";
-import { HumanChain, HumanPerformance, HumanRefusal, HumanVerdicts } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+  HumanVerdicts,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";

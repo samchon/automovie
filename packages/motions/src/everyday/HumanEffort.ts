@@ -47,7 +47,6 @@ import { HumanBound } from "../law/HumanBound";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanEffort {
-
   /** Named moods as Effort settings: Laban's eight basic Effort actions use Weight, Time and Space; a mood adds Flow. */
   export const ACTIONS: Readonly<
     Record<
@@ -72,7 +71,9 @@ export namespace HumanEffort {
    * @returns The modifiers.
    * @throws {HumanRefusal} When a factor lies outside [-1, 1].
    */
-  export function modifiers(effort: IAutoMovieMotionHumanEffort.IEffort = {}): IAutoMovieMotionHumanEffort.IModifiers {
+  export function modifiers(
+    effort: IAutoMovieMotionHumanEffort.IEffort = {},
+  ): IAutoMovieMotionHumanEffort.IModifiers {
     const f = (value: number | undefined, name: string): number => {
       const v: number = value ?? 0;
       return HumanBound.within(`effort.${name}`, v, -1, 1);

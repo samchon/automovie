@@ -1,4 +1,8 @@
-import type { IAutoMovieSolidAtlas, IAutoMovieSolidSurface, IAutoMovieSolidTraceTrialTrial } from "@automovie/interface";
+import type {
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidSurface,
+  IAutoMovieSolidTraceTrialTrial,
+} from "@automovie/interface";
 
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 

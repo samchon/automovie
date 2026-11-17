@@ -1,5 +1,5 @@
-import type { IAutoMovieDeliveryCropNdc } from "./IAutoMovieDeliveryCropNdc";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieDeliveryCropNdc } from "./IAutoMovieDeliveryCropNdc";
 
 /**
  * Camera-local inputs to six-plane perspective segment clipping.
@@ -12,7 +12,7 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 export namespace IAutoMovieLocalSegmentMeetsPerspectiveFrustum {
   /**
    * Whether a camera-local segment meets a perspective frustum, its faces included.
-   * 
+   *
    * Both ends are already in the camera's frame, looking down −Z with +Y up, so a caller testing many segments of one body transforms each corner once rather than once per segment. The frustum is bounded by the `near` and `far` depths and by the side planes through the lens and the crop's NDC edges at `halfX` and `halfY` tangents. A segment touching a face counts as meeting it.
    *
    * Inputs are borrowed and no validation runs here. Callers must supply finite endpoints, positive ordered clip distances, positive finite tangents, a valid crop and representable intermediate arithmetic. The boolean includes face contact under floating-point clipping; it measures no rendered pixels or occlusion.

@@ -1,6 +1,21 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSupportFrame, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  integrateMotionTrajectory,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSupportFrame,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { Quaternion, Vector3, integrateMotionTrajectory } from "@automovie/engine";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -29,7 +44,6 @@ import { poseBones } from "../posture/poseBones";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The frame is the prop's or the bone's own displayed one; nothing is extrapolated from the entry.
  */
 export namespace HumanSupportFrame {
-
   /**
    * The support the action is entered on: the first bearing contact on a
    * prop or a person, else the ground.
@@ -72,7 +86,8 @@ export namespace HumanSupportFrame {
   ): IAutoMovieMotionHumanContactWindow.Support {
     return (
       context.entry.supports.find(
-        (support: IAutoMovieMotionHumanEntryState.ISupport): boolean => support.part === part,
+        (support: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+          support.part === part,
       )?.support ?? { kind: "ground" }
     );
   }
@@ -91,7 +106,10 @@ export namespace HumanSupportFrame {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses HumanFoot.sockets as the surface datum.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function floor(body: IAutoMovieMotionHumanBody, entry: IAutoMovieMotionHumanEntryState): number {
+  export function floor(
+    body: IAutoMovieMotionHumanBody,
+    entry: IAutoMovieMotionHumanEntryState,
+  ): number {
     const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
       (side: "left" | "right"): boolean => entry.feet[side].planted,
     );
@@ -152,11 +170,15 @@ export namespace HumanSupportFrame {
    * @returns The frame.
    */
   export function at(
-    context: Pick<IAutoMovieMotionHumanActionContext, "entry" | "prop" | "performer">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "entry" | "prop" | "performer"
+    >,
     seconds: number,
     named?: IAutoMovieMotionHumanContactWindow.Support,
   ): IAutoMovieMotionHumanSupportFrame.IFrame {
-    const support: IAutoMovieMotionHumanContactWindow.Support = named ?? of(context);
+    const support: IAutoMovieMotionHumanContactWindow.Support =
+      named ?? of(context);
     if (support.kind === "ground")
       return {
         support,
@@ -168,9 +190,8 @@ export namespace HumanSupportFrame {
     const frame = (t: number): IAutoMovieMotionHumanProp.IFrame => {
       if (support.kind === "prop")
         return context.prop(support.subject).frame(t);
-      const other: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(
-        support.subject,
-      );
+      const other: IAutoMovieMotionHumanActionContext.IPerformer =
+        context.performer(support.subject);
       const bone: AutoMovieHumanoidBone =
         "bone" in support
           ? support.bone

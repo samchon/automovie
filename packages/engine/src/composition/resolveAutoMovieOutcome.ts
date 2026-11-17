@@ -1,5 +1,7 @@
-import type { IAutoMovieIntent, IAutoMovieResolveOutcome } from "@automovie/interface";
-
+import type {
+  IAutoMovieIntent,
+  IAutoMovieResolveOutcome,
+} from "@automovie/interface";
 
 /**
  * The outcome of interacting intents from a production's own table: the

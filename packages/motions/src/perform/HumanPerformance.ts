@@ -1,4 +1,21 @@
-import type { AutoMovieHumanoidBone, IAutoMovieInteractionEvent, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPerformanceAim, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanPerformer, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropFlight, IAutoMovieMotionHumanSegment, IAutoMovieMotionTarget, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieSchedule, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformanceAim,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPerformer,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropFlight,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionTarget,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieSchedule,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceHits } from "./HumanPerformanceHits";
@@ -83,7 +100,10 @@ export class HumanPerformance {
    * @param seconds Film seconds.
    * @returns The posture.
    */
-  public posture(subject: string, seconds: number): IAutoMovieMotionHumanPosture {
+  public posture(
+    subject: string,
+    seconds: number,
+  ): IAutoMovieMotionHumanPosture {
     return HumanPerformanceRead.posture(this.resolved, subject, seconds);
   }
 
@@ -121,7 +141,10 @@ export class HumanPerformance {
    * @param seconds Film seconds.
    * @returns Its frame.
    */
-  public prop(subject: string, seconds: number): IAutoMovieMotionHumanProp.IFrame {
+  public prop(
+    subject: string,
+    seconds: number,
+  ): IAutoMovieMotionHumanProp.IFrame {
     return HumanPerformanceRead.prop(this.resolved, subject, seconds);
   }
 
@@ -137,7 +160,8 @@ export class HumanPerformance {
    * @returns Travel by articulation id, in each articulation's own unit.
    */
   public state(subject: string, seconds: number): Record<string, number> {
-    const prop: IAutoMovieMotionHumanProp | undefined = this.resolved.props.get(subject);
+    const prop: IAutoMovieMotionHumanProp | undefined =
+      this.resolved.props.get(subject);
     if (prop === undefined)
       throw HumanPerformanceRead.missing("prop", subject, [
         ...this.resolved.props.keys(),
@@ -153,7 +177,9 @@ export class HumanPerformance {
    * @param subject The prop.
    * @returns The flights; none for a prop never launched.
    */
-  public flights(subject: string): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
+  public flights(
+    subject: string,
+  ): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
     return HumanPropFlight.flights(this.resolved, subject);
   }
 
@@ -229,7 +255,9 @@ export class HumanPerformance {
    * @param subject The person.
    * @returns The segments.
    */
-  public segments(subject: string): readonly IAutoMovieMotionHumanSegment.ISegment[] {
+  public segments(
+    subject: string,
+  ): readonly IAutoMovieMotionHumanSegment.ISegment[] {
     return HumanPerformanceRead.segments(this.resolved, subject);
   }
 
@@ -240,7 +268,9 @@ export class HumanPerformance {
    * @param subject The person.
    * @returns The overlays.
    */
-  public overlays(subject: string): readonly IAutoMovieMotionHumanSegment.IOverlay[] {
+  public overlays(
+    subject: string,
+  ): readonly IAutoMovieMotionHumanSegment.IOverlay[] {
     return HumanPerformanceRead.overlays(this.resolved, subject);
   }
 

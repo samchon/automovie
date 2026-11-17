@@ -6,31 +6,24 @@
  * @evidence contracts/development/common.md#meaningful-documentation Members distinguish proposed, refused and completed work populations.
  */
 export interface IAutoMovieRecoverySceneWork {
- 
- /** Camera transactions begun, including failures. */
+  /** Camera transactions begun, including failures. */
   cameraAttempts: number;
 
- 
- /** Six-point proposals actually started. */
+  /** Six-point proposals actually started. */
   resectionTrials: number;
 
- 
- /** Original point designs actually attempted, including refused/retried tracks. */
+  /** Original point designs actually attempted, including refused/retried tracks. */
   triangulations: number;
 
- 
- /** Attempted point designs that returned no qualified point. */
+  /** Attempted point designs that returned no qualified point. */
   triangulationRefusals: number;
 
- 
- /** Joint fits actually begun, including rolled-back fits. */
+  /** Joint fits actually begun, including rolled-back fits. */
   jointFits: number;
 
- 
- /** Joint iteration attempts, including gradient-stop checks. */
+  /** Joint iteration attempts, including gradient-stop checks. */
   jointIterationAttempts: number;
 
- 
- /** Charged dimension-sweep units before point/joint work, not actual scalar-operation counts. */
+  /** Charged dimension-sweep units before point/joint work, not actual scalar-operation counts. */
   linearWork: number;
 }

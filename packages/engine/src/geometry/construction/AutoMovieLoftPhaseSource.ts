@@ -1,4 +1,9 @@
-import type { IAutoMovieLoftPhaseSource, IAutoMovieStationHermite, IAutoMovieViewConic } from "@automovie/interface";
+import type {
+  IAutoMovieLoftPhaseSource,
+  IAutoMovieStationHermite,
+  IAutoMovieViewConic,
+} from "@automovie/interface";
+
 import { AutoMovieSeamStation } from "./AutoMovieSeamStation";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 import { AutoMovieViewConic } from "./AutoMovieViewConic";
@@ -21,7 +26,6 @@ import { AutoMovieViewConic } from "./AutoMovieViewConic";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieLoftPhaseSource {
-
   /**
    * Prepare a natural-coordinate operator without fitting any phase samples.
    *
@@ -196,7 +200,10 @@ export namespace AutoMovieLoftPhaseSource {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses one prepared value row without a new station solve; zero cardinal weights avoid irrelevant source reads.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh pair and retains no source/query state globally.
    */
-  export function point(at: IAutoMovieLoftPhaseSource.IStation, phi: number): [number, number] {
+  export function point(
+    at: IAutoMovieLoftPhaseSource.IStation,
+    phi: number,
+  ): [number, number] {
     validate(at);
     if (!Number.isFinite(phi)) throw new Error("native phase must be finite");
     let radius: number = 0;
@@ -220,7 +227,10 @@ export namespace AutoMovieLoftPhaseSource {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Source radius and trigonometric values serve all station/phase derivative orders in one query.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns three fresh six-entry rows; no phase or geometry registry is retained.
    */
-  export function jet(at: IAutoMovieLoftPhaseSource.IStation, phi: number): number[][] {
+  export function jet(
+    at: IAutoMovieLoftPhaseSource.IStation,
+    phi: number,
+  ): number[][] {
     validate(at);
     if (!Number.isFinite(phi)) throw new Error("native phase must be finite");
     const cosine: number = Math.cos(phi);

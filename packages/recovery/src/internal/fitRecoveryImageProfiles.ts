@@ -1,5 +1,8 @@
-import type { IAutoMovieRecoveryImageProfilesFittingOperation, IAutoMovieRecoveryScalarProfilesFittingOperation, IAutoMovieEllipticLoft } from "@automovie/interface";
-
+import type {
+  IAutoMovieEllipticLoft,
+  IAutoMovieRecoveryImageProfilesFittingOperation,
+  IAutoMovieRecoveryScalarProfilesFittingOperation,
+} from "@automovie/interface";
 
 import { fitRecoveryScalarProfiles } from "./fitRecoveryScalarProfiles";
 
@@ -44,8 +47,10 @@ export function fitRecoveryImageProfiles(
           radiusX: span.profiles[0],
           radiusZ: span.profiles[1],
           centreX: span.profiles[2],
-          centreZ: span.profiles[3] };
+          centreZ: span.profiles[3],
+        };
       },
-    ) };
+    ),
+  };
   return { loft: result, rankRatio: fitted.rankRatio };
 }

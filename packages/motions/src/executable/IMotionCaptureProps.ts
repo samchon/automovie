@@ -1,6 +1,6 @@
 import type {
-  IAutoMovieMotionHumanMotionCaptureOverlays,
   IAutoMovieHumanCanonicalBody,
+  IAutoMovieMotionHumanMotionCaptureOverlays,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";

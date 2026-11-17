@@ -1,6 +1,16 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBend, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanRange, IAutoMovieMotionHumanResolve, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanTargetGrid, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanRange,
+  IAutoMovieMotionHumanResolve,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTargetGrid,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
@@ -25,7 +35,6 @@ import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every value comes from the owner a law reads it from, so the table cannot disagree with a performance.
  */
 export namespace AutoMovieMotionHumanResolve {
-
   /**
    * A place on a body, in shares and in metres.
    *
@@ -183,21 +192,33 @@ export namespace AutoMovieMotionHumanResolve {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates every cell to `place`, `bend`, the place owner's tables and the range owner.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function table(bodies: readonly IAutoMovieMotionHumanResolve.IBody[]): string {
+  export function table(
+    bodies: readonly IAutoMovieMotionHumanResolve.IBody[],
+  ): string {
     const lines: string[] = [];
     const row = (
       label: string,
       cell: (body: Pick<IAutoMovieMotionHumanBody, "measure">) => string,
     ): void => {
       lines.push(
-        [label, ...bodies.map((b: IAutoMovieMotionHumanResolve.IBody): string => cell(b.body))].join("\t"),
+        [
+          label,
+          ...bodies.map((b: IAutoMovieMotionHumanResolve.IBody): string =>
+            cell(b.body),
+          ),
+        ].join("\t"),
       );
     };
     const f = (value: number): string => value.toFixed(3);
     const point = (v: IAutoMovieVector3): string =>
       `${f(v.x)},${f(v.y)},${f(v.z)}`;
     lines.push(
-      ["name", ...bodies.map((b: IAutoMovieMotionHumanResolve.IBody): string => b.name)].join("\t"),
+      [
+        "name",
+        ...bodies.map(
+          (b: IAutoMovieMotionHumanResolve.IBody): string => b.name,
+        ),
+      ].join("\t"),
     );
     for (const name of Object.keys(
       AutoMovieMotionHumanTarget.DEFAULTS,

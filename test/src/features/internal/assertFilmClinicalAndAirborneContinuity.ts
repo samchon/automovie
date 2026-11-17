@@ -1,6 +1,14 @@
-import type { IAutoMovieRestFrame, AutoMovieHumanoidBone, IAutoMovieBeatEndActorState, IAutoMovieBeatEndFootPlant, IAutoMovieJointAxes, IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieStageActor } from "@automovie/interface";
 import { validateFootSkate } from "@automovie/engine";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndFootPlant,
+  IAutoMovieJointAxes,
+  IAutoMovieMotion,
+  IAutoMovieRestFrame,
+  IAutoMovieSkeleton,
+  IAutoMovieStageActor,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import type { IFilmDefinedShotContinuityInputs } from "./IFilmDefinedShotContinuityInputs";

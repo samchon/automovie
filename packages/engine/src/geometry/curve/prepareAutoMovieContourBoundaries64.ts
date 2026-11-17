@@ -1,4 +1,13 @@
-import type { AutoMovieVector3Tuple, IAutoMovieContourLoft64, IAutoMovieContourLoftCurves64, IAutoMoviePrepareContourBoundaries64, IAutoMoviePrepareContourBoundaries64Group, IAutoMoviePrepareContourBoundaries64Ring, IAutoMovieRefineContourInteractions64 } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieContourLoft64,
+  IAutoMovieContourLoftCurves64,
+  IAutoMoviePrepareContourBoundaries64,
+  IAutoMoviePrepareContourBoundaries64Group,
+  IAutoMoviePrepareContourBoundaries64Ring,
+  IAutoMovieRefineContourInteractions64,
+} from "@automovie/interface";
+
 import { refineAutoMovieContourInteractions64 } from "./refineAutoMovieContourInteractions64";
 
 /**
@@ -27,7 +36,9 @@ export function prepareAutoMovieContourBoundaries64<
   plans: IAutoMoviePrepareContourBoundaries64.IPlans<G>,
   rings: R[][],
   coordinates: readonly number[],
-  leaf: (point: AutoMovieVector3Tuple) => IAutoMovieContourLoftCurves64.Leaf | undefined,
+  leaf: (
+    point: AutoMovieVector3Tuple,
+  ) => IAutoMovieContourLoftCurves64.Leaf | undefined,
   register: (ring: R, knot: IAutoMovieContourLoftCurves64.Knot) => void,
   prepareSlit: (rings: R[], selection: number[]) => void,
   toleranceMm: number,
@@ -35,7 +46,9 @@ export function prepareAutoMovieContourBoundaries64<
 ): IAutoMoviePrepareContourBoundaries64.IResult<G> {
   const interactions: Map<G, { qualified: boolean; diagnostics: string[] }> =
     new Map();
-  const observations: NonNullable<IAutoMovieContourLoft64.IResult["interactionObservations"]> = [];
+  const observations: NonNullable<
+    IAutoMovieContourLoft64.IResult["interactionObservations"]
+  > = [];
   for (const plan of plans)
     for (const group of plan.groups) {
       const invalid: R | undefined = [
@@ -55,22 +68,24 @@ export function prepareAutoMovieContourBoundaries64<
         for (const [groupIndex, group] of plan.groups.entries()) {
           if (group.unsupported !== undefined) continue;
           try {
-            const before: IAutoMovieRefineContourInteractions64.IResult = refineAutoMovieContourInteractions64(
-              rings[plan.k - 1],
-              group.a,
-              leaf,
-              register,
-              toleranceMm,
-              observeWork,
-            );
-            const after: IAutoMovieRefineContourInteractions64.IResult = refineAutoMovieContourInteractions64(
-              rings[plan.k],
-              group.b,
-              leaf,
-              register,
-              toleranceMm,
-              observeWork,
-            );
+            const before: IAutoMovieRefineContourInteractions64.IResult =
+              refineAutoMovieContourInteractions64(
+                rings[plan.k - 1],
+                group.a,
+                leaf,
+                register,
+                toleranceMm,
+                observeWork,
+              );
+            const after: IAutoMovieRefineContourInteractions64.IResult =
+              refineAutoMovieContourInteractions64(
+                rings[plan.k],
+                group.b,
+                leaf,
+                register,
+                toleranceMm,
+                observeWork,
+              );
             if (group.a.length > 1)
               observations.push({
                 beforeMm: coordinates[plan.k - 1],

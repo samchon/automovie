@@ -1,19 +1,18 @@
-import type { IAutoMovieHumanArmFrame, IAutoMovieHumanArmHandControls, IAutoMovieHumanArmSources, IAutoMovieHumanArmWalk, IAutoMovieHumanBodyLane, IAutoMovieHumanBodyMeasures, IAutoMovieHumanDigitWalk, IAutoMovieHumanHandBones, IAutoMovieHumanHandParent, IAutoMovieHumanSiteViewPart } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
+import type {
+  IAutoMovieHumanArmFrame,
+  IAutoMovieHumanArmHandControls,
+  IAutoMovieHumanArmSources,
+  IAutoMovieHumanArmWalk,
+  IAutoMovieHumanBodyLane,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanDigitWalk,
+  IAutoMovieHumanHandBones,
+  IAutoMovieHumanHandParent,
+  IAutoMovieHumanSiteViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanTrunkRows } from "../AutoMovieHumanTrunkRows";
-
 import { AutoMovieHumanHandAttachment } from "../hand/AutoMovieHumanHandAttachment";
-
 import { AutoMovieHumanDigitInterim } from "../limb/AutoMovieHumanDigitInterim";
 import { AutoMovieHumanDigitWalk } from "../limb/AutoMovieHumanDigitWalk";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
@@ -24,12 +23,10 @@ import { AutoMovieHumanArmWalk } from "./AutoMovieHumanArmWalk";
 
 /** Arm and hand original factories from direct rest/attachment definitions, before any trunk or skeleton assembly. */
 export namespace AutoMovieHumanArmSources {
-  
-
-  
-
   /** Enumerate the same digit keys the source factories use, without preparing geometry. */
-  export function names(side: IAutoMovieHumanArmSources.IInput["side"]): string[] {
+  export function names(
+    side: IAutoMovieHumanArmSources.IInput["side"],
+  ): string[] {
     return [
       ...FINGERS.map(
         (finger: (typeof FINGERS)[number]): string =>
@@ -40,11 +37,16 @@ export namespace AutoMovieHumanArmSources {
   }
 
   /** Prepare this side's actual arm laws once; no leg, foot, trunk or opposite arm is evaluated. */
-  export function create(input: IAutoMovieHumanArmSources.IInput): IAutoMovieHumanArmSources.IOutput {
+  export function create(
+    input: IAutoMovieHumanArmSources.IInput,
+  ): IAutoMovieHumanArmSources.IOutput {
     const side: IAutoMovieHumanArmSources.IInput["side"] = input.side;
     const measures: IAutoMovieHumanBodyMeasures = input.measures;
-    const { shoulder, elbow, wrist }: IAutoMovieHumanArmSources.IInput["rest"]["bones"] =
-      input.rest.bones;
+    const {
+      shoulder,
+      elbow,
+      wrist,
+    }: IAutoMovieHumanArmSources.IInput["rest"]["bones"] = input.rest.bones;
     const hand: IAutoMovieHumanHandBones.IOutput = input.rest.hand;
     const knuckle: Vec3 = hand.knuckle;
     const crease: Vec3 = hand.crease;

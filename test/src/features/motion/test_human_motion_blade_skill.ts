@@ -1,8 +1,19 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { createPell, createSword } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanBlade, HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanBlade,
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionBladeReach } from "../internal/motionBladeReach";
@@ -95,13 +106,19 @@ export function test_human_motion_blade_skill(): void {
       });
       const act: IAutoMovieMotionHumanSegment.ISegment = film
         .segments("a")
-        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "lunge")!;
+        .find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+            s.name === "lunge",
+        )!;
       return {
         film,
         act,
         at: act.start + (act.plan.contact ?? Number.NaN),
         point: (seconds: number): IAutoMovieVector3 => {
-          const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("sword", seconds);
+          const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
+            "sword",
+            seconds,
+          );
           return Vector3.add(
             frame.position,
             Quaternion.rotateVector(frame.rotation, tip),
@@ -113,7 +130,10 @@ export function test_human_motion_blade_skill(): void {
     // What a jump of the point is read against at an instant: the right
     // arm's joint angles, how far the shown hand is turned from the asked
     // one, and how far the asked one is turned from the world's axes.
-    const shown = (film: IAutoMovieMotionHumanPerformance, seconds: number): string => {
+    const shown = (
+      film: IAutoMovieMotionHumanPerformance,
+      seconds: number,
+    ): string => {
       const turn = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number =>
         (2 *
           Math.acos(

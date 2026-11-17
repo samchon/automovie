@@ -1,5 +1,8 @@
-import type { IAutoMovieFootfallPattern, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
@@ -21,7 +24,9 @@ export function admitPhysicalSupportPattern(
   stepping: boolean,
 ): void {
   const known: Set<string> = new Set(
-    profile.segments.map((segment: IAutoMoviePhysicalProfile.ISegment): string => segment.bone),
+    profile.segments.map(
+      (segment: IAutoMoviePhysicalProfile.ISegment): string => segment.bone,
+    ),
   );
   const vector: (value: IAutoMovieVector3) => boolean = (
     value: IAutoMovieVector3,

@@ -1,6 +1,28 @@
-import type { AutoMovieHumanoidBone, IAutoMovieIntegrateAirborneRotation, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieSolveAirborneTakeoff, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieGravity,
+  Quaternion,
+  Vector3,
+  integrateAirborneRotation,
+  integrateMotionTrajectory,
+  resolveAutoMovieCenterOfMass,
+  solveAirborneTakeoff,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieIntegrateAirborneRotation,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieSolveAirborneTakeoff,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { AutoMovieGravity, Quaternion, Vector3, integrateAirborneRotation, integrateMotionTrajectory, resolveAutoMovieCenterOfMass, solveAirborneTakeoff } from "@automovie/engine";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
@@ -163,19 +185,21 @@ export namespace HumanPerformanceFlight {
     if (declared.momentum.kind === "momentum")
       momentum = declared.momentum.momentum;
     else {
-      const turns: IAutoMovieMotionHumanActionPlan.IFlightTurns = declared.momentum;
+      const turns: IAutoMovieMotionHumanActionPlan.IFlightTurns =
+        declared.momentum;
       const maximum: number = turns.maximum ?? ceiling(t0);
-      const solved: IAutoMovieSolveAirborneTakeoff.ISolution = solveAirborneTakeoff({
-        history,
-        t0,
-        t1,
-        q0,
-        frame: turns.frame,
-        somersault: turns.somersault,
-        twist: turns.twist,
-        maximum,
-        integration: HumanPerformanceFlight.ACCURACY,
-      });
+      const solved: IAutoMovieSolveAirborneTakeoff.ISolution =
+        solveAirborneTakeoff({
+          history,
+          t0,
+          t1,
+          q0,
+          frame: turns.frame,
+          somersault: turns.somersault,
+          twist: turns.twist,
+          maximum,
+          integration: HumanPerformanceFlight.ACCURACY,
+        });
       if (!solved.met)
         throw new HumanRefusal({
           kind: "parameter",
@@ -226,7 +250,9 @@ export namespace HumanPerformanceFlight {
           };
         },
       );
-    const rotation = (seconds: number): IAutoMovieMotionHumanPosture.IRotation => {
+    const rotation = (
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture.IRotation => {
       const t: number = Math.max(t0, Math.min(t1, segment.start + seconds));
       const i: number = Math.min(knots - 2, Math.floor((t - t0) / step));
       const a: number = times[i]!;

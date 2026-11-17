@@ -1,6 +1,15 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSwivelBound, IAutoMovieResolvedBone, IAutoMovieSwivelArcs, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, swivelArcs } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSwivelBound,
+  IAutoMovieResolvedBone,
+  IAutoMovieSwivelArcs,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -20,7 +29,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The arcs are the engine's; nothing is sampled.
  */
 export namespace AutoMovieMotionHumanSwivelBound {
-
   /**
    * An arm on a posture's trunk, the limbs left unfitted.
    *
@@ -126,7 +134,10 @@ export namespace AutoMovieMotionHumanSwivelBound {
     ];
     // How far past a bound an elbow lies, from its offset from the
     // shoulder, refused where positive.
-    const past = (bound: IAutoMovieMotionHumanSwivelBound.IHalfPlane, at: IAutoMovieVector3): number =>
+    const past = (
+      bound: IAutoMovieMotionHumanSwivelBound.IHalfPlane,
+      at: IAutoMovieVector3,
+    ): number =>
       -(
         Vector3.dot(
           bound.normal,

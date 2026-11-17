@@ -1,7 +1,5 @@
 import type { IAutoMovieRecoveryCriticalBracketsPreparationOperation } from "@automovie/interface";
 
-
-
 /**
  * Prepare critical physical brackets and retain explicit unresolvable gaps.
  *
@@ -47,7 +45,8 @@ export function prepareRecoveryCriticalBrackets(
       topologyGaps.push({
         beforeMm: event.level - stepMm / 100,
         afterMm: event.level + stepMm / 100,
-        reason });
+        reason,
+      });
       continue;
     }
     const before: number = event.level - epsilon,

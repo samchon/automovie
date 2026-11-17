@@ -1,5 +1,8 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanProp } from "@automovie/interface";
 import { createLadder } from "@automovie/archetypes";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanProp,
+} from "@automovie/interface";
 import { HumanObject } from "@automovie/motions";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
@@ -186,7 +189,10 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
 };
 
 /** A crate on the floor `ahead` metres along +Z, with two handles 0.5 m apart at the performer's elbow height (the shoulder's height less the upper arm). */
-function crate(a: IAutoMovieMotionHumanBody, ahead: number): IAutoMovieMotionHumanProp {
+function crate(
+  a: IAutoMovieMotionHumanBody,
+  ahead: number,
+): IAutoMovieMotionHumanProp {
   return {
     subject: "crate",
     frame: {

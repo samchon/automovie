@@ -1,4 +1,9 @@
-import type { IAutoMovieLoftChain, IAutoMovieViewPart, IAutoMovieLoftCapSource, IAutoMovieLoftSectionSource } from "@automovie/interface";
+import type {
+  IAutoMovieLoftCapSource,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSectionSource,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
@@ -15,7 +20,6 @@ type Pole = NonNullable<IAutoMovieLoftChain["pole"]>;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftCapSource {
-
   /**
    * Retain original cap ownership after all principal-row preparation.
    *
@@ -91,7 +95,10 @@ export namespace AutoMovieLoftCapSource {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This selector owns no cross-call cache; Point and Jet retain their existing station plans.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a borrowed immutable record or null, with no retained query state.
    */
-  export function at(chain: IAutoMovieLoftChain, station: number): IAutoMovieLoftCapSource.ISource | null {
+  export function at(
+    chain: IAutoMovieLoftChain,
+    station: number,
+  ): IAutoMovieLoftCapSource.ISource | null {
     if (!Number.isFinite(station))
       throw new Error("A loft station must be finite.");
     const first: number = chain.layers[0]!.y;
@@ -142,7 +149,8 @@ interface IChecked {
 }
 
 /** The last passed check of each cap source, released with it. */
-const CHECKED: WeakMap<IAutoMovieLoftCapSource.ISource, IChecked> = new WeakMap();
+const CHECKED: WeakMap<IAutoMovieLoftCapSource.ISource, IChecked> =
+  new WeakMap();
 
 /**
  * Reject stale ownership before any actual geometry callback is evaluated.
@@ -153,10 +161,17 @@ const CHECKED: WeakMap<IAutoMovieLoftCapSource.ISource, IChecked> = new WeakMap(
  */
 function validate(chain: IAutoMovieLoftChain, pole: Pole): void {
   const source: IAutoMovieLoftCapSource.ISource = pole.source!;
-  const end: IAutoMovieLoftChain.ILayer | undefined = chain.layers[pole.end === "bottom" ? 0 : chain.layers.length - 1];
+  const end: IAutoMovieLoftChain.ILayer | undefined =
+    chain.layers[pole.end === "bottom" ? 0 : chain.layers.length - 1];
   if (source !== null && typeof source === "object") {
     const passed: IChecked | undefined = CHECKED.get(source);
-    if (passed !== undefined && passed.chain === chain && passed.layer === end && passed.pole === pole) return;
+    if (
+      passed !== undefined &&
+      passed.chain === chain &&
+      passed.layer === end &&
+      passed.pole === pole
+    )
+      return;
   }
   check(chain, pole);
   CHECKED.set(source, { chain, layer: end!, pole });
@@ -177,7 +192,7 @@ function check(chain: IAutoMovieLoftChain, pole: Pole): void {
     );
   const index: number = pole.end === "bottom" ? 0 : chain.layers.length - 1;
   const layer: IAutoMovieLoftChain.ILayer = chain.layers[index]!;
-  const native: (IAutoMovieLoftSectionSource.ISource | null) =
+  const native: IAutoMovieLoftSectionSource.ISource | null =
     AutoMovieLoftSectionSource.validate(chain, index, index);
   AutoMovieLoftFrameSource.validate(layer);
   if (

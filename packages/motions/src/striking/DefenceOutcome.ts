@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanDefenceOutcome, IAutoMovieRandom } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanDefenceOutcome,
+  IAutoMovieRandom,
+} from "@automovie/interface";
 
 import { StrikingSkill } from "./StrikingSkill";
 
@@ -37,7 +40,6 @@ import { StrikingSkill } from "./StrikingSkill";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's random stream and the skill types.
  */
 export namespace DefenceOutcome {
-
   /**
    * Classify a margin.
    *
@@ -53,7 +55,10 @@ export namespace DefenceOutcome {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function classify(margin: number, movement: number): IAutoMovieMotionHumanDefenceOutcome.Outcome {
+  export function classify(
+    margin: number,
+    movement: number,
+  ): IAutoMovieMotionHumanDefenceOutcome.Outcome {
     if (margin >= 0) return "inTime";
     if (margin > -0.5 * movement) return "late";
     return "fail";

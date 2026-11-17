@@ -1,5 +1,3 @@
-
-
 /** Prepared lattice and mutable XPBD buffers for one ordered constraint sweep. */
 export namespace IAutoMovieSolveSoftBodyCompliantSweep {
   /**
@@ -9,7 +7,7 @@ export namespace IAutoMovieSolveSoftBodyCompliantSweep {
    * multiplier, the extended position-based dynamics of Macklin, Müller and
    * Chentanez 2016 ("XPBD: position-based simulation of compliant constrained
    * dynamics", MIG 2016, pp. 49-54, equations 18 and 17).
-   * 
+   *
    * For an edge between particles i and k with rest length l, the constraint
    * is C = |x_i - x_k| - l, its gradient the unit direction n from k to i, and
    * the time-scaled compliance alpha~ = alpha / dt^2 with alpha the family's
@@ -24,7 +22,7 @@ export namespace IAutoMovieSolveSoftBodyCompliantSweep {
    * the distance between the ends of two consecutive segments, which is
    * regular at a straight rest where the angle between the segments is not
    * differentiable.
-   * 
+   *
    * Edges are visited in a fixed order (row-major particles, each with the
    * neighbours that follow it in `SOFT_BODY_NEIGHBOURS`), so a solve is
    * deterministic. `lambda` holds one multiplier per particle and neighbour

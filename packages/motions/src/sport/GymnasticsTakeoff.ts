@@ -1,7 +1,12 @@
-import type { IAutoMovieResolveCenterOfMass, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanGymnasticsTakeoff, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import { AutoMovieGravity } from "@automovie/engine";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanGymnasticsTakeoff,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { jump } from "../actions/jump";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -27,7 +32,6 @@ import { GymnasticsFlight } from "./GymnasticsFlight";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The push-off is the jump's, never restated.
  */
 export namespace GymnasticsTakeoff {
-
   /** How many times the landing place is corrected. */
   const PASSES: number = 3;
 
@@ -51,7 +55,9 @@ export namespace GymnasticsTakeoff {
     context: IAutoMovieMotionHumanActionContext<object>,
     aim: (centre: IAutoMovieVector3) => IAutoMovieVector3,
   ): IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff {
-    const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(context.body);
+    const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(
+      context.body,
+    );
     const root: IAutoMovieVector3 = context.entry.posture.root;
 
     // The first aim reads a centre over the root at the share of the stature

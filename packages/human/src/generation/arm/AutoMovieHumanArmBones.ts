@@ -1,5 +1,7 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanArmBones } from "@automovie/interface";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanArmBones,
+} from "@automovie/interface";
 
 /**
  * The arm's bony landmarks and joint centres, placed from the glenohumeral
@@ -31,8 +33,6 @@ import type { AutoMovieVector3Tuple, IAutoMovieHumanArmBones } from "@automovie/
  * stylion radiale-stylion past radiale along it.
  */
 export namespace AutoMovieHumanArmBones {
-  
-
   /**
    * The landmarks from the shoulder centre, the bind's bone directions and
    * the two lengths.
@@ -52,14 +52,35 @@ export namespace AutoMovieHumanArmBones {
     radialeStylion: number,
     acromionProjection: number,
   ): IAutoMovieHumanArmBones.IBones {
-    if (![acromionRadiale, radialeStylion, acromionProjection].every(Number.isFinite) || !(acromionRadiale > 0) || !(radialeStylion > 0))
-      throw new Error("An arm needs positive acromion-radiale and radiale-stylion lengths");
-    const humerus: number = acromionRadiale - acromionProjection - RADIALE * acromionRadiale;
-    if (!(humerus > 0)) throw new Error("The actual GH projection leaves no positive humerus in the public AR caliper");
+    if (
+      ![acromionRadiale, radialeStylion, acromionProjection].every(
+        Number.isFinite,
+      ) ||
+      !(acromionRadiale > 0) ||
+      !(radialeStylion > 0)
+    )
+      throw new Error(
+        "An arm needs positive acromion-radiale and radiale-stylion lengths",
+      );
+    const humerus: number =
+      acromionRadiale - acromionProjection - RADIALE * acromionRadiale;
+    if (!(humerus > 0))
+      throw new Error(
+        "The actual GH projection leaves no positive humerus in the public AR caliper",
+      );
     const elbow: AutoMovieVector3Tuple = plus(shoulder, scale(upper, humerus));
-    const radiale: AutoMovieVector3Tuple = plus(elbow, scale(lower, RADIALE * acromionRadiale));
-    const stylion: AutoMovieVector3Tuple = plus(radiale, scale(lower, radialeStylion));
-    const wrist: AutoMovieVector3Tuple = plus(stylion, scale(lower, STYLION_WRIST));
+    const radiale: AutoMovieVector3Tuple = plus(
+      elbow,
+      scale(lower, RADIALE * acromionRadiale),
+    );
+    const stylion: AutoMovieVector3Tuple = plus(
+      radiale,
+      scale(lower, radialeStylion),
+    );
+    const wrist: AutoMovieVector3Tuple = plus(
+      stylion,
+      scale(lower, STYLION_WRIST),
+    );
     return {
       shoulder,
       elbow,
@@ -89,8 +110,10 @@ export namespace AutoMovieHumanArmBones {
   export const STYLION_WRIST: number = 1.5;
 }
 
-
-function plus(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+function plus(
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+): AutoMovieVector3Tuple {
   return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 }
 

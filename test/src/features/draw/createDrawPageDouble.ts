@@ -1,4 +1,9 @@
-import type { IAutoMovieCaptureSubject, IAutoMovieDrawCall, IAutoMovieDrawDescription, IAutoMovieDrawResult } from "@automovie/interface";
+import type {
+  IAutoMovieCaptureSubject,
+  IAutoMovieDrawCall,
+  IAutoMovieDrawDescription,
+  IAutoMovieDrawResult,
+} from "@automovie/interface";
 import type { IAutoMovieDrawPage } from "@automovie/render";
 
 /**

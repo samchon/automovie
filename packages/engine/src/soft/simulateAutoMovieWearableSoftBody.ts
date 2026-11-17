@@ -1,5 +1,18 @@
-import { type IAutoMovieResolvedBone, type IAutoMovieSoftBodyBoundarySample, type IAutoMovieSoftNodeTransform, type IAutoMovieWearableSoftActorPose, type IAutoMovieWearableSoftFrame, type IAutoMovieWearableSoftResult, type IAutoMovieSimulateWearableSoftBody, AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieSoftAnchor, IAutoMovieSoftAnchorBinding, IAutoMovieSoftCollider, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieQuaternion,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieSimulateWearableSoftBody,
+  IAutoMovieSoftAnchor,
+  IAutoMovieSoftAnchorBinding,
+  type IAutoMovieSoftBodyBoundarySample,
+  IAutoMovieSoftCollider,
+  type IAutoMovieSoftNodeTransform,
+  IAutoMovieVector3,
+  type IAutoMovieWearableSoftActorPose,
+  type IAutoMovieWearableSoftFrame,
+  type IAutoMovieWearableSoftResult,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { simulateSoftBodyWithBoundaries } from "./simulateSoftBodyWithBoundaries";
@@ -14,7 +27,11 @@ import { simulateSoftBodyWithBoundaries } from "./simulateSoftBodyWithBoundaries
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Node/actor indexes are built once per frame and reused for all targets; required bone scans preserve duplicate detection. Snapshots, domain and budget are not assumed equivalent across calls for a retained solve cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Frame maps and resolved histories are local; only fresh solved arrays and budget scalars transfer, without retaining subject maps, rig callbacks or a host task.
  */
-export const simulateAutoMovieWearableSoftBody: (props: IAutoMovieSimulateWearableSoftBody.IProps) => IAutoMovieWearableSoftResult = (props: IAutoMovieSimulateWearableSoftBody.IProps): IAutoMovieWearableSoftResult => {
+export const simulateAutoMovieWearableSoftBody: (
+  props: IAutoMovieSimulateWearableSoftBody.IProps,
+) => IAutoMovieWearableSoftResult = (
+  props: IAutoMovieSimulateWearableSoftBody.IProps,
+): IAutoMovieWearableSoftResult => {
   assertAdmission(props.subjectIndex, props.maxSubjects);
   if (!Number.isSafeInteger(props.step) || props.step < 0)
     throw new Error("wearable soft step must be a non-negative integer");

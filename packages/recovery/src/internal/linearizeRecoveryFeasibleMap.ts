@@ -1,13 +1,15 @@
-import type { IAutoMovieRecoveryFeasibleMapLinearization, IAutoMovieRecoveryMapJointStepSolutionOperation, IAutoMovieRecoveryMapPointProjectionOperation, IAutoMovieRecoveryMapState, IAutoMovieSimplexAtom, IAutoMovieRecoveryCameraMapPolicy } from "@automovie/interface";
-
-
-
-
+import type {
+  IAutoMovieRecoveryCameraMapPolicy,
+  IAutoMovieRecoveryFeasibleMapLinearization,
+  IAutoMovieRecoveryMapJointStepSolutionOperation,
+  IAutoMovieRecoveryMapPointProjectionOperation,
+  IAutoMovieRecoveryMapState,
+  IAutoMovieSimplexAtom,
+} from "@automovie/interface";
 
 import { createRecoveryMapTangent } from "./createRecoveryMapTangent";
 import { differentiateRecoveryMapTangent } from "./differentiateRecoveryMapTangent";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
-
 
 /**
  * Linearize the unchanged robust objective and every unweighted pixel disk.
@@ -39,13 +41,15 @@ export function linearizeRecoveryFeasibleMap(
     );
   if (tangent === null)
     throw new Error("camera-map-chart: nonrepresentable seed differential");
-  const blocks: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[0][number][] = [];
+  const blocks: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[0][number][] =
+    [];
   for (let point: number = 0; point < state.landmarks.length; point++) {
     const landmark: (typeof state.landmarks)[number] = state.landmarks[point]!;
     const block: (typeof blocks)[number] = {
       pointRows: [],
       cameraRows: [],
-      right: [] };
+      right: [],
+    };
     for (const observation of landmark.observations) {
       const view: number = observation.viewIndex;
       const projection: ReturnType<IAutoMovieRecoveryMapPointProjectionOperation.Operation> =
@@ -130,7 +134,9 @@ export function linearizeRecoveryFeasibleMap(
           (_: unknown, axis: number): number => axis,
         ),
         values: gradient,
-        offset: 0 },
+        offset: 0,
+      },
       ...constraints,
-    ] };
+    ],
+  };
 }

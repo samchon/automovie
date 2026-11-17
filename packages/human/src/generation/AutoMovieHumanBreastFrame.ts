@@ -1,6 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanBreastFrame, IAutoMovieHumanTrunkFeatureFrame } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanBreastFrame,
+  IAutoMovieHumanTrunkFeatureFrame,
+} from "@automovie/interface";
 
 import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
 
@@ -23,15 +25,15 @@ export namespace AutoMovieHumanBreastFrame {
    */
   export const TILT: number = (20 * Math.PI) / 180;
 
-  
-
   /**
    * The frame of the left breast.
    *
    * @param input The bust point and the wall's tangent there.
    * @returns The frame; the right breast's is its reflection.
    */
-  export function create(input: IAutoMovieHumanBreastFrame.IInput): IAutoMovieHumanTrunkFeatureFrame.IFrame {
+  export function create(
+    input: IAutoMovieHumanBreastFrame.IInput,
+  ): IAutoMovieHumanTrunkFeatureFrame.IFrame {
     // The wall's outward normal in the section plane is the tangent turned a
     // quarter back: (tz, -tx) points forward and outward on the front.
     const nx: number = input.tangent[1];

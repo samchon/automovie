@@ -1,5 +1,8 @@
-import type { IAutoMoviePhysicalPlayback, IAutoMoviePhysicsCache } from "@automovie/interface";
 import { admitPhysicalPlaybackMetadata } from "@automovie/engine";
+import type {
+  IAutoMoviePhysicalPlayback,
+  IAutoMoviePhysicsCache,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /** Replayed virtual support predictions keep requested minus allocated equal to their residual, independent of an archive's integrity trailer.
@@ -19,9 +22,23 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An unsupported prediction, full residual and zero allocation, is admitted.).
  */
 export function test_physical_wrench_replay(): void {
-  const unsupported: IAutoMoviePhysicsCache.ISupportWrench = wrench(0, 0, [100, 0], [0, 0]);
-  const partial: IAutoMoviePhysicsCache.ISupportWrench = wrench(1 / 120, 4, [100, 2], [60, 0.5]);
-  const verdicts: [string, IAutoMoviePhysicsCache.ISupportWrench[], string | null][] = [
+  const unsupported: IAutoMoviePhysicsCache.ISupportWrench = wrench(
+    0,
+    0,
+    [100, 0],
+    [0, 0],
+  );
+  const partial: IAutoMoviePhysicsCache.ISupportWrench = wrench(
+    1 / 120,
+    4,
+    [100, 2],
+    [60, 0.5],
+  );
+  const verdicts: [
+    string,
+    IAutoMoviePhysicsCache.ISupportWrench[],
+    string | null,
+  ][] = [
     ["unsupported prediction", [unsupported], null],
     ["partial allocation", [unsupported, partial], null],
     [
@@ -92,7 +109,9 @@ function wrench(
   requested: [number, number],
   allocated: [number, number],
 ): IAutoMoviePhysicsCache.ISupportWrench {
-  const of: (value: [number, number]) => IAutoMoviePhysicsCache.ISupportWrench["requested"] = (
+  const of: (
+    value: [number, number],
+  ) => IAutoMoviePhysicsCache.ISupportWrench["requested"] = (
     value: [number, number],
   ): IAutoMoviePhysicsCache.ISupportWrench["requested"] => ({
     force: { x: 0, y: value[0], z: 0 },

@@ -8,11 +8,9 @@ import type { IAutoMovieRecoverySceneCandidate } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Members identify source and shared revision-local support.
  */
 export interface IAutoMovieRecoverySceneQueue {
- 
- /** Fixed input source index. */
+  /** Fixed input source index. */
   view: number;
 
- 
- /** Distinct existing-map candidates, not PnP inliers. */
+  /** Distinct existing-map candidates, not PnP inliers. */
   candidates: IAutoMovieRecoverySceneCandidate[];
 }

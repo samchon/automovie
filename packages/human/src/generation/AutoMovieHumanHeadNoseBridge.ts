@@ -1,10 +1,11 @@
-import type { IAutoMovieHumanHeadCompiled, IAutoMovieHumanHeadNoseFrame, IAutoMovieHumanHeadPrior } from "@automovie/interface";
-
-
-
 import { AutoMovieNaturalSpline } from "@automovie/engine";
-import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
+import type {
+  IAutoMovieHumanHeadCompiled,
+  IAutoMovieHumanHeadNoseFrame,
+  IAutoMovieHumanHeadPrior,
+} from "@automovie/interface";
 
+import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
 
 /**
  * The nasal root and dorsum as a relief window in the nose's frame: the
@@ -42,7 +43,9 @@ export namespace AutoMovieHumanHeadNoseBridge {
           AutoMovieHumanHeadMath.smooth((1 - v) / ROOT) *
           frame.lead *
           AutoMovieHumanHeadMath.bell(
-            a / (frame.width * AutoMovieNaturalSpline.evaluate(compiled.dorsum, v)),
+            a /
+              (frame.width *
+                AutoMovieNaturalSpline.evaluate(compiled.dorsum, v)),
           )
       : 0;
   }

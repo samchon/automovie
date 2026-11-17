@@ -5,7 +5,7 @@ import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 export namespace IAutoMovieMaterializeCompiledInstanceSetInventory {
   /**
    * Compile every instance set a world declares into its compact runtime record.
-   * 
+   *
    * Records are keyed by set id and inserted in code-unit order of that id, so
    * the inventory is the same whatever order the world lists its sets in. A
    * world that declares no instance sets compiles to an empty inventory.

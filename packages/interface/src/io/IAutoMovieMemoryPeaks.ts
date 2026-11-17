@@ -10,11 +10,9 @@
  */
 
 export interface IAutoMovieMemoryPeaks {
- 
- /** Observed managed heap peak in bytes. */
+  /** Observed managed heap peak in bytes. */
   heap: number;
 
- 
- /** Observed resident memory peak in bytes. */
+  /** Observed resident memory peak in bytes. */
   rss: number;
 }

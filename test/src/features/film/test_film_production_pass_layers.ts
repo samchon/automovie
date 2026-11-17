@@ -1,6 +1,9 @@
-import type { IAutoMovieProductionRenderFrame, IAutoMovieProductionRenderLayer, AutoMovieGuidePass } from "@automovie/interface";
 import { productionRenderLayersForPass } from "@automovie/engine";
-
+import type {
+  AutoMovieGuidePass,
+  IAutoMovieProductionRenderFrame,
+  IAutoMovieProductionRenderLayer,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";

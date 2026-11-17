@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionEvent, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture } from "@automovie/interface";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 /**
  * A stepping plan with its steps taken a little unevenly in time, as a
@@ -121,7 +126,9 @@ export function walkTempo(
       }),
     ),
     contacts: plan.contacts.map(
-      (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
+      (
+        c: IAutoMovieMotionHumanContactWindow,
+      ): IAutoMovieMotionHumanContactWindow => ({
         ...c,
         from: share(c.from),
         to: share(c.to),

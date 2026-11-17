@@ -1,5 +1,3 @@
-
-
 /**
  * One closed cross-section curve of a sweep, in the plane of its station.
  *
@@ -35,120 +33,120 @@ export type IAutoMovieSweepSection =
 /** Data and callback contracts shared by the SweepSection operations. */
 export namespace IAutoMovieSweepSection {
   /**
-     * A point of a section plane.
-     *
-     * @evidence contracts/development/design.md#principled-representation A point of a section plane.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Two coordinates.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Values are used as given.
-     * @evidence contracts/development/common.md#meaningful-documentation States the axes and unit.
-     */
-    export interface IPoint {
-      /** Metres along the section plane's first axis. */
-      x: number;
-  
-      /** Metres along the section plane's second axis. */
-      y: number;
-    }
+   * A point of a section plane.
+   *
+   * @evidence contracts/development/design.md#principled-representation A point of a section plane.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two coordinates.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values are used as given.
+   * @evidence contracts/development/common.md#meaningful-documentation States the axes and unit.
+   */
+  export interface IPoint {
+    /** Metres along the section plane's first axis. */
+    x: number;
+
+    /** Metres along the section plane's second axis. */
+    y: number;
+  }
 
   /**
-     * A superellipse with its own half-axis and exponent in each quadrant.
-     *
-     * Quadrant `k` runs from angle `k * 90` degrees to `(k + 1) * 90`; in it the
-     * curve is `x = c.x + a * sign(cos p) |cos p|^(2/n)`, `y = c.y + b * sign(sin p) |sin p|^(2/n)` for its half-axes `a`, `b` and exponent `n`. Exponent 2 is an ellipse quadrant, larger values square it toward a rectangle's corner, values toward 1 straighten it toward a diamond. Neighbouring quadrants share a half-axis, so the curve is closed and meets each axis with a tangent perpendicular to it.
-     *
-     * @evidence contracts/development/design.md#principled-representation A superellipse per quadrant, whose polar radius is closed-form when centred.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Four half-axes, four exponents and an optional centre.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Half-axes and exponents out of range are refused.
-     * @evidence contracts/development/common.md#meaningful-documentation States the quadrant formula and what the exponent does.
+   * A superellipse with its own half-axis and exponent in each quadrant.
+   *
+   * Quadrant `k` runs from angle `k * 90` degrees to `(k + 1) * 90`; in it the
+   * curve is `x = c.x + a * sign(cos p) |cos p|^(2/n)`, `y = c.y + b * sign(sin p) |sin p|^(2/n)` for its half-axes `a`, `b` and exponent `n`. Exponent 2 is an ellipse quadrant, larger values square it toward a rectangle's corner, values toward 1 straighten it toward a diamond. Neighbouring quadrants share a half-axis, so the curve is closed and meets each axis with a tangent perpendicular to it.
+   *
+   * @evidence contracts/development/design.md#principled-representation A superellipse per quadrant, whose polar radius is closed-form when centred.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four half-axes, four exponents and an optional centre.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Half-axes and exponents out of range are refused.
+   * @evidence contracts/development/common.md#meaningful-documentation States the quadrant formula and what the exponent does.
+   */
+  export interface ISuperellipse {
+    /** Discriminator. */
+    type: "superellipse";
+
+    /** Metres from the centre to the curve along `+x`, positive. */
+    right: number;
+
+    /** Metres from the centre to the curve along `+y`, positive. */
+    up: number;
+
+    /** Metres from the centre to the curve along `-x`, positive. */
+    left: number;
+
+    /** Metres from the centre to the curve along `-y`, positive. */
+    down: number;
+
+    /**
+     * Exponent per quadrant, counterclockwise from `+x +y`: from 1 (straight) through 2 (elliptic) to at most 20 (nearly square).
      */
-    export interface ISuperellipse {
-      /** Discriminator. */
-      type: "superellipse";
-  
-      /** Metres from the centre to the curve along `+x`, positive. */
-      right: number;
-  
-      /** Metres from the centre to the curve along `+y`, positive. */
-      up: number;
-  
-      /** Metres from the centre to the curve along `-x`, positive. */
-      left: number;
-  
-      /** Metres from the centre to the curve along `-y`, positive. */
-      down: number;
-  
-      /**
-       * Exponent per quadrant, counterclockwise from `+x +y`: from 1 (straight) through 2 (elliptic) to at most 20 (nearly square).
-       */
-      exponents: [number, number, number, number];
-  
-      /** Offset of the centre from the spine point; omitted, the centre is the spine point. */
-      centre?: IAutoMovieSweepSection.IPoint;
-    }
+    exponents: [number, number, number, number];
+
+    /** Offset of the centre from the spine point; omitted, the centre is the spine point. */
+    centre?: IAutoMovieSweepSection.IPoint;
+  }
 
   /**
-     * A closed uniform cubic B-spline: the curve approximates its control polygon, which closes from the last point back to the first. Its points are where a Catmull-Clark ring of the same control points converges, so a sweep end can match a subdivision ring exactly.
-     *
-     * @evidence contracts/development/design.md#principled-representation A closed uniform cubic B-spline, the curve a Catmull-Clark ring converges to.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Control points only.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Fewer than three points are refused.
-     * @evidence contracts/development/common.md#meaningful-documentation States the closure and why it matches subdivision.
-     */
-    export interface IBSpline {
-      /** Discriminator. */
-      type: "bspline";
-  
-      /** Control points, at least three, counterclockwise. */
-      points: IAutoMovieSweepSection.IPoint[];
-    }
+   * A closed uniform cubic B-spline: the curve approximates its control polygon, which closes from the last point back to the first. Its points are where a Catmull-Clark ring of the same control points converges, so a sweep end can match a subdivision ring exactly.
+   *
+   * @evidence contracts/development/design.md#principled-representation A closed uniform cubic B-spline, the curve a Catmull-Clark ring converges to.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Control points only.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Fewer than three points are refused.
+   * @evidence contracts/development/common.md#meaningful-documentation States the closure and why it matches subdivision.
+   */
+  export interface IBSpline {
+    /** Discriminator. */
+    type: "bspline";
+
+    /** Control points, at least three, counterclockwise. */
+    points: IAutoMovieSweepSection.IPoint[];
+  }
 
   /**
-     * A closed piecewise cubic Bezier curve.
-     *
-     * Points come in threes per segment: an anchor, the anchor's outgoing handle and the next anchor's incoming handle; the next segment starts at the next anchor, and the last segment ends at the first anchor.
-     *
-     * @evidence contracts/development/design.md#principled-representation A closed piecewise cubic Bezier curve.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Anchors and handles in threes.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts A point count not a multiple of three is refused.
-     * @evidence contracts/development/common.md#meaningful-documentation States the point layout.
-     */
-    export interface IBezier {
-      /** Discriminator. */
-      type: "bezier";
-  
-      /** Anchors and handles, a positive multiple of three, counterclockwise. */
-      points: IAutoMovieSweepSection.IPoint[];
-    }
+   * A closed piecewise cubic Bezier curve.
+   *
+   * Points come in threes per segment: an anchor, the anchor's outgoing handle and the next anchor's incoming handle; the next segment starts at the next anchor, and the last segment ends at the first anchor.
+   *
+   * @evidence contracts/development/design.md#principled-representation A closed piecewise cubic Bezier curve.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Anchors and handles in threes.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A point count not a multiple of three is refused.
+   * @evidence contracts/development/common.md#meaningful-documentation States the point layout.
+   */
+  export interface IBezier {
+    /** Discriminator. */
+    type: "bezier";
+
+    /** Anchors and handles, a positive multiple of three, counterclockwise. */
+    points: IAutoMovieSweepSection.IPoint[];
+  }
 
   /**
-     * A closed polygon, straight between its corners, for sections with corners such as a profile, a moulding or a duct. Under parameter correspondence corner `k` of one station meets corner `k` of the next, so a polygon need not be star-shaped there and may be concave.
-     *
-     * @evidence contracts/development/design.md#principled-representation A closed polygon whose corners correspond by index under parameter correspondence.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Corners only.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Fewer than three corners are refused.
-     * @evidence contracts/development/common.md#meaningful-documentation States corner correspondence and concavity.
-     */
-    export interface IPolygon {
-      /** Discriminator. */
-      type: "polygon";
-  
-      /** Corners, at least three, a simple polygon. */
-      points: IAutoMovieSweepSection.IPoint[];
-    }
+   * A closed polygon, straight between its corners, for sections with corners such as a profile, a moulding or a duct. Under parameter correspondence corner `k` of one station meets corner `k` of the next, so a polygon need not be star-shaped there and may be concave.
+   *
+   * @evidence contracts/development/design.md#principled-representation A closed polygon whose corners correspond by index under parameter correspondence.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Corners only.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Fewer than three corners are refused.
+   * @evidence contracts/development/common.md#meaningful-documentation States corner correspondence and concavity.
+   */
+  export interface IPolygon {
+    /** Discriminator. */
+    type: "polygon";
+
+    /** Corners, at least three, a simple polygon. */
+    points: IAutoMovieSweepSection.IPoint[];
+  }
 
   /**
-     * Radii at evenly spaced angles, the first along `+x`, joined by the periodic C2 spline of `interpolateAutoMovieSpline`, with continuous curvature and the spline's sampled overshoot policy. Positive inputs need not give positive interpolation; the section sampler refuses a non-positive or non-finite sampled radius.
-     *
-     * @evidence contracts/development/design.md#principled-representation Radii at even angles joined by the periodic bounded spline.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface One array.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Non-positive radii are refused.
-     * @evidence contracts/development/common.md#meaningful-documentation States the angle of each radius and the interpolation.
-     */
-    export interface IRadial {
-      /** Discriminator. */
-      type: "radial";
-  
-      /** Metres from the spine point at angles `2 pi k / radii.length`, at least three, positive. */
-      radii: number[];
-    }
+   * Radii at evenly spaced angles, the first along `+x`, joined by the periodic C2 spline of `interpolateAutoMovieSpline`, with continuous curvature and the spline's sampled overshoot policy. Positive inputs need not give positive interpolation; the section sampler refuses a non-positive or non-finite sampled radius.
+   *
+   * @evidence contracts/development/design.md#principled-representation Radii at even angles joined by the periodic bounded spline.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One array.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Non-positive radii are refused.
+   * @evidence contracts/development/common.md#meaningful-documentation States the angle of each radius and the interpolation.
+   */
+  export interface IRadial {
+    /** Discriminator. */
+    type: "radial";
+
+    /** Metres from the spine point at angles `2 pi k / radii.length`, at least three, positive. */
+    radii: number[];
+  }
 }

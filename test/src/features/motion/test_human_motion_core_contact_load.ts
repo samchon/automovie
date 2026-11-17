@@ -1,7 +1,26 @@
-import type { IAutoMovieMotionHumanAuditMotion as IAutoMovieMotionHumanAuditMotionType, IAutoMovieMotionHumanBase, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
-
-import { AutoMovieMotionHumanAuditBalance, AutoMovieMotionHumanAuditStatics, HUMAN_LEXICON, HumanBase, HumanChain, HumanPerformance, IAutoMovieMotionHumanAuditMotion } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMotion as IAutoMovieMotionHumanAuditMotionType,
+  IAutoMovieMotionHumanBase,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAuditBalance,
+  AutoMovieMotionHumanAuditMotion,
+  AutoMovieMotionHumanAuditStatics,
+  HUMAN_LEXICON,
+  HumanBase,
+  HumanChain,
+  HumanPerformance,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionAuditMoved } from "../internal/motionAuditMoved";
@@ -64,7 +83,8 @@ export function test_human_motion_core_contact_load(): void {
       .registered("kneelSit").node,
   });
   const film: motionHumanLaw.IFilm = motionHumanLaw.film(performance);
-  const kneel: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+  const kneel: IAutoMovieMotionHumanSegment.ISegment =
+    performance.segments("a")[1]!;
   const floor: number = 0.06 * man.measure.stature;
   let down: number | null = null;
   for (let t: number = kneel.entryTime; t <= kneel.end; t += 1 / 24) {
@@ -97,33 +117,31 @@ export function test_human_motion_core_contact_load(): void {
       segments: (
         subject: string,
       ): IAutoMovieMotionHumanAuditMotionType.ISpan[] =>
-        film
-          .segments(subject)
-          .map(
-            (
-              s: IAutoMovieMotionHumanAuditMotionType.ISpan,
-              i: number,
-            ): IAutoMovieMotionHumanAuditMotionType.ISpan =>
-          i === 1
-            ? {
-                ...s,
-                plan: {
-                  duration: s.plan.duration,
-                  contacts: [
-                    ...s.plan.contacts,
-                    knee("leftLowerLeg", "kneeLeft"),
-                    knee("rightLowerLeg", "kneeRight"),
-                  ],
-                },
-              }
-            : s,
+        film.segments(subject).map(
+          (
+            s: IAutoMovieMotionHumanAuditMotionType.ISpan,
+            i: number,
+          ): IAutoMovieMotionHumanAuditMotionType.ISpan =>
+            i === 1
+              ? {
+                  ...s,
+                  plan: {
+                    duration: s.plan.duration,
+                    contacts: [
+                      ...s.plan.contacts,
+                      knee("leftLowerLeg", "kneeLeft"),
+                      knee("rightLowerLeg", "kneeRight"),
+                    ],
+                  },
+                }
+              : s,
         ),
     };
     const at: number = (down + kneel.end) / 2;
     const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(man.skeleton, man.profile);
     const read: boolean = AutoMovieMotionHumanAuditBalance.standing(
-      IAutoMovieMotionHumanAuditMotion.windows(withKnees, "a"),
+      AutoMovieMotionHumanAuditMotion.windows(withKnees, "a"),
       at,
     );
     const margin: number = AutoMovieMotionHumanAuditBalance.margin(
@@ -134,9 +152,13 @@ export function test_human_motion_core_contact_load(): void {
       at,
     );
     if (!read)
-      findings.push(`kneelSit with knee windows: the instant ${at.toFixed(2)} s is not read`);
+      findings.push(
+        `kneelSit with knee windows: the instant ${at.toFixed(2)} s is not read`,
+      );
     if (!(margin > 0))
-      findings.push(`kneelSit with knee windows: margin ${(1000 * margin).toFixed(1)} mm at ${at.toFixed(2)} s`);
+      findings.push(
+        `kneelSit with knee windows: margin ${(1000 * margin).toFixed(1)} mm at ${at.toFixed(2)} s`,
+      );
     const feet: number = AutoMovieMotionHumanAuditBalance.margin(
       film,
       "a",
@@ -145,7 +167,9 @@ export function test_human_motion_core_contact_load(): void {
       at,
     );
     if (!(margin > feet))
-      findings.push(`kneelSit: the knees do not widen the base, margin ${(1000 * margin).toFixed(1)} mm with them and ${(1000 * feet).toFixed(1)} mm on the feet alone`);
+      findings.push(
+        `kneelSit: the knees do not widen the base, margin ${(1000 * margin).toFixed(1)} mm with them and ${(1000 * feet).toFixed(1)} mm on the feet alone`,
+      );
   }
 
   // 2. Statics: lever-rule loads balance a held stance; a wrong split does not.
@@ -158,7 +182,10 @@ export function test_human_motion_core_contact_load(): void {
       model,
       stance,
     );
-    const foot = (part: "leftFoot" | "rightFoot", load: number): IAutoMovieMotionHumanContactWindow => ({
+    const foot = (
+      part: "leftFoot" | "rightFoot",
+      load: number,
+    ): IAutoMovieMotionHumanContactWindow => ({
       part,
       kind: "plant",
       from: 0,
@@ -175,18 +202,23 @@ export function test_human_motion_core_contact_load(): void {
       ((c.x - r.x) * (l.x - r.x) + (c.z - r.z) * (l.z - r.z)) / length;
     const left: number = along / length;
     const held = (a: number, b: number): IAutoMovieMotionHumanAuditMotionType =>
-      motionAuditMoved(stance, 1, (): IAutoMovieVector3 => ({ x: 0, y: 0, z: 0 }), [
-        {
-          name: "stand",
-          start: 0,
-          entryTime: 0,
-          end: 1,
-          plan: {
-            duration: 1,
-            contacts: [foot("leftFoot", a), foot("rightFoot", b)],
+      motionAuditMoved(
+        stance,
+        1,
+        (): IAutoMovieVector3 => ({ x: 0, y: 0, z: 0 }),
+        [
+          {
+            name: "stand",
+            start: 0,
+            entryTime: 0,
+            end: 1,
+            plan: {
+              duration: 1,
+              contacts: [foot("leftFoot", a), foot("rightFoot", b)],
+            },
           },
-        },
-      ]);
+        ],
+      );
     const bound: number =
       AutoMovieMotionHumanAuditStatics.SHARE * body.measure.stature;
     const right: number = AutoMovieMotionHumanAuditStatics.measure(
@@ -200,9 +232,13 @@ export function test_human_motion_core_contact_load(): void {
       body,
     ).value;
     if (!(right <= bound))
-      findings.push(`${name}: lever-rule loads (${left.toFixed(3)} left) leave ${(1000 * right).toFixed(1)} mm, bound ${(1000 * bound).toFixed(1)} mm`);
+      findings.push(
+        `${name}: lever-rule loads (${left.toFixed(3)} left) leave ${(1000 * right).toFixed(1)} mm, bound ${(1000 * bound).toFixed(1)} mm`,
+      );
     if (!(wrong > bound))
-      findings.push(`${name}: a 1 / 0 split reads ${(1000 * wrong).toFixed(1)} mm, within the bound`);
+      findings.push(
+        `${name}: a 1 / 0 split reads ${(1000 * wrong).toFixed(1)} mm, within the bound`,
+      );
   }
 
   // 3. A bearing lower leg is kneeling; a bearing forearm is not.
@@ -233,4 +269,3 @@ export function test_human_motion_core_contact_load(): void {
     findings.length === 0,
   );
 }
-

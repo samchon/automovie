@@ -1,5 +1,11 @@
-import { type IAutoMovieEnginePerformShotGateContext, type IAutoMovieResolvePerformShotTarget, type IAutoMovieViolationCollector, IAutoMovieActionTarget, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieActionTarget,
+  type IAutoMovieEnginePerformShotGateContext,
+  type IAutoMovieResolvePerformShotTarget,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { POSITIONAL_TARGET_SHAPE } from "../perform/constants/POSITIONAL_TARGET_SHAPE";
 import { positionalTargetFault } from "../perform/positionalTargetFault";

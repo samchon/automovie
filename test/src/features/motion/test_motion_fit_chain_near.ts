@@ -1,7 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieResolvedBone, IAutoMovieSeededChainFit, IAutoMovieSwivelSeed, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, fitSeededChainToTarget, hingedArmSwivel, resolvePose, samplePoseVelocity } from "@automovie/engine";
-
-
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Vector3,
+  fitSeededChainToTarget,
+  hingedArmSwivel,
+  resolvePose,
+  samplePoseVelocity,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelSeed,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";

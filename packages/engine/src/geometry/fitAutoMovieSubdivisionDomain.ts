@@ -1,4 +1,10 @@
-import type { IAutoMovieQuadraticRow, IAutoMovieSubdivisionStencil, IAutoMovieFitSubdivisionDomain, IAutoMovieSolveQuadraticProgram, IAutoMovieSubdivisionLevel } from "@automovie/interface";
+import type {
+  IAutoMovieFitSubdivisionDomain,
+  IAutoMovieQuadraticRow,
+  IAutoMovieSolveQuadraticProgram,
+  IAutoMovieSubdivisionLevel,
+  IAutoMovieSubdivisionStencil,
+} from "@automovie/interface";
 
 import { solveAutoMovieQuadraticProgram } from "../math/solveAutoMovieQuadraticProgram";
 import { admitSubdivisionCage } from "./admitSubdivisionCage";
@@ -38,7 +44,9 @@ import { stencilAutoMovieSubdivisionLimit } from "./sweep/stencilAutoMovieSubdiv
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One refined topology, affine map, physical metric and constraint pattern serves all three coordinate solves. There is no cross-request cache because geometry changes the metric and target data; the result retains the completed domain for render and construction consumers.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All assembly maps and solver result arrays are local. The returned domain owns its refined arrays and copied coarse controls; temporary assembly becomes unreachable on return or failure. Each QP owns its sparse factors and borrowed TypeScript iterate, releases the workspace owner's references in finally, and retains no reactor or solver state across coordinate solves.
  */
-export function fitAutoMovieSubdivisionDomain(props: IAutoMovieFitSubdivisionDomain.IProps): IAutoMovieFitSubdivisionDomain.IResult {
+export function fitAutoMovieSubdivisionDomain(
+  props: IAutoMovieFitSubdivisionDomain.IProps,
+): IAutoMovieFitSubdivisionDomain.IResult {
   let level: IAutoMovieSubdivisionLevel = admitSubdivisionCage(props.cage);
   const old: number = level.topology.vertexCount;
   if (
@@ -216,7 +224,7 @@ export function fitAutoMovieSubdivisionDomain(props: IAutoMovieFitSubdivisionDom
         rows[i]!.upper = row.target[axis]!;
       },
     );
-    const solved: (IAutoMovieSolveQuadraticProgram.IResult) =
+    const solved: IAutoMovieSolveQuadraticProgram.IResult =
       solveAutoMovieQuadraticProgram({ diagonal, linear, rows });
     if (solved.status !== 1)
       throw new Error(`subdivision fitting solve incomplete: ${solved.status}`);

@@ -73,5 +73,6 @@ export function describeRecoveryOpenRun(
     fitTargetMisses,
     unqualifiedFitMetadata,
     fitPolylineUpperEstimateMaximumMm,
-    sourceSpans };
+    sourceSpans,
+  };
 }

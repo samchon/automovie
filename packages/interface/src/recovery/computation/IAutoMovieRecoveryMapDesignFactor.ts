@@ -8,27 +8,21 @@ import type { IAutoMovieSingularDecomposition } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Fields state original versus compressed coordinates and borrowed-right aliasing in the short branch.
  */
 export interface IAutoMovieRecoveryMapDesignFactor {
- 
- /** Positive norms restoring the original design's column units. */
+  /** Positive norms restoring the original design's column units. */
   scales: number[];
 
- 
- /** Owned complete column-normalized original rows. */
+  /** Owned complete column-normalized original rows. */
   rows: number[][];
 
- 
- /** Owned compressed rows, or the same rows object in the short branch. */
+  /** Owned compressed rows, or the same rows object in the short branch. */
   solveRows: number[][];
 
- 
- /** Matching compressed right, or borrowed original right in the short branch. */
+  /** Matching compressed right, or borrowed original right in the short branch. */
   solveRight: readonly number[];
 
- 
- /** Independently qualified undamped original-design SVD. */
+  /** Independently qualified undamped original-design SVD. */
   rank: IAutoMovieSingularDecomposition;
 
- 
- /** Undamped normalized smallest/largest singular ratio. */
+  /** Undamped normalized smallest/largest singular ratio. */
   designRatio: number;
 }

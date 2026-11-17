@@ -1,5 +1,9 @@
-import { type IAutoMovieServiceSystemReach, IAutoMovieServiceNetwork, IAutoMovieServiceNode, IAutoMovieServiceSystem } from "@automovie/interface";
-
+import {
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+  IAutoMovieServiceSystem,
+  type IAutoMovieServiceSystemReach,
+} from "@automovie/interface";
 
 import { portOwners } from "./portOwners";
 
@@ -31,7 +35,9 @@ import { portOwners } from "./portOwners";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Forward/backward adjacency and the owner map serve the entire current reach walk, with no retained index across network mutations.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Graph maps, queue and visited ids are call-local and linear in input population; output retains only declaration-ordered node ids.
  */
-export const serviceSystemReach: (props: IAutoMovieServiceSystemReach.IProps) => string[] = (props: IAutoMovieServiceSystemReach.IProps): string[] => {
+export const serviceSystemReach: (
+  props: IAutoMovieServiceSystemReach.IProps,
+) => string[] = (props: IAutoMovieServiceSystemReach.IProps): string[] => {
   const system: IAutoMovieServiceSystem = requireSystem(
     props.network,
     props.system,

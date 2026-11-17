@@ -22,7 +22,7 @@ export interface IAutoMovieRelationalGoal {
     /** Effector point in the segment frame, metres. */
     localPoint: IAutoMovieVector3;
 
-  /** Optional unit effector direction in the segment frame. Orientation is fitted only when both this and `approach` are present. */
+    /** Optional unit effector direction in the segment frame. Orientation is fitted only when both this and `approach` are present. */
     localDirection?: IAutoMovieVector3;
   };
 

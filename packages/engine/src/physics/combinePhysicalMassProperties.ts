@@ -1,5 +1,9 @@
-import type { IAutoMovieCombinePhysicalMassProperties, IAutoMoviePhysicalPrincipalAxes, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieCombinePhysicalMassProperties,
+  IAutoMoviePhysicalPrincipalAxes,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { physicalInertiaTensor } from "./physicalInertiaTensor";
@@ -53,8 +57,10 @@ export function combinePhysicalMassProperties(
       throw new Error("Invalid component mass properties");
   }
   const mass: number = parts.reduce(
-    (sum: number, part: IAutoMovieCombinePhysicalMassProperties.IPart): number =>
-      sum + part.mass,
+    (
+      sum: number,
+      part: IAutoMovieCombinePhysicalMassProperties.IPart,
+    ): number => sum + part.mass,
     0,
   );
   if (!Number.isFinite(mass))

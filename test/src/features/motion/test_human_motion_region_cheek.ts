@@ -1,6 +1,12 @@
-import type { IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieResolvedBone, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
 import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanChain } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

@@ -1,6 +1,19 @@
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanBodyFitTypes,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
@@ -150,24 +163,25 @@ export namespace sprintStartSet {
     // setting's share of the leg's length (`FRONT_DISTANCE`, `SPACING`).
     const rear: "left" | "right" = front === "left" ? "right" : "left";
     const leg: number = m.thigh + m.shank;
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
-      [front]: block(
-        body,
-        entry,
-        frame,
-        front,
-        FRONT_DISTANCE * leg,
-        FRONT_BLOCK,
-      ),
-      [rear]: block(
-        body,
-        entry,
-        frame,
-        rear,
-        (FRONT_DISTANCE + SPACING) * leg,
-        REAR_BLOCK,
-      ),
-    } as Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
+      {
+        [front]: block(
+          body,
+          entry,
+          frame,
+          front,
+          FRONT_DISTANCE * leg,
+          FRONT_BLOCK,
+        ),
+        [rear]: block(
+          body,
+          entry,
+          frame,
+          rear,
+          (FRONT_DISTANCE + SPACING) * leg,
+          REAR_BLOCK,
+        ),
+      } as Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
 
     // The trunk inclined by a total tilt shared by the lumbopelvic rhythm,
     // the pelvis taking no more than the planted legs' hip range leaves it
@@ -178,8 +192,10 @@ export namespace sprintStartSet {
       shoulders: IAutoMovieVector3,
     ): IStance => {
       const at: (limit: number) => IStance = (limit: number): IStance => {
-        const tilt: { pitch: number; joints: IAutoMovieMotionHumanPosture["joints"] } =
-          HumanTrunk.incline(entry.joints, q, limit);
+        const tilt: {
+          pitch: number;
+          joints: IAutoMovieMotionHumanPosture["joints"];
+        } = HumanTrunk.incline(entry.joints, q, limit);
         const turned: IAutoMovieMotionHumanPosture = {
           ...entry,
           root: { x: 0, y: 0, z: 0 },
@@ -368,7 +384,9 @@ export namespace sprintStartSet {
         value: Math.max(
           solved.centre,
           ...solved.residuals.map(
-            (r: IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number]): number => r.point,
+            (
+              r: IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number],
+            ): number => r.point,
           ),
         ),
         reason: `the sprint set did not meet its four contacts, measured angles and centre: contacts ${solved.residuals.map((r: IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number]): string => r.point.toFixed(2)).join(", ")} mm; angles ${solved.angles.map((angle: number): string => angle.toFixed(2)).join(", ")} degrees; centre ${solved.centre.toFixed(2)} mm (${solved.reason})`,

@@ -1,8 +1,9 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanFootToeLines } from "@automovie/interface";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootToeLines,
+} from "@automovie/interface";
 
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
-
 
 /**
  * The spacing between neighbouring toes: they touch. A toe's own breadth,
@@ -19,9 +20,18 @@ export namespace AutoMovieHumanFootToeSpacing {
    * @param p The place on the toe's line, left frame.
    * @param neighbours The lines of the toes on either side of it.
    */
-  export function limit(own: number, p: AutoMovieVector3Tuple, neighbours: readonly IAutoMovieHumanFootToeLines.ILine[]): number {
+  export function limit(
+    own: number,
+    p: AutoMovieVector3Tuple,
+    neighbours: readonly IAutoMovieHumanFootToeLines.ILine[],
+  ): number {
     let w: number = FILL * own;
-    for (const n of neighbours) w = G.softMin(w, 0.5 * G.segmentDistance(p, n.head, n.tip) - 0.5 * GAP, SOFT);
+    for (const n of neighbours)
+      w = G.softMin(
+        w,
+        0.5 * G.segmentDistance(p, n.head, n.tip) - 0.5 * GAP,
+        SOFT,
+      );
 
     return w;
   }

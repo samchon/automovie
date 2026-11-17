@@ -9,10 +9,10 @@ export namespace IAutoMovieGenerateCurveAssembly64 {
   export type IProps<T extends IAutoMovieCurveAssembly64.Result> = {
     /** Parent-relative rigid frames, with every parent appearing before its child. */
     frames: readonly IAutoMovieCurve64.Frame[];
-  
+
     /** Directed named boundaries whose owner and consumer must each have a factory. */
     edges: readonly IAutoMovieCurve64.Edge[];
-  
+
     /** Region callbacks retaining their concrete generated result type. */
     factories: readonly IAutoMovieCurveAssembly64.Factory<T>[];
   };

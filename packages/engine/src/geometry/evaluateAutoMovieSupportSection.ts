@@ -1,4 +1,5 @@
 import type { IAutoMovieEvaluateSupportSection } from "@automovie/interface";
+
 import { createAutoMovieSupportSectionQuery } from "./createAutoMovieSupportSectionQuery";
 
 /**
@@ -18,6 +19,8 @@ import { createAutoMovieSupportSectionQuery } from "./createAutoMovieSupportSect
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each query observes its supplied offsets; no mutable section or result is cached across calls.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a caller-owned ordered vertex list escapes; numerical scratch and incidence maps expire synchronously without a file, process or global cache.
  */
-export function evaluateAutoMovieSupportSection(input: IAutoMovieEvaluateSupportSection.IInput): IAutoMovieEvaluateSupportSection.IResult {
+export function evaluateAutoMovieSupportSection(
+  input: IAutoMovieEvaluateSupportSection.IInput,
+): IAutoMovieEvaluateSupportSection.IResult {
   return createAutoMovieSupportSectionQuery(input)(input.offsets);
 }

@@ -1,7 +1,22 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGaze, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-
-import { AutoMovieMotionClock, AutoMovieMotionHumanGaze, HumanGaze, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGaze,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionClock,
+  AutoMovieMotionHumanGaze,
+  HumanGaze,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 
 import { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -154,7 +169,10 @@ export function motionComposeGaze(name: motionHumanBody.Name): void {
         target: (): IAutoMovieVector3 => target,
         weight: (): number => weight,
       }).write(standing, 1);
-    const untouched = (posture: IAutoMovieMotionHumanPosture, pose: Bones): boolean =>
+    const untouched = (
+      posture: IAutoMovieMotionHumanPosture,
+      pose: Bones,
+    ): boolean =>
       JSON.stringify(posture.limbs) === JSON.stringify(standing.limbs) &&
       turned(pose, "chest") <= 1e-3 &&
       turned(pose, "spine") <= 1e-3 &&
@@ -239,7 +257,10 @@ export function motionComposeGaze(name: motionHumanBody.Name): void {
       recruit: "head",
       from: 0.5,
       to: 2,
-      target: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieVector3 => {
+      target: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieVector3 => {
         asked.push([posture, seconds]);
         return far;
       },
@@ -252,8 +273,10 @@ export function motionComposeGaze(name: motionHumanBody.Name): void {
         JSON.stringify([["head"], 0.5, 2]) &&
         asked.length >= 1 &&
         asked.every(
-          ([posture, seconds]: [IAutoMovieMotionHumanPosture, number]): boolean =>
-            posture === standing && seconds === 1.5,
+          ([posture, seconds]: [
+            IAutoMovieMotionHumanPosture,
+            number,
+          ]): boolean => posture === standing && seconds === 1.5,
         ),
     );
     const glance: IAutoMovieMotionHumanPrimitive =

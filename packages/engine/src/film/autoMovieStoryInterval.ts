@@ -1,5 +1,7 @@
-import { type IAutoMovieStoryInterval, IAutoMovieShotStoryTime } from "@automovie/interface";
-
+import {
+  IAutoMovieShotStoryTime,
+  type IAutoMovieStoryInterval,
+} from "@automovie/interface";
 
 import { autoMovieStoryTime } from "./autoMovieStoryTime";
 

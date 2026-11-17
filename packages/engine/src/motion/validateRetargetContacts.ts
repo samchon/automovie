@@ -1,5 +1,8 @@
-import type { IAutoMovieRetargetContactProps, IAutoMovieRetargetHandContact, IAutoMovieViolationCollector } from "@automovie/interface";
-
+import type {
+  IAutoMovieRetargetContactProps,
+  IAutoMovieRetargetHandContact,
+  IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 /**
  * Append field-located errors for an enabled retarget contact policy before source FK or IK. Disabled contact preservation ignores its unused numeric policy; ground callback results are validated only when sampled.

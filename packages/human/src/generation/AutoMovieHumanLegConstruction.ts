@@ -1,11 +1,10 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftContract, IAutoMovieHumanBodyCalibration, IAutoMovieHumanLegConstruction, IAutoMovieHumanSkeletonLaw } from "@automovie/interface";
-
-
-
-
-
-
-
+import type {
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanLegConstruction,
+  IAutoMovieHumanSkeletonLaw,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftContract,
+} from "@automovie/interface";
 
 import { AutoMovieHumanLegChain } from "./leg/AutoMovieHumanLegChain";
 import { AutoMovieHumanLegStand } from "./leg/AutoMovieHumanLegStand";
@@ -37,8 +36,6 @@ import { AutoMovieHumanLegStand } from "./leg/AutoMovieHumanLegStand";
  * - {@link AutoMovieHumanLegStand}: the feet moved under the stance.
  */
 export namespace AutoMovieHumanLegConstruction {
-  
-
   /**
    * Calibration whose legs are generated from its own foot and trunk.
    *
@@ -52,15 +49,28 @@ export namespace AutoMovieHumanLegConstruction {
     skeleton: readonly IAutoMovieHumanSkeletonLaw.IBone[],
   ): IAutoMovieHumanBodyCalibration {
     // The body law's shared list: a leg records where it degrades.
-    const found: IAutoMovieLoftContract.IDiagnostic[] = calibration.diagnostics ?? [];
+    const found: IAutoMovieLoftContract.IDiagnostic[] =
+      calibration.diagnostics ?? [];
     return {
       ...calibration,
       chains: calibration.chains.map(
         (c: IAutoMovieLoftChain): IAutoMovieLoftChain =>
           c.name === "leg.left"
-            ? AutoMovieHumanLegChain.of(calibration, "left", inputs, skeleton, found)
+            ? AutoMovieHumanLegChain.of(
+                calibration,
+                "left",
+                inputs,
+                skeleton,
+                found,
+              )
             : c.name === "leg.right"
-              ? AutoMovieHumanLegChain.of(calibration, "right", inputs, skeleton, found)
+              ? AutoMovieHumanLegChain.of(
+                  calibration,
+                  "right",
+                  inputs,
+                  skeleton,
+                  found,
+                )
               : c,
       ),
     };
@@ -94,7 +104,8 @@ export namespace AutoMovieHumanLegConstruction {
     skeleton: readonly IAutoMovieHumanSkeletonLaw.IBone[],
   ): IAutoMovieHumanBodyCalibration {
     // The body law's shared list: a leg records where it degrades.
-    const found: IAutoMovieLoftContract.IDiagnostic[] = calibration.diagnostics ?? [];
+    const found: IAutoMovieLoftContract.IDiagnostic[] =
+      calibration.diagnostics ?? [];
     const chains: IAutoMovieLoftChain[] = [
       AutoMovieHumanLegChain.of(calibration, "right", inputs, skeleton, found),
       AutoMovieHumanLegChain.of(calibration, "left", inputs, skeleton, found),

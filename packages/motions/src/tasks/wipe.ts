@@ -1,6 +1,20 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanLeanInto, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanWipe, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanLeanInto,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanWipe,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { stand } from "../actions/stand";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -143,7 +157,10 @@ export namespace wipe {
         side,
         share: REACH,
         wrist: (posture: IAutoMovieMotionHumanPosture, progress: number) => {
-          const goal: IAutoMovieMotionHumanArmTarget.ITarget = palm(posture, progress);
+          const goal: IAutoMovieMotionHumanArmTarget.ITarget = palm(
+            posture,
+            progress,
+          );
           return HumanHand.place(
             body,
             side,
@@ -154,7 +171,9 @@ export namespace wipe {
           ).point;
         },
         // The arm on the circle's start, as the stroke lays the palm there.
-        arm: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture.IGoal =>
+        arm: (
+          posture: IAutoMovieMotionHumanPosture,
+        ): IAutoMovieMotionHumanPosture.IGoal =>
           AutoMovieMotionHumanArm.goal(body, side, palm(posture, 0)),
         refuse: (beyond: number, limit: number): string =>
           `${context.subject}: the patch's far side stays ${(1000 * beyond).toFixed(0)} mm beyond the ${side} arm at a lean of ${limit} degrees; a surface this far is walked up to first`,
@@ -204,8 +223,11 @@ export namespace wipe {
                 ? { kind: "prop", subject: context.params.on.subject }
                 : { kind: "ground" },
           },
-          path: (posture: IAutoMovieMotionHumanPosture, _: number, progress: number) =>
-            palm(posture, progress),
+          path: (
+            posture: IAutoMovieMotionHumanPosture,
+            _: number,
+            progress: number,
+          ) => palm(posture, progress),
         }),
       ],
     });

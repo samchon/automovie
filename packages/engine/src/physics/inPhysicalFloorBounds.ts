@@ -1,4 +1,9 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalShapeBounds, IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalShapeBounds,
+  IAutoMoviePhysicalSimulationInput,
+} from "@automovie/interface";
+
 import { physicalShapeBounds } from "./physicalShapeBounds";
 
 /**

@@ -1,6 +1,20 @@
-import type { AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanRelayPass, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanRelayPass,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -86,16 +100,17 @@ export namespace relayPass {
     HumanBound.least("at", at, REACH, "s");
     const relax: number = at + HOLD;
     const duration: number = relax + REACH;
-    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      duration,
-    );
-    const limb: IAutoMovieMotionHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, duration);
+    const limb: IAutoMovieMotionHumanPosture.Limb =
+      side === "left" ? "leftArm" : "rightArm";
 
     // The baton's end in the incoming hand's frame.
     let end: IAutoMovieVector3 | undefined;
     if (p.baton !== undefined && p.role === "incoming") {
-      const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(p.baton);
+      const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(
+        p.baton,
+      );
       const point = p.end === undefined ? undefined : read.prop.points[p.end];
       if (point === undefined)
         throw new HumanRefusal({
@@ -173,9 +188,8 @@ export namespace relayPass {
         };
       }
       // The incoming hand pushes the baton forward into the palm ahead.
-      const partner: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(
-        p.partner,
-      );
+      const partner: IAutoMovieMotionHumanActionContext.IPerformer =
+        context.performer(p.partner);
       const palm: IAutoMovieVector3 = HumanHand.frame(
         partner.body,
         partner.bones(context.start + t),

@@ -1,6 +1,5 @@
-import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
-
 import type { AutoMovieScheduleError } from "@automovie/engine";
+import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 

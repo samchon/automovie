@@ -1,5 +1,13 @@
-import type { IAutoMoviePoseRig, IAutoMoviePoseJointCodec, IAutoMovieSamplePoseVelocity, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMoviePoseJointCodec,
+  IAutoMoviePoseRig,
+  IAutoMovieQuaternion,
+  IAutoMovieSamplePoseVelocity,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { poseJointCodec } from "../kinematics/poseJointCodec";
 import { Quaternion } from "../math/Quaternion";
@@ -185,7 +193,6 @@ export function samplePoseVelocity(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface pose.
  */
 export namespace samplePoseVelocity {
-
   /**
    * The swivel tolerance, degrees, a continued fit is refined to for the
    * `continued` samples of a velocity read at `step` that an inertialization of

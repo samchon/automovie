@@ -1,5 +1,9 @@
-import { type IAutoMovieRealizeGeometry, IAutoMovieMesh, IAutoMovieModel, IAutoMovieRenderModelCost } from "@automovie/interface";
-
+import {
+  IAutoMovieMesh,
+  IAutoMovieModel,
+  type IAutoMovieRealizeGeometry,
+  IAutoMovieRenderModelCost,
+} from "@automovie/interface";
 
 import { realizeAutoMovieGeometry } from "../geometry/realizeAutoMovieGeometry";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";

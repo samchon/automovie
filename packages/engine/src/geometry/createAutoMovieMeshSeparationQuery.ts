@@ -1,5 +1,15 @@
-import type { IAutoMovieMeshAttachmentCap, IAutoMovieMeshQueryHierarchy, IAutoMovieMeshSeparationAttachment, IAutoMovieMeshSeparationOptions, IAutoMovieMeshSeparationQuery, IAutoMovieMeshSeparationResult, IAutoMovieMeshSeparationVerdict, IAutoMovieTriangleAttachmentContactBound, IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshAttachmentCap,
+  IAutoMovieMeshQueryHierarchy,
+  IAutoMovieMeshSeparationAttachment,
+  IAutoMovieMeshSeparationOptions,
+  IAutoMovieMeshSeparationQuery,
+  IAutoMovieMeshSeparationResult,
+  IAutoMovieMeshSeparationVerdict,
+  IAutoMovieTriangleAttachmentContactBound,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { interpolateAutoMovieTrianglePoint } from "../math/interpolateAutoMovieTrianglePoint";
 import { boundAutoMovieConvexSeparation } from "./boundAutoMovieConvexSeparation";

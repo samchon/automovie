@@ -1,4 +1,7 @@
-import type { IAutoMovieCurve64, IAutoMovieRecoveryHermiteSpan } from "../../index";
+import type {
+  IAutoMovieCurve64,
+  IAutoMovieRecoveryHermiteSpan,
+} from "../../index";
 
 /** Piecewise cubic Hermite coefficients retaining original identity and phase widths.
  *
@@ -11,11 +14,9 @@ export interface IAutoMovieRecoveryHermiteCurve extends Omit<
   IAutoMovieCurve64.Cubic,
   "type" | "spans"
 > {
- 
- /** Selects endpoint values and derivatives rather than Bernstein handles. */
+  /** Selects endpoint values and derivatives rather than Bernstein handles. */
   type: "cubicHermite";
 
- 
- /** One endpoint record per original phase interval, in the original direction. */
+  /** One endpoint record per original phase interval, in the original direction. */
   spans: readonly IAutoMovieRecoveryHermiteSpan[];
 }

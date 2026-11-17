@@ -1,8 +1,6 @@
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieFormationBounds } from "./IAutoMovieFormationBounds";
 import type { IAutoMoviePlacementSummary } from "./IAutoMoviePlacementSummary";
-import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-
-
 
 /** Chunk-addressed and whole-population placement summaries from one ordered slot traversal. */
 export namespace IAutoMovieSummarizeCompiledSlotChunks {
@@ -34,7 +32,7 @@ export namespace IAutoMovieSummarizeCompiledSlotChunks {
       /** World-metre running mean of this chunk's points in ascending slot order, not the centre of its bounds. */
       centroid: IAutoMovieVector3;
     }>;
-  
+
     /** Caller-owned bounds and centroid over every placement point. */
     summary: IAutoMoviePlacementSummary;
   };

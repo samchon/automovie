@@ -1,21 +1,21 @@
-import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
-import type { IAutoMovieActionSynthesizer } from "../motion/perform/IAutoMovieActionSynthesizer";
+import type { IAutoMovieCameraClearanceRuntime } from "../cinematics/IAutoMovieCameraClearanceRuntime";
+import type { IAutoMovieClip } from "../core/IAutoMovieClip";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieActionTarget } from "../harness/IAutoMovieActionTarget";
 import type { IAutoMovieBeatEndFootPlant } from "../harness/IAutoMovieBeatEndFootPlant";
 import type { IAutoMovieBeatEndState } from "../harness/IAutoMovieBeatEndState";
-import type { IAutoMovieCameraClearanceRuntime } from "../cinematics/IAutoMovieCameraClearanceRuntime";
-import type { IAutoMovieClip } from "../core/IAutoMovieClip";
+import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
+import type { IAutoMovieModel } from "../model/IAutoMovieModel";
+import type { IAutoMovieActionSynthesizer } from "../motion/perform/IAutoMovieActionSynthesizer";
+import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
+import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
 import type { IAutoMovieFormationDesign } from "./IAutoMovieFormationDesign";
 import type { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
-import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
-import type { IAutoMovieModel } from "../model/IAutoMovieModel";
 import type { IAutoMovieProductionDesign } from "./IAutoMovieProductionDesign";
-import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
-import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 import type { IAutoMovieShotPhysicsAdvice } from "./IAutoMovieShotPhysicsAdvice";
-import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
-import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**

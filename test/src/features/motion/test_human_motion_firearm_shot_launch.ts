@@ -1,8 +1,17 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 import { createHandgun, createProjectile } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanVerdicts, HumanWeaponFirearm } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanVerdicts,
+  HumanWeaponFirearm,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -39,7 +48,9 @@ export function test_human_motion_firearm_shot_launch(): void {
     kind: "ball",
   });
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const perform = (shot: object | undefined): IAutoMovieMotionHumanPerformance =>
+  const perform = (
+    shot: object | undefined,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "shot",
       laws: [HumanWeaponFirearm.present, HumanWeaponFirearm.fire],

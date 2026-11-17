@@ -1,5 +1,5 @@
-import type { IAutoMovieDialogueVisemeTimeline } from "./IAutoMovieDialogueVisemeTimeline";
 import type { IAutoMovieProductionLipSyncJoin } from "../IAutoMovieProductionLipSyncJoin";
+import type { IAutoMovieDialogueVisemeTimeline } from "./IAutoMovieDialogueVisemeTimeline";
 
 /**
  * Join outcome paired with a seekable mouth timeline only on success.

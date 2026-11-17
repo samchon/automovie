@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionHumanConversation, IAutoMovieMotionHumanGaze, IAutoMovieMotionTarget, IAutoMovieRandom } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanConversation,
+  IAutoMovieMotionHumanGaze,
+  IAutoMovieMotionTarget,
+  IAutoMovieRandom,
+} from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
 
@@ -35,7 +40,6 @@ import { HumanBound } from "../law/HumanBound";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanConversation {
-
   /** Mean glance and away durations, seconds, by role. */
   export const GLANCES: Readonly<
     Record<"speaking" | "listening", { on: number; away: number }>

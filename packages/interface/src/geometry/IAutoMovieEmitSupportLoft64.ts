@@ -1,4 +1,5 @@
 import type { IAutoMovieMesh } from "../model/IAutoMovieMesh";
+import type { IAutoMovieConstructionPolyline } from "../render/IAutoMovieConstructionPolyline";
 import type { IAutoMovieSupportLoftPlan64 } from "./IAutoMovieSupportLoftPlan64";
 
 /**
@@ -61,22 +62,7 @@ export namespace IAutoMovieEmitSupportLoft64 {
     /**
      * Sampled generating boundaries and endpoint sections; lists are new, while point tuples can be shared between construction curves at identical physical stations.
      */
-    construction: {
-      /**
-     * Deterministic boundary.<span>.<interval>.<edge> or section.<span>.<interval>.<row> identity within this result.
-     */
-    id: string;
-
-      /**
-     * True for section rings, whose last point connects to the first; false for increasing-Y boundary polylines.
-     */
-    closed: boolean;
-
-      /**
-     * Ordered [X,Y,Z] tuples in model-local metres; closure is implicit and shared tuples should be copied before independent curve editing.
-     */
-    points: [number, number, number][];
-    }[];
+    construction: IAutoMovieConstructionPolyline.IMutable[];
 
     /**
      * Largest Euclidean discrepancy between repeated evaluations of one canonical physical boundary vertex, metres; zero if none disagree. This measures roundoff, not the chord tolerance.

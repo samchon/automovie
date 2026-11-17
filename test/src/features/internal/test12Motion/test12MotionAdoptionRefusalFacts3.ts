@@ -1,5 +1,5 @@
-import type { IAutoMovieExternalMotionAdoptionReceipt } from "@automovie/interface";
 import { adoptAutoMovieExternalMotion } from "@automovie/ingest";
+import type { IAutoMovieExternalMotionAdoptionReceipt } from "@automovie/interface";
 
 import { throwsError } from "../predicates";
 import type { ITest12MotionAdoptionContext } from "./ITest12MotionAdoptionContext";

@@ -1,7 +1,7 @@
 import type { IAutoMovieCompiledFilmEffect } from "../../production/IAutoMovieCompiledFilmEffect.js";
 import type { IAutoMovieFilmTimeline } from "../../production/IAutoMovieFilmTimeline.js";
-import type { IAutoMovieProductionAudioAssetIdentity } from "./IAutoMovieProductionAudioAssetIdentity.js";
 import type { IAutoMovieProductionDesign } from "../../production/IAutoMovieProductionDesign.js";
+import type { IAutoMovieProductionAudioAssetIdentity } from "./IAutoMovieProductionAudioAssetIdentity.js";
 import type { IAutoMovieProductionRenderChunk } from "./IAutoMovieProductionRenderChunk.js";
 import type { IAutoMovieProductionRenderRuntimeIdentity } from "./IAutoMovieProductionRenderRuntimeIdentity.js";
 import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier.js";

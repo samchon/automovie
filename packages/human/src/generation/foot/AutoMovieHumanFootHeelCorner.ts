@@ -1,6 +1,7 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanFootFrame } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootFrame,
+} from "@automovie/interface";
 
 /**
  * The heel's posterior corner: where the plantar contact's two edges leave the
@@ -27,14 +28,24 @@ export namespace AutoMovieHumanFootHeelCorner {
    * @param frame The foot's frame.
    * @param side -1 for the medial edge, 1 for the lateral.
    */
-  export function knots(frame: IAutoMovieHumanFootFrame.IFrame, side: -1 | 1): AutoMovieVector3Tuple[] {
+  export function knots(
+    frame: IAutoMovieHumanFootFrame.IFrame,
+    side: -1 | 1,
+  ): AutoMovieVector3Tuple[] {
     const across: number = ACROSS + side * HALF;
 
-    return Array.from({ length: CORNER_KNOTS + 1 }, (_: unknown, i: number): AutoMovieVector3Tuple => {
-      const tau: number = (Math.PI / 2) * (i / CORNER_KNOTS);
+    return Array.from(
+      { length: CORNER_KNOTS + 1 },
+      (_: unknown, i: number): AutoMovieVector3Tuple => {
+        const tau: number = (Math.PI / 2) * (i / CORNER_KNOTS);
 
-      return frame.at(END - END * Math.sin(tau), across, (HEIGHT - HEIGHT * Math.cos(tau)) * frame.L);
-    });
+        return frame.at(
+          END - END * Math.sin(tau),
+          across,
+          (HEIGHT - HEIGHT * Math.cos(tau)) * frame.L,
+        );
+      },
+    );
   }
 
   /**

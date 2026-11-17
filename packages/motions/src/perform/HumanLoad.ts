@@ -1,6 +1,9 @@
-import type { IAutoMovieMotionHumanForce, IAutoMovieMotionHumanLoad, IAutoMovieVector3 } from "@automovie/interface";
-
 import { AutoMovieGravity, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanForce,
+  IAutoMovieMotionHumanLoad,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanForce } from "./HumanForce";
 
@@ -49,7 +52,9 @@ export namespace HumanLoad {
    * @param props The body's mass and centre height, and the load's mass and its distance ahead of the centre.
    * @returns Degrees, or null.
    */
-  export function lean(props: IAutoMovieMotionHumanLoad.ILeanProps): number | null {
+  export function lean(
+    props: IAutoMovieMotionHumanLoad.ILeanProps,
+  ): number | null {
     const ratio: number =
       (props.load * props.ahead) / (props.mass * props.height);
     if (Math.abs(ratio) > 1) return null;

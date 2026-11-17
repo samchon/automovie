@@ -1,5 +1,3 @@
-
-
 /**
  * The consecutive frames a capture draws around one event or cut, as the record lists them.
  *

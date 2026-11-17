@@ -5,7 +5,7 @@ import type { IAutoMovieServiceNetwork } from "./IAutoMovieServiceNetwork";
 export namespace IAutoMovieLowerServiceNetwork {
   /**
    * Service graph, served building and polygon resolution for generated run geometry.
-   * 
+   *
    * A run is authored as a centre line and a radius, which is the description a
    * clash and a sleeve are measured against; drawing it is the deterministic
    * derivation of that description and nothing more. Sweeping a regular polygon
@@ -14,12 +14,12 @@ export namespace IAutoMovieLowerServiceNetwork {
    * elbow catalogue, no per-discipline appearance. A production that wants a
    * modelled valve body authors that prop and places it on the node, exactly as
    * it would author any other asset.
-   * 
+   *
    * The geometry is baked in world coordinates, matching how a connector's route
    * and a support surface are already authored, so the staged piece carries no
    * rotation and no scale of its own and a run cannot drift from the line the
    * validator measured.
-   * 
+   *
    * Refuses to draw an invalid network. Lowering a graph with a dangling port or
    * a clash would put a picture of a working installation in front of the reason
    * it does not work, which is the one thing this record exists to prevent.

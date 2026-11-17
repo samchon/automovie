@@ -1,25 +1,23 @@
-import type { IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanEar, IAutoMovieHumanPair, IAutoMovieHumanHeadDome, IAutoMovieHumanHeadEarFrame, IAutoMovieHumanHeadEarPlate, IAutoMovieHumanHeadEarRidge, IAutoMovieHumanHeadFeatures, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadPrior } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
-
 import { AutoMovieViewOutline, AutoMovieViewSection } from "@automovie/engine";
-
+import type {
+  IAutoMovieHumanEar,
+  IAutoMovieHumanHeadDome,
+  IAutoMovieHumanHeadEarFrame,
+  IAutoMovieHumanHeadEarPlate,
+  IAutoMovieHumanHeadEarRidge,
+  IAutoMovieHumanHeadFeatures,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadPrior,
+  IAutoMovieHumanPair,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
-
 import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
 import { AutoMovieHumanHeadEarFrame } from "./AutoMovieHumanHeadEarFrame";
 import { AutoMovieHumanHeadEarPlate } from "./AutoMovieHumanHeadEarPlate";
 import { AutoMovieHumanHeadEarRidge } from "./AutoMovieHumanHeadEarRidge";
-
 
 /**
  * Each auricle and the parts inside it, in the ear's own frame

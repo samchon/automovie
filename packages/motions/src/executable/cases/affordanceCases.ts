@@ -1,10 +1,16 @@
-import type { AutoMovieHumanoidSocket, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanOperate, IAutoMovieMotionHumanOperateDrive, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidSocket,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanOperate,
+  IAutoMovieMotionHumanOperateDrive,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { operate } from "../../affordance/operate";
@@ -83,11 +89,12 @@ export function affordanceCases(
       ],
     ];
     for (const [label, mechanism] of mechanisms) {
-      const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
-        "affordance",
-        [{ subject: "a", body: who.body }],
-        HumanChain.subject("a").act("operate", { mechanism }),
-      );
+      const performance: IAutoMovieMotionHumanPerformance =
+        FamilyCaseKit.perform(
+          "affordance",
+          [{ subject: "a", body: who.body }],
+          HumanChain.subject("a").act("operate", { mechanism }),
+        );
       const ready: number = FamilyCaseKit.event(performance, "ready");
       const start: number = FamilyCaseKit.event(performance, "strokeStart");
       const end: number = FamilyCaseKit.event(performance, "strokeEnd");

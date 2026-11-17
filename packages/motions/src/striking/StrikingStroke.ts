@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionHumanStrikingStroke, IAutoMovieSuperposeMinimumJerk, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, minimumJerk, superposeMinimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanStrikingStroke,
+  IAutoMovieSuperposeMinimumJerk,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { StrikingContact } from "./StrikingContact";
 
 /**
@@ -75,7 +79,9 @@ export namespace StrikingStroke {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function delivery(d: IAutoMovieMotionHumanStrikingStroke.IDelivery): IAutoMovieSuperposeMinimumJerk.IUnit[] {
+  export function delivery(
+    d: IAutoMovieMotionHumanStrikingStroke.IDelivery,
+  ): IAutoMovieSuperposeMinimumJerk.IUnit[] {
     const units: IAutoMovieSuperposeMinimumJerk.IUnit[] = [];
     let from: IAutoMovieVector3 = d.origin;
     let begin: number = d.launch;
@@ -138,8 +144,12 @@ export namespace StrikingStroke {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The scan's progress and found second are memoised so every evaluation order gives the same stop.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closures hold the input and the scan state, released with the stroke.
    */
-  export function create(input: IAutoMovieMotionHumanStrikingStroke.IInput): IAutoMovieMotionHumanStrikingStroke.IStroke {
-    const corrections = (seconds: number): IAutoMovieSuperposeMinimumJerk.IUnit[] => [
+  export function create(
+    input: IAutoMovieMotionHumanStrikingStroke.IInput,
+  ): IAutoMovieMotionHumanStrikingStroke.IStroke {
+    const corrections = (
+      seconds: number,
+    ): IAutoMovieSuperposeMinimumJerk.IUnit[] => [
       ...(input.tracker?.units(seconds) ?? []),
     ];
 

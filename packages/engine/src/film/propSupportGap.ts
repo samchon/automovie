@@ -1,6 +1,9 @@
-import { type IAutoMoviePropSupportFace, type IAutoMoviePropSupportGap, IAutoMoviePropBox, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  IAutoMoviePropBox,
+  type IAutoMoviePropSupportFace,
+  type IAutoMoviePropSupportGap,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { midpoint } from "../math/midpoint";
 import { footprintContains } from "../space/footprintContains";
@@ -24,7 +27,9 @@ import { surfaceHeightAt } from "../space/surfaceHeightAt";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Measures one prop against one face per call and coordinates no work across calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the probe arrays are released on return.
  */
-export function propSupportGap(props: IAutoMoviePropSupportGap.IProps): number | null {
+export function propSupportGap(
+  props: IAutoMoviePropSupportGap.IProps,
+): number | null {
   const bounds: IAutoMoviePropBox = props.bounds;
   const probes: IAutoMovieVector3[] = [
     ...footprintProbes(bounds).filter((probe: IAutoMovieVector3): boolean =>

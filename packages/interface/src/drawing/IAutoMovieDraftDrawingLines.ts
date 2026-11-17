@@ -15,14 +15,14 @@ import type { IAutoMovieDrawingView } from "./IAutoMovieDrawingView";
 export namespace IAutoMovieDraftDrawingLines {
   /**
    * Validated design, resolved view frame and selection predicate used to derive linework.
-   * 
+   *
    * Drawables are the elements with an environment-owned model and the
    * boundaries that carry a face and are realized by no element, each kept only
    * when `drawn` accepts its kind and space; a boundary is accepted through any
    * space it separates and carries its first space, so a party wall reads the
    * same on both rooms' sheets. An element citing a builder-owned runtime model
    * cannot be drawn and is counted in `unresolvedModels` for the caller's gap.
-   * 
+   *
    * Each drawable is classified by its nearest and deepest corner: wholly on the
    * viewer's side of a cut it is `overhead` while within `view.overhead` and
    * omitted beyond it; wholly deeper than `view.depth` it is `hidden`; otherwise

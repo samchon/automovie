@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
 
-
 import type { IPlaygroundTimeline } from "../../playground/structures/IPlaygroundTimeline";
 import type { SceneTrack } from "../../scenes/SceneTrack";
 

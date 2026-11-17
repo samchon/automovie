@@ -1,6 +1,6 @@
-import type { IAutoMovieConstraintViolation } from "../validation/IAutoMovieConstraintViolation";
 import type { IAutoMovieMountBinding } from "../harness/IAutoMovieMountBinding";
 import type { IAutoMovieScene } from "../scene/IAutoMovieScene";
+import type { IAutoMovieConstraintViolation } from "../validation/IAutoMovieConstraintViolation";
 
 /**
  * What `stageScene` returns: the composed {@link IAutoMovieScene} plus the
@@ -25,59 +25,59 @@ export type IAutoMovieStagedSet =
 /** Data and callback contracts shared by the StagedSet operations. */
 export namespace IAutoMovieStagedSet {
   /**
-     * Staging was coherent; the set is ready for blocking and performance.
-     *
-     * @evidence contracts/development/design.md#principled-representation Returned only when every placement, camera aim, light, space and fog check passed, with each actor's `facingDeg` turned into a rotation about `+Y` and each camera's `lookAt` into the shortest-arc rotation that aims its `-Z` at the point.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface The scene the renderer and later stages read, plus the mounts the scene cannot express; blocking and performance take this variant as their staged input type.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Mount bindings are carried as authored, and a mount's rig and bone preconditions are left to the performance stage, the first place with skeleton access, rather than assumed here.
-     * @evidence contracts/development/common.md#meaningful-documentation States what success guarantees and, per field, what the scene holds and how mounts relate to riders.
+   * Staging was coherent; the set is ready for blocking and performance.
+   *
+   * @evidence contracts/development/design.md#principled-representation Returned only when every placement, camera aim, light, space and fog check passed, with each actor's `facingDeg` turned into a rotation about `+Y` and each camera's `lookAt` into the shortest-arc rotation that aims its `-Z` at the point.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The scene the renderer and later stages read, plus the mounts the scene cannot express; blocking and performance take this variant as their staged input type.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Mount bindings are carried as authored, and a mount's rig and bone preconditions are left to the performance stage, the first place with skeleton access, rather than assumed here.
+   * @evidence contracts/development/common.md#meaningful-documentation States what success guarantees and, per field, what the scene holds and how mounts relate to riders.
+   */
+  export interface ISuccess {
+    /** Discriminator. */
+    success: true;
+
+    /**
+     * The composed scene: actors and set pieces at rest, cameras aimed, lights
+     * lowered, and the staged space, fog and environment.
      */
-    export interface ISuccess {
-      /** Discriminator. */
-      success: true;
-  
-      /**
-       * The composed scene: actors and set pieces at rest, cameras aimed, lights
-       * lowered, and the staged space, fog and environment.
-       */
-      scene: IAutoMovieScene;
-  
-      /** One validated persistent coupling per mounted rider, in actor order. */
-      mounts: IAutoMovieStagedSet.IMount[];
-    }
+    scene: IAutoMovieScene;
+
+    /** One validated persistent coupling per mounted rider, in actor order. */
+    mounts: IAutoMovieStagedSet.IMount[];
+  }
 
   /**
-     * Staging contradicted the script or itself; nothing was composed.
-     *
-     * @evidence contracts/development/design.md#principled-representation Every finding of the single `stageScene` pass is collected through one `ViolationCollector` with its JSON path, expectation and value.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Only the list, because no partial scene is safe to block or perform against.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts No contradiction is auto-corrected, so the author fixes the stage instead of the engine moving or dropping a placement.
-     * @evidence contracts/development/common.md#meaningful-documentation States that failure composes nothing and that the list is complete for the correction round.
-     */
-    export interface IFailure {
-      /** Discriminator. */
-      success: false;
-  
-      /** Every contradiction found, in check order, for the correction round. */
-      violations: IAutoMovieConstraintViolation[];
-    }
+   * Staging contradicted the script or itself; nothing was composed.
+   *
+   * @evidence contracts/development/design.md#principled-representation Every finding of the single `stageScene` pass is collected through one `ViolationCollector` with its JSON path, expectation and value.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the list, because no partial scene is safe to block or perform against.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No contradiction is auto-corrected, so the author fixes the stage instead of the engine moving or dropping a placement.
+   * @evidence contracts/development/common.md#meaningful-documentation States that failure composes nothing and that the list is complete for the correction round.
+   */
+  export interface IFailure {
+    /** Discriminator. */
+    success: false;
+
+    /** Every contradiction found, in check order, for the correction round. */
+    violations: IAutoMovieConstraintViolation[];
+  }
 
   /**
-     * One rider-to-parent-bone coupling. `performShot` bakes it into the rider's
-     * per-frame follow clip; the host plays that clip and never resolves the
-     * coupling itself. An explicit `attachTo` for the same rider in a beat
-     * overrides the mount for that beat.
-     *
-     * @evidence contracts/development/design.md#principled-representation `stageScene` emits one only for an actor with `attach`, after refusing a rider mounted on itself or on a parent that is not a placed actor; `coupleObjects` then refuses a rig-less parent or an absent bone before baking.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface The rider id and the binding, which is everything `compileAttach` needs besides the parent's posed skeleton that performance supplies; the same record carries the coupling into `IResolveBeatProps.mounts` for the next beat.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts A mount emits no grab, attach, detach or release events, because it is standing scene state rather than a per-shot pickup, and no rider is special-cased.
-     * @evidence contracts/development/common.md#meaningful-documentation States who bakes it, what the host does, the override rule, and per field the rider and the binding's source.
-     */
-    export interface IMount {
-      /** The mounted rider's scene node id. */
-      node: string;
-  
-      /** The coupling it rides, the staging input's own `attach` record. */
-      binding: IAutoMovieMountBinding;
-    }
+   * One rider-to-parent-bone coupling. `performShot` bakes it into the rider's
+   * per-frame follow clip; the host plays that clip and never resolves the
+   * coupling itself. An explicit `attachTo` for the same rider in a beat
+   * overrides the mount for that beat.
+   *
+   * @evidence contracts/development/design.md#principled-representation `stageScene` emits one only for an actor with `attach`, after refusing a rider mounted on itself or on a parent that is not a placed actor; `coupleObjects` then refuses a rig-less parent or an absent bone before baking.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The rider id and the binding, which is everything `compileAttach` needs besides the parent's posed skeleton that performance supplies; the same record carries the coupling into `IResolveBeatProps.mounts` for the next beat.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A mount emits no grab, attach, detach or release events, because it is standing scene state rather than a per-shot pickup, and no rider is special-cased.
+   * @evidence contracts/development/common.md#meaningful-documentation States who bakes it, what the host does, the override rule, and per field the rider and the binding's source.
+   */
+  export interface IMount {
+    /** The mounted rider's scene node id. */
+    node: string;
+
+    /** The coupling it rides, the staging input's own `attach` record. */
+    binding: IAutoMovieMountBinding;
+  }
 }

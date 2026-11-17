@@ -1,4 +1,7 @@
-import { type IAutoMoviePreparedSurface, IAutoMovieSurface } from "@automovie/interface";
+import {
+  type IAutoMoviePreparedSurface,
+  IAutoMovieSurface,
+} from "@automovie/interface";
 
 import { surfaceFootprint } from "./surfaceFootprint";
 

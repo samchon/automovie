@@ -1,4 +1,7 @@
-import type { IAutoMovieRenderTargetDrift, IAutoMovieRenderTargetSummary } from "@automovie/interface";
+import type {
+  IAutoMovieCompareRenderTarget,
+  IAutoMovieRenderTargetDrift,
+} from "@automovie/interface";
 
 import { compareAutoMovieRenderTarget } from "./compareAutoMovieRenderTarget";
 
@@ -12,7 +15,9 @@ import { compareAutoMovieRenderTarget } from "./compareAutoMovieRenderTarget";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The completed comparison is used once for both freshness choice and drift text; no equality result is cached across mutable targets.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a string escapes; temporary drift rows belong to the call and no assets, renderer handle or running task are retained.
  */
-export const autoMovieRenderTargetSummary: (props: IAutoMovieRenderTargetSummary.IProps) => string = (props: IAutoMovieRenderTargetSummary.IProps): string => {
+export const autoMovieRenderTargetSummary: (
+  props: IAutoMovieCompareRenderTarget.IProps,
+) => string = (props: IAutoMovieCompareRenderTarget.IProps): string => {
   const {
     fresh,
     drift,

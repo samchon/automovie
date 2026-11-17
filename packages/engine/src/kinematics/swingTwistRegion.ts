@@ -1,6 +1,11 @@
-import type { IAutoMovieAngleRange, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieSwingTwistBasis, IAutoMovieSwingTwistRange, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieAngleRange,
+  IAutoMovieJointAxes,
+  IAutoMovieJointConstraint,
+  IAutoMovieSwingTwistBasis,
+  IAutoMovieSwingTwistRange,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -28,7 +33,6 @@ import { swingTwistBasis } from "./swingTwistBasis";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No joint is named: the axes, the rest frame and the intervals are the caller's.
  */
 export namespace swingTwistRegion {
-
   /**
    * The radius table of a constraint on a joint's frame.
    *
@@ -110,7 +114,9 @@ function reach(
   constraint: IAutoMovieJointConstraint,
   joint: IAutoMovieSwingTwistRange.IJoint,
 ): Float64Array {
-  const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(joint.axes);
+  const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
+    joint.axes,
+  );
   const table: Float64Array = new Float64Array(swingTwistBasis.RAYS);
   for (let ray: number = 0; ray < swingTwistBasis.RAYS; ++ray) {
     const azimuth: number = (360 * ray) / swingTwistBasis.RAYS;

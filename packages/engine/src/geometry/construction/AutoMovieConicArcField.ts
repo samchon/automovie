@@ -1,4 +1,10 @@
-import type { IAutoMovieAlgebra, IAutoMovieConicArc, IAutoMovieConicArcField, IAutoMovieConicFieldJet } from "@automovie/interface";
+import type {
+  IAutoMovieAlgebra,
+  IAutoMovieConicArc,
+  IAutoMovieConicArcField,
+  IAutoMovieConicFieldJet,
+} from "@automovie/interface";
+
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 
 /** Invocation-local normalized positive Bernstein terms, before velocity work. */
@@ -20,7 +26,6 @@ interface Basis<T> {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConicArcField {
-
   /**
    * The original dimensionless shoulder-to-weight map.
    *
@@ -184,7 +189,13 @@ export namespace AutoMovieConicArcField {
   }
 
   /** Preserve the original pre-velocity operation order and normalization. */
-  function pointBasis<T>(ops: IAutoMovieAlgebra<T>, a: T, b: T, w: T, t: T): Basis<T> {
+  function pointBasis<T>(
+    ops: IAutoMovieAlgebra<T>,
+    a: T,
+    b: T,
+    w: T,
+    t: T,
+  ): Basis<T> {
     const scale: number = Math.max(
       Math.abs(ops.value(a)),
       Math.abs(ops.value(b)),
@@ -204,7 +215,10 @@ export namespace AutoMovieConicArcField {
   }
 
   /** The same final point operations occur after velocity work in evaluate. */
-  function restorePoint<T>(ops: IAutoMovieAlgebra<T>, basis: Basis<T>): readonly [T, T] {
+  function restorePoint<T>(
+    ops: IAutoMovieAlgebra<T>,
+    basis: Basis<T>,
+  ): readonly [T, T] {
     return [
       ops.multiply(
         ops.divide(ops.multiply(basis.a, basis.left), basis.denominator),
@@ -305,7 +319,10 @@ export namespace AutoMovieConicArcField {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh tuples or a named failure without caching.
    */
   export function read(
-    extents: readonly [IAutoMovieConicFieldJet.IJet, IAutoMovieConicFieldJet.IJet],
+    extents: readonly [
+      IAutoMovieConicFieldJet.IJet,
+      IAutoMovieConicFieldJet.IJet,
+    ],
     shoulder: IAutoMovieConicFieldJet.IJet,
     ray: IAutoMovieConicArc.IRay,
   ): IAutoMovieConicArcField.IReading | IAutoMovieConicArcField.IFailure {
@@ -326,16 +343,12 @@ export namespace AutoMovieConicArcField {
           "Raw conic reading requires finite supplied source jets and a selected native clock.",
       };
 
-    const ops: IAutoMovieAlgebra<IAutoMovieConicFieldJet.IJet> = AutoMovieConicFieldJet.AD;
+    const ops: IAutoMovieAlgebra<IAutoMovieConicFieldJet.IJet> =
+      AutoMovieConicFieldJet.AD;
     const a: IAutoMovieConicFieldJet.IJet = extents[ray.reverse ? 1 : 0];
     const b: IAutoMovieConicFieldJet.IJet = extents[ray.reverse ? 0 : 1];
-    const geometry: IAutoMovieConicArcField.IGeometry<IAutoMovieConicFieldJet.IJet> = evaluate(
-      ops,
-      a,
-      b,
-      weight(ops, shoulder),
-      ops.constant(ray.native),
-    );
+    const geometry: IAutoMovieConicArcField.IGeometry<IAutoMovieConicFieldJet.IJet> =
+      evaluate(ops, a, b, weight(ops, shoulder), ops.constant(ray.native));
     return finish(orient(ops, geometry, ray.reverse), ray);
   }
 }

@@ -1,6 +1,20 @@
-import type { AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanRefusal, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
+  IAutoMovieBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
@@ -28,7 +42,6 @@ import { poseBones } from "../posture/poseBones";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop kind is named: points are the prop's own affordance ids, and a missing one is refused with the ids the prop has.
  */
 export namespace AutoMovieMotionHumanHeld {
-
   /**
    * Read the prop a hand holds at an action's entry.
    *
@@ -47,7 +60,10 @@ export namespace AutoMovieMotionHumanHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop"
+    >,
     side: "left" | "right",
     prop: string,
   ): IAutoMovieMotionHumanHeld.IHeld {
@@ -89,7 +105,9 @@ export namespace AutoMovieMotionHumanHeld {
     )
       throw handless();
     const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(prop);
-    const world: IAutoMovieMotionHumanProp.IFrame = read.frame(context.entry.seconds);
+    const world: IAutoMovieMotionHumanProp.IFrame = read.frame(
+      context.entry.seconds,
+    );
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       context.body,
       context.entry.pose,
@@ -236,7 +254,9 @@ export namespace AutoMovieMotionHumanHeld {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function grip(held: IAutoMovieMotionHumanHeld.IHeld): IAutoMovieMotionHumanContactWindow {
+  export function grip(
+    held: IAutoMovieMotionHumanHeld.IHeld,
+  ): IAutoMovieMotionHumanContactWindow {
     return {
       part: `${held.side}Hand`,
       kind: "grip",

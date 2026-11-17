@@ -1,5 +1,16 @@
-import type { IAutoMovieConstructionRealization, IAutoMovieLoftChain, IAutoMovieLoftRelief, IAutoMovieViewPart } from "@automovie/interface";
-import { AutoMovieLoftChain, AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieViewSection, realizeAutoMovieConstruction } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  AutoMovieViewAxis,
+  AutoMovieViewLoft,
+  AutoMovieViewSection,
+  realizeAutoMovieConstruction,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionRealization,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftRelief,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

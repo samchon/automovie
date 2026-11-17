@@ -1,6 +1,14 @@
-import type { IAutoMovieAnalysisSolid, IAutoMovieEnvironmentContext, IAutoMovieEnvironmentInstant, IAutoMovieHalfSpacePlane } from "@automovie/interface";
-import { autoMovieContextSolids, autoMovieEnvironmentInstant, validateAutoMovieEnvironmentContext } from "@automovie/engine";
-
+import {
+  autoMovieContextSolids,
+  autoMovieEnvironmentInstant,
+  validateAutoMovieEnvironmentContext,
+} from "@automovie/engine";
+import type {
+  IAutoMovieAnalysisSolid,
+  IAutoMovieEnvironmentContext,
+  IAutoMovieEnvironmentInstant,
+  IAutoMovieHalfSpacePlane,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { analysisContext, boxSolid } from "./analysisFixtures";

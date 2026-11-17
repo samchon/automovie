@@ -1,12 +1,10 @@
-import type { IAutoMovieRecoveryMapObservation, IAutoMovieRecoverySceneSeedInitializationOperation, IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
-
-
-
-
+import type {
+  IAutoMovieRecoveryCameraPairInput,
+  IAutoMovieRecoveryMapObservation,
+  IAutoMovieRecoverySceneSeedInitializationOperation,
+} from "@automovie/interface";
 
 import { createRecoveryCameraEstimate } from "./createRecoveryCameraEstimate";
-
-
 
 /**
  * Estimate the explicit seed using only globally admitted direct reciprocal links.
@@ -62,7 +60,8 @@ export function initializeRecoverySceneSeed(
     cohort: input.cohort,
     views: input.views.slice(0, 2),
     policy: input.seedPolicy,
-    budget: input.seedBudget };
+    budget: input.seedBudget,
+  };
   return createRecoveryCameraEstimate(
     seedInput,
     features.slice(0, 2),

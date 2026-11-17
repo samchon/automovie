@@ -1,5 +1,12 @@
-import { type IAutoMovieDrawingDesignIndex, type IAutoMovieDrawingTriangle, type IAutoMovieOpeningNominalExtent, IAutoMovieBuiltElement, IAutoMovieBuiltOpening, IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltOpening,
+  type IAutoMovieDrawingDesignIndex,
+  type IAutoMovieDrawingTriangle,
+  IAutoMovieModel,
+  type IAutoMovieOpeningNominalExtent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { autoMovieDrawingElementTriangles } from "./autoMovieDrawingElementTriangles";
 import { autoMovieOpeningExtent } from "./autoMovieOpeningExtent";

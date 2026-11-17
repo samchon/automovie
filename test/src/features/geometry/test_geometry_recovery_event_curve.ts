@@ -1,6 +1,12 @@
-import type { IAutoMovieCurve64, IAutoMovieRecoveryEventCurveArc, IAutoMovieRecoveryEventCurvePiece } from "@automovie/interface";
-
-import { AutoMovieRecoveryEventCurve as E, prepareAutoMovieRecoveryAnnularChart } from "@automovie/recovery";
+import type {
+  IAutoMovieCurve64,
+  IAutoMovieRecoveryEventCurveArc,
+  IAutoMovieRecoveryEventCurvePiece,
+} from "@automovie/interface";
+import {
+  AutoMovieRecoveryEventCurve as E,
+  prepareAutoMovieRecoveryAnnularChart,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**

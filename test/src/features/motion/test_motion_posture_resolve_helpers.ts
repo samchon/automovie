@@ -1,7 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-
-import { hipJoints, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  hipJoints,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -127,7 +140,11 @@ export function test_motion_posture_resolve_helpers(): void {
   );
 
   // 3. Lower.
-  const quiet: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const quiet: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
   const free: IAutoMovieMotionHumanPosture = { ...quiet, limbs: {} };
   complaints.check(
     "a posture with no planted leg is kept",
@@ -148,7 +165,10 @@ export function test_motion_posture_resolve_helpers(): void {
       ]),
     ),
   };
-  const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(body, sunk);
+  const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+    body,
+    sunk,
+  );
   const hips = hipJoints(
     body,
     lowered.root,
@@ -156,7 +176,8 @@ export function test_motion_posture_resolve_helpers(): void {
     lowered.joints.hips,
   );
   for (const side of ["left", "right"] as const) {
-    const goal: IAutoMovieMotionHumanPosture.IGoal | undefined = sunk.limbs[`${side}Leg`];
+    const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
+      sunk.limbs[`${side}Leg`];
     if (goal === undefined) continue;
     const left: number = resolveHumanPosture.short(
       body,

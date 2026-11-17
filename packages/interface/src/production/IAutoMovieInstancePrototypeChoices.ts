@@ -4,7 +4,7 @@ import type { IAutoMovieCompiledInstancePrototype } from "./IAutoMovieCompiledIn
 export namespace IAutoMovieInstancePrototypeChoices {
   /**
    * Borrowed instance-set fields that select an existing complete choice table or an implicit base-model choice.
-   * 
+   *
    * A set with a prototype table draws from that table, which in a compiled set
    * already starts with the base model's default, counted once. A set without a
    * table draws only its base model, as one choice with the id `default` and
@@ -17,10 +17,12 @@ export namespace IAutoMovieInstancePrototypeChoices {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Selection and structural subject comparison need only base model and optional complete table; Choice retains the actual entry type without requiring every caller to supply compiled tiers.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts An explicitly empty table is not rewritten into a default and an existing complete table is not prepended with a duplicate base entry.
    */
-  export type IInstanceSet<Choice extends Pick<
+  export type IInstanceSet<
+    Choice extends Pick<
       IAutoMovieCompiledInstancePrototype,
       "id" | "model" | "weight"
-    >> = {
+    >,
+  > = {
     /** Base model-group ID used only when prototypes is absent, creating { id: "default", model, weight: 1 }. */
     model: string;
 

@@ -41,7 +41,9 @@ export interface IAutoMovieHumanWebSurface {
   ) => AutoMovieVector3Tuple;
 
   /** A column away from the webs: its point at a row, between the parent's and child's copied jets. */
-  plainAt: (col: IAutoMovieHumanWebSurface.Plain) => (r: number) => AutoMovieVector3Tuple;
+  plainAt: (
+    col: IAutoMovieHumanWebSurface.Plain,
+  ) => (r: number) => AutoMovieVector3Tuple;
 }
 
 /** Type contracts exchanged by IAutoMovieHumanWebSurface; runtime evaluation remains in Human. */

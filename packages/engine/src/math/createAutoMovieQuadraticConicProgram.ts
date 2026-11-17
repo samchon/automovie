@@ -1,4 +1,5 @@
 import type { IAutoMovieQuadraticConicProgram } from "@automovie/interface";
+
 import { AUTOMOVIE_QUADRATIC_INFINITY } from "../constants/AUTOMOVIE_QUADRATIC_INFINITY";
 
 /**
@@ -16,16 +17,18 @@ import { AUTOMOVIE_QUADRATIC_INFINITY } from "../constants/AUTOMOVIE_QUADRATIC_I
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary side maps are bounded by original rows; returned arrays transfer to one solve, with no global retention or external handle.
  */
 export function createAutoMovieQuadraticConicProgram(
-  input: [{
-  diagonal: readonly number[];
-  linear: readonly number[];
-  columns: readonly number[];
-  rowIndices: readonly number[];
-  values: readonly number[];
-  lower: readonly number[];
-  upper: readonly number[];
-  initial?: readonly number[];
-}][0],
+  input: [
+    {
+      diagonal: readonly number[];
+      linear: readonly number[];
+      columns: readonly number[];
+      rowIndices: readonly number[];
+      values: readonly number[];
+      lower: readonly number[];
+      upper: readonly number[];
+      initial?: readonly number[];
+    },
+  ][0],
 ): IAutoMovieQuadraticConicProgram {
   const n: number = input.diagonal.length;
   const count: number = input.lower.length;

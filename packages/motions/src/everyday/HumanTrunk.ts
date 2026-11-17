@@ -1,6 +1,24 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTrunk, IAutoMovieMotionHumanTurnHumanPosture, IAutoMovieResolvedBone, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Transform,
+  resolveAutoMovieHumanoidSurfaces,
+  resolvePose,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTrunk,
+  IAutoMovieMotionHumanTurnHumanPosture,
+  IAutoMovieResolvedBone,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Transform, resolveAutoMovieHumanoidSurfaces, resolvePose } from "@automovie/engine";
 import { HumanColliders } from "../posture/HumanColliders";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 
@@ -55,10 +73,11 @@ export namespace HumanTrunk {
           // A whole-body rotation turns the root as the resolver turns it
           // (`turnHumanPosture`); the limb goals are not read here.
           root: ((): IAutoMovieTransform => {
-            const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture({
-              ...posture,
-              limbs: {},
-            });
+            const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
+              turnHumanPosture({
+                ...posture,
+                limbs: {},
+              });
             return Transform.of(turned.position, turned.rotation);
           })(),
           joints: list,
@@ -228,13 +247,14 @@ export namespace HumanTrunk {
         ([bone]): boolean => !/^(left|right)/.test(bone),
       ),
     );
-    const hit: IAutoMovieMotionHumanColliders.IHit | undefined = HumanColliders.cast(
-      body,
-      midline,
-      from,
-      toward,
-      2 * body.measure.stature,
-    );
+    const hit: IAutoMovieMotionHumanColliders.IHit | undefined =
+      HumanColliders.cast(
+        body,
+        midline,
+        from,
+        toward,
+        2 * body.measure.stature,
+      );
     if (hit === undefined)
       throw new Error(
         `No trunk surface lies along the ray from (${from.x.toFixed(3)}, ${from.y.toFixed(3)}, ${from.z.toFixed(3)}) m`,

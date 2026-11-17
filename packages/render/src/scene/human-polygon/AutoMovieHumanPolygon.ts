@@ -1,5 +1,4 @@
 import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
-
 import type * as THREE from "three";
 
 /**
@@ -17,7 +16,6 @@ import type * as THREE from "three";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; the native drawing handle borrows canonical Human placements rather than restating their shape.
  */
 export namespace AutoMovieHumanPolygon {
-
   /**
    * Actual rigid polygon drawing and its owned resource lifetime.
    *

@@ -1,5 +1,8 @@
-import type { IAutoMovieDialogueExpressionLayers, IAutoMovieDialogueMouthRange, IAutoMovieSampleDialogueExpression } from "@automovie/interface";
-
+import type {
+  IAutoMovieDialogueExpressionLayers,
+  IAutoMovieDialogueMouthRange,
+  IAutoMovieSampleDialogueExpression,
+} from "@automovie/interface";
 
 /**
  * Sample one joined emission-clock mouth range beside the unchanged authored expression.
@@ -12,7 +15,11 @@ import type { IAutoMovieDialogueExpressionLayers, IAutoMovieDialogueMouthRange, 
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared ranges are reused across independent frame queries, and no previous cursor or cached pose can alter a backward seek.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the fresh wrapper/mouth pair, which retains the supplied authored expression reference until discarded; no scene, GPU or audio resource is retained.
  */
-export const sampleAutoMovieDialogueExpression: (props: IAutoMovieSampleDialogueExpression.IProps) => IAutoMovieDialogueExpressionLayers = (props: IAutoMovieSampleDialogueExpression.IProps): IAutoMovieDialogueExpressionLayers => {
+export const sampleAutoMovieDialogueExpression: (
+  props: IAutoMovieSampleDialogueExpression.IProps,
+) => IAutoMovieDialogueExpressionLayers = (
+  props: IAutoMovieSampleDialogueExpression.IProps,
+): IAutoMovieDialogueExpressionLayers => {
   if (!Number.isSafeInteger(props.frame) || props.frame < 0)
     throw new Error("dialogue expression frame must be a non-negative integer");
   const viseme: IAutoMovieDialogueMouthRange["viseme"] | undefined =

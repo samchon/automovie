@@ -6,15 +6,12 @@
  * @evidence contracts/development/common.md#meaningful-documentation Members distinguish source order, per-image feature identity and pixel coordinates.
  */
 export interface IAutoMovieRecoveryMapObservation {
- 
- /** Index in the owning operation's source array; zero and one are the seed. */
+  /** Index in the owning operation's source array; zero and one are the seed. */
   viewIndex: number;
 
- 
- /** Index in this image's once-observed feature population. */
+  /** Index in this image's once-observed feature population. */
   featureIndex: number;
 
- 
- /** Measured [x,y] image pixel centre, with +X right and +Y down. */
+  /** Measured [x,y] image pixel centre, with +X right and +Y down. */
   pixel: [number, number];
 }

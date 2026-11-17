@@ -1,6 +1,6 @@
-import type { IAutoMovieScript } from "../harness/IAutoMovieScript.js";
 import type { IAutoMovieSequence } from "../cinematics/IAutoMovieSequence.js";
 import type { IAutoMovieShot } from "../cinematics/IAutoMovieShot.js";
+import type { IAutoMovieScript } from "../harness/IAutoMovieScript.js";
 
 /**
  * Screenplay caption source and output clock for one sequence. planCaptionSidecar resolves the sequence timeline and groups consecutive output frames by live beat; null captions/scene slugs remain absent content rather than synthesized text.

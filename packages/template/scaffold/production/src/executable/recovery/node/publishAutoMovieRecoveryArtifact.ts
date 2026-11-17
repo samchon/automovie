@@ -1,5 +1,8 @@
-import type { IAutoMovieFilePublicationOptions, IAutoMovieFileReceipt, IAutoMovieRecoveryResult } from "@automovie/interface";
-
+import type {
+  IAutoMovieFilePublicationOptions,
+  IAutoMovieFileReceipt,
+  IAutoMovieRecoveryResult,
+} from "@automovie/interface";
 
 import { writeAutoMovieRecoveryArtifact } from "./artifact/writeAutoMovieRecoveryArtifact";
 
@@ -32,14 +35,16 @@ export function publishAutoMovieRecoveryArtifact(
     if (
       options === null ||
       typeof options !== "object" ||
-      (options.cancelled !== undefined && typeof options.cancelled !== "function")
+      (options.cancelled !== undefined &&
+        typeof options.cancelled !== "function")
     )
       return {
         operator,
         status: "refused",
         diagnostics: ["Cancellation must be an optional synchronous predicate"],
       };
-    const cancelled: boolean = options.cancelled === undefined ? false : options.cancelled();
+    const cancelled: boolean =
+      options.cancelled === undefined ? false : options.cancelled();
     if (typeof cancelled !== "boolean")
       throw new Error("Cancellation predicate must return a boolean");
     if (cancelled)

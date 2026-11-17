@@ -1,6 +1,14 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMoviePose, IAutoMovieResolvedBone } from "@automovie/interface";
-
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, resolvePose } from "@automovie/engine";
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  resolvePose,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 
 /**
  * Every bone of a canonical pose placed in the world, by name: forward

@@ -1,4 +1,16 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieBodyMeasure, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanApproach, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEffort, IAutoMovieMotionHumanPosture, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieBodyMeasure,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanApproach,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEffort,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { walk } from "../actions/walk";
@@ -72,7 +84,8 @@ export namespace approach {
   export const name: AutoMovieMotionHumanActionName = "approach";
 
   /** Cancel table: an approach is a walk and is cut as one. */
-  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = walk.interrupts;
+  export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
+    walk.interrupts;
 
   /** What it yields to an overlay: the walk's own. */
   export const yields: IAutoMovieMotionHumanActionLaw["yields"] = walk.yields;
@@ -101,7 +114,10 @@ export namespace approach {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanApproach.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const target: IAutoMovieMotionTarget = context.params.target;
-    const aimed: IAutoMovieMotionHumanApproach.IAim = context.aim(target, context.start);
+    const aimed: IAutoMovieMotionHumanApproach.IAim = context.aim(
+      target,
+      context.start,
+    );
     if (context.params.track === undefined || context.params.track === false)
       return to(context, aimed);
     if (target.kind !== "person")
@@ -114,10 +130,11 @@ export namespace approach {
       });
 
     // Where and when the person comes to rest: their placed root is read ahead in half seconds over the horizon, and the last instant it moved is kept.
-    const leader: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(
-      target.subject,
+    const leader: IAutoMovieMotionHumanActionContext.IPerformer =
+      context.performer(target.subject);
+    const began: IAutoMovieMotionHumanActionContext.IRoot = leader.root(
+      context.start,
     );
-    const began: IAutoMovieMotionHumanActionContext.IRoot = leader.root(context.start);
     let rests: number = context.start;
     let last: IAutoMovieMotionHumanActionContext.IRoot = began;
     for (let ahead: number = 0.5; ahead <= HORIZON; ahead += 0.5) {
@@ -304,7 +321,9 @@ export namespace approach {
       if (waypoint !== undefined) via.push(waypoint);
     }
 
-    const mods: IAutoMovieMotionHumanEffort.IModifiers = HumanEffort.modifiers(p.effort);
+    const mods: IAutoMovieMotionHumanEffort.IModifiers = HumanEffort.modifiers(
+      p.effort,
+    );
     const walkTo = (at: IAutoMovieVector3): IAutoMovieMotionHumanActionPlan =>
       walk.plan({
         ...context,
@@ -407,7 +426,11 @@ export namespace approach {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function chest(body: IAutoMovieMotionHumanBody): number {
-    const posture: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+    const posture: IAutoMovieMotionHumanPosture = stand.posture(
+      body,
+      { x: 0, y: 0, z: 0 },
+      0,
+    );
     const sternum: IAutoMovieVector3 = HumanTrunk.region(
       body,
       posture,

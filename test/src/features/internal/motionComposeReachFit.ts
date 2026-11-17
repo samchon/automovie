@@ -1,7 +1,18 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanReach, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
-import { AutoMovieMotionHumanLean, AutoMovieMotionHumanReach, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanReach,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanLean,
+  AutoMovieMotionHumanReach,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 
 import { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -131,7 +142,9 @@ export function motionComposeReachFit(name: motionHumanBody.Name): void {
         limb,
         { x: 0, y: 0, z: 0 },
       ).length;
-      const shoulder = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
+      const shoulder = (
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieVector3 =>
         bones({ ...posture, limbs: {} }).get(CHAINS[limb][0])!.worldPosition;
       const tipped = (pitch: number): IAutoMovieMotionHumanPosture =>
         AutoMovieMotionHumanLean.tip(body, standing, pitch, 0);

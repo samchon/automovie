@@ -1,4 +1,10 @@
-import type { IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanManoeuvre, IAutoMovieMotionHumanManoeuvreWheel, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanManoeuvre,
+  IAutoMovieMotionHumanManoeuvreWheel,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFormation } from "./HumanFormation";
@@ -49,7 +55,8 @@ export function manoeuvreWheel(
   ends: readonly IAutoMovieMotionHumanFormation.ISlot[],
   speeds: readonly number[],
 ): IAutoMovieMotionHumanManoeuvreWheel.IWheel {
-  const members: readonly IAutoMovieMotionHumanEnsemble.IMember[] = ensemble.members;
+  const members: readonly IAutoMovieMotionHumanEnsemble.IMember[] =
+    ensemble.members;
   const pivot: IAutoMovieVector3 = pivotOf(manoeuvre, members, starts);
   const origin: { at: IAutoMovieVector3; heading: number } =
     HumanFormation.frame(manoeuvre.from, manoeuvre.at);
@@ -133,7 +140,9 @@ export function manoeuvreWheel(
   }
   const formation: IAutoMovieMotionHumanFormation = {
     blocks: manoeuvre.from.blocks.map(
-      (b: IAutoMovieMotionHumanFormation.IBlock): IAutoMovieMotionHumanFormation.IBlock => ({
+      (
+        b: IAutoMovieMotionHumanFormation.IBlock,
+      ): IAutoMovieMotionHumanFormation.IBlock => ({
         ...b,
         offset: {
           lateral: (b.offset?.lateral ?? 0) - lateral,
@@ -146,7 +155,9 @@ export function manoeuvreWheel(
   return {
     ways,
     stations: members.map(
-      (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieMotionHumanFormation.IStation => ({
+      (
+        m: IAutoMovieMotionHumanEnsemble.IMember,
+      ): IAutoMovieMotionHumanFormation.IStation => ({
         formation,
         slot: m.index,
         until: manoeuvre.at + total,

@@ -1,4 +1,5 @@
 import type { IAutoMoviePhysicalBalanceExhaustion } from "@automovie/interface";
+
 /**
  * Whether bounded support recovery is exhausted at one tick.
  *
@@ -16,7 +17,9 @@ import type { IAutoMoviePhysicalBalanceExhaustion } from "@automovie/interface";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
  */
-export function physicalBalanceExhaustion(input: IAutoMoviePhysicalBalanceExhaustion.IInput): IAutoMoviePhysicalBalanceExhaustion.IResult {
+export function physicalBalanceExhaustion(
+  input: IAutoMoviePhysicalBalanceExhaustion.IInput,
+): IAutoMoviePhysicalBalanceExhaustion.IResult {
   const lostSince: number | undefined = input.unrecoverable
     ? (input.lostSince ?? input.seconds)
     : undefined;

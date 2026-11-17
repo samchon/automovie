@@ -8,15 +8,12 @@ import type { IAutoMovieRecoveryMapJointBlock } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Fields state objective normalization and common observation ownership.
  */
 export interface IAutoMovieRecoveryMapEvaluation {
- 
- /** Sum lossScale^2*(sqrt(1+norm(residual)^2/lossScale^2)-1). */
+  /** Sum lossScale^2*(sqrt(1+norm(residual)^2/lossScale^2)-1). */
   cost: number;
 
- 
- /** Sum unweighted squared Euclidean pixel residuals. */
+  /** Sum unweighted squared Euclidean pixel residuals. */
   squared: number;
 
- 
- /** One weighted original-design block per ordered landmark. */
+  /** One weighted original-design block per ordered landmark. */
   blocks: IAutoMovieRecoveryMapJointBlock[];
 }

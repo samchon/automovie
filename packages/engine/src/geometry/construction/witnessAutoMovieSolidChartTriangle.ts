@@ -1,4 +1,8 @@
-import type { AutoMovieVector2Tuple, IAutoMovieSolidMeshConstraints } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieSolidMeshConstraints,
+} from "@automovie/interface";
+
 import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
 
 /**
@@ -31,10 +35,15 @@ export function witnessAutoMovieSolidChartTriangle(
   period?: number,
 ): boolean | string {
   const a: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(edge.a);
-  const stored: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(edge.b);
+  const stored: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(
+    edge.b,
+  );
   if (a === undefined || stored === undefined)
     return "probe edge has an unavailable original endpoint";
-  const b: Readonly<AutoMovieVector2Tuple> = [stored[0], stored[1] + edge.turn * (period ?? 0)];
+  const b: Readonly<AutoMovieVector2Tuple> = [
+    stored[0],
+    stored[1] + edge.turn * (period ?? 0),
+  ];
   if (![...a, ...b, ...probe].every(Number.isFinite))
     return "probe triangle is not representable";
   const side: number = orientAutoMovieSolidChart(a, b, probe);
@@ -70,7 +79,10 @@ export function witnessAutoMovieSolidChartTriangle(
         (id === edge.b && lift === edge.turn)
       )
         continue;
-      const lifted: Readonly<AutoMovieVector2Tuple> = [point[0], point[1] + lift * (period ?? 0)];
+      const lifted: Readonly<AutoMovieVector2Tuple> = [
+        point[0],
+        point[1] + lift * (period ?? 0),
+      ];
       if (!lifted.every(Number.isFinite))
         return "probe vertex cover is not representable";
       if (
@@ -82,16 +94,26 @@ export function witnessAutoMovieSolidChartTriangle(
     }
   }
   for (const boundary of edges) {
-    const c0: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(boundary.a);
-    const storedD: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(boundary.b);
+    const c0: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(
+      boundary.a,
+    );
+    const storedD: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(
+      boundary.b,
+    );
     if (c0 === undefined || storedD === undefined)
       return "probe constraint has an unavailable original endpoint";
-    const d0: Readonly<AutoMovieVector2Tuple> = [storedD[0], storedD[1] + boundary.turn * (period ?? 0)];
+    const d0: Readonly<AutoMovieVector2Tuple> = [
+      storedD[0],
+      storedD[1] + boundary.turn * (period ?? 0),
+    ];
     const centre: number = c0[1] === d0[1] ? c0[1] : c0[1] / 2 + d0[1] / 2;
     const shifts: number[] | string = images(centre, middle, period);
     if (typeof shifts === "string") return shifts;
     for (const lift of shifts) {
-      const c: Readonly<AutoMovieVector2Tuple> = [c0[0], c0[1] + lift * (period ?? 0)];
+      const c: Readonly<AutoMovieVector2Tuple> = [
+        c0[0],
+        c0[1] + lift * (period ?? 0),
+      ];
       const d: Readonly<AutoMovieVector2Tuple> = [
         storedD[0],
         storedD[1] + (lift + boundary.turn) * (period ?? 0),
@@ -121,7 +143,12 @@ function images(
 }
 
 /** A proper crossing is determined by four exact represented-point signs. */
-function crosses(a: Readonly<AutoMovieVector2Tuple>, b: Readonly<AutoMovieVector2Tuple>, c: Readonly<AutoMovieVector2Tuple>, d: Readonly<AutoMovieVector2Tuple>): boolean {
+function crosses(
+  a: Readonly<AutoMovieVector2Tuple>,
+  b: Readonly<AutoMovieVector2Tuple>,
+  c: Readonly<AutoMovieVector2Tuple>,
+  d: Readonly<AutoMovieVector2Tuple>,
+): boolean {
   return (
     orientAutoMovieSolidChart(a, b, c) * orientAutoMovieSolidChart(a, b, d) <
       0 &&
@@ -130,7 +157,11 @@ function crosses(a: Readonly<AutoMovieVector2Tuple>, b: Readonly<AutoMovieVector
 }
 
 /** A closed segment contact at the probe is not a valid interior witness. */
-function on(a: Readonly<AutoMovieVector2Tuple>, b: Readonly<AutoMovieVector2Tuple>, point: Readonly<AutoMovieVector2Tuple>): boolean {
+function on(
+  a: Readonly<AutoMovieVector2Tuple>,
+  b: Readonly<AutoMovieVector2Tuple>,
+  point: Readonly<AutoMovieVector2Tuple>,
+): boolean {
   return (
     point[0] >= Math.min(a[0], b[0]) &&
     point[0] <= Math.max(a[0], b[0]) &&

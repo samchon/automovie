@@ -1,18 +1,18 @@
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieIntent } from "../../composition/IAutoMovieIntent";
+import type { IAutoMovieResolveSchedule } from "../../composition/IAutoMovieResolveSchedule";
+import type { IAutoMovieSchedule } from "../../composition/IAutoMovieSchedule";
+import type { IAutoMovieMotionMeeting } from "../compose/IAutoMovieMotionMeeting";
 import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHumanActionLaw";
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
-import type { IAutoMovieMotionHumanBlast } from "./IAutoMovieMotionHumanBlast";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
+import type { IAutoMovieMotionHumanBlast } from "./IAutoMovieMotionHumanBlast";
 import type { IAutoMovieMotionHumanForce } from "./IAutoMovieMotionHumanForce";
 import type { IAutoMovieMotionHumanObstacle } from "./IAutoMovieMotionHumanObstacle";
 import type { IAutoMovieMotionHumanPerformance } from "./IAutoMovieMotionHumanPerformance";
 import type { IAutoMovieMotionHumanPerformer } from "./IAutoMovieMotionHumanPerformer";
 import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 import type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegment";
-import type { IAutoMovieMotionMeeting } from "../compose/IAutoMovieMotionMeeting";
-import type { IAutoMovieResolveSchedule } from "../../composition/IAutoMovieResolveSchedule";
-import type { IAutoMovieSchedule } from "../../composition/IAutoMovieSchedule";
 
 /**
  * Everything a performance resolves and its readers share: the people with

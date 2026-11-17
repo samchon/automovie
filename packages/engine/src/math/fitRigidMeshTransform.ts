@@ -1,4 +1,5 @@
 import type { IAutoMovieFitRigidMeshTransform } from "@automovie/interface";
+
 import { Quaternion } from "./Quaternion";
 
 /**
@@ -29,7 +30,9 @@ import { Quaternion } from "./Quaternion";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One center and scale per cloud serve every covariance term; another target population requires a fresh fit.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Covariance/eigenvector arrays are temporary, and only a new quaternion and two center records escape without retaining mesh buffers.
  */
-export function fitRigidMeshTransform(props: IAutoMovieFitRigidMeshTransform.IProps): IAutoMovieFitRigidMeshTransform.IResult {
+export function fitRigidMeshTransform(
+  props: IAutoMovieFitRigidMeshTransform.IProps,
+): IAutoMovieFitRigidMeshTransform.IResult {
   const {
     reference,
     target,

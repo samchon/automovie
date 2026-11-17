@@ -1,4 +1,9 @@
-import { type IAutoMovieFormationPlacement, type IAutoMovieFormationReform, IAutoMovieFormationLayout, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieFormationLayout,
+  type IAutoMovieFormationPlacement,
+  type IAutoMovieFormationReform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { formationGroundRelief } from "./formationGroundRelief";
 import { lerp } from "./lerp";

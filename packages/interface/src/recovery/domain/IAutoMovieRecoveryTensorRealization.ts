@@ -1,4 +1,8 @@
-import type { IAutoMovieModel, IAutoMovieRecoveryTensorConstruction, IAutoMovieRecoveryTensorReport } from "../../index";
+import type {
+  IAutoMovieModel,
+  IAutoMovieRecoveryTensorConstruction,
+  IAutoMovieRecoveryTensorReport,
+} from "../../index";
 
 /**
  * Generated ordinary tensor families and their saved ownership replacements.
@@ -10,19 +14,15 @@ import type { IAutoMovieModel, IAutoMovieRecoveryTensorConstruction, IAutoMovieR
  */
 
 export interface IAutoMovieRecoveryTensorRealization {
- 
- /** Generated model parts owning retained mesh arrays. */
+  /** Generated model parts owning retained mesh arrays. */
   parts: IAutoMovieModel["parts"];
 
- 
- /** Actual retained control-net lines in model metres. */
+  /** Actual retained control-net lines in model metres. */
   construction: IAutoMovieRecoveryTensorConstruction[];
 
- 
- /** Closed interval:group keys mapped to their generating family identity. */
+  /** Closed interval:group keys mapped to their generating family identity. */
   replacements: Map<string, string>;
 
- 
- /** Same-order actual family completion and numerical reports. */
+  /** Same-order actual family completion and numerical reports. */
   reports: IAutoMovieRecoveryTensorReport[];
 }

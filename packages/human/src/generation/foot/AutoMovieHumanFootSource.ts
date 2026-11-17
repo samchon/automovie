@@ -1,9 +1,15 @@
-import type { IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewPart, IAutoMovieHumanFootSource, IAutoMovieHumanSiteControls } from "@automovie/interface";
-
-
-
-import { AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource } from "@automovie/engine";
-
+import {
+  AutoMovieLoftSectionNative,
+  AutoMovieLoftViewRead,
+  AutoMovieLoftViewSource,
+} from "@automovie/engine";
+import type {
+  IAutoMovieHumanFootSource,
+  IAutoMovieHumanSiteControls,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * A retained original view and its full native section owner, before lofting.
@@ -17,22 +23,21 @@ import { AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSou
  * @evidence contracts/performance.md#bound-retention-and-release-resources A synchronous caller owns the preparations and closures; no global state, mesh or handle survives it.
  */
 export namespace AutoMovieHumanFootSource {
-
-  
-
-  
-
-  
-
   /**
    * Consume original local scalars and their anatomical frame directly.
    * The shared coefficients, phase functions and physical2 availability are
    * the same definition the foot later publishes; no full parent is needed.
    */
-  export function fromControls(prepared: IAutoMovieHumanSiteControls.IOutput): IAutoMovieHumanFootSource.ISource {
-    const controls: IAutoMovieHumanSiteControls.IControls | null = prepared.controls;
+  export function fromControls(
+    prepared: IAutoMovieHumanSiteControls.IOutput,
+  ): IAutoMovieHumanFootSource.ISource {
+    const controls: IAutoMovieHumanSiteControls.IControls | null =
+      prepared.controls;
     if (controls === null)
-      throw new Error("A foot contact needs admitted original controls: " + JSON.stringify(prepared.diagnostics));
+      throw new Error(
+        "A foot contact needs admitted original controls: " +
+          JSON.stringify(prepared.diagnostics),
+      );
     return {
       part: { name: controls.input.name, axis: controls.axis },
       name: controls.input.name,
@@ -40,10 +45,6 @@ export namespace AutoMovieHumanFootSource {
       field: controls.field(),
     };
   }
-
-  
-
-  
 
   /**
    * Prepare the actual direct source once; generic girth and failed sources remain failures.
@@ -56,7 +57,9 @@ export namespace AutoMovieHumanFootSource {
    * @evidence contracts/performance.md#reuse-equivalent-work Returns the preparation for all contacts in this definition.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The calling definition owns the finite result and releases it with that definition.
    */
-  export function prepare(part: IAutoMovieViewPart): IAutoMovieHumanFootSource.IComplete {
+  export function prepare(
+    part: IAutoMovieViewPart,
+  ): IAutoMovieHumanFootSource.IComplete {
     const prepared: IAutoMovieLoftViewSource.IResult | null =
       AutoMovieLoftViewSource.create(part);
     if (prepared === null)
@@ -77,7 +80,10 @@ export namespace AutoMovieHumanFootSource {
    * @evidence contracts/performance.md#reuse-equivalent-work Both closures retain the same prepared original station inputs.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns station closures; no query cache persists.
    */
-  export function at(owner: IAutoMovieHumanFootSource.ISource, station: number): IAutoMovieHumanFootSource.IStation {
+  export function at(
+    owner: IAutoMovieHumanFootSource.ISource,
+    station: number,
+  ): IAutoMovieHumanFootSource.IStation {
     if (owner.region !== undefined) return owner.region.at(station);
     if (owner.field === undefined)
       throw new Error("A direct original contact has no prepared native field");
@@ -110,12 +116,13 @@ export namespace AutoMovieHumanFootSource {
     resolve: IAutoMovieHumanFootSource.FromRegionResolve,
   ): IAutoMovieHumanFootSource.IRegional {
     let retained: IAutoMovieHumanFootSource.IComplete | undefined;
-    const full: () => IAutoMovieHumanFootSource.IComplete = (): IAutoMovieHumanFootSource.IComplete => {
-      const part: IAutoMovieViewPart = resolve();
-      if (retained === undefined || retained.part !== part)
-        retained = prepare(part);
-      return retained;
-    };
+    const full: () => IAutoMovieHumanFootSource.IComplete =
+      (): IAutoMovieHumanFootSource.IComplete => {
+        const part: IAutoMovieViewPart = resolve();
+        if (retained === undefined || retained.part !== part)
+          retained = prepare(part);
+        return retained;
+      };
     const owner: IAutoMovieHumanFootSource.IRegional = {
       name: region.name,
       axis: region.axis,

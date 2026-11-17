@@ -1,4 +1,12 @@
-import type { IAutoMovieQuadraticPolishingResult, IAutoMovieQuadraticRefinementNativeCall, IAutoMovieQuadraticRefinementOptions, IAutoMovieQuadraticRefinementResult, IAutoMovieQuadraticRow, IAutoMovieQuadraticRefinementInterval, IAutoMovieSolveQuadraticProgram } from "@automovie/interface";
+import type {
+  IAutoMovieQuadraticPolishingResult,
+  IAutoMovieQuadraticRefinementInterval,
+  IAutoMovieQuadraticRefinementNativeCall,
+  IAutoMovieQuadraticRefinementOptions,
+  IAutoMovieQuadraticRefinementResult,
+  IAutoMovieQuadraticRow,
+  IAutoMovieSolveQuadraticProgram,
+} from "@automovie/interface";
 
 import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram";
 import { polishAutoMovieQuadraticProgram } from "./polishAutoMovieQuadraticProgram";
@@ -99,7 +107,10 @@ export function refineAutoMovieQuadraticProgram(
     ...first,
     refinements: 0,
     reference: primal.slice(),
-    rowGroups: groups.map((group: IAutoMovieQuadraticRefinementInterval): number[] => group.originals.slice()),
+    rowGroups: groups.map(
+      (group: IAutoMovieQuadraticRefinementInterval): number[] =>
+        group.originals.slice(),
+    ),
     nativeCalls,
   };
   const admits: (reading: {
@@ -107,10 +118,10 @@ export function refineAutoMovieQuadraticProgram(
     stationarityResidual: number;
     complementarityResidual: number;
   }) => boolean = (reading: {
-  maximumViolation: number;
-  stationarityResidual: number;
-  complementarityResidual: number;
-}): boolean =>
+    maximumViolation: number;
+    stationarityResidual: number;
+    complementarityResidual: number;
+  }): boolean =>
     reading.maximumViolation <= options.tolerance &&
     reading.stationarityResidual <= options.tolerance &&
     reading.complementarityResidual <= options.tolerance;
@@ -172,7 +183,10 @@ export function refineAutoMovieQuadraticProgram(
 }
 
 /** Read the unchanged original objective without relying on native diagnostics. */
-function objectiveValue(input: IAutoMovieSolveQuadraticProgram.IInput, primal: readonly number[]): number {
+function objectiveValue(
+  input: IAutoMovieSolveQuadraticProgram.IInput,
+  primal: readonly number[],
+): number {
   let value: number = 0;
   for (let at: number = 0; at < input.diagonal.length; at++)
     value +=
@@ -182,16 +196,20 @@ function objectiveValue(input: IAutoMovieSolveQuadraticProgram.IInput, primal: r
 }
 
 /** Exact interval metadata; original rows and caller arrays remain unchanged. */
-function intervals(input: IAutoMovieSolveQuadraticProgram.IInput): IAutoMovieQuadraticRefinementInterval[] {
+function intervals(
+  input: IAutoMovieSolveQuadraticProgram.IInput,
+): IAutoMovieQuadraticRefinementInterval[] {
   const groups: IAutoMovieQuadraticRefinementInterval[] = [],
-    byCoefficients: Map<string, IAutoMovieQuadraticRefinementInterval> = new Map<string, IAutoMovieQuadraticRefinementInterval>();
+    byCoefficients: Map<string, IAutoMovieQuadraticRefinementInterval> =
+      new Map<string, IAutoMovieQuadraticRefinementInterval>();
   for (let at: number = 0; at < input.rows.length; at++) {
     const row: IAutoMovieQuadraticRow = input.rows[at];
     const pairs: number[][] = row.indices
       .map((id: number, column: number): number[] => [id, row.weights[column]])
       .sort((a: number[], b: number[]): number => a[0] - b[0]);
     const key: string = JSON.stringify(pairs);
-    let group: IAutoMovieQuadraticRefinementInterval | undefined = byCoefficients.get(key);
+    let group: IAutoMovieQuadraticRefinementInterval | undefined =
+      byCoefficients.get(key);
     if (group === undefined) {
       group = {
         indices: pairs.map((pair: number[]): number => pair[0]),

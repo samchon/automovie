@@ -1,5 +1,7 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionHumanBody } from "@automovie/interface";
-
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionHumanBody,
+} from "@automovie/interface";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
@@ -13,7 +15,10 @@ const kinded =
     fixed: object,
     ...params: string[]
   ): motionHumanLawSweep.Stage =>
-  (pick: motionHumanLawSweep.Pick, a: IAutoMovieMotionHumanBody): motionHumanLawSweep.IScene =>
+  (
+    pick: motionHumanLawSweep.Pick,
+    a: IAutoMovieMotionHumanBody,
+  ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
       S.chain().act(law, {

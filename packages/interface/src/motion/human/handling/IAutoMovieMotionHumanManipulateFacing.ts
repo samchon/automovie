@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 
 /**
  * Contracts used by manipulate.sequence.placed, manipulateFacing, manipulateFacing.mine, manipulate.sequence.

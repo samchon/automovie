@@ -1,4 +1,8 @@
-import type { IAutoMovieSolidAtlas, IAutoMovieSolidSurface, IAutoMovieSolidIntersection } from "@automovie/interface";
+import type {
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieSolidIntersectionTrace } from "./AutoMovieSolidIntersectionTrace";
 
@@ -72,7 +76,6 @@ import { AutoMovieSolidIntersectionTrace } from "./AutoMovieSolidIntersectionTra
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidIntersection {
-
   /**
    * Trace the closed curve from its seed.
    *
@@ -87,7 +90,9 @@ export namespace AutoMovieSolidIntersection {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The same accepted points and law feed the original reader; no retracing or detached snapshot is introduced.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Successful curves retain original captures; the façade acquires no additional resource or cache.
    */
-  export function trace(input: IAutoMovieSolidIntersection.IInput): IAutoMovieSolidIntersection.IResult {
+  export function trace(
+    input: IAutoMovieSolidIntersection.IInput,
+  ): IAutoMovieSolidIntersection.IResult {
     return AutoMovieSolidIntersectionTrace.create(
       input,
       WALK_STEPS,

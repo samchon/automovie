@@ -1,6 +1,12 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMountReach } from "./HumanMountReach";
@@ -43,7 +49,9 @@ export namespace HumanRideHands {
     ) => Parameters<typeof HumanMountRider.hold>[3];
 
     /** Each holding hand's fingers, closed on the support's colliders. */
-    closures: Partial<Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>>;
+    closures: Partial<
+      Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>
+    >;
   }
 
   /**
@@ -150,7 +158,10 @@ export namespace HumanRideHands {
     };
 
     // The lean at a film second: what the hands hold then, carried back into the frame the rider sat down in, where the circles of `reach` were read.
-    const lean = (film: number, frame: IAutoMovieMotionHumanProp.IFrame): number => {
+    const lean = (
+      film: number,
+      frame: IAutoMovieMotionHumanProp.IFrame,
+    ): number => {
       const back: IAutoMovieQuaternion = Quaternion.multiply(
         origin.rotation,
         Quaternion.inverse(frame.rotation),
@@ -171,8 +182,9 @@ export namespace HumanRideHands {
     };
 
     // Each holding hand's fingers, closed once on the support's own colliders where it stands when the ride begins.
-    const closures: Partial<Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>> =
-      {};
+    const closures: Partial<
+      Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>
+    > = {};
     for (const side of ["left", "right"] as const) {
       const id: string | undefined = context.params.hands?.[side];
       if (id === undefined) continue;

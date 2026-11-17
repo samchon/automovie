@@ -1,5 +1,3 @@
-
-
 /**
  * Area integrals of a strongest-site compact radial field on a convex plane region.
  *
@@ -19,22 +17,22 @@ export namespace IAutoMovieIntegrateRadialField {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer admits dense finite coordinates, positive representable radius and powers 2 or 3, with at most 512 sites; convexity remains a premise and finite precision is not a certified bound.
    * @evidence contracts/development/common.md#meaningful-documentation Area integrals of a strongest-site compact radial field on a convex plane region. All coordinates and radius share one caller-selected length unit; scalar integral and area have squared units, and integrated gradient has length units.
    */
-    export interface IOutput {
-      /**
+  export interface IOutput {
+    /**
      * Area integral of max(0, strongest q)^power, in squared coordinate units; finite roundoff is clamped to [0,area]. Zero for no sites or a degenerate footprint.
      */
-      integral: number;
-  
-      /**
+    integral: number;
+
+    /**
      * Fresh two-component integral of the physical planar gradient in the polygon's first and second axes, in coordinate length units; not an area-normalized average.
      */
-      gradient: [number, number];
-  
-      /**
+    gradient: [number, number];
+
+    /**
      * Absolute polygon area in squared coordinate units, independent of site coverage; zero for an area-free footprint.
      */
-      area: number;
-    }
+    area: number;
+  }
 
   /**
    * A strongest-site equal-radius compact radial field and its convex integration domain.
@@ -53,29 +51,30 @@ export namespace IAutoMovieIntegrateRadialField {
   export type IProps = {
     /** Convex finite footprint in the supplied orthonormal plane; either winding is accepted. */
     polygon: readonly (readonly [number, number])[];
-  
+
     /**
      * Borrowed dense list of at most 512 equal-radius sphere centres; empty gives zero scalar and gradient integrals while preserving footprint area.
      */
-    sites: readonly { 
-    /**
-     * Finite site centre along the plane's first axis, in the polygon's coordinate unit.
-     */
-    x: number;
+    sites: readonly {
+      /**
+       * Finite site centre along the plane's first axis, in the polygon's coordinate unit.
+       */
+      x: number;
 
-    /**
-     * Finite site centre along the plane's second axis, in the polygon's coordinate unit.
-     */
-    y: number;
+      /**
+       * Finite site centre along the plane's second axis, in the polygon's coordinate unit.
+       */
+      y: number;
 
-    /**
-     * Finite signed perpendicular distance from the plane, in the same coordinate unit; either sign gives the same sphere section.
-     */
-    z: number }[];
-  
+      /**
+       * Finite signed perpendicular distance from the plane, in the same coordinate unit; either sign gives the same sphere section.
+       */
+      z: number;
+    }[];
+
     /** Strictly positive finite common support radius in that coordinate unit. */
     radius: number;
-  
+
     /** Supported compact radial polynomial exponent; these two degrees use the exact interior quadrature rule. */
     power: 2 | 3;
   };

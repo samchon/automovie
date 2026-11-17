@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanRest, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanRest,
+  IAutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { createHumanBody } from "../../body/createHumanBody";
@@ -101,8 +107,9 @@ export function everydayCases(
     );
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
     const c: everydayCaseKit.IContext = { id, man, body, suffix };
-    const one = (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
-      everydayCaseKit.one(c, chain);
+    const one = (
+      chain: IAutoMovieMotionHumanChain,
+    ): IAutoMovieMotionHumanPerformance => everydayCaseKit.one(c, chain);
 
     if (wants("approach")) {
       const partner: humanPolygonMan.IPolygonMan = MotionBodies.population(
@@ -233,7 +240,10 @@ export function everydayCases(
     if (wants("gesture")) out.push(...everydayGestureCases(c));
 
     if (wants("rest")) {
-      const places: [IAutoMovieMotionHumanRest.Place, IAutoMovieMotionHumanRest.Place][] = [
+      const places: [
+        IAutoMovieMotionHumanRest.Place,
+        IAutoMovieMotionHumanRest.Place,
+      ][] = [
         ["pocket", "pocket"],
         ["hip", "hip"],
         ["crossed", "crossed"],

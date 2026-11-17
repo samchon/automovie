@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanSword } from "./IAutoMovieMotionHumanSword";
 import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";
+import type { IAutoMovieMotionHumanSword } from "./IAutoMovieMotionHumanSword";
 
 /**
  * Open parameters of the weaponMelee lexicon family, keyed by each runtime export name.

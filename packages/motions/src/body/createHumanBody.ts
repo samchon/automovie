@@ -1,10 +1,16 @@
-import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieMotionHumanBody, IAutoMoviePhysicalProfile, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   indexSkeletonTopology,
   measureAutoMovieHumanoidBody,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
 

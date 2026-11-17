@@ -1,5 +1,7 @@
-import type { IAutoMovieDecodedFrame, IAutoMovieDecodedFrameAudit } from "@automovie/interface";
-
+import type {
+  IAutoMovieDecodedFrame,
+  IAutoMovieDecodedFrameAudit,
+} from "@automovie/interface";
 
 /**
  * Admit a decoder's framemd5 listing against a commissioned half-open frame
@@ -96,18 +98,16 @@ export function auditAutoMovieDecodedFrames(
       "Decoded video is missing its time base or commissioned frames",
     );
   const scale: bigint = BigInt(timeBase[0]) * BigInt(fps);
-  frames.forEach(
-    (frame: IAutoMovieDecodedFrame, index: number): void => {
-      if (
-        BigInt(frame.pts) * scale !== BigInt(index) * BigInt(timeBase![1]) ||
-        (BigInt(frame.pts) + BigInt(frame.duration)) * scale !==
-          BigInt(index + 1) * BigInt(timeBase![1])
-      )
-        throw new Error(
-          `Decoded frame ${index} does not cover its exact presentation interval`,
-        );
-    },
-  );
+  frames.forEach((frame: IAutoMovieDecodedFrame, index: number): void => {
+    if (
+      BigInt(frame.pts) * scale !== BigInt(index) * BigInt(timeBase![1]) ||
+      (BigInt(frame.pts) + BigInt(frame.duration)) * scale !==
+        BigInt(index + 1) * BigInt(timeBase![1])
+    )
+      throw new Error(
+        `Decoded frame ${index} does not cover its exact presentation interval`,
+      );
+  });
   return {
     frameCount: frames.length,
     durationSeconds: expectedFrames / fps,

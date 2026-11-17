@@ -1,7 +1,21 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieMotionTarget } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-
-import { HumanChain, HumanPerformance, HumanRefusal, HumanVerdicts, seated } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionTarget,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+  HumanVerdicts,
+  seated,
+} from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
 
@@ -68,34 +82,35 @@ export namespace motionCompositionProbe {
     const probe: IProbe = probes(a, reach)[name];
     let outcome: string;
     try {
-      const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-        seed: "probe",
-        performers: [
-          {
-            subject: "a",
-            body: a,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-          // The partner is staged only where the composition involves her,
-          // so a solo probe reads one person's verdicts.
-          ...(probe.partner === true
-            ? [
-                {
-                  subject: "b",
-                  body: b,
-                  at: { x: 0, y: 0, z: probe.gap },
-                  yaw: name.startsWith("chase") ? 0 : 180,
-                  proficiency: { level: "trained" as const },
-                },
-              ]
-            : []),
-        ],
-        props: [door],
-        composition: probe.composition(),
-        ...(probe.layers === undefined ? {} : { layers: probe.layers }),
-      });
+      const performance: IAutoMovieMotionHumanPerformance =
+        new HumanPerformance({
+          seed: "probe",
+          performers: [
+            {
+              subject: "a",
+              body: a,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+            // The partner is staged only where the composition involves her,
+            // so a solo probe reads one person's verdicts.
+            ...(probe.partner === true
+              ? [
+                  {
+                    subject: "b",
+                    body: b,
+                    at: { x: 0, y: 0, z: probe.gap },
+                    yaw: name.startsWith("chase") ? 0 : 180,
+                    proficiency: { level: "trained" as const },
+                  },
+                ]
+              : []),
+          ],
+          props: [door],
+          composition: probe.composition(),
+          ...(probe.layers === undefined ? {} : { layers: probe.layers }),
+        });
       outcome = `plans ${performance.duration.toFixed(2)} s; verdicts: ${HumanVerdicts.describe(HumanVerdicts.of(performance))}`;
     } catch (error) {
       outcome =
@@ -122,7 +137,10 @@ export namespace motionCompositionProbe {
   }
 
   /** Every probe's scene for a performer of an arm's reach. */
-  function probes(a: IAutoMovieMotionHumanBody, reach: number): Record<Name, IProbe> {
+  function probes(
+    a: IAutoMovieMotionHumanBody,
+    reach: number,
+  ): Record<Name, IProbe> {
     const panel: IAutoMovieMotionTarget = {
       kind: "prop",
       subject: "door",
@@ -139,7 +157,9 @@ export namespace motionCompositionProbe {
     };
     const texting: IAutoMovieMotionHumanLayer = {
       name: "texting",
-      apply: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => {
+      apply: (
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieMotionHumanPosture => {
         const yaw: number = (posture.yaw * Math.PI) / 180;
         const ahead = (
           x: number,

@@ -1,6 +1,20 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HumanChain, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -58,7 +72,9 @@ export function test_human_motion_core_placed_path(): void {
   ): IAutoMovieMotionHumanActionLaw<{ of: string }> => ({
     name: "reader",
     interrupts: {},
-    plan: (context: IAutoMovieMotionHumanActionContext<{ of: string }>): IAutoMovieMotionHumanActionPlan => {
+    plan: (
+      context: IAutoMovieMotionHumanActionContext<{ of: string }>,
+    ): IAutoMovieMotionHumanActionPlan => {
       for (const seconds of SECONDS)
         seen.set(seconds, context.performer(context.params.of).root(seconds));
       return {
@@ -115,7 +131,8 @@ export function test_human_motion_core_placed_path(): void {
       HumanChain.subject("a").registered("reader", { of });
 
     // 1 to 3. The leader composed first.
-    const seen: Map<number, IAutoMovieMotionHumanActionContext.IRoot> = new Map();
+    const seen: Map<number, IAutoMovieMotionHumanActionContext.IRoot> =
+      new Map();
     let film: IAutoMovieMotionHumanPerformance;
     try {
       film = perform(seen, leading().with(reading("b")));
@@ -135,7 +152,8 @@ export function test_human_motion_core_placed_path(): void {
       HumanSignature.joint(shown, seconds, "hips");
     const walked: number = film.segments("b").at(-1)!.end;
     for (const seconds of SECONDS) {
-      const told: IAutoMovieMotionHumanActionContext.IRoot | undefined = seen.get(seconds);
+      const told: IAutoMovieMotionHumanActionContext.IRoot | undefined =
+        seen.get(seconds);
       if (told === undefined) {
         complaints.push(`${label}: nothing was read at ${seconds} s`);
         continue;
@@ -150,8 +168,10 @@ export function test_human_motion_core_placed_path(): void {
           `${label}: at ${seconds} s the root read while planning lies ${(off * 1000).toFixed(1)} mm from the displayed pelvis on the floor plan, within ${(NEAR * bodies.b.measure.stature * 1000).toFixed(1)} mm (${NEAR} of the stature) expected`,
         );
     }
-    const first: IAutoMovieMotionHumanActionContext.IRoot | undefined = seen.get(0);
-    const last: IAutoMovieMotionHumanActionContext.IRoot | undefined = seen.get(15);
+    const first: IAutoMovieMotionHumanActionContext.IRoot | undefined =
+      seen.get(0);
+    const last: IAutoMovieMotionHumanActionContext.IRoot | undefined =
+      seen.get(15);
     if (first !== undefined && last !== undefined) {
       if (last.position.z - first.position.z < 3.5)
         complaints.push(
@@ -186,10 +206,13 @@ export function test_human_motion_core_placed_path(): void {
 
     // 5. A person with nothing to place.
     try {
-      const idle: Map<number, IAutoMovieMotionHumanActionContext.IRoot> = new Map();
+      const idle: Map<number, IAutoMovieMotionHumanActionContext.IRoot> =
+        new Map();
       perform(idle, reading("c").with(leading()));
-      const starts: IAutoMovieMotionHumanActionContext.IRoot | undefined = idle.get(0);
-      const stays: IAutoMovieMotionHumanActionContext.IRoot | undefined = idle.get(15);
+      const starts: IAutoMovieMotionHumanActionContext.IRoot | undefined =
+        idle.get(0);
+      const stays: IAutoMovieMotionHumanActionContext.IRoot | undefined =
+        idle.get(15);
       if (
         starts === undefined ||
         stays === undefined ||

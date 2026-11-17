@@ -1,5 +1,5 @@
-import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieResolvedBone } from "../pose/IAutoMovieResolvedBone";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /** Data and callback contracts shared by the ContactMask operations. */
 export namespace IAutoMovieContactMask {
@@ -9,15 +9,15 @@ export namespace IAutoMovieContactMask {
   export type IProps = {
     /** End-effector bone judged against the ground. */
     effector: AutoMovieHumanoidBone;
-  
+
     /** Per-frame FK bone lookups. */
     resolved: ReadonlyArray<
       ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
     >;
-  
+
     /** Ground height at a plan position. */
     groundAt: (x: number, z: number) => number;
-  
+
     /** Contact tolerance above the ground counted as stance. */
     tolerance: number;
   };

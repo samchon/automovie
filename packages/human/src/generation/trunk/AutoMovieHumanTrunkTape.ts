@@ -1,9 +1,16 @@
-import type { IAutoMovieViewCurves, IAutoMovieViewPart, IAutoMovieViewSection, IAutoMovieHumanTrunkTape, IAutoMovieConstructionView } from "@automovie/interface";
-
-
-import { AutoMovieIllinois, AutoMovieViewCurves, AutoMovieViewOutline, AutoMovieViewSection } from "@automovie/engine";
-
-
+import {
+  AutoMovieIllinois,
+  AutoMovieViewCurves,
+  AutoMovieViewOutline,
+  AutoMovieViewSection,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionView,
+  IAutoMovieHumanTrunkTape,
+  IAutoMovieViewCurves,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 /**
  * The trunk base's fullness at a tape site whose tape wraps the merged skin:
@@ -32,20 +39,13 @@ import { AutoMovieIllinois, AutoMovieViewCurves, AutoMovieViewOutline, AutoMovie
  * authoring an extreme failed estimate as a new source knot.
  */
 export namespace AutoMovieHumanTrunkTape {
-  
-
-  
-
   /** Phases read on the base's section and on each mass. */
   export const PHASES: number = 512;
-
-  
 
   /** Project one actual parent cut into tape points and matching provenance without solving or constructing the parent again. */
   export function parent(
     name: string,
-    records:
-      IAutoMovieHumanTrunkTape.ParentRecords,
+    records: IAutoMovieHumanTrunkTape.ParentRecords,
   ): NonNullable<IAutoMovieHumanTrunkTape.IInput["parents"]>[number] {
     return typeof records === "string"
       ? { name, points: records }
@@ -72,7 +72,9 @@ export namespace AutoMovieHumanTrunkTape {
    * @param input The site, the base's box, the masses and the tape.
    * @returns The shoulder and the diagnostics.
    */
-  export function solve(input: IAutoMovieHumanTrunkTape.IInput): IAutoMovieHumanTrunkTape.IResult {
+  export function solve(
+    input: IAutoMovieHumanTrunkTape.IInput,
+  ): IAutoMovieHumanTrunkTape.IResult {
     const reach: IAutoMovieViewSection.IRange | null =
       AutoMovieViewSection.range(input.plane.box);
     if (reach === null)
@@ -196,17 +198,18 @@ export namespace AutoMovieHumanTrunkTape {
       moving.set(r, points);
       return points;
     };
-    const parentError: () => IAutoMovieHumanTrunkTape.IResult = (): IAutoMovieHumanTrunkTape.IResult => ({
-      shoulder: null,
-      diagnostics: [
-        {
-          producer: input.producer,
-          level: 2,
-          contract: "parent tape cut",
-          detail: unavailable!,
-        },
-      ],
-    });
+    const parentError: () => IAutoMovieHumanTrunkTape.IResult =
+      (): IAutoMovieHumanTrunkTape.IResult => ({
+        shoulder: null,
+        diagnostics: [
+          {
+            producer: input.producer,
+            level: 2,
+            contract: "parent tape cut",
+            detail: unavailable!,
+          },
+        ],
+      });
     const perimeter: (r: number) => number = (r: number): number =>
       hull([...sectionPoints(r), ...cuts, ...additional(r)]);
 
@@ -226,44 +229,45 @@ export namespace AutoMovieHumanTrunkTape {
           },
         ],
       };
-    const outside: () => IAutoMovieHumanTrunkTape.IResult = (): IAutoMovieHumanTrunkTape.IResult => {
-      const base: [number, number][] = sectionPoints(lo);
-      const boundary: [number, number][] = [];
-      hull([...base, ...cuts, ...additional(lo)], boundary);
-      const witness: {
-        point: [number, number];
-        owner: string;
-        station?: number;
-        phase?: number;
-      }[] = boundary.map(
-        (
-          point: [number, number],
-        ): {
+    const outside: () => IAutoMovieHumanTrunkTape.IResult =
+      (): IAutoMovieHumanTrunkTape.IResult => {
+        const base: [number, number][] = sectionPoints(lo);
+        const boundary: [number, number][] = [];
+        hull([...base, ...cuts, ...additional(lo)], boundary);
+        const witness: {
           point: [number, number];
           owner: string;
           station?: number;
           phase?: number;
-        } => ({
-          point,
-          ...(owners.get(point) ?? {
-            owner: "trunk",
-            station: input.plane.y,
-            phase: (base.indexOf(point) * 2 * Math.PI) / PHASES,
+        }[] = boundary.map(
+          (
+            point: [number, number],
+          ): {
+            point: [number, number];
+            owner: string;
+            station?: number;
+            phase?: number;
+          } => ({
+            point,
+            ...(owners.get(point) ?? {
+              owner: "trunk",
+              station: input.plane.y,
+              phase: (base.indexOf(point) * 2 * Math.PI) / PHASES,
+            }),
           }),
-        }),
-      );
-      return {
-        shoulder: null,
-        diagnostics: [
-          {
-            producer: input.producer,
-            level: 2,
-            contract: "tape",
-            detail: `the tape ${input.tape} mm lies outside the sampled original envelope's reach [${low}, ${high}] mm at ${input.plane.y} mm; no solved shoulder replaces the admitted original; lower hull ${JSON.stringify({ origin: input.plane.origin, box: input.plane.box, shoulder: lo, vertices: witness })}`,
-          },
-        ],
+        );
+        return {
+          shoulder: null,
+          diagnostics: [
+            {
+              producer: input.producer,
+              level: 2,
+              contract: "tape",
+              detail: `the tape ${input.tape} mm lies outside the sampled original envelope's reach [${low}, ${high}] mm at ${input.plane.y} mm; no solved shoulder replaces the admitted original; lower hull ${JSON.stringify({ origin: input.plane.origin, box: input.plane.box, shoulder: lo, vertices: witness })}`,
+            },
+          ],
+        };
       };
-    };
     if (input.tape <= low || input.tape >= high) return outside();
     const r: number | null = AutoMovieIllinois.root(
       (s: number): number => perimeter(s) - input.tape,

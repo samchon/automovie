@@ -1,6 +1,6 @@
+import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
-import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
 
 /**
  * The kinematic readings of an act's signature: what human-movement studies

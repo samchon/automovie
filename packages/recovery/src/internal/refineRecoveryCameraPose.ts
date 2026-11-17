@@ -1,6 +1,10 @@
-import type { IAutoMovieRecoveryCameraPoseRefinementOperation, IAutoMovieRecoveryEpipolarErrorsMeasurementOperation, IAutoMovieRecoveryPoseModelCreationOperation, IAutoMovieRecoveryPoseResidualsLinearizeOperation } from "@automovie/interface";
 import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
-
+import type {
+  IAutoMovieRecoveryCameraPoseRefinementOperation,
+  IAutoMovieRecoveryEpipolarErrorsMeasurementOperation,
+  IAutoMovieRecoveryPoseModelCreationOperation,
+  IAutoMovieRecoveryPoseResidualsLinearizeOperation,
+} from "@automovie/interface";
 
 import { createRecoveryPoseModel } from "./createRecoveryPoseModel";
 import { linearizeRecoveryPoseResiduals } from "./linearizeRecoveryPoseResiduals";
@@ -41,7 +45,8 @@ export function refineRecoveryCameraPose(
     );
   let pose: { rotation: number[]; translation: [number, number, number] } = {
     rotation: initial.rotation.slice(),
-    translation: [...initial.translation] };
+    translation: [...initial.translation],
+  };
   const costOf: (residuals: readonly number[]) => number = (
     residuals: readonly number[],
   ): number => {
@@ -78,7 +83,8 @@ export function refineRecoveryCameraPose(
   const options: Parameters<typeof decomposeAutoMovieSingularMatrix>[1] = {
     maxEntries: Math.max(25, 5 * (firstPoints.length + 5)),
     maxSweeps: policy.maxSweeps,
-    orthogonalityTolerance: 1e-12 };
+    orthogonalityTolerance: 1e-12,
+  };
   for (; iterations < policy.maxIterations; iterations++) {
     if (prepared === null) {
       const weighted: number[][] = [],
@@ -213,5 +219,6 @@ export function refineRecoveryCameraPose(
     acceptedSteps,
     initialCost,
     finalCost: cost,
-    minimumLocalDesignRatio };
+    minimumLocalDesignRatio,
+  };
 }

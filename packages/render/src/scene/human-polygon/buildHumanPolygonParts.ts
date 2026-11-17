@@ -1,9 +1,9 @@
-import type { IAutoMovieHumanSkeleton, IAutoMovieVector3, IAutoMovieResolveHumanoidRingModules } from "@automovie/interface";
-
-
-
 import { resolveAutoMovieHumanoidRingModules } from "@automovie/engine";
-
+import type {
+  IAutoMovieHumanSkeleton,
+  IAutoMovieResolveHumanoidRingModules,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import type { buildHumanPolygonModule } from "./buildHumanPolygonModule.js";

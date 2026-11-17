@@ -1,4 +1,8 @@
-import type { AutoMovieVector2Tuple, IAutoMovieSolidMeshConstraints } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieSolidMeshConstraints,
+} from "@automovie/interface";
+
 import { AutoMovieSolidMeshConstraints } from "./AutoMovieSolidMeshConstraints";
 
 /** Original identity and its temporary ordered domain-cover occurrence. */

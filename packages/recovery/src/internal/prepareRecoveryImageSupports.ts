@@ -1,5 +1,8 @@
-import type { IAutoMovieRecoveryImageChartAssertOperation, IAutoMovieRecoveryImageSupportsPreparationOperation, IAutoMovieRecoveryImageObservation } from "@automovie/interface";
-
+import type {
+  IAutoMovieRecoveryImageChartAssertOperation,
+  IAutoMovieRecoveryImageObservation,
+  IAutoMovieRecoveryImageSupportsPreparationOperation,
+} from "@automovie/interface";
 
 import { assertRecoveryImageChart } from "./assertRecoveryImageChart";
 
@@ -111,7 +114,8 @@ export function prepareRecoveryImageSupports(
       view: IAutoMovieRecoveryImageObservation["views"][number],
     ): { c: number; s: number } => ({
       c: Math.cos(view.camera.azimuthRadians),
-      s: Math.sin(view.camera.azimuthRadians) }),
+      s: Math.sin(view.camera.azimuthRadians),
+    }),
   );
   const stations: number[] = [
     ...new Set(
@@ -150,7 +154,8 @@ export function prepareRecoveryImageSupports(
               a.yMm === b.yMm ? 0 : (station - a.yMm) / (b.yMm - a.yMm);
             return {
               lowerMm: a.lowerMm * (1 - t) + b.lowerMm * t,
-              upperMm: a.upperMm * (1 - t) + b.upperMm * t };
+              upperMm: a.upperMm * (1 - t) + b.upperMm * t,
+            };
           },
         );
       },

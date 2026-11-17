@@ -1,4 +1,9 @@
-import type { IAutoMovieRecoveryFeasibleProblem, IAutoMovieRecoveryFeasibleTrialSelection, IAutoMovieRecoveryFeasibleTrials, IAutoMovieRecoverySqpArc } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryFeasibleProblem,
+  IAutoMovieRecoveryFeasibleTrialSelection,
+  IAutoMovieRecoveryFeasibleTrials,
+  IAutoMovieRecoverySqpArc,
+} from "@automovie/interface";
 import { selectRecoveryFeasibleTrial } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 

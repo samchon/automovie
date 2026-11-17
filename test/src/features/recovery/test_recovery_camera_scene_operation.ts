@@ -78,7 +78,9 @@ export function test_recovery_camera_scene_operation(): void {
   before.abort();
   const during: AbortController = new AbortController();
   const cancelled: ReturnType<typeof estimateAutoMovieRecoveryCameraScene>[] = [
-    estimateAutoMovieRecoveryCameraScene(make(), { cancelled: (): boolean => before.signal.aborted }),
+    estimateAutoMovieRecoveryCameraScene(make(), {
+      cancelled: (): boolean => before.signal.aborted,
+    }),
     estimateAutoMovieRecoveryCameraScene(make(), {
       cancelled: (): boolean => during.signal.aborted,
       onProgress: (): void => during.abort(),

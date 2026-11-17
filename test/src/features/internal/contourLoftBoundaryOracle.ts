@@ -1,5 +1,7 @@
-import type { IAutoMovieContourLoft64, IAutoMovieCurve64 } from "@automovie/interface";
-
+import type {
+  IAutoMovieContourLoft64,
+  IAutoMovieCurve64,
+} from "@automovie/interface";
 
 import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
 import { nclose } from "../internal/nclose.ts";
@@ -55,21 +57,29 @@ export namespace contourLoftBoundaryOracle {
   };
 
   /** Count actual triangle ownership in the two dimensioned adjacent test intervals. */
-  export const intervalTriangles: (result: IAutoMovieContourLoft64.IResult) => [number, number] = (
+  export const intervalTriangles: (
+    result: IAutoMovieContourLoft64.IResult,
+  ) => [number, number] = (
     result: IAutoMovieContourLoft64.IResult,
   ): [number, number] => {
     const counts: [number, number] = [0, 0];
     for (let side: number = 0; side < 2; side++)
       counts[side] = (result.primitiveRanges ?? [])
         .filter(
-          (range: NonNullable<IAutoMovieContourLoft64.IResult["primitiveRanges"]>[number]): boolean =>
+          (
+            range: NonNullable<
+              IAutoMovieContourLoft64.IResult["primitiveRanges"]
+            >[number],
+          ): boolean =>
             nclose(range.beforeMm, side * 2, 0) &&
             nclose(range.afterMm, side * 2 + 2, 0),
         )
         .reduce(
           (
             sum: number,
-            range: NonNullable<IAutoMovieContourLoft64.IResult["primitiveRanges"]>[number],
+            range: NonNullable<
+              IAutoMovieContourLoft64.IResult["primitiveRanges"]
+            >[number],
           ): number => sum + range.triangleCount,
           0,
         );
@@ -85,14 +95,21 @@ export namespace contourLoftBoundaryOracle {
     sections: readonly IAutoMovieContourLoft64.ISection[],
   ): boolean =>
     result.construction.every(
-      (construction: IAutoMovieContourLoft64.IResult["construction"][number]): boolean => {
-        const section: IAutoMovieContourLoft64.ISection | undefined = sections.find(
-          (candidate: IAutoMovieContourLoft64.ISection, i: number): boolean =>
-            candidate.loops.some(
-              (loop: IAutoMovieContourLoft64.ISection["loops"][number], j: number): boolean =>
-                `${loop.curve.name}.section.${i}.loop.${j}` === construction.id,
-            ),
-        );
+      (
+        construction: IAutoMovieContourLoft64.IResult["construction"][number],
+      ): boolean => {
+        const section: IAutoMovieContourLoft64.ISection | undefined =
+          sections.find(
+            (candidate: IAutoMovieContourLoft64.ISection, i: number): boolean =>
+              candidate.loops.some(
+                (
+                  loop: IAutoMovieContourLoft64.ISection["loops"][number],
+                  j: number,
+                ): boolean =>
+                  `${loop.curve.name}.section.${i}.loop.${j}` ===
+                  construction.id,
+              ),
+          );
         const curve: IAutoMovieCurve64.Cubic | undefined = section?.loops.find(
           (loop: IAutoMovieContourLoft64.ISection["loops"][number]): boolean =>
             construction.id.startsWith(`${loop.curve.name}.section.`),

@@ -1,5 +1,3 @@
-
-
 /**
  * How a capture's stills are laid out on contact sheets, derived from the reader budget and the stills' raster by `planAutoMovieCaptureLayout`.
  *
@@ -14,11 +12,12 @@ export interface IAutoMovieCaptureLayout {
   /**
    * Size of one cell in pixels, the still's proportions.
    */
-  cell: { 
-/** Cell width in output pixels, preserving the source aspect to integer rounding. */
-width: number; 
-/** Cell height in output pixels, excluding its caption strip. */
-height: number };
+  cell: {
+    /** Cell width in output pixels, preserving the source aspect to integer rounding. */
+    width: number;
+    /** Cell height in output pixels, excluding its caption strip. */
+    height: number;
+  };
 
   /**
    * Height in pixels of the caption strip under each cell, outside the picture, as `AutoMovieRasterSheet.caption` gives it for the cell's height and `lines`.

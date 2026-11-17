@@ -5,14 +5,14 @@ export namespace IAutoMovieSolveSubdivisionLimit {
   /**
    * Solve, in place, the control positions whose Catmull-Clark limit points
    * are the targets.
-   * 
+   *
    * The free vertices satisfy `L P = T` for the limit stencils `L`, solved by
    * Jacobi iteration `P <- P + (T - L P)` from `P = T`; held vertices keep their
    * target as their control position. The iteration converges when every
    * eigenvalue of `L` lies between 0 and 2; on a regular grid they lie between
    * 1/9 and 1. It stops when the largest residual of a free vertex falls below
    * 1e-10 of the targets' extent or after 2,000 sweeps, and returns that
-   * residual, so a caller can refuse a fit that did not converge. At the iteration cap, controls receive the last update after the reported residual was measured; that residual therefore describes the preceding iterate. Empty or entirely held systems return zero. No input validation or buffer allocation occurs in this kernel.
+   * residual, so a caller can refuse a fit that did not converge. At the iteration cap, one final residual evaluation measures the returned controls after the last update. Empty or entirely held systems return zero. No input validation or buffer allocation occurs in this kernel.
    *
    * @evidence contracts/development/design.md#principled-representation Stencil count and indices address packed XYZ targets and a per-vertex free mask in one length unit. Buffer capacities, finite inputs and nonoverlap are unchecked caller premises.
    * @evidence contracts/development/design.md#minimal-and-owned-surface fitAutoMovieSubdivisionLimit and rigAutoMovieSurfaceNetwork supply their canonical stencils and buffers, allowing repeated poses to reuse allocation without reusing previous controls.
@@ -28,17 +28,17 @@ export namespace IAutoMovieSolveSubdivisionLimit {
     free: Uint8Array;
     /** Writable packed control output, initialized from targets. Must have room for 3*stencil.count scalars and be distinct from scratch and borrowed target storage. */
     positions: {
-    /** Mutable scalar slots in packed XYZ order; writes are synchronous and the solver retains no buffer after return. */
-    [index: number]: number;
-    /** Available scalar capacity, at least three times the stencil vertex count; this is a caller precondition rather than a runtime length guard. */
-    length: number;
+      /** Mutable scalar slots in packed XYZ order; writes are synchronous and the solver retains no buffer after return. */
+      [index: number]: number;
+      /** Available scalar capacity, at least three times the stencil vertex count; this is a caller precondition rather than a runtime length guard. */
+      length: number;
     };
     /** Separate writable ping-pong buffer with the same capacity as positions. Initialized and overwritten by the solve; its final contents are unspecified. */
     scratch: {
-    /** Writable packed XYZ scratch slots, distinct from target and position storage. Buffer overlap is not detected by the solver. */
-    [index: number]: number;
-    /** Available scalar capacity, at least three times the stencil vertex count. The solver assumes valid indexed writes and does not allocate replacement storage. */
-    length: number;
+      /** Writable packed XYZ scratch slots, distinct from target and position storage. Buffer overlap is not detected by the solver. */
+      [index: number]: number;
+      /** Available scalar capacity, at least three times the stencil vertex count. The solver assumes valid indexed writes and does not allocate replacement storage. */
+      length: number;
     };
   };
 }

@@ -1,5 +1,3 @@
-
-
 /**
  * A feature's compiled domain course and radial displacement field, shared by sweep evaluation and construction observations.
  *

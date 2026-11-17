@@ -1,13 +1,18 @@
-import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieRecoveryEventCurveArc, IAutoMovieRecoveryEventCurveCoefficients, IAutoMovieRecoveryEventCurvePiece, IAutoMovieRecoveryEventCurveSource } from "@automovie/interface";
-
-import { AutoMovieBernstein64 as B, AutoMovieCurveMath64 as V } from "@automovie/engine";
+import {
+  AutoMovieBernstein64 as B,
+  AutoMovieCurveMath64 as V,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieRecoveryEventCurveArc,
+  IAutoMovieRecoveryEventCurveCoefficients,
+  IAutoMovieRecoveryEventCurvePiece,
+  IAutoMovieRecoveryEventCurveSource,
+} from "@automovie/interface";
 
 import { readRecoveryEventCurveControls } from "../internal/readRecoveryEventCurveControls";
 import { readRecoveryEventCurveParent } from "../internal/readRecoveryEventCurveParent";
-
-
-
-
 
 /**
  * Named cubic occurrences retain native coefficient owners and oriented parameter intervals.
@@ -19,8 +24,7 @@ import { readRecoveryEventCurveParent } from "../internal/readRecoveryEventCurve
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Endpoint authority and coefficient equality do not imply source topology, material correspondence or transverse surface continuity.
  */
 export namespace AutoMovieRecoveryEventCurve {
- 
- /**
+  /**
    * Derive an occurrence from its original coefficient owner.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The shared reader restricts the sole native curve in its normalized chart.
@@ -38,8 +42,7 @@ export namespace AutoMovieRecoveryEventCurve {
     return readRecoveryEventCurveControls(piece, nativeEndpoints);
   }
 
- 
- /**
+  /**
    * Read the original complete Bernstein coefficient owner.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The shared reader admits exactly one native cubic with its original physical width.
@@ -56,8 +59,7 @@ export namespace AutoMovieRecoveryEventCurve {
     return readRecoveryEventCurveParent(source);
   }
 
- 
- /**
+  /**
    * Compare three coefficient components exactly, accepting either signed zero.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Component equality retains strict coefficient admission without an epsilon.
@@ -68,13 +70,15 @@ export namespace AutoMovieRecoveryEventCurve {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No comparison result is cached.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No storage is allocated.
    */
-  export const same: (a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>) => boolean = (
+  export const same: (
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+  ) => boolean = (
     a: Readonly<AutoMovieVector3Tuple>,
     b: Readonly<AutoMovieVector3Tuple>,
   ): boolean => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
 
- 
- /**
+  /**
    * Admit saved cubic continuity and retain its original native controls and names.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Adjacent and periodic endpoints require exact C0; one native owner is emitted per original span.
@@ -115,7 +119,10 @@ export namespace AutoMovieRecoveryEventCurve {
       id: authority,
       closed: curve.closed,
       pieces: curve.spans.map(
-        (net: IAutoMovieCurve64.Span, i: number): IAutoMovieRecoveryEventCurvePiece => ({
+        (
+          net: IAutoMovieCurve64.Span,
+          i: number,
+        ): IAutoMovieRecoveryEventCurvePiece => ({
           width: curve.phaseIntervals[i]!,
           source: {
             authority: `${authority}.span${i}`,
@@ -126,23 +133,26 @@ export namespace AutoMovieRecoveryEventCurve {
               unit: "mm",
               phaseUnit: curve.phaseUnit,
               phaseIntervals: [curve.phaseIntervals[i]!],
-              spans: [net] },
+              spans: [net],
+            },
             endpointAuthorities: [
               `${authority}.knot${i}`,
               `${authority}.knot${(i + 1) % (curve.closed ? curve.spans.length : curve.spans.length + 1)}`,
             ],
             start: 0,
-            end: 1 } }),
+            end: 1,
+          },
+        }),
       ),
       ...(curve.canonicalKnots
         ? { canonicalKnots: [...curve.canonicalKnots] }
-        : {}) };
+        : {}),
+    };
     knots(arc);
     return arc;
   }
 
- 
- /**
+  /**
    * Return the retained normalized partition or normalize the supplied positive widths.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Canonical knots require finite strict order and exact domain endpoints; otherwise cumulative positive widths define the partition.
@@ -199,8 +209,7 @@ export namespace AutoMovieRecoveryEventCurve {
     return q;
   }
 
- 
- /**
+  /**
    * Resolve an oriented occurrence endpoint to its exact native P0 or P3 name.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The native start/end parameter selects the parent's endpoint, and exact coefficient equality verifies the claimed alias.
@@ -242,8 +251,7 @@ export namespace AutoMovieRecoveryEventCurve {
     return name;
   }
 
- 
- /**
+  /**
    * Restrict a nonempty chart interval while retaining oriented native provenance.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Maintained Bernstein restriction supplies the cubic controls; affine parameter composition retains native endpoint phase.
@@ -279,14 +287,14 @@ export namespace AutoMovieRecoveryEventCurve {
       pieces.push({
         ...p,
         width: y - x,
-        source: { ...p.source, start: phase(lo), end: phase(hi) } });
+        source: { ...p.source, start: phase(lo), end: phase(hi) },
+      });
     }
     if (!pieces.length) throw new Error("Empty curve interval");
     return { id: arc.id, closed: false, pieces };
   }
 
- 
- /**
+  /**
    * Reverse path occurrence order and native intervals without renaming parent endpoints.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Reversing Bernstein controls and swapping native interval ends represents the same geometric path in the opposite direction.
@@ -311,8 +319,10 @@ export namespace AutoMovieRecoveryEventCurve {
             p: IAutoMovieRecoveryEventCurvePiece,
           ): IAutoMovieRecoveryEventCurvePiece => ({
             ...p,
-            source: { ...p.source, start: p.source.end, end: p.source.start } }),
-        ) };
+            source: { ...p.source, start: p.source.end, end: p.source.start },
+          }),
+        ),
+    };
     if (arc.canonicalKnots) {
       out.canonicalKnots = q
         .reverse()
@@ -324,8 +334,7 @@ export namespace AutoMovieRecoveryEventCurve {
     return out;
   }
 
- 
- /**
+  /**
    * Return exactly one original-span occurrence for a declared chart cell.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The same restriction path supplies controls and native phase, and a cell crossing a native knot is refused.
@@ -347,8 +356,7 @@ export namespace AutoMovieRecoveryEventCurve {
     return part.pieces[0]!;
   }
 
- 
- /**
+  /**
    * Evaluate one declared phase using the maintained Bernstein endpoint contract.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The admitted partition selects one cubic and an affine local phase; original knot values select exact local 0 or 1.
@@ -376,13 +384,16 @@ export namespace AutoMovieRecoveryEventCurve {
           ? 1
           : (t - q[index]!) / (q[index + 1]! - q[index]!);
     return B.value(
-      controls(arc.pieces[index]!).map((point: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [...point]),
+      controls(arc.pieces[index]!).map(
+        (point: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [
+          ...point,
+        ],
+      ),
       local,
     );
   }
 
- 
- /**
+  /**
    * Concatenate exactly meeting paths while preserving every native piece boundary.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Exact occurrence endpoints admit path continuity; every native owner and positive width remains explicit.
@@ -417,11 +428,11 @@ export namespace AutoMovieRecoveryEventCurve {
         (
           arc: IAutoMovieRecoveryEventCurveArc,
         ): IAutoMovieRecoveryEventCurvePiece[] => arc.pieces,
-      ) };
+      ),
+    };
   }
 
- 
- /**
+  /**
    * Construct a named straight cubic between two explicit physical endpoints.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Degree elevation places the two handles at one-third and two-thirds of the endpoint displacement.
@@ -449,11 +460,11 @@ export namespace AutoMovieRecoveryEventCurve {
       unit: "mm",
       phaseUnit: "mm",
       phaseIntervals: [width],
-      spans: [[a, V.mix(ma, mb, 1 / 3), V.mix(ma, mb, 2 / 3), b]] });
+      spans: [[a, V.mix(ma, mb, 1 / 3), V.mix(ma, mb, 2 / 3), b]],
+    });
   }
 
- 
- /**
+  /**
    * Move a closed path's chart origin to an existing knot without altering native owners.
    *
    * @evidence contracts/development/implementation.md#principled-implementation A cyclic piece permutation preserves the closed coefficient path, and optional canonical phases are translated modulo one.
@@ -480,7 +491,8 @@ export namespace AutoMovieRecoveryEventCurve {
       );
     const out: IAutoMovieRecoveryEventCurveArc = {
       ...arc,
-      pieces: [...arc.pieces.slice(index), ...arc.pieces.slice(0, index)] };
+      pieces: [...arc.pieces.slice(index), ...arc.pieces.slice(0, index)],
+    };
     if (arc.canonicalKnots) {
       const offset: number = q[index]!;
       out.canonicalKnots = [

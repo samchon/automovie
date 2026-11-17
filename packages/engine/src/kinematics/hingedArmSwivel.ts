@@ -1,5 +1,8 @@
-import { type IAutoMovieHingedArmSwivel, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieHingedArmSwivel,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -68,7 +71,9 @@ export namespace hingedArmSwivel {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function branches(chain: IAutoMovieHingedArmSwivel.IChain): IAutoMovieHingedArmSwivel.IStop[] | null {
+  export function branches(
+    chain: IAutoMovieHingedArmSwivel.IChain,
+  ): IAutoMovieHingedArmSwivel.IStop[] | null {
     const root: IAutoMovieVector3 = chain.upper.worldPosition;
     if (
       Vector3.length(chain.midOffset) < 1e-6 ||

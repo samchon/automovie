@@ -1,6 +1,12 @@
-import type { IAutoMovieAnalysisWorkplane, IAutoMovieDaylightRequest, AutoMovieAnalysisDomain, IAutoMovieAnalysisMetric, IAutoMovieAnalysisRun, IAutoMovieAnalysisSample, IAutoMovieAnalysisWarning } from "@automovie/interface";
-
-
+import type {
+  AutoMovieAnalysisDomain,
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisRun,
+  IAutoMovieAnalysisSample,
+  IAutoMovieAnalysisWarning,
+  IAutoMovieAnalysisWorkplane,
+  IAutoMovieDaylightRequest,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { boxSolid } from "./analysisFixtures";

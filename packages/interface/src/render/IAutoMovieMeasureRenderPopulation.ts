@@ -1,10 +1,10 @@
-import type { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
 import type { IAutoMovieModel } from "../model/IAutoMovieModel";
+import type { IAutoMovieSpace } from "../scene/IAutoMovieSpace";
+import type { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
 import type { IAutoMovieRenderModelCost } from "./IAutoMovieRenderModelCost";
 import type { IAutoMovieRenderOwnerCost } from "./IAutoMovieRenderOwnerCost";
 import type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
 import type { IAutoMovieSemanticMaskEntry } from "./IAutoMovieSemanticMaskEntry";
-import type { IAutoMovieSpace } from "../scene/IAutoMovieSpace";
 
 /**
  * Synchronous population accounting before simulation and material closure.

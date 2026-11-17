@@ -1,9 +1,11 @@
-import type { IAutoMovieConstructionOutlineParameter, IAutoMovieViewOutline } from "@automovie/interface";
 import {
   AutoMovieViewOutline,
   rootsAutoMovieViewSinPolynomial,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieViewOutline,
+} from "@automovie/interface";
 
 /**
  * Fixed-chart affine-origin support candidates preserve the original scalar and its pole parameter.
@@ -153,21 +155,22 @@ export function test_construction_affine_support(): void {
   const first: (x: number) => number = (x: number): number =>
     -1 + (x * x) / 2 - x ** 4 / 24;
   const second: (x: number) => number = (x: number): number => x - x ** 3 / 6;
-  const quintic: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
-    AutoMovieViewOutline.create({
-      parameter: { type: "angle", bottom: 0, top: 2 },
-      knots: [-middle, middle].map(
-        (
-          x: number,
-          i: number,
-        ): IAutoMovieViewOutline.IOutline["knots"][number] => ({
-          site: `quintic ${i}`,
-          station: 2 * i,
-          value: primitive(x),
-          jet: { first: Math.PI * first(x), second: Math.PI ** 2 * second(x) },
-        }),
-      ),
-    });
+  const quintic:
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+    parameter: { type: "angle", bottom: 0, top: 2 },
+    knots: [-middle, middle].map(
+      (
+        x: number,
+        i: number,
+      ): IAutoMovieViewOutline.IOutline["knots"][number] => ({
+        site: `quintic ${i}`,
+        station: 2 * i,
+        value: primitive(x),
+        jet: { first: Math.PI * first(x), second: Math.PI ** 2 * second(x) },
+      }),
+    ),
+  });
   if ("detail" in quintic) failures.push(`quintic source: ${quintic.detail}`);
   else
     contains(

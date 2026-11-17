@@ -1,5 +1,12 @@
-import { type IAutoMovieEnginePerformShotGateContext, type IAutoMovieGatePerformShotCamera, type IAutoMoviePerformShotCoverageJob, type IAutoMoviePerformShotFrameJob, IAutoMovieBlockingCoverage, IAutoMovieCamera, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieBlockingCoverage,
+  IAutoMovieCamera,
+  type IAutoMovieEnginePerformShotGateContext,
+  type IAutoMovieGatePerformShotCamera,
+  type IAutoMoviePerformShotCoverageJob,
+  type IAutoMoviePerformShotFrameJob,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
@@ -58,14 +65,19 @@ export function gatePerformShotCamera(
     liveCamera,
     props.coverage,
   );
-  const coverageCameras: Map<IAutoMovieCamera, IAutoMoviePerformShotCoverageJob> =
-    new Map(
-      coverageJobs.map(
-        (
-          job: IAutoMoviePerformShotCoverageJob,
-        ): [IAutoMovieCamera, IAutoMoviePerformShotCoverageJob] => [job.camera, job],
-      ),
-    );
+  const coverageCameras: Map<
+    IAutoMovieCamera,
+    IAutoMoviePerformShotCoverageJob
+  > = new Map(
+    coverageJobs.map(
+      (
+        job: IAutoMoviePerformShotCoverageJob,
+      ): [IAutoMovieCamera, IAutoMoviePerformShotCoverageJob] => [
+        job.camera,
+        job,
+      ],
+    ),
+  );
   context.staged.scene.cameras.forEach(
     (camera: IAutoMovieCamera, index: number): void => {
       const job: IAutoMoviePerformShotCoverageJob | undefined =

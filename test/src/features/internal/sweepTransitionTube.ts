@@ -1,5 +1,7 @@
-import type { IAutoMovieSurfaceNetwork, IAutoMovieSweep } from "@automovie/interface";
-
+import type {
+  IAutoMovieSurfaceNetwork,
+  IAutoMovieSweep,
+} from "@automovie/interface";
 
 /** Coarse columns round the tube's first part by tier. */
 const COARSE: IAutoMovieSurfaceNetwork.ICounts = {

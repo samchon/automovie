@@ -1,5 +1,35 @@
-import { type IAutoMovieActionSynthesizer, type IAutoMovieCompiledPerformance, type IAutoMovieMaskedContent, type IAutoMoviePerformedShot, type IAutoMovieStagedSet, type IAutoMovieCoupleObjects, type IAutoMovieEnginePerformShotActionPlan, type IAutoMovieEnginePerformShotGateContext, type IAutoMoviePerformShotCoverageJob, type IAutoMoviePerformShotProps, type IAutoMovieValidation, type IAutoMovieViolationCollector, IAutoMovieActionCall, IAutoMovieBeatEndState, IAutoMovieCamera, IAutoMovieClip, IAutoMovieCompiledFormation, IAutoMovieConstraintViolation, IAutoMovieFormationMotion, IAutoMovieInteractionEvent, IAutoMovieLight, IAutoMovieMotion, IAutoMoviePerformance, IAutoMovieQuaternion, IAutoMovieSceneNode, IAutoMovieScript, IAutoMovieShot, IAutoMovieShotPerformance, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieActionCall,
+  type IAutoMovieActionSynthesizer,
+  IAutoMovieBeatEndState,
+  IAutoMovieCamera,
+  IAutoMovieClip,
+  IAutoMovieCompiledFormation,
+  type IAutoMovieCompiledPerformance,
+  IAutoMovieConstraintViolation,
+  type IAutoMovieCoupleObjects,
+  type IAutoMovieEnginePerformShotActionPlan,
+  type IAutoMovieEnginePerformShotGateContext,
+  IAutoMovieFormationMotion,
+  IAutoMovieInteractionEvent,
+  IAutoMovieLight,
+  type IAutoMovieMaskedContent,
+  IAutoMovieMotion,
+  type IAutoMoviePerformShotCoverageJob,
+  type IAutoMoviePerformShotProps,
+  IAutoMoviePerformance,
+  type IAutoMoviePerformedShot,
+  IAutoMovieQuaternion,
+  IAutoMovieSceneNode,
+  IAutoMovieScript,
+  IAutoMovieShot,
+  IAutoMovieShotPerformance,
+  IAutoMovieSkeleton,
+  type IAutoMovieStagedSet,
+  type IAutoMovieValidation,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { compilePerformance } from "../perform/compilePerformance";
 import { scenePlacements } from "../perform/scenePlacements";
@@ -56,7 +86,9 @@ const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Synthesis is memoized per action object and actor, so the overlap gate, the launch probe and the performance compile share one clip per pair; the staged lookup tables are built once into the gate context, and model extents once per node in the subject framer.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synthesis memo is a `WeakMap` keyed by the caller's action objects and is dropped with the call, as are the gate context and the framer; the caller owns the returned shot, motions and plants.
  */
-export function performShot(props: IAutoMoviePerformShotProps): IAutoMoviePerformedShot {
+export function performShot(
+  props: IAutoMoviePerformShotProps,
+): IAutoMoviePerformedShot {
   const staged: IAutoMovieStagedSet.ISuccess = props.staged;
   const performance: IAutoMoviePerformance = props.performance;
   const skeleton: (node: string) => IAutoMovieSkeleton | null = props.skeleton;
@@ -160,7 +192,10 @@ export function performShot(props: IAutoMoviePerformShotProps): IAutoMoviePerfor
     );
   const actions: IAutoMovieActionCall[] =
     performance.revise.final ?? performance.draft;
-  const plan: IAutoMovieEnginePerformShotActionPlan = gatePerformShotActions(context, actions);
+  const plan: IAutoMovieEnginePerformShotActionPlan = gatePerformShotActions(
+    context,
+    actions,
+  );
   gatePerformShotFrameOverlaps(context, plan.frames);
   gatePerformShotRegionOverlaps(context, actions, synthesize);
   if (props.blocking !== undefined)
@@ -317,16 +352,15 @@ export function performShot(props: IAutoMoviePerformShotProps): IAutoMoviePerfor
     duration: performance.duration,
   };
 
-  const assembled: IAutoMovieValidation =
-    validateShotArtifact(
-      shot,
-      staged.scene,
-      new Set(
-        Object.values(motions).map(
-          (motion: IAutoMovieMotion): string => motion.id,
-        ),
+  const assembled: IAutoMovieValidation = validateShotArtifact(
+    shot,
+    staged.scene,
+    new Set(
+      Object.values(motions).map(
+        (motion: IAutoMovieMotion): string => motion.id,
       ),
-    );
+    ),
+  );
   if (assembled.success === false)
     throw new Error(
       `performShot produced a shot that violates the shot artifact contract, which is an engine defect rather than an authoring fault: ${assembled.violations

@@ -1,17 +1,15 @@
-import type { IAutoMovieViewPart, IAutoMovieHumanHeadDome, IAutoMovieHumanHeadFeatures, IAutoMovieHumanHeadLandmarks, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadPrior } from "@automovie/interface";
-
-
-
-
-
-
 import { AutoMovieViewSection } from "@automovie/engine";
+import type {
+  IAutoMovieHumanHeadDome,
+  IAutoMovieHumanHeadFeatures,
+  IAutoMovieHumanHeadLandmarks,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadPrior,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
-
-
 import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
-
 import { AutoMovieHumanHeadLipPart } from "./AutoMovieHumanHeadLipPart";
 
 /**
@@ -88,7 +86,8 @@ export namespace AutoMovieHumanHeadInnerParts {
     const nose: IAutoMovieViewPart = parent("nose");
     const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
     const k: number = plan.scale;
-    const prior: IAutoMovieHumanHeadPrior.IPrior = AutoMovieHumanHeadPrior.PRIOR;
+    const prior: IAutoMovieHumanHeadPrior.IPrior =
+      AutoMovieHumanHeadPrior.PRIOR;
     const f: IAutoMovieHumanHeadPrior.IFace = prior.face;
     const out: IAutoMovieHumanHeadFeatures.IFeature[] = [];
     const alarSpan: number = plan.nasion - plan.tip;

@@ -1,12 +1,21 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 import { createLongGun } from "@automovie/archetypes";
 import {
   Quaternion,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-
-import { HumanChain, HumanMusketDrill, HumanObject, HumanPerformance, HumanVerdicts } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanMusketDrill,
+  HumanObject,
+  HumanPerformance,
+  HumanVerdicts,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -87,7 +96,10 @@ export function test_human_motion_musket_recover(): void {
     const t: number = segment.start + 0.75 * segment.plan.duration;
     const frame = performance.prop("musket", t);
     const world = (id: "butt" | "muzzle"): IAutoMovieVector3 =>
-      Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, point(id)));
+      Vector3.add(
+        frame.position,
+        Quaternion.rotateVector(frame.rotation, point(id)),
+      );
     // "The Firelock perpendicular": the whole piece upright, the line from
     // its butt to its muzzle (the law's reading, after the manual's butt
     // and face and the 1778 Britannica abstract's "straight up").

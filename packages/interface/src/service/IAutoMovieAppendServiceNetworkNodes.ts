@@ -1,7 +1,7 @@
 import type { IAutoMovieBuiltEnvironment } from "../architecture/IAutoMovieBuiltEnvironment";
+import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
 import type { IAutoMovieServiceNetwork } from "./IAutoMovieServiceNetwork";
 import type { IAutoMovieServiceSystem } from "./IAutoMovieServiceSystem";
-import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
 
 /** Node and port admission context with mutable indexes for later connectivity diagnostics. */
 export namespace IAutoMovieAppendServiceNetworkNodes {

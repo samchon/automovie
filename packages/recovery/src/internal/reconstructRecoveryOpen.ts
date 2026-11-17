@@ -1,7 +1,11 @@
-import type { IAutoMovieCurve64, IAutoMovieReconstructRecovery, IAutoMovieRecoveryOpenContinuation, IAutoMovieRecoveryOpenReconstructionOperation, IAutoMovieRecoveryOpenRunDescriptionOperation } from "@automovie/interface";
 import { tessellateAutoMovieCurveGrid64 } from "@automovie/engine";
-
-
+import type {
+  IAutoMovieCurve64,
+  IAutoMovieReconstructRecovery,
+  IAutoMovieRecoveryOpenContinuation,
+  IAutoMovieRecoveryOpenReconstructionOperation,
+  IAutoMovieRecoveryOpenRunDescriptionOperation,
+} from "@automovie/interface";
 
 import { describeRecoveryOpenRun } from "./describeRecoveryOpenRun";
 import { reconstructRecovery } from "./reconstructRecovery";
@@ -82,7 +86,8 @@ export function reconstructRecoveryOpen(
       const edge: Edge = {
         before: { section: i, arc: pair.before },
         after: { section: i + 1, arc: pair.after },
-        reverse: pair.reverseAfter };
+        reverse: pair.reverseAfter,
+      };
       if (outgoing.has(key(edge.before)) || incoming.has(key(edge.after)))
         throw new Error(
           "Ordinary open continuation has multiple incident strips",
@@ -115,9 +120,8 @@ export function reconstructRecoveryOpen(
     throw new Error("Orientation witnesses must align with saved arcs");
   const base: ReturnType<IAutoMovieReconstructRecovery.Operation> =
     reconstructRecovery(bundle);
-  const construction: ReturnType<
-    IAutoMovieRecoveryOpenReconstructionOperation.Operation
-  >["construction"] = [...base.construction];
+  const construction: ReturnType<IAutoMovieRecoveryOpenReconstructionOperation.Operation>["construction"] =
+    [...base.construction];
   const diagnostics: string[] = [
     ...base.diagnostics,
     ...graph.diagnostics,
@@ -126,7 +130,10 @@ export function reconstructRecoveryOpen(
   ];
   const openReports: ReturnType<IAutoMovieRecoveryOpenReconstructionOperation.Operation>["openReports"] =
     { runs: [], pairs, unsupportedGroups, generatedRuns: 0 };
-  const normalized: (curve: IAutoMovieCurve64.Cubic, reverse: boolean) => IAutoMovieCurve64.Cubic = (
+  const normalized: (
+    curve: IAutoMovieCurve64.Cubic,
+    reverse: boolean,
+  ) => IAutoMovieCurve64.Cubic = (
     curve: IAutoMovieCurve64.Cubic,
     reverse: boolean,
   ): IAutoMovieCurve64.Cubic => {
@@ -161,14 +168,22 @@ export function reconstructRecoveryOpen(
     const spans: IAutoMovieCurve64.Span[] = reverse
       ? [...curve.spans]
           .reverse()
-          .map((span: IAutoMovieCurve64.Span): IAutoMovieCurve64.Span => [span[3], span[2], span[1], span[0]])
+          .map(
+            (span: IAutoMovieCurve64.Span): IAutoMovieCurve64.Span => [
+              span[3],
+              span[2],
+              span[1],
+              span[0],
+            ],
+          )
       : [...curve.spans];
     return {
       ...curve,
       closed: false,
       phaseUnit: "normalized",
       phaseIntervals,
-      spans };
+      spans,
+    };
   };
   for (const edge of outgoing.values()) {
     if (incoming.has(key(edge.before))) continue;
@@ -203,7 +218,8 @@ export function reconstructRecoveryOpen(
       omittedZeroAreaTriangles: 0,
       unresolvedVertexNormals: 0,
       isolatedVertices: 0,
-      nonfiniteNormalSums: 0 };
+      nonfiniteNormalSums: 0,
+    };
     try {
       const courses: IAutoMovieCurve64.Cubic[] = nodes.map(
         (n: Node, i: number): IAutoMovieCurve64.Cubic =>
@@ -230,14 +246,16 @@ export function reconstructRecoveryOpen(
           courses,
           resolutionMm: graph.resolutionMm,
           guides: [...guides].sort((a: number, b: number): number => a - b),
-          maxVertices: graph.maxVerticesPerRun });
+          maxVertices: graph.maxVerticesPerRun,
+        });
       base.model.parts.push({
         id,
         name: null,
         geometry: { type: "mesh", mesh: grid.mesh },
         material: null,
         attachedBone: null,
-        transform: null });
+        transform: null,
+      });
       for (const line of grid.construction.lines) construction.push(line);
       record.generated = true;
       record.vertices = grid.counts.vertices;

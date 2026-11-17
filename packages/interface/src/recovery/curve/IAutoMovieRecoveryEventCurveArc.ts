@@ -8,19 +8,15 @@ import type { IAutoMovieRecoveryEventCurvePiece } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Knots span [0,1]; controls remain millimetres and original widths remain available.
  */
 export interface IAutoMovieRecoveryEventCurveArc {
- 
- /** Stable named path. */
+  /** Stable named path. */
   id: string;
 
- 
- /** Declared periodic topology. */
+  /** Declared periodic topology. */
   closed: boolean;
 
- 
- /** Ordered oriented cubic occurrences. */
+  /** Ordered oriented cubic occurrences. */
   pieces: IAutoMovieRecoveryEventCurvePiece[];
 
- 
- /** Optional exact normalized partition, including both 0 and 1. */
+  /** Optional exact normalized partition, including both 0 and 1. */
   canonicalKnots?: number[];
 }

@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
@@ -65,7 +71,8 @@ export namespace touchPresented {
   ): IPresented | null {
     if (target.kind !== "self") return null;
     const body = context.body;
-    const other: IAutoMovieMotionHumanHand.Side = side === "right" ? "left" : "right";
+    const other: IAutoMovieMotionHumanHand.Side =
+      side === "right" ? "left" : "right";
     const bone = body.surfaces.regions[target.region].bone;
     if (
       bone !== `${other}UpperArm` &&
@@ -74,7 +81,10 @@ export namespace touchPresented {
     )
       return null;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = { origin: entry.root, yaw: entry.yaw };
+    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+      origin: entry.root,
+      yaw: entry.yaw,
+    };
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
     const shoulder: IAutoMovieVector3 = body.rest.get(`${other}UpperArm`)!;
     const at: IAutoMovieVector3 = HumanFrame.point(frame, {
@@ -88,15 +98,16 @@ export namespace touchPresented {
       HumanFrame.turn(entry.yaw),
       { x: side === "left" ? 1 : -1, y: 0, z: 0 },
     );
-    const goal: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanTouchEffector.goal(
-      body,
-      other,
-      { surface: "palm", shape: "flat" },
-      at,
-      { x: 0, y: 1, z: 0 },
-      across,
-      AutoMovieMotionHumanBend.arm(body, entry, other, "hang"),
-    );
+    const goal: IAutoMovieMotionHumanPosture.IGoal =
+      AutoMovieMotionHumanTouchEffector.goal(
+        body,
+        other,
+        { surface: "palm", shape: "flat" },
+        at,
+        { x: 0, y: 1, z: 0 },
+        across,
+        AutoMovieMotionHumanBend.arm(body, entry, other, "hang"),
+      );
     return {
       side: other,
       goal,

@@ -1,5 +1,17 @@
-import type { IAutoMovieContourLoftWork64, IAutoMovieContourLoft64, IAutoMovieContourLoftEmission64, IAutoMovieContourLoftSink64, AutoMovieVector3Tuple, IAutoMovieContourLoftCurves64, IAutoMovieMeasureContourFace64, IAutoMoviePlanContourWalks64Plans, IAutoMoviePrepareContourBoundaries64, IAutoMoviePrepareContourDocument64Document, IAutoMovieSampleContourRing64, IAutoMovieSplitContourLeaf64 } from "@automovie/interface";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieContourLoft64,
+  IAutoMovieContourLoftCurves64,
+  IAutoMovieContourLoftEmission64,
+  IAutoMovieContourLoftSink64,
+  IAutoMovieContourLoftWork64,
+  IAutoMovieMeasureContourFace64,
+  IAutoMoviePlanContourWalks64Plans,
+  IAutoMoviePrepareContourBoundaries64,
+  IAutoMoviePrepareContourDocument64Document,
+  IAutoMovieSampleContourRing64,
+  IAutoMovieSplitContourLeaf64,
+} from "@automovie/interface";
 
 import { AutoMovieContourLoftCurves64 as curves } from "./AutoMovieContourLoftCurves64";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
@@ -97,12 +109,15 @@ export function generateAutoMovieContourLoft64(
   const vertexMap: Map<string, number> = new Map();
   const owners: WeakMap<V3, Ring> = new WeakMap();
   const keys: WeakMap<V3, string> = new WeakMap();
-  const phases: WeakMap<Readonly<AutoMovieVector3Tuple>, number> = new WeakMap();
+  const phases: WeakMap<
+    Readonly<AutoMovieVector3Tuple>,
+    number
+  > = new WeakMap();
   const leaves: WeakMap<V3, IAutoMovieContourLoftCurves64.Leaf> = new WeakMap();
-  const register: (ring: Ring, knot: IAutoMovieContourLoftCurves64.Knot) => void = (
+  const register: (
     ring: Ring,
     knot: IAutoMovieContourLoftCurves64.Knot,
-  ): void => {
+  ) => void = (ring: Ring, knot: IAutoMovieContourLoftCurves64.Knot): void => {
     owners.set(knot.p, ring);
     phases.set(knot.p, knot.phase);
     keys.set(knot.p, `${ring.id}:phase:${knot.phase}`);
@@ -115,7 +130,9 @@ export function generateAutoMovieContourLoft64(
         const sampled: IAutoMovieSampleContourRing64.IResult =
           sampleAutoMovieContourRing64(loop.curve, sampleToleranceMm);
         const { knots, unsupported }: typeof sampled = sampled;
-        const points: V3[] = knots.map((knot: IAutoMovieContourLoftCurves64.Knot): V3 => knot.p);
+        const points: V3[] = knots.map(
+          (knot: IAutoMovieContourLoftCurves64.Knot): V3 => knot.p,
+        );
         const ring: Ring = {
           id: `${sampled.name || "unresolved"}.section.${si}.loop.${li}`,
           points: loop.winding < 0 ? [...points].reverse() : points,
@@ -123,7 +140,9 @@ export function generateAutoMovieContourLoft64(
           period: sampled.period,
           ...(unsupported === undefined ? {} : { unsupported }),
         };
-        knots.forEach((k: IAutoMovieContourLoftCurves64.Knot): void => register(ring, k));
+        knots.forEach((k: IAutoMovieContourLoftCurves64.Knot): void =>
+          register(ring, k),
+        );
         return ring;
       }),
   );
@@ -169,7 +188,8 @@ export function generateAutoMovieContourLoft64(
         "A branch slit selected an artificial bridge instead of a generating contour",
       );
     const positiveStart: V3 = owner.winding > 0 ? a : b;
-    const source: IAutoMovieContourLoftCurves64.Leaf | undefined = leaves.get(positiveStart);
+    const source: IAutoMovieContourLoftCurves64.Leaf | undefined =
+      leaves.get(positiveStart);
     const start: number =
       source === undefined
         ? phases.get(a)!
@@ -229,9 +249,14 @@ export function generateAutoMovieContourLoft64(
       // join owns this fresh point. Its chord fraction chooses a phase, while
       // the source restriction owns the physical point used by every incident walk.
       for (let axis: number = 0; axis < 3; axis++) p[axis] = split.point[axis];
-      const children: IAutoMovieContourLoftCurves64.Leaf[] = [...split.before, ...split.after];
+      const children: IAutoMovieContourLoftCurves64.Leaf[] = [
+        ...split.before,
+        ...split.after,
+      ];
       const knots: IAutoMovieContourLoftCurves64.Knot[] = children.slice(1).map(
-        (child: IAutoMovieContourLoftCurves64.Leaf): IAutoMovieContourLoftCurves64.Knot => ({
+        (
+          child: IAutoMovieContourLoftCurves64.Leaf,
+        ): IAutoMovieContourLoftCurves64.Knot => ({
           p: child.start === unwrapped ? p : M.clone(curves.controls(child)[0]),
           phase: child.start,
           leaf: child,
@@ -283,16 +308,17 @@ export function generateAutoMovieContourLoft64(
     intervals: input.intervals,
   });
 
-  const prepared: IAutoMoviePrepareContourBoundaries64.IResult<Group> = prepareAutoMovieContourBoundaries64(
-    plans,
-    allRings,
-    document.slices.map((slice: Slice): number => slice.y),
-    (p: V3): IAutoMovieContourLoftCurves64.Leaf | undefined => leaves.get(p),
-    register,
-    walks.prepare,
-    sampleToleranceMm,
-    input.observeWork ?? false,
-  );
+  const prepared: IAutoMoviePrepareContourBoundaries64.IResult<Group> =
+    prepareAutoMovieContourBoundaries64(
+      plans,
+      allRings,
+      document.slices.map((slice: Slice): number => slice.y),
+      (p: V3): IAutoMovieContourLoftCurves64.Leaf | undefined => leaves.get(p),
+      register,
+      walks.prepare,
+      sampleToleranceMm,
+      input.observeWork ?? false,
+    );
 
   contourMutable = false;
   for (const plan of plans)
@@ -481,7 +507,8 @@ export function generateAutoMovieContourLoft64(
         sink.construction(
           ring.id,
           ring.points,
-          (point: Readonly<AutoMovieVector3Tuple>): number => phases.get(point)!,
+          (point: Readonly<AutoMovieVector3Tuple>): number =>
+            phases.get(point)!,
         ),
       );
   return {

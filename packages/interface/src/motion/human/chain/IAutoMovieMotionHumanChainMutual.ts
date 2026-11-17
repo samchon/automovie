@@ -1,15 +1,15 @@
-import type { IAutoMovieMotionHumanCatchObject } from "../throwing/IAutoMovieMotionHumanCatchObject";
-import type { IAutoMovieMotionHumanChainStriking } from "./IAutoMovieMotionHumanChainStriking";
+import type { IAutoMovieMotionHumanKickBall } from "../ballStrike/IAutoMovieMotionHumanKickBall";
 import type { IAutoMovieMotionHumanHandoverAction } from "../handling/IAutoMovieMotionHumanHandoverAction";
 import type { IAutoMovieMotionHumanHandshake } from "../handling/IAutoMovieMotionHumanHandshake";
-import type { IAutoMovieMotionHumanHighFive } from "../touch/IAutoMovieMotionHumanHighFive";
-import type { IAutoMovieMotionHumanKickBall } from "../ballStrike/IAutoMovieMotionHumanKickBall";
-import type { IAutoMovieMotionHumanKiss } from "../touch/IAutoMovieMotionHumanKiss";
 import type { IAutoMovieMotionHumanPickUp } from "../handling/IAutoMovieMotionHumanPickUp";
 import type { IAutoMovieMotionHumanPutDown } from "../handling/IAutoMovieMotionHumanPutDown";
 import type { IAutoMovieMotionHumanReceive } from "../handling/IAutoMovieMotionHumanReceive";
+import type { IAutoMovieMotionHumanCatchObject } from "../throwing/IAutoMovieMotionHumanCatchObject";
 import type { IAutoMovieMotionHumanRelease } from "../throwing/IAutoMovieMotionHumanRelease";
 import type { IAutoMovieMotionHumanThrowObjectParams } from "../throwing/IAutoMovieMotionHumanThrowObjectParams";
+import type { IAutoMovieMotionHumanHighFive } from "../touch/IAutoMovieMotionHumanHighFive";
+import type { IAutoMovieMotionHumanKiss } from "../touch/IAutoMovieMotionHumanKiss";
+import type { IAutoMovieMotionHumanChainStriking } from "./IAutoMovieMotionHumanChainStriking";
 
 /**
  * The chain methods a person performs with a partner or on an object: the

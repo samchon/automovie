@@ -1,5 +1,3 @@
-
-
 /**
  * Everything that decides one stage artifact's bytes, before it is hashed into
  * a cache key by `composeAutoMovieArtifactKey`.

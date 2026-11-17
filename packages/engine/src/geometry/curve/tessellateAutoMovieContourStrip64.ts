@@ -1,4 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieObservation } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieObservation,
+} from "@automovie/interface";
+
 import { AutoMovieContourLoftCurves64 } from "./AutoMovieContourLoftCurves64";
 import { AutoMovieCurveMath64 } from "./AutoMovieCurveMath64";
 
@@ -192,8 +196,7 @@ export function tessellateAutoMovieContourStrip64(
       throw new Error("A contour tile lacks its declared sheet identity");
     if (!nodes.has(key)) nodes.set(key, nodes.size);
     const id: number = nodes.get(key)!;
-    const previous: AutoMovieVector3Tuple | undefined =
-      representatives.get(id);
+    const previous: AutoMovieVector3Tuple | undefined = representatives.get(id);
     if (
       previous !== undefined &&
       previous.some((x: number, k: number): boolean => x !== p[k])

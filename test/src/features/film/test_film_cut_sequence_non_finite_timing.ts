@@ -1,6 +1,9 @@
-import type { IAutoMovieConstraintViolation, IAutoMovieSequenceEntry, IAutoMovieShot } from "@automovie/interface";
 import { cutSequence } from "@automovie/engine";
-
+import type {
+  IAutoMovieConstraintViolation,
+  IAutoMovieSequenceEntry,
+  IAutoMovieShot,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation } from "../internal/predicates";

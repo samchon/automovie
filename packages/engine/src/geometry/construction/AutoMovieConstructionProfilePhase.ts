@@ -1,6 +1,9 @@
-import type { IAutoMovieConstructionProfileSource, IAutoMovieConstructionProfilePhase, IAutoMovieLoftFrame, IAutoMovieConstructionProfile } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieConstructionProfile,
+  IAutoMovieConstructionProfilePhase,
+  IAutoMovieConstructionProfileSource,
+  IAutoMovieLoftFrame,
+} from "@automovie/interface";
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 
@@ -28,7 +31,6 @@ type Chart = {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConstructionProfilePhase {
-
   /**
    * Borrow already admitted immutable originals; explicit null never falls back to total2.
    *
@@ -43,7 +45,11 @@ export namespace AutoMovieConstructionProfilePhase {
   export function create(
     source: IAutoMovieConstructionProfileSource,
     definition: IAutoMovieConstructionProfile,
-  ): (piece: string, station: number, coordinate: number) => IAutoMovieConstructionProfilePhase.IReading {
+  ): (
+    piece: string,
+    station: number,
+    coordinate: number,
+  ) => IAutoMovieConstructionProfilePhase.IReading {
     const charts: Map<string, Chart> = new Map();
     for (const loop of definition.loops)
       for (const piece of loop.pieces)
@@ -52,7 +58,11 @@ export namespace AutoMovieConstructionProfilePhase {
           piece,
           curve: source.curves.get(piece.source)!,
         });
-    return (piece: string, station: number, coordinate: number): IAutoMovieConstructionProfilePhase.IReading => {
+    return (
+      piece: string,
+      station: number,
+      coordinate: number,
+    ): IAutoMovieConstructionProfilePhase.IReading => {
       const chart: Chart | undefined = charts.get(piece);
       if (
         chart === undefined ||

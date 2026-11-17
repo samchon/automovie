@@ -1,9 +1,10 @@
-import type { AutoMovieVector3Tuple, IAutoMovieMeshPlaneContour, IAutoMovieMeshPlaneCut, IAutoMovieMeshPlaneIntersection, IAutoMoviePlaneFrame } from "@automovie/interface";
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieMeshPlaneContour,
+  IAutoMovieMeshPlaneCut,
+  IAutoMovieMeshPlaneIntersection,
+  IAutoMoviePlaneFrame,
+} from "@automovie/interface";
 
 /**
  * Intersect a triangle surface with a plane without epsilon displacement or branch loss.
@@ -55,8 +56,7 @@ export function cutExact(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Candidate completeness is a caller premise; binary64 signs are not exact predicates, and isolated contacts or junction branches are never silently discarded.
  */
 export namespace cutExact {
- 
- /**
+  /**
    * Admit immutable source positions, incidence and scalar heights once.
    * The caller keeps every supplied array unchanged until all queries finish.
    * Each query accepts original face IDs in strictly increasing order; candidates
@@ -160,13 +160,18 @@ export namespace cutExact {
         return {
           exactSourceTriangleIds: [...faces].sort(
             (a: number, b: number): number => a - b,
-          ) };
+          ),
+        };
       };
       const contacts: Set<string> = new Set();
       const coplanarVertices: Set<string> = new Set();
       const coplanar: Map<
         string,
-        { ends: [string, string]; triangle: number; opposite: AutoMovieVector3Tuple }[]
+        {
+          ends: [string, string];
+          triangle: number;
+          opposite: AutoMovieVector3Tuple;
+        }[]
       > = new Map();
       const key: (a: string, b: string) => string = (
         a: string,
@@ -182,12 +187,16 @@ export namespace cutExact {
               orderedSegments: (edges ?? []).map(
                 (
                   id: string,
-                ): NonNullable<IAutoMovieMeshPlaneContour["orderedSegments"]>[number] => ({
+                ): NonNullable<
+                  IAutoMovieMeshPlaneContour["orderedSegments"]
+                >[number] => ({
                   id,
                   sourceTriangleIds: [...(sourceFaces?.get(id) ?? [])].sort(
                     (a: number, b: number): number => a - b,
-                  ) }),
-              ) }
+                  ),
+                }),
+              ),
+            }
           : {};
       const remember: (
         id: string,
@@ -207,8 +216,11 @@ export namespace cutExact {
         point.sourceEdges ??= [];
         if (
           !point.sourceEdges.some(
-            (e: NonNullable<IAutoMovieMeshPlaneIntersection["sourceEdges"]>[number]): boolean =>
-              e.a === a && e.b === b && e.t === t,
+            (
+              e: NonNullable<
+                IAutoMovieMeshPlaneIntersection["sourceEdges"]
+              >[number],
+            ): boolean => e.a === a && e.b === b && e.t === t,
           )
         )
           point.sourceEdges.push({ a, b, t, pointMm: [...pointMm] });
@@ -220,7 +232,8 @@ export namespace cutExact {
             p: [...skin.vertices[i]!],
             a: skin.canon[i]!,
             b: skin.canon[i]!,
-            t: 0 });
+            t: 0,
+          });
         remember(id, i, i, 0, skin.vertices[i]!);
         return id;
       };
@@ -297,7 +310,8 @@ export namespace cutExact {
             coplanar.get(id)!.push({
               ends: [a, b],
               triangle: ti,
-              opposite: skin.vertices[t[(k + 2) % 3]!]! });
+              opposite: skin.vertices[t[(k + 2) % 3]!]!,
+            });
           }
           continue;
         }
@@ -413,8 +427,10 @@ export namespace cutExact {
               ...provenance(traversed),
               ...ordered(traversed),
               pts: (closed ? keys : [...keys, start]).map(
-                (id: string): IAutoMovieMeshPlaneIntersection => points.get(id)!,
-              ) };
+                (id: string): IAutoMovieMeshPlaneIntersection =>
+                  points.get(id)!,
+              ),
+            };
           }
           keys.push(current);
           const neighbors: typeof adjacency extends Map<string, infer T>
@@ -430,7 +446,10 @@ export namespace cutExact {
           closed: false,
           ...provenance(traversed),
           ...ordered(traversed),
-          pts: keys.map((id: string): IAutoMovieMeshPlaneIntersection => points.get(id)!) };
+          pts: keys.map(
+            (id: string): IAutoMovieMeshPlaneIntersection => points.get(id)!,
+          ),
+        };
       };
       for (const [start, neighbors] of adjacency)
         if (neighbors.length !== 2)
@@ -445,7 +464,8 @@ export namespace cutExact {
             closed: false,
             pts: [points.get(id)!],
             ...provenance([], id),
-            ...ordered([]) });
+            ...ordered([]),
+          });
       return output;
     };
   }

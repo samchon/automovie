@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionHumanObstacle, IAutoMovieMotionHumanProp, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanObstacle,
+  IAutoMovieMotionHumanProp,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanObstacle } from "./HumanObstacle";
 
@@ -105,7 +109,9 @@ export namespace HumanObstacleMotion {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The footprint is computed once; the motion is the prop's own.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the prop's motion for as long as the obstacle is held.
    */
-  export function prop(prop: IAutoMovieMotionHumanProp): IAutoMovieMotionHumanObstacle.IObstacle {
+  export function prop(
+    prop: IAutoMovieMotionHumanProp,
+  ): IAutoMovieMotionHumanObstacle.IObstacle {
     const motion: IAutoMovieMotionHumanProp["motion"] = prop.motion;
     if (motion === undefined)
       throw new Error(
@@ -125,7 +131,10 @@ export namespace HumanObstacleMotion {
       motion: (
         seconds: number,
       ): { position: IAutoMovieVector3; yaw: number } => {
-        const frame: IAutoMovieMotionHumanProp.IFrame = motion.call(prop, seconds);
+        const frame: IAutoMovieMotionHumanProp.IFrame = motion.call(
+          prop,
+          seconds,
+        );
         const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
           frame.rotation,
           { x: 0, y: 0, z: 1 },

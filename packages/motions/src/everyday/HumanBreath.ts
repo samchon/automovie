@@ -1,6 +1,11 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBreath, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPosture, IAutoMovieRandom } from "@automovie/interface";
-
 import { minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBreath,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieRandom,
+} from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
 
@@ -58,7 +63,6 @@ import { HumanBound } from "../law/HumanBound";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanBreath {
-
   /** Resting band, breaths a minute (Cretikos et al. 2008). */
   export const BAND: readonly [number, number] = [12, 20];
 
@@ -171,7 +175,9 @@ export namespace HumanBreath {
    * @param options The rate and exertion; both optional.
    * @returns The layer, named `breath`.
    */
-  export function layer(options: IAutoMovieMotionHumanBreath.IOptions = {}): IAutoMovieMotionHumanLayer {
+  export function layer(
+    options: IAutoMovieMotionHumanBreath.IOptions = {},
+  ): IAutoMovieMotionHumanLayer {
     return {
       name: "breath",
 
@@ -204,8 +210,13 @@ export namespace HumanBreath {
    * @param volume Volume in tidal breaths above the end of exhalation.
    * @returns The posture with breathing added; its limb goals unchanged.
    */
-  export function add(posture: IAutoMovieMotionHumanPosture, volume: number): IAutoMovieMotionHumanPosture {
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+  export function add(
+    posture: IAutoMovieMotionHumanPosture,
+    volume: number,
+  ): IAutoMovieMotionHumanPosture {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...posture.joints,
+    };
     for (const [bone, angles] of Object.entries(TIDAL) as [
       AutoMovieHumanoidBone,
       readonly [number, number, number],

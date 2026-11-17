@@ -1,7 +1,23 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
 import { createSeat } from "@automovie/archetypes";
-
-import { HumanChain, HumanFrame, HumanObject, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFrame,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -37,7 +53,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_base_high_seat_rules(): void {
   const complaints: string[] = [];
-  const stool: IAutoMovieMotionHumanObject.IModel = createSeat({ kind: "barStool" });
+  const stool: IAutoMovieMotionHumanObject.IModel = createSeat({
+    kind: "barStool",
+  });
   const at = (lift: number): IAutoMovieMotionHumanSeated.ISeat =>
     HumanObject.seat(stool, { at: { x: 0, y: lift, z: -0.6 }, yaw: 0 });
   for (const name of ["m-average", "f-small"] as const) {
@@ -64,7 +82,9 @@ export function test_human_motion_base_high_seat_rules(): void {
         composition: then(HumanChain.subject("a").sit({ seat, seconds: 0.5 }))
           .node,
       });
-    const reading = (performance: IAutoMovieMotionHumanPerformance): IAutoMovieMotionHumanSignature.IReader =>
+    const reading = (
+      performance: IAutoMovieMotionHumanPerformance,
+    ): IAutoMovieMotionHumanSignature.IReader =>
       HumanSignature.of(performance, "a", body, 0);
     const attempt = <T>(label: string, run: () => T): T | undefined => {
       try {
@@ -88,7 +108,8 @@ export function test_human_motion_base_high_seat_rules(): void {
         ),
     );
     if (drinking !== undefined) {
-      const drink: IAutoMovieMotionHumanSegment.ISegment = drinking.segments("a")[1]!;
+      const drink: IAutoMovieMotionHumanSegment.ISegment =
+        drinking.segments("a")[1]!;
       if (
         !drink.plan.contacts.some(
           (c: IAutoMovieMotionHumanContactWindow): boolean =>
@@ -123,7 +144,11 @@ export function test_human_motion_base_high_seat_rules(): void {
       attempt(
         `sitting on the stool raised ${lift} m`,
         (): IAutoMovieMotionHumanPerformance =>
-          perform(at(lift), (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => chain),
+          perform(
+            at(lift),
+            (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+              chain,
+          ),
       );
     const low: IAutoMovieMotionHumanPerformance | undefined = sat(0);
     const raised: IAutoMovieMotionHumanPerformance | undefined = sat(0.1);
@@ -148,7 +173,9 @@ export function test_human_motion_base_high_seat_rules(): void {
         const t: number = (k / 4) * end;
         const one: IAutoMovieVector3 = low.posture("a", t).root;
         const two: IAutoMovieVector3 = again.posture("a", t).root;
-        const ankle = (performance: IAutoMovieMotionHumanPerformance): IAutoMovieVector3 =>
+        const ankle = (
+          performance: IAutoMovieMotionHumanPerformance,
+        ): IAutoMovieVector3 =>
           HumanSignature.joint(reading(performance), t, "rightFoot");
         const off: number = Math.max(
           Math.hypot(one.x - two.x, one.y - two.y, one.z - two.z),
@@ -196,12 +223,18 @@ export function test_human_motion_base_high_seat_rules(): void {
         );
     };
     refused("sitting on the stool from 1.5 m", "reach", "seat", () =>
-      perform(at(0), (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => chain, 1.5),
+      perform(
+        at(0),
+        (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+          chain,
+        1.5,
+      ),
     );
     refused("sitting on a seat 0.10 m high", "reach", "seat", () =>
       perform(
         { at: { x: 0, y: 0.1, z: -0.6 }, yaw: 0 },
-        (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => chain,
+        (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+          chain,
       ),
     );
     refused(
@@ -211,7 +244,8 @@ export function test_human_motion_base_high_seat_rules(): void {
       () =>
         perform(
           at(0),
-          (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => chain.shift({ by: 0.1 }),
+          (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+            chain.shift({ by: 0.1 }),
         ),
       "rise",
     );

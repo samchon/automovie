@@ -1,4 +1,5 @@
 import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
+
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 import { admitPhysicalSupportPattern } from "./admitPhysicalSupportPattern";
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
@@ -156,8 +157,9 @@ export function admitPhysicalBody(
   )
     throw new Error(`${body.id}: invalid released articulation quality budget`);
   if (body.supportTracking) {
-    const policy: NonNullable<IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]> =
-      body.supportTracking;
+    const policy: NonNullable<
+      IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
+    > = body.supportTracking;
     admitPhysicalSupportPattern(body.profile, policy.pattern, false);
     if (
       ![policy.stiffness, policy.damping, policy.maximumForce].every(
@@ -172,7 +174,9 @@ export function admitPhysicalBody(
       throw new Error(`${body.id}: invalid planted support actuator policy`);
   }
   if (body.balance) {
-    const policy: NonNullable<IAutoMoviePhysicalSimulationInput.IBody["balance"]> = body.balance;
+    const policy: NonNullable<
+      IAutoMoviePhysicalSimulationInput.IBody["balance"]
+    > = body.balance;
     admitPhysicalSupportPattern(body.profile, policy.pattern, true);
     if (
       !(Math.abs(Math.fround(input.gravity.y * gravity)) > 0) ||

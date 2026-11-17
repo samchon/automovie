@@ -1,6 +1,11 @@
-import { type IAutoMoviePlaybackEntry, type IAutoMoviePlaybackEvent, type IAutoMoviePreparePlaybackTimeline, IAutoMovieInteractionEvent, IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
-
-
+import {
+  IAutoMovieInteractionEvent,
+  type IAutoMoviePlaybackEntry,
+  type IAutoMoviePlaybackEvent,
+  type IAutoMoviePreparePlaybackTimeline,
+  IAutoMovieSequence,
+  IAutoMovieShot,
+} from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { preparePlaybackTimeline } from "./preparePlaybackTimeline";

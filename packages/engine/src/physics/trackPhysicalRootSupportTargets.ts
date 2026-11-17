@@ -1,4 +1,9 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMovieSamplePhysicalTarget } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieSamplePhysicalTarget,
+} from "@automovie/interface";
+
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
 import { planPhysicalRootSupportTargets } from "./planPhysicalRootSupportTargets";
@@ -35,7 +40,8 @@ export function trackPhysicalRootSupportTargets(input: {
   /** Positive declared cache frequency. */ rate: number;
 }): void {
   const { body, bound, goals }: typeof input = input;
-  const policy: IAutoMoviePhysicalSimulationInput.IBody["supportTracking"] = body.supportTracking;
+  const policy: IAutoMoviePhysicalSimulationInput.IBody["supportTracking"] =
+    body.supportTracking;
   if (
     !input.root.dynamic ||
     !policy ||

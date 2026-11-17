@@ -1,6 +1,17 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJacobian, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { Quaternion, Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import { HumanFoot } from "./HumanFoot";
 import { HumanJacobian } from "./HumanJacobian";
 
@@ -153,22 +164,24 @@ export namespace HumanFitBalance {
     motions: readonly IAutoMovieMotionHumanJacobian.IMotion[],
   ): IAutoMovieVector3[] {
     const m: IAutoMovieResolveCenterOfMass.IModel = model(body);
-    return motions.map((motion: IAutoMovieMotionHumanJacobian.IMotion): IAutoMovieVector3 => {
-      let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-      for (const s of m.segments) {
-        const b: IAutoMovieResolvedBone | undefined = bones.get(s.bone);
-        if (b === undefined) continue;
-        const at: IAutoMovieVector3 = Vector3.add(
-          b.worldPosition,
-          Quaternion.rotateVector(b.worldRotation, s.point),
-        );
-        sum = Vector3.add(
-          sum,
-          Vector3.scale(HumanJacobian.velocity(motion, s.bone, at), s.mass),
-        );
-      }
-      return Vector3.scale(sum, 1 / m.mass);
-    });
+    return motions.map(
+      (motion: IAutoMovieMotionHumanJacobian.IMotion): IAutoMovieVector3 => {
+        let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+        for (const s of m.segments) {
+          const b: IAutoMovieResolvedBone | undefined = bones.get(s.bone);
+          if (b === undefined) continue;
+          const at: IAutoMovieVector3 = Vector3.add(
+            b.worldPosition,
+            Quaternion.rotateVector(b.worldRotation, s.point),
+          );
+          sum = Vector3.add(
+            sum,
+            Vector3.scale(HumanJacobian.velocity(motion, s.bone, at), s.mass),
+          );
+        }
+        return Vector3.scale(sum, 1 / m.mass);
+      },
+    );
   }
 
   /** The unit inward normal of an outline's edge from corner `k` to the next. */
@@ -232,12 +245,17 @@ export namespace HumanFitBalance {
   }
 
   /** The mass models made, by body. */
-  const MODELS: WeakMap<IAutoMovieMotionHumanBody, IAutoMovieResolveCenterOfMass.IModel> =
-    new WeakMap();
+  const MODELS: WeakMap<
+    IAutoMovieMotionHumanBody,
+    IAutoMovieResolveCenterOfMass.IModel
+  > = new WeakMap();
 
   /** A body's mass model, made once. */
-  function model(body: IAutoMovieMotionHumanBody): IAutoMovieResolveCenterOfMass.IModel {
-    let out: IAutoMovieResolveCenterOfMass.IModel | undefined = MODELS.get(body);
+  function model(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieResolveCenterOfMass.IModel {
+    let out: IAutoMovieResolveCenterOfMass.IModel | undefined =
+      MODELS.get(body);
     if (out === undefined) {
       out = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
       MODELS.set(body, out);

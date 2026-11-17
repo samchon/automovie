@@ -1,5 +1,3 @@
-
-
 /**
  * The intersection of every row of a quadratic program that has exactly the
  * same sparse coefficients, as `refineAutoMovieQuadraticProgram` groups them

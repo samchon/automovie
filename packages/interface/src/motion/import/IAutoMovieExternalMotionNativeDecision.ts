@@ -1,8 +1,5 @@
-import type { IAutoMovieImportedNodeBoneMapping } from "../IAutoMovieImportedNodeBoneMapping";
 import type { IAutoMovieSkeleton } from "../../skeleton/IAutoMovieSkeleton";
-
-
-
+import type { IAutoMovieImportedNodeBoneMapping } from "../IAutoMovieImportedNodeBoneMapping";
 
 /**
  * Native use replays the inspected node tracks on the source rig the author declares; ingest infers no rig and matches no names.

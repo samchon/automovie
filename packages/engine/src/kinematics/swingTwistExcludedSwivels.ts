@@ -1,6 +1,14 @@
-import { type IAutoMovieSwingTwistRange, type IAutoMovieSwivelArcs, type IAutoMovieAxisFrame, type IAutoMovieRestFrame, IAutoMovieAngleRange, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  IAutoMovieAngleRange,
+  type IAutoMovieAxisFrame,
+  IAutoMovieJointAxes,
+  IAutoMovieJointConstraint,
+  IAutoMovieQuaternion,
+  type IAutoMovieRestFrame,
+  type IAutoMovieSwingTwistRange,
+  type IAutoMovieSwivelArcs,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -112,7 +120,10 @@ export function swingTwistExcludedSwivels(props: {
 
   const arcs: IAutoMovieSwivelArcs.IArc[] = [];
   const refuse = (f: IAutoMovieSwivelArcs.ISinusoid): boolean => {
-    const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(f, MARGIN);
+    const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(
+      f,
+      MARGIN,
+    );
     if (arc === "all") return true;
     if (arc !== null) arcs.push(arc);
     return false;

@@ -1,6 +1,20 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanTypeText, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanTypeText,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -79,7 +93,8 @@ export namespace typeText {
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     subject: string,
   ): IAutoMovieMotionHumanTypeText.IBoard {
-    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(subject);
+    const read: IAutoMovieMotionHumanActionContext.IProp =
+      context.prop(subject);
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];
     const declared = (id: string): IAutoMovieAffordance => {
@@ -188,7 +203,10 @@ export namespace typeText {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
     const { text } = context.params;
-    const keyboard: IAutoMovieMotionHumanTypeText.IBoard = board(context, context.params.keyboard);
+    const keyboard: IAutoMovieMotionHumanTypeText.IBoard = board(
+      context,
+      context.params.keyboard,
+    );
     if (text.length === 0)
       throw new HumanRefusal({
         kind: "parameter",
@@ -199,7 +217,10 @@ export namespace typeText {
       });
     const keys = [...text].map(typeText.key);
     const hold: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = { origin: keyboard.at, yaw: keyboard.yaw };
+    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+      origin: keyboard.at,
+      yaw: keyboard.yaw,
+    };
     const world = (local: IAutoMovieVector3, lift: number): IAutoMovieVector3 =>
       HumanFrame.point(frame, { ...local, y: lift });
 
@@ -264,7 +285,10 @@ export namespace typeText {
 
     // Where each fingertip is at a second: on its current key, travelling
     // between keys in the hover plane, or pressing.
-    const tipAt = (side: IAutoMovieMotionHumanHand.Side, t: number): IAutoMovieVector3 => {
+    const tipAt = (
+      side: IAutoMovieMotionHumanHand.Side,
+      t: number,
+    ): IAutoMovieVector3 => {
       let from: IAutoMovieVector3 = home[side];
       let fromTime: number = 0;
       for (let i: number = 0; i < keys.length; i++) {

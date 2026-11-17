@@ -1,6 +1,6 @@
+import type { AutoMovieConstructionPole } from "./AutoMovieConstructionPole";
 import type { IAutoMovieConstructionAxis } from "./IAutoMovieConstructionAxis";
 import type { IAutoMovieConstructionFullness } from "./IAutoMovieConstructionFullness";
-import type { AutoMovieConstructionPole } from "./AutoMovieConstructionPole";
 import type { IAutoMovieConstructionOutlinePair } from "./IAutoMovieConstructionOutlinePair";
 
 /**

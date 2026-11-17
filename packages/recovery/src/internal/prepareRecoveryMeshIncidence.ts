@@ -1,7 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryMeshIncidencePreparationOperation, IAutoMovieRecoveryInput } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryInput,
+  IAutoMovieRecoveryMeshIncidencePreparationOperation,
+} from "@automovie/interface";
 
 /**
  * Prepare declared source aliases and original edge/vertex face incidence.

@@ -1,6 +1,15 @@
-import { type IAutoMovieBallisticSolution, type IAutoMovieLaunchResult, type IAutoMovieProjectile, type IAutoMovieProjectileState, type IAutoMovieCompileLaunch, IAutoMovieClip, IAutoMovieInteractionEvent, IAutoMovieLaunchAction, IAutoMovieReactAction, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  type IAutoMovieBallisticSolution,
+  IAutoMovieClip,
+  type IAutoMovieCompileLaunch,
+  IAutoMovieInteractionEvent,
+  IAutoMovieLaunchAction,
+  type IAutoMovieLaunchResult,
+  type IAutoMovieProjectile,
+  type IAutoMovieProjectileState,
+  IAutoMovieReactAction,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { AutoMovieGravity } from "../physics/AutoMovieGravity";
@@ -40,7 +49,9 @@ function firstActor(action: IAutoMovieLaunchAction): string | null {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call compiles one launch from its own inputs and coordinates nothing across calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned clip, at most one react and three events.
  */
-export function compileLaunch(props: IAutoMovieCompileLaunch.IProps): IAutoMovieLaunchResult | null {
+export function compileLaunch(
+  props: IAutoMovieCompileLaunch.IProps,
+): IAutoMovieLaunchResult | null {
   const action: IAutoMovieLaunchAction = props.action;
   if (
     action.onHit !== undefined &&

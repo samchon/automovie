@@ -1,5 +1,7 @@
-import type { IAutoMovieAuditPhysicalOutcomes, IAutoMovieContactReceipt } from "@automovie/interface";
-
+import type {
+  IAutoMovieAuditPhysicalOutcomes,
+  IAutoMovieContactReceipt,
+} from "@automovie/interface";
 
 import { admitPhysicalOutcomes } from "./admitPhysicalOutcomes";
 

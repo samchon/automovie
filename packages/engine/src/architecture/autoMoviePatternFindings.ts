@@ -1,4 +1,10 @@
-import type { IAutoMoviePatternFinding, IAutoMoviePatternPlacement, IAutoMoviePatternPoint, IAutoMovieSurfacePattern } from "@automovie/interface";
+import type {
+  IAutoMoviePatternFinding,
+  IAutoMoviePatternPlacement,
+  IAutoMoviePatternPoint,
+  IAutoMovieSurfacePattern,
+} from "@automovie/interface";
+
 import { positiveModulo } from "../math/positiveModulo";
 
 /** Smallest metre length counted as a real gap or overlap. */

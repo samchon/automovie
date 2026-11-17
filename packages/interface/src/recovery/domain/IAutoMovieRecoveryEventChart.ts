@@ -8,23 +8,18 @@ import type { IAutoMovieRecoveryEventCurveArc } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Members document physical units, ownership and optional-state meaning.
  */
 export interface IAutoMovieRecoveryEventChart {
- 
- /** Boundary at v=0, traversed from u=0 to u=1. */
+  /** Boundary at v=0, traversed from u=0 to u=1. */
   bottom: IAutoMovieRecoveryEventCurveArc;
 
- 
- /** Boundary at v=1, traversed from u=0 to u=1. */
+  /** Boundary at v=1, traversed from u=0 to u=1. */
   top: IAutoMovieRecoveryEventCurveArc;
 
- 
- /** Boundary at u=0, traversed from v=0 to v=1. */
+  /** Boundary at u=0, traversed from v=0 to v=1. */
   left: IAutoMovieRecoveryEventCurveArc;
 
- 
- /** Boundary at u=1, traversed from v=0 to v=1. */
+  /** Boundary at u=1, traversed from v=0 to v=1. */
   right: IAutoMovieRecoveryEventCurveArc;
 
- 
- /** True identifies left and right as the two periodic seam occurrences. */
+  /** True identifies left and right as the two periodic seam occurrences. */
   periodic?: boolean;
 }

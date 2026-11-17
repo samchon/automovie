@@ -6,7 +6,7 @@ import type { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 export namespace IAutoMoviePreserveSweepVolume {
   /**
    * Compile the volume-settled joint-scale update of a sealed sweep rig.
-   * 
+   *
    * Section moments and the authored sweep's rest-volume target are computed once. Each pose updates the shared orientation first, then this writer settles the joint factor and writes every registered scale slot. The network's separate girth multipliers apply after that settlement, matching the rig's existing ordering; the target is the authored sweep's volume before girth correction.
    *
    * @evidence contracts/development/design.md#principled-representation Rest moments and metre frames define a cubic-metre volume target; station flags and dimensionless scale/girth slots define the compensation. The writer checks final positive finite scale products.

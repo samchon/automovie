@@ -1,5 +1,5 @@
-import type { IAutoMovieQuadraticHeap } from "@automovie/interface";
 import { createAutoMovieQuadraticMemory } from "@automovie/engine";
+import type { IAutoMovieQuadraticHeap } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

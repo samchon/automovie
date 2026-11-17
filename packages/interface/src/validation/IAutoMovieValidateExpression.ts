@@ -9,10 +9,10 @@ export namespace IAutoMovieValidateExpression {
   export type IProps = {
     /** Borrowed preset and optional blendshape weights with inclusive 0..1 magnitudes. */
     expression: IAutoMovieExpression;
-  
+
     /** Base diagnostic address, defaulting to $input. */
     path?: string;
-  
+
     /** Optional caller-owned sink advanced by this validation. */
     collector?: IAutoMovieViolationCollector;
   };

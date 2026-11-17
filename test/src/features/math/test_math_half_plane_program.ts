@@ -1,5 +1,5 @@
-import type { IAutoMovieSolveHalfPlaneProgram } from "@automovie/interface";
 import { solveAutoMovieHalfPlaneProgram } from "@automovie/engine";
+import type { IAutoMovieSolveHalfPlaneProgram } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -120,10 +120,7 @@ export function test_math_half_plane_program(): void {
         };
         if (Math.hypot(p.x, p.y) > R) continue;
         if (lines.some((l: ILine): boolean => inside(l, p) > 0)) continue;
-        best = Math.min(
-          best,
-          Math.hypot(p.x - preferred.x, p.y - preferred.y),
-        );
+        best = Math.min(best, Math.hypot(p.x - preferred.x, p.y - preferred.y));
       }
     if (result.feasible) {
       if (

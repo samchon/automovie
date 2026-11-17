@@ -1,6 +1,22 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanArmPlanned, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanLean, IAutoMovieMotionHumanMartialArt, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanLean,
+  IAutoMovieMotionHumanMartialArt,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -101,7 +117,10 @@ export namespace martialArt {
       y: 0,
       z: 0,
     });
-    const stance: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
+    const stance: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = {
       left: {
         ankle: context.entry.feet.left.ankle,
         rotation: context.entry.feet.left.rotation,
@@ -139,7 +158,10 @@ export namespace martialArt {
       channels: ["root"],
       from: 0,
       to: clock.duration,
-      write: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanPosture => ({
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        s: number,
+      ): IAutoMovieMotionHumanPosture => ({
         ...posture,
         root: Vector3.add(posture.root, offset(s)),
       }),
@@ -168,11 +190,15 @@ export namespace martialArt {
         side,
         from: 0,
         to: clock.duration,
-        placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement =>
-          lead(side, by, s),
+        placement: (
+          _: IAutoMovieMotionHumanPosture,
+          s: number,
+        ): IAutoMovieMotionHumanFoot.IPlacement => lead(side, by, s),
         planted: bearing,
       });
-    const rest = (side: "left" | "right"): IAutoMovieMotionHumanArmAngles.IAngles =>
+    const rest = (
+      side: "left" | "right",
+    ): IAutoMovieMotionHumanArmAngles.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     const contacts: IAutoMovieMotionHumanContactWindow[] = [

@@ -1,16 +1,18 @@
-import type { IAutoMovieIntegrateMotionTrajectory, IAutoMovieAffordance, IAutoMovieModelPart, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-import {
-  Quaternion,
-  Vector3,
-  integrateMotionTrajectory,
-} from "@automovie/engine";
-
+import { integrateMotionTrajectory } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieModelPart,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { Archetype } from "./Archetype";
 import { ArchetypeCourse } from "./ArchetypeCourse";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeSpan } from "./ArchetypeSpan";
+import { ArchetypeTowing } from "./ArchetypeTowing";
 import { ArchetypeUnits } from "./ArchetypeUnits";
 
 /**
@@ -182,7 +184,9 @@ export namespace ArchetypeRide {
       course.kind === "plan"
         ? course
         : ArchetypeCourse.plan(archetype.archetype, course);
-    const at = (seconds: number): ISample<Id, Dimension> => {
+    const at: (seconds: number) => ISample<Id, Dimension> = (
+      seconds: number,
+    ): ISample<Id, Dimension> => {
       const state: ArchetypeCourse.IState = plan.at(seconds);
       return {
         ...(pose?.(state) ?? { archetype, placement: state.placement }),
@@ -215,16 +219,16 @@ export namespace ArchetypeRide {
    * @param leader The leader's ride.
    * @param hitch The leader's contact the trailer is hitched to.
    * @param trailer The trailer at rest.
-   * @param coupling The trailer's contact that is held on the hitch, ahead of its axle along `+Z`.
-   * @param options `axle`, the point of the trailer's (rear) axle line under its root, `+Z` forward, metres, the origin when absent; `pose`, what moves on the trailer at a course state, such as its wheels' spin, the trailer as given when absent; `front`, a turning front axle: `pivot`, the point it turns about, on the trailer's centre line between the coupling and the axle, and `turn`, the `wheel` articulation that turns it, positive to the left, which the coupling rides; `lines`, the lines laid between the leader and the trailer, none when absent.
+   * @param coupling The actual source contact held on the hitch; legacy inputs require it ahead along +Z, while declared single-axle support can tow a rear contact in reverse.
+   * @param options support is producer-read actual axle geometry: a single axle permits body pitch, and fixedGround keeps two axles grounded with an optional actual drawbar hinge. Without it only an unchanged level coupling height is supported. Existing axle/front declarations must agree with supplied support; pose supplies current articulations and lines supplies actual inter-model spans.
    * @returns The trailer's ride.
-   * @throws {ArchetypeRefusal} When the coupling does not lie ahead of the axle, or of the front axle's pivot, or the pivot ahead of the axle; when either id is no contact of its archetype; when a line has fewer than two points or names a part or contact its model lacks; or when the leader's path turns the front axle past its lock at any step of the integration, giving the most it needed.
+   * @throws {ArchetypeRefusal} For inconsistent support/options, an unreachable or unsupported hitch height, an invalid support/articulation, a coupling that does not close, a nonpositive projected reach, missing contacts/line ends or front steering beyond its declared lock.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is held, the trailer model, the integration, determinism and what is published.
-   * @evidence contracts/development/implementation.md#principled-implementation The kinematic single-axle trailer: with the coupling a distance L ahead of the axle and the axle's velocity along the trailer's heading, the heading's rate is the hitch velocity's component along the trailer's left over L. The hitch's velocity is the central difference of the leader's hitch frame over a millisecond, the leader's state being closed form; the heading is integrated by RK4 at the integrator's default step and read by Hermite interpolation, so playback and seeking read one motion. With a front axle the pivot's velocity is the hitch's less the first link's turn times its reach, and the body's heading turns toward the pivot at the pivot's sideways speed over the body's length: the standard model of a car with a pivoted trailer, here a pole with a dolly and its body.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Measure the coupling, integrate the heading over the leader's running time, then one sampler placing the axle behind the hitch and laying the lines on the two posed models.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The trailer stands at the hitch's height less the coupling's, so a grade is followed only through the hitch; a tyre's sideways slip is left out, which holds at the walking-to-trotting speeds of drawn vehicles.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four right-hand-side evaluations per sixtieth of a second, each two reads of the leader, once per ride; a sample is one Hermite read and one leader read.
+   * @evidence contracts/development/implementation.md#principled-implementation Planar no-side-slip heading uses the actual height-dependent horizontal lever projection from ArchetypeTowing. The existing millisecond central difference and shared RK4 trajectory remain; a front pivot's velocity includes both heading and projected-length derivatives. Exact axle/pole pitch closes the actual coupling while keeping declared wheel supports at the common course-ground datum.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare one declared geometry owner, integrate the existing planar headings, then sample its supported placement and source joint travels before emitting actual inter-model lines.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unknown support is inferred, chassis height correction or stretched shaft hides mismatch. Actual coupling closure is checked at scale-dependent binary64 error. This planar model does not solve terrain profiles, suspension, wheel loads or tyre slip.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The existing four RK4 evaluations per default step use a fixed number of leader/course reads and closed geometry operations; sampling reads the prepared trajectory and source articulations once, without another solver loop.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The integrated heading serves every sample.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride holds the leader, the trailer and the heading's knots for as long as its caller keeps it.
    */
@@ -241,34 +245,22 @@ export namespace ArchetypeRide {
     options: {
       axle?: IAutoMovieVector3;
       pose?: (state: ArchetypeCourse.IState) => Archetype<Id, Dimension>;
-      front?: { pivot: IAutoMovieVector3; turn: Id };
+      front?: ArchetypeTowing.IFront<Id>;
+      support?: ArchetypeTowing.Support<Id>;
       lines?: readonly ILine[];
     } = {},
   ): IRide<Id, Dimension> {
-    const axle: IAutoMovieVector3 = options.axle ?? { x: 0, y: 0, z: 0 };
-    const local: IAutoMovieVector3 =
-      trailer.affordance(coupling).frame.translation;
-
-    // The links from the hitch back: the coupling to the axle, or the pole to the front axle's pivot and the pivot to the rear axle.
-    const pivot: IAutoMovieVector3 | null = options.front?.pivot ?? null;
-    const reach: number = local.z - (pivot ?? axle).z;
-    const body: number = pivot === null ? 0 : pivot.z - axle.z;
-    for (const [axis, value, behind] of [
-      ["coupling", reach, pivot === null ? "axle" : "front axle's pivot"],
-      ...(pivot === null ? [] : [["pivot", body, "rear axle"] as const]),
-    ] as const)
-      if (!(value > 0))
-        throw new ArchetypeRefusal({
-          kind: "parameter",
-          archetype: trailer.archetype,
-          axis,
-          value,
-          feasible: { kind: "range", minimum: 0, maximum: null, unit: "m" },
-          reason: `the ${axis} lies ${-value} m behind the ${behind}, so the trailer would push rather than trail`,
-          fix: `hitch the trailer by a contact ahead of its ${behind}`,
-        });
-    const hitchAt = (seconds: number): IAutoMovieVector3 =>
-      leader.frame(hitch, seconds).translation;
+    const geometry: ArchetypeTowing.IPrepared<Id> = ArchetypeTowing.prepare(
+      trailer,
+      coupling,
+      options,
+    );
+    const front: ArchetypeTowing.IFront<Id> | null = geometry.front;
+    const hitchAt: (seconds: number) => IAutoMovieVector3 = (
+      seconds: number,
+    ): IAutoMovieVector3 => leader.frame(hitch, seconds).translation;
+    const groundAt: (seconds: number) => number = (seconds: number): number =>
+      leader.plan.at(seconds).placement.translation.y;
     const end: number = Math.max(leader.duration, 1e-3);
     const start: IAutoMovieVector3 = ArchetypeFrame.axis(
       leader.at(0).placement,
@@ -288,30 +280,46 @@ export namespace ArchetypeRide {
           const vx: number = (ahead.x - behind.x) / 1e-3;
           const vz: number = (ahead.z - behind.z) / 1e-3;
           const theta: number = x[0]!;
+          const reach: number = geometry.height(
+            hitchAt(t).y,
+            groundAt(t),
+          ).reach;
           const rate: number =
             (vx * Math.cos(theta) - vz * Math.sin(theta)) / reach;
-          if (pivot === null) return { dx: [rate] };
-          const px: number = vx - reach * rate * Math.cos(theta);
-          const pz: number = vz + reach * rate * Math.sin(theta);
+          if (front === null) return { dx: [rate] };
+          const reachRate: number =
+            (geometry.height(ahead.y, groundAt(t + 5e-4)).reach -
+              geometry.height(behind.y, groundAt(t - 5e-4)).reach) /
+            1e-3;
+          const px: number =
+            vx - reachRate * Math.sin(theta) - reach * rate * Math.cos(theta);
+          const pz: number =
+            vz - reachRate * Math.cos(theta) + reach * rate * Math.sin(theta);
           const phi: number = x[1]!;
           return {
-            dx: [rate, (px * Math.cos(phi) - pz * Math.sin(phi)) / body],
+            dx: [
+              rate,
+              (px * Math.cos(phi) - pz * Math.sin(phi)) / geometry.body,
+            ],
           };
         },
-        x0: pivot === null ? [yaw] : [yaw, yaw],
+        x0: front === null ? [yaw] : [yaw, yaw],
         t0: 0,
         t1: end,
       });
 
     // A front axle turned past its lock at any knot refuses the course, naming the most it needed.
-    if (options.front !== undefined) {
-      const lock: number = trailer.affordance(options.front.turn).travel ?? 0;
+    if (front !== null) {
+      const lock: number = trailer.affordance(front.turn).travel ?? 0;
       let most: number = 0;
       for (let k: number = 0; k < heading.knots; k++) {
         const x: readonly number[] = heading.at(
           Math.min(heading.t0 + k * heading.h, heading.t1),
         ).x;
-        most = Math.max(most, Math.abs((x[0]! - x[1]!) / ArchetypeUnits.DEGREE));
+        most = Math.max(
+          most,
+          Math.abs((x[0]! - x[1]!) / ArchetypeUnits.DEGREE),
+        );
       }
       if (most > lock)
         throw new ArchetypeRefusal({
@@ -341,14 +349,16 @@ export namespace ArchetypeRide {
           fix: "give the line its two ends at least",
         });
 
-    // The lines at a second: each point on its own model, posed and placed as the leader's ride and this one have it.
-    const lay = (
+    /** Every line reads actual endpoints after both independent source poses. */
+    function lay(
       lead: ISample<LeaderId, LeaderDimension>,
       posed: Archetype<Id, Dimension>,
       placement: IAutoMovieTransform,
-    ): { lines?: readonly ILineState[] } => {
+    ): { lines?: readonly ILineState[] } {
       if (options.lines === undefined) return {};
-      const world = (
+
+      /** The shared span owner resolves an actual endpoint before placement. */
+      function world(
         model: Readonly<{
           archetype: string;
           parts: readonly IAutoMovieModelPart[];
@@ -356,8 +366,8 @@ export namespace ArchetypeRide {
         }>,
         where: IAutoMovieTransform,
         end: ArchetypeSpan.End,
-      ): IAutoMovieVector3 =>
-        ArchetypeFrame.point(
+      ): IAutoMovieVector3 {
+        return ArchetypeFrame.point(
           where,
           ArchetypeSpan.locate(
             model.archetype,
@@ -366,6 +376,7 @@ export namespace ArchetypeRide {
             model.affordances,
           ),
         );
+      }
       return {
         lines: options.lines.map(
           (line: ILine): ILineState => ({
@@ -380,58 +391,59 @@ export namespace ArchetypeRide {
           }),
         ),
       };
-    };
-    const at = (seconds: number): ISample<Id, Dimension> => {
+    }
+    const at: (seconds: number) => ISample<Id, Dimension> = (
+      seconds: number,
+    ): ISample<Id, Dimension> => {
       const sample: ISample<LeaderId, LeaderDimension> = leader.at(seconds);
       const state: readonly number[] = heading.at(seconds).x;
       const theta: number = state[0]!;
-      const turn = (radians: number): IAutoMovieTransform["rotation"] =>
-        Quaternion.fromAxisAngle(
-          { x: 0, y: 1, z: 0 },
-          radians / ArchetypeUnits.DEGREE,
-        );
+      const phi: number = front === null ? theta : state[1]!;
       const point: IAutoMovieVector3 = hitchAt(seconds);
       const posed: Archetype<Id, Dimension> =
         options.pose?.(sample.course) ?? trailer;
-      if (pivot === null || options.front === undefined) {
-        const rotation: IAutoMovieTransform["rotation"] = turn(theta);
-        const placement: IAutoMovieTransform = {
-          translation: Vector3.subtract(
-            point,
-            Quaternion.rotateVector(rotation, local),
-          ),
-          rotation,
-          scale: { ...ArchetypeFrame.UNIT },
-        };
-        return {
-          archetype: posed,
-          placement,
-          course: { ...sample.course, placement },
-          ...lay(sample, posed, placement),
-        };
-      }
-
-      // The pivot behind the hitch along the first link, the body behind the pivot along the second, and the front axle turned by the links' difference.
-      const phi: number = state[1]!;
-      const rotation: IAutoMovieTransform["rotation"] = turn(phi);
-      const joint: IAutoMovieVector3 = Vector3.subtract(
+      const solved: ReturnType<typeof geometry.pose> = geometry.pose(
         point,
-        Quaternion.rotateVector(turn(theta), Vector3.subtract(local, pivot)),
+        groundAt(seconds),
+        theta,
+        phi,
       );
-      const placement: IAutoMovieTransform = {
-        translation: Vector3.subtract(
-          joint,
-          Quaternion.rotateVector(rotation, pivot),
+      const placement: IAutoMovieTransform = solved.placement;
+      const steered: Archetype<Id, Dimension> =
+        Object.keys(solved.travels).length === 0
+          ? posed
+          : posed.articulate({ ...posed.state, ...solved.travels });
+      const local: IAutoMovieVector3 =
+        steered.affordance(coupling).frame.translation;
+      const achieved: IAutoMovieVector3 = ArchetypeFrame.point(
+        placement,
+        local,
+      );
+      const scale: number = Math.max(
+        ...[point, local, placement.translation].flatMap(
+          (p: IAutoMovieVector3): number[] => [
+            Math.abs(p.x),
+            Math.abs(p.y),
+            Math.abs(p.z),
+          ],
         ),
-        rotation,
-        scale: { ...ArchetypeFrame.UNIT },
-      };
-      const steer: Partial<Record<Id, number>> = {};
-      steer[options.front.turn] = (theta - phi) / ArchetypeUnits.DEGREE;
-      const steered: Archetype<Id, Dimension> = posed.articulate({
-        ...posed.state,
-        ...steer,
-      });
+      );
+      const error: number = Math.hypot(
+        achieved.x - point.x,
+        achieved.y - point.y,
+        achieved.z - point.z,
+      );
+      if (!Number.isFinite(error) || error > 64 * Number.EPSILON * scale)
+        throw new ArchetypeRefusal({
+          kind: "parameter",
+          archetype: trailer.archetype,
+          axis: "coupling",
+          value: achieved,
+          feasible: null,
+          reason:
+            "The posed source coupling does not close on its declared supported geometry",
+          fix: "Keep the source coupling on its declared axle/drawbar and preserve those frames in pose.",
+        });
       return {
         archetype: steered,
         placement,

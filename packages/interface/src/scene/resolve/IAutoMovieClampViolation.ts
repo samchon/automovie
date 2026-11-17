@@ -1,5 +1,3 @@
-
-
 /**
  * One component of a channel value that exceeded its bound and was clamped.
  *

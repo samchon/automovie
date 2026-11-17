@@ -1,6 +1,9 @@
-import { type IAutoMovieContinuityTolerances, type IAutoMovieViolationCollector, IAutoMovieBeatEndActorState, IAutoMovieBeatEndState } from "@automovie/interface";
-
-
+import {
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndState,
+  type IAutoMovieContinuityTolerances,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 

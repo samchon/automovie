@@ -1,5 +1,3 @@
-
-
 /**
  * Chunk-local triangle attribution to one adaptive leaf of a local Hermite field.
  * A cell crossing a chunk boundary receives a separate range in each chunk, and a

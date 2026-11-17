@@ -1,6 +1,18 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanGuard, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingStance, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanGuard,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingStance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
@@ -160,7 +172,10 @@ export namespace guard {
         ? { left: second, right: first }
         : { left: first, right: second };
     const lift: number = 0.02 * body.measure.stature;
-    const foot = (side: "left" | "right", t: number): IAutoMovieMotionHumanFoot.IPlacement => {
+    const foot = (
+      side: "left" | "right",
+      t: number,
+    ): IAutoMovieMotionHumanFoot.IPlacement => {
       if (!moves(side)) return from[side];
       const [a, b] = window[side];
       const s: number = minimumJerk((t - a) / (b - a)).s;
@@ -229,7 +244,10 @@ export namespace guard {
           joints: { ...entry.joints, ...StrikingStance.joints() },
           limbs: {},
         };
-        const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
+        const feet: Record<
+          "left" | "right",
+          IAutoMovieMotionHumanFoot.IPlacement
+        > = {
           left: foot("left", t),
           right: foot("right", t),
         };
@@ -262,7 +280,10 @@ export namespace guard {
     hands: Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm">,
     s: number,
   ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> {
-    const out: Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> = {};
+    const out: Pick<
+      IAutoMovieMotionHumanPosture["limbs"],
+      "leftArm" | "rightArm"
+    > = {};
     for (const arm of ["leftArm", "rightArm"] as const) {
       const to: IAutoMovieMotionHumanPosture.IGoal = hands[arm]!;
       const from: IAutoMovieMotionHumanPosture.IGoal | undefined =

@@ -1,7 +1,7 @@
-import type { IAutoMovieViewPart, IAutoMovieHumanFootSource } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieHumanFootSource,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanFootSource } from "../foot/AutoMovieHumanFootSource";
 

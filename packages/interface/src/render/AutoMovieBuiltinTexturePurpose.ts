@@ -1,5 +1,3 @@
-
-
 /** Actual implicit material and rectangular-light texture consumer roles.
  *
  * @evidence contracts/development/design.md#principled-representation The closed roles name implicit textures actually required by subsurface, normal overlay and rectangular-area-light consumers; requiredAutoMovieMaterialTexturePurposes derives the material roles and residency reports observed runtime roles.

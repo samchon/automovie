@@ -1,6 +1,14 @@
-import { type IAutoMovieEffectSample, type IAutoMovieFilmEffectCurrentIdentity, type IAutoMovieProductionFilmEffectSample, IAutoMovieCompiledFilmEffect, IAutoMovieFilmTimeline } from "@automovie/interface";
-import { sampleCompiledEffect, sampleProductionFilmEffects } from "@automovie/engine";
-
+import {
+  sampleCompiledEffect,
+  sampleProductionFilmEffects,
+} from "@automovie/engine";
+import {
+  IAutoMovieCompiledFilmEffect,
+  type IAutoMovieEffectSample,
+  type IAutoMovieFilmEffectCurrentIdentity,
+  IAutoMovieFilmTimeline,
+  type IAutoMovieProductionFilmEffectSample,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";

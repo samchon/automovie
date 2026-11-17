@@ -4,7 +4,7 @@ import type { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
 export namespace IAutoMovieSampleSweepSection {
   /**
    * Sample a section's radius from its origin at evenly spaced polar angles.
-   * 
+   *
    * Radius `k` lies along angle `2 pi k / count`, measured counterclockwise from
    * the section plane's `+x` axis. A radial section is read through its periodic
    * spline, `interpolateAutoMovieSpline`. A superellipse centred on its origin is read in
@@ -16,7 +16,7 @@ export namespace IAutoMovieSampleSweepSection {
    * segment (at least 1,024) to bracket each angle between two curve parameters,
    * then the parameter is bisected forty times against the curve's own polar
    * angle, so the radius lies on the exact curve rather than on a chord.
-   * 
+   *
    * The walk checks the sampled curve for star-shapedness about its origin and winding
    * counterclockwise: the polar angle must strictly increase between successive
    * points and turn once in total, or the curve is refused, because the sampled walk would not pair its points by direction.

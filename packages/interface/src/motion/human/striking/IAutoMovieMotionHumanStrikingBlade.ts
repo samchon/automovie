@@ -1,7 +1,7 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionClock } from "../compose/IAutoMovieMotionClock";
 import type { IAutoMovieMotionHumanStrikingAdvance } from "./IAutoMovieMotionHumanStrikingAdvance";
 import type { IAutoMovieMotionHumanStrikingHeld } from "./IAutoMovieMotionHumanStrikingHeld";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * The stroke of a held tool, shared by every blade and firearm action: the

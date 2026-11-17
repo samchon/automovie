@@ -1,8 +1,27 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanToolWork, IAutoMovieMotionTarget, IAutoMovieResolvedBone, IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
 import { createTool, createVessel } from "@automovie/archetypes";
-import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanRefusal } from "@automovie/motions";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanToolWork,
+  IAutoMovieMotionTarget,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -109,9 +128,15 @@ export function archetypeToolUse(name: "m-average" | "f-small"): void {
     }
     const act: IAutoMovieMotionHumanSegment.ISegment = film
       .segments("a")
-      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "useTool")!;
+      .find(
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+          s.name === "useTool",
+      )!;
     const face = (seconds: number): IAutoMovieVector3 => {
-      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("tool", seconds);
+      const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
+        "tool",
+        seconds,
+      );
       return Vector3.add(
         frame.position,
         Quaternion.rotateVector(
@@ -146,10 +171,8 @@ export function archetypeToolUse(name: "m-average" | "f-small"): void {
 
     // 3. The tool rides the hand rigidly.
     const inHand = (seconds: number): IAutoMovieVector3 => {
-      const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> = film.bones(
-        "a",
-        seconds,
-      );
+      const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
+        film.bones("a", seconds);
       const socket: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripRight"] =
         body.surfaces.sockets.gripRight;
       const hand: IAutoMovieResolvedBone = bones.get(socket.bone)!;

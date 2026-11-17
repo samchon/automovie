@@ -1,12 +1,13 @@
-import type { IAutoMovieLoftRelief, IAutoMovieHumanTrunkFeature, IAutoMovieHumanTrunkReliefNet } from "@automovie/interface";
-
-
+import { AutoMovieLoftRelief } from "@automovie/engine";
+import type {
+  IAutoMovieHumanTrunkFeature,
+  IAutoMovieHumanTrunkReliefNet,
+  IAutoMovieLoftRelief,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSeamCarve } from "../lofting/AutoMovieHumanSeamCarve";
 import { AutoMovieHumanSeamUnion } from "../lofting/AutoMovieHumanSeamUnion";
-import { AutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
-
 
 /**
  * The merge of a feature into the trunk: a relief window over the trunk's
@@ -30,10 +31,6 @@ import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFra
 export namespace AutoMovieHumanTrunkReliefNet {
   /** Controls across each direction of a trunk window. */
   export const COUNT: number = 15;
-
-  
-
-  
 
   /**
    * A relief window from a feature.
@@ -69,7 +66,10 @@ export namespace AutoMovieHumanTrunkReliefNet {
     // A paired feature's footprint lies on one side of the median plane, the
     // left's between the front and the back midline phases, and its mirror
     // takes the other side, so its window stays on its own side.
-    const side: [number, number] = window.phases[0] >= 0 && window.phases[1] <= Math.PI ? [0, Math.PI] : [-Infinity, Infinity];
+    const side: [number, number] =
+      window.phases[0] >= 0 && window.phases[1] <= Math.PI
+        ? [0, Math.PI]
+        : [-Infinity, Infinity];
     const phases: [number, number] = [
       Math.max(side[0], window.phases[0] - grow * tLength),
       Math.min(side[1], window.phases[1] + grow * tLength),
@@ -79,16 +79,34 @@ export namespace AutoMovieHumanTrunkReliefNet {
 
     // The feature drawn toward its apex on a side a bound holds, so the
     // footprint's edge stands on that side's first inner control.
-    const draw = (lo: number, hi: number, apex: number, held: readonly [number, number]): ((x: number) => number) => {
+    const draw = (
+      lo: number,
+      hi: number,
+      apex: number,
+      held: readonly [number, number],
+    ): ((x: number) => number) => {
       const innerLow: number = held[0] + first * (held[1] - held[0]);
       const innerHigh: number = held[0] + last * (held[1] - held[0]);
-      const below: number = (apex - lo) / Math.max(Number.EPSILON, apex - innerLow);
-      const above: number = (hi - apex) / Math.max(Number.EPSILON, innerHigh - apex);
+      const below: number =
+        (apex - lo) / Math.max(Number.EPSILON, apex - innerLow);
+      const above: number =
+        (hi - apex) / Math.max(Number.EPSILON, innerHigh - apex);
 
-      return (x: number): number => apex + (x - apex) * (x < apex ? below : above);
+      return (x: number): number =>
+        apex + (x - apex) * (x < apex ? below : above);
     };
-    const drawn: (s: number) => number = draw(window.stations[0], window.stations[1], apexS, stations);
-    const turned: (t: number) => number = draw(window.phases[0], window.phases[1], apexT, phases);
+    const drawn: (s: number) => number = draw(
+      window.stations[0],
+      window.stations[1],
+      apexS,
+      stations,
+    );
+    const turned: (t: number) => number = draw(
+      window.phases[0],
+      window.phases[1],
+      apexT,
+      phases,
+    );
     const heights: number[] = [];
 
     for (let i: number = 0; i < n; i++)
@@ -103,7 +121,11 @@ export namespace AutoMovieHumanTrunkReliefNet {
         // in-plane coordinates give the height the feature has there.
         const s: number = stations[0] + ((i - 1) / (n - 3)) * sSpan;
         const t: number = phases[0] + ((j - 1) / (n - 3)) * tSpan;
-        const [u, v]: [number, number, number] = AutoMovieHumanTrunkFeatureFrame.local(feature.frame, base(drawn(s), turned(t)));
+        const [u, v]: [number, number, number] =
+          AutoMovieHumanTrunkFeatureFrame.local(
+            feature.frame,
+            base(drawn(s), turned(t)),
+          );
         heights.push(feature.height(u, v));
       }
     const relief: IAutoMovieLoftRelief = {
@@ -143,12 +165,16 @@ export namespace AutoMovieHumanTrunkReliefNet {
    * @param name The right relief's name.
    * @returns The right relief.
    */
-  export function mirror(relief: IAutoMovieLoftRelief, name: string): IAutoMovieLoftRelief {
+  export function mirror(
+    relief: IAutoMovieLoftRelief,
+    name: string,
+  ): IAutoMovieLoftRelief {
     const n: number = relief.columns;
     const heights: number[] = [];
 
     for (let i: number = 0; i < relief.rows; i++)
-      for (let j: number = 0; j < n; j++) heights.push(relief.heights[i * n + (n - 1 - j)]!);
+      for (let j: number = 0; j < n; j++)
+        heights.push(relief.heights[i * n + (n - 1 - j)]!);
 
     return {
       ...relief,

@@ -1,4 +1,13 @@
-import type { AutoMovieVector3Tuple, IAutoMovieConstructionOutlineParameter, IAutoMovieLoftFrame, IAutoMovieViewAxis, IAutoMovieViewAxisJet, IAutoMovieViewOutline, IAutoMovieViewParallelAxis, IAutoMovieConstructionParallelAxis } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieConstructionParallelAxis,
+  IAutoMovieLoftFrame,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+  IAutoMovieViewOutline,
+  IAutoMovieViewParallelAxis,
+} from "@automovie/interface";
 
 import { AutoMovieViewAxisJet } from "./AutoMovieViewAxisJet";
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";

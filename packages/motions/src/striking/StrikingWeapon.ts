@@ -1,6 +1,13 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickForm } from "./KickForm";
@@ -165,7 +172,9 @@ export namespace StrikingWeapon {
    * @returns One weapon per id.
    * @throws {Error} When the radii do not match the ids.
    */
-  export function capsules(chain: IChain): IAutoMovieMotionHumanActionPlan.IWeapon[] {
+  export function capsules(
+    chain: IChain,
+  ): IAutoMovieMotionHumanActionPlan.IWeapon[] {
     if (chain.radii.length !== chain.ids.length)
       throw new Error("A weapon chain has one radius per capsule");
     return chain.ids.map(

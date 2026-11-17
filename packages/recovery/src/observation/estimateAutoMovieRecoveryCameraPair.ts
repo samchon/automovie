@@ -1,14 +1,18 @@
-import type { AutoMovieRecoveryOperator, IAutoMovieRecoveryCameraPairAdmissionOperation, IAutoMovieRecoveryCameraPairEstimate, IAutoMovieRecoveryImageFeaturesExtractionOperation, IAutoMovieRecoveryImageFeaturesMatchingOperation, IAutoMovieRecoveryOptions, IAutoMovieRecoveryResult, IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
-
+import type {
+  AutoMovieRecoveryOperator,
+  IAutoMovieRecoveryCameraPairAdmissionOperation,
+  IAutoMovieRecoveryCameraPairEstimate,
+  IAutoMovieRecoveryCameraPairInput,
+  IAutoMovieRecoveryImageFeaturesExtractionOperation,
+  IAutoMovieRecoveryImageFeaturesMatchingOperation,
+  IAutoMovieRecoveryOptions,
+  IAutoMovieRecoveryResult,
+} from "@automovie/interface";
 
 import { admitRecoveryCameraPair } from "../internal/admitRecoveryCameraPair";
 import { createRecoveryCameraEstimate } from "../internal/createRecoveryCameraEstimate";
 import { extractRecoveryImageFeatures } from "../internal/extractRecoveryImageFeatures";
 import { matchRecoveryImageFeatures } from "../internal/matchRecoveryImageFeatures";
-
-
-
-
 
 /**
  * Observe automatic image correspondences and estimate a calibrated relative pose.
@@ -54,7 +58,8 @@ export function estimateAutoMovieRecoveryCameraPair(
       ) ||
       (options.onProgress !== undefined &&
         typeof options.onProgress !== "function") ||
-      (options.cancelled !== undefined && typeof options.cancelled !== "function")
+      (options.cancelled !== undefined &&
+        typeof options.cancelled !== "function")
     )
       throw new Error(
         "invalid-camera-options: only cancellation callback and synchronous progress observer are supported",
@@ -65,7 +70,9 @@ export function estimateAutoMovieRecoveryCameraPair(
       callback = true;
       const requested: boolean | undefined = probe?.();
       if (probe !== undefined && typeof requested !== "boolean")
-        throw new Error("Cancellation callback must return a boolean synchronously");
+        throw new Error(
+          "Cancellation callback must return a boolean synchronously",
+        );
       callback = false;
       return requested === true;
     };
@@ -82,8 +89,11 @@ export function estimateAutoMovieRecoveryCameraPair(
           camera: {
             ...view.camera,
             focalPx: [...view.camera.focalPx],
-            principalPointPx: [...view.camera.principalPointPx] } }),
-      ) };
+            principalPointPx: [...view.camera.principalPointPx],
+          },
+        }),
+      ),
+    };
     admitted = true;
     const checkpoint: (
       phase: string,
@@ -96,7 +106,8 @@ export function estimateAutoMovieRecoveryCameraPair(
       callback = false;
       if (cancelled()) throw cancellation;
     };
-    const features: ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[] = [];
+    const features: ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[] =
+      [];
     checkpoint("image-features", 0, 2);
     for (const view of stable.views) {
       features.push(
@@ -132,16 +143,19 @@ export function estimateAutoMovieRecoveryCameraPair(
           : `Camera refused: ${value.refusalReasons.join(", ")}`,
         "Supplied intrinsics and scene rigidity are assertions; metric scale, unseen geometry and a recovered surface remain unobserved",
         "Deterministic sampling targets and local fit residuals do not establish physical correspondence truth or estimated covariance",
-      ] };
+      ],
+    };
   } catch (error: unknown) {
     if (error === cancellation && !callback)
       return {
         operator,
         status: "cancelled",
-        diagnostics: [cancellation.message] };
+        diagnostics: [cancellation.message],
+      };
     return {
       operator,
       status: admitted || callback ? "failed" : "refused",
-      diagnostics: [error instanceof Error ? error.message : String(error)] };
+      diagnostics: [error instanceof Error ? error.message : String(error)],
+    };
   }
 }

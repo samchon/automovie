@@ -1,6 +1,12 @@
-import { type IAutoMovieDrawingDesignIndex, type IAutoMovieSectionDrawingSpaces, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieDrawingPoint, IAutoMovieDrawingRegion, IAutoMovieModel } from "@automovie/interface";
-
-
+import {
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  type IAutoMovieDrawingDesignIndex,
+  IAutoMovieDrawingPoint,
+  IAutoMovieDrawingRegion,
+  IAutoMovieModel,
+  type IAutoMovieSectionDrawingSpaces,
+} from "@automovie/interface";
 
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
 import { autoMovieDrawingCellSection } from "./autoMovieDrawingCellSection";
@@ -37,7 +43,9 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Every cell of a space shares that space's one finish from the table, and element and model lookups come from the design index rather than scans.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The finish table and material sets live for the call and are released on return; they are bounded by the space count and the distinct materials per space, and only the returned regions and ids, owned by the caller, survive.
  */
-export const sectionAutoMovieDrawingSpaces = (props: IAutoMovieSectionDrawingSpaces.IProps): IAutoMovieSectionDrawingSpaces.IResult => {
+export const sectionAutoMovieDrawingSpaces = (
+  props: IAutoMovieSectionDrawingSpaces.IProps,
+): IAutoMovieSectionDrawingSpaces.IResult => {
   const { environment, frame, design, spaces } = props;
   const finishes: Map<string, string | null> = spaceFinishes(
     environment,

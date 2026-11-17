@@ -1,6 +1,11 @@
-import type { IAutoMovieRetargetContactProps, IAutoMovieJointConstraint, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieSkeleton } from "@automovie/interface";
 import { retargetHumanoidMotion } from "@automovie/engine";
-
+import type {
+  IAutoMovieJointConstraint,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieRetargetContactProps,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation } from "../internal/predicates";

@@ -1,6 +1,14 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupport, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanBodyFitTypes,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSupport,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanBodyFit } from "../posture/HumanBodyFit";
 import { HumanBodyFitMerit } from "../posture/HumanBodyFitMerit";
@@ -64,7 +72,10 @@ export namespace supportKey {
         f.bearing === undefined ? [] : [f.bearing],
     );
     const targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [
-      ...forms.map((f: supportContact.IForm): IAutoMovieMotionHumanBodyFitTypes.ITarget => f.target),
+      ...forms.map(
+        (f: supportContact.IForm): IAutoMovieMotionHumanBodyFitTypes.ITarget =>
+          f.target,
+      ),
       ...swings,
     ];
     // Select the less violated of the previous solution and the geometrically
@@ -142,19 +153,25 @@ export namespace supportKey {
     base: IAutoMovieMotionHumanPosture,
     stance: IAutoMovieMotionHumanSupport.IStance,
     from: IAutoMovieMotionHumanPosture,
-    place: (c: IAutoMovieMotionHumanSupport.IContact) => IAutoMovieVector3 | null = (): null =>
-      null,
+    place: (
+      c: IAutoMovieMotionHumanSupport.IContact,
+    ) => IAutoMovieVector3 | null = (): null => null,
   ): IAutoMovieMotionHumanPosture {
     if (stance.prefer === undefined) return base;
-    const anchors: { contact: IAutoMovieMotionHumanSupport.IContact; at: IAutoMovieVector3 }[] =
-      stance.contacts.flatMap(
-        (
-          c: IAutoMovieMotionHumanSupport.IContact,
-        ): { contact: IAutoMovieMotionHumanSupport.IContact; at: IAutoMovieVector3 }[] => {
-          const at: IAutoMovieVector3 | null = place(c);
-          return at === null ? [] : [{ contact: c, at }];
-        },
-      );
+    const anchors: {
+      contact: IAutoMovieMotionHumanSupport.IContact;
+      at: IAutoMovieVector3;
+    }[] = stance.contacts.flatMap(
+      (
+        c: IAutoMovieMotionHumanSupport.IContact,
+      ): {
+        contact: IAutoMovieMotionHumanSupport.IContact;
+        at: IAutoMovieVector3;
+      }[] => {
+        const at: IAutoMovieVector3 | null = place(c);
+        return at === null ? [] : [{ contact: c, at }];
+      },
+    );
     const turned: IAutoMovieMotionHumanPosture = {
       root: from.root,
       yaw: base.yaw + (stance.turn ?? 0),

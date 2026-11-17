@@ -1,8 +1,9 @@
-import type { IAutoMovieHumanFootSource, IAutoMovieHumanSiteControls } from "@automovie/interface";
-
+import type {
+  IAutoMovieHumanFootSource,
+  IAutoMovieHumanSiteControls,
+} from "@automovie/interface";
 
 import { AutoMovieHumanFootSource } from "../foot/AutoMovieHumanFootSource";
-
 
 /** Bounded ankle-region contact capability directly from shared local controls, without a complete leg. */
 export function AutoMovieHumanLegRegion(

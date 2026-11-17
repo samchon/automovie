@@ -1,6 +1,10 @@
-import type { IAutoMovieRetargetHandContact, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieSkeleton } from "@automovie/interface";
 import { retargetHumanoidMotion } from "@automovie/engine";
-
+import type {
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieRetargetHandContact,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {

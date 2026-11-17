@@ -1,6 +1,9 @@
-import type { IAutoMovieRecoveryImageRecipe, IAutoMovieRecoveryImageInput, IAutoMovieRecoveryImageObservation } from "@automovie/interface";
 import { decodeAutoMoviePpmImage } from "@automovie/ingest";
-
+import type {
+  IAutoMovieRecoveryImageInput,
+  IAutoMovieRecoveryImageObservation,
+  IAutoMovieRecoveryImageRecipe,
+} from "@automovie/interface";
 import {
   compileAutoMovieRecoveryImageLoft,
   compileAutoMovieRecoverySupportLoft,

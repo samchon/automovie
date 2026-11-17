@@ -1,12 +1,13 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanFootFrame, IAutoMovieHumanFootPrior, IAutoMovieHumanFootToeLines } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootFrame,
+  IAutoMovieHumanFootPrior,
+  IAutoMovieHumanFootToeLines,
+} from "@automovie/interface";
 
 import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
 import { AutoMovieHumanHandWindow } from "../hand/AutoMovieHumanHandWindow";
 import { AutoMovieHumanFootToeTaper } from "./AutoMovieHumanFootToeTaper";
-
 
 /**
  * Each toe's line, from its metatarsal head to its apex.
@@ -22,36 +23,62 @@ import { AutoMovieHumanFootToeTaper } from "./AutoMovieHumanFootToeTaper";
  * `AutoMovieHumanFootToeJoints`.
  */
 export namespace AutoMovieHumanFootToeLines {
-  
-
   /**
    * The lines of a foot's five toes.
    *
    * @param frame The foot's frame.
    * @param heads The metatarsal heads' centres, hallux first.
    */
-  export function of(frame: IAutoMovieHumanFootFrame.IFrame, heads: readonly AutoMovieVector3Tuple[]): IAutoMovieHumanFootToeLines.ILine[] {
-    const prior: IAutoMovieHumanFootPrior.IPrior = AutoMovieHumanFootPrior.PRIOR;
+  export function of(
+    frame: IAutoMovieHumanFootFrame.IFrame,
+    heads: readonly AutoMovieVector3Tuple[],
+  ): IAutoMovieHumanFootToeLines.ILine[] {
+    const prior: IAutoMovieHumanFootPrior.IPrior =
+      AutoMovieHumanFootPrior.PRIOR;
 
-    return prior.toes.map((t: IAutoMovieHumanFootPrior.IToe, k: number): IAutoMovieHumanFootToeLines.ILine => {
-      const shaft: number = 0.5 * t.breadth * frame.B;
-      const half: number = shaft * t.pulp;
-      const head: AutoMovieVector3Tuple = heads[k]!;
+    return prior.toes.map(
+      (
+        t: IAutoMovieHumanFootPrior.IToe,
+        k: number,
+      ): IAutoMovieHumanFootToeLines.ILine => {
+        const shaft: number = 0.5 * t.breadth * frame.B;
+        const half: number = shaft * t.pulp;
+        const head: AutoMovieVector3Tuple = heads[k]!;
 
-      // The pad's plantar depth as the toe's span reads it: the span law's
-      // plantar share at the pad and the distal pulp's fullness there, over
-      // the line's plan length (the apex's height changes it by a cosine).
-      const plan: AutoMovieVector3Tuple = frame.at(t.tip[0], t.tip[1], head[1]);
-      const length: number = Math.hypot(plan[0] - head[0], plan[1] - head[1], plan[2] - head[2]);
-      const plantar0: number = 2 * half * t.depth * (1 - prior.toeDorsal) * AutoMovieHumanFootToeTaper.at(k, length, shaft, PAD * length)[1];
-      const joint: number = t.joints[t.joints.length - 1]! * length;
-      const middle: number = (joint + length) / 2;
-      const plantar: number =
-        plantar0 + AutoMovieHumanHandWindow.mass(AutoMovieHumanHandWindow.PULP, { length: length - joint, width: half, depth: plantar0 }, PAD * length - middle, 0);
-      const y: number = head[1] + (plantar + PAD_CLEARANCE - head[1]) / PAD;
+        // The pad's plantar depth as the toe's span reads it: the span law's
+        // plantar share at the pad and the distal pulp's fullness there, over
+        // the line's plan length (the apex's height changes it by a cosine).
+        const plan: AutoMovieVector3Tuple = frame.at(
+          t.tip[0],
+          t.tip[1],
+          head[1],
+        );
+        const length: number = Math.hypot(
+          plan[0] - head[0],
+          plan[1] - head[1],
+          plan[2] - head[2],
+        );
+        const plantar0: number =
+          2 *
+          half *
+          t.depth *
+          (1 - prior.toeDorsal) *
+          AutoMovieHumanFootToeTaper.at(k, length, shaft, PAD * length)[1];
+        const joint: number = t.joints[t.joints.length - 1]! * length;
+        const middle: number = (joint + length) / 2;
+        const plantar: number =
+          plantar0 +
+          AutoMovieHumanHandWindow.mass(
+            AutoMovieHumanHandWindow.PULP,
+            { length: length - joint, width: half, depth: plantar0 },
+            PAD * length - middle,
+            0,
+          );
+        const y: number = head[1] + (plantar + PAD_CLEARANCE - head[1]) / PAD;
 
-      return { head, tip: frame.at(t.tip[0], t.tip[1], y) };
-    });
+        return { head, tip: frame.at(t.tip[0], t.tip[1], y) };
+      },
+    );
   }
 }
 

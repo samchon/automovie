@@ -1,5 +1,12 @@
-import type { IAutoMovieFamily, IAutoMovieLoftChain, IAutoMovieLoftSectionBoundary, IAutoMovieLoftSectionConnect, IAutoMovieLoftSectionLegacy, IAutoMovieLoftSectionSource, IAutoMovieLoftViewRead } from "@automovie/interface";
-
+import type {
+  IAutoMovieFamily,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftSectionBoundary,
+  IAutoMovieLoftSectionConnect,
+  IAutoMovieLoftSectionLegacy,
+  IAutoMovieLoftSectionSource,
+  IAutoMovieLoftViewRead,
+} from "@automovie/interface";
 
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftSectionBoundary } from "./AutoMovieLoftSectionBoundary";
@@ -24,7 +31,6 @@ type Layer = IAutoMovieLoftChain.ILayer & {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieLoftSectionConnect {
-
   /**
    * Capture the actual complete family at a regular station, oriented once.
    *
@@ -56,7 +62,10 @@ export namespace AutoMovieLoftSectionConnect {
       let field: IAutoMovieFamily;
       if (endpoint !== null) field = endpoint.field;
       else {
-        const span: IAutoMovieLoftSectionConnect.ISpan | null = active(chain, station);
+        const span: IAutoMovieLoftSectionConnect.ISpan | null = active(
+          chain,
+          station,
+        );
         if (span?.kind === "native") {
           const inputs: IAutoMovieLoftViewRead.IJets | string =
             AutoMovieLoftSectionBoundary.read(span.law, station);
@@ -100,7 +109,8 @@ export namespace AutoMovieLoftSectionConnect {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a shallow chain copy and explicit changed-span records; no global cache or historical registration selects geometry.
    */
   export function finish(chain: IAutoMovieLoftChain): IAutoMovieLoftChain {
-    let spans: IAutoMovieLoftSectionConnect.ISpan[] = chain.sectionSpans?.slice() ?? [];
+    let spans: IAutoMovieLoftSectionConnect.ISpan[] =
+      chain.sectionSpans?.slice() ?? [];
     let changed: boolean = false;
     for (let index: number = 0; index + 1 < chain.layers.length; index++) {
       const a: Layer = chain.layers[index]!;
@@ -111,17 +121,24 @@ export namespace AutoMovieLoftSectionConnect {
       const last: IAutoMovieFamily | string = capture(chain, b.y);
       if (typeof first === "string" || typeof last === "string")
         throw new Error(typeof first === "string" ? first : (last as string));
-      const law: IAutoMovieLoftSectionConnect.ISpan | string = create(first, a, last, b);
+      const law: IAutoMovieLoftSectionConnect.ISpan | string = create(
+        first,
+        a,
+        last,
+        b,
+      );
       if (typeof law === "string") throw new Error(law);
-      spans = spans.filter((old: IAutoMovieLoftSectionConnect.ISpan): boolean => {
-        const [low, high]: readonly [number, number] = bounds(old);
-        if (low === a.y && high === b.y) return false;
-        if (low < b.y && high > a.y)
-          throw new Error(
-            "A changed native boundary overlaps an existing composed span without re-expression.",
-          );
-        return true;
-      });
+      spans = spans.filter(
+        (old: IAutoMovieLoftSectionConnect.ISpan): boolean => {
+          const [low, high]: readonly [number, number] = bounds(old);
+          if (low === a.y && high === b.y) return false;
+          if (low < b.y && high > a.y)
+            throw new Error(
+              "A changed native boundary overlaps an existing composed span without re-expression.",
+            );
+          return true;
+        },
+      );
       spans.push(law);
       changed = true;
     }
@@ -139,7 +156,10 @@ export namespace AutoMovieLoftSectionConnect {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The pure lookup owns no cross-call result.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a borrowed immutable law and retains nothing.
    */
-  export function active(chain: IAutoMovieLoftChain, station: number): IAutoMovieLoftSectionConnect.ISpan | null {
+  export function active(
+    chain: IAutoMovieLoftChain,
+    station: number,
+  ): IAutoMovieLoftSectionConnect.ISpan | null {
     if (chain.sectionSpans === undefined) return null;
     if (!Array.isArray(chain.sectionSpans))
       throw new Error("The present native span list is malformed.");
@@ -189,7 +209,9 @@ export namespace AutoMovieLoftSectionConnect {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure layout accessor coordinates no work.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or result.
    */
-  export function bounds(span: IAutoMovieLoftSectionConnect.ISpan): readonly [number, number] {
+  export function bounds(
+    span: IAutoMovieLoftSectionConnect.ISpan,
+  ): readonly [number, number] {
     if (span?.kind === "native")
       return [span.law.ends[0].station, span.law.ends[1].station];
     if (span?.kind === "basis" || span?.kind === "mixed")

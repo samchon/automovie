@@ -1,4 +1,13 @@
-import { type IAutoMovieValidateBuiltOpeningOperation, type IAutoMovieViolationCollector, IAutoMovieBuiltElement, IAutoMovieBuiltOpening, IAutoMovieMovablePanel, IAutoMovieOpeningHardware, IAutoMovieOperationState, IAutoMoviePanelValue } from "@automovie/interface";
+import {
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltOpening,
+  IAutoMovieMovablePanel,
+  IAutoMovieOpeningHardware,
+  IAutoMovieOperationState,
+  IAutoMoviePanelValue,
+  type IAutoMovieValidateBuiltOpeningOperation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 import { builtElementSubtree } from "./builtElementSubtree";
@@ -34,19 +43,23 @@ import { validateBuiltTravelMotion } from "./validateBuiltTravelMotion";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per operated opening; the work-wide `driven` table is the state shared across calls, by design.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The subtree, panel index and per-state sets are released on return; `driven` grows by at most one entry per panel and is owned by the caller.
  */
-export const validateBuiltOpeningOperation: (props: IAutoMovieValidateBuiltOpeningOperation.IProps) => void = (props: IAutoMovieValidateBuiltOpeningOperation.IProps): void => {
+export const validateBuiltOpeningOperation: (
+  props: IAutoMovieValidateBuiltOpeningOperation.IProps,
+) => void = (props: IAutoMovieValidateBuiltOpeningOperation.IProps): void => {
   const {
     opening,
     path,
     collector,
-  }: [{
-  opening: IAutoMovieBuiltOpening;
-  path: string;
-  elements: readonly IAutoMovieBuiltElement[];
-  elementIds: ReadonlySet<string>;
-  driven: Map<string, string>;
-  collector: IAutoMovieViolationCollector;
-}][0] = props;
+  }: [
+    {
+      opening: IAutoMovieBuiltOpening;
+      path: string;
+      elements: readonly IAutoMovieBuiltElement[];
+      elementIds: ReadonlySet<string>;
+      driven: Map<string, string>;
+      collector: IAutoMovieViolationCollector;
+    },
+  ][0] = props;
   const operation: IAutoMovieBuiltOpening["operation"] = opening.operation;
   if (operation === undefined) return;
   const base: string = `${path}.operation`;

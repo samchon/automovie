@@ -1,31 +1,22 @@
-import type { IAutoMovieLoftContract, IAutoMovieHumanBodyFrame, IAutoMovieHumanBodyLane, IAutoMovieHumanBodyLaneInterim, IAutoMovieHumanBodyMeasures, IAutoMovieHumanLegWalk, IAutoMovieHumanLimbSources, IAutoMovieHumanSiteViewPart, IAutoMovieHumanTrunkLaws, IAutoMovieHumanTrunkSolution, IAutoMovieHumanTrunkViewLaws } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
-
-
-
+import type {
+  IAutoMovieHumanBodyFrame,
+  IAutoMovieHumanBodyLane,
+  IAutoMovieHumanBodyLaneInterim,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanLegWalk,
+  IAutoMovieHumanLimbSources,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanTrunkLaws,
+  IAutoMovieHumanTrunkSolution,
+  IAutoMovieHumanTrunkViewLaws,
+  IAutoMovieLoftContract,
+} from "@automovie/interface";
 
 import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
-
-
 import { AutoMovieHumanLimbSources } from "./AutoMovieHumanLimbSources";
-
 import { AutoMovieHumanTrunkRows } from "./AutoMovieHumanTrunkRows";
-
-
 import { AutoMovieHumanFootInterim } from "./foot/AutoMovieHumanFootInterim";
-
-
 import { AutoMovieHumanMassInterim } from "./trunk/AutoMovieHumanMassInterim";
-
 import { AutoMovieHumanTrunkInterim } from "./trunk/AutoMovieHumanTrunkInterim";
 import { AutoMovieHumanTrunkLaws } from "./trunk/AutoMovieHumanTrunkLaws";
 import { AutoMovieHumanTrunkViews } from "./trunk/AutoMovieHumanTrunkViews";
@@ -49,15 +40,15 @@ import { AutoMovieHumanTrunkViews } from "./trunk/AutoMovieHumanTrunkViews";
  * the foot's instep and ball lengths.
  */
 export namespace AutoMovieHumanBodyLaneInterim {
-  
-
   /**
    * The lane's input.
    *
    * @param input The person, the old constructions and the skeleton.
    * @returns The body lane's input.
    */
-  export function of(input: IAutoMovieHumanBodyLaneInterim.IInput): IAutoMovieHumanBodyLane.IInput {
+  export function of(
+    input: IAutoMovieHumanBodyLaneInterim.IInput,
+  ): IAutoMovieHumanBodyLane.IInput {
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
     const measures: IAutoMovieHumanBodyMeasures =
       AutoMovieHumanBodyAnatomy.resolve(input.params);
@@ -96,7 +87,10 @@ export namespace AutoMovieHumanBodyLaneInterim {
     const side: (name: "left" | "right") => IAutoMovieHumanBodyLane.ISide = (
       name: "left" | "right",
     ): IAutoMovieHumanBodyLane.ISide => {
-      const fold: (from: number, to: number) => IAutoMovieHumanBodyLane.IFold = (
+      const fold: (
+        from: number,
+        to: number,
+      ) => IAutoMovieHumanBodyLane.IFold = (
         from: number,
         to: number,
       ): IAutoMovieHumanBodyLane.IFold => ({

@@ -1,5 +1,8 @@
-import { type IAutoMovieFootprint, type IAutoMovieFootprintInteriorPoint, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieFootprint,
+  type IAutoMovieFootprintInteriorPoint,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { footprintConvexPieces } from "./footprintConvexPieces";
 import { footprintRing } from "./footprintRing";

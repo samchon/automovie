@@ -1,6 +1,25 @@
-import { type IAutoMovieDrawingDesignIndex, type IAutoMovieDrawingFeatureResolution, type IAutoMovieDeriveDrawing, type IAutoMovieSectionDrawingSpaces, type IAutoMovieValidation, IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace, IAutoMovieDrawing, IAutoMovieDrawingAnnotation, IAutoMovieDrawingAnnotationSpec, IAutoMovieDrawingDimension, IAutoMovieDrawingDimensionSpec, IAutoMovieDrawingFrame, IAutoMovieDrawingGap, IAutoMovieDrawingLine, IAutoMovieDrawingOpeningMark, IAutoMovieDrawingPoint, IAutoMovieDrawingRegion, IAutoMovieDrawingView } from "@automovie/interface";
-
-
+import {
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  type IAutoMovieDeriveDrawing,
+  IAutoMovieDrawing,
+  IAutoMovieDrawingAnnotation,
+  IAutoMovieDrawingAnnotationSpec,
+  type IAutoMovieDrawingDesignIndex,
+  IAutoMovieDrawingDimension,
+  IAutoMovieDrawingDimensionSpec,
+  type IAutoMovieDrawingFeatureResolution,
+  IAutoMovieDrawingFrame,
+  IAutoMovieDrawingGap,
+  IAutoMovieDrawingLine,
+  IAutoMovieDrawingOpeningMark,
+  IAutoMovieDrawingPoint,
+  IAutoMovieDrawingRegion,
+  IAutoMovieDrawingView,
+  type IAutoMovieSectionDrawingSpaces,
+  type IAutoMovieValidation,
+} from "@automovie/interface";
 
 import { validateBuiltEnvironment } from "../architecture/validateBuiltEnvironment";
 import { Vector3 } from "../math/Vector3";
@@ -43,14 +62,19 @@ import { sectionAutoMovieDrawingSpaces } from "./sectionAutoMovieDrawingSpaces";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One design index serves every stage, so element lookups, world matrices and part tessellations are computed once and shared by drafting, opening marks and every dimension end and note; the index is built per call because the environment is the caller's mutable record.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The design index and stage temporaries are owned by this call and released when it returns, bounded by the design's size; only the returned drawing, owned by the caller, survives.
  */
-export const deriveAutoMovieDrawing: (props: IAutoMovieDeriveDrawing.IProps) => IAutoMovieDrawing = (props: IAutoMovieDeriveDrawing.IProps): IAutoMovieDrawing => {
+export const deriveAutoMovieDrawing: (
+  props: IAutoMovieDeriveDrawing.IProps,
+) => IAutoMovieDrawing = (
+  props: IAutoMovieDeriveDrawing.IProps,
+): IAutoMovieDrawing => {
   const {
     environment,
     view,
   }: { environment: IAutoMovieBuiltEnvironment; view: IAutoMovieDrawingView } =
     props;
-  const validated: IAutoMovieValidation =
-    validateBuiltEnvironment({ environment });
+  const validated: IAutoMovieValidation = validateBuiltEnvironment({
+    environment,
+  });
   if (validated.success === false) {
     const first: (typeof validated.violations)[number] =
       validated.violations[0]!;

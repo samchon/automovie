@@ -1,5 +1,3 @@
-
-
 /**
  * Counters for one yielded local Hermite chunk. The generator allocates a fresh
  * record for each chunk; values describe actual emission, including work preceding

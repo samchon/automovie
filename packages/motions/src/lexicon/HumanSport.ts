@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanLexiconParams } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+} from "@automovie/interface";
 
 import { bend } from "../everyday/bend";
 import { crouch } from "../everyday/crouch";
@@ -33,182 +36,254 @@ import { step } from "../striking/step";
  */
 export namespace HumanSport {
   /** Walking-free lunges in place. */
-  export const lunges: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["lunges"]> = HumanActionRow.of("lunges", exercise, {
+  export const lunges: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["lunges"]
+  > = HumanActionRow.of("lunges", exercise, {
     kind: "lunge",
   });
 
   /** High knees, running in place. */
-  export const highKnees: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["highKnees"]> = HumanActionRow.of("highKnees", exercise, {
+  export const highKnees: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["highKnees"]
+  > = HumanActionRow.of("highKnees", exercise, {
     kind: "highKnees",
   });
 
   /** A neck stretch to the side. */
-  export const neckStretch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["neckStretch"]> = HumanActionRow.of("neckStretch", stretch, {
+  export const neckStretch: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["neckStretch"]
+  > = HumanActionRow.of("neckStretch", stretch, {
     kind: "neckSide",
   });
 
   /** A shoulder stretch, the arm drawn across the chest. */
-  export const shoulderStretch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["shoulderStretch"]> = HumanActionRow.of("shoulderStretch", stretch, {
+  export const shoulderStretch: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["shoulderStretch"]
+  > = HumanActionRow.of("shoulderStretch", stretch, {
     kind: "crossBody",
   });
 
   /** A side stretch, the arm overhead. */
-  export const sideStretch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["sideStretch"]> = HumanActionRow.of("sideStretch", stretch, {
+  export const sideStretch: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["sideStretch"]
+  > = HumanActionRow.of("sideStretch", stretch, {
     kind: "overheadSide",
   });
 
   /** A standing quadriceps stretch, the heel drawn to the seat. */
-  export const quadStretch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["quadStretch"]> = HumanActionRow.of("quadStretch", stretch, {
+  export const quadStretch: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["quadStretch"]
+  > = HumanActionRow.of("quadStretch", stretch, {
     kind: "quadriceps",
   });
 
   /** The tree pose of yoga. */
-  export const treePose: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["treePose"]> = HumanActionRow.of("treePose", stretch, {
+  export const treePose: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["treePose"]
+  > = HumanActionRow.of("treePose", stretch, {
     kind: "tree",
   });
 
   /** A bounce to the beat. */
-  export const bounce: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["bounce"]> = HumanActionRow.of("bounce", dance, { kind: "bounce" });
+  export const bounce: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["bounce"]
+  > = HumanActionRow.of("bounce", dance, { kind: "bounce" });
 
   /** A step-touch to the beat. */
-  export const stepTouch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["stepTouch"]> = HumanActionRow.of("stepTouch", dance, {
+  export const stepTouch: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["stepTouch"]
+  > = HumanActionRow.of("stepTouch", dance, {
     kind: "stepTouch",
   });
 
   /** A box step to the beat: forward, side, close, back, side, close. */
-  export const boxStep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["boxStep"]> = HumanActionRow.of("boxStep", dance, {
+  export const boxStep: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["boxStep"]
+  > = HumanActionRow.of("boxStep", dance, {
     kind: "boxStep",
   });
 
   /** The set position of a sprint start. */
-  export const sprintStart: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["sprintStart"]> = HumanActionRow.of("sprintStart", athletics, {});
+  export const sprintStart: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["sprintStart"]
+  > = HumanActionRow.of("sprintStart", athletics, {});
 
   /** A handstand. */
-  export const handstand: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["handstand"]> = HumanActionRow.of("handstand", gymnastics, {});
+  export const handstand: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["handstand"]
+  > = HumanActionRow.of("handstand", gymnastics, {});
 
   /** The horse stance of karate and kung fu. */
-  export const horseStance: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["horseStance"]> = HumanActionRow.of("horseStance", martialArt, {
+  export const horseStance: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["horseStance"]
+  > = HumanActionRow.of("horseStance", martialArt, {
     kind: "horseStance",
   });
 
   /** Straight punches from the horse stance (choku-zuki). */
-  export const karatePunches: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["karatePunches"]> = HumanActionRow.of("karatePunches", martialArt, {
+  export const karatePunches: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["karatePunches"]
+  > = HumanActionRow.of("karatePunches", martialArt, {
     kind: "chokuZuki",
   });
 
   /** The push of tai chi. */
-  export const taiChiPush: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["taiChiPush"]> = HumanActionRow.of("taiChiPush", martialArt, {
+  export const taiChiPush: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["taiChiPush"]
+  > = HumanActionRow.of("taiChiPush", martialArt, {
     kind: "taiChiPush",
   });
 
   /** Dribbling a basketball. */
-  export const dribble: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["dribble"]> = HumanActionRow.of("dribble", ballSport, {
+  export const dribble: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["dribble"]
+  > = HumanActionRow.of("dribble", ballSport, {
     kind: "dribble",
   });
 
   /** A volleyball dig on the forearms. */
-  export const volleyDig: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["volleyDig"]> = HumanActionRow.of("volleyDig", ballSport, {
+  export const volleyDig: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["volleyDig"]
+  > = HumanActionRow.of("volleyDig", ballSport, {
     kind: "dig",
   });
 
   /** A volleyball set overhead. */
-  export const volleySet: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["volleySet"]> = HumanActionRow.of("volleySet", ballSport, {
+  export const volleySet: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["volleySet"]
+  > = HumanActionRow.of("volleySet", ballSport, {
     kind: "set",
   });
 
   /** A football throw-in. */
-  export const throwIn: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["throwIn"]> = HumanActionRow.of("throwIn", ballSport, {
+  export const throwIn: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["throwIn"]
+  > = HumanActionRow.of("throwIn", ballSport, {
     kind: "throwIn",
   });
 
   /** A catcher's crouch behind the plate. */
-  export const catcherCrouch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["catcherCrouch"]> = HumanActionRow.of("catcherCrouch", baseball, {
+  export const catcherCrouch: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["catcherCrouch"]
+  > = HumanActionRow.of("catcherCrouch", baseball, {
     kind: "catcherCrouch",
   });
 
   /** Fielding a ground ball. */
-  export const fieldGrounder: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["fieldGrounder"]> = HumanActionRow.of("fieldGrounder", baseball, {
+  export const fieldGrounder: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["fieldGrounder"]
+  > = HumanActionRow.of("fieldGrounder", baseball, {
     kind: "groundBall",
   });
 
   /** A batter's stance. */
-  export const battingStance: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["battingStance"]> = HumanActionRow.of("battingStance", baseball, {
+  export const battingStance: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["battingStance"]
+  > = HumanActionRow.of("battingStance", baseball, {
     kind: "battingStance",
   });
 
   /** The ready position of tennis and badminton. */
-  export const readyPosition: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["readyPosition"]> = HumanActionRow.of("readyPosition", racket, {
+  export const readyPosition: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["readyPosition"]
+  > = HumanActionRow.of("readyPosition", racket, {
     kind: "readyPosition",
   });
 
   /** The split step before a return. */
-  export const splitStep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["splitStep"]> = HumanActionRow.of("splitStep", racket, {
+  export const splitStep: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["splitStep"]
+  > = HumanActionRow.of("splitStep", racket, {
     kind: "splitStep",
   });
 
   /** Addressing the ball in golf. */
-  export const golfAddress: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["golfAddress"]> = HumanActionRow.of("golfAddress", racket, {
+  export const golfAddress: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["golfAddress"]
+  > = HumanActionRow.of("golfAddress", racket, {
     kind: "golfAddress",
   });
 
   /** A basketball defensive slide: two steps to the left, the stance kept. */
-  export const defensiveSlide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["defensiveSlide"]> = HumanActionRow.of("defensiveSlide", step, {
+  export const defensiveSlide: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["defensiveSlide"]
+  > = HumanActionRow.of("defensiveSlide", step, {
     direction: "left",
     steps: 2,
   });
 
   /** The chair pose of yoga: a partial squat held five seconds (provisional). */
-  export const chairPose: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["chairPose"]> = HumanActionRow.of("chairPose", crouch, {
+  export const chairPose: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["chairPose"]
+  > = HumanActionRow.of("chairPose", crouch, {
     depth: "partial",
     hold: 5,
   });
 
   /** The child's pose of yoga: kneeling, sat back on the heels, ten seconds (provisional). */
-  export const childsPose: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["childsPose"]> = HumanActionRow.of("childsPose", kneel, {
+  export const childsPose: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["childsPose"]
+  > = HumanActionRow.of("childsPose", kneel, {
     kind: "sitBack",
     hold: 10,
   });
 
   /** A hip flexor stretch in the half kneel, twenty seconds (provisional). */
-  export const hipFlexorStretch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["hipFlexorStretch"]> = HumanActionRow.of("hipFlexorStretch", kneel, {
+  export const hipFlexorStretch: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["hipFlexorStretch"]
+  > = HumanActionRow.of("hipFlexorStretch", kneel, {
     kind: "one",
     hold: 20,
   });
 
   /** The corpse pose of yoga: lying on the back, ten seconds (provisional). */
-  export const corpsePose: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["corpsePose"]> = HumanActionRow.of("corpsePose", lieDown, {
+  export const corpsePose: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["corpsePose"]
+  > = HumanActionRow.of("corpsePose", lieDown, {
     position: "supine",
     hold: 10,
   });
 
   /** A standing hamstring stretch: a bend down to the right foot, held twenty seconds (provisional). */
-  export const toeTouch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["toeTouch"]> = HumanActionRow.of("toeTouch", bend, {
+  export const toeTouch: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["toeTouch"]
+  > = HumanActionRow.of("toeTouch", bend, {
     toward: { kind: "self", region: "footTopRight" },
     hold: 20,
   });
 
   /** Treading water. */
-  export const treadWater: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["treadWater"]> = HumanActionRow.of("treadWater", swim, {
+  export const treadWater: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["treadWater"]
+  > = HumanActionRow.of("treadWater", swim, {
     kind: "treadWater",
   });
 
   /** Swimming the front crawl. */
-  export const frontCrawl: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["frontCrawl"]> = HumanActionRow.of("frontCrawl", swim, {
+  export const frontCrawl: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["frontCrawl"]
+  > = HumanActionRow.of("frontCrawl", swim, {
     kind: "frontCrawl",
   });
 
   /** Swimming the breaststroke. */
-  export const breaststroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["breaststroke"]> = HumanActionRow.of("breaststroke", swim, {
+  export const breaststroke: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["breaststroke"]
+  > = HumanActionRow.of("breaststroke", swim, {
     kind: "breaststroke",
   });
 
   /** Swimming the backstroke, head first the way the back faced. */
-  export const backstroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["backstroke"]> = HumanActionRow.of("backstroke", swim, {
+  export const backstroke: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["backstroke"]
+  > = HumanActionRow.of("backstroke", swim, {
     kind: "backstroke",
   });
 
   /** Floating on the back. */
-  export const floating: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sport"]["floating"]> = HumanActionRow.of("floating", swim, {
+  export const floating: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sport"]["floating"]
+  > = HumanActionRow.of("floating", swim, {
     kind: "float",
   });
 }

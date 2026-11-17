@@ -1,6 +1,20 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanLieDown, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanLieDown,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { stand } from "../actions/stand";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -63,7 +77,10 @@ export namespace lieDown {
 
   /** The floor postures (provisional angles). */
   export const POSES: Readonly<
-    Record<"sit" | "kneel" | "quadruped" | IAutoMovieMotionHumanLieDown.Position, IAutoMovieMotionHumanLieDown.IPose>
+    Record<
+      "sit" | "kneel" | "quadruped" | IAutoMovieMotionHumanLieDown.Position,
+      IAutoMovieMotionHumanLieDown.IPose
+    >
   > = {
     sit: pose(-30, 0, { hip: 110, knee: 100, shoulder: -40, elbow: 5 }),
     kneel: pose(0, 0, {
@@ -121,46 +138,49 @@ export namespace lieDown {
   };
 
   /** The sittings whose legs `floorSeat` folds. */
-  const FOLDED: Readonly<Partial<Record<IAutoMovieMotionHumanLieDown.Position, floorSeat.Kind>>> = {
+  const FOLDED: Readonly<
+    Partial<Record<IAutoMovieMotionHumanLieDown.Position, floorSeat.Kind>>
+  > = {
     sitCrossed: "crossed",
     sitSide: "side",
   };
 
   /** The route of postures to each position, after standing, with each arrival's event. */
-  export const ROUTES: Readonly<Record<IAutoMovieMotionHumanLieDown.Position, readonly [string, string][]>> =
-    {
-      supine: [
-        ["sit", "seatContact"],
-        ["supine", "supine"],
-      ],
-      prone: [
-        ["kneel", "kneeContact"],
-        ["quadruped", "handsDown"],
-        ["prone", "prone"],
-      ],
-      lateralLeft: [
-        ["sit", "seatContact"],
-        ["supine", "supine"],
-        ["lateralLeft", "lateral"],
-      ],
-      lateralRight: [
-        ["sit", "seatContact"],
-        ["supine", "supine"],
-        ["lateralRight", "lateral"],
-      ],
-      sitLong: [
-        ["sit", "seatContact"],
-        ["sitLong", "seated"],
-      ],
-      sitCrossed: [
-        ["sit", "seatContact"],
-        ["sitCrossed", "seated"],
-      ],
-      sitSide: [
-        ["sit", "seatContact"],
-        ["sitSide", "seated"],
-      ],
-    };
+  export const ROUTES: Readonly<
+    Record<IAutoMovieMotionHumanLieDown.Position, readonly [string, string][]>
+  > = {
+    supine: [
+      ["sit", "seatContact"],
+      ["supine", "supine"],
+    ],
+    prone: [
+      ["kneel", "kneeContact"],
+      ["quadruped", "handsDown"],
+      ["prone", "prone"],
+    ],
+    lateralLeft: [
+      ["sit", "seatContact"],
+      ["supine", "supine"],
+      ["lateralLeft", "lateral"],
+    ],
+    lateralRight: [
+      ["sit", "seatContact"],
+      ["supine", "supine"],
+      ["lateralRight", "lateral"],
+    ],
+    sitLong: [
+      ["sit", "seatContact"],
+      ["sitLong", "seated"],
+    ],
+    sitCrossed: [
+      ["sit", "seatContact"],
+      ["sitCrossed", "seated"],
+    ],
+    sitSide: [
+      ["sit", "seatContact"],
+      ["sitSide", "seated"],
+    ],
+  };
 
   /**
    * Plan a lie down.
@@ -173,7 +193,8 @@ export namespace lieDown {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLieDown.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const position: IAutoMovieMotionHumanLieDown.Position = context.params.position ?? "supine";
+    const position: IAutoMovieMotionHumanLieDown.Position =
+      context.params.position ?? "supine";
     const hold: number = context.params.hold ?? 2;
     HumanBound.least("hold", hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
@@ -300,7 +321,10 @@ export namespace lieDown {
       ],
       from: 0,
       to: duration,
-      write: (_: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => at(seconds),
+      write: (
+        _: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => at(seconds),
     };
     const settled: number = clock.at("settled") / duration;
     const sitting: boolean = position.startsWith("sit");
@@ -333,12 +357,13 @@ export namespace lieDown {
         to: 1,
         support: { kind: "ground" },
       });
-    const planned: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
-      clock,
-      contact: "settled",
-      primitives: [lying],
-    });
+    const planned: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
+        clock,
+        contact: "settled",
+        primitives: [lying],
+      });
     // Down on the floor the body lies; a lie that stops sitting up is seated
     // (#3363: a base transition declares the base it ends in).
     return {
@@ -348,7 +373,10 @@ export namespace lieDown {
   }
 
   /** A floor posture with its trunk bent to the side at the spine and the chest, degrees of abduction: about the forward axis, so a negative bend tips the trunk to the body's left (`HUMANOID_JOINT_AXES`' default basis). The pelvis stays down while the shoulder comes over the hand leant on. */
-  function bent(posture: IAutoMovieMotionHumanLieDown.IPose, side: readonly [number, number]): IAutoMovieMotionHumanLieDown.IPose {
+  function bent(
+    posture: IAutoMovieMotionHumanLieDown.IPose,
+    side: readonly [number, number],
+  ): IAutoMovieMotionHumanLieDown.IPose {
     const spine: readonly [number, number, number] = posture.joints.spine ?? [
       0, 0, 0,
     ];

@@ -1,8 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { createKeyboard } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanHand, HumanObject, HumanPerformance, HumanRefusal, typeText } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanHand,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  typeText,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -48,7 +60,9 @@ export function test_archetype_keyboard_typing(): void {
           body.measure.forearm +
           0.5 * body.measure.hand,
       });
-      const perform = (at: IAutoMovieVector3): IAutoMovieMotionHumanPerformance =>
+      const perform = (
+        at: IAutoMovieVector3,
+      ): IAutoMovieMotionHumanPerformance =>
         new HumanPerformance({
           seed: "typing",
           laws: [],
@@ -89,9 +103,9 @@ export function test_archetype_keyboard_typing(): void {
       }
 
       // 2. Each press lands on its key.
-      const segment: ReturnType<IAutoMovieMotionHumanPerformance["segments"]>[number] = film
-        .segments("a")
-        .at(-1)!;
+      const segment: ReturnType<
+        IAutoMovieMotionHumanPerformance["segments"]
+      >[number] = film.segments("a").at(-1)!;
       [...text].forEach((letter: string, i: number): void => {
         const t: number =
           segment.start + segment.plan.events[i]!.share * segment.plan.duration;

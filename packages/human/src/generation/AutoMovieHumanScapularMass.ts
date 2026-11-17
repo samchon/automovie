@@ -1,13 +1,13 @@
-import type { IAutoMovieLoftRelief, IAutoMovieHumanScapularMass, IAutoMovieHumanTrunkFeature, IAutoMovieHumanTrunkFeatureFrame } from "@automovie/interface";
-
-
-
-
+import type {
+  IAutoMovieHumanScapularMass,
+  IAutoMovieHumanTrunkFeature,
+  IAutoMovieHumanTrunkFeatureFrame,
+  IAutoMovieLoftRelief,
+} from "@automovie/interface";
 
 import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
 import { AutoMovieHumanTrunkFeatureProfile } from "./AutoMovieHumanTrunkFeatureProfile";
 import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
-
 
 /**
  * The scapula and the muscles on it (supraspinatus, infraspinatus, teres)
@@ -36,24 +36,36 @@ export namespace AutoMovieHumanScapularMass {
   /** The mass's projection over the envelope at its centre, mm. Conventional, flagged: no published skin relief of the blade is on the record. */
   export const PROJECTION: number = 4;
 
-  
-
   /**
    * The left mass as a feature.
    *
    * @param input The centre, the wall's tangent and the sizes.
    * @returns The mass as a height field.
    */
-  export function feature(input: IAutoMovieHumanScapularMass.IInput): IAutoMovieHumanTrunkFeature {
+  export function feature(
+    input: IAutoMovieHumanScapularMass.IInput,
+  ): IAutoMovieHumanTrunkFeature {
     // The tangent turned a quarter back points backward and outward on the back wall.
-    const frame: IAutoMovieHumanTrunkFeatureFrame.IFrame = AutoMovieHumanTrunkFeatureFrame.create(input.centre, [input.tangent[1], 0, -input.tangent[0]]);
+    const frame: IAutoMovieHumanTrunkFeatureFrame.IFrame =
+      AutoMovieHumanTrunkFeatureFrame.create(input.centre, [
+        input.tangent[1],
+        0,
+        -input.tangent[0],
+      ]);
     const half: number = ((OUTER - MEDIAL) / 2) * input.width;
     const lower: number = LOWER * input.span;
-    const upper: number = Math.max(1, Math.min(UPPER * input.span, input.ceiling - input.centre[1]));
+    const upper: number = Math.max(
+      1,
+      Math.min(UPPER * input.span, input.ceiling - input.centre[1]),
+    );
 
     return {
       frame,
-      height: (u: number, v: number): number => PROJECTION * AutoMovieHumanTrunkFeatureProfile.bump(AutoMovieHumanTrunkFeatureProfile.rho(u, v, half, lower, upper)),
+      height: (u: number, v: number): number =>
+        PROJECTION *
+        AutoMovieHumanTrunkFeatureProfile.bump(
+          AutoMovieHumanTrunkFeatureProfile.rho(u, v, half, lower, upper),
+        ),
       reach: { u: [-half, half], v: [-lower, upper] },
       apex: [0, 0],
     };
@@ -65,21 +77,37 @@ export namespace AutoMovieHumanScapularMass {
    * @param input The centre, the wall's tangent and the sizes.
    * @returns The left and the right window.
    */
-  export function create(input: IAutoMovieHumanScapularMass.IInput): IAutoMovieLoftRelief[] {
+  export function create(
+    input: IAutoMovieHumanScapularMass.IInput,
+  ): IAutoMovieLoftRelief[] {
     const mass: IAutoMovieHumanTrunkFeature = feature(input);
     const o: [number, number, number] = mass.frame.origin;
-    const stations: [number, number] = [o[1] + mass.reach.v[0], o[1] + mass.reach.v[1]];
+    const stations: [number, number] = [
+      o[1] + mass.reach.v[0],
+      o[1] + mass.reach.v[1],
+    ];
 
     // On the back the phase falls as the lateral place rises.
     const lateralOf = (u: number): number => o[2] + u * mass.frame.lateral[2];
-    const edges: number[] = [input.phaseOf(lateralOf(mass.reach.u[0])), input.phaseOf(lateralOf(mass.reach.u[1]))];
+    const edges: number[] = [
+      input.phaseOf(lateralOf(mass.reach.u[0])),
+      input.phaseOf(lateralOf(mass.reach.u[1])),
+    ];
     const phases: [number, number] = [Math.min(...edges), Math.max(...edges)];
     const apex: [number, number] = [
       (o[1] - stations[0]) / (stations[1] - stations[0]),
       (input.phaseOf(o[2]) - phases[0]) / (phases[1] - phases[0]),
     ];
-    const left: IAutoMovieLoftRelief = AutoMovieHumanTrunkReliefNet.fromFeature("trunk.scapula.left", mass, { stations, phases, apex }, input.base);
+    const left: IAutoMovieLoftRelief = AutoMovieHumanTrunkReliefNet.fromFeature(
+      "trunk.scapula.left",
+      mass,
+      { stations, phases, apex },
+      input.base,
+    );
 
-    return [left, AutoMovieHumanTrunkReliefNet.mirror(left, "trunk.scapula.right")];
+    return [
+      left,
+      AutoMovieHumanTrunkReliefNet.mirror(left, "trunk.scapula.right"),
+    ];
   }
 }

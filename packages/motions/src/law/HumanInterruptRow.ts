@@ -1,6 +1,5 @@
 import type { IAutoMovieMotionHumanInterruptRow } from "@automovie/interface";
 
-
 /**
  * Companion data of {@link HumanInterruptRow}.
  *

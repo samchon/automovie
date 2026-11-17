@@ -1,12 +1,11 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanGlutealConnection, IAutoMovieHumanGlutealParent } from "@automovie/interface";
-
-
-
 import { AutoMovieLoftSectionNative } from "@automovie/engine";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanGlutealConnection,
+  IAutoMovieHumanGlutealParent,
+} from "@automovie/interface";
 
 import { AutoMovieHumanGlutealParent } from "./AutoMovieHumanGlutealParent";
-
 
 /** Numerical convergence budget for the internal root plane, one micrometre. */
 const ROOT_ACCURACY: number = 1e-3;
@@ -48,14 +47,10 @@ interface RootRefinement {
 
 /** A gluteal root/contact derived from its actual composite original parent. */
 export namespace AutoMovieHumanGlutealConnection {
-  
-
-  
-
-  
-
   /** Derive the internal root from full local AP chords, keeping the independent apex/footprint. */
-  export function create(input: IAutoMovieHumanGlutealConnection.IInput): IAutoMovieHumanGlutealConnection.IConnection | string {
+  export function create(
+    input: IAutoMovieHumanGlutealConnection.IInput,
+  ): IAutoMovieHumanGlutealConnection.IConnection | string {
     if (
       !input.target.every(Number.isFinite) ||
       !input.footprint.every(
@@ -73,7 +68,11 @@ export namespace AutoMovieHumanGlutealConnection {
     if (typeof centre === "string") return centre;
     if (centre.length !== 1)
       return "Gluteal apex has no unique source-supported parent AP chord.";
-    const wall: AutoMovieVector3Tuple = [centre[0]!.back.x, input.target[1], input.target[2]];
+    const wall: AutoMovieVector3Tuple = [
+      centre[0]!.back.x,
+      input.target[1],
+      input.target[2],
+    ];
     const amplitude: number = wall[0] - input.target[0];
     if (!(Number.isFinite(amplitude) && amplitude > 0))
       return `Gluteal parent leaves no positive public AP projection: ${amplitude} mm.`;
@@ -155,7 +154,11 @@ export namespace AutoMovieHumanGlutealConnection {
           Math.abs(upper - previous[1]),
         ) <= ROOT_ACCURACY
       ) {
-        const root: AutoMovieVector3Tuple = [(lower + upper) / 2, wall[1], wall[2]];
+        const root: AutoMovieVector3Tuple = [
+          (lower + upper) / 2,
+          wall[1],
+          wall[2],
+        ];
         return {
           parent,
           wall,
@@ -165,7 +168,9 @@ export namespace AutoMovieHumanGlutealConnection {
           embed: root[0] - wall[0],
           rootInterval: [lower, upper],
           phases: count,
-          contact(phi: number): IAutoMovieHumanGlutealConnection.IContact | string {
+          contact(
+            phi: number,
+          ): IAutoMovieHumanGlutealConnection.IContact | string {
             const value: ReturnType<typeof chordAt> = chordAt(phi);
             if (typeof value === "string") return value;
             if (root[0] < value.chord.back.x || root[0] > value.chord.front.x)

@@ -1,6 +1,13 @@
-import type { IAutoMovieCaptureSubject, IAutoMovieDrawCall, IAutoMovieRenderSpec } from "@automovie/interface";
-
-import { AutoMovieDrawSession, decodeAutoMovieRasterPng, renderAutoMovieDrawnVideo } from "@automovie/render";
+import type {
+  IAutoMovieCaptureSubject,
+  IAutoMovieDrawCall,
+  IAutoMovieRenderSpec,
+} from "@automovie/interface";
+import {
+  AutoMovieDrawSession,
+  decodeAutoMovieRasterPng,
+  renderAutoMovieDrawnVideo,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { answerDrawCall } from "./answerDrawCall";
@@ -42,9 +49,7 @@ export async function test_draw_drawn_video(): Promise<void> {
     pixelFormat: "yuv420p",
     crf: 18,
   };
-  const open: (
-    subject: IAutoMovieCaptureSubject,
-  ) => Promise<{
+  const open: (subject: IAutoMovieCaptureSubject) => Promise<{
     session: AutoMovieDrawSession;
     double: createDrawPageDouble.IDouble;
   }> = async (

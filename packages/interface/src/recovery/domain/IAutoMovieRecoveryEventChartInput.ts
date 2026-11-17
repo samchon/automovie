@@ -10,15 +10,12 @@ import type { IAutoMovieRecoveryEventChart } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Boundary controls use millimetres and retain native phase; winding changes chart orientation independently of source-fit qualification.
  */
 export interface IAutoMovieRecoveryEventChartInput {
- 
- /** Stable nonempty domain name, used as a prefix for actual patch IDs. */
+  /** Stable nonempty domain name, used as a prefix for actual patch IDs. */
   id: string;
 
- 
- /** Four paths in increasing local side parameter, with exact meeting corners. */
+  /** Four paths in increasing local side parameter, with exact meeting corners. */
   chart: IAutoMovieRecoveryEventChart;
 
- 
- /** Explicit final chart orientation; this does not infer an outward material side. */
+  /** Explicit final chart orientation; this does not infer an outward material side. */
   winding: 1 | -1;
 }

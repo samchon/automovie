@@ -1,6 +1,4 @@
 import type { IAutoMovieFilmDisplayTextureResidency } from "@automovie/interface";
-
-
 import type * as THREE from "three";
 
 import { AutoMovieDissolveCompositorState } from "./AutoMovieDissolveCompositorState.js";

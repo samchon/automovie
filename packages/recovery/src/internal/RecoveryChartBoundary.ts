@@ -1,6 +1,9 @@
-import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieRecoveryChartBoundary, IAutoMoviePolylineFit } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMoviePolylineFit,
+  IAutoMovieRecoveryChartBoundary,
+} from "@automovie/interface";
 
 import { RecoveryBezierFit as F } from "./RecoveryBezierFit";
 
@@ -19,7 +22,9 @@ import { RecoveryBezierFit as F } from "./RecoveryBezierFit";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Identical forward or reversed private words reuse one fitted curve, accepted parameters and corners under one fixed policy. Changed observations with a reused incidence word fail rather than reuse stale geometry.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned owner retains only visited boundary points, words, registrations and coefficient arrays until its observation caller releases it. The caller's chart budget bounds visited boundaries; no source faces, normals, global cache or handle is acquired.
  */
-export function RecoveryChartBoundary(policy: Parameters<IAutoMovieRecoveryChartBoundary.Operation>[0]): ReturnType<IAutoMovieRecoveryChartBoundary.Operation> {
+export function RecoveryChartBoundary(
+  policy: Parameters<IAutoMovieRecoveryChartBoundary.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartBoundary.Operation> {
   type Value = {
     id: string;
     points: readonly Readonly<AutoMovieVector3Tuple>[];
@@ -28,7 +33,10 @@ export function RecoveryChartBoundary(policy: Parameters<IAutoMovieRecoveryChart
     knots: number[];
   };
   const registry: Map<string, Value> = new Map();
-  const corners: Map<string, { id: string; point: Readonly<AutoMovieVector3Tuple> }> = new Map();
+  const corners: Map<
+    string,
+    { id: string; point: Readonly<AutoMovieVector3Tuple> }
+  > = new Map();
   if (!(policy.cornerDegrees > 0 && policy.cornerDegrees < 180))
     throw new Error(
       "Boundary corner policy must lie strictly between zero and 180 degrees",
@@ -36,7 +44,9 @@ export function RecoveryChartBoundary(policy: Parameters<IAutoMovieRecoveryChart
   const get: ReturnType<IAutoMovieRecoveryChartBoundary.Operation>["get"] = (
     word: readonly string[],
     pointsMm: readonly Readonly<AutoMovieVector3Tuple>[],
-  ): ReturnType<ReturnType<IAutoMovieRecoveryChartBoundary.Operation>["get"]> => {
+  ): ReturnType<
+    ReturnType<IAutoMovieRecoveryChartBoundary.Operation>["get"]
+  > => {
     if (
       word.length !== pointsMm.length ||
       word.length < 2 ||
@@ -54,8 +64,9 @@ export function RecoveryChartBoundary(policy: Parameters<IAutoMovieRecoveryChart
       : [...pointsMm];
     const cornerIds: [string, string] = [0, word.length - 1].map(
       (i: number): string => {
-        const previous: { id: string; point: Readonly<AutoMovieVector3Tuple> } | undefined =
-          corners.get(word[i]!);
+        const previous:
+          | { id: string; point: Readonly<AutoMovieVector3Tuple> }
+          | undefined = corners.get(word[i]!);
         if (
           previous &&
           previous.point.some(
@@ -65,9 +76,11 @@ export function RecoveryChartBoundary(policy: Parameters<IAutoMovieRecoveryChart
           throw new Error(
             "One private corner identity has conflicting physical observations",
           );
-        const corner: { id: string; point: Readonly<AutoMovieVector3Tuple> } = previous ?? {
-          id: `corner.${corners.size}`,
-          point: pointsMm[i]! };
+        const corner: { id: string; point: Readonly<AutoMovieVector3Tuple> } =
+          previous ?? {
+            id: `corner.${corners.size}`,
+            point: pointsMm[i]!,
+          };
         corners.set(word[i]!, corner);
         return corner.id;
       },
@@ -75,8 +88,9 @@ export function RecoveryChartBoundary(policy: Parameters<IAutoMovieRecoveryChart
     let value: Value | undefined = registry.get(key);
     if (
       value &&
-      value.points.some((point: Readonly<AutoMovieVector3Tuple>, i: number): boolean =>
-        point.some((x: number, k: number): boolean => x !== points[i]![k]),
+      value.points.some(
+        (point: Readonly<AutoMovieVector3Tuple>, i: number): boolean =>
+          point.some((x: number, k: number): boolean => x !== points[i]![k]),
       )
     )
       throw new Error(
@@ -122,7 +136,8 @@ export function RecoveryChartBoundary(policy: Parameters<IAutoMovieRecoveryChart
             corners,
             toleranceMm: policy.toleranceMm,
             maxSpans: policy.maxSpans,
-            parameterization: "chord" },
+            parameterization: "chord",
+          },
           (
             span: number,
             first: number,
@@ -173,14 +188,23 @@ export function RecoveryChartBoundary(policy: Parameters<IAutoMovieRecoveryChart
       spans: reversed
         ? [...value.fit.curve.spans]
             .reverse()
-            .map((span: IAutoMovieCurve64.Span): IAutoMovieCurve64.Span => [span[3], span[2], span[1], span[0]])
-        : value.fit.curve.spans };
+            .map(
+              (span: IAutoMovieCurve64.Span): IAutoMovieCurve64.Span => [
+                span[3],
+                span[2],
+                span[1],
+                span[0],
+              ],
+            )
+        : value.fit.curve.spans,
+    };
     const canonicalCurve: IAutoMovieCurve64.Cubic = {
       ...value.fit.curve,
       phaseUnit: "normalized",
       phaseIntervals: value.knots
         .slice(1)
-        .map((end: number, i: number): number => end - value.knots[i]!) };
+        .map((end: number, i: number): number => end - value.knots[i]!),
+    };
     return {
       id: value.id,
       reversed,
@@ -191,7 +215,8 @@ export function RecoveryChartBoundary(policy: Parameters<IAutoMovieRecoveryChart
         : [...value.parameters],
       knots,
       canonicalCurve,
-      canonicalKnots: [...value.knots] };
+      canonicalKnots: [...value.knots],
+    };
   };
   return { get, size: (): number => registry.size };
 }

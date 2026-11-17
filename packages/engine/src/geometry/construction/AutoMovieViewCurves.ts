@@ -1,4 +1,10 @@
-import type { IAutoMovieViewPart, IAutoMovieLoftContract, IAutoMovieLoftFrame, IAutoMovieViewCurves, IAutoMovieViewOutline } from "@automovie/interface";
+import type {
+  IAutoMovieLoftContract,
+  IAutoMovieLoftFrame,
+  IAutoMovieViewCurves,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 
@@ -13,7 +19,6 @@ import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieViewCurves {
-
   /**
    * Prepare all original edges without reading the fullness owner or emitting a section.
    *
@@ -25,7 +30,9 @@ export namespace AutoMovieViewCurves {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each admitted spline serves all subsequent samples of that source; changed source data requires a fresh preparation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Result owns four copied source curves and their diagnostics, with no retained part or global cache.
    */
-  export function create(part: IAutoMovieViewPart): IAutoMovieViewCurves.IResult {
+  export function create(
+    part: IAutoMovieViewPart,
+  ): IAutoMovieViewCurves.IResult {
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
     const ends: IAutoMovieViewOutline.IEnds = {};
     if (part.pole === "bottom" || part.pole === "both")

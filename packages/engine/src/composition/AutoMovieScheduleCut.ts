@@ -1,6 +1,11 @@
-import type { IAutoMovieIntent, IAutoMovieResolveSchedule, IAutoMovieScheduleCut, IAutoMovieScheduleError, IAutoMovieScheduleWalk, IAutoMovieMotionEvent } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieIntent,
+  IAutoMovieMotionEvent,
+  IAutoMovieResolveSchedule,
+  IAutoMovieScheduleCut,
+  IAutoMovieScheduleError,
+  IAutoMovieScheduleWalk,
+} from "@automovie/interface";
 
 import { AutoMovieScheduleError } from "./AutoMovieScheduleError";
 import { AutoMovieScheduleWalk } from "./AutoMovieScheduleWalk";
@@ -20,7 +25,6 @@ import { AutoMovieScheduleWalk } from "./AutoMovieScheduleWalk";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A cut outside [0, 1], an unplaced anchor, an unnamed event and a law that is absent are refused with their codes.
  */
 export namespace AutoMovieScheduleCut {
-
   /**
    * The cut of an intent.
    *
@@ -49,10 +53,11 @@ export namespace AutoMovieScheduleCut {
   ): IAutoMovieScheduleCut.ICut | undefined {
     const until: IAutoMovieIntent["until"] = intent.until;
     if (until === undefined) return undefined;
-    const who: Pick<IAutoMovieScheduleError.IProps, "subject" | "capability"> = {
-      subject: intent.subject,
-      capability: intent.capability,
-    };
+    const who: Pick<IAutoMovieScheduleError.IProps, "subject" | "capability"> =
+      {
+        subject: intent.subject,
+        capability: intent.capability,
+      };
     let cut: IAutoMovieScheduleCut.ICut | undefined;
     if ("proximity" in until) {
       if (walk.laws.until === undefined)

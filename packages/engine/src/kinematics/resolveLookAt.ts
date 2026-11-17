@@ -1,4 +1,13 @@
-import { type IAutoMovieMotionSample, AutoMovieArkitChannel, AutoMovieExpressionPreset, AutoMovieHumanoidBone, IAutoMovieBlendshapeChannel, IAutoMovieExpression, IAutoMovieJointPose, IAutoMovieLookAt } from "@automovie/interface";
+import {
+  AutoMovieArkitChannel,
+  AutoMovieExpressionPreset,
+  AutoMovieHumanoidBone,
+  IAutoMovieBlendshapeChannel,
+  IAutoMovieExpression,
+  IAutoMovieJointPose,
+  IAutoMovieLookAt,
+  type IAutoMovieMotionSample,
+} from "@automovie/interface";
 
 import { GAZE_PRESET_CHANNELS } from "./constants/GAZE_PRESET_CHANNELS";
 

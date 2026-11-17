@@ -1,5 +1,9 @@
-import type { IAutoMovieProjectileFirstContact, IAutoMovieResolveContactEvents, IAutoMovieProjectile, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieProjectile,
+  IAutoMovieProjectileFirstContact,
+  IAutoMovieResolveContactEvents,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { projectileAt } from "./projectileAt";

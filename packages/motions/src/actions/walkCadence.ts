@@ -1,4 +1,8 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanWalkCadence, IAutoMovieResolveSchedule } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanWalkCadence,
+  IAutoMovieResolveSchedule,
+} from "@automovie/interface";
 
 import { HUMAN_ATTRIBUTE_EFFECTS } from "../ensemble/HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "../ensemble/HumanAttribute";
@@ -31,7 +35,6 @@ import { HumanSkill } from "../skill/HumanSkill";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No strike is snapped onto its beat: each lands where the model puts it.
  */
 export namespace walkCadence {
-
   /**
    * The film seconds a walker's heel strikes land at, entrained to a beat
    * track, or null when the walker does not lock.

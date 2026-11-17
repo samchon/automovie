@@ -1,10 +1,9 @@
-import type { AutoMovieVector3Tuple, IAutoMovieBicubicAtlasGeometry, IAutoMovieRecoveryChartLeafAssembly } from "@automovie/interface";
-
 import { AutoMovieBernstein64 as S } from "@automovie/engine";
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieBicubicAtlasGeometry,
+  IAutoMovieRecoveryChartLeafAssembly,
+} from "@automovie/interface";
 
 /**
  * Publish source-free canonical intervals for a fitted rectangular leaf atlas.
@@ -26,8 +25,12 @@ export function RecoveryChartLeafAssembly(
 ): ReturnType<IAutoMovieRecoveryChartLeafAssembly.Operation> {
   const controlsMm: Readonly<AutoMovieVector3Tuple>[] = [],
     patches: IAutoMovieBicubicAtlasGeometry["patches"] = [],
-    boundaryAuthorities: NonNullable<IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]> = [],
-    boundaryBindings: NonNullable<IAutoMovieBicubicAtlasGeometry["boundaryBindings"]> = [];
+    boundaryAuthorities: NonNullable<
+      IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]
+    > = [],
+    boundaryBindings: NonNullable<
+      IAutoMovieBicubicAtlasGeometry["boundaryBindings"]
+    > = [];
   const authorities: Map<
       string,
       NonNullable<IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]>[number]
@@ -40,7 +43,8 @@ export function RecoveryChartLeafAssembly(
     for (const patch of chart.patches)
       patches.push({
         id: patch.id,
-        controlIds: patch.controlIds.map((id: number): number => offset + id) });
+        controlIds: patch.controlIds.map((id: number): number => offset + id),
+      });
     const local: Map<
       string,
       { authority: string; start: number; end: number; normalFan: string }
@@ -114,7 +118,9 @@ export function RecoveryChartLeafAssembly(
         start = (a - lo) / (hi - lo);
         end = (b - lo) / (hi - lo);
         const existing:
-          | NonNullable<IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]>[number]
+          | NonNullable<
+              IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]
+            >[number]
           | undefined = authorities.get(authority);
         if (existing) ids = existing.controlIds;
         else {
@@ -128,9 +134,12 @@ export function RecoveryChartLeafAssembly(
         }
       }
       if (!authorities.has(authority)) {
-        const record: NonNullable<IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]>[number] = {
+        const record: NonNullable<
+          IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]
+        >[number] = {
           id: authority,
-          controlIds: ids };
+          controlIds: ids,
+        };
         authorities.set(authority, record);
         boundaryAuthorities.push(record);
       }
@@ -172,13 +181,16 @@ export function RecoveryChartLeafAssembly(
         throw new Error(
           "A positive leaf binding collapses in its public canonical chart",
         );
-      const record: NonNullable<IAutoMovieBicubicAtlasGeometry["boundaryBindings"]>[number] = {
+      const record: NonNullable<
+        IAutoMovieBicubicAtlasGeometry["boundaryBindings"]
+      >[number] = {
         patch: binding.patch,
         side: binding.side,
         authority: master.authority,
         start,
         end,
-        normalFan: master.normalFan };
+        normalFan: master.normalFan,
+      };
       boundaryBindings.push(record);
       uses.set(master.authority, (uses.get(master.authority) ?? 0) + 1);
       const net: [number, number, number][] = S.restrict(
@@ -219,5 +231,6 @@ export function RecoveryChartLeafAssembly(
     diagnostics: [
       "Canonical interval requests conform coarse/fine edges independently of patch tensor partitions; source-free position owners and chart analytic normal fans remain distinct.",
       "Full-path boundary identity does not establish partial-path sharing across unrelated quarter charts; those external authorities remain unqualified.",
-    ] };
+    ],
+  };
 }

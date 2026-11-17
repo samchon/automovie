@@ -1,6 +1,17 @@
-import type { IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMoviePhysicalProfile, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieGravity, resolveAutoMovieCenterOfMass, resolvePose } from "@automovie/engine";
-
+import {
+  AutoMovieGravity,
+  resolveAutoMovieCenterOfMass,
+  resolvePose,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

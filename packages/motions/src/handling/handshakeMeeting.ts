@@ -1,6 +1,19 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSeatedReach, IAutoMovieMotionMeeting, IAutoMovieResolveMutualGoal, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSeatedReach,
+  IAutoMovieMotionMeeting,
+  IAutoMovieResolveMutualGoal,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
@@ -170,7 +183,8 @@ export namespace handshakeMeeting {
           posture: context.entry.posture,
           bones,
           seated: context.entry.supports.some(
-            (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat",
+            (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+              s.kind === "seat",
           ),
         },
         shoulder,

@@ -1,11 +1,9 @@
-
-
 /** Input topology and independently owned output of a one-shot inverse subdivision fit. */
 export namespace IAutoMovieFitSubdivisionLimit {
   /**
    * Solve control positions of a quad cage whose Catmull-Clark limit surface
    * passes through given targets, one per vertex.
-   * 
+   *
    * The limit point of a cage vertex is a fixed linear combination of the
    * vertex and its one-ring. An interior vertex of valence `n` goes to
    * `(n^2 P + 4 sum E + sum D) / (n (n + 5))`, its edge neighbours `E` and the
@@ -21,7 +19,7 @@ export namespace IAutoMovieFitSubdivisionLimit {
    * stops when the largest residual falls below 1e-10 of the targets' extent or
    * after 2,000 sweeps, and returns the last measured residual, so a caller can
    * refuse a fit that did not converge.
-   * 
+   *
    * Pinned vertices keep their target as their control position and are not
    * solved, which is how a cage meets a fixed junction ring exactly: their limit
    * points then depend on the cage around them.

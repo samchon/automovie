@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
-
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
@@ -61,5 +60,8 @@ export const AutoMovieHumanF1Helix: IAutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The front end is buried in the head, the back end in the plate's lobule.
-  tips: [{ from: 3, tip: 0 }, { from: 90.4, tip: 93.4 }],
+  tips: [
+    { from: 3, tip: 0 },
+    { from: 90.4, tip: 93.4 },
+  ],
 };

@@ -1,7 +1,9 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryChartAreaObservations, IAutoMovieRecoveryChartFit, IAutoMovieRecoveryChartPhysicalJet } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryChartAreaObservations,
+  IAutoMovieRecoveryChartFit,
+  IAutoMovieRecoveryChartPhysicalJet,
+} from "@automovie/interface";
 
 import { RecoveryChartPhysicalJet as P } from "./RecoveryChartPhysicalJet";
 
@@ -26,7 +28,9 @@ import { RecoveryChartPhysicalJet as P } from "./RecoveryChartPhysicalJet";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Tensor knots, fixed Gauss abscissas and each clipped polygon are reused for all child samples; source positions are evaluated affinely rather than refitted.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One clipped polygon is transient; the caller owns at most maxObservations returned rows, and all source references expire after the call.
  */
-export function RecoveryChartAreaObservations(input: Parameters<IAutoMovieRecoveryChartAreaObservations.Operation>[0]): ReturnType<IAutoMovieRecoveryChartAreaObservations.Operation> {
+export function RecoveryChartAreaObservations(
+  input: Parameters<IAutoMovieRecoveryChartAreaObservations.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartAreaObservations.Operation> {
   if (
     !Number.isSafeInteger(input.maxObservations) ||
     input.maxObservations < 49 ||
@@ -113,7 +117,10 @@ export function RecoveryChartAreaObservations(input: Parameters<IAutoMovieRecove
     if (previous !== 1)
       throw new Error("Observation rectangles leave an uncovered stripe");
   }
-  type Vertex = { uv: [number, number]; point: Readonly<AutoMovieVector3Tuple> };
+  type Vertex = {
+    uv: [number, number];
+    point: Readonly<AutoMovieVector3Tuple>;
+  };
   const nodes: readonly number[] = [
     0.025446043828620757, 0.12923440720030277, 0.2970774243113014, 0.5,
     0.7029225756886985, 0.8707655927996972, 0.9745539561713792,
@@ -123,7 +130,11 @@ export function RecoveryChartAreaObservations(input: Parameters<IAutoMovieRecove
     0.2089795918367347, 0.19091502525255946, 0.1398526957446383,
     0.06474248308443485,
   ];
-  const area: (a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>, c: Readonly<AutoMovieVector3Tuple>) => number = (
+  const area: (
+    a: Readonly<AutoMovieVector3Tuple>,
+    b: Readonly<AutoMovieVector3Tuple>,
+    c: Readonly<AutoMovieVector3Tuple>,
+  ) => number = (
     a: Readonly<AutoMovieVector3Tuple>,
     b: Readonly<AutoMovieVector3Tuple>,
     c: Readonly<AutoMovieVector3Tuple>,
@@ -174,12 +185,14 @@ export function RecoveryChartAreaObservations(input: Parameters<IAutoMovieRecove
           point: [0, 1, 2].map(
             (k: number): number =>
               a.point[k]! + t * (b.point[k]! - a.point[k]!),
-          ) as [number, number, number] });
+          ) as [number, number, number],
+        });
       }
     }
     return output;
   };
-  const observations: IAutoMovieRecoveryChartFit.Input["observations"][number][] = [];
+  const observations: IAutoMovieRecoveryChartFit.Input["observations"][number][] =
+    [];
   let sourceAreaMm2: number = 0,
     integratedAreaMm2: number = 0,
     children: number = 0,
@@ -233,14 +246,16 @@ export function RecoveryChartAreaObservations(input: Parameters<IAutoMovieRecove
         minimum[1]! >= v1
       )
         continue;
-      const physicalJet: ReturnType<IAutoMovieRecoveryChartPhysicalJet.Operation> | undefined =
-        input.physicalGradientLengthMm
-          ? P({
-              pointsMm: [source[0]!.point, source[1]!.point, source[2]!.point],
-              parameters: [source[0]!.uv, source[1]!.uv, source[2]!.uv],
-              bounds: [u0, u1, v0, v1],
-              lengthMm: input.physicalGradientLengthMm })
-          : undefined;
+      const physicalJet:
+        | ReturnType<IAutoMovieRecoveryChartPhysicalJet.Operation>
+        | undefined = input.physicalGradientLengthMm
+        ? P({
+            pointsMm: [source[0]!.point, source[1]!.point, source[2]!.point],
+            parameters: [source[0]!.uv, source[1]!.uv, source[2]!.uv],
+            bounds: [u0, u1, v0, v1],
+            lengthMm: input.physicalGradientLengthMm,
+          })
+        : undefined;
       let polygon: Vertex[] = clip(source, 0, u0, true);
       polygon = clip(polygon, 0, u1, false);
       polygon = clip(polygon, 1, v0, true);
@@ -291,7 +306,8 @@ export function RecoveryChartAreaObservations(input: Parameters<IAutoMovieRecove
               v: (uv[1]! - v0) / (v1 - v0),
               pointMm,
               weight,
-              physicalJet });
+              physicalJet,
+            });
           }
       }
     }
@@ -315,5 +331,6 @@ export function RecoveryChartAreaObservations(input: Parameters<IAutoMovieRecove
     sourceAreaMm2,
     integratedAreaMm2,
     children,
-    maximumRelativeAreaDiscrepancy };
+    maximumRelativeAreaDiscrepancy,
+  };
 }

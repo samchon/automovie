@@ -1,5 +1,7 @@
-import type { AutoMovieVector3Tuple, IAutoMovieSolidSurface } from "@automovie/interface";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 type Vec3 = AutoMovieVector3Tuple;
 

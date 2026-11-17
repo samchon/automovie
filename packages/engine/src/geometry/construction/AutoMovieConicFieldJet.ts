@@ -1,4 +1,5 @@
 import type { IAutoMovieConicFieldJet } from "@automovie/interface";
+
 /**
  * Scalar source partials for the shared numeric and differentiated conic algebra.
  *
@@ -12,7 +13,6 @@ import type { IAutoMovieConicFieldJet } from "@automovie/interface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConicFieldJet {
-
   /** Ordinary scalar specialization; its arithmetic has the existing Math semantics. */
   export const NUMBER: IAutoMovieConicFieldJet.IAlgebra<number> = {
     /** Identity primal reading. */
@@ -47,51 +47,65 @@ export namespace AutoMovieConicFieldJet {
   };
 
   /** Source-partial specialization; each arithmetic result is a fresh tuple. */
-  export const AD: IAutoMovieConicFieldJet.IAlgebra<IAutoMovieConicFieldJet.IJet> = {
-    /** Primal value without changing derivative data. */
-    value: (input: IAutoMovieConicFieldJet.IJet): number => input[0],
+  export const AD: IAutoMovieConicFieldJet.IAlgebra<IAutoMovieConicFieldJet.IJet> =
+    {
+      /** Primal value without changing derivative data. */
+      value: (input: IAutoMovieConicFieldJet.IJet): number => input[0],
 
-    /** A declared constant in both source coordinates. */
-    constant: (value: number): IAutoMovieConicFieldJet.IJet => [value, 0, 0, 0, 0, 0],
+      /** A declared constant in both source coordinates. */
+      constant: (value: number): IAutoMovieConicFieldJet.IJet => [
+        value,
+        0,
+        0,
+        0,
+        0,
+        0,
+      ],
 
-    /** Componentwise sum. */
-    add: (a: IAutoMovieConicFieldJet.IJet, b: IAutoMovieConicFieldJet.IJet): IAutoMovieConicFieldJet.IJet => [
-      a[0] + b[0],
-      a[1] + b[1],
-      a[2] + b[2],
-      a[3] + b[3],
-      a[4] + b[4],
-      a[5] + b[5],
-    ],
+      /** Componentwise sum. */
+      add: (
+        a: IAutoMovieConicFieldJet.IJet,
+        b: IAutoMovieConicFieldJet.IJet,
+      ): IAutoMovieConicFieldJet.IJet => [
+        a[0] + b[0],
+        a[1] + b[1],
+        a[2] + b[2],
+        a[3] + b[3],
+        a[4] + b[4],
+        a[5] + b[5],
+      ],
 
-    /** Componentwise difference. */
-    subtract: (a: IAutoMovieConicFieldJet.IJet, b: IAutoMovieConicFieldJet.IJet): IAutoMovieConicFieldJet.IJet => [
-      a[0] - b[0],
-      a[1] - b[1],
-      a[2] - b[2],
-      a[3] - b[3],
-      a[4] - b[4],
-      a[5] - b[5],
-    ],
+      /** Componentwise difference. */
+      subtract: (
+        a: IAutoMovieConicFieldJet.IJet,
+        b: IAutoMovieConicFieldJet.IJet,
+      ): IAutoMovieConicFieldJet.IJet => [
+        a[0] - b[0],
+        a[1] - b[1],
+        a[2] - b[2],
+        a[3] - b[3],
+        a[4] - b[4],
+        a[5] - b[5],
+      ],
 
-    /** Full product rule. */
-    multiply,
+      /** Full product rule. */
+      multiply,
 
-    /** Quotient recurrence using already computed first partials. */
-    divide,
+      /** Quotient recurrence using already computed first partials. */
+      divide,
 
-    /** Differentiate y squared equals input. */
-    sqrt,
+      /** Differentiate y squared equals input. */
+      sqrt,
 
-    /** Differentiate y cubed equals input. */
-    cbrt,
+      /** Differentiate y cubed equals input. */
+      cbrt,
 
-    /** Logarithmic first and second partials. */
-    log,
+      /** Logarithmic first and second partials. */
+      log,
 
-    /** Exponential partials with reused scaled first derivatives. */
-    exp,
-  };
+      /** Exponential partials with reused scaled first derivatives. */
+      exp,
+    };
 
   /**
    * Lift a regular station scalar [value,ds,dss] while p is a declared constant.
@@ -104,7 +118,9 @@ export namespace AutoMovieConicFieldJet {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A fixed layout conversion coordinates no source preparation or query reuse.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh tuple without retaining its three-entry input.
    */
-  export function fromStation(input: readonly [number, number, number]): IAutoMovieConicFieldJet.IJet {
+  export function fromStation(
+    input: readonly [number, number, number],
+  ): IAutoMovieConicFieldJet.IJet {
     return [input[0], input[1], 0, input[2], 0, 0];
   }
 }

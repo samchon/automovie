@@ -1,6 +1,5 @@
 import type { IAutoMovieCurve64 } from "@automovie/interface";
 
-
 /** Independent small-polygon enumeration and incidence algebra for contour tests. */
 export namespace contourStripOracle {
   /** Mutable tuple accepted by the strip receiver. */

@@ -1,32 +1,29 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanArmConstruction, IAutoMovieHumanArmLaw, IAutoMovieHumanArmLawInputs, IAutoMovieHumanArmPrior, IAutoMovieHumanArmScye, IAutoMovieHumanBodyCalibration, IAutoMovieHumanHandConstruction, IAutoMovieHumanHandForm, IAutoMovieHumanHandMeasures, IAutoMovieHumanHandScales, IAutoMovieHumanSkeletonLaw, IAutoMovieLoftChain } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanArmConstruction,
+  IAutoMovieHumanArmLaw,
+  IAutoMovieHumanArmLawInputs,
+  IAutoMovieHumanArmPrior,
+  IAutoMovieHumanArmScye,
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanHandConstruction,
+  IAutoMovieHumanHandForm,
+  IAutoMovieHumanHandMeasures,
+  IAutoMovieHumanHandScales,
+  IAutoMovieHumanSkeletonLaw,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
 import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
-
-
-import { AutoMovieHumanArmLaw } from "./arm/AutoMovieHumanArmLaw";
 import { AutoMovieHumanArmBones } from "./arm/AutoMovieHumanArmBones";
+import { AutoMovieHumanArmLaw } from "./arm/AutoMovieHumanArmLaw";
 import { AutoMovieHumanArmLayers } from "./arm/AutoMovieHumanArmLayers";
 import { AutoMovieHumanArmScye } from "./arm/AutoMovieHumanArmScye";
 import { AutoMovieHumanArmShoulder } from "./arm/AutoMovieHumanArmShoulder";
-
 import { AutoMovieHumanHandConstruction } from "./hand/AutoMovieHumanHandConstruction";
 import { AutoMovieHumanHandEvents } from "./hand/AutoMovieHumanHandEvents";
 import { AutoMovieHumanHandForm } from "./hand/AutoMovieHumanHandForm";
 import { AutoMovieHumanHandSide } from "./hand/AutoMovieHumanHandSide";
-
 
 const { events }: typeof AutoMovieHumanHandEvents = AutoMovieHumanHandEvents;
 const { sided }: typeof AutoMovieHumanHandSide = AutoMovieHumanHandSide;
@@ -54,14 +51,6 @@ const { sided }: typeof AutoMovieHumanHandSide = AutoMovieHumanHandSide;
  * left's with `v` turned over.
  */
 export namespace AutoMovieHumanArmConstruction {
-  
-
-  
-
-  
-
-  
-
   /** Chains an arm owns. */
   const OWNED: RegExp = /^(arm|hand|thumb|finger)\./;
 
@@ -70,7 +59,10 @@ export namespace AutoMovieHumanArmConstruction {
    * bones and the arms are lofted on the skeleton's elbow, which is the bones'
    * own, so both read one solve of the hand.
    */
-  const BUILT: Map<string, IAutoMovieHumanHandConstruction.IBuilt<IAutoMovieHumanArmLaw>> = new Map();
+  const BUILT: Map<
+    string,
+    IAutoMovieHumanHandConstruction.IBuilt<IAutoMovieHumanArmLaw>
+  > = new Map();
 
   /** Builds kept: both sides of one person. */
   const KEPT: number = 2;
@@ -105,14 +97,30 @@ export namespace AutoMovieHumanArmConstruction {
     inputs: IAutoMovieHumanArmConstruction.IInputs,
     skeleton?: readonly IAutoMovieHumanSkeletonLaw.IBone[],
   ): IAutoMovieHumanBodyCalibration {
-    const limbs: ILimb[] = (["left", "right"] as const).map((side: "left" | "right"): ILimb => limb(calibration, inputs, side, skeleton));
+    const limbs: ILimb[] = (["left", "right"] as const).map(
+      (side: "left" | "right"): ILimb =>
+        limb(calibration, inputs, side, skeleton),
+    );
 
     return {
       ...calibration,
-      chains: [...calibration.chains, ...limbs.flatMap((l: ILimb): IAutoMovieLoftChain[] => l.chains)],
+      chains: [
+        ...calibration.chains,
+        ...limbs.flatMap((l: ILimb): IAutoMovieLoftChain[] => l.chains),
+      ],
       events: [...calibration.events, ...events()],
-      poles: [...calibration.poles, ...limbs.flatMap((l: ILimb): IAutoMovieHumanBodyCalibration.IPole[] => l.poles)],
-      nails: [...(calibration.nails ?? []), ...limbs.flatMap((l: ILimb): IAutoMovieHumanBodyCalibration.INail[] => l.nails)],
+      poles: [
+        ...calibration.poles,
+        ...limbs.flatMap(
+          (l: ILimb): IAutoMovieHumanBodyCalibration.IPole[] => l.poles,
+        ),
+      ],
+      nails: [
+        ...(calibration.nails ?? []),
+        ...limbs.flatMap(
+          (l: ILimb): IAutoMovieHumanBodyCalibration.INail[] => l.nails,
+        ),
+      ],
     };
   }
 
@@ -135,11 +143,22 @@ export namespace AutoMovieHumanArmConstruction {
    * @param scale Calibration millimetres per world millimetre.
    * @returns The hand's measures.
    */
-  export function expected(stature: number, tape: number, scale: number): IAutoMovieHumanHandMeasures {
-    const line = (w: readonly number[]): number => (w[0]! + w[1]! * stature + w[2]! * tape) * scale;
-    const prior: IAutoMovieHumanArmPrior.IExpected = AutoMovieHumanArmPrior.PRIOR.expected;
+  export function expected(
+    stature: number,
+    tape: number,
+    scale: number,
+  ): IAutoMovieHumanHandMeasures {
+    const line = (w: readonly number[]): number =>
+      (w[0]! + w[1]! * stature + w[2]! * tape) * scale;
+    const prior: IAutoMovieHumanArmPrior.IExpected =
+      AutoMovieHumanArmPrior.PRIOR.expected;
 
-    return { length: line(prior.length), palm: line(prior.palm), breadth: line(prior.breadth), thumb: line(prior.thumb) };
+    return {
+      length: line(prior.length),
+      palm: line(prior.palm),
+      breadth: line(prior.breadth),
+      thumb: line(prior.thumb),
+    };
   }
 
   /**
@@ -151,7 +170,10 @@ export namespace AutoMovieHumanArmConstruction {
    * @param inputs Lengths in calibration millimetres.
    * @returns Each side's landmarks.
    */
-  export function bones(calibration: IAutoMovieHumanBodyCalibration, inputs: IAutoMovieHumanArmConstruction.IInputs): Record<"left" | "right", IAutoMovieHumanArmConstruction.IBones> {
+  export function bones(
+    calibration: IAutoMovieHumanBodyCalibration,
+    inputs: IAutoMovieHumanArmConstruction.IInputs,
+  ): Record<"left" | "right", IAutoMovieHumanArmConstruction.IBones> {
     return {
       left: limb(calibration, inputs, "left", undefined, false).bones,
       right: limb(calibration, inputs, "right", undefined, false).bones,
@@ -178,8 +200,15 @@ export namespace AutoMovieHumanArmConstruction {
     lofted: boolean = true,
   ): ILimb {
     const sign: 1 | -1 = side === "left" ? 1 : -1;
-    const ring: IAutoMovieHumanArmScye.IRing = AutoMovieHumanArmScye.of(calibration, side);
-    const elbow: AutoMovieVector3Tuple | undefined = elbowOf(skeleton, side, sign);
+    const ring: IAutoMovieHumanArmScye.IRing = AutoMovieHumanArmScye.of(
+      calibration,
+      side,
+    );
+    const elbow: AutoMovieVector3Tuple | undefined = elbowOf(
+      skeleton,
+      side,
+      sign,
+    );
 
     // The arm stands on the trunk's glenohumeral centre, the one the
     // shoulders' arm arc is built about, so the arm's tube and the arc share
@@ -188,10 +217,27 @@ export namespace AutoMovieHumanArmConstruction {
     const centre: AutoMovieVector3Tuple =
       calibration.trunk !== undefined
         ? [...calibration.trunk.glenohumeral]
-        : sided(AutoMovieHumanArmShoulder.glenohumeral(calibration, side, inputs.upper), sign);
+        : sided(
+            AutoMovieHumanArmShoulder.glenohumeral(
+              calibration,
+              side,
+              inputs.upper,
+            ),
+            sign,
+          );
     const form: IAutoMovieHumanHandForm = AutoMovieHumanHandForm.form();
-    const lawInputs: IAutoMovieHumanArmLawInputs.IInputs = { ...inputs, acromionProjection: calibration.trunk === undefined ? AutoMovieHumanArmBones.ACROMION * inputs.upper : calibration.trunk.shoulder[1] - calibration.trunk.glenohumeral[1] };
-    const placed: AutoMovieVector3Tuple = AutoMovieHumanArmLaw.centreOf(centre, lawInputs, elbow);
+    const lawInputs: IAutoMovieHumanArmLawInputs.IInputs = {
+      ...inputs,
+      acromionProjection:
+        calibration.trunk === undefined
+          ? AutoMovieHumanArmBones.ACROMION * inputs.upper
+          : calibration.trunk.shoulder[1] - calibration.trunk.glenohumeral[1],
+    };
+    const placed: AutoMovieVector3Tuple = AutoMovieHumanArmLaw.centreOf(
+      centre,
+      lawInputs,
+      elbow,
+    );
     const laws: Map<string, IAutoMovieHumanArmLaw> = new Map();
     const key: string = JSON.stringify([
       side,
@@ -230,7 +276,13 @@ export namespace AutoMovieHumanArmConstruction {
             const known: string = JSON.stringify(m);
             const found: IAutoMovieHumanArmLaw | undefined = laws.get(known);
             if (found !== undefined) return found;
-            const law: IAutoMovieHumanArmLaw = AutoMovieHumanArmLaw.of(ring, lawInputs, m, form, placed);
+            const law: IAutoMovieHumanArmLaw = AutoMovieHumanArmLaw.of(
+              ring,
+              lawInputs,
+              m,
+              form,
+              placed,
+            );
             laws.set(known, law);
             return law;
           },
@@ -266,7 +318,12 @@ export namespace AutoMovieHumanArmConstruction {
     if (!lofted) return { chains: [], poles: [], nails: [], bones: landmarks };
 
     return {
-      chains: [AutoMovieHumanArmLayers.of(built.law, side, sign), ...built.digits.slice(0, 1), built.palm!, ...built.digits.slice(1)],
+      chains: [
+        AutoMovieHumanArmLayers.of(built.law, side, sign),
+        ...built.digits.slice(0, 1),
+        built.palm!,
+        ...built.digits.slice(1),
+      ],
       poles: built.poles,
       nails: built.nails,
       bones: landmarks,
@@ -297,10 +354,18 @@ export namespace AutoMovieHumanArmConstruction {
    * @param sign 1 for the left, -1 for the right.
    * @returns The elbow, or undefined without a skeleton.
    */
-  function elbowOf(skeleton: readonly IAutoMovieHumanSkeletonLaw.IBone[] | undefined, side: "left" | "right", sign: 1 | -1): AutoMovieVector3Tuple | undefined {
+  function elbowOf(
+    skeleton: readonly IAutoMovieHumanSkeletonLaw.IBone[] | undefined,
+    side: "left" | "right",
+    sign: 1 | -1,
+  ): AutoMovieVector3Tuple | undefined {
     if (skeleton === undefined) return undefined;
-    const bone: IAutoMovieHumanSkeletonLaw.IBone | undefined = skeleton.find((b: IAutoMovieHumanSkeletonLaw.IBone): boolean => b.bone === `${side}LowerArm`);
-    if (bone === undefined) throw new Error(`The skeleton lacks the ${side} elbow`);
+    const bone: IAutoMovieHumanSkeletonLaw.IBone | undefined = skeleton.find(
+      (b: IAutoMovieHumanSkeletonLaw.IBone): boolean =>
+        b.bone === `${side}LowerArm`,
+    );
+    if (bone === undefined)
+      throw new Error(`The skeleton lacks the ${side} elbow`);
     return sided(bone.position, sign);
   }
 }

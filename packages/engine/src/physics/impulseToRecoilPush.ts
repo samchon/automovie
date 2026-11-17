@@ -1,5 +1,7 @@
-import { type IAutoMovieRecoilPush, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieRecoilPush,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 

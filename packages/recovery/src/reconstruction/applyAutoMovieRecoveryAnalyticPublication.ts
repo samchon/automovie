@@ -1,10 +1,10 @@
-import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieRecoveryAnalyticPublication, IAutoMovieRecoveryInputHashes, IAutoMovieRecoveryTensorFamiliesInput } from "@automovie/interface";
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieRecoveryAnalyticPublication,
+  IAutoMovieRecoveryInputHashes,
+  IAutoMovieRecoveryTensorFamiliesInput,
+} from "@automovie/interface";
 
 /**
  * Bind a source-free coefficient extension to its exact original curve and graph bytes.
@@ -108,9 +108,12 @@ export function applyAutoMovieRecoveryAnalyticPublication(
               loop: (typeof section.loops)[number],
             ): (typeof section.loops)[number] => ({
               ...loop,
-              curve: curves.get(loop.curve.name) ?? loop.curve }),
-          ) }),
-      ) },
+              curve: curves.get(loop.curve.name) ?? loop.curve,
+            }),
+          ),
+        }),
+      ),
+    },
     reports: bundle.reports.map(
       (
         row: IAutoMovieRecoveryTensorFamiliesInput["reports"][number],
@@ -119,8 +122,10 @@ export function applyAutoMovieRecoveryAnalyticPublication(
         open: row.open.map(
           (arc: (typeof row.open)[number]): (typeof row.open)[number] => ({
             ...arc,
-            curve: curves.get(arc.curve.name) ?? arc.curve }),
-        ) }),
+            curve: curves.get(arc.curve.name) ?? arc.curve,
+          }),
+        ),
+      }),
     ),
     analyticDomains: publication.analyticDomains,
     coefficientPublication: {
@@ -131,10 +136,13 @@ export function applyAutoMovieRecoveryAnalyticPublication(
           row: (typeof publication.curveOverrides)[number],
         ): { curveName: string; dataUpperEstimateMm: number } => ({
           curveName: row.curve.name,
-          dataUpperEstimateMm: row.dataUpperEstimateMm }),
-      ) },
+          dataUpperEstimateMm: row.dataUpperEstimateMm,
+        }),
+      ),
+    },
     diagnostics: [
       ...bundle.diagnostics,
       "Original observation-fit reports are retained. Replaced named coefficients have separate numerical PL-data estimates in coefficientPublication; no source-interior, material-phase or embedding qualification follows.",
-    ] };
+    ],
+  };
 }

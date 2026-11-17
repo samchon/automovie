@@ -1,6 +1,21 @@
-import type { AutoMovieHumanoidBone, IAutoMovieCurlChainUntilContact, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanGrip, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMoviePhysicalProfile, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3, clampJointToSkeleton } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieCurlChainUntilContact,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanGrip,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
@@ -209,7 +224,9 @@ export namespace HumanClasp {
                 "flat",
               ),
             [0],
-            (wrist: IAutoMovieMotionHumanHand.IWrist): IAutoMovieMotionHumanGrasp.IKey[] =>
+            (
+              wrist: IAutoMovieMotionHumanHand.IWrist,
+            ): IAutoMovieMotionHumanGrasp.IKey[] =>
               [-amplitude, amplitude].map(
                 (lift: number): IAutoMovieMotionHumanGrasp.IKey => ({
                   posture,
@@ -234,10 +251,12 @@ export namespace HumanClasp {
     const b: IAutoMovieMotionHumanGrasp.IReach[] = fits(two);
     type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     const aBones: Bones[] = a.map(
-      (r: IAutoMovieMotionHumanGrasp.IReach): Bones => poseBones(one.body, r.pose),
+      (r: IAutoMovieMotionHumanGrasp.IReach): Bones =>
+        poseBones(one.body, r.pose),
     );
     const bBones: Bones[] = b.map(
-      (r: IAutoMovieMotionHumanGrasp.IReach): Bones => poseBones(two.body, r.pose),
+      (r: IAutoMovieMotionHumanGrasp.IReach): Bones =>
+        poseBones(two.body, r.pose),
     );
     // Each arm's admissible turns: those it reaches through the pump, and of
     // those the ones in the lowest upper-arm band any of them attains.
@@ -374,9 +393,10 @@ export namespace HumanClasp {
     const [one, two]: [IHand, IHand] = swapped
       ? [theirs, mine]
       : [mine, theirs];
-    const [a, b]: [IAutoMovieMotionHumanGrasp.IReach, IAutoMovieMotionHumanGrasp.IReach] = swapped
-      ? [choice.theirs, choice.mine]
-      : [choice.mine, choice.theirs];
+    const [a, b]: [
+      IAutoMovieMotionHumanGrasp.IReach,
+      IAutoMovieMotionHumanGrasp.IReach,
+    ] = swapped ? [choice.theirs, choice.mine] : [choice.mine, choice.theirs];
     const first: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.close(
       one.body,
       side,
@@ -444,15 +464,18 @@ export namespace HumanClasp {
           p.bone === `${side}LowerArm` ||
           digits.has(p.bone),
       )
-      .flatMap((p: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieCurlChainUntilContact.ICollider[] =>
-        p.shapes.map(
-          (
-            shape: IAutoMoviePhysicalProfile.IShape,
-          ): IAutoMovieCurlChainUntilContact.ICollider => ({
-            shape,
-            frame: { position: p.pose.position, rotation: p.pose.rotation },
-          }),
-        ),
+      .flatMap(
+        (
+          p: IAutoMovieMotionHumanColliders.IPlaced,
+        ): IAutoMovieCurlChainUntilContact.ICollider[] =>
+          p.shapes.map(
+            (
+              shape: IAutoMoviePhysicalProfile.IShape,
+            ): IAutoMovieCurlChainUntilContact.ICollider => ({
+              shape,
+              frame: { position: p.pose.position, rotation: p.pose.rotation },
+            }),
+          ),
       );
   }
 }

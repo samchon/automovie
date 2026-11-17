@@ -1,4 +1,3 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanProp, IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
 import {
   createBall,
   createTool,
@@ -6,8 +5,19 @@ import {
   createWearable,
 } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
-
-import { HumanChain, HumanFoot, HumanObject, catchObject, handshake } from "@automovie/motions";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFoot,
+  HumanObject,
+  catchObject,
+  handshake,
+} from "@automovie/motions";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
@@ -63,7 +73,10 @@ const bottle = (at: IAutoMovieVector3): IAutoMovieMotionHumanProp => ({
  * (Grandjean's band for light standing work), its low grip 85 % of the arm's
  * reach from that hand's resting shoulder.
  */
-const place = (a: IAutoMovieMotionHumanBody, hand: string): IAutoMovieVector3 => {
+const place = (
+  a: IAutoMovieMotionHumanBody,
+  hand: string,
+): IAutoMovieVector3 => {
   const shoulder: IAutoMovieVector3 = a.rest.get(
     hand === "left" ? "leftUpperArm" : "rightUpperArm",
   )!;
@@ -78,7 +91,10 @@ const place = (a: IAutoMovieMotionHumanBody, hand: string): IAutoMovieVector3 =>
 };
 
 /** The distance two people shake hands and hand a thing over at. */
-const meeting = (a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody): number =>
+const meeting = (
+  a: IAutoMovieMotionHumanBody,
+  b: IAutoMovieMotionHumanBody,
+): number =>
   handshake.gap(a, b) +
   handshake.stance(a).sternum +
   handshake.stance(b).sternum;

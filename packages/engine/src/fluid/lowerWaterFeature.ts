@@ -1,5 +1,8 @@
-import { type IAutoMovieWaterFeatureFrame, type IAutoMovieLowerWaterFeature, IAutoMovieFluidState } from "@automovie/interface";
-
+import {
+  IAutoMovieFluidState,
+  type IAutoMovieLowerWaterFeature,
+  type IAutoMovieWaterFeatureFrame,
+} from "@automovie/interface";
 
 import { fluidSurfaceGeometry } from "./fluidSurfaceGeometry";
 import { sampleFluidDomain } from "./sampleFluidDomain";
@@ -21,7 +24,11 @@ import { simulateFluidDomain } from "./simulateFluidDomain";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares one solved state between the surface and the spray of a frame instead of solving twice; nothing is reused across frames, so a renderer calling this per frame pays the stateless replay `simulateFluidDomain` documents.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned frame owns the state, the surface and the spray it carries.
  */
-export const lowerWaterFeature: (props: IAutoMovieLowerWaterFeature.IProps) => IAutoMovieWaterFeatureFrame = (props: IAutoMovieLowerWaterFeature.IProps): IAutoMovieWaterFeatureFrame => {
+export const lowerWaterFeature: (
+  props: IAutoMovieLowerWaterFeature.IProps,
+) => IAutoMovieWaterFeatureFrame = (
+  props: IAutoMovieLowerWaterFeature.IProps,
+): IAutoMovieWaterFeatureFrame => {
   if (props.feature.domain !== props.domain.id)
     throw new Error(
       `water feature "${props.feature.id}" binds fluid domain "${props.feature.domain}", not "${props.domain.id}"`,

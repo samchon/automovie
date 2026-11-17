@@ -1,4 +1,3 @@
-import type { IAutoMoviePhysicalPlayback, IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicsCache } from "@automovie/interface";
 import {
   AutoMoviePhysicsCache as Cache,
   AutoMoviePhysicalPlayback as Playback,
@@ -6,6 +5,12 @@ import {
   physicalInputDigest,
   samplePhysicalRecoverySupport,
 } from "@automovie/engine";
+import type {
+  IAutoMoviePhysicalPlayback,
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicsCache,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
@@ -26,13 +31,15 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every sampled and fractional seek equals the original cached state exactly.).
  */
 export async function test_physical_playback_archive(): Promise<void> {
-  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
-    [PhysicalFixtures.body("ball", PhysicalFixtures.sphere(), 2)],
-    2,
-  );
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input(
+      [PhysicalFixtures.body("ball", PhysicalFixtures.sphere(), 2)],
+      2,
+    );
   input.floor = 0;
   input.gravity.y = -9.81;
-  const simulation: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
+  const simulation: IAutoMoviePhysicalSimulation =
+    await Simulation.compute(input);
   const bytes: Uint8Array = await Playback.encode(simulation.cache, 1_000_000);
   const budget: {
     maximumBytes: number;
@@ -143,7 +150,9 @@ export async function test_physical_playback_archive(): Promise<void> {
     offsets: {},
     rootOffset: { x: 0.2, y: 0, z: 0 },
     steps: [0.2, 0.6].map(
-      (start: number): IAutoMoviePhysicsCache["recovery"][string]["steps"][number] => ({
+      (
+        start: number,
+      ): IAutoMoviePhysicsCache["recovery"][string]["steps"][number] => ({
         bone: "root",
         kind: "swing",
         start,
@@ -157,7 +166,9 @@ export async function test_physical_playback_archive(): Promise<void> {
       (
         seconds: number,
         index: number,
-      ): NonNullable<IAutoMoviePhysicsCache["recovery"][string]["landings"]>[number] => ({
+      ): NonNullable<
+        IAutoMoviePhysicsCache["recovery"][string]["landings"]
+      >[number] => ({
         bone: "root",
         seconds,
         position: { x: 0.1, y: 0, z: 0 },
@@ -172,7 +183,11 @@ export async function test_physical_playback_archive(): Promise<void> {
   };
   /** Own only codec metadata; the existing numeric frame stream is borrowed unchanged. */
   const copy: () => IAutoMoviePhysicsCache = (): IAutoMoviePhysicsCache => {
-    const cache: IAutoMoviePhysicsCache = new Cache(simulation.cache.identity, 120, 2);
+    const cache: IAutoMoviePhysicsCache = new Cache(
+      simulation.cache.identity,
+      120,
+      2,
+    );
     cache.frames.push(...simulation.cache.frames);
     cache.contacts.push(...structuredClone(simulation.cache.contacts));
     cache.ownership.push(...structuredClone(simulation.cache.ownership));
@@ -230,7 +245,11 @@ export async function test_physical_playback_archive(): Promise<void> {
     } catch {}
   }
   for (const [index, mutate] of mutations.entries()) {
-    const malformed: IAutoMoviePhysicsCache = new Cache(simulation.cache.identity, 120, 2);
+    const malformed: IAutoMoviePhysicsCache = new Cache(
+      simulation.cache.identity,
+      120,
+      2,
+    );
     malformed.frames.push(...simulation.cache.frames);
     malformed.contacts.push(...structuredClone(simulation.cache.contacts));
     malformed.ownership.push(...structuredClone(simulation.cache.ownership));

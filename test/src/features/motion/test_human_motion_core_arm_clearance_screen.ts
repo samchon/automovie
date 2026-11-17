@@ -1,7 +1,15 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
-import { HumanArmClearance, poseBones, resolveHumanPosture } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanArmClearance,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -57,14 +65,10 @@ export function test_human_motion_core_arm_clearance_screen(): void {
   for (let k: number = 0; k < pair.length; ++k) {
     const me: ReturnType<typeof stand> = stand(pair[k]!, 0);
     const other: ReturnType<typeof stand> = stand(pair[1 - k]!, 0.35);
-    const shapes: IAutoMovieMotionHumanColliders.IPlaced[] = HumanArmClearance.obstacles(
-      me.body,
-      me.bones,
-    );
-    const others: IAutoMovieMotionHumanColliders.IPlaced[] = HumanArmClearance.trunk(
-      other.body,
-      other.bones,
-    );
+    const shapes: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanArmClearance.obstacles(me.body, me.bones);
+    const others: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanArmClearance.trunk(other.body, other.bones);
     for (const side of ["left", "right"] as const) {
       const shoulder: IAutoMovieVector3 = me.bones.get(
         `${side}UpperArm`,

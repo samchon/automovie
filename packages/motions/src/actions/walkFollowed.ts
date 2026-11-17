@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanActionPlan, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { walkStation } from "./walkStation";
 

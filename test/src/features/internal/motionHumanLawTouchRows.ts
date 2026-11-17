@@ -1,6 +1,7 @@
-import type { IAutoMovieMotionHumanTouch, AutoMovieHumanoidRegion } from "@automovie/interface";
-
-
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanTouch,
+} from "@automovie/interface";
 
 import { motionHumanLawTouch } from "./motionHumanLawTouch";
 
@@ -132,7 +133,8 @@ export namespace motionHumanLawTouchRows {
     label: keyof typeof PARTNER,
     part: Parameters<typeof motionHumanLawTouch>[2],
   ): string[] {
-    const row: { params: IAutoMovieMotionHumanTouch.IParams; facing: boolean } = PARTNER[label];
+    const row: { params: IAutoMovieMotionHumanTouch.IParams; facing: boolean } =
+      PARTNER[label];
     return motionHumanLawTouch(label, row.params, part, {
       facing: row.facing,
       gap: row.facing ? 0.55 : 0.45,

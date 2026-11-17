@@ -1,5 +1,9 @@
-import type { IAutoMovieMeshQueryHierarchy, IAutoMovieSignedMeshQueryHit, IAutoMovieSignedMeshQueryOptions, IAutoMovieMesh } from "@automovie/interface";
-
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshQueryHierarchy,
+  IAutoMovieSignedMeshQueryHit,
+  IAutoMovieSignedMeshQueryOptions,
+} from "@automovie/interface";
 
 import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
 import { boundAutoMovieMeshQueryPoint as bound } from "./boundAutoMovieMeshQueryPoint";

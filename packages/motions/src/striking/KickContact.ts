@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanKickGeometry, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingReach, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanKickGeometry,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingReach,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { KickCarriage } from "./KickCarriage";
 import { KickChain } from "./KickChain";
 import { KickForm } from "./KickForm";
@@ -74,7 +80,9 @@ export namespace KickContact {
     const limit: number =
       KickForm.STEP_SHARE * StrikingStance.length(props.body);
     const back: number = KickForm.STEP_BACK_SHARE * m.stature;
-    const under = (carriage: IAutoMovieMotionHumanKickGeometry.ICarriage): IContact => {
+    const under = (
+      carriage: IAutoMovieMotionHumanKickGeometry.ICarriage,
+    ): IContact => {
       const base: IAutoMovieMotionHumanPosture = KickCarriage.posture(
         props,
         carriage,
@@ -85,7 +93,11 @@ export namespace KickContact {
     let best: IContact | undefined;
     let least: number = Number.POSITIVE_INFINITY;
     for (const lean of leans) {
-      let carriage: IAutoMovieMotionHumanKickGeometry.ICarriage = { ...set, lean, step: step ?? 0 };
+      let carriage: IAutoMovieMotionHumanKickGeometry.ICarriage = {
+        ...set,
+        lean,
+        step: step ?? 0,
+      };
       let forward: number = limit;
       if (step === undefined) {
         const base: IAutoMovieMotionHumanPosture = KickCarriage.posture(
@@ -98,7 +110,8 @@ export namespace KickContact {
           base,
           props.side,
         );
-        const solved: IAutoMovieMotionHumanStrikingReach.ISolution = KickChain.solve(chain, base);
+        const solved: IAutoMovieMotionHumanStrikingReach.ISolution =
+          KickChain.solve(chain, base);
         const reach: IAutoMovieVector3 = Vector3.subtract(solved.point, hip);
         const span: number = Vector3.length(reach);
         const ahead: number = Vector3.dot(reach, props.line) / span;

@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanConversation } from "@automovie/interface";
 import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
+import type { IAutoMovieMotionHumanConversation } from "@automovie/interface";
 import { HumanConversation } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

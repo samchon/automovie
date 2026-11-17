@@ -1,6 +1,19 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCrouch, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCrouch,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { stand } from "../actions/stand";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -105,7 +118,9 @@ export namespace crouch {
   };
 
   /** Knee flexion at the lowest pose by depth, degrees (Escamilla 2001; the range table's end for `full`). */
-  export const KNEE: Readonly<Record<IAutoMovieMotionHumanCrouch.Depth, number>> = {
+  export const KNEE: Readonly<
+    Record<IAutoMovieMotionHumanCrouch.Depth, number>
+  > = {
     partial: 100,
     full: 150,
   };
@@ -120,7 +135,9 @@ export namespace crouch {
   export const SHARES: number = 8;
 
   /** Descent seconds by depth for a 0.93 m hip height (provisional). */
-  export const DESCENT: Readonly<Record<IAutoMovieMotionHumanCrouch.Depth, number>> = {
+  export const DESCENT: Readonly<
+    Record<IAutoMovieMotionHumanCrouch.Depth, number>
+  > = {
     partial: 1.0,
     full: 1.3,
   };
@@ -145,7 +162,8 @@ export namespace crouch {
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
-    const depth: IAutoMovieMotionHumanCrouch.Depth = context.params.depth ?? "partial";
+    const depth: IAutoMovieMotionHumanCrouch.Depth =
+      context.params.depth ?? "partial";
     const heels: IAutoMovieMotionHumanCrouch.Heels =
       context.params.heels ?? (depth === "full" ? "up" : "flat");
     const hold: number = context.params.hold ?? 1;
@@ -210,7 +228,8 @@ export namespace crouch {
     ): IAutoMovieMotionHumanPosture["limbs"] => {
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
       for (const side of ["left", "right"] as const) {
-        const goal: IAutoMovieMotionHumanPosture.IGoal = posture.limbs[`${side}Leg`]!;
+        const goal: IAutoMovieMotionHumanPosture.IGoal =
+          posture.limbs[`${side}Leg`]!;
         const flat: IAutoMovieMotionHumanFoot.IPlacement = {
           ankle: goal.point,
           rotation: goal.rotation ?? HumanFrame.turn(yaw),
@@ -391,7 +410,10 @@ export namespace crouch {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
         const s: number = share(seconds);
         return lowered(posture, s, inclination(s));
       },

@@ -1,5 +1,11 @@
 import type { IAutoMovieInspectionView } from "@automovie/interface";
-import { type IAutoMovieInspectionHandle, type IAutoMovieViewerSubjectBounds, applyAutoMovieInspection, parseAutoMovieInspectionView, resolveAutoMovieInspectionView } from "@automovie/render";
+import {
+  type IAutoMovieInspectionHandle,
+  type IAutoMovieViewerSubjectBounds,
+  applyAutoMovieInspection,
+  parseAutoMovieInspectionView,
+  resolveAutoMovieInspectionView,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

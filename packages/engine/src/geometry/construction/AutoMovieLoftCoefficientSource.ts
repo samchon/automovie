@@ -1,4 +1,9 @@
-import type { IAutoMovieLoftChain, IAutoMovieConstructionOutlineParameter, IAutoMovieLoftCoefficientSource, IAutoMovieStationHermite } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftCoefficientSource,
+  IAutoMovieStationHermite,
+} from "@automovie/interface";
 
 import { AutoMovieSeamStation } from "./AutoMovieSeamStation";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
@@ -13,7 +18,6 @@ import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftCoefficientSource {
-
   /**
    * Prepare the capped coefficient data and carry its regular layer jets to station.
    *
@@ -29,8 +33,10 @@ export namespace AutoMovieLoftCoefficientSource {
     chain: IAutoMovieLoftChain,
     parameter: IAutoMovieConstructionOutlineParameter,
   ): IAutoMovieLoftChain | string {
-    const admitted: IAutoMovieConstructionOutlineParameter | undefined | string =
-      AutoMovieViewParameter.prepare(parameter);
+    const admitted:
+      | IAutoMovieConstructionOutlineParameter
+      | undefined
+      | string = AutoMovieViewParameter.prepare(parameter);
     if (admitted === undefined || typeof admitted === "string")
       return typeof admitted === "string"
         ? admitted
@@ -84,7 +90,9 @@ export namespace AutoMovieLoftCoefficientSource {
       )
     )
       return "coefficient source has a nonfinite parameter derivative";
-    const end: (index: number) => IAutoMovieLoftCoefficientSource.IEnd = (index: number): IAutoMovieLoftCoefficientSource.IEnd => ({
+    const end: (index: number) => IAutoMovieLoftCoefficientSource.IEnd = (
+      index: number,
+    ): IAutoMovieLoftCoefficientSource.IEnd => ({
       station: stations[index]!,
       value: values[index]!,
       slope: slopes[index]!,
@@ -164,7 +172,8 @@ export namespace AutoMovieLoftCoefficientSource {
     let to: number;
     if (low || high) {
       const which: "bottom" | "top" = low ? "bottom" : "top";
-      const pole: IAutoMovieLoftCoefficientSource.IEnd | undefined = source.ends[which];
+      const pole: IAutoMovieLoftCoefficientSource.IEnd | undefined =
+        source.ends[which];
       if (pole === undefined || !closed(chain, which)) return null;
       if (pole.station !== poleStation(source.parameter, which))
         throw new Error("coefficient pole endpoint differs from its parameter");
@@ -221,7 +230,10 @@ export namespace AutoMovieLoftCoefficientSource {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the station's prepared parameter basis and map derivatives across all controls.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns weights and retains no span or chain.
    */
-  export function weights(controls: IAutoMovieLoftCoefficientSource.IControls, order: 0 | 1 | 2): number[] {
+  export function weights(
+    controls: IAutoMovieLoftCoefficientSource.IControls,
+    order: 0 | 1 | 2,
+  ): number[] {
     if (order === 0) return controls.weights[0]!;
     if (controls.change === null)
       throw new Error(

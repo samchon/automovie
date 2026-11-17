@@ -1,5 +1,3 @@
-
-
 /**
  * Which objects one cell draws: the request's own selection, or one unit of a sweep alone or with its neighbours.
  *

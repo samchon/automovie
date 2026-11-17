@@ -1,5 +1,13 @@
-import type { IAutoMovieInstanceSetPlacement, IAutoMovieCompiledInstancePrototype, IAutoMovieExplicitInstanceTransform, IAutoMovieInstanceSetLayout, IAutoMovieInstanceSlot, IAutoMovieQuaternion, IAutoMovieVector3, IAutoMovieWorldRoute } from "@automovie/interface";
-
+import type {
+  IAutoMovieCompiledInstancePrototype,
+  IAutoMovieExplicitInstanceTransform,
+  IAutoMovieInstanceSetLayout,
+  IAutoMovieInstanceSetPlacement,
+  IAutoMovieInstanceSlot,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+  IAutoMovieWorldRoute,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { seededValue } from "../math/seededValue";

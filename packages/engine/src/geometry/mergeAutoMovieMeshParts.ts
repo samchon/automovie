@@ -1,4 +1,9 @@
-import { type IAutoMovieMeshAssembly, type IAutoMovieMeshGroup, type IAutoMovieMeshPart, IAutoMovieMesh } from "@automovie/interface";
+import {
+  IAutoMovieMesh,
+  type IAutoMovieMeshAssembly,
+  type IAutoMovieMeshGroup,
+  type IAutoMovieMeshPart,
+} from "@automovie/interface";
 
 import { mergeAutoMovieMeshes } from "./mergeAutoMovieMeshes";
 import { transformAutoMovieMesh } from "./transformAutoMovieMesh";

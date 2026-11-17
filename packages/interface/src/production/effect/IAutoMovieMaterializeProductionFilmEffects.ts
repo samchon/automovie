@@ -1,8 +1,8 @@
-import type { IAutoMovieFilmEffectCurrentIdentity } from "./IAutoMovieFilmEffectCurrentIdentity";
 import type { IAutoMovieFilmTimeline } from "../IAutoMovieFilmTimeline";
 import type { IAutoMovieProductionFrameRate } from "../IAutoMovieProductionFrameRate";
-import type { IAutoMovieShotEffectFilmInterval } from "./IAutoMovieShotEffectFilmInterval";
 import type { IAutoMovieWorldDesign } from "../IAutoMovieWorldDesign";
+import type { IAutoMovieFilmEffectCurrentIdentity } from "./IAutoMovieFilmEffectCurrentIdentity";
+import type { IAutoMovieShotEffectFilmInterval } from "./IAutoMovieShotEffectFilmInterval";
 
 /**
  * Inputs for admitting film-owned cues and materializing their frame-clock streams.

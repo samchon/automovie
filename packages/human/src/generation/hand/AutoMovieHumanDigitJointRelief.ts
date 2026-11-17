@@ -29,15 +29,16 @@ export namespace AutoMovieHumanDigitJointRelief {
   /** Amplitude as a share of the joint's radius: upper bound read on f1's relaxed capture, a convention. */
   export const SHARE: number = 0.04;
 
-  
-
   /**
    * The outward displacement of the skin at arc length `s`, mm.
    *
    * @param input The joint.
    * @param s Arc length along the line, mm.
    */
-  export function height(input: IAutoMovieHumanDigitJointRelief.IInput, s: number): number {
+  export function height(
+    input: IAutoMovieHumanDigitJointRelief.IInput,
+    s: number,
+  ): number {
     return SHARE * input.radius * bump((s - input.at) / input.half).value;
   }
 
@@ -47,7 +48,13 @@ export namespace AutoMovieHumanDigitJointRelief {
    * @param input The joint.
    * @param s Arc length along the line, mm.
    */
-  export function slope(input: IAutoMovieHumanDigitJointRelief.IInput, s: number): number {
-    return (SHARE * input.radius * bump((s - input.at) / input.half).slope) / input.half;
+  export function slope(
+    input: IAutoMovieHumanDigitJointRelief.IInput,
+    s: number,
+  ): number {
+    return (
+      (SHARE * input.radius * bump((s - input.at) / input.half).slope) /
+      input.half
+    );
   }
 }

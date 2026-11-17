@@ -1,30 +1,32 @@
-import type { IAutoMovieLoftChain, AutoMovieVector3Tuple, IAutoMovieHumanBodyCalibration, IAutoMovieHumanHandDigit, IAutoMovieHumanHandFinger, IAutoMovieHumanHandForm, IAutoMovieHumanHandMeasures, IAutoMovieHumanHandSkinTargets, IAutoMovieHumanKnuckleSection } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanHandDigit,
+  IAutoMovieHumanHandFinger,
+  IAutoMovieHumanHandForm,
+  IAutoMovieHumanHandMeasures,
+  IAutoMovieHumanHandSkinTargets,
+  IAutoMovieHumanKnuckleSection,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanBodySurface } from "../AutoMovieHumanBodySurface";
+import { AutoMovieHumanKnuckleSection } from "../AutoMovieHumanKnuckleSection";
 import { AutoMovieHumanHandDigitChain } from "./AutoMovieHumanHandDigitChain";
 import { AutoMovieHumanHandEvents } from "./AutoMovieHumanHandEvents";
 import { AutoMovieHumanHandFingers } from "./AutoMovieHumanHandFingers";
 import { AutoMovieHumanHandMap } from "./AutoMovieHumanHandMap";
 import { AutoMovieHumanHandPalm } from "./AutoMovieHumanHandPalm";
 import { AutoMovieHumanHandSolve } from "./AutoMovieHumanHandSolve";
-import { AutoMovieHumanKnuckleSection } from "../AutoMovieHumanKnuckleSection";
 
 type Vec3 = AutoMovieVector3Tuple;
 const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
-const { digitsOf }: typeof AutoMovieHumanHandFingers = AutoMovieHumanHandFingers;
+const { digitsOf }: typeof AutoMovieHumanHandFingers =
+  AutoMovieHumanHandFingers;
 const { palmOf }: typeof AutoMovieHumanHandPalm = AutoMovieHumanHandPalm;
-const { fingerOf }: typeof AutoMovieHumanHandDigitChain = AutoMovieHumanHandDigitChain;
+const { fingerOf }: typeof AutoMovieHumanHandDigitChain =
+  AutoMovieHumanHandDigitChain;
 const { events }: typeof AutoMovieHumanHandEvents = AutoMovieHumanHandEvents;
 const { solve }: typeof AutoMovieHumanHandSolve = AutoMovieHumanHandSolve;
 
@@ -73,36 +75,70 @@ export namespace AutoMovieHumanHandSkinTargets {
     makeArm: IAutoMovieHumanHandSkinTargets.SkinTargetsMakeArm,
     key: string,
   ): IAutoMovieHumanHandSkinTargets.ISkinTargetsResult {
-    const found: { breadth: number; girth: number } | undefined = TARGETS.get(key);
+    const found: { breadth: number; girth: number } | undefined =
+      TARGETS.get(key);
     if (found !== undefined) return found;
-    const targets: { breadth: number; girth: number } = { breadth: given.breadth, girth: circumference };
+    const targets: { breadth: number; girth: number } = {
+      breadth: given.breadth,
+      girth: circumference,
+    };
     for (let round: number = 0; round < SKIN_ROUNDS; round++) {
-      const { measures, law, joints } = solve(hand, given, circumference, wristTape, makeArm, targets, calibration.diagnostics);
-      const map = (q: readonly [number, number, number]): Vec3 => handPoint(q, measures, law.wrist);
-      const fingers: IAutoMovieHumanHandFinger[] = digitsOf(hand, measures, law, joints);
+      const { measures, law, joints } = solve(
+        hand,
+        given,
+        circumference,
+        wristTape,
+        makeArm,
+        targets,
+        calibration.diagnostics,
+      );
+      const map = (q: readonly [number, number, number]): Vec3 =>
+        handPoint(q, measures, law.wrist);
+      const fingers: IAutoMovieHumanHandFinger[] = digitsOf(
+        hand,
+        measures,
+        law,
+        joints,
+      );
       const chains: IAutoMovieLoftChain[] = [
         palmOf(hand, map, "left", 1),
-        ...hand.digits.slice(1).map((d: IAutoMovieHumanHandDigit, i: number): IAutoMovieLoftChain => fingerOf(d, i + 1, fingers[i + 1]!, "left", 1)),
+        ...hand.digits
+          .slice(1)
+          .map(
+            (d: IAutoMovieHumanHandDigit, i: number): IAutoMovieLoftChain =>
+              fingerOf(d, i + 1, fingers[i + 1]!, "left", 1),
+          ),
       ];
       const mesh = AutoMovieHumanBodySurface.generate({
         ...calibration,
         chains,
-        events: events().filter((e: IAutoMovieHumanBodyCalibration.IEvent): boolean => e.parent === "hand.left.1"),
-        poles: hand.digits.slice(1).map((_: IAutoMovieHumanHandDigit, i: number): IAutoMovieHumanBodyCalibration.IPole => ({
-          chain: AutoMovieHumanArmPrior.PRIOR.hand.digits[i + 1]!.name.replace("{side}", "left"),
-          end: "bottom",
-          critical: true,
-          point: fingers[i + 1]!.pole,
-        })),
+        events: events().filter(
+          (e: IAutoMovieHumanBodyCalibration.IEvent): boolean =>
+            e.parent === "hand.left.1",
+        ),
+        poles: hand.digits.slice(1).map(
+          (
+            _: IAutoMovieHumanHandDigit,
+            i: number,
+          ): IAutoMovieHumanBodyCalibration.IPole => ({
+            chain: AutoMovieHumanArmPrior.PRIOR.hand.digits[
+              i + 1
+            ]!.name.replace("{side}", "left"),
+            end: "bottom",
+            critical: true,
+            point: fingers[i + 1]!.pole,
+          }),
+        ),
         apertures: [],
         appendages: undefined,
       }).mesh;
-      const skin: IAutoMovieHumanKnuckleSection.IMeasure = AutoMovieHumanKnuckleSection.measure(
-        mesh.positions,
-        mesh.indices,
-        [joints.mcps[1]!, joints.mcps[2]!, joints.mcps[4]!],
-        law.crease,
-      );
+      const skin: IAutoMovieHumanKnuckleSection.IMeasure =
+        AutoMovieHumanKnuckleSection.measure(
+          mesh.positions,
+          mesh.indices,
+          [joints.mcps[1]!, joints.mcps[2]!, joints.mcps[4]!],
+          law.crease,
+        );
       targets.breadth *= given.breadth / skin.breadth;
       targets.girth *= circumference / skin.girth;
     }

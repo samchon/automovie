@@ -1,10 +1,9 @@
-import type { IAutoMovieInspectionLabel, IAutoMovieInspectionLabelPlacement, IAutoMovieVector3 } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieInspectionLabel,
+  IAutoMovieInspectionLabelPlacement,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import * as THREE from "three";
-
-
 
 /**
  * Place labels on a picture: project each labelled path's centre through the camera into pixels and keep a label only where its box overlaps no label kept before it.

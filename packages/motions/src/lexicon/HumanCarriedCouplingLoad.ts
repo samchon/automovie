@@ -1,6 +1,21 @@
-import type { IAutoMovieMotionHumanLoad, AutoMovieHumanoidBone, IAutoMovieMotionCoupling, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarriedCouplingLoad, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionCoupling,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCarriedCouplingLoad,
+  IAutoMovieMotionHumanLoad,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { Quaternion, Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanLoad } from "../perform/HumanLoad";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
@@ -109,12 +124,10 @@ export namespace HumanCarriedCouplingLoad {
     // own anchor frame.
     const share: number = coupling.contacts
       .filter(
-        (c: IAutoMovieMotionCoupling.IContact): boolean =>
-          c.on.role === role,
+        (c: IAutoMovieMotionCoupling.IContact): boolean => c.on.role === role,
       )
       .reduce(
-        (s: number, c: IAutoMovieMotionCoupling.IContact): number =>
-          s + c.load,
+        (s: number, c: IAutoMovieMotionCoupling.IContact): number => s + c.load,
         0,
       );
     const frame:

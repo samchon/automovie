@@ -1,6 +1,8 @@
-import type { IAutoMovieSamplePoseVelocity, IAutoMoviePose } from "@automovie/interface";
 import { inertializeOffset, samplePoseVelocity } from "@automovie/engine";
-
+import type {
+  IAutoMoviePose,
+  IAutoMovieSamplePoseVelocity,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

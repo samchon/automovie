@@ -1,5 +1,5 @@
-import type { IAutoMovieBuiltPlacementBounds } from "./IAutoMovieBuiltPlacementBounds";
 import type { IAutoMovieSubjectBox } from "../production/IAutoMovieSubjectBox";
+import type { IAutoMovieBuiltPlacementBounds } from "./IAutoMovieBuiltPlacementBounds";
 
 /**
  * One placed body resolved to its reported box and overlap proxy boxes.

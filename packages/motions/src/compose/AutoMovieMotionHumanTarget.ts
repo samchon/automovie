@@ -1,6 +1,19 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget, IAutoMovieMotionTarget, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionTarget,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -30,7 +43,6 @@ import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union and the hand and foot owners; a self region the trunk does not carry throws instead of reading a limb that is not solved yet.
  */
 export namespace AutoMovieMotionHumanTarget {
-
   /**
    * Default places (provisional shares):
    *
@@ -214,7 +226,8 @@ export namespace AutoMovieMotionHumanTarget {
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     options: IAutoMovieMotionHumanTarget.IHand = {},
   ): IAutoMovieMotionHumanArmTarget.ITarget {
-    const surface: IAutoMovieMotionHumanHand.Surface = options.surface ?? "palm";
+    const surface: IAutoMovieMotionHumanHand.Surface =
+      options.surface ?? "palm";
     const shape: IAutoMovieMotionHumanHand.Shape = options.shape ?? "relaxed";
     const normal: IAutoMovieVector3 = Vector3.scale(
       Vector3.normalize(place.normal),

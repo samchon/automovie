@@ -1,5 +1,3 @@
-
-
 /**
  * Represent admitted nonnegative metre and 0..180 degree tolerances.
  *

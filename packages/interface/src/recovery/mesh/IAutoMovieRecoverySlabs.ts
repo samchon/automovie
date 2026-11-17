@@ -1,4 +1,8 @@
-import type { IAutoMovieRecoverySections, IAutoMovieRecoverySlabObservation, IAutoMovieRecoverySourceLineage } from "../../index";
+import type {
+  IAutoMovieRecoverySections,
+  IAutoMovieRecoverySlabObservation,
+  IAutoMovieRecoverySourceLineage,
+} from "../../index";
 
 /** Acquisition-only source topology with newly verified cut addresses and
  * caller-attested saved curve references. No coefficients, source positions,
@@ -11,73 +15,60 @@ import type { IAutoMovieRecoverySections, IAutoMovieRecoverySlabObservation, IAu
  * @evidence contracts/development/common.md#meaningful-documentation Documents units, original direction/frame, caller identity scope, raw-cut verification, coefficient absence and source-only event qualification.
  */
 export interface IAutoMovieRecoverySlabs {
- 
- /** New acquisition identity, independent of saved curve names. */
+  /** New acquisition identity, independent of saved curve names. */
   name: string;
 
- 
- /** Caller source identity; this operation does not compute its byte hash. */
+  /** Caller source identity; this operation does not compute its byte hash. */
   sourceIdentity: string;
 
- 
- /** Caller registration/selection/original-ordinal identity, compared before cutting. */
+  /** Caller registration/selection/original-ordinal identity, compared before cutting. */
   sourceSelectionIdentity: string;
 
- 
- /** Original caller projection direction, before normalization. */
+  /** Original caller projection direction, before normalization. */
   axis: IAutoMovieRecoverySections["axis"];
 
- 
- /** Original caller frame reference, before orthogonal projection. */
+  /** Original caller frame reference, before orthogonal projection. */
   reference: IAutoMovieRecoverySections["reference"];
 
- 
- /** Actual zero-origin physical projection frame used by cuts and critical events. */
+  /** Actual zero-origin physical projection frame used by cuts and critical events. */
   frame: IAutoMovieRecoverySections["frame"];
 
- 
- /** Scope of independently checked source-to-publication correspondence. */
+  /** Scope of independently checked source-to-publication correspondence. */
   bindingAuthority: "raw-cut-addresses-and-closure-only";
 
- 
- /** Byte hashing and saved coefficient/selection correctness remain caller obligations. */
+  /** Byte hashing and saved coefficient/selection correctness remain caller obligations. */
   callerBindingRequired: true;
 
- 
- /** No curve coefficient, degree, rational weight or physical phase was accessed. */
+  /** No curve coefficient, degree, rational weight or physical phase was accessed. */
   curveCoefficientsRead: false;
 
- 
- /** Same-order saved planes with newly recut exact source lineage. */
+  /** Same-order saved planes with newly recut exact source lineage. */
   sections: Array<{
- 
-   /** Original signed plane coordinate, millimetres. */
+    /** Original signed plane coordinate, millimetres. */
     coordinateMm: number;
- 
-   /** Caller-verified saved artifact identity, retained without hashing. */
+
+    /** Caller-verified saved artifact identity, retained without hashing. */
     observationIdentity: string;
- 
-   /** Fresh broad/exact source addresses with unchanged symbolic publication fields. */
+
+    /** Fresh broad/exact source addresses with unchanged symbolic publication fields. */
     sourceLineage: IAutoMovieRecoverySourceLineage[];
- 
-   /** Raw closure and sample count; failed saved fits have no closure claim to compare. */
+
+    /** Raw closure and sample count; failed saved fits have no closure claim to compare. */
     rawContours: Array<{
- 
-     /** Raw contour ordinal within its physical plane, before fitting or rejection. */
-contourIndex: number;
- 
-     /** Whether the observed path's actual incidence returns to its first endpoint; no artificial closing segment is inferred. */
-closed: boolean;
- 
-     /** Raw observed point population retained for this contour, including unsupported contacts. */
-observationCount: number;
- 
-     /** Whether the reobserved closure was explicitly compared with the saved publication. */
-savedClosureCompared: boolean;
+      /** Raw contour ordinal within its physical plane, before fitting or rejection. */
+      contourIndex: number;
+
+      /** Whether the observed path's actual incidence returns to its first endpoint; no artificial closing segment is inferred. */
+      closed: boolean;
+
+      /** Raw observed point population retained for this contour, including unsupported contacts. */
+      observationCount: number;
+
+      /** Whether the reobserved closure was explicitly compared with the saved publication. */
+      savedClosureCompared: boolean;
     }>;
   }>;
 
- 
- /** All source components, exact ports, measured PL events and unresolved issues for every requested pair. */
+  /** All source components, exact ports, measured PL events and unresolved issues for every requested pair. */
   slabs: IAutoMovieRecoverySlabObservation[];
 }

@@ -1,4 +1,9 @@
-import { type IAutoMoviePlaybackSample, type IAutoMoviePlaybackTimeline, IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
+import {
+  type IAutoMoviePlaybackSample,
+  type IAutoMoviePlaybackTimeline,
+  IAutoMovieSequence,
+  IAutoMovieShot,
+} from "@automovie/interface";
 
 import { resolveFromTimeline } from "./resolveFromTimeline";
 import { sequenceTimeline } from "./sequenceTimeline";

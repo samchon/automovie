@@ -6,31 +6,24 @@
  * @evidence contracts/development/common.md#meaningful-documentation Members distinguish attempted iterations, accepted updates, stopping reason, squared-pixel costs and scaled Jacobian rank.
  */
 export interface IAutoMovieRecoveryCameraOptimizerFit {
- 
- /** Actual attempted local steps. */
+  /** Actual attempted local steps. */
   iterations: number;
 
- 
- /** Steps admitted by a decreasing actual robust objective. */
+  /** Steps admitted by a decreasing actual robust objective. */
   acceptedSteps: number;
 
- 
- /** Local stopping reason; iteration-budget remains unfinished. */
+  /** Local stopping reason; iteration-budget remains unfinished. */
   termination: "gradient" | "step" | "cost" | "iteration-budget";
 
- 
- /** Whether the fixed-subset local numerical stopping rule completed. */
+  /** Whether the fixed-subset local numerical stopping rule completed. */
   converged: boolean;
 
- 
- /** Initial soft-L1 objective in squared pixels under the declared scale. */
+  /** Initial soft-L1 objective in squared pixels under the declared scale. */
   initialCost: number;
 
- 
- /** Final soft-L1 objective for the same fixed subset. */
+  /** Final soft-L1 objective for the same fixed subset. */
   finalCost: number;
 
- 
- /** Smallest scaled original-Jacobian singular ratio visited by that fit. */
+  /** Smallest scaled original-Jacobian singular ratio visited by that fit. */
   minimumLocalDesignRatio: number;
 }

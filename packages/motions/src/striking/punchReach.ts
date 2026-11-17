@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanStrikingReach, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanStrikingReach,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * A punch's reach on one goal of the fist, and one correction of the

@@ -1,5 +1,5 @@
-import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
 import { measureAutoMovieRenderTextureTarget } from "@automovie/engine";
+import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
 import {
   type IAutoMovieShadowTextureHost,
   readAutoMovieShadowTextureTargets,
@@ -64,23 +64,20 @@ export async function test_viewer_shadow_texture_targets(): Promise<void> {
     readAutoMovieShadowTextureTargets("pcf", host, lights);
   TestValidator.equals(
     "all three PCF kinds require one map",
-    pcf.map(
-      (
-        row: IAutoMovieRenderTextureTarget,
-      ): string[] => [row.shadow!.light, row.shadow!.role],
-    ),
+    pcf.map((row: IAutoMovieRenderTextureTarget): string[] => [
+      row.shadow!.light,
+      row.shadow!.role,
+    ]),
     [
       ["dir", "map"],
       ["spot", "map"],
       ["point", "map"],
     ],
   );
-  const cube: IAutoMovieRenderTextureTarget =
-    pcf.find(
-      (
-        row: IAutoMovieRenderTextureTarget,
-      ): boolean => row.shadow!.light === "point",
-    )!;
+  const cube: IAutoMovieRenderTextureTarget = pcf.find(
+    (row: IAutoMovieRenderTextureTarget): boolean =>
+      row.shadow!.light === "point",
+  )!;
   TestValidator.equals(
     "the cube uses its clamped x-edge for six square faces",
     [cube.width, cube.height, cube.faces],
@@ -184,9 +181,8 @@ export async function test_viewer_shadow_texture_targets(): Promise<void> {
   TestValidator.equals(
     "hidden noncasting cube facts remain actual",
     mixed.find(
-      (
-        row: IAutoMovieRenderTextureTarget,
-      ): boolean => row.shadow!.light === "point",
+      (row: IAutoMovieRenderTextureTarget): boolean =>
+        row.shadow!.light === "point",
     )!.faces,
     6,
   );

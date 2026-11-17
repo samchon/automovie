@@ -1,4 +1,8 @@
-import type { IAutoMovieSubdivisionRing, IAutoMovieSubdivisionRingEigenbasis } from "@automovie/interface";
+import type {
+  IAutoMovieSubdivisionRing,
+  IAutoMovieSubdivisionRingEigenbasis,
+} from "@automovie/interface";
+
 import { stepSubdivisionRing } from "./stepSubdivisionRing";
 
 /**

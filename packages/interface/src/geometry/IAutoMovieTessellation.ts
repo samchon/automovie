@@ -1,5 +1,3 @@
-
-
 /**
  * Indexed triangle mesh with per-vertex normals: the render-ready form
  * `tessellate` emits for a primitive shape and `tessellateSurface` for a

@@ -1,9 +1,11 @@
-import type { IAutoMovieRecoveryDomainLedger, IAutoMovieRecoveryDomainsDescriptionOperation, IAutoMovieRecoveryNamedDomainsDescriptionOperation } from "@automovie/interface";
-
+import type {
+  IAutoMovieRecoveryDomainLedger,
+  IAutoMovieRecoveryDomainsDescriptionOperation,
+  IAutoMovieRecoveryNamedDomainsDescriptionOperation,
+} from "@automovie/interface";
 
 import { describeRecoveryNamedDomains } from "./describeRecoveryNamedDomains";
 import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
-
 
 /**
  * Bind declared saved-domain identities to actual returned ownership records.
@@ -67,7 +69,8 @@ export function describeRecoveryDomains(
         triangleCount: range.triangleCount,
         beforeMm: range.beforeMm,
         afterMm: range.afterMm,
-        group: range.group });
+        group: range.group,
+      });
       continue;
     }
     const key: string = `${interval}:${range.group}`;
@@ -76,7 +79,8 @@ export function describeRecoveryDomains(
       part: "recovery.curve-loft",
       firstTriangle: range.firstTriangle,
       triangleCount: range.triangleCount,
-      patch: null });
+      patch: null,
+    });
     ranges.set(key, list);
   }
   for (const [interval, slab] of (input.loft.intervals ?? []).entries()) {
@@ -147,7 +151,8 @@ export function describeRecoveryDomains(
               : null,
         delegatedTo,
         emitted,
-        diagnostics: local });
+        diagnostics: local,
+      });
     }
   }
   for (const [section, report] of input.reports.entries()) {
@@ -174,7 +179,8 @@ export function describeRecoveryDomains(
           ...(typeof name === "string" && name.length > 0
             ? []
             : ["The observed open course has no saved coefficient identity"]),
-        ] });
+        ],
+      });
     }
   }
   for (
@@ -227,12 +233,14 @@ export function describeRecoveryDomains(
               ...(typeof name === "string" && name.length > 0
                 ? []
                 : ["The saved boundary has no coefficient identity"]),
-            ] });
+            ],
+          });
       }
     }
   }
   return {
     members,
     unattributed,
-    diagnostics };
+    diagnostics,
+  };
 }

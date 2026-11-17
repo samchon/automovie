@@ -1,5 +1,3 @@
-
-
 /**
  * Query-local selection of original triangles that are not ray targets.
  *

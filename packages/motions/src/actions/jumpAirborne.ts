@@ -1,6 +1,13 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJumpAirborne, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanJumpAirborne,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { jumpPath } from "./jumpPath";
@@ -18,7 +25,6 @@ import { stand } from "./stand";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The turning is the flight pass's; this module only declares it and carries what comes back.
  */
 export namespace jumpAirborne {
-
   /**
    * What the airborne shape is drawn from.
    *
@@ -171,7 +177,10 @@ export namespace jumpAirborne {
      * @param seconds Seconds of the jump.
      * @returns The posture, turned.
      */
-    turned(posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture;
+    turned(
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture;
   }
 
   /**
@@ -204,8 +213,13 @@ export namespace jumpAirborne {
     const twist: number = rotation?.twist ?? 0;
     const sideways: boolean =
       rotation?.way === "left" || rotation?.way === "right";
-    let rotated: ((seconds: number) => IAutoMovieMotionHumanPosture.IRotation) | null = null;
-    const declared: Pick<IAutoMovieMotionHumanActionPlan, "flight" | "airborne"> =
+    let rotated:
+      | ((seconds: number) => IAutoMovieMotionHumanPosture.IRotation)
+      | null = null;
+    const declared: Pick<
+      IAutoMovieMotionHumanActionPlan,
+      "flight" | "airborne"
+    > =
       somersault === 0 && twist === 0
         ? {}
         : {
@@ -227,14 +241,19 @@ export namespace jumpAirborne {
               },
             },
             airborne: (
-              handed: (seconds: number) => IAutoMovieMotionHumanPosture.IRotation,
+              handed: (
+                seconds: number,
+              ) => IAutoMovieMotionHumanPosture.IRotation,
             ): void => {
               rotated = handed;
             },
           };
     return {
       declared,
-      turned: (posture: IAutoMovieMotionHumanPosture, t: number): IAutoMovieMotionHumanPosture =>
+      turned: (
+        posture: IAutoMovieMotionHumanPosture,
+        t: number,
+      ): IAutoMovieMotionHumanPosture =>
         rotated === null || t <= takeoff || t >= touchdown
           ? posture
           : { ...posture, rotation: rotated(t) },

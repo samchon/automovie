@@ -1,5 +1,3 @@
-
-
 /** Data and callback contracts shared by the SolveQuadraticKernel operations. */
 export namespace IAutoMovieSolveQuadraticKernel {
   /**
@@ -8,7 +6,7 @@ export namespace IAutoMovieSolveQuadraticKernel {
    * This boundary owns equivalent conic expansion, reversible equilibration and
    * the cold homogeneous interior-point solve. The compatibility initial vector
    * remains ignored, with no retained factors or preceding-call warm state.
-   * 
+   *
    * Status 1 is Solved, 2/3 are primal/dual infeasibility, 4 is AlmostSolved;
    * 5/6 are reduced-accuracy infeasibility, 7 is the iteration limit, 9 is numerical
    * refusal and 10 is insufficient progress. Only status 1 means full convergence.
@@ -41,7 +39,7 @@ export namespace IAutoMovieSolveQuadraticKernel {
    * This boundary owns equivalent conic expansion, reversible equilibration and
    * the cold homogeneous interior-point solve. The compatibility initial vector
    * remains ignored, with no retained factors or preceding-call warm state.
-   * 
+   *
    * Status 1 is Solved, 2/3 are primal/dual infeasibility, 4 is AlmostSolved;
    * 5/6 are reduced-accuracy infeasibility, 7 is the iteration limit, 9 is numerical
    * refusal and 10 is insufficient progress. Only status 1 means full convergence.

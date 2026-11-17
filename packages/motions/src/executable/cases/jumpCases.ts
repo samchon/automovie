@@ -1,6 +1,17 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieGravity, resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import {
+  AutoMovieGravity,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { createHumanBody } from "../../body/createHumanBody";
@@ -48,10 +59,15 @@ import { FootSlip } from "./FootSlip";
  */
 export function jumpCases(who: string): IMotionCaptureCase[] {
   const man = MotionBodies.population(who);
-  const body: IAutoMovieMotionHumanBody = createHumanBody(man.body.skeleton, man.body.profile);
+  const body: IAutoMovieMotionHumanBody = createHumanBody(
+    man.body.skeleton,
+    man.body.profile,
+  );
   const l: number = body.measure.hipHeight;
   const goal: IAutoMovieVector3 = { x: 0, y: 0, z: 6 };
-  const perform = (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
+  const perform = (
+    chain: IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "jump",
       performers: [
@@ -155,14 +171,19 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
           (x) =>
             x.part === `${side}Foot` && t >= x.from + 1e-9 && t <= x.to - 1e-9,
         );
-        const sole: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(body, map, side);
+        const sole: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
+          body,
+          map,
+          side,
+        );
         for (const { socket, point } of sole)
           if (t >= touchdown && -point.y > sink.value)
             sink = {
               value: -point.y,
               where: `k=${k} ${side} ${socket} t=${t.toFixed(3)} (${t < takeoff ? (t < at ? "walk" : "push-off") : "landing"})`,
             };
-        const planted: IAutoMovieMotionHumanFoot.ISocket = FootSlip.contact(sole);
+        const planted: IAutoMovieMotionHumanFoot.ISocket =
+          FootSlip.contact(sole);
         if (w < 0 || planted.point.y > 0.01) continue;
         const d: number = FootSlip.drift(touched, `${side}${w}`, planted);
         if (d > slip.value)

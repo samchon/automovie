@@ -1,5 +1,7 @@
-import type { IAutoMovieResolveContactEvents, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieResolveContactEvents,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { firstAutoMovieContactImpact } from "./firstAutoMovieContactImpact";
 

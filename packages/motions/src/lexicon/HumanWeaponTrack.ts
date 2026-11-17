@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanStrikingHeld, IAutoMovieMotionHumanWeaponTrack, IAutoMovieMotionTarget, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionHumanWeaponTrack,
+  IAutoMovieMotionTarget,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Tracking: a presented firearm kept on a target that moves (#3348). The
@@ -26,7 +32,6 @@ import { Quaternion, Vector3 } from "@automovie/engine";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The target is read through `context.aim`, the reader every aimed law uses, at the second shown.
  */
 export namespace HumanWeaponTrack {
-
   /**
    * The path of a presented weapon: the pose itself, or with `track` the
    * pose turned onto the target at each second.
@@ -50,14 +55,20 @@ export namespace HumanWeaponTrack {
     pose: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
     eye: IAutoMovieVector3,
     aimed: IAutoMovieVector3 | null,
-  ): (progress: number, seconds: number) => IAutoMovieMotionHumanStrikingHeld.IHandFrame {
+  ): (
+    progress: number,
+    seconds: number,
+  ) => IAutoMovieMotionHumanStrikingHeld.IHandFrame {
     const target: IAutoMovieMotionTarget | undefined = context.params.target;
     if (aimed === null || target === undefined || context.params.track !== true)
       return (): IAutoMovieMotionHumanStrikingHeld.IHandFrame => pose;
     const first: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(aimed, eye),
     );
-    return (_: number, seconds: number): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
+    return (
+      _: number,
+      seconds: number,
+    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
       const now: IAutoMovieVector3 = Vector3.normalize(
         Vector3.subtract(
           context.aim(target, context.start + seconds).point,

@@ -1,8 +1,22 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
 import { createPell, createSword } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanBlade, HumanChain, HumanObject, HumanPerformance, HumanRefusal, HumanSignature, HumanSword } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanBlade,
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+  HumanSword,
+} from "@automovie/motions";
 
 import { motionBladeReach } from "./motionBladeReach";
 import { motionHumanBody } from "./motionHumanBody";
@@ -123,7 +137,9 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
   const act = (anchor: string): IAutoMovieMotionHumanSegment.ISegment =>
     film
       .segments("a")
-      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.id === anchor)!;
+      .find(
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.id === anchor,
+      )!;
   const decisive = (segment: IAutoMovieMotionHumanSegment.ISegment): number =>
     segment.start + (segment.plan.contact ?? Number.NaN);
   const point = (seconds: number): IAutoMovieVector3 =>
@@ -131,7 +147,12 @@ export function motionBladeStrokes(name: "m-average" | "f-small"): string[] {
       film.prop("sword", seconds),
       sword.affordance("point").frame.translation,
     );
-  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(film, "a", body, 0);
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    film,
+    "a",
+    body,
+    0,
+  );
   const toes = (seconds: number, side: "left" | "right"): IAutoMovieVector3 =>
     HumanSignature.joint(reader, seconds, `${side}Toes`);
 

@@ -1,5 +1,13 @@
-import { type IAutoMovieBuildingObservationCensus, type IAutoMovieBuiltEnvelopeCorner, type IAutoMovieBuiltEnvelopeFace, IAutoMovieBuildingUnit, IAutoMovieBuiltConnector, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieBuiltSpace } from "@automovie/interface";
-
+import {
+  type IAutoMovieBuildingObservationCensus,
+  IAutoMovieBuildingUnit,
+  IAutoMovieBuiltConnector,
+  type IAutoMovieBuiltEnvelopeCorner,
+  type IAutoMovieBuiltEnvelopeFace,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMovieBuiltSpace,
+} from "@automovie/interface";
 
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
 import { builtConnectorStops } from "./builtConnectorStops";

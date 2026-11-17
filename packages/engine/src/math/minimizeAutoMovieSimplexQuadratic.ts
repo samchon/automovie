@@ -1,4 +1,9 @@
-import type { IAutoMovieSimplexAtom, IAutoMovieSimplexBudget, IAutoMovieSimplexMinimum } from "@automovie/interface";
+import type {
+  IAutoMovieSimplexAtom,
+  IAutoMovieSimplexBudget,
+  IAutoMovieSimplexMinimum,
+} from "@automovie/interface";
+
 /**
  * Minimize half ||sum(lambda_i*a_i)||^2 + sum(lambda_i*b_i) on the simplex.
  * Pairwise Frank-Wolfe transfers mass from the most expensive occupied atom

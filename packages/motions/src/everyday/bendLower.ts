@@ -1,6 +1,15 @@
-import type { IAutoMovieMotionHumanBend, IAutoMovieMotionHumanBendLower, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBendLower,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -22,12 +31,13 @@ import { HumanTrunk } from "./HumanTrunk";
  */
 export namespace bendLower {
   /** Hip height kept by each strategy, a share of the standing hip height (provisional). */
-  export const HIPS: Readonly<Record<Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">, number>> =
-    {
-      stoop: 0.97,
-      semiSquat: 0.75,
-      squat: 0.45,
-    };
+  export const HIPS: Readonly<
+    Record<Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">, number>
+  > = {
+    stoop: 0.97,
+    semiSquat: 0.75,
+    squat: 0.45,
+  };
 
   /**
    * A standing posture lowered by a strategy: the hips dropped by a share of
@@ -60,7 +70,10 @@ export namespace bendLower {
   ): IAutoMovieMotionHumanPosture {
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
     const drop: number = (1 - HIPS[strategy]) * body.measure.hipHeight * share;
-    const frame: IAutoMovieMotionHumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
+    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+      origin: posture.root,
+      yaw: posture.yaw,
+    };
     const goal: IAutoMovieVector3 = HumanFrame.point(frame, {
       x: hips.x,
       y: hips.y - drop,
@@ -80,7 +93,8 @@ export namespace bendLower {
     const heel: number = HEEL[strategy] * share;
     if (heel > 0)
       for (const leg of ["leftLeg", "rightLeg"] as const) {
-        const goal0: IAutoMovieMotionHumanPosture.IGoal | undefined = posture.limbs[leg];
+        const goal0: IAutoMovieMotionHumanPosture.IGoal | undefined =
+          posture.limbs[leg];
         if (goal0 === undefined || goal0.rotation === undefined) continue;
         const side: "left" | "right" = leg === "leftLeg" ? "left" : "right";
         const flat: IAutoMovieMotionHumanFoot.IPlacement = {
@@ -135,12 +149,13 @@ export namespace bendLower {
   }
 
   /** Heel lift by strategy at full depth, degrees (provisional: only the squat outruns the ankle's dorsiflexion). */
-  export const HEEL: Readonly<Record<Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">, number>> =
-    {
-      stoop: 0,
-      semiSquat: 0,
-      squat: 30,
-    };
+  export const HEEL: Readonly<
+    Record<Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">, number>
+  > = {
+    stoop: 0,
+    semiSquat: 0,
+    squat: 30,
+  };
 
   /**
    * The least trunk pitch that brings the shoulder within reach of the

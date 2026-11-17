@@ -1,5 +1,15 @@
-import { type IAutoMovieMeasureQuantities, type IAutoMovieValidation, AutoMovieQuantityBasis, AutoMovieQuantitySubject, AutoMovieQuantityUnit, IAutoMovieBuiltEnvironment, IAutoMovieDrawingGap, IAutoMovieQuantityContributor, IAutoMovieQuantityFinding, IAutoMovieQuantityReport } from "@automovie/interface";
-
+import {
+  AutoMovieQuantityBasis,
+  AutoMovieQuantitySubject,
+  AutoMovieQuantityUnit,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieDrawingGap,
+  type IAutoMovieMeasureQuantities,
+  IAutoMovieQuantityContributor,
+  IAutoMovieQuantityFinding,
+  IAutoMovieQuantityReport,
+  type IAutoMovieValidation,
+} from "@automovie/interface";
 
 import { builtSpaceShellVolume } from "../architecture/builtSpaceShellVolume";
 import { validateBuiltEnvironment } from "../architecture/validateBuiltEnvironment";
@@ -91,7 +101,11 @@ const FIXED_GAPS: readonly IAutoMovieDrawingGap[] = [
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each record is measured once in its own pass and no measured value is needed twice, so there is no repeated work to share; nothing is cached across calls because the environment is the caller's mutable record.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local owner tallies grow with distinct owners and are released on return. The caller owns the report, whose named contributors are bounded per finding; full gap strings can still name every faceted space and are bounded by authored design size rather than the contributor limit.
  */
-export const measureAutoMovieQuantities: (props: IAutoMovieMeasureQuantities.IProps) => IAutoMovieQuantityReport = (props: IAutoMovieMeasureQuantities.IProps): IAutoMovieQuantityReport => {
+export const measureAutoMovieQuantities: (
+  props: IAutoMovieMeasureQuantities.IProps,
+) => IAutoMovieQuantityReport = (
+  props: IAutoMovieMeasureQuantities.IProps,
+): IAutoMovieQuantityReport => {
   const {
     environment,
   }: { environment: IAutoMovieBuiltEnvironment; maxContributors?: number } =
@@ -102,8 +116,9 @@ export const measureAutoMovieQuantities: (props: IAutoMovieMeasureQuantities.IPr
     throw new Error(
       `quantity report contributor bound must be a positive safe integer, but was ${bound}`,
     );
-  const validated: IAutoMovieValidation =
-    validateBuiltEnvironment({ environment });
+  const validated: IAutoMovieValidation = validateBuiltEnvironment({
+    environment,
+  });
   if (validated.success === false) {
     const first: (typeof validated.violations)[number] =
       validated.violations[0]!;

@@ -1,7 +1,18 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanPerformance, HumanSignature, HumanStageFight } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanSignature,
+  HumanStageFight,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -95,10 +106,15 @@ export function test_human_motion_fight_reactions(): void {
       });
       const struck: IAutoMovieMotionHumanSegment.ISegment = film
         .segments("a")
-        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === act)!;
+        .find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === act,
+        )!;
       const answer: IAutoMovieMotionHumanSegment.ISegment = film
         .segments("b")
-        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === response)!;
+        .find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+            s.name === response,
+        )!;
       const contact: number =
         struck.start + (struck.plan.contact ?? Number.NaN);
       const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(

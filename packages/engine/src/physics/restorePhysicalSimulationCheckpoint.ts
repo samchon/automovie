@@ -1,4 +1,8 @@
-import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicsCache } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicsCache,
+} from "@automovie/interface";
 import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 
 /**

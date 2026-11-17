@@ -1,9 +1,9 @@
+import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieCompiledShotSource } from "./IAutoMovieCompiledShotSource";
 import type { IAutoMovieFormationDesign } from "./IAutoMovieFormationDesign";
 import type { IAutoMovieProductionDesign } from "./IAutoMovieProductionDesign";
 import type { IAutoMovieShotContract } from "./IAutoMovieShotContract";
 import type { IAutoMovieShotSourceOutput } from "./IAutoMovieShotSourceOutput";
-import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**

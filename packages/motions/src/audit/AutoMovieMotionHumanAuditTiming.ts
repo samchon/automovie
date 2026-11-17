@@ -1,5 +1,7 @@
-import type { IAutoMovieMotionEvent, IAutoMovieMotionHumanAuditTiming } from "@automovie/interface";
-
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanAuditTiming,
+} from "@automovie/interface";
 
 /**
  * Whether what an action declares about its own time is coherent, and
@@ -23,7 +25,6 @@ import type { IAutoMovieMotionEvent, IAutoMovieMotionHumanAuditTiming } from "@a
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace AutoMovieMotionHumanAuditTiming {
-
   /**
    * Every incoherent declaration of a person's placed actions.
    *
@@ -38,42 +39,47 @@ export namespace AutoMovieMotionHumanAuditTiming {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function faults(spans: readonly IAutoMovieMotionHumanAuditTiming.ISpan[]): string[] {
+  export function faults(
+    spans: readonly IAutoMovieMotionHumanAuditTiming.ISpan[],
+  ): string[] {
     const out: string[] = [];
     const eps: number = 1e-9;
-    spans.forEach((span: IAutoMovieMotionHumanAuditTiming.ISpan, index: number): void => {
-      const say = (what: string): void => {
-        out.push(`${index} ${span.name}: ${what}`);
-      };
-      const D: number = span.plan.duration;
-      if (!(D > 0 && Number.isFinite(D))) say(`duration ${D}`);
-      if (!(span.start <= span.entryTime + eps))
-        say(`entered at ${span.entryTime} before its start ${span.start}`);
-      if (!(span.entryTime <= span.end + eps))
-        say(`ends at ${span.end} before its entry ${span.entryTime}`);
-      if (!(span.end <= span.start + D + eps))
-        say(`ends at ${span.end}, after its plan's ${span.start + D}`);
-      const previous: IAutoMovieMotionHumanAuditTiming.ISpan | undefined = spans[index - 1];
-      if (previous !== undefined && !(previous.end <= span.entryTime + eps))
-        say(`entered at ${span.entryTime} before ${previous.name} ends`);
-      const names: Set<string> = new Set();
-      for (const event of span.plan.events) {
-        if (!(event.share >= 0 && event.share <= 1))
-          say(`event ${event.name} at share ${event.share}`);
-        if (names.has(event.name)) say(`event ${event.name} twice`);
-        names.add(event.name);
-      }
-      for (const c of span.plan.contacts)
-        if (!(c.from >= 0 && c.from <= c.to && c.to <= 1))
-          say(`${c.kind} of ${c.part} from ${c.from} to ${c.to}`);
-      for (const key of ["contact", "feigned"] as const) {
-        const at: number | undefined = span.plan[key];
-        if (at !== undefined && !(at >= 0 && at <= D + eps))
-          say(`${key} at ${at} s of ${D}`);
-      }
-      if (span.plan.contact !== undefined && span.plan.feigned !== undefined)
-        say("both a contact and a feigned contact");
-    });
+    spans.forEach(
+      (span: IAutoMovieMotionHumanAuditTiming.ISpan, index: number): void => {
+        const say = (what: string): void => {
+          out.push(`${index} ${span.name}: ${what}`);
+        };
+        const D: number = span.plan.duration;
+        if (!(D > 0 && Number.isFinite(D))) say(`duration ${D}`);
+        if (!(span.start <= span.entryTime + eps))
+          say(`entered at ${span.entryTime} before its start ${span.start}`);
+        if (!(span.entryTime <= span.end + eps))
+          say(`ends at ${span.end} before its entry ${span.entryTime}`);
+        if (!(span.end <= span.start + D + eps))
+          say(`ends at ${span.end}, after its plan's ${span.start + D}`);
+        const previous: IAutoMovieMotionHumanAuditTiming.ISpan | undefined =
+          spans[index - 1];
+        if (previous !== undefined && !(previous.end <= span.entryTime + eps))
+          say(`entered at ${span.entryTime} before ${previous.name} ends`);
+        const names: Set<string> = new Set();
+        for (const event of span.plan.events) {
+          if (!(event.share >= 0 && event.share <= 1))
+            say(`event ${event.name} at share ${event.share}`);
+          if (names.has(event.name)) say(`event ${event.name} twice`);
+          names.add(event.name);
+        }
+        for (const c of span.plan.contacts)
+          if (!(c.from >= 0 && c.from <= c.to && c.to <= 1))
+            say(`${c.kind} of ${c.part} from ${c.from} to ${c.to}`);
+        for (const key of ["contact", "feigned"] as const) {
+          const at: number | undefined = span.plan[key];
+          if (at !== undefined && !(at >= 0 && at <= D + eps))
+            say(`${key} at ${at} s of ${D}`);
+        }
+        if (span.plan.contact !== undefined && span.plan.feigned !== undefined)
+          say("both a contact and a feigned contact");
+      },
+    );
     return out;
   }
 
@@ -93,7 +99,10 @@ export namespace AutoMovieMotionHumanAuditTiming {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function instant(span: IAutoMovieMotionHumanAuditTiming.ISpan, event: string): number {
+  export function instant(
+    span: IAutoMovieMotionHumanAuditTiming.ISpan,
+    event: string,
+  ): number {
     const found: IAutoMovieMotionEvent | undefined = span.plan.events.find(
       (e: IAutoMovieMotionEvent): boolean => e.name === event,
     );
@@ -119,7 +128,10 @@ export namespace AutoMovieMotionHumanAuditTiming {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function order(span: IAutoMovieMotionHumanAuditTiming.ISpan, events: readonly string[]): string[] {
+  export function order(
+    span: IAutoMovieMotionHumanAuditTiming.ISpan,
+    events: readonly string[],
+  ): string[] {
     const out: string[] = [];
     let last: IAutoMovieMotionEvent | undefined;
     for (const name of events) {

@@ -1,6 +1,14 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanEntryState, IAutoMovieMotionMeeting, IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieComposition } from "@automovie/engine";
-
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionMeeting,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanChain, HumanFrame, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -75,7 +83,9 @@ export function test_human_motion_core_meeting_roles(): void {
     const clink: IAutoMovieMotionHumanActionLaw<never> = {
       name: "clink",
       interrupts: {},
-      plan: (context: IAutoMovieMotionHumanActionContext<never>): IAutoMovieMotionHumanActionPlan => {
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<never>,
+      ): IAutoMovieMotionHumanActionPlan => {
         seen.set(
           context.subject,
           context.meeting(
@@ -84,7 +94,9 @@ export function test_human_motion_core_meeting_roles(): void {
             order
               .filter((subject: string): boolean => subject !== context.subject)
               .map(
-                (subject: string): IAutoMovieMotionHumanActionContext.IPartner => ({
+                (
+                  subject: string,
+                ): IAutoMovieMotionHumanActionContext.IPartner => ({
                   role: "drinker",
                   subject,
                 }),
@@ -127,7 +139,9 @@ export function test_human_motion_core_meeting_roles(): void {
     });
     return seen;
   };
-  const place = (meeting: IAutoMovieMotionMeeting.IMeeting): IAutoMovieVector3 =>
+  const place = (
+    meeting: IAutoMovieMotionMeeting.IMeeting,
+  ): IAutoMovieVector3 =>
     HumanFrame.point(meeting.frame, meeting.contacts.clink!);
   const apart = (
     one: IAutoMovieMotionMeeting.IMeeting,

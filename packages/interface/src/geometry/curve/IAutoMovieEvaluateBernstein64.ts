@@ -8,7 +8,7 @@ export namespace IAutoMovieEvaluateBernstein64 {
   export type IResult = {
     /** Millimetre position after any rational and hybrid-Y evaluation. */
     point: Readonly<AutoMovieVector3Tuple>;
-  
+
     /** Millimetres per normalized local t, before any enclosing phase-width division. */
     derivative: Readonly<AutoMovieVector3Tuple>;
   };

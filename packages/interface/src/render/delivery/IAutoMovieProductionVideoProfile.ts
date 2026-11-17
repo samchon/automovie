@@ -29,11 +29,12 @@ export interface IAutoMovieProductionVideoProfile {
    * Major brand, and the brands the file's compatible-brand list must
    * include; other compatible brands are allowed.
    */
-  brands: { 
-/** Required MP4 major brand. */
-major: "isom"; 
-/** Compatible brands that must be present; extra brands are allowed. */
-requiredCompatible: readonly string[] };
+  brands: {
+    /** Required MP4 major brand. */
+    major: "isom";
+    /** Compatible brands that must be present; extra brands are allowed. */
+    requiredCompatible: readonly string[];
+  };
 
   /** Track display matrix in 16.16 and 2.30 fixed point; the unity matrix. */
   trackMatrix: IAutoMovieProductionVideoProbe["trackMatrix"];
@@ -46,13 +47,14 @@ requiredCompatible: readonly string[] };
    * BT.709 primaries (1), sRGB transfer (13), BT.709 matrix (1), and full
    * range.
    */
-  color: { 
-/** BT.709 primaries code point in the nclx declaration. */
-primaries: 1; 
-/** sRGB transfer-characteristic code point. */
-transfer: 13; 
-/** BT.709 matrix-coefficient code point. */
-matrix: 1; 
-/** Encoded sample values use the complete integer code range. */
-fullRange: true };
+  color: {
+    /** BT.709 primaries code point in the nclx declaration. */
+    primaries: 1;
+    /** sRGB transfer-characteristic code point. */
+    transfer: 13;
+    /** BT.709 matrix-coefficient code point. */
+    matrix: 1;
+    /** Encoded sample values use the complete integer code range. */
+    fullRange: true;
+  };
 }

@@ -1,14 +1,15 @@
-import type { IAutoMovieViewLoft, IAutoMovieViewPart, IAutoMovieHumanEar, IAutoMovieHumanPair, IAutoMovieHumanHeadComposer, IAutoMovieHumanHeadDome, IAutoMovieHumanHeadFeatures, IAutoMovieHumanHeadLayout, IAutoMovieHumanHeadOriginalSources } from "@automovie/interface";
-
-
-
-
-
-
-
-
 import { AutoMovieViewLoft } from "@automovie/engine";
-
+import type {
+  IAutoMovieHumanEar,
+  IAutoMovieHumanHeadComposer,
+  IAutoMovieHumanHeadDome,
+  IAutoMovieHumanHeadFeatures,
+  IAutoMovieHumanHeadLayout,
+  IAutoMovieHumanHeadOriginalSources,
+  IAutoMovieHumanPair,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadEarParts } from "./AutoMovieHumanHeadEarParts";
 import { AutoMovieHumanHeadEyeParts } from "./AutoMovieHumanHeadEyeParts";
@@ -35,8 +36,6 @@ import { AutoMovieHumanHeadInnerParts } from "./AutoMovieHumanHeadInnerParts";
  * the existing native bank; it is not the planned composed S01 source.
  */
 export namespace AutoMovieHumanHeadOriginalSources {
-  
-
   /**
    * Existing public regional-name protocol, before any host or source is acquired.
    * Nested/ear names are admitted requests for the existing whole catalogue;
@@ -204,8 +203,10 @@ export namespace AutoMovieHumanHeadOriginalSources {
     ) => IAutoMovieHumanHeadComposer.IDefinition = (
       names: readonly string[],
     ): IAutoMovieHumanHeadComposer.IDefinition => {
-      const host: { plan: IAutoMovieHumanHeadLayout; part: IAutoMovieViewPart } =
-        base.tapeInvariant;
+      const host: {
+        plan: IAutoMovieHumanHeadLayout;
+        part: IAutoMovieViewPart;
+      } = base.tapeInvariant;
       lowerTop ??= AutoMovieHumanHeadFeatures.prepare(
         host.plan,
         host.part,

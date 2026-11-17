@@ -17,7 +17,6 @@ import type { IAutoMovieMotionHumanSupport } from "@automovie/interface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The target is the vocabulary's own target union; no place is typed by the record.
  */
 export namespace HumanSupport {
-
   /** The parts, as data. */
   export const PARTS: readonly IAutoMovieMotionHumanSupport.Part[] = [
     "leftFoot",

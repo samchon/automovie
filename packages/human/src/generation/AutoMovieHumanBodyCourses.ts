@@ -1,6 +1,8 @@
-import type { AutoMovieHumanSexPair, IAutoMovieAffineCoefficients, IAutoMovieHumanBodyCourses } from "@automovie/interface";
-
-
+import type {
+  AutoMovieHumanSexPair,
+  IAutoMovieAffineCoefficients,
+  IAutoMovieHumanBodyCourses,
+} from "@automovie/interface";
 
 /**
  * Defaults of the foot's girths and lengths and the crotch's courses that
@@ -14,14 +16,15 @@ import type { AutoMovieHumanSexPair, IAutoMovieAffineCoefficients, IAutoMovieHum
  * and `test_human_survey_pelvis` (`test/src/features/human/survey/`).
  */
 export namespace AutoMovieHumanBodyCourses {
-  
-
   /**
    * Ball-of-foot circumference (`balloffootcircumference`) on the foot breadth
    * (`footbreadthhorizontal`), ANSUR II: R2 0.74 and 0.75, residual SD 6.0 and
    * 6.4 mm (on the foot length 0.37 and 0.36).
    */
-  export const BALL_OF_FOOT_ON_FOOT_BREADTH: readonly [IAutoMovieAffineCoefficients, IAutoMovieAffineCoefficients] = [
+  export const BALL_OF_FOOT_ON_FOOT_BREADTH: readonly [
+    IAutoMovieAffineCoefficients,
+    IAutoMovieAffineCoefficients,
+  ] = [
     { a: 32.0, b: 2.1153 },
     { a: 33.53, b: 2.145 },
   ];
@@ -31,7 +34,10 @@ export namespace AutoMovieHumanBodyCourses {
    * ANSUR II: R2 0.64 and 0.63, residual SD 9.1 and 10.1 mm (on the heel
    * breadth 0.41 and 0.39, on the ankle circumference 0.42 and 0.52).
    */
-  export const HEEL_ANKLE_ON_FOOT_LENGTH: readonly [IAutoMovieAffineCoefficients, IAutoMovieAffineCoefficients] = [
+  export const HEEL_ANKLE_ON_FOOT_LENGTH: readonly [
+    IAutoMovieAffineCoefficients,
+    IAutoMovieAffineCoefficients,
+  ] = [
     { a: 66.9, b: 0.9883 },
     { a: 70.49, b: 1.0067 },
   ];
@@ -41,7 +47,10 @@ export namespace AutoMovieHumanBodyCourses {
    * 1988, which ANSUR II does not take: R2 0.90 and 0.84, residual SD 3.0 and
    * 4.2 mm.
    */
-  export const INSTEP_ON_FOOT_LENGTH: readonly [IAutoMovieAffineCoefficients, IAutoMovieAffineCoefficients] = [
+  export const INSTEP_ON_FOOT_LENGTH: readonly [
+    IAutoMovieAffineCoefficients,
+    IAutoMovieAffineCoefficients,
+  ] = [
     { a: -2.44, b: 0.744 },
     { a: -1.65, b: 0.7329 },
   ];
@@ -51,7 +60,10 @@ export namespace AutoMovieHumanBodyCourses {
    * circumference, ANSUR II: R2 0.41 and 0.51, residual SD 32.7 mm (on
    * stature 0.20 and 0.17).
    */
-  export const CROTCH_ON_HIP: readonly [IAutoMovieAffineCoefficients, IAutoMovieAffineCoefficients] = [
+  export const CROTCH_ON_HIP: readonly [
+    IAutoMovieAffineCoefficients,
+    IAutoMovieAffineCoefficients,
+  ] = [
     { a: 256.23, b: 0.357 },
     { a: 179.88, b: 0.434 },
   ];
@@ -62,7 +74,9 @@ export namespace AutoMovieHumanBodyCourses {
    * predicts the posterior part better than any line (on the buttock
    * circumference R2 0.16 and 0.13, on stature 0.14 and 0.15).
    */
-  export const POSTERIOR_CROTCH_SHARE: readonly [number, number] = [0.5509, 0.5728];
+  export const POSTERIOR_CROTCH_SHARE: readonly [number, number] = [
+    0.5509, 0.5728,
+  ];
 
   /**
    * Lower thigh circumference at suprapatella on stature, body mass index and
@@ -89,10 +103,17 @@ export namespace AutoMovieHumanBodyCourses {
    * @param fat Body fat percentage.
    * @returns The girth, mm.
    */
-  export function lowerThigh(male: 0 | 1, stature: number, fat: number): number {
+  export function lowerThigh(
+    male: 0 | 1,
+    stature: number,
+    fat: number,
+  ): number {
     const m: (typeof LOWER_THIGH_MODEL)[number] = LOWER_THIGH_MODEL[male];
     const age: number = ANSUR_II_AGE[male];
-    const bmi: number = Math.min(40, Math.max(17, (fat - 0.23 * age + 10.8 * male + 5.4) / 1.2));
+    const bmi: number = Math.min(
+      40,
+      Math.max(17, (fat - 0.23 * age + 10.8 * male + 5.4) / 1.2),
+    );
     return m.a + m.stature * stature + m.bmi * bmi + m.age * age;
   }
 }

@@ -1,8 +1,18 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
 import { createPell, createSword } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanBlade, HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanBlade,
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+} from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
 
@@ -88,12 +98,18 @@ export function motionBladeSeed(name: motionHumanBody.Name): string[] {
     });
     const act: IAutoMovieMotionHumanSegment.ISegment = film
       .segments("a")
-      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "lunge")!;
+      .find(
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+          s.name === "lunge",
+      )!;
     return {
       act,
       at: act.start + (act.plan.contact ?? Number.NaN),
       point: (seconds: number): IAutoMovieVector3 => {
-        const frame: IAutoMovieMotionHumanProp.IFrame = film.prop("sword", seconds);
+        const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
+          "sword",
+          seconds,
+        );
         return Vector3.add(
           frame.position,
           Quaternion.rotateVector(frame.rotation, tip),

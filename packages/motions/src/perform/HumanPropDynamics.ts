@@ -1,6 +1,8 @@
-import type { IAutoMovieIntegrateMotionTrajectory, IAutoMovieMotionHumanPropDynamics } from "@automovie/interface";
-
 import { AutoMovieGravity, integrateMotionTrajectory } from "@automovie/engine";
+import type {
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieMotionHumanPropDynamics,
+} from "@automovie/interface";
 
 /**
  * Props with mass and friction moved by the hands' force (#3433): a prop
@@ -39,7 +41,6 @@ import { AutoMovieGravity, integrateMotionTrajectory } from "@automovie/engine";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each returned trajectory holds its knots for as long as its caller keeps it.
  */
 export namespace HumanPropDynamics {
-
   /**
    * A slide's distance and speed along the push.
    *
@@ -58,7 +59,9 @@ export namespace HumanPropDynamics {
    * @returns The trajectory of `[distance, speed]`, the integrator's step
    *   its first piece's and its knots those of all its pieces.
    */
-  export function slide(props: IAutoMovieMotionHumanPropDynamics.ISlide): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
+  export function slide(
+    props: IAutoMovieMotionHumanPropDynamics.ISlide,
+  ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
     const g: number = AutoMovieGravity.STANDARD;
     const sliding = (
       t: number,
@@ -123,7 +126,11 @@ export namespace HumanPropDynamics {
           if (step(a, start, mid).at(mid).x[1]! > 0) lo = mid;
           else hi = mid;
         }
-      const tail: IAutoMovieIntegrateMotionTrajectory.ITrajectory = step(a, start, hi);
+      const tail: IAutoMovieIntegrateMotionTrajectory.ITrajectory = step(
+        a,
+        start,
+        hi,
+      );
       pieces.push({ to: a, path }, { to: hi, path: tail });
       if (!(hi < props.to)) break;
       from = hi;
@@ -134,7 +141,10 @@ export namespace HumanPropDynamics {
     // Each piece's knots within its own span, after the piece before it.
     const times: number[] = pieces.flatMap(
       (
-        p: { to: number; path: IAutoMovieIntegrateMotionTrajectory.ITrajectory },
+        p: {
+          to: number;
+          path: IAutoMovieIntegrateMotionTrajectory.ITrajectory;
+        },
         i: number,
       ): number[] =>
         p.path.times.filter(

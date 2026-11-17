@@ -1,5 +1,3 @@
-
-
 /**
  * A delivery crop restated in the uncropped frame's normalized device
  * coordinates, the form the perspective frustum tests and the projection read.

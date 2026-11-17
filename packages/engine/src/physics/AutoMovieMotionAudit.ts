@@ -1,5 +1,10 @@
-import type { IAutoMovieMeasurePhysicalMotionConstraint, IAutoMovieMotionAudit, IAutoMoviePhysicsCache, IAutoMoviePreparePhysicalGeometry, IAutoMovieMotionGeometry } from "@automovie/interface";
-
+import type {
+  IAutoMovieMeasurePhysicalMotionConstraint,
+  IAutoMovieMotionAudit,
+  IAutoMovieMotionGeometry,
+  IAutoMoviePhysicsCache,
+  IAutoMoviePreparePhysicalGeometry,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { admitPhysicalMotionAudit } from "./admitPhysicalMotionAudit";
@@ -35,7 +40,8 @@ export namespace AutoMovieMotionAudit {
     input: IAutoMovieMotionAudit.IInput,
   ): IAutoMovieMeasurePhysicalMotionConstraint.IRunResult {
     admitPhysicalMotionAudit(input);
-    const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+    const geometry: IAutoMoviePreparePhysicalGeometry.IQueries =
+      await Geometry();
     const findings: IAutoMovieMotionAudit.IFinding[] = [];
     let previous: IAutoMoviePhysicsCache.IFrame | undefined;
     const count: number = Math.ceil((input.end - input.start) * input.rate);
@@ -205,8 +211,9 @@ export namespace AutoMovieMotionAudit {
             )
           )
             continue;
-          const receipt: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =
-            geometry.contact(a.collider, b.collider, seconds);
+          const receipt: ReturnType<
+            IAutoMoviePreparePhysicalGeometry.IQueries["contact"]
+          > = geometry.contact(a.collider, b.collider, seconds);
           const limit: number = Math.min(
             a.owner.overlapTolerance,
             b.owner.overlapTolerance,

@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryMapJointFit, IAutoMovieRecoveryMapResection } from "../../index";
+import type {
+  IAutoMovieRecoveryMapJointFit,
+  IAutoMovieRecoveryMapResection,
+} from "../../index";
 
 /** One candidate transaction against an immutable accepted component revision.
  *
@@ -8,43 +11,34 @@ import type { IAutoMovieRecoveryMapJointFit, IAutoMovieRecoveryMapResection } fr
  * @evidence contracts/development/common.md#meaningful-documentation Members state revision, source identity, proposed population and null-before-attempt metrics.
  */
 export interface IAutoMovieRecoverySceneAttempt {
- 
- /** Source-order image being registered. */
+  /** Source-order image being registered. */
   viewIndex: number;
 
- 
- /** Accepted component revision used before this transaction. */
+  /** Accepted component revision used before this transaction. */
   revision: number;
 
- 
- /** Distinct existing 3D-track/target-feature correspondences. */
+  /** Distinct existing 3D-track/target-feature correspondences. */
   candidates: number;
 
- 
- /** Acceptance requires resection, growth, joint convergence and every final gate. */
+  /** Acceptance requires resection, growth, joint convergence and every final gate. */
   outcome:
     | "accepted"
     | "resection-refused"
     | "joint-refused"
     | "budget-exhausted";
 
- 
- /** Stage-specific complete reasons; no reason implies success by itself. */
+  /** Stage-specific complete reasons; no reason implies success by itself. */
   reasons: string[];
 
- 
- /** Completed resection diagnostics; null if the stage did not finish. */
+  /** Completed resection diagnostics; null if the stage did not finish. */
   resection: IAutoMovieRecoveryMapResection | null;
 
- 
- /** Last completed joint pass, possibly before a later growth pass failed; its own population remains authoritative. Null if no pass completed. */
+  /** Last completed joint pass, possibly before a later growth pass failed; its own population remains authoritative. Null if no pass completed. */
   joint: IAutoMovieRecoveryMapJointFit | null;
 
- 
- /** Proposed point population after new registered-view triangulation; null before growth. */
+  /** Proposed point population after new registered-view triangulation; null before growth. */
   proposedLandmarks: number | null;
 
- 
- /** Proposed retained observations; null before growth. */
+  /** Proposed retained observations; null before growth. */
   proposedObservations: number | null;
 }

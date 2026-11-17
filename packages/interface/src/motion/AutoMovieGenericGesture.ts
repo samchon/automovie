@@ -1,5 +1,3 @@
-
-
 /**
  * Postural gestures synthesized by gestureMotion's clinical-angle templates.
  * Jump carries root translation through a separate branch; targeted strikes

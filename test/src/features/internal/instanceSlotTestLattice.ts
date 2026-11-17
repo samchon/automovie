@@ -1,6 +1,5 @@
 import type { IAutoMovieInstanceSetPlacement } from "@automovie/interface";
 
-
 import { instanceSlotTestPlacement as placement } from "./instanceSlotTestPlacement";
 
 /**

@@ -1,6 +1,6 @@
-import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
-import type { IAutoMovieMotionMeeting } from "../compose/IAutoMovieMotionMeeting";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionMeeting } from "../compose/IAutoMovieMotionMeeting";
+import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 
 /**
  * A high five, a low five or a fist bump between two standing partners: both

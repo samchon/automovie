@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryObservedInteriorPoint, IAutoMovieRecoveryObservedPoint } from "../../index";
+import type {
+  IAutoMovieRecoveryObservedInteriorPoint,
+  IAutoMovieRecoveryObservedPoint,
+} from "../../index";
 
 /** Closed point-origin choices for a transported geometric observation chart.
  *

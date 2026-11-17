@@ -10,15 +10,12 @@ import type { IAutoMovieRecoveryEventCompilationPolicy } from "../../index";
  */
 
 export interface IAutoMovieRecoveryFieldComplexPolicy extends IAutoMovieRecoveryEventCompilationPolicy {
- 
- /** Positive safe-integer limit on admitted chart declarations. */
+  /** Positive safe-integer limit on admitted chart declarations. */
   maxCharts: number;
 
- 
- /** Positive safe-integer limit on native coefficient owners. */
+  /** Positive safe-integer limit on native coefficient owners. */
   maxNativeOwners: number;
 
- 
- /** Positive safe-integer aggregate patch budget. */
+  /** Positive safe-integer aggregate patch budget. */
   maxTotalPatches: number;
 }

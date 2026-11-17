@@ -1,4 +1,9 @@
-import type { AutoMovieVector2Tuple, IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshPlan } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshPlan,
+} from "@automovie/interface";
+
 import { incircleAutoMovieSolidChart } from "./incircleAutoMovieSolidChart";
 import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
 
@@ -85,7 +90,10 @@ export function legalizeAutoMovieSolidMesh(
   indexed: boolean,
   occupied: ReadonlySet<string> | undefined,
   scale: number,
-  local?: (ids: readonly number[], charts: readonly [number, number][]) => [number, number],
+  local?: (
+    ids: readonly number[],
+    charts: readonly [number, number][],
+  ) => [number, number],
 ): IAutoMovieSolidMeshPlan.ITriangle[] | string {
   if (!(Number.isFinite(scale) && scale > 0))
     return "legalization metric scale must be positive and finite";
@@ -226,8 +234,15 @@ function flip(
   period: number | undefined,
   indexed: boolean,
   uniform: number,
-  local: ((ids: readonly number[], charts: readonly [number, number][]) => [number, number]) | undefined,
-): [IAutoMovieSolidMeshPlan.ITriangle, IAutoMovieSolidMeshPlan.ITriangle] | null {
+  local:
+    | ((
+        ids: readonly number[],
+        charts: readonly [number, number][],
+      ) => [number, number])
+    | undefined,
+):
+  | [IAutoMovieSolidMeshPlan.ITriangle, IAutoMovieSolidMeshPlan.ITriangle]
+  | null {
   const t1: IAutoMovieSolidMeshPlan.ITriangle = triangles[one.triangle]!;
   const t2: IAutoMovieSolidMeshPlan.ITriangle = triangles[two.triangle]!;
   const at = (
@@ -250,30 +265,56 @@ function flip(
   // One canonical cover: the least ID's occurrence at lift zero.
   const lifts: number[] = [lp, lq, lr, ls];
   const base: number = lifts[ids.indexOf(Math.min(...ids))]!;
-  const points: Readonly<AutoMovieVector2Tuple>[] = ids.map((id: number, k: number): Readonly<AutoMovieVector2Tuple> => {
-    const stored: Readonly<AutoMovieVector2Tuple> = vertices.get(id)!;
-    return [stored[0], stored[1] + (lifts[k]! - base) * (period ?? 0)];
-  });
-  if (!points.every((point: Readonly<AutoMovieVector2Tuple>): boolean => point.every(Number.isFinite)))
+  const points: Readonly<AutoMovieVector2Tuple>[] = ids.map(
+    (id: number, k: number): Readonly<AutoMovieVector2Tuple> => {
+      const stored: Readonly<AutoMovieVector2Tuple> = vertices.get(id)!;
+      return [stored[0], stored[1] + (lifts[k]! - base) * (period ?? 0)];
+    },
+  );
+  if (
+    !points.every((point: Readonly<AutoMovieVector2Tuple>): boolean =>
+      point.every(Number.isFinite),
+    )
+  )
     return null;
   // The quadrilateral read about its own centroid under the metric there: the uniform phase scale, or the local form's shear and scale.
-  const cu: number = (points[0]![0] + points[1]![0] + points[2]![0] + points[3]![0]) / 4;
-  const cv: number = (points[0]![1] + points[1]![1] + points[2]![1] + points[3]![1]) / 4;
+  const cu: number =
+    (points[0]![0] + points[1]![0] + points[2]![0] + points[3]![0]) / 4;
+  const cv: number =
+    (points[0]![1] + points[1]![1] + points[2]![1] + points[3]![1]) / 4;
   const [shear, scale]: [number, number] =
-    local === undefined ? [0, uniform] : local(ids, points as [number, number][]);
+    local === undefined
+      ? [0, uniform]
+      : local(ids, points as [number, number][]);
   if (!(Number.isFinite(shear) && Number.isFinite(scale) && scale > 0))
     return null;
   const scaled: Readonly<AutoMovieVector2Tuple>[] = points.map(
-    (point: Readonly<AutoMovieVector2Tuple>): Readonly<AutoMovieVector2Tuple> => [
+    (
+      point: Readonly<AutoMovieVector2Tuple>,
+    ): Readonly<AutoMovieVector2Tuple> => [
       point[0] - cu + shear * (point[1] - cv),
       (point[1] - cv) * scale,
     ],
   );
-  if (!scaled.every((point: Readonly<AutoMovieVector2Tuple>): boolean => point.every(Number.isFinite)))
+  if (
+    !scaled.every((point: Readonly<AutoMovieVector2Tuple>): boolean =>
+      point.every(Number.isFinite),
+    )
+  )
     return null;
-  const [P, Q, R, S] = scaled as [Readonly<AutoMovieVector2Tuple>, Readonly<AutoMovieVector2Tuple>, Readonly<AutoMovieVector2Tuple>, Readonly<AutoMovieVector2Tuple>];
+  const [P, Q, R, S] = scaled as [
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+  ];
   if (incircleAutoMovieSolidChart(P, Q, R, S) <= 0) return null;
-  const [cp, cq, cr, cs] = points as [Readonly<AutoMovieVector2Tuple>, Readonly<AutoMovieVector2Tuple>, Readonly<AutoMovieVector2Tuple>, Readonly<AutoMovieVector2Tuple>];
+  const [cp, cq, cr, cs] = points as [
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+    Readonly<AutoMovieVector2Tuple>,
+  ];
   if (
     !represented([cp, cs, cr], period, indexed) ||
     !represented([cs, cq, cr], period, indexed)
@@ -291,7 +332,9 @@ function represented(
   period: number | undefined,
   indexed: boolean,
 ): boolean {
-  const phases: number[] = points.map((point: Readonly<AutoMovieVector2Tuple>): number => point[1]);
+  const phases: number[] = points.map(
+    (point: Readonly<AutoMovieVector2Tuple>): number => point[1],
+  );
   const span: number = Math.max(...phases) - Math.min(...phases);
   if (
     period !== undefined &&

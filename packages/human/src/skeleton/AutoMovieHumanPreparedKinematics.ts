@@ -1,26 +1,22 @@
-import type { AutoMovieQuaternionTuple, AutoMovieVector3Tuple, IAutoMovieHumanJointCentres, IAutoMovieHumanNeutral, IAutoMovieHumanPose, IAutoMovieHumanPreparedKinematics, IAutoMovieHumanSkeleton, IAutoMovieHumanSkeletonMath } from "@automovie/interface";
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieQuaternionTuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanJointCentres,
+  IAutoMovieHumanNeutral,
+  IAutoMovieHumanPose,
+  IAutoMovieHumanPreparedKinematics,
+  IAutoMovieHumanSkeleton,
+  IAutoMovieHumanSkeletonMath,
+} from "@automovie/interface";
 
 import { AutoMovieHumanNeutral as Neutral } from "./AutoMovieHumanNeutral";
 import { AutoMovieHumanPelvicShare } from "./AutoMovieHumanPelvicShare";
 import { AutoMovieHumanPoseChannels } from "./AutoMovieHumanPoseChannels";
 import { AutoMovieHumanRigControls as Controls } from "./AutoMovieHumanRigControls";
-
 import { AutoMovieHumanSkeletonMath as M } from "./AutoMovieHumanSkeletonMath";
 
 /** One body's clinical FK law, shared by complete snapshots and fixed-bone projections. */
 export namespace AutoMovieHumanPreparedKinematics {
-  
-
-  
-
   /**
    * Compile neutral anatomy once. Projections only omit unused output and branch
    * work: the channel/clamp law and quaternion operation order are identical.
@@ -35,22 +31,29 @@ export namespace AutoMovieHumanPreparedKinematics {
     mmScale: number,
   ): IAutoMovieHumanPreparedKinematics.IPrepared {
     const byBone: Map<string, IAutoMovieHumanJointCentres.IJoint> = new Map(
-      joints.map((joint: IAutoMovieHumanJointCentres.IJoint): [string, IAutoMovieHumanJointCentres.IJoint] => [
-        joint.bone,
-        joint,
-      ]),
+      joints.map(
+        (
+          joint: IAutoMovieHumanJointCentres.IJoint,
+        ): [string, IAutoMovieHumanJointCentres.IJoint] => [joint.bone, joint],
+      ),
     );
     const indices: Map<string, number> = new Map(
-      joints.map((joint: IAutoMovieHumanJointCentres.IJoint, index: number): [string, number] => [
-        joint.bone,
-        index,
-      ]),
+      joints.map(
+        (
+          joint: IAutoMovieHumanJointCentres.IJoint,
+          index: number,
+        ): [string, number] => [joint.bone, index],
+      ),
     );
     const directions: Map<string, AutoMovieVector3Tuple> = new Map(
-      joints.map((joint: IAutoMovieHumanJointCentres.IJoint): [string, AutoMovieVector3Tuple] => [
-        joint.bone,
-        M.unit(M.sub(joint.toward, joint.position)),
-      ]),
+      joints.map(
+        (
+          joint: IAutoMovieHumanJointCentres.IJoint,
+        ): [string, AutoMovieVector3Tuple] => [
+          joint.bone,
+          M.unit(M.sub(joint.toward, joint.position)),
+        ],
+      ),
     );
     const bones: IBone[] = joints.map(
       (joint: IAutoMovieHumanJointCentres.IJoint): IBone => ({
@@ -90,7 +93,9 @@ export namespace AutoMovieHumanPreparedKinematics {
     );
 
     return {
-      select: (names: readonly string[]): IAutoMovieHumanPreparedKinematics.ISelection => {
+      select: (
+        names: readonly string[],
+      ): IAutoMovieHumanPreparedKinematics.ISelection => {
         if (names.length === 0)
           throw new Error("Human FK projection requires existing bones");
         const output: Set<string> = new Set(names);
@@ -162,7 +167,8 @@ export namespace AutoMovieHumanPreparedKinematics {
           const arm: string = `${side}UpperArm`;
           const r: Record<string, number> | undefined = rig.get(arm);
           if (r === undefined) continue;
-          const a: IAutoMovieHumanSkeletonMath.IAxes = bones[indices.get(arm)!]!.axes;
+          const a: IAutoMovieHumanSkeletonMath.IAxes =
+            bones[indices.get(arm)!]!.axes;
           const direction: AutoMovieVector3Tuple = directions.get(arm)!;
           const raised: AutoMovieVector3Tuple = M.rotate(
             M.multiply(
@@ -225,8 +231,14 @@ export namespace AutoMovieHumanPreparedKinematics {
           )
             local = cached.rotation;
           else {
-            const qf: AutoMovieQuaternionTuple = M.fromAxisAngle(a.flexion, flexion);
-            const qa: AutoMovieQuaternionTuple = M.fromAxisAngle(a.abduction, abduction);
+            const qf: AutoMovieQuaternionTuple = M.fromAxisAngle(
+              a.flexion,
+              flexion,
+            );
+            const qa: AutoMovieQuaternionTuple = M.fromAxisAngle(
+              a.abduction,
+              abduction,
+            );
             const qt: AutoMovieQuaternionTuple = M.fromAxisAngle(
               a.twist,
               twist * (compiled.lowerArm ? 1 - Neutral.WRIST_TWIST : 1),

@@ -18,9 +18,10 @@ export interface IAutoMovieSequenceRenderAndSeeResult extends IAutoMovieSequence
   /**
    * Sequence identity and authored fps snapshot.
    */
-  sequence: { 
-/** Rendered sequence identity. */
-id: string; 
-/** Authored editorial frames per second, independent of the render override. */
-fps: number };
+  sequence: {
+    /** Rendered sequence identity. */
+    id: string;
+    /** Authored editorial frames per second, independent of the render override. */
+    fps: number;
+  };
 }

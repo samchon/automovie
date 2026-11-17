@@ -32,11 +32,11 @@ import type { IAutoMovieSubjectContribution } from "./IAutoMovieSubjectContribut
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Names no subject kind, production or fixture and patches nothing; the unenforced determinism of `design` is stated as the subclass's obligation instead of being simulated by a cache or freeze in the base.
  * @evidence contracts/development/common.md#meaningful-documentation States the four obligations a subject owns, that `design` is the only path to the builder and must be byte-identical for equal inputs, that utilities delegate to engine functions, and that the base enforces none of this at runtime.
  */
-export interface IAutoMovieSubject<TDesign>  {
-/** Stable identity this subject is cited by. */
+export interface IAutoMovieSubject<TDesign> {
+  /** Stable identity this subject is cited by. */
   readonly id: string;
 
-/**
+  /**
    * The tracked record the builder reads, derived rather than transcribed.
    *
    * Every call must return a record byte-identical to the previous call for the
@@ -54,7 +54,7 @@ export interface IAutoMovieSubject<TDesign>  {
    */
   design(): TDesign;
 
-/**
+  /**
    * What this subject puts into a shot.
    *
    * The context carries the builder-owned facts a source cannot infer, so a
@@ -71,7 +71,5 @@ export interface IAutoMovieSubject<TDesign>  {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The base shares no contribution between calls, since the context differs per shot; any per-shot reuse belongs to the overriding subject.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds nothing after returning; the caller owns the returned contribution and the merge keeps only element references, not the subject's arrays.
    */
-  render(
-    context: IAutoMovieShotBuildContext,
-  ): IAutoMovieSubjectContribution;
+  render(context: IAutoMovieShotBuildContext): IAutoMovieSubjectContribution;
 }

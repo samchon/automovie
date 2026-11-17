@@ -5,7 +5,7 @@ import type { IAutoMovieServiceNetwork } from "./IAutoMovieServiceNetwork";
 export namespace IAutoMovieValidateServiceNetwork {
   /**
    * Typed service graph and served building used for structural distribution-network admission.
-   * 
+   *
    * Logical-space containment is sampled at route vertices rather than continuously
    * along each leg. Shared-endpoint run pairs are entirely exempt from clash
    * comparison, so a second overlap along those same runs is currently omitted.

@@ -6,15 +6,12 @@
  * @evidence contracts/development/common.md#meaningful-documentation States metre tolerance and the cell and vertex count limits.
  */
 export interface IAutoMovieRecoveryImageLoftBudget {
- 
- /** Requested tessellation tolerance, metres. */
+  /** Requested tessellation tolerance, metres. */
   tolerance: number;
 
- 
- /** Maximum permitted tessellation cells. */
+  /** Maximum permitted tessellation cells. */
   maxCells: number;
 
- 
- /** Maximum permitted generated vertices. */
+  /** Maximum permitted generated vertices. */
   maxVertices: number;
 }

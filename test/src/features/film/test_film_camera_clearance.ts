@@ -1,4 +1,3 @@
-import { type IAutoMovieViolationCollector, IAutoMovieCamera, IAutoMovieCameraClearanceEnvelope, IAutoMovieCameraClearanceReport, IAutoMovieClip, IAutoMovieConstraintViolation, IAutoMovieModel, IAutoMovieSceneNode, IAutoMovieShotProgram, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import {
   ViolationCollector,
   compileCameraClearanceReports,
@@ -8,7 +7,20 @@ import {
   performShot,
   stageScene,
 } from "@automovie/engine";
-
+import {
+  IAutoMovieCamera,
+  IAutoMovieCameraClearanceEnvelope,
+  IAutoMovieCameraClearanceReport,
+  IAutoMovieClip,
+  IAutoMovieConstraintViolation,
+  IAutoMovieModel,
+  IAutoMovieSceneNode,
+  IAutoMovieShotProgram,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import type { IFilmCameraClearanceAdapterOverrides } from "../internal/IFilmCameraClearanceAdapterOverrides";

@@ -1,22 +1,22 @@
-import type { IAutoMovieRecoveryCameraMapRefinementOperation, IAutoMovieRecoveryCheckpointReporting, IAutoMovieRecoveryFeasibleJointOptions, IAutoMovieRecoveryFeasibleReportCapacity, IAutoMovieRecoveryMapJointFit, IAutoMovieRecoveryMapLandmark, IAutoMovieRecoveryMapObservation, IAutoMovieRecoveryMapPose, IAutoMovieRecoverySceneCheckpointCompletionOperation, IAutoMovieRecoverySceneLandmark, IAutoMovieRecoverySceneLandmarksGrowthOperation, IAutoMovieRecoveryScenePointEvaluationOperation, IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
-
-
+import type {
+  IAutoMovieRecoveryCameraMapRefinementOperation,
+  IAutoMovieRecoveryCameraSceneBudget,
+  IAutoMovieRecoveryCheckpointReporting,
+  IAutoMovieRecoveryFeasibleJointOptions,
+  IAutoMovieRecoveryFeasibleReportCapacity,
+  IAutoMovieRecoveryMapJointFit,
+  IAutoMovieRecoveryMapLandmark,
+  IAutoMovieRecoveryMapObservation,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoverySceneCheckpointCompletionOperation,
+  IAutoMovieRecoverySceneLandmark,
+  IAutoMovieRecoverySceneLandmarksGrowthOperation,
+  IAutoMovieRecoveryScenePointEvaluationOperation,
+} from "@automovie/interface";
 
 import { assertRecoverySceneLinearRetention } from "./assertRecoverySceneLinearRetention";
-
 import { evaluateRecoveryScenePoint } from "./evaluateRecoveryScenePoint";
 import { growRecoverySceneLandmarks } from "./growRecoverySceneLandmarks";
-
 import { prepareRecoveryCheckpointReportCapacity } from "./prepareRecoveryCheckpointReportCapacity";
 import { refineRecoveryCameraMap } from "./refineRecoveryCameraMap";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
@@ -59,7 +59,8 @@ export function completeRecoverySceneCheckpoint(
         ? null
         : {
             rotation: pose.rotation.slice(),
-            translation: [...pose.translation] },
+            translation: [...pose.translation],
+          },
   );
   const active: number[] = poses.flatMap(
     (pose: IAutoMovieRecoveryMapPose | null, at: number): number[] =>
@@ -88,7 +89,8 @@ export function completeRecoverySceneCheckpoint(
       ? budget
       : {
           ...budget,
-          maxResidentLinearEntries: reporting.sceneEntries };
+          maxResidentLinearEntries: reporting.sceneEntries,
+        };
   let proposal: ReturnType<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation> =
     growRecoverySceneLandmarks(
       tracks,
@@ -129,8 +131,10 @@ export function completeRecoverySceneCheckpoint(
           ): IAutoMovieRecoveryMapObservation => ({
             ...observation,
             pixel: [...observation.pixel],
-            viewIndex: indices.get(observation.viewIndex)! }),
-        ) }),
+            viewIndex: indices.get(observation.viewIndex)!,
+          }),
+        ),
+      }),
     );
     onTrace?.(
       structuredClone({
@@ -141,7 +145,8 @@ export function completeRecoverySceneCheckpoint(
           (view: number): IAutoMovieRecoveryMapPose => poses[view]!,
         ),
         landmarks: compact,
-        joint: null }),
+        joint: null,
+      }),
     );
     const refined: ReturnType<IAutoMovieRecoveryCameraMapRefinementOperation.Operation> =
       refineRecoveryCameraMap(
@@ -167,7 +172,8 @@ export function completeRecoverySceneCheckpoint(
         activeViews: active,
         poses: refined.poses,
         landmarks: refined.landmarks,
-        joint: lastJoint }),
+        joint: lastJoint,
+      }),
     );
     onProposal(proposal.landmarks.length, count, lastJoint);
     const nextPoses: (IAutoMovieRecoveryMapPose | null)[] = poses.map(
@@ -191,7 +197,8 @@ export function completeRecoverySceneCheckpoint(
           ): IAutoMovieRecoveryMapObservation => ({
             ...observation,
             pixel: [...observation.pixel],
-            viewIndex: active[observation.viewIndex]! }),
+            viewIndex: active[observation.viewIndex]!,
+          }),
         );
       const measured: ReturnType<IAutoMovieRecoveryScenePointEvaluationOperation.Operation> =
         evaluateRecoveryScenePoint(
@@ -224,7 +231,8 @@ export function completeRecoverySceneCheckpoint(
         point: [...landmark.point],
         observations,
         supportingViews: measured.supportingViews,
-        acuteParallaxDegrees: measured.acuteParallaxDegrees });
+        acuteParallaxDegrees: measured.acuteParallaxDegrees,
+      });
     }
     if (landmarks.length !== refined.landmarks.length)
       reasons.add("final-point-qualification");
@@ -238,7 +246,8 @@ export function completeRecoverySceneCheckpoint(
         proposedLandmarks: proposal.landmarks.length,
         proposedObservations: count,
         maximumReprojectionErrorPx: null,
-        minimumPointParallaxDegrees: null };
+        minimumPointParallaxDegrees: null,
+      };
     const completed: ReturnType<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation> =
       growRecoverySceneLandmarks(
         tracks,
@@ -260,7 +269,8 @@ export function completeRecoverySceneCheckpoint(
         proposedLandmarks: landmarks.length,
         proposedObservations: count,
         maximumReprojectionErrorPx,
-        minimumPointParallaxDegrees };
+        minimumPointParallaxDegrees,
+      };
     poses = nextPoses;
     proposal = completed;
     pass++;

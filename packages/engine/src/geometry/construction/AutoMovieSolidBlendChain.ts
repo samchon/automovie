@@ -1,4 +1,11 @@
-import type { IAutoMovieLoftChain, AutoMovieVector3Tuple, IAutoMovieLoftFrame, IAutoMovieLoftJet, IAutoMovieSolidBlendChain, IAutoMovieSolidJoin } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftFrame,
+  IAutoMovieLoftJet,
+  IAutoMovieSolidBlendChain,
+  IAutoMovieSolidJoin,
+} from "@automovie/interface";
 
 import { AutoMovieLoftJet } from "./AutoMovieLoftJet";
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
@@ -37,7 +44,6 @@ import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidBlendChain {
-
   /**
    * Publish a join's blend.
    *
@@ -147,10 +153,12 @@ export namespace AutoMovieSolidBlendChain {
           (c: IAutoMovieSolidJoin.IColumn): number => c.rail.hostFace,
         ),
       },
-      across: columns.map((c: IAutoMovieSolidJoin.IColumn): [number, number] => [
-        c.rail.across[0],
-        c.rail.across[1],
-      ]),
+      across: columns.map(
+        (c: IAutoMovieSolidJoin.IColumn): [number, number] => [
+          c.rail.across[0],
+          c.rail.across[1],
+        ],
+      ),
       partAcross: columns.map(
         (c: IAutoMovieSolidJoin.IColumn): [number, number] => [
           c.rail.partAcross[0],
@@ -239,10 +247,18 @@ export namespace AutoMovieSolidBlendChain {
     /** Every layer uses the same physical chord clock, with station derivatives scaled by L; `rows` holds each column's point and its two cross derivatives. */
     const layer: (
       y: number,
-      rows: readonly (readonly [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple])[],
+      rows: readonly (readonly [
+        AutoMovieVector3Tuple,
+        AutoMovieVector3Tuple,
+        AutoMovieVector3Tuple,
+      ])[],
     ) => IAutoMovieLoftChain.ILayer = (
       y: number,
-      rows: readonly (readonly [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple])[],
+      rows: readonly (readonly [
+        AutoMovieVector3Tuple,
+        AutoMovieVector3Tuple,
+        AutoMovieVector3Tuple,
+      ])[],
     ): IAutoMovieLoftChain.ILayer => {
       /** World X/Z ribbon components in the level storage plane. */
       const plane: (k: 0 | 1 | 2, by: number) => number[] = (
@@ -250,10 +266,15 @@ export namespace AutoMovieSolidBlendChain {
         by: number,
       ): number[] =>
         AutoMovieSplineCurve.interpolate(
-          rows.map((r: readonly [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple]): [number, number] => [
-            r[k][0] * by,
-            r[k][2] * by,
-          ]),
+          rows.map(
+            (
+              r: readonly [
+                AutoMovieVector3Tuple,
+                AutoMovieVector3Tuple,
+                AutoMovieVector3Tuple,
+              ],
+            ): [number, number] => [r[k][0] * by, r[k][2] * by],
+          ),
         );
 
       /** The world Y component is the lift along the level frame's normal. */
@@ -262,10 +283,15 @@ export namespace AutoMovieSolidBlendChain {
         by: number,
       ): number[] =>
         AutoMovieSplineCurve.interpolate(
-          rows.map((r: readonly [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple]): [number, number] => [
-            r[k][1] * by,
-            0,
-          ]),
+          rows.map(
+            (
+              r: readonly [
+                AutoMovieVector3Tuple,
+                AutoMovieVector3Tuple,
+                AutoMovieVector3Tuple,
+              ],
+            ): [number, number] => [r[k][1] * by, 0],
+          ),
         ).slice(0, count);
       return {
         y,
@@ -289,23 +315,37 @@ export namespace AutoMovieSolidBlendChain {
       layers: [
         layer(
           0,
-          columns.map((c: (typeof columns)[number]): [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple] => [
-            c.start.point,
-            c.start.first,
-            c.start.second,
-          ]),
+          columns.map(
+            (
+              c: (typeof columns)[number],
+            ): [
+              AutoMovieVector3Tuple,
+              AutoMovieVector3Tuple,
+              AutoMovieVector3Tuple,
+            ] => [c.start.point, c.start.first, c.start.second],
+          ),
         ),
         ...inner.map(
-          (section: { t: number; jets: readonly [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple][] }): IAutoMovieLoftChain.ILayer =>
-            layer(section.t * L, section.jets),
+          (section: {
+            t: number;
+            jets: readonly [
+              AutoMovieVector3Tuple,
+              AutoMovieVector3Tuple,
+              AutoMovieVector3Tuple,
+            ][];
+          }): IAutoMovieLoftChain.ILayer => layer(section.t * L, section.jets),
         ),
         layer(
           L,
-          columns.map((c: (typeof columns)[number]): [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple] => [
-            c.end.point,
-            c.end.first,
-            c.end.second,
-          ]),
+          columns.map(
+            (
+              c: (typeof columns)[number],
+            ): [
+              AutoMovieVector3Tuple,
+              AutoMovieVector3Tuple,
+              AutoMovieVector3Tuple,
+            ] => [c.end.point, c.end.first, c.end.second],
+          ),
         ),
       ],
     };

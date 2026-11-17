@@ -1,7 +1,22 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanStrikingHeld } from "@automovie/interface";
 import { createLongGun, createSword } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-import { HumanChain, HumanMusketDrill, HumanObject, HumanPerformance, HumanWeaponPresent, StrikingHeld, stand } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanStrikingHeld,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanMusketDrill,
+  HumanObject,
+  HumanPerformance,
+  HumanWeaponPresent,
+  StrikingHeld,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";

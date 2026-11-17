@@ -1,6 +1,8 @@
-import type { IAutoMovieActionSynthesizer, IAutoMovieActionCall, IAutoMovieMotion } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieActionCall,
+  IAutoMovieActionSynthesizer,
+  IAutoMovieMotion,
+} from "@automovie/interface";
 
 import { createLayerTestAimClip } from "./createLayerTestAimClip";
 import { createLayerTestEmoteClip } from "./createLayerTestEmoteClip";

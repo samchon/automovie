@@ -1,13 +1,19 @@
-import type { IAutoMovieRecoveryCameraEstimateCreationOperation, IAutoMovieRecoveryCameraMapCreationOperation, IAutoMovieRecoveryCameraMapEstimate, IAutoMovieRecoveryCameraMapRefinementOperation, IAutoMovieRecoveryCameraPointTriangulationOperation, IAutoMovieRecoveryCameraTracksLinkageOperation, IAutoMovieRecoveryMapLandmark, IAutoMovieRecoveryMapPointProjectionOperation, IAutoMovieRecoveryMapPose, IAutoMovieRecoveryResectionConsensusFittingOperation, IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
 import { AutoMovieMatrix3 } from "@automovie/engine";
-
-
-
-
-
+import type {
+  IAutoMovieRecoveryCameraEstimateCreationOperation,
+  IAutoMovieRecoveryCameraMapCreationOperation,
+  IAutoMovieRecoveryCameraMapEstimate,
+  IAutoMovieRecoveryCameraMapRefinementOperation,
+  IAutoMovieRecoveryCameraPairInput,
+  IAutoMovieRecoveryCameraPointTriangulationOperation,
+  IAutoMovieRecoveryCameraTracksLinkageOperation,
+  IAutoMovieRecoveryMapLandmark,
+  IAutoMovieRecoveryMapPointProjectionOperation,
+  IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoveryResectionConsensusFittingOperation,
+} from "@automovie/interface";
 
 import { createRecoveryCameraEstimate } from "./createRecoveryCameraEstimate";
-
 import { fitRecoveryResectionConsensus } from "./fitRecoveryResectionConsensus";
 import { linkRecoveryCameraTracks } from "./linkRecoveryCameraTracks";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
@@ -43,7 +49,8 @@ export function createRecoveryCameraMap(
     cohort: input.cohort,
     views: input.views.slice(0, 2),
     policy: input.seedPolicy,
-    budget: input.seedBudget };
+    budget: input.seedBudget,
+  };
   const seed: ReturnType<IAutoMovieRecoveryCameraEstimateCreationOperation.Operation> =
     createRecoveryCameraEstimate(
       seedInput,
@@ -72,7 +79,9 @@ export function createRecoveryCameraMap(
         camera: {
           ...third.camera,
           focalPx: [...third.camera.focalPx],
-          principalPointPx: [...third.camera.principalPointPx] } },
+          principalPointPx: [...third.camera.principalPointPx],
+        },
+      },
     ],
     seed,
     policy: { ...input.policy },
@@ -98,7 +107,8 @@ export function createRecoveryCameraMap(
     resection: null,
     joint: null,
     maximumReprojectionErrorPx: null,
-    minimumPointParallaxDegrees: null };
+    minimumPointParallaxDegrees: null,
+  };
   if (seed.pose === null) {
     result.untriangulatedTracks = linked.tracks.length;
     result.refusalReasons.push("seed-refused");
@@ -107,10 +117,12 @@ export function createRecoveryCameraMap(
   result.status = "seed-only";
   const firstPose: IAutoMovieRecoveryMapPose = {
     rotation: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-    translation: [0, 0, 0] };
+    translation: [0, 0, 0],
+  };
   const seedPose: IAutoMovieRecoveryMapPose = {
     rotation: seed.pose.rotation.slice(),
-    translation: [...seed.pose.translation] };
+    translation: [...seed.pose.translation],
+  };
   result.poses = [firstPose, seedPose, null];
   const support: Set<string> = new Set(
     seed.matches
@@ -190,8 +202,10 @@ export function createRecoveryCameraMap(
       observations: [first, second].map(
         (observation: typeof first): NonNullable<typeof first> => ({
           ...observation!,
-          pixel: [...observation!.pixel] }),
-      ) });
+          pixel: [...observation!.pixel],
+        }),
+      ),
+    });
     const target: (typeof track.observations)[number] | undefined =
       track.observations.find(
         (observation: (typeof track.observations)[number]): boolean =>
@@ -201,7 +215,8 @@ export function createRecoveryCameraMap(
       candidates.push({
         landmark,
         pixel: [...target.pixel],
-        featureIndex: target.featureIndex });
+        featureIndex: target.featureIndex,
+      });
   }
   if (candidates.length < input.policy.minimumResectionInliers) {
     result.refusalReasons.push("insufficient-existing-map-observations");
@@ -233,7 +248,8 @@ export function createRecoveryCameraMap(
     finalRefits: resection.finalRefits,
     stable: resection.stable,
     converged: resection.refinement?.converged ?? null,
-    refusalReasons: resection.refusalReasons.slice() };
+    refusalReasons: resection.refusalReasons.slice(),
+  };
   if (resection.pose === null) {
     result.refusalReasons.push(...resection.refusalReasons);
     return result;
@@ -249,15 +265,18 @@ export function createRecoveryCameraMap(
           observation: (typeof landmark.observations)[number],
         ): typeof observation => ({
           ...observation,
-          pixel: [...observation.pixel] }),
-      ) }),
+          pixel: [...observation.pixel],
+        }),
+      ),
+    }),
   );
   for (const index of resection.indices) {
     const candidate: (typeof candidates)[number] = candidates[index]!;
     joined[candidate.landmark]!.observations.push({
       viewIndex: 2,
       featureIndex: candidate.featureIndex,
-      pixel: [...candidate.pixel] });
+      pixel: [...candidate.pixel],
+    });
   }
   let joint: ReturnType<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>;
   try {

@@ -1,6 +1,18 @@
-import type { IAutoMovieSubdivisionSurface, IAutoMovieSurfaceCage, IAutoMovieSurfaceLocation, IAutoMovieSurfaceNetwork, IAutoMovieSweep, IAutoMovieSweepSurface, IAutoMovieVector3 } from "@automovie/interface";
-import { compileAutoMovieSweep, locateAutoMovieSurfaceVertices, sampleAutoMovieSurfaceNetwork, subdivideAutoMovieSurface } from "@automovie/engine";
-
+import {
+  compileAutoMovieSweep,
+  locateAutoMovieSurfaceVertices,
+  sampleAutoMovieSurfaceNetwork,
+  subdivideAutoMovieSurface,
+} from "@automovie/engine";
+import type {
+  IAutoMovieSubdivisionSurface,
+  IAutoMovieSurfaceCage,
+  IAutoMovieSurfaceLocation,
+  IAutoMovieSurfaceNetwork,
+  IAutoMovieSweep,
+  IAutoMovieSweepSurface,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { sweepBottle } from "../internal/sweepBottle";

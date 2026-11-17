@@ -6,11 +6,9 @@
  * @evidence contracts/development/common.md#meaningful-documentation Camera coordinates precede three per landmark. Readonly arrays share their current preparation/metric lifetime without retaining the preparation closure or making numerical copies.
  */
 export interface IAutoMovieRecoveryMapMetricScales {
- 
- /** Positive finite original weighted-design camera column norms. */
+  /** Positive finite original weighted-design camera column norms. */
   readonly cameraScales: readonly number[];
 
- 
- /** Positive finite original weighted-design three-column norms per ordered point. */
+  /** Positive finite original weighted-design three-column norms per ordered point. */
   readonly pointScales: readonly (readonly number[])[];
 }

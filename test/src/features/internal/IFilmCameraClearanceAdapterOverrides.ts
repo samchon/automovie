@@ -1,6 +1,11 @@
-import type { IAutoMovieCameraClearanceRuntime, IAutoMovieClip, IAutoMovieModel, IAutoMovieMotion, IAutoMovieScene, IAutoMovieShotCoverage } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieCameraClearanceRuntime,
+  IAutoMovieClip,
+  IAutoMovieModel,
+  IAutoMovieMotion,
+  IAutoMovieScene,
+  IAutoMovieShotCoverage,
+} from "@automovie/interface";
 
 import type { IFilmCameraClearanceHero } from "./IFilmCameraClearanceHero";
 

@@ -1,11 +1,17 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftJet, AutoMovieVector3Tuple, IAutoMovieHumanBodyCalibration, IAutoMovieHumanBodyStrip } from "@automovie/interface";
+import {
+  AutoMovieLoftChain,
+  AutoMovieLoftJet,
+  AutoMovieSplineCurve,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBodyStrip,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftJet,
+} from "@automovie/interface";
 
-
-
-
-import { AutoMovieLoftChain, AutoMovieLoftJet, AutoMovieSplineCurve } from "@automovie/engine";
 import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
-
 
 /**
  * The strip joining an appendage's end ring to its root loop on a base
@@ -33,8 +39,6 @@ import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
  * carry them, otherwise from differences of the chain functions.
  */
 export namespace AutoMovieHumanBodyStrip {
-  
-
   /**
    * Control rows of the strip's column at ring phase u, from the appendage
    * (first) to the base (last).
@@ -52,7 +56,13 @@ export namespace AutoMovieHumanBodyStrip {
     u: number,
     sense: number,
   ): AutoMovieVector3Tuple[] {
-    const c: IAutoMovieHumanBodyStrip.IColumn = column(base, appendage, root, u, sense);
+    const c: IAutoMovieHumanBodyStrip.IColumn = column(
+      base,
+      appendage,
+      root,
+      u,
+      sense,
+    );
     const rows: number[][] = root.rows ?? [];
     const n: number = 6 + rows.length;
     const h: number = 1 / (n - 3);
@@ -60,8 +70,22 @@ export namespace AutoMovieHumanBodyStrip {
 
     // Edge rows from the clamped B-spline's end derivatives.
     // Each edge's arclength jet, copied at the edge speed l (rule J1).
-    const [, a1, a2] = AutoMovieHumanSeam.adopt({ point: c.A, tangent: c.a1, curvature: c.a2 }, c.l) as unknown as [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple];
-    const [, c1, c2] = AutoMovieHumanSeam.adopt({ point: c.C, tangent: c.c1, curvature: c.c2 }, c.l) as unknown as [AutoMovieVector3Tuple, AutoMovieVector3Tuple, AutoMovieVector3Tuple];
+    const [, a1, a2] = AutoMovieHumanSeam.adopt(
+      { point: c.A, tangent: c.a1, curvature: c.a2 },
+      c.l,
+    ) as unknown as [
+      AutoMovieVector3Tuple,
+      AutoMovieVector3Tuple,
+      AutoMovieVector3Tuple,
+    ];
+    const [, c1, c2] = AutoMovieHumanSeam.adopt(
+      { point: c.C, tangent: c.c1, curvature: c.c2 },
+      c.l,
+    ) as unknown as [
+      AutoMovieVector3Tuple,
+      AutoMovieVector3Tuple,
+      AutoMovieVector3Tuple,
+    ];
     out[0] = c.A;
     out[1] = add(c.A, scale(a1, h / 3));
     out[2] = add(c.A, scale(a1, h), scale(a2, (h * h) / 3));
@@ -74,11 +98,24 @@ export namespace AutoMovieHumanBodyStrip {
     // of the blends of the neighbouring columns.
     if (rows.length > 0) {
       const delta: number = 1e-4;
-      const before: IAutoMovieHumanBodyStrip.IColumn = column(base, appendage, root, u - delta, sense);
-      const after: IAutoMovieHumanBodyStrip.IColumn = column(base, appendage, root, u + delta, sense);
+      const before: IAutoMovieHumanBodyStrip.IColumn = column(
+        base,
+        appendage,
+        root,
+        u - delta,
+        sense,
+      );
+      const after: IAutoMovieHumanBodyStrip.IColumn = column(
+        base,
+        appendage,
+        root,
+        u + delta,
+        sense,
+      );
       rows.forEach((row: number[], r: number): void => {
         const i: number = 3 + r;
-        const knot = (j: number): number => Math.min(1, Math.max(0, (j - 3) * h));
+        const knot = (j: number): number =>
+          Math.min(1, Math.max(0, (j - 3) * h));
         const xi: number = (knot(i + 1) + knot(i + 2) + knot(i + 3)) / 3;
         const e1: AutoMovieVector3Tuple = unit(
           add(blend(after, xi, 0), scale(blend(before, xi, 0), -1)),
@@ -105,13 +142,15 @@ export namespace AutoMovieHumanBodyStrip {
   }
 
   /** Point of a strip column at w from its control rows. */
-  export function point(rows: readonly AutoMovieVector3Tuple[], w: number): AutoMovieVector3Tuple {
+  export function point(
+    rows: readonly AutoMovieVector3Tuple[],
+    w: number,
+  ): AutoMovieVector3Tuple {
     const n: number = rows.length;
     const spans: number = n - 3;
     const x: number = Math.min(1, Math.max(0, w)) * spans;
     const span: number = Math.min(spans - 1, Math.floor(x));
-    const knot = (j: number): number =>
-      Math.min(spans, Math.max(0, j - 3));
+    const knot = (j: number): number => Math.min(spans, Math.max(0, j - 3));
 
     // The basis functions of the span by the triangular recurrence
     // (Piegl and Tiller, The NURBS Book, A2.2) on the clamped uniform
@@ -152,15 +191,27 @@ export namespace AutoMovieHumanBodyStrip {
     ds: number,
   ): IAutoMovieHumanBodyStrip.AcrossResult {
     if (AutoMovieLoftJet.carries(chain)) {
-      const j: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, clamp(chain, s), t);
+      const j: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+        chain,
+        clamp(chain, s),
+        t,
+      );
       return arcLength(
         add(scale(j.s, ds), scale(j.t, dt)),
-        add(scale(j.ss, ds * ds), scale(j.st, 2 * ds * dt), scale(j.tt, dt * dt)),
+        add(
+          scale(j.ss, ds * ds),
+          scale(j.st, 2 * ds * dt),
+          scale(j.tt, dt * dt),
+        ),
       );
     }
-    const probe: AutoMovieVector3Tuple = add(surface(chain, s + ds * 1e-4, t + dt * 1e-4), scale(surface(chain, s, t), -1));
+    const probe: AutoMovieVector3Tuple = add(
+      surface(chain, s + ds * 1e-4, t + dt * 1e-4),
+      scale(surface(chain, s, t), -1),
+    );
     const step: number = H / (Math.hypot(...probe) / 1e-4 || 1);
-    const q = (e: number): AutoMovieVector3Tuple => surface(chain, s + ds * step * e, t + dt * step * e);
+    const q = (e: number): AutoMovieVector3Tuple =>
+      surface(chain, s + ds * step * e, t + dt * step * e);
     const m: AutoMovieVector3Tuple = q(-1);
     const c: AutoMovieVector3Tuple = q(0);
     const p: AutoMovieVector3Tuple = q(1);
@@ -171,7 +222,11 @@ export namespace AutoMovieHumanBodyStrip {
   }
 
   /** Surface point of a chain at a chart point, the station clamped into the chain. */
-  export function surface(chain: IAutoMovieLoftChain, s: number, t: number): AutoMovieVector3Tuple {
+  export function surface(
+    chain: IAutoMovieLoftChain,
+    s: number,
+    t: number,
+  ): AutoMovieVector3Tuple {
     return AutoMovieLoftChain.point(chain, clamp(chain, s), t);
   }
 
@@ -194,7 +249,11 @@ export namespace AutoMovieHumanBodyStrip {
     const outward: number = root.end === "bottom" ? -1 : 1;
     const A: AutoMovieVector3Tuple = surface(appendage, end, u);
     const [a1, a2] = station(appendage, end, u, outward);
-    const [s, remainder, ds, dr] = AutoMovieSplineCurve.evaluate(root.root, root.root.length / 2, u);
+    const [s, remainder, ds, dr] = AutoMovieSplineCurve.evaluate(
+      root.root,
+      root.root.length / 2,
+      u,
+    );
     // A loop winding round the base's cap pole turns its phase once.
     const winding: number = root.winding ?? 0;
     const t: number = remainder + winding * u;
@@ -207,9 +266,21 @@ export namespace AutoMovieHumanBodyStrip {
     // Turned in the chart alone, it stood far off square wherever phase and
     // station differ in scale, and swung through a right angle within 1e-4
     // rad of the loop's station extremes.
-    const [wt, ws] = AutoMovieHumanSeam.square(metric(base, s, t), [sense * ds, -sense * dt], [dt, ds]);
+    const [wt, ws] = AutoMovieHumanSeam.square(
+      metric(base, s, t),
+      [sense * ds, -sense * dt],
+      [dt, ds],
+    );
     const [c1, c2] = across(base, s, t, wt, ws);
-    return { A, a1, a2, C, c1, c2, l: root.reach * Math.hypot(...add(C, scale(A, -1))) };
+    return {
+      A,
+      a1,
+      a2,
+      C,
+      c1,
+      c2,
+      l: root.reach * Math.hypot(...add(C, scale(A, -1))),
+    };
   }
 
   /**
@@ -218,18 +289,36 @@ export namespace AutoMovieHumanBodyStrip {
    * from central differences of its points over {@link H} mm of station and
    * 1e-4 rad of phase.
    */
-  function metric(chain: IAutoMovieLoftChain, s: number, t: number): [number, number, number] {
+  function metric(
+    chain: IAutoMovieLoftChain,
+    s: number,
+    t: number,
+  ): [number, number, number] {
     let Pt: AutoMovieVector3Tuple;
     let Ps: AutoMovieVector3Tuple;
     if (AutoMovieLoftJet.carries(chain)) {
-      const j: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, clamp(chain, s), t);
+      const j: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+        chain,
+        clamp(chain, s),
+        t,
+      );
       Pt = j.t;
       Ps = j.s;
     } else {
-      Pt = scale(add(surface(chain, s, t + 1e-4), scale(surface(chain, s, t - 1e-4), -1)), 1 / 2e-4);
-      Ps = scale(add(surface(chain, s + H, t), scale(surface(chain, s - H, t), -1)), 1 / (2 * H));
+      Pt = scale(
+        add(
+          surface(chain, s, t + 1e-4),
+          scale(surface(chain, s, t - 1e-4), -1),
+        ),
+        1 / 2e-4,
+      );
+      Ps = scale(
+        add(surface(chain, s + H, t), scale(surface(chain, s - H, t), -1)),
+        1 / (2 * H),
+      );
     }
-    const dot = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    const dot = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number =>
+      a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
     return [dot(Pt, Pt), dot(Pt, Ps), dot(Ps, Ps)];
   }
 
@@ -238,7 +327,11 @@ export namespace AutoMovieHumanBodyStrip {
    * derivative (`order` 1): weights of the start point, start tangent,
    * start second derivative, end second derivative, end tangent, end point.
    */
-  function blend(c: IAutoMovieHumanBodyStrip.IColumn, w: number, order: 0 | 1): AutoMovieVector3Tuple {
+  function blend(
+    c: IAutoMovieHumanBodyStrip.IColumn,
+    w: number,
+    order: 0 | 1,
+  ): AutoMovieVector3Tuple {
     const w2: number = w * w;
     const w3: number = w2 * w;
     const w4: number = w3 * w;
@@ -299,18 +392,26 @@ export namespace AutoMovieHumanBodyStrip {
    * and the curvature vector, the second derivative's part across the
    * tangent.
    */
-  function arcLength(d1: AutoMovieVector3Tuple, d2: AutoMovieVector3Tuple): [AutoMovieVector3Tuple, AutoMovieVector3Tuple] {
-    return AutoMovieHumanSeam.arc(d1, d2) as unknown as [AutoMovieVector3Tuple, AutoMovieVector3Tuple];
+  function arcLength(
+    d1: AutoMovieVector3Tuple,
+    d2: AutoMovieVector3Tuple,
+  ): [AutoMovieVector3Tuple, AutoMovieVector3Tuple] {
+    return AutoMovieHumanSeam.arc(d1, d2) as unknown as [
+      AutoMovieVector3Tuple,
+      AutoMovieVector3Tuple,
+    ];
   }
 
   /** Station step of the difference derivatives, mm. */
   const H: number = 0.05;
 }
 
-
 /** A station clamped into a chain's range. */
 function clamp(chain: IAutoMovieLoftChain, s: number): number {
-  return Math.min(chain.layers[chain.layers.length - 1]!.y, Math.max(chain.layers[0]!.y, s));
+  return Math.min(
+    chain.layers[chain.layers.length - 1]!.y,
+    Math.max(chain.layers[0]!.y, s),
+  );
 }
 
 /** Sum of vectors. */
@@ -326,8 +427,15 @@ function scale(v: AutoMovieVector3Tuple, k: number): AutoMovieVector3Tuple {
 }
 
 /** Cross product. */
-function cross(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
-  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+function cross(
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+): AutoMovieVector3Tuple {
+  return [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0],
+  ];
 }
 
 /** Unit vector, or zero for a zero vector. */

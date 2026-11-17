@@ -1,5 +1,9 @@
 import type { IAutoMovieRecoveryMapPose } from "@automovie/interface";
-import { createRecoveryCameraChart, fitRecoveryResectionDesign, projectRecoveryMapPoint } from "@automovie/recovery";
+import {
+  createRecoveryCameraChart,
+  fitRecoveryResectionDesign,
+  projectRecoveryMapPoint,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoveryMapNumericalFixture } from "../internal/createRecoveryMapNumericalFixture";

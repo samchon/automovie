@@ -1,6 +1,20 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanExercise, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanExercise,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -71,14 +85,18 @@ export namespace exercise {
     });
 
   /** The thigh's angle from the horizontal at the bottom, degrees, by depth. */
-  export const THIGH: Readonly<Record<IAutoMovieMotionHumanExercise.Depth, number>> = {
+  export const THIGH: Readonly<
+    Record<IAutoMovieMotionHumanExercise.Depth, number>
+  > = {
     quarter: 60,
     half: 45,
     parallel: 0,
   };
 
   /** The trunk's pitch at the bottom, degrees, by depth (provisional). */
-  export const PITCH: Readonly<Record<IAutoMovieMotionHumanExercise.Depth, number>> = {
+  export const PITCH: Readonly<
+    Record<IAutoMovieMotionHumanExercise.Depth, number>
+  > = {
     quarter: 15,
     half: 25,
     parallel: 40,
@@ -164,7 +182,10 @@ export namespace exercise {
       { holds: [] },
     );
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const stance: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
+    const stance: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = {
       left: {
         ankle: context.entry.feet.left.ankle,
         rotation: context.entry.feet.left.rotation,
@@ -217,7 +238,10 @@ export namespace exercise {
       channels: ["root"],
       from: 0,
       to: clock.duration,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => ({
         ...posture,
         root: Vector3.add(posture.root, offset(seconds)),
       }),
@@ -225,7 +249,8 @@ export namespace exercise {
 
     switch (p.kind) {
       case "squat": {
-        const depth: IAutoMovieMotionHumanExercise.Depth = p.depth ?? "parallel";
+        const depth: IAutoMovieMotionHumanExercise.Depth =
+          p.depth ?? "parallel";
         for (let i: number = 1; i <= reps; i++)
           primitives.push(
             AutoMovieMotionHumanTrunk.crouch({
@@ -259,7 +284,9 @@ export namespace exercise {
         break;
       }
       case "highKnees": {
-        const raised = (side: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => {
+        const raised = (
+          side: "left" | "right",
+        ): IAutoMovieMotionHumanFoot.IPlacement => {
           const hip: IAutoMovieVector3 = HumanFrame.point(
             { origin: entry.root, yaw: entry.yaw },
             body.rest.get(`${side}UpperLeg`)!,
@@ -300,7 +327,10 @@ export namespace exercise {
               side,
               from: 0,
               to: clock.duration,
-              placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement =>
+              placement: (
+                _: IAutoMovieMotionHumanPosture,
+                s: number,
+              ): IAutoMovieMotionHumanFoot.IPlacement =>
                 AutoMovieMotionHumanLegPhrase.between(
                   stance[side],
                   raised(side),
@@ -343,7 +373,10 @@ export namespace exercise {
               side,
               from: 0,
               to: clock.duration,
-              placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement =>
+              placement: (
+                _: IAutoMovieMotionHumanPosture,
+                s: number,
+              ): IAutoMovieMotionHumanFoot.IPlacement =>
                 AutoMovieMotionHumanLegPhrase.between(
                   stance[side],
                   out,

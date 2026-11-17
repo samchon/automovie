@@ -1,6 +1,19 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HUMAN_LEXICON, HumanChain, HumanPerformance, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanPerformance,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -52,7 +65,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_travel_gaits(): void {
   const complaints: string[] = [];
-  const laws: readonly IAutoMovieMotionHumanActionLaw<never>[] = HUMAN_LEXICON.gait!;
+  const laws: readonly IAutoMovieMotionHumanActionLaw<never>[] =
+    HUMAN_LEXICON.gait!;
 
   /** What one gait shows over the middle of its way. */
   interface IReading {
@@ -120,7 +134,8 @@ export function test_human_motion_travel_gaits(): void {
         );
         return null;
       }
-      const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+      const segment: IAutoMovieMotionHumanSegment.ISegment =
+        performance.segments("a")[1]!;
       const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
         performance,
         "a",

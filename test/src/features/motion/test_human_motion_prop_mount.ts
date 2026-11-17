@@ -1,7 +1,24 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Transform, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanPerformance, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -27,7 +44,11 @@ import { vclose } from "../internal/vclose";
  */
 export function test_human_motion_prop_mount(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const standing: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const standing: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
   const initial: IAutoMovieResolvedBone = poseBones(
     body,
     resolveHumanPosture(body, standing),
@@ -52,7 +73,9 @@ export function test_human_motion_prop_mount(): void {
   const law: IAutoMovieMotionHumanActionLaw = {
     name: "mountParts",
     interrupts: {},
-    plan: (context: IAutoMovieMotionHumanActionContext): IAutoMovieMotionHumanActionPlan => ({
+    plan: (
+      context: IAutoMovieMotionHumanActionContext,
+    ): IAutoMovieMotionHumanActionPlan => ({
       ...stand.plan({ ...context, params: { seconds: 1 } }),
       mounts: [
         { prop: "part", onto: "carrier", point: "socket", from: 0 },
@@ -68,7 +91,10 @@ export function test_human_motion_prop_mount(): void {
     const before: IAutoMovieMotionHumanProp.IFrame = worn
       ? { position: initial.worldPosition, rotation: initial.worldRotation }
       : moving(0);
-    const part = (subject: string, depth: number): IAutoMovieMotionHumanProp => ({
+    const part = (
+      subject: string,
+      depth: number,
+    ): IAutoMovieMotionHumanProp => ({
       subject,
       frame: {
         position: placed(before, Vector3.scale(offset, depth)),
@@ -163,7 +189,10 @@ export function test_human_motion_prop_mount(): void {
           `${worn ? "worn" : "fixture"} ${subject} is aimed on the supplied body at ${seconds}`,
           vclose(aimed, worn ? Vector3.add(expected, displacement) : expected),
         );
-        const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(subject, seconds);
+        const frame: IAutoMovieMotionHumanProp.IFrame = film.prop(
+          subject,
+          seconds,
+        );
         TestValidator.predicate(
           `${worn ? "worn" : "fixture"} ${subject} follows its socket at ${seconds}`,
           vclose(placed(frame, tip), expected),

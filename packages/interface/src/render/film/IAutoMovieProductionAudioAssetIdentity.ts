@@ -1,6 +1,6 @@
-import type { IAutoMovieProductionAudioAssetIdentityBase } from "./IAutoMovieProductionAudioAssetIdentityBase.js";
 import type { IAutoMovieProductionAudioProcessing } from "../../production/IAutoMovieProductionAudioProcessing.js";
 import type { IAutoMovieProductionWaveSourceFormat } from "../../production/IAutoMovieProductionWaveSourceFormat.js";
+import type { IAutoMovieProductionAudioAssetIdentityBase } from "./IAutoMovieProductionAudioAssetIdentityBase.js";
 
 /**
  * Source-format or placeholder provenance of one audio asset a render plan

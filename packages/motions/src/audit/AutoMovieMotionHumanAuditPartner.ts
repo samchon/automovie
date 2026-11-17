@@ -1,10 +1,10 @@
-import { IAutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
 import type {
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanAuditPartner,
   IAutoMovieMotionHumanAuditTangle,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 import { AutoMovieMotionHumanAuditTangle } from "./AutoMovieMotionHumanAuditTangle";
 
 /**
@@ -44,7 +44,7 @@ export namespace AutoMovieMotionHumanAuditPartner {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A grid loop over two directed readings and one sort.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads both ends of the film and exempts nothing.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each person's bones are posed once per instant and shared by both directions.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid is `IAutoMovieMotionHumanAuditMotion.grid`, the pose reading `AutoMovieMotionHumanAuditTangle.across`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The grid is `AutoMovieMotionHumanAuditMotion.grid`, the pose reading `AutoMovieMotionHumanAuditTangle.across`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function measure(

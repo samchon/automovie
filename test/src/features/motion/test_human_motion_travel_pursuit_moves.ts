@@ -1,7 +1,21 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieMotionTarget, IAutoMovieResolvedBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-
-import { HUMAN_LEXICON, HumanChain, HumanPerformance, HumanPursuit, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieMotionTarget,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanPerformance,
+  HumanPursuit,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -73,7 +87,9 @@ export function test_human_motion_travel_pursuit_moves(): void {
       composition,
       ...(layers === undefined ? {} : { layers }),
     });
-  const reading = (performance: IAutoMovieMotionHumanPerformance): IAutoMovieMotionHumanSignature.IReader =>
+  const reading = (
+    performance: IAutoMovieMotionHumanPerformance,
+  ): IAutoMovieMotionHumanSignature.IReader =>
     HumanSignature.of(performance, "a", man, 0);
   const pelvis = (
     reader: IAutoMovieMotionHumanSignature.IReader,
@@ -110,7 +126,8 @@ export function test_human_motion_travel_pursuit_moves(): void {
         ).node,
       { at: { x: 0, y: 0, z: 2 }, yaw: 0 },
     );
-    const follow: IAutoMovieMotionHumanSegment.ISegment = turning.segments("a")[1]!;
+    const follow: IAutoMovieMotionHumanSegment.ISegment =
+      turning.segments("a")[1]!;
     const reader: IAutoMovieMotionHumanSignature.IReader = reading(turning);
     const led: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       turning,
@@ -177,7 +194,8 @@ export function test_human_motion_travel_pursuit_moves(): void {
         standing,
       );
     };
-    const whole: IAutoMovieMotionHumanSegment.ISegment = chase(false).segments("a")[1]!;
+    const whole: IAutoMovieMotionHumanSegment.ISegment =
+      chase(false).segments("a")[1]!;
     const broken: IAutoMovieMotionHumanPerformance = chase(true);
     const cut: IAutoMovieMotionHumanSegment.ISegment = broken.segments("a")[1]!;
     if (!(cut.end < whole.end - 1 / 24))

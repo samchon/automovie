@@ -1,6 +1,9 @@
-import type { IAutoMovieAcousticRequest, IAutoMovieAcousticResponseProfile, IAutoMovieProductionAcousticResponse, IAutoMovieProductionSoundPlan } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieAcousticRequest,
+  IAutoMovieAcousticResponseProfile,
+  IAutoMovieProductionAcousticResponse,
+  IAutoMovieProductionSoundPlan,
+} from "@automovie/interface";
 
 /**
  * Existing mutable room-response input constructors borrowed by portable audio units.

@@ -1,5 +1,5 @@
-import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
+import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, throwsError } from "../internal/predicates";
@@ -24,8 +24,7 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A valid motion source returns stable node ids, source indices and names, parent ids, canonical local TRS, and the meter/right-handed/Y-up...).
  */
 export function test_ingest_external_model_inspector(): void {
-  const inspected: IAutoMovieExternalModelInspection =
-    inspect(motionFixture());
+  const inspected: IAutoMovieExternalModelInspection = inspect(motionFixture());
   TestValidator.predicate(
     "canonical motion node facts",
     test12ValuesClose(
@@ -380,8 +379,7 @@ const rejects: (
   const document: ReturnType<typeof motionDocument> = motionDocument();
   mutate(document.nodes as MotionNode[]);
   return throwsError(
-    (): IAutoMovieExternalModelInspection =>
-      inspect(motionFixture(document)),
+    (): IAutoMovieExternalModelInspection => inspect(motionFixture(document)),
     message,
   );
 };

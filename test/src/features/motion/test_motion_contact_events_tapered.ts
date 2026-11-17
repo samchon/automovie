@@ -1,6 +1,8 @@
-import type { IAutoMovieResolveContactEvents, IAutoMovieVector3 } from "@automovie/interface";
 import { resolveAutoMovieContactEvents } from "@automovie/engine";
-
+import type {
+  IAutoMovieResolveContactEvents,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 
 /**
  * Inserting a held prop along a socket's axis: a rammer down a bore, a sword

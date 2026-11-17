@@ -1,6 +1,11 @@
-import type { IAutoMovieSolidBlendChain, IAutoMovieSolidIntersection, IAutoMovieSolidJoin, IAutoMovieSolidSurface, IAutoMovieSolidTrim, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieSolidBlendChain,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidJoin,
+  IAutoMovieSolidSurface,
+  IAutoMovieSolidTrim,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { ConstructionShapes } from "./ConstructionShapes";
 import { ConstructionSurfaceComparison } from "./ConstructionSurfaceComparison";

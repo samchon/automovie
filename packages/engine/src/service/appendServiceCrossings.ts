@@ -1,5 +1,13 @@
-import { type IAutoMovieViolationCollector, IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace, IAutoMovieServiceNetwork, IAutoMovieServicePenetration, IAutoMovieServiceSegment, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServicePenetration,
+  IAutoMovieServiceSegment,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
 

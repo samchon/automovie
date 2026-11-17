@@ -1,6 +1,9 @@
-import type { IAutoMovieMotionHumanForce, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieGravity, Vector3 } from "@automovie/engine";
-
+import type {
+  IAutoMovieMotionHumanForce,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanCarriedLean, HumanForce, HumanLoad } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -125,11 +128,9 @@ export function test_human_motion_core_load(): void {
       `a known load's layer adds ${known.joints.spine![0]} and ${known.joints.chest![0]}, not half of ${balanced}`,
     );
   for (const carry of ["piggyback", "cradle", "overShoulder"] as const) {
-    const unknown: IAutoMovieMotionHumanPosture = HumanCarriedLean.layer(carry).apply(
-      posture,
-      0,
-      context,
-    );
+    const unknown: IAutoMovieMotionHumanPosture = HumanCarriedLean.layer(
+      carry,
+    ).apply(posture, 0, context);
     if (
       Math.abs(unknown.joints.spine![0] - HumanCarriedLean.LEANS[carry] / 2) >
       1e-12

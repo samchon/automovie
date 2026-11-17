@@ -1,5 +1,12 @@
-import { type IAutoMovieGrammarCameraObservation, type IAutoMovieGrammarShotObservation, type IAutoMovieGrammarSubjectObservation, type IAutoMovieNormalizedGrammarShot, AutoMovieGrammarStyleIntent, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  AutoMovieGrammarStyleIntent,
+  type IAutoMovieGrammarCameraObservation,
+  type IAutoMovieGrammarShotObservation,
+  type IAutoMovieGrammarSubjectObservation,
+  type IAutoMovieNormalizedGrammarShot,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { assertGrammarPositive } from "./assertGrammarPositive";

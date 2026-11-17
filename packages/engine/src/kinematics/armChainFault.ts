@@ -1,5 +1,11 @@
-import { type IAutoMovieArmChainFault, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointAxes, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieArmChainFault,
+  IAutoMovieBone,
+  IAutoMovieJointAxes,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";

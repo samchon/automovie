@@ -1,6 +1,21 @@
-import type { IAutoMovieCompiledDefinedShot, IAutoMovieResolvedCamera, IAutoMovieActionCall, IAutoMovieBlocking, IAutoMovieCamera, IAutoMovieCameraDepthPrecisionReport, IAutoMoviePerformance, IAutoMovieQuaternion, IAutoMovieShotProgram, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-import { compileDefinedShot, defineShot, resolveCameraAt } from "@automovie/engine";
-
+import {
+  compileDefinedShot,
+  defineShot,
+  resolveCameraAt,
+} from "@automovie/engine";
+import type {
+  IAutoMovieActionCall,
+  IAutoMovieBlocking,
+  IAutoMovieCamera,
+  IAutoMovieCameraDepthPrecisionReport,
+  IAutoMovieCompiledDefinedShot,
+  IAutoMoviePerformance,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedCamera,
+  IAutoMovieShotProgram,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {

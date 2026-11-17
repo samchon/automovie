@@ -1,4 +1,12 @@
-import { type IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieDrivenCurvePoint, IAutoMovieMesh, IAutoMovieMeshMorphTarget, IAutoMovieMeshSkin, IAutoMovieMorphTargetDriver } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieDrivenCurvePoint,
+  IAutoMovieMesh,
+  IAutoMovieMeshMorphTarget,
+  IAutoMovieMeshSkin,
+  IAutoMovieMorphTargetDriver,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { appendMeshTopology } from "./appendMeshTopology";
 import { AUTOMOVIE_ARKIT_CHANNELS } from "./constants/AUTOMOVIE_ARKIT_CHANNELS";

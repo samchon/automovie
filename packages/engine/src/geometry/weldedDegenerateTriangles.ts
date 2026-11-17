@@ -1,5 +1,7 @@
-import { type IAutoMovieWeldMeshVertices, IAutoMovieMesh } from "@automovie/interface";
-
+import {
+  IAutoMovieMesh,
+  type IAutoMovieWeldMeshVertices,
+} from "@automovie/interface";
 
 import { weldMeshVertices } from "../math/weldMeshVertices";
 import { triangleIndicesOf } from "./triangleIndicesOf";

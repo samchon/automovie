@@ -10,7 +10,6 @@ import type { IAutoMovieRecoveryModelCounts } from "../../index";
  */
 
 export interface IAutoMovieRecoveryMeshCounts extends IAutoMovieRecoveryModelCounts {
- 
- /** Number of appended engine mesh chunks. */
+  /** Number of appended engine mesh chunks. */
   chunks: number;
 }

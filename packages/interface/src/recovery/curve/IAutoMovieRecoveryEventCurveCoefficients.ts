@@ -9,7 +9,6 @@ import type { IAutoMovieCurve64 } from "../../index";
  */
 export interface IAutoMovieRecoveryEventCurveCoefficients
   extends IAutoMovieCurve64.Cubic {
- 
- /** Optional exact normalized partition, including zero and one, without changing native widths. */
+  /** Optional exact normalized partition, including zero and one, without changing native widths. */
   canonicalKnots?: readonly number[];
 }

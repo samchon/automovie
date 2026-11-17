@@ -1,6 +1,16 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSeated, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -44,7 +54,6 @@ import { handGoals } from "./handGoals";
  * @evidence contracts/development/implementation.md#principled-implementation The seat socket is an effector placed by solving the root for a pitch; the legs and arms are inverse-kinematics goals.
  */
 export namespace seated {
-
   /**
    * Seat heights as shares of the popliteal height that are sat on with both
    * feet on the floor. Below the band a seat is refused; above it the seat
@@ -108,7 +117,10 @@ export namespace seated {
    * @param entry The entry state.
    * @returns The floor's height, world metres.
    */
-  export function floor(body: IAutoMovieMotionHumanBody, entry: IAutoMovieMotionHumanEntryState): number {
+  export function floor(
+    body: IAutoMovieMotionHumanBody,
+    entry: IAutoMovieMotionHumanEntryState,
+  ): number {
     return HumanSupportFrame.floor(body, entry);
   }
 
@@ -155,7 +167,10 @@ export namespace seated {
    * @param seat The seat.
    * @returns The socket's seated point.
    */
-  export function point(body: IAutoMovieMotionHumanBody, seat: IAutoMovieMotionHumanSeated.ISeat): IAutoMovieVector3 {
+  export function point(
+    body: IAutoMovieMotionHumanBody,
+    seat: IAutoMovieMotionHumanSeated.ISeat,
+  ): IAutoMovieVector3 {
     const socket: IAutoMovieVector3 = offset(body);
     const hipJoint: IAutoMovieVector3 = body.rest.get("leftUpperLeg")!;
     let back: number = body.measure.thigh - 0.05 + hipJoint.z - socket.z;
@@ -274,7 +289,11 @@ export namespace seated {
         bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
       });
     }
-    const placed: IAutoMovieMotionHumanPosture = handGoals(body, posture, requests);
+    const placed: IAutoMovieMotionHumanPosture = handGoals(
+      body,
+      posture,
+      requests,
+    );
     return { leftArm: placed.limbs.leftArm!, rightArm: placed.limbs.rightArm! };
   }
 
@@ -296,7 +315,10 @@ export namespace seated {
     share: number,
   ): IAutoMovieMotionHumanPosture {
     if (share <= 0) return posture;
-    const onThighs: IAutoMovieMotionHumanPosture["limbs"] = hands(body, posture);
+    const onThighs: IAutoMovieMotionHumanPosture["limbs"] = hands(
+      body,
+      posture,
+    );
     if (share >= 1)
       return { ...posture, limbs: { ...posture.limbs, ...onThighs } };
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
@@ -391,7 +413,13 @@ export namespace seated {
       const rest: IAutoMovieVector3 | undefined = rests[side];
       if (rest === undefined) continue;
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-      const goal: IAutoMovieMotionHumanPosture.IGoal = armrest(body, posture, side, rest, yaw);
+      const goal: IAutoMovieMotionHumanPosture.IGoal = armrest(
+        body,
+        posture,
+        side,
+        rest,
+        yaw,
+      );
       limbs[`${side}Arm`] = {
         point: Vector3.lerp(hand.worldPosition, goal.point, s),
         rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, s),
@@ -436,7 +464,9 @@ export namespace seated {
   }
 
   /** A posture's leg goals alone, so its hands are read where its own joints hold them. */
-  function legsOnly(posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture["limbs"] {
+  function legsOnly(
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture["limbs"] {
     return {
       ...(posture.limbs.leftLeg === undefined
         ? {}

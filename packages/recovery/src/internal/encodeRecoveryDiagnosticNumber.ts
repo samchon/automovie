@@ -1,6 +1,5 @@
 import type { AutoMovieDiagnosticNumber } from "@automovie/interface";
 
-
 /**
  * Encode an already computed number without changing its numerical owner.
  *

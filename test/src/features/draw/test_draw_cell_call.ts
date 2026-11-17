@@ -1,5 +1,16 @@
-import type { IAutoMovieCaptureCell, IAutoMovieCaptureDrawing, IAutoMovieCapturePlan, IAutoMovieCaptureSubject, IAutoMovieDrawCall } from "@automovie/interface";
-import { AutoMovieDrawSession, parseAutoMovieCapturePlanRequest, planAutoMovieCapture, scaleAutoMovieCaptureLabels } from "@automovie/render";
+import type {
+  IAutoMovieCaptureCell,
+  IAutoMovieCaptureDrawing,
+  IAutoMovieCapturePlan,
+  IAutoMovieCaptureSubject,
+  IAutoMovieDrawCall,
+} from "@automovie/interface";
+import {
+  AutoMovieDrawSession,
+  parseAutoMovieCapturePlanRequest,
+  planAutoMovieCapture,
+  scaleAutoMovieCaptureLabels,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { answerDrawCall } from "./answerDrawCall";

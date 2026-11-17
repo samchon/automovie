@@ -1,5 +1,5 @@
-import type { IAutoMovieSpeedProfile } from "@automovie/interface";
 import { speedProfile } from "@automovie/engine";
+import type { IAutoMovieSpeedProfile } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -69,10 +69,16 @@ export function test_engine_speed_profile(): void {
     if (rate > 2 + 1e-6 || rate < -3 - 1e-6)
       findings.push(`the speed changes at ${rate} m/s squared at ${t} s`);
     if (now.speed > 0.01 && Math.abs(profile.when(now.distance) - t) > 1e-6)
-      findings.push(`when(${now.distance}) is ${profile.when(now.distance)}, not ${t}`);
+      findings.push(
+        `when(${now.distance}) is ${profile.when(now.distance)}, not ${t}`,
+      );
     before = now;
   }
-  close(profile.when(49), first + 3, "a held distance is reached when the hold begins");
+  close(
+    profile.when(49),
+    first + 3,
+    "a held distance is reached when the hold begins",
+  );
   close(profile.when(-1), profile.start, "before the path");
   close(profile.when(100), profile.end, "beyond the path");
 
@@ -83,24 +89,48 @@ export function test_engine_speed_profile(): void {
   close(profile.at(profile.end + 5).distance, 59, "after the end");
 
   // 5. Reach.
-  const reach: { minimum: number; maximum: number } = speedProfile.reach(10, 5, 2, 3);
+  const reach: { minimum: number; maximum: number } = speedProfile.reach(
+    10,
+    5,
+    2,
+    3,
+  );
   close(reach.minimum, Math.sqrt(100 - 30), "the least speed reached");
   close(reach.maximum, Math.sqrt(100 + 20), "the greatest speed reached");
   close(speedProfile.reach(2, 50, 2, 3).minimum, 0, "a stop within reach");
 
   // 6. Impossible profiles.
   for (const [name, stretches] of [
-    ["a mark beyond reach", [{ kind: "distance", length: 1, speed: 9, cap: 10 }]],
-    ["a cap below a mark", [{ kind: "distance", length: 50, speed: 9, cap: 8 }]],
-    ["a seconds stretch too fast", [{ kind: "seconds", seconds: 1, speed: 10 }]],
+    [
+      "a mark beyond reach",
+      [{ kind: "distance", length: 1, speed: 9, cap: 10 }],
+    ],
+    [
+      "a cap below a mark",
+      [{ kind: "distance", length: 50, speed: 9, cap: 8 }],
+    ],
+    [
+      "a seconds stretch too fast",
+      [{ kind: "seconds", seconds: 1, speed: 10 }],
+    ],
   ] as const) {
     let threw: boolean = false;
     try {
-      speedProfile({ start: 0, speed: 0, acceleration: 2, deceleration: 3, stretches });
+      speedProfile({
+        start: 0,
+        speed: 0,
+        acceleration: 2,
+        deceleration: 3,
+        stretches,
+      });
     } catch {
       threw = true;
     }
     if (!threw) findings.push(`${name} is laid`);
   }
-  TestValidator.equals("a speed profile meets its marks within its rates", findings, []);
+  TestValidator.equals(
+    "a speed profile meets its marks within its rates",
+    findings,
+    [],
+  );
 }

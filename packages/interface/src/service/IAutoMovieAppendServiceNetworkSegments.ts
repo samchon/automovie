@@ -1,9 +1,9 @@
 import type { IAutoMovieBuiltEnvironment } from "../architecture/IAutoMovieBuiltEnvironment";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
 import type { IAutoMovieServiceNetwork } from "./IAutoMovieServiceNetwork";
 import type { IAutoMovieServicePort } from "./IAutoMovieServicePort";
 import type { IAutoMovieServiceSystem } from "./IAutoMovieServiceSystem";
-import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
 
 /** Segment validation inputs, reference indexes and synchronous numerical diagnostic callbacks. */
 export namespace IAutoMovieAppendServiceNetworkSegments {

@@ -1,6 +1,17 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionHumanTouchEffector, HumanChain, HumanPerformance, HumanRefusal, HumanSocial, touch } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanTouchEffector,
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSocial,
+  touch,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -40,7 +51,10 @@ export function test_human_motion_core_meeting_window(): void {
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   const gap = (p: IAutoMovieVector3, q: IAutoMovieVector3): number =>
     Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
-  const perform = (window: { from?: number; to: number }): IAutoMovieMotionHumanPerformance =>
+  const perform = (window: {
+    from?: number;
+    to: number;
+  }): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "window",
       laws: [HumanSocial.fistBump],
@@ -73,7 +87,8 @@ export function test_human_motion_core_meeting_window(): void {
     return;
   }
   const instant = (who: "a" | "b", event: string): number => {
-    const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments(who)[1]!;
+    const placed: IAutoMovieMotionHumanSegment.ISegment =
+      performance.segments(who)[1]!;
     return (
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === event)?.share ??

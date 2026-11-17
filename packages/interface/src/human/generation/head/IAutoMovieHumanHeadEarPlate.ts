@@ -5,12 +5,6 @@ import type { IAutoMovieLoftViewRead } from "../../../construction/IAutoMovieLof
 import type { IAutoMovieLoftViewSource } from "../../../construction/IAutoMovieLoftViewSource";
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 
-
-
-
-
-
-
 /** Type contracts exchanged by AutoMovieHumanHeadEarPlate; runtime evaluation remains in Human. */
 export namespace IAutoMovieHumanHeadEarPlate {
   /**

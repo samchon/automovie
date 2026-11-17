@@ -1,8 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanSocial } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanSocial,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -59,7 +71,9 @@ export namespace motionSocialToast {
       const label: string = `${first} with ${second}`;
 
       // Before a performer's right shoulder; b faces a, so b's right is +X.
-      const before = (who: "a" | "b"): IAutoMovieMotionHumanObject.Placement => {
+      const before = (
+        who: "a" | "b",
+      ): IAutoMovieMotionHumanObject.Placement => {
         const m: IAutoMovieMotionHumanBody["measure"] = bodies[who].measure;
         const ahead: number = 0.6 * (m.upperArm + m.forearm);
         return {
@@ -73,7 +87,9 @@ export namespace motionSocialToast {
       };
       const perform = (
         props: IAutoMovieMotionHumanProp[],
-        composition: { node: IAutoMovieMotionHumanPerformance.IInput["composition"] },
+        composition: {
+          node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+        },
       ): IAutoMovieMotionHumanPerformance =>
         new HumanPerformance({
           seed: "social",
@@ -88,7 +104,10 @@ export namespace motionSocialToast {
           })),
           composition: composition.node,
         });
-      const instant = (segment: IAutoMovieMotionHumanSegment.ISegment, event: string): number =>
+      const instant = (
+        segment: IAutoMovieMotionHumanSegment.ISegment,
+        event: string,
+      ): number =>
         segment.start +
         (segment.plan.events.find((e): boolean => e.name === event)?.share ??
           NaN) *
@@ -173,7 +192,10 @@ export namespace motionSocialToast {
           glass.affordance("lip").frame.translation;
         const radius: number = Math.hypot(lip.x, lip.z);
         const centre = (prop: string): IAutoMovieVector3 => {
-          const frame: IAutoMovieMotionHumanProp.IFrame = toast.prop(prop, meet);
+          const frame: IAutoMovieMotionHumanProp.IFrame = toast.prop(
+            prop,
+            meet,
+          );
           return Vector3.add(
             frame.position,
             Quaternion.rotateVector(frame.rotation, { x: 0, y: lip.y, z: 0 }),

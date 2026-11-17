@@ -1,6 +1,15 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanExerciseKey, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSwimStroke, IAutoMovieVector3 } from "@automovie/interface";
-
 import { minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSwimStroke,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanFrame } from "../posture/HumanFrame";
 
@@ -42,7 +51,6 @@ import { HumanFrame } from "../posture/HumanFrame";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The plane is the author's and the depth the body's; speeds are named provisional.
  */
 export namespace SwimStroke {
-
   /** The hip joints, which the plane carries. */
   const HIPS: readonly AutoMovieHumanoidBone[] = [
     "leftUpperLeg",
@@ -78,7 +86,14 @@ export namespace SwimStroke {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function strokes(body: IAutoMovieMotionHumanBody): Readonly<Record<IAutoMovieMotionHumanSwimStroke.Name, IAutoMovieMotionHumanSwimStroke.IStroke>> {
+  export function strokes(
+    body: IAutoMovieMotionHumanBody,
+  ): Readonly<
+    Record<
+      IAutoMovieMotionHumanSwimStroke.Name,
+      IAutoMovieMotionHumanSwimStroke.IStroke
+    >
+  > {
     return {
       breaststroke: {
         supine: false,
@@ -175,11 +190,17 @@ export namespace SwimStroke {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the exercise keys' blend and pin.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the stroke's table row.
    */
-  export function plan(props: IAutoMovieMotionHumanSwimStroke.IPlanProps): IAutoMovieMotionHumanActionPlan {
-    const stroke: IAutoMovieMotionHumanSwimStroke.IStroke = strokes(props.body)[props.stroke];
+  export function plan(
+    props: IAutoMovieMotionHumanSwimStroke.IPlanProps,
+  ): IAutoMovieMotionHumanActionPlan {
+    const stroke: IAutoMovieMotionHumanSwimStroke.IStroke = strokes(props.body)[
+      props.stroke
+    ];
     const spans: readonly number[] = stroke.keys.map(
-      ([, seconds]: readonly [IAutoMovieMotionHumanExerciseKey.IKey, number]): number =>
-        seconds * props.tempo,
+      ([, seconds]: readonly [
+        IAutoMovieMotionHumanExerciseKey.IKey,
+        number,
+      ]): number => seconds * props.tempo,
     );
     const period: number = spans.reduce(
       (sum: number, seconds: number): number => sum + seconds,

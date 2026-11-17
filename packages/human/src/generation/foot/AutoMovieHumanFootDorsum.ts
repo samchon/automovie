@@ -1,8 +1,12 @@
-import type { IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanFootDorsum } from "@automovie/interface";
-
-
-import { AutoMovieViewOutline, AutoMovieSolidVector as V } from "@automovie/engine";
-
+import {
+  AutoMovieViewOutline,
+  AutoMovieSolidVector as V,
+} from "@automovie/engine";
+import type {
+  IAutoMovieHumanFootDorsum,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * A replaced dorsal source and the additional physical stations it owns.
@@ -16,8 +20,6 @@ import { AutoMovieViewOutline, AutoMovieSolidVector as V } from "@automovie/engi
  * @evidence contracts/performance.md#bound-retention-and-release-resources The synchronous caller owns the returned O(n) outline and its source definition.
  */
 export namespace AutoMovieHumanFootDorsum {
-  
-
   /**
    * Replace the misinterpreted ankle-cut roof and its globally coupled natural
    * jets. Actual ankle contacts, the clinical half-length height and retained
@@ -32,7 +34,9 @@ export namespace AutoMovieHumanFootDorsum {
    * @evidence contracts/performance.md#reuse-equivalent-work The one prepared original supplies every retained value and jet.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary source state dies with this call; only the authored outline survives.
    */
-  export function create(input: IAutoMovieHumanFootDorsum.IInput): IAutoMovieViewPart.IOutline {
+  export function create(
+    input: IAutoMovieHumanFootDorsum.IInput,
+  ): IAutoMovieViewPart.IOutline {
     const bottom: number = input.part.stations[0]!;
     const top: number = input.part.stations.at(-1)!;
     const original:

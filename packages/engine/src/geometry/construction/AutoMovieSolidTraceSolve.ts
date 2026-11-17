@@ -1,5 +1,12 @@
-import type { AutoMovieSolidChartVector4, AutoMovieVector3Tuple, IAutoMovieSolidAtlas, IAutoMovieSolidIntersection, IAutoMovieSolidSurface, IAutoMovieSolidTraceLaw, IAutoMovieSolidTraceTrialTrial } from "@automovie/interface";
-
+import type {
+  AutoMovieSolidChartVector4,
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidSurface,
+  IAutoMovieSolidTraceLaw,
+  IAutoMovieSolidTraceTrialTrial,
+} from "@automovie/interface";
 
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidTraceTrial } from "./AutoMovieSolidTraceTrial";
@@ -61,7 +68,12 @@ export namespace AutoMovieSolidTraceSolve {
     tolerance: number,
   ): IAutoMovieSolidIntersection.IPoint | null {
     let f: number = face;
-    let x: AutoMovieSolidChartVector4 = [guess[0], guess[1], guess[2], guess[3]];
+    let x: AutoMovieSolidChartVector4 = [
+      guess[0],
+      guess[1],
+      guess[2],
+      guess[3],
+    ];
     const budget: { left: number } = { left: SWITCHES };
     for (let k: number = 0; k <= SWITCHES; k++) {
       const p: IAutoMovieSolidIntersection.IPoint | null = solveOn(
@@ -113,10 +125,15 @@ export namespace AutoMovieSolidTraceSolve {
     face: number,
     budget: { left: number },
   ): IAutoMovieSolidIntersection.IPoint | null {
-    let x: AutoMovieSolidChartVector4 = [guess[0], guess[1], guess[2], guess[3]];
+    let x: AutoMovieSolidChartVector4 = [
+      guess[0],
+      guess[1],
+      guess[2],
+      guess[3],
+    ];
     const initialA: IJet | null = AutoMovieSolidDomain.jet(part, x[0], x[1]);
     if (initialA === null) return null;
-    const initialB: (IAutoMovieSolidTraceTrialTrial | null) =
+    const initialB: IAutoMovieSolidTraceTrialTrial | null =
       AutoMovieSolidTraceTrial(host, face, x[2], x[3], budget.left > 0);
     if (initialB === null) return null;
     if (initialB.crossed) budget.left--;
@@ -124,7 +141,11 @@ export namespace AutoMovieSolidTraceSolve {
     x = [x[0], x[1], initialB.u, initialB.v];
     let a: IJet = initialA;
     let b: IJet = initialB.jet;
-    const residual: (aj: IJet, bj: IJet, xs: AutoMovieSolidChartVector4) => number[] = (
+    const residual: (
+      aj: IJet,
+      bj: IJet,
+      xs: AutoMovieSolidChartVector4,
+    ) => number[] = (
       aj: IJet,
       bj: IJet,
       xs: AutoMovieSolidChartVector4,
@@ -153,7 +174,7 @@ export namespace AutoMovieSolidTraceSolve {
         ];
         const ay: IJet | null = AutoMovieSolidDomain.jet(part, y[0], y[1]);
         if (ay === null) continue;
-        const by: (IAutoMovieSolidTraceTrialTrial | null) =
+        const by: IAutoMovieSolidTraceTrialTrial | null =
           AutoMovieSolidTraceTrial(
             host,
             currentFace,
@@ -197,7 +218,7 @@ export namespace AutoMovieSolidTraceSolve {
       ];
       const ay: IJet | null = AutoMovieSolidDomain.jet(part, y[0], y[1]);
       if (ay !== null) {
-        const by: (IAutoMovieSolidTraceTrialTrial | null) =
+        const by: IAutoMovieSolidTraceTrialTrial | null =
           AutoMovieSolidTraceTrial(
             host,
             currentFace,
@@ -221,7 +242,12 @@ export namespace AutoMovieSolidTraceSolve {
   }
 
   /** The 4 by 4 Jacobian by rows: the meeting's three, then the parameter's. */
-  function jacobian(a: IJet, b: IJet, law: IAutoMovieSolidTraceLaw.ILaw, t: number): number[][] {
+  function jacobian(
+    a: IJet,
+    b: IJet,
+    law: IAutoMovieSolidTraceLaw.ILaw,
+    t: number,
+  ): number[][] {
     const [gp, gphi]: [Vec3, number] = law.grad(t);
     return [
       ...[0, 1, 2].map((i: number): number[] => [
@@ -360,7 +386,12 @@ export namespace AutoMovieSolidTraceSolve {
     ) {
       const step: number =
         Math.abs(target - current.t) < Math.abs(h) ? target - current.t : h;
-      const x0: AutoMovieSolidChartVector4 = [current.s, current.phi, current.y, current.theta];
+      const x0: AutoMovieSolidChartVector4 = [
+        current.s,
+        current.phi,
+        current.y,
+        current.theta,
+      ];
       const guess: AutoMovieSolidChartVector4 = x0.map(
         (v: number, i: number): number =>
           v + current.rate[i]! * step + (current.rate2[i]! * step * step) / 2,

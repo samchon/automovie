@@ -1,10 +1,13 @@
-import type { IAutoMovieLoftFrame, IAutoMovieViewAxis, IAutoMovieViewOutline, IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanHeadEarRidge, IAutoMovieHumanHeadEarRidgeAxis } from "@automovie/interface";
-
-
-
-
 import { AutoMovieViewAxis, AutoMovieViewOutline } from "@automovie/engine";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanHeadEarRidge,
+  IAutoMovieHumanHeadEarRidgeAxis,
+  IAutoMovieLoftFrame,
+  IAutoMovieViewAxis,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * Original ridge coordinate sources and the frame that borrows a canonical fork.

@@ -1,4 +1,8 @@
-import type { IAutoMovieAuthoringDiagnostic, IAutoMovieShotPhysicsAdvice } from "@automovie/interface";
+import type {
+  IAutoMovieAuthoringDiagnostic,
+  IAutoMovieShotPhysicsAdvice,
+} from "@automovie/interface";
+
 import { compareCodeUnits } from "../text/compareCodeUnits";
 
 /**

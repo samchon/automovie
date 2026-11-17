@@ -1,6 +1,12 @@
-import type { IAutoMovieResolvedBone, IAutoMoviePhysicalProfile, IAutoMovieResolveCenterOfMass, AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -51,7 +57,9 @@ export function resolveAutoMovieCenterOfMass(
   );
   const segments: IAutoMovieResolveCenterOfMass.ISegment[] =
     profile.segments.map(
-      (s: IAutoMoviePhysicalProfile.ISegment): IAutoMovieResolveCenterOfMass.ISegment => {
+      (
+        s: IAutoMoviePhysicalProfile.ISegment,
+      ): IAutoMovieResolveCenterOfMass.ISegment => {
         const bone: IAutoMovieResolvedBone | undefined = rest.get(
           s.bone as AutoMovieHumanoidBone,
         );
@@ -104,7 +112,6 @@ export function resolveAutoMovieCenterOfMass(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses resolved bones and the engine's hull routines.
  */
 export namespace resolveAutoMovieCenterOfMass {
-
   /** The inverted pendulum's length in hip heights: the leg length, about 1.34 times the trochanteric height (Hof, Gazendam and Sinke 2005, J Biomech 38:1), which `pendulum` takes its length from. */
   export const PENDULUM: number = 1.34;
 

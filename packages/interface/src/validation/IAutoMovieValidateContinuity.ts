@@ -8,13 +8,13 @@ export namespace IAutoMovieValidateContinuity {
   export type IProps = {
     /** The previous beat's resolved end-state. */
     previous: IAutoMovieBeatEndState;
-  
+
     /** The incoming beat's resolved opening-state. */
     opening: IAutoMovieBeatEndState;
-  
+
     /** World-space position drift tolerated (metres); defaults to 0.05. */
     positionTolerance?: number;
-  
+
     /** Facing drift tolerated (degrees); defaults to 5. */
     facingToleranceDeg?: number;
   };

@@ -1,8 +1,9 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanFootFrame } from "@automovie/interface";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootFrame,
+} from "@automovie/interface";
 
 import { AutoMovieHumanMonotoneCubic } from "../../lofting/AutoMovieHumanMonotoneCubic";
-
 
 /**
  * The instep's crest over the forefoot: the dorsal profile of the foot from the
@@ -18,8 +19,13 @@ export namespace AutoMovieHumanFootCrestForefoot {
    *
    * @param frame The foot's frame.
    */
-  export function knots(frame: IAutoMovieHumanFootFrame.IFrame): AutoMovieVector3Tuple[] {
-    return KNOTS.map((q: readonly [number, number, number]): AutoMovieVector3Tuple => frame.at(q[0], q[1], q[2] * frame.L));
+  export function knots(
+    frame: IAutoMovieHumanFootFrame.IFrame,
+  ): AutoMovieVector3Tuple[] {
+    return KNOTS.map(
+      (q: readonly [number, number, number]): AutoMovieVector3Tuple =>
+        frame.at(q[0], q[1], q[2] * frame.L),
+    );
   }
 
   /**
@@ -31,7 +37,10 @@ export namespace AutoMovieHumanFootCrestForefoot {
    */
   export function depth(a: number): number {
     return AutoMovieHumanMonotoneCubic.interpolate(
-      KNOTS.map((q: readonly [number, number, number]): [number, number] => [q[0], q[2]]),
+      KNOTS.map((q: readonly [number, number, number]): [number, number] => [
+        q[0],
+        q[2],
+      ]),
       a,
     );
   }
@@ -45,7 +54,10 @@ export namespace AutoMovieHumanFootCrestForefoot {
    */
   export function across(a: number): number {
     return AutoMovieHumanMonotoneCubic.interpolate(
-      KNOTS.map((q: readonly [number, number, number]): [number, number] => [q[0], q[1]]),
+      KNOTS.map((q: readonly [number, number, number]): [number, number] => [
+        q[0],
+        q[1],
+      ]),
       a,
     );
   }

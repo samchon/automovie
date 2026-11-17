@@ -1,11 +1,11 @@
-import type { IAutoMovieHumanArmRootOval, IAutoMovieHumanDeltoidCap, IAutoMovieHumanTrunkSolve } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieHumanArmRootOval,
+  IAutoMovieHumanDeltoidCap,
+  IAutoMovieHumanTrunkSolve,
+} from "@automovie/interface";
 
 import { AutoMovieHumanDeltoidCap } from "./AutoMovieHumanDeltoidCap";
 import { AutoMovieHumanShoulderCap } from "./AutoMovieHumanShoulderCap";
-
 
 /**
  * The arm's horizontal section at a height, the ellipse the arm's root is
@@ -23,10 +23,6 @@ import { AutoMovieHumanShoulderCap } from "./AutoMovieHumanShoulderCap";
  * (`AutoMovieHumanDeltoidCap`).
  */
 export namespace AutoMovieHumanArmRootOval {
-  
-
-  
-
   /**
    * The ellipse at a height.
    *
@@ -34,7 +30,10 @@ export namespace AutoMovieHumanArmRootOval {
    * @param y Height, mm.
    * @returns The ellipse, or null where the arm has no root (at and above the shoulder point).
    */
-  export function at(input: IAutoMovieHumanArmRootOval.IInput, y: number): IAutoMovieHumanDeltoidCap.IOval | null {
+  export function at(
+    input: IAutoMovieHumanArmRootOval.IInput,
+    y: number,
+  ): IAutoMovieHumanDeltoidCap.IOval | null {
     const [x, gy, gz]: readonly [number, number, number] = input.glenohumeral;
     const R: number = input.radius;
     if (y >= input.cap.to) return null;
@@ -50,7 +49,10 @@ export namespace AutoMovieHumanArmRootOval {
       };
 
     // Above it the deltoid cap's ellipse reaches the cap's outline from the fixed centre.
-    return AutoMovieHumanDeltoidCap.at({ glenohumeral: input.glenohumeral, outline: input.cap }, y);
+    return AutoMovieHumanDeltoidCap.at(
+      { glenohumeral: input.glenohumeral, outline: input.cap },
+      y,
+    );
   }
 
   /**
@@ -61,7 +63,10 @@ export namespace AutoMovieHumanArmRootOval {
    * @param y Height, mm.
    * @returns The extreme's jet.
    */
-  export function outline(input: IAutoMovieHumanArmRootOval.IInput, y: number): IAutoMovieHumanTrunkSolve.IJet {
+  export function outline(
+    input: IAutoMovieHumanArmRootOval.IInput,
+    y: number,
+  ): IAutoMovieHumanTrunkSolve.IJet {
     const [, gy, gz]: readonly [number, number, number] = input.glenohumeral;
 
     if (y >= gy) return input.cap.at(Math.min(y, input.cap.to));

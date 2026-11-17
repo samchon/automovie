@@ -1,29 +1,39 @@
-import type { IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanHeadNeck, IAutoMovieHumanHeadNeckCurves, IAutoMovieHumanHeadNeckScalars } from "@automovie/interface";
-
-
-
-
 import { AutoMovieViewOutline } from "@automovie/engine";
-
+import type {
+  IAutoMovieHumanHeadNeck,
+  IAutoMovieHumanHeadNeckCurves,
+  IAutoMovieHumanHeadNeckScalars,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /** Original neck scalar controls and their declared radius-dependent bases, before numerical closure or any point/loft consumer. */
 export namespace AutoMovieHumanHeadNeckScalars {
-  
-
   /** The retained mean/pose coefficients declare this affine lower source, not a Taylor continuation of emitted geometry. */
-  export function axis(neck: Pick<IAutoMovieHumanHeadNeck, "x" | "level" | "backSlope">): IAutoMovieHumanHeadNeckScalars.IAxis {
+  export function axis(
+    neck: Pick<IAutoMovieHumanHeadNeck, "x" | "level" | "backSlope">,
+  ): IAutoMovieHumanHeadNeckScalars.IAxis {
     const x: number = neck.x;
     const y: number = neck.level;
     const m: number = neck.backSlope;
-    if (![x, y, m].every(Number.isFinite)) throw new Error("Shared lower-neck axis needs finite generating coefficients");
-    return { parameter: "physical-Y-mm", anchor: [x, y, 0], first: [m, 1, 0], second: [0, 0, 0],
+    if (![x, y, m].every(Number.isFinite))
+      throw new Error(
+        "Shared lower-neck axis needs finite generating coefficients",
+      );
+    return {
+      parameter: "physical-Y-mm",
+      anchor: [x, y, 0],
+      first: [m, 1, 0],
+      second: [0, 0, 0],
       point(station: number): [number, number, number] {
-        if (!Number.isFinite(station)) throw new Error("Shared lower-neck axis needs a finite physical station");
+        if (!Number.isFinite(station))
+          throw new Error(
+            "Shared lower-neck axis needs a finite physical station",
+          );
         return [x + m * (station - y), station, 0];
-      } };
+      },
+    };
   }
-
-  
 
   /** Author common controls before the radius-dependent side-site/height trial; no external anterior-support estimate constrains front X. */
   export function create(
@@ -79,11 +89,19 @@ export namespace AutoMovieHumanHeadNeckScalars {
           value: input.cranialCentre,
           jet: { first: 0, second: 0 },
         },
-      ].filter((knot: IAutoMovieViewPart.IKnot, i: number, rows: IAutoMovieViewPart.IKnot[]): boolean =>
-        i === 0 || knot.station !== rows[i - 1]!.station),
+      ].filter(
+        (
+          knot: IAutoMovieViewPart.IKnot,
+          i: number,
+          rows: IAutoMovieViewPart.IKnot[],
+        ): boolean => i === 0 || knot.station !== rows[i - 1]!.station,
+      ),
     };
     const clock: number = input.base.girth;
-    const radius: (base: number, normal?: number) => IAutoMovieViewPart.IOutline = (
+    const radius: (
+      base: number,
+      normal?: number,
+    ) => IAutoMovieViewPart.IOutline = (
       base: number,
       normal: number = r,
     ): IAutoMovieViewPart.IOutline => {
@@ -123,7 +141,14 @@ export namespace AutoMovieHumanHeadNeckScalars {
     const constant: IAutoMovieViewOutline.IOutline = prepare(radius(0, r));
     const basis: IAutoMovieViewOutline.IOutline = prepare(radius(1, 0));
 
-    return { radius, centre, preparedCentre: prepare(centre), clock, constant, basis };
+    return {
+      radius,
+      centre,
+      preparedCentre: prepare(centre),
+      clock,
+      constant,
+      basis,
+    };
   }
 
   /**
@@ -145,8 +170,16 @@ export namespace AutoMovieHumanHeadNeckScalars {
     side: number,
   ): IAutoMovieViewPart.IOutline {
     if (!(Number.isFinite(side) && side > 0 && side < Math.PI))
-      throw new Error("Neck side height needs a distinct original half-profile phase");
-    const phases: readonly number[] = [0, side, Math.PI, 2 * Math.PI - side, 2 * Math.PI];
+      throw new Error(
+        "Neck side height needs a distinct original half-profile phase",
+      );
+    const phases: readonly number[] = [
+      0,
+      side,
+      Math.PI,
+      2 * Math.PI - side,
+      2 * Math.PI,
+    ];
     return {
       knots: [
         input.base.suprasternaleHeight,
@@ -170,12 +203,15 @@ export namespace AutoMovieHumanHeadNeckScalars {
       ),
     };
   }
-
 }
 
 /** Prepare only the authored scalar; admission failure is not a replacement source. */
-function prepare(outline: IAutoMovieViewPart.IOutline): IAutoMovieViewOutline.IOutline {
-  const prepared: ReturnType<typeof AutoMovieViewOutline.create> = AutoMovieViewOutline.create(outline);
-  if ("detail" in prepared) throw new Error("Neck original source: " + prepared.detail);
+function prepare(
+  outline: IAutoMovieViewPart.IOutline,
+): IAutoMovieViewOutline.IOutline {
+  const prepared: ReturnType<typeof AutoMovieViewOutline.create> =
+    AutoMovieViewOutline.create(outline);
+  if ("detail" in prepared)
+    throw new Error("Neck original source: " + prepared.detail);
   return prepared;
 }

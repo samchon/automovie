@@ -1,5 +1,24 @@
-import type { IAutoMovieActionSynthesizer, IAutoMovieActorContext, IAutoMovieActorWorldFrame, IAutoMovieRecoilPush, AutoMovieEasing, AutoMovieExpressionPreset, AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieBeatEndState, IAutoMovieExpression, IAutoMovieGait, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform, IAutoMovieVector3, IAutoMovieYawPitch } from "@automovie/interface";
-
+import type {
+  AutoMovieEasing,
+  AutoMovieExpressionPreset,
+  AutoMovieHumanoidBone,
+  IAutoMovieActionCall,
+  IAutoMovieActionSynthesizer,
+  IAutoMovieActionTarget,
+  IAutoMovieActorContext,
+  IAutoMovieActorWorldFrame,
+  IAutoMovieBeatEndState,
+  IAutoMovieExpression,
+  IAutoMovieGait,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieRecoilPush,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+  IAutoMovieYawPitch,
+} from "@automovie/interface";
 
 import { aimYawPitch } from "../kinematics/aimYawPitch";
 import { gazeChainJoints } from "../kinematics/gazeChainJoints";

@@ -1,4 +1,12 @@
-import { type IAutoMovieRecoilPush, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  type IAutoMovieRecoilPush,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 
 import { impactRecoil } from "../physics/impactRecoil";
 

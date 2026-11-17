@@ -1,6 +1,5 @@
 import type { IAutoMovieLoftSectionJet } from "./IAutoMovieLoftSectionJet";
 
-
 /**
  * Original-cap station preparation shared by the cap reader and loft jet cache.
  *
@@ -21,10 +20,10 @@ export namespace IAutoMovieLoftCapRead {
    * @evidence contracts/development/common.md#meaningful-documentation States null and thrown cases, derivative coordinates, frame ordering and cache lifetime.
    */
   export type IJetResult = {
-      /** Evaluate local [u,v] position and partials at finite polar phase phi in radians; the closure retains its prepared scalar geometry and returns fresh mutable vectors. Numeric admission failures throw. */
-      native: ((phi: number) => IAutoMovieLoftSectionJet);
+    /** Evaluate local [u,v] position and partials at finite polar phase phi in radians; the closure retains its prepared scalar geometry and returns fresh mutable vectors. Numeric admission failures throw. */
+    native: (phi: number) => IAutoMovieLoftSectionJet;
 
-      /** Three copied rows in value, first-station and second-station order, each [origin.xyz, u.xyz, v.xyz]. Origin units are mm, unitless and 1/mm; axis units are unitless, 1/mm and 1/mm². Consumers preserve these mutable rows while the station plan is cached. */
-      f: number[][];
-    } | null;
+    /** Three copied rows in value, first-station and second-station order, each [origin.xyz, u.xyz, v.xyz]. Origin units are mm, unitless and 1/mm; axis units are unitless, 1/mm and 1/mm². Consumers preserve these mutable rows while the station plan is cached. */
+    f: number[][];
+  } | null;
 }

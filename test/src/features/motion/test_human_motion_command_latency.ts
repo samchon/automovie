@@ -1,6 +1,17 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment } from "@automovie/interface";
 import { AutoMovieComposition } from "@automovie/engine";
-import { HumanCue, HumanEnsemble, HumanPerformance, HumanResponse } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+} from "@automovie/interface";
+import {
+  HumanCue,
+  HumanEnsemble,
+  HumanPerformance,
+  HumanResponse,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -72,8 +83,9 @@ export function test_human_motion_command_latency(): void {
   ): Map<string, number> => {
     const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "volley",
-      performers: ensembles.flatMap((e: IAutoMovieMotionHumanEnsemble.IEnsemble) =>
-        HumanEnsemble.performers(e),
+      performers: ensembles.flatMap(
+        (e: IAutoMovieMotionHumanEnsemble.IEnsemble) =>
+          HumanEnsemble.performers(e),
       ),
       cues: {
         orders: HumanCue.orders([
@@ -84,7 +96,10 @@ export function test_human_motion_command_latency(): void {
         ...ensembles.map((e: IAutoMovieMotionHumanEnsemble.IEnsemble) =>
           HumanEnsemble.chains(
             e,
-            (_: IAutoMovieMotionHumanEnsemble.IMember, chain: IAutoMovieMotionHumanChain) =>
+            (
+              _: IAutoMovieMotionHumanEnsemble.IMember,
+              chain: IAutoMovieMotionHumanChain,
+            ) =>
               (before
                 ? chain.look({
                     target: {
@@ -109,15 +124,22 @@ export function test_human_motion_command_latency(): void {
     const out: Map<string, number> = new Map();
     for (const e of ensembles)
       for (const m of e.members) {
-        const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] = performance.segments(
-          m.subject,
-        );
+        const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+          performance.segments(m.subject);
         out.set(m.subject, segments[segments.length - 1]!.entryTime - word);
       }
     return out;
   };
-  const elite: IAutoMovieMotionHumanEnsemble.IEnsemble = group("e", "elite", 30);
-  const militia: IAutoMovieMotionHumanEnsemble.IEnsemble = group("m", "militia", 30);
+  const elite: IAutoMovieMotionHumanEnsemble.IEnsemble = group(
+    "e",
+    "elite",
+    30,
+  );
+  const militia: IAutoMovieMotionHumanEnsemble.IEnsemble = group(
+    "m",
+    "militia",
+    30,
+  );
   const stats = (values: readonly number[]): { mean: number; sd: number } => {
     const mean: number =
       values.reduce((a: number, b: number): number => a + b, 0) / values.length;
@@ -132,8 +154,13 @@ export function test_human_motion_command_latency(): void {
       ),
     };
   };
-  const of = (map: Map<string, number>, e: IAutoMovieMotionHumanEnsemble.IEnsemble): number[] =>
-    e.members.map((m: IAutoMovieMotionHumanEnsemble.IMember): number => map.get(m.subject)!);
+  const of = (
+    map: Map<string, number>,
+    e: IAutoMovieMotionHumanEnsemble.IEnsemble,
+  ): number[] =>
+    e.members.map(
+      (m: IAutoMovieMotionHumanEnsemble.IMember): number => map.get(m.subject)!,
+    );
 
   // 1. The floor and the spreads.
   const warned: Map<string, number> = starts([elite, militia], true);

@@ -1,4 +1,5 @@
 import type { IAutoMovieLoftContract } from "@automovie/interface";
+
 /**
  * Checked values chains and seams exchange; failed checks throw a message
  * naming the producer and the violated local premise.
@@ -27,7 +28,6 @@ import type { IAutoMovieLoftContract } from "@automovie/interface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftContract {
-
   /**
    * Stations checked against their contract.
    *

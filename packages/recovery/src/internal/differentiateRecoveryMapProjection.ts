@@ -1,7 +1,8 @@
-import type { IAutoMovieRecoveryMapLocalCurvature, IAutoMovieRecoveryMapPose } from "@automovie/interface";
 import { AutoMovieMatrix3 } from "@automovie/engine";
-
-
+import type {
+  IAutoMovieRecoveryMapLocalCurvature,
+  IAutoMovieRecoveryMapPose,
+} from "@automovie/interface";
 
 import { differentiateRecoveryMapTangent } from "./differentiateRecoveryMapTangent";
 

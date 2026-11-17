@@ -1,13 +1,13 @@
-import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
-import type { IAutoMovieAttachJob } from "./IAutoMovieAttachJob";
-import type { IAutoMovieClip } from "../core/IAutoMovieClip";
-import type { IAutoMovieConstraintViolation } from "../validation/IAutoMovieConstraintViolation";
 import type { IAutoMovieInteractionEvent } from "../cinematics/IAutoMovieInteractionEvent";
-import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
+import type { IAutoMovieClip } from "../core/IAutoMovieClip";
 import type { IAutoMovieMotion } from "../motion/IAutoMovieMotion";
 import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 import type { IAutoMovieScene } from "../scene/IAutoMovieScene";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
+import type { IAutoMovieConstraintViolation } from "../validation/IAutoMovieConstraintViolation";
+import type { IAutoMovieAttachJob } from "./IAutoMovieAttachJob";
 import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 
 /**
@@ -31,37 +31,41 @@ export namespace IAutoMovieCoupleObjects {
   export type IProps = {
     /** Validated `attachTo` jobs of this shot. */
     attachments: readonly IAutoMovieAttachJob[];
-  
+
     /** Staged persistent mounts; an `attachTo` for the same child replaces one. */
     mounts: readonly IAutoMovieStagedSet.IMount[];
-  
+
     /** The staged scene, whose nodes hold every parent's placement. */
     scene: IAutoMovieScene;
-  
+
     /**
      * Borrowed pose motions keyed by scene node. A missing parent's motion holds its rest pose; the table is not changed by coupling.
      */
     motions: Record<string, IAutoMovieMotion>;
-  
+
     /**
      * Synchronous borrowed rig lookup, stable for each node throughout the call. Null rejects a persistent mount; attachment jobs require a previously admitted nonnull answer. Exceptions propagate.
      */
     skeleton: (node: string) => IAutoMovieSkeleton | null;
-  
+
     /**
      * Synchronous per-parent clinical axis lookup. Missing callback or undefined answer uses HUMANOID_JOINT_AXES; returned records are borrowed and exceptions propagate.
      */
     jointAxes?: (
       node: string,
-    ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined;
-  
+    ) =>
+      | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
+      | undefined;
+
     /**
      * Synchronous per-parent rest-frame lookup matching the renderer. Missing callback or undefined answer uses the rig's own frames; records are borrowed only during baking and exceptions propagate.
      */
     restFrames?: (
       node: string,
-    ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined;
-  
+    ) =>
+      | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
+      | undefined;
+
     /**
      * Finite positive shot duration in seconds, admitted by performShot. Mounts span [0, duration]; explicit attachment ends are clipped to this boundary.
      */

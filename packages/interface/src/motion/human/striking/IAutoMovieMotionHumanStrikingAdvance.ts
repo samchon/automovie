@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionClock } from "../compose/IAutoMovieMotionClock";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionClock } from "../compose/IAutoMovieMotionClock";
 
 /**
  * The stroke of a held tool, shared by every blade and firearm action: the

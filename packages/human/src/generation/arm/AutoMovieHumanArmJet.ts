@@ -1,7 +1,8 @@
-import type { AutoMovieVector3Jet2, AutoMovieScalarJet2, AutoMovieVector3Tuple } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieScalarJet2,
+  AutoMovieVector3Jet2,
+  AutoMovieVector3Tuple,
+} from "@automovie/interface";
 
 /**
  * Second-order forward-mode jets for the arm's posed course
@@ -14,10 +15,6 @@ import type { AutoMovieVector3Jet2, AutoMovieScalarJet2, AutoMovieVector3Tuple }
  * scalar jets.
  */
 export namespace AutoMovieHumanArmJet {
-  
-
-  
-
   /** A constant. */
   export function c(x: number): AutoMovieScalarJet2 {
     return [x, 0, 0];
@@ -29,33 +26,60 @@ export namespace AutoMovieHumanArmJet {
   }
 
   /** Sum. */
-  export function add(a: AutoMovieScalarJet2, b: AutoMovieScalarJet2): AutoMovieScalarJet2 {
+  export function add(
+    a: AutoMovieScalarJet2,
+    b: AutoMovieScalarJet2,
+  ): AutoMovieScalarJet2 {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
   /** Difference. */
-  export function sub(a: AutoMovieScalarJet2, b: AutoMovieScalarJet2): AutoMovieScalarJet2 {
+  export function sub(
+    a: AutoMovieScalarJet2,
+    b: AutoMovieScalarJet2,
+  ): AutoMovieScalarJet2 {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
   /** A jet times a constant. */
-  export function scale(a: AutoMovieScalarJet2, k: number): AutoMovieScalarJet2 {
+  export function scale(
+    a: AutoMovieScalarJet2,
+    k: number,
+  ): AutoMovieScalarJet2 {
     return [a[0] * k, a[1] * k, a[2] * k];
   }
 
   /** Product: `(fg)'' = f''g + 2f'g' + fg''`. */
-  export function mul(a: AutoMovieScalarJet2, b: AutoMovieScalarJet2): AutoMovieScalarJet2 {
-    return [a[0] * b[0], a[1] * b[0] + a[0] * b[1], a[2] * b[0] + 2 * a[1] * b[1] + a[0] * b[2]];
+  export function mul(
+    a: AutoMovieScalarJet2,
+    b: AutoMovieScalarJet2,
+  ): AutoMovieScalarJet2 {
+    return [
+      a[0] * b[0],
+      a[1] * b[0] + a[0] * b[1],
+      a[2] * b[0] + 2 * a[1] * b[1] + a[0] * b[2],
+    ];
   }
 
   /** A smooth function of a jet, given the function's value and its first two derivatives at the jet's value: `[f, f1 a', f2 a'^2 + f1 a'']`. */
-  export function apply(a: AutoMovieScalarJet2, f: number, f1: number, f2: number): AutoMovieScalarJet2 {
+  export function apply(
+    a: AutoMovieScalarJet2,
+    f: number,
+    f1: number,
+    f2: number,
+  ): AutoMovieScalarJet2 {
     return [f, f1 * a[1], f2 * a[1] * a[1] + f1 * a[2]];
   }
 
   /** Quotient. */
-  export function div(a: AutoMovieScalarJet2, b: AutoMovieScalarJet2): AutoMovieScalarJet2 {
-    return mul(a, apply(b, 1 / b[0], -1 / (b[0] * b[0]), 2 / (b[0] * b[0] * b[0])));
+  export function div(
+    a: AutoMovieScalarJet2,
+    b: AutoMovieScalarJet2,
+  ): AutoMovieScalarJet2 {
+    return mul(
+      a,
+      apply(b, 1 / b[0], -1 / (b[0] * b[0]), 2 / (b[0] * b[0] * b[0])),
+    );
   }
 
   /** Square root. */
@@ -93,38 +117,63 @@ export namespace AutoMovieHumanArmJet {
   }
 
   /** Vector sum. */
-  export function vadd(a: AutoMovieVector3Jet2, b: AutoMovieVector3Jet2): AutoMovieVector3Jet2 {
+  export function vadd(
+    a: AutoMovieVector3Jet2,
+    b: AutoMovieVector3Jet2,
+  ): AutoMovieVector3Jet2 {
     return [add(a[0], b[0]), add(a[1], b[1]), add(a[2], b[2])];
   }
 
   /** Vector difference. */
-  export function vsub(a: AutoMovieVector3Jet2, b: AutoMovieVector3Jet2): AutoMovieVector3Jet2 {
+  export function vsub(
+    a: AutoMovieVector3Jet2,
+    b: AutoMovieVector3Jet2,
+  ): AutoMovieVector3Jet2 {
     return [sub(a[0], b[0]), sub(a[1], b[1]), sub(a[2], b[2])];
   }
 
   /** A vector jet times a scalar jet. */
-  export function vmul(a: AutoMovieVector3Jet2, s: AutoMovieScalarJet2): AutoMovieVector3Jet2 {
+  export function vmul(
+    a: AutoMovieVector3Jet2,
+    s: AutoMovieScalarJet2,
+  ): AutoMovieVector3Jet2 {
     return [mul(a[0], s), mul(a[1], s), mul(a[2], s)];
   }
 
   /** A constant vector times a scalar jet. */
-  export function cmul(a: Readonly<AutoMovieVector3Tuple>, s: AutoMovieScalarJet2): AutoMovieVector3Jet2 {
+  export function cmul(
+    a: Readonly<AutoMovieVector3Tuple>,
+    s: AutoMovieScalarJet2,
+  ): AutoMovieVector3Jet2 {
     return [scale(s, a[0]), scale(s, a[1]), scale(s, a[2])];
   }
 
   /** A vector jet times a constant. */
-  export function vscale(a: AutoMovieVector3Jet2, k: number): AutoMovieVector3Jet2 {
+  export function vscale(
+    a: AutoMovieVector3Jet2,
+    k: number,
+  ): AutoMovieVector3Jet2 {
     return [scale(a[0], k), scale(a[1], k), scale(a[2], k)];
   }
 
   /** Dot product. */
-  export function dot(a: AutoMovieVector3Jet2, b: AutoMovieVector3Jet2): AutoMovieScalarJet2 {
+  export function dot(
+    a: AutoMovieVector3Jet2,
+    b: AutoMovieVector3Jet2,
+  ): AutoMovieScalarJet2 {
     return add(add(mul(a[0], b[0]), mul(a[1], b[1])), mul(a[2], b[2]));
   }
 
   /** Cross product. */
-  export function cross(a: AutoMovieVector3Jet2, b: AutoMovieVector3Jet2): AutoMovieVector3Jet2 {
-    return [sub(mul(a[1], b[2]), mul(a[2], b[1])), sub(mul(a[2], b[0]), mul(a[0], b[2])), sub(mul(a[0], b[1]), mul(a[1], b[0]))];
+  export function cross(
+    a: AutoMovieVector3Jet2,
+    b: AutoMovieVector3Jet2,
+  ): AutoMovieVector3Jet2 {
+    return [
+      sub(mul(a[1], b[2]), mul(a[2], b[1])),
+      sub(mul(a[2], b[0]), mul(a[0], b[2])),
+      sub(mul(a[0], b[1]), mul(a[1], b[0])),
+    ];
   }
 
   /** The unit vector. */

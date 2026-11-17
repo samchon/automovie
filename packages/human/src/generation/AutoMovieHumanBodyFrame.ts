@@ -1,10 +1,11 @@
-import type { IAutoMovieHumanBodyFrame, IAutoMovieHumanBodyMeasures, IAutoMovieHumanLegPrior } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieHumanBodyFrame,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanLegPrior,
+} from "@automovie/interface";
 
 import { AutoMovieHumanBodyPlaces } from "./AutoMovieHumanBodyPlaces";
 import { AutoMovieHumanLegPrior } from "./AutoMovieHumanLegPrior";
-
 
 /**
  * Shared ankle-relative anatomical placement, before local curves or constraints.
@@ -15,8 +16,6 @@ import { AutoMovieHumanLegPrior } from "./AutoMovieHumanLegPrior";
  * it is not reconstructed from a completed soft-tissue trunk.
  */
 export namespace AutoMovieHumanBodyFrame {
-  
-
   /**
    * Retained nominal ankle-joint AP placement in the same world frame.
    * The old ankle regression is not a measured loop-centroid-to-bone map.

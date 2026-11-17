@@ -1,5 +1,3 @@
-import type { AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieMotionHumanBend, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   DEFAULT_JOINT_AXES,
   HUMANOID_REST_FRAME,
@@ -12,6 +10,17 @@ import {
   normalizeJointAxes,
   swingTwistRange,
 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointAxes,
+  IAutoMovieJointConstraint,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";

@@ -1,16 +1,23 @@
-import type { IAutoMovieMeshPlaneCut, IAutoMoviePlaneFrameConstruction, IAutoMovieRecoveryMeshIncidencePreparationOperation, IAutoMovieRecoveryOptions, IAutoMovieRecoveryResult, IAutoMovieRecoverySavedSection, IAutoMovieRecoverySavedSectionCutsBindingOperation, IAutoMovieRecoveryScalarIndex, IAutoMovieRecoverySlabObservation, IAutoMovieRecoverySlabs, IAutoMovieRecoverySlabsInput } from "@automovie/interface";
+import type {
+  IAutoMovieMeshPlaneCut,
+  IAutoMoviePlaneFrameConstruction,
+  IAutoMovieRecoveryMeshIncidencePreparationOperation,
+  IAutoMovieRecoveryOptions,
+  IAutoMovieRecoveryResult,
+  IAutoMovieRecoverySavedSection,
+  IAutoMovieRecoverySavedSectionCutsBindingOperation,
+  IAutoMovieRecoveryScalarIndex,
+  IAutoMovieRecoverySlabObservation,
+  IAutoMovieRecoverySlabs,
+  IAutoMovieRecoverySlabsInput,
+} from "@automovie/interface";
+
 import { RecoveryScalarIndex } from "../internal/RecoveryScalarIndex";
 import { bindRecoverySavedSectionCuts } from "../internal/bindRecoverySavedSectionCuts";
 import { cutExact } from "../internal/mesh-observations/cutExact";
 import { planeFrame } from "../internal/mesh-observations/planeFrame";
 import { observeRecoverySourceSlabs } from "../internal/observeRecoverySourceSlabs";
 import { prepareRecoveryMeshIncidence } from "../internal/prepareRecoveryMeshIncidence";
-
-
-
-
-
-
 
 /** Observe exact source slabs without reading, converting or fitting coefficients.
  * One prepared source/scalar chart recuts every saved endpoint plane and binds
@@ -49,38 +56,45 @@ export function observeAutoMovieRecoverySlabs(
   const cancelled: () => boolean = (): boolean => {
     const requested: boolean | undefined = probe?.();
     if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error("Cancellation callback must return a boolean synchronously");
+      throw new Error(
+        "Cancellation callback must return a boolean synchronously",
+      );
     cancellationRequested = requested === true;
     return cancellationRequested;
   };
   try {
     probe = options?.cancelled;
     if (probe !== undefined && typeof probe !== "function")
-      return { operator, status: "refused", diagnostics: ["Cancellation callback must be a function"] };
+      return {
+        operator,
+        status: "refused",
+        diagnostics: ["Cancellation callback must be a function"],
+      };
 
-  if (cancelled())
-    return {
-      operator,
-      status: "cancelled",
-      diagnostics: ["Cancelled before source slab observation"] };
-  if (
-    !valid(input) ||
-    !options ||
-    (options.onProgress !== undefined &&
-      typeof options.onProgress !== "function") ||
-    (options.onSourceSlab !== undefined &&
-      typeof options.onSourceSlab !== "function")
-  )
-    return {
-      operator,
-      status: "refused",
-      diagnostics: [
-        "Registered triangles, caller source/selection identities, complete saved endpoint publications, finite slab pairs and valid observers are required",
-      ] };
-  
+    if (cancelled())
+      return {
+        operator,
+        status: "cancelled",
+        diagnostics: ["Cancelled before source slab observation"],
+      };
+    if (
+      !valid(input) ||
+      !options ||
+      (options.onProgress !== undefined &&
+        typeof options.onProgress !== "function") ||
+      (options.onSourceSlab !== undefined &&
+        typeof options.onSourceSlab !== "function")
+    )
+      return {
+        operator,
+        status: "refused",
+        diagnostics: [
+          "Registered triangles, caller source/selection identities, complete saved endpoint publications, finite slab pairs and valid observers are required",
+        ],
+      };
+
     const checkpoint: () => void = (): void => {
-      if (cancelled())
-        throw new Error("Source slab observation cancelled");
+      if (cancelled()) throw new Error("Source slab observation cancelled");
     };
     const progress: (phase: string, done: number, total: number) => void = (
       phase: string,
@@ -91,11 +105,8 @@ export function observeAutoMovieRecoverySlabs(
       options.onProgress?.(phase, done, total);
       checkpoint();
     };
-    const frame: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> = planeFrame(
-      [0, 0, 0],
-      input.axis,
-      input.reference,
-    );
+    const frame: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> =
+      planeFrame([0, 0, 0], input.axis, input.reference);
     if (
       ![frame.n, frame.u, frame.v].every(
         (axis: [number, number, number]): boolean =>
@@ -105,12 +116,14 @@ export function observeAutoMovieRecoverySlabs(
       return {
         operator,
         status: "refused",
-        diagnostics: ["Source slab frame is unresolved"] };
+        diagnostics: ["Source slab frame is unresolved"],
+      };
     const physicalFrame: IAutoMovieRecoverySlabs["frame"] = {
       originMm: [...frame.origin],
       n: [...frame.n],
       u: [...frame.u],
-      v: [...frame.v] };
+      v: [...frame.v],
+    };
     for (const saved of input.savedSections)
       if (
         saved.sourceIdentity !== input.sourceIdentity ||
@@ -123,7 +136,8 @@ export function observeAutoMovieRecoverySlabs(
           status: "refused",
           diagnostics: [
             `Saved section ${saved.coordinateMm} has a different caller source, selection, exact-alias policy or physical frame`,
-          ] };
+          ],
+        };
     progress("source-slab-cuts", 0, input.savedSections.length);
     const prepared: ReturnType<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation> =
       prepareRecoveryMeshIncidence(input, input.verticesMm);
@@ -211,7 +225,8 @@ export function observeAutoMovieRecoverySlabs(
           options.onSourceSlab?.(structuredClone(record));
           checkpoint();
           progress("source-slabs", ++completed, input.slabPairs.length);
-        } });
+        },
+      });
     checkpoint();
     return {
       operator,
@@ -227,19 +242,22 @@ export function observeAutoMovieRecoverySlabs(
         callerBindingRequired: true,
         curveCoefficientsRead: false,
         sections,
-        slabs },
+        slabs,
+      },
       diagnostics: [
         "Caller source/selection/artifact identities were compared, not hashed; the caller owns byte and registration verification",
         "Raw contour ordinals, source face sets and admitted closure were verified; symbolic curve names do not verify coefficients, degree, phase, direction, fit error or transverse jets",
         "No coefficient was read or fitted; failed coefficient resume and generated-surface authorization remain unsupported",
-      ] };
+      ],
+    };
   } catch (failure: unknown) {
     return {
       operator,
       status: cancellationRequested ? "cancelled" : "failed",
       diagnostics: [
         failure instanceof Error ? failure.message : String(failure),
-      ] };
+      ],
+    };
   }
 }
 

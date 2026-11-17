@@ -1,5 +1,9 @@
-import type { IAutoMoviePhysicalHullFaces, IAutoMoviePhysicalProfile, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -123,7 +127,9 @@ const wires = (shape: IAutoMoviePhysicalProfile.IShape): IWires => {
   if (shape.kind === "hull") {
     const known: IWires | undefined = EDGES.get(shape.points);
     if (known !== undefined) return known;
-    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(shape.points);
+    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
+      shape.points,
+    );
     const index: Map<IAutoMovieVector3, number> = new Map();
     const seen: Set<string> = new Set();
     const segments: [IAutoMovieVector3, IAutoMovieVector3][] = [];

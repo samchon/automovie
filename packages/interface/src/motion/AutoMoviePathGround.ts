@@ -1,5 +1,3 @@
-
-
 /**
  * Ground elevation in metres for a walked path: a constant plane or a callback
  * from world XZ metres to world Y metres. followPathMotion ignores waypoint Y

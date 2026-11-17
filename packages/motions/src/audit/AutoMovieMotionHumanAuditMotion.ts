@@ -1,8 +1,7 @@
 import type { IAutoMovieMotionHumanAuditMotion as IAutoMovieMotionHumanAuditMotionContract } from "@automovie/interface";
 
-/** Companion types and readers of {@link IAutoMovieMotionHumanAuditMotion}. */
-export namespace IAutoMovieMotionHumanAuditMotion {
-
+/** Contact-window and sample-grid readers for the canonical motion-audit contract. */
+export namespace AutoMovieMotionHumanAuditMotion {
   /**
    * Every declared contact window of a person in film seconds: a window's
    * shares are of its action's own duration from the action's start, and the

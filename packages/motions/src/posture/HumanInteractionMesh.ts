@@ -1,3 +1,4 @@
+import { Vector3, tetrahedralizeAutoMovieDelaunay } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanInteractionMesh,
   IAutoMovieMotionHumanQuadraticProgram,
@@ -5,8 +6,6 @@ import type {
   IAutoMovieTetrahedralizeDelaunay,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import { Vector3, tetrahedralizeAutoMovieDelaunay } from "@automovie/engine";
 
 import { HumanBodyFitMerit } from "./HumanBodyFitMerit";
 import { HumanInteractionMeshLaplacian as Laplacian } from "./HumanInteractionMeshLaplacian";

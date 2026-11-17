@@ -1,10 +1,10 @@
-import type { IAutoMovieLoftRelief, IAutoMovieHumanBreastRelief, IAutoMovieHumanTrunkFeature } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieHumanBreastRelief,
+  IAutoMovieHumanTrunkFeature,
+  IAutoMovieLoftRelief,
+} from "@automovie/interface";
 
 import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
-
 
 /**
  * The breasts merged into the trunk: the left breast's dome sampled as a
@@ -15,24 +15,30 @@ import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
  * with the thorax is C2 by construction.
  */
 export namespace AutoMovieHumanBreastRelief {
-  
-
   /**
    * Both breasts' windows.
    *
    * @param input The dome, the base and the phase map.
    * @returns The left and the right window.
    */
-  export function create(input: IAutoMovieHumanBreastRelief.IInput): IAutoMovieLoftRelief[] {
+  export function create(
+    input: IAutoMovieHumanBreastRelief.IInput,
+  ): IAutoMovieLoftRelief[] {
     const dome: IAutoMovieHumanTrunkFeature = input.dome;
     const o: [number, number, number] = dome.frame.origin;
 
     // The footprint's stations: the window over it runs on across the vault
     // onto the shoulders' chain, held under the neck by the base's bounds.
-    const stations: [number, number] = [o[1] + dome.reach.v[0], o[1] + dome.reach.v[1]];
+    const stations: [number, number] = [
+      o[1] + dome.reach.v[0],
+      o[1] + dome.reach.v[1],
+    ];
 
     // The lateral reach in phases on the base: the front's phase rises with z.
-    const phases: [number, number] = [input.phaseOf(o[2] + dome.reach.u[0]), input.phaseOf(o[2] + dome.reach.u[1])];
+    const phases: [number, number] = [
+      input.phaseOf(o[2] + dome.reach.u[0]),
+      input.phaseOf(o[2] + dome.reach.u[1]),
+    ];
     const apex: [number, number] = [
       (o[1] - stations[0]) / (stations[1] - stations[0]),
       (input.phaseOf(o[2]) - phases[0]) / (phases[1] - phases[0]),
@@ -44,6 +50,9 @@ export namespace AutoMovieHumanBreastRelief {
       input.base,
     );
 
-    return [left, AutoMovieHumanTrunkReliefNet.mirror(left, "trunk.breast.right")];
+    return [
+      left,
+      AutoMovieHumanTrunkReliefNet.mirror(left, "trunk.breast.right"),
+    ];
   }
 }

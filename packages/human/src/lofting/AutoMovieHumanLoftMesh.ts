@@ -1,8 +1,9 @@
-import type { IAutoMovieLoftChain, AutoMovieVector3Tuple, IAutoMovieHumanLoftMesh } from "@automovie/interface";
-
-
-
 import { AutoMovieLoftChain } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanLoftMesh,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
 /**
  * Indexed triangle emission for lofted rings.
@@ -23,10 +24,6 @@ import { AutoMovieLoftChain } from "@automovie/engine";
  * viewer.
  */
 export namespace AutoMovieHumanLoftMesh {
-  
-
-  
-
   /** Empty buffers. */
   export function create(): IAutoMovieHumanLoftMesh.IContext {
     return { positions: [], indices: [], groups: [] };
@@ -37,29 +34,50 @@ export namespace AutoMovieHumanLoftMesh {
    * Fixed F1 ports retain the exact diagonal used by the original measured
    * contour capture, including the original pole fan orientation.
    */
-  export function sampled(chain: IAutoMovieLoftChain, stations: readonly number[], phases: number): IAutoMovieHumanLoftMesh.IContext {
+  export function sampled(
+    chain: IAutoMovieLoftChain,
+    stations: readonly number[],
+    phases: number,
+  ): IAutoMovieHumanLoftMesh.IContext {
     const mesh: IAutoMovieHumanLoftMesh.IContext = create();
-    const around: number[] = Array.from({ length: phases }, (_: unknown, k: number): number => (2 * Math.PI * k) / phases);
+    const around: number[] = Array.from(
+      { length: phases },
+      (_: unknown, k: number): number => (2 * Math.PI * k) / phases,
+    );
     for (const station of stations)
-      for (const p of AutoMovieLoftChain.ring(chain, station, around)) mesh.positions.push(p[0]!, p[1]!, p[2]!);
+      for (const p of AutoMovieLoftChain.ring(chain, station, around))
+        mesh.positions.push(p[0]!, p[1]!, p[2]!);
     for (let i: number = 0; i + 1 < stations.length; ++i)
       for (let k: number = 0; k < phases; ++k) {
         const a: number = i * phases + k;
         const c: number = i * phases + ((k + 1) % phases);
         mesh.indices.push(a, a + phases, c + phases, a, c + phases, c);
       }
-    fans([chain.pole, chain.opposite], stations.length, phases, mesh.positions, mesh.indices);
+    fans(
+      [chain.pole, chain.opposite],
+      stations.length,
+      phases,
+      mesh.positions,
+      mesh.indices,
+    );
     return mesh;
   }
 
   /** Append the original station-grid pole fans to the supplied mesh buffers. */
-  export function fans(caps: IAutoMovieHumanLoftMesh.FansCaps, rows: number, phases: number, positions: number[], indices: number[]): void {
+  export function fans(
+    caps: IAutoMovieHumanLoftMesh.FansCaps,
+    rows: number,
+    phases: number,
+    positions: number[],
+    indices: number[],
+  ): void {
     for (const terminal of caps) {
       if (terminal === undefined) continue;
       const row: number = terminal.end === "bottom" ? 0 : rows - 1;
       const apex: number = positions.length / 3;
       positions.push(...terminal.point);
-      for (let k: number = 0; k < phases; ++k) indices.push(apex, row * phases + k, row * phases + ((k + 1) % phases));
+      for (let k: number = 0; k < phases; ++k)
+        indices.push(apex, row * phases + k, row * phases + ((k + 1) % phases));
     }
   }
 
@@ -69,7 +87,10 @@ export namespace AutoMovieHumanLoftMesh {
    * Re-entering a name already used starts a new range under the same name;
    * `split` merges ranges by name.
    */
-  export function group(context: IAutoMovieHumanLoftMesh.IContext, name: string): void {
+  export function group(
+    context: IAutoMovieHumanLoftMesh.IContext,
+    name: string,
+  ): void {
     const last: { name: string; start: number } | undefined =
       context.groups[context.groups.length - 1];
 
@@ -91,20 +112,36 @@ export namespace AutoMovieHumanLoftMesh {
    * @param normals Unit normals of the whole mesh, from {@link normals}.
    * @param coordinates Loft coordinates of the whole mesh, three per vertex.
    */
-  export function split(context: IAutoMovieHumanLoftMesh.IContext, normals: readonly number[], coordinates: readonly number[]): IAutoMovieHumanLoftMesh.IPiece[] {
-    const pieces: Map<string, { piece: IAutoMovieHumanLoftMesh.IPiece; remap: Map<number, number> }> =
-      new Map();
+  export function split(
+    context: IAutoMovieHumanLoftMesh.IContext,
+    normals: readonly number[],
+    coordinates: readonly number[],
+  ): IAutoMovieHumanLoftMesh.IPiece[] {
+    const pieces: Map<
+      string,
+      { piece: IAutoMovieHumanLoftMesh.IPiece; remap: Map<number, number> }
+    > = new Map();
 
     context.groups.forEach(
       (g: { name: string; start: number }, k: number): void => {
         const end: number =
           context.groups[k + 1]?.start ?? context.indices.length;
 
-        let entry: { piece: IAutoMovieHumanLoftMesh.IPiece; remap: Map<number, number> } | undefined =
-          pieces.get(g.name);
+        let entry:
+          | {
+              piece: IAutoMovieHumanLoftMesh.IPiece;
+              remap: Map<number, number>;
+            }
+          | undefined = pieces.get(g.name);
         if (entry === undefined) {
           entry = {
-            piece: { name: g.name, positions: [], normals: [], indices: [], coordinates: [] },
+            piece: {
+              name: g.name,
+              positions: [],
+              normals: [],
+              indices: [],
+              coordinates: [],
+            },
             remap: new Map(),
           };
           pieces.set(g.name, entry);
@@ -138,7 +175,10 @@ export namespace AutoMovieHumanLoftMesh {
       },
     );
     return [...pieces.values()].map(
-      (e: { piece: IAutoMovieHumanLoftMesh.IPiece; remap: Map<number, number> }): IAutoMovieHumanLoftMesh.IPiece => e.piece,
+      (e: {
+        piece: IAutoMovieHumanLoftMesh.IPiece;
+        remap: Map<number, number>;
+      }): IAutoMovieHumanLoftMesh.IPiece => e.piece,
     );
   }
 

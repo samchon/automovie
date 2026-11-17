@@ -7,8 +7,7 @@
  * @evidence contracts/development/common.md#meaningful-documentation States optional callback ownership and the pre-work cancellation checkpoint.
  */
 export interface IAutoMovieFilePublicationOptions {
- 
- /** Synchronous cooperative cancellation query; absent means continue.
+  /** Synchronous cooperative cancellation query; absent means continue.
    * Return true to stop at the next existing checkpoint without publishing a value;
    * false continues. Throwing or returning a nonboolean value fails the operation.
    * The caller owns callback cost and captured state; it must not return a Promise.

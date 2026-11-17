@@ -1,6 +1,13 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanClimbLadder, IAutoMovieMotionHumanLadder, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Transform, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanClimbLadder,
+  IAutoMovieMotionHumanLadder,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { climbLadder } from "../../climbing/climbLadder";
@@ -42,7 +49,10 @@ export function climbCases(
   for (const id of bodies) {
     const who: FamilyCaseKit.IBody = FamilyCaseKit.body(id);
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
-    const params: IAutoMovieMotionHumanClimbLadder.IParams = { ladder: "ladder", rungs: 3 };
+    const params: IAutoMovieMotionHumanClimbLadder.IParams = {
+      ladder: "ladder",
+      rungs: 3,
+    };
     const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
       "climb",
       [{ subject: "a", body: who.body }],
@@ -50,8 +60,9 @@ export function climbCases(
       [ladderProp()],
     );
     const segment = performance.segments("a")[0]!;
-    const ladder: IAutoMovieMotionHumanLadder.ILadder = (segment.plan as IAutoMovieMotionHumanClimbLadder.IPlan)
-      .ladder;
+    const ladder: IAutoMovieMotionHumanLadder.ILadder = (
+      segment.plan as IAutoMovieMotionHumanClimbLadder.IPlan
+    ).ladder;
     const local = (p: IAutoMovieVector3): IAutoMovieVector3 =>
       HumanFrame.local(ladder.frame, p);
 
@@ -157,7 +168,12 @@ export function climbCases(
  */
 function ladderProp(): IAutoMovieMotionHumanProp {
   // Each rung's frame turns +Y to -Z, toward the climber.
-  const out: IAutoMovieQuaternion = { x: -Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 };
+  const out: IAutoMovieQuaternion = {
+    x: -Math.SQRT1_2,
+    y: 0,
+    z: 0,
+    w: Math.SQRT1_2,
+  };
   const affordances: IAutoMovieAffordance[] = Array.from(
     { length: 10 },
     (_: unknown, i: number): IAutoMovieAffordance => ({

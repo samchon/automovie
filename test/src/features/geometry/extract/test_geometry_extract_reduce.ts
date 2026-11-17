@@ -1,5 +1,5 @@
-import type { IAutoMovieMeshExtract } from "@automovie/interface";
 import { AutoMovieMeshExtract as X } from "@automovie/engine";
+import type { IAutoMovieMeshExtract } from "@automovie/interface";
 
 /** An independent cubic Hermite, written here from its factored basis functions. */
 function hermite(
@@ -22,7 +22,10 @@ function hermite(
 }
 
 /** The largest deviation of a dense run from its knots' spans, measured with the Hermite above. */
-function deviation(run: [number, number][], knots: IAutoMovieMeshExtract.IKnot[]): number {
+function deviation(
+  run: [number, number][],
+  knots: IAutoMovieMeshExtract.IKnot[],
+): number {
   let worst: number = 0;
   for (let k: number = 0; k + 1 < knots.length; ++k) {
     const a: IAutoMovieMeshExtract.IKnot = knots[k]!;
@@ -74,14 +77,19 @@ export function test_geometry_extract_reduce(): void {
       return [s, 100 * s ** 3];
     },
   );
-  const loose: { knots: IAutoMovieMeshExtract.IKnot[]; error: number } = X.reduce(cubic, 0.5);
+  const loose: { knots: IAutoMovieMeshExtract.IKnot[]; error: number } =
+    X.reduce(cubic, 0.5);
   if (!(deviation(cubic, loose.knots) <= 0.5))
     failures.push(
       `the reduced cubic deviates ${deviation(cubic, loose.knots)} mm`,
     );
   if (!(loose.knots[0]!.index === 0 && loose.knots.at(-1)!.index === 200))
     failures.push("the run's ends were removed");
-  if (!loose.knots.some((k: IAutoMovieMeshExtract.IKnot): boolean => Math.abs(k.s) <= 0.011))
+  if (
+    !loose.knots.some(
+      (k: IAutoMovieMeshExtract.IKnot): boolean => Math.abs(k.s) <= 0.011,
+    )
+  )
     failures.push("the cubic's inflection at 0 was removed");
   if (!(loose.knots.length <= 6))
     failures.push(`the cubic keeps ${loose.knots.length} knots at 0.5 mm`);
@@ -104,7 +112,12 @@ export function test_geometry_extract_reduce(): void {
     ["minimum", (3 * Math.PI) / 2],
     ["inflection", Math.PI],
   ] as const)
-    if (!wave.some((k: IAutoMovieMeshExtract.IKnot): boolean => Math.abs(k.s - at) <= 0.011))
+    if (
+      !wave.some(
+        (k: IAutoMovieMeshExtract.IKnot): boolean =>
+          Math.abs(k.s - at) <= 0.011,
+      )
+    )
       failures.push(`the sine's ${label} was removed`);
   if (!(deviation(sine, wave) <= 0.5))
     failures.push(`the reduced sine deviates ${deviation(sine, wave)}`);
@@ -117,19 +130,19 @@ export function test_geometry_extract_reduce(): void {
     (_: unknown, i: number): [number, number] => [i, i === 50 ? 20 : 0],
   );
   if (
-    !X.reduce(spiked, 0.5).knots.some((k: IAutoMovieMeshExtract.IKnot): boolean => k.index === 50)
+    !X.reduce(spiked, 0.5).knots.some(
+      (k: IAutoMovieMeshExtract.IKnot): boolean => k.index === 50,
+    )
   )
     failures.push(
       "the unexcluded spike sample is not kept (the run cannot hold it)",
     );
-  const cleaned: { knots: IAutoMovieMeshExtract.IKnot[]; error: number } = X.reduce(
-    spiked,
-    0.5,
-    [],
-    [50],
-  );
+  const cleaned: { knots: IAutoMovieMeshExtract.IKnot[]; error: number } =
+    X.reduce(spiked, 0.5, [], [50]);
   if (
-    cleaned.knots.some((k: IAutoMovieMeshExtract.IKnot): boolean => k.index === 50) ||
+    cleaned.knots.some(
+      (k: IAutoMovieMeshExtract.IKnot): boolean => k.index === 50,
+    ) ||
     !(cleaned.error <= 0.5) ||
     cleaned.knots.length !== 2
   )
@@ -163,7 +176,9 @@ export function test_geometry_extract_reduce(): void {
     failures.push(
       `the noisy sine keeps ${faceted.length} of 201 knots, deviation ${deviation(noisy, faceted)}`,
     );
-  if (!faceted.some((k: IAutoMovieMeshExtract.IKnot): boolean => k.value === top))
+  if (
+    !faceted.some((k: IAutoMovieMeshExtract.IKnot): boolean => k.value === top)
+  )
     failures.push("the noisy sine's highest sample was removed");
   // Crossings close together (a cut near a ring puts a diagonal crossing
   // beside a vertical one): the same noisy sine sampled every 0.25 mm, where

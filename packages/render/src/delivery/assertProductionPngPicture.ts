@@ -1,9 +1,8 @@
-import type { IAutoMovieAssertProductionPngPictureProps, IAutoMovieProductionPngPicture, IAutoMovieProductionPngProfile } from "@automovie/interface";
-
-
-
-
-
+import type {
+  IAutoMovieAssertProductionPngPictureProps,
+  IAutoMovieProductionPngPicture,
+  IAutoMovieProductionPngProfile,
+} from "@automovie/interface";
 
 /**
  * Refuse every difference between a role's PNG profile and the facts a PNG
@@ -23,7 +22,9 @@ import type { IAutoMovieAssertProductionPngPictureProps, IAutoMovieProductionPng
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call judges one parsed picture against one profile, and different delivered PNGs are not equivalent work.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the small comparison list exists during the call, and the function opens no file or task.
  */
-export const assertProductionPngPicture: (props: IAutoMovieAssertProductionPngPictureProps) => void = (props: IAutoMovieAssertProductionPngPictureProps): void => {
+export const assertProductionPngPicture: (
+  props: IAutoMovieAssertProductionPngPictureProps,
+) => void = (props: IAutoMovieAssertProductionPngPictureProps): void => {
   const expected: IAutoMovieProductionPngProfile = props.profile;
   const actual: IAutoMovieProductionPngPicture = props.actual;
   const entries: Array<[string, unknown, unknown]> = [

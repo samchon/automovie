@@ -1,5 +1,5 @@
-import type { IAutoMovieLoftRelief } from "@automovie/interface";
 import { AutoMovieLoftRelief } from "@automovie/engine";
+import type { IAutoMovieLoftRelief } from "@automovie/interface";
 
 import { FamilyConicProject as P } from "../../../reference-conics/FamilyConicProject";
 
@@ -25,8 +25,18 @@ import { FamilyConicProject as P } from "../../../reference-conics/FamilyConicPr
  */
 export function test_human_conic_project(): void {
   const failures: string[] = [];
-  const same = (label: string, got: readonly number[], want: readonly number[]): void => {
-    if (got.length !== want.length || got.some((x: number, i: number): boolean => x !== want[i])) failures.push(`${label}: ${JSON.stringify(got)} against ${JSON.stringify(want)}`);
+  const same = (
+    label: string,
+    got: readonly number[],
+    want: readonly number[],
+  ): void => {
+    if (
+      got.length !== want.length ||
+      got.some((x: number, i: number): boolean => x !== want[i])
+    )
+      failures.push(
+        `${label}: ${JSON.stringify(got)} against ${JSON.stringify(want)}`,
+      );
   };
   const refused = (label: string, call: () => unknown): void => {
     try {
@@ -36,36 +46,70 @@ export function test_human_conic_project(): void {
       // Refused, as it must be.
     }
   };
-  const made = (rows: number, columns: number, height: (a: number, b: number) => number): IAutoMovieLoftRelief => ({
+  const made = (
+    rows: number,
+    columns: number,
+    height: (a: number, b: number) => number,
+  ): IAutoMovieLoftRelief => ({
     name: "made",
     stations: [100, 190],
     phases: [-0.6, 0.6],
     axis: [-1, 0, 0],
     rows,
     columns,
-    heights: Array.from({ length: rows * columns }, (_: unknown, i: number): number => {
-      const [a, b]: [number, number] = [Math.floor(i / columns), i % columns];
-      return a < 3 || b < 3 || a >= rows - 3 || b >= columns - 3 ? 0 : height(a, b);
-    }),
+    heights: Array.from(
+      { length: rows * columns },
+      (_: unknown, i: number): number => {
+        const [a, b]: [number, number] = [Math.floor(i / columns), i % columns];
+        return a < 3 || b < 3 || a >= rows - 3 || b >= columns - 3
+          ? 0
+          : height(a, b);
+      },
+    ),
   });
   const ringed = (label: string, net: IAutoMovieLoftRelief): void => {
-    const ring: number[] = net.heights.filter((_: number, i: number): boolean => Math.floor(i / net.columns) < 3 || i % net.columns < 3 || Math.floor(i / net.columns) >= net.rows - 3 || i % net.columns >= net.columns - 3);
-    if (ring.some((h: number): boolean => h !== 0)) failures.push(label + ": an outer ring holds a height other than zero");
+    const ring: number[] = net.heights.filter(
+      (_: number, i: number): boolean =>
+        Math.floor(i / net.columns) < 3 ||
+        i % net.columns < 3 ||
+        Math.floor(i / net.columns) >= net.rows - 3 ||
+        i % net.columns >= net.columns - 3,
+    );
+    if (ring.some((h: number): boolean => h !== 0))
+      failures.push(label + ": an outer ring holds a height other than zero");
   };
 
   // 1. Onto its own grid a net is itself.
-  const height = (a: number, b: number): number => Math.round((1.37 * a - 0.81 * b + 0.25 * a * b) * 100) / 100;
+  const height = (a: number, b: number): number =>
+    Math.round((1.37 * a - 0.81 * b + 0.25 * a * b) * 100) / 100;
   const plain: IAutoMovieLoftRelief = made(10, 12, height);
   const own: IAutoMovieLoftRelief = P.project(plain, 10, 12, false, 2, 4);
   same("own grid", own.heights, plain.heights);
-  same("difference from itself and from its projection", [P.difference(plain, plain, 4).max, P.difference(plain, own, 4).max], [0, 0]);
+  same(
+    "difference from itself and from its projection",
+    [P.difference(plain, plain, 4).max, P.difference(plain, own, 4).max],
+    [0, 0],
+  );
 
   // 2. A mirrored net keeps its symmetry, on its own grid and on a coarser one.
-  const mirrored: IAutoMovieLoftRelief = made(10, 13, (a: number, b: number): number => Math.round((0.9 * a + 0.43 * Math.min(b, 12 - b) ** 2) * 100) / 100);
-  same("mirrored on its own grid", P.project(mirrored, 10, 13, true, 2, 4).heights, mirrored.heights);
+  const mirrored: IAutoMovieLoftRelief = made(
+    10,
+    13,
+    (a: number, b: number): number =>
+      Math.round((0.9 * a + 0.43 * Math.min(b, 12 - b) ** 2) * 100) / 100,
+  );
+  same(
+    "mirrored on its own grid",
+    P.project(mirrored, 10, 13, true, 2, 4).heights,
+    mirrored.heights,
+  );
   const coarse: IAutoMovieLoftRelief = P.project(mirrored, 8, 9, true, 2, 4);
-  if (!P.symmetric(coarse)) failures.push("a mirrored net's coarser projection is not its own mirror image");
-  if (coarse.heights.every((h: number): boolean => h === 0)) failures.push("a mirrored net's coarser projection is empty");
+  if (!P.symmetric(coarse))
+    failures.push(
+      "a mirrored net's coarser projection is not its own mirror image",
+    );
+  if (coarse.heights.every((h: number): boolean => h === 0))
+    failures.push("a mirrored net's coarser projection is empty");
 
   // 3. The zero rings stay zero.
   ringed("own grid", own);
@@ -74,24 +118,86 @@ export function test_human_conic_project(): void {
 
   // 4. The mean of each mirror pair.
   const meant: IAutoMovieLoftRelief = P.symmetrised(plain, 3);
-  same("symmetrised", meant.heights, made(10, 12, (a: number, b: number): number => Math.round(((height(a, b) + height(a, 11 - b)) / 2) * 1000) / 1000).heights);
-  if (!P.symmetric(meant)) failures.push("a symmetrised net is not its own mirror image");
+  same(
+    "symmetrised",
+    meant.heights,
+    made(
+      10,
+      12,
+      (a: number, b: number): number =>
+        Math.round(((height(a, b) + height(a, 11 - b)) / 2) * 1000) / 1000,
+    ).heights,
+  );
+  if (!P.symmetric(meant))
+    failures.push("a symmetrised net is not its own mirror image");
 
   // 5. Refusals.
-  refused("six rows", (): IAutoMovieLoftRelief => P.project(plain, 6, 12, false, 2, 4));
-  refused("an even column count with symmetry", (): IAutoMovieLoftRelief => P.project(mirrored, 10, 12, true, 2, 4));
+  refused(
+    "six rows",
+    (): IAutoMovieLoftRelief => P.project(plain, 6, 12, false, 2, 4),
+  );
+  refused(
+    "an even column count with symmetry",
+    (): IAutoMovieLoftRelief => P.project(mirrored, 10, 12, true, 2, 4),
+  );
 
   // 6. A net fitted to samples of a surface: its own surface read by the engine at uneven stations covering part of the window's
   // stations and at uneven phases, so the fit returns the net exactly; the mirrored net with its symmetry held likewise; and none
   // where a free row has no sample under its span.
-  const read = (net: IAutoMovieLoftRelief, stations: number[], phases: number[]): number[][] => stations.map((s: number): number[] => phases.map((t: number): number => AutoMovieLoftRelief.height(net, s, t)[0]));
-  const uneven = (from: number, to: number, count: number): number[] => Array.from({ length: count }, (_: unknown, k: number): number => from + (to - from) * ((k + 0.5) / count) ** 1.3);
-  const window = { name: "made", stations: [100, 190] as [number, number], phases: [-0.6, 0.6] as [number, number], axis: [-1, 0, 0] as [number, number, number] };
-  const [stations, phases]: number[][] = [uneven(100, 190, 61), uneven(-0.6, 0.6, 53)];
-  same("fitted to its own surface", P.fitSamples(window, 10, 12, false, 2, { stations: stations!, phases: phases!, heights: read(plain, stations!, phases!) })?.heights ?? [], plain.heights);
-  same("mirrored, fitted to its own surface", P.fitSamples(window, 10, 13, true, 2, { stations: stations!, phases: phases!, heights: read(mirrored, stations!, phases!) })?.heights ?? [], mirrored.heights);
+  const read = (
+    net: IAutoMovieLoftRelief,
+    stations: number[],
+    phases: number[],
+  ): number[][] =>
+    stations.map((s: number): number[] =>
+      phases.map(
+        (t: number): number => AutoMovieLoftRelief.height(net, s, t)[0],
+      ),
+    );
+  const uneven = (from: number, to: number, count: number): number[] =>
+    Array.from(
+      { length: count },
+      (_: unknown, k: number): number =>
+        from + (to - from) * ((k + 0.5) / count) ** 1.3,
+    );
+  const window = {
+    name: "made",
+    stations: [100, 190] as [number, number],
+    phases: [-0.6, 0.6] as [number, number],
+    axis: [-1, 0, 0] as [number, number, number],
+  };
+  const [stations, phases]: number[][] = [
+    uneven(100, 190, 61),
+    uneven(-0.6, 0.6, 53),
+  ];
+  same(
+    "fitted to its own surface",
+    P.fitSamples(window, 10, 12, false, 2, {
+      stations: stations!,
+      phases: phases!,
+      heights: read(plain, stations!, phases!),
+    })?.heights ?? [],
+    plain.heights,
+  );
+  same(
+    "mirrored, fitted to its own surface",
+    P.fitSamples(window, 10, 13, true, 2, {
+      stations: stations!,
+      phases: phases!,
+      heights: read(mirrored, stations!, phases!),
+    })?.heights ?? [],
+    mirrored.heights,
+  );
   const low: number[] = stations!.filter((s: number): boolean => s < 130);
-  if (P.fitSamples(window, 10, 12, false, 2, { stations: low, phases: phases!, heights: read(plain, low, phases!) }) !== null) failures.push("a fit whose upper rows have no sample is not refused");
+  if (
+    P.fitSamples(window, 10, 12, false, 2, {
+      stations: low,
+      phases: phases!,
+      heights: read(plain, low, phases!),
+    }) !== null
+  )
+    failures.push("a fit whose upper rows have no sample is not refused");
 
-  if (failures.length > 0) throw new Error("conic project:\n" + failures.join("\n"));
+  if (failures.length > 0)
+    throw new Error("conic project:\n" + failures.join("\n"));
 }

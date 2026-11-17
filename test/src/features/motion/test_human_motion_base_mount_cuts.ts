@@ -1,6 +1,21 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature } from "@automovie/interface";
 import { createSeat } from "@automovie/archetypes";
-import { HumanChain, HumanFrame, HumanObject, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFrame,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -40,8 +55,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_base_mount_cuts(): void {
   const complaints: string[] = [];
-  const where: IAutoMovieMotionHumanObject.Placement = { at: { x: 0, y: 0, z: -0.6 }, yaw: 0 };
-  const seats: readonly (readonly [string, IAutoMovieMotionHumanSeated.ISeat])[] = [
+  const where: IAutoMovieMotionHumanObject.Placement = {
+    at: { x: 0, y: 0, z: -0.6 },
+    yaw: 0,
+  };
+  const seats: readonly (readonly [
+    string,
+    IAutoMovieMotionHumanSeated.ISeat,
+  ])[] = [
     [
       "the bar stool",
       HumanObject.seat(createSeat({ kind: "barStool" }), where),
@@ -87,12 +108,8 @@ export function test_human_motion_base_mount_cuts(): void {
           );
           return;
         }
-        const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-          performance,
-          "a",
-          body,
-          seat.yaw,
-        );
+        const reader: IAutoMovieMotionHumanSignature.IReader =
+          HumanSignature.of(performance, "a", body, seat.yaw);
         const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] =
           performance.segments("a");
         const end: number = segments[segments.length - 1]!.end;

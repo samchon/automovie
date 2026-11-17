@@ -1,22 +1,21 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanArmJointWindows, IAutoMovieHumanArmBones, IAutoMovieHumanArmBreadth, IAutoMovieHumanArmFrame, IAutoMovieHumanArmHandControls, IAutoMovieHumanArmWalk, IAutoMovieHumanSiteControls, IAutoMovieHumanSiteViewPart, IAutoMovieHumanWalkPart } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanArmBones,
+  IAutoMovieHumanArmBreadth,
+  IAutoMovieHumanArmFrame,
+  IAutoMovieHumanArmHandControls,
+  IAutoMovieHumanArmJointWindows,
+  IAutoMovieHumanArmWalk,
+  IAutoMovieHumanSiteControls,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanWalkPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSiteControls } from "../limb/AutoMovieHumanSiteControls";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
-
-
 import { AutoMovieHumanArmBreadth } from "./AutoMovieHumanArmBreadth";
 import { AutoMovieHumanArmFrame } from "./AutoMovieHumanArmFrame";
 import { AutoMovieHumanArmHandControls } from "./AutoMovieHumanArmHandControls";
-
 
 /**
  * One arm with its palm as one walk over the humerus, the forearm and the
@@ -49,15 +48,6 @@ import { AutoMovieHumanArmHandControls } from "./AutoMovieHumanArmHandControls";
  * normal plane; this is not a fixed angle or a new projection at every site.
  */
 export namespace AutoMovieHumanArmWalk {
-  
-
-  
-
-  
-
-  
-  
-
   /** The sites, from the shoulder to the knuckles. */
   /** The published sites, from the shoulder to the knuckles; a caller may give fewer while a law is owed. */
   export const SITES: readonly string[] = [
@@ -149,7 +139,9 @@ export namespace AutoMovieHumanArmWalk {
       handControls?.connect(source.input) ?? source.input;
 
     /** Original callers lacking a hand chart retain their direct whole-source controls. */
-    const shared: (input: IAutoMovieHumanSiteViewPart.IInput) => IAutoMovieHumanArmWalk.IPrepared = (
+    const shared: (
+      input: IAutoMovieHumanSiteViewPart.IInput,
+    ) => IAutoMovieHumanArmWalk.IPrepared = (
       input: IAutoMovieHumanSiteViewPart.IInput,
     ): IAutoMovieHumanArmWalk.IPrepared => {
       const prepared: IAutoMovieHumanSiteControls.IOutput =

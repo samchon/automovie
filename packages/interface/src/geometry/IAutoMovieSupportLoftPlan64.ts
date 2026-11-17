@@ -24,21 +24,23 @@ export interface IAutoMovieSupportLoftPlan64 {
     curves: Map<
       string,
       {
-      /** Two ascending zero-based plane registry ordinals whose support equations define this boundary curve. */
-      pair: [number, number];
-      /** Signed determinant of the two unit XZ normal rows; dimensionless and fixed throughout the polynomial span. */
-      determinant: number;
-      /** Four cubic Bernstein X-coordinate coefficients in metres over normalized local span phase [0,1]. */
-      x: number[];
-      /** Four cubic Bernstein Z-coordinate coefficients in metres over the same local span phase. */
-      z: number[] }
+        /** Two ascending zero-based plane registry ordinals whose support equations define this boundary curve. */
+        pair: [number, number];
+        /** Signed determinant of the two unit XZ normal rows; dimensionless and fixed throughout the polynomial span. */
+        determinant: number;
+        /** Four cubic Bernstein X-coordinate coefficients in metres over normalized local span phase [0,1]. */
+        x: number[];
+        /** Four cubic Bernstein Z-coordinate coefficients in metres over the same local span phase. */
+        z: number[];
+      }
     >;
     /** Ordered normalized event phases including 0 and 1, with all feasible triple-plane incidences assigned to each numerical station. */
     stations: {
-    /** Normalized local span coordinate in [0,1]; nearby numerical roots share a station only after their plane equations pass the same feasibility bound. */
-    phase: number;
-    /** Ascending triples of plane registry ordinals incident at this station; endpoints initially have an empty list and may acquire event incidences. */
-    triples: [number, number, number][] }[];
+      /** Normalized local span coordinate in [0,1]; nearby numerical roots share a station only after their plane equations pass the same feasibility bound. */
+      phase: number;
+      /** Ascending triples of plane registry ordinals incident at this station; endpoints initially have an empty list and may acquire event incidences. */
+      triples: [number, number, number][];
+    }[];
     /** Plane-index triples whose entire cubic determinant vanishes, representing continuous incidence rather than isolated event roots. */
     continuities: [number, number, number][];
     /** Admitted open intervals between adjacent station entries, each with one ordered active polygon and planned face subdivisions. */

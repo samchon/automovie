@@ -1,4 +1,12 @@
-import { type IAutoMovieDrawingDesignIndex, IAutoMovieBuiltBoundary, IAutoMovieBuiltOpening, IAutoMovieDrawingFrame, IAutoMovieDrawingOpeningMark, IAutoMovieDrawingPoint, IAutoMoviePlanarPoint } from "@automovie/interface";
+import {
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltOpening,
+  type IAutoMovieDrawingDesignIndex,
+  IAutoMovieDrawingFrame,
+  IAutoMovieDrawingOpeningMark,
+  IAutoMovieDrawingPoint,
+  IAutoMoviePlanarPoint,
+} from "@automovie/interface";
 
 import { autoMovieBoundaryFacePoint } from "./autoMovieBoundaryFacePoint";
 import { autoMovieOpeningNominalExtent } from "./autoMovieOpeningNominalExtent";

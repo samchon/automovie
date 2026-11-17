@@ -1,6 +1,5 @@
 import type { IAutoMovieSubdivisionCage } from "@automovie/interface";
 
-
 /**
  * Undirected cage edges in order of first appearance walking faces and
  * corners, each as `[a, b]` in the direction of its first corner; the order the

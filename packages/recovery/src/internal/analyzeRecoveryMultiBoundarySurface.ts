@@ -1,6 +1,7 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation,
+} from "@automovie/interface";
 
 /**
  * Analyze coherent private surface incidence and complete boundary cycles.

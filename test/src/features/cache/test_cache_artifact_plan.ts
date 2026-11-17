@@ -1,5 +1,5 @@
-import type { IAutoMovieArtifactPlan } from "@automovie/interface";
 import { planAutoMovieArtifacts } from "@automovie/engine";
+import type { IAutoMovieArtifactPlan } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

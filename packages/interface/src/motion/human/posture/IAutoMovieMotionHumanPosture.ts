@@ -1,7 +1,7 @@
-import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
-import type { IAutoMovieMotionHumanColliders } from "./IAutoMovieMotionHumanColliders";
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieMotionHumanColliders } from "./IAutoMovieMotionHumanColliders";
 
 /**
  * One instant of a performer as an action law writes it: where the body

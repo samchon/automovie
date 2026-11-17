@@ -1,6 +1,20 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanKnockdown, IAutoMovieMotionHumanLean, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRoot, IAutoMovieMotionHumanStrikingContact, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, physicalShapeBounds } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanKnockdown,
+  IAutoMovieMotionHumanLean,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRoot,
+  IAutoMovieMotionHumanStrikingContact,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
@@ -80,7 +94,10 @@ export namespace knockdown {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function rest(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture): number {
+  export function rest(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ): number {
     const bones = StrikingBody.trunk(body, {
       ...posture,
       root: { ...posture.root, y: 0 },

@@ -1,5 +1,8 @@
-import { type IAutoMovieComputeModelRestExtentY, IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieComputeModelRestExtentY,
+  IAutoMovieModel,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { computeModelRestExtent } from "./computeModelRestExtent";
 

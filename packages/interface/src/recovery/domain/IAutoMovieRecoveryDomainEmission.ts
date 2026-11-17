@@ -6,19 +6,15 @@
  * @evidence contracts/development/common.md#meaningful-documentation States triangle-ordinal units and that a null patch means unavailable attribution.
  */
 export interface IAutoMovieRecoveryDomainEmission {
- 
- /** Identity of the output model part. */
+  /** Identity of the output model part. */
   part: string;
 
- 
- /** First triangle ordinal within the named part. */
+  /** First triangle ordinal within the named part. */
   firstTriangle: number;
 
- 
- /** Number of consecutive triangles in this range. */
+  /** Number of consecutive triangles in this range. */
   triangleCount: number;
 
- 
- /** Named analytic patch, or null when unavailable. */
+  /** Named analytic patch, or null when unavailable. */
   patch: string | null;
 }

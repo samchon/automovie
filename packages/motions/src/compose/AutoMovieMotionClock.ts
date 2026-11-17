@@ -1,6 +1,8 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionEvent } from "@automovie/interface";
-
 import { minimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionEvent,
+} from "@automovie/interface";
 
 /**
  * The clock of one action: its duration and its named instants, and the only
@@ -42,7 +44,10 @@ export namespace AutoMovieMotionClock {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `minimumJerk`, the engine's one owner of the minimum-jerk profile.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains one map and one sorted array of the instants given, for the clock's own lifetime.
    */
-  export function of(duration: number, instants: readonly IAutoMovieMotionClock.IInstant[]): IAutoMovieMotionClock.IClock {
+  export function of(
+    duration: number,
+    instants: readonly IAutoMovieMotionClock.IInstant[],
+  ): IAutoMovieMotionClock.IClock {
     if (!(duration > 0)) throw new Error("A clock lasts a positive time");
     const times: Map<string, number> = new Map([
       [START, 0],
@@ -59,12 +64,19 @@ export namespace AutoMovieMotionClock {
     }
     const sorted: IAutoMovieMotionClock.IInstant[] = instants
       .map(
-        (i: IAutoMovieMotionClock.IInstant): IAutoMovieMotionClock.IInstant => ({
+        (
+          i: IAutoMovieMotionClock.IInstant,
+        ): IAutoMovieMotionClock.IInstant => ({
           name: i.name,
           seconds: times.get(i.name)!,
         }),
       )
-      .sort((a: IAutoMovieMotionClock.IInstant, b: IAutoMovieMotionClock.IInstant): number => a.seconds - b.seconds);
+      .sort(
+        (
+          a: IAutoMovieMotionClock.IInstant,
+          b: IAutoMovieMotionClock.IInstant,
+        ): number => a.seconds - b.seconds,
+      );
     const at = (name: string): number => {
       const seconds: number | undefined = times.get(name);
       if (seconds === undefined)
@@ -121,7 +133,9 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One pass over a handful of phases, with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing of its own; the clock it returns is `of`'s.
    */
-  export function sequence(phases: readonly IAutoMovieMotionClock.IPhase[]): IAutoMovieMotionClock.IClock {
+  export function sequence(
+    phases: readonly IAutoMovieMotionClock.IPhase[],
+  ): IAutoMovieMotionClock.IClock {
     const instants: IAutoMovieMotionClock.IInstant[] = [];
     let seconds: number = 0;
     for (const phase of phases) {
@@ -164,7 +178,9 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One pass over six lengths, with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing of its own; the clock it returns is `of`'s.
    */
-  export function phrase(durations: IAutoMovieMotionClock.IPhrase): IAutoMovieMotionClock.IClock {
+  export function phrase(
+    durations: IAutoMovieMotionClock.IPhrase,
+  ): IAutoMovieMotionClock.IClock {
     const lengths: readonly number[] = [
       durations.prepare,
       durations.wait ?? 0,
@@ -202,16 +218,23 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function repeat(span: readonly IAutoMovieMotionClock.IPhase[], count: number): IAutoMovieMotionClock.IPhase[] {
+  export function repeat(
+    span: readonly IAutoMovieMotionClock.IPhase[],
+    count: number,
+  ): IAutoMovieMotionClock.IPhase[] {
     if (!(Number.isInteger(count) && count > 0))
       throw new Error("A movement repeats a positive whole number of times");
-    return Array.from({ length: count }, (_: unknown, i: number): IAutoMovieMotionClock.IPhase[] =>
-      span.map(
-        (phase: IAutoMovieMotionClock.IPhase): IAutoMovieMotionClock.IPhase => ({
-          name: `${phase.name}${i + 1}`,
-          seconds: phase.seconds,
-        }),
-      ),
+    return Array.from(
+      { length: count },
+      (_: unknown, i: number): IAutoMovieMotionClock.IPhase[] =>
+        span.map(
+          (
+            phase: IAutoMovieMotionClock.IPhase,
+          ): IAutoMovieMotionClock.IPhase => ({
+            name: `${phase.name}${i + 1}`,
+            seconds: phase.seconds,
+          }),
+        ),
     ).flat();
   }
 

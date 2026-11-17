@@ -1,6 +1,9 @@
-import type { IAutoMovieMotionHumanFrame, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * A performer's own horizontal frame: an origin on the floor and a heading.
@@ -12,7 +15,6 @@ import { Quaternion } from "@automovie/engine";
  * `(sin h, 0, cos h)`.
  */
 export namespace HumanFrame {
-
   /**
    * A local point in world metres.
    *

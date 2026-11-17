@@ -1,8 +1,9 @@
-import type { IAutoMovieHumanShoulderLine, IAutoMovieHumanShoulderOutline, IAutoMovieHumanTrunkNeckSeat, IAutoMovieHumanTrunkSolve } from "@automovie/interface";
-
-
-
-
+import type {
+  IAutoMovieHumanShoulderLine,
+  IAutoMovieHumanShoulderOutline,
+  IAutoMovieHumanTrunkNeckSeat,
+  IAutoMovieHumanTrunkSolve,
+} from "@automovie/interface";
 
 import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
 
@@ -24,8 +25,6 @@ import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
  * jets.
  */
 export namespace AutoMovieHumanShoulderLine {
-  
-
   /**
    * The line.
    *
@@ -40,8 +39,16 @@ export namespace AutoMovieHumanShoulderLine {
     // The slope the line leaves the shoulder point with, so that its mean is
     // the chord's while its bend starts from zero there.
     const chord: number = (neck.z - shoulder.z) / (neck.y - shoulder.y);
-    const low: IAutoMovieHumanTrunkSolve.IJet = { value: shoulder.z, slope: (3 * chord - neck.slope) / 2, curvature: 0 };
-    const high: IAutoMovieHumanTrunkSolve.IJet = { value: neck.z, slope: neck.slope, curvature: neck.curvature };
+    const low: IAutoMovieHumanTrunkSolve.IJet = {
+      value: shoulder.z,
+      slope: (3 * chord - neck.slope) / 2,
+      curvature: 0,
+    };
+    const high: IAutoMovieHumanTrunkSolve.IJet = {
+      value: neck.z,
+      slope: neck.slope,
+      curvature: neck.curvature,
+    };
 
     return {
       from: shoulder.y,

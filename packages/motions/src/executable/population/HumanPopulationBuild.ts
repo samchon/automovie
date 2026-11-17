@@ -1,6 +1,8 @@
-import type { IAutoMovieHumanBodyAnatomy, IAutoMovieHumanParameters } from "@automovie/interface";
-
 import { AutoMovieHumanBodyAnatomy, AutoMovieHumanSex } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyAnatomy,
+  IAutoMovieHumanParameters,
+} from "@automovie/interface";
 
 import { HumanPopulationAccess } from "./HumanPopulationAccess";
 import { HumanPopulationAnchors } from "./HumanPopulationAnchors";

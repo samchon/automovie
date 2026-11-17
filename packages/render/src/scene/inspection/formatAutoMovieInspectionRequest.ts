@@ -1,9 +1,7 @@
-import type { IAutoMovieSectionPlane, IAutoMovieInspectionRequest } from "@automovie/interface";
-
-
-
-
-
+import type {
+  IAutoMovieInspectionRequest,
+  IAutoMovieSectionPlane,
+} from "@automovie/interface";
 
 import { parseAutoMovieInspectionRequest } from "./parseAutoMovieInspectionRequest.js";
 

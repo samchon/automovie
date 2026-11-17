@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionHumanClimbStairs, IAutoMovieMotionHumanClimbStairsFlight, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanClimbStairs,
+  IAutoMovieMotionHumanClimbStairsFlight,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { HumanFoot } from "../../posture/HumanFoot";
@@ -48,17 +53,15 @@ export function stairsCases(
       ["up-step-by-step", { count: 4, direction: "up", pattern: "stepByStep" }],
     ];
     for (const [label, params] of flights) {
-      const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
-        "stairs",
-        [{ subject: "a", body: who.body }],
-        HumanChain.subject("a").act("climbStairs", params),
-      );
+      const performance: IAutoMovieMotionHumanPerformance =
+        FamilyCaseKit.perform(
+          "stairs",
+          [{ subject: "a", body: who.body }],
+          HumanChain.subject("a").act("climbStairs", params),
+        );
       const segment = performance.segments("a")[0]!;
-      const flight: IAutoMovieMotionHumanClimbStairsFlight.IFlight = climbStairs.flight(
-        who.body,
-        segment.plan.posture(0),
-        params,
-      );
+      const flight: IAutoMovieMotionHumanClimbStairsFlight.IFlight =
+        climbStairs.flight(who.body, segment.plan.posture(0), params);
       const planted = (side: "left" | "right", t: number): boolean =>
         segment.plan.contacts.some(
           (c) =>

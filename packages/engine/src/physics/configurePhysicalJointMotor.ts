@@ -1,5 +1,10 @@
-import type { IAutoMovieConfigurePhysicalJointMotor, IAutoMoviePhysicalJointMotorCommand, IAutoMoviePhysicalProfile, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieConfigurePhysicalJointMotor,
+  IAutoMoviePhysicalJointMotorCommand,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import type { ImpulseJoint, World } from "@dimforge/rapier3d-compat";
 
 import { isPhysicalNativeNumber } from "./isPhysicalNativeNumber";
@@ -27,10 +32,11 @@ export function configurePhysicalJointMotor(input: {
   strength: number;
   feedForward?: IAutoMovieVector3;
 }): IAutoMovieConfigurePhysicalJointMotor.IResult {
-  const command: IAutoMoviePhysicalJointMotorCommand.IOutput = physicalJointMotorCommand({
-    ...input,
-    timestep: input.world.timestep,
-  });
+  const command: IAutoMoviePhysicalJointMotorCommand.IOutput =
+    physicalJointMotorCommand({
+      ...input,
+      timestep: input.world.timestep,
+    });
   for (const [index, axis] of command.axes.entries()) {
     if (
       ![axis.speed, axis.damping, input.joint.axes[index]!.maximumTorque].every(

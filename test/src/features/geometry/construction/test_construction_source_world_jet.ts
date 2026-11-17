@@ -1,5 +1,19 @@
-import type { IAutoMovieLoftViewSource, IAutoMovieSolidMesh, IAutoMovieSolidSurface, IAutoMovieViewLoft, IAutoMovieViewPart } from "@automovie/interface";
-import { AutoMovieLoftAdmissionError, AutoMovieLoftViewSource, AutoMovieLoftViewWorldJet, AutoMovieSolidChain, AutoMovieSolidMesh, AutoMovieViewLoft, AutoMovieViewSection } from "@automovie/engine";
+import {
+  AutoMovieLoftAdmissionError,
+  AutoMovieLoftViewSource,
+  AutoMovieLoftViewWorldJet,
+  AutoMovieSolidChain,
+  AutoMovieSolidMesh,
+  AutoMovieViewLoft,
+  AutoMovieViewSection,
+} from "@automovie/engine";
+import type {
+  IAutoMovieLoftViewSource,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

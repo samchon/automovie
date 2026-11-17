@@ -1,5 +1,3 @@
-
-
 /**
  * The admission threshold and work budget of
  * `refineAutoMovieQuadraticProgram`.

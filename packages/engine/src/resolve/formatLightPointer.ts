@@ -1,4 +1,5 @@
 import type { AutoMovieLightProperty } from "@automovie/interface";
+
 /** The canonical pointer addressing one light's property.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Encode the light-id segment by RFC-6901 escaping tilde before slash and append the closed property name under /lights; parseLightPointer validates the same canonical spelling.

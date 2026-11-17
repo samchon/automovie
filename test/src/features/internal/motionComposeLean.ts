@@ -1,7 +1,19 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanLean, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
-import { AutoMovieMotionHumanLean, HumanBalance, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLean,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanLean,
+  HumanBalance,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 
 import { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -79,11 +91,8 @@ export function motionComposeLean(name: motionHumanBody.Name): void {
     const head: IAutoMovieVector3 = at(standing, "head");
 
     // 1. A tilt about the hips.
-    const pitched: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.pivot(
-      body,
-      standing,
-      { pitch: 20, roll: 0 },
-    );
+    const pitched: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanLean.pivot(body, standing, { pitch: 20, roll: 0 });
     const rolled: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.pivot(
       body,
       standing,
@@ -222,13 +231,17 @@ export function motionComposeLean(name: motionHumanBody.Name): void {
       [swayed.limbs, swayed.joints],
       [standing.limbs, standing.joints],
     );
-    const turnedSway: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.sway({
-      body,
-      from: 0,
-      to: 1,
-      angles: (): IAutoMovieMotionHumanLean.IAngles => ({ pitch: 0, roll: 0 }),
-      shift: (): IAutoMovieVector3 => ({ x: 0, y: 0, z: 0.05 }),
-    }).write(stand.posture(body, { x: 0, y: 0, z: 0 }, 90), 0.5);
+    const turnedSway: IAutoMovieMotionHumanPosture =
+      AutoMovieMotionHumanLean.sway({
+        body,
+        from: 0,
+        to: 1,
+        angles: (): IAutoMovieMotionHumanLean.IAngles => ({
+          pitch: 0,
+          roll: 0,
+        }),
+        shift: (): IAutoMovieVector3 => ({ x: 0, y: 0, z: 0.05 }),
+      }).write(stand.posture(body, { x: 0, y: 0, z: 0 }, 90), 0.5);
     all.check(
       `${name}: a sway's shift is in the performer's frame`,
       Math.abs(
@@ -265,9 +278,18 @@ export function motionComposeLean(name: motionHumanBody.Name): void {
     const back = (posture: IAutoMovieMotionHumanPosture): number =>
       hips.z - at(posture, "hips").z;
     for (const peak of [15, 40, 70] as const) {
-      const full: IAutoMovieMotionHumanPosture = bow(peak, 1).write(standing, 1);
-      const half: IAutoMovieMotionHumanPosture = bow(peak, 0.5).write(standing, 1);
-      const none: IAutoMovieMotionHumanPosture = bow(peak, 0).write(standing, 1);
+      const full: IAutoMovieMotionHumanPosture = bow(peak, 1).write(
+        standing,
+        1,
+      );
+      const half: IAutoMovieMotionHumanPosture = bow(peak, 0.5).write(
+        standing,
+        1,
+      );
+      const none: IAutoMovieMotionHumanPosture = bow(peak, 0).write(
+        standing,
+        1,
+      );
       const bare: number = HumanBalance.offset(
         body,
         AutoMovieMotionHumanLean.tip(body, standing, peak, 0),

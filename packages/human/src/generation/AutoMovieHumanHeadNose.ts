@@ -1,12 +1,13 @@
-import type { IAutoMovieHumanHeadNose, IAutoMovieHumanHeadNoseFrame } from "@automovie/interface";
-
+import type {
+  IAutoMovieHumanHeadNose,
+  IAutoMovieHumanHeadNoseFrame,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadNoseAla } from "./AutoMovieHumanHeadNoseAla";
 import { AutoMovieHumanHeadNoseBase } from "./AutoMovieHumanHeadNoseBase";
 import { AutoMovieHumanHeadNoseBridge } from "./AutoMovieHumanHeadNoseBridge";
 import { AutoMovieHumanHeadNoseFrame } from "./AutoMovieHumanHeadNoseFrame";
 import { AutoMovieHumanHeadNoseTip } from "./AutoMovieHumanHeadNoseTip";
-
 
 /**
  * The nose assembled from its pieces: a column of the dorsum's ridge and the
@@ -21,8 +22,6 @@ import { AutoMovieHumanHeadNoseTip } from "./AutoMovieHumanHeadNoseTip";
  * base surface in millimetres, zero off the nose.
  */
 export namespace AutoMovieHumanHeadNose {
-  
-
   /**
    * Height of the nose at a point of the base surface.
    *
@@ -31,22 +30,40 @@ export namespace AutoMovieHumanHeadNose {
    * @param a Distance of the point from the midline, `|z|`.
    * @returns Height in millimetres.
    */
-  export function height(input: IAutoMovieHumanHeadNose.IInput, y: number, a: number): number {
-    const frame: IAutoMovieHumanHeadNoseFrame.IFrame = AutoMovieHumanHeadNoseFrame.at(
-      input.plan,
-      input.face,
-      y,
-    );
+  export function height(
+    input: IAutoMovieHumanHeadNose.IInput,
+    y: number,
+    a: number,
+  ): number {
+    const frame: IAutoMovieHumanHeadNoseFrame.IFrame =
+      AutoMovieHumanHeadNoseFrame.at(input.plan, input.face, y);
     const ridge: number = AutoMovieHumanHeadNoseBridge.ridge(
       frame,
       input.compiled,
       input.face.profileKnots,
       a,
     );
-    const ball: number = AutoMovieHumanHeadNoseTip.ball(frame, input.face.tipBall, a);
-    const ala: number = AutoMovieHumanHeadNoseAla.lobes(frame, input.face.ala, y, a);
-    const body: number = Math.hypot((ridge ** NOSE + ball ** NOSE) ** (1 / NOSE), ala);
-    const floor: number = AutoMovieHumanHeadNoseBase.floor(input.plan, input.face, y, a);
+    const ball: number = AutoMovieHumanHeadNoseTip.ball(
+      frame,
+      input.face.tipBall,
+      a,
+    );
+    const ala: number = AutoMovieHumanHeadNoseAla.lobes(
+      frame,
+      input.face.ala,
+      y,
+      a,
+    );
+    const body: number = Math.hypot(
+      (ridge ** NOSE + ball ** NOSE) ** (1 / NOSE),
+      ala,
+    );
+    const floor: number = AutoMovieHumanHeadNoseBase.floor(
+      input.plan,
+      input.face,
+      y,
+      a,
+    );
     const p: number = input.face.underside[1]!;
     return body > 0 && floor > 0 ? (body ** -p + floor ** -p) ** (-1 / p) : 0;
   }

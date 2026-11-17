@@ -1,4 +1,5 @@
 import type { IAutoMovieCubicOval64 } from "@automovie/interface";
+
 /** Four-quarter affine cubic-oval sizing in consistent caller units. The quarter-circle handle ratio is 4/3*tan(pi/8); independent anatomical admissibility remains with consumers.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Input/output lengths use the same arbitrary unit; the inverse retains its strict positive feasibility premise and fixed iteration count.

@@ -1,7 +1,9 @@
-import type { IAutoMovieLoftRelief, IAutoMovieHumanLegReliefWindow } from "@automovie/interface";
-
-
 import { AutoMovieLoftRelief } from "@automovie/engine";
+import type {
+  IAutoMovieHumanLegReliefWindow,
+  IAutoMovieLoftRelief,
+} from "@automovie/interface";
+
 import { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
 
 /**
@@ -19,10 +21,6 @@ import { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
  * that points into the leg).
  */
 export namespace AutoMovieHumanLegReliefWindow {
-  
-
-  
-
   /** Controls across each direction of a window. */
   export const COUNT: number = 15;
 
@@ -43,10 +41,22 @@ export namespace AutoMovieHumanLegReliefWindow {
    * @param input The joints and the local radius.
    * @returns The relief on the chart (station in mm, phase in radians) with its net scaled so the evaluated height at the centre is `height` radii.
    */
-  export function create(window: IAutoMovieHumanLegReliefWindow.IWindow, input: IAutoMovieHumanLegReliefWindow.IInput): IAutoMovieLoftRelief {
-    if (!(input.radius > 0)) throw new Error(`The ${window.name} window needs a positive local radius`);
+  export function create(
+    window: IAutoMovieHumanLegReliefWindow.IWindow,
+    input: IAutoMovieHumanLegReliefWindow.IInput,
+  ): IAutoMovieLoftRelief {
+    if (!(input.radius > 0))
+      throw new Error(
+        `The ${window.name} window needs a positive local radius`,
+      );
     const n: number = COUNT;
-    const centre: number = input.at ?? AutoMovieHumanLegStations.heightAt(input.bones, window.segment, window.share);
+    const centre: number =
+      input.at ??
+      AutoMovieHumanLegStations.heightAt(
+        input.bones,
+        window.segment,
+        window.share,
+      );
     const half: number = window.halfStation * input.radius;
     const stations: [number, number] = [centre - half, centre + half];
     const first: number = wrap(window.angle - window.halfAngle);
@@ -58,13 +68,30 @@ export namespace AutoMovieHumanLegReliefWindow {
     for (let i: number = 0; i < n; i++)
       for (let j: number = 0; j < n; j++) {
         const inner: boolean = i >= 3 && i <= n - 4 && j >= 3 && j <= n - 4;
-        heights.push(inner ? bump((i - 1) / (n - 3), 0.5) * bump((j - 1) / (n - 3), 0.5) : 0);
+        heights.push(
+          inner
+            ? bump((i - 1) / (n - 3), 0.5) * bump((j - 1) / (n - 3), 0.5)
+            : 0,
+        );
       }
-    const unit: IAutoMovieLoftRelief = { name: window.name, stations, phases, axis: window.axis, rows: n, columns: n, heights };
+    const unit: IAutoMovieLoftRelief = {
+      name: window.name,
+      stations,
+      phases,
+      axis: window.axis,
+      rows: n,
+      columns: n,
+      heights,
+    };
 
     // Scale the net so the evaluated height at the centre is the declared one.
-    const reached: number = AutoMovieLoftRelief.height(unit, centre, first + window.halfAngle)[0];
-    const gain: number = reached > 0 ? (window.height * input.radius) / reached : 0;
+    const reached: number = AutoMovieLoftRelief.height(
+      unit,
+      centre,
+      first + window.halfAngle,
+    )[0];
+    const gain: number =
+      reached > 0 ? (window.height * input.radius) / reached : 0;
     return { ...unit, heights: heights.map((h: number): number => h * gain) };
   }
 }

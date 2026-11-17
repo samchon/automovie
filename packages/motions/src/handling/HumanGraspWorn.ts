@@ -1,7 +1,17 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanWorn } from "../dressing/HumanWorn";
@@ -40,7 +50,10 @@ export namespace HumanGraspWorn {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The map lives for the call.
    */
   export function key(props: {
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "start">;
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "start"
+    >;
     held: IAutoMovieMotionHumanActionContext.IProp;
     tip: IAutoMovieAffordance;
     at: AutoMovieHumanoidRegion;

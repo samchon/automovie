@@ -1,5 +1,20 @@
-import { type IAutoMovieGeometryMeasurementInput, type IAutoMovieDeliveryCrop, type IAutoMovieFormationBounds, type IAutoMovieFormationLodSelection, type IAutoMovieFormationSlotPlacement, type IAutoMovieGeometryActorReader, type IAutoMovieGeometryQuery, type IAutoMovieProjectToNdc, type IAutoMovieReadGeometryGround, type IAutoMovieResolvedCamera, type IAutoMovieSampledFormationMotion, type IAutoMovieTransform, IAutoMovieCompiledShotSource, IAutoMovieGeometryResult, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieCompiledShotSource,
+  type IAutoMovieDeliveryCrop,
+  type IAutoMovieFormationBounds,
+  type IAutoMovieFormationLodSelection,
+  type IAutoMovieFormationSlotPlacement,
+  type IAutoMovieGeometryActorReader,
+  type IAutoMovieGeometryMeasurementInput,
+  type IAutoMovieGeometryQuery,
+  IAutoMovieGeometryResult,
+  type IAutoMovieProjectToNdc,
+  type IAutoMovieReadGeometryGround,
+  type IAutoMovieResolvedCamera,
+  type IAutoMovieSampledFormationMotion,
+  type IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { composeFormationHeroTransform } from "./composeFormationHeroTransform";
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
@@ -122,8 +137,11 @@ export function measureAutoMovieGeometryFormation(
       `Formation sample time ${sampledTime} is outside current shot "${selectedShot}". Choose a finite time from 0 through ${compiled.shot.duration}.`,
     );
 
-  const sampledMotion: IAutoMovieSampledFormationMotion =
-    sampleFormationMotion(compiled.formationMotions, formation.id, sampledTime);
+  const sampledMotion: IAutoMovieSampledFormationMotion = sampleFormationMotion(
+    compiled.formationMotions,
+    formation.id,
+    sampledTime,
+  );
 
   const transformPoint: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
     point: IAutoMovieVector3,
@@ -176,13 +194,12 @@ export function measureAutoMovieGeometryFormation(
     },
   );
 
-  const bounds: IAutoMovieFormationBounds =
-    transformFormationBounds(
-      runtime.bounds,
-      runtime.anchor,
-      sampledMotion,
-      runtime.facingDeg,
-    );
+  const bounds: IAutoMovieFormationBounds = transformFormationBounds(
+    runtime.bounds,
+    runtime.anchor,
+    sampledMotion,
+    runtime.facingDeg,
+  );
 
   const centroid: IAutoMovieVector3 = transformPoint(runtime.centroid);
 
@@ -237,8 +254,9 @@ export function measureAutoMovieGeometryFormation(
   const aspect: number =
     production.frameFormat.width / production.frameFormat.height;
 
-  const crop: IAutoMovieDeliveryCrop =
-    resolveAutoMovieDeliveryCrop(production.frameFormat.crop);
+  const crop: IAutoMovieDeliveryCrop = resolveAutoMovieDeliveryCrop(
+    production.frameFormat.crop,
+  );
 
   const chunkMeasurements: {
     distance: number;
@@ -336,13 +354,12 @@ export function measureAutoMovieGeometryFormation(
         culled += chunk.anonymousCount;
         return;
       }
-      const lod: IAutoMovieFormationLodSelection["lod"] =
-        selectFormationLod({
-          lod: runtime.lod,
-          distance: measurement.distance,
-          projectedPixels: measurement.projectedPixels,
-          previous: null,
-        }).lod;
+      const lod: IAutoMovieFormationLodSelection["lod"] = selectFormationLod({
+        lod: runtime.lod,
+        distance: measurement.distance,
+        projectedPixels: measurement.projectedPixels,
+        previous: null,
+      }).lod;
       tierCounts[lod.tier] += chunk.anonymousCount;
     },
   );
@@ -367,14 +384,13 @@ export function measureAutoMovieGeometryFormation(
         sampledTime,
         found.model.skeleton,
       );
-      const formed: IAutoMovieTransform =
-        composeFormationHeroTransform(
-          hero.transform,
-          source.nodeTransform,
-          runtime.anchor,
-          sampledMotion,
-          runtime.facingDeg,
-        );
+      const formed: IAutoMovieTransform = composeFormationHeroTransform(
+        hero.transform,
+        source.nodeTransform,
+        runtime.anchor,
+        sampledMotion,
+        runtime.facingDeg,
+      );
       const point: IAutoMovieVector3 =
         source.poseRoot === null
           ? formed.translation

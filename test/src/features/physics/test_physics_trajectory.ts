@@ -1,6 +1,14 @@
-import { type IAutoMovieProjectile, IAutoMovieTrack, IAutoMovieVector3 } from "@automovie/interface";
-import { Quaternion, projectileTrajectory, sampleClip, solveBallisticLaunch } from "@automovie/engine";
-
+import {
+  Quaternion,
+  projectileTrajectory,
+  sampleClip,
+  solveBallisticLaunch,
+} from "@automovie/engine";
+import {
+  type IAutoMovieProjectile,
+  IAutoMovieTrack,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../internal/predicates";

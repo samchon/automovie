@@ -1,4 +1,15 @@
-import type { IAutoMovieValidateModel, IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieBone, IAutoMovieMaterial, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieValidation } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
+  IAutoMovieBone,
+  IAutoMovieMaterial,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieValidateModel,
+  IAutoMovieValidation,
+  IAutoMovieViolationCollector,
+} from "@automovie/interface";
+
 /**
  * Assemble the model validation result in stable diagnostic order. IDs and
  * references precede parts, rigs, body/profile/affordance metadata and materials.
@@ -9,7 +20,6 @@ import type { IAutoMovieValidateModel, IAutoMovieViolationCollector, AutoMovieHu
  * Moving a leaf must preserve predicate arithmetic, paths and ordering because
  * downstream correction rounds present these diagnostics to the author.
  */
-
 
 import { admitAutoMovieBicubicAtlas } from "../geometry/admitAutoMovieBicubicAtlas";
 import { validateJointAxesBasis } from "../kinematics/validateJointAxesBasis";
@@ -46,7 +56,11 @@ import { validateUniqueValues } from "./validateUniqueValues";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Leaf validators and texture slot enumeration are reused within this current model request.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned report owns rows; temporary maps/sets release and no model loader, host task or geometry cache remains.
  */
-export const validateModel: (props: IAutoMovieValidateModel.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateModel.IProps): IAutoMovieValidation => {
+export const validateModel: (
+  props: IAutoMovieValidateModel.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateModel.IProps,
+): IAutoMovieValidation => {
   const path: string = "$input";
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const { model }: { model: IAutoMovieModel } = props;

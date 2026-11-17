@@ -8,19 +8,15 @@ import type { IAutoMovieRecoveryMapPose } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Members distinguish dimensionless qualification ratios from the unknown-scale translation.
  */
 export interface IAutoMovieRecoveryResectionDesign {
- 
- /** Proper row-major world-to-camera pose in the existing map gauge. */
+  /** Proper row-major world-to-camera pose in the existing map gauge. */
   pose: IAutoMovieRecoveryMapPose;
 
- 
- /** Eleventh to largest singular value of the original projective design. */
+  /** Eleventh to largest singular value of the original projective design. */
   designRatio: number;
 
- 
- /** Twelfth to eleventh singular value of the same original design. */
+  /** Twelfth to eleventh singular value of the same original design. */
   nullRatio: number;
 
- 
- /** Relative Frobenius discrepancy from the scaled proper rotation. */
+  /** Relative Frobenius discrepancy from the scaled proper rotation. */
   projectionError: number;
 }

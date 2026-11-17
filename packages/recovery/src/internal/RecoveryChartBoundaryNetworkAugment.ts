@@ -1,5 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieRecoveryChartBoundaryNetworkAugment, IAutoMovieRecoveryChartBoundaryNetworkRegistry } from "@automovie/interface";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryChartBoundaryNetworkAugment,
+  IAutoMovieRecoveryChartBoundaryNetworkRegistry,
+} from "@automovie/interface";
 
 type Cut = {
   key: string;
@@ -31,10 +34,17 @@ export function RecoveryChartBoundaryNetworkAugment(
     diagnostics,
     normal,
     indexed,
-    blend }: ReturnType<IAutoMovieRecoveryChartBoundaryNetworkRegistry.Operation> = context;
+    blend,
+  }: ReturnType<IAutoMovieRecoveryChartBoundaryNetworkRegistry.Operation> =
+    context;
   let {
-    maximumPointChange }: ReturnType<IAutoMovieRecoveryChartBoundaryNetworkRegistry.Operation> = context;
-  const coherent: (n: Readonly<AutoMovieVector3Tuple>, before: Readonly<AutoMovieVector3Tuple>) => boolean = (
+    maximumPointChange,
+  }: ReturnType<IAutoMovieRecoveryChartBoundaryNetworkRegistry.Operation> =
+    context;
+  const coherent: (
+    n: Readonly<AutoMovieVector3Tuple>,
+    before: Readonly<AutoMovieVector3Tuple>,
+  ) => boolean = (
     n: Readonly<AutoMovieVector3Tuple>,
     before: Readonly<AutoMovieVector3Tuple>,
   ): boolean => {

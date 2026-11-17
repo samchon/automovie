@@ -1,12 +1,12 @@
-import type { IAutoMovieInstanceSetDesign } from "./IAutoMovieInstanceSetDesign";
 import type { IAutoMovieModel } from "../model/IAutoMovieModel";
+import type { IAutoMovieInstanceSetDesign } from "./IAutoMovieInstanceSetDesign";
 import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /** Data and callback contracts shared by the MaterializeCompiledInstanceSet operations. */
 export namespace IAutoMovieMaterializeCompiledInstanceSet {
   /**
    * Compile one world instance set into its compact runtime without expanding it.
-   * 
+   *
    * The record keeps the placement and variation laws, the route snapshot a
    * route layout follows, one bounds and centroid per chunk of
    * {@link AUTOMOVIE_INSTANCE_CHUNK_SIZE} slots, the representation tiers and
@@ -14,7 +14,7 @@ export namespace IAutoMovieMaterializeCompiledInstanceSet {
    * a digest of every other field. A declared prototype table is compiled with
    * the base group's default first, which is the choice list every member is
    * regenerated against afterwards.
-   * 
+   *
    * Bounds are measured by regenerating each slot through {@link instanceSlot},
    * so a member whose seeded variation is non-finite, or whose route is missing
    * or has no length, refuses compilation instead of producing a set no consumer

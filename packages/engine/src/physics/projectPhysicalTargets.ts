@@ -1,4 +1,8 @@
-import type { IAutoMoviePhysicalProfile, IAutoMovieProjectPhysicalTargets } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMovieProjectPhysicalTargets,
+} from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
@@ -23,61 +27,77 @@ export function projectPhysicalTargets(
   profile: IAutoMoviePhysicalProfile,
   authored: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
 ): IAutoMovieProjectPhysicalTargets.IResult {
-  const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> = Object.create(null);
+  const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+    Object.create(null);
   const children: Set<string> = new Set(
-    profile.joints.map((joint: IAutoMoviePhysicalProfile.IJoint): string => joint.child),
+    profile.joints.map(
+      (joint: IAutoMoviePhysicalProfile.IJoint): string => joint.child,
+    ),
   );
   for (const segment of profile.segments)
     if (!children.has(segment.bone))
       targets[segment.bone] = structuredClone(authored[segment.bone]!);
-  const pending: Set<IAutoMoviePhysicalProfile.IJoint> = new Set(profile.joints);
+  const pending: Set<IAutoMoviePhysicalProfile.IJoint> = new Set(
+    profile.joints,
+  );
   let maximumTranslation: number = 0;
   let maximumRotation: number = 0;
   while (pending.size) {
     const before: number = pending.size;
     for (const joint of pending) {
-      const parent: IAutoMoviePhysicalProfile.ITransform | undefined = targets[joint.parent];
+      const parent: IAutoMoviePhysicalProfile.ITransform | undefined =
+        targets[joint.parent];
       if (!parent) continue;
-      const originalParent: IAutoMoviePhysicalProfile.ITransform = authored[joint.parent]!;
-      const originalChild: IAutoMoviePhysicalProfile.ITransform = authored[joint.child]!;
+      const originalParent: IAutoMoviePhysicalProfile.ITransform =
+        authored[joint.parent]!;
+      const originalChild: IAutoMoviePhysicalProfile.ITransform =
+        authored[joint.child]!;
       if (!originalParent || !originalChild)
         throw new Error(`Missing physical target at ${joint.id}`);
-      const original: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-        Quaternion.inverse(
-          Quaternion.multiply(
-            originalParent.rotation,
-            joint.parentFrame.rotation,
-          ),
-        ),
-        Quaternion.multiply(originalChild.rotation, joint.childFrame.rotation),
-      );
-      const relative: IAutoMoviePhysicalProfile.ITransform["rotation"] = projectPhysicalJointRotation(
-        joint,
-        original,
-      );
-      const rotation: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
+      const original: IAutoMoviePhysicalProfile.ITransform["rotation"] =
         Quaternion.multiply(
-          Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
-          relative,
-        ),
-        Quaternion.inverse(joint.childFrame.rotation),
-      );
-      const position: IAutoMoviePhysicalProfile.ITransform["position"] = Vector3.subtract(
-        Vector3.add(
-          parent.position,
-          Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
-        ),
-        Quaternion.rotateVector(rotation, joint.childFrame.position),
-      );
+          Quaternion.inverse(
+            Quaternion.multiply(
+              originalParent.rotation,
+              joint.parentFrame.rotation,
+            ),
+          ),
+          Quaternion.multiply(
+            originalChild.rotation,
+            joint.childFrame.rotation,
+          ),
+        );
+      const relative: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+        projectPhysicalJointRotation(joint, original);
+      const rotation: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+        Quaternion.multiply(
+          Quaternion.multiply(
+            Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
+            relative,
+          ),
+          Quaternion.inverse(joint.childFrame.rotation),
+        );
+      const position: IAutoMoviePhysicalProfile.ITransform["position"] =
+        Vector3.subtract(
+          Vector3.add(
+            parent.position,
+            Quaternion.rotateVector(
+              parent.rotation,
+              joint.parentFrame.position,
+            ),
+          ),
+          Quaternion.rotateVector(rotation, joint.childFrame.position),
+        );
       targets[joint.child] = { position, rotation };
       maximumTranslation = Math.max(
         maximumTranslation,
         Vector3.length(Vector3.subtract(position, originalChild.position)),
       );
-      const delta: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-        Quaternion.inverse(originalChild.rotation),
-        rotation,
-      );
+      const delta: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+        Quaternion.multiply(
+          Quaternion.inverse(originalChild.rotation),
+          rotation,
+        );
       maximumRotation = Math.max(
         maximumRotation,
         2 *

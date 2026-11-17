@@ -69,7 +69,13 @@ export function test_human_motion_core_chain_synced(): void {
   for (const [what, run] of [
     ["sync", () => empty().sync({ of: "strike" })],
     ["until", () => empty().until({ share: 0.5 })],
-    ["over", () => empty().over((u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => u)],
+    [
+      "over",
+      () =>
+        empty().over(
+          (u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain => u,
+        ),
+    ],
   ] as const)
     expect(`${what} on an empty chain`, message(run), "append one first");
   TestValidator.equals(

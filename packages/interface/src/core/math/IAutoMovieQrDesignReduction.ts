@@ -1,5 +1,3 @@
-
-
 /**
  * Orthogonally compressed least-squares objective in unchanged variables.
  * For every x, ||A*x-b||^2 equals ||rows*x-right||^2 plus the squared

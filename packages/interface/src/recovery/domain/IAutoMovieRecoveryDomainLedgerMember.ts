@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryDomainAddress, IAutoMovieRecoveryDomainEmission } from "../../index";
+import type {
+  IAutoMovieRecoveryDomainAddress,
+  IAutoMovieRecoveryDomainEmission,
+} from "../../index";
 
 /** One declared reconstruction occurrence and its observed processing state.
  * Null stage values mean unpublished observations, not a failed or skipped stage.
@@ -10,12 +13,10 @@ import type { IAutoMovieRecoveryDomainAddress, IAutoMovieRecoveryDomainEmission 
  * @evidence contracts/development/common.md#meaningful-documentation States saved-address scope, coefficient names, null stage meanings and delegated ownership.
  */
 export interface IAutoMovieRecoveryDomainLedgerMember {
- 
- /** Deterministic kind and original saved ordinal; never a source-mesh address. */
+  /** Deterministic kind and original saved ordinal; never a source-mesh address. */
   id: string;
 
- 
- /** The representation owner of this planned occurrence. */
+  /** The representation owner of this planned occurrence. */
   kind:
     | "closed-group"
     | "tensor-family"
@@ -23,31 +24,24 @@ export interface IAutoMovieRecoveryDomainLedgerMember {
     | "open-course"
     | "unassigned-boundary";
 
- 
- /** Original interval/group address, when this is a closed occurrence. */
+  /** Original interval/group address, when this is a closed occurrence. */
   address: IAutoMovieRecoveryDomainAddress | null;
 
- 
- /** Saved coefficient identities involved in this occurrence. */
+  /** Saved coefficient identities involved in this occurrence. */
   curves: string[];
 
- 
- /** Numeric generation was observed, skipped by declared policy, or unknown. */
+  /** Numeric generation was observed, skipped by declared policy, or unknown. */
   attempted: boolean | null;
 
- 
- /** Actual owner admission, explicit rejection, or unpublished admission state. */
+  /** Actual owner admission, explicit rejection, or unpublished admission state. */
   admitted: boolean | null;
 
- 
- /** Separate owner carrying actual output ranges for a delegated group. */
+  /** Separate owner carrying actual output ranges for a delegated group. */
   delegatedTo: string | null;
 
- 
- /** Actual published ranges only; empty does not fabricate a zero-face success. */
+  /** Actual published ranges only; empty does not fabricate a zero-face success. */
   emitted: IAutoMovieRecoveryDomainEmission[];
 
- 
- /** Local reasons, retaining ambiguity rather than assigning another member's failure. */
+  /** Local reasons, retaining ambiguity rather than assigning another member's failure. */
   diagnostics: string[];
 }

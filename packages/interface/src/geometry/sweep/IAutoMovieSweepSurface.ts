@@ -1,8 +1,8 @@
+import type { IAutoMovieVector3 } from "../IAutoMovieVector3";
 import type { IAutoMovieSweep } from "./IAutoMovieSweep";
 import type { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
 import type { IAutoMovieSweepPath } from "./IAutoMovieSweepPath";
 import type { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
-import type { IAutoMovieVector3 } from "../IAutoMovieVector3";
 
 /**
  * A sweep compiled for evaluation, from `compileAutoMovieSweep`.
@@ -45,7 +45,10 @@ export interface IAutoMovieSweepSurface {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The surface retains the shared feature coefficients.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; the compiled surface owns the coefficients.
    */
-  feature(index: number, t: number): {
+  feature(
+    index: number,
+    t: number,
+  ): {
     /** Spine-domain coordinate on the fitted feature course; the cubic can overshoot authored u knots. */
     u: number;
 

@@ -1,7 +1,27 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
-import { Quaternion, Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
-
-import { HumanBodyFit, HumanChain, HumanHand, HumanPerformance, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanBodyFitTypes,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanBodyFit,
+  HumanChain,
+  HumanHand,
+  HumanPerformance,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -57,7 +77,10 @@ export function test_human_motion_body_fit_goals(): void {
       Math.PI
     );
   };
-  const centre: (body: IAutoMovieMotionHumanBody, bones: Bones) => IAutoMovieVector3 = (
+  const centre: (
+    body: IAutoMovieMotionHumanBody,
+    bones: Bones,
+  ) => IAutoMovieVector3 = (
     body: IAutoMovieMotionHumanBody,
     bones: Bones,
   ): IAutoMovieVector3 =>
@@ -65,11 +88,16 @@ export function test_human_motion_body_fit_goals(): void {
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile),
       bones,
     );
-  const bonesOf: (body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture) => Bones = (
+  const bonesOf: (
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ) => Bones = (
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
   ): Bones => poseBones(body, resolveHumanPosture(body, posture));
-  const elbow: NonNullable<IAutoMovieMotionHumanBodyFitTypes.IProps["angles"]>[number] = {
+  const elbow: NonNullable<
+    IAutoMovieMotionHumanBodyFitTypes.IProps["angles"]
+  >[number] = {
     points: [
       [{ bone: "leftUpperArm" }],
       [{ bone: "leftLowerArm" }],
@@ -180,12 +208,13 @@ export function test_human_motion_body_fit_goals(): void {
 
     // 4. A rigid root translation cannot change an elbow angle.
     if (name === "m-average") {
-      const interval: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit({
-        body,
-        posture: entry,
-        variables: [{ kind: "angle", bone: "leftLowerArm", axis: 0 }],
-        angles: [{ ...elbow, degrees: [110, 130] }],
-      });
+      const interval: IAutoMovieMotionHumanBodyFitTypes.IResult =
+        HumanBodyFit.fit({
+          body,
+          posture: entry,
+          variables: [{ kind: "angle", bone: "leftLowerArm", axis: 0 }],
+          angles: [{ ...elbow, degrees: [110, 130] }],
+        });
       const intervalBones: Bones = bonesOf(body, interval.posture);
       const intervalAngle: number = included(
         intervalBones.get("leftUpperArm")!.worldPosition,
@@ -196,12 +225,13 @@ export function test_human_motion_body_fit_goals(): void {
         `an angle interval preserves its nearest admissible boundary (${intervalAngle})`,
         interval.converged && Math.abs(intervalAngle - 130) <= degree,
       );
-      const impossible: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit({
-        body,
-        posture: entry,
-        variables: [{ kind: "place", axis: "z" }],
-        angles: [elbow],
-      });
+      const impossible: IAutoMovieMotionHumanBodyFitTypes.IResult =
+        HumanBodyFit.fit({
+          body,
+          posture: entry,
+          variables: [{ kind: "place", axis: "z" }],
+          angles: [elbow],
+        });
       all.check(
         "a frozen elbow is not reported converged",
         !impossible.converged && impossible.angles[0]! > degree,
@@ -241,8 +271,9 @@ export function test_human_motion_body_fit_goals(): void {
         ],
         composition: HumanChain.subject("a").athletics({ sex }).node,
       });
-      const segment: ReturnType<IAutoMovieMotionHumanPerformance["segments"]>[number] =
-        film.segments("a")[0]!;
+      const segment: ReturnType<
+        IAutoMovieMotionHumanPerformance["segments"]
+      >[number] = film.segments("a")[0]!;
       const set: number =
         segment.start +
         segment.plan.duration *

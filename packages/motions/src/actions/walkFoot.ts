@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanWalkFoot, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { carriedRate, minimumJerk, wrapDegrees } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanWalkFoot,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditContact } from "../audit/AutoMovieMotionHumanAuditContact";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -34,7 +39,6 @@ import { HumanFoot } from "../posture/HumanFoot";
  * landing's flexion over the second.
  */
 export namespace walkFoot {
-
   /** What a stance ends or begins with, which a swing joins. */
   export interface IEnd {
     /** The ankle, world metres. */

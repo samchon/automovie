@@ -1,6 +1,10 @@
-import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture } from "@automovie/interface";
-
 import { getConstraint } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 /**
  * A trunk turned toward one side by a share of its own range, with the head
@@ -47,7 +51,9 @@ export namespace HumanTrunkTurn {
     side: "left" | "right",
   ): IAutoMovieMotionHumanPosture {
     const toLeft: number = side === "left" ? 1 : -1;
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...posture.joints,
+    };
     let roll: number = 0;
     let twist: number = 0;
     for (const bone of ["spine", "chest"] as const) {

@@ -13,8 +13,6 @@ import type { IAutoMovieHumanLegCrotchHeight } from "@automovie/interface";
  * under on m2.
  */
 export namespace AutoMovieHumanLegCrotchHeight {
-  
-
   /**
    * The crotch height.
    *
@@ -24,7 +22,9 @@ export namespace AutoMovieHumanLegCrotchHeight {
    */
   export function of(input: IAutoMovieHumanLegCrotchHeight.IInput): number {
     if (!(input.inseam > 0) || !(input.ankleHeight > 0))
-      throw new Error("The crotch height needs a positive inseam and ankle height");
+      throw new Error(
+        "The crotch height needs a positive inseam and ankle height",
+      );
 
     // The inseam ends at the outer ankle point, not at the floor.
     return input.inseam + input.ankleHeight;

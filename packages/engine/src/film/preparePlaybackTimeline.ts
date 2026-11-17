@@ -1,6 +1,10 @@
-import { type IAutoMoviePlaybackEntry, type IAutoMoviePreparePlaybackTimeline, IAutoMovieSequence, IAutoMovieSequenceEntry, IAutoMovieShot } from "@automovie/interface";
-
-
+import {
+  type IAutoMoviePlaybackEntry,
+  type IAutoMoviePreparePlaybackTimeline,
+  IAutoMovieSequence,
+  IAutoMovieSequenceEntry,
+  IAutoMovieShot,
+} from "@automovie/interface";
 
 /**
  * Build a playback layout and the shot index its frame and event consumers share.

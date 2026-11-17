@@ -1,6 +1,14 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanOperateInsert, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingHeld, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanOperateInsert,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanHand } from "../posture/HumanHand";
 import { StrikingHeld } from "../striking/StrikingHeld";
@@ -30,7 +38,6 @@ import { StrikingRoll } from "../striking/StrikingRoll";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The socket's axis and mouth are the target's own; no place is typed by the law.
  */
 export namespace operateInsert {
-
   /**
    * How far the working point is in at a progress of the stroke.
    *
@@ -38,7 +45,10 @@ export namespace operateInsert {
    * @param progress 0 at the stroke's start, 1 at its end.
    * @returns Metres along the axis from the mouth.
    */
-  export function depth(mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism, progress: number): number {
+  export function depth(
+    mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
+    progress: number,
+  ): number {
     return mechanism.withdraw === true
       ? (mechanism.depth * (1 - Math.cos(2 * Math.PI * progress))) / 2
       : mechanism.depth * progress;
@@ -51,7 +61,9 @@ export namespace operateInsert {
    * @param mechanism The insertion.
    * @returns Metres.
    */
-  export function travel(mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism): number {
+  export function travel(
+    mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
+  ): number {
     return mechanism.depth * (mechanism.withdraw === true ? 2 : 1);
   }
 
@@ -99,18 +111,19 @@ export namespace operateInsert {
       Vector3.normalize(socket.normal),
       -1,
     );
-    const hand: IAutoMovieMotionHumanStrikingHeld.IHandFrame = StrikingRoll.hand(
-      context,
-      tool,
-      0,
-      Vector3.add(
-        socket.point,
-        Vector3.scale(inward, depth(mechanism, progress)),
-      ),
-      inward,
-      0,
-      posture,
-    );
+    const hand: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+      StrikingRoll.hand(
+        context,
+        tool,
+        0,
+        Vector3.add(
+          socket.point,
+          Vector3.scale(inward, depth(mechanism, progress)),
+        ),
+        inward,
+        0,
+        posture,
+      );
     const wrist: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(
       context.body,
       side,

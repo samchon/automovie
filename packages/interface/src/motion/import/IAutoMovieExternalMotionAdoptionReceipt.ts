@@ -1,6 +1,5 @@
 import type { IAutoMovieClip } from "../../core/IAutoMovieClip";
 import type { IAutoMovieExternalModelInspection } from "../../model/import/IAutoMovieExternalModelInspection";
-
 import type { IAutoMovieExternalMotionAdoptionDecision } from "./IAutoMovieExternalMotionAdoptionDecision";
 import type { IAutoMovieExternalMotionNativeHandoff } from "./IAutoMovieExternalMotionNativeHandoff";
 import type { IAutoMovieExternalMotionRetargetHandoff } from "./IAutoMovieExternalMotionRetargetHandoff";
@@ -20,7 +19,6 @@ export type IAutoMovieExternalMotionAdoptionReceipt = {
 
   /** Deep copy of the selected take with its tracks in source order. */
   take: IAutoMovieClip;
-
 } & (
   | {
       /** The selected take remains on the declared source rig. */

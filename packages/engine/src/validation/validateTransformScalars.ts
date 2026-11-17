@@ -1,4 +1,8 @@
-import type { IAutoMovieValidateTransformScalars, IAutoMovieViolationCollector } from "@automovie/interface";
+import type {
+  IAutoMovieValidateTransformScalars,
+  IAutoMovieViolationCollector,
+} from "@automovie/interface";
+
 import { describeInvalidValue } from "./describeInvalidValue";
 import { isRecord } from "./isRecord";
 import { validateObjectArtifact } from "./validateObjectArtifact";
@@ -20,7 +24,9 @@ import { validateVectorArtifact } from "./validateVectorArtifact";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads one current mutable transform and appends its findings; it coordinates no phases and retains no verdict that could outlive an authored edit.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Owns no long-lived state; only the caller's collector keeps bounded field findings after return, while the temporary quaternion copy is released when its norm check finishes.
  */
-export function validateTransformScalars(props: IAutoMovieValidateTransformScalars.IProps): void {
+export function validateTransformScalars(
+  props: IAutoMovieValidateTransformScalars.IProps,
+): void {
   const { transform, path, label, collector }: typeof props = props;
   if (!validateObjectArtifact(transform, path, label, collector.items)) return;
   validateVectorArtifact(

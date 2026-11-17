@@ -1,5 +1,7 @@
-import type { IAutoMoviePhysicalHullFaces, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalHullFaces,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 
@@ -34,7 +36,8 @@ import { Vector3 } from "../math/Vector3";
 export function physicalHullFaces(
   points: readonly IAutoMovieVector3[],
 ): IAutoMoviePhysicalHullFaces.IHull {
-  const cached: IAutoMoviePhysicalHullFaces.IHull | undefined = HULLS.get(points);
+  const cached: IAutoMoviePhysicalHullFaces.IHull | undefined =
+    HULLS.get(points);
   if (cached !== undefined) return cached;
   const count: number = points.length;
   let extent: number = 0;

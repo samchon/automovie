@@ -1,4 +1,10 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanClimbStairsFlight, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanClimbStairsFlight,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -22,7 +28,6 @@ import { HumanFrame } from "../posture/HumanFrame";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace climbStairsFlight {
-
   /**
    * The flight's surface height under a point, in the performer's floor
    * frame at the start (`z` forward from the toes' middle).
@@ -31,7 +36,10 @@ export namespace climbStairsFlight {
    * @param z Metres forward in that frame.
    * @returns The height of the floor, tread or landing there, metres.
    */
-  export function surface(flight: IAutoMovieMotionHumanClimbStairsFlight.IFlight, z: number): number {
+  export function surface(
+    flight: IAutoMovieMotionHumanClimbStairsFlight.IFlight,
+    z: number,
+  ): number {
     const sign: number = flight.direction === "up" ? 1 : -1;
     if (z < flight.first) return 0;
     const index: number = Math.min(
@@ -64,7 +72,8 @@ export namespace climbStairsFlight {
     HumanBound.least("tread", tread, 0.6 * m.footLength, "m");
     const yaw: number = posture.yaw;
     const feet = (["left", "right"] as const).map((side) => {
-      const goal: IAutoMovieMotionHumanPosture.IGoal = posture.limbs[`${side}Leg`]!;
+      const goal: IAutoMovieMotionHumanPosture.IGoal =
+        posture.limbs[`${side}Leg`]!;
       return {
         ankle: goal.point,
         toe: HumanFoot.point(body, side, "toe", {

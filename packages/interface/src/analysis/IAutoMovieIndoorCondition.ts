@@ -1,5 +1,3 @@
-
-
 /**
  * The indoor air an envelope is analysed against.
  *

@@ -1,7 +1,10 @@
-import type { IAutoMovieHumanCanonicalSolids, IAutoMovieHumanSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 import { physicalHullFaces, physicalHullNearest } from "@automovie/engine";
 import { AutoMovieHumanCanonicalSolids } from "@automovie/human";
-
+import type {
+  IAutoMovieHumanCanonicalSolids,
+  IAutoMovieHumanSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   type AutoMovieHumanPolygon,
   buildHumanPolygon,
@@ -34,7 +37,8 @@ import { createHumanPolygonFixture } from "../internal/createHumanPolygonFixture
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 scenarios and what each pins.
  */
 export function test_human_canonical_solids_surface(): void {
-  const input: Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed"> = createHumanPolygonFixture();
+  const input: Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed"> =
+    createHumanPolygonFixture();
   // Human's frame and the canonical frame differ by (x, y, z) -> (z, y, x).
   const reflect = (p: readonly number[]): IAutoMovieVector3 => ({
     x: p[2]!,

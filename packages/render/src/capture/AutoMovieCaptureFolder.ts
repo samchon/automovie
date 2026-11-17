@@ -1,8 +1,9 @@
-import type { IAutoMovieCaptureFolder, IAutoMovieCaptureFolderOpenProps, IAutoMovieCaptureRecord, IAutoMovieCaptureStorage } from "@automovie/interface";
-
-
-
-
+import type {
+  IAutoMovieCaptureFolder,
+  IAutoMovieCaptureFolderOpenProps,
+  IAutoMovieCaptureRecord,
+  IAutoMovieCaptureStorage,
+} from "@automovie/interface";
 
 /** The record's file name. */
 const RECORD: string = "record.json";
@@ -101,7 +102,9 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A folder is opened once per capture.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps the compared record and two name sets; no handle stays open.
    */
-  public static async open(props: IAutoMovieCaptureFolderOpenProps): Promise<AutoMovieCaptureFolder> {
+  public static async open(
+    props: IAutoMovieCaptureFolderOpenProps,
+  ): Promise<AutoMovieCaptureFolder> {
     const { storage } = props;
     const root: string = props.root.replace(/\/+$/u, "");
     if (root === "") throw new Error("A capture root cannot be empty");

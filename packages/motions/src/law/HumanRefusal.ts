@@ -85,7 +85,9 @@ export class HumanRefusal extends Error {
    * @param where The performer, the action and the occurrence.
    * @returns The located refusal; this one when it is located already.
    */
-  public locate(where: IAutoMovieMotionHumanRefusal.IWhere): IAutoMovieMotionHumanRefusal {
+  public locate(
+    where: IAutoMovieMotionHumanRefusal.IWhere,
+  ): IAutoMovieMotionHumanRefusal {
     if (this.performer !== "" && this.act !== "" && this.instance !== 0)
       return this;
     return new HumanRefusal({
@@ -115,7 +117,8 @@ export class HumanRefusal extends Error {
         : `${props.performer ?? ""}${props.performer && props.act ? "." : ""}${props.act ?? ""}${
             (props.instance ?? 0) === 0 ? "" : `#${props.instance}`
           } `;
-    const feasible: IAutoMovieMotionHumanRefusal.Feasible | null = props.feasible ?? null;
+    const feasible: IAutoMovieMotionHumanRefusal.Feasible | null =
+      props.feasible ?? null;
     return `${place}${props.axis}: ${props.reason}${
       feasible === null ? "" : `; feasible: ${HumanRefusal.describe(feasible)}`
     }; fix: ${props.fix}`;
@@ -128,7 +131,9 @@ export class HumanRefusal extends Error {
    * @param feasible The set.
    * @returns The text.
    */
-  public static describe(feasible: IAutoMovieMotionHumanRefusal.Feasible): string {
+  public static describe(
+    feasible: IAutoMovieMotionHumanRefusal.Feasible,
+  ): string {
     if (feasible.kind === "alternatives")
       return feasible.values.length === 0 ? "none" : feasible.values.join(", ");
     const unit: string = feasible.unit === "" ? "" : ` ${feasible.unit}`;
@@ -156,7 +161,6 @@ export class HumanRefusal extends Error {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No free-form bag of details: every fact has a named member.
  */
 export namespace HumanRefusal {
-
   /** The classes of refusal as data, from which {@link Kind} is derived: what a page and a test generator list. */
   export const KINDS = [
     "parameter",

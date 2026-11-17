@@ -1,8 +1,21 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieMotionHumanVerdicts, IAutoMovieVector3 } from "@automovie/interface";
 import { createHighJump, createLandingMat } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanGymnastics, HumanObject, HumanPerformance, HumanSignature, HumanVerdicts } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieMotionHumanVerdicts,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanGymnastics,
+  HumanObject,
+  HumanPerformance,
+  HumanSignature,
+  HumanVerdicts,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -36,20 +49,23 @@ export function test_archetype_jump_landing(): void {
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
-    const performer: IAutoMovieMotionHumanPerformance.IInput["performers"][number] = {
-      subject: "a",
-      body,
-      at: { x: 0, y: 0, z: 0 },
-      yaw: 0,
-      proficiency: { level: "trained" },
-    };
+    const performer: IAutoMovieMotionHumanPerformance.IInput["performers"][number] =
+      {
+        subject: "a",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      };
     const event = (
       film: IAutoMovieMotionHumanPerformance,
       row: string,
     ): ((name: string) => number) => {
       const segment: IAutoMovieMotionHumanSegment.ISegment = film
         .segments("a")
-        .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row)!;
+        .find(
+          (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === row,
+        )!;
       return (instant: string): number =>
         segment.start +
         (segment.plan.events.find((e): boolean => e.name === instant)?.share ??
@@ -91,10 +107,14 @@ export function test_archetype_jump_landing(): void {
         );
 
       // 3. No frame jumps through the flight and the landing.
-      const smooth: IAutoMovieMotionHumanVerdicts.IFinding[] = HumanVerdicts.of(film, 24, {
-        from: at("takeoff"),
-        to: at("settled"),
-      }).findings.filter((f: IAutoMovieMotionHumanVerdicts.IFinding): boolean =>
+      const smooth: IAutoMovieMotionHumanVerdicts.IFinding[] = HumanVerdicts.of(
+        film,
+        24,
+        {
+          from: at("takeoff"),
+          to: at("settled"),
+        },
+      ).findings.filter((f: IAutoMovieMotionHumanVerdicts.IFinding): boolean =>
         ["jump", "reversal", "speed", "turn"].includes(f.check),
       );
       for (const f of smooth)

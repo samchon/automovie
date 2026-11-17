@@ -1,7 +1,10 @@
-import type { AutoMovieRenderMetric, IAutoMovieRenderObservation, IAutoMovieRenderObservationAudit, IAutoMovieRenderObservationAuditRequest, IAutoMovieRenderObservationBreach } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieRenderMetric,
+  IAutoMovieRenderObservation,
+  IAutoMovieRenderObservationAudit,
+  IAutoMovieRenderObservationAuditRequest,
+  IAutoMovieRenderObservationBreach,
+} from "@automovie/interface";
 
 /**
  * Check what one capture actually drew against the report that cleared it.
@@ -20,7 +23,9 @@ import type { AutoMovieRenderMetric, IAutoMovieRenderObservation, IAutoMovieRend
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The per-call finding map supplies all observation lookups without repeatedly scanning the report; results cannot be reused for a different capture observation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Maps and duplicate sets are call-local, and the returned breach and unchecked arrays contain at most seven entries with no report or graphics-context ownership.
  */
-export function auditAutoMovieRenderObservation(props: IAutoMovieRenderObservationAuditRequest): IAutoMovieRenderObservationAudit {
+export function auditAutoMovieRenderObservation(
+  props: IAutoMovieRenderObservationAuditRequest,
+): IAutoMovieRenderObservationAudit {
   const observable: ReadonlyArray<
     [AutoMovieRenderMetric, keyof IAutoMovieRenderObservation]
   > = [

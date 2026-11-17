@@ -1,4 +1,5 @@
 import type { IAutoMovieViewOutline } from "@automovie/interface";
+
 import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
 import { AutoMovieViewHermite } from "./AutoMovieViewHermite";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";

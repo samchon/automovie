@@ -1,6 +1,11 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanKickboxingRing, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanRefusal, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanKickboxingRing,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
@@ -24,9 +29,10 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector; the size is the production's, not fixed here.
  */
 export namespace KickboxingRing {
-
   /** The posts' tops by corner (`createRing`'s `corner1` to `corner4`, counted round from `+X +Z`). */
-  export const POSTS: Readonly<Record<IAutoMovieMotionHumanKickboxingRing.Corner, string>> = {
+  export const POSTS: Readonly<
+    Record<IAutoMovieMotionHumanKickboxingRing.Corner, string>
+  > = {
     blue: "corner1",
     neutralB: "corner2",
     red: "corner3",
@@ -94,7 +100,9 @@ export namespace KickboxingRing {
       size,
       yaw: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
     };
-    for (const name of Object.keys(POSTS) as IAutoMovieMotionHumanKickboxingRing.Corner[]) {
+    for (const name of Object.keys(
+      POSTS,
+    ) as IAutoMovieMotionHumanKickboxingRing.Corner[]) {
       const post: IAutoMovieVector3 = at(POSTS[name]);
       const foot: IAutoMovieVector3 = corner(ring, name);
       if (!(Math.hypot(post.x - foot.x, post.z - foot.z) <= 1e-3))
@@ -127,7 +135,10 @@ export namespace KickboxingRing {
     margin: number = 0,
   ): IAutoMovieVector3 {
     const h: number = ring.size / 2 - margin;
-    const local: Record<IAutoMovieMotionHumanKickboxingRing.Corner, [number, number]> = {
+    const local: Record<
+      IAutoMovieMotionHumanKickboxingRing.Corner,
+      [number, number]
+    > = {
       red: [-h, -h],
       blue: [h, h],
       neutralA: [h, -h],
@@ -196,7 +207,11 @@ export namespace KickboxingRing {
   }
 
   /** A ring-local point in world metres. */
-  function world(ring: IAutoMovieMotionHumanKickboxingRing.IRing, x: number, z: number): IAutoMovieVector3 {
+  function world(
+    ring: IAutoMovieMotionHumanKickboxingRing.IRing,
+    x: number,
+    z: number,
+  ): IAutoMovieVector3 {
     const r: number = (ring.yaw * Math.PI) / 180;
     const c: number = Math.cos(r);
     const s: number = Math.sin(r);
@@ -208,7 +223,10 @@ export namespace KickboxingRing {
   }
 
   /** A world point in ring-local coordinates. */
-  function local(ring: IAutoMovieMotionHumanKickboxingRing.IRing, p: IAutoMovieVector3): [number, number] {
+  function local(
+    ring: IAutoMovieMotionHumanKickboxingRing.IRing,
+    p: IAutoMovieVector3,
+  ): [number, number] {
     const r: number = (ring.yaw * Math.PI) / 180;
     const c: number = Math.cos(r);
     const s: number = Math.sin(r);

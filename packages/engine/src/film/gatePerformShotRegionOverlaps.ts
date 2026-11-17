@@ -1,5 +1,11 @@
-import { type IAutoMovieActionSynthesizer, type IAutoMovieEnginePerformShotGateContext, AutoMovieBodyRegion, AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieMotion } from "@automovie/interface";
-
+import {
+  AutoMovieBodyRegion,
+  AutoMovieHumanoidBone,
+  IAutoMovieActionCall,
+  type IAutoMovieActionSynthesizer,
+  type IAutoMovieEnginePerformShotGateContext,
+  IAutoMovieMotion,
+} from "@automovie/interface";
 
 import { actionRegion } from "../perform/actionRegion";
 import { bodyRegionBones } from "../perform/bodyRegionBones";

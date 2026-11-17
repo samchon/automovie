@@ -1,9 +1,23 @@
-import type { AutoMovieVector3Tuple, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewAxis, IAutoMovieViewPart, IAutoMovieHumanGlutealCut, IAutoMovieHumanGlutealParent, IAutoMovieConstructionView } from "@automovie/interface";
-
-
-
-import { AutoMovieConstructionViews, AutoMovieIllinois, AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieSolidVector, AutoMovieViewAxis, AutoMovieViewOutline } from "@automovie/engine";
-
+import {
+  AutoMovieConstructionViews,
+  AutoMovieIllinois,
+  AutoMovieLoftSectionNative,
+  AutoMovieLoftViewRead,
+  AutoMovieLoftViewSource,
+  AutoMovieSolidVector,
+  AutoMovieViewAxis,
+  AutoMovieViewOutline,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionView,
+  IAutoMovieHumanGlutealCut,
+  IAutoMovieHumanGlutealParent,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanGlutealCut } from "./AutoMovieHumanGlutealCut";
 
@@ -26,8 +40,6 @@ const BRACKETS: number = 16;
 
 /** Source-native parent chords for a gluteal footprint; no emitted skin is read. */
 export namespace AutoMovieHumanGlutealParent {
-  
-
   /** Read original cut points and their actual physical station/phase once for the tape and its support provenance. */
   export function levelCutRecords(
     part: IAutoMovieViewPart,
@@ -46,20 +58,19 @@ export namespace AutoMovieHumanGlutealParent {
     return AutoMovieHumanGlutealCut.create(part, y, count);
   }
 
-  
-
-  
-
-  
-
   /** Read one actual trunk without inventing an unrelated leg parent. */
-  export function trunkOnly(part: IAutoMovieViewPart): IAutoMovieHumanGlutealParent.IParent | string {
+  export function trunkOnly(
+    part: IAutoMovieViewPart,
+  ): IAutoMovieHumanGlutealParent.IParent | string {
     const field: Field | string = prepare(part);
     if (typeof field === "string") return field;
     return {
       parts: [part],
       sources: [field],
-      chord(y: number, z: number): IAutoMovieHumanGlutealParent.IChord[] | string {
+      chord(
+        y: number,
+        z: number,
+      ): IAutoMovieHumanGlutealParent.IChord[] | string {
         if (![y, z].every(Number.isFinite))
           return "Trunk contact needs finite world Y/Z.";
         return trunkChord(field, y, z);
@@ -76,17 +87,31 @@ export namespace AutoMovieHumanGlutealParent {
     const lower: Field | string = prepare(leg.part);
     if (typeof upper === "string" || typeof lower === "string")
       return typeof upper === "string" ? upper : (lower as string);
-    const lowerReader: ((y: number, z: number) => IAutoMovieHumanGlutealParent.IChord[] | string) | string =
-      legReader(lower, leg.view);
+    const lowerReader:
+      | ((
+          y: number,
+          z: number,
+        ) => IAutoMovieHumanGlutealParent.IChord[] | string)
+      | string = legReader(lower, leg.view);
     if (typeof lowerReader === "string") return lowerReader;
     return {
       parts: [trunk, leg.part],
       sources: [upper, lower],
-      chord(y: number, z: number): IAutoMovieHumanGlutealParent.IChord[] | string {
+      chord(
+        y: number,
+        z: number,
+      ): IAutoMovieHumanGlutealParent.IChord[] | string {
         if (![y, z].every(Number.isFinite))
           return "Gluteal parent contact needs finite world Y/Z.";
-        const a: IAutoMovieHumanGlutealParent.IChord[] | string = trunkChord(upper, y, z);
-        const b: IAutoMovieHumanGlutealParent.IChord[] | string = lowerReader(y, z);
+        const a: IAutoMovieHumanGlutealParent.IChord[] | string = trunkChord(
+          upper,
+          y,
+          z,
+        );
+        const b: IAutoMovieHumanGlutealParent.IChord[] | string = lowerReader(
+          y,
+          z,
+        );
         if (typeof a === "string" || typeof b === "string")
           return typeof a === "string" ? a : (b as string);
         return unite([...a, ...b]);

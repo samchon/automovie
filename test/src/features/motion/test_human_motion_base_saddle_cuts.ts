@@ -1,6 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature } from "@automovie/interface";
 import { createHorse } from "@automovie/archetypes";
-import { HumanChain, HumanFrame, HumanObject, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFrame,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -43,16 +57,21 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_base_saddle_cuts(): void {
   const complaints: string[] = [];
   const body: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
-  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(createHorse({}), {
-    at: { x: 0, y: 0, z: -0.6 },
-    yaw: 0,
-  });
+  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+    createHorse({}),
+    {
+      at: { x: 0, y: 0, z: -0.6 },
+      yaw: 0,
+    },
+  );
   const beside = (x: number, z: number): { x: number; y: number; z: number } =>
     HumanFrame.point(
       { origin: { ...seat.at, y: 0 }, yaw: seat.yaw },
       { x, y: 0, z },
     );
-  const perform = (then: (chain: IAutoMovieMotionHumanChain) => IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
+  const perform = (
+    then: (chain: IAutoMovieMotionHumanChain) => IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "cuts",
       performers: [

@@ -1,5 +1,7 @@
-import type { IAutoMovieStepPlanner, IAutoMovieFootfallPattern } from "@automovie/interface";
-
+import type {
+  IAutoMovieFootfallPattern,
+  IAutoMovieStepPlanner,
+} from "@automovie/interface";
 
 import { AutoMovieEnvelope as Envelope } from "../motion/AutoMovieEnvelope";
 import { freezePhysicalRecord } from "./freezePhysicalRecord";
@@ -293,8 +295,10 @@ export class AutoMovieStepPlanner {
       lastEnd = step.end;
     }
     this.schedule.sort(
-      (a: IAutoMovieStepPlanner.IStep, b: IAutoMovieStepPlanner.IStep): number =>
-        a.start - b.start,
+      (
+        a: IAutoMovieStepPlanner.IStep,
+        b: IAutoMovieStepPlanner.IStep,
+      ): number => a.start - b.start,
     );
     freezePhysicalRecord(this.schedule);
   }

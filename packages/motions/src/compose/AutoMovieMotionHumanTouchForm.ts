@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanTouchForm, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanTouchForm,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFrame } from "../posture/HumanFrame";
 
 /**
@@ -20,7 +26,6 @@ import { HumanFrame } from "../posture/HumanFrame";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Periods are timing spans, amplitudes shares of the hand, so no metre is typed for one body.
  */
 export namespace AutoMovieMotionHumanTouchForm {
-
   /** The touch kinds of {@link Kind}, as data. */
   export const KINDS = [
     "tap",
@@ -40,7 +45,12 @@ export namespace AutoMovieMotionHumanTouchForm {
    * curled fingers, a stroke a fifth of a hand each way at a 5 cm/s peak
    * (Loken et al. 2009), and a squeeze curls the fingers by 20 degrees.
    */
-  export const FORMS: Readonly<Record<IAutoMovieMotionHumanTouchForm.Kind, IAutoMovieMotionHumanTouchForm.IForm>> = {
+  export const FORMS: Readonly<
+    Record<
+      IAutoMovieMotionHumanTouchForm.Kind,
+      IAutoMovieMotionHumanTouchForm.IForm
+    >
+  > = {
     tap: {
       lift: 0.25,
       travel: 0,
@@ -67,7 +77,10 @@ export namespace AutoMovieMotionHumanTouchForm {
   };
 
   /** The tangents of {@link Tangent}, as data. */
-  export const TANGENTS = ["up", "across"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanTouchForm.Tangent>[];
+  export const TANGENTS = [
+    "up",
+    "across",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanTouchForm.Tangent>[];
 
   /**
    * An effector read in the hand as a kind displays it: its fingers curled
@@ -154,7 +167,10 @@ export namespace AutoMovieMotionHumanTouchForm {
     const n: IAutoMovieVector3 = Vector3.normalize(normal);
     const across = (v: IAutoMovieVector3): IAutoMovieVector3 =>
       Vector3.subtract(v, Vector3.scale(n, Vector3.dot(v, n)));
-    const frame: IAutoMovieMotionHumanFrame.IFrame = { origin: { x: 0, y: 0, z: 0 }, yaw };
+    const frame: IAutoMovieMotionHumanFrame.IFrame = {
+      origin: { x: 0, y: 0, z: 0 },
+      yaw,
+    };
     const candidates: IAutoMovieVector3[] =
       tangent === "up"
         ? [{ x: 0, y: 1, z: 0 }, HumanFrame.point(frame, { x: 0, y: 0, z: 1 })]

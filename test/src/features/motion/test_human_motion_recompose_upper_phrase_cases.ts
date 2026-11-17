@@ -1,6 +1,14 @@
-import type { IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanHand, HumanRefusal, HumanVerdicts } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -89,13 +97,16 @@ export function test_human_motion_recompose_upper_phrase_cases(): void {
           held.includes(row.name),
           "left",
         );
-        const s: IAutoMovieMotionHumanSegment.ISegment = p.segments("a").at(-1)!;
+        const s: IAutoMovieMotionHumanSegment.ISegment = p
+          .segments("a")
+          .at(-1)!;
         if (s.name !== row.name) {
           complaints.push(`${name} left ${row.name}: placed as ${s.name}`);
           continue;
         }
-        const touch: [AutoMovieHumanoidRegion, IAutoMovieMotionHumanHand.Surface] | undefined =
-          mirroredTouches[row.name];
+        const touch:
+          | [AutoMovieHumanoidRegion, IAutoMovieMotionHumanHand.Surface]
+          | undefined = mirroredTouches[row.name];
         if (touch === undefined) continue;
         const t: number =
           s.start +
@@ -130,7 +141,9 @@ export function test_human_motion_recompose_upper_phrase_cases(): void {
 
   // The refusals, on the first body: a working point with no held prop, a
   // held prop named by both hands, and a point the held prop lacks.
-  const first: IAutoMovieMotionHumanBody = motionHumanBody(motionHumanBody.EXTREMES[0]!);
+  const first: IAutoMovieMotionHumanBody = motionHumanBody(
+    motionHumanBody.EXTREMES[0]!,
+  );
   for (const [label, law, params, pick] of [
     [
       "a point with no held prop",

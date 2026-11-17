@@ -1,5 +1,3 @@
-
-
 /**
  * Solved forward-axis vertex travel restoring directional mesh clearance.
  *
@@ -43,7 +41,7 @@ export namespace IAutoMovieMinimizeMeshClearance {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Negative or nonfinite clearance and incomplete solves refuse; results require remeasurement after skin propagation or Float32 conversion and do not certify volume collision freedom.
    * @evidence contracts/development/common.md#meaningful-documentation Solved forward-axis vertex travel restoring directional mesh clearance. Distances are nonnegative metres along the chosen positive axis and vertices retain original front-mesh identities.
    */
-  export type IResult = { 
+  export type IResult = {
     /**
      * Original front vertex ordinal in ascending order; entries cover vertices of positive-deficit triangles, including any solved zero travel.
      */
@@ -52,5 +50,6 @@ export namespace IAutoMovieMinimizeMeshClearance {
     /**
      * Solved nonnegative travel in metres along the selected positive axis, bounded by that vertex's largest incident face deficit; the caller applies it and rechecks downstream geometry.
      */
-    distance: number }[];
+    distance: number;
+  }[];
 }

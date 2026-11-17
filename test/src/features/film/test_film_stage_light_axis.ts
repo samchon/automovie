@@ -1,6 +1,11 @@
-import type { IAutoMovieStagedSet, IAutoMovieLight, IAutoMovieScript, IAutoMovieStageLight, IAutoMovieValidation } from "@automovie/interface";
 import { stageScene } from "@automovie/engine";
-
+import type {
+  IAutoMovieLight,
+  IAutoMovieScript,
+  IAutoMovieStageLight,
+  IAutoMovieStagedSet,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertFilmStageLightBoundaries } from "../internal/assertFilmStageLightBoundaries";

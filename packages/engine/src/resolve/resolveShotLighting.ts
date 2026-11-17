@@ -1,5 +1,10 @@
-import { type IAutoMovieLightChannelProperty, type IAutoMovieLightOverride, type IAutoMovieLightPointer, type IAutoMovieShotLightingInput, IAutoMovieLight } from "@automovie/interface";
-
+import {
+  IAutoMovieLight,
+  type IAutoMovieLightChannelProperty,
+  type IAutoMovieLightOverride,
+  type IAutoMovieLightPointer,
+  type IAutoMovieShotLightingInput,
+} from "@automovie/interface";
 
 import { withArticle } from "../text/withArticle";
 import { applyLightOverride } from "./applyLightOverride";

@@ -1,7 +1,19 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCrowd, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanFormation, IAutoMovieMotionHumanObstacle, IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieGravity, steerAutoMovieCrowd } from "@automovie/engine";
-
-import { HUMAN_ATTRIBUTE_EFFECTS, HumanCrowd, HumanEnsemble, HumanFormation, walk } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanCrowd,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanFormation,
+  IAutoMovieMotionHumanObstacle,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HUMAN_ATTRIBUTE_EFFECTS,
+  HumanCrowd,
+  HumanEnsemble,
+  HumanFormation,
+  walk,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -101,27 +113,35 @@ export function test_human_motion_crowd_parting(): void {
         yaw: 90,
       }),
     };
-    const result: IAutoMovieMotionHumanCrowd.IResult = HumanCrowd.steer(ensemble, {
-      goals: (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieVector3 => ({
-        x: m.place.at.x,
-        y: 0,
-        z: m.place.at.z + (m.index % 2 === 0 ? COURSE : -COURSE),
-      }),
-      gait: "walk",
-      start: 0,
-      until: spanOf(ensemble),
-      obstacles: [carriage],
-    });
+    const result: IAutoMovieMotionHumanCrowd.IResult = HumanCrowd.steer(
+      ensemble,
+      {
+        goals: (
+          m: IAutoMovieMotionHumanEnsemble.IMember,
+        ): IAutoMovieVector3 => ({
+          x: m.place.at.x,
+          y: 0,
+          z: m.place.at.z + (m.index % 2 === 0 ? COURSE : -COURSE),
+        }),
+        gait: "walk",
+        start: 0,
+        until: spanOf(ensemble),
+        obstacles: [carriage],
+      },
+    );
     return { result, ensemble, carriage };
   };
   const { result, ensemble, carriage }: IScene = scene(0, 0);
   const SPAN: number = spanOf(ensemble);
-  const at = (frame: IAutoMovieMotionHumanFormation.ICourse, t: number): IAutoMovieVector3 =>
-    HumanFormation.frame({ blocks: [], frame }, t).at;
+  const at = (
+    frame: IAutoMovieMotionHumanFormation.ICourse,
+    t: number,
+  ): IAutoMovieVector3 => HumanFormation.frame({ blocks: [], frame }, t).at;
   for (let t: number = 0; t <= SPAN; t += 1 / 24) {
     const c: IAutoMovieVector3 = carriage.motion!(t).position;
     const points: IAutoMovieVector3[] = result.frames.map(
-      (f: IAutoMovieMotionHumanFormation.ICourse): IAutoMovieVector3 => at(f, t),
+      (f: IAutoMovieMotionHumanFormation.ICourse): IAutoMovieVector3 =>
+        at(f, t),
     );
     for (const [i, p] of points.entries()) {
       const half: number = HumanCrowd.half(ensemble.members[i]!);

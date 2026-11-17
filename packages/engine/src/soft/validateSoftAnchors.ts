@@ -1,5 +1,10 @@
-import { type IAutoMovieViolationCollector, IAutoMovieSoftAnchor, IAutoMovieSoftAnchorPose, IAutoMovieSoftBodyDomain, IAutoMovieSoftNamedState } from "@automovie/interface";
-
+import {
+  IAutoMovieSoftAnchor,
+  IAutoMovieSoftAnchorPose,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftNamedState,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { SOFT_MAX_ANCHORS } from "./constants/SOFT_MAX_ANCHORS";
 import { SOFT_MAX_STATES } from "./constants/SOFT_MAX_STATES";

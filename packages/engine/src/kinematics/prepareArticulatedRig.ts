@@ -1,5 +1,12 @@
-import type { IAutoMovieArticulatedRigReader, IAutoMovieAngleRange, IAutoMovieArticulatedRig, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMovieQuaternion, IAutoMovieTransform } from "@automovie/interface";
-
+import type {
+  IAutoMovieAngleRange,
+  IAutoMovieArticulatedRig,
+  IAutoMovieArticulatedRigReader,
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
+  IAutoMovieQuaternion,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";

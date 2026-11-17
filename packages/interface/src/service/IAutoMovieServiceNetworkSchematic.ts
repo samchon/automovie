@@ -4,7 +4,7 @@ import type { IAutoMovieServiceNetwork } from "./IAutoMovieServiceNetwork";
 export namespace IAutoMovieServiceNetworkSchematic {
   /**
    * System selection for a world-XZ plan report with unprojected run lengths and declared loads.
-   * 
+   *
    * Lengths are measured on the authored 3D centre line and only the drawing is
    * flattened, so a riser does not silently become a point of zero pipe. Demand
    * is the system's own declared load, read in the direction the system flows by

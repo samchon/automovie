@@ -1,5 +1,3 @@
-
-
 /**
  * One layer placed on the host's own measuring line.
  *

@@ -20,7 +20,6 @@ import type { IAutoMovieMotionHumanBlast } from "@automovie/interface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No charge is named: the impulse and radius are the author's.
  */
 export namespace HumanBlast {
-
   /** The reference distance the impulse is stated at, metres. */
   export const REFERENCE: number = 1;
 
@@ -33,7 +32,10 @@ export namespace HumanBlast {
    * @param distance Metres from its centre.
    * @returns Newton seconds.
    */
-  export function impulse(blast: IAutoMovieMotionHumanBlast.IBlast, distance: number): number {
+  export function impulse(
+    blast: IAutoMovieMotionHumanBlast.IBlast,
+    distance: number,
+  ): number {
     const d: number = Math.max(REFERENCE, distance);
     return blast.impulse * (REFERENCE / d) ** 2;
   }

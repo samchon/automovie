@@ -1,5 +1,3 @@
-
-
 /**
  * Typed views borrowed from one engine-owned TypeScript numerical workspace.
  * Addresses are bytes, Float64 indices are doubles and Int32 indices are words.

@@ -1,5 +1,8 @@
-import { type IAutoMoviePrimitiveShape, IAutoMovieModelPart, IAutoMovieTransform } from "@automovie/interface";
-
+import {
+  IAutoMovieModelPart,
+  type IAutoMoviePrimitiveShape,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
 /**
  * Wrap the supplied primitive shape and optional transform as one generated part with no material or bone binding. Shape/transform references are borrowed unchanged and admitted by the actual engine consumer.

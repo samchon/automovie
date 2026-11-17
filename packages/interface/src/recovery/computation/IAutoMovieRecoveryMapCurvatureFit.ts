@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryMapMetric, IAutoMovieSimplexAtom } from "../../index";
+import type {
+  IAutoMovieRecoveryMapMetric,
+  IAutoMovieSimplexAtom,
+} from "../../index";
 
 /** Complete optional factor/row pair or explicit pre-return arithmetic absence.
  *
@@ -8,16 +11,13 @@ import type { IAutoMovieRecoveryMapMetric, IAutoMovieSimplexAtom } from "../../i
  * @evidence contracts/development/common.md#meaningful-documentation Null members accompany an explicit formation, point-pivot, camera-pivot or whitening refusal. Supported rows and metric belong to the same fixed factor for its entire model lifetime.
  */
 export interface IAutoMovieRecoveryMapCurvatureFit {
- 
- /** Complete current numerical metric, or null when unsupported before return. */
+  /** Complete current numerical metric, or null when unsupported before return. */
   metric: IAutoMovieRecoveryMapMetric | null;
 
- 
- /** Complete matching whitened original rows, or null on any refusal. */
+  /** Complete matching whitened original rows, or null on any refusal. */
   rows: IAutoMovieSimplexAtom[] | null;
 
- 
- /** Latest optional arithmetic stage; null denotes supported numerical use. */
+  /** Latest optional arithmetic stage; null denotes supported numerical use. */
   reason:
     | "local-formation"
     | "point-pivot"

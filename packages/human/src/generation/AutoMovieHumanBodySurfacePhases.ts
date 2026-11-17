@@ -1,13 +1,13 @@
-import type { IAutoMovieLoftChain, IAutoMovieHumanBodyCalibration, IAutoMovieHumanBodySurfacePhases, IAutoMovieHumanSurfaceContext } from "@automovie/interface";
-
-
-
-
 import { AutoMovieLoftChain } from "@automovie/engine";
+import type {
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBodySurfacePhases,
+  IAutoMovieHumanSurfaceContext,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
-
 
 const { circular, forward } = AutoMovieHumanBodySurfaceRead;
 

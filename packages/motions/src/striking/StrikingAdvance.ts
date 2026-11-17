@@ -1,6 +1,16 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingAdvance, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingAdvance,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -23,7 +33,6 @@ import { StrikingTarget } from "./StrikingTarget";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Lengths are shares of the stature; no tool is named.
  */
 export namespace StrikingAdvance {
-
   /** The leading foot's travel in a lunge, a share of the stature (provisional). */
   export const LUNGE: number = 0.45;
 
@@ -111,7 +120,10 @@ export namespace StrikingAdvance {
     const rear: "left" | "right" = lead === "left" ? "right" : "left";
     const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
-    const placed: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
+    const placed: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = {
       ...feet,
       [lead]: {
         ankle: Vector3.add(feet[lead].ankle, {

@@ -1,7 +1,13 @@
-import type { IAutoMovieConstructionNativeProfile, IAutoMovieConstructionProfile, IAutoMovieConstructionProfileSource, IAutoMovieLoftSectionJet, IAutoMovieLoftSectionPhase, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewPart } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieConstructionNativeProfile,
+  IAutoMovieConstructionProfile,
+  IAutoMovieConstructionProfileSource,
+  IAutoMovieLoftSectionJet,
+  IAutoMovieLoftSectionPhase,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";

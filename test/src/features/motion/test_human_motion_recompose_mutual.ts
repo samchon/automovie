@@ -1,8 +1,22 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { createBall, createDrinkware } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanMutual, HumanObject, HumanPerformance, seated } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanMutual,
+  HumanObject,
+  HumanPerformance,
+  seated,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -92,7 +106,9 @@ export function test_human_motion_recompose_mutual(): void {
         return HumanChain.subject(who).sit({ seat });
       };
       const perform = (
-        composition: { node: IAutoMovieMotionHumanPerformance.IInput["composition"] },
+        composition: {
+          node: IAutoMovieMotionHumanPerformance.IInput["composition"];
+        },
         props: IAutoMovieMotionHumanProp[] = [],
         seed: string = "recompose",
         distance: number = apart,
@@ -152,8 +168,10 @@ export function test_human_motion_recompose_mutual(): void {
             other: start("b"),
           }),
         );
-        const sa: IAutoMovieMotionHumanSegment.ISegment | undefined = p.segments("a")[1];
-        const sb: IAutoMovieMotionHumanSegment.ISegment | undefined = p.segments("b")[1];
+        const sa: IAutoMovieMotionHumanSegment.ISegment | undefined =
+          p.segments("a")[1];
+        const sb: IAutoMovieMotionHumanSegment.ISegment | undefined =
+          p.segments("b")[1];
         const clasp: number = instant(sa, "clasp");
         if (!(Math.abs(clasp - instant(sb, "clasp")) <= 1e-9))
           findings.push(
@@ -293,10 +311,16 @@ export function test_human_motion_recompose_mutual(): void {
         );
         const give: IAutoMovieMotionHumanSegment.ISegment | undefined = p
           .segments("a")
-          .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "handOver");
+          .find(
+            (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+              s.name === "handOver",
+          );
         const take: IAutoMovieMotionHumanSegment.ISegment | undefined = p
           .segments("b")
-          .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "receive");
+          .find(
+            (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+              s.name === "receive",
+          );
         if (!(instant(take, "gripClosed") < instant(give, "release")))
           findings.push(
             `${label}: the giver releases at ${instant(give, "release").toFixed(3)} s, before the receiver's grip closes at ${instant(take, "gripClosed").toFixed(3)} s`,
@@ -344,7 +368,8 @@ export function test_human_motion_recompose_mutual(): void {
             },
             [HumanObject.prop(name, prop, before("a"))],
           );
-          const pick: IAutoMovieMotionHumanSegment.ISegment = p.segments("a")[1]!;
+          const pick: IAutoMovieMotionHumanSegment.ISegment =
+            p.segments("a")[1]!;
           const closed: number = instant(pick, "gripClosed");
           const lifted: number = instant(pick, "lifted");
           if (!(closed < lifted))
@@ -396,7 +421,8 @@ export function test_human_motion_recompose_mutual(): void {
             p
               .segments("a")
               .find(
-                (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "throwObject",
+                (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+                  s.name === "throwObject",
               ),
             "release",
           );
@@ -404,7 +430,8 @@ export function test_human_motion_recompose_mutual(): void {
             p
               .segments("b")
               .find(
-                (s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "catchObject",
+                (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+                  s.name === "catchObject",
               ),
             "secured",
           );
@@ -446,7 +473,8 @@ export function test_human_motion_recompose_mutual(): void {
               }),
             ],
           );
-          const kick: IAutoMovieMotionHumanSegment.ISegment | undefined = p.segments("a")[1];
+          const kick: IAutoMovieMotionHumanSegment.ISegment | undefined =
+            p.segments("a")[1];
           const stroke: number = instant(kick, "stroke");
           if (!(stroke > kick!.entryTime && stroke < kick!.end))
             findings.push(

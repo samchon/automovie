@@ -1,4 +1,8 @@
-import type { IAutoMovieRecoveryFeatureChartCuts, IAutoMovieRecoveryFeatureChartCutsSeams, IAutoMovieRecoveryFeatureChartCutsSubdivide } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryFeatureChartCuts,
+  IAutoMovieRecoveryFeatureChartCutsSeams,
+  IAutoMovieRecoveryFeatureChartCutsSubdivide,
+} from "@automovie/interface";
 
 /**
  * Publish maximal feature arcs with their two actual coherent boundary banks.
@@ -30,7 +34,8 @@ export function RecoveryFeatureChartCutsSeams(
     triangles,
     insertions,
     diagnostics,
-    observationDisplacementUpperMm }: {
+    observationDisplacementUpperMm,
+  }: {
     subdivided: IAutoMovieRecoveryFeatureChartCutsSubdivide.Topology;
     expanded: Map<string, IAutoMovieRecoveryFeatureChartCutsSeams.Feature>;
     physical: string[];
@@ -79,7 +84,8 @@ export function RecoveryFeatureChartCutsSeams(
       vertices: reversed ? [...path].reverse() : path,
       edges: reversed ? [...edges].reverse() : edges,
       closed,
-      word: reversed ? reverse : forward });
+      word: reversed ? reverse : forward,
+    });
   };
   const walk: (first: number, firstEdge: string) => void = (
     first: number,
@@ -93,7 +99,8 @@ export function RecoveryFeatureChartCutsSeams(
       if (visited.has(key)) fail("a maximal feature chain revisits an edge");
       visited.add(key);
       edges.push(key);
-      const feature: IAutoMovieRecoveryFeatureChartCutsSeams.Feature = expanded.get(key)!,
+      const feature: IAutoMovieRecoveryFeatureChartCutsSeams.Feature =
+          expanded.get(key)!,
         next: number = feature.a === current ? feature.b : feature.a;
       path.push(next);
       if (next === first) {
@@ -133,7 +140,8 @@ export function RecoveryFeatureChartCutsSeams(
   );
   for (const id of orderedVertices)
     featureAt.get(id)!.sort((a: string, b: string): number => {
-      const x: IAutoMovieRecoveryFeatureChartCutsSeams.Feature = expanded.get(a)!,
+      const x: IAutoMovieRecoveryFeatureChartCutsSeams.Feature =
+          expanded.get(a)!,
         y: IAutoMovieRecoveryFeatureChartCutsSeams.Feature = expanded.get(b)!;
       return lex(
         vertexWord(x.a === id ? x.b : x.a),
@@ -147,26 +155,36 @@ export function RecoveryFeatureChartCutsSeams(
   for (const id of orderedVertices)
     for (const key of featureAt.get(id)!) if (!visited.has(key)) walk(id, key);
   arcs.sort((a: Arc, b: Arc): number => lex(a.word, b.word));
-  const seams: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation>["seams"] = [];
+  const seams: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation>["seams"] =
+    [];
   for (const arc of arcs) {
     const banks: [number[], number[]] = [[], []];
     for (let k: number = 0; k < arc.edges.length; k++) {
       const a: number = arc.vertices[k]!,
         b: number = arc.vertices[k + 1]!,
-        rows: IAutoMovieRecoveryFeatureChartCutsSubdivide.Row[] = subdivided.edges.get(arc.edges[k]!)!;
-      const forward: IAutoMovieRecoveryFeatureChartCutsSubdivide.Row | undefined = rows.find(
-          (row: IAutoMovieRecoveryFeatureChartCutsSubdivide.Row): boolean => row.a === a && row.b === b,
+        rows: IAutoMovieRecoveryFeatureChartCutsSubdivide.Row[] =
+          subdivided.edges.get(arc.edges[k]!)!;
+      const forward:
+          | IAutoMovieRecoveryFeatureChartCutsSubdivide.Row
+          | undefined = rows.find(
+          (row: IAutoMovieRecoveryFeatureChartCutsSubdivide.Row): boolean =>
+            row.a === a && row.b === b,
         ),
-        backward: IAutoMovieRecoveryFeatureChartCutsSubdivide.Row | undefined = rows.find(
-          (row: IAutoMovieRecoveryFeatureChartCutsSubdivide.Row): boolean => row.a === b && row.b === a,
-        );
+        backward: IAutoMovieRecoveryFeatureChartCutsSubdivide.Row | undefined =
+          rows.find(
+            (row: IAutoMovieRecoveryFeatureChartCutsSubdivide.Row): boolean =>
+              row.a === b && row.b === a,
+          );
       if (!forward || !backward)
         fail("a feature arc lacks opposite coherent source incidents");
       for (let bank: number = 0; bank < 2; bank++) {
-        const row: IAutoMovieRecoveryFeatureChartCutsSubdivide.Row = bank === 0 ? forward! : backward!,
+        const row: IAutoMovieRecoveryFeatureChartCutsSubdivide.Row =
+            bank === 0 ? forward! : backward!,
           from: number = remap[a]!.get(row.face)!,
           to: number = remap[b]!.get(row.face)!;
-        const actualRows: IAutoMovieRecoveryFeatureChartCutsSubdivide.Row[] | undefined = actual.edges.get(edge(from, to));
+        const actualRows:
+          | IAutoMovieRecoveryFeatureChartCutsSubdivide.Row[]
+          | undefined = actual.edges.get(edge(from, to));
         if (
           actualRows?.length !== 1 ||
           actualRows[0]!.a !== (bank === 0 ? from : to) ||
@@ -181,10 +199,8 @@ export function RecoveryFeatureChartCutsSeams(
         banks[bank]!.push(to);
       }
     }
-    const bindings: ReturnType<
-      IAutoMovieRecoveryFeatureChartCuts.Operation
-    >["seams"][number]["banks"] = banks.map(
-      (path: number[]): { chart: number; path: number[] } => {
+    const bindings: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation>["seams"][number]["banks"] =
+      banks.map((path: number[]): { chart: number; path: number[] } => {
         const chart: number = chartOf.get(path[0]!)!;
         if (
           path.some((id: number): boolean => chartOf.get(id) !== chart) ||
@@ -193,15 +209,19 @@ export function RecoveryFeatureChartCutsSeams(
           fail("a maximal feature bank is not one supported chart path");
         return {
           chart,
-          path: path.map((id: number): number => localOf.get(id)!) };
-      },
-    ) as [{ chart: number; path: number[] }, { chart: number; path: number[] }];
+          path: path.map((id: number): number => localOf.get(id)!),
+        };
+      }) as [
+        { chart: number; path: number[] },
+        { chart: number; path: number[] },
+      ];
     seams.push({
       id: `feature-arc.${seams.length}`,
       kind: "crease",
       closed: arc.closed,
       physicalPath: arc.vertices.map((id: number): string => physical[id]!),
-      banks: bindings });
+      banks: bindings,
+    });
   }
   if (
     visited.size !== expanded.size ||
@@ -220,5 +240,6 @@ export function RecoveryFeatureChartCutsSeams(
     seams,
     insertions,
     observationDisplacementUpperMm,
-    diagnostics };
+    diagnostics,
+  };
 }

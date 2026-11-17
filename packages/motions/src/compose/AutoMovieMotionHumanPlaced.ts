@@ -1,6 +1,15 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPlaced, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanTargetGrid, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPlaced,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanTargetGrid,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanHand } from "../posture/HumanHand";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -24,7 +33,6 @@ import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the arm carry, the hand form and the target resolver; places are named grid places, never metres.
  */
 export namespace AutoMovieMotionHumanPlaced {
-
   /**
    * The arm and the fingers laid at a place.
    *
@@ -39,7 +47,9 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the arm carry, the target's hand goal and the hand form.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over their props.
    */
-  export function arm(props: IAutoMovieMotionHumanPlaced.IArm): IAutoMovieMotionHumanPrimitive[] {
+  export function arm(
+    props: IAutoMovieMotionHumanPlaced.IArm,
+  ): IAutoMovieMotionHumanPrimitive[] {
     const surface: IAutoMovieMotionHumanHand.Surface = props.surface ?? "palm";
     const shape: IAutoMovieMotionHumanHand.Shape = props.shape ?? "flat";
     return [
@@ -106,7 +116,10 @@ export namespace AutoMovieMotionHumanPlaced {
    */
   export function grid(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw" | "pitch" | "roll">,
+    posture: Pick<
+      IAutoMovieMotionHumanPosture,
+      "root" | "yaw" | "pitch" | "roll"
+    >,
     side: IAutoMovieMotionHumanHand.Side,
     grid: IAutoMovieMotionHumanTargetGrid.IGrid,
     nudge?: IAutoMovieMotionHumanTargetGrid.INudge,
@@ -302,7 +315,9 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function girdle(body: Pick<IAutoMovieMotionHumanBody, "rest">): IAutoMovieVector3 {
+  export function girdle(
+    body: Pick<IAutoMovieMotionHumanBody, "rest">,
+  ): IAutoMovieVector3 {
     return Vector3.lerp(
       body.rest.get("leftUpperArm")!,
       body.rest.get("rightUpperArm")!,
@@ -326,7 +341,10 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function pitch(body: Pick<IAutoMovieMotionHumanBody, "rest">, rise: number): number {
+  export function pitch(
+    body: Pick<IAutoMovieMotionHumanBody, "rest">,
+    rise: number,
+  ): number {
     const d: IAutoMovieVector3 = Vector3.subtract(
       girdle(body),
       body.rest.get("hips")!,

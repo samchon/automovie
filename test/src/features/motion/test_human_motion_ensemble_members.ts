@@ -1,6 +1,19 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanEnsemble, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HumanEnsemble, HumanPerformance, HumanRefusal, stand } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanEnsemble,
+  HumanPerformance,
+  HumanRefusal,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -81,7 +94,9 @@ export function test_human_motion_ensemble_members(): void {
   });
 
   // 1. Sampling bands.
-  const big: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of(line(1000));
+  const big: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of(
+    line(1000),
+  );
   for (const [name, mean, spread] of [
     ["discipline", 0.5, 0.1],
     ["morale", 0.6, 0.08],
@@ -106,14 +121,23 @@ export function test_human_motion_ensemble_members(): void {
   }
 
   // 2. Each member's draws are its own.
-  const base: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of(line(30));
-  const same = (a: IAutoMovieMotionHumanEnsemble.IMember, b: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
+  const base: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of(
+    line(30),
+  );
+  const same = (
+    a: IAutoMovieMotionHumanEnsemble.IMember,
+    b: IAutoMovieMotionHumanEnsemble.IMember,
+  ): boolean =>
     a.pool === b.pool &&
     a.role === b.role &&
     a.attributes.discipline === b.attributes.discipline &&
     a.attributes.morale === b.attributes.morale;
-  const more: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of(line(31));
-  const fewer: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of(line(29));
+  const more: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of(
+    line(31),
+  );
+  const fewer: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of(
+    line(29),
+  );
   const richer: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of(
     line(30, {
       attributes: {
@@ -137,8 +161,9 @@ export function test_human_motion_ensemble_members(): void {
         break;
       }
   if (
-    base.members.every((m: IAutoMovieMotionHumanEnsemble.IMember, i: number): boolean =>
-      same(m, other.members[i]!),
+    base.members.every(
+      (m: IAutoMovieMotionHumanEnsemble.IMember, i: number): boolean =>
+        same(m, other.members[i]!),
     )
   )
     findings.push("another seed changed no member's draws");
@@ -160,7 +185,8 @@ export function test_human_motion_ensemble_members(): void {
   }
   if (
     roled.members.filter(
-      (m: IAutoMovieMotionHumanEnsemble.IMember): boolean => m.role === "drummer",
+      (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
+        m.role === "drummer",
     ).length !== 2
   )
     findings.push("two drummers expected");
@@ -206,7 +232,10 @@ export function test_human_motion_ensemble_members(): void {
   const given: IAutoMovieMotionHumanEnsemble.IEnsemble = {
     ...pair,
     members: pair.members.map(
-      (m: IAutoMovieMotionHumanEnsemble.IMember, i: number): IAutoMovieMotionHumanEnsemble.IMember => ({
+      (
+        m: IAutoMovieMotionHumanEnsemble.IMember,
+        i: number,
+      ): IAutoMovieMotionHumanEnsemble.IMember => ({
         ...m,
         attributes: { discipline: i },
       }),
@@ -218,8 +247,10 @@ export function test_human_motion_ensemble_members(): void {
     performers: HumanEnsemble.performers(given),
     composition: HumanEnsemble.chains(
       given,
-      (_: IAutoMovieMotionHumanEnsemble.IMember, chain: IAutoMovieMotionHumanChain) =>
-        chain.registered("probe", { seconds: 0.5 }),
+      (
+        _: IAutoMovieMotionHumanEnsemble.IMember,
+        chain: IAutoMovieMotionHumanChain,
+      ) => chain.registered("probe", { seconds: 0.5 }),
     ),
   });
   if (read.get("p.0") !== 0 || read.get("p.1") !== 1)
@@ -254,7 +285,8 @@ export function test_human_motion_ensemble_members(): void {
     findings.push("pick is not repeatable");
   const median: number = [
     ...base.members.map(
-      (m: IAutoMovieMotionHumanEnsemble.IMember): number => m.attributes.discipline!,
+      (m: IAutoMovieMotionHumanEnsemble.IMember): number =>
+        m.attributes.discipline!,
     ),
   ].sort((a: number, b: number): number => a - b)[15]!;
   let low: number = 0;
@@ -265,7 +297,8 @@ export function test_human_motion_ensemble_members(): void {
     );
     const cut: number = [
       ...e.members.map(
-        (m: IAutoMovieMotionHumanEnsemble.IMember): number => m.attributes.discipline!,
+        (m: IAutoMovieMotionHumanEnsemble.IMember): number =>
+          m.attributes.discipline!,
       ),
     ].sort((a: number, b: number): number => a - b)[15]!;
     for (const i of HumanEnsemble.pick(e, 3, "break", undefined, "discipline"))
@@ -300,10 +333,13 @@ export function test_human_motion_ensemble_members(): void {
     HumanEnsemble.seed(base, 4, "horse")
   )
     findings.push("two members gave one seed");
-  const groups: IAutoMovieMotionHumanEnsemble.IGroup[] = HumanEnsemble.groups(big, {
-    share: 0.6,
-    sizes: [2, 3],
-  });
+  const groups: IAutoMovieMotionHumanEnsemble.IGroup[] = HumanEnsemble.groups(
+    big,
+    {
+      share: 0.6,
+      sizes: [2, 3],
+    },
+  );
   const seen: Set<number> = new Set();
   for (const g of groups) {
     if (![2, 3].includes(g.members.length))

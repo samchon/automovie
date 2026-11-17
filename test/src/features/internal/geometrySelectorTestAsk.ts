@@ -1,6 +1,17 @@
-import { type IAutoMovieGeometryQuery, IAutoMovieCamera, IAutoMovieClip, IAutoMovieCompiledShotSource, IAutoMovieGeometryResult, IAutoMovieModel, IAutoMovieSceneNode, IAutoMovieShot, IAutoMovieTransform, type IAutoMovieVector3, IAutoMovieWorldDesign } from "@automovie/interface";
 import { measureAutoMovieGeometry } from "@automovie/engine";
-
+import {
+  IAutoMovieCamera,
+  IAutoMovieClip,
+  IAutoMovieCompiledShotSource,
+  type IAutoMovieGeometryQuery,
+  IAutoMovieGeometryResult,
+  IAutoMovieModel,
+  IAutoMovieSceneNode,
+  IAutoMovieShot,
+  IAutoMovieTransform,
+  type IAutoMovieVector3,
+  IAutoMovieWorldDesign,
+} from "@automovie/interface";
 
 import { GEOMETRY_SELECTOR_TEST_WORLD as WORLD } from "./GEOMETRY_SELECTOR_TEST_WORLD";
 import {

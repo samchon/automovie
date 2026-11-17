@@ -1,6 +1,5 @@
 import type { IAutoMovieInspectionKindStyle } from "@automovie/interface";
 
-
 import { AUTO_MOVIE_INSPECTION_PALETTE } from "./AUTO_MOVIE_INSPECTION_PALETTE.js";
 
 /**

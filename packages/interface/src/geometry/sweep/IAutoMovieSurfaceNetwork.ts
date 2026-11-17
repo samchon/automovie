@@ -1,6 +1,6 @@
+import type { IAutoMovieVector3 } from "../IAutoMovieVector3";
 import type { AutoMovieSurfaceTier } from "./AutoMovieSurfaceTier";
 import type { IAutoMovieSweep } from "./IAutoMovieSweep";
-import type { IAutoMovieVector3 } from "../IAutoMovieVector3";
 
 /**
  * A surface built from sweeps and curves and divided into four-sided patches,
@@ -59,362 +59,371 @@ export interface IAutoMovieSurfaceNetwork {
 /** Data and callback contracts shared by the SurfaceNetwork operations. */
 export namespace IAutoMovieSurfaceNetwork {
   /**
-     * Segment count by tier.
-     *
-     * @evidence contracts/development/design.md#principled-representation One segment count per tier, the declaration that fixes each tier's topology.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface A record keyed by tier names, so a missing tier is a type error.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Counts are checked as positive integers by the sampler, not rounded.
-     * @evidence contracts/development/common.md#meaningful-documentation States what is counted.
-     */
-    export type ICounts = Record<AutoMovieSurfaceTier, number>;
+   * Segment count by tier.
+   *
+   * @evidence contracts/development/design.md#principled-representation One segment count per tier, the declaration that fixes each tier's topology.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A record keyed by tier names, so a missing tier is a type error.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Counts are checked as positive integers by the sampler, not rounded.
+   * @evidence contracts/development/common.md#meaningful-documentation States what is counted.
+   */
+  export type ICounts = Record<AutoMovieSurfaceTier, number>;
 
   /**
-     * A node: a free point, or a point of a sweep's domain so curves meet the sweep exactly.
-     *
-     * @evidence contracts/development/design.md#principled-representation A curve end is either a free point or a point of a sweep's domain, the two ways a curve network meets its surfaces.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface A closed union of the two kinds.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts No third kind is guessed from shape.
-     * @evidence contracts/development/common.md#meaningful-documentation States both kinds.
-     */
-    export type INode = IAutoMovieSurfaceNetwork.IFreeNode | IAutoMovieSurfaceNetwork.ISweepNode;
+   * A node: a free point, or a point of a sweep's domain so curves meet the sweep exactly.
+   *
+   * @evidence contracts/development/design.md#principled-representation A curve end is either a free point or a point of a sweep's domain, the two ways a curve network meets its surfaces.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A closed union of the two kinds.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No third kind is guessed from shape.
+   * @evidence contracts/development/common.md#meaningful-documentation States both kinds.
+   */
+  export type INode =
+    | IAutoMovieSurfaceNetwork.IFreeNode
+    | IAutoMovieSurfaceNetwork.ISweepNode;
 
   /**
-     * A node at a position.
-     *
-     * @evidence contracts/development/design.md#principled-representation A free point in space for curves that do not start on a sweep.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface A discriminator and a position.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts The position is used as given.
-     * @evidence contracts/development/common.md#meaningful-documentation States the unit.
-     */
-    export interface IFreeNode {
-      /** Discriminator. */
-      type: "point";
-  
-      /** Metres. */
-      position: IAutoMovieVector3;
-    }
+   * A node at a position.
+   *
+   * @evidence contracts/development/design.md#principled-representation A free point in space for curves that do not start on a sweep.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A discriminator and a position.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The position is used as given.
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit.
+   */
+  export interface IFreeNode {
+    /** Discriminator. */
+    type: "point";
+
+    /** Metres. */
+    position: IAutoMovieVector3;
+  }
 
   /**
-     * A node on a sweep.
-     *
-     * @evidence contracts/development/design.md#principled-representation A point named by sweep and domain coordinates, so curves meet the sweep exactly and leave it in its tangent plane.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Sweep name and `(u, v)`; the position is evaluated, never stored.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts `v` is read modulo one turn rather than refused.
-     * @evidence contracts/development/common.md#meaningful-documentation States the ranges and the modulo reading.
-     */
-    export interface ISweepNode {
-      /** Discriminator. */
-      type: "sweep";
-  
-      /** Name of the sweep. */
-      sweep: string;
-  
-      /** Along the sweep's spine, 0 to 1. */
-      u: number;
-  
-      /** Around it, any real number, read modulo 1. */
-      v: number;
-    }
+   * A node on a sweep.
+   *
+   * @evidence contracts/development/design.md#principled-representation A point named by sweep and domain coordinates, so curves meet the sweep exactly and leave it in its tangent plane.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Sweep name and `(u, v)`; the position is evaluated, never stored.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts `v` is read modulo one turn rather than refused.
+   * @evidence contracts/development/common.md#meaningful-documentation States the ranges and the modulo reading.
+   */
+  export interface ISweepNode {
+    /** Discriminator. */
+    type: "sweep";
+
+    /** Name of the sweep. */
+    sweep: string;
+
+    /** Along the sweep's spine, 0 to 1. */
+    u: number;
+
+    /** Around it, any real number, read modulo 1. */
+    v: number;
+  }
 
   /**
-     * A curve from one node to another through optional points: the centripetal Catmull-Rom spline through them all, sampled by chord-length share. At a node on a sweep the curve leaves or arrives in the sweep's tangent plane: its end direction is the spline's own less the part along the sweep's normal, so its generating endpoint tangent lies in that plane. Cell averaging and subdivision remain separate; this is not a final-skin normal guarantee.
-     *
-     * @evidence contracts/development/design.md#principled-representation A centripetal Catmull-Rom curve through its nodes and points, with the tangent-plane end condition at sweep nodes and the bridge directions it carries.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Nodes by name, optional through points, counts, and the two optional bridge fields.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts A curve whose ends coincide or whose spline meets a sweep along its normal is refused.
-     * @evidence contracts/development/common.md#meaningful-documentation States the spline, the end rule, the counts and when each bridge field is needed.
-     */
-    export interface ICurve {
-      /** Start node. */
-      from: string;
-  
-      /** End node, different from the start. */
-      to: string;
-  
-      /** Points between, metres; omitted, the curve is the straight segment between the nodes. */
-      through?: IAutoMovieVector3[];
-  
-      /** Segments by tier, positive integers. */
-      segments: IAutoMovieSurfaceNetwork.ICounts;
-  
-      /** Direction a bridge leaves or enters the curve along, needed only when the curve is part of a bridge loop whose tangent rule is not `across`. */
-      direction?: IAutoMovieVector3;
-  
-      /** Normal of the surface the bridges make along the curve, needed only when the curve is part of a bridge loop with the `across` rule: a bridge then leaves the curve along this normal crossed with the loop's direction, so opposite loop directions supply opposite cross-boundary input tangents. This constrains the generating rows rather than certifying the final subdivision normals. The normal holds at the curve's middle; toward an end node on a sweep it turns linearly to that sweep's own normal there, which supplies a continuous normal-hint field where the interpolated vector is nonzero. */
-      normal?: IAutoMovieVector3;
-    }
+   * A curve from one node to another through optional points: the centripetal Catmull-Rom spline through them all, sampled by chord-length share. At a node on a sweep the curve leaves or arrives in the sweep's tangent plane: its end direction is the spline's own less the part along the sweep's normal, so its generating endpoint tangent lies in that plane. Cell averaging and subdivision remain separate; this is not a final-skin normal guarantee.
+   *
+   * @evidence contracts/development/design.md#principled-representation A centripetal Catmull-Rom curve through its nodes and points, with the tangent-plane end condition at sweep nodes and the bridge directions it carries.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Nodes by name, optional through points, counts, and the two optional bridge fields.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A curve whose ends coincide or whose spline meets a sweep along its normal is refused.
+   * @evidence contracts/development/common.md#meaningful-documentation States the spline, the end rule, the counts and when each bridge field is needed.
+   */
+  export interface ICurve {
+    /** Start node. */
+    from: string;
+
+    /** End node, different from the start. */
+    to: string;
+
+    /** Points between, metres; omitted, the curve is the straight segment between the nodes. */
+    through?: IAutoMovieVector3[];
+
+    /** Segments by tier, positive integers. */
+    segments: IAutoMovieSurfaceNetwork.ICounts;
+
+    /** Direction a bridge leaves or enters the curve along, needed only when the curve is part of a bridge loop whose tangent rule is not `across`. */
+    direction?: IAutoMovieVector3;
+
+    /** Normal of the surface the bridges make along the curve, needed only when the curve is part of a bridge loop with the `across` rule: a bridge then leaves the curve along this normal crossed with the loop's direction, so opposite loop directions supply opposite cross-boundary input tangents. This constrains the generating rows rather than certifying the final subdivision normals. The normal holds at the curve's middle; toward an end node on a sweep it turns linearly to that sweep's own normal there, which supplies a continuous normal-hint field where the interpolated vector is nonzero. */
+    normal?: IAutoMovieVector3;
+  }
 
   /**
-     * A patch side or loop piece: a line of a sweep's domain or a network curve.
-     *
-     * @evidence contracts/development/design.md#principled-representation A patch side is a line of a sweep's domain or a network curve, the two boundary kinds a Coons or bridge patch takes.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface A closed union of the two.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Edges are welded by identity of their points, not by distance.
-     * @evidence contracts/development/common.md#meaningful-documentation States both kinds.
-     */
-    export type IEdge = IAutoMovieSurfaceNetwork.ISweepEdge | IAutoMovieSurfaceNetwork.ICurveEdge;
+   * A patch side or loop piece: a line of a sweep's domain or a network curve.
+   *
+   * @evidence contracts/development/design.md#principled-representation A patch side is a line of a sweep's domain or a network curve, the two boundary kinds a Coons or bridge patch takes.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A closed union of the two.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Edges are welded by identity of their points, not by distance.
+   * @evidence contracts/development/common.md#meaningful-documentation States both kinds.
+   */
+  export type IEdge =
+    | IAutoMovieSurfaceNetwork.ISweepEdge
+    | IAutoMovieSurfaceNetwork.ICurveEdge;
 
   /**
-     * The straight line between two points of a sweep's `(u, v)` domain, sampled evenly in the domain. `v` may run past 1 or below 0 to cross the sweep's seam.
-     *
-     * @evidence contracts/development/design.md#principled-representation A straight segment of a sweep's `(u, v)` domain sampled evenly, which lies on the sweep.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Sweep, two domain points and counts.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts `v` may cross the seam explicitly rather than being wrapped silently.
-     * @evidence contracts/development/common.md#meaningful-documentation States the even sampling and the seam rule.
-     */
-    export interface ISweepEdge {
-      /** Discriminator. */
-      type: "sweep";
-  
-      /** Name of the sweep. */
-      sweep: string;
-  
-      /** Start, `u` from 0 to 1. */
-      from: IAutoMovieSurfaceNetwork.IDomainPoint;
-  
-      /** End, `u` from 0 to 1. */
-      to: IAutoMovieSurfaceNetwork.IDomainPoint;
-  
-      /** Segments by tier, positive integers. */
-      segments: IAutoMovieSurfaceNetwork.ICounts;
-    }
+   * The straight line between two points of a sweep's `(u, v)` domain, sampled evenly in the domain. `v` may run past 1 or below 0 to cross the sweep's seam.
+   *
+   * @evidence contracts/development/design.md#principled-representation A straight segment of a sweep's `(u, v)` domain sampled evenly, which lies on the sweep.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Sweep, two domain points and counts.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts `v` may cross the seam explicitly rather than being wrapped silently.
+   * @evidence contracts/development/common.md#meaningful-documentation States the even sampling and the seam rule.
+   */
+  export interface ISweepEdge {
+    /** Discriminator. */
+    type: "sweep";
+
+    /** Name of the sweep. */
+    sweep: string;
+
+    /** Start, `u` from 0 to 1. */
+    from: IAutoMovieSurfaceNetwork.IDomainPoint;
+
+    /** End, `u` from 0 to 1. */
+    to: IAutoMovieSurfaceNetwork.IDomainPoint;
+
+    /** Segments by tier, positive integers. */
+    segments: IAutoMovieSurfaceNetwork.ICounts;
+  }
 
   /**
-     * A point of a sweep's domain.
-     *
-     * @evidence contracts/development/design.md#principled-representation A point of a sweep's parameter domain.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Two numbers.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Values are used as given.
-     * @evidence contracts/development/common.md#meaningful-documentation States both parameters.
-     */
-    export interface IDomainPoint {
-      /** Along the spine. */
-      u: number;
-  
-      /** Around it. */
-      v: number;
-    }
+   * A point of a sweep's domain.
+   *
+   * @evidence contracts/development/design.md#principled-representation A point of a sweep's parameter domain.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two numbers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values are used as given.
+   * @evidence contracts/development/common.md#meaningful-documentation States both parameters.
+   */
+  export interface IDomainPoint {
+    /** Along the spine. */
+    u: number;
+
+    /** Around it. */
+    v: number;
+  }
 
   /**
-     * A network curve, forward from its start node or reversed.
-     *
-     * @evidence contracts/development/design.md#principled-representation A network curve used forward or reversed as a side.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Curve name and direction.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts A reversed edge reuses the curve's points, so both neighbours weld.
-     * @evidence contracts/development/common.md#meaningful-documentation States the direction rule.
-     */
-    export interface ICurveEdge {
-      /** Discriminator. */
-      type: "curve";
-  
-      /** Name of the curve. */
-      curve: string;
-  
-      /** Whether the edge runs from the curve's end node to its start; omitted, forward. */
-      reverse?: boolean;
-    }
+   * A network curve, forward from its start node or reversed.
+   *
+   * @evidence contracts/development/design.md#principled-representation A network curve used forward or reversed as a side.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Curve name and direction.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A reversed edge reuses the curve's points, so both neighbours weld.
+   * @evidence contracts/development/common.md#meaningful-documentation States the direction rule.
+   */
+  export interface ICurveEdge {
+    /** Discriminator. */
+    type: "curve";
+
+    /** Name of the curve. */
+    curve: string;
+
+    /** Whether the edge runs from the curve's end node to its start; omitted, forward. */
+    reverse?: boolean;
+  }
 
   /**
-     * One patch.
-     *
-     * @evidence contracts/development/design.md#principled-representation The four fill rules: sweep rectangle, Coons patch, Hermite bridge and quad column-transition band.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface A closed union.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Unknown kinds are not accepted.
-     * @evidence contracts/development/common.md#meaningful-documentation States the members.
-     */
-    export type IPatch =
-      | IAutoMovieSurfaceNetwork.ISweepPatch
-      | IAutoMovieSurfaceNetwork.ICoonsPatch
-      | IAutoMovieSurfaceNetwork.IBridgePatch
-      | IAutoMovieSurfaceNetwork.ITransitionPatch;
+   * One patch.
+   *
+   * @evidence contracts/development/design.md#principled-representation The four fill rules: sweep rectangle, Coons patch, Hermite bridge and quad column-transition band.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A closed union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Unknown kinds are not accepted.
+   * @evidence contracts/development/common.md#meaningful-documentation States the members.
+   */
+  export type IPatch =
+    | IAutoMovieSurfaceNetwork.ISweepPatch
+    | IAutoMovieSurfaceNetwork.ICoonsPatch
+    | IAutoMovieSurfaceNetwork.IBridgePatch
+    | IAutoMovieSurfaceNetwork.ITransitionPatch;
 
   /**
-     * A rectangle of a sweep's domain.
-     *
-     * @evidence contracts/development/design.md#principled-representation A rectangle of a sweep's domain sampled on its tier grid.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Domain ranges and per-tier counts.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Ranges must increase within the domain; they are refused otherwise.
-     * @evidence contracts/development/common.md#meaningful-documentation States which patch coordinate runs along which parameter.
-     */
-    export interface ISweepPatch {
-      /** Discriminator. */
-      type: "sweep";
-  
-      /** Name unique among the patches. */
-      name: string;
-  
-      /** Name of the sweep. */
-      sweep: string;
-  
-      /** Range of `u`, increasing, within 0 to 1; `t` runs along it. */
-      u: [number, number];
-  
-      /** Range of `v`, increasing, at most one turn; `s` runs along it. */
-      v: [number, number];
-  
-      /** Faces along `t` by tier. */
-      rows: IAutoMovieSurfaceNetwork.ICounts;
-  
-      /** Faces along `s` by tier. */
-      columns: IAutoMovieSurfaceNetwork.ICounts;
-  
-      /** The patch's rectangle in texture space; omitted, the sampler assigns one. */
-      uv?: IAutoMovieSurfaceNetwork.IUvRect;
-    }
+   * A rectangle of a sweep's domain.
+   *
+   * @evidence contracts/development/design.md#principled-representation A rectangle of a sweep's domain sampled on its tier grid.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Domain ranges and per-tier counts.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Ranges must increase within the domain; they are refused otherwise.
+   * @evidence contracts/development/common.md#meaningful-documentation States which patch coordinate runs along which parameter.
+   */
+  export interface ISweepPatch {
+    /** Discriminator. */
+    type: "sweep";
+
+    /** Name unique among the patches. */
+    name: string;
+
+    /** Name of the sweep. */
+    sweep: string;
+
+    /** Range of `u`, increasing, within 0 to 1; `t` runs along it. */
+    u: [number, number];
+
+    /** Range of `v`, increasing, at most one turn; `s` runs along it. */
+    v: [number, number];
+
+    /** Faces along `t` by tier. */
+    rows: IAutoMovieSurfaceNetwork.ICounts;
+
+    /** Faces along `s` by tier. */
+    columns: IAutoMovieSurfaceNetwork.ICounts;
+
+    /** The patch's rectangle in texture space; omitted, the sampler assigns one. */
+    uv?: IAutoMovieSurfaceNetwork.IUvRect;
+  }
 
   /**
-     * A band of a sweep's domain whose column count changes across it, so a sweep can carry more columns where it needs detail, such as a groove, and fewer where it meets a coarser ring.
-     *
-     * The band runs from its start ring at `u[0]` to its end ring at `u[1]` in `rows` even rows, with `start` columns evenly spaced round the first ring and `end` round the last, so it welds onto sweep patches of those counts on either side. Give it rows so its middle row is about as tall as a coarse column is wide: on a cylinder going from 8 to 16 columns, a middle row half that tall bends the limit normal round the poles by 8 degrees instead of 5. Its middle row reduces the finer ring to the coarser by `(fine - coarse) / 2` blocks of the 2-to-1 quad reduction strip, each turning four fine columns into two coarse columns through six quads with two interior poles of valence three half-way across the row; every other column passes straight through, and rows before the middle keep the start count and rows after it the end count. The fine ring stays regular; the coarse ring vertices at the blocks' corners take valence five beside a straight column and six between two blocks. Blocks spread evenly round the band and mirror with it, as `layoutAutoMovieSurfaceTransition` states. Vertices sample the sweep with the rig's cell averaging. With fitting enabled, free limit vertices interpolate those filtered targets; the surface between them still depends on subdivision topology; put the band where the sweep is gently curved along `u`, because its poles carry the most curvature error, and narrow its `v` range to keep them off a region, splitting the ring into several bands.
-     *
-     * Counts must differ by an even number, the finer at most twice the coarser, so a larger change chains two bands; equal counts give plain rows. The patch's `(s, t)` coordinates run along `v` and `u` as a sweep patch's do, but its faces are not a grid: each face's corners carry their own coordinates.
-     *
-     * @evidence contracts/development/design.md#principled-representation The 2-to-1 quad reduction strip of subdivision modelling laid on a sweep's domain, sampled on the sweep and interpolated by the limit fit like any sweep patch.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface A sweep patch with two column counts instead of one; the reduction itself is fixed, so no layout is authored.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Counts the pattern cannot join are refused instead of being stitched by triangles or a crease.
-     * @evidence contracts/development/common.md#meaningful-documentation States the band, the pattern, the poles and where to put them, the counts rule and the coordinates.
-     */
-    export interface ITransitionPatch {
-      /** Discriminator. */
-      type: "transition";
-  
-      /** Name unique among the patches. */
-      name: string;
-  
-      /** Name of the sweep. */
-      sweep: string;
-  
-      /** Range of `u`, increasing, within 0 to 1: the start ring and the end ring; `t` runs along it. */
-      u: [number, number];
-  
-      /** Range of `v`, increasing, at most one turn; `s` runs along it. */
-      v: [number, number];
-  
-      /** Columns along the start ring by tier. */
-      start: IAutoMovieSurfaceNetwork.ICounts;
-  
-      /** Columns along the end ring by tier. */
-      end: IAutoMovieSurfaceNetwork.ICounts;
-  
-      /** Rows across the band by tier; the middle one changes the count. */
-      rows: IAutoMovieSurfaceNetwork.ICounts;
-  
-      /** The patch's rectangle in texture space; omitted, the sampler assigns one. */
-      uv?: IAutoMovieSurfaceNetwork.IUvRect;
-    }
+   * A band of a sweep's domain whose column count changes across it, so a sweep can carry more columns where it needs detail, such as a groove, and fewer where it meets a coarser ring.
+   *
+   * The band runs from its start ring at `u[0]` to its end ring at `u[1]` in `rows` even rows, with `start` columns evenly spaced round the first ring and `end` round the last, so it welds onto sweep patches of those counts on either side. Give it rows so its middle row is about as tall as a coarse column is wide: on a cylinder going from 8 to 16 columns, a middle row half that tall bends the limit normal round the poles by 8 degrees instead of 5. Its middle row reduces the finer ring to the coarser by `(fine - coarse) / 2` blocks of the 2-to-1 quad reduction strip, each turning four fine columns into two coarse columns through six quads with two interior poles of valence three half-way across the row; every other column passes straight through, and rows before the middle keep the start count and rows after it the end count. The fine ring stays regular; the coarse ring vertices at the blocks' corners take valence five beside a straight column and six between two blocks. Blocks spread evenly round the band and mirror with it, as `layoutAutoMovieSurfaceTransition` states. Vertices sample the sweep with the rig's cell averaging. With fitting enabled, free limit vertices interpolate those filtered targets; the surface between them still depends on subdivision topology; put the band where the sweep is gently curved along `u`, because its poles carry the most curvature error, and narrow its `v` range to keep them off a region, splitting the ring into several bands.
+   *
+   * Counts must differ by an even number, the finer at most twice the coarser, so a larger change chains two bands; equal counts give plain rows. The patch's `(s, t)` coordinates run along `v` and `u` as a sweep patch's do, but its faces are not a grid: each face's corners carry their own coordinates.
+   *
+   * @evidence contracts/development/design.md#principled-representation The 2-to-1 quad reduction strip of subdivision modelling laid on a sweep's domain, sampled on the sweep and interpolated by the limit fit like any sweep patch.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A sweep patch with two column counts instead of one; the reduction itself is fixed, so no layout is authored.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Counts the pattern cannot join are refused instead of being stitched by triangles or a crease.
+   * @evidence contracts/development/common.md#meaningful-documentation States the band, the pattern, the poles and where to put them, the counts rule and the coordinates.
+   */
+  export interface ITransitionPatch {
+    /** Discriminator. */
+    type: "transition";
+
+    /** Name unique among the patches. */
+    name: string;
+
+    /** Name of the sweep. */
+    sweep: string;
+
+    /** Range of `u`, increasing, within 0 to 1: the start ring and the end ring; `t` runs along it. */
+    u: [number, number];
+
+    /** Range of `v`, increasing, at most one turn; `s` runs along it. */
+    v: [number, number];
+
+    /** Columns along the start ring by tier. */
+    start: IAutoMovieSurfaceNetwork.ICounts;
+
+    /** Columns along the end ring by tier. */
+    end: IAutoMovieSurfaceNetwork.ICounts;
+
+    /** Rows across the band by tier; the middle one changes the count. */
+    rows: IAutoMovieSurfaceNetwork.ICounts;
+
+    /** The patch's rectangle in texture space; omitted, the sampler assigns one. */
+    uv?: IAutoMovieSurfaceNetwork.IUvRect;
+  }
 
   /**
-     * A patch bounded by four edges, filled by the Coons patch of its boundary.
-     *
-     * @evidence contracts/development/design.md#principled-representation Coons' bilinearly blended patch of four boundary edges.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Four sides in counterclockwise order.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Sides that do not close or whose opposite counts differ are refused.
-     * @evidence contracts/development/common.md#meaningful-documentation States the side order and its winding.
+   * A patch bounded by four edges, filled by the Coons patch of its boundary.
+   *
+   * @evidence contracts/development/design.md#principled-representation Coons' bilinearly blended patch of four boundary edges.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four sides in counterclockwise order.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Sides that do not close or whose opposite counts differ are refused.
+   * @evidence contracts/development/common.md#meaningful-documentation States the side order and its winding.
+   */
+  export interface ICoonsPatch {
+    /** Discriminator. */
+    type: "coons";
+
+    /** Name unique among the patches. */
+    name: string;
+
+    /**
+     * The boundary counterclockwise from outside: the bottom from `s` 0 to 1 at `t` 0, the right side from `t` 0 to 1, the top from `s` 1 to 0 and the left side from `t` 1 to 0, each ending where the next begins. Opposite sides have equal counts.
      */
-    export interface ICoonsPatch {
-      /** Discriminator. */
-      type: "coons";
-  
-      /** Name unique among the patches. */
-      name: string;
-  
-      /**
-       * The boundary counterclockwise from outside: the bottom from `s` 0 to 1 at `t` 0, the right side from `t` 0 to 1, the top from `s` 1 to 0 and the left side from `t` 1 to 0, each ending where the next begins. Opposite sides have equal counts.
-       */
-      sides: [IAutoMovieSurfaceNetwork.IEdge, IAutoMovieSurfaceNetwork.IEdge, IAutoMovieSurfaceNetwork.IEdge, IAutoMovieSurfaceNetwork.IEdge];
-  
-      /** The patch's rectangle in texture space; omitted, the sampler assigns one. */
-      uv?: IAutoMovieSurfaceNetwork.IUvRect;
-    }
+    sides: [
+      IAutoMovieSurfaceNetwork.IEdge,
+      IAutoMovieSurfaceNetwork.IEdge,
+      IAutoMovieSurfaceNetwork.IEdge,
+      IAutoMovieSurfaceNetwork.IEdge,
+    ];
+
+    /** The patch's rectangle in texture space; omitted, the sampler assigns one. */
+    uv?: IAutoMovieSurfaceNetwork.IUvRect;
+  }
 
   /**
-     * Rows of Hermite curves from one loop to another.
-     *
-     * Loop point `k` of `from` joins loop point `k` of `to`; both loops run counterclockwise about the direction of travel from `from` to `to`, and have the same count. Column `k` is `H(t) = h00 A + h10 m T_A + h01 B + h11 m T_B` with the cubic Hermite basis, unit directions `T_A` leaving `A` and `T_B` arriving at `B`, and `m = tension * |B - A|`.
-     *
-     * @evidence contracts/development/design.md#principled-representation Cubic Hermite rows between two loops of equal count, the explicit blend of a branch or junction.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Two loops, rows and a tension.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Loops of different counts are refused instead of resampled.
-     * @evidence contracts/development/common.md#meaningful-documentation States the column formula and the tension.
-     */
-    export interface IBridgePatch {
-      /** Discriminator. */
-      type: "bridge";
-  
-      /** Name unique among the patches. */
-      name: string;
-  
-      /** The loop the rows leave. */
-      from: IAutoMovieSurfaceNetwork.ILoop;
-  
-      /** The loop the rows arrive at. */
-      to: IAutoMovieSurfaceNetwork.ILoop;
-  
-      /** Faces along `t` by tier. */
-      rows: IAutoMovieSurfaceNetwork.ICounts;
-  
-      /** Tangent length over chord length; omitted, 1. */
-      tension?: number;
-  
-      /** The patch's rectangle in texture space; omitted, the sampler assigns one. */
-      uv?: IAutoMovieSurfaceNetwork.IUvRect;
-    }
+   * Rows of Hermite curves from one loop to another.
+   *
+   * Loop point `k` of `from` joins loop point `k` of `to`; both loops run counterclockwise about the direction of travel from `from` to `to`, and have the same count. Column `k` is `H(t) = h00 A + h10 m T_A + h01 B + h11 m T_B` with the cubic Hermite basis, unit directions `T_A` leaving `A` and `T_B` arriving at `B`, and `m = tension * |B - A|`.
+   *
+   * @evidence contracts/development/design.md#principled-representation Cubic Hermite rows between two loops of equal count, the explicit blend of a branch or junction.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two loops, rows and a tension.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Loops of different counts are refused instead of resampled.
+   * @evidence contracts/development/common.md#meaningful-documentation States the column formula and the tension.
+   */
+  export interface IBridgePatch {
+    /** Discriminator. */
+    type: "bridge";
+
+    /** Name unique among the patches. */
+    name: string;
+
+    /** The loop the rows leave. */
+    from: IAutoMovieSurfaceNetwork.ILoop;
+
+    /** The loop the rows arrive at. */
+    to: IAutoMovieSurfaceNetwork.ILoop;
+
+    /** Faces along `t` by tier. */
+    rows: IAutoMovieSurfaceNetwork.ICounts;
+
+    /** Tangent length over chord length; omitted, 1. */
+    tension?: number;
+
+    /** The patch's rectangle in texture space; omitted, the sampler assigns one. */
+    uv?: IAutoMovieSurfaceNetwork.IUvRect;
+  }
 
   /**
-     * A closed loop of edges and the direction a bridge travels at it.
-     *
-     * @evidence contracts/development/design.md#principled-representation A closed sequence of edges with the rule for the direction a bridge travels there.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Edges plus one tangent rule.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts A loop that does not close is refused.
-     * @evidence contracts/development/common.md#meaningful-documentation States every tangent rule and what `across` guarantees.
+   * A closed loop of edges and the direction a bridge travels at it.
+   *
+   * @evidence contracts/development/design.md#principled-representation A closed sequence of edges with the rule for the direction a bridge travels there.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Edges plus one tangent rule.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A loop that does not close is refused.
+   * @evidence contracts/development/common.md#meaningful-documentation States every tangent rule and what `across` guarantees.
+   */
+  export interface ILoop {
+    /** Edges in order, each starting where the previous ends, the last ending where the first starts. Their points must already belong to sweep or Coons patches. */
+    edges: IAutoMovieSurfaceNetwork.IEdge[];
+
+    /**
+     * Direction of travel at the loop: `normal` and `inward` along or against a sweep's outward normal, `forward` and `backward` along or against its spine (`+u` or `-u`), and `across` within the sweep's tangent plane perpendicular to the loop, `N x L` for the outward normal `N` and the loop's direction `L` at the point, which points into the region the loop encloses when the loop runs counterclockwise about `N`. `across` places each generating row's endpoint tangent in the supplied plane, while `normal` supplies its perpendicular. Final joined-skin normals and curvature require separate evaluation. Points of a curve edge take the curve's `normal` as `N` under `across` and the curve's `direction` under every other rule.
      */
-    export interface ILoop {
-      /** Edges in order, each starting where the previous ends, the last ending where the first starts. Their points must already belong to sweep or Coons patches. */
-      edges: IAutoMovieSurfaceNetwork.IEdge[];
-  
-      /**
-       * Direction of travel at the loop: `normal` and `inward` along or against a sweep's outward normal, `forward` and `backward` along or against its spine (`+u` or `-u`), and `across` within the sweep's tangent plane perpendicular to the loop, `N x L` for the outward normal `N` and the loop's direction `L` at the point, which points into the region the loop encloses when the loop runs counterclockwise about `N`. `across` places each generating row's endpoint tangent in the supplied plane, while `normal` supplies its perpendicular. Final joined-skin normals and curvature require separate evaluation. Points of a curve edge take the curve's `normal` as `N` under `across` and the curve's `direction` under every other rule.
-       */
-      tangent: "normal" | "inward" | "forward" | "backward" | "across";
-    }
+    tangent: "normal" | "inward" | "forward" | "backward" | "across";
+  }
 
   /**
-     * A closed loop of edges reported by name, such as the opening a neighbour joins.
-     *
-     * @evidence contracts/development/design.md#principled-representation A named closed loop of patch vertices, optionally pinned to positions a neighbouring part shares.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Edges and optional positions.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts Pinned positions are kept as given and not fitted.
-     * @evidence contracts/development/common.md#meaningful-documentation States what a ring reports and what pinning means.
+   * A closed loop of edges reported by name, such as the opening a neighbour joins.
+   *
+   * @evidence contracts/development/design.md#principled-representation A named closed loop of patch vertices, optionally pinned to positions a neighbouring part shares.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Edges and optional positions.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Pinned positions are kept as given and not fitted.
+   * @evidence contracts/development/common.md#meaningful-documentation States what a ring reports and what pinning means.
+   */
+  export interface IRing {
+    /** Name unique among the rings. */
+    name: string;
+
+    /** Edges in order, closed, whose points belong to patches. */
+    edges: IAutoMovieSurfaceNetwork.IEdge[];
+
+    /** Control positions the loop's vertices take, in loop order, metres; they are kept as given and not fitted. Omitted, the vertices are fitted like any other. */
+    positions?: IAutoMovieVector3[];
+
+    /**
+     * Target limit perimeter at rest, metres, such as a measured girth; omitted, none. The loop must run once round one sweep at one `u`, through vertices of valence four whose loop neighbours lie opposite, beside rows of such vertices, so the limit along it is a uniform cubic B-spline; it cannot also have `positions`. The sweep's points are scaled radially by a factor along `u`, the sampled-overshoot-policy spline through 1 at the sweep's other rings at one `u` and, at each such loop, the factor solved so the fitted cage's limit perimeter there matches, holding its end values beyond the outermost knots; the factor is solved at rest for each tier and retained, without re-solving the perimeter in every pose.
      */
-    export interface IRing {
-      /** Name unique among the rings. */
-      name: string;
-  
-      /** Edges in order, closed, whose points belong to patches. */
-      edges: IAutoMovieSurfaceNetwork.IEdge[];
-  
-      /** Control positions the loop's vertices take, in loop order, metres; they are kept as given and not fitted. Omitted, the vertices are fitted like any other. */
-      positions?: IAutoMovieVector3[];
-  
-      /**
-       * Target limit perimeter at rest, metres, such as a measured girth; omitted, none. The loop must run once round one sweep at one `u`, through vertices of valence four whose loop neighbours lie opposite, beside rows of such vertices, so the limit along it is a uniform cubic B-spline; it cannot also have `positions`. The sweep's points are scaled radially by a factor along `u`, the sampled-overshoot-policy spline through 1 at the sweep's other rings at one `u` and, at each such loop, the factor solved so the fitted cage's limit perimeter there matches, holding its end values beyond the outermost knots; the factor is solved at rest for each tier and retained, without re-solving the perimeter in every pose.
-       */
-      perimeter?: number;
-    }
+    perimeter?: number;
+  }
 
   /**
-     * A patch's rectangle in texture space; `s` maps linearly onto the first range and `t` onto the second.
-     *
-     * @evidence contracts/development/design.md#principled-representation A linear map of patch coordinates onto a texture rectangle.
-     * @evidence contracts/development/design.md#minimal-and-owned-surface Two ranges.
-     * @evidence contracts/development/design.md#prohibited-design-shortcuts No packing is attempted; the author places rectangles.
-     * @evidence contracts/development/common.md#meaningful-documentation States the mapping.
-     */
-    export interface IUvRect {
-      /** Texture `u` at `s` 0 and 1. */
-      s: [number, number];
-  
-      /** Texture `v` at `t` 0 and 1. */
-      t: [number, number];
-    }
+   * A patch's rectangle in texture space; `s` maps linearly onto the first range and `t` onto the second.
+   *
+   * @evidence contracts/development/design.md#principled-representation A linear map of patch coordinates onto a texture rectangle.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two ranges.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No packing is attempted; the author places rectangles.
+   * @evidence contracts/development/common.md#meaningful-documentation States the mapping.
+   */
+  export interface IUvRect {
+    /** Texture `u` at `s` 0 and 1. */
+    s: [number, number];
+
+    /** Texture `v` at `t` 0 and 1. */
+    t: [number, number];
+  }
 }

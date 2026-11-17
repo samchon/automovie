@@ -1,8 +1,27 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanStand, IAutoMovieMotionHumanStrikingHeld, IAutoMovieQuaternion, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { createClub, createSword, createTable } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanHand, HumanObject, HumanPerformance, StrikingHeld, stand } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanStand,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieQuaternion,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanHand,
+  HumanObject,
+  HumanPerformance,
+  StrikingHeld,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -76,19 +95,25 @@ export function test_human_motion_held_tool_line(): void {
   ];
   for (const one of cases) {
     // What the reading law read, and when.
-    const seen: { tool: IAutoMovieMotionHumanStrikingHeld.ITool | null; at: number } = {
+    const seen: {
+      tool: IAutoMovieMotionHumanStrikingHeld.ITool | null;
+      at: number;
+    } = {
       tool: null,
       at: Number.NaN,
     };
-    const reading: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> = {
-      name: "readHeld",
-      interrupts: stand.interrupts,
-      plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>): IAutoMovieMotionHumanActionPlan => {
-        seen.tool = StrikingHeld.of(context, "right", "tool", one.points);
-        seen.at = context.start;
-        return stand.plan(context);
-      },
-    };
+    const reading: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
+      {
+        name: "readHeld",
+        interrupts: stand.interrupts,
+        plan: (
+          context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
+        ): IAutoMovieMotionHumanActionPlan => {
+          seen.tool = StrikingHeld.of(context, "right", "tool", one.points);
+          seen.at = context.start;
+          return stand.plan(context);
+        },
+      };
     let film: IAutoMovieMotionHumanPerformance;
     try {
       film = new HumanPerformance({
@@ -125,7 +150,10 @@ export function test_human_motion_held_tool_line(): void {
     }
     const segment: IAutoMovieMotionHumanSegment.ISegment | undefined = film
       .segments("a")
-      .find((s: IAutoMovieMotionHumanSegment.ISegment): boolean => s.name === "readHeld");
+      .find(
+        (s: IAutoMovieMotionHumanSegment.ISegment): boolean =>
+          s.name === "readHeld",
+      );
     const tool: IAutoMovieMotionHumanStrikingHeld.ITool | null = seen.tool;
     const at: number = seen.at;
     if (segment === undefined || tool === null) {

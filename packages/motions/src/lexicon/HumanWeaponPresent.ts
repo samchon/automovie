@@ -1,6 +1,16 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanStrikingHeld, IAutoMovieMotionHumanWeaponHeld, IAutoMovieMotionHumanWeaponPresent, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionHumanWeaponHeld,
+  IAutoMovieMotionHumanWeaponPresent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -62,7 +72,6 @@ import { HumanWeaponTrack } from "./HumanWeaponTrack";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No firearm kind is named: a long gun is a prop with a fore-end, and lengths are shares of the arm and the weapon's own length.
  */
 export namespace HumanWeaponPresent {
-
   /** The widest angle between the heading and the target the arms present to without a turn of the feet, degrees (provisional). */
   export const TURN: number = 60;
 
@@ -89,7 +98,9 @@ export namespace HumanWeaponPresent {
   };
 
   /** The cancel table of a firearm action: anything may follow from the named instant on, the grip kept. */
-  const from = (instant: string): IAutoMovieMotionHumanActionLaw["interrupts"] => ({
+  const from = (
+    instant: string,
+  ): IAutoMovieMotionHumanActionLaw["interrupts"] => ({
     any: [
       {
         window: [instant, 1],
@@ -114,147 +125,152 @@ export namespace HumanWeaponPresent {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan and its demands read one pose (`HumanWeaponPose`), so a grip is judged at the pose the plan strokes to.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
    */
-  export const present: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWeaponPresent.IPresent> = {
-    name: "presentWeapon",
-    interrupts: from("stroke"),
-    overlay: true,
-    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IPresent>): IAutoMovieMotionHumanActionPlan => {
-      const p: IAutoMovieMotionHumanWeaponPresent.IPresent = context.params;
-      const s: IAutoMovieMotionHumanWeaponHeld.ISetup = HumanWeaponHeld.setup(
-        context,
-        HumanWeaponHeld.held(context),
-      );
-      const seconds: number = p.seconds ?? 1;
-      HumanBound.least("seconds", seconds, 0, "s");
-      // Over a carrier the weapon is presented from the carrier's posture
-      // where the presentation begins (a stance raised onto a cart's bed),
-      // not from the state before the carrier began.
-      const { turn, bladed, eye, target, line, carriage, pose } =
-        HumanWeaponPose.of(
+  export const present: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWeaponPresent.IPresent> =
+    {
+      name: "presentWeapon",
+      interrupts: from("stroke"),
+      overlay: true,
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IPresent>,
+      ): IAutoMovieMotionHumanActionPlan => {
+        const p: IAutoMovieMotionHumanWeaponPresent.IPresent = context.params;
+        const s: IAutoMovieMotionHumanWeaponHeld.ISetup = HumanWeaponHeld.setup(
           context,
-          context.carrier?.posture(0) ?? context.entry.posture,
-          context.start,
-          s,
+          HumanWeaponHeld.held(context),
         );
-      StrikingRoll.reachable(
-        context,
-        s.tool,
-        pose,
-        s.tool.length,
-        bladed,
-        "face the target, or present the weapon at a ready position",
-      );
-      const set: number = HumanSkill.jitter(
-        context.skill,
-        context.random("present"),
-        HumanSkill.quantity(context.skill, "speed", PRESENT[0], PRESENT[1]),
-      );
-      return HumanWeaponHeld.carried(
-        context,
-        s,
-        StrikingBlade.plan(context, {
-          tool: s.tool,
-          clock: AutoMovieMotionManner.time(
-            AutoMovieMotionClock.phrase({
-              prepare: set,
-              attack: 0,
-              hold: seconds,
-              retract: 0,
-            }),
-            AutoMovieMotionManner.of(context, p.manner),
-          ),
-          path: HumanWeaponTrack.path(
+        const seconds: number = p.seconds ?? 1;
+        HumanBound.least("seconds", seconds, 0, "s");
+        // Over a carrier the weapon is presented from the carrier's posture
+        // where the presentation begins (a stance raised onto a cart's bed),
+        // not from the state before the carrier began.
+        const { turn, bladed, eye, target, line, carriage, pose } =
+          HumanWeaponPose.of(
             context,
-            pose,
-            eye,
-            carriage === "aim" ? target : null,
-          ),
-          back: carriage === "aim" ? 0 : s.tool.length,
-          // At the recover the left hand holds the firelock above the lock.
-          support:
-            carriage === "recover" && s.lock !== undefined
-              ? s.lock
-              : HumanWeaponHeld.supported(context, s, pose, bladed),
-          turn,
-          advance: "none",
-          line,
-          stay: true,
-          stop: 1,
-        }),
-        // An aimed weapon keeps its line on the target from a moving support.
-        carriage === "aim" ? { target, pivot: eye } : undefined,
-      );
-    },
-    // A grip a pick up weighs for this presentation is judged at the pose
-    // the plan strokes to, with that grip's weapon, by the bound the plan
-    // refuses it by (`StrikingRoll.reachable`); a presentation the plan
-    // refuses whatever the grip (a target past `TURN`) asks nothing of it.
-    demands: (
-      ahead: IAutoMovieMotionHumanActionLaw.IAhead<IAutoMovieMotionHumanWeaponPresent.IPresent>,
-    ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] => {
-      const p: IAutoMovieMotionHumanWeaponPresent.IPresent = ahead.params;
-      const grip: IAutoMovieMotionHumanActionLaw.IGrip = ahead.grip;
-      if (
-        p.gun === undefined ||
-        grip.prop !== p.gun ||
-        grip.side !== HumanWeaponHeld.hand(p)
-      )
-        return [];
-      const s: IAutoMovieMotionHumanWeaponHeld.ISetup = HumanWeaponHeld.setup(
-        ahead,
-        (points: IAutoMovieMotionHumanStrikingHeld.IPoints): IAutoMovieMotionHumanStrikingHeld.ITool => grip.tool(points),
-      );
-      try {
-        const { bladed, pose, carriage } = HumanWeaponPose.of(
-          ahead,
-          grip.posture,
-          ahead.start,
-          s,
+            context.carrier?.posture(0) ?? context.entry.posture,
+            context.start,
+            s,
+          );
+        StrikingRoll.reachable(
+          context,
+          s.tool,
+          pose,
+          s.tool.length,
+          bladed,
+          "face the target, or present the weapon at a ready position",
         );
-        return [
-          {
-            posture: bladed,
+        const set: number = HumanSkill.jitter(
+          context.skill,
+          context.random("present"),
+          HumanSkill.quantity(context.skill, "speed", PRESENT[0], PRESENT[1]),
+        );
+        return HumanWeaponHeld.carried(
+          context,
+          s,
+          StrikingBlade.plan(context, {
             tool: s.tool,
-            frame: pose,
+            clock: AutoMovieMotionManner.time(
+              AutoMovieMotionClock.phrase({
+                prepare: set,
+                attack: 0,
+                hold: seconds,
+                retract: 0,
+              }),
+              AutoMovieMotionManner.of(context, p.manner),
+            ),
+            path: HumanWeaponTrack.path(
+              context,
+              pose,
+              eye,
+              carriage === "aim" ? target : null,
+            ),
             back: carriage === "aim" ? 0 : s.tool.length,
-            bound: StrikingRoll.MISS,
-          },
-        ];
-      } catch (error) {
-        if (error instanceof HumanRefusal) {
-          if (
-            error.axis === "target" &&
-            error.feasible?.kind === "range" &&
-            error.feasible.unit === "deg"
-          )
-            return [];
-
-          // A pose impossible for this grip is an infeasibility certificate,
-          // not an absence of requirements on the grip. The candidate's
-          // entry frame supplies a finite key; least forbids accepting it.
-          const lying: IAutoMovieMotionHumanProp.IFrame = ahead.prop(p.gun).frame(ahead.start);
-          const frame: IAutoMovieMotionHumanProp.IFrame = HumanPropFrame.parent(
-            lying,
-            s.tool.held!.frame,
+            // At the recover the left hand holds the firelock above the lock.
+            support:
+              carriage === "recover" && s.lock !== undefined
+                ? s.lock
+                : HumanWeaponHeld.supported(context, s, pose, bladed),
+            turn,
+            advance: "none",
+            line,
+            stay: true,
+            stop: 1,
+          }),
+          // An aimed weapon keeps its line on the target from a moving support.
+          carriage === "aim" ? { target, pivot: eye } : undefined,
+        );
+      },
+      // A grip a pick up weighs for this presentation is judged at the pose
+      // the plan strokes to, with that grip's weapon, by the bound the plan
+      // refuses it by (`StrikingRoll.reachable`); a presentation the plan
+      // refuses whatever the grip (a target past `TURN`) asks nothing of it.
+      demands: (
+        ahead: IAutoMovieMotionHumanActionLaw.IAhead<IAutoMovieMotionHumanWeaponPresent.IPresent>,
+      ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] => {
+        const p: IAutoMovieMotionHumanWeaponPresent.IPresent = ahead.params;
+        const grip: IAutoMovieMotionHumanActionLaw.IGrip = ahead.grip;
+        if (
+          p.gun === undefined ||
+          grip.prop !== p.gun ||
+          grip.side !== HumanWeaponHeld.hand(p)
+        )
+          return [];
+        const s: IAutoMovieMotionHumanWeaponHeld.ISetup = HumanWeaponHeld.setup(
+          ahead,
+          (
+            points: IAutoMovieMotionHumanStrikingHeld.IPoints,
+          ): IAutoMovieMotionHumanStrikingHeld.ITool => grip.tool(points),
+        );
+        try {
+          const { bladed, pose, carriage } = HumanWeaponPose.of(
+            ahead,
+            grip.posture,
+            ahead.start,
+            s,
           );
           return [
             {
-              posture: grip.posture,
+              posture: bladed,
               tool: s.tool,
-              frame: {
-                point: frame.position,
-                rotation: frame.rotation,
-              },
-              back: s.tool.length,
+              frame: pose,
+              back: carriage === "aim" ? 0 : s.tool.length,
               bound: StrikingRoll.MISS,
-              least: Infinity,
             },
           ];
+        } catch (error) {
+          if (error instanceof HumanRefusal) {
+            if (
+              error.axis === "target" &&
+              error.feasible?.kind === "range" &&
+              error.feasible.unit === "deg"
+            )
+              return [];
+
+            // A pose impossible for this grip is an infeasibility certificate,
+            // not an absence of requirements on the grip. The candidate's
+            // entry frame supplies a finite key; least forbids accepting it.
+            const lying: IAutoMovieMotionHumanProp.IFrame = ahead
+              .prop(p.gun)
+              .frame(ahead.start);
+            const frame: IAutoMovieMotionHumanProp.IFrame =
+              HumanPropFrame.parent(lying, s.tool.held!.frame);
+            return [
+              {
+                posture: grip.posture,
+                tool: s.tool,
+                frame: {
+                  point: frame.position,
+                  rotation: frame.rotation,
+                },
+                back: s.tool.length,
+                bound: StrikingRoll.MISS,
+                least: Infinity,
+              },
+            ];
+          }
+          throw error;
         }
-        throw error;
-      }
-    },
-  };
+      },
+    };
 
   /**
    * Fire one shot from where the weapon is held: the trigger breaks at `strokeStart` (the decisive instant), the recoil peaks at `stroke`, and the weapon is back where it was held at the end.
@@ -267,141 +283,151 @@ export namespace HumanWeaponPresent {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
    */
-  export const fire: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWeaponPresent.IWield> = {
-    name: "fireWeapon",
-    interrupts: from("relax"),
-    overlay: true,
-    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IWield>): IAutoMovieMotionHumanActionPlan => {
-      const s: IAutoMovieMotionHumanWeaponHeld.ISetup = HumanWeaponHeld.setup(
-        context,
-        HumanWeaponHeld.held(context),
-      );
-      const bones: ReturnType<typeof poseBones> = poseBones(
-        context.body,
-        context.entry.pose,
-      );
-      const held: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
-        point: HumanHand.frame(context.body, bones, s.tool.side, "grip").point,
-        rotation: bones.get(`${s.tool.side}Hand`)!.worldRotation,
-      };
-      const bore: IAutoMovieVector3 = Quaternion.rotateVector(
-        held.rotation,
-        s.tool.axis,
-      );
-      const across: IAutoMovieVector3 = Vector3.cross(bore, {
-        x: 0,
-        y: 1,
-        z: 0,
-      });
-      const about: IAutoMovieVector3 =
-        Vector3.length(across) < 1e-6
-          ? Quaternion.rotateVector(
-              held.rotation,
-              Vector3.cross(s.tool.axis, s.tool.edge),
-            )
-          : Vector3.normalize(across);
-      const rise: number = HumanSkill.quantity(
-        context.skill,
-        "recovery",
-        RISE[0],
-        RISE[1],
-      );
-      const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
-        AutoMovieMotionClock.phrase({
-          prepare: 0,
-          wait: SHOT.press,
-          attack: SHOT.rise,
-          retract: SHOT.recover,
-        }),
-        AutoMovieMotionManner.of(context, context.params.manner),
-      );
-      const shot: IAutoMovieMotionHumanActionPlan = StrikingBlade.plan(context, {
-        tool: s.tool,
-        clock,
-        path: (progress: number): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
-          point: held.point,
-          rotation: Quaternion.multiply(
-            Quaternion.fromAxisAngle(about, rise * Math.min(1, progress)),
-            held.rotation,
-          ),
-        }),
-        back: s.tool.length,
-        support: s.support,
-        advance: "none",
-        line: { x: 0, y: 0, z: 1 },
-        stay: false,
-        stop: 1,
-        decisive: "strokeStart",
-        kept: true,
-      });
-
-      // The trigger is pressed to its full travel by the break and springs
-      // back by the end, on the clock's minimum-jerk envelope.
-      const trigger: IAutoMovieAffordance | undefined =
-        context.params.gun === undefined
-          ? undefined
-          : (context.prop(context.params.gun).prop.affordances ?? []).find(
-              (a: IAutoMovieAffordance): boolean => a.kind === "trigger",
-            );
-      const full: number | undefined = trigger?.travel;
-      const drives: IAutoMovieMotionHumanActionPlan.IDrive[] =
-        trigger === undefined || full === undefined
-          ? []
-          : [
-              {
-                prop: context.params.gun!,
-                articulation: trigger.id,
-                from: 0,
-                to: 1,
-                travel: (seconds: number): number =>
-                  full *
-                  clock.envelope(
-                    ["start", "strokeStart"],
-                    ["strokeEnd", "end"],
-                    seconds,
-                  ),
-              },
-            ];
-
-      // The shot leaves the muzzle along the bore, its direction drawn
-      // inside the declared dispersion's cone from the shooter's own stream
-      // (uniform over the cone's disc), at the break plus the lock's time,
-      // with the support's velocity added (#3488, #3491).
-      const fired: IAutoMovieMotionHumanWeaponPresent.IWield["shot"] = context.params.shot;
-      const launches: IAutoMovieMotionHumanActionPlan.ILaunch[] = [];
-      if (fired !== undefined) {
-        const random: ReturnType<typeof context.random> =
-          context.random("dispersion");
-        const off: number = DISPERSION * Math.sqrt(random.float(0));
-        const around: number = 360 * random.float(1);
-        const square: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.fromAxisAngle(bore, around),
-          about,
+  export const fire: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWeaponPresent.IWield> =
+    {
+      name: "fireWeapon",
+      interrupts: from("relax"),
+      overlay: true,
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IWield>,
+      ): IAutoMovieMotionHumanActionPlan => {
+        const s: IAutoMovieMotionHumanWeaponHeld.ISetup = HumanWeaponHeld.setup(
+          context,
+          HumanWeaponHeld.held(context),
         );
-        const direction: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.fromAxisAngle(square, off),
-          bore,
+        const bones: ReturnType<typeof poseBones> = poseBones(
+          context.body,
+          context.entry.pose,
         );
-        const seconds: number = clock.at("strokeStart") + (fired.lock ?? 0);
-        launches.push({
-          prop: fired.prop,
-          seconds,
-          point: Vector3.add(
-            held.point,
-            Quaternion.rotateVector(held.rotation, s.tool.tip),
-          ),
-          velocity: Vector3.add(
-            Vector3.scale(direction, fired.speed),
-            HumanSupportFrame.at(context, context.start + seconds).velocity,
-          ),
-          attitude: { kind: "velocity" },
+        const held: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
+          point: HumanHand.frame(context.body, bones, s.tool.side, "grip")
+            .point,
+          rotation: bones.get(`${s.tool.side}Hand`)!.worldRotation,
+        };
+        const bore: IAutoMovieVector3 = Quaternion.rotateVector(
+          held.rotation,
+          s.tool.axis,
+        );
+        const across: IAutoMovieVector3 = Vector3.cross(bore, {
+          x: 0,
+          y: 1,
+          z: 0,
         });
-      }
-      return HumanWeaponHeld.carried(context, s, {
-        ...shot,
-        ...(drives.length === 0 ? {} : { drives }),
-        ...(launches.length === 0 ? {} : { launches }),
-      });
-    },
-  };
+        const about: IAutoMovieVector3 =
+          Vector3.length(across) < 1e-6
+            ? Quaternion.rotateVector(
+                held.rotation,
+                Vector3.cross(s.tool.axis, s.tool.edge),
+              )
+            : Vector3.normalize(across);
+        const rise: number = HumanSkill.quantity(
+          context.skill,
+          "recovery",
+          RISE[0],
+          RISE[1],
+        );
+        const clock: IAutoMovieMotionClock.IClock = AutoMovieMotionManner.time(
+          AutoMovieMotionClock.phrase({
+            prepare: 0,
+            wait: SHOT.press,
+            attack: SHOT.rise,
+            retract: SHOT.recover,
+          }),
+          AutoMovieMotionManner.of(context, context.params.manner),
+        );
+        const shot: IAutoMovieMotionHumanActionPlan = StrikingBlade.plan(
+          context,
+          {
+            tool: s.tool,
+            clock,
+            path: (
+              progress: number,
+            ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => ({
+              point: held.point,
+              rotation: Quaternion.multiply(
+                Quaternion.fromAxisAngle(about, rise * Math.min(1, progress)),
+                held.rotation,
+              ),
+            }),
+            back: s.tool.length,
+            support: s.support,
+            advance: "none",
+            line: { x: 0, y: 0, z: 1 },
+            stay: false,
+            stop: 1,
+            decisive: "strokeStart",
+            kept: true,
+          },
+        );
+
+        // The trigger is pressed to its full travel by the break and springs
+        // back by the end, on the clock's minimum-jerk envelope.
+        const trigger: IAutoMovieAffordance | undefined =
+          context.params.gun === undefined
+            ? undefined
+            : (context.prop(context.params.gun).prop.affordances ?? []).find(
+                (a: IAutoMovieAffordance): boolean => a.kind === "trigger",
+              );
+        const full: number | undefined = trigger?.travel;
+        const drives: IAutoMovieMotionHumanActionPlan.IDrive[] =
+          trigger === undefined || full === undefined
+            ? []
+            : [
+                {
+                  prop: context.params.gun!,
+                  articulation: trigger.id,
+                  from: 0,
+                  to: 1,
+                  travel: (seconds: number): number =>
+                    full *
+                    clock.envelope(
+                      ["start", "strokeStart"],
+                      ["strokeEnd", "end"],
+                      seconds,
+                    ),
+                },
+              ];
+
+        // The shot leaves the muzzle along the bore, its direction drawn
+        // inside the declared dispersion's cone from the shooter's own stream
+        // (uniform over the cone's disc), at the break plus the lock's time,
+        // with the support's velocity added (#3488, #3491).
+        const fired: IAutoMovieMotionHumanWeaponPresent.IWield["shot"] =
+          context.params.shot;
+        const launches: IAutoMovieMotionHumanActionPlan.ILaunch[] = [];
+        if (fired !== undefined) {
+          const random: ReturnType<typeof context.random> =
+            context.random("dispersion");
+          const off: number = DISPERSION * Math.sqrt(random.float(0));
+          const around: number = 360 * random.float(1);
+          const square: IAutoMovieVector3 = Quaternion.rotateVector(
+            Quaternion.fromAxisAngle(bore, around),
+            about,
+          );
+          const direction: IAutoMovieVector3 = Quaternion.rotateVector(
+            Quaternion.fromAxisAngle(square, off),
+            bore,
+          );
+          const seconds: number = clock.at("strokeStart") + (fired.lock ?? 0);
+          launches.push({
+            prop: fired.prop,
+            seconds,
+            point: Vector3.add(
+              held.point,
+              Quaternion.rotateVector(held.rotation, s.tool.tip),
+            ),
+            velocity: Vector3.add(
+              Vector3.scale(direction, fired.speed),
+              HumanSupportFrame.at(context, context.start + seconds).velocity,
+            ),
+            attitude: { kind: "velocity" },
+          });
+        }
+        return HumanWeaponHeld.carried(context, s, {
+          ...shot,
+          ...(drives.length === 0 ? {} : { drives }),
+          ...(launches.length === 0 ? {} : { launches }),
+        });
+      },
+    };
 }

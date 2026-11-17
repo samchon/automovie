@@ -1,6 +1,16 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBase, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRise, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBase,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRise,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
@@ -14,7 +24,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
 
 /** Where the pelvis is at an instant of getting off: the root, the heading, the pelvis pitch and the set joints. */
-type Frame = Pick<IAutoMovieMotionHumanPosture, "root" | "yaw" | "pitch" | "joints">;
+type Frame = Pick<
+  IAutoMovieMotionHumanPosture,
+  "root" | "yaw" | "pitch" | "joints"
+>;
 
 /**
  * Getting off a high seat onto the floor: what `rise` plans where a foot is
@@ -149,7 +162,8 @@ export namespace HumanMountOff {
       AutoMovieMotionManner.of(context, context.params.manner).tempo;
     const seatOff: number = 0.15 * duration;
     const hop: number = sideways ? HumanMount.HOP * m.thigh : 0;
-    const upright: IAutoMovieMotionHumanPosture["joints"] = standUpright.of(body).joints;
+    const upright: IAutoMovieMotionHumanPosture["joints"] =
+      standUpright.of(body).joints;
     const crossing: readonly [number, number] = sideways
       ? [0.3 * duration, 0.8 * duration]
       : [seatOff, 0.8 * duration];
@@ -172,8 +186,10 @@ export namespace HumanMountOff {
             (HumanMount.LEAN - pitch0) * minimumJerk(t / (0.4 * duration)).s
           : HumanMount.LEAN *
             (1 - minimumJerk((t - 0.4 * duration) / (0.6 * duration)).s);
-      const tilt: { pitch: number; joints: IAutoMovieMotionHumanPosture["joints"] } =
-        HumanTrunk.incline({ ...stand.relaxed(body), ...upright }, lean);
+      const tilt: {
+        pitch: number;
+        joints: IAutoMovieMotionHumanPosture["joints"];
+      } = HumanTrunk.incline({ ...stand.relaxed(body), ...upright }, lean);
       return {
         root: seated.root(body, socket, { yaw, pitch: tilt.pitch, roll: 0 }),
         yaw,

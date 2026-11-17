@@ -1,5 +1,8 @@
-import type { IAutoMovieMeasurePhysicalMotionConstraint, IAutoMoviePhysicsCache, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieMeasurePhysicalMotionConstraint,
+  IAutoMoviePhysicsCache,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -27,10 +30,12 @@ export function measurePhysicalMotionConstraint(
   ) => IAutoMovieVector3 = (
     anchor: IAutoMovieMeasurePhysicalMotionConstraint.IAnchor,
   ): IAutoMovieVector3 => {
-    const frame: IAutoMoviePhysicsCache.ISegment | undefined = states[anchor.bone];
+    const frame: IAutoMoviePhysicsCache.ISegment | undefined =
+      states[anchor.bone];
     if (!frame) throw new Error(`Motion audit point missing: ${anchor.bone}`);
     if (anchor.blend) {
-      const other: IAutoMoviePhysicsCache.ISegment | undefined = states[anchor.blend.other];
+      const other: IAutoMoviePhysicsCache.ISegment | undefined =
+        states[anchor.blend.other];
       if (
         !other ||
         !Number.isFinite(anchor.blend.weight) ||
@@ -47,7 +52,8 @@ export function measurePhysicalMotionConstraint(
       );
     }
     if (anchor.ray) {
-      const from: IAutoMoviePhysicsCache.ISegment | undefined = states[anchor.ray.from];
+      const from: IAutoMoviePhysicsCache.ISegment | undefined =
+        states[anchor.ray.from];
       if (
         !from ||
         !(anchor.ray.distance >= 0) ||

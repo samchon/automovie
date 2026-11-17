@@ -1,7 +1,8 @@
-import type { IAutoMovieCompiledShotSource, IAutoMovieRenderTargetSettings, IAutoMovieRenderTargetSettingsOfShotProps } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieCompiledShotSource,
+  IAutoMovieRenderTargetSettings,
+  IAutoMovieRenderTargetSettingsOfShotProps,
+} from "@automovie/interface";
 
 /**
  * Project intended renderer settings from one compiled shot and caller-supplied target dimensions.
@@ -18,7 +19,11 @@ import type { IAutoMovieCompiledShotSource, IAutoMovieRenderTargetSettings, IAut
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Compiled environment policy is read directly without rebuilding scene state or resealing assets; each invocation reflects its supplied dimensions and pixel ratio.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The settings record contains only scalar values, so no compiled geometry, GPU allocation or host session is retained.
  */
-export const autoMovieRenderTargetSettingsOfShot: (props: IAutoMovieRenderTargetSettingsOfShotProps) => IAutoMovieRenderTargetSettings = (props: IAutoMovieRenderTargetSettingsOfShotProps): IAutoMovieRenderTargetSettings => {
+export const autoMovieRenderTargetSettingsOfShot: (
+  props: IAutoMovieRenderTargetSettingsOfShotProps,
+) => IAutoMovieRenderTargetSettings = (
+  props: IAutoMovieRenderTargetSettingsOfShotProps,
+): IAutoMovieRenderTargetSettings => {
   const environment:
     | IAutoMovieCompiledShotSource["scene"]["environment"]
     | null = props.compiled.scene.environment ?? null;

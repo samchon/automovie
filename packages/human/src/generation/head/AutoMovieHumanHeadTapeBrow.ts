@@ -1,10 +1,10 @@
-import type { IAutoMovieHumanHeadTape, IAutoMovieHumanHeadTapeBrow, IAutoMovieHumanHeadTapeSource } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieHumanHeadTape,
+  IAutoMovieHumanHeadTapeBrow,
+  IAutoMovieHumanHeadTapeSource,
+} from "@automovie/interface";
 
 import { AutoMovieHumanHeadTapeSource } from "./AutoMovieHumanHeadTapeSource";
-
 
 /**
  * Posterior tape search at one explicitly supplied anterior brow-seat datum.
@@ -18,8 +18,6 @@ import { AutoMovieHumanHeadTapeSource } from "./AutoMovieHumanHeadTapeSource";
  * allows.
  */
 export namespace AutoMovieHumanHeadTapeBrow {
-  
-
   /**
    * Maximize the observed posterior course at a fixed original brow seat.
    *
@@ -52,14 +50,17 @@ export namespace AutoMovieHumanHeadTapeBrow {
         reader.source.domain[0] <= first &&
         first < brow &&
         brow < reader.source.domain[1] &&
-        attachments.every((point: IAutoMovieHumanHeadTapeBrow.P2): boolean => point.every(Number.isFinite))
+        attachments.every((point: IAutoMovieHumanHeadTapeBrow.P2): boolean =>
+          point.every(Number.isFinite),
+        )
       )
     )
       throw new Error(
         "Head brow tape has no ordered regular upper-source interval",
       );
     const span: number = brow - first;
-    const cache: Map<number, IAutoMovieHumanHeadTape.ICourse | null> = new Map();
+    const cache: Map<number, IAutoMovieHumanHeadTape.ICourse | null> =
+      new Map();
     let evaluations: number = 0;
     const evaluate: (back: number) => IAutoMovieHumanHeadTape.ICourse | null = (
       back: number,
@@ -76,7 +77,8 @@ export namespace AutoMovieHumanHeadTapeBrow {
         AutoMovieHumanHeadTapeSource.plane(reader, brow, back);
       if (
         attachments.some(
-          (point: IAutoMovieHumanHeadTapeBrow.P2): boolean => plane.a + plane.b * point[0] < point[1],
+          (point: IAutoMovieHumanHeadTapeBrow.P2): boolean =>
+            plane.a + plane.b * point[0] < point[1],
         )
       ) {
         cache.set(back, null);
@@ -101,7 +103,9 @@ export namespace AutoMovieHumanHeadTapeBrow {
       return course;
     };
     let best: IAutoMovieHumanHeadTape.ICourse | null = null;
-    const retain: (candidate: IAutoMovieHumanHeadTape.ICourse | null) => number = (
+    const retain: (
+      candidate: IAutoMovieHumanHeadTape.ICourse | null,
+    ) => number = (
       candidate: IAutoMovieHumanHeadTape.ICourse | null,
     ): number => {
       if (
@@ -133,8 +137,12 @@ export namespace AutoMovieHumanHeadTapeBrow {
     // when the seed still beats both; any other outcome scans completely.
     if (mode === "continued" && seed !== undefined) {
       const target: number = first + seed[1] * span;
-      const below: number | undefined = grid.filter((s: number): boolean => s < target).at(-1);
-      const above: number | undefined = grid.find((s: number): boolean => s > target);
+      const below: number | undefined = grid
+        .filter((s: number): boolean => s < target)
+        .at(-1);
+      const above: number | undefined = grid.find(
+        (s: number): boolean => s > target,
+      );
       if (below !== undefined && above !== undefined) {
         const centre: number = retain(evaluate(target));
         if (
@@ -148,9 +156,13 @@ export namespace AutoMovieHumanHeadTapeBrow {
       }
     }
     const sites: number[] = [
-      ...new Set([...grid, ...(seed === undefined ? [] : [first + seed[1] * span])]),
+      ...new Set([
+        ...grid,
+        ...(seed === undefined ? [] : [first + seed[1] * span]),
+      ]),
     ].sort((a: number, b: number): number => a - b);
-    const coarse: (IAutoMovieHumanHeadTape.ICourse | null)[] = sites.map(evaluate);
+    const coarse: (IAutoMovieHumanHeadTape.ICourse | null)[] =
+      sites.map(evaluate);
     coarse.forEach(retain);
     for (let index: number = 0; index < sites.length; index++) {
       const candidate: IAutoMovieHumanHeadTape.ICourse | null = coarse[index]!;
@@ -174,7 +186,8 @@ export namespace AutoMovieHumanHeadTapeBrow {
       // former golden-section resolution.
       const tolerance: number = 0.25e-7 * span;
       const golden: number = (3 - Math.sqrt(5)) / 2;
-      const g: (x: number) => number = (x: number): number => -retain(evaluate(x));
+      const g: (x: number) => number = (x: number): number =>
+        -retain(evaluate(x));
       let a: number = low;
       let b: number = high;
       let x: number = a + golden * (b - a);
@@ -199,7 +212,11 @@ export namespace AutoMovieHumanHeadTapeBrow {
           q = Math.abs(q);
           const previous: number = e;
           e = d;
-          if (Math.abs(p) < Math.abs(0.5 * q * previous) && p > q * (a - x) && p < q * (b - x)) {
+          if (
+            Math.abs(p) < Math.abs(0.5 * q * previous) &&
+            p > q * (a - x) &&
+            p < q * (b - x)
+          ) {
             d = p / q;
             const u: number = x + d;
             if (u - a < 2 * tolerance || b - u < 2 * tolerance)
@@ -211,7 +228,10 @@ export namespace AutoMovieHumanHeadTapeBrow {
           e = x >= m ? a - x : b - x;
           d = golden * e;
         }
-        const u: number = Math.abs(d) >= tolerance ? x + d : x + (d >= 0 ? tolerance : -tolerance);
+        const u: number =
+          Math.abs(d) >= tolerance
+            ? x + d
+            : x + (d >= 0 ? tolerance : -tolerance);
         const gu: number = g(u);
         if (gu <= gx) {
           if (u >= x) a = x;
@@ -241,7 +261,8 @@ export namespace AutoMovieHumanHeadTapeBrow {
 
     /** Publish the best measured course with the existing boundary refusals. */
     function finish(): IAutoMovieHumanHeadTape.ICourse {
-      const selected: IAutoMovieHumanHeadTape.ICourse | null = best as IAutoMovieHumanHeadTape.ICourse | null;
+      const selected: IAutoMovieHumanHeadTape.ICourse | null =
+        best as IAutoMovieHumanHeadTape.ICourse | null;
       if (selected === null)
         throw new Error(
           "No original upper-head brow course passes the actual ear attachments",

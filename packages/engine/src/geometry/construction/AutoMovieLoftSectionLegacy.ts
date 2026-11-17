@@ -1,5 +1,12 @@
-import type { AutoMovieLoftSectionLegacyRows, IAutoMovieLoftChain, IAutoMovieLoftCoefficientSource, IAutoMovieLoftSectionJet, IAutoMovieLoftSectionLegacy, IAutoMovieLoftSectionPhase, IAutoMovieStationHermite } from "@automovie/interface";
-
+import type {
+  AutoMovieLoftSectionLegacyRows,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftCoefficientSource,
+  IAutoMovieLoftSectionJet,
+  IAutoMovieLoftSectionLegacy,
+  IAutoMovieLoftSectionPhase,
+  IAutoMovieStationHermite,
+} from "@automovie/interface";
 
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
@@ -15,7 +22,6 @@ import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftSectionLegacy {
-
   /**
    * Prepare only the requested station capability of the existing spline field.
    *
@@ -105,7 +111,10 @@ export namespace AutoMovieLoftSectionLegacy {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the basis evaluation between value and both phase derivatives.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns three fresh local vectors and retains no output.
    */
-  export function phase(prepared: IAutoMovieLoftSectionLegacy.IPrepared, phi: number): IAutoMovieLoftSectionPhase {
+  export function phase(
+    prepared: IAutoMovieLoftSectionLegacy.IPrepared,
+    phi: number,
+  ): IAutoMovieLoftSectionPhase {
     const q: [number, number, number, number, number, number] =
       AutoMovieSplineCurve.jet(prepared.rows[0], prepared.order, phi);
     return admit({ p: [q[0], q[1]], t: [q[2], q[3]], tt: [q[4], q[5]] });
@@ -122,7 +131,10 @@ export namespace AutoMovieLoftSectionLegacy {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses prepared actual station rows and the value/phase result.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh required vectors; unused higher derivative components are neither required finite nor exposed.
    */
-  export function jet(prepared: IAutoMovieLoftSectionLegacy.IPrepared, phi: number): IAutoMovieLoftSectionJet {
+  export function jet(
+    prepared: IAutoMovieLoftSectionLegacy.IPrepared,
+    phi: number,
+  ): IAutoMovieLoftSectionJet {
     if (prepared.kind !== "jet")
       throw new Error("The legacy station has no prepared physical source2.");
     const q: IAutoMovieLoftSectionPhase = phase(prepared, phi);

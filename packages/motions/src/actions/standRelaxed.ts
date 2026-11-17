@@ -1,6 +1,14 @@
-import type { AutoMovieHumanoidBone, IAutoMovieAngleRange, IAutoMovieBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMoviePose, IAutoMovieResolvedBone } from "@automovie/interface";
-
 import { ROM_TOLERANCE, getConstraint } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieAngleRange,
+  IAutoMovieBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
+
 import { HumanDigitFit } from "../posture/HumanDigitFit";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";

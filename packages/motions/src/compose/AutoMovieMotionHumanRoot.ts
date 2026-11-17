@@ -1,4 +1,10 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanRoot, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanRoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanFrame } from "../posture/HumanFrame";
 
@@ -18,7 +24,6 @@ import { HumanFrame } from "../posture/HumanFrame";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The offset is added to the posture so far, never set, so a root row composes with a moving base.
  */
 export namespace AutoMovieMotionHumanRoot {
-
   /**
    * A posture displaced in its own floor frame: the root moved along the
    * heading it had, then the heading turned.
@@ -64,7 +69,10 @@ export namespace AutoMovieMotionHumanRoot {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function scale(offset: IAutoMovieMotionHumanRoot.IOffset, share: number): IAutoMovieMotionHumanRoot.IOffset {
+  export function scale(
+    offset: IAutoMovieMotionHumanRoot.IOffset,
+    share: number,
+  ): IAutoMovieMotionHumanRoot.IOffset {
     return {
       point: {
         x: offset.point.x * share,
@@ -89,13 +97,17 @@ export namespace AutoMovieMotionHumanRoot {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
-  export function travel(props: IAutoMovieMotionHumanRoot.ITravel): IAutoMovieMotionHumanPrimitive {
+  export function travel(
+    props: IAutoMovieMotionHumanRoot.ITravel,
+  ): IAutoMovieMotionHumanPrimitive {
     return {
       channels: ["root"],
       from: props.from,
       to: props.to,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture =>
-        place(posture, props.offset(seconds)),
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => place(posture, props.offset(seconds)),
     };
   }
 

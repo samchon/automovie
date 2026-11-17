@@ -1,7 +1,9 @@
-import type { IAutoMovieRecoveryFeasibleSqpStepMixingOperation, IAutoMovieRecoverySqpMix, IAutoMovieSimplexAtom } from "@automovie/interface";
 import { adjacentAutoMovieFloat64 } from "@automovie/engine";
-
-
+import type {
+  IAutoMovieRecoveryFeasibleSqpStepMixingOperation,
+  IAutoMovieRecoverySqpMix,
+  IAutoMovieSimplexAtom,
+} from "@automovie/interface";
 
 /**
  * Try nominal physical mixing, then one original-row-supported coefficient.
@@ -26,7 +28,8 @@ export function mixRecoveryFeasibleSqpStep(
     step: null,
     weight: nominal,
     numericalAttempted: false,
-    numericalSupported: false };
+    numericalSupported: false,
+  };
   const candidate: (weight: number) => number[] | null = (
     weight: number,
   ): number[] | null => {

@@ -1,19 +1,14 @@
-import type { AutoMovieQuaternionTuple, AutoMovieVector3Tuple, IAutoMovieHumanJointCentres, IAutoMovieHumanSkeletonMath } from "@automovie/interface";
-
-
-
-
+import type {
+  AutoMovieQuaternionTuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanJointCentres,
+  IAutoMovieHumanSkeletonMath,
+} from "@automovie/interface";
 
 /** Existing registered-frame clinical axes and rigid-transform arithmetic, shared by skeleton preparation and FK.
  * Extracted without changing formulas, operation order or conventions; it owns no pose evaluation or body calibration.
  */
 export namespace AutoMovieHumanSkeletonMath {
-  
-
-  
-
-  
-
   /** Body directions of the registered frame. */
   const FORWARD: AutoMovieVector3Tuple = [1, 0, 0];
   const UP: AutoMovieVector3Tuple = [0, 1, 0];
@@ -32,7 +27,11 @@ export namespace AutoMovieHumanSkeletonMath {
   ): IAutoMovieHumanSkeletonMath.IAxes {
     const s: number = bone.startsWith("right") ? -1 : 1;
     const side: string = bone.startsWith("right") ? "right" : "left";
-    const toward: (flex: AutoMovieVector3Tuple, abd: AutoMovieVector3Tuple, twistSign: number) => IAutoMovieHumanSkeletonMath.IAxes = (
+    const toward: (
+      flex: AutoMovieVector3Tuple,
+      abd: AutoMovieVector3Tuple,
+      twistSign: number,
+    ) => IAutoMovieHumanSkeletonMath.IAxes = (
       flex: AutoMovieVector3Tuple,
       abd: AutoMovieVector3Tuple,
       twistSign: number,
@@ -45,14 +44,15 @@ export namespace AutoMovieHumanSkeletonMath {
         twist: times(d, twistSign),
       };
     };
-    const foot: () => IAutoMovieHumanSkeletonMath.IAxes = (): IAutoMovieHumanSkeletonMath.IAxes => {
-      const f: AutoMovieVector3Tuple = unit(cross(d, perp(UP, d)));
-      return {
-        flexion: f,
-        abduction: times(d, -s),
-        twist: times(unit(cross(f, d)), -s),
+    const foot: () => IAutoMovieHumanSkeletonMath.IAxes =
+      (): IAutoMovieHumanSkeletonMath.IAxes => {
+        const f: AutoMovieVector3Tuple = unit(cross(d, perp(UP, d)));
+        return {
+          flexion: f,
+          abduction: times(d, -s),
+          twist: times(unit(cross(f, d)), -s),
+        };
       };
-    };
 
     // Midline column and pelvis: flex forward, bend right, turn the face left.
     if (["hips", "spine", "chest", "neck", "atlas", "head"].includes(bone))
@@ -62,7 +62,11 @@ export namespace AutoMovieHumanSkeletonMath {
     // mirror M across the median plane), so a twist's sign flips with the side
     // and a pose and its side-swapped mirror move the skin as mirror images.
     if (bone.endsWith("Eye"))
-      return { flexion: LEFT, abduction: times(FORWARD, s), twist: times(UP, -s) };
+      return {
+        flexion: LEFT,
+        abduction: times(FORWARD, s),
+        twist: times(UP, -s),
+      };
     if (bone.endsWith("Scapula"))
       return {
         flexion: times(FORWARD, -s),
@@ -89,9 +93,12 @@ export namespace AutoMovieHumanSkeletonMath {
       );
 
     // Hand and digits: palmar and radial directions of this hand at rest.
-    const at: (name: string) => AutoMovieVector3Tuple = (name: string): AutoMovieVector3Tuple =>
-      byBone.get(`${side}${name}`)!.position;
-    const radial: AutoMovieVector3Tuple = unit(sub(at("IndexProximal"), at("LittleProximal")));
+    const at: (name: string) => AutoMovieVector3Tuple = (
+      name: string,
+    ): AutoMovieVector3Tuple => byBone.get(`${side}${name}`)!.position;
+    const radial: AutoMovieVector3Tuple = unit(
+      sub(at("IndexProximal"), at("LittleProximal")),
+    );
     const palmar: AutoMovieVector3Tuple = times(
       unit(cross(radial, unit(sub(at("MiddleProximal"), at("Hand"))))),
       s,
@@ -107,14 +114,20 @@ export namespace AutoMovieHumanSkeletonMath {
   }
 
   /** Quaternion of a turn by `degrees` about a unit axis. */
-  export function fromAxisAngle(axis: AutoMovieVector3Tuple, degrees: number): AutoMovieQuaternionTuple {
+  export function fromAxisAngle(
+    axis: AutoMovieVector3Tuple,
+    degrees: number,
+  ): AutoMovieQuaternionTuple {
     const h: number = (degrees * Math.PI) / 360;
     const s: number = Math.sin(h);
     return [axis[0] * s, axis[1] * s, axis[2] * s, Math.cos(h)];
   }
 
   /** Hamilton product p q. */
-  export function multiply(p: AutoMovieQuaternionTuple, q: AutoMovieQuaternionTuple): AutoMovieQuaternionTuple {
+  export function multiply(
+    p: AutoMovieQuaternionTuple,
+    q: AutoMovieQuaternionTuple,
+  ): AutoMovieQuaternionTuple {
     return [
       p[3] * q[0] + p[0] * q[3] + p[1] * q[2] - p[2] * q[1],
       p[3] * q[1] - p[0] * q[2] + p[1] * q[3] + p[2] * q[0],
@@ -124,18 +137,22 @@ export namespace AutoMovieHumanSkeletonMath {
   }
 
   /** Rotate v by unit quaternion q. */
-  export function rotate(q: AutoMovieQuaternionTuple, v: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
-    const r: AutoMovieQuaternionTuple = multiply(multiply(q, [v[0], v[1], v[2], 0]), [
-      -q[0],
-      -q[1],
-      -q[2],
-      q[3],
-    ]);
+  export function rotate(
+    q: AutoMovieQuaternionTuple,
+    v: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
+    const r: AutoMovieQuaternionTuple = multiply(
+      multiply(q, [v[0], v[1], v[2], 0]),
+      [-q[0], -q[1], -q[2], q[3]],
+    );
     return [r[0], r[1], r[2]];
   }
 
   /** Component of v orthogonal to unit n. */
-  function perp(v: AutoMovieVector3Tuple, n: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  function perp(
+    v: AutoMovieVector3Tuple,
+    n: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return sub(v, times(n, dot(v, n)));
   }
 
@@ -145,7 +162,10 @@ export namespace AutoMovieHumanSkeletonMath {
   }
 
   /** Cross product a x b. */
-  function cross(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  function cross(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],
@@ -154,17 +174,26 @@ export namespace AutoMovieHumanSkeletonMath {
   }
 
   /** Sum a + b. */
-  export function add(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  export function add(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
   /** Difference a - b. */
-  export function sub(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  export function sub(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
   /** Scalar multiple. */
-  export function times(v: AutoMovieVector3Tuple, k: number): AutoMovieVector3Tuple {
+  export function times(
+    v: AutoMovieVector3Tuple,
+    k: number,
+  ): AutoMovieVector3Tuple {
     return [v[0] * k, v[1] * k, v[2] * k];
   }
 

@@ -1,7 +1,7 @@
-import type { IAutoMovieClip } from "../core/IAutoMovieClip";
 import type { IAutoMovieInteractionEvent } from "../cinematics/IAutoMovieInteractionEvent";
-import type { IAutoMovieReactAction } from "../harness/IAutoMovieReactAction";
+import type { IAutoMovieClip } from "../core/IAutoMovieClip";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieReactAction } from "../harness/IAutoMovieReactAction";
 
 /**
  * What `compileLaunch` yields for one `launch` action: the projectile's baked

@@ -1,6 +1,19 @@
-import type { IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionHumanArm, AutoMovieMotionHumanArmFollow, AutoMovieMotionHumanBend, poseBones, resolveHumanPosture, stand } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanArm,
+  AutoMovieMotionHumanArmFollow,
+  AutoMovieMotionHumanBend,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -41,7 +54,11 @@ export function test_human_motion_compose_arm_follow(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const side = "right" as const;
-  const base: IAutoMovieMotionHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const base: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
   const stance: IAutoMoviePose = resolveHumanPosture(body, base);
   const bones = poseBones(body, stance);
   const shoulder: IAutoMovieVector3 = bones.get(
@@ -101,11 +118,17 @@ export function test_human_motion_compose_arm_follow(): void {
       {
         side,
         rest: AutoMovieMotionHumanArm.angles(stance, side),
-        goal: (_: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture.IGoal => ({
+        goal: (
+          _: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieMotionHumanPosture.IGoal => ({
           point: goal(seconds),
           bend,
         }),
-        perceived: (): IAutoMovieMotionHumanPosture.IGoal => ({ point: still, bend }),
+        perceived: (): IAutoMovieMotionHumanPosture.IGoal => ({
+          point: still,
+          bend,
+        }),
         weight: (): number => 1,
       },
       span,

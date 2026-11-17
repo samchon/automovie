@@ -1,5 +1,7 @@
-import { type IAutoMoviePolygonBounds, IAutoMoviePlanarPoint } from "@automovie/interface";
-
+import {
+  IAutoMoviePlanarPoint,
+  type IAutoMoviePolygonBounds,
+} from "@automovie/interface";
 
 /**
  * The axis-aligned bounds of a polygon in its own planar frame.
@@ -17,7 +19,9 @@ import { type IAutoMoviePolygonBounds, IAutoMoviePlanarPoint } from "@automovie/
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure bounds query over one ring; wall cutting, observation stations and opening extents each ask once per outline, so nothing is coordinated across requests.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates only the two returned corners, which the caller owns; nothing else outlives the call.
  */
-export const polygonBounds: (polygon: readonly IAutoMoviePlanarPoint[]) => IAutoMoviePolygonBounds.IResult = (
+export const polygonBounds: (
+  polygon: readonly IAutoMoviePlanarPoint[],
+) => IAutoMoviePolygonBounds.IResult = (
   polygon: readonly IAutoMoviePlanarPoint[],
 ): IAutoMoviePolygonBounds.IResult => {
   const min: IAutoMoviePlanarPoint = { x: Infinity, y: Infinity };

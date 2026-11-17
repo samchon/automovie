@@ -1,7 +1,20 @@
-import type { AutoMovieVector3Tuple, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanGlutealCut } from "@automovie/interface";
-
-
-import { AutoMovieIllinois, AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieLoftViewWorldJet, AutoMovieSolidVector, AutoMovieViewOutline } from "@automovie/engine";
+import {
+  AutoMovieIllinois,
+  AutoMovieLoftSectionNative,
+  AutoMovieLoftViewRead,
+  AutoMovieLoftViewSource,
+  AutoMovieLoftViewWorldJet,
+  AutoMovieSolidVector,
+  AutoMovieViewOutline,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanGlutealCut,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /** Numerical world-height meeting budget, calibration millimetres. */
 const TOLERANCE: number = 1e-9;
@@ -27,18 +40,23 @@ interface Reading {
 
 /** Original horizontal cuts of the same leg field consumed by the pelvis. */
 export namespace AutoMovieHumanGlutealCut {
-  
-
   /** Preserve the existing point-only consumer without preparing another field or solving another cut. */
   export function create(
     part: IAutoMovieViewPart,
     y: number,
     count: number,
   ): IAutoMovieHumanGlutealCut.CreateResult {
-    const cut: IAutoMovieHumanGlutealCut.IPoint[] | string = records(part, y, count);
+    const cut: IAutoMovieHumanGlutealCut.IPoint[] | string = records(
+      part,
+      y,
+      count,
+    );
     return typeof cut === "string"
       ? cut
-      : cut.map((record: IAutoMovieHumanGlutealCut.IPoint): [number, number] => record.point);
+      : cut.map(
+          (record: IAutoMovieHumanGlutealCut.IPoint): [number, number] =>
+            record.point,
+        );
   }
 
   /**

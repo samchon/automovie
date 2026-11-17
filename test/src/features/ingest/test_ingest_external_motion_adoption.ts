@@ -1,6 +1,12 @@
-import type { IAutoMovieExternalModelInspection, IAutoMovieExternalMotionAdoptionDecision, IAutoMovieExternalMotionAdoptionReceipt, IAutoMovieExternalMotionInspection, IAutoMovieExternalMotionRetargetDecision, IAutoMovieSkeleton } from "@automovie/interface";
 import { adoptAutoMovieExternalMotion } from "@automovie/ingest";
-
+import type {
+  IAutoMovieExternalModelInspection,
+  IAutoMovieExternalMotionAdoptionDecision,
+  IAutoMovieExternalMotionAdoptionReceipt,
+  IAutoMovieExternalMotionInspection,
+  IAutoMovieExternalMotionRetargetDecision,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, throwsError } from "../internal/predicates";
@@ -33,9 +39,8 @@ export function test_ingest_external_motion_adoption(): void {
   const fixture: ReturnType<typeof test12MotionFixture> = test12MotionFixture();
   const inspection: IAutoMovieExternalModelInspection =
     test12MotionInspect(fixture);
-  const motion:
-    | IAutoMovieExternalMotionInspection
-    | undefined = inspection.motion;
+  const motion: IAutoMovieExternalMotionInspection | undefined =
+    inspection.motion;
   TestValidator.predicate("motion inspection is present", motion !== undefined);
   if (motion === undefined) return;
   const expectedMotion: NonNullable<

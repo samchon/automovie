@@ -1,6 +1,13 @@
-import type { IAutoMovieCameraClearanceRuntime, IAutoMoviePerformedShot, IAutoMovieStagedSet, IAutoMovieCamera, IAutoMovieClip, IAutoMovieModel, IAutoMovieSceneNode, IAutoMovieTransform } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieCamera,
+  IAutoMovieCameraClearanceRuntime,
+  IAutoMovieClip,
+  IAutoMovieModel,
+  IAutoMoviePerformedShot,
+  IAutoMovieSceneNode,
+  IAutoMovieStagedSet,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
 import type { IFilmCameraClearanceAdapterOverrides } from "./IFilmCameraClearanceAdapterOverrides";
 import type { IFilmCameraClearanceAdapterResult } from "./IFilmCameraClearanceAdapterResult";

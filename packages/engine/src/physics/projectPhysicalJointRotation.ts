@@ -1,4 +1,5 @@
 import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
+
 /**
  * Admit a relative joint rotation to Rapier's independent twist coordinates.
  * With positive quaternion w, each free coordinate is 2 atan(q.axis / w);
@@ -36,7 +37,8 @@ export function projectPhysicalJointRotation(
   };
   for (const axis of ["x", "y", "z"] as const) {
     const range: IAutoMoviePhysicalProfile.IAxis | undefined = joint.axes.find(
-      (candidate: IAutoMoviePhysicalProfile.IAxis): boolean => candidate.axis === axis,
+      (candidate: IAutoMoviePhysicalProfile.IAxis): boolean =>
+        candidate.axis === axis,
     );
     if (!range) continue;
     const angle: number =

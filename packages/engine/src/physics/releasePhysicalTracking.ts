@@ -1,5 +1,9 @@
-import type { IAutoMoviePhysicalReleasedQuality, IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalReleasedQuality,
+  IAutoMoviePhysicalSimulationInput,
+} from "@automovie/interface";
 import type { World } from "@dimforge/rapier3d-compat";
+
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { configurePhysicalBodyQuality } from "./configurePhysicalBodyQuality";
 import { configurePhysicalJointMotor } from "./configurePhysicalJointMotor";

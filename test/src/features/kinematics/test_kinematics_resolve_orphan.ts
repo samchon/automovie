@@ -1,6 +1,15 @@
-import { type IAutoMovieResolvedBone, type IAutoMovieSkeletonTopology, AutoMovieHumanoidBone, IAutoMovieSkeleton, IAutoMovieTransform } from "@automovie/interface";
-import { indexSkeletonTopology, reachableBoneNames, resolvePose } from "@automovie/engine";
-
+import {
+  indexSkeletonTopology,
+  reachableBoneNames,
+  resolvePose,
+} from "@automovie/engine";
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieResolvedBone,
+  IAutoMovieSkeleton,
+  type IAutoMovieSkeletonTopology,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makePose } from "../internal/makePose";

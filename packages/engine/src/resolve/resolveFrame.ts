@@ -1,6 +1,20 @@
-import type { IAutoMovieBoundProfile, IAutoMovieChannelLimit, IAutoMovieClampOutcome, IAutoMovieClip, IAutoMovieDriver, IAutoMovieNode, IAutoMovieResolveInput, IAutoMovieResolveOutput, IAutoMovieResolveViolation, IAutoMovieSampledChannel, IAutoMovieSphere, IAutoMovieSpringCollider, IAutoMovieSpringState, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieBoundProfile,
+  IAutoMovieChannelLimit,
+  IAutoMovieClampOutcome,
+  IAutoMovieClip,
+  IAutoMovieDriver,
+  IAutoMovieNode,
+  IAutoMovieResolveInput,
+  IAutoMovieResolveOutput,
+  IAutoMovieResolveViolation,
+  IAutoMovieSampledChannel,
+  IAutoMovieSphere,
+  IAutoMovieSpringCollider,
+  IAutoMovieSpringState,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Matrix4 } from "../math/Matrix4";
 import { applyChannelLimit } from "./applyChannelLimit";
@@ -129,9 +143,7 @@ export const resolveFrame: (
   // provides the cross-frame state; colliders ride their nodes' world matrices.
   let deferredDrivers: IAutoMovieDriver[] = afterWorldPass;
   if (input.springs !== undefined) {
-    const spheres: IAutoMovieSphere[] = (
-      input.springs.colliders ?? []
-    ).map(
+    const spheres: IAutoMovieSphere[] = (input.springs.colliders ?? []).map(
       (
         c: IAutoMovieSpringCollider,
       ): { center: IAutoMovieVector3; radius: number } => ({

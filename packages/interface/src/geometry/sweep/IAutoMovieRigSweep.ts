@@ -5,7 +5,7 @@ export namespace IAutoMovieRigSweep {
   /**
    * Compile one sweep of a surface rig: its rest surface, and, when it rides
    * bones, the buffers that re-sweep it per pose as `poseAutoMovieSweep` does.
-   * 
+   *
    * At rest every slot reads the compiled rest surface. Posed, each spine point
    * moves with its bone, the starting direction and any end tangents turn with
    * the first or last point's bone, and the spine is re-transported in place;

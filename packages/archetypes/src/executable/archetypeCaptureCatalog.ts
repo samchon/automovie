@@ -1,6 +1,10 @@
-import type { IAutoMovieTransform } from "@automovie/interface";
+import type {
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HorseGait, createHorse, rideHorse } from "../animals";
+import type { QuadrupedBody } from "../animals/QuadrupedBody";
 import {
   createAppliance,
   createDoor,
@@ -66,12 +70,17 @@ import {
 } from "../vehicles";
 import { createLongGun } from "../weapons";
 import { archetypeCaptureAnimals } from "./archetypeCaptureAnimals";
+import { archetypeCaptureArmoury } from "./archetypeCaptureArmoury";
+import { archetypeCaptureBreakage } from "./archetypeCaptureBreakage";
+import { archetypeCaptureCarOpenings } from "./archetypeCaptureCarOpenings";
 import { archetypeCaptureDogGaits } from "./archetypeCaptureDogGaits";
+import { archetypeCaptureExtendedArmoury } from "./archetypeCaptureExtendedArmoury";
+import { archetypeCaptureFixtures } from "./archetypeCaptureFixtures";
+import { archetypeCaptureQuadrupeds } from "./archetypeCaptureQuadrupeds";
 import { archetypeCaptureReferenceAnimals } from "./archetypeCaptureReferenceAnimals";
 import { archetypeCaptureRest } from "./archetypeCaptureRest";
-import { archetypeCaptureArmoury } from "./archetypeCaptureArmoury";
-import { archetypeCaptureFixtures } from "./archetypeCaptureFixtures";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
+import { archetypeCaptureSupportProps } from "./archetypeCaptureSupportProps";
 
 /** A course for the moving subjects: a short straight, a quarter turn to the left, a short straight. */
 const COURSE: ArchetypeCourse.ICourse = {
@@ -142,6 +151,7 @@ export function archetypeCaptureCatalog(): Readonly<
         },
         gait,
       ),
+      horse,
     );
   return {
     drinkware: still(
@@ -314,9 +324,14 @@ export function archetypeCaptureCatalog(): Readonly<
       ),
     }),
     ...archetypeCaptureArmoury(),
+    ...archetypeCaptureSupportProps(),
+    ...archetypeCaptureBreakage(),
+    ...archetypeCaptureExtendedArmoury(),
+    ...archetypeCaptureCarOpenings(),
     ...archetypeCaptureAnimals(),
     ...archetypeCaptureDogGaits(),
     ...archetypeCaptureReferenceAnimals(),
+    ...archetypeCaptureQuadrupeds(),
     ...archetypeCaptureRest(),
     articulated: still({
       "door-open": door.articulate({ hinge: 70, latch: 45 }),
@@ -418,10 +433,15 @@ export namespace archetypeCaptureCatalog {
     /** The object's name in the scene, the first segment of its parts' and marks' paths. */
     name: string;
 
+    /** Actual immutable neutral model; quadruped sources enable independent rig observations. */
+    reference?: Archetype;
+
     /** The archetype at a second of the subject's clock, and its root's placement in the world when it moves. */
     at(seconds: number): {
       archetype: Archetype;
       placement?: IAutoMovieTransform;
+      /** Authored/solved terminal axis goals from this same actual sample, model metres; absent when the consumer exposes none. */
+      goals?: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieVector3>;
     };
   }
 

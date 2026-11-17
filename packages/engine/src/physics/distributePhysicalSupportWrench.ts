@@ -1,4 +1,10 @@
-import type { IAutoMovieDistributePhysicalSupportWrench, IAutoMovieQuadraticRow, IAutoMovieSolveQuadraticProgram, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieDistributePhysicalSupportWrench,
+  IAutoMovieQuadraticRow,
+  IAutoMovieSolveQuadraticProgram,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 import { solveAutoMovieQuadraticProgram } from "../math/solveAutoMovieQuadraticProgram";
 
@@ -19,7 +25,9 @@ import { solveAutoMovieQuadraticProgram } from "../math/solveAutoMovieQuadraticP
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 39 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function distributePhysicalSupportWrench(input: IAutoMovieDistributePhysicalSupportWrench.IInput): IAutoMovieDistributePhysicalSupportWrench.IResult {
+export function distributePhysicalSupportWrench(
+  input: IAutoMovieDistributePhysicalSupportWrench.IInput,
+): IAutoMovieDistributePhysicalSupportWrench.IResult {
   if (
     !Number.isFinite(input.maximumForce) ||
     input.maximumForce < 0 ||
@@ -29,7 +37,8 @@ export function distributePhysicalSupportWrench(input: IAutoMovieDistributePhysi
       input.force,
       input.torque,
       ...input.points.map(
-        (point: (typeof input.points)[number]): IAutoMovieVector3 => point.point,
+        (point: (typeof input.points)[number]): IAutoMovieVector3 =>
+          point.point,
       ),
     ].every((value: IAutoMovieVector3): boolean =>
       [value.x, value.y, value.z].every(Number.isFinite),
@@ -125,7 +134,7 @@ export function distributePhysicalSupportWrench(input: IAutoMovieDistributePhysi
   // Dimensionless wrench error is primary; sqrt(machine epsilon) provides a
   // small explicit effort penalty to select among redundant contact forces.
   // Its resulting wrench bias remains measured in the returned SI residual.
-  const result: (IAutoMovieSolveQuadraticProgram.IResult) =
+  const result: IAutoMovieSolveQuadraticProgram.IResult =
     solveAutoMovieQuadraticProgram({
       diagonal: [
         ...new Array<number>(size).fill(Math.sqrt(Number.EPSILON)),
@@ -142,25 +151,34 @@ export function distributePhysicalSupportWrench(input: IAutoMovieDistributePhysi
     throw new Error(
       `Support wrench solve failed: ${result.status}/${result.maximumViolation}`,
     );
-  const forces: { bone: string; point: IAutoMovieVector3; force: IAutoMovieVector3; friction: number }[] =
-    input.points.map(
-      (
-        point: (typeof input.points)[number],
-        index: number,
-      ): { bone: string; point: IAutoMovieVector3; force: IAutoMovieVector3; friction: number } => {
-        const force: IAutoMovieVector3 = {
-          x: result.primal[3 * index]! * scale,
-          y: Math.max(0, result.primal[3 * index + 1]! * scale),
-          z: result.primal[3 * index + 2]! * scale,
-        };
-        const tangent: number = Math.abs(force.x) + Math.abs(force.z);
-        const ratio: number =
-          tangent > 0 ? Math.min(1, (point.friction * force.y) / tangent) : 1;
-        force.x *= ratio;
-        force.z *= ratio;
-        return { ...point, force };
-      },
-    );
+  const forces: {
+    bone: string;
+    point: IAutoMovieVector3;
+    force: IAutoMovieVector3;
+    friction: number;
+  }[] = input.points.map(
+    (
+      point: (typeof input.points)[number],
+      index: number,
+    ): {
+      bone: string;
+      point: IAutoMovieVector3;
+      force: IAutoMovieVector3;
+      friction: number;
+    } => {
+      const force: IAutoMovieVector3 = {
+        x: result.primal[3 * index]! * scale,
+        y: Math.max(0, result.primal[3 * index + 1]! * scale),
+        z: result.primal[3 * index + 2]! * scale,
+      };
+      const tangent: number = Math.abs(force.x) + Math.abs(force.z);
+      const ratio: number =
+        tangent > 0 ? Math.min(1, (point.friction * force.y) / tangent) : 1;
+      force.x *= ratio;
+      force.z *= ratio;
+      return { ...point, force };
+    },
+  );
 
   // A native optimization tolerance does not authorize a negative normal force
   // or friction violation. Project its rounding error before measuring SI merit.
@@ -173,12 +191,17 @@ export function distributePhysicalSupportWrench(input: IAutoMovieDistributePhysi
     for (const contact of forces)
       contact.force = Vector3.scale(contact.force, input.maximumForce / normal);
   const force: IAutoMovieVector3 = forces.reduce(
-    (sum: IAutoMovieVector3, point: (typeof forces)[number]): IAutoMovieVector3 =>
-      Vector3.add(sum, point.force),
+    (
+      sum: IAutoMovieVector3,
+      point: (typeof forces)[number],
+    ): IAutoMovieVector3 => Vector3.add(sum, point.force),
     { ...zero },
   );
   const torque: IAutoMovieVector3 = forces.reduce(
-    (sum: IAutoMovieVector3, point: (typeof forces)[number]): IAutoMovieVector3 =>
+    (
+      sum: IAutoMovieVector3,
+      point: (typeof forces)[number],
+    ): IAutoMovieVector3 =>
       Vector3.add(
         sum,
         Vector3.cross(Vector3.subtract(point.point, input.origin), point.force),

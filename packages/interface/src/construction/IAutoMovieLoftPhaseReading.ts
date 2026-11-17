@@ -1,13 +1,10 @@
-
-
-
 /**
- * Original-cap world point and tangent at one fixed physical station.
+ * World point and phase tangent at one fixed physical station.
  *
- * AutoMovieLoftCapRead.phase includes the actual axis and relief phase terms. Each successful call returns fresh mutable vectors. At an admitted collapsed tip p is the retained pole and t is zero; this does not admit a physical station derivative. Nonfinite readings and relief that destroys the collapsed tip throw from the cap reader.
+ * LoftChain, LoftPoint and LoftCapRead phase readers include their actual frame and relief terms. Each successful read returns fresh mutable vectors. At an admitted collapsed tip p is the retained pole and t is zero; this does not admit a physical station derivative. Nonfinite readings throw from the owning reader, as does relief that destroys a collapsed cap.
  *
- * @evidence contracts/development/design.md#principled-representation Both vectors use the chain's world frame, with position in mm and derivative in mm per radian of the original polar phase.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The cap reader supplies the point/tangent pair also consumed by LoftPoint and LoftChain phase samplers; their duplicate pair declarations remain consolidation candidates.
+ * @evidence contracts/development/design.md#principled-representation Both vectors use the chain's world frame, with position in mm and derivative in mm per radian of its declared polar or correspondence phase.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Cap, LoftPoint and LoftChain readers publish this same world point/tangent pair without implying a physical-station jet.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A zero tangent at a true pole describes its constant phase value and supplies no invented station jet or regularity certificate.
  * @evidence contracts/development/common.md#meaningful-documentation States world units, fixed station, result ownership, collapsed-tip behavior and numeric failure ownership.
  */

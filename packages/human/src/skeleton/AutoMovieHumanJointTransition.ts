@@ -1,5 +1,7 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanJointTransition } from "@automovie/interface";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanJointTransition,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
 import { AutoMovieHumanSkinStep } from "./AutoMovieHumanSkinStep";
@@ -21,10 +23,6 @@ import { AutoMovieHumanSkinStep } from "./AutoMovieHumanSkinStep";
  * their largest shortfall so the profile covers every sector.
  */
 export namespace AutoMovieHumanJointTransition {
-  
-
-  
-
   /**
    * Principal stretch a ramp may give the skin at its joint's whole turn. Skin
    * fails in tension at a strain of 0.54 +- 0.17 (Ní Annaidh 2012), so 2 is a
@@ -45,7 +43,9 @@ export namespace AutoMovieHumanJointTransition {
    * @param input The samples, the plane and the joint's turn.
    * @returns The sector profile; its `most` is the widest sector's half.
    */
-  export function measure(input: IAutoMovieHumanJointTransition.IMeasure): IAutoMovieHumanJointTransition.ISectors {
+  export function measure(
+    input: IAutoMovieHumanJointTransition.IMeasure,
+  ): IAutoMovieHumanJointTransition.ISectors {
     const n: AutoMovieVector3Tuple = input.normal;
     const a: AutoMovieVector3Tuple = Math.abs(n[0]) < 0.9 ? FORWARD : LEFT;
     const u: AutoMovieVector3Tuple = Math3D.unit(
@@ -117,7 +117,10 @@ export namespace AutoMovieHumanJointTransition {
    * @param r The point from the plane's point, metres.
    * @returns The half width in that sector, metres.
    */
-  export function half(sectors: IAutoMovieHumanJointTransition.ISectors, r: AutoMovieVector3Tuple): number {
+  export function half(
+    sectors: IAutoMovieHumanJointTransition.ISectors,
+    r: AutoMovieVector3Tuple,
+  ): number {
     const phi: number = Math.atan2(dot(r, sectors.v), dot(r, sectors.u));
     return Math.min(
       sectors.most,
@@ -144,7 +147,10 @@ function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
-function cross(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+function cross(
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+): AutoMovieVector3Tuple {
   return [
     a[1] * b[2] - a[2] * b[1],
     a[2] * b[0] - a[0] * b[2],

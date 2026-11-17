@@ -1,4 +1,3 @@
-
 /**
  * One exact normalized dyadic boundary coordinate and its binary64 numeric view.
  *
@@ -10,7 +9,8 @@
  * @evidence contracts/development/common.md#meaningful-documentation States encoding, normalized units, validation ownership, signed-zero endpoint behavior and the distinction between exact identity and rounded view.
  */
 export type IAutoMovieCanonicalBoundaryPhase64 = {
-/** Finite normalized coordinate in [0,1], rounded once to nearest with ties to even; exact endpoints retain their original signed zero. */
-value: number;
-/** Canonical exact dyadic encoding admitted by the boundary arithmetic; preserve it across restrictions instead of reconstructing it from value. */
-key: string };
+  /** Finite normalized coordinate in [0,1], rounded once to nearest with ties to even; exact endpoints retain their original signed zero. */
+  value: number;
+  /** Canonical exact dyadic encoding admitted by the boundary arithmetic; preserve it across restrictions instead of reconstructing it from value. */
+  key: string;
+};

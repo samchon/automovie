@@ -1,5 +1,8 @@
-import type { IAutoMovieHumanCanonicalBody, IAutoMovieMotionHumanBody } from "@automovie/interface";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
+import type {
+  IAutoMovieHumanCanonicalBody,
+  IAutoMovieMotionHumanBody,
+} from "@automovie/interface";
 import { createHumanBody } from "@automovie/motions";
 
 import { PLAYGROUND_BODIES } from "../data/PLAYGROUND_BODIES";

@@ -1,5 +1,8 @@
-import type { IAutoMovieAdvancePhysicalBalance, IAutoMovieSamplePhysicalRecoverySupport, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieAdvancePhysicalBalance,
+  IAutoMovieSamplePhysicalRecoverySupport,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Replay a support's actual controller ownership and accepted goal adjustment at one second. Completed future landings cannot alter an earlier sample; authored handoffs end endpoint ownership while retaining the independently adopted body displacement.
@@ -17,10 +20,14 @@ export function samplePhysicalRecoverySupport(
   bone: string,
   seconds: number,
 ): IAutoMovieSamplePhysicalRecoverySupport.IResult {
-  const landings: NonNullable<IAutoMovieAdvancePhysicalBalance.IState["landings"]> =
+  const landings: NonNullable<
+    IAutoMovieAdvancePhysicalBalance.IState["landings"]
+  > =
     state?.landings?.filter(
       (
-        landing: NonNullable<IAutoMovieAdvancePhysicalBalance.IState["landings"]>[number],
+        landing: NonNullable<
+          IAutoMovieAdvancePhysicalBalance.IState["landings"]
+        >[number],
       ): boolean => landing.seconds <= seconds,
     ) ?? [];
   const root: IAutoMovieVector3 = landings.at(-1)?.rootOffset ?? {
@@ -36,7 +43,9 @@ export function samplePhysicalRecoverySupport(
   const handed: boolean =
     state?.handoffs?.some(
       (
-        handoff: NonNullable<IAutoMovieAdvancePhysicalBalance.IState["handoffs"]>[number],
+        handoff: NonNullable<
+          IAutoMovieAdvancePhysicalBalance.IState["handoffs"]
+        >[number],
       ): boolean =>
         handoff.bone === bone &&
         handoff.seconds <= seconds &&

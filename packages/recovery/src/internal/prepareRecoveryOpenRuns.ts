@@ -1,4 +1,8 @@
-import type { IAutoMovieRecoveryOpenContinuation, IAutoMovieRecoveryOpenRunsPreparationOperation } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryOpenContinuation,
+  IAutoMovieRecoveryOpenRunsPreparationOperation,
+} from "@automovie/interface";
+
 /**
  * Admit saved open continuation and prepare one-to-one ordinary run ownership.
  *
@@ -15,7 +19,11 @@ export function prepareRecoveryOpenRuns(
   graph: Parameters<IAutoMovieRecoveryOpenRunsPreparationOperation.Operation>[1],
   operator: Parameters<IAutoMovieRecoveryOpenRunsPreparationOperation.Operation>[2],
 ): ReturnType<IAutoMovieRecoveryOpenRunsPreparationOperation.Operation> {
-  const key: (n: IAutoMovieRecoveryOpenRunsPreparationOperation.Node) => string = (n: IAutoMovieRecoveryOpenRunsPreparationOperation.Node): string => `${n.section}:${n.arc}`;
+  const key: (
+    n: IAutoMovieRecoveryOpenRunsPreparationOperation.Node,
+  ) => string = (
+    n: IAutoMovieRecoveryOpenRunsPreparationOperation.Node,
+  ): string => `${n.section}:${n.arc}`;
   if (
     (operator !== "quadratic" && operator !== "ruled") ||
     !(
@@ -36,8 +44,12 @@ export function prepareRecoveryOpenRuns(
     throw new Error(
       "A complete source-free open-continuation sidecar is required",
     );
-  const outgoing: Map<string, IAutoMovieRecoveryOpenRunsPreparationOperation.Edge> = new Map(),
-    incoming: Map<string, IAutoMovieRecoveryOpenRunsPreparationOperation.Edge> = new Map();
+  const outgoing: Map<
+      string,
+      IAutoMovieRecoveryOpenRunsPreparationOperation.Edge
+    > = new Map(),
+    incoming: Map<string, IAutoMovieRecoveryOpenRunsPreparationOperation.Edge> =
+      new Map();
   let pairs: number = 0,
     unsupportedGroups: number = 0,
     unsupportedGroupsWithOpenArcs: number = 0;
@@ -84,7 +96,8 @@ export function prepareRecoveryOpenRuns(
         before: { section: i, arc: pair.before },
         after: { section: i + 1, arc: pair.after },
         reverse: pair.reverseAfter,
-        pairOrdinal };
+        pairOrdinal,
+      };
       if (outgoing.has(key(edge.before)) || incoming.has(key(edge.after)))
         throw new Error(
           "Ordinary open continuation has multiple incident strips",
@@ -122,5 +135,6 @@ export function prepareRecoveryOpenRuns(
     incoming,
     pairs,
     unsupportedGroups,
-    unsupportedGroupsWithOpenArcs };
+    unsupportedGroupsWithOpenArcs,
+  };
 }

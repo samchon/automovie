@@ -1,5 +1,7 @@
-import type { IAutoMovieSolvePhysicalCompliantContacts, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieSolvePhysicalCompliantContacts,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import type {
   Collider,
   RigidBody,
@@ -29,7 +31,10 @@ import { visitPhysicalNative } from "./visitPhysicalNative";
  */
 export function solvePhysicalCompliantContacts(
   world: World,
-  surfaces: ReadonlyMap<number, IAutoMovieSolvePhysicalCompliantContacts.ISurface>,
+  surfaces: ReadonlyMap<
+    number,
+    IAutoMovieSolvePhysicalCompliantContacts.ISurface
+  >,
   seconds: number,
   dt: number,
 ): IAutoMovieSolvePhysicalCompliantContacts.IMeasurement[] {

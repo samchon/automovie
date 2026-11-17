@@ -1,6 +1,5 @@
 import type { AutoMovieVector2Tuple } from "@automovie/interface";
 
-
 /**
  * Shoelace signed area in squared input units; translation reduces cancellation for tiny distant contours.
  *

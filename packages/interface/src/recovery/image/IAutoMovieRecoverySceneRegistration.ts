@@ -6,23 +6,18 @@
  * @evidence contracts/development/common.md#meaningful-documentation Members define source index, current status, support and attempt-ledger linkage.
  */
 export interface IAutoMovieRecoverySceneRegistration {
- 
- /** Index in the fixed source array. */
+  /** Index in the fixed source array. */
   viewIndex: number;
 
- 
- /** Current accepted checkpoint status, not an attempted pose. */
+  /** Current accepted checkpoint status, not an attempted pose. */
   status: "registered" | "insufficient-support" | "refused" | "not-attempted";
 
- 
- /** Distinct existing landmark/target feature pairs at the final accepted revision. */
+  /** Distinct existing landmark/target feature pairs at the final accepted revision. */
   candidates: number;
 
- 
- /** Latest attempt ledger index for this source, possibly at an earlier revision; null if never attempted. */
+  /** Latest attempt ledger index for this source, possibly at an earlier revision; null if never attempted. */
   lastAttempt: number | null;
 
- 
- /** Current status or same-revision refusal reasons; historical details stay in attempts. */
+  /** Current status or same-revision refusal reasons; historical details stay in attempts. */
   reasons: string[];
 }

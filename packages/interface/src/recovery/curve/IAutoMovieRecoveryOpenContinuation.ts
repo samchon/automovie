@@ -8,27 +8,21 @@ import type { IAutoMovieRecoveryOpenContinuationInterval } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Fields distinguish section and curve ordinals, retained orientation and physical sampling policy.
  */
 export interface IAutoMovieRecoveryOpenContinuation {
- 
- /** Strict boundary regularity classification used independently of saved station density. */
+  /** Strict boundary regularity classification used independently of saved station density. */
   criticalPolicy: "boundary-regular-path-v1";
 
- 
- /** Adjacent saved-section pairs addressing reports[section].open. */
+  /** Adjacent saved-section pairs addressing reports[section].open. */
   intervals: IAutoMovieRecoveryOpenContinuationInterval[];
 
- 
- /** Material tangent sign relative to each saved open curve, or null when unqualified. */
+  /** Material tangent sign relative to each saved open curve, or null when unqualified. */
   orientations: (1 | -1 | null)[][];
 
- 
- /** Nonblocking orientation warnings and unresolved observation messages. */
+  /** Nonblocking orientation warnings and unresolved observation messages. */
   diagnostics: string[];
 
- 
- /** Requested physical sampling spacing, millimetres; not a surface or normal error bound. */
+  /** Requested physical sampling spacing, millimetres; not a surface or normal error bound. */
   resolutionMm: number;
 
- 
- /** Explicit vertex budget per maximal open run. */
+  /** Explicit vertex budget per maximal open run. */
   maxVerticesPerRun: number;
 }

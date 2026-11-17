@@ -1,6 +1,6 @@
+import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieJointConstraint } from "../skeleton/IAutoMovieJointConstraint";
-import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieRestFrame } from "./IAutoMovieRestFrame";
 import type { IAutoMovieSwingTwistRange } from "./IAutoMovieSwingTwistRange";
 
@@ -13,7 +13,7 @@ export namespace IAutoMovieBoxExcludedSwivels {
    * swivel from `low` to `high` degrees reads past the joint's box in both of
    * the charts `decomposeJointRotationOnBasis` chooses between, so that
    * `jointRomOvershoot` scores each of them above zero.
-   * 
+   *
    * A rotation turned about a fixed axis by `ψ` has a matrix whose every entry
    * is `a + b cos ψ + c sin ψ` (Rodrigues' formula between two fixed
    * rotations), so every entry the decomposition reads is such a sinusoid,
@@ -29,7 +29,7 @@ export namespace IAutoMovieBoxExcludedSwivels {
    * Where one such sinusoid exceeds `MARGIN`, its exact roots bound an arc of
    * swivels (`φ ± acos((MARGIN - a) / R)`), and a reading is refused on the
    * union of its axes' arcs.
-   * 
+   *
    * Every refusal is certain. A sinusoid above `MARGIN` puts its angle past
    * the bound by more than `MARGIN` radians, the joints' tolerance
    * (`ROM_TOLERANCE`, about 1.7e-4), far beyond the rounding of the fit, of
@@ -47,16 +47,16 @@ export namespace IAutoMovieBoxExcludedSwivels {
   export type IProps = {
     /** The joint's clinical basis, admitted and normalized (`normalizeJointAxes`). */
     basis: IAutoMovieJointAxes;
-  
+
     /** The rest frame lifting the joint's rest-relative angles to clinical ones; omitted, they are clinical. */
     frame?: IAutoMovieRestFrame | undefined;
-  
+
     /** The joint's resolved range of motion, as the decomposition's domain and the overshoot read it; `null` refuses nothing. */
     constraint: IAutoMovieJointConstraint | null;
-  
+
     /** The frame a swing-twist gate is read in, as the overshoot reads it (`scanJointRom`); omitted, a gated joint refuses nothing. */
     joint?: IAutoMovieSwingTwistRange.IJoint | undefined;
-  
+
     /** The joint's bone-local rotation at a swivel, degrees: a fixed rotation turned about a fixed axis by the swivel. */
     rotation: (swivel: number) => IAutoMovieQuaternion;
   };

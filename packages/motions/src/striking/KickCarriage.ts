@@ -1,6 +1,14 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanKickGeometry, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanKickGeometry,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickForm } from "./KickForm";
 import { StrikingBody } from "./StrikingBody";
@@ -94,18 +102,19 @@ export namespace KickCarriage {
 
     // The support foot turns with the pelvis (at most the pivot's own
     // range), so the support hip's twist stays where the stance had it.
-    const supportFoot: IAutoMovieMotionHumanFoot.IPlacement = StrikingTarget.pivot(
-      body,
-      support,
-      StrikingTarget.slide(feet[support], line, stepped, 0),
-      Math.sign(carriage.turn) *
-        Math.min(
-          Math.abs(carriage.turn),
-          KickForm.PIVOT.turn * props.amplitude,
-        ) *
-        w,
-      KickForm.PIVOT.raise * w,
-    );
+    const supportFoot: IAutoMovieMotionHumanFoot.IPlacement =
+      StrikingTarget.pivot(
+        body,
+        support,
+        StrikingTarget.slide(feet[support], line, stepped, 0),
+        Math.sign(carriage.turn) *
+          Math.min(
+            Math.abs(carriage.turn),
+            KickForm.PIVOT.turn * props.amplitude,
+          ) *
+          w,
+        KickForm.PIVOT.raise * w,
+      );
     const flat: IAutoMovieMotionHumanPosture = {
       root: { x: centre.x, y: entry.root.y + props.rise * w, z: centre.z },
       yaw: entry.yaw + carriage.turn * w,

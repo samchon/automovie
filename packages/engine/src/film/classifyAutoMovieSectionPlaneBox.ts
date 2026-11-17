@@ -1,5 +1,8 @@
-import { type AutoMovieSectionPlaneState, type IAutoMovieClassifySectionPlaneBox, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type AutoMovieSectionPlaneState,
+  type IAutoMovieClassifySectionPlaneBox,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { autoMovieSectionPlaneDistance } from "./autoMovieSectionPlaneDistance";
 
@@ -23,7 +26,9 @@ const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure classification of one box that coordinates nothing across calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; it allocates two corner vectors per plane and returns one state.
  */
-export function classifyAutoMovieSectionPlaneBox(props: IAutoMovieClassifySectionPlaneBox.IProps): AutoMovieSectionPlaneState {
+export function classifyAutoMovieSectionPlaneBox(
+  props: IAutoMovieClassifySectionPlaneBox.IProps,
+): AutoMovieSectionPlaneState {
   for (const axis of AXES)
     if (
       Number.isFinite(props.min[axis]) === false ||

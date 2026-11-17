@@ -1,4 +1,3 @@
-import type { IAutoMoviePhysicalPlayback, IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   AutoMoviePhysicalPlayback as Playback,
   Quaternion,
@@ -9,7 +8,12 @@ import {
   physicalSupportPoint,
   samplePhysicalTarget,
 } from "@automovie/engine";
-
+import type {
+  IAutoMoviePhysicalPlayback,
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,7 +42,8 @@ export async function test_physical_ownership_handoff(): Promise<void> {
   for (const [step, target] of body.targets.entries())
     target.dynamicSegments =
       (step >= 21 && step <= 44) || (step >= 57 && step <= 80) ? ["child"] : [];
-  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], 1);
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([body], 1);
   Object.assign(input, {
     substeps: 8,
     iterations: 32,
@@ -52,7 +57,8 @@ export async function test_physical_ownership_handoff(): Promise<void> {
     point: { x: 0.1, y: 1.5, z: 0 },
     impulse: { x: 0, y: 0, z: 0.02 },
   });
-  const baseline: IAutoMoviePhysicalSimulation = await Simulation.compute(input);
+  const baseline: IAutoMoviePhysicalSimulation =
+    await Simulation.compute(input);
   TestValidator.equals(
     "root stays authored",
     baseline.cache.ownershipAt(body.id, "root", 0.4),
@@ -220,7 +226,8 @@ export async function test_physical_ownership_handoff(): Promise<void> {
   } finally {
     activation.free();
   }
-  const changed: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+  const changed: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(input);
   changed.impulses.push({
     step: 94,
     body: body.id,
@@ -229,7 +236,10 @@ export async function test_physical_ownership_handoff(): Promise<void> {
     impulse: { x: 0, y: 0, z: 0 },
   });
   const fresh: IAutoMoviePhysicalSimulation = await Simulation.compute(changed);
-  const resumed: IAutoMoviePhysicalSimulation = await Simulation.compute(changed, baseline);
+  const resumed: IAutoMoviePhysicalSimulation = await Simulation.compute(
+    changed,
+    baseline,
+  );
   TestValidator.equals(
     "checkpoint resumes an active return exactly",
     JSON.stringify(resumed.cache.frames),
@@ -283,11 +293,8 @@ export async function test_physical_ownership_handoff(): Promise<void> {
       otherBody: "striker",
       otherShapes: ["surface"],
     };
-    const striker: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
-      "striker",
-      PhysicalFixtures.sphere(),
-      0.5,
-    );
+    const striker: IAutoMoviePhysicalSimulationInput.IBody =
+      PhysicalFixtures.body("striker", PhysicalFixtures.sphere(), 0.5);
     striker.mode = { kind: "kinematic" };
     for (const [step, target] of striker.targets.entries()) {
       const receivingPoint: P.ITransform["position"] =
@@ -298,10 +305,8 @@ export async function test_physical_ownership_handoff(): Promise<void> {
         z: receivingPoint.z - 0.4 + (2 * step) / 120,
       };
     }
-    const scene: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
-      [receiving, striker],
-      0.5,
-    );
+    const scene: IAutoMoviePhysicalSimulationInput.IInput =
+      PhysicalFixtures.input([receiving, striker], 0.5);
     scene.substeps = 8;
     scene.iterations = 32;
     const run: IAutoMoviePhysicalSimulation = await Simulation.compute(scene);
@@ -320,18 +325,13 @@ export async function test_physical_ownership_handoff(): Promise<void> {
     target.dynamicSegments = step <= 24 ? ["root"] : [];
     target.segments.root!.position.x = (2 * step) / 120;
   }
-  const obstacle: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
-    "obstacle",
-    PhysicalFixtures.sphere(),
-    0.6,
-  );
+  const obstacle: IAutoMoviePhysicalSimulationInput.IBody =
+    PhysicalFixtures.body("obstacle", PhysicalFixtures.sphere(), 0.6);
   obstacle.mode = { kind: "kinematic" };
   for (const target of obstacle.targets)
     target.segments.root!.position.x = 0.55;
-  const blocked: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input(
-    [ball, obstacle],
-    0.6,
-  );
+  const blocked: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([ball, obstacle], 0.6);
   blocked.substeps = 8;
   blocked.impulses.push({
     step: 10,

@@ -1,12 +1,6 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import {
-  type ArchetypeBuilder,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-} from "../core";
+import type { ArchetypeBuilder } from "../core";
 import type { QuadrupedBody } from "./QuadrupedBody";
+import { QuadrupedLeadPlan } from "./QuadrupedLeadPlan";
 
 /**
  * Lay an authored collar and straight lead on an actual quadruped neck.
@@ -32,69 +26,7 @@ export function QuadrupedLead<Id extends string, Dimension extends string>(
   tack: QuadrupedLead.IParams,
   archetype: string,
 ): void {
-  const axis: IAutoMovieVector3 = Vector3.subtract(rig.poll, rig.neck);
-  const length: number = Vector3.length(axis);
-  for (const key of ["width", "thickness", "leadLength", "leadRadius"] as const)
-    if (
-      !(
-        Number.isFinite(tack[key]) &&
-        tack[key] > 0 &&
-        (key !== "width" || tack[key] <= length)
-      )
-    )
-      throw new ArchetypeRefusal({
-        kind: "parameter",
-        archetype,
-        axis: `collar.${key}`,
-        value: tack[key],
-        feasible: {
-          kind: "range",
-          minimum: 0,
-          maximum: key === "width" ? length : null,
-          unit: "m",
-        },
-        reason:
-          "authored tack lengths must be positive and the collar must fit the actual neck",
-        fix: "supply positive lengths and shorten the collar to fit its neck",
-      });
-  const centre: IAutoMovieVector3 = Vector3.scale(
-    Vector3.add(rig.neck, rig.poll),
-    0.5,
-  );
-  const half: IAutoMovieVector3 = Vector3.scale(
-    axis,
-    tack.width / (2 * length),
-  );
-  builder.rod(
-    "collar",
-    rig.neckRadius + tack.thickness,
-    Vector3.subtract(centre, half),
-    Vector3.add(centre, half),
-    { color: "#645139" },
-  );
-  const attached: IAutoMovieVector3 = {
-    ...centre,
-    x: rig.neckRadius + tack.thickness,
-  };
-  const end: IAutoMovieVector3 = {
-    ...attached,
-    x: attached.x + tack.leadLength,
-  };
-  builder.rod("lead", tack.leadRadius, attached, end, { color: "#645139" });
-  builder.affordance({
-    id,
-    kind: "rein",
-    symmetry: "round",
-    grip: "power",
-    frame: ArchetypeFrame.facing(
-      Vector3.scale(Vector3.add(attached, end), 0.5),
-      Vector3.create(0, 1, 0),
-      Vector3.create(1, 0, 0),
-    ),
-    extent: null,
-    aperture: 2 * tack.leadRadius,
-    length: tack.leadLength,
-  });
+  new QuadrupedLeadPlan(rig, tack, archetype).emit(builder, id);
 }
 
 /**

@@ -1,6 +1,19 @@
-import type { AutoMovieHumanoidRegion, AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanClinch, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidRegion,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanClinch,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { stand } from "../actions/stand";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -74,7 +87,8 @@ export namespace clinch {
         left: { region: "nape", across: -SPREAD },
         right: { region: "nape", across: SPREAD },
       };
-    const sleeve: IAutoMovieMotionHumanHand.Side = collar === "right" ? "left" : "right";
+    const sleeve: IAutoMovieMotionHumanHand.Side =
+      collar === "right" ? "left" : "right";
     return {
       [collar]: {
         region: collar === "right" ? "neckLeft" : "neckRight",
@@ -139,11 +153,11 @@ export namespace clinch {
     const body: IAutoMovieMotionHumanBody = context.body;
     const hold: number = context.params.hold ?? 2;
     HumanBound.least("hold", hold, 0, "s");
-    const grip: IAutoMovieMotionHumanClinch.Grip = context.params.grip ?? "plum";
+    const grip: IAutoMovieMotionHumanClinch.Grip =
+      context.params.grip ?? "plum";
     const table = regions(grip, context.params.hand ?? "right");
-    const partner: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(
-      context.params.partner,
-    );
+    const partner: IAutoMovieMotionHumanActionContext.IPerformer =
+      context.performer(context.params.partner);
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const reach: number = AutoMovieMotionHumanTiming.aimed(
@@ -205,13 +219,15 @@ export namespace clinch {
           });
         },
       });
-    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      contact: "stroke",
-      primitives: [arm("left"), arm("right")],
-    });
-    const under: IAutoMovieMotionHumanClinch.IParams["under"] = context.params.under;
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        contact: "stroke",
+        primitives: [arm("left"), arm("right")],
+      });
+    const under: IAutoMovieMotionHumanClinch.IParams["under"] =
+      context.params.under;
     if (under === undefined) return composed;
 
     // The entry: the fulcrum's height over the partner's region's, read on
@@ -228,7 +244,9 @@ export namespace clinch {
         HumanTrunk.resolve(who, posture).get(frame.bone)!,
       ).point.y;
     };
-    const theirs: IAutoMovieMotionHumanPosture | undefined = partner.posture?.(context.start);
+    const theirs: IAutoMovieMotionHumanPosture | undefined = partner.posture?.(
+      context.start,
+    );
     const drop: number =
       theirs === undefined
         ? 0

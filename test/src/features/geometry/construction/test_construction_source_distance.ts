@@ -1,9 +1,11 @@
-import type { IAutoMovieConstructionOutlineParameter, IAutoMovieViewOutline } from "@automovie/interface";
 import {
   AutoMovieViewOutline,
   rootsAutoMovieViewPolynomial,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieViewOutline,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

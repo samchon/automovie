@@ -1,6 +1,5 @@
-import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple.js";
 import type { AutoMovieQuaternionTuple } from "../geometry/AutoMovieQuaternionTuple.js";
-
+import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple.js";
 
 /**
  * An absolute rig transform in the parent frame, without scale. Deterministic

@@ -1,4 +1,11 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPickUp, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPickUp,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { pickUpAdjust } from "./pickUpAdjust";
@@ -84,7 +91,9 @@ export namespace pickUpStance {
       {
         posture: context.entry.posture,
         at: (): IAutoMovieMotionHumanPosture => context.entry.posture,
-        lower: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => posture,
+        lower: (
+          posture: IAutoMovieMotionHumanPosture,
+        ): IAutoMovieMotionHumanPosture => posture,
       },
     );
     // A standing body no stoop or squat brings to the grip may still turn

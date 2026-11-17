@@ -1,10 +1,16 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRest, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRest,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanTrunk } from "./HumanTrunk";
-
 
 /**
  * The rest goals of two hands laid one on the other against the trunk: in
@@ -82,10 +88,8 @@ export namespace restClasped {
       posture,
       "abdomen",
     ).point;
-    const shoulders: Record<IAutoMovieMotionHumanHand.Side, IAutoMovieVector3> = joints(
-      body,
-      posture,
-    );
+    const shoulders: Record<IAutoMovieMotionHumanHand.Side, IAutoMovieVector3> =
+      joints(body, posture);
     const at = (
       y: number,
     ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =>
@@ -98,7 +102,12 @@ export namespace restClasped {
         },
         Vector3.scale(ahead, -1),
       );
-    const goals = (y: number): Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanRest.IGoal> => {
+    const goals = (
+      y: number,
+    ): Record<
+      IAutoMovieMotionHumanHand.Side,
+      IAutoMovieMotionHumanRest.IGoal
+    > => {
       const place = at(y);
       const left: IAutoMovieMotionHumanRest.IGoal = laid(
         body,
@@ -126,33 +135,38 @@ export namespace restClasped {
     // How far the farther of the two wrists lies beyond its arm's reach at
     // the comfortable flexion, metres.
     const excess = (y: number): number => {
-      const both: Record<IAutoMovieMotionHumanHand.Side, IAutoMovieMotionHumanRest.IGoal> = goals(y);
+      const both: Record<
+        IAutoMovieMotionHumanHand.Side,
+        IAutoMovieMotionHumanRest.IGoal
+      > = goals(y);
       return Math.max(
-        ...(["left", "right"] as const).map((side: IAutoMovieMotionHumanHand.Side): number => {
-          const goal: IAutoMovieMotionHumanRest.IGoal = both[side];
-          const upper: number = segment(body, side, "UpperArm", "LowerArm");
-          const lower: number = segment(body, side, "LowerArm", "Hand");
-          return (
-            Vector3.length(
-              Vector3.subtract(
-                HumanHand.place(
-                  body,
-                  side,
-                  goal.surface,
-                  goal.point,
-                  goal.rotation,
-                  goal.shape,
-                ).point,
-                shoulders[side],
-              ),
-            ) -
-            Math.sqrt(
-              upper * upper +
-                lower * lower +
-                2 * upper * lower * Math.cos((FLEXION * Math.PI) / 180),
-            )
-          );
-        }),
+        ...(["left", "right"] as const).map(
+          (side: IAutoMovieMotionHumanHand.Side): number => {
+            const goal: IAutoMovieMotionHumanRest.IGoal = both[side];
+            const upper: number = segment(body, side, "UpperArm", "LowerArm");
+            const lower: number = segment(body, side, "LowerArm", "Hand");
+            return (
+              Vector3.length(
+                Vector3.subtract(
+                  HumanHand.place(
+                    body,
+                    side,
+                    goal.surface,
+                    goal.point,
+                    goal.rotation,
+                    goal.shape,
+                  ).point,
+                  shoulders[side],
+                ),
+              ) -
+              Math.sqrt(
+                upper * upper +
+                  lower * lower +
+                  2 * upper * lower * Math.cos((FLEXION * Math.PI) / 180),
+              )
+            );
+          },
+        ),
       );
     };
     let lo: number = groin.y;
@@ -196,10 +210,8 @@ export namespace restClasped {
       posture,
       "lowerBack",
     ).point;
-    const shoulders: Record<IAutoMovieMotionHumanHand.Side, IAutoMovieVector3> = joints(
-      body,
-      posture,
-    );
+    const shoulders: Record<IAutoMovieMotionHumanHand.Side, IAutoMovieVector3> =
+      joints(body, posture);
     const place = HumanTrunk.surface(
       body,
       posture,
@@ -331,7 +343,11 @@ function laid(
   elbow: IAutoMovieVector3,
   shape: IAutoMovieMotionHumanHand.Shape,
 ): IAutoMovieMotionHumanRest.IGoal {
-  const local: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(body, side, surface);
+  const local: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
+    body,
+    side,
+    surface,
+  );
   const into: IAutoMovieVector3 = Vector3.scale(normal, -1);
   const turned = (fingers: IAutoMovieVector3): IAutoMovieQuaternion =>
     HumanHand.align(
@@ -381,7 +397,12 @@ function stacked(
     left.rotation,
     left.shape,
   );
-  const face: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(body, "left", on, left.shape);
+  const face: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
+    body,
+    "left",
+    on,
+    left.shape,
+  );
   return laid(
     body,
     side,

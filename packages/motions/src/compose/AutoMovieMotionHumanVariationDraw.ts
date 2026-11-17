@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanVariation, IAutoMovieProficiency, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanVariation,
+  IAutoMovieProficiency,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanSkill } from "../skill/HumanSkill";
 
 /**
@@ -116,7 +121,9 @@ export namespace AutoMovieMotionHumanVariationDraw {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function disc(draws: IAutoMovieMotionHumanActionContext.ISeries): [number, number] {
+  export function disc(
+    draws: IAutoMovieMotionHumanActionContext.ISeries,
+  ): [number, number] {
     const [u, v] = uniforms(draws, 2) as [number, number];
     const cut: number = 1 - Math.exp(-(TRUNCATE ** 2) / 2);
     const radius: number = Math.sqrt(-2 * Math.log(1 - u * cut));

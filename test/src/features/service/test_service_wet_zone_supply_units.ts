@@ -9,7 +9,13 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";
-import { node, port, serviceNetwork, system, wetZone } from "../internal/serviceFixtures";
+import {
+  node,
+  port,
+  serviceNetwork,
+  system,
+  wetZone,
+} from "../internal/serviceFixtures";
 
 /**
  * Wet-zone supplies require volumetric demand before lowering into fluid sources.
@@ -30,7 +36,13 @@ export function test_service_wet_zone_supply_units(): void {
     version: 1,
     id: "unit-floor",
     units: "meter",
-    grid: { columns: 1, rows: 1, cellX: 1, cellZ: 1, origin: { x: 0, y: 0, z: 0 } },
+    grid: {
+      columns: 1,
+      rows: 1,
+      cellX: 1,
+      cellZ: 1,
+      origin: { x: 0, y: 0, z: 0 },
+    },
     solver: {
       fixedStepSeconds: 0.0625,
       gravity: 8,
@@ -43,7 +55,16 @@ export function test_service_wet_zone_supply_units(): void {
     bed: [0],
     depth: [0],
     solid: [false],
-    sources: [{ id: "authored", column: 0, row: 0, flowRate: 0.001, start: 0, end: null }],
+    sources: [
+      {
+        id: "authored",
+        column: 0,
+        row: 0,
+        flowRate: 0.001,
+        start: 0,
+        end: null,
+      },
+    ],
     drains: [],
     sprays: [],
   };
@@ -61,7 +82,13 @@ export function test_service_wet_zone_supply_units(): void {
     lowerWetZoneDrainage({
       network: serviceNetwork({
         systems: [supply],
-        nodes: [node({ position: { x: 0.5, y: 0, z: 0.5 }, ports: [inlet], ...placement })],
+        nodes: [
+          node({
+            position: { x: 0.5, y: 0, z: 0.5 },
+            ports: [inlet],
+            ...placement,
+          }),
+        ],
         segments: [],
         penetrations: [],
         zones: [wetZone()],
@@ -69,17 +96,30 @@ export function test_service_wet_zone_supply_units(): void {
       zone: "zone",
       domain,
     });
-  const incompatible: AutoMovieServiceUnit[] = ["watt", "ampere", "bit-per-second", "dimensionless"];
+  const incompatible: AutoMovieServiceUnit[] = [
+    "watt",
+    "ampere",
+    "bit-per-second",
+    "dimensionless",
+  ];
   const failures: string[] = [];
 
   for (const unit of incompatible)
     for (const changed of ["system", "port", "both"] as const)
       if (
         !throwsError(
-          (): IAutoMovieFluidDomain => lower(
-            system({ medium: "other", unit: changed === "port" ? "cubic-meter-per-second" : unit }),
-            port({ medium: "other", unit: changed === "system" ? "cubic-meter-per-second" : unit, demand: 0.002 }),
-          ),
+          (): IAutoMovieFluidDomain =>
+            lower(
+              system({
+                medium: "other",
+                unit: changed === "port" ? "cubic-meter-per-second" : unit,
+              }),
+              port({
+                medium: "other",
+                unit: changed === "system" ? "cubic-meter-per-second" : unit,
+                demand: 0.002,
+              }),
+            ),
           ["port", "cubic-meter-per-second"],
         )
       )
@@ -88,16 +128,22 @@ export function test_service_wet_zone_supply_units(): void {
   for (const medium of ["cold-water", "other"] as const)
     for (const demand of [0, 0.002]) {
       try {
-        const lowered: IAutoMovieFluidDomain = lower(system({ medium }), port({ medium, demand }));
-        const source: IAutoMovieFluidDomain["sources"][number] | undefined = lowered.sources[1];
+        const lowered: IAutoMovieFluidDomain = lower(
+          system({ medium }),
+          port({ medium, demand }),
+        );
+        const source: IAutoMovieFluidDomain["sources"][number] | undefined =
+          lowered.sources[1];
         if (
           lowered.sources.length !== 2 ||
           lowered.sources[0] !== domain.sources[0] ||
           source === undefined ||
           source.id !== "zone/port" ||
-          source.column !== 0 || source.row !== 0 ||
+          source.column !== 0 ||
+          source.row !== 0 ||
           !nclose(source.flowRate, demand, 0) ||
-          !nclose(source.start, 0, 0) || source.end !== null ||
+          !nclose(source.start, 0, 0) ||
+          source.end !== null ||
           domain.sources.length !== 1
         )
           failures.push(`${medium} volumetric demand ${demand}`);
@@ -109,11 +155,22 @@ export function test_service_wet_zone_supply_units(): void {
   for (const excluded of ["room", "direction", "discipline"] as const) {
     try {
       const lowered: IAutoMovieFluidDomain = lower(
-        system({ discipline: excluded === "discipline" ? "electrical" : "plumbing", medium: "other", unit: "watt" }),
-        port({ medium: "other", unit: "watt", direction: excluded === "direction" ? "out" : "in" }),
+        system({
+          discipline: excluded === "discipline" ? "electrical" : "plumbing",
+          medium: "other",
+          unit: "watt",
+        }),
+        port({
+          medium: "other",
+          unit: "watt",
+          direction: excluded === "direction" ? "out" : "in",
+        }),
         excluded === "room" ? { space: "another-room" } : {},
       );
-      if (lowered.sources.length !== 1 || lowered.sources[0] !== domain.sources[0])
+      if (
+        lowered.sources.length !== 1 ||
+        lowered.sources[0] !== domain.sources[0]
+      )
         failures.push(`unselected ${excluded} produced a source`);
     } catch (error) {
       failures.push(`unselected ${excluded} refused: ${String(error)}`);

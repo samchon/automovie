@@ -1,5 +1,17 @@
-import { type IAutoMovieFootLeg, type IAutoMovieRestFrame, type IAutoMovieSkeletonTopology, type IAutoMovieMotionSample, type IAutoMovieRekeyPlantedFeet, AutoMovieHumanoidBone, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieFootLeg,
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  type IAutoMovieMotionSample,
+  IAutoMoviePose,
+  type IAutoMovieRekeyPlantedFeet,
+  type IAutoMovieRestFrame,
+  IAutoMovieSkeleton,
+  type IAutoMovieSkeletonTopology,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { fitChainToTarget } from "./fitChainToTarget";
 
@@ -14,7 +26,11 @@ import { fitChainToTarget } from "./fitChainToTarget";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses caller topology across all corrected frames and the preceding corrected pose for continuity; frame-specific parent pose and target still require fresh chain preparation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The pass caller owns new keyframes and corrected joints; unchanged root/expression/joints may be shared with sampled input, while no cross-call cache or native handle persists.
  */
-export const rekeyPlantedFeet: (props: IAutoMovieRekeyPlantedFeet.IProps) => IAutoMovieKeyframe[] = (props: IAutoMovieRekeyPlantedFeet.IProps): IAutoMovieKeyframe[] => {
+export const rekeyPlantedFeet: (
+  props: IAutoMovieRekeyPlantedFeet.IProps,
+) => IAutoMovieKeyframe[] = (
+  props: IAutoMovieRekeyPlantedFeet.IProps,
+): IAutoMovieKeyframe[] => {
   const topology: IAutoMovieSkeletonTopology = props.topology;
   const keyframes: IAutoMovieKeyframe[] = [];
   let prior: IAutoMoviePose | undefined;

@@ -1,6 +1,5 @@
 import type { AutoMovieVector3Tuple } from "../../index";
 
-
 /** Cubic endpoint data on its enclosing curve's positive phase interval.
  *
  * @evidence contracts/development/design.md#principled-representation Endpoint values and first derivatives uniquely determine a cubic on a supplied interval.
@@ -9,19 +8,15 @@ import type { AutoMovieVector3Tuple } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Members state endpoint units and derivative chart.
  */
 export interface IAutoMovieRecoveryHermiteSpan {
- 
- /** Start position, millimetres in the original spatial frame. */
+  /** Start position, millimetres in the original spatial frame. */
   start: Readonly<AutoMovieVector3Tuple>;
 
- 
- /** End position, millimetres in the original spatial frame. */
+  /** End position, millimetres in the original spatial frame. */
   end: Readonly<AutoMovieVector3Tuple>;
 
- 
- /** Start dP/ds, millimetres per enclosing phaseUnit. */
+  /** Start dP/ds, millimetres per enclosing phaseUnit. */
   startDerivative: Readonly<AutoMovieVector3Tuple>;
 
- 
- /** End dP/ds, millimetres per enclosing phaseUnit. */
+  /** End dP/ds, millimetres per enclosing phaseUnit. */
   endDerivative: Readonly<AutoMovieVector3Tuple>;
 }

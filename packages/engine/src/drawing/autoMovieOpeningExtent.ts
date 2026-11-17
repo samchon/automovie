@@ -1,5 +1,8 @@
-import { type IAutoMovieOpeningExtent, IAutoMovieOpeningProfile, IAutoMoviePlanarPoint } from "@automovie/interface";
-
+import {
+  type IAutoMovieOpeningExtent,
+  IAutoMovieOpeningProfile,
+  IAutoMoviePlanarPoint,
+} from "@automovie/interface";
 
 import { outlineHull } from "../architecture/outlineHull";
 import { polygonBounds } from "../architecture/polygonBounds";

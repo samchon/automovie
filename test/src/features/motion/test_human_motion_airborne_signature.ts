@@ -1,7 +1,34 @@
-import type { IAutoMovieMotionHumanAirborneShape, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJump, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieSolveAirborneTakeoff, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionEvent, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-import { Vector3, resolveAutoMovieCenterOfMass, resolveAutoMovieMomentum, solveAirborneTakeoff } from "@automovie/engine";
-
-import { HumanAirborneShape, HumanChain, HumanPerformance, HumanRefusal, poseBones, resolveHumanPosture } from "@automovie/motions";
+import {
+  Vector3,
+  resolveAutoMovieCenterOfMass,
+  resolveAutoMovieMomentum,
+  solveAirborneTakeoff,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanAirborneShape,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanJump,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieQuaternion,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieSolveAirborneTakeoff,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanAirborneShape,
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -99,10 +126,8 @@ export function test_human_motion_airborne_signature(): void {
           const q0: IAutoMovieQuaternion = p.pose("a", takeoff).root!.rotation;
           const q1: IAutoMovieQuaternion = p.pose("a", touchdown - 1e-6).root!
             .rotation;
-          const off: IAutoMovieSolveAirborneTakeoff.IAngles = solveAirborneTakeoff.angles(
-            q0,
-            q1,
-          );
+          const off: IAutoMovieSolveAirborneTakeoff.IAngles =
+            solveAirborneTakeoff.angles(q0, q1);
           const turns: number =
             Math.max(
               Math.abs(off.somersault),
@@ -119,7 +144,9 @@ export function test_human_motion_airborne_signature(): void {
     // 2. The shapes' moments.
     const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
-    const shaped = (s: IAutoMovieMotionHumanAirborneShape.Shape | null): Bones =>
+    const shaped = (
+      s: IAutoMovieMotionHumanAirborneShape.Shape | null,
+    ): Bones =>
       poseBones(body, {
         skeleton: body.skeleton.id,
         root: null,
@@ -168,7 +195,9 @@ export function test_human_motion_airborne_signature(): void {
     },
   };
   const man: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const context: IAutoMovieMotionHumanLayer.IContext = { body: man } as IAutoMovieMotionHumanLayer.IContext;
+  const context: IAutoMovieMotionHumanLayer.IContext = {
+    body: man,
+  } as IAutoMovieMotionHumanLayer.IContext;
   // Where the resolver puts an end joint for a shape's joints, the limbs it
   // claims holding no goal and the others theirs.
   const end = (
@@ -188,12 +217,11 @@ export function test_human_motion_airborne_signature(): void {
     ["tuck", "leftLeg", "leftArm", "leftFoot", "leftUpperLeg"],
     ["armsIn", "leftArm", "leftLeg", "leftHand", "leftUpperArm"],
   ] as const) {
-    const laid: IAutoMovieMotionHumanPosture = HumanAirborneShape.layer(shape).apply(
-      standing,
-      0,
-      context,
-    );
-    const moved: IAutoMovieMotionHumanPosture.IGoal | undefined = laid.limbs[limb];
+    const laid: IAutoMovieMotionHumanPosture = HumanAirborneShape.layer(
+      shape,
+    ).apply(standing, 0, context);
+    const moved: IAutoMovieMotionHumanPosture.IGoal | undefined =
+      laid.limbs[limb];
     if (
       moved === undefined ||
       Vector3.length(Vector3.subtract(moved.point, end(shape, bone, kept))) >

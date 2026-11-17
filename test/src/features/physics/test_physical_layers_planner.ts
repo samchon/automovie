@@ -1,6 +1,8 @@
-import type { IAutoMovieStepPlanner, IAutoMovieFootfallPattern } from "@automovie/interface";
 import { AutoMovieStepPlanner as Planner } from "@automovie/engine";
-
+import type {
+  IAutoMovieFootfallPattern,
+  IAutoMovieStepPlanner,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /** Physical planner behavior.
@@ -17,7 +19,9 @@ import { TestValidator } from "@nestia/e2e";
 export function test_physical_layers_planner(): void {
   for (const count of [2, 4]) {
     const pattern: IAutoMovieFootfallPattern = supports(count);
-    const desired: (seconds: number) => Record<string, IAutoMovieStepPlanner.IPlacement> = (
+    const desired: (
+      seconds: number,
+    ) => Record<string, IAutoMovieStepPlanner.IPlacement> = (
       seconds: number,
     ): Record<string, IAutoMovieStepPlanner.IPlacement> =>
       Object.fromEntries(

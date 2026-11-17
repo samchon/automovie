@@ -1,5 +1,12 @@
-import type { IAutoMovieConstructionRealization, IAutoMovieLoftChain } from "@automovie/interface";
-import { AutoMovieLoftChain, AutoMovieLoftStations, realizeAutoMovieConstruction } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  AutoMovieLoftStations,
+  realizeAutoMovieConstruction,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionRealization,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
 

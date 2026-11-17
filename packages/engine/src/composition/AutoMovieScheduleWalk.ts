@@ -1,4 +1,10 @@
-import type { IAutoMovieIntent, IAutoMovieSchedule, IAutoMovieComposition, IAutoMovieResolveSchedule, IAutoMovieScheduleWalk } from "@automovie/interface";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieIntent,
+  IAutoMovieResolveSchedule,
+  IAutoMovieSchedule,
+  IAutoMovieScheduleWalk,
+} from "@automovie/interface";
 
 import { AutoMovieScheduleError } from "./AutoMovieScheduleError";
 
@@ -14,7 +20,6 @@ import { AutoMovieScheduleError } from "./AutoMovieScheduleError";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No law and no composition is named; every reading refuses with an `AutoMovieScheduleError`.
  */
 export namespace AutoMovieScheduleWalk {
-
   /**
    * A walk with nothing placed.
    *
@@ -29,7 +34,9 @@ export namespace AutoMovieScheduleWalk {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The record lives as long as the walk.
    */
-  export function create(laws: IAutoMovieResolveSchedule.ILaws): IAutoMovieScheduleWalk.IWalk {
+  export function create(
+    laws: IAutoMovieResolveSchedule.ILaws,
+  ): IAutoMovieScheduleWalk.IWalk {
     return {
       laws,
       entries: [],
@@ -66,7 +73,8 @@ export namespace AutoMovieScheduleWalk {
     // compute from what is placed so far (a struck person's hits).
     if (entry === undefined)
       return walk.tracks.get(of) ?? walk.laws.instants?.(of, walk.entries);
-    const events: readonly IAutoMovieResolveSchedule.ICue[] = entry.events ?? [];
+    const events: readonly IAutoMovieResolveSchedule.ICue[] =
+      entry.events ?? [];
     const named: (name: string) => boolean = (name: string): boolean =>
       events.some(
         (e: IAutoMovieResolveSchedule.ICue): boolean => e.name === name,

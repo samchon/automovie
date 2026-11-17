@@ -1,6 +1,23 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanLeanInto, IAutoMovieMotionHumanOperate, IAutoMovieMotionHumanOperateDrive, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingHeld, IAutoMovieMotionManner, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanLeanInto,
+  IAutoMovieMotionHumanOperate,
+  IAutoMovieMotionHumanOperateDrive,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionManner,
+  IAutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -107,7 +124,9 @@ export namespace operate {
   export const UPRIGHT: number = Math.SQRT1_2;
 
   /** The width of each part a hand aims at, metres (provisional). */
-  export const WIDTH: Readonly<Record<IAutoMovieMotionHumanOperate.Mechanism["kind"], number>> = {
+  export const WIDTH: Readonly<
+    Record<IAutoMovieMotionHumanOperate.Mechanism["kind"], number>
+  > = {
     button: 0.02,
     knob: 0.05,
     slider: 0.03,
@@ -127,7 +146,8 @@ export namespace operate {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const mechanism: IAutoMovieMotionHumanOperate.Mechanism = context.params.mechanism;
+    const mechanism: IAutoMovieMotionHumanOperate.Mechanism =
+      context.params.mechanism;
     const side: IAutoMovieMotionHumanHand.Side = context.params.hand ?? "right";
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
@@ -206,10 +226,8 @@ export namespace operate {
       modifiers,
     );
     const duration: number = clock.duration;
-    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      duration,
-    );
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, duration);
     const surface: IAutoMovieMotionHumanHand.Surface =
       mechanism.kind === "button" ? "indexTip" : "grip";
     const shape: IAutoMovieMotionHumanHand.Shape =
@@ -226,7 +244,8 @@ export namespace operate {
       for (;;) {
         const mid: number = (lo + hi) / 2;
         if (mid === lo || mid === hi) return mid;
-        if (clock.progress("strokeStart", "strokeEnd", mid) < progress) lo = mid;
+        if (clock.progress("strokeStart", "strokeEnd", mid) < progress)
+          lo = mid;
         else hi = mid;
       }
     };
@@ -309,7 +328,6 @@ export namespace operate {
       );
     };
 
-
     // The lean into a part beyond the standing arm.
     const standing: IAutoMovieMotionHumanPosture = base.posture(0);
     const lean: IAutoMovieMotionHumanLeanInto.ILean =
@@ -333,38 +351,44 @@ export namespace operate {
           ).point;
         },
         // The arm on the part at the stroke's start, as the stroke grips it.
-        arm: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture.IGoal =>
+        arm: (
+          posture: IAutoMovieMotionHumanPosture,
+        ): IAutoMovieMotionHumanPosture.IGoal =>
           AutoMovieMotionHumanArm.goal(body, side, target(posture, 0)),
         refuse: (beyond: number, limit: number): string =>
           `${context.subject}: the ${mechanism.kind} stays ${(1000 * beyond).toFixed(0)} mm beyond the ${side} arm at a lean of ${limit} degrees; a part this far is walked up to first`,
       });
     // Refuse at plan time a part whose movement leaves the reach.
     for (let k: number = 0; k <= 8; k++) lean.pitch(standing, k / 8);
-    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      contact: "strokeEnd",
-      primitives: [
-        lean.primitive(clock),
-        AutoMovieMotionHumanArm.stroke({
-          body,
-          clock,
-          side,
-          origin,
-          contact: {
-            kind: "grip",
-            support:
-              mechanism.kind === "insert"
-                ? { kind: "prop", subject: mechanism.prop }
-                : at.kind === "prop"
-                  ? { kind: "prop", subject: at.subject }
-                  : { kind: "ground" },
-          },
-          path: (posture: IAutoMovieMotionHumanPosture, _: number, progress: number) =>
-            target(posture, progress),
-        }),
-      ],
-    });
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        contact: "strokeEnd",
+        primitives: [
+          lean.primitive(clock),
+          AutoMovieMotionHumanArm.stroke({
+            body,
+            clock,
+            side,
+            origin,
+            contact: {
+              kind: "grip",
+              support:
+                mechanism.kind === "insert"
+                  ? { kind: "prop", subject: mechanism.prop }
+                  : at.kind === "prop"
+                    ? { kind: "prop", subject: at.subject }
+                    : { kind: "ground" },
+            },
+            path: (
+              posture: IAutoMovieMotionHumanPosture,
+              _: number,
+              progress: number,
+            ) => target(posture, progress),
+          }),
+        ],
+      });
     return part === undefined
       ? composed
       : { ...composed, drives: [operateDrive.drive(part, clock)] };

@@ -1,6 +1,8 @@
-import type { IAutoMovieSpeedProfile, IAutoMovieQuaternion } from "@automovie/interface";
 import { Quaternion, speedProfile } from "@automovie/engine";
-
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieSpeedProfile,
+} from "@automovie/interface";
 
 import type { ArchetypeCourse } from "./ArchetypeCourse";
 import { ArchetypeCoursePath } from "./ArchetypeCoursePath";
@@ -331,7 +333,8 @@ export namespace ArchetypeCourseLegs {
       legSpans,
       when: profile.when,
       at: (seconds: number): ArchetypeCourse.IState => {
-        const { distance, speed }: IAutoMovieSpeedProfile.IState = profile.at(seconds);
+        const { distance, speed }: IAutoMovieSpeedProfile.IState =
+          profile.at(seconds);
         let row: ArchetypeCoursePath.IRow = rows[0]!;
         for (const candidate of rows)
           if (distance >= candidate.from) row = candidate;

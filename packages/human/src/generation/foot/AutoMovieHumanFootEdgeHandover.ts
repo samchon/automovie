@@ -23,7 +23,11 @@ export namespace AutoMovieHumanFootEdgeHandover {
    * @param corner The heel's posterior corner's height, mm.
    * @param derived The edge's derived curvature from its neighbours.
    */
-  export function curvature(height: number, corner: number, derived: number): number {
+  export function curvature(
+    height: number,
+    corner: number,
+    derived: number,
+  ): number {
     return G.smooth(height / corner) * derived;
   }
 
@@ -44,14 +48,23 @@ export namespace AutoMovieHumanFootEdgeHandover {
    * @param edge The edge's own point.
    * @param after The neighbour after it.
    */
-  export function tangent(height: number, corner: number, before: AutoMovieVector2Tuple, edge: AutoMovieVector2Tuple, after: AutoMovieVector2Tuple): AutoMovieVector2Tuple {
+  export function tangent(
+    height: number,
+    corner: number,
+    before: AutoMovieVector2Tuple,
+    edge: AutoMovieVector2Tuple,
+    after: AutoMovieVector2Tuple,
+  ): AutoMovieVector2Tuple {
     const w: number = G.smooth(height / corner);
-    const d1: number = Math.hypot(edge[0] - before[0], edge[1] - before[1]) || 1;
+    const d1: number =
+      Math.hypot(edge[0] - before[0], edge[1] - before[1]) || 1;
     const d2: number = Math.hypot(after[0] - edge[0], after[1] - edge[1]) || 1;
 
     // Bessel's tangent: (d2 c1 + d1 c2) / (d1 + d2) with c1, c2 the unit chords.
-    const bx: number = (d2 * (edge[0] - before[0])) / d1 + (d1 * (after[0] - edge[0])) / d2;
-    const by: number = (d2 * (edge[1] - before[1])) / d1 + (d1 * (after[1] - edge[1])) / d2;
+    const bx: number =
+      (d2 * (edge[0] - before[0])) / d1 + (d1 * (after[0] - edge[0])) / d2;
+    const by: number =
+      (d2 * (edge[1] - before[1])) / d1 + (d1 * (after[1] - edge[1])) / d2;
 
     // Turn by angle, not by a blend of the two vectors: they point nearly
     // opposite where the edge stands under its neighbours, and a blend

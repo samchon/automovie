@@ -1,5 +1,4 @@
 import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
-
 import type * as THREE from "three";
 
 /**
@@ -19,12 +18,17 @@ export function applyHumanPolygonPose(
   object: THREE.Group,
   bindings: ReadonlyMap<string, readonly THREE.Object3D[]>,
   required: readonly string[],
-  output: Pick<Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">, "posed">,
+  output: Pick<
+    Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">,
+    "posed"
+  >,
 ): void {
   const placements: Map<string, IAutoMovieHumanSkeleton.IPlacement> = new Map();
   for (const placement of output.posed) {
-    const p: IAutoMovieHumanSkeleton.IPlacement["position"] = placement.position;
-    const q: IAutoMovieHumanSkeleton.IPlacement["rotation"] = placement.rotation;
+    const p: IAutoMovieHumanSkeleton.IPlacement["position"] =
+      placement.position;
+    const q: IAutoMovieHumanSkeleton.IPlacement["rotation"] =
+      placement.rotation;
     if (
       placements.has(placement.bone) ||
       p.length !== 3 ||

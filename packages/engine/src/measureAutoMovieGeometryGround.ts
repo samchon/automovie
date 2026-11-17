@@ -1,5 +1,9 @@
-import { type IAutoMovieGeometryMeasurementInput, type IAutoMovieGeometryQuery, type IAutoMovieReadGeometryGround, IAutoMovieGeometryResult } from "@automovie/interface";
-
+import {
+  type IAutoMovieGeometryMeasurementInput,
+  type IAutoMovieGeometryQuery,
+  IAutoMovieGeometryResult,
+  type IAutoMovieReadGeometryGround,
+} from "@automovie/interface";
 
 import { readAutoMovieGeometryGround } from "./readAutoMovieGeometryGround";
 

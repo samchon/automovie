@@ -1,5 +1,5 @@
-import type { IAutoMovieSolidMeshPlan } from "@automovie/interface";
 import { triangulateAutoMovieSolidBoundary } from "@automovie/engine";
+import type { IAutoMovieSolidMeshPlan } from "@automovie/interface";
 
 import { nclose } from "../nclose";
 

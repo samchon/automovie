@@ -13,18 +13,15 @@ export namespace IAutoMovieSolvePhysicalArticulationTargets {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The solver checks budgets, selected bones and residual size/finiteness, and propagates callback exceptions. The caller supplies an admitted acyclic profile and complete world poses; a fixed residual dimension is required across all probes.
    */
   export type IInput = {
-    
     /** Admitted fixed-pivot tree. */
     profile: IAutoMoviePhysicalProfile;
-    
+
     /** Actuated child bones, including branches solved together. */
     bones: readonly string[];
-    
+
     /** Borrowed admitted world motor goals. */
-    targets: Readonly<
-      Record<string, IAutoMoviePhysicalProfile.ITransform>
-    >;
-    
+    targets: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>;
+
     /** Synchronous deterministic residual vector in metres for borrowed world poses, with 1..1024 finite entries and invariant length. Do not mutate poses or returned residuals during the solve; exceptions propagate.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Specifies the measure callback or sampling contract, including its clock and ownership obligations.
@@ -38,7 +35,7 @@ export namespace IAutoMovieSolvePhysicalArticulationTargets {
     measure: (
       poses: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
     ) => number[];
-    
+
     /** Optional synchronous model factory refreshed at each accepted pose. Its probe callback receives borrowed trial poses and optionally the moved bone set, and must return finite residuals with the same dimension. Omission uses measure; actual acceptance always re-evaluates measure. Callbacks are not retained after return.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Specifies the linearize callback or sampling contract, including its clock and ownership obligations.
@@ -55,10 +52,10 @@ export namespace IAutoMovieSolvePhysicalArticulationTargets {
       probe: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>,
       moved?: ReadonlySet<string>,
     ) => number[];
-    
+
     /** Positive update budget, at most 64. */
     iterations: number;
-    
+
     /** Positive metre residual early-out. */
     tolerance: number;
   };
@@ -73,11 +70,11 @@ export namespace IAutoMovieSolvePhysicalArticulationTargets {
    * @evidence contracts/development/design.md#minimal-and-owned-surface solvePhysicalArticulationTargets returns an owned initial clone with subsequent accepted branches updated without mutating caller goals.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Backtracking accepts only actual residual decreases, but exhausted budgets or unreachable goals can leave residual above tolerance. No simulated body is moved and no success flag conceals that residual.
    */
-  export type IResult = { 
-  
-  /** Owned fitted world motor-goal record with metre positions and unit rotations; callers may change it without editing input targets. */
-  targets: Record<string, IAutoMoviePhysicalProfile.ITransform>; 
-  
-  /** Euclidean norm of the final actual measure vector, metres; may exceed tolerance for unreachable goals or an exhausted/stalled solve. */
-  residual: number };
+  export type IResult = {
+    /** Owned fitted world motor-goal record with metre positions and unit rotations; callers may change it without editing input targets. */
+    targets: Record<string, IAutoMoviePhysicalProfile.ITransform>;
+
+    /** Euclidean norm of the final actual measure vector, metres; may exceed tolerance for unreachable goals or an exhausted/stalled solve. */
+    residual: number;
+  };
 }

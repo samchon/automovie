@@ -1,6 +1,7 @@
-import type { IAutoMovieHumanArmSpanEnd, IAutoMovieHumanArmPiece } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieHumanArmPiece,
+  IAutoMovieHumanArmSpanEnd,
+} from "@automovie/interface";
 
 import { AutoMovieHumanArmRows } from "./AutoMovieHumanArmRows";
 import { AutoMovieHumanUpperArmCompartments } from "./AutoMovieHumanUpperArmCompartments";
@@ -36,10 +37,15 @@ export namespace AutoMovieHumanElbowSpan {
    *
    * @param inputs The fixed inputs.
    */
-  export function end(inputs: IAutoMovieHumanArmPiece.IInputs): IAutoMovieHumanArmSpanEnd {
+  export function end(
+    inputs: IAutoMovieHumanArmPiece.IInputs,
+  ): IAutoMovieHumanArmSpanEnd {
     const s: number = inputs.axis.fore(EDGE * inputs.stylion);
 
-    return { row: AutoMovieHumanArmRows.row("f0.1", s), knot: [s, Math.min(inputs.tapes.elbow, inputs.tapes.forearm)] };
+    return {
+      row: AutoMovieHumanArmRows.row("f0.1", s),
+      knot: [s, Math.min(inputs.tapes.elbow, inputs.tapes.forearm)],
+    };
   }
 
   /**
@@ -47,16 +53,24 @@ export namespace AutoMovieHumanElbowSpan {
    *
    * @param inputs The fixed inputs.
    */
-  export function piece(inputs: IAutoMovieHumanArmPiece.IInputs): IAutoMovieHumanArmPiece {
-    const near: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } = AutoMovieHumanUpperArmCompartments.end(inputs);
-    const far: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } = end(inputs);
+  export function piece(
+    inputs: IAutoMovieHumanArmPiece.IInputs,
+  ): IAutoMovieHumanArmPiece {
+    const near: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } =
+      AutoMovieHumanUpperArmCompartments.end(inputs);
+    const far: { row: IAutoMovieHumanArmPiece.IRow; knot: [number, number] } =
+      end(inputs);
 
     return {
       name: "elbow",
       from: "supracondylar ridge",
       to: "elbow distal edge",
       walk: [near.row.s, far.row.s],
-      rows: [near.row, AutoMovieHumanArmRows.row("elbow", inputs.axis.elbow), far.row],
+      rows: [
+        near.row,
+        AutoMovieHumanArmRows.row("elbow", inputs.axis.elbow),
+        far.row,
+      ],
       knots: [near.knot, [inputs.axis.elbow, inputs.tapes.elbow], far.knot],
     };
   }

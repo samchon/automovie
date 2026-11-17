@@ -1,10 +1,10 @@
-import type { IAutoMovieLoftChain, IAutoMovieHumanBodyCalibration, IAutoMovieHumanJointCentres, IAutoMovieHumanSkeletonLaw } from "@automovie/interface";
-
-
-
-
 import { AutoMovieLoftChain } from "@automovie/engine";
-
+import type {
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanJointCentres,
+  IAutoMovieHumanSkeletonLaw,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
 /**
  * The stickman skeleton of a generated body: the bind skeleton the body was
@@ -15,8 +15,6 @@ import { AutoMovieLoftChain } from "@automovie/engine";
  * in `docs/anatomy/joint-range.md`.
  */
 export namespace AutoMovieHumanJointCentres {
-  
-
   /**
    * Every joint of the stickman skeleton.
    *
@@ -180,7 +178,9 @@ export namespace AutoMovieHumanJointCentres {
       throw new Error(`Stickman skeleton has no girth rule for ${bone}`);
     };
     return skeleton.map(
-      (b: IAutoMovieHumanSkeletonLaw.IBone): IAutoMovieHumanJointCentres.IJoint => ({
+      (
+        b: IAutoMovieHumanSkeletonLaw.IBone,
+      ): IAutoMovieHumanJointCentres.IJoint => ({
         ...b,
         radius: radius(b.bone),
       }),

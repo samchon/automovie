@@ -1,5 +1,14 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMovieResolveSchedule } from "@automovie/interface";
-
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolveSchedule,
+} from "@automovie/interface";
 import { HumanChain, HumanCue, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,7 +43,9 @@ export function test_human_motion_core_schedule_entry_align(): void {
     interrupts: {
       marker: [{ window: [0, 1], kind: "inertialize", entry: 0.5, blend: 0.1 }],
     } as IAutoMovieMotionHumanActionLaw["interrupts"],
-    plan: (context: IAutoMovieMotionHumanActionContext<never>): IAutoMovieMotionHumanActionPlan => ({
+    plan: (
+      context: IAutoMovieMotionHumanActionContext<never>,
+    ): IAutoMovieMotionHumanActionPlan => ({
       duration: 1,
       events: [{ name: "mark", share: 0.75 }],
       contacts: context.entry.supports.map(
@@ -71,13 +82,15 @@ export function test_human_motion_core_schedule_entry_align(): void {
       .registered("marker")
       .sync({ of: "music", event: "beat", index: 2, align: "mark" }).node,
   });
-  const second: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[2]!;
+  const second: IAutoMovieMotionHumanSegment.ISegment =
+    performance.segments("a")[2]!;
   const entered: number =
     (second.entryTime - second.start) / second.plan.duration;
   const mark: number =
     second.start +
     (second.plan.events.find(
-      (e: IAutoMovieMotionHumanActionPlan["events"][number]): boolean => e.name === "mark",
+      (e: IAutoMovieMotionHumanActionPlan["events"][number]): boolean =>
+        e.name === "mark",
     )?.share ?? NaN) *
       second.plan.duration;
   TestValidator.predicate(

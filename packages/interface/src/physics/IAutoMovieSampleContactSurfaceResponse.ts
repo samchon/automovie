@@ -1,5 +1,5 @@
-import type { IAutoMovieContactReceipt } from "./IAutoMovieContactReceipt";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieContactReceipt } from "./IAutoMovieContactReceipt";
 
 /** Data and callback contracts shared by the SampleContactSurfaceResponse operations. */
 export namespace IAutoMovieSampleContactSurfaceResponse {

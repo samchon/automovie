@@ -1,18 +1,19 @@
-import type { AutoMovieVector3Tuple, IAutoMovieBicubicAtlasGeometry, IAutoMovieCurve64, IAutoMovieRecoveryChartPatchBudgetFailure, IAutoMovieRecoveryEndpointControlOwner, IAutoMovieRecoveryEventChartInput, IAutoMovieRecoveryEventCompilationPolicy, IAutoMovieRecoveryEventCurveSource, IAutoMovieRecoveryEventDomainCompilation, IAutoMovieRecoveryNativeChartCompilation, IAutoMovieRecoveryNativeCurveOwner, IAutoMovieRecoveryNativeEndpoint } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieBicubicAtlasGeometry,
+  IAutoMovieCurve64,
+  IAutoMovieRecoveryChartPatchBudgetFailure,
+  IAutoMovieRecoveryEndpointControlOwner,
+  IAutoMovieRecoveryEventChartInput,
+  IAutoMovieRecoveryEventCompilationPolicy,
+  IAutoMovieRecoveryEventCurveSource,
+  IAutoMovieRecoveryEventDomainCompilation,
+  IAutoMovieRecoveryNativeChartCompilation,
+  IAutoMovieRecoveryNativeCurveOwner,
+  IAutoMovieRecoveryNativeEndpoint,
+} from "@automovie/interface";
 
 import { AutoMovieRecoveryEventCurve as E } from "../observation/AutoMovieRecoveryEventCurve";
-
-
-
-
-
-
-
-
-
 import { compileAutoMovieRecoveryEventDomain as compile } from "./compileAutoMovieRecoveryEventDomain";
 
 /**
@@ -38,11 +39,15 @@ export function compileAutoMovieRecoveryNativeNamedChart(
     | IAutoMovieRecoveryChartPatchBudgetFailure
     | IAutoMovieRecoveryEventDomainCompilation = compile(input, {
     ...policy,
-    nativeParentBindings: true });
+    nativeParentBindings: true,
+  });
   if (!result.complete) return result;
   const recipe: IAutoMovieBicubicAtlasGeometry = result.recipe;
   const parent: number[] = recipe.controls.map(
-    (_: IAutoMovieBicubicAtlasGeometry["controls"][number], i: number): number => i,
+    (
+      _: IAutoMovieBicubicAtlasGeometry["controls"][number],
+      i: number,
+    ): number => i,
   );
   const rank: number[] = recipe.controls.map((): number => 0);
   const parents: Map<string, IAutoMovieCurve64.Span> = new Map();
@@ -53,11 +58,14 @@ export function compileAutoMovieRecoveryNativeNamedChart(
     input.chart.right,
   ])
     for (const p of arc.pieces) {
-      const prior: IAutoMovieCurve64.Span | undefined = parents.get(p.source.authority);
+      const prior: IAutoMovieCurve64.Span | undefined = parents.get(
+        p.source.authority,
+      );
       if (
         prior &&
         !E.fullparentControls(p.source).every(
-          (point: Readonly<AutoMovieVector3Tuple>, i: number): boolean => E.same(point, prior[i]!),
+          (point: Readonly<AutoMovieVector3Tuple>, i: number): boolean =>
+            E.same(point, prior[i]!),
         )
       )
         throw new Error(
@@ -81,8 +89,10 @@ export function compileAutoMovieRecoveryNativeNamedChart(
     a = find(a);
     b = find(b);
     if (a === b) return;
-    const x: IAutoMovieBicubicAtlasGeometry["controls"][number] = recipe.controls[a]!,
-      y: IAutoMovieBicubicAtlasGeometry["controls"][number] = recipe.controls[b]!;
+    const x: IAutoMovieBicubicAtlasGeometry["controls"][number] =
+        recipe.controls[a]!,
+      y: IAutoMovieBicubicAtlasGeometry["controls"][number] =
+        recipe.controls[b]!;
     if (x.x !== y.x || x.y !== y.y || x.z !== y.z)
       throw new Error(
         "Native endpoint values differ from their declared chart corner",
@@ -91,12 +101,15 @@ export function compileAutoMovieRecoveryNativeNamedChart(
     parent[b] = a;
     if (rank[a] === rank[b]) rank[a] = rank[a]! + 1;
   };
-  const add: (point: Readonly<AutoMovieVector3Tuple>) => number = (point: Readonly<AutoMovieVector3Tuple>): number => {
+  const add: (point: Readonly<AutoMovieVector3Tuple>) => number = (
+    point: Readonly<AutoMovieVector3Tuple>,
+  ): number => {
     const id: number = recipe.controls.length;
     recipe.controls.push({
       x: point[0] * 0.001,
       y: point[1] * 0.001,
-      z: point[2] * 0.001 });
+      z: point[2] * 0.001,
+    });
     parent.push(id);
     rank.push(0);
     return id;
@@ -139,11 +152,13 @@ export function compileAutoMovieRecoveryNativeNamedChart(
       owner = {
         id: source.authority,
         controlIds: [ids[0]!, ids[1]!, ids[2]!, ids[3]!],
-        net: nativeNet };
+        net: nativeNet,
+      };
       owners.set(owner.id, owner);
     } else if (
-      !nativeNet.every((point: Readonly<AutoMovieVector3Tuple>, i: number): boolean =>
-        E.same(point, owner!.net[i]!),
+      !nativeNet.every(
+        (point: Readonly<AutoMovieVector3Tuple>, i: number): boolean =>
+          E.same(point, owner!.net[i]!),
       )
     )
       throw new Error("One native cubic authority has distinct coefficients");
@@ -164,7 +179,8 @@ export function compileAutoMovieRecoveryNativeNamedChart(
       } else
         endpoints.set(name, {
           position: nativeNet[k],
-          controlId: owner.controlIds[k] });
+          controlId: owner.controlIds[k],
+        });
     }
     return owner;
   };
@@ -174,9 +190,12 @@ export function compileAutoMovieRecoveryNativeNamedChart(
     [12, 13, 14, 15],
     [0, 4, 8, 12],
   ];
-  const bindings: NonNullable<IAutoMovieBicubicAtlasGeometry["boundaryBindings"]> = [];
+  const bindings: NonNullable<
+    IAutoMovieBicubicAtlasGeometry["boundaryBindings"]
+  > = [];
   for (let i: number = 0; i < recipe.patches.length; i++) {
-    const patch: IAutoMovieBicubicAtlasGeometry["patches"][number] = recipe.patches[i]!,
+    const patch: IAutoMovieBicubicAtlasGeometry["patches"][number] =
+        recipe.patches[i]!,
       row: (typeof result.sourcePieces)[number] = result.sourcePieces[i]!;
     const [a, b, c, d]: [number, number, number, number] = row.chart;
     const sides: [0 | 1 | 2 | 3, boolean][] = [
@@ -189,7 +208,9 @@ export function compileAutoMovieRecoveryNativeNamedChart(
       if (!external) continue;
       const occurrence: IAutoMovieRecoveryEventCurveSource =
         row.boundaryCoefficientSources[originalSide]!;
-      const net: IAutoMovieCurve64.Span | undefined = parents.get(occurrence.authority);
+      const net: IAutoMovieCurve64.Span | undefined = parents.get(
+        occurrence.authority,
+      );
       if (!net)
         throw new Error(
           "A compiled boundary interval has no original native parent",
@@ -209,7 +230,8 @@ export function compileAutoMovieRecoveryNativeNamedChart(
         authority: owner.id,
         start,
         end,
-        normalFan: patch.id });
+        normalFan: patch.id,
+      });
       for (const [k, phase] of [
         [0, start],
         [3, end],
@@ -224,9 +246,12 @@ export function compileAutoMovieRecoveryNativeNamedChart(
   recipe.boundaryAuthorities = [...owners.values()].map(
     (
       owner: ReturnType<typeof native>,
-    ): NonNullable<IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]>[number] => ({
+    ): NonNullable<
+      IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]
+    >[number] => ({
       id: owner.id,
-      controlIds: owner.controlIds }),
+      controlIds: owner.controlIds,
+    }),
   );
   recipe.boundaryBindings = bindings;
   const compact: Map<number, number> = new Map(),
@@ -256,7 +281,8 @@ export function compileAutoMovieRecoveryNativeNamedChart(
       IAutoMovieRecoveryNativeEndpoint,
     ]): IAutoMovieRecoveryEndpointControlOwner => ({
       id: name,
-      controlId: id(endpoint.controlId) }),
+      controlId: id(endpoint.controlId),
+    }),
   );
   recipe.controls = controls;
   return {
@@ -264,5 +290,6 @@ export function compileAutoMovieRecoveryNativeNamedChart(
     recipe,
     endpointControlOwners,
     representation: "native-parent-local-partial-bindings-v1",
-    chartDirectionU: input.winding === -1 ? -1 : 1 };
+    chartDirectionU: input.winding === -1 ? -1 : 1,
+  };
 }

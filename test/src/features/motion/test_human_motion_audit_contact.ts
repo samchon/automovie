@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanAuditContact, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditContact,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanAuditContact } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -58,7 +64,9 @@ export function test_human_motion_audit_contact(): void {
   ) => IAutoMovieVector3;
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const stance: Bones = motionHumanStance(body);
-  const ground: IAutoMovieMotionHumanContactWindow["support"] = { kind: "ground" };
+  const ground: IAutoMovieMotionHumanContactWindow["support"] = {
+    kind: "ground",
+  };
   const contact = (
     part: IAutoMovieMotionHumanContactWindow["part"],
     from: number,

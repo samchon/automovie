@@ -1,4 +1,12 @@
-import { type IAutoMovieValidateDesignLineageDerived, type IAutoMovieViolationCollector, IAutoMovieDerivedArtifact, IAutoMovieDesignAssetCitation, IAutoMovieDesignLineage, IAutoMovieDesignStamp, IAutoMovieDesignVariant } from "@automovie/interface";
+import {
+  IAutoMovieDerivedArtifact,
+  IAutoMovieDesignAssetCitation,
+  IAutoMovieDesignLineage,
+  IAutoMovieDesignStamp,
+  IAutoMovieDesignVariant,
+  type IAutoMovieValidateDesignLineageDerived,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { appendGraphCycles } from "../validation/appendGraphCycles";
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
@@ -40,7 +48,9 @@ import { validateDeclaredReferences } from "../validation/validateDeclaredRefere
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per lineage validation and fed the caller's id sets and variant index, so no work is repeated or shared across calls.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The artifact index, subject digest map, per-artifact citation sets and per-decision kind tables are local and released on return, each bounded by its record count; findings go to the caller's collector.
  */
-export const validateDesignLineageDerived: (props: IAutoMovieValidateDesignLineageDerived.IProps) => void = (props: IAutoMovieValidateDesignLineageDerived.IProps): void => {
+export const validateDesignLineageDerived: (
+  props: IAutoMovieValidateDesignLineageDerived.IProps,
+) => void = (props: IAutoMovieValidateDesignLineageDerived.IProps): void => {
   const {
     lineage,
     subjectIds,
@@ -48,14 +58,16 @@ export const validateDesignLineageDerived: (props: IAutoMovieValidateDesignLinea
     variants,
     root,
     out,
-  }: [{
-  lineage: IAutoMovieDesignLineage;
-  subjectIds: ReadonlySet<string>;
-  phaseIds: ReadonlySet<string>;
-  variants: ReadonlyMap<string, IAutoMovieDesignVariant>;
-  root: string;
-  out: IAutoMovieViolationCollector;
-}][0] = props;
+  }: [
+    {
+      lineage: IAutoMovieDesignLineage;
+      subjectIds: ReadonlySet<string>;
+      phaseIds: ReadonlySet<string>;
+      variants: ReadonlyMap<string, IAutoMovieDesignVariant>;
+      root: string;
+      out: IAutoMovieViolationCollector;
+    },
+  ][0] = props;
   const derivedIds: Set<string> = collectDeclaredIds(
     lineage.derived,
     `${root}.derived`,

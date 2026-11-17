@@ -1,10 +1,11 @@
-import type { IAutoMovieRecoveryResult, IAutoMovieRecoverySupportLoftBudget, IAutoMovieRecoverySupportRealization, IAutoMovieConvexSupportLoft, IAutoMovieRecoverySupportLoft } from "@automovie/interface";
 import { realizeAutoMovieConvexSupportLoft } from "@automovie/engine";
-
-
-
-
-
+import type {
+  IAutoMovieConvexSupportLoft,
+  IAutoMovieRecoveryResult,
+  IAutoMovieRecoverySupportLoft,
+  IAutoMovieRecoverySupportLoftBudget,
+  IAutoMovieRecoverySupportRealization,
+} from "@automovie/interface";
 
 /**
  * Generate new geometry, normal fans and construction from saved support curves.
@@ -93,7 +94,8 @@ export function compileAutoMovieRecoverySupportLoft(
           normal: [
             plane.normal[0] / recipe.dimensions.widthScale / lengths[i],
             plane.normal[1] / recipe.dimensions.depthScale / lengths[i],
-          ] }),
+          ],
+        }),
       ),
       spans: recipe.loft.spans.map(
         (
@@ -111,13 +113,16 @@ export function compileAutoMovieRecoverySupportLoft(
                 number,
                 number,
               ],
-          ) }),
-      ) };
+          ),
+        }),
+      ),
+    };
     const generated: ReturnType<typeof realizeAutoMovieConvexSupportLoft> =
       realizeAutoMovieConvexSupportLoft({
         ...budget,
         loft,
-        topologyDomain: `support-loft:${recipe.objectId}` });
+        topologyDomain: `support-loft:${recipe.objectId}`,
+      });
     return {
       operator,
       status: "partial",
@@ -140,8 +145,10 @@ export function compileAutoMovieRecoverySupportLoft(
               material: null,
               attachedBone: null,
               transform: null,
-              geometry: { type: "mesh", mesh: generated.mesh } },
-          ] },
+              geometry: { type: "mesh", mesh: generated.mesh },
+            },
+          ],
+        },
         construction: generated.construction,
         generation: {
           events: generated.events,
@@ -149,13 +156,17 @@ export function compileAutoMovieRecoverySupportLoft(
           vertices: generated.mesh.positions.length / 3,
           maximumBoundaryDefectMeters: generated.maximumBoundaryDefectMeters,
           faceChordBoundMeters: generated.faceChordBoundMeters,
-          eventQualification: generated.eventQualification } } };
+          eventQualification: generated.eventQualification,
+        },
+      },
+    };
   } catch (failure: unknown) {
     return {
       operator,
       status: "refused",
       diagnostics: [
         failure instanceof Error ? failure.message : String(failure),
-      ] };
+      ],
+    };
   }
 }

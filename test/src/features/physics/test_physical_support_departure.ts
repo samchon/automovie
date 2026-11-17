@@ -1,6 +1,15 @@
-import type { IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicalProfile as P, IAutoMovieFootfallPattern as Pattern, IAutoMovieVector3 as V } from "@automovie/interface";
-import { Vector3, bindPhysicalWorld, collectPhysicalSupports, trackPhysicalSupports } from "@automovie/engine";
-
+import {
+  Vector3,
+  bindPhysicalWorld,
+  collectPhysicalSupports,
+  trackPhysicalSupports,
+} from "@automovie/engine";
+import type {
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalProfile as P,
+  IAutoMovieFootfallPattern as Pattern,
+  IAutoMovieVector3 as V,
+} from "@automovie/interface";
 import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
@@ -121,7 +130,8 @@ export async function test_physical_support_departure(): Promise<void> {
     target.dynamicSegments = ["foot"];
     target.supportStrength = { foot: 1 };
   }
-  const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], 1 / 120);
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([body], 1 / 120);
   Object.assign(input, { floor: 0, substeps: 1, contactTolerance: 0.0001 });
   const world: World = new RAPIER.World({ x: 0, y: 0, z: 0 });
   try {
@@ -153,7 +163,9 @@ export async function test_physical_support_departure(): Promise<void> {
       ),
     );
     for (const kind of ["stance", "reserved", "elevated", "moving"] as const) {
-      const target: IAutoMoviePhysicalSimulationInput.ITarget = structuredClone(body.targets[0]!);
+      const target: IAutoMoviePhysicalSimulationInput.ITarget = structuredClone(
+        body.targets[0]!,
+      );
       if (kind === "reserved") target.unavailableSupports = ["foot"];
       const goals: Parameters<typeof trackPhysicalSupports>[0]["goals"] =
         Object.fromEntries(

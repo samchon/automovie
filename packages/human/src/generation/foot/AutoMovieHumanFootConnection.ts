@@ -1,13 +1,16 @@
-import type { IAutoMovieLoftFrame, AutoMovieScalarJet2, AutoMovieVector3Tuple, IAutoMovieHumanFootConnection, IAutoMovieHumanFootSource } from "@automovie/interface";
-
-
-
-
-
-import { AutoMovieIllinois, AutoMovieSolidVector as V } from "@automovie/engine";
+import {
+  AutoMovieIllinois,
+  AutoMovieSolidVector as V,
+} from "@automovie/engine";
+import type {
+  AutoMovieScalarJet2,
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootConnection,
+  IAutoMovieHumanFootSource,
+  IAutoMovieLoftFrame,
+} from "@automovie/interface";
 
 import { AutoMovieHumanFootSource } from "./AutoMovieHumanFootSource";
-
 
 /**
  * Local contacts evaluated on the same generating source, through either its
@@ -23,10 +26,6 @@ import { AutoMovieHumanFootSource } from "./AutoMovieHumanFootSource";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The definition owns finite records and closures with no global cache or external handle.
  */
 export namespace AutoMovieHumanFootConnection {
-  
-
-  
-
   /**
    * Cut a fixed vertical parent chart at the real across location; implicit differentiation retains its full native shape.
    *
@@ -44,9 +43,9 @@ export namespace AutoMovieHumanFootConnection {
     across: number,
     slope: number = 0,
   ): IAutoMovieHumanFootConnection.IChord {
-    const frame: IAutoMovieLoftFrame.IFrame = (owner.axis ?? owner.part.axis).at(
-      station,
-    );
+    const frame: IAutoMovieLoftFrame.IFrame = (
+      owner.axis ?? owner.part.axis
+    ).at(station);
     if (
       frame.u[0] !== 0 ||
       frame.u[1] !== 1 ||
@@ -142,9 +141,9 @@ export namespace AutoMovieHumanFootConnection {
     station: number,
     along: AutoMovieVector3Tuple,
   ): IAutoMovieHumanFootConnection.IAnkle {
-    const frame: IAutoMovieLoftFrame.IFrame = (owner.axis ?? owner.part.axis).at(
-      station,
-    );
+    const frame: IAutoMovieLoftFrame.IFrame = (
+      owner.axis ?? owner.part.axis
+    ).at(station);
     const across: AutoMovieVector3Tuple = [along[2], 0, -along[0]];
     const a: number = V.dot(frame.u, across);
     const b: number = V.dot(frame.v, across);
@@ -153,7 +152,10 @@ export namespace AutoMovieHumanFootConnection {
     const first: number = Math.atan2(-a, b);
     const source: IAutoMovieHumanFootSource.IStation =
       AutoMovieHumanFootSource.at(owner, station);
-    const cuts: { phase: number; point: AutoMovieVector3Tuple }[] = [first, first + Math.PI]
+    const cuts: { phase: number; point: AutoMovieVector3Tuple }[] = [
+      first,
+      first + Math.PI,
+    ]
       .map((phase: number): { phase: number; point: AutoMovieVector3Tuple } => {
         const local: ReturnType<IAutoMovieHumanFootSource.IStation["phase"]> =
           source.phase(phase);
@@ -165,8 +167,11 @@ export namespace AutoMovieHumanFootConnection {
           throw new Error("Ankle sagittal cut misses its actual plane");
         return { phase, point };
       })
-      .sort((left: { point: AutoMovieVector3Tuple }, right: { point: AutoMovieVector3Tuple }): number =>
-        V.dot(V.sub(left.point, right.point), along),
+      .sort(
+        (
+          left: { point: AutoMovieVector3Tuple },
+          right: { point: AutoMovieVector3Tuple },
+        ): number => V.dot(V.sub(left.point, right.point), along),
       );
     return {
       owner,

@@ -1,9 +1,10 @@
-import type { IAutoMovieArcLengthJet, IAutoMovieHumanDigitSection, IAutoMovieHumanSeamKnot } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieArcLengthJet,
+  IAutoMovieHumanDigitSection,
+  IAutoMovieHumanSeamKnot,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSeamKnot } from "../lofting/AutoMovieHumanSeamKnot";
-
 
 /**
  * A digit's section square to its bone: a palmar half and a dorsal half that
@@ -34,23 +35,43 @@ import { AutoMovieHumanSeamKnot } from "../lofting/AutoMovieHumanSeamKnot";
  * is the sectors' own curves at their knots and C2 everywhere.
  */
 export namespace AutoMovieHumanDigitSection {
-  
-
   /**
    * The section's control points in its frame, `[b, n]` per control point,
    * phase `2 pi m / count` from the radial side point toward the palm.
    *
    * @param count Control points, a multiple of 2 with at least four spans per half.
    */
-  export function controls(shape: IAutoMovieHumanDigitSection.IShape, count: number): IAutoMovieHumanDigitSection.ControlsResult {
+  export function controls(
+    shape: IAutoMovieHumanDigitSection.IShape,
+    count: number,
+  ): IAutoMovieHumanDigitSection.ControlsResult {
     if (count % 2 !== 0 || count < 8)
-      throw new Error(`A digit section needs an even count of at least 8, not ${count}`);
+      throw new Error(
+        `A digit section needs an even count of at least 8, not ${count}`,
+      );
     const w: number = shape.width;
     const kappa: number = shape.side / w;
     const lambda: number = Math.sqrt(w / kappa);
-    const palmar: IHalf = half(shape.palmar, w, lambda, shape.palmarApex, "palmar");
-    const dorsal: IHalf = half(shape.dorsal, w, lambda, shape.dorsalApex, "dorsal");
-    const guide = (knot: number, point: number[], tangent: number[], curvature: number[]): IAutoMovieHumanSeamKnot.IGuide => ({
+    const palmar: IHalf = half(
+      shape.palmar,
+      w,
+      lambda,
+      shape.palmarApex,
+      "palmar",
+    );
+    const dorsal: IHalf = half(
+      shape.dorsal,
+      w,
+      lambda,
+      shape.dorsalApex,
+      "dorsal",
+    );
+    const guide = (
+      knot: number,
+      point: number[],
+      tangent: number[],
+      curvature: number[],
+    ): IAutoMovieHumanSeamKnot.IGuide => ({
       knot,
       jet: { point, tangent, curvature } satisfies IAutoMovieArcLengthJet,
       speed: lambda,
@@ -62,11 +83,21 @@ export namespace AutoMovieHumanDigitSection {
         guide(count / 2, [-w, 0], [0, -1], [kappa, 0]),
       ],
       [
-        { name: "palmar", jet: (t: number): IAutoMovieHumanSeamKnot.Jet => palmar.jet(t, 1) },
-        { name: "dorsal", jet: (t: number): IAutoMovieHumanSeamKnot.Jet => dorsal.jet(t - Math.PI, -1) },
+        {
+          name: "palmar",
+          jet: (t: number): IAutoMovieHumanSeamKnot.Jet => palmar.jet(t, 1),
+        },
+        {
+          name: "dorsal",
+          jet: (t: number): IAutoMovieHumanSeamKnot.Jet =>
+            dorsal.jet(t - Math.PI, -1),
+        },
       ],
     );
-    return Array.from({ length: count }, (_: unknown, m: number): [number, number] => [flat[m]!, flat[count + m]!]);
+    return Array.from(
+      { length: count },
+      (_: unknown, m: number): [number, number] => [flat[m]!, flat[count + m]!],
+    );
   }
 
   /**
@@ -75,7 +106,10 @@ export namespace AutoMovieHumanDigitSection {
    * interpolating consumer reads it back, so the guides' jets survive the
    * interpolation exactly.
    */
-  export function knots(shape: IAutoMovieHumanDigitSection.IShape, count: number): IAutoMovieHumanDigitSection.KnotsResult {
+  export function knots(
+    shape: IAutoMovieHumanDigitSection.IShape,
+    count: number,
+  ): IAutoMovieHumanDigitSection.KnotsResult {
     const p: [number, number][] = controls(shape, count);
     return p.map((q: [number, number], m: number): [number, number] => {
       const a: [number, number] = p[(m - 1 + count) % count]!;
@@ -91,14 +125,27 @@ export namespace AutoMovieHumanDigitSection {
   export function girth(shape: IAutoMovieHumanDigitSection.IShape): number {
     const w: number = shape.width;
     const lambda: number = Math.sqrt(w / (shape.side / w));
-    const palmar: IHalf = half(shape.palmar, w, lambda, shape.palmarApex, "palmar");
-    const dorsal: IHalf = half(shape.dorsal, w, lambda, shape.dorsalApex, "dorsal");
+    const palmar: IHalf = half(
+      shape.palmar,
+      w,
+      lambda,
+      shape.palmarApex,
+      "palmar",
+    );
+    const dorsal: IHalf = half(
+      shape.dorsal,
+      w,
+      lambda,
+      shape.dorsalApex,
+      "dorsal",
+    );
     let sum: number = 0;
     let last: number[] | null = null;
     const steps: number = 256;
     for (let i: number = 0; i <= steps; i++) {
       const t: number = (2 * Math.PI * i) / steps;
-      const p: number[] = t <= Math.PI ? palmar.jet(t, 1)[0] : dorsal.jet(t - Math.PI, -1)[0];
+      const p: number[] =
+        t <= Math.PI ? palmar.jet(t, 1)[0] : dorsal.jet(t - Math.PI, -1)[0];
       if (last !== null) sum += Math.hypot(p[0]! - last[0]!, p[1]! - last[1]!);
       last = p;
     }
@@ -118,16 +165,26 @@ interface IHalf {
  * convex: `rho` outside (0, 1.5], or a side speed so far from the depth that
  * the profile turns back.
  */
-function half(h: number, w: number, lambda: number, rho: number, name: string): IHalf {
+function half(
+  h: number,
+  w: number,
+  lambda: number,
+  rho: number,
+  name: string,
+): IHalf {
   const a: number = (1 - rho) / 2;
   const c: number = lambda / h - 1 - a;
   if (!(h > 0) || !(rho > 0 && rho <= 1.5))
-    throw new Error(`The ${name} half needs a positive depth and an apex share in (0, 1.5], not ${h} and ${rho}`);
+    throw new Error(
+      `The ${name} half needs a positive depth and an apex share in (0, 1.5], not ${h} and ${rho}`,
+    );
   // s' must stay positive on (0, pi/2) for the profile to rise to its apex.
   for (let i: number = 0; i < 64; i++) {
     const t: number = ((i + 0.5) / 64) * (Math.PI / 2);
     if (!(derivative(t, a, c) > 0))
-      throw new Error(`The ${name} half turns back: side speed ${lambda} over depth ${h} with apex share ${rho}`);
+      throw new Error(
+        `The ${name} half turns back: side speed ${lambda} over depth ${h} with apex share ${rho}`,
+      );
   }
   return {
     jet: (theta: number, sign: number): IAutoMovieHumanSeamKnot.Jet => {
@@ -136,7 +193,9 @@ function half(h: number, w: number, lambda: number, rho: number, name: string): 
       const value: number = s + a * s * k * k + c * s * k ** 4;
       const first: number = derivative(theta, a, c);
       const second: number =
-        -s + a * (-3 * k * k * s - 4 * s * k * k + 2 * s ** 3) + c * (-5 * k ** 4 * s - 8 * s * k ** 4 + 12 * s ** 3 * k * k);
+        -s +
+        a * (-3 * k * k * s - 4 * s * k * k + 2 * s ** 3) +
+        c * (-5 * k ** 4 * s - 8 * s * k ** 4 + 12 * s ** 3 * k * k);
       return [
         [sign * w * k, sign * h * value],
         [-sign * w * s, sign * h * first],
@@ -152,4 +211,3 @@ function derivative(theta: number, a: number, c: number): number {
   const k: number = Math.cos(theta);
   return k + a * (k ** 3 - 2 * s * s * k) + c * (k ** 5 - 4 * s * s * k ** 3);
 }
-

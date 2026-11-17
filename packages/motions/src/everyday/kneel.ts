@@ -1,6 +1,20 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanKneel, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanKneel,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { stand } from "../actions/stand";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -191,10 +205,16 @@ export namespace kneel {
       a: kneelKeys.IFoot,
       b: kneelKeys.IFoot,
       u: number,
-    ): { placement: IAutoMovieMotionHumanFoot.IPlacement; planted: boolean; toes: number } => {
+    ): {
+      placement: IAutoMovieMotionHumanFoot.IPlacement;
+      planted: boolean;
+      toes: number;
+    } => {
       const moves: boolean =
         Vector3.length(Vector3.subtract(a.at, b.at)) > 1e-4;
-      const placed = (foot: kneelKeys.IFoot): IAutoMovieMotionHumanFoot.IPlacement =>
+      const placed = (
+        foot: kneelKeys.IFoot,
+      ): IAutoMovieMotionHumanFoot.IPlacement =>
         HumanFoot.pivot(body, side, "mtp", foot.at, foot.heading, foot.pitch);
       const toes: number = a.toes + (b.toes - a.toes) * u;
       if (!moves)
@@ -300,7 +320,9 @@ export namespace kneel {
         0,
       );
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {
+        ...posture.joints,
+      };
       for (const side of ["left", "right"] as const) {
         limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
           body,
@@ -349,8 +371,10 @@ export namespace kneel {
       AutoMovieMotionHumanCourse.solve({
         body,
         yaw,
-        posture: (seconds: number, along: number): IAutoMovieMotionHumanPosture =>
-          write(standing, seconds, along),
+        posture: (
+          seconds: number,
+          along: number,
+        ): IAutoMovieMotionHumanPosture => write(standing, seconds, along),
         target: (seconds: number): number => {
           const { phase, u } = at(seconds);
           const share: number =
@@ -384,8 +408,10 @@ export namespace kneel {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture =>
-        write(posture, seconds),
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => write(posture, seconds),
     };
 
     // The hands come onto the thighs while the hips lower and leave them as

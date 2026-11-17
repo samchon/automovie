@@ -1,5 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieCurveMath64 } from "@automovie/interface";
 import { AutoMovieCurveMath64 as M } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurveMath64,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -41,7 +44,9 @@ export function test_geometry_cubic_hermite_conversion(): void {
     actual.every((value: number, i: number): boolean =>
       nclose(value, expected[i]!, tolerance),
     );
-  const power: (t: number) => AutoMovieVector3Tuple = (t: number): AutoMovieVector3Tuple => [
+  const power: (t: number) => AutoMovieVector3Tuple = (
+    t: number,
+  ): AutoMovieVector3Tuple => [
     1 + 3 * t - 2 * t ** 2 + t ** 3,
     -2 + 4 * t ** 2 - 3 * t ** 3,
     4 - 6 * t + 3 * t ** 2 + 2 * t ** 3,

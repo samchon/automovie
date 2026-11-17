@@ -1,4 +1,3 @@
-import type { IAutoMoviePhysicalHullFaces, IAutoMoviePhysicalShapeNearest, IAutoMovieVector3, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   Quaternion,
   Vector3,
@@ -10,7 +9,12 @@ import {
   physicalShapePairDistance,
   physicalShapeSpan,
 } from "@automovie/engine";
-
+import type {
+  IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalShapeNearest,
+  IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
@@ -102,7 +106,8 @@ export function test_physical_hull_shape(): void {
     faces.faces.length === 6 &&
       faces.vertices.length === 8 &&
       faces.faces.every(
-        (face: IAutoMoviePhysicalHullFaces.IFace): boolean => face.loop.length === 4,
+        (face: IAutoMoviePhysicalHullFaces.IFace): boolean =>
+          face.loop.length === 4,
       ) &&
       Math.abs(faces.buried - 0.1) < 1e-12 &&
       close(faces.centre, { x: 0, y: 0, z: 0 }, 1e-12) &&
@@ -161,7 +166,8 @@ export function test_physical_hull_shape(): void {
   const point = (
     pose: P.ITransform,
     p: IAutoMovieVector3,
-  ): IAutoMoviePhysicalShapeNearest.IResult => physicalShapeNearest(pose, hull, p, p);
+  ): IAutoMoviePhysicalShapeNearest.IResult =>
+    physicalShapeNearest(pose, hull, p, p);
   const off: IAutoMoviePhysicalShapeNearest.IResult = point(quarter, {
     x: 0,
     y: 0,

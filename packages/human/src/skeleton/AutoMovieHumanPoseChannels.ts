@@ -1,6 +1,7 @@
-import type { IAutoMovieHumanPoseChannels, IAutoMovieHumanRigControls } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieHumanPoseChannels,
+  IAutoMovieHumanRigControls,
+} from "@automovie/interface";
 
 /** Existing head, neck, shoulder and thumb rows preserve literal joint identities. */
 const INITIAL = [
@@ -273,5 +274,3 @@ export const AutoMovieHumanPoseChannels: readonly IAutoMovieHumanPoseChannels.Ch
       );
     return rows;
   })();
-
-

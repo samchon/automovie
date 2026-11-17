@@ -6,23 +6,18 @@
  * @evidence contracts/development/common.md#meaningful-documentation Members document physical units, ownership and optional-state meaning.
  */
 export interface IAutoMovieRecoverySectionSummary {
- 
- /** Number of physical observations supplied to curve fitting. */
+  /** Number of physical observations supplied to curve fitting. */
   observations: number;
 
- 
- /** Total emitted cubic span count. */
+  /** Total emitted cubic span count. */
   spans: number;
 
- 
- /** Number of retained physical sections. */
+  /** Number of retained physical sections. */
   sections: number;
 
- 
- /** Number of declared reconstruction events. */
+  /** Number of declared reconstruction events. */
   events: number;
 
- 
- /** Number of exact source-position aliases retained by extraction. */
+  /** Number of exact source-position aliases retained by extraction. */
   aliases: number;
 }

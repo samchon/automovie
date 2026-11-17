@@ -22,7 +22,10 @@ import type { IAutoMovieMotionHumanManoeuvre } from "@automovie/interface";
  *   where ways cross; each by its own latency.
  */
 export const HUMAN_MANOEUVRES: Readonly<
-  Record<IAutoMovieMotionHumanManoeuvre.Row, IAutoMovieMotionHumanManoeuvre.IRule>
+  Record<
+    IAutoMovieMotionHumanManoeuvre.Row,
+    IAutoMovieMotionHumanManoeuvre.IRule
+  >
 > = {
   wheel: { assign: "order", path: "arc", order: "together" },
   deploy: { assign: "order", path: "flank", order: "farFirst" },

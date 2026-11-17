@@ -1,6 +1,5 @@
 import type { IAutoMovieMark, IAutoMovieMarkSlip } from "@automovie/interface";
 
-
 /**
  * Turn the slip of planted or held contacts at one instant into inspection marks: a segment from where each contact was planted to where it is now, flagged when it has moved farther than its limit.
  *

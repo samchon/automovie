@@ -1,4 +1,8 @@
-import type { IAutoMovieHumanCanonicalBody, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHumanCanonicalBody,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * One capture of the motion harness: who is drawn, at which instants, with

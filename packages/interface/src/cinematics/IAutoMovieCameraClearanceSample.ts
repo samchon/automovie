@@ -1,5 +1,5 @@
-import type { IAutoMovieCameraClearanceObstacleState } from "./IAutoMovieCameraClearanceObstacleState";
 import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
+import type { IAutoMovieCameraClearanceObstacleState } from "./IAutoMovieCameraClearanceObstacleState";
 
 /**
  * Camera and obstacle state read at one fixed-clock instant.

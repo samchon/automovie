@@ -1,4 +1,3 @@
-export type { IAutoMovieRecoveryConstructionLine } from "./IAutoMovieRecoveryConstructionLine";
 export type { IAutoMovieRecoveryCurveOverride } from "./IAutoMovieRecoveryCurveOverride";
 export type { IAutoMovieRecoveryEventCurveArc } from "./IAutoMovieRecoveryEventCurveArc";
 export type { IAutoMovieRecoveryEventCurveCoefficients } from "./IAutoMovieRecoveryEventCurveCoefficients";

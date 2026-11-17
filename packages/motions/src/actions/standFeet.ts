@@ -1,6 +1,17 @@
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupportCarry, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSupportCarry,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
@@ -111,10 +122,16 @@ export namespace standFeet {
           contact: (_: number): IAutoMovieVector3 =>
             HumanFoot.offset(body, side, "mtp"),
         };
-      const sockets: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(body, bones, side);
+      const sockets: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
+        body,
+        bones,
+        side,
+      );
       const pivot: IAutoMovieMotionHumanFoot.ISocket = sockets.reduce(
-        (a: IAutoMovieMotionHumanFoot.ISocket, b: IAutoMovieMotionHumanFoot.ISocket): IAutoMovieMotionHumanFoot.ISocket =>
-          b.point.y < a.point.y ? b : a,
+        (
+          a: IAutoMovieMotionHumanFoot.ISocket,
+          b: IAutoMovieMotionHumanFoot.ISocket,
+        ): IAutoMovieMotionHumanFoot.ISocket => (b.point.y < a.point.y ? b : a),
       );
       const rotation: IAutoMovieQuaternion = entry.feet[side].rotation;
       const from: number = HumanFoot.heading(rotation);
@@ -183,9 +200,12 @@ export namespace standFeet {
           posture.yaw,
           feet,
         );
-        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+        const joints: IAutoMovieMotionHumanPosture["joints"] = {
+          ...posture.joints,
+        };
         for (const p of plans) {
-          const goal: IAutoMovieMotionHumanPosture.IGoal = limbs[`${p.side}Leg`]!;
+          const goal: IAutoMovieMotionHumanPosture.IGoal =
+            limbs[`${p.side}Leg`]!;
           limbs[`${p.side}Leg`] = {
             ...goal,
             rotation:

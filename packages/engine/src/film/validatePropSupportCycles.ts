@@ -1,5 +1,9 @@
-import { type IAutoMovieViolationCollector, IAutoMoviePropRelation, IAutoMoviePropRelationTarget, IAutoMoviePropSpec } from "@automovie/interface";
-
+import {
+  IAutoMoviePropRelation,
+  IAutoMoviePropRelationTarget,
+  IAutoMoviePropSpec,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 /**
  * Refuse a prop that transitively rests on, plugs into, or hangs from itself

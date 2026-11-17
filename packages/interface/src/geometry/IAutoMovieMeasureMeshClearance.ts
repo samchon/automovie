@@ -1,5 +1,3 @@
-
-
 /**
  * Minimum directional depth separation for each overlapping front triangle.
  *
@@ -38,7 +36,7 @@ export namespace IAutoMovieMeasureMeshClearance {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The measurement validates buffers, axis and arithmetic; it skips axial projections of zero area and omits triangles with no overlap, so this is not a volume collision test.
    * @evidence contracts/development/common.md#meaningful-documentation Minimum directional depth separation for each overlapping front triangle. Triangle is an original front-triangle ordinal; minimum is front-minus-back depth in the meshes' common metre frame.
    */
-  export type IResult = { 
+  export type IResult = {
     /**
      * Zero-based ordinal of the original front triangle, in ascending order; absent ordinals have no nondegenerate projected overlap.
      */
@@ -47,5 +45,6 @@ export namespace IAutoMovieMeasureMeshClearance {
     /**
      * Minimum front-minus-back axial depth over all projected overlaps for this triangle, metres; positive is clear, zero contact, negative reversed ordering.
      */
-    minimum: number }[];
+    minimum: number;
+  }[];
 }

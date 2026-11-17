@@ -1,9 +1,12 @@
-import type { IAutoMovieAuditPhysicalOutcomes, IAutoMoviePreparePhysicalGeometry, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   preparePhysicalGeometry as Geometry,
   auditPhysicalOutcomes,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieAuditPhysicalOutcomes,
+  IAutoMoviePreparePhysicalGeometry,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /** Physical geometry behavior.
@@ -29,7 +32,10 @@ export async function test_physical_layers_geometry(): Promise<void> {
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     },
   };
-  const collider: (body: string, x: number) => IAutoMoviePreparePhysicalGeometry.ICollider = (
+  const collider: (
+    body: string,
+    x: number,
+  ) => IAutoMoviePreparePhysicalGeometry.ICollider = (
     body: string,
     x: number,
   ): IAutoMoviePreparePhysicalGeometry.ICollider => ({
@@ -38,11 +44,8 @@ export async function test_physical_layers_geometry(): Promise<void> {
     shape: sphere,
     pose: { position: { x, y: 1, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 } },
   });
-  const hit: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> = geometry.contact(
-    collider("a", 0),
-    collider("b", 0.15),
-    1,
-  );
+  const hit: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =
+    geometry.contact(collider("a", 0), collider("b", 0.15), 1);
   TestValidator.predicate(
     "geometry contacts surfaces without inventing impulse",
     (): boolean =>
@@ -81,12 +84,9 @@ export async function test_physical_layers_geometry(): Promise<void> {
       rotation: sphere.transform.rotation,
     },
   };
-  const clearance: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> = geometry.contact(
-    box,
-    floor,
-    0,
-    1,
-  );
+  const clearance: ReturnType<
+    IAutoMoviePreparePhysicalGeometry.IQueries["contact"]
+  > = geometry.contact(box, floor, 0, 1);
   TestValidator.predicate(
     "a quarter-turn swaps the vertical box extent without inventing floor overlap",
     Math.abs(geometry.minimumY(box) - 0.775) < 1e-12 &&
@@ -96,26 +96,27 @@ export async function test_physical_layers_geometry(): Promise<void> {
       clearance.impulse === null &&
       geometry.contact(box, floor, 0) === null,
   );
-  const outcome: IAutoMovieAuditPhysicalOutcomes.IFinding[] = auditPhysicalOutcomes({
-    actions: [
-      {
-        id: "planned-hit",
-        seconds: 1,
-        tolerance: 0.01,
-        actor: "a",
-        target: "b",
-        actorShapes: ["surface"],
-        targetShapes: ["surface"],
-        expected: "contact",
-        source: "solver",
-      },
-    ],
-    contacts: hit ? [hit] : [],
-    falls: [],
-    observedFalls: {},
-    missDistance: (): number => 0.05,
-    allowUnplanned: (): boolean => true,
-  });
+  const outcome: IAutoMovieAuditPhysicalOutcomes.IFinding[] =
+    auditPhysicalOutcomes({
+      actions: [
+        {
+          id: "planned-hit",
+          seconds: 1,
+          tolerance: 0.01,
+          actor: "a",
+          target: "b",
+          actorShapes: ["surface"],
+          targetShapes: ["surface"],
+          expected: "contact",
+          source: "solver",
+        },
+      ],
+      contacts: hit ? [hit] : [],
+      falls: [],
+      observedFalls: {},
+      missDistance: (): number => 0.05,
+      allowUnplanned: (): boolean => true,
+    });
   TestValidator.predicate(
     "a solver promise fails loudly on geometric evidence",
     (): boolean =>

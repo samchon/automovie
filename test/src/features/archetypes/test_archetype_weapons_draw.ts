@@ -1,4 +1,3 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import {
   type Archetype,
   createClub,
@@ -7,8 +6,22 @@ import {
   createWeaponLoop,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanHand, HumanObject, HumanPerformance, HumanRefusal } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanHand,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -201,7 +214,8 @@ export function test_archetype_weapons_draw(): void {
         complaints.push(
           `${name} ${draw.label}: its lifted grip is ${mm(above)} mm above the standing shoulder, beyond the arm and the grip socket's ${mm(arm + socket)} mm, yet the draw planned`,
         );
-      const pick: IAutoMovieMotionHumanSegment.ISegment = film.segments("a")[1]!;
+      const pick: IAutoMovieMotionHumanSegment.ISegment =
+        film.segments("a")[1]!;
       const event = (instant: string): number =>
         pick.start +
         (pick.plan.events.find((e): boolean => e.name === instant)?.share ??

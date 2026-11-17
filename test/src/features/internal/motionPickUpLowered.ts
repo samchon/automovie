@@ -1,8 +1,21 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
 import { createBag, createDrinkware } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanHand, HumanObject, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanHand,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -58,7 +71,10 @@ export function motionPickUpLowered(name: motionHumanBody.Name): void {
     kind: "glass",
   });
   const tote: ReturnType<typeof createBag> = createBag({ kind: "tote" });
-  const perform = (prop: IAutoMovieMotionHumanProp, chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
+  const perform = (
+    prop: IAutoMovieMotionHumanProp,
+    chain: IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "reach",
       props: [prop],
@@ -73,7 +89,10 @@ export function motionPickUpLowered(name: motionHumanBody.Name): void {
       ],
       composition: chain.node,
     });
-  const instant = (segment: IAutoMovieMotionHumanSegment.ISegment, event: string): number =>
+  const instant = (
+    segment: IAutoMovieMotionHumanSegment.ISegment,
+    event: string,
+  ): number =>
     segment.start +
     (segment.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       segment.plan.duration;
@@ -133,7 +152,9 @@ export function motionPickUpLowered(name: motionHumanBody.Name): void {
     upright: boolean,
     straight: boolean,
   ): void => {
-    const segment: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a").at(-1)!;
+    const segment: IAutoMovieMotionHumanSegment.ISegment = performance
+      .segments("a")
+      .at(-1)!;
     const closed: number = instant(segment, "gripClosed");
     const lifted: number = instant(segment, "lifted");
     const reach: number = Vector3.length(

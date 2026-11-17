@@ -1,4 +1,10 @@
-import type { AutoMovieVector3Tuple, IAutoMovieConstructionOutlineParameter, IAutoMovieLoftFrame, IAutoMovieViewAxisJet } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieLoftFrame,
+  IAutoMovieViewAxisJet,
+} from "@automovie/interface";
+
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 
 /**
@@ -10,7 +16,6 @@ import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieViewAxisJet {
-
   /**
    * Jet of fixed chart directions and an analytically differentiated moving origin.
    *

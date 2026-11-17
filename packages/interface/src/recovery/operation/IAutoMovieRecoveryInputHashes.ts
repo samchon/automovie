@@ -8,11 +8,9 @@
  */
 
 export interface IAutoMovieRecoveryInputHashes {
- 
- /** SHA-256 of the original saved coefficient bundle bytes. */
+  /** SHA-256 of the original saved coefficient bundle bytes. */
   curveBundleSha256: string;
 
- 
- /** SHA-256 of the original saved continuation graph bytes. */
+  /** SHA-256 of the original saved continuation graph bytes. */
   continuationSha256: string;
 }

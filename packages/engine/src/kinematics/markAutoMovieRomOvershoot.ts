@@ -1,5 +1,7 @@
-import type { IAutoMovieMark, IAutoMovieMarkRomOvershoot } from "@automovie/interface";
-
+import type {
+  IAutoMovieMark,
+  IAutoMovieMarkRomOvershoot,
+} from "@automovie/interface";
 
 /**
  * Turn joints' range-of-motion overshoot at one instant into flagged inspection marks at the joints that exceed their range.

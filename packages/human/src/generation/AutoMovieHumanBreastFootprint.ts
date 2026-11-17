@@ -21,8 +21,6 @@ export namespace AutoMovieHumanBreastFootprint {
   /** Lateral half width over the bust point's place off the midline. Conventional, flagged. */
   export const REACH: number = 0.8;
 
-  
-
   /**
    * The footprint.
    *
@@ -30,7 +28,10 @@ export namespace AutoMovieHumanBreastFootprint {
    * @param lower The bust point's height over the inframammary fold, mm.
    * @returns The footprint.
    */
-  export function create(lateral: number, lower: number): IAutoMovieHumanBreastFootprint.IFootprint {
+  export function create(
+    lateral: number,
+    lower: number,
+  ): IAutoMovieHumanBreastFootprint.IFootprint {
     const half: number = REACH * lateral;
     const l: number = Math.max(1, lower);
     const upper: number = UPPER * l;
@@ -39,7 +40,8 @@ export namespace AutoMovieHumanBreastFootprint {
       half,
       lower: l,
       upper,
-      rho: (u: number, v: number): number => AutoMovieHumanTrunkFeatureProfile.rho(u, v, half, l, upper),
+      rho: (u: number, v: number): number =>
+        AutoMovieHumanTrunkFeatureProfile.rho(u, v, half, l, upper),
     };
   }
 }

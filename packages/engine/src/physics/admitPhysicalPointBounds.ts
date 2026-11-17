@@ -1,5 +1,8 @@
-import type { IAutoMoviePhysicalPointBound, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalPointBound,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { isPhysicalActuatorChain } from "./isPhysicalActuatorChain";
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
@@ -23,7 +26,10 @@ export function admitPhysicalPointBounds(
 ): void {
   if (!Array.isArray(bounds) || bounds.length > 256)
     throw new Error("Invalid point relationship budget");
-  const profile: IAutoMoviePhysicalProfile | undefined = Object.hasOwn(profiles, body)
+  const profile: IAutoMoviePhysicalProfile | undefined = Object.hasOwn(
+    profiles,
+    body,
+  )
     ? profiles[body]
     : undefined;
   const point: (value: IAutoMovieVector3) => boolean = (
@@ -62,7 +68,8 @@ export function admitPhysicalPointBounds(
               ),
           ))) ||
       !reference?.segments.some(
-        (segment: IAutoMoviePhysicalProfile.ISegment): boolean => segment.bone === bound.reference.bone,
+        (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+          segment.bone === bound.reference.bone,
       ) ||
       !isPhysicalActuatorChain(profile, bound.chain, bound.source.bone) ||
       !point(bound.axis) ||

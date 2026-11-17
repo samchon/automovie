@@ -1,6 +1,22 @@
-import type { AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanFlinch, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanLean, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanRange, IAutoMovieMotionHumanTiming, IAutoMovieMotionManner, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanFlinch,
+  IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanLean,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanRange,
+  IAutoMovieMotionHumanTiming,
+  IAutoMovieMotionManner,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -169,7 +185,9 @@ export namespace flinch {
     // A glove before the face on the trunk the action has placed so far.
     const cover =
       (side: "left" | "right") =>
-      (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture.IGoal => {
+      (
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieMotionHumanPosture.IGoal => {
         const bones = StrikingBody.trunk(body, posture);
         const face = StrikingBody.region(body, bones, "face");
         const fist: number = StrikingQuality.fist(m.hand);

@@ -34,7 +34,8 @@ import { nclose, throwsError } from "../internal/predicates";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The neck and head are built from their joints alone (no skin surface): the).
  */
 export function test_viewer_human_polygon(): void {
-  const input: Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed"> = createHumanPolygonFixture();
+  const input: Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed"> =
+    createHumanPolygonFixture();
   const drawing: AutoMovieHumanPolygon.IDrawing = buildHumanPolygon(input, {
     partColors: {
       leftLowerArm: 0xff2233,

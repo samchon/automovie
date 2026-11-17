@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanFootToeSpan } from "@automovie/interface";
 
-
 /**
  * The lengths along a toe's line at which its chain has sections: a fixed
  * count of evenly spaced shaft sections from the first own section to where
@@ -21,16 +20,26 @@ export namespace AutoMovieHumanFootToeStations {
    * @param toe The toe's span.
    * @param sections The toe's section count, at least 5.
    */
-  export function of(toe: IAutoMovieHumanFootToeSpan.IToe, sections: number): number[] {
+  export function of(
+    toe: IAutoMovieHumanFootToeSpan.IToe,
+    sections: number,
+  ): number[] {
     const shaft: number = Math.max(1, sections - TIP_SECTIONS.length - 1);
     const shaftEnd: number = Math.max(toe.first + 0.5, toe.cap - TIP);
     const stations: number[] = [
-      ...Array.from({ length: shaft + 1 }, (_: unknown, i: number): number => toe.first + ((shaftEnd - toe.first) * i) / shaft),
+      ...Array.from(
+        { length: shaft + 1 },
+        (_: unknown, i: number): number =>
+          toe.first + ((shaftEnd - toe.first) * i) / shaft,
+      ),
       ...TIP_SECTIONS.map((d: number): number => toe.cap - d),
     ];
 
     // A section closer than 0.1 mm to the one before adds nothing.
-    return stations.filter((s: number, i: number): boolean => i === 0 || s > stations[i - 1]! + MIN_GAP);
+    return stations.filter(
+      (s: number, i: number): boolean =>
+        i === 0 || s > stations[i - 1]! + MIN_GAP,
+    );
   }
 }
 

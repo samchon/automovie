@@ -1,4 +1,11 @@
-import type { IAutoMovieSolidAtlas, IAutoMovieSolidSurface, IAutoMovieLoftContract, IAutoMovieSolidIntersection, IAutoMovieSolidIntersectionWalk, IAutoMovieSolidTraceLaw } from "@automovie/interface";
+import type {
+  IAutoMovieLoftContract,
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidIntersectionWalk,
+  IAutoMovieSolidSurface,
+  IAutoMovieSolidTraceLaw,
+} from "@automovie/interface";
 
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidIntersectionWalk } from "./AutoMovieSolidIntersectionWalk";
@@ -50,7 +57,12 @@ export namespace AutoMovieSolidIntersectionTrace {
     closingSteps: number,
   ): IAutoMovieSolidIntersection.IResult {
     /** Read original top-level inputs in the same order before any surface callback. */
-    const { part, count, tolerance, grazing }: IAutoMovieSolidIntersection.IInput = input;
+    const {
+      part,
+      count,
+      tolerance,
+      grazing,
+    }: IAutoMovieSolidIntersection.IInput = input;
 
     /** Normalize the original host without copying an existing atlas. */
     const host: IAutoMovieSolidAtlas = atlas(input.host);
@@ -65,7 +77,10 @@ export namespace AutoMovieSolidIntersectionTrace {
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
 
     /** Return the unchanged null-curve failure shape. */
-    const report: (contract: string, detail: string) => IAutoMovieSolidIntersection.IResult = (
+    const report: (
+      contract: string,
+      detail: string,
+    ) => IAutoMovieSolidIntersection.IResult = (
       contract: string,
       detail: string,
     ): IAutoMovieSolidIntersection.IResult => {
@@ -92,7 +107,7 @@ export namespace AutoMovieSolidIntersectionTrace {
     let first: IPoint | null;
     if (parameter.kind === "arc") {
       /** Arc preparation with the unchanged public step constants. */
-      const walked: (IAutoMovieSolidIntersectionWalk.IWalk | string) =
+      const walked: IAutoMovieSolidIntersectionWalk.IWalk | string =
         AutoMovieSolidIntersectionWalk.create(
           part,
           host,

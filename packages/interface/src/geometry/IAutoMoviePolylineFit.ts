@@ -11,27 +11,21 @@ import type { IAutoMovieCurve64 } from "../index";
  * @evidence contracts/development/common.md#meaningful-documentation Members document physical units, ownership and optional-state meaning.
  */
 export interface IAutoMoviePolylineFit {
- 
- /** Fitted millimetre coefficients with their original physical phase widths. */
+  /** Fitted millimetre coefficients with their original physical phase widths. */
   curve: IAutoMovieCurve64.Cubic;
 
- 
- /** Largest observed point-to-corresponding-parameter residual, millimetres. */
+  /** Largest observed point-to-corresponding-parameter residual, millimetres. */
   sampleMaximumMm: number;
 
- 
- /** Bernstein convex-hull upper estimate over the input polyline, millimetres. */
+  /** Bernstein convex-hull upper estimate over the input polyline, millimetres. */
   polylineUpperEstimateMm: number;
 
- 
- /** False when an unsplittable two-observation tangent-constrained span still exceeds the requested tolerance. */
+  /** False when an unsplittable two-observation tangent-constrained span still exceeds the requested tolerance. */
   toleranceMet: boolean;
 
- 
- /** Observation count divided by emitted span count; dimensionless. */
+  /** Observation count divided by emitted span count; dimensionless. */
   observationsPerSpan: number;
 
- 
- /** Number of solves using the declared conditioning or handle-sign fallback. */
+  /** Number of solves using the declared conditioning or handle-sign fallback. */
   handleFallbacks: number;
 }

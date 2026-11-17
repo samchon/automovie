@@ -1,6 +1,5 @@
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
-
 /**
  * Euclidean vector magnitude, retaining the operand's units.
  *
@@ -12,5 +11,6 @@ import type { AutoMovieVector3Tuple } from "@automovie/interface";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call depends directly on its arguments; no retained cache or effectful shared work exists.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains no references.
  */
-export const len: (a: AutoMovieVector3Tuple) => number = (a: AutoMovieVector3Tuple): number =>
-  Math.hypot(a[0], a[1], a[2]);
+export const len: (a: AutoMovieVector3Tuple) => number = (
+  a: AutoMovieVector3Tuple,
+): number => Math.hypot(a[0], a[1], a[2]);

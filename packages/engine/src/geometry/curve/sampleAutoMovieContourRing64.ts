@@ -1,4 +1,9 @@
-import type { IAutoMovieCurve64, AutoMovieVector3Tuple, IAutoMovieContourLoftCurves64, IAutoMovieSampleContourRing64 } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieContourLoftCurves64,
+  IAutoMovieCurve64,
+  IAutoMovieSampleContourRing64,
+} from "@automovie/interface";
 
 import { AutoMovieContourLoftCurves64 as C } from "./AutoMovieContourLoftCurves64";
 
@@ -23,8 +28,14 @@ export function sampleAutoMovieContourRing64(
 ): IAutoMovieSampleContourRing64.IResult {
   const name: string = typeof curve?.name === "string" ? curve.name : "";
   try {
-    const knots: IAutoMovieContourLoftCurves64.Knot[] = C.tessellate(curve, toleranceMm);
-    const points: AutoMovieVector3Tuple[] = knots.map((knot: IAutoMovieContourLoftCurves64.Knot): AutoMovieVector3Tuple => knot.p);
+    const knots: IAutoMovieContourLoftCurves64.Knot[] = C.tessellate(
+      curve,
+      toleranceMm,
+    );
+    const points: AutoMovieVector3Tuple[] = knots.map(
+      (knot: IAutoMovieContourLoftCurves64.Knot): AutoMovieVector3Tuple =>
+        knot.p,
+    );
     const period: number = curve.phaseIntervals.reduce(
       (sum: number, width: number): number => sum + width,
       0,

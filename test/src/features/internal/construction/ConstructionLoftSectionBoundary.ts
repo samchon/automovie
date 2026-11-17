@@ -1,5 +1,15 @@
-import type { IAutoMovieLoftSectionBoundary, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieViewPart } from "@automovie/interface";
-import { AutoMovieLoftSectionBoundary, AutoMovieLoftSectionLegacy, AutoMovieLoftViewRead, AutoMovieLoftViewSource } from "@automovie/engine";
+import {
+  AutoMovieLoftSectionBoundary,
+  AutoMovieLoftSectionLegacy,
+  AutoMovieLoftViewRead,
+  AutoMovieLoftViewSource,
+} from "@automovie/engine";
+import type {
+  IAutoMovieLoftSectionBoundary,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /** Physical station value/first/second, supplied independently of the implementation algebra. */
 type Scalar = readonly [number, number, number];

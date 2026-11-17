@@ -1,5 +1,3 @@
-
-
 /**
  * Owned convex simplex iterate with a complete Frank-Wolfe gap certificate.
  *

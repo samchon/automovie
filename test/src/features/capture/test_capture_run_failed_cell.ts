@@ -1,5 +1,17 @@
-import type { IAutoMovieCaptureCell, IAutoMovieCaptureDrawing, IAutoMovieCapturePlan, IAutoMovieCaptureRecord, IAutoMovieRasterImage } from "@automovie/interface";
-import { AutoMovieCaptureFolder, decodeAutoMovieRasterPng, parseAutoMovieCapturePlanRequest, planAutoMovieCapture, runAutoMovieCapture } from "@automovie/render";
+import type {
+  IAutoMovieCaptureCell,
+  IAutoMovieCaptureDrawing,
+  IAutoMovieCapturePlan,
+  IAutoMovieCaptureRecord,
+  IAutoMovieRasterImage,
+} from "@automovie/interface";
+import {
+  AutoMovieCaptureFolder,
+  decodeAutoMovieRasterPng,
+  parseAutoMovieCapturePlanRequest,
+  planAutoMovieCapture,
+  runAutoMovieCapture,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createCaptureMemory } from "./createCaptureMemory";

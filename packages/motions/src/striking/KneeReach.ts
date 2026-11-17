@@ -1,6 +1,8 @@
-import type { IAutoMovieMotionHumanStrikingReach, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanStrikingReach,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { KneeForm } from "./KneeForm";
 
@@ -211,7 +213,10 @@ export namespace KneeReach {
     heading: IAutoMovieVector3,
   ): { toes: IAutoMovieVector3; instep: IAutoMovieVector3 } {
     const front: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(heading, Vector3.scale(shank, Vector3.dot(heading, shank))),
+      Vector3.subtract(
+        heading,
+        Vector3.scale(shank, Vector3.dot(heading, shank)),
+      ),
     );
     const angle: number = (KneeForm.PLANTAR * Math.PI) / 180;
     return {

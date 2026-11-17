@@ -1,6 +1,13 @@
-import { type IAutoMovieForgedProp, type IAutoMovieViolationCollector, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieNode, IAutoMoviePropArticulation, IAutoMoviePropSpec, IAutoMovieValidation } from "@automovie/interface";
-
-
+import {
+  type IAutoMovieForgedProp,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieNode,
+  IAutoMoviePropArticulation,
+  IAutoMoviePropSpec,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { profileSemanticKeys } from "../resolve/profileSemanticKeys";
 import { ViolationCollector } from "../validation/ViolationCollector";

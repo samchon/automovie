@@ -1,4 +1,4 @@
-import { IAutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -10,8 +10,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion, Vector3 } from "@automovie/engine";
 import { HumanColliders } from "../posture/HumanColliders";
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
 import { AutoMovieMotionHumanAuditTangleModel } from "./AutoMovieMotionHumanAuditTangleModel";
 

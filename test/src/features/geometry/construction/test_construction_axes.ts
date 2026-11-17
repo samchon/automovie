@@ -1,6 +1,26 @@
-import type { IAutoMovieConstructionOutlineParameter, IAutoMovieConstructionRealization, IAutoMovieLoftChain, IAutoMovieLoftFrame, IAutoMovieLoftJet, IAutoMovieSolidSurface, IAutoMovieViewAxis, IAutoMovieViewLoft, IAutoMovieViewPart, IAutoMovieConstructionKnot, IAutoMovieConstructionView, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieConstructionContinuation, AutoMovieConstructionViews, AutoMovieLoftChain, AutoMovieLoftJet, AutoMovieViewAxis, AutoMovieViewLoft, realizeAutoMovieConstruction } from "@automovie/engine";
-
+import {
+  AutoMovieConstructionContinuation,
+  AutoMovieConstructionViews,
+  AutoMovieLoftChain,
+  AutoMovieLoftJet,
+  AutoMovieViewAxis,
+  AutoMovieViewLoft,
+  realizeAutoMovieConstruction,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionKnot,
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieConstructionRealization,
+  IAutoMovieConstructionView,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftFrame,
+  IAutoMovieLoftJet,
+  IAutoMovieSolidSurface,
+  IAutoMovieVector3,
+  IAutoMovieViewAxis,
+  IAutoMovieViewLoft,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
@@ -74,7 +94,11 @@ function sources(): string[] {
   const host: IAutoMovieLoftChain = build("source.host", 0);
   for (const station of [7.3, 27.5, 63.4, 91.2]) {
     const source: FrameJet = sourceJet(station, 0);
-    const actual: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(host, station, 0);
+    const actual: IAutoMovieLoftJet.IJet = AutoMovieLoftJet.at(
+      host,
+      station,
+      0,
+    );
     const expected: V3[] = [source.value, source.first, source.second].map(
       (frame: IAutoMovieLoftFrame.IFrame): V3 =>
         frame.origin.map(

@@ -1,6 +1,10 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, resolveAutoMovieMutualGoal } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanHand } from "../posture/HumanHand";
 import { handshakeReach } from "./handshakeReach";
 
@@ -68,7 +72,10 @@ export namespace handshakeOffer {
    * @param side The arm.
    * @returns Metres.
    */
-  export function forearm(body: IAutoMovieMotionHumanBody, side: IAutoMovieMotionHumanHand.Side): number {
+  export function forearm(
+    body: IAutoMovieMotionHumanBody,
+    side: IAutoMovieMotionHumanHand.Side,
+  ): number {
     const socket: IAutoMovieVector3 = HumanHand.offset(
       body,
       side,

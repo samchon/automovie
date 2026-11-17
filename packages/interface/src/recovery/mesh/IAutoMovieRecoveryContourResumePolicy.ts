@@ -8,23 +8,18 @@
  */
 
 export interface IAutoMovieRecoveryContourResumePolicy {
- 
- /** Caller-verified byte identity of the artifact that used these actual values. */
+  /** Caller-verified byte identity of the artifact that used these actual values. */
   observationIdentity: string;
 
- 
- /** Original positive finite polyline fitting tolerance, millimetres. */
+  /** Original positive finite polyline fitting tolerance, millimetres. */
   toleranceMm: number;
 
- 
- /** Original corner threshold in degrees, strictly between zero and 180. */
+  /** Original corner threshold in degrees, strictly between zero and 180. */
   cornerDegrees: number;
 
- 
- /** Original registered material-side orientation sign. */
+  /** Original registered material-side orientation sign. */
   sourceOrientationSign: 1 | -1;
 
- 
- /** Actual original positive safe-integer span budget, recorded without reusing its exhausted limit. */
+  /** Actual original positive safe-integer span budget, recorded without reusing its exhausted limit. */
   originalMaxSpans: number;
 }

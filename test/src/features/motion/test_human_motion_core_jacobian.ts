@@ -1,7 +1,25 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointPose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-import { DEFAULT_HUMANOID_ROM, Quaternion, Vector3, clampJointToSkeleton } from "@automovie/engine";
-
-import { HumanJacobian, poseBones, resolveHumanPosture } from "@automovie/motions";
+import {
+  DEFAULT_HUMANOID_ROM,
+  Quaternion,
+  Vector3,
+  clampJointToSkeleton,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanJacobian,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -132,7 +150,10 @@ export function test_human_motion_core_jacobian(): void {
       bones,
       variables,
     );
-    const nudged = (v: IAutoMovieMotionHumanJacobian.IVariable, h: number): IAutoMovieMotionHumanPosture => {
+    const nudged = (
+      v: IAutoMovieMotionHumanJacobian.IVariable,
+      h: number,
+    ): IAutoMovieMotionHumanPosture => {
       if (v.kind === "place")
         return {
           ...posture,
@@ -159,57 +180,56 @@ export function test_human_motion_core_jacobian(): void {
       const error: number = Vector3.length(Vector3.subtract(an, fd));
       if (error > worst.error) worst = { error, where };
     };
-    variables.forEach((v: IAutoMovieMotionHumanJacobian.IVariable, i: number): void => {
-      const h: number = v.kind === "place" ? 1e-5 : 1e-3;
-      const up: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = posed(
-        nudged(v, h),
-      );
-      const down: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = posed(
-        nudged(v, -h),
-      );
-      const label: string =
-        v.kind === "angle" ? `${v.bone}.${v.axis}` : `${v.kind}.${v.axis}`;
-      for (const [bone, b] of bones) {
-        const a: IAutoMovieResolvedBone = up.get(bone)!;
-        const c: IAutoMovieResolvedBone = down.get(bone)!;
-        // Angular velocity: the turn from the lower pose to the upper.
-        const turn: IAutoMovieQuaternion = Quaternion.multiply(
-          a.worldRotation,
-          Quaternion.inverse(c.worldRotation),
+    variables.forEach(
+      (v: IAutoMovieMotionHumanJacobian.IVariable, i: number): void => {
+        const h: number = v.kind === "place" ? 1e-5 : 1e-3;
+        const up: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = posed(
+          nudged(v, h),
         );
-        const sign: number = turn.w < 0 ? -1 : 1;
-        const vector: IAutoMovieVector3 = {
-          x: turn.x * sign,
-          y: turn.y * sign,
-          z: turn.z * sign,
-        };
-        const sine: number = Vector3.length(vector);
-        const angle: number = 2 * Math.atan2(sine, Math.abs(turn.w));
-        const omega: IAutoMovieVector3 =
-          sine < 1e-15
-            ? { x: 0, y: 0, z: 0 }
-            : Vector3.scale(vector, angle / sine / (2 * h));
-        const twist: IAutoMovieMotionHumanJacobian.ITwist = HumanJacobian.twist(
-          motions[i]!,
-          bone,
-          b.worldPosition,
+        const down: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = posed(
+          nudged(v, -h),
         );
-        compare(twist.angular, omega, `${label} turning ${bone}`);
-        compare(
-          twist.linear,
-          Vector3.scale(
-            Vector3.subtract(a.worldPosition, c.worldPosition),
-            1 / (2 * h),
-          ),
-          `${label} moving ${bone}'s origin`,
-        );
-        compare(
-          HumanJacobian.velocity(motions[i]!, bone, local(b)),
-          Vector3.scale(Vector3.subtract(local(a), local(c)), 1 / (2 * h)),
-          `${label} moving a point on ${bone}`,
-        );
-      }
-    });
+        const label: string =
+          v.kind === "angle" ? `${v.bone}.${v.axis}` : `${v.kind}.${v.axis}`;
+        for (const [bone, b] of bones) {
+          const a: IAutoMovieResolvedBone = up.get(bone)!;
+          const c: IAutoMovieResolvedBone = down.get(bone)!;
+          // Angular velocity: the turn from the lower pose to the upper.
+          const turn: IAutoMovieQuaternion = Quaternion.multiply(
+            a.worldRotation,
+            Quaternion.inverse(c.worldRotation),
+          );
+          const sign: number = turn.w < 0 ? -1 : 1;
+          const vector: IAutoMovieVector3 = {
+            x: turn.x * sign,
+            y: turn.y * sign,
+            z: turn.z * sign,
+          };
+          const sine: number = Vector3.length(vector);
+          const angle: number = 2 * Math.atan2(sine, Math.abs(turn.w));
+          const omega: IAutoMovieVector3 =
+            sine < 1e-15
+              ? { x: 0, y: 0, z: 0 }
+              : Vector3.scale(vector, angle / sine / (2 * h));
+          const twist: IAutoMovieMotionHumanJacobian.ITwist =
+            HumanJacobian.twist(motions[i]!, bone, b.worldPosition);
+          compare(twist.angular, omega, `${label} turning ${bone}`);
+          compare(
+            twist.linear,
+            Vector3.scale(
+              Vector3.subtract(a.worldPosition, c.worldPosition),
+              1 / (2 * h),
+            ),
+            `${label} moving ${bone}'s origin`,
+          );
+          compare(
+            HumanJacobian.velocity(motions[i]!, bone, local(b)),
+            Vector3.scale(Vector3.subtract(local(a), local(c)), 1 / (2 * h)),
+            `${label} moving a point on ${bone}`,
+          );
+        }
+      },
+    );
     all.check(
       `${name}: the Jacobian differs from the central difference by ${worst.error.toExponential(2)} per unit (${worst.where}), within ${LIMIT} expected, over ${variables.length} variables`,
       worst.error <= LIMIT,

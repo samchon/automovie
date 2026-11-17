@@ -1,6 +1,9 @@
-import type { IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
+import type {
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanSupportCarry } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -96,7 +99,10 @@ export function test_human_motion_support_carry(): void {
       },
     },
   };
-  const carried: IAutoMovieMotionHumanPosture = HumanSupportCarry.posture(carry, posture);
+  const carried: IAutoMovieMotionHumanPosture = HumanSupportCarry.posture(
+    carry,
+    posture,
+  );
   TestValidator.predicate(
     "the root and the heading are carried",
     close(carried.root, carry.point(posture.root)) &&

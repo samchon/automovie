@@ -1,6 +1,22 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanRefusal, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionHumanAuditContinuity, HumanChain, HumanPerformance, HumanRefusal, HumanSignature, seated } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAuditContinuity,
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+  seated,
+} from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
 
@@ -53,7 +69,10 @@ export namespace motionHumanOverlayChannels {
   const mm = (metres: number): string => (metres * 1000).toFixed(2);
   const gap = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
-  const perform = (body: IAutoMovieMotionHumanBody, chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
+  const perform = (
+    body: IAutoMovieMotionHumanBody,
+    chain: IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "overlay",
       performers: [
@@ -69,7 +88,9 @@ export namespace motionHumanOverlayChannels {
     });
   const walk = (): IAutoMovieMotionHumanChain =>
     HumanChain.subject("a").walk({ to: { x: 0, y: 0, z: 2 } });
-  const reading = (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanPerformance =>
+  const reading = (
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanPerformance =>
     perform(
       body,
       walk().over((u) =>
@@ -136,7 +157,8 @@ export namespace motionHumanOverlayChannels {
     }
 
     // 2 and 3. The phone hand is up, ahead of the chest, and held with it.
-    const task: IAutoMovieMotionHumanSegment.IOverlay | undefined = withRead.overlays("a")[0];
+    const task: IAutoMovieMotionHumanSegment.IOverlay | undefined =
+      withRead.overlays("a")[0];
     if (task === undefined) {
       complaints.push(`${name}: the performance holds no overlay`);
       return;
@@ -267,7 +289,9 @@ export namespace motionHumanOverlayChannels {
    */
   export function continuity(part: number, complaints: string[]): void {
     const name: motionHumanBody.Name = "m-average";
-    const film: IAutoMovieMotionHumanPerformance = reading(motionHumanBody(name));
+    const film: IAutoMovieMotionHumanPerformance = reading(
+      motionHumanBody(name),
+    );
     const rate: number = 24;
     const frames: number = Math.ceil(film.duration * rate);
     const from: number = Math.floor((frames * part) / PARTS) / rate;
@@ -285,7 +309,9 @@ export namespace motionHumanOverlayChannels {
           seconds: number,
         ): ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =>
           film.bones(subject, from + seconds),
-        segments: (subject: string): ReturnType<IAutoMovieMotionHumanPerformance["segments"]> =>
+        segments: (
+          subject: string,
+        ): ReturnType<IAutoMovieMotionHumanPerformance["segments"]> =>
           film.segments(subject).map((s) => ({
             ...s,
             start: s.start - from,

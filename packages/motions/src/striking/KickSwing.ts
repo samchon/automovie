@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanKickGeometry, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanKickGeometry,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickCarriage } from "./KickCarriage";
 import type { KickChamber } from "./KickChamber";
@@ -127,9 +133,8 @@ export namespace KickSwing {
     const rising = (clock: number): number =>
       minimumJerk((clock - prep) / Math.max(1e-3, chamber - prep)).s;
     const lowering = (clock: number): number =>
-      minimumJerk(
-        (clock - impact - folding) / Math.max(1e-3, recoil - folding),
-      ).s;
+      minimumJerk((clock - impact - folding) / Math.max(1e-3, recoil - folding))
+        .s;
     return (
       clock: number,
       base: IAutoMovieMotionHumanPosture,
@@ -166,10 +171,7 @@ export namespace KickSwing {
           Quaternion.slerp(
             plant.rotation,
             Quaternion.normalize(
-              Quaternion.multiply(
-                heading,
-                Quaternion.multiply(opened, folded),
-              ),
+              Quaternion.multiply(heading, Quaternion.multiply(opened, folded)),
             ),
             up,
           ),
@@ -202,9 +204,7 @@ export namespace KickSwing {
     const sine: number = Math.hypot(q.x, q.y, q.z);
     if (sine < 1e-9) return { axis: { x: 1, y: 0, z: 0 }, degrees: 0 };
     return {
-      axis: local(
-        Vector3.scale({ x: q.x, y: q.y, z: q.z }, sign / sine),
-      ),
+      axis: local(Vector3.scale({ x: q.x, y: q.y, z: q.z }, sign / sine)),
       degrees: (2 * Math.atan2(sine, sign * q.w)) / Quaternion.DEG2RAD,
     };
   }

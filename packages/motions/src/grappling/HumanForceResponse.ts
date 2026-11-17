@@ -1,6 +1,25 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanForceResponse, IAutoMovieMotionHumanPosture, IAutoMovieResolveBalanceOutcome, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieGravity,
+  Quaternion,
+  Vector3,
+  minimumJerk,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanForce,
+  IAutoMovieMotionHumanForceResponse,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolveBalanceOutcome,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { AutoMovieGravity, Quaternion, Vector3, minimumJerk, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanForce } from "../perform/HumanForce";
@@ -52,7 +71,6 @@ import { HumanForceThrow } from "./HumanForceThrow";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No outcome is reached by a scripted angle: each refuses when the forces cannot produce it.
  */
 export namespace HumanForceResponse {
-
   /**
    * Plan the response.
    *
@@ -83,13 +101,18 @@ export namespace HumanForceResponse {
     );
 
     // The pull open at the start.
-    const open: IAutoMovieMotionHumanForce.ISustained[] = (context.forces?.(0, 0) ?? []).filter(
-      (f: IAutoMovieMotionHumanForce.IForce): f is IAutoMovieMotionHumanForce.ISustained =>
-        f.kind === "sustained",
+    const open: IAutoMovieMotionHumanForce.ISustained[] = (
+      context.forces?.(0, 0) ?? []
+    ).filter(
+      (
+        f: IAutoMovieMotionHumanForce.IForce,
+      ): f is IAutoMovieMotionHumanForce.ISustained => f.kind === "sustained",
     );
     const sum: IAutoMovieVector3 = open.reduce(
-      (s: IAutoMovieVector3, f: IAutoMovieMotionHumanForce.ISustained): IAutoMovieVector3 =>
-        Vector3.add(s, HumanForce.at(f, context.start)),
+      (
+        s: IAutoMovieVector3,
+        f: IAutoMovieMotionHumanForce.ISustained,
+      ): IAutoMovieVector3 => Vector3.add(s, HumanForce.at(f, context.start)),
       { x: 0, y: 0, z: 0 },
     );
     const force: number = Math.hypot(sum.x, sum.z);
@@ -108,8 +131,9 @@ export namespace HumanForceResponse {
       z: sum.z / force,
     };
     const span: number =
-      Math.min(...open.map((f: IAutoMovieMotionHumanForce.ISustained): number => f.to)) -
-      context.start;
+      Math.min(
+        ...open.map((f: IAutoMovieMotionHumanForce.ISustained): number => f.to),
+      ) - context.start;
 
     // The centre, the planted base and the pivot at the ankles.
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
@@ -259,10 +283,8 @@ export namespace HumanForceResponse {
           fix: "pull with less force, or let the body yield",
         });
       const duration: number = Math.max(span, 1 / w);
-      const plan: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-        context,
-        duration,
-      );
+      const plan: IAutoMovieMotionHumanActionPlan =
+        AutoMovieMotionHumanBase.under(context, duration);
       return {
         ...plan,
         events: [{ name: "braced", share: Math.min(1, 1 / w / duration) }],
@@ -305,10 +327,8 @@ export namespace HumanForceResponse {
         reason: `a pull of ${force.toFixed(0)} N for ${span.toFixed(2)} s breaks the base only after ${broken.toFixed(2)} s`,
         fix: "pull harder or for longer, or let the body resist",
       });
-    const yielded: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      broken,
-    );
+    const yielded: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, broken);
     const yieldAt = (seconds: number): IAutoMovieMotionHumanPosture =>
       drawn(
         yielded.posture(Math.min(broken, seconds)),

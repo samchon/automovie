@@ -1,5 +1,3 @@
-
-
 /** Scalar knots for the sweep tension spline and its optional periodic domain. */
 export namespace IAutoMovieInterpolateSpline {
   /**
@@ -9,7 +7,7 @@ export namespace IAutoMovieInterpolateSpline {
    * of the largest value step within two segments. This is a sampled policy,
    * not a strict bound on extrema; the fixed maximum tension can be returned
    * without scan acceptance. Positive data can produce negative interpolation.
-   * 
+   *
    * It passes through its knots with continuous curvature at interior knots.
    * Constant extension outside open knots need not preserve the endpoint
    * derivative. Radius and scale consumers must refuse invalid query results. Open knots extend

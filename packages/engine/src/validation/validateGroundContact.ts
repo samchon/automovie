@@ -1,6 +1,14 @@
-import { type IAutoMovieResolvedBone, type IAutoMovieSkeletonTopology, type IAutoMovieValidateGroundContact, type IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieCapsuleProxy, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieCapsuleProxy,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieSkeletonTopology,
+  type IAutoMovieValidateGroundContact,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { indexSkeletonTopology, resolvePose } from "../kinematics";
 import { sampleMotion } from "../motion/sampleMotion";
@@ -26,7 +34,11 @@ const DEFAULT_FOOT_BONES: readonly ["leftFoot", "rightFoot"] = [
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Topology/reachability and capsule usability are computed before the time walk; current ground callbacks execute for each measurement.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-frame maps release; the caller owns warnings and the borrowed callback lifetime, with no physics scene created.
  */
-export const validateGroundContact: (props: IAutoMovieValidateGroundContact.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateGroundContact.IProps): IAutoMovieValidation => {
+export const validateGroundContact: (
+  props: IAutoMovieValidateGroundContact.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateGroundContact.IProps,
+): IAutoMovieValidation => {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const suppressed: boolean = props.physicsIntent !== undefined;
   const footBones: readonly AutoMovieHumanoidBone[] =

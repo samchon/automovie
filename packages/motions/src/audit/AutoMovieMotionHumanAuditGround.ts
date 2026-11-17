@@ -1,4 +1,4 @@
-import { IAutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
+import { physicalShapeBounds } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanAuditMotion,
@@ -7,9 +7,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { physicalShapeBounds } from "@automovie/engine";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
 /**
  * How a displayed body meets the floor: whether any collider sinks below it,

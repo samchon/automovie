@@ -1,5 +1,5 @@
-import type { IAutoMovieMeshExtract } from "@automovie/interface";
 import { AutoMovieMeshExtract as X } from "@automovie/engine";
+import type { IAutoMovieMeshExtract } from "@automovie/interface";
 
 /** An independent cubic Hermite, written here from its factored basis functions. */
 function hermite(
@@ -38,7 +38,8 @@ function deviation(
   let worst: number = 0;
   for (let k: number = 0; k < loop.knots.length; ++k) {
     const a: IAutoMovieMeshExtract.ILoopKnot = loop.knots[k]!;
-    const b: IAutoMovieMeshExtract.ILoopKnot = loop.knots[(k + 1) % loop.knots.length]!;
+    const b: IAutoMovieMeshExtract.ILoopKnot =
+      loop.knots[(k + 1) % loop.knots.length]!;
     const tb: number = b.t > a.t ? b.t : b.t + loop.length;
     for (let i: number = a.index; i !== b.index; i = (i + 1) % dense.length) {
       const ti: number = t[i]! < a.t ? t[i]! + loop.length : t[i]!;
@@ -115,10 +116,17 @@ export function test_geometry_extract_loop(): void {
       20 * Math.sin((2 * Math.PI * i) / 360),
     ],
   );
-  const loop: { knots: IAutoMovieMeshExtract.ILoopKnot[]; length: number; error: number } =
-    X.reduceLoop(ellipse, 0.5);
+  const loop: {
+    knots: IAutoMovieMeshExtract.ILoopKnot[];
+    length: number;
+    error: number;
+  } = X.reduceLoop(ellipse, 0.5);
   for (const i of [0, 90, 180, 270])
-    if (!loop.knots.some((k: IAutoMovieMeshExtract.ILoopKnot): boolean => k.index === i))
+    if (
+      !loop.knots.some(
+        (k: IAutoMovieMeshExtract.ILoopKnot): boolean => k.index === i,
+      )
+    )
       failures.push(`the ellipse's axis extreme ${i} was removed`);
   if (!(deviation(ellipse, loop) <= 0.5))
     failures.push(
@@ -152,8 +160,11 @@ export function test_geometry_extract_loop(): void {
       }),
     ],
   ] as const) {
-    const faceted: { knots: IAutoMovieMeshExtract.ILoopKnot[]; length: number; error: number } =
-      X.reduceLoop(dense, 0.5);
+    const faceted: {
+      knots: IAutoMovieMeshExtract.ILoopKnot[];
+      length: number;
+      error: number;
+    } = X.reduceLoop(dense, 0.5);
     if (!(faceted.knots.length < 10 && deviation(dense, faceted) <= 0.5))
       failures.push(
         `the ${label} rippled 64-gon keeps ${faceted.knots.length} knots, deviation ${deviation(dense, faceted)}`,
@@ -177,7 +188,11 @@ export function test_geometry_extract_loop(): void {
       [50, 4.1, -1],
       [100, 2.2, 1],
     ].map(
-      ([station, start, sign]: number[]): IAutoMovieMeshExtract.IStationLoop => ({
+      ([
+        station,
+        start,
+        sign,
+      ]: number[]): IAutoMovieMeshExtract.IStationLoop => ({
         station: station!,
         loop: X.reduceLoop(circle(20 + station! / 10, start!, sign!), 0.05),
       }),

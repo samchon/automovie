@@ -1,6 +1,12 @@
-import type { IAutoMovieProjectile, IAutoMovieProjectileState, IAutoMovieIntegrateMotionTrajectory, IAutoMovieMotionTrajectoryInterval, IAutoMovieProjectileDragFlight, IAutoMovieProjectileDragInterval, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieIntegrateMotionTrajectory,
+  IAutoMovieMotionTrajectoryInterval,
+  IAutoMovieProjectile,
+  IAutoMovieProjectileDragFlight,
+  IAutoMovieProjectileDragInterval,
+  IAutoMovieProjectileState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { integrateMotionTrajectory } from "../motion/integrateMotionTrajectory";
@@ -45,7 +51,8 @@ import { AutoMovieAir } from "./AutoMovieAir";
 export function projectileDragFlight(
   projectile: IAutoMovieProjectile,
 ): IAutoMovieProjectileDragFlight.IFlight {
-  const known: IAutoMovieProjectileDragFlight.IFlight | undefined = MEMO.get(projectile);
+  const known: IAutoMovieProjectileDragFlight.IFlight | undefined =
+    MEMO.get(projectile);
   if (known !== undefined) return known;
   const drag: IAutoMovieProjectile.IDrag = projectile.drag!;
   const density: number = drag.density ?? AutoMovieAir.DENSITY;
@@ -131,7 +138,9 @@ export function projectileDragFlight(
   // Chunks integrated on demand, in order, each from its predecessor's end.
   const span: number = projectileDragFlight.CHUNK * h;
   const chunks: IAutoMovieIntegrateMotionTrajectory.ITrajectory[] = [];
-  const chunk = (index: number): IAutoMovieIntegrateMotionTrajectory.ITrajectory => {
+  const chunk = (
+    index: number,
+  ): IAutoMovieIntegrateMotionTrajectory.ITrajectory => {
     while (chunks.length <= index) {
       const c: number = chunks.length;
       const start: number[] =
@@ -205,5 +214,7 @@ export namespace projectileDragFlight {
 }
 
 /** The flights integrated so far, by projectile record. */
-const MEMO: WeakMap<IAutoMovieProjectile, IAutoMovieProjectileDragFlight.IFlight> =
-  new WeakMap();
+const MEMO: WeakMap<
+  IAutoMovieProjectile,
+  IAutoMovieProjectileDragFlight.IFlight
+> = new WeakMap();

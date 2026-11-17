@@ -1,4 +1,12 @@
-import type { IAutoMovieContourLoft64, IAutoMovieRecoveryInput, IAutoMovieRecoverySectionCoverage, IAutoMovieRecoverySectionReport, IAutoMovieRecoverySectionSummary, IAutoMovieRecoveryTopologyGap, IAutoMovieRecoveryUnconsumedEvent } from "../../index";
+import type {
+  IAutoMovieContourLoft64,
+  IAutoMovieRecoveryInput,
+  IAutoMovieRecoverySectionCoverage,
+  IAutoMovieRecoverySectionReport,
+  IAutoMovieRecoverySectionSummary,
+  IAutoMovieRecoveryTopologyGap,
+  IAutoMovieRecoveryUnconsumedEvent,
+} from "../../index";
 
 /** Physical section coefficients and source-free observations produced by mesh extraction.
  *
@@ -8,35 +16,27 @@ import type { IAutoMovieContourLoft64, IAutoMovieRecoveryInput, IAutoMovieRecove
  * @evidence contracts/development/common.md#meaningful-documentation States millimetre section coordinates, ordered fit reports, source-free policy and optional prefix coverage.
  */
 export interface IAutoMovieRecoveryMeshSections {
- 
- /** Engine loft contract with the retained physical section coefficients. */
+  /** Engine loft contract with the retained physical section coefficients. */
   loft: IAutoMovieContourLoft64;
 
- 
- /** Same-order section reports, including open fitted arcs and tolerance status. */
+  /** Same-order section reports, including open fitted arcs and tolerance status. */
   reports: IAutoMovieRecoverySectionReport[];
 
- 
- /** Unresolved events, flat plateaus and numerical source issues. */
+  /** Unresolved events, flat plateaus and numerical source issues. */
   diagnostics: string[];
 
- 
- /** Unsupported physical intervals that reconstruction must leave open. */
+  /** Unsupported physical intervals that reconstruction must leave open. */
   topologyGaps: IAutoMovieRecoveryTopologyGap[];
 
- 
- /** Source events that have no consumable incident closed curve. */
+  /** Source events that have no consumable incident closed curve. */
   unconsumedEvents: IAutoMovieRecoveryUnconsumedEvent[];
 
- 
- /** Extraction policy without the source vertex and triangle arrays. */
+  /** Extraction policy without the source vertex and triangle arrays. */
   policy: Omit<IAutoMovieRecoveryInput, "verticesMm" | "triangles">;
 
- 
- /** Counts of observations, coefficients and topology declarations. */
+  /** Counts of observations, coefficients and topology declarations. */
   summary: IAutoMovieRecoverySectionSummary;
 
- 
- /** Present only for an incomplete automatic station-prefix checkpoint. */
+  /** Present only for an incomplete automatic station-prefix checkpoint. */
   coverage?: IAutoMovieRecoverySectionCoverage;
 }

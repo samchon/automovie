@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryMapJointFit, IAutoMovieRecoveryMapState } from "../../index";
+import type {
+  IAutoMovieRecoveryMapJointFit,
+  IAutoMovieRecoveryMapState,
+} from "../../index";
 
 /** Owned numerical state and explicit fixed-population joint termination.
  *
@@ -8,7 +11,6 @@ import type { IAutoMovieRecoveryMapJointFit, IAutoMovieRecoveryMapState } from "
  * @evidence contracts/development/common.md#meaningful-documentation Defines report ownership and acceptance boundary.
  */
 export interface IAutoMovieRecoveryMapJointResult extends IAutoMovieRecoveryMapState {
- 
- /** Actual numerical termination over the same ordered observations. */
+  /** Actual numerical termination over the same ordered observations. */
   report: IAutoMovieRecoveryMapJointFit;
 }

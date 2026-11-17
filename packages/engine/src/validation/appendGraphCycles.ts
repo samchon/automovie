@@ -1,4 +1,8 @@
-import type { IAutoMovieAppendGraphCycles, IAutoMovieViolationCollector } from "@automovie/interface";
+import type {
+  IAutoMovieAppendGraphCycles,
+  IAutoMovieViolationCollector,
+} from "@automovie/interface";
+
 /**
  * Report every link that closes a cycle in a graph of declared ids.
  *

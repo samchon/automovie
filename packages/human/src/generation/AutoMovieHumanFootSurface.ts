@@ -1,14 +1,15 @@
-import type { IAutoMovieLoftChain, AutoMovieHumanSide, AutoMovieVector3Tuple, IAutoMovieHumanBodyCalibration, IAutoMovieHumanFootCourse, IAutoMovieHumanFootSurface, IAutoMovieHumanSkeletonLaw } from "@automovie/interface";
-
-
-
-
-
-
-
 import { AutoMovieLoftChain as Loft } from "@automovie/engine";
-import { AutoMovieHumanFootCourse } from "./AutoMovieHumanFootCourse";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanFootCourse,
+  IAutoMovieHumanFootSurface,
+  IAutoMovieHumanSkeletonLaw,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
+import { AutoMovieHumanFootCourse } from "./AutoMovieHumanFootCourse";
 
 /**
  * Source courses for the original rigid polygon foot, sampled from the same
@@ -20,24 +21,6 @@ import { AutoMovieHumanFootCourse } from "./AutoMovieHumanFootCourse";
  * Named plantar samples identify anatomy, not guaranteed floor contacts.
  */
 export namespace AutoMovieHumanFootSurface {
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
   /**
    * Sample final calibrated curves once without retaining body/input state.
    * Every principal foot station survives, with a shared source
@@ -78,7 +61,8 @@ type IAddress = IAutoMovieHumanFootCourse.IAddress;
 type IMinimum = IAutoMovieHumanFootCourse.IMinimum;
 
 /** The display reader shares bounded searches and source ring evaluation. */
-const { minimum, course }: typeof AutoMovieHumanFootCourse = AutoMovieHumanFootCourse;
+const { minimum, course }: typeof AutoMovieHumanFootCourse =
+  AutoMovieHumanFootCourse;
 
 /** Prepare rising source stations; each ball is the closest retained plantar sample below its own MTP. */
 function side(
@@ -124,9 +108,7 @@ function side(
   ): number => dot(sub(point, ankle), forward);
   const split: number = crossing(foot, along, along(joint("Midfoot").position));
   const hind: IAddress[] = foot.layers
-    .filter(
-      (layer: IAutoMovieLoftChain.ILayer): boolean => layer.y < split,
-    )
+    .filter((layer: IAutoMovieLoftChain.ILayer): boolean => layer.y < split)
     .map(
       (layer: IAutoMovieLoftChain.ILayer): IAddress => ({
         chain: foot,
@@ -138,9 +120,7 @@ function side(
   const front: IAddress[] = [
     seam,
     ...foot.layers
-      .filter(
-        (layer: IAutoMovieLoftChain.ILayer): boolean => layer.y > split,
-      )
+      .filter((layer: IAutoMovieLoftChain.ILayer): boolean => layer.y > split)
       .map(
         (layer: IAutoMovieLoftChain.ILayer): IAddress => ({
           chain: foot,
@@ -168,17 +148,31 @@ function side(
     throw new Error(`Canonical ${own} foot has no posterior plantar sample`);
   // A ball belongs to the nearest retained plantar source point beneath its
   // own MTP, not to an obsolete forefoot chain ordinal or reversed end ring.
-  const plantar = (centre: AutoMovieVector3Tuple): { course: number; result: IMinimum } => {
+  const plantar = (
+    centre: AutoMovieVector3Tuple,
+  ): { course: number; result: IMinimum } => {
     let best: { course: number; result: IMinimum } | undefined;
     for (let index: number = 0; index < front.length; index++) {
-      const result: IMinimum = minimum(front[index]!, (point: AutoMovieVector3Tuple): number => point[1] <= centre[1] ? dot(sub(point, centre), sub(point, centre)) : Infinity);
-      if (best === undefined || result.score < best.result.score) best = { course: index, result };
+      const result: IMinimum = minimum(
+        front[index]!,
+        (point: AutoMovieVector3Tuple): number =>
+          point[1] <= centre[1]
+            ? dot(sub(point, centre), sub(point, centre))
+            : Infinity,
+      );
+      if (best === undefined || result.score < best.result.score)
+        best = { course: index, result };
     }
-    if (best === undefined) throw new Error(`Canonical ${own} foot has no forefoot courses`);
+    if (best === undefined)
+      throw new Error(`Canonical ${own} foot has no forefoot courses`);
     return best;
   };
-  const medialPoint: { course: number; result: IMinimum } = plantar(joint("HalluxProximal").position);
-  const lateralPoint: { course: number; result: IMinimum } = plantar(joint("Toe5Proximal").position);
+  const medialPoint: { course: number; result: IMinimum } = plantar(
+    joint("HalluxProximal").position,
+  );
+  const lateralPoint: { course: number; result: IMinimum } = plantar(
+    joint("Toe5Proximal").position,
+  );
   const medialCourse: number = medialPoint.course;
   const lateralCourse: number = lateralPoint.course;
   const medial: IMinimum = medialPoint.result;
@@ -294,9 +288,7 @@ function side(
       minimumHeight: Math.min(
         ...[...hindCourses, ...frontCourses].flatMap(
           (item: IAutoMovieHumanFootSurface.ICourse): number[] =>
-            item.points.map(
-              (point: AutoMovieVector3Tuple): number => point[1],
-            ),
+            item.points.map((point: AutoMovieVector3Tuple): number => point[1]),
         ),
       ),
       landmarkHeights: heights,
@@ -336,17 +328,12 @@ function sub(
 }
 
 /** Registered Euclidean dot product. */
-function dot(
-  a: AutoMovieVector3Tuple,
-  b: AutoMovieVector3Tuple,
-): number {
+function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
 /** Refuse a collapsed anatomical axis rather than inventing a direction. */
-function unit(
-  vector: AutoMovieVector3Tuple,
-): AutoMovieVector3Tuple {
+function unit(vector: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
   const length: number = Math.hypot(...vector);
   if (!(length > 1e-12))
     throw new Error("Foot exterior requires a nondegenerate anatomical axis");

@@ -24,8 +24,6 @@ export namespace AutoMovieHumanPalmPalmarSector {
   /** Pad depth below the bones' palmar line over the palm's half width: a convention. */
   export const PAD_SHARE: number = 0.25;
 
-  
-
   /**
    * Points of the sector's arc from the first side guide to the second,
    * a half ellipse through the pad's deepest point.
@@ -33,7 +31,10 @@ export namespace AutoMovieHumanPalmPalmarSector {
    * @param input The sector's inputs.
    * @param count Points, at least 2.
    */
-  export function arc(input: IAutoMovieHumanPalmPalmarSector.IInput, count: number): IAutoMovieHumanPalmPalmarSector.ArcResult {
+  export function arc(
+    input: IAutoMovieHumanPalmPalmarSector.IInput,
+    count: number,
+  ): IAutoMovieHumanPalmPalmarSector.ArcResult {
     const [a, b] = input.sides;
     const mid: [number, number] = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
     const half: number = Math.hypot(b[0] - a[0], b[1] - a[1]) / 2;
@@ -45,11 +46,17 @@ export namespace AutoMovieHumanPalmPalmarSector {
     // is square to it, turned to the side that points toward the palm
     // (positive `c`), and the pad never rises above the bone's palmar line.
     const toward: number = ex >= 0 ? 1 : -1;
-    return Array.from({ length: count }, (_: unknown, k: number): [number, number] => {
-      const t: number = (Math.PI * k) / (count - 1);
-      const along: number = half * Math.cos(t);
-      const pad: number = toward * depth * Math.sin(t);
-      return [mid[0] + along * ex - pad * ey, Math.max(input.bone, mid[1] + along * ey + pad * ex)];
-    });
+    return Array.from(
+      { length: count },
+      (_: unknown, k: number): [number, number] => {
+        const t: number = (Math.PI * k) / (count - 1);
+        const along: number = half * Math.cos(t);
+        const pad: number = toward * depth * Math.sin(t);
+        return [
+          mid[0] + along * ex - pad * ey,
+          Math.max(input.bone, mid[1] + along * ey + pad * ex),
+        ];
+      },
+    );
   }
 }

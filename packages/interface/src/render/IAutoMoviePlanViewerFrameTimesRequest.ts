@@ -1,5 +1,3 @@
-
-
 /**
  * Film-local sample selection on the encoded frame grid. planViewerFrameTimes requires exactly one nonempty explicit at list or a range with from/to and exactly one of every/step. It validates finite positive rate/duration and inclusive endpoints, sorts/deduplicates explicit values, and rounds step samples to grid frames. A valid range may contain no grid frame.
  *

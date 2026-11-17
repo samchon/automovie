@@ -1,4 +1,9 @@
-import type { AutoMovieVector3Tuple, IAutoMoviePlanContourWalks64Plans, IAutoMoviePlanContourWalks64Ring } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMoviePlanContourWalks64Plans,
+  IAutoMoviePlanContourWalks64Ring,
+} from "@automovie/interface";
+
 import { AutoMovieContourLoftCurves64 } from "./AutoMovieContourLoftCurves64";
 
 /**
@@ -16,7 +21,9 @@ import { AutoMovieContourLoftCurves64 } from "./AutoMovieContourLoftCurves64";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Cached slit walks are reused during emission; each resolved boundary index is shared by all adjacent walks in this invocation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Plan and index maps belong to the returned per-generation closures and expire with their caller; there is no global cache.
  */
-export function planAutoMovieContourWalks64<R extends IAutoMoviePlanContourWalks64Ring>(
+export function planAutoMovieContourWalks64<
+  R extends IAutoMoviePlanContourWalks64Ring,
+>(
   owner: (point: AutoMovieVector3Tuple) => R | undefined,
   identity: (point: AutoMovieVector3Tuple) => string | undefined,
   inserted: (

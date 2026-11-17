@@ -5,7 +5,7 @@ import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 export namespace IAutoMovieResolvePhysicalSupportRedundancy {
   /**
    * Return a warm support seed's redundant coordinates to the authored posture.
-   * 
+   *
    * A warm seed keeps the previous fit's task-space choice, such as which way a
    * near-straight chain bends. The support task constrains only each endpoint and
    * its planted floor witnesses, so a coordinate change in that task's
@@ -21,7 +21,7 @@ export namespace IAutoMovieResolvePhysicalSupportRedundancy {
    * returns, and a near-singular row (whose singular value is small but whose
    * task effect is second order) does not hold a first-order posture offset.
    * The subsequent bounded fit corrects the task within the same tolerance.
-   * 
+   *
    * Coordinates are the native independent twist coordinates
    * θ = 2 atan(q_axis / w) owned by {@link projectPhysicalJointRotation}. The
    * Jacobian uses central differences with the error-optimal step ε^(1/3); its

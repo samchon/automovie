@@ -1,5 +1,9 @@
-import { type IAutoMovieScanJointRom, type IAutoMovieSwingTwistRange, IAutoMovieJointConstraint, IAutoMovieJointPose } from "@automovie/interface";
-
+import {
+  IAutoMovieJointConstraint,
+  IAutoMovieJointPose,
+  type IAutoMovieScanJointRom,
+  type IAutoMovieSwingTwistRange,
+} from "@automovie/interface";
 
 import { scanJointRom } from "../rom/scanJointRom";
 

@@ -1,8 +1,20 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanThrowObjectLaunch, IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
 import { createStick } from "@automovie/archetypes";
 import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanThrownWeapon, HumanVerdicts, throwObject } from "@automovie/motions";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanThrowObjectLaunch,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanThrownWeapon,
+  HumanVerdicts,
+  throwObject,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -81,9 +93,8 @@ export function test_human_motion_throw_implement(): void {
       continue;
     }
     const segment = performance.segments("a")[1]!;
-    const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch | undefined = throwObject.of(
-      segment.plan,
-    );
+    const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch | undefined =
+      throwObject.of(segment.plan);
     if (launch === undefined) {
       TestValidator.predicate(`${name}: the cast carries its launch`, false);
       continue;

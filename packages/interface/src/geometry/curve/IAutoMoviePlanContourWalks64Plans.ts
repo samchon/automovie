@@ -11,7 +11,9 @@ import type { IAutoMoviePlanContourWalks64Ring } from "./IAutoMoviePlanContourWa
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Resolving an unprepared branch or preparing after any resolve throws; no alternative slit is silently generated during emission.
  * @evidence contracts/development/common.md#meaningful-documentation Defines phase ordering, cache retention, shared return storage, selection premises and propagated callback failures.
  */
-export interface IAutoMoviePlanContourWalks64Plans<R extends IAutoMoviePlanContourWalks64Ring> {
+export interface IAutoMoviePlanContourWalks64Plans<
+  R extends IAutoMoviePlanContourWalks64Ring,
+> {
   /** Prepare the ordered valid local indices before resolution. Fewer than two indices require no slit; repeated selections reuse the stored walk. Insertion callbacks run synchronously and may mutate shared ring knots; their exceptions propagate without transactional rollback. */
   prepare: (rings: R[], selection: number[]) => void;
 

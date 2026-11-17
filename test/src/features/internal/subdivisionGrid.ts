@@ -1,6 +1,5 @@
 import type { IAutoMovieSubdivisionCage } from "@automovie/interface";
 
-
 /**
  * A synthetic open quad grid of `columns` by `rows` unit cells in the XY plane,
  * lifted by `height(i, j)`. Vertex `(i, j)` has index `j * (columns + 1) + i`

@@ -1,5 +1,8 @@
-import { type IAutoMovieFormationSubjectBox, IAutoMovieFormationBounds, IAutoMovieSubjectBox } from "@automovie/interface";
-
+import {
+  IAutoMovieFormationBounds,
+  type IAutoMovieFormationSubjectBox,
+  IAutoMovieSubjectBox,
+} from "@automovie/interface";
 
 import { sampleFormationMotion } from "../sampleFormationMotion";
 import { transformFormationBounds } from "../transformFormationBounds";
@@ -19,7 +22,9 @@ import { transformFormationBounds } from "../transformFormationBounds";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one unit at one instant; the framing passes that sample a unit repeatedly own any reuse.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned box.
  */
-export function formationSubjectBox(props: IAutoMovieFormationSubjectBox.IProps): IAutoMovieSubjectBox {
+export function formationSubjectBox(
+  props: IAutoMovieFormationSubjectBox.IProps,
+): IAutoMovieSubjectBox {
   const moved: IAutoMovieFormationBounds = transformFormationBounds(
     props.formation.bounds,
     props.formation.anchor,

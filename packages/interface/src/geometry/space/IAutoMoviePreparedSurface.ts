@@ -1,5 +1,5 @@
-import type { IAutoMovieFootprint } from "./IAutoMovieFootprint";
 import type { IAutoMovieSurface } from "../../scene/IAutoMovieSurface";
+import type { IAutoMovieFootprint } from "./IAutoMovieFootprint";
 
 /**
  * Prepared footprint for one surface. Build once when checking many points

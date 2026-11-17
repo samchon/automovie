@@ -1,7 +1,21 @@
-import { type IAutoMovieRenderBudgetAssessment, type IAutoMovieRenderTextureSource, IAutoMovieCompiledShotSource, IAutoMovieMaterial, IAutoMovieRenderTextureCost, IAutoMovieTextureReference } from "@automovie/interface";
-import { autoMovieRenderTextureDigest, measureAutoMovieRenderTextureClosure, sumAutoMovieRenderTextureAllocations } from "@automovie/engine";
-
-import { assessAutoMovieRenderBudget, autoMovieRenderBudgetEvidence, autoMovieRenderBudgetRefusal } from "@automovie/render";
+import {
+  autoMovieRenderTextureDigest,
+  measureAutoMovieRenderTextureClosure,
+  sumAutoMovieRenderTextureAllocations,
+} from "@automovie/engine";
+import {
+  IAutoMovieCompiledShotSource,
+  IAutoMovieMaterial,
+  type IAutoMovieRenderBudgetAssessment,
+  IAutoMovieRenderTextureCost,
+  type IAutoMovieRenderTextureSource,
+  IAutoMovieTextureReference,
+} from "@automovie/interface";
+import {
+  assessAutoMovieRenderBudget,
+  autoMovieRenderBudgetEvidence,
+  autoMovieRenderBudgetRefusal,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { compiledShotFixture } from "../internal/renderBudgetFixtures";

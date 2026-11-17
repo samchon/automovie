@@ -1,4 +1,5 @@
 import type { IAutoMovieFitDigitDescent } from "@automovie/interface";
+
 import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVector";
 
 /**
@@ -41,8 +42,15 @@ import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVec
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; the caller keeps the result.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
-export function fitDigitDescent(props: IAutoMovieFitDigitDescent.IProps): number[] {
-  const { primary, secondary, project, step }: IAutoMovieFitDigitDescent.IProps = props;
+export function fitDigitDescent(
+  props: IAutoMovieFitDigitDescent.IProps,
+): number[] {
+  const {
+    primary,
+    secondary,
+    project,
+    step,
+  }: IAutoMovieFitDigitDescent.IProps = props;
   const n: number = props.start.length;
   const jacobian = (
     f: (x: readonly number[]) => number[],

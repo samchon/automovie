@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryArtifactCoverage, IAutoMovieRecoveryMetadata } from "../../index";
+import type {
+  IAutoMovieRecoveryArtifactCoverage,
+  IAutoMovieRecoveryMetadata,
+} from "../../index";
 
 /**
  * Current generated recovery artifact with explicit coverage observations.
@@ -10,7 +13,6 @@ import type { IAutoMovieRecoveryArtifactCoverage, IAutoMovieRecoveryMetadata } f
  */
 
 export interface IAutoMovieRecoveryArtifact extends IAutoMovieRecoveryMetadata {
- 
- /** Separate processing and retained-domain qualifications. */
+  /** Separate processing and retained-domain qualifications. */
   coverage: IAutoMovieRecoveryArtifactCoverage;
 }

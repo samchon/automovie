@@ -1,5 +1,13 @@
-import { type IAutoMovieViolationCollector, IAutoMovieBoundaryFace, IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMoviePlanarPoint, IAutoMovieServicePenetration, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieBoundaryFace,
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMoviePlanarPoint,
+  IAutoMovieServicePenetration,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { outlineHull } from "../architecture/outlineHull";
 import { polygonInside } from "../architecture/polygonInside";

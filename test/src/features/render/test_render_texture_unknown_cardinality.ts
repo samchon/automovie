@@ -1,6 +1,17 @@
-import type { IAutoMovieRenderSubject, IAutoMovieRenderTextureResidency, IAutoMovieRenderTextureResident, IAutoMovieRenderTextureSource, IAutoMovieRenderAnalysisGap, IAutoMovieRenderOwnerCost } from "@automovie/interface";
-import { autoMovieRenderTextureDigest, deriveAutoMovieSemanticMask, measureAutoMovieRenderInventory, measureAutoMovieRenderTextureClosure } from "@automovie/engine";
-
+import {
+  autoMovieRenderTextureDigest,
+  deriveAutoMovieSemanticMask,
+  measureAutoMovieRenderInventory,
+  measureAutoMovieRenderTextureClosure,
+} from "@automovie/engine";
+import type {
+  IAutoMovieRenderAnalysisGap,
+  IAutoMovieRenderOwnerCost,
+  IAutoMovieRenderSubject,
+  IAutoMovieRenderTextureResidency,
+  IAutoMovieRenderTextureResident,
+  IAutoMovieRenderTextureSource,
+} from "@automovie/interface";
 import {
   assessAutoMovieRenderBudget,
   autoMovieRenderBudgetEvidence,

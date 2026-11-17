@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanReach, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanReach,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { hipJoints } from "../posture/hipJoints";
@@ -34,12 +39,20 @@ import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Policies are a closed union; the lean limit is a named provisional constant; an unreachable contact throws with its numbers and is never bent to fit silently.
  */
 export namespace AutoMovieMotionHumanReach {
-
   /** The policies of {@link Policy}, as data. */
-  export const POLICIES = ["refuse", "lean", "clamp"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanReach.Policy>[];
+  export const POLICIES = [
+    "refuse",
+    "lean",
+    "clamp",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanReach.Policy>[];
 
   /** The limbs of {@link Limb}, as data. */
-  export const LIMBS = ["leftArm", "rightArm", "leftLeg", "rightLeg"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanReach.Limb>[];
+  export const LIMBS = [
+    "leftArm",
+    "rightArm",
+    "leftLeg",
+    "rightLeg",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanReach.Limb>[];
 
   /**
    * The most a `lean` adds to the trunk's forward pitch, degrees
@@ -257,7 +270,12 @@ export namespace AutoMovieMotionHumanReach {
     point: IAutoMovieVector3,
     policy: IAutoMovieMotionHumanReach.Policy,
   ): IAutoMovieMotionHumanReach.IFit {
-    const reach: IAutoMovieMotionHumanReach.ICheck = check(body, posture, limb, point);
+    const reach: IAutoMovieMotionHumanReach.ICheck = check(
+      body,
+      posture,
+      limb,
+      point,
+    );
     if (reach.shortfall <= 0) return { posture, point };
     if (policy === "clamp") return { posture, point: clamp(reach, point) };
     if (policy === "lean" && (limb === "leftArm" || limb === "rightArm"))

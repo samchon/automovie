@@ -1,7 +1,17 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingHeld, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { HumanHand } from "../posture/HumanHand";
 import { StrikingHeldFrame } from "./StrikingHeldFrame";
@@ -32,7 +42,6 @@ import { StrikingRoll } from "./StrikingRoll";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop kind is named: the points are affordance ids the caller gives, and a missing one is refused with the ids the prop has.
  */
 export namespace StrikingHeld {
-
   /**
    * Read what a hand holds at an action's entry.
    *
@@ -52,10 +61,16 @@ export namespace StrikingHeld {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "subject">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop" | "subject"
+    >,
     side: IAutoMovieMotionHumanHand.Side,
     prop?: string,
-    points: IAutoMovieMotionHumanStrikingHeld.IPoints = { tip: "point", edge: "edge" },
+    points: IAutoMovieMotionHumanStrikingHeld.IPoints = {
+      tip: "point",
+      edge: "edge",
+    },
   ): IAutoMovieMotionHumanStrikingHeld.ITool {
     if (prop === undefined) return bare(context.body, side);
     // The prop as the hand holds it, read by the one owner of that frame.
@@ -78,8 +93,15 @@ export namespace StrikingHeld {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by of and the supporting-hand goal.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function bare(body: IAutoMovieMotionHumanBody, side: IAutoMovieMotionHumanHand.Side): IAutoMovieMotionHumanStrikingHeld.ITool {
-    const grip: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(body, side, "grip");
+  export function bare(
+    body: IAutoMovieMotionHumanBody,
+    side: IAutoMovieMotionHumanHand.Side,
+  ): IAutoMovieMotionHumanStrikingHeld.ITool {
+    const grip: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
+      body,
+      side,
+      "grip",
+    );
     const axis: IAutoMovieVector3 = { x: side === "left" ? 1 : -1, y: 0, z: 0 };
     return {
       side,
@@ -112,7 +134,10 @@ export namespace StrikingHeld {
    */
   export function read(
     held: IAutoMovieMotionHumanHeld.IHeld,
-    points: IAutoMovieMotionHumanStrikingHeld.IPoints = { tip: "point", edge: "edge" },
+    points: IAutoMovieMotionHumanStrikingHeld.IPoints = {
+      tip: "point",
+      edge: "edge",
+    },
   ): IAutoMovieMotionHumanStrikingHeld.ITool {
     return StrikingHeldFrame.read(held, points);
   }
@@ -294,7 +319,9 @@ export namespace StrikingHeld {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function grips(tool: IAutoMovieMotionHumanStrikingHeld.ITool): IAutoMovieMotionHumanContactWindow[] {
+  export function grips(
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+  ): IAutoMovieMotionHumanContactWindow[] {
     return tool.held === undefined
       ? []
       : [AutoMovieMotionHumanHeld.grip(tool.held)];
@@ -326,7 +353,10 @@ export namespace StrikingHeld {
   }
 
   /** A point of the tool from the grip socket, hand frame. */
-  const placed = (tool: IAutoMovieMotionHumanStrikingHeld.ITool, back: number): IAutoMovieVector3 =>
+  const placed = (
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    back: number,
+  ): IAutoMovieVector3 =>
     Vector3.subtract(tool.tip, Vector3.scale(tool.axis, back));
 
   /** The perpendicular axis construction shared with the held-point reader. */

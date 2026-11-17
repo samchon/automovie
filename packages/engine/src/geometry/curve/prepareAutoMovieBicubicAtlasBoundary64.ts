@@ -1,8 +1,17 @@
-import type { AutoMovieBernsteinPolynomial64, AutoMovieVector3Tuple, IAutoMovieBicubicAtlasTessellation64, IAutoMovieCanonicalBoundaryPhase64, IAutoMoviePrepareBicubicAtlasBoundary64, IAutoMoviePrepareBicubicAtlasBoundary64Binding } from "@automovie/interface";
+import type {
+  AutoMovieBernsteinPolynomial64,
+  AutoMovieVector3Tuple,
+  IAutoMovieBicubicAtlasTessellation64,
+  IAutoMovieCanonicalBoundaryPhase64,
+  IAutoMoviePrepareBicubicAtlasBoundary64,
+  IAutoMoviePrepareBicubicAtlasBoundary64Binding,
+} from "@automovie/interface";
+
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
 import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdivision64";
 import { AutoMovieCanonicalBoundary64 as Q } from "./AutoMovieCanonicalBoundary64";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
+
 type Use = {
   patch: string;
   side: 0 | 1 | 2 | 3;
@@ -55,7 +64,8 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
       );
     authorities.set(authority.id, authority.controlIds);
   }
-  const explicit: Map<string, IAutoMoviePrepareBicubicAtlasBoundary64Binding> = new Map(),
+  const explicit: Map<string, IAutoMoviePrepareBicubicAtlasBoundary64Binding> =
+      new Map(),
     groups: Map<string, Use[]> = new Map(),
     uses: Map<string, Use> = new Map();
   for (const patch of input.boundaryBindings?.length ? input.patches : [])
@@ -122,11 +132,17 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
         binding.end,
         0,
       ),
-      last: IAutoMovieCanonicalBoundaryPhase64 = Q.phase(binding.start, binding.end, 1);
+      last: IAutoMovieCanonicalBoundaryPhase64 = Q.phase(
+        binding.start,
+        binding.end,
+        1,
+      );
     explicit.set(key, binding);
     const controls: AutoMovieBernsteinPolynomial64 = authorities
       .get(binding.authority)!
-      .map((id: number): AutoMovieVector3Tuple => V.clone(input.controlsMm[id]!));
+      .map(
+        (id: number): AutoMovieVector3Tuple => V.clone(input.controlsMm[id]!),
+      );
     const net: AutoMovieBernsteinPolynomial64 = S.restrict(
       controls,
       Math.min(binding.start, binding.end),
@@ -146,26 +162,36 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
     for (let k: number = 0; k < 4; k++)
       constraints.push({ id: use.ids[k]!, point: net[k]! });
   }
-  const bindings: Map<string, IAutoMoviePrepareBicubicAtlasBoundary64Binding> = new Map(),
+  const bindings: Map<string, IAutoMoviePrepareBicubicAtlasBoundary64Binding> =
+      new Map(),
     diagnostics: Map<string, string[]> = new Map();
   for (const [tuple, group] of groups) {
-    const declared: { binding: IAutoMoviePrepareBicubicAtlasBoundary64Binding; start: number; end: number }[] =
-      group.flatMap(
-        (use: Use): { binding: IAutoMoviePrepareBicubicAtlasBoundary64Binding; start: number; end: number }[] => {
-          const binding: IAutoMoviePrepareBicubicAtlasBoundary64Binding | undefined = explicit.get(
-            `${use.patch}:${use.side}`,
-          );
-          return binding
-            ? [
-                {
-                  binding,
-                  start: use.reverse ? binding.end : binding.start,
-                  end: use.reverse ? binding.start : binding.end,
-                },
-              ]
-            : [];
-        },
-      );
+    const declared: {
+      binding: IAutoMoviePrepareBicubicAtlasBoundary64Binding;
+      start: number;
+      end: number;
+    }[] = group.flatMap(
+      (
+        use: Use,
+      ): {
+        binding: IAutoMoviePrepareBicubicAtlasBoundary64Binding;
+        start: number;
+        end: number;
+      }[] => {
+        const binding:
+          | IAutoMoviePrepareBicubicAtlasBoundary64Binding
+          | undefined = explicit.get(`${use.patch}:${use.side}`);
+        return binding
+          ? [
+              {
+                binding,
+                start: use.reverse ? binding.end : binding.start,
+                end: use.reverse ? binding.start : binding.end,
+              },
+            ]
+          : [];
+      },
+    );
     if (!declared.length) continue;
     declared.sort(
       (a: (typeof declared)[number], b: (typeof declared)[number]): number =>
@@ -184,7 +210,8 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
     );
     for (const use of group) {
       const key: string = `${use.patch}:${use.side}`,
-        original: IAutoMoviePrepareBicubicAtlasBoundary64Binding | undefined = explicit.get(key);
+        original: IAutoMoviePrepareBicubicAtlasBoundary64Binding | undefined =
+          explicit.get(key);
       bindings.set(
         key,
         original ?? {
@@ -245,7 +272,9 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
     const point: AutoMovieVector3Tuple = B.value(
       authorities
         .get(authority)!
-        .map((id: number): AutoMovieVector3Tuple => V.clone(input.controlsMm[id]!)),
+        .map(
+          (id: number): AutoMovieVector3Tuple => V.clone(input.controlsMm[id]!),
+        ),
       phase.value,
     );
     positions.set(key, point);

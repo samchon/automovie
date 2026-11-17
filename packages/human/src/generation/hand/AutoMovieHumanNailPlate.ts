@@ -1,5 +1,7 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanNailPlate } from "@automovie/interface";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanNailPlate,
+} from "@automovie/interface";
 
 /**
  * The nail plate: a thin curved plate on the dorsal side of the distal
@@ -46,16 +48,14 @@ export namespace AutoMovieHumanNailPlate {
   /** Free-edge lift over the plate's length: a convention. */
   export const LIFT_SHARE: number = 0.05;
 
-  
-
-  
-
   /**
    * The plate's dimensions.
    *
    * @param input The plate's inputs.
    */
-  export function size(input: IAutoMovieHumanNailPlate.IInput): IAutoMovieHumanNailPlate.ISize {
+  export function size(
+    input: IAutoMovieHumanNailPlate.IInput,
+  ): IAutoMovieHumanNailPlate.ISize {
     const length: number = LENGTH_SHARE * input.phalanx;
     const width: number = WIDTH_SHARE * input.width;
     return { length, width, sag: SAG_SHARE * width, lift: LIFT_SHARE * length };
@@ -66,10 +66,16 @@ export namespace AutoMovieHumanNailPlate {
    *
    * @param input The plate's inputs.
    */
-  export function across(input: IAutoMovieHumanNailPlate.IInput): AutoMovieVector3Tuple {
+  export function across(
+    input: IAutoMovieHumanNailPlate.IInput,
+  ): AutoMovieVector3Tuple {
     const a: [number, number, number] = input.normal;
     const b: [number, number, number] = input.along;
-    const c: [number, number, number] = [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+    const c: [number, number, number] = [
+      a[1] * b[2] - a[2] * b[1],
+      a[2] * b[0] - a[0] * b[2],
+      a[0] * b[1] - a[1] * b[0],
+    ];
     const l: number = Math.hypot(c[0], c[1], c[2]) || 1;
     return [c[0] / l, c[1] / l, c[2] / l];
   }
@@ -81,12 +87,20 @@ export namespace AutoMovieHumanNailPlate {
    * @param u Along the plate, 0 at the root and 1 at the free edge.
    * @param v Across it, -1 to 1.
    */
-  export function point(input: IAutoMovieHumanNailPlate.IInput, u: number, v: number): AutoMovieVector3Tuple {
+  export function point(
+    input: IAutoMovieHumanNailPlate.IInput,
+    u: number,
+    v: number,
+  ): AutoMovieVector3Tuple {
     const s: IAutoMovieHumanNailPlate.ISize = size(input);
     const e: [number, number, number] = across(input);
     const rise: number = s.sag * (1 - v * v) + s.lift * u * u;
     return [0, 1, 2].map(
-      (k: number): number => input.origin[k]! + s.length * u * input.along[k]! + (s.width / 2) * v * e[k]! + rise * input.normal[k]!,
+      (k: number): number =>
+        input.origin[k]! +
+        s.length * u * input.along[k]! +
+        (s.width / 2) * v * e[k]! +
+        rise * input.normal[k]!,
     ) as [number, number, number];
   }
 }

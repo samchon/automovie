@@ -1,9 +1,16 @@
-import type { IAutoMovieCollectPhysicalSupports, IAutoMovieContactReceipt, IAutoMovieFootfallPattern, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieCollectPhysicalSupports,
+  IAutoMovieContactReceipt,
+  IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import type {
   RigidBody,
   TempContactManifold,
   World,
 } from "@dimforge/rapier3d-compat";
+
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { visitPhysicalNative } from "./visitPhysicalNative";
 
@@ -24,13 +31,18 @@ export function collectPhysicalSupports(input: {
   /** Source material and shape ownership. */ profile: IAutoMoviePhysicalProfile;
   /** Explicit support paths and patch owners. */ pattern: IAutoMovieFootfallPattern;
   /** Actual segment wrappers. */ segments: ReadonlyMap<string, RigidBody>;
-  /** Scene collider ownership. */ colliders: ReadonlyMap<number, IAutoMovieContactReceipt["a"]>;
+  /** Scene collider ownership. */ colliders: ReadonlyMap<
+    number,
+    IAutoMovieContactReceipt["a"]
+  >;
   /** Completed contact samples. */ contacts: readonly IAutoMovieContactReceipt[];
   /** Current local seconds and native timestep. */ seconds: number;
   dt: number;
 }): IAutoMovieCollectPhysicalSupports.ISupport[] {
   return input.pattern.limbs.flatMap(
-    (limb: IAutoMovieFootfallPattern["limbs"][number]): IAutoMovieCollectPhysicalSupports.ISupport[] => {
+    (
+      limb: IAutoMovieFootfallPattern["limbs"][number],
+    ): IAutoMovieCollectPhysicalSupports.ISupport[] => {
       const patches: readonly string[] = limb.contacts ?? [limb.bone];
       const samples: IAutoMovieCollectPhysicalSupports.IPoint[] = [];
       const seen: Set<string> = new Set();
@@ -69,7 +81,8 @@ export function collectPhysicalSupports(input: {
                     i++
                   ) {
                     if (manifold.solverContactDist(i) > 0) continue;
-                    const point: IAutoMovieVector3 | null = manifold.solverContactPoint(i);
+                    const point: IAutoMovieVector3 | null =
+                      manifold.solverContactPoint(i);
                     if (point)
                       append(point, manifold.friction(), identity.bone);
                   }
@@ -87,15 +100,16 @@ export function collectPhysicalSupports(input: {
           receipt.b.body === input.body &&
           patches.includes(receipt.b.bone) &&
           receipt.a.body === "floor";
-        const material: IAutoMoviePhysicalProfile.IMaterial | undefined = input.profile.materials.find(
-          (candidate: IAutoMoviePhysicalProfile.IMaterial): boolean =>
-            candidate.id ===
-            (first
-              ? receipt.a.material
-              : second
-                ? receipt.b.material
-                : undefined),
-        );
+        const material: IAutoMoviePhysicalProfile.IMaterial | undefined =
+          input.profile.materials.find(
+            (candidate: IAutoMoviePhysicalProfile.IMaterial): boolean =>
+              candidate.id ===
+              (first
+                ? receipt.a.material
+                : second
+                  ? receipt.b.material
+                  : undefined),
+          );
         if (
           receipt.source !== "solver" ||
           !material ||
@@ -105,7 +119,9 @@ export function collectPhysicalSupports(input: {
 
         // Receipts use their enclosing cache-frame clock. A just-appended future
         // tail must not hide the latest causal sample still carrying soft force.
-        let sample: NonNullable<IAutoMovieContactReceipt["samples"]>[number] | undefined;
+        let sample:
+          | NonNullable<IAutoMovieContactReceipt["samples"]>[number]
+          | undefined;
         for (
           let index: number = (receipt.samples?.length ?? 0) - 1;
           index >= 0;
@@ -141,7 +157,9 @@ export function collectPhysicalSupports(input: {
                 limb.localPoint,
               ),
               points: samples.map(
-                (sample: IAutoMovieCollectPhysicalSupports.IPoint): IAutoMovieVector3 => sample.point,
+                (
+                  sample: IAutoMovieCollectPhysicalSupports.IPoint,
+                ): IAutoMovieVector3 => sample.point,
               ),
               samples,
               loaded,
@@ -150,7 +168,11 @@ export function collectPhysicalSupports(input: {
         : [];
 
       /** Equal horizontal native witnesses describe the same floor application point. */
-      function append(point: IAutoMovieVector3, friction: number, carrier: string): void {
+      function append(
+        point: IAutoMovieVector3,
+        friction: number,
+        carrier: string,
+      ): void {
         const key: string = `${carrier}/${point.x}/${point.z}`;
         if (seen.has(key)) return;
         seen.add(key);

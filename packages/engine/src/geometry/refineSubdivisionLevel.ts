@@ -1,4 +1,9 @@
-import type { IAutoMovieSubdivisionLevel, IAutoMovieSubdivisionTopology, IAutoMovieSubdivisionVertexMask } from "@automovie/interface";
+import type {
+  IAutoMovieSubdivisionLevel,
+  IAutoMovieSubdivisionTopology,
+  IAutoMovieSubdivisionVertexMask,
+} from "@automovie/interface";
+
 import { buildSubdivisionTopology } from "./buildSubdivisionTopology";
 import { decaySubdivisionSharpness } from "./decaySubdivisionSharpness";
 import { refineSubdivisionPoints } from "./refineSubdivisionPoints";
@@ -36,8 +41,10 @@ export const refineSubdivisionLevel = (
   const edgeCount: number = topology.edgeSharpness.length;
   const cornerCount: number = topology.faceVertices.length;
   const faceOffsets: number[] = topology.faceOffsets;
-  const refined: { points: number[]; masks: IAutoMovieSubdivisionVertexMask[] } =
-    refineSubdivisionPoints(topology, level.positions);
+  const refined: {
+    points: number[];
+    masks: IAutoMovieSubdivisionVertexMask[];
+  } = refineSubdivisionPoints(topology, level.positions);
 
   const childOffsets: number[] = new Array<number>(cornerCount + 1);
   const childVertices: number[] = new Array<number>(cornerCount * 4);

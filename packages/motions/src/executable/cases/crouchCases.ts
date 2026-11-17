@@ -1,4 +1,8 @@
-import type { IAutoMovieMotionHumanCrouch, IAutoMovieMotionHumanKneel, IAutoMovieMotionHumanPerformance } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanCrouch,
+  IAutoMovieMotionHumanKneel,
+  IAutoMovieMotionHumanPerformance,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
@@ -47,11 +51,12 @@ export function crouchCases(
 
     for (const depth of ["partial", "full"] as const) {
       const params: IAutoMovieMotionHumanCrouch.IParams = { depth };
-      const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
-        "crouch",
-        [{ subject: "a", body: who.body }],
-        HumanChain.subject("a").act("crouch", params),
-      );
+      const performance: IAutoMovieMotionHumanPerformance =
+        FamilyCaseKit.perform(
+          "crouch",
+          [{ subject: "a", body: who.body }],
+          HumanChain.subject("a").act("crouch", params),
+        );
       const lowest: number = FamilyCaseKit.event(performance, "lowest");
       const knee: number = Math.max(
         FamilyCaseKit.angle(performance, "a", lowest, "leftLowerLeg"),
@@ -89,12 +94,16 @@ export function crouchCases(
     }
 
     for (const kind of ["one", "both", "sitBack"] as const) {
-      const params: IAutoMovieMotionHumanKneel.IParams = { kind, knee: "right" };
-      const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
-        "kneel",
-        [{ subject: "a", body: who.body }],
-        HumanChain.subject("a").act("kneel", params),
-      );
+      const params: IAutoMovieMotionHumanKneel.IParams = {
+        kind,
+        knee: "right",
+      };
+      const performance: IAutoMovieMotionHumanPerformance =
+        FamilyCaseKit.perform(
+          "kneel",
+          [{ subject: "a", body: who.body }],
+          HumanChain.subject("a").act("kneel", params),
+        );
       const contact: number = FamilyCaseKit.event(performance, "kneeContact");
       const settled: number = FamilyCaseKit.event(performance, "settled");
       const bones = performance.bones("a", contact);

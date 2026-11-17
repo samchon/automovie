@@ -1,4 +1,8 @@
-import type { IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieSolidMesh } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieSolidMeshLoop } from "./AutoMovieSolidMeshLoop";
 import { AutoMovieSolidMeshWrite } from "./AutoMovieSolidMeshWrite";
@@ -6,7 +10,11 @@ import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSolidZip } from "./AutoMovieSolidZip";
 
 /** Preserve original jet failures and reject nonfinite source positions before appending them. */
-function point(surface: IAutoMovieSolidSurface, u: number, v: number): AutoMovieVector3Tuple {
+function point(
+  surface: IAutoMovieSolidSurface,
+  u: number,
+  v: number,
+): AutoMovieVector3Tuple {
   const value: AutoMovieVector3Tuple = surface.jet(u, v).p;
   if (
     !Array.isArray(value) ||
@@ -219,7 +227,10 @@ export namespace AutoMovieSolidMeshTessellate {
     );
     let best: AutoMovieVector3Tuple = [0, 0, 0];
     for (const triangle of band) {
-      const normal: AutoMovieVector3Tuple = AutoMovieSolidMeshWrite.normal(mesh, triangle);
+      const normal: AutoMovieVector3Tuple = AutoMovieSolidMeshWrite.normal(
+        mesh,
+        triangle,
+      );
       if (norm(normal) > norm(best)) best = normal;
     }
     return dot(best, out) < 0

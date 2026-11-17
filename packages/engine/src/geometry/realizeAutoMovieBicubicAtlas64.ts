@@ -1,5 +1,10 @@
-import type { IAutoMovieAdmitBicubicAtlas, IAutoMovieBicubicAtlasTessellation64, IAutoMovieRealizeBicubicAtlas64, IAutoMovieBicubicAtlasGeometry, IAutoMovieMesh } from "@automovie/interface";
-
+import type {
+  IAutoMovieAdmitBicubicAtlas,
+  IAutoMovieBicubicAtlasGeometry,
+  IAutoMovieBicubicAtlasTessellation64,
+  IAutoMovieMesh,
+  IAutoMovieRealizeBicubicAtlas64,
+} from "@automovie/interface";
 
 import { admitAutoMovieBicubicAtlas } from "./admitAutoMovieBicubicAtlas";
 import { tessellateAutoMovieBicubicAtlas64 as T } from "./curve/tessellateAutoMovieBicubicAtlas64";
@@ -100,7 +105,11 @@ export function realizeAutoMovieBicubicAtlas64(
       slot,
     ]),
   );
-  const iterator: Generator<IAutoMovieBicubicAtlasTessellation64.Chunk, IAutoMovieBicubicAtlasTessellation64.Summary, void> = T({
+  const iterator: Generator<
+    IAutoMovieBicubicAtlasTessellation64.Chunk,
+    IAutoMovieBicubicAtlasTessellation64.Summary,
+    void
+  > = T({
     ...(options.retainPatchCoefficients
       ? { retainPatchCoefficients: true }
       : {}),
@@ -125,7 +134,9 @@ export function realizeAutoMovieBicubicAtlas64(
         authority: NonNullable<
           IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]
         >[number],
-      ): NonNullable<IAutoMovieBicubicAtlasTessellation64.Input["boundaryAuthorities"]>[number] => ({
+      ): NonNullable<
+        IAutoMovieBicubicAtlasTessellation64.Input["boundaryAuthorities"]
+      >[number] => ({
         id: authority.id,
         controlIds: authority.controlIds.map(
           (id: number): number => slots.get(id)!,
@@ -178,7 +189,9 @@ export function realizeAutoMovieBicubicAtlas64(
         chunk.patchCoefficients !== undefined &&
         !patchCoefficients.some(
           (
-            patch: NonNullable<IAutoMovieBicubicAtlasTessellation64.Summary["patchCoefficients"]>[number],
+            patch: NonNullable<
+              IAutoMovieBicubicAtlasTessellation64.Summary["patchCoefficients"]
+            >[number],
           ): boolean => patch.patch === chunk.patch,
         )
       )
@@ -236,7 +249,9 @@ export function realizeAutoMovieBicubicAtlas64(
         );
         patchCoefficients = (result.value.patchCoefficients ?? []).filter(
           (
-            patch: NonNullable<IAutoMovieBicubicAtlasTessellation64.Summary["patchCoefficients"]>[number],
+            patch: NonNullable<
+              IAutoMovieBicubicAtlasTessellation64.Summary["patchCoefficients"]
+            >[number],
           ): boolean => retained.has(patch.patch),
         );
       }

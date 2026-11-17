@@ -1,7 +1,7 @@
-import type { IAutoMovieHumanTrunkKey, IAutoMovieHumanTrunkShapes } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieHumanTrunkKey,
+  IAutoMovieHumanTrunkShapes,
+} from "@automovie/interface";
 
 /**
  * The trunk's section shapes at its landmark stations: depth over breadth,
@@ -21,31 +21,71 @@ import type { IAutoMovieHumanTrunkKey, IAutoMovieHumanTrunkShapes } from "@autom
  * the breasts are their own relief.
  */
 export namespace AutoMovieHumanTrunkShapes {
-  
-
   /** At the crotch ring, before its fold: read at 0.073 of the span; the squareness of the buttock's. */
-  export const CROTCH: IAutoMovieHumanTrunkShapes.IShape = { depthRatio: 0.53, frontShare: 0.428, middle: 0.0226, squareFront: 2.25, squareBack: 3.42 };
+  export const CROTCH: IAutoMovieHumanTrunkShapes.IShape = {
+    depthRatio: 0.53,
+    frontShare: 0.428,
+    middle: 0.0226,
+    squareFront: 2.25,
+    squareBack: 3.42,
+  };
 
   /** Half width at the crotch over the buttock's: median 1.066, held out 1.040 to 1.097. Fitted, flagged. */
   export const CROTCH_WIDTH: number = 1.066;
 
   /** At the buttock point; the buttock relief adds what the depth ratio's 0.684 needs over the base's. */
-  export const BUTTOCK: IAutoMovieHumanTrunkShapes.IShape = { depthRatio: 0.684, frontShare: 0.392, middle: 0.0281, squareFront: 2.25, squareBack: 3.42 };
+  export const BUTTOCK: IAutoMovieHumanTrunkShapes.IShape = {
+    depthRatio: 0.684,
+    frontShare: 0.392,
+    middle: 0.0281,
+    squareFront: 2.25,
+    squareBack: 3.42,
+  };
 
   /** At the high hip, read at 0.250 of the span. */
-  export const HIGH_HIP: IAutoMovieHumanTrunkShapes.IShape = { depthRatio: 0.7065, frontShare: 0.4875, middle: 0.0193, squareFront: 1.975, squareBack: 2.7 };
+  export const HIGH_HIP: IAutoMovieHumanTrunkShapes.IShape = {
+    depthRatio: 0.7065,
+    frontShare: 0.4875,
+    middle: 0.0193,
+    squareFront: 1.975,
+    squareBack: 2.7,
+  };
 
   /** At the natural waist, read at 0.381; the depth ratio ANSUR II's. */
-  export const WAIST: IAutoMovieHumanTrunkShapes.IShape = { depthRatio: 0.718, frontShare: 0.5575, middle: 0.0173, squareFront: 2.15, squareBack: 3.13 };
+  export const WAIST: IAutoMovieHumanTrunkShapes.IShape = {
+    depthRatio: 0.718,
+    frontShare: 0.5575,
+    middle: 0.0173,
+    squareFront: 2.15,
+    squareBack: 3.13,
+  };
 
   /** At the inframammary fold, read at 0.550. */
-  export const FOLD: IAutoMovieHumanTrunkShapes.IShape = { depthRatio: 0.7185, frontShare: 0.6325, middle: 0.0042, squareFront: 2.095, squareBack: 4.485 };
+  export const FOLD: IAutoMovieHumanTrunkShapes.IShape = {
+    depthRatio: 0.7185,
+    frontShare: 0.6325,
+    middle: 0.0042,
+    squareFront: 2.095,
+    squareBack: 4.485,
+  };
 
   /** At the bust point: the chest wall, the men's, read at 0.649. */
-  export const BUST: IAutoMovieHumanTrunkShapes.IShape = { depthRatio: 0.6865, frontShare: 0.6915, middle: -0.0137, squareFront: 2.185, squareBack: 4.41 };
+  export const BUST: IAutoMovieHumanTrunkShapes.IShape = {
+    depthRatio: 0.6865,
+    frontShare: 0.6915,
+    middle: -0.0137,
+    squareFront: 2.185,
+    squareBack: 4.41,
+  };
 
   /** At the axilla, the trunk's top, read at 0.700. */
-  export const AXILLA: IAutoMovieHumanTrunkShapes.IShape = { depthRatio: 0.6255, frontShare: 0.759, middle: -0.0259, squareFront: 3.34, squareBack: 4.8 };
+  export const AXILLA: IAutoMovieHumanTrunkShapes.IShape = {
+    depthRatio: 0.6255,
+    frontShare: 0.759,
+    middle: -0.0259,
+    squareFront: 3.34,
+    squareBack: 4.8,
+  };
 
   /** Half width at the axilla over the bust's: median 1.042, held out 1.039 to 1.061. Fitted, flagged. */
   export const AXILLA_WIDTH: number = 1.042;

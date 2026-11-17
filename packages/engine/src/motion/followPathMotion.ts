@@ -1,6 +1,12 @@
-import { type AutoMoviePathGround, type IAutoMoviePathFrame, type IAutoMoviePathLocomotion, type IAutoMovieFollowPathMotion, IAutoMovieKeyframe, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  type AutoMoviePathGround,
+  type IAutoMovieFollowPathMotion,
+  IAutoMovieKeyframe,
+  type IAutoMoviePathFrame,
+  type IAutoMoviePathLocomotion,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { segmentIndex } from "../math/segmentIndex";
@@ -50,7 +56,11 @@ interface ISegment {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The frame's located segment is reused for position/yaw, and fixed segments/corner windows serve the whole bake; source gait values are reused without caching effectful ground samples across requests.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned motion/sidecar arrays grow with baked frame population and belong to the caller; source nested joints/expression and authored nonnull scale may remain shared, but fallback identity scale is freshly owned per output frame. No retained path cache or handles exist.
  */
-export const followPathMotion: (props: IAutoMovieFollowPathMotion.IProps) => IAutoMoviePathLocomotion = (props: IAutoMovieFollowPathMotion.IProps): IAutoMoviePathLocomotion => {
+export const followPathMotion: (
+  props: IAutoMovieFollowPathMotion.IProps,
+) => IAutoMoviePathLocomotion = (
+  props: IAutoMovieFollowPathMotion.IProps,
+): IAutoMoviePathLocomotion => {
   const turnWindow: number = props.turnWindow ?? DEFAULT_TURN_WINDOW;
   if (!Number.isFinite(props.speed) || props.speed <= 0)
     throw new Error("path speed must be finite and positive");

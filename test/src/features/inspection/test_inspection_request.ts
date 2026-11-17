@@ -1,5 +1,9 @@
 import type { IAutoMovieInspectionRequest } from "@automovie/interface";
-import { AUTO_MOVIE_INSPECTION_KEYS, formatAutoMovieInspectionRequest, parseAutoMovieInspectionRequest } from "@automovie/render";
+import {
+  AUTO_MOVIE_INSPECTION_KEYS,
+  formatAutoMovieInspectionRequest,
+  parseAutoMovieInspectionRequest,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { InspectionScene } from "../internal/InspectionScene";

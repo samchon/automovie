@@ -1,5 +1,5 @@
-import type { IAutoMovieStepPlanner } from "@automovie/interface";
 import { AutoMovieStepPlanner as Planner } from "@automovie/engine";
+import type { IAutoMovieStepPlanner } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
@@ -19,16 +19,17 @@ import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Caller edits to height and exposed step records do not change queries.).
  */
 export function test_physical_planner_ownership(): void {
-  const pattern: IAutoMovieStepPlanner.IInput["pattern"] = PhysicalSupportFixtures.body(
-    PhysicalModelFixtures.quadrupod(),
-    0,
-  ).balance!.pattern;
+  const pattern: IAutoMovieStepPlanner.IInput["pattern"] =
+    PhysicalSupportFixtures.body(PhysicalModelFixtures.quadrupod(), 0).balance!
+      .pattern;
   const input: IAutoMovieStepPlanner.IInput = {
     pattern,
     start: 0,
     end: 2,
     rate: 120,
-    desired: (seconds: number): Record<string, IAutoMovieStepPlanner.IPlacement> =>
+    desired: (
+      seconds: number,
+    ): Record<string, IAutoMovieStepPlanner.IPlacement> =>
       Object.fromEntries(
         pattern.limbs.map(
           (

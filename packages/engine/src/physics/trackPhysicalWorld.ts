@@ -1,5 +1,16 @@
-import type { IAutoMovieAdvancePhysicalBalance, IAutoMovieCollectPhysicalSupports, IAutoMovieConfigurePhysicalJointMotor, IAutoMoviePhysicalGravityTorques, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMovieSamplePhysicalTarget, IAutoMovieTrackPhysicalBalanceTargets, IAutoMovieContactReceipt, IAutoMovieFootfallPattern, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieAdvancePhysicalBalance,
+  IAutoMovieCollectPhysicalSupports,
+  IAutoMovieConfigurePhysicalJointMotor,
+  IAutoMovieContactReceipt,
+  IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalGravityTorques,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieSamplePhysicalTarget,
+  IAutoMovieTrackPhysicalBalanceTargets,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import type { RigidBody, World } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
@@ -49,7 +60,9 @@ export function trackPhysicalWorld(
   seconds: number,
 ): void {
   const dt: number = world.timestep;
-  let scene: Record<string, Record<string, IAutoMoviePhysicalProfile.ITransform>> | undefined;
+  let scene:
+    | Record<string, Record<string, IAutoMoviePhysicalProfile.ITransform>>
+    | undefined;
   for (const body of input.bodies) {
     const target: IAutoMoviePhysicalSimulationInput.ITarget =
       samplePhysicalTrackingTarget(
@@ -83,7 +96,9 @@ export function trackPhysicalWorld(
       seconds,
       input.rate,
     );
-    const root: IAutoMoviePhysicalProfile.ISegment = bound.order.get(body.id)![0]!;
+    const root: IAutoMoviePhysicalProfile.ISegment = bound.order.get(
+      body.id,
+    )![0]!;
     const earlyFit: boolean =
       body.mode.kind === "kinematic" ||
       target.dynamicSegments !== undefined ||
@@ -192,7 +207,10 @@ export function trackPhysicalWorld(
                 ([bone, goal]: [
                   string,
                   IAutoMovieSamplePhysicalTarget.IResult,
-                ]): [string, IAutoMoviePhysicalProfile.ITransform] => [bone, goal.pose],
+                ]): [string, IAutoMoviePhysicalProfile.ITransform] => [
+                  bone,
+                  goal.pose,
+                ],
               ),
             ),
             velocities: Object.fromEntries(
@@ -393,26 +411,27 @@ export function trackPhysicalWorld(
       if (!dynamic.has(joint.child)) continue;
       const parent: RigidBody = bound.bodies.get(`${body.id}/${joint.parent}`)!;
       const child: RigidBody = bound.bodies.get(`${body.id}/${joint.child}`)!;
-      const parentFrame: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-        parent.rotation(),
-        joint.parentFrame.rotation,
-      );
-      const childFrame: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-        child.rotation(),
-        joint.childFrame.rotation,
-      );
-      const desiredParent: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-        goals[joint.parent]!.pose.rotation,
-        joint.parentFrame.rotation,
-      );
-      const desiredChild: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.multiply(
-        goals[joint.child]!.pose.rotation,
-        joint.childFrame.rotation,
-      );
-      const inv: IAutoMoviePhysicalProfile.ITransform["rotation"] = Quaternion.inverse(parentFrame);
+      const parentFrame: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+        Quaternion.multiply(parent.rotation(), joint.parentFrame.rotation);
+      const childFrame: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+        Quaternion.multiply(child.rotation(), joint.childFrame.rotation);
+      const desiredParent: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+        Quaternion.multiply(
+          goals[joint.parent]!.pose.rotation,
+          joint.parentFrame.rotation,
+        );
+      const desiredChild: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+        Quaternion.multiply(
+          goals[joint.child]!.pose.rotation,
+          joint.childFrame.rotation,
+        );
+      const inv: IAutoMoviePhysicalProfile.ITransform["rotation"] =
+        Quaternion.inverse(parentFrame);
       const moving: boolean =
         body.balance?.pattern.limbs.some(
-          (limb: IAutoMovieAdvancePhysicalBalance.IPolicy["pattern"]["limbs"][number]): boolean =>
+          (
+            limb: IAutoMovieAdvancePhysicalBalance.IPolicy["pattern"]["limbs"][number],
+          ): boolean =>
             (recovery[body.id]?.swing?.bone === limb.bone ||
               recovery[body.id]?.offsets[limb.bone] !== undefined) &&
             limb.chain.includes(joint.child),

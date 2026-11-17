@@ -1,4 +1,5 @@
-import type { IAutoMovieModel, IAutoMovieRecoveryConstructionLine } from "../../index";
+import type { IAutoMovieModel } from "../../model/IAutoMovieModel";
+import type { IAutoMovieConstructionPolyline } from "../../render/IAutoMovieConstructionPolyline";
 
 /** Source-free model, coefficient-derived construction and circular-to-cubic approximation bound.
  *
@@ -8,15 +9,12 @@ import type { IAutoMovieModel, IAutoMovieRecoveryConstructionLine } from "../../
  * @evidence contracts/development/common.md#meaningful-documentation States model and construction units, shared coefficient authority and the metre arc bound.
  */
 export interface IAutoMovieRecoveryImageRealization {
- 
- /** Source-free generated model, in model metres. */
+  /** Source-free generated model, in model metres. */
   model: IAutoMovieModel;
 
- 
- /** Lines evaluated from the same generating coefficients. */
-  construction: IAutoMovieRecoveryConstructionLine[];
+  /** Lines evaluated from the same generating coefficients. */
+  construction: IAutoMovieConstructionPolyline.IMutable[];
 
- 
- /** Circular-to-cubic approximation bound, metres. */
+  /** Circular-to-cubic approximation bound, metres. */
   arcDeviationBoundMeters: number;
 }

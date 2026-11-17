@@ -1,6 +1,12 @@
-import type { AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGestureStroke, IAutoMovieMotionHumanHand, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, physicalHullFaces } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGestureStroke,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
@@ -168,7 +174,10 @@ export namespace gestureTouch {
    * radius of the sphere a hull holds about its centre), so a fingertip laid
    * on a surface touches it rather than sinking its axis into it.
    */
-  function padding(body: IAutoMovieMotionHumanBody, side: IAutoMovieMotionHumanHand.Side): number {
+  function padding(
+    body: IAutoMovieMotionHumanBody,
+    side: IAutoMovieMotionHumanHand.Side,
+  ): number {
     const segment =
       body.profile.segments.find((s) => s.bone === `${side}IndexDistal`) ??
       body.profile.segments.find((s) => s.bone === `${side}Hand`);

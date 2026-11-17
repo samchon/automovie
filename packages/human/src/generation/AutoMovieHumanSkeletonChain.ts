@@ -1,7 +1,8 @@
-import type { IAutoMovieLoftChain, AutoMovieVector3Tuple } from "@automovie/interface";
-
-
 import { AutoMovieLoftChain } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
 
 /**
  * How the skeleton reads the chains it stands in: a chain's first and last
@@ -10,8 +11,6 @@ import { AutoMovieLoftChain } from "@automovie/engine";
  * calibration millimetres.
  */
 export namespace AutoMovieHumanSkeletonChain {
-  
-
   /** Phases sampling a section for perimeters and extremities. */
   export const PHASES: number[] = Array.from(
     { length: 96 },
@@ -32,7 +31,10 @@ export namespace AutoMovieHumanSkeletonChain {
   }
 
   /** Axis point at a station, clamped into the chain. */
-  export function axis(chain: IAutoMovieLoftChain, s: number): AutoMovieVector3Tuple {
+  export function axis(
+    chain: IAutoMovieLoftChain,
+    s: number,
+  ): AutoMovieVector3Tuple {
     return AutoMovieLoftChain.axis(
       chain,
       Math.min(stop(chain), Math.max(start(chain), s)),
@@ -40,7 +42,10 @@ export namespace AutoMovieHumanSkeletonChain {
   }
 
   /** Axis point at a chain end. */
-  export function end(chain: IAutoMovieLoftChain, which: "top" | "bottom"): AutoMovieVector3Tuple {
+  export function end(
+    chain: IAutoMovieLoftChain,
+    which: "top" | "bottom",
+  ): AutoMovieVector3Tuple {
     return axis(chain, which === "top" ? stop(chain) : start(chain));
   }
 
@@ -65,16 +70,28 @@ export namespace AutoMovieHumanSkeletonChain {
 
   /** Mean of one coordinate of points. */
   export function mean(points: AutoMovieVector3Tuple[], c: number): number {
-    return points.reduce((s: number, p: AutoMovieVector3Tuple): number => s + p[c]!, 0) / points.length;
+    return (
+      points.reduce(
+        (s: number, p: AutoMovieVector3Tuple): number => s + p[c]!,
+        0,
+      ) / points.length
+    );
   }
 
   /** Euclidean distance. */
-  export function distance(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
+  export function distance(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): number {
     return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   }
 
   /** Linear interpolation a + (b - a) t. */
-  export function lerp(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple, t: number): AutoMovieVector3Tuple {
+  export function lerp(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+    t: number,
+  ): AutoMovieVector3Tuple {
     return [
       a[0] + (b[0] - a[0]) * t,
       a[1] + (b[1] - a[1]) * t,

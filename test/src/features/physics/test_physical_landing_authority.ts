@@ -1,9 +1,14 @@
-import type { IAutoMovieAdvancePhysicalBalance, IAutoMovieCollectPhysicalSupports, IAutoMoviePhysicalProfile as P, IAutoMovieFootfallPattern as Pattern, IAutoMovieContactReceipt as Receipt } from "@automovie/interface";
 import {
   advancePhysicalBalance as Balance,
   collectPhysicalSupports,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieAdvancePhysicalBalance,
+  IAutoMovieCollectPhysicalSupports,
+  IAutoMoviePhysicalProfile as P,
+  IAutoMovieFootfallPattern as Pattern,
+  IAutoMovieContactReceipt as Receipt,
+} from "@automovie/interface";
 import RAPIER, {
   type Collider,
   type RigidBody,

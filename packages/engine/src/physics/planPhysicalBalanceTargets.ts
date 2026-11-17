@@ -1,5 +1,11 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePlanPhysicalBalanceTargets, IAutoMoviePlanPhysicalFloorSupportTargets, IAutoMoviePlanPhysicalSupportTargets, IAutoMovieFootfallPattern, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePlanPhysicalBalanceTargets,
+  IAutoMoviePlanPhysicalFloorSupportTargets,
+  IAutoMoviePlanPhysicalSupportTargets,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { physicalSupportRootDrop } from "./physicalSupportRootDrop";
@@ -17,13 +23,17 @@ import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 5 allocation sites become the returned value or die with the call, so nothing grows.
  */
-export function planPhysicalBalanceTargets(input: IAutoMoviePlanPhysicalBalanceTargets.IInput): IAutoMoviePlanPhysicalSupportTargets.IResult {
-  const original: IAutoMoviePhysicalProfile.ITransform = input.targets[input.root.bone]!;
-  const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> = rebasePhysicalTargets(
-    input.seed ?? input.targets,
-    input.root.bone,
-    input.root.pose,
-  );
+export function planPhysicalBalanceTargets(
+  input: IAutoMoviePlanPhysicalBalanceTargets.IInput,
+): IAutoMoviePlanPhysicalSupportTargets.IResult {
+  const original: IAutoMoviePhysicalProfile.ITransform =
+    input.targets[input.root.bone]!;
+  const targets: Record<string, IAutoMoviePhysicalProfile.ITransform> =
+    rebasePhysicalTargets(
+      input.seed ?? input.targets,
+      input.root.bone,
+      input.root.pose,
+    );
   const goals: Record<string, IAutoMovieVector3> = Object.fromEntries(
     input.pattern.limbs.map(
       (

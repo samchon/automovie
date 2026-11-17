@@ -1,5 +1,7 @@
-import type { IAutoMovieContactReceipt, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 

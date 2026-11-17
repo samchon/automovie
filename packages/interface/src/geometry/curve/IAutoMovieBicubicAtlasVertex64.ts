@@ -35,17 +35,17 @@ export namespace IAutoMovieBicubicAtlasVertex64 {
    * @evidence contracts/development/common.md#meaningful-documentation Defines ordinal/parameter inputs, output units, retained plans and error propagation.
    */
   export type IJet = (
-      p: number,
-      u: number,
-      v: number,
-    ) => {
-      /** Analytic root-grid position in model millimetres, before the vertex owner converts to metres or substitutes a canonical shared position. */
-      position: AutoMovieVector3Tuple;
+    p: number,
+    u: number,
+    v: number,
+  ) => {
+    /** Analytic root-grid position in model millimetres, before the vertex owner converts to metres or substitutes a canonical shared position. */
+    position: AutoMovieVector3Tuple;
 
-      /** Unit du cross dv in model coordinates when regular, otherwise [0,0,0]; not an outward-orientation certificate. */
-      normal: AutoMovieVector3Tuple;
+    /** Unit du cross dv in model coordinates when regular, otherwise [0,0,0]; not an outward-orientation certificate. */
+    normal: AutoMovieVector3Tuple;
 
-      /** Whether the evaluated analytic normal has finite positive length. This flag does not independently validate position finiteness or global immersion. */
-      regular: boolean;
-    };
+    /** Whether the evaluated analytic normal has finite positive length. This flag does not independently validate position finiteness or global immersion. */
+    regular: boolean;
+  };
 }

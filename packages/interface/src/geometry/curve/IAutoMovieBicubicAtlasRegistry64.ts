@@ -31,7 +31,10 @@ export namespace IAutoMovieBicubicAtlasRegistry64 {
     /** Patch-indexed side occurrences aligned with patchEdges. Missing means no retained side use; present records retain local-to-canonical requests and optional declared interval binding. */
     occurrences: (IAutoMovieBicubicAtlas64.Occurrence | undefined)[][];
     /** Compare admitted normalized phase records by exact value, returning -1, 0 or 1. Distinct dyadic keys break equal rounded numeric values. Call only with canonical keys produced by the boundary owner; this optimized comparator does not repeat key admission. */
-    comparePhase: (a: IAutoMovieCanonicalBoundaryPhase64, b: IAutoMovieCanonicalBoundaryPhase64) => number;
+    comparePhase: (
+      a: IAutoMovieCanonicalBoundaryPhase64,
+      b: IAutoMovieCanonicalBoundaryPhase64,
+    ) => number;
     /** Edge keys having at least one canonical open atom covered by more than two declared uses. Counts are per atom, so one coarse use against two disjoint fine uses is not automatically overfull. */
     excessiveIncidence: Set<string>;
     /** Mutable run totals initialized from planning omissions and coarse retained cells, with zero output vertices/triangles. Emission updates the same record before final publication. */

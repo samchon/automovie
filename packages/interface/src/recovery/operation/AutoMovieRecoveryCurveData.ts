@@ -1,4 +1,8 @@
-import type { AutoMovieRecoveryCurveFormat, IAutoMovieCurve64, IAutoMovieRecoveryHermiteCurve } from "../../index";
+import type {
+  AutoMovieRecoveryCurveFormat,
+  IAutoMovieCurve64,
+  IAutoMovieRecoveryHermiteCurve,
+} from "../../index";
 
 /** A saved data tree with every cubic occurrence expressed in the selected basis.
  * Arrays, tuples, optional fields and unrelated metadata retain their structure.

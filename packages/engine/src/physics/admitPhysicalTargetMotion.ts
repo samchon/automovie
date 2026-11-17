@@ -1,4 +1,9 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMovieSamplePhysicalTarget } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieSamplePhysicalTarget,
+} from "@automovie/interface";
+
 import { assertPhysicalNativeMotion } from "./assertPhysicalNativeMotion";
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 import { physicalSupportPoint } from "./physicalSupportPoint";
@@ -25,7 +30,8 @@ export function admitPhysicalTargetMotion(
   );
   for (const [step, target] of body.targets.entries()) {
     for (const segment of body.profile.segments) {
-      const pose: IAutoMoviePhysicalProfile.ITransform = target.segments[segment.bone]!;
+      const pose: IAutoMoviePhysicalProfile.ITransform =
+        target.segments[segment.bone]!;
       const motion: IAutoMovieSamplePhysicalTarget.IResult =
         samplePhysicalTarget(
           step === 0 ? pose : body.targets[step - 1]!.segments[segment.bone]!,
@@ -54,10 +60,8 @@ export function admitPhysicalTargetMotion(
         [joint.parent, joint.parentFrame],
         [joint.child, joint.childFrame],
       ] as const) {
-        const anchor: IAutoMoviePhysicalProfile.ITransform["position"] = physicalSupportPoint(
-          target.segments[bone]!,
-          frame.position,
-        );
+        const anchor: IAutoMoviePhysicalProfile.ITransform["position"] =
+          physicalSupportPoint(target.segments[bone]!, frame.position);
         if (![anchor.x, anchor.y, anchor.z].every(scalar))
           throw new Error(
             `${body.id}/${joint.id}: derived native joint anchor exceeds f32 range`,
@@ -68,7 +72,10 @@ export function admitPhysicalTargetMotion(
   const dt: number = Math.fround(1 / (input.rate * input.substeps!));
   for (const joint of body.profile.joints) {
     const strength: number = body.targets.reduce(
-      (maximum: number, target: IAutoMoviePhysicalSimulationInput.ITarget): number =>
+      (
+        maximum: number,
+        target: IAutoMoviePhysicalSimulationInput.ITarget,
+      ): number =>
         Math.max(
           maximum,
           target.jointStrength?.[joint.id] ?? target.strength,

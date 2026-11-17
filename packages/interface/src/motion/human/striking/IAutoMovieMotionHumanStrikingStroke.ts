@@ -1,6 +1,6 @@
-import type { IAutoMovieMotionHumanStrikingAim } from "./IAutoMovieMotionHumanStrikingAim";
-import type { IAutoMovieSuperposeMinimumJerk } from "../../IAutoMovieSuperposeMinimumJerk";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieSuperposeMinimumJerk } from "../../IAutoMovieSuperposeMinimumJerk";
+import type { IAutoMovieMotionHumanStrikingAim } from "./IAutoMovieMotionHumanStrikingAim";
 
 /**
  * One strike's end-joint path (the wrist or the ankle), from its launch

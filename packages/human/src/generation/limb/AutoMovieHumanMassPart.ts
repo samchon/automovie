@@ -1,14 +1,18 @@
-import type { IAutoMovieSolidSurface, IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanMassPart, IAutoMovieHumanSiteViewPart } from "@automovie/interface";
-
-
-
-
-import { AutoMovieLoftViewWorldJet, AutoMovieSolidVector } from "@automovie/engine";
+import {
+  AutoMovieLoftViewWorldJet,
+  AutoMovieSolidVector,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanMassPart,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieSolidSurface,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView";
 import { AutoMovieHumanMassSource } from "./AutoMovieHumanMassSource";
 import { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
-
 
 const {
   add,
@@ -78,22 +82,22 @@ const {
  * exact G2 at a pole or a successful final join.
  */
 export namespace AutoMovieHumanMassPart {
-  
-
-  
-
   /**
    * Build the mass.
    *
    * @param input The host, the centre, the footprint, the amplitude and the profile.
    * @returns The part, its loft and the diagnostics; a degenerate host normal or a malformed profile gives none.
    */
-  export function create(input: IAutoMovieHumanMassPart.IInput): IAutoMovieHumanSiteViewPart.IResult {
+  export function create(
+    input: IAutoMovieHumanMassPart.IInput,
+  ): IAutoMovieHumanSiteViewPart.IResult {
     return AutoMovieHumanSiteViewPart.loft(define(input));
   }
 
   /** Prepare the same original scalar/axis/parent definition without drawing a raw mass loft. */
-  export function define(input: IAutoMovieHumanMassPart.IInput): IAutoMovieHumanMassPart.IDefinition {
+  export function define(
+    input: IAutoMovieHumanMassPart.IInput,
+  ): IAutoMovieHumanMassPart.IDefinition {
     const producer: string = `mass.${input.name}`;
     const fail: (detail: string) => IAutoMovieHumanMassPart.IDefinition = (
       detail: string,
@@ -142,7 +146,9 @@ export namespace AutoMovieHumanMassPart {
     const origin: AutoMovieVector3Tuple = input.sourceFrame?.origin ?? j.p;
     if (!origin.every(Number.isFinite))
       return fail("the source wall origin is not finite");
-    const u: AutoMovieVector3Tuple | null = unit(sub(input.up, scale(n, dot(input.up, n))));
+    const u: AutoMovieVector3Tuple | null = unit(
+      sub(input.up, scale(n, dot(input.up, n))),
+    );
     if (u === null)
       return fail("the up direction lies along the host's normal");
     const v: AutoMovieVector3Tuple = cross(u, n);
@@ -167,7 +173,8 @@ export namespace AutoMovieHumanMassPart {
         `amplitude ${input.amplitude} mm, footprint [${input.footprint.join(", ")}] mm`,
       );
     for (let k: number = 0; k < input.profile.length; k++) {
-      const p: IAutoMovieHumanMassPart.IInput["profile"][number] = input.profile[k]!;
+      const p: IAutoMovieHumanMassPart.IInput["profile"][number] =
+        input.profile[k]!;
       if (
         !(p.at > 0 && p.at < 1) ||
         (k > 0 && !(p.at > input.profile[k - 1]!.at)) ||
@@ -204,7 +211,10 @@ export namespace AutoMovieHumanMassPart {
           const dv: number = dot(d, j.v);
           const a: number = (G * du - F * dv) / det;
           const b: number = (E * dv - F * du) / det;
-          const along: AutoMovieVector3Tuple = add(scale(j.u, a), scale(j.v, b));
+          const along: AutoMovieVector3Tuple = add(
+            scale(j.u, a),
+            scale(j.v, b),
+          );
           const second: AutoMovieVector3Tuple = add(
             add(scale(j.uu, a * a), scale(j.uv, 2 * a * b)),
             scale(j.vv, b * b),
@@ -266,8 +276,9 @@ export namespace AutoMovieHumanMassPart {
       ),
     ];
     const top: number = embed + input.amplitude;
-    const poleJets: NonNullable<IAutoMovieHumanSiteViewPart.IInput["poleJets"]> =
-      radialJets(sites, top);
+    const poleJets: NonNullable<
+      IAutoMovieHumanSiteViewPart.IInput["poleJets"]
+    > = radialJets(sites, top);
     const definition: IAutoMovieHumanSiteViewPart.IDefinition =
       AutoMovieHumanSiteViewPart.define({
         name: input.name,

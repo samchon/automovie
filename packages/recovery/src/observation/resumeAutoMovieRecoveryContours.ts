@@ -1,4 +1,21 @@
-import type { AutoMovieRecoveryCurveFormat, IAutoMovieMeshPlaneCut, IAutoMovieMeshSectionOrientation, IAutoMoviePlaneFrameConstruction, IAutoMovieRecoveryContourResume, IAutoMovieRecoveryContourResumeInput, IAutoMovieRecoveryContourResumePolicy, IAutoMoviePolylineFit, IAutoMovieRecoveryMeshIncidencePreparationOperation, IAutoMovieRecoveryObservationOptions, IAutoMovieRecoveryResult, IAutoMovieRecoverySavedSection, IAutoMovieRecoverySavedSectionCutsBindingOperation, IAutoMovieRecoveryScalarIndex, IAutoMovieRecoverySectionObservationOperation } from "@automovie/interface";
+import type {
+  AutoMovieRecoveryCurveFormat,
+  IAutoMovieMeshPlaneCut,
+  IAutoMovieMeshSectionOrientation,
+  IAutoMoviePlaneFrameConstruction,
+  IAutoMoviePolylineFit,
+  IAutoMovieRecoveryContourResume,
+  IAutoMovieRecoveryContourResumeInput,
+  IAutoMovieRecoveryContourResumePolicy,
+  IAutoMovieRecoveryMeshIncidencePreparationOperation,
+  IAutoMovieRecoveryObservationOptions,
+  IAutoMovieRecoveryResult,
+  IAutoMovieRecoverySavedSection,
+  IAutoMovieRecoverySavedSectionCutsBindingOperation,
+  IAutoMovieRecoveryScalarIndex,
+  IAutoMovieRecoverySectionObservationOperation,
+} from "@automovie/interface";
+
 import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecoveryCurves";
 import { RecoveryScalarIndex } from "../internal/RecoveryScalarIndex";
 import { bindRecoverySavedSectionCuts } from "../internal/bindRecoverySavedSectionCuts";
@@ -8,14 +25,6 @@ import { sourceOrientation } from "../internal/mesh-observations/sourceOrientati
 import { observeRecoverySection } from "../internal/observeRecoverySection";
 import { prepareRecoveryMeshIncidence } from "../internal/prepareRecoveryMeshIncidence";
 import { validateRecoveryContourResume } from "../internal/validateRecoveryContourResume";
-
-
-
-
-
-
-
-
 
 /** Fit only explicitly failed, rebound raw source contours into a new patch.
  * Original coefficient artifacts are opaque external references. The caller
@@ -62,34 +71,42 @@ export function resumeAutoMovieRecoveryContours<
   const cancelled: () => boolean = (): boolean => {
     const requested: boolean | undefined = probe?.();
     if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error("Cancellation callback must return a boolean synchronously");
+      throw new Error(
+        "Cancellation callback must return a boolean synchronously",
+      );
     cancellationRequested = requested === true;
     return cancellationRequested;
   };
   try {
     probe = options?.cancelled;
     if (probe !== undefined && typeof probe !== "function")
-      return { operator, status: "refused", diagnostics: ["Cancellation callback must be a function"] };
+      return {
+        operator,
+        status: "refused",
+        diagnostics: ["Cancellation callback must be a function"],
+      };
 
-  if (cancelled())
-    return {
-      operator,
-      status: "cancelled",
-      diagnostics: ["Cancelled before contour resume"] };
-  if (
-    !validateRecoveryContourResume(input) ||
-    !options ||
-    !["bezier", "hermite"].includes(options.curveFormat) ||
-    (options.onProgress !== undefined &&
-      typeof options.onProgress !== "function")
-  )
-    return {
-      operator,
-      status: "refused",
-      diagnostics: [
-        "Complete saved source bindings, distinct failed raw targets, caller-bound actual original policies and a supported basis are required",
-      ] };
-  
+    if (cancelled())
+      return {
+        operator,
+        status: "cancelled",
+        diagnostics: ["Cancelled before contour resume"],
+      };
+    if (
+      !validateRecoveryContourResume(input) ||
+      !options ||
+      !["bezier", "hermite"].includes(options.curveFormat) ||
+      (options.onProgress !== undefined &&
+        typeof options.onProgress !== "function")
+    )
+      return {
+        operator,
+        status: "refused",
+        diagnostics: [
+          "Complete saved source bindings, distinct failed raw targets, caller-bound actual original policies and a supported basis are required",
+        ],
+      };
+
     const checkpoint: () => void = (): void => {
       if (cancelled()) throw new Error("Contour resume cancelled");
     };
@@ -102,11 +119,8 @@ export function resumeAutoMovieRecoveryContours<
       options.onProgress?.(phase, done, total);
       checkpoint();
     };
-    const frame: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> = planeFrame(
-      [0, 0, 0],
-      input.axis,
-      input.reference,
-    );
+    const frame: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> =
+      planeFrame([0, 0, 0], input.axis, input.reference);
     if (
       ![frame.n, frame.u, frame.v].every(
         (axis: [number, number, number]): boolean =>
@@ -116,12 +130,14 @@ export function resumeAutoMovieRecoveryContours<
       return {
         operator,
         status: "refused",
-        diagnostics: ["Contour resume frame is unresolved"] };
+        diagnostics: ["Contour resume frame is unresolved"],
+      };
     const physicalFrame: IAutoMovieRecoveryContourResume["frame"] = {
       originMm: [...frame.origin],
       n: [...frame.n],
       u: [...frame.u],
-      v: [...frame.v] };
+      v: [...frame.v],
+    };
     for (const saved of input.savedSections)
       if (
         saved.sourceIdentity !== input.sourceIdentity ||
@@ -134,7 +150,8 @@ export function resumeAutoMovieRecoveryContours<
           status: "refused",
           diagnostics: [
             `Saved section ${saved.coordinateMm} has a different caller source, selection, exact-alias policy or physical frame`,
-          ] };
+          ],
+        };
     progress("contour-resume-cuts", 0, input.savedSections.length);
     const prepared: ReturnType<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation> =
       prepareRecoveryMeshIncidence(input, input.verticesMm);
@@ -212,7 +229,8 @@ export function resumeAutoMovieRecoveryContours<
           status: "refused",
           diagnostics: [
             `Target ${request.coordinateMm}/${request.contourIndex} is not an original failed raw contour`,
-          ] };
+          ],
+        };
       const policy: IAutoMovieRecoveryContourResumePolicy | undefined =
         policies.get(section.observationIdentity);
       if (!policy)
@@ -221,7 +239,8 @@ export function resumeAutoMovieRecoveryContours<
           status: "refused",
           diagnostics: [
             `Target artifact ${section.observationIdentity} has no caller-bound actual original policy`,
-          ] };
+          ],
+        };
       const raw: ReturnType<typeof cut>[number] = cuts.get(
         request.coordinateMm,
       )![request.contourIndex]!;
@@ -249,7 +268,9 @@ export function resumeAutoMovieRecoveryContours<
         outcome: {
           kind: "failed",
           diagnostic: "Target has not been fitted",
-          diagnostics: [] } });
+          diagnostics: [],
+        },
+      });
       selected.add(address(request.coordinateMm, request.contourIndex));
       usedPolicies.add(policy.observationIdentity);
     }
@@ -257,7 +278,8 @@ export function resumeAutoMovieRecoveryContours<
       return {
         operator,
         status: "refused",
-        diagnostics: ["Unused original artifact policies are not admitted"] };
+        diagnostics: ["Unused original artifact policies are not admitted"],
+      };
     const preservedOriginals: IAutoMovieRecoveryContourResume["preservedOriginals"] =
       sections.flatMap(
         (
@@ -277,7 +299,8 @@ export function resumeAutoMovieRecoveryContours<
                 coordinateMm: section.coordinateMm,
                 originalRawContourIndex: record.contourIndex,
                 observationIdentity: section.observationIdentity,
-                publication: { ...record.publication } }),
+                publication: { ...record.publication },
+              }),
             ),
       );
     const fits: IAutoMovieRecoveryContourResume<Format>["fits"] = [];
@@ -296,7 +319,8 @@ export function resumeAutoMovieRecoveryContours<
           kind: "failed",
           diagnostic:
             "Failed raw contour is a degenerate contact; fitting is unsupported",
-          diagnostics: [] };
+          diagnostics: [],
+        };
       } else {
         const sign: 1 | -1 = target.originalPolicy.sourceOrientationSign;
         if (!orientations.has(sign))
@@ -308,7 +332,8 @@ export function resumeAutoMovieRecoveryContours<
               ...frame,
               origin: frame.n.map(
                 (value: number): number => value * target.coordinateMm,
-              ) as [number, number, number] },
+              ) as [number, number, number],
+            },
             contours: [raw],
             faceEdges: prepared.faceEdges,
             vertexFaces: prepared.vertexFaces,
@@ -316,8 +341,10 @@ export function resumeAutoMovieRecoveryContours<
             policy: {
               toleranceMm: target.originalPolicy.toleranceMm,
               cornerDegrees: target.originalPolicy.cornerDegrees,
-              maxSpans: target.maxSpans },
-            name: `${input.name}.patch.${targetIndex}.raw.${target.originalRawContourIndex}` });
+              maxSpans: target.maxSpans,
+            },
+            name: `${input.name}.patch.${targetIndex}.raw.${target.originalRawContourIndex}`,
+          });
         checkpoint();
         const loop: (typeof observed.section.loops)[number] | undefined =
           observed.section.loops[0];
@@ -336,14 +363,16 @@ export function resumeAutoMovieRecoveryContours<
             kind: "fitted",
             patchCurveIndex,
             ...(loop ? { winding: loop.winding } : {}),
-            diagnostics: [...observed.report.diagnostics] };
+            diagnostics: [...observed.report.diagnostics],
+          };
         } else
           target.outcome = {
             kind: "failed",
             diagnostic:
               observed.report.diagnostics.join("; ") ||
               "Failed raw contour produced no fitted curve",
-            diagnostics: [...observed.report.diagnostics] };
+            diagnostics: [...observed.report.diagnostics],
+          };
       }
       progress("contour-resume-fit", targetIndex + 1, targets.length);
     }
@@ -369,20 +398,23 @@ export function resumeAutoMovieRecoveryContours<
         sections,
         preservedOriginals,
         fits,
-        targets },
+        targets,
+      },
       diagnostics: [
         "Caller source/selection/artifact identities were compared, not hashed; actual original policies remain caller-attested",
         "Original publication indices remain in original artifacts; patchCurveIndex addresses only the new fits array",
         "Only failed targets were fitted; original coefficient degrees, rational weights, actual phase widths, units and directions remain untouched external byte references",
         "Complete qualifies requested patch tolerance only; normal curve correctness, material correspondence, smooth surface error and transverse jets are not inferred",
-      ] };
+      ],
+    };
   } catch (failure: unknown) {
     return {
       operator,
       status: cancellationRequested ? "cancelled" : "failed",
       diagnostics: [
         failure instanceof Error ? failure.message : String(failure),
-      ] };
+      ],
+    };
   }
 }
 

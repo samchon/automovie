@@ -1,5 +1,8 @@
-import type { IAutoMovieMinimumJerk, IAutoMovieSuperposeMinimumJerk, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieMinimumJerk,
+  IAutoMovieSuperposeMinimumJerk,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { minimumJerk } from "./minimumJerk";
 

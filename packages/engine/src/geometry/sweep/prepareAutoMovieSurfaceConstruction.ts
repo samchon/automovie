@@ -1,5 +1,9 @@
-import type { IAutoMovieSurfaceConstruction, IAutoMovieSurfaceCurveRig, IAutoMovieSweepRig, IAutoMoviePrepareSurfaceConstruction } from "@automovie/interface";
-
+import type {
+  IAutoMoviePrepareSurfaceConstruction,
+  IAutoMovieSurfaceConstruction,
+  IAutoMovieSurfaceCurveRig,
+  IAutoMovieSweepRig,
+} from "@automovie/interface";
 
 /**
  * Register observation writers while a network rig is still open, then read them after its girth solve and final rest evaluation.
@@ -18,7 +22,9 @@ import type { IAutoMovieSurfaceConstruction, IAutoMovieSurfaceCurveRig, IAutoMov
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the rig's compiled sweep/curve and feature coefficients; no geometric representation is refitted for display.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The final read clears its O(N) temporary observation writers. Their registered frame and scale slots remain bounded by the requested samples and belong to the returned rig, whose pose updates still refresh them until that rig is released. Packed rest polylines are a separate caller-owned snapshot.
  */
-export function prepareAutoMovieSurfaceConstruction(props: IAutoMoviePrepareSurfaceConstruction.IProps): () => IAutoMovieSurfaceConstruction[] {
+export function prepareAutoMovieSurfaceConstruction(
+  props: IAutoMoviePrepareSurfaceConstruction.IProps,
+): () => IAutoMovieSurfaceConstruction[] {
   const samples: IAutoMovieSurfaceConstruction.ISamples | undefined =
     props.samples;
   if (samples === undefined) return (): IAutoMovieSurfaceConstruction[] => [];

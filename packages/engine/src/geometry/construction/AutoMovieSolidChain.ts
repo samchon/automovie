@@ -1,4 +1,9 @@
-import type { IAutoMovieLoftChain, IAutoMovieSolidSurface, AutoMovieVector3Tuple, IAutoMovieLoftJet } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftJet,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftCapSource } from "./AutoMovieLoftCapSource";
@@ -134,10 +139,7 @@ export namespace AutoMovieSolidChain {
       )
     )
       return null;
-    const normal: AutoMovieVector3Tuple = AutoMovieSolidVector.cross(
-      j.s,
-      j.t,
-    );
+    const normal: AutoMovieVector3Tuple = AutoMovieSolidVector.cross(j.s, j.t);
     const size: number = Math.hypot(...normal);
     if (!(Number.isFinite(size) && size > 0)) return null;
     let sign: 1 | -1;

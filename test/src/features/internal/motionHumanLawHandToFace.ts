@@ -1,7 +1,21 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHandToFaceRows, IAutoMovieMotionHumanSegment, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-
-import { AutoMovieMotionHumanAuditDifference, AutoMovieMotionHumanTouchDrink, AutoMovieMotionHumanTouchEffector, HumanChain, IAutoMovieMotionHumanAuditMotion, handToFace } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHandToFaceRows,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAuditDifference,
+  AutoMovieMotionHumanAuditMotion,
+  AutoMovieMotionHumanTouchDrink,
+  AutoMovieMotionHumanTouchEffector,
+  HumanChain,
+  handToFace,
+} from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanLaw } from "./motionHumanLaw";
@@ -171,7 +185,7 @@ export function motionHumanLawHandToFace(
       ),
     );
   }
-  const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
+  const times: number[] = AutoMovieMotionHumanAuditMotion.grid(
     0,
     film.duration,
     24,
@@ -250,7 +264,10 @@ function population(
   name: string,
   body: IAutoMovieMotionHumanBody,
   film: motionHumanLaw.IFilm,
-  perform: (who: IAutoMovieMotionHumanBody, side: "left" | "right") => motionHumanLaw.IFilm,
+  perform: (
+    who: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+  ) => motionHumanLaw.IFilm,
 ): string[] {
   const out: string[] = [];
   if (row.upright === true)
@@ -260,7 +277,8 @@ function population(
       "f-small",
       "m-large",
     ] as const) {
-      const subject: IAutoMovieMotionHumanBody = who === name ? body : motionHumanBody(who);
+      const subject: IAutoMovieMotionHumanBody =
+        who === name ? body : motionHumanBody(who);
       const shown: motionHumanLaw.IFilm =
         who === name ? film : perform(subject, "right");
       const seconds: number = motionHumanLaw.event(shown, row.at);

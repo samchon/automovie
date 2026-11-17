@@ -1,6 +1,11 @@
-import type { IAutoMovieLoftChain, IAutoMovieConstructionNode, IAutoMovieConstructionState, IAutoMovieSolidBody, IAutoMovieSolidCycle, IAutoMovieConstructionContinuation } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieConstructionContinuation,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionState,
+  IAutoMovieLoftChain,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidCycle,
+} from "@automovie/interface";
 
 import { AutoMovieConstructionBridgeRealize } from "./AutoMovieConstructionBridgeRealize";
 import { AutoMovieConstructionContinuation } from "./AutoMovieConstructionContinuation";
@@ -41,7 +46,14 @@ export function AutoMovieConstructionContinuationRealize(
   report: (node: string, contract: string, detail: string) => void,
 ): void {
   // Two ends whose sections cannot share one ring are joined by a band (`IAutoMovieConstructionContinuation.band`).
-  if (node.band !== undefined) return AutoMovieConstructionBridgeRealize({ ...node, band: node.band }, body, state, walk, report);
+  if (node.band !== undefined)
+    return AutoMovieConstructionBridgeRealize(
+      { ...node, band: node.band },
+      body,
+      state,
+      walk,
+      report,
+    );
   walk(node.host);
   const hostIndex: number | undefined = state.faces.get(node.hostFace);
   const hostChain: IAutoMovieLoftChain | undefined = state.chains.get(

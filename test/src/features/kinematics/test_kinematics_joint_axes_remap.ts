@@ -1,6 +1,15 @@
-import type { IAutoMovieResolvedBone, IAutoMovieJointAxes, IAutoMoviePose, IAutoMovieQuaternion } from "@automovie/interface";
-import { DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, jointToQuaternion, resolvePose } from "@automovie/engine";
-
+import {
+  DEFAULT_JOINT_AXES,
+  HUMANOID_JOINT_AXES,
+  jointToQuaternion,
+  resolvePose,
+} from "@automovie/engine";
+import type {
+  IAutoMovieJointAxes,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createSkeleton } from "../internal/createSkeleton";

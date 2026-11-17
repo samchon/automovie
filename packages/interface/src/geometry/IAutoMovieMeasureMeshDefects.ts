@@ -1,5 +1,3 @@
-
-
 /**
  * Borrowed mesh buffers and lattice-weld policy for edge-incidence inspection.
  *
@@ -27,7 +25,7 @@ export namespace IAutoMovieMeasureMeshDefects {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer checks triple layouts, index bounds, positive finite options and finite lattice coordinates; vertex-fan singularities and intersecting surfaces are outside this edge-incidence measure.
    * @evidence contracts/development/common.md#meaningful-documentation Borrowed mesh buffers and lattice-weld policy for edge-incidence inspection. Positions use one common length unit, weld counts cells per unit, and the optional sliver threshold is a dimensionless edge-to-height ratio.
    */
-  export type IMesh = { 
+  export type IMesh = {
     /**
      * Borrowed flat xyz coordinates, three per vertex, in one common frame and length unit; typed arrays are accepted and every weld-scaled coordinate must remain finite.
      */
@@ -36,7 +34,8 @@ export namespace IAutoMovieMeasureMeshDefects {
     /**
      * Borrowed zero-based triangle vertex indices in triples, or null for successive triples of vertices; empty buffers describe an empty mesh.
      */
-    indices: ArrayLike<number> | null };
+    indices: ArrayLike<number> | null;
+  };
 
   /**
    * Lattice identity and optional sliver classification for mesh-defect measurement. Welding rounds each scaled coordinate independently; close points on different rounding cells remain separate. Sliver aspect is measured on stored positions, not on the lattice, and equals longest edge divided by its altitude.
@@ -48,7 +47,7 @@ export namespace IAutoMovieMeasureMeshDefects {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer checks triple layouts, index bounds, positive finite options and finite lattice coordinates; vertex-fan singularities and intersecting surfaces are outside this edge-incidence measure.
    * @evidence contracts/development/common.md#meaningful-documentation Borrowed mesh buffers and lattice-weld policy for edge-incidence inspection. Positions use one common length unit, weld counts cells per unit, and the optional sliver threshold is a dimensionless edge-to-height ratio.
    */
-  export type IOptions = { 
+  export type IOptions = {
     /**
      * Positive finite lattice cells per position unit; omitted uses MESH_WELD_GRID = 1e9, a nanometre grid for metre input. Rounding cells defines identity, not pairwise distance.
      */
@@ -57,5 +56,6 @@ export namespace IAutoMovieMeasureMeshDefects {
     /**
      * Positive finite dimensionless longest-edge/altitude threshold; omitted disables sliver reporting. Only three-distinct-cell triangles whose stored-position aspect exceeds it are reported.
      */
-    sliver?: number };
+    sliver?: number;
+  };
 }

@@ -1,5 +1,7 @@
-import type { IAutoMoviePhysicalSupportRootDrop, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalSupportRootDrop,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { physicalJointPoint } from "./physicalJointPoint";
@@ -16,7 +18,9 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
  */
-export function physicalSupportRootDrop(input: IAutoMoviePhysicalSupportRootDrop.IInput): number {
+export function physicalSupportRootDrop(
+  input: IAutoMoviePhysicalSupportRootDrop.IInput,
+): number {
   let rootDrop: number = 0;
   for (const limb of input.pattern.limbs) {
     const endpoint: IAutoMovieVector3 = physicalSupportPoint(

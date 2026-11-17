@@ -1,4 +1,5 @@
 import type { IAutoMovieSolidBlockQuery } from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 
 /**
@@ -34,7 +35,9 @@ const PLANE_EPSILON: number = 1e-12;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call tests one ray against one solid; rays differ in origin or direction, so there is no equivalent result to share, and the caller decides how often it runs.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps only the entry and exit parameters as locals while scanning the caller's planes, holding no reference after it returns.
  */
-export const autoMovieSolidBlocks: (props: IAutoMovieSolidBlockQuery.IProps) => boolean = (props: IAutoMovieSolidBlockQuery.IProps): boolean => {
+export const autoMovieSolidBlocks: (
+  props: IAutoMovieSolidBlockQuery.IProps,
+) => boolean = (props: IAutoMovieSolidBlockQuery.IProps): boolean => {
   let enter: number = 0;
   let exit: number = props.maxDistance;
   for (const plane of props.planes) {

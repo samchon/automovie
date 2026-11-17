@@ -1,4 +1,9 @@
-import type { AutoMovieVector2Tuple, IAutoMovieSolidMeshIncidence, IAutoMovieSolidMeshPlan } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieSolidMeshIncidence,
+  IAutoMovieSolidMeshPlan,
+} from "@automovie/interface";
+
 import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
 
 /** One boundary occurrence; the same original ID can occur on another sheet. */
@@ -69,14 +74,18 @@ export function triangulateAutoMovieSolidBoundary(
   for (let k: number = 0; k < walk.vertices.length; k++) {
     const id: number = walk.vertices[k]!;
     const lift: number = walk.lifts[k]!;
-    const stored: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(id);
+    const stored: Readonly<AutoMovieVector2Tuple> | undefined =
+      vertices.get(id);
     if (
       stored === undefined ||
       !Number.isSafeInteger(lift) ||
       (period === undefined && lift !== 0)
     )
       return "kept boundary has an unavailable endpoint or invalid cover occurrence";
-    const point: Readonly<AutoMovieVector2Tuple> = [stored[0], stored[1] + lift * (period ?? 0)];
+    const point: Readonly<AutoMovieVector2Tuple> = [
+      stored[0],
+      stored[1] + lift * (period ?? 0),
+    ];
     if (!point.every(Number.isFinite))
       return "kept boundary cover coordinates are not representable";
     corners.push({ id, lift, point, original: stored });
@@ -314,7 +323,11 @@ function represented(
     [b.original[0], b.original[1] + lifts[0] * (period ?? 0)],
     [c.original[0], c.original[1] + lifts[1] * (period ?? 0)],
   ];
-  if (!points.every((point: Readonly<AutoMovieVector2Tuple>): boolean => point.every(Number.isFinite)))
+  if (
+    !points.every((point: Readonly<AutoMovieVector2Tuple>): boolean =>
+      point.every(Number.isFinite),
+    )
+  )
     return false;
   const span: number =
     Math.max(points[0]![1], points[1]![1], points[2]![1]) -

@@ -1,5 +1,3 @@
-
-
 /**
  * Two parts of one built model whose surfaces pass through each other, as
  * `measureAutoMovieModelCrossings` reports them.

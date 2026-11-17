@@ -1,4 +1,9 @@
-import type { IAutoMovieMotionEvent, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture } from "@automovie/interface";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 /**
  * A stepping plan begun after a wait in its own first posture, as a
@@ -41,7 +46,9 @@ export function walkDelayed(
       ),
     ],
     contacts: plan.contacts.map(
-      (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
+      (
+        c: IAutoMovieMotionHumanContactWindow,
+      ): IAutoMovieMotionHumanContactWindow => ({
         ...c,
         from: share(c.from),
         to: share(c.to),

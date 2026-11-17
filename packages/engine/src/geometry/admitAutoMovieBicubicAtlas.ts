@@ -1,5 +1,7 @@
-import type { IAutoMovieAdmitBicubicAtlas, IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
-
+import type {
+  IAutoMovieAdmitBicubicAtlas,
+  IAutoMovieBicubicAtlasGeometry,
+} from "@automovie/interface";
 
 /**
  * Admit the global recipe and identify its structurally usable patch occurrences.

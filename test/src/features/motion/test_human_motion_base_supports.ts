@@ -1,6 +1,21 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionHumanAuditBalance, HumanChain, HumanPerformance, HumanSignature, IAutoMovieMotionHumanAuditMotion, seated } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAuditBalance,
+  AutoMovieMotionHumanAuditMotion,
+  HumanChain,
+  HumanPerformance,
+  HumanSignature,
+  seated,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -57,7 +72,9 @@ export function test_human_motion_base_supports(): void {
       yaw: 0,
       depth: 0.45,
     };
-    const perform = (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanPerformance =>
+    const perform = (
+      chain: IAutoMovieMotionHumanChain,
+    ): IAutoMovieMotionHumanPerformance =>
       new HumanPerformance({
         seed: "base",
         performers: [
@@ -81,7 +98,9 @@ export function test_human_motion_base_supports(): void {
     if (
       !whole(stood, "leftFoot") ||
       !whole(stood, "rightFoot") ||
-      stood.some((c: IAutoMovieMotionHumanContactWindow): boolean => c.part === "seat")
+      stood.some(
+        (c: IAutoMovieMotionHumanContactWindow): boolean => c.part === "seat",
+      )
     )
       complaints.push(
         `${name}: a standing drink declares ${stood.map((c) => c.part).join(", ")}, both feet and no seat expected`,
@@ -115,7 +134,8 @@ export function test_human_motion_base_supports(): void {
     }
 
     // 3. The base holds through the drink.
-    const drink: IAutoMovieMotionHumanSegment.ISegment = drinking.segments("a")[1]!;
+    const drink: IAutoMovieMotionHumanSegment.ISegment =
+      drinking.segments("a")[1]!;
     const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       drinking,
       "a",
@@ -162,8 +182,8 @@ export function test_human_motion_base_supports(): void {
 
     // 4. A seated body is not judged as standing: at no instant of the drink
     // do the feet alone bear it.
-    const windows: ReturnType<typeof IAutoMovieMotionHumanAuditMotion.windows> =
-      IAutoMovieMotionHumanAuditMotion.windows(drinking, "a");
+    const windows: ReturnType<typeof AutoMovieMotionHumanAuditMotion.windows> =
+      AutoMovieMotionHumanAuditMotion.windows(drinking, "a");
     for (let t: number = drink.entryTime; t <= drink.end; t += 0.1)
       if (AutoMovieMotionHumanAuditBalance.standing(windows, t)) {
         complaints.push(

@@ -1,4 +1,7 @@
-import type { IAutoMovieCurveLengthQuadrature64, IAutoMovieMeasureCurveLength64 } from "@automovie/interface";
+import type {
+  IAutoMovieCurveLengthQuadrature64,
+  IAutoMovieMeasureCurveLength64,
+} from "@automovie/interface";
 
 /**
  * Internal shared GL8 computation for original curve derivatives, with numeric

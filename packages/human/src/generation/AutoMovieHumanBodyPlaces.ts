@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanBodyMeasures } from "@automovie/interface";
 
-
 /**
  * The body frame's forward places of cervicale and the perineum, relative to
  * the midpoint of the two ankles, standing: where the back profile and the

@@ -1,4 +1,10 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+} from "@automovie/interface";
 import { HumanChain, HumanPerformance, HumanSport } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -68,7 +74,8 @@ export namespace motionSportRows {
     level: Level = "trained",
     part?: readonly [number, number],
   ): void {
-    const laws: IAutoMovieMotionHumanActionLaw<never>[] = Object.values(HumanSport);
+    const laws: IAutoMovieMotionHumanActionLaw<never>[] =
+      Object.values(HumanSport);
     const complaints: string[] = [];
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     checks().forEach((c: ICheck, index: number): void => {
@@ -88,7 +95,8 @@ export namespace motionSportRows {
           ],
           composition: c.build().node,
         });
-        const act: IAutoMovieMotionHumanSegment.ISegment | undefined = film.segments("a")[1];
+        const act: IAutoMovieMotionHumanSegment.ISegment | undefined =
+          film.segments("a")[1];
         if (act === undefined || !(act.end - act.entryTime > 0))
           complaints.push(`${c.label} on ${name} (${level}): it plans no time`);
         else if (c.placed !== undefined && act.name !== c.placed)

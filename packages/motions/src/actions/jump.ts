@@ -1,6 +1,26 @@
-import type { AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanJump, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStandUpright, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieGravity,
+  minimumJerk,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanJump,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStandUpright,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { AutoMovieGravity, minimumJerk, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -131,7 +151,9 @@ export namespace jump {
       (Math.atan2(to.x - root0.x, to.z - root0.z) * 180) / Math.PI,
       entry.posture.yaw,
     );
-    const frame = (origin: IAutoMovieVector3): IAutoMovieMotionHumanFrame.IFrame => ({
+    const frame = (
+      origin: IAutoMovieVector3,
+    ): IAutoMovieMotionHumanFrame.IFrame => ({
       origin: { ...origin, y: 0 },
       yaw: heading,
     });
@@ -170,9 +192,12 @@ export namespace jump {
         ? HumanFoot.pivot(body, takeoff, "heel", heel, supportHeading, 0)
         : support;
     const ball: IAutoMovieVector3 = HumanFoot.point(body, takeoff, "mtp", flat);
-    const upright: IAutoMovieMotionHumanStandUpright.IAlignment = standUpright.of(body);
+    const upright: IAutoMovieMotionHumanStandUpright.IAlignment =
+      standUpright.of(body);
     const model = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
-    const offset = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 => {
+    const offset = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieVector3 => {
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         poseBones(body, resolveHumanPosture(body, posture));
       const c: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
@@ -199,7 +224,10 @@ export namespace jump {
       rise,
       upright.lean,
     );
-    const landing: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = landed.feet;
+    const landing: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = landed.feet;
     const rootL: IAutoMovieVector3 = landed.touched;
     const rootS: IAutoMovieVector3 = landed.stood;
     const rootA: IAutoMovieVector3 = landed.absorbed;
@@ -250,8 +278,10 @@ export namespace jump {
     };
 
     // The ballistic flight of the centre of mass, from its take-off to its touchdown place.
-    const flightPosture = (root: IAutoMovieVector3, u: number): IAutoMovieMotionHumanPosture =>
-      jumpAirborne.posture(shape, root, u);
+    const flightPosture = (
+      root: IAutoMovieVector3,
+      u: number,
+    ): IAutoMovieMotionHumanPosture => jumpAirborne.posture(shape, root, u);
     const offT: IAutoMovieVector3 = offset(flightPosture(rootT, 0));
     const offL: IAutoMovieVector3 = offset(flightPosture(rootL, 1));
     const comT: IAutoMovieVector3 = {

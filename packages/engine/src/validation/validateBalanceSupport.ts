@@ -1,6 +1,13 @@
-import { type IAutoMovieResolvedBone, type IAutoMovieSkeletonTopology, type IAutoMovieValidateBalanceSupport, type IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieSkeletonTopology,
+  type IAutoMovieValidateBalanceSupport,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { indexSkeletonTopology, resolvePose } from "../kinematics";
 import { convexHull2D } from "../math/convexHull2D";
@@ -67,7 +74,11 @@ const SUPPORT_BONE_REACHABLE: string =
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Skeleton topology/reachability are computed once per invocation, then reused across windows.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Caller inputs are borrowed; per-sample maps/hulls release, while returned diagnostics grow with sampled failures and acquire no host handle.
  */
-export const validateBalanceSupport: (props: IAutoMovieValidateBalanceSupport.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateBalanceSupport.IProps): IAutoMovieValidation => {
+export const validateBalanceSupport: (
+  props: IAutoMovieValidateBalanceSupport.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateBalanceSupport.IProps,
+): IAutoMovieValidation => {
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const suppressed: boolean = props.physicsIntent !== undefined;
   const sampleRate: number =

@@ -1,6 +1,16 @@
-import type { AutoMovieMotionHumanActionKey, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanLegTouch, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanLegTouch,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
@@ -223,10 +233,8 @@ export namespace legTouch {
       );
     const relax: number = reach + hold;
     const duration: number = relax + reach;
-    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      duration,
-    );
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, duration);
     const lift: number = 0.05;
     return {
       duration,
@@ -237,7 +245,8 @@ export namespace legTouch {
         { name: "relax", share: relax / duration },
       ],
       contacts: base.contacts.filter(
-        (c: IAutoMovieMotionHumanContactWindow): boolean => c.part !== `${side}Foot`,
+        (c: IAutoMovieMotionHumanContactWindow): boolean =>
+          c.part !== `${side}Foot`,
       ),
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));

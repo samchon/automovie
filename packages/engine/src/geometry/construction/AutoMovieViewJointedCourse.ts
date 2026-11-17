@@ -1,4 +1,12 @@
-import type { AutoMovieVector3Tuple, IAutoMovieConstructionOutlineParameter, IAutoMovieLoftFrame, IAutoMovieViewAxis, IAutoMovieViewAxisJet, IAutoMovieViewJointedCourse } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieLoftFrame,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+  IAutoMovieViewJointedCourse,
+} from "@automovie/interface";
+
 import { AutoMovieAxisDirection } from "./AutoMovieAxisDirection";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieViewAxisJet } from "./AutoMovieViewAxisJet";
@@ -12,7 +20,6 @@ import { AutoMovieViewAxisJet } from "./AutoMovieViewAxisJet";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieViewJointedCourse {
-
   /**
    * Prepare the original centreline admission and setback integral shared by both consumers.
    *
@@ -30,7 +37,11 @@ export namespace AutoMovieViewJointedCourse {
   ): IAutoMovieViewJointedCourse.ICourse | string {
     const m: number = centres.length;
     if (m < 2) return `${m} centres, at least two needed`;
-    if (!centres.every((p: AutoMovieVector3Tuple): boolean => p.every(Number.isFinite)))
+    if (
+      !centres.every((p: AutoMovieVector3Tuple): boolean =>
+        p.every(Number.isFinite),
+      )
+    )
       return "joint centres are not finite";
     if (halves.length !== m - 2)
       return `${halves.length} half lengths for ${m - 2} interior centres`;
@@ -158,7 +169,8 @@ export namespace AutoMovieViewJointedCourse {
         parameter?: IAutoMovieConstructionOutlineParameter,
       ): IAutoMovieViewAxisJet.IJet | null => {
         const sample: ISample = read(station);
-        const turn: IAutoMovieViewJointedCourse.ITurn | undefined = sample.active;
+        const turn: IAutoMovieViewJointedCourse.ITurn | undefined =
+          sample.active;
         const x: number = sample.offset;
         const angular: number =
           turn === undefined
@@ -170,9 +182,16 @@ export namespace AutoMovieViewJointedCourse {
             : (turn.angle * 60 * x * (1 - x) * (1 - 2 * x)) /
               (4 * turn.half * turn.half);
         const axis: AutoMovieVector3Tuple = turn?.axis ?? [0, 0, 0];
-        const derivative: (vector: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (vector: AutoMovieVector3Tuple): AutoMovieVector3Tuple =>
-          scale(cross(axis, vector), angular);
-        const second: (vector: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (vector: AutoMovieVector3Tuple): AutoMovieVector3Tuple =>
+        const derivative: (
+          vector: AutoMovieVector3Tuple,
+        ) => AutoMovieVector3Tuple = (
+          vector: AutoMovieVector3Tuple,
+        ): AutoMovieVector3Tuple => scale(cross(axis, vector), angular);
+        const second: (
+          vector: AutoMovieVector3Tuple,
+        ) => AutoMovieVector3Tuple = (
+          vector: AutoMovieVector3Tuple,
+        ): AutoMovieVector3Tuple =>
           add(
             scale(cross(axis, vector), angularRate),
             scale(cross(axis, cross(axis, vector)), angular * angular),
@@ -224,7 +243,11 @@ export namespace AutoMovieViewJointedCourse {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller reuses full-turn results for setbacks; this pure evaluation retains no query cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All quadrature vectors are call-local and only the displacement triple escapes.
    */
-  export function integrate(tangent: AutoMovieVector3Tuple, turn: IAutoMovieViewJointedCourse.ITurn, length: number): AutoMovieVector3Tuple {
+  export function integrate(
+    tangent: AutoMovieVector3Tuple,
+    turn: IAutoMovieViewJointedCourse.ITurn,
+    length: number,
+  ): AutoMovieVector3Tuple {
     let sum: AutoMovieVector3Tuple = [0, 0, 0];
     const width: number = length / PANELS;
     for (let p: number = 0; p < PANELS; p++)
@@ -251,7 +274,11 @@ function smoothstep(x: number): number {
 }
 
 /** Rodrigues rotation about an admitted unit axis. */
-function rotate(a: AutoMovieVector3Tuple, axis: AutoMovieVector3Tuple, angle: number): AutoMovieVector3Tuple {
+function rotate(
+  a: AutoMovieVector3Tuple,
+  axis: AutoMovieVector3Tuple,
+  angle: number,
+): AutoMovieVector3Tuple {
   const c: number = Math.cos(angle);
   const s: number = Math.sin(angle);
   return add(

@@ -1,6 +1,13 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanAirborneShape, IAutoMovieMotionHumanLayer, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAirborneShape,
+  IAutoMovieMotionHumanLayer,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -100,7 +107,9 @@ export namespace HumanAirborneShape {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Postures are evaluated independently; nothing is cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer closes over one table entry.
    */
-  export function layer(shape: IAutoMovieMotionHumanAirborneShape.Shape): IAutoMovieMotionHumanLayer {
+  export function layer(
+    shape: IAutoMovieMotionHumanAirborneShape.Shape,
+  ): IAutoMovieMotionHumanLayer {
     const joints: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     > = ANGLES[shape];
@@ -118,7 +127,9 @@ export namespace HumanAirborneShape {
         _seconds: number,
         context: IAutoMovieMotionHumanLayer.IContext,
       ): IAutoMovieMotionHumanPosture => {
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+          ...posture.limbs,
+        };
         for (const limb of claimed) delete limbs[limb];
         const shaped: IAutoMovieMotionHumanPosture = {
           ...posture,

@@ -1,5 +1,8 @@
-import type { IAutoMoviePhysicalProfile, IAutoMovieBone, IAutoMovieModel } from "@automovie/interface";
-
+import type {
+  IAutoMovieBone,
+  IAutoMovieModel,
+  IAutoMoviePhysicalProfile,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -18,7 +21,8 @@ import { Vector3 } from "../math/Vector3";
 export function physicalModelRestTransforms(
   model: IAutoMovieModel,
 ): Map<string, IAutoMoviePhysicalProfile.ITransform> {
-  const transforms: Map<string, IAutoMoviePhysicalProfile.ITransform> = new Map();
+  const transforms: Map<string, IAutoMoviePhysicalProfile.ITransform> =
+    new Map();
   if (!model.skeleton) return transforms;
   const pending: typeof model.skeleton.bones = [...model.skeleton.bones];
   if (

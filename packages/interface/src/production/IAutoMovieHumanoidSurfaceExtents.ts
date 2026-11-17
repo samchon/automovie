@@ -1,5 +1,5 @@
-import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /** Physical-segment bounds reader used to limit humanoid surface-region radii. */
 export namespace IAutoMovieHumanoidSurfaceExtents {
@@ -13,11 +13,11 @@ export namespace IAutoMovieHumanoidSurfaceExtents {
    * @evidence contracts/development/design.md#minimal-and-owned-surface The extent calculation only reads a bone's min/max corners; collider construction and rig lookup stay with the surface-reader implementation.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The 10 mm output floor is the contact policy, not a guarantee that invalid or empty collider geometry was admitted; callback failures are not converted into guessed boxes.
    */
-  export type IBounds = (bone: AutoMovieHumanoidBone) => {
-      /** Lower corner of the union of this segment's collider bounds after neutral placement, in model-rest metres, not bone-local coordinates. */
-      min: IAutoMovieVector3;
+  export type ReadBounds = (bone: AutoMovieHumanoidBone) => {
+    /** Lower corner of the union of this segment's collider bounds after neutral placement, in model-rest metres, not bone-local coordinates. */
+    min: IAutoMovieVector3;
 
-      /** Upper corner in the same frame; max-minus-min gives the three breadths. Empty shape lists in the standard reader leave negative-infinite maxima. */
-      max: IAutoMovieVector3;
-    };
+    /** Upper corner in the same frame; max-minus-min gives the three breadths. Empty shape lists in the standard reader leave negative-infinite maxima. */
+    max: IAutoMovieVector3;
+  };
 }

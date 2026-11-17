@@ -1,6 +1,14 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanResolveHumanPosture, IAutoMovieMotionHumanSegment, IAutoMoviePose, IAutoMovieSeededChainFit, IAutoMovieSwivelNear } from "@automovie/interface";
-
 import { minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMoviePose,
+  IAutoMovieSeededChainFit,
+  IAutoMovieSwivelNear,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
@@ -73,37 +81,50 @@ export namespace HumanSegmentOverlay {
     near?: HumanSegmentPose.INear,
   ): IOverlaid {
     const body = person.performer.body;
-    const active: IAutoMovieMotionHumanSegment.IOverlay[] = running(person, seconds);
+    const active: IAutoMovieMotionHumanSegment.IOverlay[] = running(
+      person,
+      seconds,
+    );
     const seeds: HumanSegmentPose.IFits = new Map();
     const build = (
       k: number,
       under: IAutoMovieMotionHumanPosture,
       used: readonly IAutoMovieMotionHumanSegment.IOverlay[],
-    ): { pose: IAutoMoviePose; contacts: IAutoMovieMotionHumanPosture["limbs"] } => {
-      const overlay: IAutoMovieMotionHumanSegment.IOverlay | undefined = active[k];
+    ): {
+      pose: IAutoMoviePose;
+      contacts: IAutoMovieMotionHumanPosture["limbs"];
+    } => {
+      const overlay: IAutoMovieMotionHumanSegment.IOverlay | undefined =
+        active[k];
       if (overlay === undefined) {
         // The leaf is named by the overlays written over it.
         const tag: string = used
-          .map((o: IAutoMovieMotionHumanSegment.IOverlay): number => person.overlays.indexOf(o))
+          .map((o: IAutoMovieMotionHumanSegment.IOverlay): number =>
+            person.overlays.indexOf(o),
+          )
           .join(",");
-        const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
-          body,
-          under,
-          undefined,
-          Object.fromEntries(
-            resolveHumanPosture
-              .order(under.limbs)
-              .flatMap(
-                (
-                  limb: IAutoMovieMotionHumanPosture.Limb,
-                ): [IAutoMovieMotionHumanPosture.Limb, IAutoMovieSwivelNear][] => {
-                  const continued: IAutoMovieSwivelNear | undefined =
-                    HumanSegmentPose.nearby(near, `leaf:${tag}:${limb}`);
-                  return continued === undefined ? [] : [[limb, continued]];
-                },
-              ),
-          ),
-        );
+        const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
+          resolveHumanPosture.seeded(
+            body,
+            under,
+            undefined,
+            Object.fromEntries(
+              resolveHumanPosture
+                .order(under.limbs)
+                .flatMap(
+                  (
+                    limb: IAutoMovieMotionHumanPosture.Limb,
+                  ): [
+                    IAutoMovieMotionHumanPosture.Limb,
+                    IAutoMovieSwivelNear,
+                  ][] => {
+                    const continued: IAutoMovieSwivelNear | undefined =
+                      HumanSegmentPose.nearby(near, `leaf:${tag}:${limb}`);
+                    return continued === undefined ? [] : [[limb, continued]];
+                  },
+                ),
+            ),
+          );
         for (const [limb, seed] of Object.entries(fitted.seeds))
           seeds.set(`leaf:${tag}:${limb}`, seed ?? null);
         let leaf: IAutoMoviePose = fitted.pose;
@@ -131,13 +152,17 @@ export namespace HumanSegmentOverlay {
         }
         return { pose: leaf, contacts: {} };
       }
-      const written: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanChannel.merge(
-        under,
-        overlay.plan.posture(
-          Math.min(overlay.plan.duration, Math.max(0, seconds - overlay.start)),
-        ),
-        overlay.channels,
-      );
+      const written: IAutoMovieMotionHumanPosture =
+        AutoMovieMotionHumanChannel.merge(
+          under,
+          overlay.plan.posture(
+            Math.min(
+              overlay.plan.duration,
+              Math.max(0, seconds - overlay.start),
+            ),
+          ),
+          overlay.channels,
+        );
       const weight: number = Math.min(
         minimumJerk(
           Math.min(
@@ -196,17 +221,18 @@ export namespace HumanSegmentOverlay {
       return { pose, contacts };
     };
     const built = build(0, posture, []);
-    const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.refit(
-      body,
-      built.pose,
-      built.contacts,
-      Object.fromEntries(
-        resolveHumanPosture.order(built.contacts).flatMap((limb) => {
-          const continued = HumanSegmentPose.nearby(near, `contact:${limb}`);
-          return continued === undefined ? [] : [[limb, continued]];
-        }),
-      ),
-    );
+    const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
+      resolveHumanPosture.refit(
+        body,
+        built.pose,
+        built.contacts,
+        Object.fromEntries(
+          resolveHumanPosture.order(built.contacts).flatMap((limb) => {
+            const continued = HumanSegmentPose.nearby(near, `contact:${limb}`);
+            return continued === undefined ? [] : [[limb, continued]];
+          }),
+        ),
+      );
     for (const [limb, seed] of Object.entries(fitted.seeds))
       seeds.set(`contact:${limb}`, seed ?? null);
     return { pose: fitted.pose, seeds, contacts: built.contacts };
@@ -235,11 +261,14 @@ export namespace HumanSegmentOverlay {
   ): IAutoMovieMotionHumanPosture["limbs"] {
     const share: number = (seconds - overlay.start) / overlay.plan.duration;
     const contacts: IAutoMovieMotionHumanPosture["limbs"] = {};
-    const turned: IAutoMovieMotionHumanPosture["limbs"] = turnHumanPosture(written).limbs;
+    const turned: IAutoMovieMotionHumanPosture["limbs"] =
+      turnHumanPosture(written).limbs;
     let placed: ReturnType<typeof poseBones> | undefined;
     for (const window of overlay.plan.contacts) {
       if (share < window.from || share > window.to) continue;
-      const limb: IAutoMovieMotionHumanPosture.Limb | undefined = limbOf(window.part);
+      const limb: IAutoMovieMotionHumanPosture.Limb | undefined = limbOf(
+        window.part,
+      );
       if (limb === undefined || !overlay.channels.includes(limb)) continue;
       const goal: IAutoMovieMotionHumanPosture.IGoal | undefined = turned[limb];
       if (goal !== undefined) {

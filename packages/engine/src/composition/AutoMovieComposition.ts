@@ -1,7 +1,7 @@
 import type { IAutoMovieComposition } from "@automovie/interface";
+
 /** Companion types of {@link AutoMovieComposition}. */
 export namespace AutoMovieComposition {
-
   /**
    * Normalize a part to a composition node.
    *
@@ -36,7 +36,9 @@ export namespace AutoMovieComposition {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
    */
-  export function sequence(...parts: IAutoMovieComposition.Part[]): IAutoMovieComposition.ISequence {
+  export function sequence(
+    ...parts: IAutoMovieComposition.Part[]
+  ): IAutoMovieComposition.ISequence {
     return { kind: "sequence", parts: parts.map(of) };
   }
 
@@ -54,7 +56,9 @@ export namespace AutoMovieComposition {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
    */
-  export function parallel(...parts: IAutoMovieComposition.Part[]): IAutoMovieComposition.IParallel {
+  export function parallel(
+    ...parts: IAutoMovieComposition.Part[]
+  ): IAutoMovieComposition.IParallel {
     return { kind: "parallel", parts: parts.map(of) };
   }
 

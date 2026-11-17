@@ -6,11 +6,9 @@
  * @evidence contracts/development/common.md#meaningful-documentation Members state index ownership and squared-pixel clipping units.
  */
 export interface IAutoMovieRecoveryResectionScore {
- 
- /** Ascending indices in the unchanged 3D/pixel input arrays. */
+  /** Ascending indices in the unchanged 3D/pixel input arrays. */
   indices: number[];
 
- 
- /** Sum of squared pixel errors clipped at the declared support threshold. */
+  /** Sum of squared pixel errors clipped at the declared support threshold. */
   cost: number;
 }

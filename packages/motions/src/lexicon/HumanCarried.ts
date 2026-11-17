@@ -1,4 +1,13 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarryHumanPosture, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanCarried,
+  IAutoMovieMotionHumanCarryHumanPosture,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
@@ -30,88 +39,98 @@ import { HumanCarriedDrag } from "./HumanCarriedDrag";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The carrier's motion is read from the performance, never restated in the carried person's parameters.
  */
 export namespace HumanCarried {
-
   /** Be carried by another person. */
-  export const carried: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCarried.IParams> = {
-    name: "carried",
-    interrupts: {
-      any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
-    },
-    yields: ["head", "leftHand", "rightHand", "leftArm", "rightArm"],
-    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IParams>): IAutoMovieMotionHumanActionPlan => {
-      const { by, seconds } = context.params;
-      const bone: AutoMovieHumanoidBone = context.params.on ?? "upperChest";
-      if (!(seconds > 0))
-        throw new HumanRefusal({
-          kind: "parameter",
-          axis: "seconds",
-          value: seconds,
-          feasible: {
-            kind: "range",
-            minimum: 0,
-            maximum: null,
-            unit: "s",
-            open: "minimum",
-          },
-          reason: "being carried lasts a positive time",
-          fix: "give the seconds carried",
-        });
-      if (by === context.subject)
-        throw new HumanRefusal({
-          kind: "participant",
-          axis: "by",
-          value: by,
-          reason: "a person is carried by someone else",
-          fix: "name the carrier",
-        });
-      const carrier: IAutoMovieMotionHumanActionContext.IPerformer = context.performer(by);
-      const held: IAutoMovieMotionHumanPosture = context.entry.posture;
-      const frame = (at: number): IAutoMovieMotionHumanCarryHumanPosture.IFrame => {
-        const resolved: IAutoMovieResolvedBone | undefined = carrier
-          .bones(context.start + at)
-          .get(bone);
-        if (resolved === undefined)
+  export const carried: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCarried.IParams> =
+    {
+      name: "carried",
+      interrupts: {
+        any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
+      },
+      yields: ["head", "leftHand", "rightHand", "leftArm", "rightArm"],
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IParams>,
+      ): IAutoMovieMotionHumanActionPlan => {
+        const { by, seconds } = context.params;
+        const bone: AutoMovieHumanoidBone = context.params.on ?? "upperChest";
+        if (!(seconds > 0))
           throw new HumanRefusal({
             kind: "parameter",
-            axis: "on",
-            value: bone,
-            reason: `the carrier has no bone ${bone}`,
-            fix: "name a bone of the carrier's rig",
+            axis: "seconds",
+            value: seconds,
+            feasible: {
+              kind: "range",
+              minimum: 0,
+              maximum: null,
+              unit: "s",
+              open: "minimum",
+            },
+            reason: "being carried lasts a positive time",
+            fix: "give the seconds carried",
           });
-        return {
-          position: resolved.worldPosition,
-          rotation: resolved.worldRotation,
+        if (by === context.subject)
+          throw new HumanRefusal({
+            kind: "participant",
+            axis: "by",
+            value: by,
+            reason: "a person is carried by someone else",
+            fix: "name the carrier",
+          });
+        const carrier: IAutoMovieMotionHumanActionContext.IPerformer =
+          context.performer(by);
+        const held: IAutoMovieMotionHumanPosture = context.entry.posture;
+        const frame = (
+          at: number,
+        ): IAutoMovieMotionHumanCarryHumanPosture.IFrame => {
+          const resolved: IAutoMovieResolvedBone | undefined = carrier
+            .bones(context.start + at)
+            .get(bone);
+          if (resolved === undefined)
+            throw new HumanRefusal({
+              kind: "parameter",
+              axis: "on",
+              value: bone,
+              reason: `the carrier has no bone ${bone}`,
+              fix: "name a bone of the carrier's rig",
+            });
+          return {
+            position: resolved.worldPosition,
+            rotation: resolved.worldRotation,
+          };
         };
-      };
 
-      // The carrier's bones may be read only once a posture is asked.
-      let origin: IAutoMovieMotionHumanCarryHumanPosture.IFrame | undefined;
-      return {
-        duration: seconds,
-        events: [],
-        contacts: [
-          {
-            part: "seat",
-            kind: "seat",
-            from: 0,
-            to: 1,
-            support: { kind: "person", subject: by, region: "upperBack" },
+        // The carrier's bones may be read only once a posture is asked.
+        let origin: IAutoMovieMotionHumanCarryHumanPosture.IFrame | undefined;
+        return {
+          duration: seconds,
+          events: [],
+          contacts: [
+            {
+              part: "seat",
+              kind: "seat",
+              from: 0,
+              to: 1,
+              support: { kind: "person", subject: by, region: "upperBack" },
+            },
+          ],
+          posture: (at: number): IAutoMovieMotionHumanPosture => {
+            origin ??= frame(0);
+            return carryHumanPosture(
+              held,
+              origin,
+              frame(Math.min(seconds, Math.max(0, at))),
+            );
           },
-        ],
-        posture: (at: number): IAutoMovieMotionHumanPosture => {
-          origin ??= frame(0);
-          return carryHumanPosture(
-            held,
-            origin,
-            frame(Math.min(seconds, Math.max(0, at))),
-          );
-        },
-      };
-    },
-  };
+        };
+      },
+    };
 
   /** The carries. Every angle and offset is provisional, set from the carries' common descriptions: piggyback, chest on the back, legs about the waist, hands under the thighs; cradle, across the forearms before the chest; over the shoulder, folded at the waist over one shoulder; supported, side by side with an arm across the helper's shoulders (`supportedLeft` is a second helper's side); the waist lift of partner dance, face to face, the lifted partner's belly at the lifter's chest, hands on the lifter's shoulders, the lifter's hands at the hips; the overhead lift, the lifted partner prone above the lifter's head at the arms' full reach (one arm length above the shoulders' middle at the nape), the lifter's hands at the hips; the drags are `HumanCarriedDrag`'s. #3349's sources give trunk flexion and stability findings, not these places. */
-  export const CARRIES: Readonly<Record<IAutoMovieMotionHumanCarried.Carry, IAutoMovieMotionHumanCarried.IRow>> = {
+  export const CARRIES: Readonly<
+    Record<
+      IAutoMovieMotionHumanCarried.Carry,
+      IAutoMovieMotionHumanCarried.IRow
+    >
+  > = {
     piggyback: {
       mine: "sternum",
       theirs: "upperBack",
@@ -211,15 +230,17 @@ export namespace HumanCarried {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
    */
-  export const borne: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCarried.IBorne> = {
-    name: "borne",
-    interrupts: {
-      any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
-    },
-    yields: ["head"],
-    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IBorne>): IAutoMovieMotionHumanActionPlan =>
-      HumanCarriedBorne.plan(context),
-  };
+  export const borne: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCarried.IBorne> =
+    {
+      name: "borne",
+      interrupts: {
+        any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
+      },
+      yields: ["head"],
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IBorne>,
+      ): IAutoMovieMotionHumanActionPlan => HumanCarriedBorne.plan(context),
+    };
 
   /**
    * Hold a person in a named carry: the carrier's hands where the carry takes the carried body. Performed over the carrier's own action (`carrier.walk(...).over((o) => o.registered("bearing", ...))`), it claims only the arms that hold. With two helpers each names the other by `beside`, the one whose carry is the other side's being the second. With the carried person named and the hold performed as an action of its own, the carrier tips about its feet by the pair's own balance as its hands take the body (`HumanCarriedCouplingLoad.lean`); over a walk, which keeps its trunk, the composition schedules that tip as a layer (`HumanCarriedLean.coupled`), and with no person named the table's lean (`HumanCarriedLean.layer`).
@@ -232,15 +253,17 @@ export namespace HumanCarried {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
    */
-  export const bearing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCarried.IBearing> = {
-    name: "bearing",
-    interrupts: {
-      any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
-    },
-    overlay: true,
-    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IBearing>): IAutoMovieMotionHumanActionPlan =>
-      HumanCarriedBearing.plan(context),
-  };
+  export const bearing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCarried.IBearing> =
+    {
+      name: "bearing",
+      interrupts: {
+        any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
+      },
+      overlay: true,
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IBearing>,
+      ): IAutoMovieMotionHumanActionPlan => HumanCarriedBearing.plan(context),
+    };
 
   /** Seconds the carrier's hands take to reach their hold (provisional). */
   export const TAKE: number = 0.4;

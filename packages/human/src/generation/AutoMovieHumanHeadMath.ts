@@ -1,9 +1,10 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanHeadJet, IAutoMovieHumanHeadMath } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanHeadJet,
+  IAutoMovieHumanHeadMath,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
-
 
 /**
  * Shared mathematics of the head's pieces: the bells, the quintic smoothstep
@@ -34,7 +35,10 @@ export namespace AutoMovieHumanHeadMath {
    * convex body: one bisection when the ray starts inside, else from the body's
    * nearest approach; nothing when the ray misses it.
    */
-  export function outermost(h: IAutoMovieHumanHeadMath.OutermostH, reach: number): number {
+  export function outermost(
+    h: IAutoMovieHumanHeadMath.OutermostH,
+    reach: number,
+  ): number {
     let lo: number = 0;
     let fl: number = h(0) - 1;
     if (!(fl < 0)) {
@@ -99,7 +103,13 @@ export namespace AutoMovieHumanHeadMath {
    * neighbours with the jets their owners give: the quintic Hermite span, C2 at
    * both ends, held at the ends' values beyond them.
    */
-  export function joined(lo: IAutoMovieHumanHeadJet, hi: IAutoMovieHumanHeadJet, a: number, b: number, y: number): number {
+  export function joined(
+    lo: IAutoMovieHumanHeadJet,
+    hi: IAutoMovieHumanHeadJet,
+    a: number,
+    b: number,
+    y: number,
+  ): number {
     return AutoMovieHumanSeam.quintic(
       [[lo.value], [lo.slope], [lo.curvature]],
       [[hi.value], [hi.slope], [hi.curvature]],
@@ -173,17 +183,26 @@ export namespace AutoMovieHumanHeadMath {
   }
 
   /** Distance. */
-  export function dist(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
+  export function dist(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): number {
     return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   }
 
   /** Between two points. */
-  export function mix(a: IAutoMovieHumanHeadMath.P2, b: IAutoMovieHumanHeadMath.P2, f: number): IAutoMovieHumanHeadMath.P2 {
+  export function mix(
+    a: IAutoMovieHumanHeadMath.P2,
+    b: IAutoMovieHumanHeadMath.P2,
+    f: number,
+  ): IAutoMovieHumanHeadMath.P2 {
     return [a[0] + f * (b[0] - a[0]), a[1] + f * (b[1] - a[1])];
   }
 
   /** Mean of a loop's points. */
-  export function centroid(loop: readonly IAutoMovieHumanHeadMath.P2[]): IAutoMovieHumanHeadMath.P2 {
+  export function centroid(
+    loop: readonly IAutoMovieHumanHeadMath.P2[],
+  ): IAutoMovieHumanHeadMath.P2 {
     return [
       mean(loop.map((p: IAutoMovieHumanHeadMath.P2): number => p[0])),
       mean(loop.map((p: IAutoMovieHumanHeadMath.P2): number => p[1])),
@@ -191,7 +210,10 @@ export namespace AutoMovieHumanHeadMath {
   }
 
   /** Difference. */
-  export function sub(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+  export function sub(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
@@ -212,9 +234,11 @@ export namespace AutoMovieHumanHeadMath {
   }
 
   /** A section point on a side at a height. */
-  export function lifted(p: IAutoMovieHumanHeadMath.P2, y: number, sign: 1 | -1): AutoMovieVector3Tuple {
+  export function lifted(
+    p: IAutoMovieHumanHeadMath.P2,
+    y: number,
+    sign: 1 | -1,
+  ): AutoMovieVector3Tuple {
     return [p[0], y, sign * p[1]];
   }
 }
-
-

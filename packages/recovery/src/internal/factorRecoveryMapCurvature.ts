@@ -1,8 +1,9 @@
-import type { IAutoMovieRecoveryMapCurvatureBlocks, IAutoMovieRecoveryMapCurvatureFit, IAutoMovieRecoveryMapTriangularMetric, IAutoMovieSimplexAtom } from "@automovie/interface";
-
-
-
-
+import type {
+  IAutoMovieRecoveryMapCurvatureBlocks,
+  IAutoMovieRecoveryMapCurvatureFit,
+  IAutoMovieRecoveryMapTriangularMetric,
+  IAutoMovieSimplexAtom,
+} from "@automovie/interface";
 
 import { createRecoveryMapTriangularMetric } from "./createRecoveryMapTriangularMetric";
 import { validateRecoveryMapMetricRow } from "./validateRecoveryMapMetricRow";

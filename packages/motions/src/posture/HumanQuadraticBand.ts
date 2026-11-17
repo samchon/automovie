@@ -71,7 +71,9 @@ export namespace HumanQuadraticBand {
    * @param problem The problem.
    * @returns The scaled problem.
    */
-  export function scaled(problem: IAutoMovieMotionHumanQuadraticProgram.IProblem): IScaled {
+  export function scaled(
+    problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
+  ): IScaled {
     const n: number = problem.n;
     const band: number = problem.band;
     const rows = problem.rows;

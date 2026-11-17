@@ -1,4 +1,10 @@
-import { type IAutoMovieViolationCollector, IAutoMovieServiceNetwork, IAutoMovieServiceNode, IAutoMovieServicePort, IAutoMovieServiceSystem } from "@automovie/interface";
+import {
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSystem,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { serviceSystemLoad } from "./serviceSystemLoad";
 import { serviceSystemReach } from "./serviceSystemReach";

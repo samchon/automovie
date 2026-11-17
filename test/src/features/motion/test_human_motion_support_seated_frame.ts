@@ -1,8 +1,19 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, AutoMovieHumanoidBone } from "@automovie/interface";
 import { createCart } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, seated } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  seated,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -70,50 +81,60 @@ export function test_human_motion_support_seated_frame(): void {
     };
     const reference: IAutoMovieMotionHumanPerformance = perform(0);
     for (const floor of [0, 0.3, -0.2]) {
-      const moved: IAutoMovieMotionHumanPerformance = floor === 0 ? reference : perform(floor);
+      const moved: IAutoMovieMotionHumanPerformance =
+        floor === 0 ? reference : perform(floor);
       const expected: readonly IAutoMovieMotionHumanSegment.ISegment[] =
         reference.segments("a");
       moved
         .segments("a")
-        .forEach((segment: IAutoMovieMotionHumanSegment.ISegment, i: number): void => {
-          const original: IAutoMovieMotionHumanSegment.ISegment = expected[i]!;
-          const cell: string = `${name} at ${floor} m ${segment.name}`;
-          for (const contact of segment.plan.contacts)
-            if (contact.part.endsWith("Foot") || contact.part === "seat")
-              if (
-                contact.support.kind !== "prop" ||
-                contact.support.subject !== "cart"
-              )
-                findings.push(`${cell}: ${contact.part} lost its cart support`);
-          if (Math.abs(segment.plan.duration - original.plan.duration) > 1e-6)
-            findings.push(`${cell}: rigid translation changed the duration`);
-          for (const share of [0, 0.5, 1]) {
-            const a: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-              reference.bones(
-                "a",
-                original.start + share * original.plan.duration,
-              );
-            const b: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-              moved.bones("a", segment.start + share * segment.plan.duration);
-            let worst: number = 0;
-            for (const [bone, posed] of b) {
-              const before: IAutoMovieResolvedBone = a.get(bone)!;
-              worst = Math.max(
-                worst,
-                Vector3.length(
-                  Vector3.subtract(
-                    posed.worldPosition,
-                    Vector3.add(before.worldPosition, { x: 0, y: floor, z: 0 }),
+        .forEach(
+          (segment: IAutoMovieMotionHumanSegment.ISegment, i: number): void => {
+            const original: IAutoMovieMotionHumanSegment.ISegment =
+              expected[i]!;
+            const cell: string = `${name} at ${floor} m ${segment.name}`;
+            for (const contact of segment.plan.contacts)
+              if (contact.part.endsWith("Foot") || contact.part === "seat")
+                if (
+                  contact.support.kind !== "prop" ||
+                  contact.support.subject !== "cart"
+                )
+                  findings.push(
+                    `${cell}: ${contact.part} lost its cart support`,
+                  );
+            if (Math.abs(segment.plan.duration - original.plan.duration) > 1e-6)
+              findings.push(`${cell}: rigid translation changed the duration`);
+            for (const share of [0, 0.5, 1]) {
+              const a: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+                reference.bones(
+                  "a",
+                  original.start + share * original.plan.duration,
+                );
+              const b: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+                moved.bones("a", segment.start + share * segment.plan.duration);
+              let worst: number = 0;
+              for (const [bone, posed] of b) {
+                const before: IAutoMovieResolvedBone = a.get(bone)!;
+                worst = Math.max(
+                  worst,
+                  Vector3.length(
+                    Vector3.subtract(
+                      posed.worldPosition,
+                      Vector3.add(before.worldPosition, {
+                        x: 0,
+                        y: floor,
+                        z: 0,
+                      }),
+                    ),
                   ),
-                ),
-              );
+                );
+              }
+              if (worst > 1e-5)
+                findings.push(
+                  `${cell} at share ${share}: a joint misses the translated motion by ${worst} m`,
+                );
             }
-            if (worst > 1e-5)
-              findings.push(
-                `${cell} at share ${share}: a joint misses the translated motion by ${worst} m`,
-              );
-          }
-        });
+          },
+        );
     }
   }
   TestValidator.equals(

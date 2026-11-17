@@ -1,9 +1,12 @@
-import type { IAutoMoviePhysicalSimulation, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import {
   AutoMoviePhysicalSimulation as Simulation,
   validatePhysicalProfile,
 } from "@automovie/engine";
-
+import type {
+  IAutoMoviePhysicalSimulation,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -88,7 +91,8 @@ export async function test_physical_simulation(): Promise<void> {
       JSON.stringify(first.cache.frames) ===
       JSON.stringify(second.cache.frames),
   );
-  const edited: IAutoMoviePhysicalSimulationInput.IInput = structuredClone(input);
+  const edited: IAutoMoviePhysicalSimulationInput.IInput =
+    structuredClone(input);
   edited.impulses.push({
     step: 200,
     body: "ball",
@@ -96,7 +100,10 @@ export async function test_physical_simulation(): Promise<void> {
     impulse: { x: 1, y: 0, z: 0 },
     point: { x: 0, y: 0.1, z: 0 },
   });
-  const resumed: IAutoMoviePhysicalSimulation = await Simulation.compute(edited, first);
+  const resumed: IAutoMoviePhysicalSimulation = await Simulation.compute(
+    edited,
+    first,
+  );
   const fresh: IAutoMoviePhysicalSimulation = await Simulation.compute(edited);
   TestValidator.predicate(
     "late edit uses the nearest earlier checkpoint",
@@ -121,7 +128,8 @@ export async function test_physical_simulation(): Promise<void> {
   );
   const kinematic: IAutoMoviePhysicalSimulationInput.IInput = falling();
   kinematic.bodies[0]!.mode = { kind: "kinematic" };
-  const authored: IAutoMoviePhysicalSimulation = await Simulation.compute(kinematic);
+  const authored: IAutoMoviePhysicalSimulation =
+    await Simulation.compute(kinematic);
   TestValidator.predicate(
     "kinematic path stays authored",
     (): boolean =>

@@ -1,6 +1,18 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanLegTouch, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HumanChain, HumanPerformance, HumanSignature, legTouch } from "@automovie/motions";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLegTouch,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanSignature,
+  legTouch,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -63,43 +75,41 @@ export function test_human_motion_leg_touch(): void {
     for (const part of ["toes", "heel", "knee"] as const) {
       const label: string = `${name}: ${part}`;
       try {
-        const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-          seed: "leg",
-          laws: [legTouch],
-          performers: [
-            {
-              subject: "a",
-              body,
-              at: { x: 0, y: 0, z: 0 },
-              yaw: 0,
-              proficiency: { level: "trained" },
-            },
-          ],
-          composition: HumanChain.subject("a")
-            .stand({ seconds: 0.3 })
-            .registered("legTouch", {
-              target: {
-                kind: "point",
-                at: places[part].at,
-                frame: "world",
-                normal: places[part].normal,
+        const performance: IAutoMovieMotionHumanPerformance =
+          new HumanPerformance({
+            seed: "leg",
+            laws: [legTouch],
+            performers: [
+              {
+                subject: "a",
+                body,
+                at: { x: 0, y: 0, z: 0 },
+                yaw: 0,
+                proficiency: { level: "trained" },
               },
-              with: part,
-            }).node,
-        });
-        const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments("a")[1]!;
+            ],
+            composition: HumanChain.subject("a")
+              .stand({ seconds: 0.3 })
+              .registered("legTouch", {
+                target: {
+                  kind: "point",
+                  at: places[part].at,
+                  frame: "world",
+                  normal: places[part].normal,
+                },
+                with: part,
+              }).node,
+          });
+        const placed: IAutoMovieMotionHumanSegment.ISegment =
+          performance.segments("a")[1]!;
         const instant = (event: string): number =>
           placed.start +
           (placed.plan.events.find((e): boolean => e.name === event)?.share ??
             NaN) *
             placed.plan.duration;
         const held: number = (instant("ready") + instant("relax")) / 2;
-        const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-          performance,
-          "a",
-          body,
-          0,
-        );
+        const reader: IAutoMovieMotionHumanSignature.IReader =
+          HumanSignature.of(performance, "a", body, 0);
         const joint = (
           bone: AutoMovieHumanoidBone,
           seconds: number,

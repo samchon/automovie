@@ -1,5 +1,8 @@
 import type { IAutoMovieCaptureResolution } from "@automovie/interface";
-import { parseAutoMovieCapturePlanRequest, resolveAutoMovieCapturePatterns } from "@automovie/render";
+import {
+  parseAutoMovieCapturePlanRequest,
+  resolveAutoMovieCapturePatterns,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /** Object paths of a small scene, then the paths of the marks it draws, in scene order. */

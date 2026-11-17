@@ -1,3 +1,4 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanObject,
@@ -7,8 +8,6 @@ import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import { Quaternion, Vector3 } from "@automovie/engine";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 

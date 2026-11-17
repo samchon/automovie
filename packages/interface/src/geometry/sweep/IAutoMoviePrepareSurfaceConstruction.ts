@@ -7,7 +7,7 @@ import type { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
 export namespace IAutoMoviePrepareSurfaceConstruction {
   /**
    * Register observation writers while a network rig is still open, then read them after its girth solve and final rest evaluation.
-   * 
+   *
    * Sweep observations use the same zero-cell writer as unsampled sweep nodes; spine observations read the same registered section frame; network curves use the actual tangent-constrained curve rig as patch boundaries, including its resolved geometric endpoint cells. Those curves are not raw zero-cell sweep observations. Feature observations read the compiled field's own smooth domain course. No observation enters the cage registry, changes a sampling cell or adds a vertex.
    *
    * @evidence contracts/development/design.md#principled-representation Observation counts select metre polylines from the network's compiled rig; the preparer checks all count keys and minimums before registering points.

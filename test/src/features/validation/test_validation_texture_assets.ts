@@ -1,6 +1,12 @@
-import { type IAutoMovieTextureImageFacts, IAutoMovieAssetProvenance, IAutoMovieAssetUse, IAutoMovieMaterial, IAutoMovieModel, IAutoMovieSceneEnvironment } from "@automovie/interface";
 import { validateTextureAssets } from "@automovie/engine";
-
+import {
+  IAutoMovieAssetProvenance,
+  IAutoMovieAssetUse,
+  IAutoMovieMaterial,
+  IAutoMovieModel,
+  IAutoMovieSceneEnvironment,
+  type IAutoMovieTextureImageFacts,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import type { ITextureAssetClosureOverrides } from "../internal/ITextureAssetClosureOverrides";

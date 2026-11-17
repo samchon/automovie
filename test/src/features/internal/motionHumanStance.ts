@@ -1,6 +1,9 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { poseBones, resolveHumanPosture, stand } from "@automovie/motions";
 
 /**

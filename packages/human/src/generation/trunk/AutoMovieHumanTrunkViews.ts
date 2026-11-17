@@ -1,14 +1,14 @@
-import type { IAutoMovieHumanBodyBox, IAutoMovieHumanBodyMeasures, IAutoMovieHumanTrunkConnection, IAutoMovieHumanTrunkViewLaws, IAutoMovieHumanTrunkViews } from "@automovie/interface";
-
-
-
-
-
 import { AutoMovieViewSection } from "@automovie/engine";
+import type {
+  IAutoMovieHumanBodyBox,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanTrunkConnection,
+  IAutoMovieHumanTrunkViewLaws,
+  IAutoMovieHumanTrunkViews,
+} from "@automovie/interface";
 
 import { AutoMovieHumanBodyBox } from "../AutoMovieHumanBodyBox";
 import { AutoMovieHumanTrunkLandmarks } from "../AutoMovieHumanTrunkLandmarks";
-
 
 /**
  * The trunk base's views from a person's measures: every site's height, half
@@ -59,10 +59,6 @@ import { AutoMovieHumanTrunkLandmarks } from "../AutoMovieHumanTrunkLandmarks";
  * same chest depth; this is an explicit thorax transfer convention.
  */
 export namespace AutoMovieHumanTrunkViews {
-  
-
-  
-
   /**
    * The views.
    *
@@ -118,7 +114,9 @@ export namespace AutoMovieHumanTrunkViews {
       const back: number = laws.back(y);
       return { site: name, y, half, front: back + depth, back, fullness };
     };
-    const topHipBox: IAutoMovieHumanTrunkViewLaws.IBox = laws.lumbar(measures.highHipCircumference * scale);
+    const topHipBox: IAutoMovieHumanTrunkViewLaws.IBox = laws.lumbar(
+      measures.highHipCircumference * scale,
+    );
     const underbust: IAutoMovieHumanTrunkViewLaws.IBox = laws.chestWall(
       measures.underbustCircumference * scale,
     );
@@ -159,7 +157,9 @@ export namespace AutoMovieHumanTrunkViews {
         ellipse,
       ),
       ...laws.upper.map(
-        (u: IAutoMovieHumanTrunkViewLaws.ILaws["upper"][number]): IAutoMovieHumanTrunkViews.ISite => {
+        (
+          u: IAutoMovieHumanTrunkViewLaws.ILaws["upper"][number],
+        ): IAutoMovieHumanTrunkViews.ISite => {
           const back: number = u.back ?? laws.back(u.y);
 
           // The whole-skin table includes the breast envelope. Continue

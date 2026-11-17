@@ -1,4 +1,7 @@
-import { type IAutoMovieResolveBeatProps, IAutoMovieBeatEndState } from "@automovie/interface";
+import {
+  IAutoMovieBeatEndState,
+  type IAutoMovieResolveBeatProps,
+} from "@automovie/interface";
 
 import { resolveBeatSnapshot } from "./resolveBeatSnapshot";
 

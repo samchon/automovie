@@ -1,6 +1,15 @@
-import type { IAutoMovieConstructionCurve, IAutoMovieConstructionRealization, IAutoMovieLoftChain, IAutoMovieSolidSurface, IAutoMovieConstructionDiagnostic, IAutoMovieConstructionView } from "@automovie/interface";
-import { realizeAutoMovieConstruction, sampleAutoMovieConstructionCurves } from "@automovie/engine";
-
+import {
+  realizeAutoMovieConstruction,
+  sampleAutoMovieConstructionCurves,
+} from "@automovie/engine";
+import type {
+  IAutoMovieConstructionCurve,
+  IAutoMovieConstructionDiagnostic,
+  IAutoMovieConstructionRealization,
+  IAutoMovieConstructionView,
+  IAutoMovieLoftChain,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";

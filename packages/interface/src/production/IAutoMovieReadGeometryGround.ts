@@ -1,5 +1,3 @@
-
-
 /** World-ground query result used by direct geometry and formation measurements. */
 export namespace IAutoMovieReadGeometryGround {
   /**
@@ -13,13 +11,13 @@ export namespace IAutoMovieReadGeometryGround {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Zero height with null surface is not a synthetic supporting plane; walkability is read from the selected surface even when a later surface would be walkable.
    */
   export type IResult = {
-  /** World ground Y in metres from the first containing surface. Zero when no surface contains the query, distinguished by surface:null and walkable:false. */
-  height: number;
+    /** World ground Y in metres from the first containing surface. Zero when no surface contains the query, distinguished by surface:null and walkable:false. */
+    height: number;
 
-  /** ID of the first containing surface in world surface order; null when no authored surface contains the query. */
-  surface: string | null;
+    /** ID of the first containing surface in world surface order; null when no authored surface contains the query. */
+    surface: string | null;
 
-  /** The selected surface's declared walkability. False for absent ground; a zero height alone does not imply support. */
-  walkable: boolean;
+    /** The selected surface's declared walkability. False for absent ground; a zero height alone does not imply support. */
+    walkable: boolean;
   };
 }

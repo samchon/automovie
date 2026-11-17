@@ -1,5 +1,8 @@
-import type { IAutoMovieRecoveryCameraResidualsScoreOperation, IAutoMovieRecoveryHomographyConsensusFittingOperation, IAutoMovieRecoveryHomographyFittingOperation } from "@automovie/interface";
-
+import type {
+  IAutoMovieRecoveryCameraResidualsScoreOperation,
+  IAutoMovieRecoveryHomographyConsensusFittingOperation,
+  IAutoMovieRecoveryHomographyFittingOperation,
+} from "@automovie/interface";
 
 import { fitRecoveryHomography } from "./fitRecoveryHomography";
 import { isRecoveryCameraNumericalRefusal } from "./isRecoveryCameraNumericalRefusal";
@@ -46,11 +49,14 @@ export function fitRecoveryHomographyConsensus(
   let trials: number = 0,
     numericalRefusals: number = 0,
     refitRefusals: number = 0;
-  let model: ReturnType<IAutoMovieRecoveryHomographyFittingOperation.Operation> | null = null;
-  let score: ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation> = {
-    indices: [],
-    medianPx: null,
-    p90Px: null };
+  let model: ReturnType<IAutoMovieRecoveryHomographyFittingOperation.Operation> | null =
+    null;
+  let score: ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation> =
+    {
+      indices: [],
+      medianPx: null,
+      p90Px: null,
+    };
   while (
     trials < budget.maxRansacTrials &&
     (trials < budget.minimumRansacTrials || trials < required) &&
@@ -149,5 +155,6 @@ export function fitRecoveryHomographyConsensus(
       trials >= required && trials >= budget.minimumRansacTrials,
     forbiddenOverlapFound: score.indices.length >= forbiddenSupport,
     numericalRefusals,
-    refitRefusals };
+    refitRefusals,
+  };
 }

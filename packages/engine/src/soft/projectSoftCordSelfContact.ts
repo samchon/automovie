@@ -1,9 +1,9 @@
 import type { IAutoMovieProjectSoftCordSelfContact } from "@automovie/interface";
+
 /**
- * Keep the segments of a cord apart: every two segments that share no
- * particle are held at least two radii apart along the line between their
- * closest points, with Coulomb friction between them, in place on the
- * predicted positions.
+ * Project detected nonadjacent cord-segment penetrations along the line
+ * between their closest points, with Coulomb friction, in place on predicted
+ * positions. One ordered pass does not certify separation of every pair.
  *
  * A cord is a one-wide lattice, its particles in index order along it and
  * segment s joining particles s and s + 1. Each segment is a capsule of the
@@ -29,22 +29,26 @@ import type { IAutoMovieProjectSoftCordSelfContact } from "@automovie/interface"
  * plus two radii, so two segments within two radii of each other have
  * midpoints in neighbouring cells; segments are visited in index order and
  * each one's candidates in ascending order, so the result is deterministic.
- * A segment travels less than the radius a step when the domain's admission
- * holds (`dt * referenceSpeed <= thickness`), so a pass discovered at the
- * end of a step cannot have been tunnelled through.
+ * The grid describes positions at the start of this call and is not rebuilt
+ * after each projection. Closest-point coincidence has no separating direction
+ * and is skipped. The declared `dt * referenceSpeed <= thickness` admission
+ * bound does not clamp actual particle speed; this discrete projection is not
+ * continuous collision detection and cannot rule out tunnelling.
  *
  * @param props The cord's particles, its previous and predicted positions, inverse masses and contact.
  * @returns How many pairs were in contact.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the segment model, the closest points with their source, the constraint and its gradients, the friction law with its source, the grid's premise and the tunnelling premise.
+ * @evidence contracts/development/common.md#meaningful-documentation States the segment model, closest-point and friction sources, constraint gradients, fixed-per-call grid and discrete/coincident-contact limitations.
  * @evidence contracts/development/implementation.md#principled-implementation Ericson's segment-segment closest points, a position-based non-penetration constraint (Müller et al. 2007) and position-based Coulomb friction (Macklin et al. 2014).
  * @evidence contracts/development/implementation.md#clear-and-simple-structure A grid pass for candidates, then one projection per candidate pair.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adjacent segments, which share a particle, are never paired; two anchored particles move nothing.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adjacent segments are excluded, zero closest distance is skipped and all-anchored pairs cannot move; these limits do not establish separation or absence of tunnelling.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in segments for the grid, then linear in candidate pairs; a cord in contact with itself only near a crossing checks a few neighbours per segment.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call reads the positions the last constraint pass left; the grid is rebuilt because they move.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The grid is call-local; only the caller's predicted buffer is written.
  */
-export const projectSoftCordSelfContact: (props: IAutoMovieProjectSoftCordSelfContact.IProps) => number = (props: IAutoMovieProjectSoftCordSelfContact.IProps): number => {
+export const projectSoftCordSelfContact: (
+  props: IAutoMovieProjectSoftCordSelfContact.IProps,
+) => number = (props: IAutoMovieProjectSoftCordSelfContact.IProps): number => {
   // The pair projection reads the positions and the inverse masses from
   // `props`; the grid needs only the predicted positions.
   const { count, predicted }: typeof props = props;

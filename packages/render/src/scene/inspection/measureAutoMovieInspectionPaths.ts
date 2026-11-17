@@ -1,9 +1,8 @@
-import type { IAutoMovieMark, IAutoMovieCaptureSubject, IAutoMovieVector3 } from "@automovie/interface";
-
-
-
-
-
+import type {
+  IAutoMovieCaptureSubject,
+  IAutoMovieMark,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";

@@ -1,7 +1,11 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanLimbFitFrame, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import { Quaternion } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanLimbFitFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The frame a limb fit is remembered in (`HumanLimbFit.remembered`): the
@@ -27,7 +31,6 @@ import { Quaternion } from "@automovie/engine";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No goal is moved that names a world collider: it is keyed in the world, not approximated.
  */
 export namespace HumanLimbFitFrame {
-
   /**
    * The frame a fit of a pose and a goal is remembered in, or null when it
    * stays in the world.
@@ -84,7 +87,10 @@ export namespace HumanLimbFitFrame {
    * @param pose The pose, with a root.
    * @returns The pose in the frame.
    */
-  export function pose(frame: IAutoMovieMotionHumanLimbFitFrame.IFrame, pose: IAutoMoviePose): IAutoMoviePose {
+  export function pose(
+    frame: IAutoMovieMotionHumanLimbFitFrame.IFrame,
+    pose: IAutoMoviePose,
+  ): IAutoMoviePose {
     if (pose.root === null) return pose;
     return {
       ...pose,
@@ -152,7 +158,9 @@ export namespace HumanLimbFitFrame {
    * @param hit Whether the fit was read from the memory.
    */
   export function count(body: IAutoMovieMotionHumanBody, hit: boolean): void {
-    const counts: IAutoMovieMotionHumanLimbFitFrame.IStatistics = COUNTS.get(body) ?? { hits: 0, misses: 0 };
+    const counts: IAutoMovieMotionHumanLimbFitFrame.IStatistics = COUNTS.get(
+      body,
+    ) ?? { hits: 0, misses: 0 };
     if (hit) counts.hits += 1;
     else counts.misses += 1;
     COUNTS.set(body, counts);
@@ -164,11 +172,17 @@ export namespace HumanLimbFitFrame {
    * @param body The body.
    * @returns Its hits and misses.
    */
-  export function statistics(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanLimbFitFrame.IStatistics {
-    const counts: IAutoMovieMotionHumanLimbFitFrame.IStatistics | undefined = COUNTS.get(body);
+  export function statistics(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanLimbFitFrame.IStatistics {
+    const counts: IAutoMovieMotionHumanLimbFitFrame.IStatistics | undefined =
+      COUNTS.get(body);
     return { hits: counts?.hits ?? 0, misses: counts?.misses ?? 0 };
   }
 
   /** The counts, by body, released with the body. */
-  const COUNTS: WeakMap<IAutoMovieMotionHumanBody, IAutoMovieMotionHumanLimbFitFrame.IStatistics> = new WeakMap();
+  const COUNTS: WeakMap<
+    IAutoMovieMotionHumanBody,
+    IAutoMovieMotionHumanLimbFitFrame.IStatistics
+  > = new WeakMap();
 }

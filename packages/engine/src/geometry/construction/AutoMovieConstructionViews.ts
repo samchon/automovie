@@ -1,5 +1,16 @@
-import type { IAutoMovieViewPart, IAutoMovieConstructionAxis, IAutoMovieConstructionFullness, IAutoMovieConstructionParameter, IAutoMovieSolidIntersection, IAutoMovieViewAxis, IAutoMovieConstructionOutline, IAutoMovieConstructionOutlinePair, IAutoMovieConstructionSource, IAutoMovieConstructionView, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieConstructionAxis,
+  IAutoMovieConstructionFullness,
+  IAutoMovieConstructionOutline,
+  IAutoMovieConstructionOutlinePair,
+  IAutoMovieConstructionParameter,
+  IAutoMovieConstructionSource,
+  IAutoMovieConstructionView,
+  IAutoMovieSolidIntersection,
+  IAutoMovieVector3,
+  IAutoMovieViewAxis,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieViewAxis } from "./AutoMovieViewAxis";
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";

@@ -1,4 +1,7 @@
-import type { IAutoMovieBicubicAtlasGeometry, IAutoMovieRecoveryChartSourcePiece } from "../../index";
+import type {
+  IAutoMovieBicubicAtlasGeometry,
+  IAutoMovieRecoveryChartSourcePiece,
+} from "../../index";
 
 /**
  * Successful local Coons chart compilation with exact boundary authority and provenance.
@@ -10,27 +13,21 @@ import type { IAutoMovieBicubicAtlasGeometry, IAutoMovieRecoveryChartSourcePiece
  */
 
 export interface IAutoMovieRecoveryEventDomainCompilation {
- 
- /** Discriminates a completed coefficient compilation; this is not a surface-fidelity claim. */
+  /** Discriminates a completed coefficient compilation; this is not a surface-fidelity claim. */
   complete: true;
 
- 
- /** Independent coefficient atlas with positions in metres. */
+  /** Independent coefficient atlas with positions in metres. */
   recipe: IAutoMovieBicubicAtlasGeometry;
 
- 
- /** Sorted actual local U partition knots. */
+  /** Sorted actual local U partition knots. */
   u: number[];
 
- 
- /** Sorted actual local V partition knots. */
+  /** Sorted actual local V partition knots. */
   v: number[];
 
- 
- /** Per-patch native boundary provenance. */
+  /** Per-patch native boundary provenance. */
   sourcePieces: IAutoMovieRecoveryChartSourcePiece[];
 
- 
- /** Largest checked endpoint disagreement before exact equality admission, millimetres. */
+  /** Largest checked endpoint disagreement before exact equality admission, millimetres. */
   maximumConstructedSharedEndpointDifferenceMm: number;
 }

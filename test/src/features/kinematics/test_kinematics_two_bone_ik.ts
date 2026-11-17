@@ -1,5 +1,5 @@
-import type { IAutoMovieTwoBoneIK } from "@automovie/interface";
 import { solveTwoBoneIK } from "@automovie/engine";
+import type { IAutoMovieTwoBoneIK } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";

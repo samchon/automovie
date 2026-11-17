@@ -1,4 +1,12 @@
-import type { IAutoMovieLoftChain, IAutoMovieConstructionOutlineParameter, IAutoMovieLoftFrame, IAutoMovieLoftFrameSource, IAutoMovieStationHermite, IAutoMovieViewAxis, IAutoMovieViewAxisJet } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionOutlineParameter,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftFrame,
+  IAutoMovieLoftFrameSource,
+  IAutoMovieStationHermite,
+  IAutoMovieViewAxis,
+  IAutoMovieViewAxisJet,
+} from "@automovie/interface";
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
@@ -13,7 +21,6 @@ import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftFrameSource {
-
   /**
    * Retain an analytic axis on every final loft layer, replacing resplined frame jets.
    *
@@ -80,7 +87,8 @@ export namespace AutoMovieLoftFrameSource {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no layer, source or output after returning or throwing.
    */
   export function validate(layer: IAutoMovieLoftChain.ILayer): void {
-    const source: IAutoMovieLoftFrameSource.ISource | undefined = layer.frameSource;
+    const source: IAutoMovieLoftFrameSource.ISource | undefined =
+      layer.frameSource;
     if (source === undefined) return;
     const derivatives: boolean =
       source.jet === null
@@ -117,7 +125,10 @@ export namespace AutoMovieLoftFrameSource {
   ): IAutoMovieViewAxisJet.IJet | null {
     const axis: IAutoMovieViewAxis.IAxis | null = owner(a, b);
     if (axis === null) return null;
-    const jet: IAutoMovieViewAxisJet.IJet | null = axis.jet!(station, parameter);
+    const jet: IAutoMovieViewAxisJet.IJet | null = axis.jet!(
+      station,
+      parameter,
+    );
     if (jet === null || ![jet.value, jet.first, jet.second].every(finite))
       throw new AutoMovieLoftAdmissionError(
         `Retained axis has no finite analytic frame jet at station ${station} mm`,
@@ -242,7 +253,10 @@ export namespace AutoMovieLoftFrameSource {
   }
 
   /** Validate both explicit records and distinguish a common source from an ordinary mixed-source boundary. */
-  function owner(a: IAutoMovieLoftChain.ILayer, b: IAutoMovieLoftChain.ILayer): IAutoMovieViewAxis.IAxis | null {
+  function owner(
+    a: IAutoMovieLoftChain.ILayer,
+    b: IAutoMovieLoftChain.ILayer,
+  ): IAutoMovieViewAxis.IAxis | null {
     validate(a);
     validate(b);
     return a.frameSource !== undefined &&

@@ -1,5 +1,5 @@
-import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 
 /**
  * Bounded chain fitting of horizontal endpoint intent and real patch-plane constraints.
@@ -37,19 +37,5 @@ export namespace IAutoMovieSolvePhysicalFloorChainTarget {
     /** Requested minimum patch height, metres. */ floor: number;
     /** Positive update budget, at most 64. */ iterations: number;
     /** Positive metre residual early-out. */ tolerance: number;
-  };
-
-  /**
-   * Fit endpoint X/Z and the actual patch's lowest Y simultaneously. Independent
-   * bounded native twist coordinates preserve all locked axes and rigid anchors.
-   * Finite-difference Jacobians use the existing original-design SVD; damped
-   * steps and backtracking accept only a measured residual decrease. Work is
-   * bounded, unreachable intent remains a residual, and no body is teleported.
-   */
-  export type IResult = {
-    /** New bounded fitted world motor poses; original inputs and native bodies are not moved. */
-    targets: Record<string, IAutoMoviePhysicalProfile.ITransform>;
-    /** Final norm of endpoint/plane residual rows in metres; budget exhaustion need not meet tolerance. */
-    residual: number;
   };
 }

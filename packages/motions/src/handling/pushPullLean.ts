@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPushPullLean } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPushPullLean,
+} from "@automovie/interface";
 
 /**
  * How far the trunk leans when a load is pushed, pulled or dragged by its
@@ -29,10 +32,15 @@ import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPushPullLean } fro
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every angle is read from the study; none is tuned.
  */
 export namespace pushPullLean {
-
   /** The peak torso angle, degrees, by way, load and handle height (Lett and McGill 2006, figure 9, the two groups' size-weighted mean). */
   export const ANGLES: Readonly<
-    Record<IAutoMovieMotionHumanPushPullLean.Way, Record<IAutoMovieMotionHumanPushPullLean.Load, Record<"waist" | "shoulder", number>>>
+    Record<
+      IAutoMovieMotionHumanPushPullLean.Way,
+      Record<
+        IAutoMovieMotionHumanPushPullLean.Load,
+        Record<"waist" | "shoulder", number>
+      >
+    >
   > = {
     push: {
       light: { waist: 7.2, shoulder: 7.0 },

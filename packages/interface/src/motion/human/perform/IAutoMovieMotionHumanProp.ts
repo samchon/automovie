@@ -1,11 +1,11 @@
-import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieAffordance } from "../../../model/IAutoMovieAffordance";
 import type { IAutoMovieBody } from "../../../model/IAutoMovieBody";
-import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLayer";
 import type { IAutoMoviePhysicalProfile } from "../../../physics/IAutoMoviePhysicalProfile";
-import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
+import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieSoftBodyDomain } from "../../../soft/IAutoMovieSoftBodyDomain";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLayer";
 
 /**
  * A prop actions can aim at and hands can hold: a subject id, its world

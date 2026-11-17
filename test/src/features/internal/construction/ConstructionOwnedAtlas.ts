@@ -1,5 +1,18 @@
-import type { IAutoMovieSolidAtlas, IAutoMovieSolidFoot, IAutoMovieSolidIntersection, IAutoMovieSolidRail, IAutoMovieSolidSurface, IAutoMovieSolidTraceLaw } from "@automovie/interface";
-import { AutoMovieSolidFoot, AutoMovieSolidIntersection, AutoMovieSolidRail, AutoMovieSolidTraceLaw, AutoMovieSolidTraceSolve } from "@automovie/engine";
+import {
+  AutoMovieSolidFoot,
+  AutoMovieSolidIntersection,
+  AutoMovieSolidRail,
+  AutoMovieSolidTraceLaw,
+  AutoMovieSolidTraceSolve,
+} from "@automovie/engine";
+import type {
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidFoot,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidRail,
+  IAutoMovieSolidSurface,
+  IAutoMovieSolidTraceLaw,
+} from "@automovie/interface";
 
 import { nclose } from "../nclose";
 

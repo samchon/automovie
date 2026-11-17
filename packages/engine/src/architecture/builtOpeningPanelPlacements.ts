@@ -1,5 +1,12 @@
-import { type IAutoMovieOpeningPanelPlacement, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieMovablePanel, IAutoMovieOperationState, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMovieMovablePanel,
+  type IAutoMovieOpeningPanelPlacement,
+  IAutoMovieOperationState,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";

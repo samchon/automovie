@@ -8,19 +8,15 @@ import type { IAutoMovieRecoveryOpenSlabGraph } from "../../index";
  * @evidence contracts/development/common.md#meaningful-documentation Members distinguish real arcs, saved ordinals, missing observations and defective supports.
  */
 export interface IAutoMovieRecoveryOpenContinuationRow {
- 
- /** Observed open arcs with private source support. */
+  /** Observed open arcs with private source support. */
   arcs: IAutoMovieRecoveryOpenSlabGraph.Arc[];
 
- 
- /** Saved coefficient ordinal corresponding to each observed arc. */
+  /** Saved coefficient ordinal corresponding to each observed arc. */
   ordinals: number[];
 
- 
- /** Saved open-curve ordinals lacking an identical endpoint-bound observation. */
+  /** Saved open-curve ordinals lacking an identical endpoint-bound observation. */
   missing: number[];
 
- 
- /** Private source face groups that prevent ordinary slab admission. */
+  /** Private source face groups that prevent ordinary slab admission. */
   defects: Set<number>[];
 }

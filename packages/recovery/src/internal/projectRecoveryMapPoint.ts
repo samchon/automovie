@@ -1,8 +1,5 @@
-import type { IAutoMovieRecoveryMapPointProjectionOperation } from "@automovie/interface";
 import { AutoMovieMatrix3 } from "@automovie/engine";
-
-
-
+import type { IAutoMovieRecoveryMapPointProjectionOperation } from "@automovie/interface";
 
 /**
  * Project a finite world point and differentiate the calibrated pixel chart.

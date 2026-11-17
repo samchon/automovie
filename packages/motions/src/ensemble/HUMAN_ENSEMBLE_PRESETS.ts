@@ -15,7 +15,10 @@ import type { IAutoMovieMotionHumanEnsemblePreset } from "@automovie/interface";
  * the rows' own numbers.
  */
 export const HUMAN_ENSEMBLE_PRESETS: Readonly<
-  Record<IAutoMovieMotionHumanEnsemblePreset.Name, IAutoMovieMotionHumanEnsemblePreset>
+  Record<
+    IAutoMovieMotionHumanEnsemblePreset.Name,
+    IAutoMovieMotionHumanEnsemblePreset
+  >
 > = {
   elite: {
     proficiency: { mean: 0.9, spread: 0.05 },

@@ -1,6 +1,14 @@
-import type { IAutoMovieRenderTextureResidency, IAutoMovieRenderTextureTarget, IAutoMovieMaterial, IAutoMovieRenderTextureCost } from "@automovie/interface";
-import { autoMovieRenderTextureDigest, measureAutoMovieRenderTextureClosure, measureAutoMovieRenderTextureTarget } from "@automovie/engine";
-
+import {
+  autoMovieRenderTextureDigest,
+  measureAutoMovieRenderTextureClosure,
+  measureAutoMovieRenderTextureTarget,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieRenderTextureCost,
+  IAutoMovieRenderTextureResidency,
+  IAutoMovieRenderTextureTarget,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

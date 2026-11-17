@@ -1,6 +1,7 @@
 import type { IAutoMovieContourLoft64 } from "./IAutoMovieContourLoft64";
-import type { IAutoMoviePreparedContourEvent64 } from "./IAutoMoviePreparedContourEvent64";
 import type { IAutoMoviePrepareContourDocument64Slice } from "./IAutoMoviePrepareContourDocument64Slice";
+import type { IAutoMoviePreparedContourEvent64 } from "./IAutoMoviePreparedContourEvent64";
+
 /**
  * Prepared saved-section document for one contour loft. prepareAutoMovieContourDocument64 rejects nonpositive chord tolerance or nonfinite/nonincreasing section coordinates before event admission. It creates slice/event records, borrows curve declarations and clones terminal point tuples. Addressable unsupported events remain local diagnostics.
  *

@@ -1,5 +1,8 @@
-import type { IAutoMovieConstructionRealization, IAutoMovieSolidSurface, IAutoMovieSolidTrim } from "@automovie/interface";
-
+import type {
+  IAutoMovieConstructionRealization,
+  IAutoMovieSolidSurface,
+  IAutoMovieSolidTrim,
+} from "@automovie/interface";
 
 /**
  * Lookups into a realized construction by the names its tree gave: a face's

@@ -1,5 +1,8 @@
-import { type IAutoMovieCreateDynamicActorExtendClip, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
-
+import {
+  type IAutoMovieCreateDynamicActorExtendClip,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
 import { ease } from "../motion/ease";
 import { actorWeightedArmPose } from "./actorWeightedArmPose";
@@ -16,7 +19,11 @@ import { createDynamicActorPoseClip } from "./createDynamicActorPoseClip";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The single halfway landmark is deduplicated with the regular grid, and each callback result is used once for weighting.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a successful clip; invocation-local partial poses are released on null/throw and no callback or task is retained beyond the clip construction.
  */
-export const createDynamicActorExtendClip: (props: IAutoMovieCreateDynamicActorExtendClip.IProps) => IAutoMovieMotion | null = (props: IAutoMovieCreateDynamicActorExtendClip.IProps): IAutoMovieMotion | null => {
+export const createDynamicActorExtendClip: (
+  props: IAutoMovieCreateDynamicActorExtendClip.IProps,
+) => IAutoMovieMotion | null = (
+  props: IAutoMovieCreateDynamicActorExtendClip.IProps,
+): IAutoMovieMotion | null => {
   const extendedAt: number = props.duration * 0.5;
   return createDynamicActorPoseClip({
     ...props,

@@ -5,7 +5,7 @@ export namespace IAutoMovieMeshSweep {
   /**
    * Triangulate a sweep directly into a closed mesh, for hard-edged members such
    * as profiles, rails, pipes and tapering piers that need no subdivision cage.
-   * 
+   *
    * Rings sit at the given spine parameters, by default the chord-length shares
    * of the spine's own points, so a sweep along a polyline gets one ring per
    * corner and straight walls between them. Each ring is every loop of the
@@ -16,7 +16,7 @@ export namespace IAutoMovieMeshSweep {
    * walls between consecutive rings face out of the solid and the hole walls
    * into the holes. Both ends are capped by triangulating the end rings as
    * planar regions (`trianglesOf`) unless `caps` is false.
-   * 
+   *
    * `flat` shading gives every wall triangle its own corners and plane normal,
    * so section corners and ring edges stay creases; `smooth` shares each ring
    * point between its walls and takes area-weighted vertex normals (`meshOf`),
@@ -26,7 +26,7 @@ export namespace IAutoMovieMeshSweep {
    * straight legs; caps take their section-plane coordinates. A smooth wall
    * repeats each ring's first point at the end of the ring so the seam can
    * carry both `u` 0 and the ring's length, and pools the two normals there.
-   * 
+   *
    * Whether the solid intersects itself is the author's: a spine turning
    * tighter than the section is wide folds the walls through each other.
    *

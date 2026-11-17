@@ -1,4 +1,17 @@
-import type { AutoMovieHumanoidRegion, AutoMovieMotionHumanActionName, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanDefenceOutcome, IAutoMovieMotionHumanDefend, IAutoMovieMotionHumanKick, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPunch } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidRegion,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanDefenceOutcome,
+  IAutoMovieMotionHumanDefend,
+  IAutoMovieMotionHumanKick,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPunch,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { DefenceOutcome } from "./DefenceOutcome";
@@ -6,7 +19,6 @@ import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { defendGeometry } from "./defendGeometry";
-
 
 /**
  * A defence against one placed strike: a glove, forearm or shin brought to
@@ -88,11 +100,17 @@ export namespace defend {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function telegraph(attack: IAutoMovieMotionHumanActionContext.IPlaced): number {
+  export function telegraph(
+    attack: IAutoMovieMotionHumanActionContext.IPlaced,
+  ): number {
     if (attack.family === "kick")
-      return (attack.params as IAutoMovieMotionHumanKick.IParams).technique === "round" ? 1 : 0.8;
+      return (attack.params as IAutoMovieMotionHumanKick.IParams).technique ===
+        "round"
+        ? 1
+        : 0.8;
     if (attack.family === "punch") {
-      const p: IAutoMovieMotionHumanPunch.IParams = attack.params as IAutoMovieMotionHumanPunch.IParams;
+      const p: IAutoMovieMotionHumanPunch.IParams =
+        attack.params as IAutoMovieMotionHumanPunch.IParams;
       return p.technique === "straight" && (p.hand ?? "lead") === "lead"
         ? 0.4
         : 0.6;
@@ -101,8 +119,10 @@ export namespace defend {
   }
 
   /** Every planned defence's decision, for audits. */
-  const DECISIONS: WeakMap<IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanDefenceOutcome.IDecision> =
-    new WeakMap();
+  const DECISIONS: WeakMap<
+    IAutoMovieMotionHumanActionPlan,
+    IAutoMovieMotionHumanDefenceOutcome.IDecision
+  > = new WeakMap();
 
   /**
    * The outcome decision of a planned defence.
@@ -143,7 +163,9 @@ export namespace defend {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanDefend.IParams = context.params;
-    const attack: IAutoMovieMotionHumanActionContext.IPlaced = context.action(p.against);
+    const attack: IAutoMovieMotionHumanActionContext.IPlaced = context.action(
+      p.against,
+    );
 
     // A feint has no contact: the defender bites on the moment the strike it
     // shows would have landed, which the feint declares, and which is how a
@@ -193,17 +215,18 @@ export namespace defend {
         attack.plan.duration;
     const hit: number = attack.start + decisive;
     const movement: number = StrikingSkill.defence(context.skill);
-    const decided: IAutoMovieMotionHumanDefenceOutcome.IDecision = DefenceOutcome.decide(
-      {
-        launch,
-        hit,
-        telegraph: telegraph(attack),
-        movement,
-        skill: context.skill,
-      },
-      context.random("defence"),
-      p.outcome,
-    );
+    const decided: IAutoMovieMotionHumanDefenceOutcome.IDecision =
+      DefenceOutcome.decide(
+        {
+          launch,
+          hit,
+          telegraph: telegraph(attack),
+          movement,
+          skill: context.skill,
+        },
+        context.random("defence"),
+        p.outcome,
+      );
     const begin: number = Math.max(0, decided.start - context.start);
     const contact: number = hit - context.start;
     const hold: number = Math.max(begin + movement, contact + 0.05);
@@ -246,10 +269,11 @@ export namespace defend {
       return built;
     };
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
-    const contacts: IAutoMovieMotionHumanContactWindow[] = defendGeometry.windows(
-      p.kind === "check" ? defendGeometry.attacked(region, lead) : undefined,
-      timing,
-    );
+    const contacts: IAutoMovieMotionHumanContactWindow[] =
+      defendGeometry.windows(
+        p.kind === "check" ? defendGeometry.attacked(region, lead) : undefined,
+        timing,
+      );
     const out: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,

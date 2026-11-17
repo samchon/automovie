@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+} from "@automovie/interface";
 
 import { HumanArmSwing } from "../posture/HumanArmSwing";
 

@@ -1,5 +1,9 @@
-import type { IAutoMovieHumanoidSurfaceRegions, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaceRegions,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The definitions of the anatomical regions a humanoid's surfaces resolve
@@ -13,29 +17,50 @@ import type { IAutoMovieHumanoidSurfaceRegions, AutoMovieHumanoidBone, AutoMovie
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Keys are the interface's closed region union.
  */
 export namespace AutoMovieHumanoidSurfaceRegions {
-
   /** Every region's definition, both sides from one table: +X is the body's left. */
   export const TABLE: Readonly<
-    Partial<Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaceRegions.IDefinition>>
+    Partial<
+      Record<
+        AutoMovieHumanoidRegion,
+        IAutoMovieHumanoidSurfaceRegions.IDefinition
+      >
+    >
   > = (() => {
     const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({
       x,
       y,
       z,
     });
-    const head: IAutoMovieHumanoidSurfaceRegions.IStation = { bone: "head", toward: "centre", share: 0 };
-    const neck: IAutoMovieHumanoidSurfaceRegions.IStation = { bone: "neck", toward: "head", share: 0.5 };
-    const chest = (share: number): IAutoMovieHumanoidSurfaceRegions.IStation => ({
+    const head: IAutoMovieHumanoidSurfaceRegions.IStation = {
+      bone: "head",
+      toward: "centre",
+      share: 0,
+    };
+    const neck: IAutoMovieHumanoidSurfaceRegions.IStation = {
+      bone: "neck",
+      toward: "head",
+      share: 0.5,
+    };
+    const chest = (
+      share: number,
+    ): IAutoMovieHumanoidSurfaceRegions.IStation => ({
       bone: "chest",
       toward: "neck",
       share,
     });
-    const spine = (share: number): IAutoMovieHumanoidSurfaceRegions.IStation => ({
+    const spine = (
+      share: number,
+    ): IAutoMovieHumanoidSurfaceRegions.IStation => ({
       bone: "spine",
       toward: "chest",
       share,
     });
-    const table: Partial<Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaceRegions.IDefinition>> = {
+    const table: Partial<
+      Record<
+        AutoMovieHumanoidRegion,
+        IAutoMovieHumanoidSurfaceRegions.IDefinition
+      >
+    > = {
       crown: { station: head, direction: v(0, 1, 0) },
       forehead: { station: head, direction: v(0, 0.45, 1) },
       face: { station: head, direction: v(0, 0, 1) },
@@ -64,7 +89,10 @@ export namespace AutoMovieHumanoidSurfaceRegions {
     ] as const) {
       const s = (name: string): AutoMovieHumanoidBone =>
         `${Side.toLowerCase()}${name}` as AutoMovieHumanoidBone;
-      const set = (name: string, def: IAutoMovieHumanoidSurfaceRegions.IDefinition): void => {
+      const set = (
+        name: string,
+        def: IAutoMovieHumanoidSurfaceRegions.IDefinition,
+      ): void => {
         table[`${name}${Side}` as AutoMovieHumanoidRegion] = def;
       };
       set("jaw", { station: head, direction: v(0.7 * x, -0.55, 0.45) });

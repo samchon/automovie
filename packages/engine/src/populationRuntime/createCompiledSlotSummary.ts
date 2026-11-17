@@ -1,5 +1,8 @@
-import { type IAutoMovieCreateCompiledSlotSummary, IAutoMovieFormationBounds, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieCreateCompiledSlotSummary,
+  IAutoMovieFormationBounds,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Create a call-owned bounds and running-mean fold for ascending slot points.

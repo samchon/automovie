@@ -1,5 +1,7 @@
-import type { IAutoMovieSchedule, IAutoMovieMeasureSchedule } from "@automovie/interface";
-
+import type {
+  IAutoMovieMeasureSchedule,
+  IAutoMovieSchedule,
+} from "@automovie/interface";
 
 /**
  * Measure a schedule's pacing against the production's own classification:

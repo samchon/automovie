@@ -1,7 +1,8 @@
-import type { AutoMovieHumanSex as AutoMovieHumanSexType, IAutoMovieHumanFacePlan, IAutoMovieHumanHeadIdentity } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieHumanSex as AutoMovieHumanSexType,
+  IAutoMovieHumanFacePlan,
+  IAutoMovieHumanHeadIdentity,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanHeadArcs } from "./AutoMovieHumanHeadArcs";
@@ -47,11 +48,19 @@ export namespace AutoMovieHumanFacePlan {
    * @param sex The person's sex.
    * @returns The super-ellipse exponent, 1.05 to 12.
    */
-  export function exponent(head: IAutoMovieHumanHeadIdentity, sex: AutoMovieHumanSexType): number {
-    const norm: { readonly tt: number; readonly tsn: number; readonly zy: number } = NORMS[sex === AutoMovieHumanSex.Female ? 0 : 1];
+  export function exponent(
+    head: IAutoMovieHumanHeadIdentity,
+    sex: AutoMovieHumanSexType,
+  ): number {
+    const norm: {
+      readonly tt: number;
+      readonly tsn: number;
+      readonly zy: number;
+    } = NORMS[sex === AutoMovieHumanSex.Female ? 0 : 1];
     const scale: number = head.faceWidth / norm.zy;
     const a: number = (scale * norm.tt) / 2;
-    const b: number = scale * Math.sqrt(norm.tsn * norm.tsn - (norm.tt / 2) ** 2);
+    const b: number =
+      scale * Math.sqrt(norm.tsn * norm.tsn - (norm.tt / 2) ** 2);
     const target: number = AutoMovieHumanHeadArcs.of(head, sex).subnasale / 2;
 
     // The quarter's arc grows with the exponent; bisect on it.

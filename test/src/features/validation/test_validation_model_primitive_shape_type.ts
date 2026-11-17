@@ -1,6 +1,10 @@
-import type { IAutoMoviePrimitiveShape, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieValidation } from "@automovie/interface";
 import { validateModel } from "@automovie/engine";
-
+import type {
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMoviePrimitiveShape,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/createModel";

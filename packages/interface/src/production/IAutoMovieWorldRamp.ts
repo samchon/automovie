@@ -1,4 +1,3 @@
-
 /**
  * Centreline and elevation inputs for a rectangular world-plane ramp.
  */
@@ -16,16 +15,18 @@ export namespace IAutoMovieWorldRamp {
     id: string;
     /** World XZ centerline start, where the plane has baseHeight. Endpoints must produce finite positive squared separation. */
     from: {
-    /** Centerline start world X in metres. */
-    x: number;
-    /** Centerline start world Z in metres. */
-    z: number };
+      /** Centerline start world X in metres. */
+      x: number;
+      /** Centerline start world Z in metres. */
+      z: number;
+    };
     /** World XZ centerline end, where the plane has baseHeight + rise. Distinctness is checked through squared separation, including its underflow/overflow limits. */
     to: {
-    /** Centerline end world X in metres. */
-    x: number;
-    /** Centerline end world Z in metres. */
-    z: number };
+      /** Centerline end world X in metres. */
+      x: number;
+      /** Centerline end world Z in metres. */
+      z: number;
+    };
     /** Finite positive full width in metres perpendicular to the centerline; the footprint extends half this distance on each side. */
     width: number;
     /** Finite world Y in metres at from; may be negative. */

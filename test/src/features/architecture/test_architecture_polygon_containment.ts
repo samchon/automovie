@@ -1,4 +1,3 @@
-import { type IAutoMovieViolationCollector, IAutoMovieOpeningProfile, IAutoMoviePlanarPoint } from "@automovie/interface";
 import {
   ViolationCollector,
   appendBuiltRegionDefects,
@@ -7,7 +6,11 @@ import {
   pointInPolygon,
   polygonInside,
 } from "@automovie/engine";
-
+import {
+  IAutoMovieOpeningProfile,
+  IAutoMoviePlanarPoint,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

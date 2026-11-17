@@ -1,6 +1,6 @@
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieFootfallPattern } from "./IAutoMovieFootfallPattern";
 import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
-import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * Bounded support-chain fitting with a reach-derived root lowering request.
@@ -19,7 +19,9 @@ export namespace IAutoMoviePlanPhysicalSupportTargets {
   export type IInput = {
     /** Actual generic profile. */ profile: IAutoMoviePhysicalProfile;
     /** Same support paths as the authored planner. */ pattern: IAutoMovieFootfallPattern;
-    /** Authored world goals. */ targets: Readonly<Record<string, IAutoMoviePhysicalProfile.ITransform>>;
+    /** Authored world goals. */ targets: Readonly<
+      Record<string, IAutoMoviePhysicalProfile.ITransform>
+    >;
     /** Changed endpoint goals, in world metres. */ goals: Readonly<
       Record<string, IAutoMovieVector3>
     >;

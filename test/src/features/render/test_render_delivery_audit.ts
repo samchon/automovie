@@ -28,12 +28,11 @@ export function test_render_delivery_audit(): void {
     ["#format: frame checksums", "#tb 0: 1/15360", ...rows].join("\n");
   const row = (pts: number, hash: number): string =>
     `0, ${pts}, ${pts}, 512, 2764800, ${md5(hash)}`;
-  const admitted: IAutoMovieDecodedFrameAudit =
-    auditAutoMovieDecodedFrames(
-      listing([row(0, 1), row(512, 1), row(1024, 2)]),
-      3,
-      30,
-    );
+  const admitted: IAutoMovieDecodedFrameAudit = auditAutoMovieDecodedFrames(
+    listing([row(0, 1), row(512, 1), row(1024, 2)]),
+    3,
+    30,
+  );
   TestValidator.predicate(
     "admitted frames and holds",
     admitted.frameCount === 3 &&

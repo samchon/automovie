@@ -1,5 +1,14 @@
-import type { IAutoMovieRecoverySavedSection, IAutoMovieRecoverySectionsInput, IAutoMovieRecoverySlabObservation, IAutoMovieRecoverySlabsInput, IAutoMovieRecoverySourceLineage } from "@automovie/interface";
-import { observeAutoMovieRecoverySections, observeAutoMovieRecoverySlabs } from "@automovie/recovery";
+import type {
+  IAutoMovieRecoverySavedSection,
+  IAutoMovieRecoverySectionsInput,
+  IAutoMovieRecoverySlabObservation,
+  IAutoMovieRecoverySlabsInput,
+  IAutoMovieRecoverySourceLineage,
+} from "@automovie/interface";
+import {
+  observeAutoMovieRecoverySections,
+  observeAutoMovieRecoverySlabs,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /** Source slabs bind saved publication metadata without processing coefficients.

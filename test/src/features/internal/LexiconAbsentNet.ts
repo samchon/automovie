@@ -1,5 +1,14 @@
-import type { IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody } from "@automovie/interface";
-import { HUMAN_LEXICON, HUMAN_LEXICON_SCHEMAS, HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanBody,
+} from "@automovie/interface";
+import {
+  HUMAN_LEXICON,
+  HUMAN_LEXICON_SCHEMAS,
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+} from "@automovie/motions";
 
 import { LexiconRowNet } from "./LexiconRowNet";
 import { motionHumanBody } from "./motionHumanBody";

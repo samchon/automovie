@@ -1,5 +1,5 @@
-import type { IAutoMovieCurve64 } from "@automovie/interface";
 import { compileAutoMovieNormalizedPhases64 } from "@automovie/engine";
+import type { IAutoMovieCurve64 } from "@automovie/interface";
 
 /**
  * Normalize the saved open-course phase and optionally reverse its declared direction.
@@ -47,7 +47,14 @@ export function normalizeRecoveryCourse(
   const spans: IAutoMovieCurve64.Span[] = reverse
     ? [...curve.spans]
         .reverse()
-        .map((span: IAutoMovieCurve64.Span): IAutoMovieCurve64.Span => [span[3], span[2], span[1], span[0]])
+        .map(
+          (span: IAutoMovieCurve64.Span): IAutoMovieCurve64.Span => [
+            span[3],
+            span[2],
+            span[1],
+            span[0],
+          ],
+        )
     : [...curve.spans];
   compileAutoMovieNormalizedPhases64(phaseIntervals, spans.length);
   return {
@@ -55,5 +62,6 @@ export function normalizeRecoveryCourse(
     closed: false,
     phaseUnit: "normalized",
     phaseIntervals,
-    spans };
+    spans,
+  };
 }

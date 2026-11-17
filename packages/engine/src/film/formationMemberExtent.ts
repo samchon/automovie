@@ -1,5 +1,8 @@
-import { type IAutoMovieFormationMemberExtent, IAutoMovieCompiledFormation, IAutoMovieModel } from "@automovie/interface";
-
+import {
+  IAutoMovieCompiledFormation,
+  type IAutoMovieFormationMemberExtent,
+  IAutoMovieModel,
+} from "@automovie/interface";
 
 import { productionRuntimeModelId } from "../productionRuntimeModelId";
 import { computeModelRestExtentY } from "./computeModelRestExtentY";

@@ -1,6 +1,7 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanBindingLimb } from "@automovie/interface";
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanBindingLimb,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
 
@@ -59,10 +60,7 @@ export namespace AutoMovieHumanLimbCapsule {
     const f: number =
       squared === 0
         ? 0
-        : Math.max(
-            0,
-            Math.min(1, (e0 * d0 + e1 * d1 + e2 * d2) / squared),
-          );
+        : Math.max(0, Math.min(1, (e0 * d0 + e1 * d1 + e2 * d2) / squared));
     return (
       Math.hypot(e0 - f * d0, e1 - f * d1, e2 - f * d2) -
       (limb.near + (limb.far - limb.near) * f * f * f)

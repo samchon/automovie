@@ -1,8 +1,23 @@
-import type { IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanObject, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMoviePhysicalProfile, IAutoMovieVector3 } from "@automovie/interface";
 import { createKettlebell } from "@automovie/archetypes";
 import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
-
-import { HumanChain, HumanObject, HumanPerformance, HumanSignature, HumanSportCarry } from "@automovie/motions";
+import type {
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSignature,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanSignature,
+  HumanSportCarry,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";

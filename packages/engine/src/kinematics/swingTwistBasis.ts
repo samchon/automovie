@@ -1,5 +1,8 @@
-import type { IAutoMovieSwingTwistBasis, IAutoMovieJointAxes, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieJointAxes,
+  IAutoMovieSwingTwistBasis,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { normalizeJointAxes } from "./normalizeJointAxes";
@@ -40,7 +43,9 @@ export namespace swingTwistBasis {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `normalizeJointAxes`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function of(axes: IAutoMovieJointAxes): IAutoMovieSwingTwistBasis.IBasis {
+  export function of(
+    axes: IAutoMovieJointAxes,
+  ): IAutoMovieSwingTwistBasis.IBasis {
     const normal: IAutoMovieJointAxes = normalizeJointAxes(
       axes,
       "swingTwistRange axes",
@@ -71,7 +76,10 @@ export namespace swingTwistBasis {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function azimuth(basis: IAutoMovieSwingTwistBasis.IBasis, direction: IAutoMovieVector3): number {
+  export function azimuth(
+    basis: IAutoMovieSwingTwistBasis.IBasis,
+    direction: IAutoMovieVector3,
+  ): number {
     return (
       Math.atan2(
         Vector3.dot(direction, basis.e2),

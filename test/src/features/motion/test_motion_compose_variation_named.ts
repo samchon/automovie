@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanTargetGrid, IAutoMovieMotionHumanVariationPlace } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanTargetGrid,
+  IAutoMovieMotionHumanVariationPlace,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanTarget,
   AutoMovieMotionHumanTargetGrid,

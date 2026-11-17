@@ -21,22 +21,24 @@ import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
  * as a ring round the back of the head.
  */
 export namespace AutoMovieHumanHeadBackProfile {
-  
-
   /**
    * Forward place of the back midline at a height.
    *
    * @param p The profile's owners.
    * @param y Height.
    */
-  export function at(p: IAutoMovieHumanHeadBackProfile.IProfile, y: number): number {
+  export function at(
+    p: IAutoMovieHumanHeadBackProfile.IProfile,
+    y: number,
+  ): number {
     const top: number = Math.max(1e-6, p.vertex - p.occiput);
     if (y >= p.occiput) {
       const u: number = Math.min(1, (y - p.occiput) / top);
       return p.centre - p.reach * Math.sqrt(Math.max(0, 1 - u * u));
     }
     const h: number = p.occiput - p.ring.y;
-    if (y <= p.ring.y || h <= 0) return p.ring.x + p.ring.slope * (y - p.ring.y);
+    if (y <= p.ring.y || h <= 0)
+      return p.ring.x + p.ring.slope * (y - p.ring.y);
     return AutoMovieHumanSeam.quintic(
       [[p.ring.x], [p.ring.slope], [0]],
       [[p.centre - p.reach], [0], [p.reach / (top * top)]],

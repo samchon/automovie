@@ -1,9 +1,10 @@
-import type { IAutoMovieRecoveryFeasibleCandidate, IAutoMovieRecoveryFeasibleProblem, IAutoMovieRecoveryFeasibleTrialSelection, IAutoMovieRecoveryFeasibleTrials, IAutoMovieRecoverySqpArc } from "@automovie/interface";
-
-
-
-
-
+import type {
+  IAutoMovieRecoveryFeasibleCandidate,
+  IAutoMovieRecoveryFeasibleProblem,
+  IAutoMovieRecoveryFeasibleTrialSelection,
+  IAutoMovieRecoveryFeasibleTrials,
+  IAutoMovieRecoverySqpArc,
+} from "@automovie/interface";
 
 /**
  * Compare qualified full candidates and one half on the same accelerated arc.
@@ -90,7 +91,8 @@ export function selectRecoveryFeasibleTrial<State>(
         trialCost !== null &&
         Number.isFinite(trialCost) &&
         trialCost < cost &&
-        trialCost <= cost + 1e-4 * amount * slope };
+        trialCost <= cost + 1e-4 * amount * slope,
+    };
     if (candidate.qualified) {
       qualified++;
       if (best.length === 0 || trialCost! < best[0]!.cost!) best[0] = candidate;
@@ -159,5 +161,6 @@ export function selectRecoveryFeasibleTrial<State>(
     accepted: chosen !== null,
     iterations: used,
     stalled,
-    increment: chosen?.increment ?? null };
+    increment: chosen?.increment ?? null,
+  };
 }

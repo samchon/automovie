@@ -1,4 +1,11 @@
-import type { IAutoMovieCollectPhysicalSupports, IAutoMovieDistributePhysicalSupportWrench, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMovieSamplePhysicalTarget, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieCollectPhysicalSupports,
+  IAutoMovieDistributePhysicalSupportWrench,
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieSamplePhysicalTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import type { RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Vector3 } from "../math/Vector3";
@@ -76,7 +83,9 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
   }
   let rootTorque: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   if (rootDynamic && body.rootTorque && rootStrength > 0) {
-    const axes: IAutoMoviePhysicalProfile.IAxis[] = (["x", "y", "z"] as const).map(
+    const axes: IAutoMoviePhysicalProfile.IAxis[] = (
+      ["x", "y", "z"] as const
+    ).map(
       (axis: "x" | "y" | "z"): IAutoMoviePhysicalProfile.IAxis => ({
         axis,
         minimum: -Math.PI,
@@ -119,27 +128,27 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
         !target.unavailableSupports?.includes(limb.bone) &&
         (target.supportStrength?.[limb.bone] ?? 1) > 0,
     );
-    const points: (IAutoMovieCollectPhysicalSupports.IPoint & { bone: string })[] =
-      supports
-        .filter((support: (typeof supports)[number]): boolean =>
-          limbs.some(
-            (limb: (typeof limbs)[number]): boolean =>
-              limb.bone === support.bone,
+    const points: (IAutoMovieCollectPhysicalSupports.IPoint & {
+      bone: string;
+    })[] = supports
+      .filter((support: (typeof supports)[number]): boolean =>
+        limbs.some(
+          (limb: (typeof limbs)[number]): boolean => limb.bone === support.bone,
+        ),
+      )
+      .flatMap(
+        (
+          support: (typeof supports)[number],
+        ): (IAutoMovieCollectPhysicalSupports.IPoint & { bone: string })[] =>
+          support.samples.map(
+            (
+              sample: (typeof support.samples)[number],
+            ): IAutoMovieCollectPhysicalSupports.IPoint & { bone: string } => ({
+              bone: support.bone,
+              ...sample,
+            }),
           ),
-        )
-        .flatMap(
-          (
-            support: (typeof supports)[number],
-          ): (IAutoMovieCollectPhysicalSupports.IPoint & { bone: string })[] =>
-            support.samples.map(
-              (
-                sample: (typeof support.samples)[number],
-              ): IAutoMovieCollectPhysicalSupports.IPoint & { bone: string } => ({
-                bone: support.bone,
-                ...sample,
-              }),
-            ),
-        );
+      );
     const allocated: IAutoMovieDistributePhysicalSupportWrench.IResult =
       distributePhysicalSupportWrench({
         origin: base.worldCom(),

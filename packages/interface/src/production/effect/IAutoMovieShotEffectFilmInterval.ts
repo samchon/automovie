@@ -1,5 +1,3 @@
-
-
 /**
  * One shot-owned effect interval projected onto the film clock.
  *

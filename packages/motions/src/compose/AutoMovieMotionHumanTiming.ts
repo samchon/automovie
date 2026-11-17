@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanTiming } from "@automovie/interface";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanTiming,
+} from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
 
@@ -114,7 +117,12 @@ export namespace AutoMovieMotionHumanTiming {
   }
 
   /** The pauses of {@link Pause}, as data. */
-  export const PAUSE_NAMES = ["none", "brief", "beat", "long"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanTiming.Pause>[];
+  export const PAUSE_NAMES = [
+    "none",
+    "brief",
+    "beat",
+    "long",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanTiming.Pause>[];
 
   /**
    * The seconds of each pause (provisional): `none` is no time, `brief` 0.15
@@ -122,7 +130,9 @@ export namespace AutoMovieMotionHumanTiming {
    * gesture and the flinch's return), `long` 0.8 (the hold of a posture
    * gesture such as `slump`).
    */
-  export const PAUSES: Readonly<Record<IAutoMovieMotionHumanTiming.Pause, number>> = {
+  export const PAUSES: Readonly<
+    Record<IAutoMovieMotionHumanTiming.Pause, number>
+  > = {
     none: 0,
     brief: 0.15,
     beat: 0.4,
@@ -175,7 +185,9 @@ export namespace AutoMovieMotionHumanTiming {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function phrase(roles: IAutoMovieMotionHumanTiming.IRoles): IAutoMovieMotionClock.IPhrase {
+  export function phrase(
+    roles: IAutoMovieMotionHumanTiming.IRoles,
+  ): IAutoMovieMotionClock.IPhrase {
     return {
       prepare: seconds(roles.prepare),
       ...(roles.wait !== undefined ? { wait: seconds(roles.wait) } : {}),

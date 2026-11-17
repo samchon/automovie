@@ -1,10 +1,11 @@
-import type { IAutoMovieRecoveryMapDesignFactor, IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface";
 import {
   decomposeAutoMovieSingularMatrix,
-  reduceAutoMovieQrDesign } from "@automovie/engine";
-
-
-
+  reduceAutoMovieQrDesign,
+} from "@automovie/engine";
+import type {
+  IAutoMovieRecoveryCameraMapBudget,
+  IAutoMovieRecoveryMapDesignFactor,
+} from "@automovie/interface";
 
 /**
  * Qualify the original column-normalized design without synthesizing an answer.
@@ -53,12 +54,14 @@ export function factorRecoveryMapDesign(
   const options: Parameters<typeof decomposeAutoMovieSingularMatrix>[1] = {
     maxEntries: budget.maxLinearEntries,
     maxSweeps: budget.maxSingularSweeps,
-    orthogonalityTolerance: 1e-12 };
+    orthogonalityTolerance: 1e-12,
+  };
   const compressed: ReturnType<typeof reduceAutoMovieQrDesign> | null =
     rows.length >= 2 * width
       ? reduceAutoMovieQrDesign(rows, right, {
           maxEntries: budget.maxLinearEntries,
-          maxWork: rows.length * width * (width + 1) })
+          maxWork: rows.length * width * (width + 1),
+        })
       : null;
   const solveRows: number[][] = compressed?.rows ?? rows;
   const solveRight: readonly number[] = compressed?.right ?? right;

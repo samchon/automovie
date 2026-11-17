@@ -1,6 +1,16 @@
-import { type IAutoMovieAuthoringDiagnostic, IAutoMovieBeatEndActorState, IAutoMovieCompiledContractRealization, IAutoMovieDefinedShot, IAutoMovieShotProgram, IAutoMovieSkeleton } from "@automovie/interface";
-import { compileDefinedShot, defineShot, suggestCollisionResponse } from "@automovie/engine";
-
+import {
+  compileDefinedShot,
+  defineShot,
+  suggestCollisionResponse,
+} from "@automovie/engine";
+import {
+  type IAutoMovieAuthoringDiagnostic,
+  IAutoMovieBeatEndActorState,
+  IAutoMovieCompiledContractRealization,
+  IAutoMovieDefinedShot,
+  IAutoMovieShotProgram,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {

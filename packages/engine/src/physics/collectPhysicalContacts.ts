@@ -1,5 +1,9 @@
-import type { IAutoMoviePerformanceMode, IAutoMoviePhysicalSimulationInput, IAutoMovieContactReceipt, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMoviePerformanceMode,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import type {
   RigidBody,
   TempContactManifold,

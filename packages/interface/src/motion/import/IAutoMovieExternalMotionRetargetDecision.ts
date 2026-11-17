@@ -1,8 +1,5 @@
-import type { IAutoMovieImportedNodeBoneMapping } from "../IAutoMovieImportedNodeBoneMapping";
 import type { IAutoMovieSkeleton } from "../../skeleton/IAutoMovieSkeleton";
-
-
-
+import type { IAutoMovieImportedNodeBoneMapping } from "../IAutoMovieImportedNodeBoneMapping";
 
 /**
  * Retarget use declares the source rig, the mapping and the target identity, so the engine pass that later retargets the take guesses none of them.

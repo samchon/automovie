@@ -1,4 +1,11 @@
-import type { IAutoMovieRecoveryCameraConsensus, IAutoMovieRecoveryCameraFeaturePopulation, IAutoMovieRecoveryCameraMatch, IAutoMovieRecoveryCameraPairInput, IAutoMovieRecoveryCameraRelativePose, IAutoMovieRecoveryCameraSource } from "../../index";
+import type {
+  IAutoMovieRecoveryCameraConsensus,
+  IAutoMovieRecoveryCameraFeaturePopulation,
+  IAutoMovieRecoveryCameraMatch,
+  IAutoMovieRecoveryCameraPairInput,
+  IAutoMovieRecoveryCameraRelativePose,
+  IAutoMovieRecoveryCameraSource,
+} from "../../index";
 
 /** Automatic image correspondences and conditional calibrated relative pose.
  * A successful computation may still refuse a camera. Accepted pose is in the
@@ -11,51 +18,39 @@ import type { IAutoMovieRecoveryCameraConsensus, IAutoMovieRecoveryCameraFeature
  * @evidence contracts/development/common.md#meaningful-documentation Gives source/assertion ownership, original pixel charts, unit gauge, null meanings, conditional sampling and the distinction between camera evidence and an editable surface asset.
  */
 export interface IAutoMovieRecoveryCameraPairEstimate {
- 
- /** Versioned automatic relative-camera observation artifact. */
+  /** Versioned automatic relative-camera observation artifact. */
   schema: "automovie-recovery-camera-pair-estimate-v1";
 
- 
- /** Fixed scene identity asserted by the acquisition caller. */
+  /** Fixed scene identity asserted by the acquisition caller. */
   objectId: string;
 
- 
- /** Keeps analytic measurements, real photographs and inconsistent controls separate. */
+  /** Keeps analytic measurements, real photographs and inconsistent controls separate. */
   cohort: IAutoMovieRecoveryCameraPairInput["cohort"];
 
- 
- /** Conditional camera qualification; refused evidence still records completed observations. */
+  /** Conditional camera qualification; refused evidence still records completed observations. */
   status: "accepted-relative-pose" | "refused";
 
- 
- /** Every observed failed qualification, empty only for conditional camera acceptance. */
+  /** Every observed failed qualification, empty only for conditional camera acceptance. */
   refusalReasons: string[];
 
- 
- /** Complete operating point used for this artifact, copied without mutable pixel buffers. */
+  /** Complete operating point used for this artifact, copied without mutable pixel buffers. */
   policy: IAutoMovieRecoveryCameraPairInput["policy"];
 
- 
- /** Complete declared work limits; actual counters below distinguish work from a limit. */
+  /** Complete declared work limits; actual counters below distinguish work from a limit. */
   budget: IAutoMovieRecoveryCameraPairInput["budget"];
 
- 
- /** Source identities and caller assertions; resident operation does not verify original-file SHA or lens history. */
+  /** Source identities and caller assertions; resident operation does not verify original-file SHA or lens history. */
   sources: IAutoMovieRecoveryCameraSource[];
 
- 
- /** Actual populations for each automatic image observation, in source order. */
+  /** Actual populations for each automatic image observation, in source order. */
   features: IAutoMovieRecoveryCameraFeaturePopulation[];
 
- 
- /** Tentative unique mutual appearance matches; epipolar support does not prove material identity. */
+  /** Tentative unique mutual appearance matches; epipolar support does not prove material identity. */
   matches: IAutoMovieRecoveryCameraMatch[];
 
- 
- /** Null when fewer than eight tentative correspondences permit any epipolar proposal. */
+  /** Null when fewer than eight tentative correspondences permit any epipolar proposal. */
   consensus: IAutoMovieRecoveryCameraConsensus | null;
 
- 
- /** Present only after every qualification passes; this transform is camera evidence, not saved surface geometry. */
+  /** Present only after every qualification passes; this transform is camera evidence, not saved surface geometry. */
   pose: IAutoMovieRecoveryCameraRelativePose | null;
 }

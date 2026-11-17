@@ -1,6 +1,16 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
-
-import { AutoMovieMotionHumanTouchEffector, HumanChain, HumanPerformance, HumanSocial, touch } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanTouchEffector,
+  HumanChain,
+  HumanPerformance,
+  HumanSocial,
+  touch,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -74,7 +84,8 @@ export function test_human_motion_social_toast_four(): void {
   // 2. Every fist at the point at its own meet.
   const meets: Record<string, number> = {};
   for (const [subject, role] of cast) {
-    const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments(subject)[1]!;
+    const placed: IAutoMovieMotionHumanSegment.ISegment =
+      performance.segments(subject)[1]!;
     const meet: number =
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === "meet")?.share ??

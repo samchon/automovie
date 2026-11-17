@@ -1,7 +1,8 @@
-import type { IAutoMovieRecoveryMapMetric, IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface";
 import { reduceAutoMovieQrDesign } from "@automovie/engine";
-
-
+import type {
+  IAutoMovieRecoveryCameraMapBudget,
+  IAutoMovieRecoveryMapMetric,
+} from "@automovie/interface";
 
 import { createRecoveryMapTriangularMetric } from "./createRecoveryMapTriangularMetric";
 
@@ -32,7 +33,8 @@ export function createRecoveryMapMetric(
     new Array<number>(reduced.length).fill(0),
     {
       maxEntries: budget.maxLinearEntries,
-      maxWork: reduced.length * cameraWidth * (cameraWidth + 1) },
+      maxWork: reduced.length * cameraWidth * (cameraWidth + 1),
+    },
   ).rows;
   return createRecoveryMapTriangularMetric(
     triangles,

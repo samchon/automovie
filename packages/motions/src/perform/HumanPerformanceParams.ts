@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanLexiconSchemas, IAutoMovieMotionHumanRefusal } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanLexiconSchemas,
+  IAutoMovieMotionHumanRefusal,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HUMAN_LEXICON_SCHEMAS } from "../lexicon/HUMAN_LEXICON_SCHEMAS";
@@ -135,7 +138,9 @@ const typed = (value: unknown, type: string): boolean => {
 };
 
 /** A number's bounds as the range a refusal offers, in the unit its type carries into the schema (`HumanUnit`, `x-unit`); null when it has none. */
-const bounds = (own: Record<string, unknown>): IAutoMovieMotionHumanRefusal.IRange | null => {
+const bounds = (
+  own: Record<string, unknown>,
+): IAutoMovieMotionHumanRefusal.IRange | null => {
   const low: number | undefined =
     typeof own.minimum === "number"
       ? own.minimum
@@ -184,7 +189,12 @@ const read = (
     const alternatives: readonly unknown[] = own.oneOf;
     const faults: (IFault | null)[] = alternatives.map(
       (alternative: unknown): IFault | null =>
-        read(alternative as IAutoMovieMotionHumanLexiconSchemas.ISchema, value, path, what),
+        read(
+          alternative as IAutoMovieMotionHumanLexiconSchemas.ISchema,
+          value,
+          path,
+          what,
+        ),
     );
     if (faults.some((fault: IFault | null): boolean => fault === null))
       return null;

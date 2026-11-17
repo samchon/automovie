@@ -1,4 +1,9 @@
-import type { AutoMovieVector2Tuple, IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshIncidence } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshIncidence,
+} from "@automovie/interface";
+
 import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
 
 /** A directed incidence, including its endpoint's explicit cover image. */
@@ -34,7 +39,6 @@ interface Halfedge {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidMeshIncidence {
-
   /**
    * Read every directed boundary component of an already split constraint graph.
    *
@@ -66,8 +70,12 @@ export namespace AutoMovieSolidMeshIncidence {
     const halves: Halfedge[] = [];
     const around: Map<number, number[]> = new Map();
     for (const segment of segments) {
-      const a: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(segment.a);
-      const b: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(segment.b);
+      const a: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(
+        segment.a,
+      );
+      const b: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(
+        segment.b,
+      );
       if (
         a === undefined ||
         b === undefined ||
@@ -77,8 +85,14 @@ export namespace AutoMovieSolidMeshIncidence {
         (period === undefined && segment.turn !== 0)
       )
         return "incidence needs finite original endpoints and valid turns";
-      const forward: Readonly<AutoMovieVector2Tuple> = [b[0], b[1] + segment.turn * (period ?? 0)];
-      const reverse: Readonly<AutoMovieVector2Tuple> = [a[0], a[1] - segment.turn * (period ?? 0)];
+      const forward: Readonly<AutoMovieVector2Tuple> = [
+        b[0],
+        b[1] + segment.turn * (period ?? 0),
+      ];
+      const reverse: Readonly<AutoMovieVector2Tuple> = [
+        a[0],
+        a[1] - segment.turn * (period ?? 0),
+      ];
       if (
         ![...forward, ...reverse].every(Number.isFinite) ||
         (a[0] === forward[0] && a[1] === forward[1]) ||
@@ -163,7 +177,11 @@ export namespace AutoMovieSolidMeshIncidence {
 }
 
 /** Counterclockwise direction order without atan2 ties or coordinate normalization. */
-function order(origin: Readonly<AutoMovieVector2Tuple>, a: Readonly<AutoMovieVector2Tuple>, b: Readonly<AutoMovieVector2Tuple>): number {
+function order(
+  origin: Readonly<AutoMovieVector2Tuple>,
+  a: Readonly<AutoMovieVector2Tuple>,
+  b: Readonly<AutoMovieVector2Tuple>,
+): number {
   const halfA: number =
     a[1] > origin[1] || (a[1] === origin[1] && a[0] >= origin[0]) ? 0 : 1;
   const halfB: number =

@@ -66,9 +66,10 @@ export namespace AutoMovieMotionHumanClearance {
           ? from
           : i === count
             ? to
-            : ((z: number): IAutoMovieMotionHumanClearance.IPoint => ({ z, y: required(z) }))(
-                from.z + (span * i) / count,
-              );
+            : ((z: number): IAutoMovieMotionHumanClearance.IPoint => ({
+                z,
+                y: required(z),
+              }))(from.z + (span * i) / count);
       while (hull.length >= 2) {
         const a: IAutoMovieMotionHumanClearance.IPoint = hull[hull.length - 2]!;
         const b: IAutoMovieMotionHumanClearance.IPoint = hull[hull.length - 1]!;
@@ -87,8 +88,16 @@ export namespace AutoMovieMotionHumanClearance {
       const before: number = Math.hypot(v.z - back.z, v.y - back.y);
       const after: number = Math.hypot(ahead.z - v.z, ahead.y - v.y);
       const r: number = Math.min(RADIUS, before / 2, after / 2);
-      const p0: IAutoMovieMotionHumanClearance.IPoint = toward(v, back, r / before);
-      const p2: IAutoMovieMotionHumanClearance.IPoint = toward(v, ahead, r / after);
+      const p0: IAutoMovieMotionHumanClearance.IPoint = toward(
+        v,
+        back,
+        r / before,
+      );
+      const p2: IAutoMovieMotionHumanClearance.IPoint = toward(
+        v,
+        ahead,
+        r / after,
+      );
       for (let k: number = 0; k <= ARC; k++) {
         const t: number = k / ARC;
         line.push({
@@ -103,10 +112,7 @@ export namespace AutoMovieMotionHumanClearance {
     for (let i: number = 1; i < line.length; i++)
       lengths.push(
         lengths[i - 1]! +
-          Math.hypot(
-            line[i]!.z - line[i - 1]!.z,
-            line[i]!.y - line[i - 1]!.y,
-          ),
+          Math.hypot(line[i]!.z - line[i - 1]!.z, line[i]!.y - line[i - 1]!.y),
       );
     const total: number = lengths[lengths.length - 1]!;
     return (share: number): IAutoMovieMotionHumanClearance.IPoint => {
@@ -131,7 +137,11 @@ export namespace AutoMovieMotionHumanClearance {
   const ARC: number = 8;
 
   /** A point a share of the way from one point to another. */
-  const toward = (a: IAutoMovieMotionHumanClearance.IPoint, b: IAutoMovieMotionHumanClearance.IPoint, share: number): IAutoMovieMotionHumanClearance.IPoint => ({
+  const toward = (
+    a: IAutoMovieMotionHumanClearance.IPoint,
+    b: IAutoMovieMotionHumanClearance.IPoint,
+    share: number,
+  ): IAutoMovieMotionHumanClearance.IPoint => ({
     z: a.z + (b.z - a.z) * share,
     y: a.y + (b.y - a.y) * share,
   });

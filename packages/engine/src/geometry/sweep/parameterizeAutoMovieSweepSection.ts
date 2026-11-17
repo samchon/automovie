@@ -1,5 +1,7 @@
-import type { IAutoMovieSweepSection, IAutoMovieParameterizeSweepSection } from "@automovie/interface";
-
+import type {
+  IAutoMovieParameterizeSweepSection,
+  IAutoMovieSweepSection,
+} from "@automovie/interface";
 
 /**
  * Parameterize a section curve over one closed parameter interval.

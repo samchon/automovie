@@ -1,7 +1,8 @@
-import type { IAutoMovieInspectionSweepProps, IAutoMovieInspectionSweepUnit, IAutoMovieVector3 } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieInspectionSweepProps,
+  IAutoMovieInspectionSweepUnit,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 
@@ -26,7 +27,9 @@ import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js"
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records and keeps nothing.
  */
-export function expandAutoMovieInspectionSweep(props: IAutoMovieInspectionSweepProps): IAutoMovieInspectionSweepUnit[] {
+export function expandAutoMovieInspectionSweep(
+  props: IAutoMovieInspectionSweepProps,
+): IAutoMovieInspectionSweepUnit[] {
   if (!(Number.isFinite(props.margin) && props.margin >= 0))
     throw new Error(
       `Sweep margin ${props.margin} is not a finite distance of zero or more`,

@@ -1,4 +1,13 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPickUp, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPickUp,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { StrikingRoll } from "../striking/StrikingRoll";
@@ -79,7 +88,10 @@ export namespace pickUpSearch {
       side,
     );
 
-    const goal = (turn: number, tilt: number): IAutoMovieMotionHumanHand.IWrist =>
+    const goal = (
+      turn: number,
+      tilt: number,
+    ): IAutoMovieMotionHumanHand.IWrist =>
       HumanGrasp.hand(body, side, HumanGrasp.around(authored, turn), tilt);
     // Without a use, the hand takes the grip as the archetype declares it:
     // never tilted, and turned about the wrapped axis only as far as the
@@ -97,7 +109,8 @@ export namespace pickUpSearch {
     // use's pose, and every pose the performer's next action on the prop
     // demands of it (`HumanGraspDemand`), asked from the body the pick up
     // ends in, its stance straightened back up.
-    const demands: IAutoMovieMotionHumanActionContext["demands"] = context.demands;
+    const demands: IAutoMovieMotionHumanActionContext["demands"] =
+      context.demands;
     const after: IAutoMovieMotionHumanPosture = stance.at(0);
     // What a grip must hold: every judged key within its own bound (the
     // demanding action's, or the held tool's for a use), measured as the
@@ -202,7 +215,10 @@ export namespace pickUpSearch {
       context.params.use !== undefined
         ? search(HumanGraspUse.OBLIQUE, HumanGraspUse.AROUND)
         : ((): IAutoMovieMotionHumanGrasp.IReach => {
-            const first: IAutoMovieMotionHumanGrasp.IReach = search([0], declared);
+            const first: IAutoMovieMotionHumanGrasp.IReach = search(
+              [0],
+              declared,
+            );
             return required === undefined ||
               required.measure(first.keys, first.judged, first.bounds) <=
                 required.bound

@@ -1,14 +1,19 @@
-import type { IAutoMovieLoftViewSource, IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanSiteConstraints, IAutoMovieHumanSiteControls, IAutoMovieHumanSiteRegionControls, IAutoMovieHumanSiteViewPart } from "@automovie/interface";
-
-
-
-
-
-import { AutoMovieViewOutline, AutoMovieViewParameter } from "@automovie/engine";
+import {
+  AutoMovieViewOutline,
+  AutoMovieViewParameter,
+} from "@automovie/engine";
+import type {
+  IAutoMovieHumanSiteConstraints,
+  IAutoMovieHumanSiteControls,
+  IAutoMovieHumanSiteRegionControls,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieLoftViewSource,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSiteConstraints } from "./AutoMovieHumanSiteConstraints";
 import { AutoMovieHumanSiteControls } from "./AutoMovieHumanSiteControls";
-
 
 /**
  * A shared distal C2 scalar region, directly authored from original site inputs.
@@ -19,22 +24,28 @@ import { AutoMovieHumanSiteControls } from "./AutoMovieHumanSiteControls";
  * this removes proximal constraints, not every proximal shape dependency.
  */
 export namespace AutoMovieHumanSiteRegionControls {
-  
-
   /** Prepare the named support site through the actual distal cap in the common material chart. */
-  export function create(input: IAutoMovieHumanSiteViewPart.IInput, supportName: string): IAutoMovieHumanSiteRegionControls.IOutput {
-    const support: IAutoMovieHumanSiteViewPart.ISite | undefined = input.sites.find(
-      (site: IAutoMovieHumanSiteViewPart.ISite): boolean => site.site === supportName,
-    );
+  export function create(
+    input: IAutoMovieHumanSiteViewPart.IInput,
+    supportName: string,
+  ): IAutoMovieHumanSiteRegionControls.IOutput {
+    const support: IAutoMovieHumanSiteViewPart.ISite | undefined =
+      input.sites.find(
+        (site: IAutoMovieHumanSiteViewPart.ISite): boolean =>
+          site.site === supportName,
+      );
     const pole: IAutoMovieHumanSiteViewPart.IInput["pole"] = input.pole;
     if (support === undefined || pole?.end !== "both")
       throw new Error(
         "A shared distal law requires its named support and actual two-pole material chart",
       );
     const sites: IAutoMovieHumanSiteViewPart.ISite[] = input.sites.filter(
-      (site: IAutoMovieHumanSiteViewPart.ISite): boolean => site.station >= support.station,
+      (site: IAutoMovieHumanSiteViewPart.ISite): boolean =>
+        site.station >= support.station,
     );
-    const parameter: NonNullable<IAutoMovieHumanSiteViewPart.IInput["parameter"]> = {
+    const parameter: NonNullable<
+      IAutoMovieHumanSiteViewPart.IInput["parameter"]
+    > = {
       type: "angle",
       bottom: pole.bottom,
       top: pole.top,
@@ -71,7 +82,9 @@ export namespace AutoMovieHumanSiteRegionControls {
     const local: IAutoMovieHumanSiteViewPart.IInput = {
       ...input,
       sites: sites.map(
-        (site: IAutoMovieHumanSiteViewPart.ISite): IAutoMovieHumanSiteViewPart.ISite => ({
+        (
+          site: IAutoMovieHumanSiteViewPart.ISite,
+        ): IAutoMovieHumanSiteViewPart.ISite => ({
           ...site,
           ...(site.jets === undefined
             ? {}
@@ -101,17 +114,27 @@ export namespace AutoMovieHumanSiteRegionControls {
       },
       parameter,
       ranges: [0, 1, 2, 3].map(
-        (q: number): NonNullable<IAutoMovieHumanSiteViewPart.IInput["ranges"]>[number] => ({
+        (
+          q: number,
+        ): NonNullable<
+          IAutoMovieHumanSiteViewPart.IInput["ranges"]
+        >[number] => ({
           minimum:
             q < 2
               ? 0
               : Math.min(
-                  ...sites.map((site: IAutoMovieHumanSiteViewPart.ISite): number => site.edges[q]!),
+                  ...sites.map(
+                    (site: IAutoMovieHumanSiteViewPart.ISite): number =>
+                      site.edges[q]!,
+                  ),
                 ),
           maximum:
             q < 2
               ? Math.max(
-                  ...sites.map((site: IAutoMovieHumanSiteViewPart.ISite): number => site.edges[q]!),
+                  ...sites.map(
+                    (site: IAutoMovieHumanSiteViewPart.ISite): number =>
+                      site.edges[q]!,
+                  ),
                 )
               : 0,
         }),
@@ -144,7 +167,9 @@ export namespace AutoMovieHumanSiteRegionControls {
     const field: IAutoMovieLoftViewSource.ISource | null =
       original.controls?.field() ?? null;
 
-    const connect: (host: IAutoMovieHumanSiteViewPart.IInput) => IAutoMovieHumanSiteViewPart.IInput = (
+    const connect: (
+      host: IAutoMovieHumanSiteViewPart.IInput,
+    ) => IAutoMovieHumanSiteViewPart.IInput = (
       host: IAutoMovieHumanSiteViewPart.IInput,
     ): IAutoMovieHumanSiteViewPart.IInput => {
       if (field === null || field.fullness.kind !== "shoulder")
@@ -172,17 +197,20 @@ export namespace AutoMovieHumanSiteRegionControls {
           "Changed distal parameter requires its own generating controls",
         );
       const actual: IAutoMovieHumanSiteViewPart.ISite[] = host.sites.filter(
-        (site: IAutoMovieHumanSiteViewPart.ISite): boolean => site.station >= support.station,
+        (site: IAutoMovieHumanSiteViewPart.ISite): boolean =>
+          site.station >= support.station,
       );
       if (actual.length !== sites.length)
         throw new Error(
           "Changed distal sites require their own generating controls",
         );
       for (const site of actual) {
-        const expected: IAutoMovieHumanSiteViewPart.ISite | undefined = sites.find(
-          (candidate: IAutoMovieHumanSiteViewPart.ISite): boolean =>
-            candidate.site === site.site && candidate.station === site.station,
-        );
+        const expected: IAutoMovieHumanSiteViewPart.ISite | undefined =
+          sites.find(
+            (candidate: IAutoMovieHumanSiteViewPart.ISite): boolean =>
+              candidate.site === site.site &&
+              candidate.station === site.station,
+          );
         if (
           expected === undefined ||
           !site.edges.every((value: number, q: number): boolean =>
@@ -219,7 +247,9 @@ export namespace AutoMovieHumanSiteRegionControls {
           second: reading.parameterJet[1] * normalization * normalization,
         };
       };
-      const edges: (station: number) => NonNullable<IAutoMovieHumanSiteViewPart.ISite["jets"]> = (
+      const edges: (
+        station: number,
+      ) => NonNullable<IAutoMovieHumanSiteViewPart.ISite["jets"]> = (
         station: number,
       ): NonNullable<IAutoMovieHumanSiteViewPart.ISite["jets"]> =>
         field.extents.map(
@@ -227,7 +257,8 @@ export namespace AutoMovieHumanSiteRegionControls {
             outline: IAutoMovieViewOutline.IOutline,
           ): IAutoMovieViewPart.IKnot["jet"] => jet(outline, station, Math.PI),
         ) as NonNullable<IAutoMovieHumanSiteViewPart.ISite["jets"]>;
-      const closing: NonNullable<IAutoMovieHumanSiteViewPart.ISite["jets"]> = edges(pole.top);
+      const closing: NonNullable<IAutoMovieHumanSiteViewPart.ISite["jets"]> =
+        edges(pole.top);
       const fullnessClosing: IAutoMovieViewPart.IKnot["jet"] = jet(
         fullness,
         pole.top,
@@ -257,42 +288,47 @@ export namespace AutoMovieHumanSiteRegionControls {
       return {
         ...host,
         parameter,
-        sites: host.sites.map((site: IAutoMovieHumanSiteViewPart.ISite): IAutoMovieHumanSiteViewPart.ISite => {
-          if (site.station < support.station) return site;
-          const expected: IAutoMovieHumanSiteViewPart.ISite = sites.find(
-            (original: IAutoMovieHumanSiteViewPart.ISite): boolean => original.site === site.site,
-          )!;
-          const qualified: NonNullable<IAutoMovieHumanSiteViewPart.ISite["jets"]> = edges(
-            site.station,
-          );
-          const fullnessJet: IAutoMovieViewPart.IKnot["jet"] = jet(
-            fullness,
-            site.station,
-            span,
-          );
-          if (
-            !(
-              sameQuarters(site.jets, expected.jets) ||
-              sameQuarters(site.jets, qualified)
-            ) ||
-            !(
-              sameJet(site.fullness.jet, expected.fullness.jet) ||
-              sameJet(site.fullness.jet, fullnessJet)
-            )
-          )
-            throw new Error(
-              "Changed distal site jets require their own generating controls: " +
-                site.site,
+        sites: host.sites.map(
+          (
+            site: IAutoMovieHumanSiteViewPart.ISite,
+          ): IAutoMovieHumanSiteViewPart.ISite => {
+            if (site.station < support.station) return site;
+            const expected: IAutoMovieHumanSiteViewPart.ISite = sites.find(
+              (original: IAutoMovieHumanSiteViewPart.ISite): boolean =>
+                original.site === site.site,
+            )!;
+            const qualified: NonNullable<
+              IAutoMovieHumanSiteViewPart.ISite["jets"]
+            > = edges(site.station);
+            const fullnessJet: IAutoMovieViewPart.IKnot["jet"] = jet(
+              fullness,
+              site.station,
+              span,
             );
-          return {
-            ...site,
-            jets: qualified,
-            fullness: {
-              ...site.fullness,
-              jet: fullnessJet,
-            },
-          };
-        }),
+            if (
+              !(
+                sameQuarters(site.jets, expected.jets) ||
+                sameQuarters(site.jets, qualified)
+              ) ||
+              !(
+                sameJet(site.fullness.jet, expected.fullness.jet) ||
+                sameJet(site.fullness.jet, fullnessJet)
+              )
+            )
+              throw new Error(
+                "Changed distal site jets require their own generating controls: " +
+                  site.site,
+              );
+            return {
+              ...site,
+              jets: qualified,
+              fullness: {
+                ...site.fullness,
+                jet: fullnessJet,
+              },
+            };
+          },
+        ),
         poleJets: { ...host.poleJets, top: closing },
         fullnessPoleJets: {
           ...host.fullnessPoleJets,
@@ -303,7 +339,9 @@ export namespace AutoMovieHumanSiteRegionControls {
     return {
       local: original,
       connect,
-      prepare(host: IAutoMovieHumanSiteViewPart.IInput): IAutoMovieHumanSiteControls.IOutput {
+      prepare(
+        host: IAutoMovieHumanSiteViewPart.IInput,
+      ): IAutoMovieHumanSiteControls.IOutput {
         if (original.controls === null) return original;
         return AutoMovieHumanSiteControls.prepare(connect(host), constraints, {
           definition: input.axis,
@@ -325,7 +363,10 @@ function sameJet(
 }
 
 /** The complete four-edge jet declaration belongs to the generating input. */
-function sameQuarters(a: IAutoMovieHumanSiteViewPart.ISite["jets"], b: IAutoMovieHumanSiteViewPart.ISite["jets"]): boolean {
+function sameQuarters(
+  a: IAutoMovieHumanSiteViewPart.ISite["jets"],
+  b: IAutoMovieHumanSiteViewPart.ISite["jets"],
+): boolean {
   return a === undefined || b === undefined
     ? a === b
     : a.every((jet: IAutoMovieViewPart.IKnot["jet"], q: number): boolean =>

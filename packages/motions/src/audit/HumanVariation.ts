@@ -12,7 +12,6 @@ import type { IAutoMovieMotionHumanVariation } from "@automovie/interface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The reading is the caller's function of a seed, so nothing about a law is assumed.
  */
 export namespace HumanVariation {
-
   /**
    * Read one quantity under each seed.
    *

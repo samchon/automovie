@@ -1,6 +1,12 @@
-import type { IAutoMovieInteractionEvent, IAutoMovieMotionHumanHitTrack, IAutoMovieMotionHumanPerformanceState, IAutoMovieResolveContactEvents, IAutoMovieResolveSchedule, IAutoMovieVector3 } from "@automovie/interface";
-
 import { resolveAutoMovieContactEvents } from "@automovie/engine";
+import type {
+  IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanHitTrack,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieResolveContactEvents,
+  IAutoMovieResolveSchedule,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
@@ -28,7 +34,6 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The hits are the record's; the provisional sweep uses the one contact resolver.
  */
 export namespace HumanHitTrack {
-
   /** The instant name of every hit on a track. */
   export const EVENT: string = "hit";
 
@@ -79,8 +84,10 @@ export namespace HumanHitTrack {
         }),
       )
       .sort(
-        (a: IAutoMovieResolveSchedule.ICue, b: IAutoMovieResolveSchedule.ICue) =>
-          a.seconds - b.seconds,
+        (
+          a: IAutoMovieResolveSchedule.ICue,
+          b: IAutoMovieResolveSchedule.ICue,
+        ) => a.seconds - b.seconds,
       );
   }
 

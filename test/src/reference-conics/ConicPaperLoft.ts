@@ -1,9 +1,10 @@
-import type { IAutoMovieConicApproximation } from "@automovie/interface";
 import { tessellateAutoMovieContourStrip64 } from "@automovie/engine";
+import type { IAutoMovieConicApproximation } from "@automovie/interface";
 import { AutoMovieRecoveryConicApproximation as C } from "@automovie/recovery";
-import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-import { ConicPaperInput as I } from "./ConicPaperInput";
+
 import type { ConicPaperFit as F } from "./ConicPaperFit";
+import { ConicPaperInput as I } from "./ConicPaperInput";
+import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 
 /** Independent coefficient-only realization, restricted to explicitly reciprocal one-to-one saved continuations. */
 export namespace ConicPaperLoft {
@@ -40,43 +41,108 @@ export namespace ConicPaperLoft {
   }
 
   /** Tessellate rational coefficients directly; original triangles never enter this producer. */
-  export function build(packet: I.Packet, name: string, fitted?: F.Result): Result {
+  export function build(
+    packet: I.Packet,
+    name: string,
+    fitted?: F.Result,
+  ): Result {
     const started: number = performance.now();
     const rings: Map<string, [number, number, number][]> = new Map();
-    const byKey: Map<string, F.Record> = new Map(fitted?.records.map((record: F.Record): [string, F.Record] => [record.key, record]) ?? []);
+    const byKey: Map<string, F.Record> = new Map(
+      fitted?.records.map((record: F.Record): [string, F.Record] => [
+        record.key,
+        record,
+      ]) ?? [],
+    );
     const positions: number[] = [];
     const indices: number[] = [];
-    const result: Result = { mesh: { id: name + ".coefficient-loft", positions, indices, colour: [0.64, 0.65, 0.67] }, curves: [], milliseconds: 0,
-      completeRings: 0, unavailableRings: 0, overSamplingBudget: 0, rejectedRings: 0, usedSurfaceCurves: 0, reciprocalPairs: 0, generatedStrips: 0, omittedStrips: 0,
-      branchesNotGenerated: 0, unqualifiedStrips: 0, failures: [] };
+    const result: Result = {
+      mesh: {
+        id: name + ".coefficient-loft",
+        positions,
+        indices,
+        colour: [0.64, 0.65, 0.67],
+      },
+      curves: [],
+      milliseconds: 0,
+      completeRings: 0,
+      unavailableRings: 0,
+      overSamplingBudget: 0,
+      rejectedRings: 0,
+      usedSurfaceCurves: 0,
+      reciprocalPairs: 0,
+      generatedStrips: 0,
+      omittedStrips: 0,
+      branchesNotGenerated: 0,
+      unqualifiedStrips: 0,
+      failures: [],
+    };
     for (const loop of packet.loops) {
       const record: F.Record | undefined = byKey.get(loop.key);
-      if (fitted !== undefined && record?.status !== "complete") { ++result.unavailableRings; continue; }
+      if (fitted !== undefined && record?.status !== "complete") {
+        ++result.unavailableRings;
+        continue;
+      }
       const points: IAutoMovieConicApproximation.Point[] = [];
-      const count: number = fitted === undefined ? loop.curve.spans.length : record!.arcs.length;
+      const count: number =
+        fitted === undefined ? loop.curve.spans.length : record!.arcs.length;
       for (let i: number = 0; i < count; ++i) {
-        const evaluate = (u: number): IAutoMovieConicApproximation.Point => fitted === undefined ? I.value(loop.curve.spans[i]!, u, 0) : C.evaluate(record!.arcs[i]!, u);
+        const evaluate = (u: number): IAutoMovieConicApproximation.Point =>
+          fitted === undefined
+            ? I.value(loop.curve.spans[i]!, u, 0)
+            : C.evaluate(record!.arcs[i]!, u);
         const samples: IAutoMovieConicApproximation.Point[] = sample(evaluate);
         points.push(...samples.slice(0, -1));
       }
-      if (points.length > 512) { ++result.overSamplingBudget; continue; }
+      if (points.length > 512) {
+        ++result.overSamplingBudget;
+        continue;
+      }
       const ring: [number, number, number][] = [];
       for (const p of points) {
-        const previous: [number, number, number] | undefined = ring[ring.length - 1];
-        if (previous === undefined || Math.hypot(previous[0] - p[0], previous[2] - p[1]) > 1e-9)
+        const previous: [number, number, number] | undefined =
+          ring[ring.length - 1];
+        if (
+          previous === undefined ||
+          Math.hypot(previous[0] - p[0], previous[2] - p[1]) > 1e-9
+        )
           ring.push([p[0], loop.heightMm, p[1]]);
       }
-      if (ring.length < 3) { ++result.unavailableRings; continue; }
-      if (!admit(ring)) { ++result.rejectedRings; continue; }
+      if (ring.length < 3) {
+        ++result.unavailableRings;
+        continue;
+      }
+      if (!admit(ring)) {
+        ++result.rejectedRings;
+        continue;
+      }
       rings.set(loop.key, ring);
       ++result.completeRings;
-      result.curves.push({ id: name + "." + loop.curve.name, points: ring.map((p: I.V): N.Point => [p[0] / 1000, p[1] / 1000, p[2] / 1000]), closed: true, colour: fitted === undefined ? "2f6a9b" : name === "ahn" ? "bf4e2d" : "327a43" });
+      result.curves.push({
+        id: name + "." + loop.curve.name,
+        points: ring.map(
+          (p: I.V): N.Point => [p[0] / 1000, p[1] / 1000, p[2] / 1000],
+        ),
+        closed: true,
+        colour:
+          fitted === undefined
+            ? "2f6a9b"
+            : name === "ahn"
+              ? "bf4e2d"
+              : "327a43",
+      });
     }
 
-    const lookup: Map<string, I.Loop> = new Map(packet.loops.map((loop: I.Loop): [string, I.Loop] => [loop.key, loop]));
+    const lookup: Map<string, I.Loop> = new Map(
+      packet.loops.map((loop: I.Loop): [string, I.Loop] => [loop.key, loop]),
+    );
     const identities: Map<[number, number, number], number> = new Map();
     const used: Set<string> = new Set();
-    const emit = (a: [number, number, number], b: [number, number, number], c: [number, number, number]): void => {
+    const emit = (
+      a: [number, number, number],
+      b: [number, number, number],
+      c: [number, number, number],
+    ): void => {
       for (const p of [a, b, c]) {
         let index: number | undefined = identities.get(p);
         if (index === undefined) {
@@ -88,23 +154,48 @@ export namespace ConicPaperLoft {
       }
     };
     for (const loop of packet.loops) {
-      if (loop.above.length !== 1) { if (loop.above.length > 1) ++result.branchesNotGenerated; continue; }
-      const after: I.Loop | undefined = lookup.get((loop.section + 1) + ":" + loop.above[0]);
-      if (after === undefined || after.below.length !== 1 || after.below[0] !== loop.ordinal) { ++result.branchesNotGenerated; continue; }
+      if (loop.above.length !== 1) {
+        if (loop.above.length > 1) ++result.branchesNotGenerated;
+        continue;
+      }
+      const after: I.Loop | undefined = lookup.get(
+        loop.section + 1 + ":" + loop.above[0],
+      );
+      if (
+        after === undefined ||
+        after.below.length !== 1 ||
+        after.below[0] !== loop.ordinal
+      ) {
+        ++result.branchesNotGenerated;
+        continue;
+      }
       ++result.reciprocalPairs;
       const a: [number, number, number][] | undefined = rings.get(loop.key);
       const b: [number, number, number][] | undefined = rings.get(after.key);
-      if (a === undefined || b === undefined) { ++result.omittedStrips; continue; }
+      if (a === undefined || b === undefined) {
+        ++result.omittedStrips;
+        continue;
+      }
       try {
-        tessellateAutoMovieContourStrip64(a, b, emit, undefined, (observation): void => {
-          if (!observation.qualified) ++result.unqualifiedStrips;
-        });
+        tessellateAutoMovieContourStrip64(
+          a,
+          b,
+          emit,
+          undefined,
+          (observation): void => {
+            if (!observation.qualified) ++result.unqualifiedStrips;
+          },
+        );
         ++result.generatedStrips;
         used.add(loop.key);
         used.add(after.key);
       } catch (error) {
         ++result.omittedStrips;
-        result.failures.push({ before: loop.key, after: after.key, reason: error instanceof Error ? error.message : String(error) });
+        result.failures.push({
+          before: loop.key,
+          after: after.key,
+          reason: error instanceof Error ? error.message : String(error),
+        });
       }
     }
     result.usedSurfaceCurves = used.size;
@@ -119,36 +210,70 @@ export namespace ConicPaperLoft {
     for (let i: number = 0; i < ring.length; ++i) {
       const a: [number, number, number] = ring[i]!;
       const b: [number, number, number] = ring[(i + 1) % ring.length]!;
-      if (!a.every(Number.isFinite) || Math.hypot(a[0] - b[0], a[2] - b[2]) < 1e-8) return false;
-      area += (a[0] - origin[0]) * (b[2] - origin[2]) - (a[2] - origin[2]) * (b[0] - origin[0]);
+      if (
+        !a.every(Number.isFinite) ||
+        Math.hypot(a[0] - b[0], a[2] - b[2]) < 1e-8
+      )
+        return false;
+      area +=
+        (a[0] - origin[0]) * (b[2] - origin[2]) -
+        (a[2] - origin[2]) * (b[0] - origin[0]);
       for (let j: number = i + 1; j < ring.length; ++j) {
         const c: [number, number, number] = ring[j]!;
         if (Math.hypot(a[0] - c[0], a[2] - c[2]) < 1e-8) return false;
-        if (j === i + 1 || i === 0 && j === ring.length - 1) continue;
+        if (j === i + 1 || (i === 0 && j === ring.length - 1)) continue;
         const d: [number, number, number] = ring[(j + 1) % ring.length]!;
-        const determinant = (p: I.V, q: I.V, r: I.V): number => (q[0] - p[0]) * (r[2] - p[2]) - (q[2] - p[2]) * (r[0] - p[0]);
-        if (determinant(a, b, c) * determinant(a, b, d) <= 0 && determinant(c, d, a) * determinant(c, d, b) <= 0
-          && Math.max(Math.min(a[0], b[0]), Math.min(c[0], d[0])) <= Math.min(Math.max(a[0], b[0]), Math.max(c[0], d[0]))
-          && Math.max(Math.min(a[2], b[2]), Math.min(c[2], d[2])) <= Math.min(Math.max(a[2], b[2]), Math.max(c[2], d[2]))) return false;
+        const determinant = (p: I.V, q: I.V, r: I.V): number =>
+          (q[0] - p[0]) * (r[2] - p[2]) - (q[2] - p[2]) * (r[0] - p[0]);
+        if (
+          determinant(a, b, c) * determinant(a, b, d) <= 0 &&
+          determinant(c, d, a) * determinant(c, d, b) <= 0 &&
+          Math.max(Math.min(a[0], b[0]), Math.min(c[0], d[0])) <=
+            Math.min(Math.max(a[0], b[0]), Math.max(c[0], d[0])) &&
+          Math.max(Math.min(a[2], b[2]), Math.min(c[2], d[2])) <=
+            Math.min(Math.max(a[2], b[2]), Math.max(c[2], d[2]))
+        )
+          return false;
       }
     }
     return Number.isFinite(area) && Math.abs(area) > 1e-12;
   }
 
   /** Adaptive rational or polynomial evaluation; a fixed 0.25 mm midpoint/quarter chord test is sampled evidence. */
-  function sample(evaluate: (u: number) => IAutoMovieConicApproximation.Point): IAutoMovieConicApproximation.Point[] {
+  function sample(
+    evaluate: (u: number) => IAutoMovieConicApproximation.Point,
+  ): IAutoMovieConicApproximation.Point[] {
     const output: IAutoMovieConicApproximation.Point[] = [evaluate(0)];
-    const visit = (a: number, b: number, p: IAutoMovieConicApproximation.Point, q: IAutoMovieConicApproximation.Point, depth: number): void => {
+    const visit = (
+      a: number,
+      b: number,
+      p: IAutoMovieConicApproximation.Point,
+      q: IAutoMovieConicApproximation.Point,
+      depth: number,
+    ): void => {
       const m: number = (a + b) / 2;
       const middle: IAutoMovieConicApproximation.Point = evaluate(m);
-      const error: number = Math.max(...[0.25, 0.5, 0.75].map((fraction: number): number => {
-        const point: IAutoMovieConicApproximation.Point = evaluate(a + (b - a) * fraction);
-        const dx: number = q[0] - p[0];
-        const dy: number = q[1] - p[1];
-        const square: number = dx * dx + dy * dy;
-        const t: number = square === 0 ? 0 : Math.max(0, Math.min(1, ((point[0] - p[0]) * dx + (point[1] - p[1]) * dy) / square));
-        return Math.hypot(point[0] - p[0] - t * dx, point[1] - p[1] - t * dy);
-      }));
+      const error: number = Math.max(
+        ...[0.25, 0.5, 0.75].map((fraction: number): number => {
+          const point: IAutoMovieConicApproximation.Point = evaluate(
+            a + (b - a) * fraction,
+          );
+          const dx: number = q[0] - p[0];
+          const dy: number = q[1] - p[1];
+          const square: number = dx * dx + dy * dy;
+          const t: number =
+            square === 0
+              ? 0
+              : Math.max(
+                  0,
+                  Math.min(
+                    1,
+                    ((point[0] - p[0]) * dx + (point[1] - p[1]) * dy) / square,
+                  ),
+                );
+          return Math.hypot(point[0] - p[0] - t * dx, point[1] - p[1] - t * dy);
+        }),
+      );
       if (error > 0.25 && depth < 8) {
         visit(a, m, p, middle, depth + 1);
         visit(m, b, middle, q, depth + 1);

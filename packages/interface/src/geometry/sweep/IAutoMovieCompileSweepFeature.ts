@@ -1,11 +1,9 @@
-
-
 /** Compile-time length scales for fitting a feature course in the sweep's cylindrical domain. */
 export namespace IAutoMovieCompileSweepFeature {
   /**
    * Compile one feature curve of a sweep into the radius change it makes at a
    * point of the sweep's domain.
-   * 
+   *
    * The curve is the centripetal Catmull-Rom spline through its points in the
    * `(u, angle)` domain, each angle unwrapped so consecutive points take the
    * shorter way round and a point repeating its predecessor dropped, continued

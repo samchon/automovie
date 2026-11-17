@@ -1,4 +1,8 @@
-import type { IAutoMovieActorContext, IAutoMovieActorWorldFrame } from "@automovie/interface";
+import type {
+  IAutoMovieActorContext,
+  IAutoMovieActorWorldFrame,
+} from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 
 /**

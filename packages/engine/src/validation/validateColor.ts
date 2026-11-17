@@ -1,4 +1,5 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
+
 import { linearColorToSrgbHex } from "../math/linearColorToSrgbHex";
 import { isRecord } from "./isRecord";
 

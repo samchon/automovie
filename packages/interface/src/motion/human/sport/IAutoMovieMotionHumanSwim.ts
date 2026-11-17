@@ -1,5 +1,5 @@
-import type { IAutoMovieMotionHumanSwimStroke } from "./IAutoMovieMotionHumanSwimStroke";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanSwimStroke } from "./IAutoMovieMotionHumanSwimStroke";
 
 /**
  * Swimming on a declared water plane (#3254, M25): treading water and the

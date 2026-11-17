@@ -1,6 +1,19 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanGoal, IAutoMovieMotionHumanLean, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive } from "@automovie/interface";
 import { Quaternion } from "@automovie/engine";
-import { AutoMovieMotionClock, AutoMovieMotionHumanBase, AutoMovieMotionHumanGoal, AutoMovieMotionHumanLean, HumanFrame } from "@automovie/motions";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanGoal,
+  IAutoMovieMotionHumanLean,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionClock,
+  AutoMovieMotionHumanBase,
+  AutoMovieMotionHumanGoal,
+  AutoMovieMotionHumanLean,
+  HumanFrame,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -60,11 +73,8 @@ export function test_motion_compose_goal(): void {
     close(goal.point.y, 1.2) &&
     close(goal.point.z, 0.2);
 
-  const mixed: IAutoMovieMotionHumanPosture.IGoal = AutoMovieMotionHumanGoal.mix(
-    from,
-    to,
-    0.5,
-  );
+  const mixed: IAutoMovieMotionHumanPosture.IGoal =
+    AutoMovieMotionHumanGoal.mix(from, to, 0.5);
   TestValidator.predicate(
     "the ends of a mix are the goals themselves",
     AutoMovieMotionHumanGoal.mix(from, to, 0) === from &&
@@ -113,7 +123,8 @@ export function test_motion_compose_goal(): void {
   TestValidator.predicate(
     "a drive leaves its origin when given one",
     arrived(
-      drive((): IAutoMovieMotionHumanPosture.IGoal => to).write(posture, 0.5).limbs.rightArm!,
+      drive((): IAutoMovieMotionHumanPosture.IGoal => to).write(posture, 0.5)
+        .limbs.rightArm!,
     ),
   );
   TestValidator.error("a drive with nothing to leave", (): unknown =>

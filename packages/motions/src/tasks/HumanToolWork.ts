@@ -1,6 +1,12 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanToolWork, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanToolWork,
+  IAutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
@@ -23,7 +29,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The vessel's depth and width are its own contacts; no pot is typed.
  */
 export namespace HumanToolWork {
-
   /** Where a tool works. */
   export interface IWork {
     /** The working point at a contact, world metres: for a stir, the circle's point nearest the performer. */
@@ -50,7 +55,10 @@ export namespace HumanToolWork {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "aim" | "body" | "prop" | "start">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "aim" | "body" | "prop" | "start"
+    >,
     work: {
       kind: IAutoMovieMotionHumanToolWork.Kind;
       on: IAutoMovieMotionTarget;
@@ -70,7 +78,8 @@ export namespace HumanToolWork {
         fix: 'aim the stir at a vessel\'s inside, { kind: "prop", subject, point: "inside" }, as createVessel declares it',
       });
     const subject: string = work.on.subject;
-    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(subject);
+    const read: IAutoMovieMotionHumanActionContext.IProp =
+      context.prop(subject);
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];
     const declared = (id: string): IAutoMovieAffordance => {

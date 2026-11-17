@@ -1,5 +1,7 @@
-import type { AutoMovieHumanoidRegion, IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
-
+import type {
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanContactWindow,
+} from "@automovie/interface";
 
 /** Companion types of {@link HumanContactWindow}. */
 export namespace HumanContactWindow {
@@ -19,7 +21,9 @@ export namespace HumanContactWindow {
     "rightUpperLeg",
     "leftLowerLeg",
     "rightLowerLeg",
-  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanContactWindow["part"]>[];
+  ] as const satisfies readonly NonNullable<
+    IAutoMovieMotionHumanContactWindow["part"]
+  >[];
 
   /**
    * The ways a part bears, as data. `bear` is a part that carries weight
@@ -34,7 +38,9 @@ export namespace HumanContactWindow {
     "lie",
     "strike",
     "bear",
-  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanContactWindow["kind"]>[];
+  ] as const satisfies readonly NonNullable<
+    IAutoMovieMotionHumanContactWindow["kind"]
+  >[];
 
   /**
    * The surface region each part touches with when a window names no
@@ -62,11 +68,6 @@ export namespace HumanContactWindow {
   };
 
   /** The kinds that bear the body's weight when no `load` says otherwise. */
-  export const BEARING: readonly IAutoMovieMotionHumanContactWindow["kind"][] = [
-    "plant",
-    "pivot",
-    "seat",
-    "lie",
-    "bear",
-  ];
+  export const BEARING: readonly IAutoMovieMotionHumanContactWindow["kind"][] =
+    ["plant", "pivot", "seat", "lie", "bear"];
 }

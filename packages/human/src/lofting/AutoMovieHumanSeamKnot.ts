@@ -2,7 +2,6 @@ import type { IAutoMovieHumanSeamKnot } from "@automovie/interface";
 
 import { AutoMovieHumanSeam } from "./AutoMovieHumanSeam";
 
-
 /**
  * Knot jets of a uniform periodic cubic B-spline section, and the assembly of
  * a section from guides and sectors (rule J2).
@@ -33,12 +32,6 @@ import { AutoMovieHumanSeam } from "./AutoMovieHumanSeam";
  * derivatives here are per radian of phase, so `h = 2 pi / N`.
  */
 export namespace AutoMovieHumanSeamKnot {
-  
-
-  
-
-  
-
   /**
    * Curve jet at a knot from its three control points.
    *
@@ -54,9 +47,16 @@ export namespace AutoMovieHumanSeamKnot {
     h: number,
   ): IAutoMovieHumanSeamKnot.Jet {
     return [
-      at.map((v: number, k: number): number => (before[k]! + 4 * v + after[k]!) / 6),
-      at.map((_: number, k: number): number => (after[k]! - before[k]!) / (2 * h)),
-      at.map((v: number, k: number): number => (before[k]! - 2 * v + after[k]!) / (h * h)),
+      at.map(
+        (v: number, k: number): number => (before[k]! + 4 * v + after[k]!) / 6,
+      ),
+      at.map(
+        (_: number, k: number): number => (after[k]! - before[k]!) / (2 * h),
+      ),
+      at.map(
+        (v: number, k: number): number =>
+          (before[k]! - 2 * v + after[k]!) / (h * h),
+      ),
     ];
   }
 
@@ -64,11 +64,19 @@ export namespace AutoMovieHumanSeamKnot {
    * The three control points `[P-, P0, P+]` that give a knot a jet: the
    * inverse of {@link knot}.
    */
-  export function controls(jet: IAutoMovieHumanSeamKnot.Jet, h: number): IAutoMovieHumanSeamKnot.ControlsResult {
+  export function controls(
+    jet: IAutoMovieHumanSeamKnot.Jet,
+    h: number,
+  ): IAutoMovieHumanSeamKnot.ControlsResult {
     const [p, d1, d2] = jet;
-    const centre: number[] = p.map((v: number, k: number): number => v - (h * h * d2[k]!) / 6);
+    const centre: number[] = p.map(
+      (v: number, k: number): number => v - (h * h * d2[k]!) / 6,
+    );
     const side = (sign: number): number[] =>
-      p.map((v: number, k: number): number => v + (h * h * d2[k]!) / 3 + sign * h * d1[k]!);
+      p.map(
+        (v: number, k: number): number =>
+          v + (h * h * d2[k]!) / 3 + sign * h * d1[k]!,
+      );
     return [side(-1), centre, side(1)];
   }
 
@@ -95,19 +103,28 @@ export namespace AutoMovieHumanSeamKnot {
     if (guides.length === 0 || sectors.length !== guides.length)
       throw new Error("A section needs one sector after every guide");
     const h: number = (2 * Math.PI) / count;
-    const points: (number[] | null)[] = new Array<number[] | null>(count).fill(null);
+    const points: (number[] | null)[] = new Array<number[] | null>(count).fill(
+      null,
+    );
     guides.forEach((g: IAutoMovieHumanSeamKnot.IGuide, j: number): void => {
-      const next: IAutoMovieHumanSeamKnot.IGuide = guides[(j + 1) % guides.length]!;
+      const next: IAutoMovieHumanSeamKnot.IGuide =
+        guides[(j + 1) % guides.length]!;
       const spans: number = (next.knot - g.knot + count) % count || count;
       if (!Number.isInteger(g.knot) || g.knot < 0 || g.knot >= count)
         throw new Error(`Guide knot ${g.knot} is not a knot of ${count}`);
       if (j + 1 < guides.length && next.knot <= g.knot)
         throw new Error("Guides must be ordered by knot");
       if (spans < 4)
-        throw new Error(`Sector ${sectors[j]!.name} has ${spans} spans; a sector needs four`);
+        throw new Error(
+          `Sector ${sectors[j]!.name} has ${spans} spans; a sector needs four`,
+        );
 
       // The guide's three control points carry its copied jet exactly.
-      const [p, d1, d2] = AutoMovieHumanSeam.adopt(g.jet, g.speed, g.acceleration ?? 0);
+      const [p, d1, d2] = AutoMovieHumanSeam.adopt(
+        g.jet,
+        g.speed,
+        g.acceleration ?? 0,
+      );
       const [before, at, after] = controls([p, d1, d2], h);
       points[(g.knot - 1 + count) % count] = before;
       points[g.knot] = at;
@@ -117,7 +134,9 @@ export namespace AutoMovieHumanSeamKnot {
       for (let i: number = 2; i <= spans - 2; i++) {
         const k: number = (g.knot + i) % count;
         const [q, , q2] = sectors[j]!.jet((2 * Math.PI * k) / count);
-        points[k] = q.map((v: number, c: number): number => v - (h * h * q2[c]!) / 6);
+        points[k] = q.map(
+          (v: number, c: number): number => v - (h * h * q2[c]!) / 6,
+        );
       }
     });
     const xs: number[] = points.map((p: number[] | null): number => p![0]!);

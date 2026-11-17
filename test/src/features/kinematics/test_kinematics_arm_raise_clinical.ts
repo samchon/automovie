@@ -1,6 +1,15 @@
-import { type IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, resolvePose } from "@automovie/engine";
-
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  resolvePose,
+} from "@automovie/engine";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMoviePose,
+  type IAutoMovieResolvedBone,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/namedFacts";

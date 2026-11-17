@@ -1,6 +1,18 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanArmClearance, IAutoMovieMotionHumanArmGeometry, IAutoMovieMotionHumanArmJacobian, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanArmGeometry,
+  IAutoMovieMotionHumanArmJacobian,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanJacobian,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanArmFrame } from "./HumanArmFrame";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanJacobian } from "./HumanJacobian";
@@ -29,7 +41,6 @@ import { HumanJacobian } from "./HumanJacobian";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
  */
 export namespace HumanArmJacobian {
-
   /**
    * Each free coordinate's column at an arm placed in a frame.
    *
@@ -81,18 +92,19 @@ export namespace HumanArmJacobian {
       },
       limbs: {},
     };
-    const joints: (IAutoMovieMotionHumanJacobian.IMotion | undefined)[] = HumanJacobian.of(
-      setup.body,
-      posture,
-      bones,
-      [3, 4, 5, 6, 7, 8].map(
-        (d: number): IAutoMovieMotionHumanJacobian.IVariable => ({
-          kind: "angle",
-          bone: d < 6 ? lower : hand,
-          axis: AXES[d % 3]!,
-        }),
-      ),
-    );
+    const joints: (IAutoMovieMotionHumanJacobian.IMotion | undefined)[] =
+      HumanJacobian.of(
+        setup.body,
+        posture,
+        bones,
+        [3, 4, 5, 6, 7, 8].map(
+          (d: number): IAutoMovieMotionHumanJacobian.IVariable => ({
+            kind: "angle",
+            bone: d < 6 ? lower : hand,
+            axis: AXES[d % 3]!,
+          }),
+        ),
+      );
     const kept: [number, number, number][] = [
       G.clamped(setup, lower, [c[3]!, c[4]!, c[5]!]),
       G.clamped(setup, hand, [c[6]!, c[7]!, c[8]!]),
@@ -152,8 +164,15 @@ export namespace HumanArmJacobian {
     arm: IAutoMovieMotionHumanArmClearance.IArm,
     offset: readonly number[] = [],
   ): IAutoMovieMotionHumanArmJacobian.IReadResult {
-    const setup: IAutoMovieMotionHumanArmGeometry.ISetup = G.prepare(body, side);
-    const at: IAutoMovieMotionHumanArmGeometry.IFrame = HumanArmFrame.of(setup, { pose, others: [] }, true);
+    const setup: IAutoMovieMotionHumanArmGeometry.ISetup = G.prepare(
+      body,
+      side,
+    );
+    const at: IAutoMovieMotionHumanArmGeometry.IFrame = HumanArmFrame.of(
+      setup,
+      { pose, others: [] },
+      true,
+    );
     const c: number[] = G.encode(setup, arm).map(
       (v: number, d: number): number => v + (offset[d] ?? 0),
     );
@@ -164,7 +183,8 @@ export namespace HumanArmJacobian {
       c,
       free,
       columns: columns(setup, at, c, G.placed(setup, at, c, false), free),
-      chain: (q: readonly number[]): IAutoMovieMotionHumanArmJacobian.IChain => G.placed(setup, at, q, false),
+      chain: (q: readonly number[]): IAutoMovieMotionHumanArmJacobian.IChain =>
+        G.placed(setup, at, q, false),
     };
   }
 

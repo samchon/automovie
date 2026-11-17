@@ -1,15 +1,20 @@
-import type { IAutoMovieRecoveryImageDirectionSolverCreationOperation, IAutoMovieRecoveryImageFit, IAutoMovieRecoveryImageFitPolicy, IAutoMovieRecoveryImageProfileSample, IAutoMovieRecoveryImageProfilesFittingOperation, IAutoMovieRecoveryImageSource, IAutoMovieRecoveryImageSupportsPreparationOperation, IAutoMovieRecoveryOptions, IAutoMovieRecoveryResult, IAutoMovieEllipticLoft, IAutoMovieRecoveryImageObservation } from "@automovie/interface";
-
+import type {
+  IAutoMovieEllipticLoft,
+  IAutoMovieRecoveryImageDirectionSolverCreationOperation,
+  IAutoMovieRecoveryImageFit,
+  IAutoMovieRecoveryImageFitPolicy,
+  IAutoMovieRecoveryImageObservation,
+  IAutoMovieRecoveryImageProfileSample,
+  IAutoMovieRecoveryImageProfilesFittingOperation,
+  IAutoMovieRecoveryImageSource,
+  IAutoMovieRecoveryImageSupportsPreparationOperation,
+  IAutoMovieRecoveryOptions,
+  IAutoMovieRecoveryResult,
+} from "@automovie/interface";
 
 import { createRecoveryImageDirectionSolver } from "../internal/createRecoveryImageDirectionSolver";
 import { fitRecoveryImageProfiles } from "../internal/fitRecoveryImageProfiles";
 import { prepareRecoveryImageSupports } from "../internal/prepareRecoveryImageSupports";
-
-
-
-
-
-
 
 /**
  * Infer aligned elliptical sections from calibrated horizontal silhouette supports.
@@ -47,7 +52,9 @@ export function fitAutoMovieRecoveryImageLoft(
     cancellationCallback = true;
     const requested: boolean | undefined = probe?.();
     if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error("Cancellation callback must return a boolean synchronously");
+      throw new Error(
+        "Cancellation callback must return a boolean synchronously",
+      );
     cancellationCallback = false;
     cancellationRequested = requested === true;
     return cancellationRequested;
@@ -55,15 +62,19 @@ export function fitAutoMovieRecoveryImageLoft(
   try {
     probe = options?.cancelled;
     if (probe !== undefined && typeof probe !== "function")
-      return { operator, status: "refused", diagnostics: ["Cancellation callback must be a function"] };
+      return {
+        operator,
+        status: "refused",
+        diagnostics: ["Cancellation callback must be a function"],
+      };
 
-  if (cancelled())
-    return {
-      operator,
-      status: "cancelled",
-      diagnostics: ["Cancelled before image fitting"] };
-  
-  
+    if (cancelled())
+      return {
+        operator,
+        status: "cancelled",
+        diagnostics: ["Cancelled before image fitting"],
+      };
+
     if (
       !observation ||
       observation.method !== "fixed-background-channel-distance-v1" ||
@@ -97,7 +108,8 @@ export function fitAutoMovieRecoveryImageLoft(
       upper,
       directions,
       stations,
-      supports }: ReturnType<IAutoMovieRecoveryImageSupportsPreparationOperation.Operation> =
+      supports,
+    }: ReturnType<IAutoMovieRecoveryImageSupportsPreparationOperation.Operation> =
       prepareRecoveryImageSupports(observation, policy);
     const unique: number[] = [];
     for (const direction of directions) {
@@ -235,7 +247,8 @@ export function fitAutoMovieRecoveryImageLoft(
         return {
           operator,
           status: "cancelled",
-          diagnostics: ["Cancelled between profile candidates"] };
+          diagnostics: ["Cancelled between profile candidates"],
+        };
       let candidate: ReturnType<IAutoMovieRecoveryImageProfilesFittingOperation.Operation>;
       try {
         candidate = fitRecoveryImageProfiles(
@@ -282,7 +295,8 @@ export function fitAutoMovieRecoveryImageLoft(
         return {
           operator,
           status: "cancelled",
-          diagnostics: ["Cancelled before fit transfer"] };
+          diagnostics: ["Cancelled before fit transfer"],
+        };
       if (!(residual <= policy.maximumResidualPx)) {
         last = `support residual ${residual} px`;
         continue;
@@ -308,27 +322,34 @@ export function fitAutoMovieRecoveryImageLoft(
               lateralSurface: "inferred-under-aligned-ellipse-prior",
               endCaps: "unobserved",
               interior: "unobserved",
-              cameras: "supplied" } },
+              cameras: "supplied",
+            },
+          },
           cohort: observation.cohort,
           sources: observation.views.map(
             (
               view: IAutoMovieRecoveryImageObservation["views"][number],
             ): IAutoMovieRecoveryImageSource => ({
               id: view.id,
-              sha256: view.sourceSha256 }),
+              sha256: view.sourceSha256,
+            }),
           ),
           maximumResidualPx: residual,
           familyResidualPx: familyResidual,
           directionRank: {
             radii: radiiSolver.ratio,
-            centres: centreSolver.ratio },
+            centres: centreSolver.ratio,
+          },
           splineRankRatio: candidate.rankRatio,
           counts: {
             rows: stations.length,
             spans,
-            freeScalars: 4 * (spans + 3) },
+            freeScalars: 4 * (spans + 3),
+          },
           observedIntervalMm: [lower, upper],
-          diagnostics } };
+          diagnostics,
+        },
+      };
     }
     throw new Error(
       `fit-budget-exhausted: ${last}; no candidate met every support constraint`,
@@ -336,9 +357,14 @@ export function fitAutoMovieRecoveryImageLoft(
   } catch (failure: unknown) {
     return {
       operator,
-      status: cancellationRequested ? "cancelled" : cancellationCallback || callback ? "failed" : "refused",
+      status: cancellationRequested
+        ? "cancelled"
+        : cancellationCallback || callback
+          ? "failed"
+          : "refused",
       diagnostics: [
         failure instanceof Error ? failure.message : String(failure),
-      ] };
+      ],
+    };
   }
 }

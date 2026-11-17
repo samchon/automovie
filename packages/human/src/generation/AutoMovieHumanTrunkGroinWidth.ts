@@ -15,8 +15,6 @@ import { AutoMovieHumanTrunkTapes } from "./AutoMovieHumanTrunkTapes";
  * references' median ratio, `AutoMovieHumanTrunkShapes.CROTCH_WIDTH`.
  */
 export namespace AutoMovieHumanTrunkGroinWidth {
-  
-
   /**
    * The crotch's half width.
    *
@@ -24,9 +22,14 @@ export namespace AutoMovieHumanTrunkGroinWidth {
    * @returns The half width, mm.
    */
   export function width(input: IAutoMovieHumanTrunkGroinWidth.IInput): number {
-    const guess: number = AutoMovieHumanTrunkShapes.CROTCH_WIDTH * input.buttock;
+    const guess: number =
+      AutoMovieHumanTrunkShapes.CROTCH_WIDTH * input.buttock;
     if (input.thigh === undefined || input.ratio === undefined) return guess;
 
-    return AutoMovieHumanTrunkTapes.solve(2 * input.ratio * input.thigh, input.girth, guess);
+    return AutoMovieHumanTrunkTapes.solve(
+      2 * input.ratio * input.thigh,
+      input.girth,
+      guess,
+    );
   }
 }

@@ -1,5 +1,5 @@
-import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
 import type { IAutoMovieStageSetPiece } from "../authoring/IAutoMovieStageSetPiece";
+import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
 
 /**
  * Registered prop geometry and staged placement used for world occupancy.

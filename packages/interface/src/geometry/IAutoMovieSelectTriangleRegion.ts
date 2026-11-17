@@ -1,5 +1,3 @@
-
-
 /**
  * Connectivity and an oriented separating boundary for triangle-patch selection.
  *

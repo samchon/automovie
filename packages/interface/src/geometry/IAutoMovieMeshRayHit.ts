@@ -1,5 +1,3 @@
-
-
 /**
  * An owned ray intersection in the snapshotted mesh's local metre frame,
  * returned by {@link IAutoMovieMeshRayCaster.nearestHit}.

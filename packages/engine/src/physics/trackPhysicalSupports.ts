@@ -1,5 +1,9 @@
-import type { IAutoMoviePhysicalProfile, IAutoMoviePhysicalSimulationInput, IAutoMovieSamplePhysicalTarget, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieSamplePhysicalTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import type { RigidBody } from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
@@ -118,15 +122,17 @@ export function trackPhysicalSupports(input: {
       IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
     >["pattern"]["limbs"][number],
   ): boolean {
-    const parts: IAutoMoviePhysicalProfile.ISegment[] = input.body.profile.segments.filter(
-      (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
-        (limb.contacts ?? [limb.bone]).includes(segment.bone),
-    );
+    const parts: IAutoMoviePhysicalProfile.ISegment[] =
+      input.body.profile.segments.filter(
+        (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+          (limb.contacts ?? [limb.bone]).includes(segment.bone),
+      );
     if (limb.floorPoints?.length)
       return limb.floorPoints.every(
         (point: NonNullable<typeof limb.floorPoints>[number]): boolean => {
           const segment: IAutoMoviePhysicalProfile.ISegment = parts.find(
-            (segment: IAutoMoviePhysicalProfile.ISegment): boolean => segment.bone === point.bone,
+            (segment: IAutoMoviePhysicalProfile.ISegment): boolean =>
+              segment.bone === point.bone,
           )!;
           const compression: number = Math.max(
             0,
@@ -151,9 +157,13 @@ export function trackPhysicalSupports(input: {
       );
     const lowest: { height: number; compression: number } = parts
       .flatMap(
-        (segment: IAutoMoviePhysicalProfile.ISegment): { height: number; compression: number }[] =>
+        (
+          segment: IAutoMoviePhysicalProfile.ISegment,
+        ): { height: number; compression: number }[] =>
           segment.shapes.map(
-            (shape: IAutoMoviePhysicalProfile.IShape): { height: number; compression: number } => ({
+            (
+              shape: IAutoMoviePhysicalProfile.IShape,
+            ): { height: number; compression: number } => ({
               height: physicalShapeBounds(
                 input.goals[segment.bone]!.pose,
                 shape,

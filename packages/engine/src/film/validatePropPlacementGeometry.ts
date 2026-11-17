@@ -1,6 +1,20 @@
-import { type IAutoMoviePassageBlockage, type IAutoMoviePropClearanceBounds, type IAutoMoviePropSupportFace, type IAutoMovieValidatePropPlacementGeometry, type IAutoMovieViolationCollector, IAutoMovieBuiltElement, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieBuiltSpace, IAutoMovieClearanceBox, IAutoMovieModel, IAutoMoviePropBox, IAutoMoviePropRelation, IAutoMoviePropSpec, IAutoMovieStageSetPiece } from "@automovie/interface";
-
-
+import {
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMovieBuiltSpace,
+  IAutoMovieClearanceBox,
+  IAutoMovieModel,
+  type IAutoMoviePassageBlockage,
+  IAutoMoviePropBox,
+  type IAutoMoviePropClearanceBounds,
+  IAutoMoviePropRelation,
+  IAutoMoviePropSpec,
+  type IAutoMoviePropSupportFace,
+  IAutoMovieStageSetPiece,
+  type IAutoMovieValidatePropPlacementGeometry,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { builtElementRestMatrices } from "../architecture/builtElementRestMatrices";
 import { builtPlacedPartBoxes } from "../architecture/builtPlacedPartBoxes";
@@ -32,7 +46,9 @@ const PLACEMENT_EPSILON: number = 1e-9;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares each prop's occupancy across its checks and prepares each judged environment's passage bounds once through createPropPassageBlocker, keyed by that environment object during the synchronous validation. Inputs stay unchanged for the call; no closure is reused across later mutable environment revisions.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns the sound-prop list and a lazy map of passage queries for at most the judged environments until return; each query retains that environment's measured passage boxes. All temporary lists, maps and queries are released after validation, while violations transfer to the caller's collector.
  */
-export function validatePropPlacementGeometry(props: IAutoMovieValidatePropPlacementGeometry.IProps): void {
+export function validatePropPlacementGeometry(
+  props: IAutoMovieValidatePropPlacementGeometry.IProps,
+): void {
   const staged: IStagedProp[] = [];
   for (const entry of props.entries) {
     if (!entry.forged || !entry.unique || entry.piece === undefined) continue;

@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanAuditRange, IAutoMovieMotionHumanContactWindow, IAutoMovieJointPose, IAutoMoviePose } from "@automovie/interface";
 import { ANKLE_DORSIFLEXION } from "@automovie/engine";
-
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditRange,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMoviePose,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanAuditRange } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -44,7 +49,13 @@ export function test_motion_audit_unloaded(): void {
     from: number,
     to: number,
     support: IAutoMovieMotionHumanContactWindow.Support = { kind: "ground" },
-  ): IAutoMovieMotionHumanContactWindow => ({ part, kind: "plant", from, to, support });
+  ): IAutoMovieMotionHumanContactWindow => ({
+    part,
+    kind: "plant",
+    from,
+    to,
+    support,
+  });
   const read = (
     joints: IAutoMovieJointPose[],
     contacts: IAutoMovieMotionHumanContactWindow[],

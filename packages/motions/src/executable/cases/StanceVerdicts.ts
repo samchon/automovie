@@ -1,6 +1,17 @@
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  closestPointsBetweenSegments,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { closestPointsBetweenSegments, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import { HumanFoot } from "../../posture/HumanFoot";
 
 /**
@@ -43,7 +54,11 @@ export namespace StanceVerdicts {
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile),
       bones,
     );
-    const sockets: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(body, bones, side);
+    const sockets: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
+      body,
+      bones,
+      side,
+    );
     const heel: IAutoMovieVector3 = { ...sockets[0]!.point, y: 0 };
     const toe: IAutoMovieVector3 = { ...sockets[2]!.point, y: 0 };
     const floor: IAutoMovieVector3 = { ...com, y: 0 };

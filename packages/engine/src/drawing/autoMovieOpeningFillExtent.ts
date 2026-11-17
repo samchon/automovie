@@ -1,5 +1,7 @@
-import { type IAutoMovieOpeningFillExtent, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieOpeningFillExtent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";

@@ -1,7 +1,21 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBase, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanSeated, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
-
-import { HumanChain, HumanObject, HumanPerformance, seated } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBase,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  seated,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -104,7 +118,9 @@ export function test_human_motion_core_entry_base(): void {
       {
         name: "witness",
         interrupts: {},
-        plan: (context: IAutoMovieMotionHumanActionContext<never>): IAutoMovieMotionHumanActionPlan => {
+        plan: (
+          context: IAutoMovieMotionHumanActionContext<never>,
+        ): IAutoMovieMotionHumanActionPlan => {
           seen.push(context.entry);
           return held(context);
         },
@@ -112,17 +128,23 @@ export function test_human_motion_core_entry_base(): void {
       {
         name: "mounted",
         interrupts: {},
-        plan: (context: IAutoMovieMotionHumanActionContext<never>): IAutoMovieMotionHumanActionPlan =>
+        plan: (
+          context: IAutoMovieMotionHumanActionContext<never>,
+        ): IAutoMovieMotionHumanActionPlan =>
           held(context, { kind: "seated", seat: saddle }),
       },
       {
         name: "dismounted",
         interrupts: {},
-        plan: (context: IAutoMovieMotionHumanActionContext<never>): IAutoMovieMotionHumanActionPlan =>
+        plan: (
+          context: IAutoMovieMotionHumanActionContext<never>,
+        ): IAutoMovieMotionHumanActionPlan =>
           held(context, { kind: "standing" }),
       },
     ];
-    const entries = (chain: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanEntryState[] => {
+    const entries = (
+      chain: IAutoMovieMotionHumanChain,
+    ): IAutoMovieMotionHumanEntryState[] => {
       seen.length = 0;
       new HumanPerformance({
         seed: "base",

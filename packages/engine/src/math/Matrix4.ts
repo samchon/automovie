@@ -1,5 +1,8 @@
-import { type IAutoMovieMatrix4, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieMatrix4,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "./Quaternion";
 import { Vector3 } from "./Vector3";
@@ -276,7 +279,9 @@ export namespace Matrix4 {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one matrix that coordinates no work across calls.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates the three basis vectors and the returned record and retains nothing.
    */
-  export const decompose: (m: number[]) => IAutoMovieMatrix4.IDecomposeResult = (
+  export const decompose: (
+    m: number[],
+  ) => IAutoMovieMatrix4.IDecomposeResult = (
     m: number[],
   ): IAutoMovieMatrix4.IDecomposeResult => {
     const sx: number = Math.hypot(m[0]!, m[1]!, m[2]!);

@@ -1,4 +1,5 @@
 import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 
 /**

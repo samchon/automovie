@@ -1,5 +1,14 @@
-import { type IAutoMovieValidateMotion, type IAutoMovieViolationCollector, AutoMovieEasing, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieValidation } from "@automovie/interface";
-
+import {
+  AutoMovieEasing,
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+  type IAutoMovieValidateMotion,
+  IAutoMovieValidation,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
 import { validateExpression } from "./validateExpression";
@@ -19,7 +28,11 @@ const MAX_ANGULAR_SPEED_DEG_PER_S: number = 900;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Closed easing vocabularies are shared, while each frame's current values are validated anew.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The collector owns output rows; no sampled pose sequence, animation clip or host task is retained.
  */
-export const validateMotion: (props: IAutoMovieValidateMotion.IProps) => IAutoMovieValidation = (props: IAutoMovieValidateMotion.IProps): IAutoMovieValidation => {
+export const validateMotion: (
+  props: IAutoMovieValidateMotion.IProps,
+) => IAutoMovieValidation = (
+  props: IAutoMovieValidateMotion.IProps,
+): IAutoMovieValidation => {
   const path: string = "$input";
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const {

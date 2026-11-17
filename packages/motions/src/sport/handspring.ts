@@ -1,7 +1,22 @@
-import type { IAutoMovieResolveCenterOfMass, AutoMovieHumanoidBone, AutoMovieMotionHumanActionKey, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanExerciseKey, IAutoMovieMotionHumanGymnasticsWheel, IAutoMovieMotionHumanHandspring, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import { Vector3, carriedRate, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanGymnasticsWheel,
+  IAutoMovieMotionHumanHandspring,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { jump } from "../actions/jump";
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
@@ -146,7 +161,8 @@ export namespace handspring {
     surface: IAutoMovieMotionHumanHandspring.ISurface,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(body);
+    const model: IAutoMovieResolveCenterOfMass.IModel =
+      GymnasticsFlight.model(body);
     const left: boolean = context.params.lead !== "right";
     const standing: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
@@ -157,7 +173,8 @@ export namespace handspring {
       ? lunged(body)
       : ExerciseKey.mirror(lunged(body));
     const line: IAutoMovieMotionHumanExerciseKey.IKey = arched(body);
-    const stood: IAutoMovieMotionHumanExerciseKey.IKey = ExerciseKey.standing(body);
+    const stood: IAutoMovieMotionHumanExerciseKey.IKey =
+      ExerciseKey.standing(body);
 
     // The shape at an angle of forward tip.
     const shaped = (angle: number): IAutoMovieMotionHumanPosture => ({
@@ -181,7 +198,9 @@ export namespace handspring {
       (entered.get("leftFoot")!.worldPosition.y +
         entered.get("rightFoot")!.worldPosition.y) /
       2;
-    const ground: IAutoMovieMotionHumanContactWindow.Support = { kind: "ground" };
+    const ground: IAutoMovieMotionHumanContactWindow.Support = {
+      kind: "ground",
+    };
     const spokes: IAutoMovieMotionHumanGymnasticsWheel.ISpoke[] = [
       { bones: ["leftFoot", "rightFoot"], height: ankle, support: ground },
       {
@@ -201,23 +220,26 @@ export namespace handspring {
       },
     ];
     const hands: number = 3;
-    const wheel: IAutoMovieMotionHumanGymnasticsWheel.IWheel = GymnasticsWheel.roll({
-      body,
-      shaped,
-      spokes,
-      start: standing.root,
-      until: RELEASE,
-      step: STEP,
-    });
+    const wheel: IAutoMovieMotionHumanGymnasticsWheel.IWheel =
+      GymnasticsWheel.roll({
+        body,
+        shaped,
+        spokes,
+        start: standing.root,
+        until: RELEASE,
+        step: STEP,
+      });
     const placedAt = (angle: number): IAutoMovieMotionHumanPosture => ({
       ...shaped(angle),
       root: wheel.root(angle),
     });
 
     // The hands must bear by the release, on the surface.
-    const down: IAutoMovieMotionHumanGymnasticsWheel.IRow | undefined = wheel.rows.find(
-      (row: IAutoMovieMotionHumanGymnasticsWheel.IRow): boolean => row.bears === hands,
-    );
+    const down: IAutoMovieMotionHumanGymnasticsWheel.IRow | undefined =
+      wheel.rows.find(
+        (row: IAutoMovieMotionHumanGymnasticsWheel.IRow): boolean =>
+          row.bears === hands,
+      );
     if (down === undefined || wheel.rows.at(-1)!.bears !== hands)
       throw new HumanRefusal({
         kind: "reach",
@@ -397,7 +419,9 @@ export namespace handspring {
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       ...GymnasticsWheel.contacts(wheel, spokes, share),
       ...(["leftFoot", "rightFoot"] as const).map(
-        (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
+        (
+          part: "leftFoot" | "rightFoot",
+        ): IAutoMovieMotionHumanContactWindow => ({
           part,
           kind: "plant",
           from: touchdown / duration,

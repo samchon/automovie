@@ -5,13 +5,13 @@ import type { IAutoMovieServiceNetwork } from "./IAutoMovieServiceNetwork";
 export namespace IAutoMovieServiceAnalysisSupport {
   /**
    * Service and building declarations used to report which checks have applicable geometry.
-   * 
+   *
    * A record existing is not an analysis, and the honest way to say so is to say
    * so. The structural rules below are the ones the engine really performs; the
    * per-discipline entries are the quantitative questions nothing here solves,
    * listed once for each discipline the network actually declares so a report
    * names the missing solver rather than implying a pass.
-   * 
+   *
    * The building is required rather than optional because the geometric answers
    * depend on it. A crossing is read off logical space volumes, so a building
    * whose partitions are names with no cells cannot be asked where a run left a

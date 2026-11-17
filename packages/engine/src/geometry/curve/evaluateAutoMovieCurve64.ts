@@ -1,4 +1,10 @@
-import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieEvaluateBernstein64, IAutoMovieEvaluateCurve64 } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieEvaluateBernstein64,
+  IAutoMovieEvaluateCurve64,
+} from "@automovie/interface";
+
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
 import { evaluateAutoMovieBernstein64 } from "./evaluateAutoMovieBernstein64";
 
@@ -38,7 +44,8 @@ export function evaluateAutoMovieCurve64(
       throw new Error("An analytic oval uses one turn");
     if (
       ![curve.center, curve.u, curve.v].every(
-        (v: Readonly<AutoMovieVector3Tuple>): boolean => v.length === 3 && v.every(Number.isFinite),
+        (v: Readonly<AutoMovieVector3Tuple>): boolean =>
+          v.length === 3 && v.every(Number.isFinite),
       ) ||
       ![curve.radiusU, curve.radiusV].every(Number.isFinite) ||
       curve.radiusU <= 0 ||
@@ -46,7 +53,10 @@ export function evaluateAutoMovieCurve64(
       curve.closed !== true
     )
       throw new Error("Invalid analytic oval");
-    const dot: (a: Readonly<AutoMovieVector3Tuple>, b: Readonly<AutoMovieVector3Tuple>) => number = (
+    const dot: (
+      a: Readonly<AutoMovieVector3Tuple>,
+      b: Readonly<AutoMovieVector3Tuple>,
+    ) => number = (
       a: Readonly<AutoMovieVector3Tuple>,
       b: Readonly<AutoMovieVector3Tuple>,
     ): number =>
@@ -74,10 +84,12 @@ export function evaluateAutoMovieCurve64(
       throw new Error("Unknown actual primitive");
     const pieces: readonly IAutoMovieCurve64.Piece[] =
       curve.type === "cubicBezier"
-        ? curve.spans.map((s: IAutoMovieCurve64.Span): IAutoMovieCurve64.Piece => {
-            if (s.length !== 4) throw new Error("Cubic degree mismatch");
-            return { primitive: "polynomialBezier", degree: 3, controls: s };
-          })
+        ? curve.spans.map(
+            (s: IAutoMovieCurve64.Span): IAutoMovieCurve64.Piece => {
+              if (s.length !== 4) throw new Error("Cubic degree mismatch");
+              return { primitive: "polynomialBezier", degree: 3, controls: s };
+            },
+          )
         : curve.pieces;
     const cumulative: number[] = [0];
     for (const width of curve.phaseIntervals)

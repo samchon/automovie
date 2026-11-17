@@ -1,7 +1,10 @@
-import type { IAutoMovieBodyMeasure, IAutoMovieHumanCanonicalBody, IAutoMovieHumanParameters } from "@automovie/interface";
-
 import { measureAutoMovieHumanoidBody } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
+import type {
+  IAutoMovieBodyMeasure,
+  IAutoMovieHumanCanonicalBody,
+  IAutoMovieHumanParameters,
+} from "@automovie/interface";
 import { createHash } from "node:crypto";
 import {
   existsSync,

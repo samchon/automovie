@@ -1,7 +1,8 @@
-import type { IAutoMovieRecoveryCameraTracksLinkageOperation, IAutoMovieRecoverySceneCandidate, IAutoMovieRecoverySceneSupportCollectionOperation } from "@automovie/interface";
-
-
-
+import type {
+  IAutoMovieRecoveryCameraTracksLinkageOperation,
+  IAutoMovieRecoverySceneCandidate,
+  IAutoMovieRecoverySceneSupportCollectionOperation,
+} from "@automovie/interface";
 
 /**
  * Collect each target's distinct existing-map support once per accepted revision.

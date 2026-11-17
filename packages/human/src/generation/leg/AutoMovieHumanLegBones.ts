@@ -1,5 +1,7 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanLegBones } from "@automovie/interface";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanLegBones,
+} from "@automovie/interface";
 
 /**
  * The leg's three joint centres, placed from the person's inputs at their
@@ -34,12 +36,6 @@ import type { AutoMovieVector3Tuple, IAutoMovieHumanLegBones } from "@automovie/
  *   or hyperextension is a pose from that zero, not a bone place.
  */
 export namespace AutoMovieHumanLegBones {
-  
-
-  
-
-  
-
   /** Hip joint centre height, share of stature: ANSUR II trochanterion height plus de Leva's 2.8 / 3.2 mm, sexes averaged. */
   export const HIP: number = 0.518;
 
@@ -74,9 +70,18 @@ export namespace AutoMovieHumanLegBones {
    * @returns The centres; the hip is above the knee and the knee above the ankle.
    * @throws {Error} When an input is not positive or the joints are not stacked.
    */
-  export function of(input: IAutoMovieHumanLegBones.IInput): IAutoMovieHumanLegBones.IBones {
-    if (!(input.stature > 0) || !(input.scale > 0) || !(input.ankleHeight > 0) || !(input.medial > 0))
-      throw new Error("A leg needs a positive stature, scale, ankle height and malleolus ratio");
+  export function of(
+    input: IAutoMovieHumanLegBones.IInput,
+  ): IAutoMovieHumanLegBones.IBones {
+    if (
+      !(input.stature > 0) ||
+      !(input.scale > 0) ||
+      !(input.ankleHeight > 0) ||
+      !(input.medial > 0)
+    )
+      throw new Error(
+        "A leg needs a positive stature, scale, ankle height and malleolus ratio",
+      );
 
     // Heights from stature, the ankle at its own input.
     const hipY: number = HIP * input.stature;
@@ -88,19 +93,28 @@ export namespace AutoMovieHumanLegBones {
     // Hara's length from the spines to the medial malleolus: the spines stand
     // `drop` over the hip centre and `drop` itself grows with the length.
     const medialY: number = input.medial * ankleY;
-    const length: number = (hipY + HARA_DROP * input.scale - medialY) / (1 - HARA_DROP_SLOPE);
-    const hipZ: number = HARA_LATERAL * input.scale + HARA_LATERAL_SLOPE * length;
+    const length: number =
+      (hipY + HARA_DROP * input.scale - medialY) / (1 - HARA_DROP_SLOPE);
+    const hipZ: number =
+      HARA_LATERAL * input.scale + HARA_LATERAL_SLOPE * length;
     const ankleZ: number = STANCE * input.scale;
 
     // The knee on the straight line from the hip to the ankle at its height,
     // in both planes: the extended knee of the Neutral-0 position.
     const share: number = (hipY - kneeY) / (hipY - ankleY);
     const kneeZ: number = hipZ + share * (ankleZ - hipZ);
-    const kneeX: number = input.hipForward + share * (input.ankleForward - input.hipForward);
+    const kneeX: number =
+      input.hipForward + share * (input.ankleForward - input.hipForward);
     const hip: AutoMovieVector3Tuple = [input.hipForward, hipY, hipZ];
     const knee: AutoMovieVector3Tuple = [kneeX, kneeY, kneeZ];
     const ankle: AutoMovieVector3Tuple = [input.ankleForward, ankleY, ankleZ];
-    return { hip, knee, ankle, femur: distance(hip, knee), tibia: distance(knee, ankle) };
+    return {
+      hip,
+      knee,
+      ankle,
+      femur: distance(hip, knee),
+      tibia: distance(knee, ankle),
+    };
   }
 }
 

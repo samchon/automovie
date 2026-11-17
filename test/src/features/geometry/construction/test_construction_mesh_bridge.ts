@@ -1,5 +1,8 @@
-import type { IAutoMovieSolidMeshConstraints, IAutoMovieSolidMeshPlan } from "@automovie/interface";
 import { AutoMovieSolidMeshPlan } from "@automovie/engine";
+import type {
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshPlan,
+} from "@automovie/interface";
 
 /**
  * The face planner bridges a periodic band's two winding cycles where they stand closest, whatever their vertex numbering.

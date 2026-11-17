@@ -1,5 +1,3 @@
-
-
 /**
  * World-axis nominal dimensions of a placed fill or room bound.
  *
@@ -12,7 +10,7 @@ export namespace IAutoMovieOpeningFillExtent {
   /**
    * The nominal width and height a set of world corners stands for, on the
    * drawing grid, reading world `+Y` as up.
-   * 
+   *
    * Openings and rooms stand up: the world Y extent is the height, and the wider
    * of the X and Z extents is the width. A leaf lying on its side therefore
    * reads as a wide, thin opening, which is what its bounding extents say, and

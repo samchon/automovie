@@ -1,6 +1,13 @@
-import type { IAutoMovieMotionHumanBend, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -33,7 +40,6 @@ import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Presets are a closed union keyed into one table; shares are plain numbers of a stated unit, and no law name appears.
  */
 export namespace AutoMovieMotionHumanBend {
-
   /** The arm holds of {@link Arm}, as data. */
   export const ARMS = [
     "hang",
@@ -62,7 +68,9 @@ export namespace AutoMovieMotionHumanBend {
    * - `akimbo`: out wide at waist height, a hand on the hip;
    * - `raised`: out wide above the shoulder, a hand behind the head.
    */
-  export const ARM: Readonly<Record<IAutoMovieMotionHumanBend.Arm, IAutoMovieMotionHumanBend.IShares>> = {
+  export const ARM: Readonly<
+    Record<IAutoMovieMotionHumanBend.Arm, IAutoMovieMotionHumanBend.IShares>
+  > = {
     hang: { out: 0.4, up: -1, forward: -0.5 },
     tucked: { out: 0.35, up: -1, forward: -0.3 },
     behind: { out: 0.35, up: -0.9, forward: -0.4 },
@@ -96,10 +104,13 @@ export namespace AutoMovieMotionHumanBend {
     posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw"> &
       Partial<Pick<IAutoMovieMotionHumanPosture, "pitch" | "roll">>,
     side: IAutoMovieMotionHumanHand.Side,
-    preset: IAutoMovieMotionHumanBend.Arm | IAutoMovieMotionHumanBend.IShares = "hang",
+    preset:
+      | IAutoMovieMotionHumanBend.Arm
+      | IAutoMovieMotionHumanBend.IShares = "hang",
     out: number = 0,
   ): IAutoMovieVector3 {
-    const shares: IAutoMovieMotionHumanBend.IShares = typeof preset === "string" ? ARM[preset] : preset;
+    const shares: IAutoMovieMotionHumanBend.IShares =
+      typeof preset === "string" ? ARM[preset] : preset;
     const shoulder: IAutoMovieVector3 = body.rest.get(`${side}UpperArm`)!;
     const sign: number = side === "left" ? 1 : -1;
     const length: number = body.measure.upperArm;
@@ -218,7 +229,9 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the engine's chain preparation, swivel sweep, clinical decomposition and range overshoot, and `HumanArmClearance`, the owner of a forearm's clearance.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the hanging arm's three angles per body and side, in a weak map keyed by the body.
    */
-  export function solve(props: IAutoMovieMotionHumanBend.ISolve): IAutoMovieVector3 {
+  export function solve(
+    props: IAutoMovieMotionHumanBend.ISolve,
+  ): IAutoMovieVector3 {
     const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
       AutoMovieMotionHumanBendSearch.search(
         props,
@@ -267,7 +280,9 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares `search` with `solve` and `strain`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only what `solve` retains.
    */
-  export function level(props: IAutoMovieMotionHumanBend.ISolve): IAutoMovieVector3 {
+  export function level(
+    props: IAutoMovieMotionHumanBend.ISolve,
+  ): IAutoMovieVector3 {
     const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
       AutoMovieMotionHumanBendSearch.search(
         props,
@@ -320,7 +335,10 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares `search` with `solve`, so a preset and the solver are compared on one measure.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only what `solve` retains.
    */
-  export function strain(props: IAutoMovieMotionHumanBend.ISolve, bend: IAutoMovieVector3): number {
+  export function strain(
+    props: IAutoMovieMotionHumanBend.ISolve,
+    bend: IAutoMovieVector3,
+  ): number {
     const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
       AutoMovieMotionHumanBendSearch.search(
         props,
@@ -407,7 +425,9 @@ export namespace AutoMovieMotionHumanBend {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the search's strain and hanging arm.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The search's.
    */
-  export function strainOf(props: IAutoMovieMotionHumanHand.IStrainOfProps):
+  export function strainOf(
+    props: IAutoMovieMotionHumanHand.IStrainOfProps,
+  ):
     | ((
         upper: IAutoMovieQuaternion,
         lower: IAutoMovieQuaternion,
@@ -423,6 +443,9 @@ export namespace AutoMovieMotionHumanBend {
   }
 
   /** The `hang` preset's hint for an upright trunk at the origin, from which the search reads the hanging arm. */
-  const hung = (body: IAutoMovieMotionHumanBody, side: IAutoMovieMotionHumanHand.Side): IAutoMovieVector3 =>
+  const hung = (
+    body: IAutoMovieMotionHumanBody,
+    side: IAutoMovieMotionHumanHand.Side,
+  ): IAutoMovieVector3 =>
     arm(body, { root: { x: 0, y: 0, z: 0 }, yaw: 0 }, side, "hang");
 }

@@ -1,5 +1,13 @@
-import type { IAutoMovieSolidAtlas, IAutoMovieSolidIntersection, IAutoMovieSolidSurface, IAutoMovieSolidTraceLaw } from "@automovie/interface";
-import { AutoMovieSolidTraceLaw, AutoMovieSolidTraceSolve } from "@automovie/engine";
+import {
+  AutoMovieSolidTraceLaw,
+  AutoMovieSolidTraceSolve,
+} from "@automovie/engine";
+import type {
+  IAutoMovieSolidAtlas,
+  IAutoMovieSolidIntersection,
+  IAutoMovieSolidSurface,
+  IAutoMovieSolidTraceLaw,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,8 +1,7 @@
-import type { IAutoMovieCaptureLayout, IAutoMovieRasterImage } from "@automovie/interface";
-
-
-
-
+import type {
+  IAutoMovieCaptureLayout,
+  IAutoMovieRasterImage,
+} from "@automovie/interface";
 
 /**
  * The font pixel size, in still pixels, at which a capture stamps labels on a still: large enough that one font pixel stays at least one sheet pixel once the still is reduced into its cell, and never below one.

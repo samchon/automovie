@@ -6,11 +6,9 @@
  * @evidence contracts/development/common.md#meaningful-documentation Members specify row order, axes, transform direction and translation units.
  */
 export interface IAutoMovieRecoveryMapPose {
- 
- /** Nine row-major proper-rotation coefficients; camera axes are +X right, +Y down and +Z forward. */
+  /** Nine row-major proper-rotation coefficients; camera axes are +X right, +Y down and +Z forward. */
   rotation: number[];
 
- 
- /** Three camera-frame translation coefficients in arbitrary seed-baseline units; a resected camera is not normalized independently. */
+  /** Three camera-frame translation coefficients in arbitrary seed-baseline units; a resected camera is not normalized independently. */
   translation: [number, number, number];
 }

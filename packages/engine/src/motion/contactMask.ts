@@ -1,6 +1,9 @@
-import { type IAutoMovieResolvedBone, type IAutoMovieContactMask, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieContactMask,
+  type IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Classify each resolved effector sample as stance when its model-frame Y is at or below sampled ground plus finite nonnegative tolerance. Missing effectors are false; nonfinite sampled ground throws and callback exceptions propagate.
@@ -13,7 +16,9 @@ import { type IAutoMovieResolvedBone, type IAutoMovieContactMask, AutoMovieHuman
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Consumes already completed FK maps supplied by the caller; ground callbacks are evaluated at actual effector positions and are not memoized across possibly effectful samples.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one owned boolean per input frame and retains neither callback nor maps; callback/terrain resources remain caller-owned.
  */
-export const contactMask: (props: IAutoMovieContactMask.IProps) => boolean[] = (props: IAutoMovieContactMask.IProps): boolean[] => {
+export const contactMask: (props: IAutoMovieContactMask.IProps) => boolean[] = (
+  props: IAutoMovieContactMask.IProps,
+): boolean[] => {
   if (!Number.isFinite(props.tolerance) || props.tolerance < 0)
     throw new Error("contact tolerance must be finite and non-negative");
   return props.resolved.map(

@@ -1,6 +1,11 @@
-import type { IAutoMoviePreparedSurfaceFrame, IAutoMovieVector3 } from "@automovie/interface";
-import { placeAutoMovieSurfaceFrame, prepareAutoMovieSurfaceFrame } from "@automovie/engine";
-
+import {
+  placeAutoMovieSurfaceFrame,
+  prepareAutoMovieSurfaceFrame,
+} from "@automovie/engine";
+import type {
+  IAutoMoviePreparedSurfaceFrame,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../internal/predicates";

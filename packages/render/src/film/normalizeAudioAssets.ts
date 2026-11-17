@@ -1,9 +1,8 @@
-import type { IAutoMovieProductionAudioAssetIdentity, IAutoMovieProductionSoundPlan } from "@automovie/interface";
-
-
 import { compareCodeUnits } from "@automovie/engine";
-
-
+import type {
+  IAutoMovieProductionAudioAssetIdentity,
+  IAutoMovieProductionSoundPlan,
+} from "@automovie/interface";
 
 import { validDigest } from "./validDigest.js";
 import { validWaveAudioIdentity } from "./validWaveAudioIdentity.js";

@@ -1,24 +1,22 @@
-import type { IAutoMovieLoftContract, IAutoMovieLoftFrame, AutoMovieVector2Tuple, AutoMovieVector3Tuple, IAutoMovieHumanFootBody, IAutoMovieHumanFootSectionJets, IAutoMovieHumanFootSectors, IAutoMovieHumanFootWebLine, IAutoMovieHumanLimbFrame } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieVector2Tuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootBody,
+  IAutoMovieHumanFootSectionJets,
+  IAutoMovieHumanFootSectors,
+  IAutoMovieHumanFootWebLine,
+  IAutoMovieHumanLimbFrame,
+  IAutoMovieLoftContract,
+  IAutoMovieLoftFrame,
+} from "@automovie/interface";
 
 import { AutoMovieHumanFootArc } from "./AutoMovieHumanFootArc";
 import { AutoMovieHumanFootFan } from "./AutoMovieHumanFootFan";
-
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 import { AutoMovieHumanFootGuide } from "./AutoMovieHumanFootGuide";
 import { AutoMovieHumanFootHeelCorner } from "./AutoMovieHumanFootHeelCorner";
 import { AutoMovieHumanFootSectionJets } from "./AutoMovieHumanFootSectionJets";
 import { AutoMovieHumanFootSectors } from "./AutoMovieHumanFootSectors";
-
 
 type Vec2 = AutoMovieVector2Tuple;
 
@@ -35,19 +33,13 @@ type Vec2 = AutoMovieVector2Tuple;
  * owns a fixed share of the section's control points ({@link AutoMovieHumanFootSectors}).
  */
 export namespace AutoMovieHumanFootBody {
-  
-
-  
-
-  
-
-  
-
   /** Control points of a body section. */
   export const ORDER: number = 256;
 
   /** A foot's body. */
-  export function of(input: IAutoMovieHumanFootBody.IInput): IAutoMovieHumanFootBody.IBody {
+  export function of(
+    input: IAutoMovieHumanFootBody.IInput,
+  ): IAutoMovieHumanFootBody.IBody {
     const line: IAutoMovieHumanFootWebLine.IWebLine = input.line;
     const guides: IAutoMovieHumanFootBody.IGuides = input.guides;
     const corner: number = AutoMovieHumanFootHeelCorner.height(input.frame);
@@ -58,23 +50,48 @@ export namespace AutoMovieHumanFootBody {
     const record = (contract: string, detail: string): void => {
       if (recorded.has(detail)) return;
       recorded.add(detail);
-      sink.push({ producer: input.producer ?? "foot", level: BASE_LEVEL, contract, detail });
+      sink.push({
+        producer: input.producer ?? "foot",
+        level: BASE_LEVEL,
+        contract,
+        detail,
+      });
     };
 
     // The section at a station, or why its premise fails there.
-    const attempt = (station: number, force: boolean): IAutoMovieHumanFootBody.ISection | string => {
-      const frame: IAutoMovieLoftFrame.IFrame = AutoMovieHumanFootFan.plane(line, station);
+    const attempt = (
+      station: number,
+      force: boolean,
+    ): IAutoMovieHumanFootBody.ISection | string => {
+      const frame: IAutoMovieLoftFrame.IFrame = AutoMovieHumanFootFan.plane(
+        line,
+        station,
+      );
       const local = (p: AutoMovieVector3Tuple): Vec2 => {
         const r: AutoMovieVector3Tuple = G.sub(p, line.origin);
 
         return [G.dot(r, frame.v), G.dot(r, frame.u)];
       };
-      const world = (q: Vec2): AutoMovieVector3Tuple => G.plus(line.origin, G.plus(G.scale(frame.v, q[0]), G.scale(frame.u, q[1])));
-      const C: Vec2 = local(AutoMovieHumanFootGuide.at(guides.crest, line, station));
-      const X: Vec2 = local(AutoMovieHumanFootGuide.at(guides.lateral, line, station));
-      const El: Vec2 = local(AutoMovieHumanFootGuide.at(guides.contactLateral, line, station));
-      const Em: Vec2 = local(AutoMovieHumanFootGuide.at(guides.contactMedial, line, station));
-      const M: Vec2 = local(AutoMovieHumanFootGuide.at(guides.medial, line, station));
+      const world = (q: Vec2): AutoMovieVector3Tuple =>
+        G.plus(
+          line.origin,
+          G.plus(G.scale(frame.v, q[0]), G.scale(frame.u, q[1])),
+        );
+      const C: Vec2 = local(
+        AutoMovieHumanFootGuide.at(guides.crest, line, station),
+      );
+      const X: Vec2 = local(
+        AutoMovieHumanFootGuide.at(guides.lateral, line, station),
+      );
+      const El: Vec2 = local(
+        AutoMovieHumanFootGuide.at(guides.contactLateral, line, station),
+      );
+      const Em: Vec2 = local(
+        AutoMovieHumanFootGuide.at(guides.contactMedial, line, station),
+      );
+      const M: Vec2 = local(
+        AutoMovieHumanFootGuide.at(guides.medial, line, station),
+      );
 
       // Premise of the pieces: the five points stand in the order the
       // section runs; a section whose guides cross is not built here.
@@ -91,23 +108,47 @@ export namespace AutoMovieHumanFootBody {
       if (!ordered && !force)
         return (
           `guide points out of order at station ${station.toFixed(3)}: ` +
-          [C, X, El, Em, M].map((q: Vec2): string => `(${q[0].toFixed(1)}, ${q[1].toFixed(1)})`).join(" ")
+          [C, X, El, Em, M]
+            .map(
+              (q: Vec2): string => `(${q[0].toFixed(1)}, ${q[1].toFixed(1)})`,
+            )
+            .join(" ")
         );
 
       // The guides' jets: what both arcs meeting at each point copy.
-      const jets: IAutoMovieHumanFootSectionJets.IJets = AutoMovieHumanFootSectionJets.of({
-        points: { crest: C, lateral: X, contactLateral: El, contactMedial: Em, medial: M },
-        heights: { lateral: world(El)[1], medial: world(Em)[1] },
-        corner,
-      });
-      const sectors: IAutoMovieHumanFootSectors.ISectors = AutoMovieHumanFootSectors.join(
-        AutoMovieHumanFootArc.pieces(AutoMovieHumanFootArc.BODY, jets, POINTS).map(AutoMovieHumanFootSectors.piece),
-        SHARES,
-        (detail: string): void => record("a cleft lies on the web ring", `${detail} at station ${station.toFixed(3)}`),
-      );
+      const jets: IAutoMovieHumanFootSectionJets.IJets =
+        AutoMovieHumanFootSectionJets.of({
+          points: {
+            crest: C,
+            lateral: X,
+            contactLateral: El,
+            contactMedial: Em,
+            medial: M,
+          },
+          heights: { lateral: world(El)[1], medial: world(Em)[1] },
+          corner,
+        });
+      const sectors: IAutoMovieHumanFootSectors.ISectors =
+        AutoMovieHumanFootSectors.join(
+          AutoMovieHumanFootArc.pieces(
+            AutoMovieHumanFootArc.BODY,
+            jets,
+            POINTS,
+          ).map(AutoMovieHumanFootSectors.piece),
+          SHARES,
+          (detail: string): void =>
+            record(
+              "a cleft lies on the web ring",
+              `${detail} at station ${station.toFixed(3)}`,
+            ),
+        );
 
       return {
-        ring: Array.from({ length: ORDER }, (_: unknown, m: number): AutoMovieVector3Tuple => world(sectors.at((G.TWO_PI * m) / ORDER))),
+        ring: Array.from(
+          { length: ORDER },
+          (_: unknown, m: number): AutoMovieVector3Tuple =>
+            world(sectors.at((G.TWO_PI * m) / ORDER)),
+        ),
         frame,
         at: (t: number): AutoMovieVector3Tuple => world(sectors.at(t)),
         lateral: sectors.start(1),
@@ -126,26 +167,43 @@ export namespace AutoMovieHumanFootBody {
     // nearest station, searched outward, whose points stand in order; with
     // none, the pieces are drawn on the points as they stand.
     const section = (station: number): IAutoMovieHumanFootBody.ISection => {
-      const own: IAutoMovieHumanFootBody.ISection | string = attempt(station, false);
+      const own: IAutoMovieHumanFootBody.ISection | string = attempt(
+        station,
+        false,
+      );
       if (typeof own !== "string") return own;
       const step: number = line.end / SEARCH_STEPS;
       for (let k: number = 1; k <= SEARCH_STEPS; k++)
         for (const s of [station - k * step, station + k * step]) {
           if (s < 0 || s > line.end) continue;
-          const near: IAutoMovieHumanFootBody.ISection | string = attempt(s, false);
+          const near: IAutoMovieHumanFootBody.ISection | string = attempt(
+            s,
+            false,
+          );
           if (typeof near !== "string") {
-            record("the five guide points stand in the section's order", `${own}; read at station ${s.toFixed(3)}`);
+            record(
+              "the five guide points stand in the section's order",
+              `${own}; read at station ${s.toFixed(3)}`,
+            );
             return near;
           }
         }
-      record("the five guide points stand in the section's order", `${own}; no station in order`);
+      record(
+        "the five guide points stand in the section's order",
+        `${own}; no station in order`,
+      );
       return attempt(station, true) as IAutoMovieHumanFootBody.ISection;
     };
     const stations: number[] = [
-      ...Array.from({ length: YAW_LAYERS }, (_: unknown, i: number): number => line.square * (i / YAW_LAYERS) ** YAW_GRADE),
+      ...Array.from(
+        { length: YAW_LAYERS },
+        (_: unknown, i: number): number =>
+          line.square * (i / YAW_LAYERS) ** YAW_GRADE,
+      ),
       ...Array.from(
         { length: TURN_LAYERS },
-        (_: unknown, i: number): number => line.square + (line.end - line.square) * (i / (TURN_LAYERS - 1)),
+        (_: unknown, i: number): number =>
+          line.square + (line.end - line.square) * (i / (TURN_LAYERS - 1)),
       ),
     ];
 
@@ -153,10 +211,15 @@ export namespace AutoMovieHumanFootBody {
       stations,
       fan: line,
       section,
-      guide: (name: "crest" | "lateral" | "medial", station: number): AutoMovieVector3Tuple =>
+      guide: (
+        name: "crest" | "lateral" | "medial",
+        station: number,
+      ): AutoMovieVector3Tuple =>
         AutoMovieHumanFootGuide.at(guides[name], line, station),
       sample: (station: number): IAutoMovieHumanLimbFrame.ISample => {
-        const s: IAutoMovieHumanFootBody.ISection = section(Math.min(line.end, Math.max(0, station)));
+        const s: IAutoMovieHumanFootBody.ISection = section(
+          Math.min(line.end, Math.max(0, station)),
+        );
 
         return { station, frame: s.frame, ring: s.ring };
       },

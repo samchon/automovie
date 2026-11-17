@@ -1,6 +1,16 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolveSchedule } from "@automovie/interface";
-
-import { HumanChain, HumanCue, HumanPerformance, HumanRefusal } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolveSchedule,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanCue,
+  HumanPerformance,
+  HumanRefusal,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -71,7 +81,10 @@ export function test_human_motion_sync_cues(): void {
       })),
       composition: composition.node,
     });
-  const instant = (segment: IAutoMovieMotionHumanSegment.ISegment, event: string): number =>
+  const instant = (
+    segment: IAutoMovieMotionHumanSegment.ISegment,
+    event: string,
+  ): number =>
     segment.start +
     (segment.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       segment.plan.duration;
@@ -172,14 +185,22 @@ export function test_human_motion_sync_cues(): void {
     );
   // Whether two films place every action at the same seconds, to a
   // nanosecond.
-  const alike = (one: IAutoMovieMotionHumanPerformance, other: IAutoMovieMotionHumanPerformance): boolean =>
+  const alike = (
+    one: IAutoMovieMotionHumanPerformance,
+    other: IAutoMovieMotionHumanPerformance,
+  ): boolean =>
     ["a", "b"].every((subject: string): boolean => {
-      const here: readonly IAutoMovieMotionHumanSegment.ISegment[] = one.segments(subject);
-      const there: readonly IAutoMovieMotionHumanSegment.ISegment[] = other.segments(subject);
+      const here: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+        one.segments(subject);
+      const there: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+        other.segments(subject);
       return (
         here.length === there.length &&
         here.every(
-          (segment: IAutoMovieMotionHumanSegment.ISegment, index: number): boolean =>
+          (
+            segment: IAutoMovieMotionHumanSegment.ISegment,
+            index: number,
+          ): boolean =>
             segment.name === there[index]!.name &&
             Math.abs(segment.entryTime - there[index]!.entryTime) <= 1e-9 &&
             Math.abs(segment.end - there[index]!.end) <= 1e-9,

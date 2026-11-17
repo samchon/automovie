@@ -1,7 +1,9 @@
-import type { IAutoMovieComposition, IAutoMovieMotionHumanGunCrew, IAutoMovieAffordance } from "@automovie/interface";
 import { createCannon } from "@automovie/archetypes";
-
-
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieComposition,
+  IAutoMovieMotionHumanGunCrew,
+} from "@automovie/interface";
 import { HumanGunCrew } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 

@@ -11,20 +11,21 @@ import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
  * @evidence contracts/development/common.md#meaningful-documentation Defines world frame, station versus caller phase units, derivative interpretation, fresh mutable results and numerical failure ownership.
  */
 export type IAutoMovieLoftWorldJetWorld = {
-/** Surface point in the publishing frame's world millimetres, freshly allocated by the frame product rule. */
-p: AutoMovieVector3Tuple;
+  /** Surface point in the publishing frame's world millimetres, freshly allocated by the frame product rule. */
+  p: AutoMovieVector3Tuple;
 
-/** First physical-station partial in millimetres per millimetre; includes frame motion and local station derivatives. */
-s: AutoMovieVector3Tuple;
+  /** First physical-station partial in millimetres per millimetre; includes frame motion and local station derivatives. */
+  s: AutoMovieVector3Tuple;
 
-/** First phase partial in millimetres per caller clock unit; the original or explicitly re-expressed phase clock is preserved. */
-t: AutoMovieVector3Tuple;
+  /** First phase partial in millimetres per caller clock unit; the original or explicitly re-expressed phase clock is preserved. */
+  t: AutoMovieVector3Tuple;
 
-/** Second physical-station partial in inverse millimetres, including the frame product-rule cross terms. */
-ss: AutoMovieVector3Tuple;
+  /** Second physical-station partial in inverse millimetres, including the frame product-rule cross terms. */
+  ss: AutoMovieVector3Tuple;
 
-/** Mixed station/phase partial in inverse caller clock units. */
-st: AutoMovieVector3Tuple;
+  /** Mixed station/phase partial in inverse caller clock units. */
+  st: AutoMovieVector3Tuple;
 
-/** Second phase partial in millimetres per squared caller clock unit; not an arc-length curvature vector. */
-tt: AutoMovieVector3Tuple };
+  /** Second phase partial in millimetres per squared caller clock unit; not an arc-length curvature vector. */
+  tt: AutoMovieVector3Tuple;
+};

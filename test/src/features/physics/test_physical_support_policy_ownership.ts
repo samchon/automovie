@@ -1,11 +1,15 @@
-import type { IAutoMoviePhysicalSimulationInput, IAutoMovieQuaternion, IAutoMovieVector3, IAutoMovieFootfallPattern as Pattern } from "@automovie/interface";
 import {
   AutoMoviePhysicalSimulation as Simulation,
   bindPhysicalWorld,
   collectPhysicalSupports as collect,
   trackPhysicalWorld,
 } from "@automovie/engine";
-
+import type {
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+  IAutoMovieFootfallPattern as Pattern,
+} from "@automovie/interface";
 import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,10 +33,8 @@ import { vclose } from "../internal/vclose";
 export async function test_physical_support_policy_ownership(): Promise<void> {
   await RAPIER.init();
   for (const proximal of [false, true]) {
-    const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalSupportFixtures.body(
-      PhysicalModelFixtures.quadrupod(),
-      1 / 120,
-    );
+    const body: IAutoMoviePhysicalSimulationInput.IBody =
+      PhysicalSupportFixtures.body(PhysicalModelFixtures.quadrupod(), 1 / 120);
     body.actuation = "internal";
     body.compensateGravity = true;
     const pattern: Pattern = structuredClone(body.balance!.pattern);
@@ -49,7 +51,8 @@ export async function test_physical_support_policy_ownership(): Promise<void> {
     };
     for (const target of body.targets)
       target.supportStrength = { "support-0": 1 };
-    const input: IAutoMoviePhysicalSimulationInput.IInput = PhysicalFixtures.input([body], 1 / 120);
+    const input: IAutoMoviePhysicalSimulationInput.IInput =
+      PhysicalFixtures.input([body], 1 / 120);
     Object.assign(input, {
       floor: 0,
       gravity: { x: 0, y: -9.81, z: 0 },

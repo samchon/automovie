@@ -1,5 +1,9 @@
-import type { IAutoMovieSolidSurface, IAutoMovieConstructionProfileGrid, IAutoMoviePreparedConstructionProfile, IAutoMovieConstructionProfile } from "@automovie/interface";
-
+import type {
+  IAutoMovieConstructionProfile,
+  IAutoMovieConstructionProfileGrid,
+  IAutoMoviePreparedConstructionProfile,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 
@@ -32,7 +36,6 @@ const DEPTH: number = 16;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConstructionProfileGrid {
-
   /**
    * Derive grids from original Point0; malformed or unresolved requests produce no partial output.
    *

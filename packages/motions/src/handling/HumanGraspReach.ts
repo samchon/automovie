@@ -1,7 +1,15 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanResolveHumanPosture, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMoviePose,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -87,7 +95,8 @@ export namespace HumanGraspReach {
     },
     admits?: (wrist: IAutoMovieMotionHumanHand.IWrist) => boolean,
   ): IAutoMovieMotionHumanGrasp.IReach {
-    const limb: IAutoMovieMotionHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
+    const limb: IAutoMovieMotionHumanPosture.Limb =
+      side === "left" ? "leftArm" : "rightArm";
     // One key pose fitted, its elbow left to the body (`elbow`): the pose and
     // the error the arm leaves there, the rotation in degrees plus the
     // position in millimetres. The rotation is the fit's own optimal value
@@ -110,9 +119,8 @@ export namespace HumanGraspReach {
       // its own goal, on its own arm solution, not the grasp's.
       const anchored: IAutoMovieMotionHumanPosture.IReference | undefined =
         key.reference === false ? undefined : reference;
-      const resolved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
-        body,
-        {
+      const resolved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
+        resolveHumanPosture.seeded(body, {
           ...key.posture,
           limbs: {
             ...key.posture.limbs,
@@ -126,8 +134,7 @@ export namespace HumanGraspReach {
               ...(anchored === undefined ? {} : { reference: anchored }),
             },
           },
-        },
-      );
+        });
       const pose: IAutoMoviePose = resolved.pose;
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         poseBones(body, pose);
@@ -242,10 +249,8 @@ export namespace HumanGraspReach {
     );
     for (const { turn, tilt, wrist, grasp, preference, floor } of candidates) {
       if (held && floor >= least) break;
-      const reference: IAutoMovieMotionHumanPosture.IReference = resolveHumanPosture.reference(
-        grasp.pose,
-        limb,
-      );
+      const reference: IAutoMovieMotionHumanPosture.IReference =
+        resolveHumanPosture.reference(grasp.pose, limb);
       let miss: number = grasp.miss;
       let departure: number = grasp.departure;
       let beaten: boolean = false;

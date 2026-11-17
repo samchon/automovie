@@ -1,7 +1,7 @@
-import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
-import type { AutoMovieHumanoidRegion } from "../../../skeleton/AutoMovieHumanoidRegion";
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
+import type { AutoMovieHumanoidRegion } from "../../../skeleton/AutoMovieHumanoidRegion";
 
 /**
  * A span of an action during which a body part bears on something: a foot

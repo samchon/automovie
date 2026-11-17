@@ -1,10 +1,10 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMoviePhysicalProfile } from "../../../physics/IAutoMoviePhysicalProfile";
+import type { IAutoMovieHumanoidSurfaces } from "../../../pose/IAutoMovieHumanoidSurfaces";
+import type { IAutoMovieSkeletonTopology } from "../../../pose/IAutoMovieSkeletonTopology";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieBodyMeasure } from "../../../skeleton/IAutoMovieBodyMeasure";
-import type { IAutoMovieHumanoidSurfaces } from "../../../pose/IAutoMovieHumanoidSurfaces";
-import type { IAutoMoviePhysicalProfile } from "../../../physics/IAutoMoviePhysicalProfile";
 import type { IAutoMovieSkeleton } from "../../../skeleton/IAutoMovieSkeleton";
-import type { IAutoMovieSkeletonTopology } from "../../../pose/IAutoMovieSkeletonTopology";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
  * A performer's body as motion laws read it: the canonical VRM rig and its

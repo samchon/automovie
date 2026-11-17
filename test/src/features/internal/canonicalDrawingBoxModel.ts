@@ -1,5 +1,7 @@
-import { type IAutoMoviePrimitiveShape, IAutoMovieModel } from "@automovie/interface";
-
+import {
+  IAutoMovieModel,
+  type IAutoMoviePrimitiveShape,
+} from "@automovie/interface";
 
 import { canonicalDrawingMaterial as drawingMaterial } from "./canonicalDrawingMaterial";
 

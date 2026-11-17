@@ -1,6 +1,11 @@
-import { type IAutoMovieAxisFrame, type IAutoMovieRestFrame, type AutoMovieClinicalAxis, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMovieQuaternion } from "@automovie/interface";
-
-
+import {
+  type AutoMovieClinicalAxis,
+  type IAutoMovieAxisFrame,
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
+  IAutoMovieQuaternion,
+  type IAutoMovieRestFrame,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { toRigAngle } from "../rom/toRigAngle";

@@ -1,8 +1,8 @@
-import type { IAutoMovieRecoveryMapDesignFactor, IAutoMovieRecoveryMapDesignSolutionOperation } from "@automovie/interface";
 import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
-
-
-
+import type {
+  IAutoMovieRecoveryMapDesignFactor,
+  IAutoMovieRecoveryMapDesignSolutionOperation,
+} from "@automovie/interface";
 
 import { factorRecoveryMapDesign } from "./factorRecoveryMapDesign";
 
@@ -46,7 +46,8 @@ export function solveRecoveryMapDesign(
   const options: Parameters<typeof decomposeAutoMovieSingularMatrix>[1] = {
     maxEntries: budget.maxLinearEntries,
     maxSweeps: budget.maxSingularSweeps,
-    orthogonalityTolerance: 1e-12 };
+    orthogonalityTolerance: 1e-12,
+  };
   let gradient: number = 0;
   for (let column: number = 0; column < width; column++)
     gradient = Math.max(

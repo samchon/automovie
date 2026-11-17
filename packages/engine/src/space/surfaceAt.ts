@@ -1,4 +1,8 @@
-import { type IAutoMoviePreparedSpace, IAutoMovieSpace, IAutoMovieSurface } from "@automovie/interface";
+import {
+  type IAutoMoviePreparedSpace,
+  IAutoMovieSpace,
+  IAutoMovieSurface,
+} from "@automovie/interface";
 
 import { prepareSpace } from "./prepareSpace";
 import { preparedSurfaceContains } from "./preparedSurfaceContains";

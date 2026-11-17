@@ -1,4 +1,8 @@
-import { type IAutoMovieFormationGrounding, IAutoMovieFormationDesign, IAutoMovieFormationSlot } from "@automovie/interface";
+import {
+  IAutoMovieFormationDesign,
+  type IAutoMovieFormationGrounding,
+  IAutoMovieFormationSlot,
+} from "@automovie/interface";
 
 import { formationSlotPosition } from "./formationSlotPosition";
 import { formationSlotRecord } from "./formationSlotRecord";

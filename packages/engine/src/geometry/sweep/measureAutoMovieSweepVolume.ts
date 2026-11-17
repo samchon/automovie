@@ -1,4 +1,8 @@
-import { type IAutoMovieSweepFrame, type IAutoMovieSweepSurface, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieSweepFrame,
+  type IAutoMovieSweepSurface,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { integrateAutoMovieSweepVolume } from "./integrateAutoMovieSweepVolume";
 import { momentAutoMovieSweepSections } from "./momentAutoMovieSweepSections";

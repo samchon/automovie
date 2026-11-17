@@ -6,11 +6,9 @@
  * @evidence contracts/development/common.md#meaningful-documentation Members state physical units, field ordering and coefficient-index meaning.
  */
 export interface IAutoMovieRecoveryNativeEndpoint {
- 
- /** Original endpoint coordinates, millimetres. */
+  /** Original endpoint coordinates, millimetres. */
   position: readonly [number, number, number];
 
- 
- /** Current coefficient index before native-owner compaction. */
+  /** Current coefficient index before native-owner compaction. */
   controlId: number;
 }

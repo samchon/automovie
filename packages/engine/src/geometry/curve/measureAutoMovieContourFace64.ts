@@ -1,4 +1,8 @@
-import type { AutoMovieVector3Tuple, IAutoMovieMeasureContourFace64 } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieMeasureContourFace64,
+} from "@automovie/interface";
+
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 
 /**
@@ -17,7 +21,13 @@ export function measureAutoMovieContourFace64(
   q: AutoMovieVector3Tuple,
   r: AutoMovieVector3Tuple,
 ): IAutoMovieMeasureContourFace64.IResult {
-  const cross: (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
+  const cross: (
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ) => AutoMovieVector3Tuple = (
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple => [
     a[1] * b[2] - a[2] * b[1],
     a[2] * b[0] - a[0] * b[2],
     a[0] * b[1] - a[1] * b[0],
@@ -25,7 +35,8 @@ export function measureAutoMovieContourFace64(
   const normal: AutoMovieVector3Tuple = cross(M.sub(q, p), M.sub(r, p));
   const length: number = Math.hypot(...normal);
   const output: AutoMovieVector3Tuple[] = [p, q, r].map(
-    (point: AutoMovieVector3Tuple): AutoMovieVector3Tuple => M.scale(point, 0.001),
+    (point: AutoMovieVector3Tuple): AutoMovieVector3Tuple =>
+      M.scale(point, 0.001),
   );
   return {
     millimetresSquared: length,

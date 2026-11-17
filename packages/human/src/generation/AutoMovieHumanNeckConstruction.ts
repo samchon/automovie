@@ -1,9 +1,15 @@
-import type { IAutoMovieViewCurves, IAutoMovieViewOutline, IAutoMovieViewPart, IAutoMovieHumanNeckConstruction, IAutoMovieHumanNeckSource } from "@automovie/interface";
-
-
-
-import { AutoMovieViewCurves, AutoMovieViewLoft, AutoMovieViewOutline } from "@automovie/engine";
-
+import {
+  AutoMovieViewCurves,
+  AutoMovieViewLoft,
+  AutoMovieViewOutline,
+} from "@automovie/engine";
+import type {
+  IAutoMovieHumanNeckConstruction,
+  IAutoMovieHumanNeckSource,
+  IAutoMovieViewCurves,
+  IAutoMovieViewOutline,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 /**
  * The old trunk's temporary neck chain from the actual composed head source.
@@ -24,8 +30,6 @@ import { AutoMovieViewCurves, AutoMovieViewLoft, AutoMovieViewOutline } from "@a
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns one interval view, its copied scalar records and loft result. Its axis shares the original definition lifetime; no global chain is retained.
  */
 export namespace AutoMovieHumanNeckConstruction {
-  
-
   /**
    * Evaluate the mass's neck interval for the remaining old trunk.
    *

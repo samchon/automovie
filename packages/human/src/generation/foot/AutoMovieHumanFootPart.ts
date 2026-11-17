@@ -1,14 +1,14 @@
-import type { IAutoMovieViewPart, AutoMovieVector3Tuple, IAutoMovieHumanFootPart, IAutoMovieHumanSiteControls, IAutoMovieHumanSiteViewPart } from "@automovie/interface";
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanFootPart,
+  IAutoMovieHumanSiteControls,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
-import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanSiteControls } from "../limb/AutoMovieHumanSiteControls";
-
+import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 
 /**
  * One foot's body as a part lofted from its views (#3049): straight along the
@@ -33,17 +33,15 @@ import { AutoMovieHumanSiteControls } from "../limb/AutoMovieHumanSiteControls";
  * part from above (the leg is the part, the foot the host).
  */
 export namespace AutoMovieHumanFootPart {
-  
-
-  
-
   /**
    * Build and loft the foot.
    *
    * @param input The heel, the axis, the length, the poles and the sites.
    * @returns The part, its loft and the diagnostics.
    */
-  export function create(input: IAutoMovieHumanFootPart.IInput): IAutoMovieHumanSiteViewPart.IResult {
+  export function create(
+    input: IAutoMovieHumanFootPart.IInput,
+  ): IAutoMovieHumanSiteViewPart.IResult {
     return AutoMovieHumanSiteViewPart.loft(define(input));
   }
 
@@ -59,12 +57,31 @@ export namespace AutoMovieHumanFootPart {
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the same-input base when the dorsal author already needed it; the returned final preparation owns subsequent source reads and loft.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned final records and borrows unchanged edge objects from the same original definition; no persistent cache exists.
    */
-  export function define(input: IAutoMovieHumanFootPart.IInput, base?: IAutoMovieHumanSiteViewPart.IDefinition): IAutoMovieHumanSiteViewPart.IDefinition {
+  export function define(
+    input: IAutoMovieHumanFootPart.IInput,
+    base?: IAutoMovieHumanSiteViewPart.IDefinition,
+  ): IAutoMovieHumanSiteViewPart.IDefinition {
     const declaration: IAutoMovieHumanSiteViewPart.IInput = source(input);
-    const prepared: IAutoMovieHumanSiteViewPart.IDefinition = base ?? AutoMovieHumanSiteViewPart.define(declaration);
+    const prepared: IAutoMovieHumanSiteViewPart.IDefinition =
+      base ?? AutoMovieHumanSiteViewPart.define(declaration);
     if (prepared.part === null || input.dorsal === undefined) return prepared;
-    const part: IAutoMovieViewPart = { ...prepared.part, front: { ...prepared.part.front, positive: input.dorsal }, stations: [...new Set([...prepared.part.stations, ...input.dorsal.knots.map((knot: IAutoMovieViewPart.IKnot): number => knot.station)])].sort((a: number, b: number): number => a - b) };
-    return { part, view: AutoMovieHumanConstructionView.of(part, declaration.axis), diagnostics: prepared.diagnostics };
+    const part: IAutoMovieViewPart = {
+      ...prepared.part,
+      front: { ...prepared.part.front, positive: input.dorsal },
+      stations: [
+        ...new Set([
+          ...prepared.part.stations,
+          ...input.dorsal.knots.map(
+            (knot: IAutoMovieViewPart.IKnot): number => knot.station,
+          ),
+        ]),
+      ].sort((a: number, b: number): number => a - b),
+    };
+    return {
+      part,
+      view: AutoMovieHumanConstructionView.of(part, declaration.axis),
+      diagnostics: prepared.diagnostics,
+    };
   }
 
   /**
@@ -73,21 +90,37 @@ export namespace AutoMovieHumanFootPart {
    * and their parameter; station union affects only observation density.
    * No completed foot or raw surface supplies the toe boundary.
    */
-  export function controls(input: IAutoMovieHumanFootPart.IInput, base?: IAutoMovieHumanSiteControls.IOutput): IAutoMovieHumanSiteControls.IOutput {
+  export function controls(
+    input: IAutoMovieHumanFootPart.IInput,
+    base?: IAutoMovieHumanSiteControls.IOutput,
+  ): IAutoMovieHumanSiteControls.IOutput {
     const declaration: IAutoMovieHumanSiteViewPart.IInput = source(input);
-    const prepared: IAutoMovieHumanSiteControls.IOutput = base ?? AutoMovieHumanSiteControls.prepare(declaration);
-    const original: IAutoMovieHumanSiteControls.IControls | null = prepared.controls;
+    const prepared: IAutoMovieHumanSiteControls.IOutput =
+      base ?? AutoMovieHumanSiteControls.prepare(declaration);
+    const original: IAutoMovieHumanSiteControls.IControls | null =
+      prepared.controls;
     if (original === null || input.dorsal === undefined) return prepared;
     const scalars: typeof original.scalars = {
       ...original.scalars,
       front: { ...original.scalars.front, positive: input.dorsal },
-      stations: [...new Set([...original.scalars.stations,
-        ...input.dorsal.knots.map((knot: IAutoMovieViewPart.IKnot): number => knot.station)])]
-        .sort((a: number, b: number): number => a - b),
+      stations: [
+        ...new Set([
+          ...original.scalars.stations,
+          ...input.dorsal.knots.map(
+            (knot: IAutoMovieViewPart.IKnot): number => knot.station,
+          ),
+        ]),
+      ].sort((a: number, b: number): number => a - b),
     };
-    return { controls: { input: declaration, axis: original.axis, scalars,
-      field: AutoMovieHumanSiteControls.native(input.name, scalars) },
-      diagnostics: prepared.diagnostics };
+    return {
+      controls: {
+        input: declaration,
+        axis: original.axis,
+        scalars,
+        field: AutoMovieHumanSiteControls.native(input.name, scalars),
+      },
+      diagnostics: prepared.diagnostics,
+    };
   }
 
   /**
@@ -102,7 +135,9 @@ export namespace AutoMovieHumanFootPart {
    * @evidence contracts/performance.md#reuse-equivalent-work Construction and source-dimension queries consume this identical owner.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned arrays; no cache, sampler or realized surface is retained.
    */
-  export function source(input: IAutoMovieHumanFootPart.IInput): IAutoMovieHumanSiteViewPart.IInput {
+  export function source(
+    input: IAutoMovieHumanFootPart.IInput,
+  ): IAutoMovieHumanSiteViewPart.IInput {
     // The chart: u up and v = up x along, so the stations advance along
     // v x u = along (`AutoMovieViewAxis.straight`). With the toes
     // forward v points to the body's right: medial on the left foot, lateral
@@ -111,20 +146,61 @@ export namespace AutoMovieHumanFootPart {
     // right's, its reflection (J6), stand as given.
     const up: AutoMovieVector3Tuple = [0, 1, 0];
     const v: AutoMovieVector3Tuple = [input.along[2], 0, -input.along[0]];
-    const origin: AutoMovieVector3Tuple = [input.heel[0], input.height, input.heel[2]];
-    const swap: (e: [number, number, number, number]) => [number, number, number, number] = (e: [number, number, number, number]): [number, number, number, number] => (input.side === "right" ? e : [e[0], -e[3], e[2], -e[1]]);
+    const origin: AutoMovieVector3Tuple = [
+      input.heel[0],
+      input.height,
+      input.heel[2],
+    ];
+    const swap: (
+      e: [number, number, number, number],
+    ) => [number, number, number, number] = (
+      e: [number, number, number, number],
+    ): [number, number, number, number] =>
+      input.side === "right" ? e : [e[0], -e[3], e[2], -e[1]];
     return {
       name: input.name,
-      axis: { type: "straight", origin: AutoMovieHumanConstructionView.point(origin), u: AutoMovieHumanConstructionView.direction(up), v: AutoMovieHumanConstructionView.direction(v) },
-      sites: input.sites.map((s: { site: string; law: IAutoMovieHumanFootPart.ISiteLaw }): IAutoMovieHumanSiteViewPart.ISite => ({
-        site: s.site,
-        station: s.law.share * input.length,
-        edges: swap(s.law.edges),
-        fullness: s.law.fullness,
-        ...(s.law.plantarJet === undefined ? {} : { jets: [undefined, undefined, s.law.plantarJet, undefined] as NonNullable<IAutoMovieHumanSiteViewPart.ISite["jets"]> }),
-      })),
-      ...(input.plantarRange === undefined ? {} : { ranges: [undefined, undefined, input.plantarRange, undefined] as NonNullable<IAutoMovieHumanSiteViewPart.IInput["ranges"]> }),
-      pole: { end: "both", bottom: input.poles[0] * input.length, top: input.poles[1] * input.length },
+      axis: {
+        type: "straight",
+        origin: AutoMovieHumanConstructionView.point(origin),
+        u: AutoMovieHumanConstructionView.direction(up),
+        v: AutoMovieHumanConstructionView.direction(v),
+      },
+      sites: input.sites.map(
+        (s: {
+          site: string;
+          law: IAutoMovieHumanFootPart.ISiteLaw;
+        }): IAutoMovieHumanSiteViewPart.ISite => ({
+          site: s.site,
+          station: s.law.share * input.length,
+          edges: swap(s.law.edges),
+          fullness: s.law.fullness,
+          ...(s.law.plantarJet === undefined
+            ? {}
+            : {
+                jets: [
+                  undefined,
+                  undefined,
+                  s.law.plantarJet,
+                  undefined,
+                ] as NonNullable<IAutoMovieHumanSiteViewPart.ISite["jets"]>,
+              }),
+        }),
+      ),
+      ...(input.plantarRange === undefined
+        ? {}
+        : {
+            ranges: [
+              undefined,
+              undefined,
+              input.plantarRange,
+              undefined,
+            ] as NonNullable<IAutoMovieHumanSiteViewPart.IInput["ranges"]>,
+          }),
+      pole: {
+        end: "both",
+        bottom: input.poles[0] * input.length,
+        top: input.poles[1] * input.length,
+      },
       order: input.order,
       samples: input.order,
       gap: input.gap,

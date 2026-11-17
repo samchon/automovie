@@ -1,4 +1,8 @@
-import type { IAutoMovieFairSolidMesh, IAutoMovieSolidMesh } from "@automovie/interface";
+import type {
+  IAutoMovieFairSolidMesh,
+  IAutoMovieSolidMesh,
+} from "@automovie/interface";
+
 /**
  * Fair a drawn mesh over the regions about given vertices: the discrete thin-plate fill of a hole, the triangles within each region moved
  * so that the bi-Laplacian of their positions vanishes, with the two rings of vertices outside the region held where they are.
@@ -46,16 +50,31 @@ export function fairAutoMovieSolidMesh(
   const count: number = mesh.positions.length / 3;
   if (regions.length === 0) return 0;
   for (const region of regions)
-    if (region.vertices.length === 0 || region.vertices.some((v: number): boolean => !(Number.isInteger(v) && v >= 0 && v < count)) || !(region.radius > 0 && Number.isFinite(region.radius)))
-      throw new Error(`fairAutoMovieSolidMesh: a region of radius ${region.radius} has no sources, a source that is no vertex, or no positive finite radius`);
-  const at = (v: number): [number, number, number] => [mesh.positions[3 * v]!, mesh.positions[3 * v + 1]!, mesh.positions[3 * v + 2]!];
+    if (
+      region.vertices.length === 0 ||
+      region.vertices.some(
+        (v: number): boolean => !(Number.isInteger(v) && v >= 0 && v < count),
+      ) ||
+      !(region.radius > 0 && Number.isFinite(region.radius))
+    )
+      throw new Error(
+        `fairAutoMovieSolidMesh: a region of radius ${region.radius} has no sources, a source that is no vertex, or no positive finite radius`,
+      );
+  const at = (v: number): [number, number, number] => [
+    mesh.positions[3 * v]!,
+    mesh.positions[3 * v + 1]!,
+    mesh.positions[3 * v + 2]!,
+  ];
 
   // Only vertices within a generous ball of some source matter: a path shorter than the radius stays inside the ball of that radius, and
   // the two fixed rings lie within two edges more, which the ball's margin of three radii covers on any mesh whose edges near a region
   // are shorter than a radius. The sources are hashed in cells as wide as the largest reach, so each vertex reads 27 cells.
-  const cell: number = 3 * Math.max(...regions.map((r: { radius: number }): number => r.radius));
-  const key = (p: readonly number[]): string => p.map((x: number): number => Math.floor(x / cell)).join(",");
-  const cells: Map<string, { p: [number, number, number]; reach: number }[]> = new Map();
+  const cell: number =
+    3 * Math.max(...regions.map((r: { radius: number }): number => r.radius));
+  const key = (p: readonly number[]): string =>
+    p.map((x: number): number => Math.floor(x / cell)).join(",");
+  const cells: Map<string, { p: [number, number, number]; reach: number }[]> =
+    new Map();
   for (const region of regions)
     for (const v of region.vertices) {
       const p: [number, number, number] = at(v);
@@ -69,7 +88,12 @@ export function fairAutoMovieSolidMesh(
     for (let i: number = -1; i <= 1; ++i)
       for (let j: number = -1; j <= 1; ++j)
         for (let k: number = -1; k <= 1; ++k)
-          for (const s of cells.get(`${c[0]! + i},${c[1]! + j},${c[2]! + k}`) ?? []) if (Math.hypot(p[0] - s.p[0], p[1] - s.p[1], p[2] - s.p[2]) < s.reach) return true;
+          for (const s of cells.get(`${c[0]! + i},${c[1]! + j},${c[2]! + k}`) ??
+            [])
+            if (
+              Math.hypot(p[0] - s.p[0], p[1] - s.p[1], p[2] - s.p[2]) < s.reach
+            )
+              return true;
     return false;
   };
 
@@ -93,11 +117,19 @@ export function fairAutoMovieSolidMesh(
   // Each representative's neighbours along the edges of the triangles whose three vertices are near.
   const neighbours: Map<number, Set<number>> = new Map();
   for (let t: number = 0; t < mesh.indices.length; t += 3) {
-    const ids: (number | undefined)[] = [0, 1, 2].map((k: number): number | undefined => representative.get(mesh.indices[t + k]!));
-    if (ids.some((id: number | undefined): boolean => id === undefined)) continue;
+    const ids: (number | undefined)[] = [0, 1, 2].map(
+      (k: number): number | undefined =>
+        representative.get(mesh.indices[t + k]!),
+    );
+    if (ids.some((id: number | undefined): boolean => id === undefined))
+      continue;
     const [a, b, c] = ids as [number, number, number];
     if (a === b || b === c || c === a) continue;
-    for (const [p, q] of [[a, b], [b, c], [c, a]] as [number, number][]) {
+    for (const [p, q] of [
+      [a, b],
+      [b, c],
+      [c, a],
+    ] as [number, number][]) {
       if (!neighbours.has(p)) neighbours.set(p, new Set());
       if (!neighbours.has(q)) neighbours.set(q, new Set());
       neighbours.get(p)!.add(q);
@@ -162,18 +194,27 @@ export function fairAutoMovieSolidMesh(
   // The two fixed rings: the first holds the fill's position at its rim, the second, with the first, its tangent plane there.
   const ring = (inside: Set<number>): Set<number> => {
     const out: Set<number> = new Set();
-    for (const v of inside) for (const w of neighbours.get(v) ?? []) if (!inside.has(w)) out.add(w);
+    for (const v of inside)
+      for (const w of neighbours.get(v) ?? []) if (!inside.has(w)) out.add(w);
     return out;
   };
   const first: Set<number> = ring(free);
   const rows: Set<number> = new Set([...free, ...first]);
   const second: Set<number> = ring(rows);
   const local: Set<number> = new Set([...rows, ...second]);
-  if (second.size === 0 || [...rows].some((v: number): boolean => !neighbours.has(v))) throw new Error("fairAutoMovieSolidMesh: a region covers its whole component, so no rim holds it");
+  if (
+    second.size === 0 ||
+    [...rows].some((v: number): boolean => !neighbours.has(v))
+  )
+    throw new Error(
+      "fairAutoMovieSolidMesh: a region covers its whole component, so no rim holds it",
+    );
 
   // Dense local numbering: the regions' vertices first, then the first ring, then the second.
   const order: number[] = [...free, ...first, ...second];
-  const index: Map<number, number> = new Map(order.map((v: number, i: number): [number, number] => [v, i]));
+  const index: Map<number, number> = new Map(
+    order.map((v: number, i: number): [number, number] => [v, i]),
+  );
   const [nFree, nRows, nLocal]: number[] = [free.size, rows.size, local.size];
 
   // The umbrella's rows at the regions and their first ring: each vertex's neighbours along the mesh's edges, all weighted one.
@@ -190,7 +231,8 @@ export function fairAutoMovieSolidMesh(
   const z: Float64Array = new Float64Array(nLocal);
   const umbrella = (x: Float64Array, i: number): number => {
     let sum: number = -(start[i + 1]! - start[i]!) * x[i]!;
-    for (let k: number = start[i]!; k < start[i + 1]!; ++k) sum += x[column[k]!]!;
+    for (let k: number = start[i]!; k < start[i + 1]!; ++k)
+      sum += x[column[k]!]!;
     return sum;
   };
   const apply = (x: Float64Array, out: Float64Array): void => {
@@ -200,15 +242,22 @@ export function fairAutoMovieSolidMesh(
   const diagonal: Float64Array = new Float64Array(nFree);
   for (let i: number = 0; i < nFree; ++i) {
     let d: number = (start[i + 1]! - start[i]!) ** 2;
-    for (let k: number = start[i]!; k < start[i + 1]!; ++k) if (column[k]! < nRows) d += 1;
+    for (let k: number = start[i]!; k < start[i + 1]!; ++k)
+      if (column[k]! < nRows) d += 1;
     diagonal[i] = d;
   }
 
   // Preconditioned conjugate gradients per coordinate on the displacement, from none, to a residual a ten-billionth of the first.
-  const positions: Float64Array[] = [0, 1, 2].map((axis: number): Float64Array => Float64Array.from(order, (v: number): number => at(v)[axis]!));
+  const positions: Float64Array[] = [0, 1, 2].map(
+    (axis: number): Float64Array =>
+      Float64Array.from(order, (v: number): number => at(v)[axis]!),
+  );
   const full: Float64Array = new Float64Array(nLocal);
   const gradient: Float64Array = new Float64Array(nLocal);
-  const [r, s, p, q, d]: Float64Array[] = Array.from({ length: 5 }, (): Float64Array => new Float64Array(nFree));
+  const [r, s, p, q, d]: Float64Array[] = Array.from(
+    { length: 5 },
+    (): Float64Array => new Float64Array(nFree),
+  );
   const dot = (a: Float64Array, b: Float64Array): number => {
     let sum: number = 0;
     for (let i: number = 0; i < nFree; ++i) sum += a[i]! * b[i]!;
@@ -224,7 +273,11 @@ export function fairAutoMovieSolidMesh(
     }
     let rs: number = dot(r, s);
     const goal: number = dot(r, r) * 1e-20;
-    for (let iteration: number = 0; iteration < Math.max(50, nFree) && dot(r, r) > goal; ++iteration) {
+    for (
+      let iteration: number = 0;
+      iteration < Math.max(50, nFree) && dot(r, r) > goal;
+      ++iteration
+    ) {
       full.fill(0);
       full.set(p);
       apply(full, q);
@@ -237,7 +290,8 @@ export function fairAutoMovieSolidMesh(
         s[i] = r[i]! / diagonal[i]!;
       }
       const next: number = dot(r, s);
-      for (let i: number = 0; i < nFree; ++i) p[i] = s[i]! + (next / rs) * p[i]!;
+      for (let i: number = 0; i < nFree; ++i)
+        p[i] = s[i]! + (next / rs) * p[i]!;
       rs = next;
     }
     for (let i: number = 0; i < nFree; ++i) x[i] = x[i]! + d[i]!;
@@ -245,7 +299,8 @@ export function fairAutoMovieSolidMesh(
 
   // Every coincident member of a moved representative takes its new position.
   for (let i: number = 0; i < nFree; ++i)
-    for (const m of members.get(order[i]!)!) for (let axis: number = 0; axis < 3; ++axis) mesh.positions[3 * m + axis] = positions[axis]![i]!;
+    for (const m of members.get(order[i]!)!)
+      for (let axis: number = 0; axis < 3; ++axis)
+        mesh.positions[3 * m + axis] = positions[axis]![i]!;
   return nFree;
 }
-

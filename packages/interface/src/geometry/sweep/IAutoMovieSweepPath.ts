@@ -1,5 +1,5 @@
-import type { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
 import type { IAutoMovieVector3 } from "../IAutoMovieVector3";
+import type { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
 
 /**
  * A spine compiled for evaluation: its curve, unit tangent and

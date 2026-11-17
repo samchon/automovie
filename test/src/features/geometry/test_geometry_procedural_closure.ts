@@ -1,6 +1,20 @@
-import { type IAutoMovieProfilePoint, IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
-import { buildAutoMoviePolyhedron, buildAutoMovieWall, extrudeAutoMovieProfile, inspectAutoMovieMeshTopology, mergeAutoMovieMeshParts, meshAutoMovieSweep, revolveAutoMovieProfile, transformAutoMovieMesh, validateMeshTopology, validateModel } from "@automovie/engine";
-
+import {
+  buildAutoMoviePolyhedron,
+  buildAutoMovieWall,
+  extrudeAutoMovieProfile,
+  inspectAutoMovieMeshTopology,
+  mergeAutoMovieMeshParts,
+  meshAutoMovieSweep,
+  revolveAutoMovieProfile,
+  transformAutoMovieMesh,
+  validateMeshTopology,
+  validateModel,
+} from "@automovie/engine";
+import {
+  IAutoMovieMesh,
+  IAutoMovieModel,
+  type IAutoMovieProfilePoint,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeProp } from "../internal/fixtures";

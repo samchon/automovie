@@ -13,13 +13,12 @@ export namespace IAutoMovieProjectPhysicalTargets {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer throws for missing joint targets or an unreachable parent tree. These are goal adjustments, not observed native poses or silent proof that the authored performance was preserved.
    */
   export type IResult = {
-    
     /** New world bone-origin motor poses in metres/unit quaternions; roots retain their authored placements. */
     targets: Record<string, IAutoMoviePhysicalProfile.ITransform>;
-    
+
     /** Largest world child-origin displacement from its authored position, metres; zero when no joint child moves. */
     maximumTranslation: number;
-    
+
     /** Largest shortest-arc world child orientation change from its authored rotation, radians; zero when unchanged. */
     maximumRotation: number;
   };

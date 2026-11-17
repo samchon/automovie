@@ -1,5 +1,4 @@
 import type { IAutoMovieClip } from "../../core/IAutoMovieClip";
-
 import type { AutoMovieGltfMotionInterpretationProfile } from "./AutoMovieGltfMotionInterpretationProfile";
 import type { IAutoMovieExternalMotionNodeInspection } from "./IAutoMovieExternalMotionNodeInspection";
 

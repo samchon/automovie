@@ -1,5 +1,10 @@
-import { type IAutoMovieMeshTransform, IAutoMovieMesh, IAutoMovieMeshPhysicalSource, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieMesh,
+  IAutoMovieMeshPhysicalSource,
+  type IAutoMovieMeshTransform,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";

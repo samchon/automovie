@@ -10,31 +10,24 @@ import type { IAutoMovieFileReceipt } from "../../index";
  */
 
 export interface IAutoMovieRecoveryMeshFrontierInput {
- 
- /** Exact immutable receipt of the last closed journal. */
+  /** Exact immutable receipt of the last closed journal. */
   frontier: IAutoMovieFileReceipt;
 
- 
- /** Owning spool directory. */
+  /** Owning spool directory. */
   directory: string;
 
- 
- /** Exact source and input binding expected in every journal. */
+  /** Exact source and input binding expected in every journal. */
   expectedBinding: object;
 
- 
- /** Positive maximum journal population. */
+  /** Positive maximum journal population. */
   maxJournals: number;
 
- 
- /** Positive maximum fragment population. */
+  /** Positive maximum fragment population. */
   maxFragments: number;
 
- 
- /** Positive byte limit per journal. */
+  /** Positive byte limit per journal. */
   maxJournalBytes: number;
 
- 
- /** Positive byte limit per fragment. */
+  /** Positive byte limit per fragment. */
   maxFragmentBytes: number;
 }

@@ -1,15 +1,19 @@
-import type { IAutoMovieRecoveryCameraEstimateCreationOperation, IAutoMovieRecoveryCameraPairEstimate, IAutoMovieRecoveryCameraPoseSelectionOperation, IAutoMovieRecoveryCameraResidualsScoreOperation, IAutoMovieRecoveryEpipolarConsensusFittingOperation, IAutoMovieRecoveryEpipolarErrorsMeasurementOperation, IAutoMovieRecoveryHomographyConsensusFittingOperation, IAutoMovieVector3 } from "@automovie/interface";
 import { convexHull2D } from "@automovie/engine";
-
-
-
-
+import type {
+  IAutoMovieRecoveryCameraEstimateCreationOperation,
+  IAutoMovieRecoveryCameraPairEstimate,
+  IAutoMovieRecoveryCameraPoseSelectionOperation,
+  IAutoMovieRecoveryCameraResidualsScoreOperation,
+  IAutoMovieRecoveryEpipolarConsensusFittingOperation,
+  IAutoMovieRecoveryEpipolarErrorsMeasurementOperation,
+  IAutoMovieRecoveryHomographyConsensusFittingOperation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { fitRecoveryEpipolarConsensus } from "./fitRecoveryEpipolarConsensus";
 import { fitRecoveryEpipolarMatrix } from "./fitRecoveryEpipolarMatrix";
 import { fitRecoveryHomographyConsensus } from "./fitRecoveryHomographyConsensus";
 import { isRecoveryCameraNumericalRefusal } from "./isRecoveryCameraNumericalRefusal";
-
 import { measureRecoveryEpipolarErrors } from "./measureRecoveryEpipolarErrors";
 import { scoreRecoveryCameraResiduals } from "./scoreRecoveryCameraResiduals";
 import { selectRecoveryCameraPose } from "./selectRecoveryCameraPose";
@@ -55,7 +59,9 @@ export function createRecoveryCameraEstimate(
         camera: {
           ...view.camera,
           focalPx: [...view.camera.focalPx],
-          principalPointPx: [...view.camera.principalPointPx] } }),
+          principalPointPx: [...view.camera.principalPointPx],
+        },
+      }),
     ),
     features: features.map(
       (
@@ -68,7 +74,8 @@ export function createRecoveryCameraEstimate(
         selectedBeforeDescriptor: feature.selectedBeforeDescriptor,
         observedDescriptors: feature.points.length,
         zeroDescriptors: feature.zeroDescriptors,
-        invalidSupportDescriptors: feature.invalidSupportDescriptors }),
+        invalidSupportDescriptors: feature.invalidSupportDescriptors,
+      }),
     ),
     matches: matches.map(
       (
@@ -81,10 +88,12 @@ export function createRecoveryCameraEstimate(
         descriptorDistanceRatio: match.descriptorDistanceRatio,
         squaredDescriptorDistance: match.squaredDescriptorDistance,
         epipolarInlier: false,
-        homographyInlier: false }),
+        homographyInlier: false,
+      }),
     ),
     consensus: null,
-    pose: null };
+    pose: null,
+  };
   if (matches.length < 8) {
     result.refusalReasons.push("insufficient-appearance-matches");
     return result;
@@ -133,7 +142,8 @@ export function createRecoveryCameraEstimate(
         converged: fit.converged,
         initialCost: fit.initialCost,
         finalCost: fit.finalCost,
-        minimumLocalDesignRatio: fit.minimumLocalDesignRatio }),
+        minimumLocalDesignRatio: fit.minimumLocalDesignRatio,
+      }),
     ),
     finalDesignSingularRatio: null,
     inliers: indices.length,
@@ -144,7 +154,8 @@ export function createRecoveryCameraEstimate(
     positiveDepthFraction: null,
     medianParallaxRadians: null,
     allPositiveDepthCounts: [],
-    homography: null };
+    homography: null,
+  };
   result.consensus = consensus;
   if (!epipolar.conditionalTrialTargetMet)
     result.refusalReasons.push("epipolar-search-budget");
@@ -162,7 +173,8 @@ export function createRecoveryCameraEstimate(
   const inlierSecond: [number, number][] = indices.map(
     (at: number): [number, number] => second[at]!,
   );
-  let pose: ReturnType<IAutoMovieRecoveryCameraPoseSelectionOperation.Operation> | null = null;
+  let pose: ReturnType<IAutoMovieRecoveryCameraPoseSelectionOperation.Operation> | null =
+    null;
   checkpoint("camera-qualification", 0, 1);
   if (epipolar.matrix !== null && indices.length >= 8) {
     try {
@@ -250,7 +262,8 @@ export function createRecoveryCameraEstimate(
           (point: [number, number]): IAutoMovieVector3 => ({
             x: point[0] / view.width,
             y: 0,
-            z: point[1] / view.height }),
+            z: point[1] / view.height,
+          }),
         ),
       );
       let twiceArea: number = 0;
@@ -286,7 +299,8 @@ export function createRecoveryCameraEstimate(
       conditionalTrialTargetMet: homography.conditionalTrialTargetMet,
       forbiddenOverlapFound: homography.forbiddenOverlapFound,
       numericalRefusals: homography.numericalRefusals,
-      refitRefusals: homography.refitRefusals };
+      refitRefusals: homography.refitRefusals,
+    };
     for (const local of homography.score.indices)
       result.matches[indices[local]!]!.homographyInlier = true;
     if (homography.forbiddenOverlapFound)
@@ -301,7 +315,8 @@ export function createRecoveryCameraEstimate(
       metricScale: "unknown",
       rotation: pose.rotation.slice(),
       translation: [...pose.translation],
-      essentialProjectionDiscrepancy: pose.relativeProjectionDiscrepancy };
+      essentialProjectionDiscrepancy: pose.relativeProjectionDiscrepancy,
+    };
   }
   checkpoint("camera-qualification", 1, 1);
   return result;

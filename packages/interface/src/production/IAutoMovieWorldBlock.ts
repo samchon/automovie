@@ -1,6 +1,6 @@
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieModel } from "../model/IAutoMovieModel";
 import type { IAutoMovieSceneNode } from "../scene/IAutoMovieSceneNode";
-import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * One generated visible wall/building block and its support footprint.

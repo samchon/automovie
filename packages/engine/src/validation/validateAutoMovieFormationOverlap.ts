@@ -1,5 +1,18 @@
-import { type IAutoMovieFormationGrounding, type IAutoMovieFormationPlacement, type IAutoMovieFormationSlotPlacement, type IAutoMovieModelColumn, type IAutoMovieSampledFormationMotion, type IAutoMovieValidateFormationOverlap, IAutoMovieDiagnostic, IAutoMovieFormationDesign, IAutoMovieFormationMotion, IAutoMovieFormationSlotMotion, IAutoMovieModel, IAutoMovieShotContract, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieDiagnostic,
+  IAutoMovieFormationDesign,
+  type IAutoMovieFormationGrounding,
+  IAutoMovieFormationMotion,
+  type IAutoMovieFormationPlacement,
+  IAutoMovieFormationSlotMotion,
+  type IAutoMovieFormationSlotPlacement,
+  IAutoMovieModel,
+  type IAutoMovieModelColumn,
+  type IAutoMovieSampledFormationMotion,
+  IAutoMovieShotContract,
+  type IAutoMovieValidateFormationOverlap,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import {
   formationSlotPosition,

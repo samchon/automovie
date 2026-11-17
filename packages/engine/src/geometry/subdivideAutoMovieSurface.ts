@@ -1,4 +1,8 @@
-import type { IAutoMovieSubdivisionSurface, IAutoMovieSubdivideSurface, IAutoMovieSubdivisionLevel } from "@automovie/interface";
+import type {
+  IAutoMovieSubdivideSurface,
+  IAutoMovieSubdivisionLevel,
+  IAutoMovieSubdivisionSurface,
+} from "@automovie/interface";
 
 import { admitSubdivisionCage } from "./admitSubdivisionCage";
 import { evaluateSubdivisionLevel } from "./evaluateSubdivisionLevel";
@@ -56,7 +60,9 @@ const MAX_LEVELS: number = 6;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each level is computed once from the previous one, and the limit reuses one shared point refinement for every vertex.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the current level is held while refining; the returned surface owns arrays linear in the final level and nothing else is retained.
  */
-export function subdivideAutoMovieSurface(props: IAutoMovieSubdivideSurface.IProps): IAutoMovieSubdivisionSurface {
+export function subdivideAutoMovieSurface(
+  props: IAutoMovieSubdivideSurface.IProps,
+): IAutoMovieSubdivisionSurface {
   if (
     !Number.isSafeInteger(props.levels) ||
     props.levels < 1 ||

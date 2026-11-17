@@ -1,4 +1,11 @@
-import type { IAutoMovieLoftChain, IAutoMovieSolidSurface, IAutoMovieConstructionRealization, IAutoMovieConstructionState, IAutoMovieSolidBody, IAutoMovieSolidMesh } from "@automovie/interface";
+import type {
+  IAutoMovieConstructionRealization,
+  IAutoMovieConstructionState,
+  IAutoMovieLoftChain,
+  IAutoMovieSolidBody,
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";

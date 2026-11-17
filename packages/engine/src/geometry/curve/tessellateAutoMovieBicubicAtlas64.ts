@@ -1,4 +1,10 @@
-import type { AutoMovieVector3Tuple, IAutoMovieBicubicAtlasPlan64, IAutoMovieBicubicAtlasRegistry64, IAutoMovieBicubicAtlasTessellation64 } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieBicubicAtlasPlan64,
+  IAutoMovieBicubicAtlasRegistry64,
+  IAutoMovieBicubicAtlasTessellation64,
+} from "@automovie/interface";
+
 import { AutoMovieBicubicAtlasEmit64 } from "./AutoMovieBicubicAtlasEmit64";
 import { AutoMovieBicubicAtlasPlan64 } from "./AutoMovieBicubicAtlasPlan64";
 import { AutoMovieBicubicAtlasRegistry64 } from "./AutoMovieBicubicAtlasRegistry64";
@@ -77,7 +83,11 @@ const CORNERS: readonly (readonly [number, number, number])[] = [
  */
 export function* tessellateAutoMovieBicubicAtlas64(
   input: IAutoMovieBicubicAtlasTessellation64.Input,
-): Generator<IAutoMovieBicubicAtlasTessellation64.Chunk, IAutoMovieBicubicAtlasTessellation64.Summary, void> {
+): Generator<
+  IAutoMovieBicubicAtlasTessellation64.Chunk,
+  IAutoMovieBicubicAtlasTessellation64.Summary,
+  void
+> {
   if (
     input.retainTriangleParameters !== undefined &&
     typeof input.retainTriangleParameters !== "boolean"
@@ -92,13 +102,14 @@ export function* tessellateAutoMovieBicubicAtlas64(
     AutoMovieBicubicAtlasPlan64(input, SIDES, CORNERS);
   const registered: IAutoMovieBicubicAtlasRegistry64.IResult =
     AutoMovieBicubicAtlasRegistry64(input, prepared, SIDES, CORNERS);
-  const summary: IAutoMovieBicubicAtlasTessellation64.Summary = yield* AutoMovieBicubicAtlasEmit64(
-    input,
-    prepared,
-    registered,
-    SIDES,
-    CORNERS,
-  );
+  const summary: IAutoMovieBicubicAtlasTessellation64.Summary =
+    yield* AutoMovieBicubicAtlasEmit64(
+      input,
+      prepared,
+      registered,
+      SIDES,
+      CORNERS,
+    );
   return {
     ...summary,
     ...(input.retainPatchCoefficients
@@ -107,15 +118,22 @@ export function* tessellateAutoMovieBicubicAtlas64(
             (
               plan: (typeof prepared.plans)[number],
               i: number,
-            ): NonNullable<IAutoMovieBicubicAtlasTessellation64.Summary["patchCoefficients"]> =>
+            ): NonNullable<
+              IAutoMovieBicubicAtlasTessellation64.Summary["patchCoefficients"]
+            > =>
               plan.grid.length === 4
                 ? [
                     {
                       patch: input.patches[i]!.id,
-                      gridMm: plan.grid.map((row: number[][]): Readonly<AutoMovieVector3Tuple>[] =>
-                        row.map(
-                          (p: number[]): Readonly<AutoMovieVector3Tuple> => [p[0]!, p[1]!, p[2]!],
-                        ),
+                      gridMm: plan.grid.map(
+                        (row: number[][]): Readonly<AutoMovieVector3Tuple>[] =>
+                          row.map(
+                            (p: number[]): Readonly<AutoMovieVector3Tuple> => [
+                              p[0]!,
+                              p[1]!,
+                              p[2]!,
+                            ],
+                          ),
                       ),
                     },
                   ]

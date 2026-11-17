@@ -1,5 +1,7 @@
-import type { AutoMovieBuiltinTexturePurpose, IAutoMovieRenderTextureSource } from "@automovie/interface";
-
+import type {
+  AutoMovieBuiltinTexturePurpose,
+  IAutoMovieRenderTextureSource,
+} from "@automovie/interface";
 import {
   type IAutoMovieFormationCycle,
   type IAutoMovieFormationCycleTake,

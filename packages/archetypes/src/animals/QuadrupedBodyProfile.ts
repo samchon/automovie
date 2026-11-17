@@ -9,6 +9,9 @@ import type { QuadrupedBody } from "./QuadrupedBody";
  * owner only performs the common geometry: circular girth, trigonometric
  * control projections, an exact withers apex, a head capsule of the requested
  * total axial length, and a distinct hip-to-rump run behind the trunk.
+ * Directions are the initial authored conformation. QuadrupedBody owns the
+ * subsequent explicit neutral connection to its actual parent solids; it does
+ * not change these reference measurements or infer measured joint anatomy.
  *
  * @param props Reference shape, four controls per limb, authored construction, colors and optional admitted instance height.
  * @returns Fresh dimensionless body controls, with metre lateral inset for the actual height.
@@ -27,7 +30,8 @@ export function QuadrupedBodyProfile(
   const m: QuadrupedBodyProfile.IMeasures = props.measures;
   const c: QuadrupedBodyProfile.IConstruction = props.construction;
   const h: number = m.withers;
-  const height: number = props.withersHeight ?? h;
+  const height: number =
+    props.withersHeight === undefined ? h : props.withersHeight;
   for (const value of [
     height,
     m.withers,
@@ -210,10 +214,10 @@ export namespace QuadrupedBodyProfile {
     /** Foot inward placement / barrel radius, in [0, 1). */
     inset: number;
 
-    /** Four fore directions from downward vertical, degrees. */
+    /** Four initial fore directions from down, degrees, before shared parent-solid neutral connection. */
     forePitch: readonly [number, number, number, number];
 
-    /** Four hind directions from downward vertical, degrees. */
+    /** Four initial hind directions from down, degrees, before shared parent-solid neutral connection. */
     hindPitch: readonly [number, number, number, number];
 
     /** Four positive limb bar radii / height. */

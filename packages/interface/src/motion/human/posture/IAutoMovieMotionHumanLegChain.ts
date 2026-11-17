@@ -1,6 +1,6 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
-import type { IAutoMovieSwivelSeed } from "../../../pose/IAutoMovieSwivelSeed";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieSwivelSeed } from "../../../pose/IAutoMovieSwivelSeed";
 
 /**
  * A leg posed as the posture's own fit poses it, read through the engine's

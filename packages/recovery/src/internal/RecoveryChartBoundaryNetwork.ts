@@ -1,6 +1,7 @@
-import type { IAutoMovieRecoveryChartBoundaryNetwork, IAutoMovieRecoveryChartBoundaryNetworkRegistry } from "@automovie/interface";
-
-
+import type {
+  IAutoMovieRecoveryChartBoundaryNetwork,
+  IAutoMovieRecoveryChartBoundaryNetworkRegistry,
+} from "@automovie/interface";
 
 import { RecoveryChartBoundaryNetworkAugment } from "./RecoveryChartBoundaryNetworkAugment";
 import { RecoveryChartBoundaryNetworkBindings } from "./RecoveryChartBoundaryNetworkBindings";
@@ -33,7 +34,9 @@ import { RecoveryChartBoundaryNetworkRegistry } from "./RecoveryChartBoundaryNet
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One canonical point serves each declared base fraction, edge incidence reuses triangle ownership across splits, and one accepted arc fit supplies every forward or reversed side occurrence.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All cloned private observations and graph registries are call-local and scale with actual vertices, triangles, cuts and boundary uses. No hidden cap is imposed; caller chart budgets must bound them. Failure releases local state but owner may retain earlier completed fits; returned private arrays belong to the caller.
  */
-export function RecoveryChartBoundaryNetwork(input: Parameters<IAutoMovieRecoveryChartBoundaryNetwork.Operation>[0]): ReturnType<IAutoMovieRecoveryChartBoundaryNetwork.Operation> {
+export function RecoveryChartBoundaryNetwork(
+  input: Parameters<IAutoMovieRecoveryChartBoundaryNetwork.Operation>[0],
+): ReturnType<IAutoMovieRecoveryChartBoundaryNetwork.Operation> {
   if (
     !input ||
     !Array.isArray(input.charts) ||

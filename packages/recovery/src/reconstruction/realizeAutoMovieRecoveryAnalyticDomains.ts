@@ -1,11 +1,13 @@
-import type { IAutoMovieContourLoft64, IAutoMovieRecoveryAnalyticDomainsRealizationOperation, IAutoMovieRecoveryAnalyticRealization, IAutoMovieRecoveryAtlasGeneration, IAutoMovieRecoveryOpenContinuation } from "@automovie/interface";
 import { realizeAutoMovieBicubicAtlas64 as realize } from "@automovie/engine";
+import type {
+  IAutoMovieContourLoft64,
+  IAutoMovieRecoveryAnalyticDomainsRealizationOperation,
+  IAutoMovieRecoveryAnalyticRealization,
+  IAutoMovieRecoveryAtlasGeneration,
+  IAutoMovieRecoveryOpenContinuation,
+} from "@automovie/interface";
 
 import { readRecoveryMetadata as read } from "../internal/readRecoveryMetadata";
-
-
-
-
 
 /**
  * Admit source-free analytic ownership and retain every finite native result.
@@ -31,11 +33,17 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
     closedGroups: new Map(),
     openPairs: new Map(),
     openUnresolved: new Map(),
-    reports: [] };
+    reports: [],
+  };
   if (!bundle.analyticDomains?.length) return result;
-  const curves: Map<string, IAutoMovieContourLoft64.ISection["loops"][number]["curve"]> = new Map(),
+  const curves: Map<
+      string,
+      IAutoMovieContourLoft64.ISection["loops"][number]["curve"]
+    > = new Map(),
     ambiguous: Set<string> = new Set();
-  const register: (curve: IAutoMovieContourLoft64.ISection["loops"][number]["curve"]) => void = (
+  const register: (
+    curve: IAutoMovieContourLoft64.ISection["loops"][number]["curve"],
+  ) => void = (
     curve: IAutoMovieContourLoft64.ISection["loops"][number]["curve"],
   ): void => {
     const name: unknown = read(curve, ["name"]);
@@ -130,7 +138,9 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
           );
       };
       for (const address of domain.closedGroups) {
-        const group: IAutoMovieContourLoft64.IInterval["groups"][number] | undefined =
+        const group:
+          | IAutoMovieContourLoft64.IInterval["groups"][number]
+          | undefined =
           bundle.loft.intervals?.[address.interval]?.groups[address.group];
         if (
           !Number.isSafeInteger(address.interval) ||
@@ -221,8 +231,9 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
         throw new Error("Native authority identity is not unique");
       const bound: Set<string> = new Set();
       for (const binding of domain.curveBindings) {
-        const curve: IAutoMovieContourLoft64.ISection["loops"][number]["curve"] | undefined =
-          curves.get(binding.curveName);
+        const curve:
+          | IAutoMovieContourLoft64.ISection["loops"][number]["curve"]
+          | undefined = curves.get(binding.curveName);
         const key: string = `${binding.curveName}:${binding.span}`;
         if (
           !curve ||
@@ -298,7 +309,8 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
           ? domain.unrepresentedDomains
           : ["Invalid domain qualification record"],
         diagnostics,
-        primitiveRanges: [] });
+        primitiveRanges: [],
+      });
       continue;
     }
     try {
@@ -312,7 +324,8 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
           material: null,
           attachedBone: null,
           transform: null,
-          geometry: { type: "mesh", mesh: generated.mesh } });
+          geometry: { type: "mesh", mesh: generated.mesh },
+        });
       for (const address of domain.closedGroups)
         result.closedGroups.set(
           `${address.interval}:${address.group}`,
@@ -335,7 +348,8 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
           ? domain.unrepresentedDomains
           : ["Invalid domain qualification record"],
         diagnostics: generated.diagnostics,
-        primitiveRanges: generated.primitiveRanges });
+        primitiveRanges: generated.primitiveRanges,
+      });
       for (const owner of domain.geometry.boundaryAuthorities ?? []) {
         const points: [number, number, number][] = [];
         for (const id of owner.controlIds) {
@@ -348,7 +362,8 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
           result.construction.push({
             id: `${domain.id}.native.${owner.id}`,
             closed: false,
-            points });
+            points,
+          });
         else
           result.reports
             .at(-1)!
@@ -367,7 +382,8 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
           ? domain.unrepresentedDomains
           : ["Invalid domain qualification record"],
         diagnostics: [error instanceof Error ? error.message : String(error)],
-        primitiveRanges: [] });
+        primitiveRanges: [],
+      });
     }
   }
   return result;

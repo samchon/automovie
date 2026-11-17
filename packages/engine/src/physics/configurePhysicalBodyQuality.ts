@@ -1,4 +1,8 @@
-import type { IAutoMoviePhysicalReleasedQuality, IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
+import type {
+  IAutoMoviePhysicalReleasedQuality,
+  IAutoMoviePhysicalSimulationInput,
+} from "@automovie/interface";
+
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { physicalReleasedQuality } from "./physicalReleasedQuality";
 

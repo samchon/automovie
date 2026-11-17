@@ -1,5 +1,12 @@
-import { type IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieAngleRange, IAutoMovieBone, IAutoMovieJointConstraint, IAutoMovieLookAt, IAutoMovieSkeleton } from "@automovie/interface";
-
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieAngleRange,
+  IAutoMovieBone,
+  IAutoMovieJointConstraint,
+  IAutoMovieLookAt,
+  IAutoMovieSkeleton,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { getConstraint } from "../rom/getConstraint";
 import { finiteMinimum } from "./finiteMinimum";

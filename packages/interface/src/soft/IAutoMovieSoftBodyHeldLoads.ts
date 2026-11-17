@@ -1,12 +1,10 @@
-
-
 /** Completed-step XPBD data used to recover loads on held particles. */
 export namespace IAutoMovieSoftBodyHeldLoads {
   /**
    * The force each held particle (an anchor, of zero inverse mass) bears from
    * the compliant constraints that tie it to the rest of the lattice, at the
    * end of a step: the pull a hand holding a cord's end feels.
-   * 
+   *
    * In XPBD a constraint's force is its gradient times its multiplier over the
    * step squared (Macklin, Müller and Chentanez 2016, MIG 2016, equation 9's
    * relation f = grad C^T lambda / dt^2). For an edge from particle i to k

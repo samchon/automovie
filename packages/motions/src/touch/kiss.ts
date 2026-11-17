@@ -1,6 +1,19 @@
-import type { AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanKiss, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRise, IAutoMovieMotionManner, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanKiss,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRise,
+  IAutoMovieMotionManner,
+  IAutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
@@ -119,7 +132,9 @@ export namespace kiss {
           at,
         ),
       );
-    const least = (candidates: Omit<IAutoMovieMotionHumanKiss.ISolved, "miss">[]): IAutoMovieMotionHumanKiss.ISolved => {
+    const least = (
+      candidates: Omit<IAutoMovieMotionHumanKiss.ISolved, "miss">[],
+    ): IAutoMovieMotionHumanKiss.ISolved => {
       let best: IAutoMovieMotionHumanKiss.ISolved | null = null;
       for (const c of candidates) {
         const m: number = miss(c);
@@ -132,7 +147,9 @@ export namespace kiss {
       for (let v: number = from; v <= to; v += step) out.push(v);
       return out;
     };
-    const sagittal = (s: IAutoMovieMotionHumanKiss.ISolved): IAutoMovieMotionHumanKiss.ISolved => {
+    const sagittal = (
+      s: IAutoMovieMotionHumanKiss.ISolved,
+    ): IAutoMovieMotionHumanKiss.ISolved => {
       const coarse: IAutoMovieMotionHumanKiss.ISolved = least([
         s,
         ...span(-10, 45, 5).flatMap((pitch: number) =>
@@ -167,9 +184,14 @@ export namespace kiss {
         return { ...c, miss: miss(c) };
       },
     );
-    const closest: number = Math.min(...raised.map((c: IAutoMovieMotionHumanKiss.ISolved) => c.miss));
+    const closest: number = Math.min(
+      ...raised.map((c: IAutoMovieMotionHumanKiss.ISolved) => c.miss),
+    );
     return sagittal(
-      raised.find((c: IAutoMovieMotionHumanKiss.ISolved): boolean => c.miss <= closest + NEAR / 5)!,
+      raised.find(
+        (c: IAutoMovieMotionHumanKiss.ISolved): boolean =>
+          c.miss <= closest + NEAR / 5,
+      )!,
     );
   }
 
@@ -178,7 +200,10 @@ export namespace kiss {
     body: IAutoMovieMotionHumanActionContext["body"],
     entry: IAutoMovieMotionHumanPosture,
     stance: IAutoMovieMotionHumanRise.Stance,
-    s: Pick<IAutoMovieMotionHumanKiss.ISolved, "pitch" | "roll" | "flexion" | "raise">,
+    s: Pick<
+      IAutoMovieMotionHumanKiss.ISolved,
+      "pitch" | "roll" | "flexion" | "raise"
+    >,
     twist: number,
     behind: number,
   ): IAutoMovieMotionHumanPosture {
@@ -272,7 +297,8 @@ export namespace kiss {
     // it and the legs keep their place, so neither the heels rise nor the
     // root is lowered onto the feet.
     const seated: boolean = context.entry.supports.some(
-      (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat",
+      (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+        s.kind === "seat",
     );
     const forward: IAutoMovieVector3 = {
       x: Math.sin((entry.yaw * Math.PI) / 180),
@@ -288,20 +314,21 @@ export namespace kiss {
       k: number,
       behind: number,
     ): IAutoMovieMotionHumanPosture => {
-      const leaned: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.pivot(
-        body,
-        {
-          ...posture,
-          root: Vector3.add(
-            Vector3.add(
-              posture.root,
-              AutoMovieMotionHumanRise.lift(body, stance, s.raise * k),
+      const leaned: IAutoMovieMotionHumanPosture =
+        AutoMovieMotionHumanLean.pivot(
+          body,
+          {
+            ...posture,
+            root: Vector3.add(
+              Vector3.add(
+                posture.root,
+                AutoMovieMotionHumanRise.lift(body, stance, s.raise * k),
+              ),
+              Vector3.scale(forward, -behind * k),
             ),
-            Vector3.scale(forward, -behind * k),
-          ),
-        },
-        { pitch: s.pitch * k, roll: s.roll * k },
-      );
+          },
+          { pitch: s.pitch * k, roll: s.roll * k },
+        );
       if (seated) return leaned;
       const goal = (side: "left" | "right") =>
         AutoMovieMotionHumanLeg.goal(
@@ -327,12 +354,20 @@ export namespace kiss {
     // move back by the static balance's shift at the solved lean
     // (`HumanBalance.shift`, as a bow's do), and the lean is solved again
     // with them there; seated, the seat bears the body.
-    const first: IAutoMovieMotionHumanKiss.ISolved = solve(context, entry, stance, twist, at, seated);
+    const first: IAutoMovieMotionHumanKiss.ISolved = solve(
+      context,
+      entry,
+      stance,
+      twist,
+      at,
+      seated,
+    );
     const behind: number = seated
       ? 0
       : HumanBalance.shift(
           body,
-          (back: number): IAutoMovieMotionHumanPosture => written(entry, first, 1, back),
+          (back: number): IAutoMovieMotionHumanPosture =>
+            written(entry, first, 1, back),
         );
     const solved: IAutoMovieMotionHumanKiss.ISolved =
       behind === 0
@@ -371,7 +406,10 @@ export namespace kiss {
           channels: ["root", "trunk"],
           from: 0,
           to: clock.duration,
-          write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture =>
+          write: (
+            posture: IAutoMovieMotionHumanPosture,
+            seconds: number,
+          ): IAutoMovieMotionHumanPosture =>
             written(posture, solved, share(seconds), behind),
         },
         ...(solved.raise > 0

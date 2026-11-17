@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryDomainLedgerMember, IAutoMovieRecoveryDomainLedgerUnattributed } from "../../index";
+import type {
+  IAutoMovieRecoveryDomainLedgerMember,
+  IAutoMovieRecoveryDomainLedgerUnattributed,
+} from "../../index";
 
 /** Source-free ownership and observed lifecycle of declared reconstruction domains.
  * Null means the legacy operator did not publish that stage's observation; it must
@@ -12,15 +15,12 @@ import type { IAutoMovieRecoveryDomainLedgerMember, IAutoMovieRecoveryDomainLedg
  * @evidence contracts/development/common.md#meaningful-documentation States stable local IDs, part-relative triangle ranges, delegation, unknown stages and memory-only lifecycle scope.
  */
 export interface IAutoMovieRecoveryDomainLedger {
- 
- /** Unbound reports or malformed inventories; original operator reports remain in the result. */
+  /** Unbound reports or malformed inventories; original operator reports remain in the result. */
   diagnostics: string[];
 
- 
- /** Actual contour ranges whose exact declared owner could not be identified. */
+  /** Actual contour ranges whose exact declared owner could not be identified. */
   unattributed: IAutoMovieRecoveryDomainLedgerUnattributed[];
 
- 
- /** Every declared group, analytic owner and otherwise unconsumed open course. */
+  /** Every declared group, analytic owner and otherwise unconsumed open course. */
   members: IAutoMovieRecoveryDomainLedgerMember[];
 }

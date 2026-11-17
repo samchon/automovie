@@ -1,6 +1,5 @@
 import type { IAutoMoviePlanVideoFramesProps } from "@automovie/interface";
 
-
 /**
  * Plan the FFmpeg arguments that extract exactly the given frames of a video file, the file's own pixels, as numbered PNG stills.
  *
@@ -21,7 +20,9 @@ import type { IAutoMoviePlanVideoFramesProps } from "@automovie/interface";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list and keeps nothing.
  */
-export function planAutoMovieVideoFrames(props: IAutoMoviePlanVideoFramesProps): string[] {
+export function planAutoMovieVideoFrames(
+  props: IAutoMoviePlanVideoFramesProps,
+): string[] {
   if (props.frames.length === 0)
     throw new Error("A video extraction needs at least one frame");
   for (const frame of props.frames)

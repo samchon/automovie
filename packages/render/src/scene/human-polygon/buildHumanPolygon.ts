@@ -1,5 +1,4 @@
 import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
-
 import * as THREE from "three";
 
 import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
@@ -268,7 +267,12 @@ export function buildHumanPolygon(
     parts: partMeshes,
     bones: groups,
     bindings,
-    setPose: (pose: Pick<Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">, "posed">): void => {
+    setPose: (
+      pose: Pick<
+        Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">,
+        "posed"
+      >,
+    ): void => {
       if (disposed) throw new Error("Polygon drawing is disposed");
       applyHumanPolygonPose(object, bindings, required, pose);
     },

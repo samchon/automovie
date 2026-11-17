@@ -1,5 +1,5 @@
-import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
+import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 
 /**
  * Contracts used by HumanPerformanceHold.prop.

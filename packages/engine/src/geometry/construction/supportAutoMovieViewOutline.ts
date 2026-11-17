@@ -1,4 +1,5 @@
 import type { IAutoMovieViewOutline } from "@automovie/interface";
+
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
 import { rootsAutoMovieViewSinPolynomial } from "./rootsAutoMovieViewSinPolynomial";

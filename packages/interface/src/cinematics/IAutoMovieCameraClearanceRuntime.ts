@@ -1,5 +1,3 @@
-
-
 /**
  * Geometry-revision and fixed-clock authority supplied by the builder for
  * camera clearance.

@@ -1,6 +1,12 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanStrikingHeld, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -36,7 +42,10 @@ export namespace StrikingHeldFrame {
    */
   export function read(
     held: IAutoMovieMotionHumanHeld.IHeld,
-    points: IAutoMovieMotionHumanStrikingHeld.IPoints = { tip: "point", edge: "edge" },
+    points: IAutoMovieMotionHumanStrikingHeld.IPoints = {
+      tip: "point",
+      edge: "edge",
+    },
   ): IAutoMovieMotionHumanStrikingHeld.ITool {
     const prop: string = held.prop;
     const side: IAutoMovieMotionHumanHand.Side = held.side;

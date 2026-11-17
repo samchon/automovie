@@ -1,5 +1,3 @@
-
-
 /**
  * One resident object's actual bounding box and stable population ordinal,
  * the entry `buildAutoMovieMeshQueryHierarchy` partitions and

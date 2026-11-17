@@ -1,6 +1,12 @@
-import type { IAutoMovieAdvancePhysicalBalance, IAutoMoviePhysicalSimulationInput, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-import { physicalContactSupportGoals, physicalSupportPoint } from "@automovie/engine";
-
+import {
+  physicalContactSupportGoals,
+  physicalSupportPoint,
+} from "@automovie/engine";
+import type {
+  IAutoMovieAdvancePhysicalBalance,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
@@ -23,9 +29,11 @@ import { vclose } from "../internal/vclose";
  */
 export function test_physical_support_intent(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();
-  const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalSupportFixtures.body(profile, 1 / 120);
-  const pattern: NonNullable<IAutoMoviePhysicalSimulationInput.IBody["balance"]>["pattern"] =
-    body.balance!.pattern;
+  const body: IAutoMoviePhysicalSimulationInput.IBody =
+    PhysicalSupportFixtures.body(profile, 1 / 120);
+  const pattern: NonNullable<
+    IAutoMoviePhysicalSimulationInput.IBody["balance"]
+  >["pattern"] = body.balance!.pattern;
   const limb: (typeof pattern.limbs)[number] = pattern.limbs[0]!;
   const state: IAutoMovieAdvancePhysicalBalance.IState = {
     last: "supported",

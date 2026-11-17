@@ -1,6 +1,11 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanStrikingHeld, IAutoMovieMotionHumanStrikingRoll, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieMotionHumanStrikingRoll,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 
@@ -122,7 +127,9 @@ export namespace HumanFirearmReady {
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const region: IReady = READY[low ? "lowReady" : "highReady"];
     const sights: IAutoMovieVector3 = low ? line : Vector3.scale(line, -1);
-    const frame = (values: readonly number[]): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
+    const frame = (
+      values: readonly number[],
+    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
       const [elevation, roll, ahead, rise] = values as readonly [
         number,
         number,

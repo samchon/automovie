@@ -1,13 +1,13 @@
-import type { IAutoMovieLoftChain, AutoMovieVector3Tuple, IAutoMovieHumanBodyCalibration, IAutoMovieHumanLegAnkleSeam } from "@automovie/interface";
-
-
-
-
 import { AutoMovieLoftChain } from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanLegAnkleSeam,
+  IAutoMovieLoftChain,
+} from "@automovie/interface";
+
 import { AutoMovieHumanPolarSection } from "../../lofting/AutoMovieHumanPolarSection";
-
 import { AutoMovieHumanLegSampling } from "./AutoMovieHumanLegSampling";
-
 
 /**
  * The seam at the ankle: the foot owns the ring the leg starts from, and the
@@ -26,9 +26,18 @@ export namespace AutoMovieHumanLegAnkleSeam {
    * @param side The leg's side.
    * @returns The ring at the leg's phases, one point per phase.
    */
-  export function ring(calibration: IAutoMovieHumanBodyCalibration, side: "left" | "right"): AutoMovieVector3Tuple[] {
-    const foot: IAutoMovieLoftChain = calibration.chains.find((c: IAutoMovieLoftChain): boolean => c.name === `foot.${side}`)!;
-    return AutoMovieLoftChain.ring(foot, foot.layers[foot.layers.length - 1]!.y, AutoMovieHumanLegSampling.PHASES);
+  export function ring(
+    calibration: IAutoMovieHumanBodyCalibration,
+    side: "left" | "right",
+  ): AutoMovieVector3Tuple[] {
+    const foot: IAutoMovieLoftChain = calibration.chains.find(
+      (c: IAutoMovieLoftChain): boolean => c.name === `foot.${side}`,
+    )!;
+    return AutoMovieLoftChain.ring(
+      foot,
+      foot.layers[foot.layers.length - 1]!.y,
+      AutoMovieHumanLegSampling.PHASES,
+    );
   }
 
   /**
@@ -39,9 +48,14 @@ export namespace AutoMovieHumanLegAnkleSeam {
    * @param centre The law's own centre at the ring.
    * @param radii The law's radii at the leg's phases.
    */
-  export function residual(ring: IAutoMovieHumanLegAnkleSeam.ResidualRing, centre: IAutoMovieHumanLegAnkleSeam.ResidualCentre, radii: readonly number[]): number[] {
+  export function residual(
+    ring: IAutoMovieHumanLegAnkleSeam.ResidualRing,
+    centre: IAutoMovieHumanLegAnkleSeam.ResidualCentre,
+    radii: readonly number[],
+  ): number[] {
     return AutoMovieHumanLegSampling.PHASES.map(
-      (t: number, j: number): number => AutoMovieHumanPolarSection.radius(ring, centre, t) - radii[j]!,
+      (t: number, j: number): number =>
+        AutoMovieHumanPolarSection.radius(ring, centre, t) - radii[j]!,
     );
   }
 
@@ -71,7 +85,13 @@ export namespace AutoMovieHumanLegAnkleSeam {
         const q: readonly [number, number] = ring[k]!;
         const ex: number = q[0] - p[0];
         const ez: number = q[1] - p[1];
-        const f: number = Math.min(1, Math.max(0, ((x - p[0]) * ex + (z - p[1]) * ez) / (ex * ex + ez * ez || 1)));
+        const f: number = Math.min(
+          1,
+          Math.max(
+            0,
+            ((x - p[0]) * ex + (z - p[1]) * ez) / (ex * ex + ez * ez || 1),
+          ),
+        );
         const d: number = (p[0] + f * ex - x) ** 2 + (p[1] + f * ez - z) ** 2;
         if (d < best) {
           best = d;

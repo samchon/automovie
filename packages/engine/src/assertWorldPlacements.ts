@@ -1,5 +1,11 @@
-import { type IAutoMovieWorldBlock, type IAutoMovieAssertWorldPlacements, IAutoMoviePlanarPoint, IAutoMovieVector3, IAutoMovieWorldRoute, IAutoMovieWorldSurface } from "@automovie/interface";
-
+import {
+  type IAutoMovieAssertWorldPlacements,
+  IAutoMoviePlanarPoint,
+  IAutoMovieVector3,
+  type IAutoMovieWorldBlock,
+  IAutoMovieWorldRoute,
+  IAutoMovieWorldSurface,
+} from "@automovie/interface";
 
 import { segmentsCross } from "./architecture/segmentsCross";
 import { closestPointOnSegmentXZ } from "./math/closestPointOnSegmentXZ";
@@ -41,7 +47,9 @@ const SUPPORT_TOLERANCE: number = 1e-6;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A one-shot gate over one world layout that coordinates no work across calls.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates only per-test footprint corners and closest points and retains nothing; it returns nothing and throws on the first contradiction.
  */
-export const assertWorldPlacements: (input: IAutoMovieAssertWorldPlacements.IInput) => void = (input: IAutoMovieAssertWorldPlacements.IInput): void => {
+export const assertWorldPlacements: (
+  input: IAutoMovieAssertWorldPlacements.IInput,
+) => void = (input: IAutoMovieAssertWorldPlacements.IInput): void => {
   for (let left: number = 0; left < input.blocks.length; ++left)
     for (let right: number = left + 1; right < input.blocks.length; ++right)
       if (overlaps(input.blocks[left]!, input.blocks[right]!))

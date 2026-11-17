@@ -1,14 +1,15 @@
-import type { IAutoMovieMotionHumanAthletics, IAutoMovieMotionHumanBallSport, IAutoMovieMotionHumanBaseball, IAutoMovieMotionHumanDance, IAutoMovieMotionHumanExercise, IAutoMovieMotionHumanGymnastics, IAutoMovieMotionHumanMartialArt, IAutoMovieMotionHumanRacket, IAutoMovieMotionHumanStretch, IAutoMovieMotionHumanSwim } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
+import type {
+  IAutoMovieMotionHumanAthletics,
+  IAutoMovieMotionHumanBallSport,
+  IAutoMovieMotionHumanBaseball,
+  IAutoMovieMotionHumanDance,
+  IAutoMovieMotionHumanExercise,
+  IAutoMovieMotionHumanGymnastics,
+  IAutoMovieMotionHumanMartialArt,
+  IAutoMovieMotionHumanRacket,
+  IAutoMovieMotionHumanStretch,
+  IAutoMovieMotionHumanSwim,
+} from "@automovie/interface";
 
 import { HumanChainMutual } from "./HumanChainMutual";
 
@@ -32,7 +33,10 @@ export class HumanChainSport extends HumanChainMutual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public exercise(params: IAutoMovieMotionHumanExercise.IParams, anchor?: string): this {
+  public exercise(
+    params: IAutoMovieMotionHumanExercise.IParams,
+    anchor?: string,
+  ): this {
     return this.act("exercise", params, anchor);
   }
 
@@ -43,7 +47,10 @@ export class HumanChainSport extends HumanChainMutual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public stretch(params: IAutoMovieMotionHumanStretch.IParams, anchor?: string): this {
+  public stretch(
+    params: IAutoMovieMotionHumanStretch.IParams,
+    anchor?: string,
+  ): this {
     return this.act("stretch", params, anchor);
   }
 
@@ -55,7 +62,10 @@ export class HumanChainSport extends HumanChainMutual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public dance(params: IAutoMovieMotionHumanDance.IParams, anchor?: string): this {
+  public dance(
+    params: IAutoMovieMotionHumanDance.IParams,
+    anchor?: string,
+  ): this {
     return this.act("dance", params, anchor);
   }
 
@@ -66,7 +76,10 @@ export class HumanChainSport extends HumanChainMutual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public athletics(params: IAutoMovieMotionHumanAthletics.IParams = {}, anchor?: string): this {
+  public athletics(
+    params: IAutoMovieMotionHumanAthletics.IParams = {},
+    anchor?: string,
+  ): this {
     return this.act("athletics", params, anchor);
   }
 
@@ -77,7 +90,10 @@ export class HumanChainSport extends HumanChainMutual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public gymnastics(params: IAutoMovieMotionHumanGymnastics.IParams = {}, anchor?: string): this {
+  public gymnastics(
+    params: IAutoMovieMotionHumanGymnastics.IParams = {},
+    anchor?: string,
+  ): this {
     return this.act("gymnastics", params, anchor);
   }
 
@@ -89,7 +105,10 @@ export class HumanChainSport extends HumanChainMutual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public martialArt(params: IAutoMovieMotionHumanMartialArt.IParams, anchor?: string): this {
+  public martialArt(
+    params: IAutoMovieMotionHumanMartialArt.IParams,
+    anchor?: string,
+  ): this {
     return this.act("martialArt", params, anchor);
   }
 
@@ -101,7 +120,10 @@ export class HumanChainSport extends HumanChainMutual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public ballSport(params: IAutoMovieMotionHumanBallSport.IParams, anchor?: string): this {
+  public ballSport(
+    params: IAutoMovieMotionHumanBallSport.IParams,
+    anchor?: string,
+  ): this {
     return this.act("ballSport", params, anchor);
   }
 
@@ -113,7 +135,10 @@ export class HumanChainSport extends HumanChainMutual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public baseball(params: IAutoMovieMotionHumanBaseball.IParams, anchor?: string): this {
+  public baseball(
+    params: IAutoMovieMotionHumanBaseball.IParams,
+    anchor?: string,
+  ): this {
     return this.act("baseball", params, anchor);
   }
 
@@ -125,7 +150,10 @@ export class HumanChainSport extends HumanChainMutual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public racket(params: IAutoMovieMotionHumanRacket.IParams, anchor?: string): this {
+  public racket(
+    params: IAutoMovieMotionHumanRacket.IParams,
+    anchor?: string,
+  ): this {
     return this.act("racket", params, anchor);
   }
 
@@ -136,7 +164,10 @@ export class HumanChainSport extends HumanChainMutual {
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public swim(params: IAutoMovieMotionHumanSwim.IParams, anchor?: string): this {
+  public swim(
+    params: IAutoMovieMotionHumanSwim.IParams,
+    anchor?: string,
+  ): this {
     return this.act("swim", params, anchor);
   }
 }

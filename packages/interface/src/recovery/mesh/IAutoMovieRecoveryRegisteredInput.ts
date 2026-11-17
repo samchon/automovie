@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryInput, IAutoMovieRecoveryRegistration } from "../../index";
+import type {
+  IAutoMovieRecoveryInput,
+  IAutoMovieRecoveryRegistration,
+} from "../../index";
 
 /** Evaluated triangles in an already applied millimetre registration.
  *
@@ -8,19 +11,15 @@ import type { IAutoMovieRecoveryInput, IAutoMovieRecoveryRegistration } from "..
  * @evidence contracts/development/common.md#meaningful-documentation States the physical frame, borrowed arrays, triangle addressing and the caller's responsibility for evaluated geometry.
  */
 export interface IAutoMovieRecoveryRegisteredInput {
- 
- /** Caller-supplied frame, evaluated pose and transform already applied to the positions. */
+  /** Caller-supplied frame, evaluated pose and transform already applied to the positions. */
   registration: IAutoMovieRecoveryRegistration;
 
- 
- /** Caller-owned evaluated positions; admission borrows these millimetre triples without transforming them. */
+  /** Caller-owned evaluated positions; admission borrows these millimetre triples without transforming them. */
   verticesMm: IAutoMovieRecoveryInput["verticesMm"];
 
- 
- /** Caller-owned oriented triples of indices into verticesMm. */
+  /** Caller-owned oriented triples of indices into verticesMm. */
   triangles: IAutoMovieRecoveryInput["triangles"];
 
- 
- /** Explicit section extraction and fitting limits. */
+  /** Explicit section extraction and fitting limits. */
   policy: Omit<IAutoMovieRecoveryInput, "verticesMm" | "triangles">;
 }

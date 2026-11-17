@@ -1,5 +1,3 @@
-
-
 /**
  * Sampled root-lowering request accompanying coherent fitted pose/twist targets.
  *

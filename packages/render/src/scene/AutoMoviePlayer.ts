@@ -1,7 +1,21 @@
-import type { IAutoMovieMotionSample, IAutoMovieRestFrame, IAutoMovieSpringStep, AutoMovieHumanoidBone, IAutoMovieExpression, IAutoMovieJointAxes, IAutoMovieJointPose, IAutoMovieMotion, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
-
-import { clampPose, dampedSpring, resolveLookAt, sampleMotion } from "@automovie/engine";
-
+import {
+  clampPose,
+  dampedSpring,
+  resolveLookAt,
+  sampleMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieExpression,
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
+  IAutoMovieMotion,
+  IAutoMovieMotionSample,
+  IAutoMoviePose,
+  IAutoMovieRestFrame,
+  IAutoMovieSkeleton,
+  IAutoMovieSpringStep,
+} from "@automovie/interface";
 
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import type { IAutoMovieSpringAxisSettlement } from "./IAutoMovieSpringAxisSettlement.js";

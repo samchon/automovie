@@ -1,5 +1,9 @@
-import { type IAutoMovieCreateSourceOracle, IAutoMovieFormationSlot, IAutoMovieInstanceSlot, IAutoMovieSourceOracle } from "@automovie/interface";
-
+import {
+  type IAutoMovieCreateSourceOracle,
+  IAutoMovieFormationSlot,
+  IAutoMovieInstanceSlot,
+  IAutoMovieSourceOracle,
+} from "@automovie/interface";
 
 import { compiledFormationSlot } from "./populationRuntime/compiledFormationSlot";
 import { instanceSlot } from "./populationRuntime/instanceSlot";
@@ -38,7 +42,11 @@ import { worldGroundHeight } from "./worldGroundHeight";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Answers are regenerated per question by design, because a compact slot is cheaper to recompute than to store and the records may change between calls.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned oracle retains references to the three props for as long as the caller holds it and copies nothing; it allocates only per-answer results, which the caller owns.
  */
-export const createAutoMovieSourceOracle: (props: IAutoMovieCreateSourceOracle.IProps) => IAutoMovieSourceOracle = (props: IAutoMovieCreateSourceOracle.IProps): IAutoMovieSourceOracle => ({
+export const createAutoMovieSourceOracle: (
+  props: IAutoMovieCreateSourceOracle.IProps,
+) => IAutoMovieSourceOracle = (
+  props: IAutoMovieCreateSourceOracle.IProps,
+): IAutoMovieSourceOracle => ({
   distance: (
     left: { x: number; y: number; z: number },
     right: { x: number; y: number; z: number },

@@ -1,6 +1,5 @@
 import type { IAutoMovieRecoveryImageChartAssertOperation } from "@automovie/interface";
 
-
 /**
  * Admit the finite metric pixel chart and verify measured row/cell coordinates.
  * Adjacent occupied rows must form one eight-connected foreground component.
@@ -78,5 +77,6 @@ export function assertRecoveryImageChart(
         throw new Error(
           "invalid-pixel-support: occupied rows and cell limits must form one eight-connected component in the supplied pixel chart",
         );
-    } };
+    },
+  };
 }

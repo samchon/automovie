@@ -1,4 +1,10 @@
-import type { IAutoMovieMotionClock, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGaze, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive } from "@automovie/interface";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGaze,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+} from "@automovie/interface";
 
 import { HumanGaze } from "../everyday/HumanGaze";
 
@@ -19,9 +25,11 @@ import { HumanGaze } from "../everyday/HumanGaze";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The recruitment is a closed union and the trunk is excluded by the channel partition, not by a flag.
  */
 export namespace AutoMovieMotionHumanGaze {
-
   /** The recruitments of {@link Recruit}, as data. */
-  export const RECRUITS = ["eyes", "head"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanGaze.HeadRecruit>[];
+  export const RECRUITS = [
+    "eyes",
+    "head",
+  ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanGaze.HeadRecruit>[];
 
   /**
    * The eyes and the head brought toward a target by a weight.
@@ -37,12 +45,17 @@ export namespace AutoMovieMotionHumanGaze {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanGaze.aim`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
-  export function look(props: IAutoMovieMotionHumanGaze.ILook): IAutoMovieMotionHumanPrimitive {
+  export function look(
+    props: IAutoMovieMotionHumanGaze.ILook,
+  ): IAutoMovieMotionHumanPrimitive {
     return {
       channels: ["head"],
       from: props.from,
       to: props.to,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
         const w: number = Math.min(1, Math.max(0, props.weight(seconds)));
         return HumanGaze.aim(
           props.body,

@@ -1,4 +1,21 @@
-import type { IAutoMovieActionSynthesizer, IAutoMovieCompiledPerformance, IAutoMovieMaskedContent, IAutoMovieMotionSample, IAutoMoviePlacement, AutoMovieBodyRegion, AutoMovieEasing, AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieExpression, IAutoMovieGaitCycle, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
+import type {
+  AutoMovieBodyRegion,
+  AutoMovieEasing,
+  AutoMovieHumanoidBone,
+  IAutoMovieActionCall,
+  IAutoMovieActionSynthesizer,
+  IAutoMovieCompiledPerformance,
+  IAutoMovieExpression,
+  IAutoMovieGaitCycle,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMaskedContent,
+  IAutoMovieMotion,
+  IAutoMovieMotionSample,
+  IAutoMoviePlacement,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
 import { arrangeMotion } from "../motion/arrangeMotion";
 import { sampleMotion } from "../motion/sampleMotion";

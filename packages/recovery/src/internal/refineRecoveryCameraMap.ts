@@ -1,12 +1,13 @@
-import type { IAutoMovieRecoveryCameraMapRefinementOperation, IAutoMovieRecoveryMapEvaluation, IAutoMovieRecoveryMapJointBlock, IAutoMovieRecoveryMapJointResult, IAutoMovieRecoveryMapJointStepSolutionOperation, IAutoMovieRecoveryMapLandmark, IAutoMovieRecoveryMapPointProjectionOperation, IAutoMovieRecoveryMapPose } from "@automovie/interface";
-
-
-
-
-
-
-
-
+import type {
+  IAutoMovieRecoveryCameraMapRefinementOperation,
+  IAutoMovieRecoveryMapEvaluation,
+  IAutoMovieRecoveryMapJointBlock,
+  IAutoMovieRecoveryMapJointResult,
+  IAutoMovieRecoveryMapJointStepSolutionOperation,
+  IAutoMovieRecoveryMapLandmark,
+  IAutoMovieRecoveryMapPointProjectionOperation,
+  IAutoMovieRecoveryMapPose,
+} from "@automovie/interface";
 
 import { createRecoveryMapTangent } from "./createRecoveryMapTangent";
 import { differentiateRecoveryMapTangent } from "./differentiateRecoveryMapTangent";
@@ -77,7 +78,8 @@ export function refineRecoveryCameraMap(
   let poses: IAutoMovieRecoveryMapPose[] = initialPoses.map(
     (pose: IAutoMovieRecoveryMapPose): IAutoMovieRecoveryMapPose => ({
       rotation: pose.rotation.slice(),
-      translation: [...pose.translation] }),
+      translation: [...pose.translation],
+    }),
   );
   let landmarks: IAutoMovieRecoveryMapLandmark[] = initialLandmarks.map(
     (
@@ -90,8 +92,10 @@ export function refineRecoveryCameraMap(
           observation: (typeof landmark.observations)[number],
         ): typeof observation => ({
           ...observation,
-          pixel: [...observation.pixel] }),
-      ) }),
+          pixel: [...observation.pixel],
+        }),
+      ),
+    }),
   );
   const observationCount: number = landmarks.reduce(
     (sum: number, landmark: IAutoMovieRecoveryMapLandmark): number =>
@@ -155,7 +159,8 @@ export function refineRecoveryCameraMap(
       const block: (typeof blocks)[number] = {
         pointRows: [],
         cameraRows: [],
-        right: [] };
+        right: [],
+      };
       for (const observation of landmark.observations) {
         const view: number = observation.viewIndex;
         const projected: ReturnType<IAutoMovieRecoveryMapPointProjectionOperation.Operation> =
@@ -271,7 +276,8 @@ export function refineRecoveryCameraMap(
         point: landmark.point.map(
           (value: number, axis: number): number =>
             value + solution.pointSteps[at]![axis]!,
-        ) as [number, number, number] }),
+        ) as [number, number, number],
+      }),
     );
     charge(512);
     const trial: ReturnType<typeof evaluate> = evaluate(
@@ -321,5 +327,7 @@ export function refineRecoveryCameraMap(
       initialSquaredError,
       finalSquaredError: current.squared,
       minimumCameraDesignRatio,
-      minimumPointDesignRatio } };
+      minimumPointDesignRatio,
+    },
+  };
 }

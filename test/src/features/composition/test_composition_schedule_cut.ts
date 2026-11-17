@@ -1,5 +1,12 @@
-import type { IAutoMovieIntent, IAutoMovieResolveSchedule, IAutoMovieSchedule } from "@automovie/interface";
-import { AutoMovieComposition, resolveAutoMovieSchedule } from "@automovie/engine";
+import {
+  AutoMovieComposition,
+  resolveAutoMovieSchedule,
+} from "@automovie/engine";
+import type {
+  IAutoMovieIntent,
+  IAutoMovieResolveSchedule,
+  IAutoMovieSchedule,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

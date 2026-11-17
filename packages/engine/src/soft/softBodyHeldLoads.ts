@@ -1,5 +1,7 @@
-import { type IAutoMovieSoftBodyHeldLoads, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  type IAutoMovieSoftBodyHeldLoads,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { SOFT_BODY_NEIGHBOURS } from "./SOFT_BODY_NEIGHBOURS";
 import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
@@ -28,7 +30,11 @@ import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per step from that step's multipliers.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh map of at most one entry per held particle.
  */
-export const softBodyHeldLoads: (props: IAutoMovieSoftBodyHeldLoads.IProps) => ReadonlyMap<number, IAutoMovieVector3> = (props: IAutoMovieSoftBodyHeldLoads.IProps): ReadonlyMap<number, IAutoMovieVector3> => {
+export const softBodyHeldLoads: (
+  props: IAutoMovieSoftBodyHeldLoads.IProps,
+) => ReadonlyMap<number, IAutoMovieVector3> = (
+  props: IAutoMovieSoftBodyHeldLoads.IProps,
+): ReadonlyMap<number, IAutoMovieVector3> => {
   const { columns, rows, position, inverseMass }: typeof props = props;
   const slots: number = SOFT_BODY_NEIGHBOURS.length;
   const scale: number = 1 / (props.dt * props.dt);

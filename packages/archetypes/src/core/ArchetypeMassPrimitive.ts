@@ -1,5 +1,7 @@
-import type { IAutoMoviePrimitiveShape, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePrimitiveShape,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
 

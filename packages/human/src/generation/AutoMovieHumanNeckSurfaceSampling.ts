@@ -1,10 +1,10 @@
-import type { IAutoMovieLoftChain, IAutoMovieLoftFrame, AutoMovieVector3Tuple, IAutoMovieHumanNeckSurface } from "@automovie/interface";
-
-
-
-
 import { AutoMovieLoftChain, AutoMovieLoftParameter } from "@automovie/engine";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanNeckSurface,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftFrame,
+} from "@automovie/interface";
 
 /**
  * Source evaluation and physical copying for the prepared exterior descriptor.
@@ -37,10 +37,16 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
     phases: readonly number[],
     scale: number,
   ): IAutoMovieHumanNeckSurface.ISection {
-    const points: AutoMovieVector3Tuple[] =
-      AutoMovieLoftChain.ring(chain, station, phases);
-    const dense: AutoMovieVector3Tuple[] =
-      AutoMovieLoftChain.ring(chain, station, MEASURE_PHASES);
+    const points: AutoMovieVector3Tuple[] = AutoMovieLoftChain.ring(
+      chain,
+      station,
+      phases,
+    );
+    const dense: AutoMovieVector3Tuple[] = AutoMovieLoftChain.ring(
+      chain,
+      station,
+      MEASURE_PHASES,
+    );
     let circumference: number = 0;
     let minX: number = Infinity;
     let maxX: number = -Infinity;
@@ -48,8 +54,7 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
     let maxZ: number = -Infinity;
     for (let i: number = 0; i < dense.length; ++i) {
       const point: AutoMovieVector3Tuple = dense[i]!;
-      const next: AutoMovieVector3Tuple =
-        dense[(i + 1) % dense.length]!;
+      const next: AutoMovieVector3Tuple = dense[(i + 1) % dense.length]!;
       circumference += Math.hypot(
         next[0] - point[0],
         next[1] - point[1],
@@ -75,9 +80,8 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
         v: [...frame.v],
       },
       points: points.map(
-        (
-          point: AutoMovieVector3Tuple,
-        ): AutoMovieVector3Tuple => scaled(point, scale),
+        (point: AutoMovieVector3Tuple): AutoMovieVector3Tuple =>
+          scaled(point, scale),
       ),
       sourcePhases: [...phases],
       displayCoordinates: AutoMovieLoftParameter.phases(

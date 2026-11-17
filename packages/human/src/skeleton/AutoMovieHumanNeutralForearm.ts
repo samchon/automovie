@@ -1,8 +1,9 @@
-import type { AutoMovieQuaternionTuple, AutoMovieVector3Tuple, IAutoMovieHumanNeutralBody, IAutoMovieHumanNeutralForearm } from "@automovie/interface";
-
-
-
-
+import type {
+  AutoMovieQuaternionTuple,
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanNeutralBody,
+  IAutoMovieHumanNeutralForearm,
+} from "@automovie/interface";
 
 import { AutoMovieHumanNeutralTurn as Turn } from "./AutoMovieHumanNeutralTurn";
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
@@ -17,8 +18,6 @@ import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMa
  * the wrist end of the one forearm bone.
  */
 export namespace AutoMovieHumanNeutralForearm {
-  
-
   /** Share of the forearm's twist the wrist carries. */
   export const WRIST_TWIST: number = 0.5;
 

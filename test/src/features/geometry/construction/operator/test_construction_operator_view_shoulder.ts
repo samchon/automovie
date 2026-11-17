@@ -1,5 +1,9 @@
-import type { IAutoMovieMeshCourse, IAutoMovieViewPart, IAutoMovieViewSection } from "@automovie/interface";
 import { AutoMovieMeshCourse, AutoMovieViewSection } from "@automovie/engine";
+import type {
+  IAutoMovieMeshCourse,
+  IAutoMovieViewPart,
+  IAutoMovieViewSection,
+} from "@automovie/interface";
 
 type Quarters = IAutoMovieViewPart.IQuarters<number>;
 
@@ -146,12 +150,14 @@ export function test_construction_operator_view_shoulder(): void {
     [10, -10],
   ];
   const plain: IAutoMovieMeshCourse.IReading = AutoMovieMeshCourse.read(square);
-  plain.quarters.forEach((q: IAutoMovieMeshCourse.IQuarter, k: number): void => {
-    if (q.rho === null || !(Math.abs(q.rho - 1) <= 1e-12))
-      failures.push(
-        `square: quarter ${k} read ${q.rho}, expected 1 (the corner)`,
-      );
-  });
+  plain.quarters.forEach(
+    (q: IAutoMovieMeshCourse.IQuarter, k: number): void => {
+      if (q.rho === null || !(Math.abs(q.rho - 1) <= 1e-12))
+        failures.push(
+          `square: quarter ${k} read ${q.rho}, expected 1 (the corner)`,
+        );
+    },
+  );
   const notched: [number, number][] = [
     [10, 0],
     [10, 2],

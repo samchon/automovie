@@ -1,5 +1,3 @@
-
-
 /**
  * Canonical barycentric root registration of an anchored separation feature.
  *

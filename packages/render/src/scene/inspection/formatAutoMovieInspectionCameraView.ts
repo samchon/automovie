@@ -1,7 +1,5 @@
 import type { IAutoMovieInspectionCamera } from "@automovie/interface";
 
-
-
 import { formatAutoMovieInspectionView } from "./formatAutoMovieInspectionView.js";
 
 /** Tolerance on unit vectors below which two up directions are one, or a line of sight counts as vertical. */

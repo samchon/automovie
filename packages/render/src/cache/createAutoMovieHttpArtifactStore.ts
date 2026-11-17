@@ -1,6 +1,5 @@
 import type { IAutoMovieArtifactStore } from "@automovie/interface";
 
-
 /**
  * An engine artifact store a browser page reaches over HTTP, served by
  * `createAutoMovieArtifactMiddleware` from a directory store on the

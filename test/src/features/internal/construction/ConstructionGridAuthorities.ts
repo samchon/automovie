@@ -1,5 +1,8 @@
-import type { IAutoMovieSolidMesh, IAutoMovieSolidSurface } from "@automovie/interface";
 import { AutoMovieSolidMesh } from "@automovie/engine";
+import type {
+  IAutoMovieSolidMesh,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 /** Original face-chart coordinates, independent of a shared vertex's owner. */
 type Point = [number, number];

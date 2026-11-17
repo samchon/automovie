@@ -1,5 +1,3 @@
-
-
 /** A null span denotes the existing constant ellipse cap law. */
 export interface IAutoMovieLoftViewSourceCap {
   /** Declared pole station, mm. */

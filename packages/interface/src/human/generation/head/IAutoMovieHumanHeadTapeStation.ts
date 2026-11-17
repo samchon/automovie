@@ -1,11 +1,7 @@
-import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
-import type { IAutoMovieHumanHeadTapeSource } from "./IAutoMovieHumanHeadTapeSource";
 import type { IAutoMovieLoftFrame } from "../../../construction/IAutoMovieLoftFrame";
 import type { IAutoMovieLoftSectionPhase } from "../../../construction/IAutoMovieLoftSectionPhase";
-
-
-
-
+import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
+import type { IAutoMovieHumanHeadTapeSource } from "./IAutoMovieHumanHeadTapeSource";
 
 /** Type contracts exchanged by AutoMovieHumanHeadTapeStation; runtime evaluation remains in Human. */
 export namespace IAutoMovieHumanHeadTapeStation {

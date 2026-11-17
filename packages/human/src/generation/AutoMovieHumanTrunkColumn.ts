@@ -1,17 +1,17 @@
-import type { IAutoMovieNaturalSpline, IAutoMovieHumanTrunkColumn, IAutoMovieHumanTrunkKey, IAutoMovieHumanTrunkSection } from "@automovie/interface";
-
-
-
+import { AutoMovieNaturalSpline } from "@automovie/engine";
+import type {
+  IAutoMovieHumanTrunkColumn,
+  IAutoMovieHumanTrunkKey,
+  IAutoMovieHumanTrunkSection,
+  IAutoMovieNaturalSpline,
+} from "@automovie/interface";
 
 import { AutoMovieHumanMonotoneCubic } from "../lofting/AutoMovieHumanMonotoneCubic";
-import { AutoMovieNaturalSpline } from "@automovie/engine";
-
-
 import { AutoMovieHumanTrunkGlutealCleft } from "./AutoMovieHumanTrunkGlutealCleft";
+import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
 import { AutoMovieHumanTrunkInguinalFold } from "./AutoMovieHumanTrunkInguinalFold";
 import { AutoMovieHumanTrunkProfileBack } from "./AutoMovieHumanTrunkProfileBack";
 import { AutoMovieHumanTrunkProfileFront } from "./AutoMovieHumanTrunkProfileFront";
-import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
 
 /**
  * The trunk's column: the section at any height between its landmark keys.
@@ -24,8 +24,6 @@ import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
  * narrower. The inguinal fold and the gluteal cleft are added at the crotch.
  */
 export namespace AutoMovieHumanTrunkColumn {
-  
-
   /**
    * The column through its keys.
    *
@@ -34,9 +32,17 @@ export namespace AutoMovieHumanTrunkColumn {
    * @param soft The inguinal fold's softness, mm.
    * @returns The column.
    */
-  export function create(keys: IAutoMovieHumanTrunkKey[], crotch: number, soft: number): IAutoMovieHumanTrunkColumn.IColumn {
-    const spline = (pick: (k: IAutoMovieHumanTrunkKey) => number | null): ((y: number) => number) => {
-      const used: IAutoMovieHumanTrunkKey[] = keys.filter((k: IAutoMovieHumanTrunkKey): boolean => pick(k) !== null);
+  export function create(
+    keys: IAutoMovieHumanTrunkKey[],
+    crotch: number,
+    soft: number,
+  ): IAutoMovieHumanTrunkColumn.IColumn {
+    const spline = (
+      pick: (k: IAutoMovieHumanTrunkKey) => number | null,
+    ): ((y: number) => number) => {
+      const used: IAutoMovieHumanTrunkKey[] = keys.filter(
+        (k: IAutoMovieHumanTrunkKey): boolean => pick(k) !== null,
+      );
       const s: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
         used.map((k: IAutoMovieHumanTrunkKey): number => k.y),
         used.map((k: IAutoMovieHumanTrunkKey): number => pick(k)!),
@@ -44,14 +50,27 @@ export namespace AutoMovieHumanTrunkColumn {
 
       return (y: number): number => AutoMovieNaturalSpline.evaluate(s, y);
     };
-    const widthKnots: [number, number][] = keys.map((k: IAutoMovieHumanTrunkKey): [number, number] => [k.y, k.width]);
-    const width = (y: number): number => AutoMovieHumanMonotoneCubic.interpolate(widthKnots, y);
-    const middle: (y: number) => number = spline((k: IAutoMovieHumanTrunkKey): number => k.middle);
-    const front: (y: number) => number = AutoMovieHumanTrunkProfileFront.create(keys).at;
-    const back: (y: number) => number = AutoMovieHumanTrunkProfileBack.create(keys).at;
-    const squareFront: (y: number) => number = spline((k: IAutoMovieHumanTrunkKey): number => k.squareFront);
-    const squareBack: (y: number) => number = spline((k: IAutoMovieHumanTrunkKey): number => k.squareBack);
-    const anterior: (y: number) => number = spline((k: IAutoMovieHumanTrunkKey): number => k.anterior);
+    const widthKnots: [number, number][] = keys.map(
+      (k: IAutoMovieHumanTrunkKey): [number, number] => [k.y, k.width],
+    );
+    const width = (y: number): number =>
+      AutoMovieHumanMonotoneCubic.interpolate(widthKnots, y);
+    const middle: (y: number) => number = spline(
+      (k: IAutoMovieHumanTrunkKey): number => k.middle,
+    );
+    const front: (y: number) => number =
+      AutoMovieHumanTrunkProfileFront.create(keys).at;
+    const back: (y: number) => number =
+      AutoMovieHumanTrunkProfileBack.create(keys).at;
+    const squareFront: (y: number) => number = spline(
+      (k: IAutoMovieHumanTrunkKey): number => k.squareFront,
+    );
+    const squareBack: (y: number) => number = spline(
+      (k: IAutoMovieHumanTrunkKey): number => k.squareBack,
+    );
+    const anterior: (y: number) => number = spline(
+      (k: IAutoMovieHumanTrunkKey): number => k.anterior,
+    );
     const lo: number = keys[0]!.y;
     const hi: number = keys[keys.length - 1]!.y;
 
@@ -65,7 +84,13 @@ export namespace AutoMovieHumanTrunkColumn {
         const b: number = Math.min(m - 1, back(y));
 
         // The anterior guide stays clear of the bust line and of the widest point.
-        const a: number = Math.min(0.97, Math.max(AutoMovieHumanTrunkGuides.SHARE.bustLine + 0.05, anterior(y)));
+        const a: number = Math.min(
+          0.97,
+          Math.max(
+            AutoMovieHumanTrunkGuides.SHARE.bustLine + 0.05,
+            anterior(y),
+          ),
+        );
         const rise: number = y - crotch;
 
         return {

@@ -1,17 +1,18 @@
-import type { IAutoMovieCaptureCell, IAutoMovieCaptureComparison, IAutoMovieCaptureDrawing, IAutoMovieCaptureFolder, IAutoMovieCapturePlan, IAutoMovieCaptureRecord, IAutoMovieRasterImage, IAutoMovieRunCaptureProps } from "@automovie/interface";
-
+import type {
+  IAutoMovieCaptureCell,
+  IAutoMovieCaptureComparison,
+  IAutoMovieCaptureDrawing,
+  IAutoMovieCaptureFolder,
+  IAutoMovieCapturePlan,
+  IAutoMovieCaptureRecord,
+  IAutoMovieRasterImage,
+  IAutoMovieRunCaptureProps,
+} from "@automovie/interface";
 
 import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
-
 import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
 import { hashAutoMovieRasterImage } from "../picture/hashAutoMovieRasterImage.js";
 import { stampAutoMovieRasterLabel } from "../picture/stampAutoMovieRasterLabel.js";
-
-
-
-
-
-
 import { compareAutoMovieCaptureRounds } from "./compareAutoMovieCaptureRounds.js";
 import { formatAutoMovieCapturePlanRequest } from "./formatAutoMovieCapturePlanRequest.js";
 import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
@@ -38,7 +39,9 @@ import { scaleAutoMovieCaptureLabels } from "./scaleAutoMovieCaptureLabels.js";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each cell is drawn once; nothing is shared between runs.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One drawn still and the sheet being filled are held at a time, plus one record row per cell.
  */
-export async function runAutoMovieCapture(props: IAutoMovieRunCaptureProps): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
+export async function runAutoMovieCapture(
+  props: IAutoMovieRunCaptureProps,
+): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
   const { plan } = props;
   const { layout, subject, request } = plan;
   const { folder } = props;

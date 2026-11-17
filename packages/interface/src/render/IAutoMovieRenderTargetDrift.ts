@@ -1,5 +1,3 @@
-
-
 /** Why a report no longer describes the target in front of a consumer.
  *
  * @evidence contracts/development/design.md#principled-representation Represent one exact target-field difference as a field path and reported/current string values; compareAutoMovieRenderTarget derives these rows from sealed target records.

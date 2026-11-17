@@ -1,12 +1,23 @@
-import { type IAutoMovieMotionSample, AutoMovieArkitChannel, AutoMovieExpressionPreset, AutoMovieHumanoidBone, IAutoMovieBlendshapeChannel, IAutoMovieExpression, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
-
+import {
+  AutoMovieArkitChannel,
+  AutoMovieExpressionPreset,
+  AutoMovieHumanoidBone,
+  IAutoMovieBlendshapeChannel,
+  IAutoMovieExpression,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  type IAutoMovieMotionSample,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import { Transform } from "../math/Transform";
 import { Vector3 } from "../math/Vector3";
 import { segmentIndex } from "../math/segmentIndex";
 import { cubicBezierEasing } from "./cubicBezierEasing";
 import { ease } from "./ease";
-import { Transform } from "../math/Transform";
 
 const IDENTITY_TRANSFORM: IAutoMovieTransform = Transform.identity();
 

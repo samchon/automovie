@@ -1,6 +1,21 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSignature, IAutoMovieVector3 } from "@automovie/interface";
-
-import { HumanChain, HumanPerformance, HumanRefusal, HumanSignature, HumanSocial, armWrestle, seated } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+  HumanSocial,
+  armWrestle,
+  seated,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -112,7 +127,8 @@ export function test_human_motion_social_arm_wrestle(): void {
         for (const pin of [angle, angle + 5])
           try {
             const pinned: IAutoMovieMotionHumanPerformance = build(pin);
-            const placed: IAutoMovieMotionHumanSegment.ISegment = pinned.segments("b")[1]!;
+            const placed: IAutoMovieMotionHumanSegment.ISegment =
+              pinned.segments("b")[1]!;
             const seconds: number =
               placed.start +
               (placed.plan.events.find((e): boolean => e.name === "pin")
@@ -142,7 +158,8 @@ export function test_human_motion_social_arm_wrestle(): void {
     b: HumanSignature.of(performance, "b", bodies.b, 0),
   };
   const instant = (who: "a" | "b", event: string): number => {
-    const placed: IAutoMovieMotionHumanSegment.ISegment = performance.segments(who)[1]!;
+    const placed: IAutoMovieMotionHumanSegment.ISegment =
+      performance.segments(who)[1]!;
     return (
       placed.start +
       (placed.plan.events.find((e): boolean => e.name === event)?.share ??
@@ -240,10 +257,10 @@ function dump(posture: IAutoMovieMotionHumanPosture): string {
       joints: posture.joints,
       limbs: Object.fromEntries(
         Object.entries(posture.limbs).map(
-          ([limb, goal]: [string, IAutoMovieMotionHumanPosture.IGoal | undefined]): [
+          ([limb, goal]: [
             string,
-            object | undefined,
-          ] => [
+            IAutoMovieMotionHumanPosture.IGoal | undefined,
+          ]): [string, object | undefined] => [
             limb,
             goal === undefined ? goal : { ...goal, clear: undefined },
           ],

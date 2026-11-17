@@ -1,7 +1,21 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSeated, IAutoMovieMotionHumanSeatedReach, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
-
-import { HumanChain, HumanMutual, HumanPerformance, HumanSeatedReach, seated } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSeatedReach,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanMutual,
+  HumanPerformance,
+  HumanSeatedReach,
+  seated,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -76,37 +90,48 @@ export function test_human_motion_seated_reach(): void {
     });
 
   // 1 and 2. The seat and the room.
-  const sat: IAutoMovieMotionHumanPerformance = perform(sit("a").with(sit("b")));
+  const sat: IAutoMovieMotionHumanPerformance = perform(
+    sit("a").with(sit("b")),
+  );
   for (const who of ["a", "b"] as const) {
-    const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] = sat.segments(who);
-    const last: IAutoMovieMotionHumanSegment.ISegment = segments[segments.length - 1]!;
-    const seats: IAutoMovieMotionHumanContactWindow[] = last.plan.contacts.filter(
-      (w: IAutoMovieMotionHumanContactWindow): boolean => w.kind === "seat",
-    );
+    const segments: readonly IAutoMovieMotionHumanSegment.ISegment[] =
+      sat.segments(who);
+    const last: IAutoMovieMotionHumanSegment.ISegment =
+      segments[segments.length - 1]!;
+    const seats: IAutoMovieMotionHumanContactWindow[] =
+      last.plan.contacts.filter(
+        (w: IAutoMovieMotionHumanContactWindow): boolean => w.kind === "seat",
+      );
     all.check(
       `${who}: the sit's seat windows are ${seats.map((w) => `${w.part} ${w.from.toFixed(3)}-${w.to.toFixed(3)}`).join(", ") || "none"}, one open at its end expected`,
-      seats.some((w: IAutoMovieMotionHumanContactWindow): boolean => w.to === 1),
+      seats.some(
+        (w: IAutoMovieMotionHumanContactWindow): boolean => w.to === 1,
+      ),
     );
     const end: number = last.start + last.plan.duration;
-    const rooms: IAutoMovieMotionHumanSeatedReach.IJoint[] = HumanSeatedReach.rooms({
-      body: bodies[who],
-      posture: last.plan.posture(last.plan.duration),
-      bones: sat.bones(who, end),
-      seated: true,
-    });
+    const rooms: IAutoMovieMotionHumanSeatedReach.IJoint[] =
+      HumanSeatedReach.rooms({
+        body: bodies[who],
+        posture: last.plan.posture(last.plan.duration),
+        bones: sat.bones(who, end),
+        seated: true,
+      });
     const hips: number =
-      rooms.find((j: IAutoMovieMotionHumanSeatedReach.IJoint): boolean => j.bone === "hips")
-        ?.room ?? 0;
+      rooms.find(
+        (j: IAutoMovieMotionHumanSeatedReach.IJoint): boolean =>
+          j.bone === "hips",
+      )?.room ?? 0;
     all.check(
       `${who}: seated, the hips have ${hips.toFixed(1)} degrees of room, more than none and at most ${RANGE} expected (joints ${rooms.map((j) => `${j.bone} ${j.room.toFixed(1)}`).join(", ")})`,
       hips > 0 && hips <= RANGE,
     );
-    const standing: IAutoMovieMotionHumanSeatedReach.IJoint[] = HumanSeatedReach.rooms({
-      body: bodies[who],
-      posture: segments[0]!.plan.posture(0),
-      bones: sat.bones(who, 0),
-      seated: false,
-    });
+    const standing: IAutoMovieMotionHumanSeatedReach.IJoint[] =
+      HumanSeatedReach.rooms({
+        body: bodies[who],
+        posture: segments[0]!.plan.posture(0),
+        bones: sat.bones(who, 0),
+        seated: false,
+      });
     all.check(
       `${who}: standing, the trunk has ${standing.length} joints with room, none expected`,
       standing.length === 0,
@@ -140,7 +165,8 @@ export function test_human_motion_seated_reach(): void {
       wrists <= hands,
     );
     for (const who of ["a", "b"] as const) {
-      const segment: IAutoMovieMotionHumanSegment.ISegment = p.segments(who)[1]!;
+      const segment: IAutoMovieMotionHumanSegment.ISegment =
+        p.segments(who)[1]!;
       const settled: IAutoMovieVector3 = p
         .bones(who, segment.entryTime)
         .get("hips")!.worldPosition;

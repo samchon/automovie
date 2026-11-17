@@ -1,7 +1,14 @@
-import type { IAutoMovieComposition, IAutoMovieIntent, IAutoMovieMotionHumanKickboxingRing, IAutoMovieVector3 } from "@automovie/interface";
 import { createExerciseMat, createRing } from "@automovie/archetypes";
-import { checkAutoMovieLegality, resolveAutoMovieSchedule } from "@automovie/engine";
-
+import {
+  checkAutoMovieLegality,
+  resolveAutoMovieSchedule,
+} from "@automovie/engine";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanKickboxingRing,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanObject,
   KickboxingRing,

@@ -1,5 +1,7 @@
-import { type IAutoMovieWorldTerrain, IAutoMovieWorldSurface } from "@automovie/interface";
-
+import {
+  IAutoMovieWorldSurface,
+  type IAutoMovieWorldTerrain,
+} from "@automovie/interface";
 
 /**
  * Construct a flat world surface from an authored XZ footprint and height.
@@ -12,7 +14,11 @@ import { type IAutoMovieWorldTerrain, IAutoMovieWorldSurface } from "@automovie/
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The copied ring can be reused by downstream queries of this design, while each construction copies current input rather than caching mutable source identity.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the copied footprint and fresh rule; no source callback, geometry buffer, renderer or watcher is acquired.
  */
-export const worldTerrain: (input: IAutoMovieWorldTerrain.IInput) => IAutoMovieWorldSurface = (input: IAutoMovieWorldTerrain.IInput): IAutoMovieWorldSurface => ({
+export const worldTerrain: (
+  input: IAutoMovieWorldTerrain.IInput,
+) => IAutoMovieWorldSurface = (
+  input: IAutoMovieWorldTerrain.IInput,
+): IAutoMovieWorldSurface => ({
   id: input.id,
   polygon: structuredClone(input.polygon),
   height: { kind: "constant", value: input.height },

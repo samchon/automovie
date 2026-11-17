@@ -1,4 +1,12 @@
-import type { IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanGestureStroke, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanTargetGrid, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanGestureStroke,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTargetGrid,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -74,7 +82,6 @@ import { gestureTouch } from "./gestureTouch";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses engine and interface types; no consumer is special-cased.
  */
 export namespace gestureStroke {
-
   /** Each gesture's timing (`gestureStrokeTables.RHYTHM`), read here with its kind. */
   export const RHYTHM: typeof gestureStrokeTables.RHYTHM =
     gestureStrokeTables.RHYTHM;

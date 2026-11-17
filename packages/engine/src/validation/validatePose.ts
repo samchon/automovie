@@ -1,5 +1,11 @@
-import { type IAutoMovieValidatePose, type IAutoMovieViolationCollector, AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieJointConstraint, IAutoMovieJointPose } from "@automovie/interface";
-
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieJointConstraint,
+  IAutoMovieJointPose,
+  type IAutoMovieValidatePose,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { getConstraint } from "../rom/getConstraint";
 import { validateJointRom } from "../rom/validateJointRom";
@@ -17,7 +23,11 @@ import { validateTransformScalars } from "./validateTransformScalars";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The by-bone map is request-local and default constraint/ROM owners are shared.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns diagnostics; temporary map/set storage releases without an FK pose or host resource.
  */
-export const validatePose: (props: IAutoMovieValidatePose.IProps) => IAutoMovieViolationCollector = (props: IAutoMovieValidatePose.IProps): IAutoMovieViolationCollector => {
+export const validatePose: (
+  props: IAutoMovieValidatePose.IProps,
+) => IAutoMovieViolationCollector = (
+  props: IAutoMovieValidatePose.IProps,
+): IAutoMovieViolationCollector => {
   const path: string = props.path ?? "$input";
   const collector: IAutoMovieViolationCollector =
     props.collector ?? new ViolationCollector();

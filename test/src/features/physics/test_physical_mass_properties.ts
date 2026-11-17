@@ -1,9 +1,11 @@
-import type { IAutoMovieCombinePhysicalMassProperties, IAutoMovieVector3 } from "@automovie/interface";
 import {
   Quaternion,
   combinePhysicalMassProperties as combine,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieCombinePhysicalMassProperties,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
@@ -126,7 +128,9 @@ export function test_physical_mass_properties(): void {
 
   const huge: IAutoMovieCombinePhysicalMassProperties.IPart = combine(
     [base, base].map(
-      (part: IAutoMovieCombinePhysicalMassProperties.IPart): IAutoMovieCombinePhysicalMassProperties.IPart => ({
+      (
+        part: IAutoMovieCombinePhysicalMassProperties.IPart,
+      ): IAutoMovieCombinePhysicalMassProperties.IPart => ({
         ...part,
         mass: 1e200,
         centerOfMass: { x: 1e200, y: -1e200, z: 0.5e200 },
@@ -146,7 +150,9 @@ export function test_physical_mass_properties(): void {
 
   const overflow: IAutoMovieCombinePhysicalMassProperties.IPart[][] = [
     [base, base].map(
-      (part: IAutoMovieCombinePhysicalMassProperties.IPart): IAutoMovieCombinePhysicalMassProperties.IPart => ({
+      (
+        part: IAutoMovieCombinePhysicalMassProperties.IPart,
+      ): IAutoMovieCombinePhysicalMassProperties.IPart => ({
         ...part,
         mass: Number.MAX_VALUE,
       }),
@@ -158,7 +164,9 @@ export function test_physical_mass_properties(): void {
       }),
     ),
     [base, base].map(
-      (part: IAutoMovieCombinePhysicalMassProperties.IPart): IAutoMovieCombinePhysicalMassProperties.IPart => ({
+      (
+        part: IAutoMovieCombinePhysicalMassProperties.IPart,
+      ): IAutoMovieCombinePhysicalMassProperties.IPart => ({
         ...part,
         inertia: {
           x: 0.6 * Number.MAX_VALUE,
@@ -170,11 +178,15 @@ export function test_physical_mass_properties(): void {
     ),
   ];
   for (const parts of overflow)
-    assert.throws((): IAutoMovieCombinePhysicalMassProperties.IPart => combine(parts), /aggregate/i);
+    assert.throws(
+      (): IAutoMovieCombinePhysicalMassProperties.IPart => combine(parts),
+      /aggregate/i,
+    );
   let refusals: number = 0;
   for (const axis of ["x", "y", "z", "w"] as const)
     for (const value of [NaN, Infinity, -Infinity]) {
-      const invalid: IAutoMovieCombinePhysicalMassProperties.IPart = structuredClone(base);
+      const invalid: IAutoMovieCombinePhysicalMassProperties.IPart =
+        structuredClone(base);
       invalid.inertiaRotation[axis] = value;
       try {
         combine([invalid]);

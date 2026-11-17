@@ -1,6 +1,13 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionTarget } from "@automovie/interface";
-
-import { HumanChain, HumanPerformance, HumanRefusal, HumanVerdicts } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionTarget,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanRefusal,
+  HumanVerdicts,
+} from "@automovie/motions";
 
 import { motionHumanBody } from "./motionHumanBody";
 

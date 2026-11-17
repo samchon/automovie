@@ -1,5 +1,8 @@
-import type { IAutoMoviePhysicalHullFaces, IAutoMoviePhysicalHullNearest, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalHullNearest,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { physicalHullFaces } from "./physicalHullFaces";
 
@@ -173,37 +176,39 @@ const flattened = (hull: IAutoMoviePhysicalHullFaces.IHull): IFlat => {
   );
   const edges: Float64Array = new Float64Array(EDGE * total);
   let e: number = 0;
-  hull.faces.forEach((face: IAutoMoviePhysicalHullFaces.IFace, f: number): void => {
-    const n: IAutoMovieVector3 = face.normal;
-    planes.set([n.x, n.y, n.z, face.offset], 4 * f);
-    starts[f] = e;
-    face.loop.forEach((from: IAutoMovieVector3, i: number): void => {
-      const to: IAutoMovieVector3 = face.loop[(i + 1) % face.loop.length]!;
-      const ex: number = to.x - from.x;
-      const ey: number = to.y - from.y;
-      const ez: number = to.z - from.z;
-      const mx: number = n.y * ez - n.z * ey;
-      const my: number = n.z * ex - n.x * ez;
-      const mz: number = n.x * ey - n.y * ex;
-      edges.set(
-        [
-          from.x,
-          from.y,
-          from.z,
-          ex,
-          ey,
-          ez,
-          ex * ex + ey * ey + ez * ez,
-          mx,
-          my,
-          mz,
-          mx * from.x + my * from.y + mz * from.z,
-        ],
-        EDGE * e,
-      );
-      e++;
-    });
-  });
+  hull.faces.forEach(
+    (face: IAutoMoviePhysicalHullFaces.IFace, f: number): void => {
+      const n: IAutoMovieVector3 = face.normal;
+      planes.set([n.x, n.y, n.z, face.offset], 4 * f);
+      starts[f] = e;
+      face.loop.forEach((from: IAutoMovieVector3, i: number): void => {
+        const to: IAutoMovieVector3 = face.loop[(i + 1) % face.loop.length]!;
+        const ex: number = to.x - from.x;
+        const ey: number = to.y - from.y;
+        const ez: number = to.z - from.z;
+        const mx: number = n.y * ez - n.z * ey;
+        const my: number = n.z * ex - n.x * ez;
+        const mz: number = n.x * ey - n.y * ex;
+        edges.set(
+          [
+            from.x,
+            from.y,
+            from.z,
+            ex,
+            ey,
+            ez,
+            ex * ex + ey * ey + ez * ez,
+            mx,
+            my,
+            mz,
+            mx * from.x + my * from.y + mz * from.z,
+          ],
+          EDGE * e,
+        );
+        e++;
+      });
+    },
+  );
   starts[hull.faces.length] = e;
   const flat: IFlat = { planes, starts, edges };
   FLATS.set(hull, flat);

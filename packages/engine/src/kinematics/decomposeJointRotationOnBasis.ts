@@ -1,5 +1,12 @@
-import { type IAutoMovieJointRotationDomain, type IAutoMovieResolvedJointAngles, type IAutoMovieRestFrame, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieJointAxes,
+  IAutoMovieJointConstraint,
+  type IAutoMovieJointRotationDomain,
+  IAutoMovieQuaternion,
+  type IAutoMovieResolvedJointAngles,
+  type IAutoMovieRestFrame,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";

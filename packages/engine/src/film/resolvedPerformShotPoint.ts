@@ -1,5 +1,8 @@
-import { type IAutoMovieEnginePerformShotGateContext, IAutoMovieActionTarget, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieActionTarget,
+  type IAutoMovieEnginePerformShotGateContext,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { resolveTargetPoint } from "../perform/resolveTargetPoint";
 

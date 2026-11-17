@@ -1,4 +1,5 @@
 import type { IAutoMovieConstructionOutlineParameter } from "@automovie/interface";
+
 import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE";
 
 /**

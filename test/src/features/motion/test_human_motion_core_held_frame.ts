@@ -1,8 +1,28 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieResolvedBone, IAutoMovieBone, IAutoMovieVector3 } from "@automovie/interface";
 import { createDrinkware } from "@automovie/archetypes";
-import { Quaternion, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-
-import { AutoMovieMotionHumanHeld, HumanChain, HumanObject, HumanPerformance, HumanRefusal } from "@automovie/motions";
+import {
+  Quaternion,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  IAutoMovieBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanHeld,
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -57,7 +77,9 @@ export function test_human_motion_core_held_frame(): void {
     const reader: IAutoMovieMotionHumanActionLaw<never> = {
       name: "reader",
       interrupts: {},
-      plan: (context: IAutoMovieMotionHumanActionContext<never>): IAutoMovieMotionHumanActionPlan => {
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<never>,
+      ): IAutoMovieMotionHumanActionPlan => {
         const held: IAutoMovieMotionHumanHeld.IHeld =
           AutoMovieMotionHumanHeld.of(context, "right", "glass");
         read.lip = AutoMovieMotionHumanHeld.point(held, "lip");

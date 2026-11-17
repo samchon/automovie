@@ -1,6 +1,13 @@
-import type { IAutoMovieMeshTopology, IAutoMovieTessellation, IAutoMovieMesh } from "@automovie/interface";
-import { extrudeAutoMovieProfile, inspectAutoMovieMeshTopology, tessellate } from "@automovie/engine";
-
+import {
+  extrudeAutoMovieProfile,
+  inspectAutoMovieMeshTopology,
+  tessellate,
+} from "@automovie/engine";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshTopology,
+  IAutoMovieTessellation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PROCEDURAL_TEST_SQUARE as square } from "../internal/PROCEDURAL_TEST_SQUARE";

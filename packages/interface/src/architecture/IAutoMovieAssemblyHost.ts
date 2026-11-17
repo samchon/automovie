@@ -1,5 +1,3 @@
-
-
 /**
  * The host dimension a build-up is measured against.
  *

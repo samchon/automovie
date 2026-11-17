@@ -1,5 +1,7 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanKnuckleSection } from "@automovie/interface";
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanKnuckleSection,
+} from "@automovie/interface";
 
 /**
  * The hand's section through knuckles II and V on a meshed skin, as ANSUR II
@@ -15,8 +17,6 @@ import type { AutoMovieVector3Tuple, IAutoMovieHumanKnuckleSection } from "@auto
  * solve can be steered to what the skin measures.
  */
 export namespace AutoMovieHumanKnuckleSection {
-  
-
   /**
    * Measure a mesh's knuckle section.
    *
@@ -35,9 +35,15 @@ export namespace AutoMovieHumanKnuckleSection {
     const middle: AutoMovieVector3Tuple = scale(plus(two, five), 0.5);
     const axis: AutoMovieVector3Tuple = unit(sub(three, centre));
     const line: AutoMovieVector3Tuple = unit(sub(five, two));
-    const normal: AutoMovieVector3Tuple = unit(sub(axis, scale(line, dot(axis, line))));
+    const normal: AutoMovieVector3Tuple = unit(
+      sub(axis, scale(line, dot(axis, line))),
+    );
     const other: AutoMovieVector3Tuple = cross(normal, line);
-    const point = (v: number): AutoMovieVector3Tuple => [positions[3 * v]!, positions[3 * v + 1]!, positions[3 * v + 2]!];
+    const point = (v: number): AutoMovieVector3Tuple => [
+      positions[3 * v]!,
+      positions[3 * v + 1]!,
+      positions[3 * v + 2]!,
+    ];
     const points: [number, number][] = [];
     // Every triangle edge the plane crosses gives one section point; the
     // plane through the knuckles meets only the palm and its webs here, so no
@@ -49,21 +55,33 @@ export namespace AutoMovieHumanKnuckleSection {
         const fp: number = dot(sub(p, middle), normal);
         const fq: number = dot(sub(q, middle), normal);
         if (fp === fq || fp * fq > 0) continue;
-        const x: AutoMovieVector3Tuple = sub(plus(p, scale(sub(q, p), fp / (fp - fq))), middle);
+        const x: AutoMovieVector3Tuple = sub(
+          plus(p, scale(sub(q, p), fp / (fp - fq))),
+          middle,
+        );
         points.push([dot(x, line), dot(x, other)]);
       }
-    if (points.length < 3) throw new Error("The knuckles' plane misses the hand's skin");
+    if (points.length < 3)
+      throw new Error("The knuckles' plane misses the hand's skin");
     const along: number[] = points.map((p: [number, number]): number => p[0]);
-    return { breadth: Math.max(...along) - Math.min(...along), girth: hull(points) };
+    return {
+      breadth: Math.max(...along) - Math.min(...along),
+      girth: hull(points),
+    };
   }
 }
 
-
-function sub(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+function sub(
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+): AutoMovieVector3Tuple {
   return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 }
 
-function plus(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+function plus(
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+): AutoMovieVector3Tuple {
   return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 }
 
@@ -75,8 +93,15 @@ function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
-function cross(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
-  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+function cross(
+  a: AutoMovieVector3Tuple,
+  b: AutoMovieVector3Tuple,
+): AutoMovieVector3Tuple {
+  return [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0],
+  ];
 }
 
 function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
@@ -87,19 +112,30 @@ function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
 /** Perimeter of the convex hull of points in a plane (monotone chain). */
 function hull(points: readonly [number, number][]): number {
   const p: [number, number][] = [...points].sort(
-    (u: [number, number], v: [number, number]): number => u[0] - v[0] || u[1] - v[1],
+    (u: [number, number], v: [number, number]): number =>
+      u[0] - v[0] || u[1] - v[1],
   );
-  const turn = (o: [number, number], a: [number, number], b: [number, number]): number =>
-    (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const turn = (
+    o: [number, number],
+    a: [number, number],
+    b: [number, number],
+  ): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
   const chain = (list: [number, number][]): [number, number][] => {
     const out: [number, number][] = [];
     for (const q of list) {
-      while (out.length >= 2 && turn(out[out.length - 2]!, out[out.length - 1]!, q) <= 0) out.pop();
+      while (
+        out.length >= 2 &&
+        turn(out[out.length - 2]!, out[out.length - 1]!, q) <= 0
+      )
+        out.pop();
       out.push(q);
     }
     return out;
   };
-  const ring: [number, number][] = [...chain(p).slice(0, -1), ...chain([...p].reverse()).slice(0, -1)];
+  const ring: [number, number][] = [
+    ...chain(p).slice(0, -1),
+    ...chain([...p].reverse()).slice(0, -1),
+  ];
   let sum: number = 0;
   ring.forEach((q: [number, number], i: number): void => {
     const r: [number, number] = ring[(i + 1) % ring.length]!;

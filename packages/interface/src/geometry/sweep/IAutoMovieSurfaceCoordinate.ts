@@ -1,5 +1,3 @@
-
-
 /**
  * A point of a surface network by patch and patch coordinates, the same on
  * every tier.

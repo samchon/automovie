@@ -1,6 +1,5 @@
 import type { IAutoMovieSupportSectionVertex } from "./IAutoMovieSupportSectionVertex";
 
-
 /**
  * One convex XZ section obtained by intersecting oriented half-planes.
  *

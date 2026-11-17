@@ -1,6 +1,14 @@
-import type { AutoMovieHumanoidBone, IAutoMovieAngleRange, IAutoMovieJointAxes, IAutoMovieJointConstraint, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieSwingTwistBasis, IAutoMovieSwingTwistRange, IAutoMovieVector3 } from "@automovie/interface";
-
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieAngleRange,
+  IAutoMovieJointAxes,
+  IAutoMovieJointConstraint,
+  IAutoMovieQuaternion,
+  IAutoMovieSkeleton,
+  IAutoMovieSwingTwistBasis,
+  IAutoMovieSwingTwistRange,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -59,7 +67,6 @@ const DEG: number = swingTwistBasis.DEG;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No joint is named: the axes, the rest frame and the intervals are the caller's.
  */
 export namespace swingTwistRange {
-
   /**
    * The frame a rig's bone is read in: its clinical axes as the skeleton
    * resolves them (`skeletonJointAxes`, the bone's own declaration over the
@@ -112,7 +119,10 @@ export namespace swingTwistRange {
   interface IKept {
     bones: unknown;
     table: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-    frames: Map<AutoMovieHumanoidBone, IAutoMovieSwingTwistRange.IJoint | undefined>;
+    frames: Map<
+      AutoMovieHumanoidBone,
+      IAutoMovieSwingTwistRange.IJoint | undefined
+    >;
   }
 
   /** The kept tables, per skeleton (or the humanoid tables, keyed by `NO_SKELETON`). */
@@ -136,8 +146,13 @@ export namespace swingTwistRange {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `swingTwist` and `wrapDegrees`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function read(q: IAutoMovieQuaternion, joint: IAutoMovieSwingTwistRange.IJoint): IAutoMovieSwingTwistRange.IReading {
-    const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(joint.axes);
+  export function read(
+    q: IAutoMovieQuaternion,
+    joint: IAutoMovieSwingTwistRange.IJoint,
+  ): IAutoMovieSwingTwistRange.IReading {
+    const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
+      joint.axes,
+    );
     const unit: IAutoMovieQuaternion = Quaternion.normalize(q);
     const direction: IAutoMovieVector3 = Vector3.normalize(
       Quaternion.rotateVector(unit, basis.u),
@@ -219,7 +234,9 @@ export namespace swingTwistRange {
     constraint: IAutoMovieJointConstraint,
     joint: IAutoMovieSwingTwistRange.IJoint,
   ): IAutoMovieQuaternion {
-    const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(joint.axes);
+    const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
+      joint.axes,
+    );
     const reading: IAutoMovieSwingTwistRange.IReading = read(q, joint);
     const interval: IAutoMovieAngleRange = constraint.swingTwist!.twist;
     const turned: number = nearestAngleAlias(reading.twist, interval);
@@ -306,7 +323,9 @@ export namespace swingTwistRange {
     constraint: IAutoMovieJointConstraint,
     joint: IAutoMovieSwingTwistRange.IJoint,
   ): IAutoMovieQuaternion {
-    const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(joint.axes);
+    const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
+      joint.axes,
+    );
     const k: number = Math.hypot(place.x, place.y);
     const azimuth: number = k > 1e-12 ? Math.atan2(place.y, place.x) * DEG : 0;
     return Quaternion.normalize(

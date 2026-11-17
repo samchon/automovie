@@ -1,7 +1,9 @@
-import type { IAutoMovieMotionHumanAuditMotion, IAutoMovieResolvedBone, AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
-
-
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * A hand-made motion for the audit's tests: one fixed set of displayed bones

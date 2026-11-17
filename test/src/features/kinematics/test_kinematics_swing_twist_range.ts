@@ -1,4 +1,3 @@
-import type { IAutoMovieSwingTwistRange, AutoMovieHumanoidBone, IAutoMovieAngleRange, IAutoMovieJointConstraint, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import {
   DEFAULT_HUMANOID_ROM,
   HUMANOID_JOINT_AXES,
@@ -9,7 +8,14 @@ import {
   swingConeAngle,
   swingTwistRange,
 } from "@automovie/engine";
-
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieAngleRange,
+  IAutoMovieJointConstraint,
+  IAutoMovieQuaternion,
+  IAutoMovieSwingTwistRange,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeRng, randomUnitQuaternion } from "../internal/random";
@@ -170,10 +176,8 @@ export function test_kinematics_swing_twist_range(): void {
       let previous: IAutoMovieQuaternion | undefined;
       for (let k: number = 0; k <= 1000; ++k) {
         const here: IAutoMovieQuaternion = Quaternion.slerp(a, b, k / 1000);
-        const reading: IAutoMovieSwingTwistRange.IReading = swingTwistRange.read(
-          here,
-          joint,
-        );
+        const reading: IAutoMovieSwingTwistRange.IReading =
+          swingTwistRange.read(here, joint);
 
         const twist: IAutoMovieAngleRange = constraint.swingTwist!.twist;
         const beyondTwist: number = Math.min(
@@ -225,14 +229,13 @@ export function test_kinematics_swing_twist_range(): void {
               value,
               at: `path ${path} step ${k}: ${[before, here]
                 .map((q: IAutoMovieQuaternion): string => {
-                  const r: IAutoMovieSwingTwistRange.IReading = swingTwistRange.read(
-                    q,
-                    joint,
-                  );
-                  const p: IAutoMovieSwingTwistRange.IReading = swingTwistRange.read(
-                    swingTwistRange.project(q, constraint, joint),
-                    joint,
-                  );
+                  const r: IAutoMovieSwingTwistRange.IReading =
+                    swingTwistRange.read(q, joint);
+                  const p: IAutoMovieSwingTwistRange.IReading =
+                    swingTwistRange.read(
+                      swingTwistRange.project(q, constraint, joint),
+                      joint,
+                    );
                   return `in swing ${r.swing.toFixed(2)} azimuth ${r.azimuth.toFixed(2)} twist ${r.twist.toFixed(2)} radius ${swingTwistRange.radius(constraint, joint, r.azimuth).toFixed(2)}, out swing ${p.swing.toFixed(2)} azimuth ${p.azimuth.toFixed(2)} twist ${p.twist.toFixed(2)}`;
                 })
                 .join(" then ")}`,

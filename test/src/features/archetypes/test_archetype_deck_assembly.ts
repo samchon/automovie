@@ -1,4 +1,3 @@
-import type { IAutoMoviePrimitiveShape, IAutoMovieModelPart, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import {
   ArchetypeAssembly,
   type ArchetypeCourse,
@@ -10,7 +9,12 @@ import {
   createDeck,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3, validateModel } from "@automovie/engine";
-
+import type {
+  IAutoMovieModelPart,
+  IAutoMoviePrimitiveShape,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

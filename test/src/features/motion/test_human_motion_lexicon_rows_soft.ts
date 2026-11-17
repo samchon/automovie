@@ -1,6 +1,12 @@
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieAffordance, IAutoMovieSoftBodyDomain, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Transform, Vector3 } from "@automovie/engine";
-
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanChain, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -137,7 +143,10 @@ export function test_human_motion_lexicon_rows_soft(): void {
     yaw,
     proficiency: { level: "trained" as const },
   });
-  const finite = (p: IAutoMovieMotionHumanPerformance, subject: string): boolean => {
+  const finite = (
+    p: IAutoMovieMotionHumanPerformance,
+    subject: string,
+  ): boolean => {
     for (let t: number = 0; t <= p.duration; t += 0.1)
       if (!p.soft(subject, t).every(Number.isFinite)) return false;
     return true;

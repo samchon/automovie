@@ -1,5 +1,3 @@
-
-
 /**
  * Limit position, sector normals and face-to-sector mapping of one vertex fan.
  *
@@ -56,7 +54,7 @@ export namespace IAutoMovieLimitSubdivisionRing {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller first exhausts semi-sharp edges so sharpness is 0 or 10; undefined tangent planes and vanishing or nonfinite normals refuse, while documented wide crease-sector masks remain approximations.
    * @evidence contracts/development/common.md#meaningful-documentation Limit position, sector normals and face-to-sector mapping of one vertex fan. Position uses the ring's local metres; normals are unit vectors in the same frame and sectors are zero-based normal indices.
    */
-  export type IResult = { 
+  export type IResult = {
     /**
      * New xyz limit point in the ring's local metre frame; a corner with at least three sharp edges stays at its centre.
      */
@@ -70,5 +68,6 @@ export namespace IAutoMovieLimitSubdivisionRing {
     /**
      * For each ring face in diagonal/fan order, the zero-based index into normals; smooth and dart fans contain only zero.
      */
-    sectors: number[] };
+    sectors: number[];
+  };
 }

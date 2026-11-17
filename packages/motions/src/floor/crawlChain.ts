@@ -1,6 +1,12 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -186,7 +192,8 @@ export namespace crawlChain {
       crawlFrame.wrists(body, standing, forward);
     const wv: number = (wrists.left.y + wrists.right.y) / 2;
     const ball = (side: "left" | "right"): IAutoMovieVector3 => {
-      const from: IAutoMovieMotionHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;
+      const from: IAutoMovieMotionHumanPosture.IGoal =
+        standing.limbs[`${side}Leg`]!;
       return HumanFrame.local(
         frame,
         HumanFoot.point(body, side, "mtp", {

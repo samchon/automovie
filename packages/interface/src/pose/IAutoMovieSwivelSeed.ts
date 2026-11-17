@@ -1,5 +1,3 @@
-
-
 /**
  * Which of a hinged chain's poses a fit chose, by the two numbers that name
  * one for any target (`hingedArmSwivel`): its bend branch and its swivel

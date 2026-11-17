@@ -1,8 +1,6 @@
-import type { IAutoMovieChainFitScore } from "./IAutoMovieChainFitScore";
 import type { IAutoMoviePose } from "../pose/IAutoMoviePose";
 import type { IAutoMovieSwivelSeed } from "../pose/IAutoMovieSwivelSeed";
-
-
+import type { IAutoMovieChainFitScore } from "./IAutoMovieChainFitScore";
 
 /**
  * A chain fit with the seed that continues it: the fitted pose, and the

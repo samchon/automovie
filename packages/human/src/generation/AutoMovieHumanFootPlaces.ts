@@ -92,12 +92,19 @@ export namespace AutoMovieHumanFootPlaces {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Locals retain only the module table during the call; the returned scalar owns no resource.
    */
   export function dorsum(footLength: number, share: number): number {
-    const rows: readonly { readonly share: number; readonly height: number }[] = FOREFOOT;
+    const rows: readonly { readonly share: number; readonly height: number }[] =
+      FOREFOOT;
     if (share <= rows[0]!.share) return rows[0]!.height * footLength;
     for (let i: number = 0; i + 1 < rows.length; i++) {
       const a: { readonly share: number; readonly height: number } = rows[i]!;
-      const b: { readonly share: number; readonly height: number } = rows[i + 1]!;
-      if (share <= b.share) return (a.height + ((share - a.share) / (b.share - a.share)) * (b.height - a.height)) * footLength;
+      const b: { readonly share: number; readonly height: number } =
+        rows[i + 1]!;
+      if (share <= b.share)
+        return (
+          (a.height +
+            ((share - a.share) / (b.share - a.share)) * (b.height - a.height)) *
+          footLength
+        );
     }
     return rows[rows.length - 1]!.height * footLength;
   }

@@ -1,5 +1,5 @@
-import type { IAutoMovieActorContext } from "./IAutoMovieActorContext";
 import type { IAutoMovieVector3 } from "../../geometry/IAutoMovieVector3";
+import type { IAutoMovieActorContext } from "./IAutoMovieActorContext";
 
 /** Data and callback contracts shared by the ResumeActorSynthesisRuntime operations. */
 export namespace IAutoMovieResumeActorSynthesisRuntime {
@@ -9,7 +9,7 @@ export namespace IAutoMovieResumeActorSynthesisRuntime {
   export type IResult = {
     /** Call-local resumed actor lookup; nested poses, rigs and unchanged contexts are borrowed. */
     contexts: Map<string, IAutoMovieActorContext>;
-  
+
     /** Call-local staged-id lookup with known prior actor translations substituted; values are borrowed. */
     nodes: Map<string, IAutoMovieVector3>;
   };

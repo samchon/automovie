@@ -1,6 +1,18 @@
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidSocket, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanProp, IAutoMovieResolvedBone, IAutoMovieSoftAnchorBinding, IAutoMovieSoftBodyBoundarySample, IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyResolvedCapsule, IAutoMovieSoftCollider, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidSocket,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieResolvedBone,
+  IAutoMovieSoftAnchorBinding,
+  IAutoMovieSoftBodyBoundarySample,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyResolvedCapsule,
+  IAutoMovieSoftCollider,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
@@ -40,13 +52,24 @@ export function HumanPerformanceSoftBoundary(
   for (const anchor of domain.anchors) {
     const binding: IAutoMovieSoftAnchorBinding | undefined = anchor.binding;
     if (binding === undefined) continue;
-    if (binding.kind === "node" && binding.node.startsWith(HumanPerformanceSoftBoundary.GRIP)) {
-      const g: HumanPerformanceSoftBoundary.IGripAnchor | undefined = HumanPerformanceSoftBoundary.owner(grips, anchor.particle, seconds);
+    if (
+      binding.kind === "node" &&
+      binding.node.startsWith(HumanPerformanceSoftBoundary.GRIP)
+    ) {
+      const g: HumanPerformanceSoftBoundary.IGripAnchor | undefined =
+        HumanPerformanceSoftBoundary.owner(grips, anchor.particle, seconds);
       if (g === undefined) released.push(anchor.particle);
       else
         anchors.push({
           particle: anchor.particle,
-          position: HumanPerformanceSoftBoundary.gripSocket(state, bones, g.person, g.side, k, seconds),
+          position: HumanPerformanceSoftBoundary.gripSocket(
+            state,
+            bones,
+            g.person,
+            g.side,
+            k,
+            seconds,
+          ),
         });
       continue;
     }
@@ -139,7 +162,9 @@ export namespace HumanPerformanceSoftBoundary {
   ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
   /** A reader of displayed bones by person and step, each read once. */
-  export const memoBones: (state: IAutoMovieMotionHumanPerformanceState) => BoneReader = (
+  export const memoBones: (
+    state: IAutoMovieMotionHumanPerformanceState,
+  ) => BoneReader = (
     state: IAutoMovieMotionHumanPerformanceState,
   ): BoneReader => {
     const kept: Map<
@@ -199,7 +224,8 @@ export namespace HumanPerformanceSoftBoundary {
     seconds: number,
   ): IAutoMovieVector3 => {
     const socket: IAutoMovieHumanoidSurfaces.IFrame =
-      HumanPerformanceRead.person(state, person).performer.body.surfaces.sockets[
+      HumanPerformanceRead.person(state, person).performer.body.surfaces
+        .sockets[
         `grip${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidSocket
       ];
     const hand: IAutoMovieResolvedBone = bones(person, k, seconds).get(

@@ -1,5 +1,11 @@
-import type { IAutoMovieAxis, IAutoMovieLoftSectionJet, IAutoMovieLoftViewRead, IAutoMovieLoftViewSource, IAutoMovieLoftWorldJetWorld, IAutoMovieSolidSurface } from "@automovie/interface";
-
+import type {
+  IAutoMovieAxis,
+  IAutoMovieLoftSectionJet,
+  IAutoMovieLoftViewRead,
+  IAutoMovieLoftViewSource,
+  IAutoMovieLoftWorldJetWorld,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
 
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
@@ -48,10 +54,12 @@ export function AutoMovieLoftViewWorldJet(
 
   // Both callees below read only the freshly owned numeric arrays above.
   try {
-    const local: ReturnType<((phi: number) => IAutoMovieLoftSectionJet)> =
+    const local: ReturnType<(phi: number) => IAutoMovieLoftSectionJet> =
       AutoMovieLoftSectionNative.jet(inputs)(phase);
-    const world: IAutoMovieLoftWorldJetWorld =
-      AutoMovieLoftWorldJet(local, rows);
+    const world: IAutoMovieLoftWorldJetWorld = AutoMovieLoftWorldJet(
+      local,
+      rows,
+    );
     return {
       p: world.p,
       u: world.s,

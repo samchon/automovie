@@ -1,9 +1,9 @@
-import type { IAutoMovieNaturalSpline, IAutoMovieHumanTrunkKey, IAutoMovieHumanTrunkProfileBack } from "@automovie/interface";
-
-
-
 import { AutoMovieNaturalSpline } from "@automovie/engine";
-
+import type {
+  IAutoMovieHumanTrunkKey,
+  IAutoMovieHumanTrunkProfileBack,
+  IAutoMovieNaturalSpline,
+} from "@automovie/interface";
 
 /**
  * The trunk's back median profile alone: the forward place of the back
@@ -20,24 +20,30 @@ import { AutoMovieNaturalSpline } from "@automovie/engine";
  * `apexes` publishes where this curve puts them.
  */
 export namespace AutoMovieHumanTrunkProfileBack {
-  
-
   /**
    * The profile through the keys.
    *
    * @param keys The column's keys by rising height.
    * @returns The profile.
    */
-  export function create(keys: readonly IAutoMovieHumanTrunkKey[]): IAutoMovieHumanTrunkProfileBack.IProfile {
-    const used: IAutoMovieHumanTrunkKey[] = keys.filter((k: IAutoMovieHumanTrunkKey): boolean => k.back !== null);
-    const spline: IAutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
-      used.map((k: IAutoMovieHumanTrunkKey): number => k.y),
-      used.map((k: IAutoMovieHumanTrunkKey): number => k.back!),
+  export function create(
+    keys: readonly IAutoMovieHumanTrunkKey[],
+  ): IAutoMovieHumanTrunkProfileBack.IProfile {
+    const used: IAutoMovieHumanTrunkKey[] = keys.filter(
+      (k: IAutoMovieHumanTrunkKey): boolean => k.back !== null,
     );
+    const spline: IAutoMovieNaturalSpline.ISpline =
+      AutoMovieNaturalSpline.create(
+        used.map((k: IAutoMovieHumanTrunkKey): number => k.y),
+        used.map((k: IAutoMovieHumanTrunkKey): number => k.back!),
+      );
 
     return {
       at: (y: number): number => AutoMovieNaturalSpline.evaluate(spline, y),
-      marks: used.map((k: IAutoMovieHumanTrunkKey): [number, number] => [k.y, k.back!]),
+      marks: used.map((k: IAutoMovieHumanTrunkKey): [number, number] => [
+        k.y,
+        k.back!,
+      ]),
     };
   }
 

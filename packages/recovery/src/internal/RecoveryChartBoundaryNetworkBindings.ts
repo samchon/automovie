@@ -1,6 +1,14 @@
-import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieRecoveryChartBoundary, IAutoMovieRecoveryChartBoundaryNetworkBindings, IAutoMovieRecoveryChartBoundaryNetworkRegistry } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieRecoveryChartBoundary,
+  IAutoMovieRecoveryChartBoundaryNetworkBindings,
+  IAutoMovieRecoveryChartBoundaryNetworkRegistry,
+} from "@automovie/interface";
 
-type Binding = ReturnType<ReturnType<IAutoMovieRecoveryChartBoundary.Operation>["get"]>;
+type Binding = ReturnType<
+  ReturnType<IAutoMovieRecoveryChartBoundary.Operation>["get"]
+>;
 
 /**
  * Bind maximal physical arcs to all copied chart sides after augmentation.
@@ -24,7 +32,9 @@ export function RecoveryChartBoundaryNetworkBindings(
     diagnostics,
     maximumPointChange,
     pair,
-    compare }: ReturnType<IAutoMovieRecoveryChartBoundaryNetworkRegistry.Operation> = context;
+    compare,
+  }: ReturnType<IAutoMovieRecoveryChartBoundaryNetworkRegistry.Operation> =
+    context;
   const graph: Map<string, { a: string; b: string; charts: Set<string> }> =
       new Map(),
     neighbors: Map<string, Set<string>> = new Map();
@@ -170,8 +180,11 @@ export function RecoveryChartBoundaryNetworkBindings(
       length,
       boundary: input.owner.get(
         word,
-        word.map((key: string): Readonly<AutoMovieVector3Tuple> => points.get(key)!),
-      ) });
+        word.map(
+          (key: string): Readonly<AutoMovieVector3Tuple> => points.get(key)!,
+        ),
+      ),
+    });
   }
   if (visited.size !== graph.size)
     throw new Error("A boundary component lacks complete open-arc ownership");
@@ -232,10 +245,18 @@ export function RecoveryChartBoundaryNetworkBindings(
               ...base.fit.curve,
               spans: [...base.fit.curve.spans]
                 .reverse()
-                .map((net: IAutoMovieCurve64.Span): IAutoMovieCurve64.Span => [net[3], net[2], net[1], net[0]]),
+                .map(
+                  (net: IAutoMovieCurve64.Span): IAutoMovieCurve64.Span => [
+                    net[3],
+                    net[2],
+                    net[1],
+                    net[0],
+                  ],
+                ),
               phaseIntervals: orientedKnots
                 .slice(1)
-                .map((v: number, i: number): number => v - orientedKnots[i]!) }
+                .map((v: number, i: number): number => v - orientedKnots[i]!),
+            }
           : base.fit.curve;
         const boundary: Binding = reverse
           ? {
@@ -246,7 +267,8 @@ export function RecoveryChartBoundaryNetworkBindings(
               parameters: [...base.parameters]
                 .reverse()
                 .map((v: number): number => 1 - v),
-              fit: { ...base.fit, curve } }
+              fit: { ...base.fit, curve },
+            }
           : base;
         const start: number = prefix / total;
         prefix += arc.length;
@@ -314,7 +336,8 @@ export function RecoveryChartBoundaryNetworkBindings(
           spans,
           phaseIntervals: knots
             .slice(1)
-            .map((v: number, i: number): number => v - knots[i]!) };
+            .map((v: number, i: number): number => v - knots[i]!),
+        };
       chart.boundaries.push({
         id,
         reversed: false,
@@ -333,7 +356,9 @@ export function RecoveryChartBoundaryNetworkBindings(
           sampleMaximumMm,
           polylineUpperEstimateMm,
           handleFallbacks,
-          observationsPerSpan: side.length / spans.length } });
+          observationsPerSpan: side.length / spans.length,
+        },
+      });
     }
   if (!Number.isFinite(maximumPointChange))
     throw new Error(

@@ -1,6 +1,8 @@
-import type { IAutoMovieMotionClock, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieMotionClock,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The pelvis's path over a flight of stairs (`climbStairs`): between the

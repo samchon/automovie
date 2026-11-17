@@ -1,4 +1,5 @@
 import type { IAutoMovieSolveHalfPlaneProgram } from "@automovie/interface";
+
 /**
  * The point of a disc nearest a preferred point that satisfies a set of
  * half-planes in the plane, or, when no point satisfies them all, the point
@@ -160,7 +161,10 @@ function program2(
   let point: IPoint = directional
     ? { x: preferred.x * radius, y: preferred.y * radius }
     : length > radius
-      ? { x: (preferred.x / length) * radius, y: (preferred.y / length) * radius }
+      ? {
+          x: (preferred.x / length) * radius,
+          y: (preferred.y / length) * radius,
+        }
       : { x: preferred.x, y: preferred.y };
   for (let i: number = 0; i < lines.length; ++i) {
     const line: ILine = lines[i]!;

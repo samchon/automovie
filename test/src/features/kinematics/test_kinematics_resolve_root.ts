@@ -1,6 +1,9 @@
-import { type IAutoMovieResolvedBone, AutoMovieHumanoidBone, type IAutoMovieSkeleton } from "@automovie/interface";
 import { resolvePose } from "@automovie/engine";
-
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { IDENTITY_TRANSFORM } from "../internal/IDENTITY_TRANSFORM";

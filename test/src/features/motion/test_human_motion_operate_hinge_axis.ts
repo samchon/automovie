@@ -1,6 +1,9 @@
-import type { IAutoMovieMotionHumanOperate, IAutoMovieMotionHumanOperateDrive, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "@automovie/engine";
-
+import type {
+  IAutoMovieMotionHumanOperate,
+  IAutoMovieMotionHumanOperateDrive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { operate, operateDrive } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -94,7 +97,9 @@ export function test_human_motion_operate_hinge_axis(): void {
     point: { x: 0.8, y: 1.0, z: 0.05 },
     normal: { x: 0, y: 0, z: 1 },
   };
-  const line: IAutoMovieMotionHumanOperateDrive.IHinge = { point: { x: 0, y: 0.3, z: 0 } };
+  const line: IAutoMovieMotionHumanOperateDrive.IHinge = {
+    point: { x: 0, y: 0.3, z: 0 },
+  };
   const upright: IAutoMovieMotionHumanOperateDrive.IHinge = {
     point: { x: 0, y: 0.3, z: 0 },
     axis: { x: 0, y: 1, z: 0 },

@@ -1,5 +1,8 @@
-import { type IAutoMovieJointAxesIssue, IAutoMovieJointAxes, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieJointAxes,
+  type IAutoMovieJointAxesIssue,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 

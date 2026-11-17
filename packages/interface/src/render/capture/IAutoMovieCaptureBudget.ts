@@ -1,5 +1,3 @@
-
-
 /**
  * What the reader of a capture's pictures takes in, which sizes every contact sheet.
  *

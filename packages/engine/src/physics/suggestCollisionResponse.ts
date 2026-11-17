@@ -1,5 +1,10 @@
-import type { IAutoMovieCollisionResponse, IAutoMovieImpact, IAutoMovieRecoilPush, IAutoMovieSuggestCollisionResponse, IAutoMoviePose } from "@automovie/interface";
-
+import type {
+  IAutoMovieCollisionResponse,
+  IAutoMovieImpact,
+  IAutoMoviePose,
+  IAutoMovieRecoilPush,
+  IAutoMovieSuggestCollisionResponse,
+} from "@automovie/interface";
 
 import { impactRecoil } from "./impactRecoil";
 import { impulseToRecoilPush } from "./impulseToRecoilPush";
@@ -22,7 +27,11 @@ import { resolveImpact } from "./resolveImpact";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The computed impact impulse is passed directly to the push conversion in this call; no cross-request cache assumes mutable body or rig equivalence.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned aggregate owns its new response/push/pose records except documented borrowed no-closing velocities; no ongoing physical state or handle is retained.
  */
-export const suggestCollisionResponse: (props: IAutoMovieSuggestCollisionResponse.IProps) => IAutoMovieCollisionResponse = (props: IAutoMovieSuggestCollisionResponse.IProps): IAutoMovieCollisionResponse => {
+export const suggestCollisionResponse: (
+  props: IAutoMovieSuggestCollisionResponse.IProps,
+) => IAutoMovieCollisionResponse = (
+  props: IAutoMovieSuggestCollisionResponse.IProps,
+): IAutoMovieCollisionResponse => {
   const impact: IAutoMovieImpact = resolveImpact(
     props.a,
     props.b,

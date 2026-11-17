@@ -1,5 +1,10 @@
-import { type IAutoMovieFluidSurfaceGeometry, IAutoMovieFluidDomain, IAutoMovieFluidState, IAutoMovieFluidSurface, IAutoMovieVector3 } from "@automovie/interface";
-
+import {
+  IAutoMovieFluidDomain,
+  IAutoMovieFluidState,
+  IAutoMovieFluidSurface,
+  type IAutoMovieFluidSurfaceGeometry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Derive the drawable free surface of one solved fluid state.
@@ -22,7 +27,11 @@ import { type IAutoMovieFluidSurfaceGeometry, IAutoMovieFluidDomain, IAutoMovieF
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One derivation per state per call; nothing is cached across frames.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned buffers are fresh and sized by the cell count, and the elevation scratch array dies with the call.
  */
-export const fluidSurfaceGeometry: (props: IAutoMovieFluidSurfaceGeometry.IProps) => IAutoMovieFluidSurface = (props: IAutoMovieFluidSurfaceGeometry.IProps): IAutoMovieFluidSurface => {
+export const fluidSurfaceGeometry: (
+  props: IAutoMovieFluidSurfaceGeometry.IProps,
+) => IAutoMovieFluidSurface = (
+  props: IAutoMovieFluidSurfaceGeometry.IProps,
+): IAutoMovieFluidSurface => {
   const domain: IAutoMovieFluidDomain = props.domain;
   const state: IAutoMovieFluidState = props.state;
   if (state.domain !== domain.id)

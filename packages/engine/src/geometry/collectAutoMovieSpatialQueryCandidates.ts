@@ -1,4 +1,8 @@
-import type { IAutoMovieMeshQueryHierarchy, IAutoMovieSpatialQueryEntry } from "@automovie/interface";
+import type {
+  IAutoMovieMeshQueryHierarchy,
+  IAutoMovieSpatialQueryEntry,
+} from "@automovie/interface";
+
 /**
  * Collect the hierarchy entries whose boxes can meet a subject box, ordered by
  * the first cell of an XYZ grid they share with the subject.

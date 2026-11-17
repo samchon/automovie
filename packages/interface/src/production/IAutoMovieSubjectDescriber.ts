@@ -22,8 +22,8 @@ import type { IAutoMovieSubjectDescription } from "./IAutoMovieSubjectDescriptio
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No subject, model or environment is special-cased; a transform-only group is described without geometry because it has none, and an unknown address throws.
  * @evidence contracts/development/common.md#meaningful-documentation The documentation states who uses the describer, what it memoizes and why, its snapshot semantics, the member page rule, and the coordinate space of each kind's bounds.
  */
-export interface IAutoMovieSubjectDescriber  {
-/**
+export interface IAutoMovieSubjectDescriber {
+  /**
    * Describe the subject at one address, regenerating an element part or a
    * single compact instance only because it was addressed.
    *
@@ -43,9 +43,9 @@ export interface IAutoMovieSubjectDescriber  {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Answers one address per call; repeated addressing on one describer reuses its memoized points and boxes.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new description the caller owns; any measurement it memoizes is held by the describer as stated on the class.
    */
-  describe(subjectId: string): IAutoMovieSubjectDescription ;
+  describe(subjectId: string): IAutoMovieSubjectDescription;
 
-/**
+  /**
    * Every directly stored subject, sorted by address in render-id order.
    *
    * Holds each model as a prototype with its prototype parts, each staged
@@ -64,5 +64,5 @@ export interface IAutoMovieSubjectDescriber  {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Produces a new list per call; the describer's memoized points and boxes are what repeated work reuses.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a list the caller owns, one description per stored subject; the describer's caches are bounded as stated on the class.
    */
-  inventory(): IAutoMovieSubjectDescription[] ;
+  inventory(): IAutoMovieSubjectDescription[];
 }

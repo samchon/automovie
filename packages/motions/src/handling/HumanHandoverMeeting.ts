@@ -1,9 +1,16 @@
-import type { IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanHandover, IAutoMovieMotionHumanProp, IAutoMovieMotionMeeting, IAutoMovieResolveMutualGoal, IAutoMovieVector3 } from "@automovie/interface";
-
 import {
   resolveAutoMovieHumanoidSurfaces,
   resolveAutoMovieMutualGoal,
 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanHandover,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionMeeting,
+  IAutoMovieResolveMutualGoal,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { HumanSeatedReach } from "../touch/HumanSeatedReach";

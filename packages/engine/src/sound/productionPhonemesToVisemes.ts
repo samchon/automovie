@@ -1,5 +1,7 @@
-import { type IAutoMovieProductionPhonemesToVisemes, IAutoMovieProductionViseme } from "@automovie/interface";
-
+import {
+  type IAutoMovieProductionPhonemesToVisemes,
+  IAutoMovieProductionViseme,
+} from "@automovie/interface";
 
 /**
  * Map supplied phoneme chunk sample timing to film-frame vowel/rest intervals.
@@ -12,7 +14,11 @@ import { type IAutoMovieProductionPhonemesToVisemes, IAutoMovieProductionViseme 
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One normalized chunk token list and computed frame span are reused for that chunk's bins; changed chunk timing or frame range is recalculated with no retained phoneme cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns fresh scalar/text viseme rows; chunk objects and source audio are not retained, and no tokenizer model, network or decoder resource is acquired.
  */
-export const productionPhonemesToVisemes: (props: IAutoMovieProductionPhonemesToVisemes.IProps) => IAutoMovieProductionViseme[] = (props: IAutoMovieProductionPhonemesToVisemes.IProps): IAutoMovieProductionViseme[] => {
+export const productionPhonemesToVisemes: (
+  props: IAutoMovieProductionPhonemesToVisemes.IProps,
+) => IAutoMovieProductionViseme[] = (
+  props: IAutoMovieProductionPhonemesToVisemes.IProps,
+): IAutoMovieProductionViseme[] => {
   const duration: number = props.endFrame - props.startFrame;
   if (duration <= 0 || props.sourceSamples <= 0) return [];
   const output: IAutoMovieProductionViseme[] = [];

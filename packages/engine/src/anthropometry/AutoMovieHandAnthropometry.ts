@@ -1,4 +1,5 @@
 import type { IAutoMovieHandAnthropometry } from "@automovie/interface";
+
 /**
  * Population hand anthropometry: each digit's breadth and girth at its two
  * joints nearest the tip, and the sample's mean hand length, the table both
@@ -24,25 +25,63 @@ import type { IAutoMovieHandAnthropometry } from "@automovie/interface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts One table for every reader, so the figure and the objects it handles never disagree.
  */
 export namespace AutoMovieHandAnthropometry {
-
   /**
    * Digits 1 (thumb) to 5 (little), each `[first joint, second joint]` from
    * the tip, women then men (means).
    */
-  export const JOINTS: readonly [readonly (readonly [IAutoMovieHandAnthropometry.IJoint, IAutoMovieHandAnthropometry.IJoint])[], readonly (readonly [IAutoMovieHandAnthropometry.IJoint, IAutoMovieHandAnthropometry.IJoint])[]] = [
+  export const JOINTS: readonly [
+    readonly (readonly [
+      IAutoMovieHandAnthropometry.IJoint,
+      IAutoMovieHandAnthropometry.IJoint,
+    ])[],
+    readonly (readonly [
+      IAutoMovieHandAnthropometry.IJoint,
+      IAutoMovieHandAnthropometry.IJoint,
+    ])[],
+  ] = [
     [
-      [{ breadth: 18.41, girth: 60.61 }, { breadth: 20.07, girth: 68.52 }],
-      [{ breadth: 14.09, girth: 50.09 }, { breadth: 16.48, girth: 58.32 }],
-      [{ breadth: 14.08, girth: 48.78 }, { breadth: 16.1, girth: 59.28 }],
-      [{ breadth: 13.15, girth: 46.21 }, { breadth: 15.15, girth: 55.31 }],
-      [{ breadth: 11.87, girth: 42.92 }, { breadth: 13.41, girth: 48.49 }],
+      [
+        { breadth: 18.41, girth: 60.61 },
+        { breadth: 20.07, girth: 68.52 },
+      ],
+      [
+        { breadth: 14.09, girth: 50.09 },
+        { breadth: 16.48, girth: 58.32 },
+      ],
+      [
+        { breadth: 14.08, girth: 48.78 },
+        { breadth: 16.1, girth: 59.28 },
+      ],
+      [
+        { breadth: 13.15, girth: 46.21 },
+        { breadth: 15.15, girth: 55.31 },
+      ],
+      [
+        { breadth: 11.87, girth: 42.92 },
+        { breadth: 13.41, girth: 48.49 },
+      ],
     ],
     [
-      [{ breadth: 18.85, girth: 66.47 }, { breadth: 23.56, girth: 76.71 }],
-      [{ breadth: 15.34, girth: 53.58 }, { breadth: 17.98, girth: 64.06 }],
-      [{ breadth: 15.74, girth: 54.55 }, { breadth: 17.93, girth: 64.45 }],
-      [{ breadth: 14.79, girth: 51.64 }, { breadth: 17.21, girth: 61.77 }],
-      [{ breadth: 13.49, girth: 46.61 }, { breadth: 14.99, girth: 54.3 }],
+      [
+        { breadth: 18.85, girth: 66.47 },
+        { breadth: 23.56, girth: 76.71 },
+      ],
+      [
+        { breadth: 15.34, girth: 53.58 },
+        { breadth: 17.98, girth: 64.06 },
+      ],
+      [
+        { breadth: 15.74, girth: 54.55 },
+        { breadth: 17.93, girth: 64.45 },
+      ],
+      [
+        { breadth: 14.79, girth: 51.64 },
+        { breadth: 17.21, girth: 61.77 },
+      ],
+      [
+        { breadth: 13.49, girth: 46.61 },
+        { breadth: 14.99, girth: 54.3 },
+      ],
     ],
   ];
 

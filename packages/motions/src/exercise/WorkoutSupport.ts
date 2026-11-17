@@ -1,6 +1,10 @@
-import type { IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanWorkoutSupport, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanWorkoutSupport,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
@@ -43,12 +47,13 @@ export namespace WorkoutSupport {
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     on: IAutoMovieMotionHumanWorkoutSupport.IAtOn,
   ): IAutoMovieVector3 {
-    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(on.prop);
+    const read: IAutoMovieMotionHumanActionContext.IProp = context.prop(
+      on.prop,
+    );
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];
-    const frame: ReturnType<IAutoMovieMotionHumanActionContext.IProp["frame"]> = read.frame(
-      context.start,
-    );
+    const frame: ReturnType<IAutoMovieMotionHumanActionContext.IProp["frame"]> =
+      read.frame(context.start);
     const place = (id: string): IAutoMovieVector3 => {
       const found: IAutoMovieAffordance | undefined = affordances.find(
         (a: IAutoMovieAffordance): boolean => a.id === id,

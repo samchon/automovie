@@ -1,22 +1,19 @@
-import type { IAutoMovieLoftContract, IAutoMovieViewPart, IAutoMovieConstructionNode, AutoMovieVector3Tuple, IAutoMovieHumanBodyLane, IAutoMovieHumanBodyTree, IAutoMovieHumanHandAttachment, IAutoMovieHumanSiteViewPart, IAutoMovieHumanTrunkBuild, IAutoMovieConstructionView } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionView,
+  IAutoMovieHumanBodyLane,
+  IAutoMovieHumanBodyTree,
+  IAutoMovieHumanHandAttachment,
+  IAutoMovieHumanSiteViewPart,
+  IAutoMovieHumanTrunkBuild,
+  IAutoMovieLoftContract,
+  IAutoMovieViewPart,
+} from "@automovie/interface";
 
 import { AutoMovieHumanBodyPublication } from "./AutoMovieHumanBodyPublication";
 import { AutoMovieHumanBodyTree } from "./AutoMovieHumanBodyTree";
-
-
 import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
-
 
 /**
  * The body lane's subtree (#3047 to #3051) as one construction tree realized
@@ -48,20 +45,6 @@ import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
  * leaves/joins and its rollback. A source tree is not a completed skin.
  */
 export namespace AutoMovieHumanBodyLane {
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
   /**
    * The joins' trace limits: 64 traced points and blend columns per fold; a
    * curve gap far under the sections' own representation error (about
@@ -80,7 +63,9 @@ export namespace AutoMovieHumanBodyLane {
    * @param input The trunk, both sides' parts and their folds.
    * @returns The chains, the realized body and the diagnostics.
    */
-  export function create(input: IAutoMovieHumanBodyLane.IInput): IAutoMovieHumanBodyLane.IOutput {
+  export function create(
+    input: IAutoMovieHumanBodyLane.IInput,
+  ): IAutoMovieHumanBodyLane.IOutput {
     return realize(define(input));
   }
 
@@ -95,7 +80,9 @@ export namespace AutoMovieHumanBodyLane {
    * @evidence contracts/performance.md#reuse-equivalent-work Consumes the already assembled tree and source diagnostics.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Copies diagnostics before realization so the borrowed definition remains unmodified.
    */
-  export function realize(definition: IAutoMovieHumanBodyLane.IDefinition): IAutoMovieHumanBodyLane.IOutput {
+  export function realize(
+    definition: IAutoMovieHumanBodyLane.IDefinition,
+  ): IAutoMovieHumanBodyLane.IOutput {
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [
       ...definition.diagnostics,
     ];
@@ -127,7 +114,9 @@ export namespace AutoMovieHumanBodyLane {
    * @evidence contracts/performance.md#reuse-equivalent-work Source inspection and full production realization share this exact stage.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned definition records without caching a person or mesh.
    */
-  export function define(input: IAutoMovieHumanBodyLane.IInput): IAutoMovieHumanBodyLane.IDefinition {
+  export function define(
+    input: IAutoMovieHumanBodyLane.IInput,
+  ): IAutoMovieHumanBodyLane.IDefinition {
     const preparedDiagnostics: number = input.diagnostics?.length ?? 0;
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [
       ...(input.diagnostics ?? []),
@@ -227,40 +216,64 @@ export namespace AutoMovieHumanBodyLane {
       // nearest neighbour's base.
       const branches: (
         host: IAutoMovieConstructionView | null,
-        list: readonly (IAutoMovieHumanBodyLane.IDigit | IAutoMovieHumanBodyLane.IToe)[],
+        list: readonly (
+          | IAutoMovieHumanBodyLane.IDigit
+          | IAutoMovieHumanBodyLane.IToe
+        )[],
       ) => IAutoMovieConstructionNode | null = (
         host: IAutoMovieConstructionView | null,
-        list: readonly (IAutoMovieHumanBodyLane.IDigit | IAutoMovieHumanBodyLane.IToe)[],
+        list: readonly (
+          | IAutoMovieHumanBodyLane.IDigit
+          | IAutoMovieHumanBodyLane.IToe
+        )[],
       ): IAutoMovieConstructionNode | null => {
         let tree: IAutoMovieConstructionNode | null = host;
-        const baseOf: (source: IAutoMovieHumanBodyLane.IDigit | IAutoMovieHumanBodyLane.IToe) => AutoMovieVector3Tuple = (
+        const baseOf: (
+          source: IAutoMovieHumanBodyLane.IDigit | IAutoMovieHumanBodyLane.IToe,
+        ) => AutoMovieVector3Tuple = (
           source: IAutoMovieHumanBodyLane.IDigit | IAutoMovieHumanBodyLane.IToe,
         ): AutoMovieVector3Tuple =>
           "toe" in source ? source.toe.centres[0]! : source.digit.centres[0]!;
-        list.forEach((d: IAutoMovieHumanBodyLane.IDigit | IAutoMovieHumanBodyLane.IToe): void => {
-          const digit: IAutoMovieConstructionView | null =
-            "toe" in d
-              ? original(d.toe.name, d.definition)
-              : original(d.digit.name, d.definition);
-          if (digit === null || tree === null || host === null) return;
-          const base: AutoMovieVector3Tuple = baseOf(d);
-          const nearest: number = Math.min(
-            ...list
-              .filter((o: IAutoMovieHumanBodyLane.IDigit | IAutoMovieHumanBodyLane.IToe): boolean => o !== d)
-              .map((o: IAutoMovieHumanBodyLane.IDigit | IAutoMovieHumanBodyLane.IToe): number => distance(base, baseOf(o))),
-          );
-          tree = AutoMovieHumanBodyTree.join(
-            tree,
-            fold(
-              digit,
-              digit.name,
-              host.name,
-              d.fold,
-              Number.isFinite(nearest) ? nearest / 2 : d.fold.radius,
-            ),
-            limits,
-          );
-        });
+        list.forEach(
+          (
+            d: IAutoMovieHumanBodyLane.IDigit | IAutoMovieHumanBodyLane.IToe,
+          ): void => {
+            const digit: IAutoMovieConstructionView | null =
+              "toe" in d
+                ? original(d.toe.name, d.definition)
+                : original(d.digit.name, d.definition);
+            if (digit === null || tree === null || host === null) return;
+            const base: AutoMovieVector3Tuple = baseOf(d);
+            const nearest: number = Math.min(
+              ...list
+                .filter(
+                  (
+                    o:
+                      | IAutoMovieHumanBodyLane.IDigit
+                      | IAutoMovieHumanBodyLane.IToe,
+                  ): boolean => o !== d,
+                )
+                .map(
+                  (
+                    o:
+                      | IAutoMovieHumanBodyLane.IDigit
+                      | IAutoMovieHumanBodyLane.IToe,
+                  ): number => distance(base, baseOf(o)),
+                ),
+            );
+            tree = AutoMovieHumanBodyTree.join(
+              tree,
+              fold(
+                digit,
+                digit.name,
+                host.name,
+                d.fold,
+                Number.isFinite(nearest) ? nearest / 2 : d.fold.radius,
+              ),
+              limits,
+            );
+          },
+        );
         return tree;
       };
 
@@ -335,7 +348,9 @@ export namespace AutoMovieHumanBodyLane {
       "right",
     ].flatMap((side: string): IAutoMovieHumanHandAttachment.IConnection[] =>
       input.sides[side as "left" | "right"].fingers.flatMap(
-        (digit: IAutoMovieHumanBodyLane.IDigit): IAutoMovieHumanHandAttachment.IConnection[] =>
+        (
+          digit: IAutoMovieHumanBodyLane.IDigit,
+        ): IAutoMovieHumanHandAttachment.IConnection[] =>
           digit.digit.attachment === undefined ? [] : [digit.digit.attachment],
       ),
     );
@@ -347,7 +362,10 @@ export namespace AutoMovieHumanBodyLane {
   }
 
   /** The distance of two points, mm. */
-  function distance(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
+  function distance(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): number {
     return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   }
 }

@@ -1,5 +1,13 @@
-import type { AutoMovieVector3Tuple, IAutoMovieCurve64, IAutoMovieViewOutline } from "@automovie/interface";
-import { AutoMovieViewOutline, measureAutoMovieCubicCurveLength64, measureAutoMovieCurveLength64 } from "@automovie/engine";
+import {
+  AutoMovieViewOutline,
+  measureAutoMovieCubicCurveLength64,
+  measureAutoMovieCurveLength64,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurve64,
+  IAutoMovieViewOutline,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -34,7 +42,11 @@ export function test_geometry_source_curve_length(): void {
       ].map(
         (domain: number[]): Piece => ({
           domain: [domain[0]!, domain[1]!],
-          derivative: (): Readonly<AutoMovieVector3Tuple> => [3 * sign * scale, 4 * scale, 12 * scale],
+          derivative: (): Readonly<AutoMovieVector3Tuple> => [
+            3 * sign * scale,
+            4 * scale,
+            12 * scale,
+          ],
         }),
       );
       near(
@@ -113,14 +125,15 @@ export function test_geometry_source_curve_length(): void {
   }
 
   // These are the original public source jets, including a named-height chain rule.
-  const natural: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
-    AutoMovieViewOutline.create({
-      knots: [
-        { site: "start", station: 0, value: 0 },
-        { site: "turn", station: 1, value: 1 },
-        { site: "end", station: 2, value: 0 },
-      ],
-    });
+  const natural:
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+    knots: [
+      { site: "start", station: 0, value: 0 },
+      { site: "turn", station: 1, value: 1 },
+      { site: "end", station: 2, value: 0 },
+    ],
+  });
   if ("detail" in natural) failures.push(natural.detail);
   else {
     const before: string = JSON.stringify(natural);
@@ -156,23 +169,24 @@ export function test_geometry_source_curve_length(): void {
       JSON.stringify(natural) === before,
     );
   }
-  const height: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
-    AutoMovieViewOutline.create({
-      knots: [
-        {
-          site: "height start",
-          station: 0,
-          value: 0,
-          jet: { first: 0, second: 0 },
-        },
-        {
-          site: "height end",
-          station: 1,
-          value: 1,
-          jet: { first: 0, second: 0 },
-        },
-      ],
-    });
+  const height:
+    | IAutoMovieViewOutline.IOutline
+    | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+    knots: [
+      {
+        site: "height start",
+        station: 0,
+        value: 0,
+        jet: { first: 0, second: 0 },
+      },
+      {
+        site: "height end",
+        station: 1,
+        value: 1,
+        jet: { first: 0, second: 0 },
+      },
+    ],
+  });
   const axis: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
     AutoMovieViewOutline.create({
       knots: [
@@ -213,7 +227,10 @@ export function test_geometry_source_curve_length(): void {
   }
   const zero: ReturnType<typeof measureAutoMovieCurveLength64> =
     measureAutoMovieCurveLength64([
-      { domain: [-1, 1], derivative: (): Readonly<AutoMovieVector3Tuple> => [0, 0, 0] },
+      {
+        domain: [-1, 1],
+        derivative: (): Readonly<AutoMovieVector3Tuple> => [0, 0, 0],
+      },
     ]);
   near(failures, "finite zero-speed length", zero.lengthMm, 0, 0);
   near(failures, "finite zero-speed difference", zero.differenceMm, 0, 0);
@@ -257,9 +274,16 @@ export function test_geometry_source_curve_length(): void {
         [
           {
             domain: [0, 1],
-            derivative: (t: number): Readonly<AutoMovieVector3Tuple> => [1 - t * t, 2 * t, 0],
+            derivative: (t: number): Readonly<AutoMovieVector3Tuple> => [
+              1 - t * t,
+              2 * t,
+              0,
+            ],
           },
-          { domain: [4, 5], derivative: (): Readonly<AutoMovieVector3Tuple> => [0, 3, 0] },
+          {
+            domain: [4, 5],
+            derivative: (): Readonly<AutoMovieVector3Tuple> => [0, 3, 0],
+          },
         ],
         count,
       );
@@ -395,7 +419,11 @@ export function test_geometry_source_curve_length(): void {
     "closed-domain evaluation budget",
     reads === 24 * 1024 + 2 && !outside,
   );
-  const constant: (t: number) => Readonly<AutoMovieVector3Tuple> = (): Readonly<AutoMovieVector3Tuple> => [1, 0, 0];
+  const constant: (
+    t: number,
+  ) => Readonly<AutoMovieVector3Tuple> = (): Readonly<AutoMovieVector3Tuple> => [
+    1, 0, 0,
+  ];
   refuses(failures, "empty pieces", (): unknown =>
     measureAutoMovieCurveLength64([]),
   );
@@ -426,7 +454,11 @@ export function test_geometry_source_curve_length(): void {
       measureAutoMovieCurveLength64([
         {
           domain: [0, 1],
-          derivative: (t: number): Readonly<AutoMovieVector3Tuple> => [t === endpoint ? NaN : 1, 0, 0],
+          derivative: (t: number): Readonly<AutoMovieVector3Tuple> => [
+            t === endpoint ? NaN : 1,
+            0,
+            0,
+          ],
         },
       ]),
     );
@@ -456,12 +488,24 @@ export function test_geometry_source_curve_length(): void {
   );
   refuses(failures, "unrepresentable length", (): unknown =>
     measureAutoMovieCurveLength64([
-      { domain: [0, 4], derivative: (): Readonly<AutoMovieVector3Tuple> => [1e308, 1e308, 1e308] },
+      {
+        domain: [0, 4],
+        derivative: (): Readonly<AutoMovieVector3Tuple> => [
+          1e308, 1e308, 1e308,
+        ],
+      },
     ]),
   );
   refuses(failures, "underflowing contribution", (): unknown =>
     measureAutoMovieCurveLength64([
-      { domain: [0, 1], derivative: (): Readonly<AutoMovieVector3Tuple> => [Number.MIN_VALUE, 0, 0] },
+      {
+        domain: [0, 1],
+        derivative: (): Readonly<AutoMovieVector3Tuple> => [
+          Number.MIN_VALUE,
+          0,
+          0,
+        ],
+      },
     ]),
   );
   const marker: Error = new Error("original source failure");

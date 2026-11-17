@@ -1,19 +1,18 @@
-import type { AutoMovieHumanSide, AutoMovieVector3Tuple, IAutoMovieHumanArmBones, IAutoMovieHumanArmPrior, IAutoMovieHumanFootBones, IAutoMovieHumanHandBones, IAutoMovieHumanLegBones, IAutoMovieHumanLegConstruction, IAutoMovieHumanLimbRest } from "@automovie/interface";
-
-
-
-
-
-
-
-
-
+import type {
+  AutoMovieHumanSide,
+  AutoMovieVector3Tuple,
+  IAutoMovieHumanArmBones,
+  IAutoMovieHumanArmPrior,
+  IAutoMovieHumanFootBones,
+  IAutoMovieHumanHandBones,
+  IAutoMovieHumanLegBones,
+  IAutoMovieHumanLegConstruction,
+  IAutoMovieHumanLimbRest,
+} from "@automovie/interface";
 
 import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
 import { AutoMovieHumanBodyFrame } from "./AutoMovieHumanBodyFrame";
-
 import { AutoMovieHumanFootPrior } from "./AutoMovieHumanFootPrior";
-
 import { AutoMovieHumanArmBones } from "./arm/AutoMovieHumanArmBones";
 import { AutoMovieHumanFootBones } from "./foot/AutoMovieHumanFootBones";
 import { AutoMovieHumanHandBones } from "./hand/AutoMovieHumanHandBones";
@@ -21,23 +20,18 @@ import { AutoMovieHumanLegBones } from "./leg/AutoMovieHumanLegBones";
 
 /** Pure sided rest definitions shared by source authors and the full skeleton. */
 export namespace AutoMovieHumanLimbRest {
-  
-
-  
-
-  
-
-  
-
-  
-
   /** Own one invocation's actual sided numerical rest records, without a whole skeleton. */
-  export function create(input: IAutoMovieHumanLimbRest.IInput): IAutoMovieHumanLimbRest.IOutput {
-    const arms: Map<AutoMovieHumanSide, IAutoMovieHumanLimbRest.IArm> = new Map();
-    const legs: Map<AutoMovieHumanSide, IAutoMovieHumanLimbRest.ILeg> = new Map();
+  export function create(
+    input: IAutoMovieHumanLimbRest.IInput,
+  ): IAutoMovieHumanLimbRest.IOutput {
+    const arms: Map<AutoMovieHumanSide, IAutoMovieHumanLimbRest.IArm> =
+      new Map();
+    const legs: Map<AutoMovieHumanSide, IAutoMovieHumanLimbRest.ILeg> =
+      new Map();
     return {
       arm(side: AutoMovieHumanSide): IAutoMovieHumanLimbRest.IArm {
-        const previous: IAutoMovieHumanLimbRest.IArm | undefined = arms.get(side);
+        const previous: IAutoMovieHumanLimbRest.IArm | undefined =
+          arms.get(side);
         if (previous !== undefined) return previous;
 
         // Place the canonical arm from its direct attachment, then reflect
@@ -66,11 +60,9 @@ export namespace AutoMovieHumanLimbRest {
             ),
             sign,
           );
-        const reflect: (p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
-          p[0],
-          p[1],
-          sign * p[2],
-        ];
+        const reflect: (p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (
+          p: AutoMovieVector3Tuple,
+        ): AutoMovieVector3Tuple => [p[0], p[1], sign * p[2]];
         const actual: IAutoMovieHumanLimbRest.IArm = {
           bones: {
             shoulder: reflect(original.shoulder),
@@ -84,15 +76,17 @@ export namespace AutoMovieHumanLimbRest {
         return actual;
       },
       leg(side: AutoMovieHumanSide): IAutoMovieHumanLimbRest.ILeg {
-        const previous: IAutoMovieHumanLimbRest.ILeg | undefined = legs.get(side);
+        const previous: IAutoMovieHumanLimbRest.ILeg | undefined =
+          legs.get(side);
         if (previous !== undefined) return previous;
 
         // FootBones owns an ankle at local XZ zero. The leg's explicit
         // nominal ankle placement supplies the sole world translation.
-        const foot: IAutoMovieHumanFootBones.IBones = AutoMovieHumanFootBones.of(
-          input.feet[side],
-          side === "left" ? 1 : -1,
-        ).bones;
+        const foot: IAutoMovieHumanFootBones.IBones =
+          AutoMovieHumanFootBones.of(
+            input.feet[side],
+            side === "left" ? 1 : -1,
+          ).bones;
         const actual: IAutoMovieHumanLimbRest.ILeg = {
           ...leg(
             input.stature,
@@ -109,7 +103,6 @@ export namespace AutoMovieHumanLimbRest {
     };
   }
 }
-
 
 /** Place one leg from public dimensions and its common frame datum. */
 function leg(
@@ -133,11 +126,9 @@ function leg(
     hipForward,
     ankleForward,
   });
-  const reflect: (point: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (point: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
-    point[0],
-    point[1],
-    sign * point[2],
-  ];
+  const reflect: (point: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (
+    point: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple => [point[0], point[1], sign * point[2]];
   return {
     hip: reflect(joints.hip),
     knee: reflect(joints.knee),

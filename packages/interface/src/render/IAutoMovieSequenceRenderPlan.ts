@@ -14,11 +14,12 @@ export interface IAutoMovieSequenceRenderPlan {
   /**
    * Render target identity.
    */
-  target: { 
-/** This manifest resolves a sequence rather than a single shot. */
-kind: "sequence"; 
-/** Sequence id matched against the render spec target by planSequenceRender. */
-id: string };
+  target: {
+    /** This manifest resolves a sequence rather than a single shot. */
+    kind: "sequence";
+    /** Sequence id matched against the render spec target by planSequenceRender. */
+    id: string;
+  };
 
   /**
    * Sequence fps as authored by the cut.

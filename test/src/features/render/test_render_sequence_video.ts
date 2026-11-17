@@ -1,5 +1,11 @@
-import { type IAutoMovieSequenceRenderAdapters, type IAutoMovieSequenceRenderAndSeeResult, type IAutoMovieSequenceRenderFrame, IAutoMovieRenderSpec, IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
-
+import {
+  IAutoMovieRenderSpec,
+  IAutoMovieSequence,
+  type IAutoMovieSequenceRenderAdapters,
+  type IAutoMovieSequenceRenderAndSeeResult,
+  type IAutoMovieSequenceRenderFrame,
+  IAutoMovieShot,
+} from "@automovie/interface";
 import { renderSequenceAndSee } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 

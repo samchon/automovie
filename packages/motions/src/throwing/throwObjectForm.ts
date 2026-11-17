@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanThrowObjectForm, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanThrowObjectForm,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The throw's form: every coefficient of its launch, its clock, its trunk
@@ -11,9 +14,10 @@ import type { IAutoMovieMotionHumanThrowObjectForm, IAutoMovieVector3 } from "@a
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place is a share of the body's arm, so no length is stated in metres.
  */
 export namespace throwObjectForm {
-
   /** Release angle above the horizontal by style, degrees (provisional). */
-  export const ANGLE: Readonly<Record<IAutoMovieMotionHumanThrowObjectForm.Style, number>> = {
+  export const ANGLE: Readonly<
+    Record<IAutoMovieMotionHumanThrowObjectForm.Style, number>
+  > = {
     overarm: 20,
     underarm: 40,
     toss: 50,
@@ -23,14 +27,18 @@ export namespace throwObjectForm {
   export const CARRY: number = 0.01;
 
   /** Windup seconds by style (provisional). */
-  export const WINDUP: Readonly<Record<IAutoMovieMotionHumanThrowObjectForm.Style, number>> = {
+  export const WINDUP: Readonly<
+    Record<IAutoMovieMotionHumanThrowObjectForm.Style, number>
+  > = {
     overarm: 0.5,
     underarm: 0.45,
     toss: 0.35,
   };
 
   /** The trunk's turn toward the throwing side in the windup, degrees (provisional). */
-  export const TURN: Readonly<Record<IAutoMovieMotionHumanThrowObjectForm.Style, number>> = {
+  export const TURN: Readonly<
+    Record<IAutoMovieMotionHumanThrowObjectForm.Style, number>
+  > = {
     overarm: 40,
     underarm: 20,
     toss: 10,
@@ -42,7 +50,9 @@ export namespace throwObjectForm {
    * Andrews 1999, J Biomech 32:1371). No study read gives the underarm
    * throw's or the toss's, so they stay upright (provisional).
    */
-  export const TILT: Readonly<Record<IAutoMovieMotionHumanThrowObjectForm.Style, number>> = {
+  export const TILT: Readonly<
+    Record<IAutoMovieMotionHumanThrowObjectForm.Style, number>
+  > = {
     overarm: 30,
     underarm: 0,
     toss: 0,
@@ -54,7 +64,9 @@ export namespace throwObjectForm {
    * that range (Fleisig et al. 1999). A style without one keeps its `PLACES`
    * release.
    */
-  export const ELBOW: Readonly<Partial<Record<IAutoMovieMotionHumanThrowObjectForm.Style, number>>> = {
+  export const ELBOW: Readonly<
+    Partial<Record<IAutoMovieMotionHumanThrowObjectForm.Style, number>>
+  > = {
     overarm: 22.5,
   };
 
@@ -67,7 +79,10 @@ export namespace throwObjectForm {
    * distance being the arm's at that flexion.
    */
   export const PLACES: Readonly<
-    Record<IAutoMovieMotionHumanThrowObjectForm.Style, Record<"chamber" | "release" | "finish", IAutoMovieVector3>>
+    Record<
+      IAutoMovieMotionHumanThrowObjectForm.Style,
+      Record<"chamber" | "release" | "finish", IAutoMovieVector3>
+    >
   > = {
     overarm: {
       chamber: { x: 0.35, y: 0.25, z: -0.6 },

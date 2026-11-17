@@ -1,4 +1,5 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
+
 import { finiteMinimum } from "./finiteMinimum";
 import { isRecord } from "./isRecord";
 

@@ -1,4 +1,5 @@
 import type { IAutoMovieRecoverySlabGraph } from "@automovie/interface";
+
 /**
  * Source observation graph for explicit continuation between adjacent plane cuts.
  *
@@ -8,9 +9,7 @@ import type { IAutoMovieRecoverySlabGraph } from "@automovie/interface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Open defects, hidden components and ambiguous support remain unsupported; source orientation and generated-surface fidelity are not inferred.
  */
 export namespace RecoverySlabGraph {
-
- 
- /**
+  /**
    * Derive closed-loop continuation and isolate source defects by clipped-slab connectivity.
    * Triangle and edge addresses are transient observation evidence and never leave the result.
    *
@@ -22,12 +21,13 @@ export namespace RecoverySlabGraph {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Active triangle roots are reused for both boundary cuts and defect supports within one slab; no mutable source cache survives.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Union-find, edge owners and support-root maps expire on return; only curve indices and reason strings escape.
    */
-  export function observe(input: Parameters<IAutoMovieRecoverySlabGraph.Observe>[0]): ReturnType<IAutoMovieRecoverySlabGraph.Observe> {
+  export function observe(
+    input: Parameters<IAutoMovieRecoverySlabGraph.Observe>[0],
+  ): ReturnType<IAutoMovieRecoverySlabGraph.Observe> {
     return prepare(input)(input);
   }
 
- 
- /**
+  /**
    * Admit immutable source incidence and scalar heights once for multiple slabs.
    * Queries supply complete original face IDs in strictly increasing order, including
    * every face with maximum height above beforeMm and minimum height below afterMm.
@@ -43,7 +43,9 @@ export namespace RecoverySlabGraph {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Finite scalar and address checks are reused by queries on the same immutable source. Each query reuses its roots for both boundary cuts and defects, then releases all query maps.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The extraction owns the closure and source references until finished. Compact union-find and support maps expire per query, and only curve index arrays and reason strings escape.
    */
-  export function prepare(source: Parameters<IAutoMovieRecoverySlabGraph.Prepare>[0]): ReturnType<IAutoMovieRecoverySlabGraph.Prepare> {
+  export function prepare(
+    source: Parameters<IAutoMovieRecoverySlabGraph.Prepare>[0],
+  ): ReturnType<IAutoMovieRecoverySlabGraph.Prepare> {
     const count: number = source.triangles.length;
     if (source.canon.length !== source.heights.length)
       throw new Error("A finite aligned scalar chart is required");
@@ -177,13 +179,16 @@ export namespace RecoverySlabGraph {
         }
         return result;
       };
-      const ensure: (id: number) => IAutoMovieRecoverySlabGraph.Group = (id: number): IAutoMovieRecoverySlabGraph.Group => {
+      const ensure: (id: number) => IAutoMovieRecoverySlabGraph.Group = (
+        id: number,
+      ): IAutoMovieRecoverySlabGraph.Group => {
         if (!groups.has(id))
           groups.set(id, {
             before: [],
             after: [],
             supported: true,
-            reason: null });
+            reason: null,
+          });
         return groups.get(id)!;
       };
       let orphan: number = -1;
@@ -209,7 +214,9 @@ export namespace RecoverySlabGraph {
       for (let i: number = 0; i < (input.probes?.length ?? 0); i++) {
         const found: Set<number> = roots(input.probes![i]!);
         if (found.size === 1) {
-          const group: IAutoMovieRecoverySlabGraph.Group = ensure([...found][0]!);
+          const group: IAutoMovieRecoverySlabGraph.Group = ensure(
+            [...found][0]!,
+          );
           (group.probes ??= []).push(i);
         } else {
           const affected: number[] = found.size ? [...found] : [orphan--];

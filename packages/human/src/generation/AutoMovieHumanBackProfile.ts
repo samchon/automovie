@@ -1,9 +1,10 @@
-import type { AutoMovieHumanSexPair, IAutoMovieHumanBackProfile, IAutoMovieHumanBodyMeasures } from "@automovie/interface";
-
-
+import type {
+  AutoMovieHumanSexPair,
+  IAutoMovieHumanBackProfile,
+  IAutoMovieHumanBodyMeasures,
+} from "@automovie/interface";
 
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
-
 
 /**
  * The back's median line in the side view: the skin over the spinous
@@ -52,23 +53,33 @@ import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
  * sacrum's base under the gluteal masses.
  */
 export namespace AutoMovieHumanBackProfile {
-  
-
   /** Women and men, Ohlendorf et al. 2023, 21 to 60 years (means). */
-  export const SHAPE: AutoMovieHumanSexPair<IAutoMovieHumanBackProfile.IShape> = [
-    { kyphosis: 56.28, lordosis: 49.02, thoracicBending: 13.9, trunkLength: 453.51, stature: 1670 },
-    { kyphosis: 51.29, lordosis: 31.96, thoracicBending: 16.23, trunkLength: 488.76, stature: 1800 },
-  ];
+  export const SHAPE: AutoMovieHumanSexPair<IAutoMovieHumanBackProfile.IShape> =
+    [
+      {
+        kyphosis: 56.28,
+        lordosis: 49.02,
+        thoracicBending: 13.9,
+        trunkLength: 453.51,
+        stature: 1670,
+      },
+      {
+        kyphosis: 51.29,
+        lordosis: 31.96,
+        thoracicBending: 16.23,
+        trunkLength: 488.76,
+        stature: 1800,
+      },
+    ];
 
   /**
    * The thoracic and lumbar columns' lengths, mm: Gray 1918's 28 cm and
    * 18 cm of a 71 cm male column; only their ratio is read.
    */
-  export const COLUMN: IAutoMovieHumanBackProfile.IColumn = { thoracic: 280, lumbar: 180 };
-
-  
-
-  
+  export const COLUMN: IAutoMovieHumanBackProfile.IColumn = {
+    thoracic: 280,
+    lumbar: 180,
+  };
 
   /**
    * A person's back line from cervicale's height, stature, sex and posture
@@ -82,36 +93,90 @@ export namespace AutoMovieHumanBackProfile {
    *
    * @param measures A person's resolved measures.
    */
-  export function of(measures: IAutoMovieHumanBodyMeasures): IAutoMovieHumanBackProfile.IProfile {
-    const shape: IAutoMovieHumanBackProfile.IShape = SHAPE[measures.sex === AutoMovieHumanSex.Female ? 0 : 1];
+  export function of(
+    measures: IAutoMovieHumanBodyMeasures,
+  ): IAutoMovieHumanBackProfile.IProfile {
+    const shape: IAutoMovieHumanBackProfile.IShape =
+      SHAPE[measures.sex === AutoMovieHumanSex.Female ? 0 : 1];
     const rad: number = Math.PI / 180;
     const kyphosis: number = measures.kyphoticAngle;
     const lordosis: number = measures.lordoticAngle;
     const alpha: number = 2 * shape.thoracicBending * rad;
     const beta: number = (kyphosis - 2 * shape.thoracicBending) * rad;
-    const gamma: number = (lordosis - kyphosis + 2 * shape.thoracicBending) * rad;
+    const gamma: number =
+      (lordosis - kyphosis + 2 * shape.thoracicBending) * rad;
 
     // Arc lengths R1 (alpha + beta) and R2 (beta + gamma) stand as the
     // thoracic and lumbar columns' lengths; with R1 = 1 the C7 to PSIS chord
     // is (dx, dy), and R1 scales it to the person's trunk length.
-    const ratio: number = (COLUMN.lumbar / COLUMN.thoracic) * ((alpha + beta) / (beta + gamma));
-    const dx: number = Math.cos(alpha) - Math.cos(beta) + ratio * (Math.cos(gamma) - Math.cos(beta));
-    const dy: number = -(Math.sin(alpha) + Math.sin(beta)) - ratio * (Math.sin(beta) + Math.sin(gamma));
-    const r1: number = (shape.trunkLength * (measures.stature / shape.stature)) / Math.hypot(dx, dy);
+    const ratio: number =
+      (COLUMN.lumbar / COLUMN.thoracic) * ((alpha + beta) / (beta + gamma));
+    const dx: number =
+      Math.cos(alpha) -
+      Math.cos(beta) +
+      ratio * (Math.cos(gamma) - Math.cos(beta));
+    const dy: number =
+      -(Math.sin(alpha) + Math.sin(beta)) -
+      ratio * (Math.sin(beta) + Math.sin(gamma));
+    const r1: number =
+      (shape.trunkLength * (measures.stature / shape.stature)) /
+      Math.hypot(dx, dy);
     const r2: number = ratio * r1;
 
     // Knots down the line; x relative to cervicale.
     const top: number = measures.cervicaleHeight;
-    const apex: [number, number] = [r1 * (Math.cos(alpha) - 1), top - r1 * Math.sin(alpha)];
-    const turn: [number, number] = [r1 * (Math.cos(alpha) - Math.cos(beta)), apex[1] - r1 * Math.sin(beta)];
-    const lordotic: [number, number] = [turn[0] + r2 * (1 - Math.cos(beta)), turn[1] - r2 * Math.sin(beta)];
-    const psis: [number, number] = [lordotic[0] + r2 * (Math.cos(gamma) - 1), lordotic[1] - r2 * Math.sin(gamma)];
+    const apex: [number, number] = [
+      r1 * (Math.cos(alpha) - 1),
+      top - r1 * Math.sin(alpha),
+    ];
+    const turn: [number, number] = [
+      r1 * (Math.cos(alpha) - Math.cos(beta)),
+      apex[1] - r1 * Math.sin(beta),
+    ];
+    const lordotic: [number, number] = [
+      turn[0] + r2 * (1 - Math.cos(beta)),
+      turn[1] - r2 * Math.sin(beta),
+    ];
+    const psis: [number, number] = [
+      lordotic[0] + r2 * (Math.cos(gamma) - 1),
+      lordotic[1] - r2 * Math.sin(gamma),
+    ];
     const knots: IAutoMovieHumanBackProfile.IKnot[] = [
-      { name: "cervicale", y: top, x: 0, slope: Math.tan(alpha), curvature: 1 / (r1 * Math.cos(alpha) ** 3) },
-      { name: "kyphosisApex", y: apex[1], x: apex[0], slope: 0, curvature: 1 / r1 },
-      { name: "inflection", y: turn[1], x: turn[0], slope: -Math.tan(beta), curvature: 0 },
-      { name: "lordosisApex", y: lordotic[1], x: lordotic[0], slope: 0, curvature: -1 / r2 },
-      { name: "psis", y: psis[1], x: psis[0], slope: Math.tan(gamma), curvature: -1 / (r2 * Math.cos(gamma) ** 3) },
+      {
+        name: "cervicale",
+        y: top,
+        x: 0,
+        slope: Math.tan(alpha),
+        curvature: 1 / (r1 * Math.cos(alpha) ** 3),
+      },
+      {
+        name: "kyphosisApex",
+        y: apex[1],
+        x: apex[0],
+        slope: 0,
+        curvature: 1 / r1,
+      },
+      {
+        name: "inflection",
+        y: turn[1],
+        x: turn[0],
+        slope: -Math.tan(beta),
+        curvature: 0,
+      },
+      {
+        name: "lordosisApex",
+        y: lordotic[1],
+        x: lordotic[0],
+        slope: 0,
+        curvature: -1 / r2,
+      },
+      {
+        name: "psis",
+        y: psis[1],
+        x: psis[0],
+        slope: Math.tan(gamma),
+        curvature: -1 / (r2 * Math.cos(gamma) ** 3),
+      },
     ];
 
     // Each arc inverted for its tangent angle psi at a height: on the
@@ -121,11 +186,19 @@ export namespace AutoMovieHumanBackProfile {
       if (y >= top) return [Math.tan(alpha) * (y - top), Math.tan(alpha), 0];
       if (y >= turn[1]) {
         const psi: number = Math.asin(Math.sin(alpha) + (y - top) / r1);
-        return [r1 * (Math.cos(alpha) - Math.cos(psi)), Math.tan(psi), 1 / (r1 * Math.cos(psi) ** 3)];
+        return [
+          r1 * (Math.cos(alpha) - Math.cos(psi)),
+          Math.tan(psi),
+          1 / (r1 * Math.cos(psi) ** 3),
+        ];
       }
       if (y >= psis[1]) {
         const psi: number = Math.asin((turn[1] - y) / r2 - Math.sin(beta));
-        return [turn[0] + r2 * (Math.cos(psi) - Math.cos(beta)), Math.tan(psi), -1 / (r2 * Math.cos(psi) ** 3)];
+        return [
+          turn[0] + r2 * (Math.cos(psi) - Math.cos(beta)),
+          Math.tan(psi),
+          -1 / (r2 * Math.cos(psi) ** 3),
+        ];
       }
       return [psis[0] + Math.tan(gamma) * (y - psis[1]), Math.tan(gamma), 0];
     };
@@ -139,7 +212,10 @@ export namespace AutoMovieHumanBackProfile {
    * @param height Height above the floor, mm.
    * @returns Forward place, mm, negative behind cervicale.
    */
-  export function at(measures: IAutoMovieHumanBodyMeasures, height: number): number {
+  export function at(
+    measures: IAutoMovieHumanBodyMeasures,
+    height: number,
+  ): number {
     return of(measures).at(height)[0];
   }
 }

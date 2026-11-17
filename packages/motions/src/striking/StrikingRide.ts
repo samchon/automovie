@@ -1,6 +1,13 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HumanColliders } from "../posture/HumanColliders";
 
 /**
@@ -136,7 +143,8 @@ export namespace StrikingRide {
       filling = true;
       try {
         while (frames.length <= index) {
-          const other: IAutoMovieMotionHumanActionContext.IPerformer = props.other();
+          const other: IAutoMovieMotionHumanActionContext.IPerformer =
+            props.other();
           const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
             other.bones(props.stop + frames.length * STEP);
           if (bone === undefined) {
@@ -167,7 +175,8 @@ export namespace StrikingRide {
     // where no side of the surface is defined and nothing is carried.
     const contact = (): IContact | null => {
       if (touch !== undefined) return touch;
-      const other: IAutoMovieMotionHumanActionContext.IPerformer = props.other();
+      const other: IAutoMovieMotionHumanActionContext.IPerformer =
+        props.other();
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         other.bones(props.stop);
       const [a, b] = props.axis(props.stop);
@@ -232,7 +241,8 @@ export namespace StrikingRide {
         limb: IAutoMovieMotionHumanPosture.Limb,
         seconds: number,
       ): IAutoMovieMotionHumanPosture => {
-        const goal: IAutoMovieMotionHumanPosture.IGoal | undefined = posture.limbs[limb];
+        const goal: IAutoMovieMotionHumanPosture.IGoal | undefined =
+          posture.limbs[limb];
         const lagged: number = seconds - 2 * STEP - props.stop;
         if (goal === undefined || goal.on !== undefined || !(lagged > 0))
           return posture;

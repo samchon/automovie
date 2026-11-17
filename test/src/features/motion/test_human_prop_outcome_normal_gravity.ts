@@ -1,5 +1,8 @@
-import type { IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropOutcome, IAutoMovieVector3 } from "@automovie/interface";
-
+import type {
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropOutcome,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanPropOutcome } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -105,7 +108,8 @@ export function test_human_prop_outcome_normal_gravity(): void {
       },
     };
     try {
-      const legs: IAutoMovieMotionHumanPropOutcome.ILeg[] = HumanPropOutcome.legs(input);
+      const legs: IAutoMovieMotionHumanPropOutcome.ILeg[] =
+        HumanPropOutcome.legs(input);
       if (position === null || exit === null) {
         if (legs.length !== 0 || sweeps !== 0)
           findings.push(`${name}: bounded small rebound did not settle`);

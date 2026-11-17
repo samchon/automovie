@@ -1,4 +1,7 @@
-import { type IAutoMovieViolationCollector, IAutoMoviePlanarPoint } from "@automovie/interface";
+import {
+  IAutoMoviePlanarPoint,
+  type IAutoMovieViolationCollector,
+} from "@automovie/interface";
 
 import { BUILT_PLANAR_EPSILON } from "./constants/BUILT_PLANAR_EPSILON";
 import { polygonDoubleArea } from "./polygonDoubleArea";
