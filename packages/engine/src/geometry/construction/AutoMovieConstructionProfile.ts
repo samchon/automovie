@@ -44,9 +44,9 @@ interface Piece {
  * Queried endpoint closure is a binary64 observation. Whole-domain simplicity, topology transitions and cross-face continuity remain separate admission obligations; branch identities survive.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States metre-to-mm conversion, normalized piece coordinates, independent Point0, failure ownership and the limits of chart/section admission.
- * @evidence contracts/development/design.md#principled-representation Represents Evaluate original piecewise sections through the existing surface/atlas contracts: companion namespace of 2 members (`IPrepared`, `create`); units and frames named in its text: world, second. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieConstructionProfile` in packages/engine/src/geometry/construction/AutoMovieConstructionProfile.ts; its surface is the 2 members listed and the text shows 13 other files naming it, mostly packages/engine (6), test (4), packages/human (3), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
+ * @evidence contracts/development/design.md#principled-representation The create operation prepares original curve owners and atlas readers under IAutoMoviePreparedConstructionProfile.IPrepared, preserving the declared physical and normalized clocks.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface This namespace owns runtime preparation; interface owns the prepared record shared with profile grids and body assembly.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The public surface uses the canonical source and prepared contracts; it introduces neither a fitted substitute curve nor a duplicate runtime-owned type.
  */
 export namespace AutoMovieConstructionProfile {
   /**

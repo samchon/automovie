@@ -344,6 +344,16 @@ const cloneSkeleton: (skeleton: IAutoMovieSkeleton) => IAutoMovieSkeleton = (
   bones: skeleton.bones.map(
     (bone: IAutoMovieBone): IAutoMovieBone => ({
       ...bone,
+      ...(bone.axes === undefined
+        ? {}
+        : {
+            axes: {
+              ...bone.axes,
+              flexion: { ...bone.axes.flexion },
+              abduction: { ...bone.axes.abduction },
+              twist: { ...bone.axes.twist },
+            },
+          }),
       rest: {
         translation: { ...bone.rest.translation },
         rotation: { ...bone.rest.rotation },
@@ -354,6 +364,15 @@ const cloneSkeleton: (skeleton: IAutoMovieSkeleton) => IAutoMovieSkeleton = (
           ? null
           : {
               ...bone.constraint,
+              ...(bone.constraint.swingTwist === undefined ||
+              bone.constraint.swingTwist === null
+                ? {}
+                : {
+                    swingTwist: {
+                      ...bone.constraint.swingTwist,
+                      twist: { ...bone.constraint.swingTwist.twist },
+                    },
+                  }),
               flexion:
                 bone.constraint.flexion === null
                   ? null

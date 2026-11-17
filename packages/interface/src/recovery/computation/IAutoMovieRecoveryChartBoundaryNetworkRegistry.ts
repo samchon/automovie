@@ -89,7 +89,7 @@ export namespace IAutoMovieRecoveryChartBoundaryNetworkRegistry {
       t: number,
     ) => Readonly<AutoMovieVector3Tuple>;
 
-    /** Returns the normalized source-edge identity without changing physical observations. */
+    /** Returns the unnormalized right-handed cross product (b-a) × (c-a) of registered millimetre positions. The vector is in mm² and its magnitude is twice the triangle area; consumers require that magnitude and must not receive a unit normal. */
     normal: (
       a: Readonly<AutoMovieVector3Tuple>,
       b: Readonly<AutoMovieVector3Tuple>,

@@ -5,8 +5,8 @@ import type {
 
 /**
  * Decode one raw P6 RGB8 image under an explicitly supplied transfer convention.
- * The @automovie/ingest entry exposes this codec without the
- * broader glTF SDK's runtime imports or declaration-library requirements.
+ * This codec processes bytes without importing glTF SDK objects. The package's
+ * main entry also exposes SDK-backed operations with their own declaration dependencies.
  * The initial subset admits maxval 255, comments before numeric header tokens
  * and exactly one whitespace byte between maxval and raster. It rejects P3,
  * 16-bit samples, image sequences and trailing bytes. A raster byte that happens

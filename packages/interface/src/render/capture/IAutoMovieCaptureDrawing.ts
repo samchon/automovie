@@ -29,7 +29,7 @@ export interface IAutoMovieCaptureDrawing {
   backend?: string;
 
   /**
-   * The camera the view resolved to, as text two rounds compare; a draw page writes the JSON of its `IAutoMovieInspectionCamera`, which holds the projection and up direction a view text cannot. Absent when the host does not state it.
+   * The resolved camera as text two rounds compare; a draw page writes the JSON of its `IAutoMovieInspectionCamera`. The separate repeat text encodes the supported fixed-view fields, including orthographic scale and up direction, without promising arbitrary lens or clip settings. Absent when the host does not state it.
    */
   camera?: string;
 

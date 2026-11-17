@@ -31,9 +31,9 @@ const DEPTH: number = 16;
  * copies finite results; foreign source exceptions propagate unchanged.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States mm tolerance, original guide marks, copied point-cache lifetime, sampled criterion and explicit resource/depth failures.
- * @evidence contracts/development/design.md#principled-representation Represents Source-owned piece grids for the existing mesh consumer, without a fitted curve: companion namespace of 2 members (`IGrid`, `create`). It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieConstructionProfileGrid` in packages/engine/src/geometry/construction/AutoMovieConstructionProfileGrid.ts; its surface is the 2 members listed and the text shows 2 other files naming it, mostly packages/engine (1), packages/human (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ * @evidence contracts/development/design.md#principled-representation The create operation derives IAutoMovieConstructionProfileGrid.IGrid records from prepared original Point0 readers under a positive millimetre chord tolerance.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime grid derivation stays here; interface owns the grid consumed by body assembly and Human source preparation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The public surface reuses canonical prepared-profile and grid contracts; tessellation samples do not replace original curves or certify whole-domain geometry.
  */
 export namespace AutoMovieConstructionProfileGrid {
   /**

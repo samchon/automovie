@@ -25,7 +25,7 @@ export type IAutoMovieHumanParametersSchema = IAutoMovieHumanParameters & {
   /** Constitutive skin and iris pigmentation. */
   pigmentation?: IAutoMovieHumanPigmentationSchema;
 
-  /** Joint angles of every movable joint in clinical degrees; omitted joints keep the generated rest posture. */
+  /** Clinical pose channels in degrees, except jaw distances in millimetres; omitted channels use the evaluator's neutral defaults. */
   pose?: IAutoMovieHumanPoseSchema;
 
   /** Facial action-unit intensities. */

@@ -47,7 +47,7 @@ export interface IAutoMovieMotionHumanObstacle {
 /** Operation-local contracts supporting IAutoMovieMotionHumanObstacle. */
 export namespace IAutoMovieMotionHumanObstacle {
   /**
-   * The first obstacle a straight stretch of a path cannot pass, if any. What a body needs of a passage.
+   * The breadth and height a body requires to pass through an opening, in metres. Obstacle queries compare this input with candidate passage clearance.
    *
    * @evidence contracts/development/common.md#meaningful-documentation breadth: The width it takes, metres: the shoulders' breadth for a body that walks facing its way. height: The height it takes, metres: the stature for a body that stands.
    * @evidence contracts/development/design.md#principled-representation breadth: The width it takes, metres: the shoulders' breadth for a body that walks facing its way. height: The height it takes, metres: the stature for a body that stands.

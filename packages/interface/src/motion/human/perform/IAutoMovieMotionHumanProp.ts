@@ -174,7 +174,7 @@ export interface IAutoMovieMotionHumanProp {
  */
 export namespace IAutoMovieMotionHumanProp {
   /**
-   * Every grip window on a prop across every person, and every span it is worn on a bone, in film order, computed once after construction; none for a fixture, which no grip carries. Where a prop is worn.
+   * One authored attachment of a prop to a subject's bone. Its offset is expressed in that bone's posed frame; performance readers derive any worn interval from this configuration.
    *
    * @evidence contracts/development/common.md#meaningful-documentation offset: The prop's frame in the bone's posed frame, metres.
    * @evidence contracts/development/design.md#principled-representation offset: The prop's frame in the bone's posed frame, metres.

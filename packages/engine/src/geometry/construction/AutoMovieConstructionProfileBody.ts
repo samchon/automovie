@@ -20,9 +20,9 @@ import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
  * finite tessellation. Explicit collapsed tips are separate from regular rows.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States original versus retained domains, mm grids, shared ownership, complete physical2 requirements and the caller's append-only transaction responsibility.
- * @evidence contracts/development/design.md#principled-representation Represents Publish original profile charts and authoritative common boundaries to a body: companion namespace of 2 members (`IEnd`, `append`). It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieConstructionProfileBody` in packages/engine/src/geometry/construction/AutoMovieConstructionProfileBody.ts; its surface is the 2 members listed and the text shows 6 other files naming it, mostly packages/engine (3), test (2), packages/human (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ * @evidence contracts/development/design.md#principled-representation The append operation publishes source charts and shared mesh boundaries, returning canonical IAutoMovieConstructionProfileBody.IEnd records for actual collapsed ends.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime body assembly stays here; interface owns the end records consumed by profile skin closure.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Canonical prepared-profile, body and end contracts preserve analytic source ownership separately from finite tessellation; ordinary open ends are not reclassified as collapsed tips.
  */
 export namespace AutoMovieConstructionProfileBody {
   /**

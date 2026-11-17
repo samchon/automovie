@@ -10,12 +10,6 @@
  * @evidence contracts/development/design.md#minimal-and-owned-surface The inspection input and payload gate share this one buffer/image resolution capability; filesystem policy, loading and retained host state remain outside the contract.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The capability declares no fallback bytes, asynchronous completion, URI rewriting or image validity certificate; null preserves unavailable data for the gate's refusal.
  * @evidence contracts/development/common.md#meaningful-documentation States exact URI identity, borrowed lifetime, explicit absence, per-declaration invocation, propagated effects and the consumer's limited payload checks.
- * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable type has no body; the host supplies URI resolution and the payload gate owns byte admission.
- * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The alias declares one injected capability without an implementation decomposition.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This signature executes no branch; the host implementation must honor its exact-URI and borrowed-byte contract.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The type prescribes no lookup or allocation strategy; each invocation's cost belongs to the host.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type coordinates no cache; the payload gate preserves per-declaration effects and the host owns any effect-safe reuse.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The alias acquires no resource; the host owns captured state and must keep returned storage stable during inspection.
  */
 export type AutoMovieExternalModelResourceResolver = (
   uri: string,

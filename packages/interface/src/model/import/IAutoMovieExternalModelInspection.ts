@@ -78,14 +78,6 @@ export namespace IAutoMovieExternalModelInspection {
     /**
      * Synchronous resolver called per external buffer/image declaration, including repeated URIs. Returns borrowed exact bytes or null for unavailable data; omission also means unavailable. Keep returned bytes stable through inspection. Caller effects and thrown errors propagate; ingest performs no fetch or URI caching.
      * The ingest host implements synchronous URI resolution; inspectAutoMovieExternalModelBytes borrows returned exact bytes through inspection and owns profile admission.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States per-declaration calls, repeated URI behavior, missing bytes, stable borrowed storage and propagated host errors.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature specifies the callback result and failure contract; the caller-supplied body owns the method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This callable member is an injected boundary with no implementation decomposition; the named caller and consumer own their respective bodies.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No executable branch or compensation is implemented by this signature; the supplied body must honor the documented result and failure semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no traversal or allocation strategy; callback cost belongs to the supplied implementation and is not bounded by the type.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration coordinates no calls or cache; the consuming operation owns invocation frequency and the supplied body owns any effect-safe reuse.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no handle or task; the callback owner must manage captured state and resources for the documented invocation lifetime.
      */
     resolveResource?: AutoMovieExternalModelResourceResolver;
   }

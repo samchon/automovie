@@ -200,7 +200,9 @@ export namespace IAutoMovieLoftChain {
      * First physical-station derivatives of the layer's plane component by component: origin in mm/mm, axes in 1/mm. These derivative triples are not positions or unit axes. Matching actual frameSource records own the
      * intermediate frame instead. Otherwise, when both interval layers carry them,
      * the plane is the Hermite of the two planes' components, its axes not
-     * renormalised, so it moves C2 with the coefficients; absent, the
+     * renormalised. Shared values and slopes give C1 continuity with the cubic
+     * rule; consistent shared frameCurvatures select the quintic rule and give
+     * C2 continuity. Without frameSlopes, the
      * rotation Hermite of `AutoMovieLoftFrame.interpolate`.
      */
     frameSlopes?: IAutoMovieLoftSectionFrame;

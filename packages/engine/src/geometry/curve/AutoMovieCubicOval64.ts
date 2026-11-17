@@ -131,7 +131,7 @@ export namespace AutoMovieCubicOval64 {
     return (4 * sum) / (3 * intervals);
   }
 
-  /** Resolve breadthMm/depthMm at a fixed positive breadth/depth ratio using the same Simpson perimeter. Inputs and returned diameters are positive finite millimetre values; an unrepresentable positive result throws RangeError.
+  /** Resolve breadthMm/depthMm at a fixed positive breadth/depth ratio using the same Simpson perimeter. Girth and returned diameters are positive finite millimetre values; breadthOverDepth is a positive finite dimensionless ratio. An unrepresentable positive result throws RangeError.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Normalize the larger diameter to one before Simpson quadrature, then use perimeter homogeneity to scale both diameters to the requested girth; this avoids extreme-aspect accumulation overflow.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The Simpson sizing path is explicit and separate from the eight-point quadrature path; consumers retain their numerical contract.
