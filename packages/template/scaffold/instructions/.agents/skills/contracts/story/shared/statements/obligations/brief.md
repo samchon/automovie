@@ -1,7 +1,5 @@
 # Brief population statements
 
-Contract: [obligations/brief.md](../../obligations/brief.md).
-
 ## Coherent brief
 
 Coherence:

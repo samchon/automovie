@@ -1,6 +1,6 @@
 # Script expression population obligation
 
-The complete script construction population answers once for execution rhythm across scenes and delivery units.
+The complete script construction population answers once for execution rhythm across scenes and release units.
 
 Statements: [statements/naturalness/obligations/scripts.md](../../statements/naturalness/obligations/scripts.md).
 

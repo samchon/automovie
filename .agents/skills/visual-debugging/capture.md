@@ -1,28 +1,30 @@
 # Capture
 
-A capture is the stills, contact sheets and record that one plan produces. This page owns keeping the instrument that draws them working, the conditions that make them repeatable, and the choice of subject, views and times.
+A capture is the stills, contact sheets and record that one plan produces. This page owns keeping the instrument working, the conditions that make a capture repeatable, and the choice of subject, views and times.
 
 ## Restoring the instrument
 
-The instrument, the inspection and capture core with the inspector page and the capture host that drive it, is one tool. Restore a broken one before other work, because every judgment of a picture passes through it. Confirm through the actual consumer the adopted scene, its required subjects, the current displayed artifact and the relevant controls, seeking, playback and capture, and protect other owners' processes meanwhile.
+The instrument, the inspection and capture core with the inspector page and the capture host that drive it, is one tool. Restore a broken one before other work, because every judgment of a picture passes through it. Confirm through its consumer the adopted scene, its required subjects, the current displayed artifact and the relevant controls, seeking, playback and capture, and protect other owners' processes meanwhile.
 
-Repair a missing capability at its owner, or report it where the project cannot change that owner; a view, pass or selection the judgment needs and the instrument lacks is a missing capability too. Once it is repaired, reconnect and verify the actual consumer, because a build, a server response or an unrelated demonstration does not prove recovery.
+Repair a missing capability at its owner, or tell the user where the project cannot change that owner; a view, pass or selection the judgment needs and the instrument lacks is a missing capability too. Then reconnect and verify the consumer, because a build, a server response or an unrelated demonstration does not prove recovery.
 
 ## Plan
 
-Before capturing, write what the stills must show as questions with a yes or no answer, such as whether every leg reaches the floor or whether the fist arrives before the head turns, and answer each from the stills, because an overall impression passes over what a definite question finds.
+Before capturing, write what the stills must show as questions with a yes or no answer, such as whether every leg reaches the floor, and answer each from the stills, because an overall impression passes over what a definite question finds.
 
 The questions fix the capture's cells. A cell is one still, fixed by its subject, its time or pose, its view and its [pass](passes.md). Plan every cell the questions need before drawing any, so one run gathers the whole round's evidence.
 
 ## Conditions
 
-Capture the actual consumer with current source, and record what repeats the observation: the source revision, asset identities, input, time or pose, resolved camera, light, pass, raster size, renderer and detail settings. The capture's record keeps the revision, the request and each still's resolved camera and renderer backend, so that revision must fix the assets, light and detail settings.
+Capture the consumer itself with current source, and record what repeats the observation: the source revision, asset identities, input, time or pose, resolved camera, light, pass, raster size, renderer and detail settings. The capture's record keeps the revision, the request and each still's resolved camera and renderer backend, so that revision must fix the assets, light and detail settings.
 
 The renderer is one of the conditions. A simplified renderer establishes pose, contact, staging and silhouette; material, lighting, shadow and texture are judged on the renderer that draws the delivered picture.
 
 A result holds for the use its capture covered; broader reuse needs broader subjects, views, times and states.
 
-## Subject
+## Cells
+
+### Subject
 
 A unit that passes alone can fail against its neighbor, and close-ups that each pass can add up to a whole that fails at first sight, so choose the selections the questions need from all of these:
 
@@ -33,17 +35,17 @@ A unit that passes alone can fail against its neighbor, and close-ups that each 
 
 Select by the groups and parts the subject's own definition names, and keep enough of the reference or the neighbors visible to read placement and depth. Confirm from the capture's record that each selection matched what was meant, because an empty selection draws a still with no defect in it.
 
-## Views
+### Views
 
 Name each view so that it repeats: a direction, a distance or scale and a target, or the delivery's own camera. Front and side alone hide what faces neither, so add the back, the top, the quarters and the high and low obliques the subject needs. To tell a wrong bend from a foreshortened one, capture the same cells from a second view.
 
-Frame a close-up on the affected region from outside the subject. A view that fits itself to its subject resolves to another camera when the subject changes, so the record keeps the resolved camera for a later [comparison](comparison.md#matched-cells).
+Frame a close-up on the affected region from outside the subject. The record keeps each still's resolved camera for a later [comparison](comparison.md#matched-cells), because a view that fits itself to its subject moves when the subject changes.
 
-## Times
+### Times
 
-Read a moving picture as stills in time order, sampled at five to ten stills per second and at the denser end where more happens, because at a sparser spacing the stills no longer show how one pose becomes the next.
+Read a moving picture as stills in time order, sampled at five to ten stills per second and at the denser end where more happens; sparser stills no longer show how one pose becomes the next.
 
-Around every contact, cut, join and decisive instant, capture the output's own consecutive frames, because a contact shorter than the gap between two stills leaves an arm out and an arm back with nothing wrong between them. Sparse stills never replace those frames.
+Around every contact, cut, join and decisive instant, capture the output's own consecutive frames, which sparse stills never replace. A contact shorter than the gap between two stills leaves an arm out and an arm back with nothing wrong between them.
 
 Sample an encoded or generated file from the file itself, at the same seconds as its source, because stills of the source cannot show what the file holds.
 

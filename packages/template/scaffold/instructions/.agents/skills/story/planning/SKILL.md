@@ -5,11 +5,11 @@ description: Settles the adopted requirements, direction and uncovered work requ
 
 # Planning
 
-Settle the requirements, direction and uncovered work requirements before writing the layers, because a layer can only realize what was decided before it.
+Settle the requirements, direction and uncovered work requirements before writing the layers.
 
-| Task | Read |
+| Read | For |
 | --- | --- |
-| Ask for, adopt, change or withdraw creative requirements | [Requirements](requirements.md) |
-| Develop a direction within delegated authority | [Direction](direction.md) |
-| Study a practice, appearance or source | [Research](research.md) |
-| Find and assign uncovered work requirements | [Discovery](discovery.md) |
+| [Requirements](requirements.md) | Asking for, adopting, changing or withdrawing creative requirements |
+| [Direction](direction.md) | Developing a direction within delegated authority |
+| [Research](research.md) | Studying a practice, appearance or source |
+| [Discovery](discovery.md) | Finding and assigning uncovered work requirements |

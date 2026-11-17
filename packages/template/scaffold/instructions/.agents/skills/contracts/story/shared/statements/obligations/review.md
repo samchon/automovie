@@ -1,7 +1,5 @@
 # Review population statements
 
-Contract: [obligations/review.md](../../obligations/review.md).
-
 ## Complete current round
 
 Extent:
@@ -15,9 +13,9 @@ Extent:
 
 Classes:
 
-7. Each supported finding class is collected by a reproducible method with all discovered members, quotations and locators, the violated obligation, the earliest owner and affected edges.
+7. Each supported finding class is collected by a reproducible method with all discovered members, quotations and locators, the violated obligation, the earliest owner and affected relations.
 8. Body completeness and settings navigation are checked where relevant.
-9. Population classifications are compared with the actual function behind whole-scope negatives, such as silence or refrain.
+9. Population classifications are compared with the function behind whole-scope negatives, such as silence or refrain.
 10. Similar length, repeated syntax or annotation ratios prompt rereading and establish no defect.
 11. A class table introduces no finding unsupported by an inspected unit.
 
@@ -25,9 +23,9 @@ Classes:
 
 1. The verdict records:
     - the source revision and the review kind;
-    - achievements actually read and judged, with the function preserved, and supported choices left intact;
+    - achievements read and judged, with the function preserved, and supported choices left intact;
     - all findings grouped by root cause and contributing factors;
-    - the author's decision on each finding with its reason, and the repair of each accepted one, with decisions not yet received marked.
+    - the author's decision and reason on each finding, each accepted finding's repair, and decisions not yet received.
 2. It distinguishes expressive surplus removed below a duration target from insufficient event material.
 3. All accepted findings were repaired by cause with their affected descendants, and the pass closed as its [route](../../../../../story/workflow/SKILL.md) requires.
-4. The verdict states the actual open or clean result and any unverified host or output claim.
+4. The verdict states the open or clean result and any unverified host or output claim.

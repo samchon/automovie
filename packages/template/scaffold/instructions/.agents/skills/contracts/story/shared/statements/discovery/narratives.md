@@ -1,8 +1,6 @@
 # Narrative discovery statements
 
-Contract: [discovery/narratives.md](../../discovery/narratives.md).
-
 ## Narrative requirements
 
 1. Uncovered recurring conditions of authenticity, representation, agency, causality, form and audience experience were looked for.
-2. Each one found has its observable application, audience effect and representative failure, and names the smallest respondent population that can establish it.
+2. Each one found states its audience effect and a representative failure, beyond the application and respondent population [common discovery](common.md#requirement-ownership) asks of every finding.

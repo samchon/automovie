@@ -49,6 +49,8 @@ Use `@automovie/archetypes` for objects it provides. A needed object it lacks ta
 
 Use `@automovie/motions` for behavior its actions and operators express. [Programmed motion](.agents/skills/motion/SKILL.md) owns detailed performance and extensions for genuinely missing actions.
 
+Performance is kinematic. [Physical feedback](.agents/skills/motion/physical-feedback.md#when-to-simulate) owns the rare simulated response.
+
 ### Screenplay
 
 The [screenplay](.agents/skills/story/layers/screenplay.md) decides every exchange, outcome and reaction. Code realizes those decisions.
@@ -79,15 +81,16 @@ Read every skill whose trigger fits the task. This list is alphabetical; the pro
 | --- | --- |
 | [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | Preparing a subject's form, attachment or commissioned detail |
 | [audio](.agents/skills/audio/SKILL.md) | Planning, generating or finishing sound |
+| [automovie](.agents/skills/automovie/SKILL.md) | Choosing or reading an installed package |
 | [contracts](.agents/skills/contracts/SKILL.md) | Selecting, answering or citing a contract item |
-| [development](.agents/skills/development/SKILL.md) | Implementing code, integrations, dependencies, commands or tests |
-| [documentation](.agents/skills/documentation/SKILL.md) | Writing technical prose, READMEs, evidence answers or doc comments |
-| [evidence](.agents/skills/evidence/SKILL.md) | Adopting requirements, configuring checks or writing and auditing source/test evidence |
+| [development](.agents/skills/development/SKILL.md) | Writing code, integrations, dependencies, commands or tests |
+| [documentation](.agents/skills/documentation/SKILL.md) | Writing a document, README, evidence answer or doc comment |
+| [evidence](.agents/skills/evidence/SKILL.md) | Adding requirements, configuring checks, writing or auditing evidence |
 | [image](.agents/skills/image/SKILL.md) | Choosing a generator or creating and finishing images |
-| [motion](.agents/skills/motion/SKILL.md) | Composing, extending or verifying motion, staging, camera and control channels |
+| [motion](.agents/skills/motion/SKILL.md) | Composing, extending or verifying motion, staging, camera and channels |
 | [production](.agents/skills/production/SKILL.md) | Managing scope, workflow, caches, assembly or handoff |
 | [prompting](.agents/skills/prompting/SKILL.md) | Changing `AGENTS.md`, `CLAUDE.md` or a skill |
 | [review](.agents/skills/review/SKILL.md) | Reviewing work, accepting deliveries or estimating requested quality |
 | [story](.agents/skills/story/SKILL.md) | Researching, planning, writing or repairing narrative |
 | [video](.agents/skills/video/SKILL.md) | Choosing a video model, finishing a film or working on takes |
-| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Judging pictures or verifying viewer and capture behavior |
+| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Judging pictures or checking the viewer and capture |

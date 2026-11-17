@@ -1,7 +1,5 @@
 # Settings discovery statements
 
-Contract: [discovery/settings.md](../../discovery/settings.md).
-
 ## Instructions and backcast
 
 1. Every instruction and adopted promise is broken into its consequential elements:

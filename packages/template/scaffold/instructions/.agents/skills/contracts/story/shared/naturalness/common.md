@@ -1,6 +1,6 @@
 # Common expression principles
 
-Each script construction H2 answers from its current body against its parent treatments. Inspect the entire selected body, record every candidate found with its location, and explain its repair or its justified preservation. If none is found, identify the scope actually inspected; a few examples never prove a whole-scope negative.
+Each script construction H2 answers from its current body against its parent treatments. Inspect the entire selected body, record every candidate found with its location, and explain its repair or its justified preservation. If none is found, identify the scope inspected; a few examples never prove a whole-scope negative.
 
 Statements: [statements/naturalness/common.md](../statements/naturalness/common.md).
 

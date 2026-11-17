@@ -1,7 +1,5 @@
 # Settings index section statements
 
-Contract: [principles/index.md](../../principles/index.md).
-
 ## Group purpose
 
 Purpose:
@@ -14,5 +12,5 @@ Purpose:
 Order:
 
 5. A subject's related attributes stay together, and unrelated institutions, objects and people that readers use separately have separate homes. Exception: a large collection may divide into independently used subjects that link to their containing whole.
-6. A cyclic dependency gets an initial overview and exact references, not duplicated facts.
-7. Reference order changes neither story chronology nor audience reveal order.
+6. A circular dependency gets an initial overview and exact routes, not duplicated facts.
+7. The group's reference order changes neither story chronology nor the audience's reveal order.

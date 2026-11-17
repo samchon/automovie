@@ -4,11 +4,14 @@ Each exported function and method under `src/composition/` answers these items i
 
 | Declaration | Cites |
 | --- | --- |
-| A scene in `src/composition/scenes/<film>/<scene>/` | Its screenplay scene file, or each section and beat of it, as `@evidence docs/body/screenplay/<film folder>/<scene file>#<anchor> <what it realizes>`, the anchor omitted for the whole file |
+| A scene in `src/composition/scenes/<film>/<scene>/` | Its screenplay scene file, or each section and beat of it |
 | A film in `src/composition/films/<film>.ts` | Each scene file of its folder, in the order it plays them |
-| A catalog case in `src/composition/scenes/catalog/<module>/`, and the catalog film | The research section or settings or brief fact each case exhibits |
+| A catalog case in `src/composition/scenes/catalog/<module>/` | What it exhibits, named in prose |
+| The catalog film | What each of its cases exhibits, named in prose |
 
-When [no narrative pass runs](../../story/workflow/routes.md#who-writes-the-screenplay), scenes and films also cite the instruction sections they realize. A fixed screenplay without scene files and section or beat headings goes back to the user to add them, because scenes cite them.
+A scene writes each citation as `@evidence docs/body/screenplay/<film folder>/<scene file>#<anchor> <what it realizes>`, omitting the anchor to cite the whole file. A catalog case names the settings or brief fact or the study section it exhibits in its answer's prose, with no `@evidence` tag to it.
+
+When no narrative pass runs, scenes and films also cite the instruction sections they realize. A fixed screenplay without scene files and section or beat headings goes back to the user to add them, because scenes cite them.
 
 Every section, beat and scene file is realized. An `OMITTED` one is covered by an `@evidenceExclude` on the scene composition that would have realized it, or on the film when a whole scene file is omitted.
 
@@ -28,6 +31,6 @@ State the capabilities it combines and where it places absolute time.
 
 ## Living scene
 
-Does everyone and everything on screen perform its role for its whole presence, move through the set as the beats decide, and aim at the research's measurable targets for what a viewer sees and hears? A scene of isolated single actions, an idle participant or an unmotivated static camera shows the audience a rehearsal instead of the practice.
+Does everyone and everything on screen perform its role for its whole presence, move through the set as the beats decide, and aim at the measurable targets a study set, where one did, for what a viewer sees and hears? A scene of isolated single actions, an idle participant or an unmotivated static camera shows the audience a rehearsal instead of the practice.
 
 State each presence's behavior, the spatial changes and the targets the scene aims at.

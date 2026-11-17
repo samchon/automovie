@@ -4,7 +4,7 @@ An independent reader is an [isolated context](../story/correction/inspection.md
 
 ## Reading as the recipient
 
-Give the reviewer the task, the recipient and the annotation-free body before parents, contracts or earlier verdicts; the reviewer never reads the evidence answers. Read the whole declared scope, splitting a large one into non-overlapping chunks rather than sampling, and lock the first response and concrete losses under the [independent-reading questions](../contracts/story/shared/principles/review.md#independent-reading).
+Give the reviewer the task, the recipient and the annotation-free body before parents, contracts or earlier verdicts, and never the [evidence answers](narrative-rounds.md#reviewers). Read the whole declared scope, splitting a large one into non-overlapping chunks rather than sampling, and lock the first response and concrete losses under the [independent-reading questions](../contracts/story/shared/principles/review.md#independent-reading). Read that item's statements before locking, because a lock that fails them, such as one without a quotation, has to be read again.
 
 Read each layer as its recipient:
 
@@ -20,7 +20,7 @@ A recipient's loss stays a finding even when upstream knowledge explains it, and
 
 ## Comparison with parents and contracts
 
-Compare the body's decisions, names, notation, quotations and consequential action, image and sound with the selected contracts, the actual parents and the requirements, looking for contradictions; matching quotations do not replace this comparison. Do not recompute fiction's own quantities, as [factual basis](../story/planning/requirements.md#factual-basis) sets.
+Compare the body's decisions, names, notation, quotations and consequential action, image and sound with the selected contracts, the parents and the requirements, looking for contradictions; matching quotations do not replace this comparison. Do not recompute fiction's own quantities, as [factual basis](../story/planning/requirements.md#factual-basis) sets.
 
 Where the route runs [independent classification](../story/correction/inspection.md#independent-classification), lock it in an isolated worker before reading author defenses. Apply the contract's decision rule to named failures and the [retention test](../story/answers.md#grounds-for-retaining-a-candidate) to other candidates; intent or a function label cannot overturn the locked judgment.
 

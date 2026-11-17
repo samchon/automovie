@@ -5,15 +5,15 @@ description: Extends the installed motion vocabulary when composing cannot stage
 
 # Motion laws
 
-A law is the code that plans an action: given a body and its inputs, it produces the same motion every time. Start from [vocabulary extension](extension.md), which decides whether a beat needs a law at all; every law then follows [effector goals](authoring.md), and the other pages where the law needs them.
+A law is the code that plans an action: given a body and its inputs, it produces the same motion every time. Start from [vocabulary extension](extension.md), which decides whether a beat needs a law at all and states what an extension owes. Every law then follows [effector goals](authoring.md), and the other pages where it needs them.
 
-| Task | Read |
+| Read | To |
 | --- | --- |
-| Find the cheapest route for an action or body the vocabulary lacks, and what an extension owes | [Vocabulary extension](extension.md) |
-| State movement as goals on targets, never as tuned joint angles | [Effector goals](authoring.md) |
-| Design a law's plan, entry state, events, outcome and time scale | [Law design](declaration.md) |
-| Vary a law by parameters, skill or seed | [Variation](variation.md) |
-| Cut a law, change its target mid-motion, or write or run a layer over it | [Transitions and layers](transitions.md) |
-| Plant, grip, carry or touch | [Contacts](contacts.md) |
-| Write a law's bounded checks and review its frames | [Verification](verification.md) |
-| Choose a law's algorithm from primary sources | [Method references](method-references.md) |
+| [Vocabulary extension](extension.md) | Find the cheapest route for an action or body the vocabulary lacks |
+| [Effector goals](authoring.md) | State movement as goals on targets, never as tuned joint angles |
+| [Law design](declaration.md) | Design a law's plan, entry state, events, outcome and time scale |
+| [Variation](variation.md) | Vary a law by parameters, skill or seed |
+| [Transitions and layers](transitions.md) | Cut a law, change its target mid-motion, or write or run a layer over it |
+| [Contacts](contacts.md) | Plant, grip, carry or touch |
+| [Verification](verification.md) | Write a law's bounded checks and review its frames |
+| [Method references](method-references.md) | Choose a law's algorithm from primary sources |

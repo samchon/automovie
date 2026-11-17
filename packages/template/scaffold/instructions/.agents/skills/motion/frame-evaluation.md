@@ -12,7 +12,7 @@ Verify the first and last frames and both sides of cuts and trim boundaries agai
 
 ## Sampling and retained state
 
-The installed packages evaluate every pose from the resolved plan and the requested time, and a production's own behavior does the same under the [deterministic evaluation](../contracts/development/behaviors.md#deterministic-evaluation) item. A deterministic schedule still does not free a stateful animation from its evaluation history. Before allowing seeking, retries or split renders, find the state the host still carries in springs, physics, callbacks, random draws or imported runtimes, and give it a repeatable update from a defined initial state or a supported cache, recovered before a later frame is captured.
+The installed packages evaluate every pose from the resolved plan and the requested time, and a production's own behavior does the same under the [deterministic evaluation](../contracts/development/behaviors.md#deterministic-evaluation) item. A stateful animation still depends on its evaluation history. Before allowing seeking, retries or split renders, find the state the host carries in springs, physics, callbacks, random draws or imported runtimes, and give it a repeatable update from a defined initial state or a supported cache, recovered before a later frame is captured.
 
 Choose simulation steps for solver stability, independent of display refresh, and sample results onto output times, as [Fix Your Timestep](https://gafferongames.com/post/fix_your_timestep/) explains. Use supported lifecycle operations, never private-field resets.
 

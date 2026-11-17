@@ -8,14 +8,14 @@ Before assigning work, read the current instructions, bodies, source, outputs an
 
 ## Execution
 
-Dispatch each task through the skill that owns it in the production's [routing](SKILL.md#routing). One writer owns a changing body. One owner holds a film's screenplay, scene and film composition and camera together, because the camera realizes the screenplay's camera decisions through that composition; entity, motion and sound modules can have their own owners, who repair the module defects the film owner reports.
+Dispatch each task through the skill that owns it. One writer owns a changing body. One owner holds a film's screenplay, scene and film composition and camera together, because the camera realizes the screenplay's camera decisions through that composition; entity, motion and sound modules can have their own owners, who repair the module defects the film owner reports.
 
-Use additional agents only when authorized, with disjoint write scopes. [Review](../review/SKILL.md) owns who may review and what counts as independent.
+Use additional agents only when authorized, with disjoint write scopes, and reviewers only as [review](../review/SKILL.md) counts them independent.
 
-Inspect the actual process, artifacts and errors before calling a quiet run stalled. Resume a stopped run from its last valid output and [stage caches](stage-caches.md), keeping its failure on record. A changed input starts a new result, and a restart inherits no verdict.
+Inspect the process, artifacts and errors before calling a quiet run stalled. Resume a stopped run from its last valid output and [stage caches](stage-caches.md), keeping its failure on record. A changed input starts a new result, and a restart inherits no verdict.
 
-A capability an installed package lacks is handled under [installed packages](../development/reuse.md#installed-packages) while independent work continues.
+When an installed package lacks a capability, tell the user and continue the independent work.
 
 ## Observation
 
-For requested periodic observation, use an available scheduler at the requested interval and record the checks actually made, because a configured timer is not an executed loop. Check existing workers before starting replacements, report only meaningful progress, completion, failure or a blocking decision, and take no publication or merge authority from the loop.
+For requested periodic observation, use an available scheduler at the requested interval and record the checks made, because a configured timer is not an executed loop. Check existing workers before starting replacements, report only meaningful progress, completion, failure or a blocking decision, and take no publication or merge authority from the loop.

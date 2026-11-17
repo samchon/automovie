@@ -1,7 +1,5 @@
 # Treatment statements
 
-Contract: [principles/treatments.md](../../principles/treatments.md).
-
 ## Decided event
 
 1. The body settles what happens, who or what participates, why, the alternatives and the consequential choice or process, its costs and result, and the state the next event inherits.

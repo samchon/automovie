@@ -1,17 +1,15 @@
 # Final screenplay population statements
 
-Contract: [obligations/screenplay.md](../../obligations/screenplay.md).
-
 ## Complete realization
 
-1. Every long-route script execution is mapped to final units and each final unit to actual parents.
+1. Every long-route script execution is mapped to final units and each final unit to its parents.
 2. A short maps its brief decisions and its screenplay-owned event and execution decisions without invented skipped stages.
 3. Identity, events, choices, consequences, states, relationships, knowledge and reveal order are preserved.
 4. New image-sound relations, attention, duration and transitions are judged across the whole.
 5. At construction, the answer assesses the complete plan and sufficient material, and names what is still provisional or pending: performance, timing with its basis, placeholders, future source, sound, edit and output work, and the performance and editing measurements still needed.
-6. Unmade descendants do not block screenplay construction, while absent required delivery parts remain gaps; actual descendants and observations are connected as they exist.
-7. At delivery, the actual assembled total duration and release units are measured against the declared duration and format, distinguishing script estimates from recorded speech, performed action, edit timing and the measured file.
-8. At delivery, the answer reports justified ceilings and the effect of removing only repetitions actually judged redundant. Functional refrains count.
+6. Unmade descendants do not block screenplay construction, while absent required delivery parts remain gaps; descendants and observations are connected as they exist.
+7. At delivery, the assembled total duration and release units are measured against the declared duration and format, distinguishing script estimates from recorded speech, performed action, edit timing and the measured file.
+8. At delivery, the answer reports justified ceilings and the effect of removing only repetitions judged redundant. Functional refrains count.
 9. A shortfall alone is no defect, while compressed required experience, missing event assignment or poor partition may be. The earliest cause is repaired without padding, new events or stretched sound.
 
 ## Published version
