@@ -6,6 +6,7 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
+import { HumanLimbIncumbent } from "../posture/HumanLimbIncumbent";
 import { poseBones } from "../posture/poseBones";
 import type { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
@@ -74,7 +75,13 @@ export namespace HumanSegmentShown {
       HumanSegmentSelection.last(person.segments, seconds);
     const pose: IAutoMoviePose = active === undefined
       ? HumanSegmentPose.initial(person, requested, prepared)
-      : HumanSegmentPose.of(person, active, seconds, prepared, requested);
+      : active.incumbents === undefined
+        ? HumanSegmentPose.of(person, active, seconds, prepared, requested)
+        // The action's last leaf seeds start every swept fit of this
+        // evaluation (leaf, carry, stop and plant fits) from a held seed
+        // (`HumanLimbIncumbent`), which cannot change their answers.
+        : HumanLimbIncumbent.within({ body: person.performer.body, seeds: active.incumbents },
+          (): IAutoMoviePose => HumanSegmentPose.of(person, active, seconds, prepared, requested));
     if (requested !== undefined) return { pose };
     const kept: HumanSegment.IShown = { pose };
     return keep(person, seconds, kept) ? { pose, kept } : { pose };
