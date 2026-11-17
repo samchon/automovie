@@ -2,13 +2,17 @@ import {
   Quaternion,
   Vector3,
   resolveAutoMovieCenterOfMass,
+  resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionCoupling,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -50,36 +54,42 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    summing to one, and every bearing contact lies within 10 mm of its
  *    helper's region at 20 Hz; or a capacity refusal on `mass` whose
  *    feasible maximum lies below the helped mass.
+ * 3. The average man helps the average man up by the left hand. The palms
+ *    meet within 10 mm at five samples from closure to release, and the helped
+ *    palm slips by at most 10 mm in the helper's displayed palm-bone frame.
+ *    Both feet bear on the floor before the grip releases and through the end.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the records through the public chain and reads the displayed bodies and the plans' windows; a grip that never closes or never lets go, a body left on the floor, a helper bearing nothing or a contact off its region fails with its cell and numbers.
- * @evidence contracts/development/testing.md#independent-expectations The bounds are #3349's and the carried spec's; the release order is the support rule's; every reading is of displayed bodies or declared windows.
- * @evidence contracts/development/testing.md#distinguishing-cases Three help-up pairs and two walks between helpers of opposite builds to the helped.
- * @evidence contracts/development/testing.md#execution-ownership Prepares four polygon men and builds five short performances; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, each bound with its source and the 2 scenarios.
+ * @evidence contracts/development/testing.md#independent-expectations The 10 mm bounds come from #3349's contact requirement and #3419's grip-slip acceptance; slip is displacement from closure in the partner's frame, distinct from the absolute palm gap. The support rule requires bearing before release.
+ * @evidence contracts/development/testing.md#distinguishing-cases Three right-hand help-up pairs, one authored left-hand case at closure, through the hold and at release, and two walks between helpers of opposite builds to the helped.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable in-memory test prepares polygon men and stages the helper from one lying pose. Each left-grip sample reads each body's displayed placement once and uses its palm bone. No viewer or external host runs.
+ * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios, world contact and local slip in metres, and the order of support transfer.
  */
 export function test_human_motion_coupled_helpers(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   type Name = "m-large" | "f-small" | "m-average";
-  const PAIRS: readonly (readonly [Name, Name])[] = [
+  const HELP_UPS: readonly (readonly [Name, Name, "left"?])[] = [
     ["m-large", "f-small"],
     ["f-small", "m-large"],
     ["m-average", "m-average"],
+    ["m-average", "m-average", "left"],
   ];
   const SECONDS: number = 2;
   const START: number = 0.3;
   const CONTACT: number = 0.01;
   // 1. Helping someone up from the floor.
-  for (const names of PAIRS) {
-    const cell: string = `helpUp, ${names[0]} helping ${names[1]}`;
+  for (const [helperName, helpedName, hand] of HELP_UPS) {
+    const cell: string = `helpUp, ${helperName} helping ${helpedName}${hand === undefined ? "" : ` by the ${hand} hand`}`;
     const bodies: Record<"a" | "b", IAutoMovieMotionHumanBody> = {
-      a: motionHumanBody(names[0]),
-      b: motionHumanBody(names[1]),
+      a: motionHumanBody(helperName),
+      b: motionHumanBody(helpedName),
     };
     let film: IAutoMovieMotionHumanPerformance;
     try {
       const stand: { at: IAutoMovieVector3; yaw: number } = helperStand(
         bodies.b,
         bodies.a,
+        hand,
       );
       film = new HumanPerformance({
         seed: "coupled-signature",
@@ -96,7 +106,7 @@ export function test_human_motion_coupled_helpers(): void {
             helper: HumanChain.subject("a").stand({ seconds: START }),
             helped: HumanChain.subject("b").lieDown(),
           },
-          {},
+          hand === undefined ? {} : { hand },
         ).node,
       });
       film.segments("b");
@@ -139,19 +149,23 @@ export function test_human_motion_coupled_helpers(): void {
       bodies.a,
       0,
     );
-    for (const w of grips) {
-      const t: number = rise.start + ((w.from + w.to) / 2) * rise.plan.duration;
-      const gap: number = Vector3.length(
-        Vector3.subtract(
-          HumanSignature.region(reader, "palmRight", t),
-          HumanSignature.region(helper, "palmRight", t),
-        ),
-      );
-      all.check(
-        `${cell}: at the grip's middle the palms are ${(gap * 1000).toFixed(1)} mm apart, ${CONTACT * 1000} mm at most expected`,
-        gap <= CONTACT,
-      );
-    }
+    if (hand === "left") {
+      checkLeftGrip(all, cell, film, bodies, rise, grips, feet, CONTACT);
+    } else
+      for (const w of grips) {
+        const t: number =
+          rise.start + ((w.from + w.to) / 2) * rise.plan.duration;
+        const gap: number = Vector3.length(
+          Vector3.subtract(
+            HumanSignature.region(reader, "palmRight", t),
+            HumanSignature.region(helper, "palmRight", t),
+          ),
+        );
+        all.check(
+          `${cell}: at the grip's middle the palms are ${(gap * 1000).toFixed(1)} mm apart, ${CONTACT * 1000} mm at most expected`,
+          gap <= CONTACT,
+        );
+      }
     const end: number = rise.start + rise.plan.duration;
     const upright: number =
       HumanSignature.joint(reader, end, "head").y -
@@ -287,15 +301,84 @@ export function test_human_motion_coupled_helpers(): void {
   all.assert("the helpers' compositions keep their bounds");
 }
 
+/** Check the declared left grip against both displayed hands and its supporting feet. */
+function checkLeftGrip(
+  all: motionComplaints.IGatherer,
+  cell: string,
+  film: IAutoMovieMotionHumanPerformance,
+  bodies: Readonly<Record<"a" | "b", IAutoMovieMotionHumanBody>>,
+  rise: IAutoMovieMotionHumanSegment,
+  grips: readonly IAutoMovieMotionHumanContactWindow[],
+  feet: readonly IAutoMovieMotionHumanContactWindow[],
+  tolerance: number,
+): void {
+  const target: IAutoMovieHumanoidSurfaces.IFrame =
+    bodies.a.surfaces.regions.palmLeft;
+  const source: IAutoMovieHumanoidSurfaces.IFrame =
+    bodies.b.surfaces.regions.palmLeft;
+  for (const grip of grips) {
+    all.check(
+      `${cell}: the helped left hand grips the helper's left palm`,
+      grip.part === "leftHand" &&
+        grip.kind === "grip" &&
+        grip.support.kind === "person" &&
+        grip.support.region === "palmLeft",
+    );
+    for (const foot of ["leftFoot", "rightFoot"] as const)
+      all.check(
+        `${cell}: the ${foot} bears on the floor before the left grip releases`,
+        feet.some(
+          (window: IAutoMovieMotionHumanContactWindow): boolean =>
+            window.part === foot &&
+            window.kind === "plant" &&
+            window.support.kind === "ground" &&
+            window.from < grip.to &&
+            window.to === 1,
+        ),
+      );
+
+    // Read five equally spaced instants including the authored closure and
+    // release. The local displacement removes the helper's own motion.
+    let closure: IAutoMovieVector3 | undefined;
+    for (const share of [0, 0.25, 0.5, 0.75, 1]) {
+      const seconds: number =
+        rise.start +
+        (grip.from + share * (grip.to - grip.from)) * rise.plan.duration;
+      const helper: IAutoMovieResolvedBone = film
+        .bones("a", seconds)
+        .get(target.bone)!;
+      const helped: IAutoMovieResolvedBone = film
+        .bones("b", seconds)
+        .get(source.bone)!;
+      const difference: IAutoMovieVector3 = Vector3.subtract(
+        resolveAutoMovieHumanoidSurfaces.place(source, helped).point,
+        resolveAutoMovieHumanoidSurfaces.place(target, helper).point,
+      );
+      const local: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.inverse(helper.worldRotation),
+        difference,
+      );
+      closure ??= local;
+      const gap: number = Vector3.length(difference);
+      const slip: number = Vector3.length(Vector3.subtract(local, closure));
+      all.check(
+        `${cell} at ${seconds.toFixed(3)} s: the left palm gap is ${(gap * 1000).toFixed(1)} mm and slip is ${(slip * 1000).toFixed(1)} mm, both within ${tolerance * 1000} mm expected`,
+        gap <= tolerance && slip <= tolerance,
+      );
+    }
+  }
+}
+
 /**
  * Where a helper stands to help a person up: the helped body laid down on
- * its own, its right wrist read where it lies, and the helper a foot's
+ * its own, the selected wrist read where it lies, and the helper a foot's
  * length beyond that wrist, away from the hips, facing it, so the wrist lies
  * under the helper's reach.
  */
 function helperStand(
   helped: IAutoMovieMotionHumanBody,
   helper: IAutoMovieMotionHumanBody,
+  hand: "left" | "right" = "right",
 ): { at: IAutoMovieVector3; yaw: number } {
   const lying: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "helper-stand",
@@ -322,7 +405,7 @@ function helperStand(
   const wrist: IAutoMovieVector3 = HumanSignature.joint(
     reader,
     end,
-    "rightHand",
+    hand === "left" ? "leftHand" : "rightHand",
   );
   const hips: IAutoMovieVector3 = HumanSignature.joint(reader, end, "hips");
   const out: IAutoMovieVector3 = Vector3.normalize({
