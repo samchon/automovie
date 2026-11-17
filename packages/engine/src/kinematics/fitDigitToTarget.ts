@@ -24,6 +24,7 @@ import { indexSkeletonTopology } from "./indexSkeletonTopology";
 import { preparePoseResolution } from "./preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./resolvePose";
+import { swingTwistRange } from "./swingTwistRange";
 
 /**
  * Put a point of a digit (its tip or its pad, a frame on its distal phalanx)
@@ -137,31 +138,45 @@ export function fitDigitToTarget(
   const coupling: number | null = input.coupling ?? null;
   const target: IAutoMovieVector3 = softTarget(input, readBones);
 
-  // The digit's free axes, in the order of its joints.
+  // The digit's bones in the rig, the first record of each name, found in
+  // one pass over the rig instead of one scan a bone for the free axes and
+  // another for the clamp.
+  const records: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map();
+  for (const record of input.skeleton.bones)
+    if (!records.has(record.bone) && input.bones.includes(record.bone))
+      records.set(record.bone, record);
+
+  // The digit's free axes, in the order of its joints, and each joint's
+  // clamp under the same record (`clampJointToSkeleton.of`'s own
+  // preparation, given the record it would scan for).
   const variables: IVariable[] = [];
+  const clamps: Map<
+    AutoMovieHumanoidBone,
+    (joint: IAutoMovieJointPose) => IAutoMovieJointPose
+  > = new Map();
   for (const bone of input.bones) {
+    const found: IAutoMovieBone | undefined = records.get(bone);
     const constraint: IAutoMovieJointConstraint | null = getConstraint(
       bone,
-      input.skeleton.bones.find((b: IAutoMovieBone): boolean => b.bone === bone)
-        ?.constraint ?? null,
+      found?.constraint ?? null,
     );
     for (const axis of AXES)
       if (constraint === null || constraint[axis] !== null)
         variables.push({ bone, axis, range: constraint?.[axis] ?? null });
+    clamps.set(
+      bone,
+      clampJointToSkeleton.resolved(
+        bone,
+        found,
+        (): swingTwistRange.IJoint | undefined =>
+          constraint === null ||
+          constraint.swingTwist === undefined ||
+          constraint.swingTwist === null
+            ? undefined
+            : swingTwistRange.of(bone, input.skeleton),
+      ),
+    );
   }
-  const clamps: Map<
-    AutoMovieHumanoidBone,
-    (joint: IAutoMovieJointPose) => IAutoMovieJointPose
-  > = new Map(
-    input.bones.map(
-      (
-        bone: AutoMovieHumanoidBone,
-      ): [
-        AutoMovieHumanoidBone,
-        (joint: IAutoMovieJointPose) => IAutoMovieJointPose,
-      ] => [bone, clampJointToSkeleton.of(bone, input.skeleton)],
-    ),
-  );
 
   // A full-source baseline needs no second non-digit prefix.
   const others: IAutoMovieJointPose[] = fixedPose === undefined
