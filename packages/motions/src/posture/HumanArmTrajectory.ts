@@ -292,7 +292,7 @@ export namespace HumanArmTrajectory {
    * @returns Each arm's trajectory through the course, read as `solve`'s are, whether it is admitted, and the model term that refuses it (`M.IEvaluation.worst.term`; empty when admitted); a course not admitted is `solve`'s seed.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is read, the fixed ends, the admission and its equivalence to `solve`'s refusal test.
-   * @evidence contracts/development/implementation.md#principled-implementation The same context, coordinates, hard-range projection and evaluation the optimiser's iterates are read by, so an admitted course meets every requirement a solved one meets.
+   * @evidence contracts/development/implementation.md#principled-implementation The same context, coordinates, hard-range projection and evaluation the optimiser's iterates are read by, in the same mirror image `solve` reads a left-first problem in, so an admitted course meets every requirement a solved one meets and a mirrored course is admitted alike.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One context, one encoding per waypoint, one evaluation, then the shared playback factory.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bound is relaxed; a course that misses one is returned to the caller's optimisation.
    * @evidence contracts/development/implementation.md#efficient-algorithms One context build and one evaluation over N waypoints, the work of a single optimiser iterate, with no convexification or quadratic programme.
@@ -303,10 +303,14 @@ export namespace HumanArmTrajectory {
     problem: IProblem,
     arms: readonly (readonly HumanArmClearance.IArm[])[],
   ): { trajectories: Trajectory[]; admitted: boolean; refused: string } {
+    // Read in the mirror image when the first arm is the left, as `solve`
+    // reads it, so a course and its mirror are admitted alike to the bit;
+    // clinical triples read the same on either side.
+    const read: IProblem = leftFirst(problem) ? mirrored(problem) : problem;
     const context: M.IContext = HumanArmTrajectoryContext.prepare(
-      problem.body,
-      problem.arms.map((arm: IArm): "left" | "right" => arm.side),
-    )(problem);
+      read.body,
+      read.arms.map((arm: IArm): "left" | "right" => arm.side),
+    )(read);
     const n: number = context.n;
     const x: number[][][] = arms.map(
       (course: readonly HumanArmClearance.IArm[], a: number): number[][] =>
