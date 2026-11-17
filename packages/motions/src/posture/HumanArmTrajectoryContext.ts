@@ -264,7 +264,7 @@ export namespace HumanArmTrajectoryContext {
         part,
       )[frames[a]![k]!.corners[probe - G.SURFACE]!]!;
 
-    // Each memo is the waypoint's own, one map per arm keyed by the pair's
+    // Each memo is the waypoint's own, one array per arm indexed by the pair's
     // two indices as one number, since the pair readings ask it for every
     // probe and shape at every iterate.
     const allowed: M.IContext["allowed"] = (
@@ -274,9 +274,10 @@ export namespace HumanArmTrajectoryContext {
       shape: number,
     ): number => {
       const point: W.IWaypoint = points[k]!;
+      const memo: Float64Array = (point.allowed[a] ??= W.memo(point.frames[a]!, point.frames[a]!.shapes.length));
       const key: number = probe * point.frames[a]!.shapes.length + shape;
-      let v: number | undefined = point.allowed[a]!.get(key);
-      if (v === undefined) {
+      let v: number = key < memo.length ? memo[key]! : NaN;
+      if (Number.isNaN(v)) {
         const frame: IAutoMovieMotionHumanArmGeometry.IFrame = point.frames[a]!;
         const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
         const rested: number = give(declared(a, k, probe, s.bone));
@@ -290,7 +291,7 @@ export namespace HumanArmTrajectoryContext {
             point.placed[a]!.probes[probe]!;
           v = Math.min(0, S.gap(frame, shape, p, p) - r) - rested;
         }
-        point.allowed[a]!.set(key, v);
+        if (key < memo.length) memo[key] = v;
       }
       return v;
     };
@@ -304,9 +305,10 @@ export namespace HumanArmTrajectoryContext {
       bone: string,
     ): number => {
       const point: W.IWaypoint = points[k]!;
+      const memo: Float64Array = (point.between[a] ??= W.memo(point.frames[a]!, point.colliders[1 - a]!.length));
       const key: number = probe * point.colliders[1 - a]!.length + shape;
-      let v: number | undefined = point.between[a]!.get(key);
-      if (v === undefined) {
+      let v: number = key < memo.length ? memo[key]! : NaN;
+      if (Number.isNaN(v)) {
         const s: IAutoMovieMotionHumanArmGeometry.IShape = point.colliders[1 - a]![shape]!;
         const rested: number = give(declared(a, k, probe, bone));
         if (probe >= G.SURFACE) v = -corner(a, k, probe, s.part) - rested;
@@ -319,7 +321,7 @@ export namespace HumanArmTrajectoryContext {
               physicalShapeSegmentDistance(s.pose, s.shape, p, p) - r,
             ) - rested;
         }
-        point.between[a]!.set(key, v);
+        if (key < memo.length) memo[key] = v;
       }
       return v;
     };
