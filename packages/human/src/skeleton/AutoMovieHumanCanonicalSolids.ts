@@ -165,13 +165,9 @@ export namespace AutoMovieHumanCanonicalSolids {
           id: runs.length === 1 ? module.bone : `${module.bone}.${index}`,
           carrier,
           centre: solid.centerOfMass,
-          points: points.map(
-            (p: IAutoMovieVector3): IAutoMovieVector3 => ({
-              x: p.x - solid.centerOfMass.x,
-              y: p.y - solid.centerOfMass.y,
-              z: p.z - solid.centerOfMass.z,
-            }),
-          ),
+          // The centred points are a translation of the run, so their hull
+          // is read from the run's instead of being searched again.
+          points: physicalHullFaces.shift(points, solid.centerOfMass),
           volume: solid.volume,
           inertia: solid.inertia,
           inertiaRotation: solid.inertiaRotation,

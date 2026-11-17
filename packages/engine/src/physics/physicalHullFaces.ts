@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
+import { physicalHullTriangles } from "./physicalHullTriangles";
 
 /**
  * The faces of the convex hull of a point set: each face's outward unit
@@ -22,13 +23,13 @@ import { Vector3 } from "../math/Vector3";
  *   radii about that mean of a sphere containing the hull and of one inside
  *   it, and how deep any input point lies below the surface.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States supporting faces, coplanar membership, outward loop order, degenerate behavior and immutable-source memo. Namespace mirrorX produces fresh reflected points with lazy provenance; their first topology read validates actual coordinates, preserves face order/tolerance and reruns planarLoop, while an edited output receives an ordinary supporting-plane search.
- * @evidence contracts/development/implementation.md#principled-implementation Ordinary geometry uses supporting planes through non-collinear triples with every point behind them (de Berg et al., Computational Geometry, chapter 11), then Andrew's monotone-chain loops. An issued X reflection first reconfirms every actual coordinate before applying the exact support-plane isometry and the same planar loop/summary owners.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The single owner of hull topology: the nearest-point query, bounds, mass, erosion, validation and the native mapping all read these faces instead of deriving their own.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 1e-9 extent-relative tolerance and all plane/member tests remain. Extent keeps diagonal nonfinite propagation and omits only symmetric reverse distances. A candidate stops only once monotone front/back evidence proves it cannot support any hull; reflected geometry must pass exact coordinate checks before planes are derived, without a caller-supplied cached-hull flag.
- * @evidence contracts/development/implementation.md#efficient-algorithms Supporting triples remain cubic to quartic in V points. Extent omits reverse distances; one cross/normal workspace omits up to four candidate vector records. Coverage checks visit only prior faces actually containing first index i; accepted memberships are linked to future first indices in O(V), and finished lists release immediately. Interior planes stop after both sides are proved. Planar sort/turn/chain kernels omit three closures per face; summary keeps one centre and uses equivalent scalar distance without per-vertex scaled/add/displacement vectors. Validated reflection uses O(V) checks and O(F V log V) ordering; later reads are weak lookups.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each points array shares one completed hull through the existing weak map. Only mirrorX-issued provenance plus exact actual-coordinate checks can derive an isometric source hull; edited fresh points revert to ordinary search without trusting a caller-supplied hull.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The weak completed cache owns one hull per live points array. Raw search owns O(F V) boolean membership/incidence data for F accepted faces and V points, releasing each completed first-index list and all remaining scratch on return/throw. Reflection provenance borrows source points only until its first attempted read, then releases in finally on success, edited-output fallback or failure. No query/body history is retained.
+ * @evidence contracts/development/common.md#meaningful-documentation States supporting faces, coplanar membership, outward loop order, degenerate behavior and immutable-source memo. Namespace mirrorX and shift produce fresh reflected or translated points with lazy provenance; their first topology read validates the actual coordinates and derives the hull from the source's, while an edited output receives an ordinary search.
+ * @evidence contracts/development/implementation.md#principled-implementation Quickhull (Barber, Dobkin and Huhdanpaa 1996) names the hull's planes through `physicalHullTriangles`. Each plane is then read from the first triple, in ascending index order, of the points on it: its normal by that triple's cross product, its offset and its members within the tolerance, a supporting plane having every point behind it (de Berg et al., Computational Geometry, chapter 11). Faces stand in the order of those triples and Andrew's monotone chain orders each loop, so the result is the one a scan of every triple in index order gives, whatever triangulation named the planes. A translation keeps every incidence of a hull, so a translated array's planes are named by its source's face triples and read from the translated coordinates by the same arithmetic; a reflection in X keeps them too, with each normal reflected.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The single owner of hull topology: the nearest-point query, bounds, mass, erosion, validation and the native mapping all read these faces instead of deriving their own. The triangle search lives in `physicalHullTriangles`; this owner keeps face identity, order, loops and the summary.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 1e-9 extent-relative tolerance decides every plane and member test. Extent keeps diagonal nonfinite propagation and omits only symmetric reverse distances. Reflected and translated geometry must pass exact coordinate checks before a source's planes are used, without a caller-supplied cached-hull flag. The translated case assumes no point lies within rounding of the tolerance's edge of a plane, where a face could appear that the source lacks; that case is not detected.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Extent is O(V^2) in V points. Quickhull is expected O(V log V). Reading the planes, their members and the buried depth is O(F V) for F faces, and ordering loops O(F V log V); a face of many coplanar points seeks its first triple among its members, at worst cubic in the collinear points leading its index order. A translated array skips quickhull.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each points array shares one completed hull through the weak map. Only mirrorX- or shift-issued provenance plus exact actual-coordinate checks can derive a hull from a source's; edited fresh points revert to ordinary search.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The weak completed cache owns one hull and one list of face triples per live points array. A search owns O(F V) boolean membership data, released on return or throw. Reflection and translation provenance borrow source points only until the fresh array's first attempted read. No query/body history is retained.
  */
 export function physicalHullFaces(
   points: readonly IAutoMovieVector3[],
@@ -60,85 +61,239 @@ export function physicalHullFaces(
       extent = Math.max(extent, Vector3.distance(points[i]!, points[j]!));
   }
   const tolerance: number = 1e-9 * extent;
-  const faces: physicalHullFaces.IFace[] = [];
-  const membersByFirst: boolean[][][] = Array.from({ length: count }, (): boolean[][] => []);
   const used: boolean[] = points.map((): boolean => false);
-  const raw: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const normal: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  for (let i: number = 0; i < count; i++) {
-    for (let j: number = i + 1; j < count; j++)
-      for (let k: number = j + 1; k < count; k++) {
-        let covered: boolean = false;
-        for (const member of membersByFirst[i]!)
-          if (member[j]! && member[k]!) {
-            covered = true;
-            break;
-          }
-        if (covered) continue;
-        Vector3.crossDifferenceInto(raw, points[i]!, points[j]!, points[k]!);
-        const area: number = Vector3.length(raw);
-        // Collinear or coincident triples span no plane.
-        if (!(area > tolerance * extent)) continue;
-        const reciprocal: number = 1 / area;
-        normal.x = raw.x * reciprocal;
-        normal.y = raw.y * reciprocal;
-        normal.z = raw.z * reciprocal;
-        let offset: number = Vector3.dot(normal, points[i]!);
-        let front: boolean = false;
-        let back: boolean = false;
-        for (const p of points) {
-          const d: number = Vector3.dot(normal, p) - offset;
-          if (d > tolerance) front = true;
-          else if (d < -tolerance) back = true;
 
-          // Once both half-spaces contain a point, no later point can make
-          // this plane supporting. The two flags are monotone evidence.
-          if (front && back) break;
-        }
-        // Points on both sides: an interior plane. Points on neither: the
-        // whole set is flat and encloses no volume.
-        if (front === back) continue;
-        if (front) {
-          normal.x *= -1;
-          normal.y *= -1;
-          normal.z *= -1;
-          offset = -offset;
-        }
-        let extendsTriple: boolean = false;
-        const member: boolean[] = points.map(
-          (p: IAutoMovieVector3, index: number): boolean => {
-            const included: boolean = Vector3.dot(normal, p) - offset >= -tolerance;
-            if (included && index !== i && index !== j && index !== k)
-              extendsTriple = true;
-            return included;
-          },
-        );
-        const loop: number[] = planarLoop(points, member, normal);
-        for (const index of loop) used[index] = true;
-
-        // A membership set containing exactly this already visited triple
-        // cannot cover any later i<j<k. Keep every other set, including a
-        // numeric case where the plane omitted one of its original indices.
-        if (extendsTriple || !member[i] || !member[j] || !member[k])
-          for (let first: number = i; first < count - 2; first++)
-            if (member[first]) membersByFirst[first]!.push(member);
-
-        // Candidate scratch must not enter a retained hull. Only accepted
-        // outward normals receive their own numeric record.
-        faces.push({
-          normal: { x: normal.x, y: normal.y, z: normal.z },
-          offset,
-          loop: loop.map((index: number): IAutoMovieVector3 => points[index]!),
-        });
-      }
-
-    // Only actual memberships in i can cover its triples. Once this first
-    // index is complete, its incidence list cannot serve another candidate.
-    membersByFirst[i]!.length = 0;
-  }
+  // A tolerance that is not finite admits no plane: no triple's area exceeds it.
+  const shifted: readonly number[] | undefined = shiftedTriples(points);
+  const triples: number[] = [];
+  const faces: physicalHullFaces.IFace[] = Number.isFinite(tolerance)
+    ? search(
+        points,
+        extent,
+        tolerance,
+        used,
+        shifted ?? physicalHullTriangles(points, tolerance),
+        triples,
+      )
+    : [];
+  TRIPLES.set(points, triples);
   const hull: physicalHullFaces.IHull = summarize(points, faces, used, tolerance);
   HULLS.set(points, hull);
   return hull;
+}
+
+/** One supporting plane with the triple it was read from. */
+interface IPlane {
+  /** The triple's indices, ascending. */
+  triple: [number, number, number];
+
+  /** Outward unit normal. */
+  normal: IAutoMovieVector3;
+
+  /** The plane's distance from the origin along the normal. */
+  offset: number;
+
+  /** Whether each point lies on the plane within the tolerance. */
+  member: boolean[];
+
+  /** Whether the membership can hold a triple other than its own. */
+  covering: boolean;
+}
+
+/**
+ * The plane through three points when it supports the hull: its unit normal
+ * turned outward, its offset and the points on it. Null when the triple is
+ * collinear or points lie on both sides, or on neither.
+ */
+function supporting(
+  points: readonly IAutoMovieVector3[],
+  i: number,
+  j: number,
+  k: number,
+  extent: number,
+  tolerance: number,
+): IPlane | null {
+  const raw: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  Vector3.crossDifferenceInto(raw, points[i]!, points[j]!, points[k]!);
+  const area: number = Vector3.length(raw);
+
+  // Collinear or coincident triples span no plane.
+  if (!(area > tolerance * extent)) return null;
+  const reciprocal: number = 1 / area;
+  const normal: IAutoMovieVector3 = {
+    x: raw.x * reciprocal,
+    y: raw.y * reciprocal,
+    z: raw.z * reciprocal,
+  };
+  let offset: number = Vector3.dot(normal, points[i]!);
+  let front: boolean = false;
+  let back: boolean = false;
+  for (const p of points) {
+    const d: number = Vector3.dot(normal, p) - offset;
+    if (d > tolerance) front = true;
+    else if (d < -tolerance) back = true;
+    if (front && back) return null;
+  }
+
+  // Points on neither side: the whole set is flat and encloses no volume.
+  if (front === back) return null;
+  if (front) {
+    normal.x *= -1;
+    normal.y *= -1;
+    normal.z *= -1;
+    offset = -offset;
+  }
+  let covering: boolean = false;
+  const member: boolean[] = points.map(
+    (p: IAutoMovieVector3, index: number): boolean => {
+      const included: boolean = Vector3.dot(normal, p) - offset >= -tolerance;
+      if (included && index !== i && index !== j && index !== k) covering = true;
+      return included;
+    },
+  );
+  return {
+    triple: [i, j, k],
+    normal,
+    offset,
+    member,
+    covering: covering || !member[i] || !member[j] || !member[k],
+  };
+}
+
+/**
+ * The supporting plane of the first triple, in ascending index order, among
+ * the points on a plane: the triple a scan of every triple would have met
+ * first on that face. The plane itself when its own triple is that one.
+ */
+function earliest(
+  points: readonly IAutoMovieVector3[],
+  plane: IPlane,
+  extent: number,
+  tolerance: number,
+): IPlane {
+  const on: number[] = [];
+  plane.member.forEach((included: boolean, index: number): void => {
+    if (included) on.push(index);
+  });
+  for (let a: number = 0; a < on.length; a++)
+    for (let b: number = a + 1; b < on.length; b++)
+      for (let c: number = b + 1; c < on.length; c++) {
+        if (on[a] === plane.triple[0] && on[b] === plane.triple[1] && on[c] === plane.triple[2])
+          return plane;
+        const found: IPlane | null = supporting(points, on[a]!, on[b]!, on[c]!, extent, tolerance);
+        if (found !== null) return found;
+      }
+  return plane;
+}
+
+/**
+ * The hull's faces in the order of each face's first triple of points, the
+ * order a scan of every triple in ascending index order meets them in.
+ *
+ * The candidate triangles name the hull's planes: quickhull's, or the face
+ * triples of the same points before a translation. Each triangle's plane is
+ * read again from the first triple of the points on it, so a face's normal,
+ * offset and membership do not depend on which triangle named it, and a
+ * face that an earlier face's membership already holds is dropped.
+ *
+ * @param triangles Candidate triangles as consecutive index triples.
+ * @param triples Receives each accepted face's triple, consecutively.
+ */
+function search(
+  points: readonly IAutoMovieVector3[],
+  extent: number,
+  tolerance: number,
+  used: boolean[],
+  triangles: readonly number[],
+  triples: number[],
+): physicalHullFaces.IFace[] {
+  const found: IPlane[] = [];
+  for (let at: number = 0; at < triangles.length; at += 3) {
+    const [i, j, k]: number[] = [triangles[at]!, triangles[at + 1]!, triangles[at + 2]!].sort(
+      (a: number, b: number): number => a - b,
+    );
+    if (found.some((plane: IPlane): boolean => plane.member[i!]! && plane.member[j!]! && plane.member[k!]!))
+      continue;
+    let plane: IPlane | null = supporting(points, i!, j!, k!, extent, tolerance);
+    if (plane === null) continue;
+
+    // The first triple on the plane may itself hold points the triangle's
+    // plane missed by the tolerance, so it is sought again until it stays.
+    for (let pass: number = 0; pass < 8; pass++) {
+      const first: IPlane = earliest(points, plane, extent, tolerance);
+      if (first === plane) break;
+      plane = first;
+    }
+    const chosen: IPlane = plane;
+    if (
+      !found.some(
+        (other: IPlane): boolean =>
+          other.triple[0] === chosen.triple[0] &&
+          other.triple[1] === chosen.triple[1] &&
+          other.triple[2] === chosen.triple[2],
+      )
+    )
+      found.push(chosen);
+  }
+  found.sort(
+    (a: IPlane, b: IPlane): number =>
+      a.triple[0] - b.triple[0] || a.triple[1] - b.triple[1] || a.triple[2] - b.triple[2],
+  );
+  const faces: physicalHullFaces.IFace[] = [];
+  const accepted: IPlane[] = [];
+  for (const plane of found) {
+    const [i, j, k]: [number, number, number] = plane.triple;
+    if (
+      accepted.some(
+        (earlier: IPlane): boolean =>
+          earlier.covering && earlier.member[i]! && earlier.member[j]! && earlier.member[k]!,
+      )
+    )
+      continue;
+    const loop: number[] = planarLoop(points, plane.member, plane.normal);
+    for (const index of loop) used[index] = true;
+    accepted.push(plane);
+    triples.push(i, j, k);
+    faces.push({
+      normal: plane.normal,
+      offset: plane.offset,
+      loop: loop.map((index: number): IAutoMovieVector3 => points[index]!),
+    });
+  }
+  return faces;
+}
+
+/** Each searched points array's face triples, which a translation of it starts from. */
+const TRIPLES: WeakMap<readonly IAutoMovieVector3[], readonly number[]> = new WeakMap();
+
+/** Fresh translated definitions with the source and offset they came from, until their first hull read. */
+const SHIFTS: WeakMap<
+  readonly IAutoMovieVector3[],
+  { source: readonly IAutoMovieVector3[]; by: IAutoMovieVector3 }
+> = new WeakMap();
+
+/**
+ * The face triples of the points a translated array came from, when the
+ * array still is that translation coordinate for coordinate; undefined for
+ * any other array, which is then searched on its own.
+ */
+function shiftedTriples(points: readonly IAutoMovieVector3[]): readonly number[] | undefined {
+  const origin: { source: readonly IAutoMovieVector3[]; by: IAutoMovieVector3 } | undefined = SHIFTS.get(points);
+  if (origin === undefined) return undefined;
+  SHIFTS.delete(points);
+  const { source, by }: { source: readonly IAutoMovieVector3[]; by: IAutoMovieVector3 } = origin;
+  if (
+    points.length !== source.length ||
+    !points.every(
+      (point: IAutoMovieVector3, i: number): boolean =>
+        Object.is(point.x, source[i]!.x - by.x) &&
+        Object.is(point.y, source[i]!.y - by.y) &&
+        Object.is(point.z, source[i]!.z - by.z),
+    )
+  )
+    return undefined;
+  physicalHullFaces(source);
+  return TRIPLES.get(source);
 }
 
 /** One hull per live points array, released with the array. */
@@ -249,6 +404,29 @@ export namespace physicalHullFaces {
     return reflected;
   }
 
+  /**
+   * Produce fresh points translated by `-by` and prepare their hull from the
+   * source's.
+   *
+   * A translation maps a convex hull onto the hull of the translated points
+   * with every incidence kept, so the source's face triples name every plane
+   * of the result. The first hull read checks that the fresh points still
+   * are `source - by` coordinate for coordinate, then reads each plane again
+   * from the translated points themselves, by the arithmetic and in the order
+   * of an ordinary search; edited points receive an ordinary search.
+   *
+   * @param points Shape-local points, metres; not mutated after their first hull read.
+   * @param by The offset subtracted from every point, metres.
+   * @returns The translated points, each `point - by` by component.
+   */
+  export function shift(points: readonly IAutoMovieVector3[], by: IAutoMovieVector3): IAutoMovieVector3[] {
+    const moved: IAutoMovieVector3[] = points.map(
+      (point: IAutoMovieVector3): IAutoMovieVector3 => ({ x: point.x - by.x, y: point.y - by.y, z: point.z - by.z }),
+    );
+    SHIFTS.set(moved, { source: points, by: { x: by.x, y: by.y, z: by.z } });
+    return moved;
+  }
+
   /** One supporting plane of the hull with its boundary. */
   export interface IFace {
     /** Outward unit normal, shape-local. */ normal: IAutoMovieVector3;
@@ -340,5 +518,3 @@ function summarize(
   };
   return hull;
 }
-
-
