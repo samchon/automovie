@@ -6,6 +6,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { IKickGeometry } from "./IKickGeometry";
 import { KickGeometry } from "./KickGeometry";
+import { KickLaunch } from "./KickLaunch";
 import type { kick } from "./kick";
 
 /**
@@ -26,37 +27,68 @@ import type { kick } from "./kick";
  * whole carriage, which no single displacement of the ankle expresses.
  */
 export namespace KickRedirect {
+  /** The redirecting kick's parameters and draws on its source's context and clock. */
+  function redirected(
+    context: IHumanActionContext<kick.IParams>,
+    source: IKickGeometry.ISource,
+  ): IHumanActionContext<kick.IParams> {
+    return {
+      ...source.context,
+      params: context.params,
+      random: context.random,
+      start: source.start,
+    };
+  }
+
+  /**
+   * A redirecting kick's launch: the new target read on the source's clock,
+   * keeping the source's line and step (`KickLaunch`).
+   *
+   * @param context The redirecting kick's context, starting at the cut.
+   * @param source The kick it continues.
+   * @param before The launch this redirect made before, when it has one.
+   * @returns The launch; the one before when it reads the same and the source still keeps the same line and step.
+   */
+  export function launch(
+    context: IHumanActionContext<kick.IParams>,
+    source: IKickGeometry.ISource,
+    before: KickLaunch.ILaunch | undefined,
+  ): KickLaunch.ILaunch {
+    const old: IKickGeometry = source.geometry();
+    return KickLaunch.of(
+      redirected(context, source),
+      source.timing,
+      source.start,
+      { line: old.line, step: old.carriage.step },
+      before,
+    );
+  }
+
   /**
    * Build a redirect's geometry.
    *
    * @param context The redirecting kick's context, starting at the cut.
    * @param source The kick it continues.
    * @param fixed The contact second the performance committed: null when the leg met nothing, undefined when the kick offers no weapon.
-   * @param solved The redirecting plan's solved contacts (`KickSolved`), read back while its launch, the source's line and the source's step read the same.
+   * @param launch The redirecting kick's launch (`launch`).
    * @returns The geometry, on the source's clock.
    */
   export function build(
     context: IHumanActionContext<kick.IParams>,
     source: IKickGeometry.ISource,
     fixed: number | null | undefined,
-    solved?: Parameters<typeof KickGeometry.build>[5],
+    launch: KickLaunch.ILaunch,
   ): IKickGeometry {
     const body: IHumanBody = context.body;
     const timing: IKickGeometry.ITiming = source.timing;
     const t0: number = source.start;
     const old: IKickGeometry = source.geometry();
     const fresh: IKickGeometry = KickGeometry.build(
-      {
-        ...source.context,
-        params: context.params,
-        random: context.random,
-        start: t0,
-      },
+      redirected(context, source),
       timing,
       t0,
       fixed,
-      { line: old.line, step: old.carriage.step },
-      solved,
+      launch,
     );
     const cut: number = context.start - t0;
     const span: number = Math.max(1e-3, timing.impact - cut);
