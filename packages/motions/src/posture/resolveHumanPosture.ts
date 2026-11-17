@@ -310,7 +310,33 @@ export namespace resolveHumanPosture {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): ISeeded {
     const fitted: ISeeded = refitHumanPosture.independent(body, pose, limbs, near, resolution);
-    return fitted.pose === pose && Object.keys(fitted.seeds).length === 0 ? fitted : structuredClone(fitted);
+    if (fitted.pose === pose && Object.keys(fitted.seeds).length === 0) return fitted;
+
+    // The fit shares with the input pose the records it leaves as they are,
+    // so the result is issued as a structured copy, whatever a record
+    // carries beside its angles. A caller's record may be an object that
+    // reads as a record and cannot be copied structurally (a proxy): such a
+    // record is issued as the four values a joint record is.
+    try {
+      return structuredClone(fitted);
+    } catch {
+      const issued: ISeeded = structuredClone({ ...fitted, pose: { ...fitted.pose, joints: [] } });
+      issued.pose.joints = fitted.pose.joints.map(
+        (joint: IAutoMovieJointPose): IAutoMovieJointPose => {
+          try {
+            return structuredClone(joint);
+          } catch {
+            return {
+              bone: joint.bone,
+              flexion: joint.flexion,
+              abduction: joint.abduction,
+              twist: joint.twist,
+            };
+          }
+        },
+      );
+      return issued;
+    }
   }
 
   /**
