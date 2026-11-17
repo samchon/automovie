@@ -42,18 +42,20 @@ const NAMES: Readonly<Record<createStationery.Kind, string>> = {
 /**
  * A book, a sheet of paper, a pen, a clipboard or a folded road map.
  *
- * A book lies closed on its back cover at the origin, its spine along `+Z` on the `-X` side; its front half is a part on the `hinge` along the spine, so opening the book turns it. A sheet, a clipboard and a folded map lie flat at the origin, their long side along `+Z`; a clipboard's and a map's `grip` is their whole `+Z` edge, pinched across their thickness, and their `face` their upper side. A clipboard's clip waits for a source of its size, and a map does not unfold.
+ * A book lies closed on its back at the origin, its spine along `+Z` on the `-X` side. Stage the cover fully open at `hinge: 180` before moving its single leaf on `page`. The author controls this order because articulation accepts each hinge independently. A map unfolds one panel on `fold` along its `+X` edge. The `page-edge` and `fold-edge` contacts follow their hinges, so `operate` can turn them on a supported prop. The Smithsonian Institution Archives' [Reading Room Rules](https://siarchives.si.edu/sites/default/files/pdfs/Reading_Room_Rules_color.pdf) call for turning one leaf at a time by its margin and supporting a bound volume in its cradle. The book and map use rigid panels for staging. Page curl, page stacks that change with repeated turns and additional map creases require further modeling.
+ *
+ * A sheet, a clipboard and a folded map lie flat with their long side along `+Z`. A clipboard's and a folded map's `grip` is their whole `+Z` edge, pinched across their closed thickness. Use the map's `support-grip` on the same edge of the stationary base panel to hold it while working the fold. The `face` is the upper side of the clipboard or the map panel when folded. A clipboard's clip waits for a source of its size.
  *
  * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
  * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
- * @returns The book, the sheet or the pen.
+ * @returns The selected stationery prop at rest.
  * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each thing lies and what opens.
- * @evidence contracts/development/implementation.md#principled-implementation Dimensioned boxes and a rod; the book's two halves share the spine as a hinge axis, turning about `+Z` so a positive travel lifts the front cover over toward `-X`.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per kind.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pages are not modelled; a book opens as two blocks.
- * @evidence contracts/development/implementation.md#efficient-algorithms One or two parts.
+ * @evidence contracts/development/implementation.md#principled-implementation Dimensioned boxes and a rod. Independent spine hinges lift the book cover and leaf toward `-X`; the map's hinge lifts its upper panel toward `+X`.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Sheets, clipboards and maps share the slab and contacts; the map adds one panel. Pens and books each have their own geometry.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The leaf and folded panel each have their own carrier and riding edge; supported use stages cover opening before page turning. The approximation ends at rigid panels, without a curl or collision solver.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Up to three parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -137,12 +139,63 @@ export function createStationery(
   }
 
   if (kind === "paper" || kind === "clipboard" || kind === "map") {
+    const baseThickness: number = kind === "map" ? thick / 2 : thick;
     builder.box(
       kind === "paper" ? "sheet" : kind === "clipboard" ? "board" : "map",
-      Vector3.create(width, thick, length),
-      Vector3.create(0, thick / 2, 0),
+      Vector3.create(width, baseThickness, length),
+      Vector3.create(0, baseThickness / 2, 0),
       { color: kind === "clipboard" ? "#8a6a4a" : "#f4f2ec" },
     );
+    if (kind === "map") {
+      // The crease runs between the folded layers, so both rest on the same plane when unfolded.
+      const panelHeight: number = baseThickness * 1.5;
+      builder.box(
+        "panel",
+        Vector3.create(width, baseThickness, length),
+        Vector3.create(0, panelHeight, 0),
+        { color: "#e4e2cd" },
+      );
+      builder.affordance({
+        id: "fold",
+        kind: "hinge",
+        frame: ArchetypeFrame.facing(
+          Vector3.create(width / 2, baseThickness, 0),
+          Vector3.create(0, 0, -1),
+          Vector3.create(-1, 0, 0),
+        ),
+        extent: null,
+        travel: 180,
+        parts: ["panel"],
+      });
+      builder.affordance({
+        id: "support-grip",
+        kind: "handle",
+        symmetry: "none",
+        frame: ArchetypeFrame.facing(
+          Vector3.create(0, baseThickness / 2, length / 2),
+          Vector3.create(0, 1, 0),
+          Vector3.create(1, 0, 0),
+        ),
+        extent: null,
+        grip: "precision",
+        aperture: baseThickness,
+        length: width,
+      });
+      builder.affordance({
+        id: "fold-edge",
+        kind: "handle",
+        symmetry: "none",
+        frame: ArchetypeFrame.facing(
+          Vector3.create(-width / 2, panelHeight, 0),
+          Vector3.create(0, 1, 0),
+          Vector3.create(0, 0, 1),
+        ),
+        extent: null,
+        grip: "precision",
+        aperture: baseThickness,
+        rides: "fold",
+      });
+    }
     builder.affordance({
       id: "grip",
       kind: "handle",
@@ -169,11 +222,14 @@ export function createStationery(
       extent: null,
       width,
       depth: length,
+      ...(kind === "map" ? { rides: "fold" as const } : {}),
     });
     return builder.build(d.mass!);
   }
 
-  // A book: two blocks stacked, the upper one turning about the spine at the hinge's frame.
+  // Give one leaf a layer of the closed book's existing thickness.
+  const pageThickness: number = createStationery.BANDS.paper.thickness!.minimum;
+  const pageHeight: number = (thick + pageThickness) / 2;
   builder.box(
     "back",
     Vector3.create(width, thick / 2, length),
@@ -182,9 +238,15 @@ export function createStationery(
   );
   builder.box(
     "front",
-    Vector3.create(width, thick / 2, length),
-    Vector3.create(0, (3 * thick) / 4, 0),
+    Vector3.create(width, thick / 2 - pageThickness, length),
+    Vector3.create(0, (3 * thick) / 4 + pageThickness / 2, 0),
     { color: "#8d4636" },
+  );
+  builder.box(
+    "leaf",
+    Vector3.create(width, pageThickness, length),
+    Vector3.create(0, pageHeight, 0),
+    { color: "#f4f2ec" },
   );
   builder.affordance({
     id: "hinge",
@@ -197,6 +259,32 @@ export function createStationery(
     extent: null,
     travel: 180,
     parts: ["front"],
+  });
+  builder.affordance({
+    id: "page",
+    kind: "hinge",
+    frame: ArchetypeFrame.facing(
+      Vector3.create(-width / 2, pageHeight, 0),
+      Vector3.create(0, 0, 1),
+      Vector3.create(1, 0, 0),
+    ),
+    extent: null,
+    travel: 180,
+    parts: ["leaf"],
+  });
+  builder.affordance({
+    id: "page-edge",
+    kind: "handle",
+    symmetry: "none",
+    frame: ArchetypeFrame.facing(
+      Vector3.create(width / 2, pageHeight, 0),
+      Vector3.create(0, 1, 0),
+      Vector3.create(0, 0, 1),
+    ),
+    extent: null,
+    grip: "precision",
+    aperture: pageThickness,
+    rides: "page",
   });
 
   // The closed book is held by its spine, the `-X` edge the hinge lies on, which stays where it is when the book opens.
@@ -229,7 +317,7 @@ export function createStationery(
     kind: "handle",
     symmetry: "none",
     frame: ArchetypeFrame.facing(
-      Vector3.create(width / 2, (3 * thick) / 4, 0),
+      Vector3.create(width / 2, (3 * thick) / 4 + pageThickness / 2, 0),
       Vector3.create(1, 0, 0),
       Vector3.create(0, 0, 1),
     ),
@@ -267,10 +355,28 @@ export namespace createStationery {
    *
    * - `grip`: the hold: a book by the middle of its spine, the hand closing across its thickness (the frame's `+Y` is up, out of the cover) along the spine's length; a sheet pinched from above at its near edge, a clipboard or a map pinched at its `+Z` edge, a pen pinched 30 mm from its tip (an estimate).
    * - `face`: the working face: a book's front cover, which rides the hinge; a sheet's, a clipboard's or a map's upper side; a pen's tip, facing along the pen.
-   * - `hinge`: a book's spine, turning the front half up to 180 degrees.
-   * - `edge`: the fore-edge of a book's front half, pinched to open it; it rides the hinge.
+   * - `hinge` and `edge`: a book's cover hinge and its riding fore-edge.
+   * - `page` and `page-edge`: a book's single leaf hinge and its riding fore-edge.
+   * - `fold` and `fold-edge`: a map's crease and its riding free edge.
+   * - `support-grip`: the `+Z` edge of the map's base panel, held across just that panel while folding.
+   *
+   * Each hinge lifts its part with positive travel from the closed position through 180 degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Gives the grip, working face, axes and riding edges at rest.
+   * @evidence contracts/development/design.md#principled-representation Stable contact ids describe supporting holds, the working face and independent articulation degrees with their carried edges.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The producer and its callers use one id per contact, with an independent edge for each operable part.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A page turn finds its own hinge from the edge; neither it nor the map fold aliases the cover hinge.
    */
-  export type Affordance = "grip" | "face" | "hinge" | "edge";
+  export type Affordance =
+    | "grip"
+    | "face"
+    | "hinge"
+    | "edge"
+    | "page"
+    | "page-edge"
+    | "fold"
+    | "fold-edge"
+    | "support-grip";
 
   /**
    * The free dimensions, metres unless stated:
