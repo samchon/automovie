@@ -3,6 +3,7 @@ import type {
   IAutoMovieFormationBlock,
   IAutoMovieFormationDesign,
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEnsemble,
   IAutoMovieMotionHumanFormation,
   IAutoMovieMotionHumanPerformance,
@@ -13,7 +14,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanFrame } from "../posture/HumanFrame";
 import { HumanFormation } from "./HumanFormation";
 
 /**
@@ -23,9 +26,10 @@ import { HumanFormation } from "./HumanFormation";
  * marches the march the foreground marches.
  *
  * A population is a detail the author declares (`IHumanEnsemble.detail`),
- * never a camera's choice. Only steady cyclic motion becomes one: a
+ * never a camera's choice. A population uses steady motion because a
  * population member cannot be synced, cut or reached, so `cycle` refuses a
- * template whose window is not inside one stepping action. The design lays
+ * template whose window is not inside one stepping action. `standing`
+ * holds the pose of one settled stand at every phase. The design lays
  * the formation's blocks for the engine's own `formationSlotPosition`, whose
  * placement with the facing turned about is the formation's
  * (`HumanFormation`), so a population member stands on the slot it would
@@ -33,7 +37,7 @@ import { HumanFormation } from "./HumanFormation";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is handed over, who declares it, what may become a population and why the slots agree.
  * @evidence contracts/development/design.md#principled-representation The interface's formation design and a cycle of canonical poses with its period and stride.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `design`, `cycle` and the cycle's record; the render bakes the poses (`IAutoMovieFormationPoseTake`).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `design` places members, and `cycle` and `standing` produce the same pose take the population layer bakes (`IAutoMovieFormationPoseTake`).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No generic gait stands in for the template's poses.
  */
 export namespace HumanPopulation {
@@ -220,6 +224,99 @@ export namespace HumanPopulation {
       periodSeconds: period,
       strideMeters: stride,
       poses,
+    };
+  }
+
+  /**
+   * Hold the displayed pose at the chosen stand's `settled` event. Every
+   * phase uses that pose with zero stride, expressed at the slot origin
+   * facing +Z with the root height measured above the stand's floor. The
+   * segment's placed duration gives the period of the pose take.
+   *
+   * @param performance The performance containing the template stand.
+   * @param template The template's subject id.
+   * @param from Film second used to select the template's active stand.
+   * @param samples Positive integral phase count below 2^32, matching other takes baked with this one.
+   * @returns A held `stand` take.
+   * @throws {HumanRefusal} When the selected action has no settled stand on ground within its placed span or the sample count is invalid.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the held event, the slot frame and floor datum, phase count, period and refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation Holds the one displayed sample at the law's settled event. Removing the root's heading and horizontal position relocates it to the slot frame without changing local articulation or height over the stand's bearing floor.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects one segment and settled marker, checks the bearing frame, then builds one pose take for the existing population consumer.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the stand's event, contact frames and displayed articulation. No separate standing law or tempo is supplied.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Scans the template's segments for one containing interval, reads one displayed pose and produces the requested phase references. The bearing-floor reader evaluates the entry sole sockets once.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A held pose is identical at every phase by definition, so the pose take borrows the same pose at each phase.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns the pose take to the caller and retains no state.
+   */
+  export function standing(
+    performance: IAutoMovieMotionHumanPerformance,
+    template: string,
+    from: number,
+    samples: number,
+  ): IAutoMovieMotionHumanPopulation.ICycle {
+    if (!Number.isInteger(samples) || samples <= 0 || samples >= 2 ** 32)
+      throw new HumanRefusal({
+        kind: "parameter",
+        performer: template,
+        axis: "samples",
+        value: samples,
+        reason: "a standing take needs a positive whole phase count",
+        fix: "give the same positive phase count as the other pose takes",
+      });
+    const segment: IAutoMovieMotionHumanSegment | undefined = performance
+      .segments(template)
+      .find(
+        (s: IAutoMovieMotionHumanSegment): boolean =>
+          s.entryTime <= from && from < s.end,
+      );
+    const settled: IAutoMovieMotionEvent | undefined = segment?.plan.events.find(
+      (event: IAutoMovieMotionEvent): boolean => event.name === "settled",
+    );
+    const at: number =
+      segment === undefined || settled === undefined
+        ? Number.NaN
+        : segment.start + settled.share * segment.plan.duration;
+    if (
+      segment?.name !== "stand" ||
+      !(segment.entryTime <= at && at < segment.end) ||
+      segment.plan.contacts.some(
+        (contact: IAutoMovieMotionHumanContactWindow): boolean =>
+          contact.support.kind !== "ground",
+      )
+    )
+      throw new HumanRefusal({
+        kind: "participant",
+        performer: template,
+        axis: "standing",
+        value: segment?.name ?? null,
+        reason: `${template} has no settled stand on ground to hold at ${from.toFixed(3)} s`,
+        fix: "select a stand that settles on ground before its placed end",
+      });
+
+    const pose: IAutoMoviePose = performance.pose(template, at);
+    const floor: number = HumanSupportFrame.floor(
+      segment.context.body,
+      segment.context.entry,
+    );
+    const held: IAutoMoviePose =
+      pose.root === null
+        ? pose
+        : {
+            ...pose,
+            root: {
+              ...pose.root,
+              translation: { x: 0, y: pose.root.translation.y - floor, z: 0 },
+              rotation: Quaternion.multiply(
+                HumanFrame.turn(-HumanFrame.heading(pose.root.rotation)),
+                pose.root.rotation,
+              ),
+            },
+          };
+    return {
+      gait: "stand",
+      periodSeconds: segment.end - segment.entryTime,
+      strideMeters: 0,
+      poses: new Array<IAutoMoviePose>(samples).fill(held),
     };
   }
 }
