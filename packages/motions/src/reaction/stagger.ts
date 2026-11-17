@@ -265,9 +265,8 @@ export namespace stagger {
     const feet: StaggerFeet = new StaggerFeet(body, context.entry, recovery, fixed.bend);
     const entryLegs: IHumanPosture["limbs"] = entry.limbs;
 
-    // The plan's level shift of the root at a second: `balanced`'s samples,
-    // interpolated. The feet settle their steps' ends under the same reader
-    // (`StaggerFeet.shifted`), given again whenever the samples change.
+    // The root's level shift at a second, `balanced` interpolated; the feet
+    // settle their steps' ends under the same reader (`StaggerFeet.shifted`).
     const shiftAt = (seconds: number): IAutoMovieVector3 => {
       const at: number = Math.min(Math.max(0, seconds * KNOTS), Math.max(0, balanced.length - 1));
       const k: number = Math.floor(at);
