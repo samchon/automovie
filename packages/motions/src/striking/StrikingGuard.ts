@@ -71,7 +71,12 @@ export function StrikingGuard(
       ? Vector3.add(Vector3.add({ ...jaw.point, y: chin.y },
         Vector3.scale(forward, near)),
       Vector3.scale(outward, -0.5 * m.forearmRadius))
-      : Vector3.add(Vector3.add(jaw.point, Vector3.scale(outward, m.forearmRadius)),
+      // The rear glove is held at the chin too, beside its jaw, so the eyes
+      // look over both gloves. At the jaw's own height its knuckles stood
+      // in the lane between the gloves: measured at the staged punch range,
+      // a jab's fist met the partner's rear middle finger 13 mm before the
+      // face.
+      : Vector3.add(Vector3.add({ ...jaw.point, y: chin.y }, Vector3.scale(outward, m.forearmRadius)),
         Vector3.scale(forward, near));
     const sag: IAutoMovieVector3 = { ...fistAt, y: fistAt.y - (drop[side] ?? 0) };
     const bend: IAutoMovieVector3 = Vector3.add(shoulder,
