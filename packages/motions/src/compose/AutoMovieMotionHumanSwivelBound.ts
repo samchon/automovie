@@ -1,6 +1,7 @@
 import {
   type IAutoMovieResolvedBone,
   Vector3,
+  hingedArmSwivel,
   swivelArcs,
 } from "@automovie/engine";
 import type {
@@ -117,8 +118,9 @@ export namespace AutoMovieMotionHumanSwivelBound {
   /**
    * An elbow hint kept inside half-plane bounds: the hint itself when its
    * swivel meets them all, else the place on its circle at the nearest
-   * swivel that does. The hint is kept when no swivel meets them all, or the
-   * wrist leaves no circle.
+   * swivel that does, stood the swivel's resolution
+   * (`hingedArmSwivel.RESOLUTION`) inside that end. The hint is kept when no
+   * swivel meets them all, or the wrist leaves no circle.
    *
    * @param of The arm.
    * @param point The wrist's place, world metres.
@@ -126,8 +128,8 @@ export namespace AutoMovieMotionHumanSwivelBound {
    * @param bounds The half-planes.
    * @returns The hint, world metres.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the choice and the cases that keep the hint.
-   * @evidence contracts/development/implementation.md#principled-implementation Each bound is an exact sinusoid of the swivel, its refused arc between its roots; the nearest swivel outside their union is the least move that meets them all.
+   * @evidence contracts/development/common.md#meaningful-documentation States the choice, the step inside and the cases that keep the hint.
+   * @evidence contracts/development/implementation.md#principled-implementation Each bound is an exact sinusoid of the swivel, its refused arc between its roots; the nearest swivel outside their union is the least move that meets them all. That end lies on a bound, and a fit keeps a hint's swivel only to its own resolution, so a hint at the end left the fitted elbow on either side of the bound (a drink refused at a flexion of 67.50 against at most 67.5); the hint stands that resolution inside, unless that enters another refused arc.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The circle, one sinusoid per bound, their union and its nearest swivel.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sweep and no sampling beyond the exact three-point fit.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per bound.
@@ -201,13 +203,20 @@ export namespace AutoMovieMotionHumanSwivelBound {
       if (arc === "all") return hint;
       if (arc !== null) refused.push(arc);
     }
-    const swivel: number | null = swivelArcs.nearest(
-      swivelArcs.union(refused),
-      0,
-    );
-    return swivel === null || swivel === 0
-      ? hint
-      : Vector3.add(shoulder, offset(swivel));
+    const merged: swivelArcs.IArc[] | "all" = swivelArcs.union(refused);
+    const end: number | null = swivelArcs.nearest(merged, 0);
+    if (end === null || end === 0) return hint;
+
+    // The nearest end lies on a bound, where a fit that keeps the hint's
+    // swivel to its own resolution (`hingedArmSwivel.RESOLUTION`) lands on
+    // either side of it; the hint stands that resolution inside, away from
+    // the refused arc, unless that enters another.
+    const inside: number =
+      end + Math.sign(end) * hingedArmSwivel.RESOLUTION;
+    const swivel: number = swivelArcs.covers(merged, inside, inside)
+      ? end
+      : inside;
+    return Vector3.add(shoulder, offset(swivel));
   }
 
 }
