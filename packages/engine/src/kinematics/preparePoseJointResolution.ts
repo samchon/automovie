@@ -29,6 +29,20 @@ interface IReading {
 
   /** Latest scan that actually authored this name. */
   epoch: number;
+
+  /**
+   * The successful conversion before the last one, with its exact clinical
+   * coordinates. One operation reads a pose and its mirror image, or a pose
+   * and the same pose with one limb fitted, in turn, and a single row would
+   * convert every joint again at each turn; absent until a second distinct
+   * tuple is admitted.
+   */
+  before?: {
+    flexion: number | null;
+    abduction: number | null;
+    twist: number | null;
+    rotation: IAutoMovieQuaternion;
+  };
 }
 
 /** Null clinical rest genuinely resolves to this exact positive-zero rig angle. */
@@ -46,7 +60,11 @@ const REST_ANGLES: jointToQuaternionOnBasis.IFixedAngles = Object.freeze({
  *
  * Static conventions own lazy successful basis, fixed-axis scalar and affine
  * preparations. Each operation/name owns its independent changing factors,
- * exact clinical tuple and last quaternion. begin starts current membership;
+ * exact clinical tuple and last quaternion, with the tuple and quaternion
+ * before them: a tuple equal to either shares its completed quaternion, so
+ * an operation that reads two poses in turn (a pose and its mirror image, a
+ * pose before and after one limb's fit) converts each joint once a pose
+ * instead of once a read. begin starts current membership;
  * admit always validates the actual next record before sharing completed math;
  * its quaternion remains private and the outer producer copies public reads.
  * snapshot is used only after the producer's complete source scan and copies
@@ -56,9 +74,9 @@ const REST_ANGLES: jointToQuaternionOnBasis.IFixedAngles = Object.freeze({
  * @evidence contracts/development/implementation.md#principled-implementation Records retain original basis/name/coordinate reads; staged tuples supply their actual earlier-copied primitives. Both use one F/A/T finite/frame owner and one successful composition/commit path. Exact tuples share only completed quaternions. Immutable conventions share fixed basis/affine metadata and actual positive-zero rest factors without admitting unused frames. snapshot filters actual current membership.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns numerical checks and one composition/finish path for actual records or staged scalars. validateValues performs those same normalized-basis/clinicalValue checks without selecting an unnecessary articulation. Static name readers preserve original lookup timing; numerical rule owners and hierarchy/change owners remain separate.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All duplicate, stray and undemanded records remain admitted in original order. No boolean, pose identity, tolerance, editable whitelist or target answer substitutes for validation. Null never admits an unused frame, failed conversion never replaces a successful row and raw APIs remain separate.
- * @evidence contracts/development/implementation.md#efficient-algorithms J records retain constant-size exact checks. Unchanged selected tuples reuse quaternions; fixed-demand exclusions validate without creating a joint row, factors or quaternion. Immutable basis/affine work remains lazy, and three actual positive-zero factors/one inner may share across composers. Fixed-source snapshot costs O(B); runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms J records retain constant-size exact checks. Unchanged selected tuples reuse quaternions, and so does the tuple before the last, at three more exact comparisons (measured before it on test_human_motion_stagger_recovery_m_average: 1.2 s of 28.5 s profiled inside this commit path, of 3.0 s in the pose reads; unmeasured after); fixed-demand exclusions validate without creating a joint row, factors or quaternion. Immutable basis/affine work remains lazy, and three actual positive-zero factors/one inner may share across composers. Fixed-source snapshot costs O(B); runtime improvement is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Static axes/frames are owned immutable snapshots. prepareQueries shares fixed scalar/affine prerequisites and lazy exact positive-zero rig-rest factors; negative zero and other values use ordinary factor paths. Every current finite check and first-use per-axis precheck retains original order, while dynamic factors/inner storage and fresh outputs remain operation-owned.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation owns O(U+B) last successful rows and rooted references until release, without raw joint/pose/result history. Each static convention owns one basis/factory, at most three precheck/axis/affine readers, three actual zero factors and one fixed inner until rig release. Snapshots own only B private quaternion references and retain no operation reader or source records.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation owns O(U+B) successful rows, each with its last tuple and the one before it, and rooted references until release, without raw joint/pose/result history. Each static convention owns one basis/factory, at most three precheck/axis/affine readers, three actual zero factors and one fixed inner until rig release. Snapshots own only B private quaternion references and retain no operation reader or source records.
  */
 export function preparePoseJointResolution(
   indices: ReadonlyMap<AutoMovieHumanoidBone, number>,
@@ -124,6 +142,26 @@ export function preparePoseJointResolution(
       changes.write(known.index, known.rotation);
       return known.rotation;
     }
+
+    // The tuple before the last one: its completed quaternion is the same
+    // pure conversion of the same exact coordinates, so the two rows change
+    // places and nothing is composed.
+    const before: IReading["before"] = known?.before;
+    if (known !== undefined && before !== undefined && Object.is(before.flexion, flexion) &&
+      Object.is(before.abduction, abduction) && Object.is(before.twist, twist)) {
+      const rotation: IAutoMovieQuaternion = before.rotation;
+      before.flexion = known.flexion;
+      before.abduction = known.abduction;
+      before.twist = known.twist;
+      before.rotation = known.rotation;
+      known.flexion = flexion;
+      known.abduction = abduction;
+      known.twist = twist;
+      known.rotation = rotation;
+      known.epoch = epoch;
+      changes.write(known.index, rotation);
+      return rotation;
+    }
     const compose: ReturnType<typeof jointToQuaternionOnBasis.prepare> = known?.compose ??
       (convention.queries ??= jointToQuaternionOnBasis.prepareQueries(
         basis, convention.frame, REST_ANGLES,
@@ -136,6 +174,15 @@ export function preparePoseJointResolution(
       if (reading.index !== undefined) byNode[reading.index] = reading;
       changes.write(reading.index, rotation);
     } else {
+      if (before === undefined)
+        known.before = { flexion: known.flexion, abduction: known.abduction,
+          twist: known.twist, rotation: known.rotation };
+      else {
+        before.flexion = known.flexion;
+        before.abduction = known.abduction;
+        before.twist = known.twist;
+        before.rotation = known.rotation;
+      }
       known.flexion = flexion;
       known.abduction = abduction;
       known.twist = twist;
