@@ -1,11 +1,11 @@
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieBone,
   IAutoMovieJointPose,
   IAutoMoviePose,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { readHumanBone } from "../body/readHumanBone";
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
@@ -78,7 +78,7 @@ export namespace HumanLimbView {
    * @evidence contracts/development/implementation.md#principled-implementation Forward kinematics composes a bone's frame from its parent's frame, its rest and its own record, so a bone's frame depends on the records of the bone and its ancestors alone; the kept set is closed under the rig's parent relation, so every bone the fit reads is placed as in the whole pose. The fit's contact step edits the toes' record in place, so a leg keeps it too.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The read bones, their closure under the parent relation, then one ordered selection.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The read bones are the ones the fit itself demands (`HumanLimbFit`): its chain, its attachment, `HumanArmObstacleBones` and the toes. Duplicate records of a kept bone are all kept, in order.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The closure walks the rig's bones until no parent is added, twice for a rig listed parent first, and the selection walks the pose's joints once: O(B + J) set tests in place of the fit's several O(J) copies and scans.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The closure climbs from each read bone to its first kept ancestor through the body's bone index, one step a bone added (the chain's depth, not a pass over the rig's B bones a level), and the selection walks the pose's joints once: O(D + J) set tests.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each fit selects its own records.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns caller-owned records and retains nothing.
    */
@@ -106,19 +106,21 @@ export namespace HumanLimbView {
       read.add(`${side}${part}`);
     if (goal.on !== undefined) read.add(goal.on);
 
-    // Their ancestors: a pass adds each kept bone's parent, repeated until
-    // none is added, so the order the rig lists its bones in does not matter.
-    const bones: readonly IAutoMovieBone[] = body.skeleton.bones;
-    for (let grown: boolean = true; grown; ) {
-      grown = false;
-      for (let i: number = bones.length - 1; i >= 0; --i) {
-        const bone: IAutoMovieBone = bones[i]!;
-        if (bone.parent === null || !read.has(bone.bone) || read.has(bone.parent))
-          continue;
-        read.add(bone.parent);
-        grown = true;
-      }
-    }
+    // Their ancestors: each read bone's parents are climbed until one is
+    // already kept. A kept parent is either a read bone, climbed in its own
+    // turn, or one an earlier climb added with its own ancestors, so the set
+    // is closed under the rig's parent relation whatever order the rig lists
+    // its bones in.
+    for (const bone of [...read])
+      for (
+        let parent: AutoMovieHumanoidBone | null | undefined = readHumanBone(
+          body,
+          bone,
+        )?.parent;
+        parent !== null && parent !== undefined && !read.has(parent);
+        parent = readHumanBone(body, parent)?.parent
+      )
+        read.add(parent);
     const joints: IAutoMovieJointPose[] = [];
     const at: number[] = [];
     pose.joints.forEach((joint: IAutoMovieJointPose, index: number): void => {
